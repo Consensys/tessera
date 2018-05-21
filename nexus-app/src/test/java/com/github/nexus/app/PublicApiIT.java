@@ -39,14 +39,16 @@ public class PublicApiIT {
 
         Client client = ClientBuilder.newClient();
 
-        javax.ws.rs.core.Response reponse = client
+        javax.ws.rs.core.Response response = client
                 .target(SERVICE_URI)
                 .path("/api/version")
                 .request()
                 .get();
 
-        assertThat(reponse).isNotNull();
-        assertThat(reponse.getStatus()).isEqualTo(200);
+        assertThat(response).isNotNull();
+        assertThat(response.readEntity(String.class))
+                .isEqualTo("No version defined yet!");
+        assertThat(response.getStatus()).isEqualTo(200);
 
     }
 }
