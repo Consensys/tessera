@@ -5,10 +5,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+//FIXME: Should follow restful resource conventions
 /**
  * Public API entry points
  */
-@Path("/")
+@Path("/api")
 public class PublicAPI {
 
     /**
