@@ -1,7 +1,5 @@
-
 package com.github.nexus.app;
 
-import com.github.api.nexus.quorum.v1.SomeObject;
 import static com.github.nexus.app.Launcher.SERVER_URI;
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
@@ -76,11 +74,11 @@ public class PublicApiIT {
         assertThat(reponse.getStatus()).isEqualTo(201);
 
     }
-        @Test
+
+    @Test
     public void createSomeObjectXml() {
 
         Client client = ClientBuilder.newClient();
-
 
         javax.ws.rs.core.Response reponse = client
                 .target(SERVICE_URI)
