@@ -2,7 +2,9 @@ package com.github.nexus.app;
 
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
+import java.io.InputStream;
 import java.net.URI;
+import java.util.logging.LogManager;
 import javax.ws.rs.core.UriBuilder;
 
 public class Launcher {
@@ -11,6 +13,10 @@ public class Launcher {
 
     public static void main(String... args) throws Exception {
 
+        try (InputStream loggingConfig = Launcher.class.getResourceAsStream("/logging.properties")) {
+            LogManager.getLogManager().readConfiguration(loggingConfig);
+        }
+        
         Nexus nexus = new Nexus();
 
         RestServer restServer = RestServerFactory.create().createServer(SERVER_URI, nexus);
