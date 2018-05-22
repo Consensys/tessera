@@ -1,6 +1,4 @@
-
 package com.github.nexus.app;
-
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

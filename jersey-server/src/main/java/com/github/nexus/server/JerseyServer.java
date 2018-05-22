@@ -10,6 +10,9 @@ import javax.ws.rs.core.Application;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 
+/**
+ * Implementation of a RestServer using Jersey & Grizzly.
+ */
 public class JerseyServer implements RestServer {
 
     private HttpServer server;
@@ -25,8 +28,6 @@ public class JerseyServer implements RestServer {
 
     private static final Logger LOGGER = Logger.getLogger(JerseyServer.class.getName());
 
-    
-    
     @Override
     public void start() throws Exception {
 
