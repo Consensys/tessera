@@ -1,4 +1,3 @@
-
 package com.github.nexus.api;
 
 import com.github.api.nexus.quorum.v1.SomeObject;
@@ -11,6 +10,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+/**
+ * Demonstration of an endpoint that uses a data object which is dynamically generated from an xsd.
+ */
 @Path("/some")
 public class SomeResource {
     

@@ -1,6 +1,4 @@
-
 package com.github.nexus.server;
-
 
 import java.net.URI;
 import javax.ws.rs.core.Application;

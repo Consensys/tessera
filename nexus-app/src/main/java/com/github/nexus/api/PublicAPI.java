@@ -4,13 +4,17 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
  * Public API entry points
  */
-@Path("/api")
+@Path("/")
 public class PublicAPI {
+
+    private static final Logger LOGGER = Logger.getLogger(PublicAPI.class.getName());
 
     /**
      * Method handling HTTP GET requests. The returned object will be sent
@@ -21,7 +25,9 @@ public class PublicAPI {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @Path("version")
-    public String getIt() {
+    public String version() {
+        LOGGER.log(Level.INFO,"GET version");
+
         return "No version defined yet!";
     }
 }
