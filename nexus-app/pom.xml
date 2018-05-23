@@ -29,6 +29,18 @@
             <artifactId>jersey-server</artifactId>
             <scope>runtime</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>service-locator</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>service-locator-spring</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        
     </dependencies>
     
     <build>
