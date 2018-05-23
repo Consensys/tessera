@@ -5,3 +5,5 @@
 /jersey-server/target/
 /nexus-app/nbproject/
 /nexus-app/nb-configuration.xml
+/service-locator-spring/target/
+/service-locator/target/

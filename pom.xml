@@ -18,29 +18,42 @@
     </properties>
 
     <build>
-        <finalName>nexus</finalName>
-        <plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.7.7.201606060606</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 
-            <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>${jetty.version}</version>
-                <configuration>
-                    <scanIntervalSeconds>5</scanIntervalSeconds>
-                </configuration>
-            </plugin>
-
-        </plugins>
     </build>
     
     <modules>
         <module>nexus-app</module>
         <module>rest-server</module>
         <module>jersey-server</module>
+        <module>service-locator</module>
+        <module>service-locator-spring</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
+            
+            <dependency>
+                <groupId>com.github.nexus</groupId>
+                <artifactId>service-locator</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.nexus</groupId>
+                <artifactId>service-locator-spring</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            
+            
             <dependency>
                 <groupId>com.github.nexus</groupId>
                 <artifactId>rest-server</artifactId>
@@ -105,12 +118,19 @@
                 <version>${spring.version}</version>
             </dependency>   
             
-             <dependency>
+            <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
                 <scope>test</scope>
             </dependency>   
+            
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>1.1.0.Final</version>
+            </dependency>
+            
         </dependencies>
     </dependencyManagement>
 
@@ -139,4 +159,7 @@
         </dependency>
 
     </dependencies>
+    
+
+    
 </project>
