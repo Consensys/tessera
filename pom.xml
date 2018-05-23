@@ -18,19 +18,16 @@
     </properties>
 
     <build>
-        <finalName>nexus</finalName>
-        <plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.7.7.201606060606</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 
-            <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>${jetty.version}</version>
-                <configuration>
-                    <scanIntervalSeconds>5</scanIntervalSeconds>
-                </configuration>
-            </plugin>
-
-        </plugins>
     </build>
     
     <modules>
@@ -127,6 +124,13 @@
                 <version>${spring.version}</version>
                 <scope>test</scope>
             </dependency>   
+            
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>1.1.0.Final</version>
+            </dependency>
+            
         </dependencies>
     </dependencyManagement>
 
@@ -155,4 +159,7 @@
         </dependency>
 
     </dependencies>
+    
+
+    
 </project>

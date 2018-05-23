@@ -36,8 +36,10 @@ public class JerseyServer implements RestServer {
         initParams.put("jersey.config.server.application.name", "Sample");
         initParams.put("jersey.config.server.tracing.type", "ON_DEMAND");
         initParams.put("jersey.config.server.tracing.threshold", "SUMMARY");
-
-
+        initParams.put("jersey.config.logging.verbosity","PAYLOAD_ANY");
+        initParams.put("jersey.config.beanValidation.enableOutputValidationErrorEntity.server", "true");
+        
+        
         final org.glassfish.jersey.server.ResourceConfig config = 
                 org.glassfish.jersey.server.ResourceConfig.forApplication(application);
 
