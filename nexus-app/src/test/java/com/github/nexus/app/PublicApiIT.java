@@ -91,4 +91,26 @@ public class PublicApiIT {
         assertThat(reponse.getStatus()).isEqualTo(201);
 
     }
+    
+    
+    @Test
+    public void jerseyReturnsErrorForNullValue() {
+
+        Client client = ClientBuilder.newClient();
+
+        JsonObject someObject = Json.createObjectBuilder()
+                .addNull("value").build();
+
+        javax.ws.rs.core.Response reponse = client
+                .target(SERVICE_URI)
+                .path("/some/else")
+                .request(MediaType.APPLICATION_JSON)
+                .buildPost(Entity.entity(someObject.toString(), MediaType.APPLICATION_JSON))
+                .invoke();
+
+        assertThat(reponse).isNotNull();
+
+        assertThat(reponse.getStatus()).isEqualTo(400);
+
+    }
 }

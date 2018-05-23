@@ -4,6 +4,7 @@ import com.github.api.nexus.quorum.v1.SomeObject;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -21,7 +22,17 @@ public class SomeResource {
    @POST
     @Path("thing")
     @Consumes({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
-    public Response transfer(final SomeObject someObject) {
+    public Response save(final SomeObject someObject) {
+        LOGGER.log(Level.INFO,"{0}",Objects.toString(someObject));
+        
+        return Response.status(Response.Status.CREATED).build();
+    }
+    
+    
+    @POST
+    @Path("else")
+    @Consumes({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
+    public Response save(@Valid final SomeOtherObject someObject) {
         LOGGER.log(Level.INFO,"{0}",Objects.toString(someObject));
         
         return Response.status(Response.Status.CREATED).build();
