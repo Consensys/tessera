@@ -44,7 +44,7 @@ public class PublicApiIT {
 
         javax.ws.rs.core.Response response = client
                 .target(SERVICE_URI)
-                .path("/api/version")
+                .path("/version")
                 .request()
                 .get();
 
