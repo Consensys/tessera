@@ -15,4 +15,14 @@ public class TransactionServiceTest {
     public void testReceive(){
         transactionService.receive();
     }
+
+    @Test
+    public void testDelete(){
+        transactionService.delete();
+    }
+
+    @Test
+    public void testResend(){
+        transactionService.resend();
+    }
 }
