@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 @Path("/version")
 public class VersionResource {
 
-    private static final Logger LOGGER = Logger.getLogger(UpCheckResource.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(VersionResource.class.getName());
 
     private static final String VERSION = "No version defined yet!";
 
