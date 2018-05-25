@@ -8,5 +8,5 @@ script:
 - mvn test -Dmaven.javadoc.skip=true -B
 - mvn integration-test -Dmaven.javadoc.skip=true
 
-after-success:
+after_success:
 - mvn javadoc:javadoc
