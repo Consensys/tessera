@@ -15,6 +15,8 @@ import javax.ws.rs.core.Response;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.util.Objects.requireNonNull;
+
 @Path("/transaction")
 public class TransactionResource {
 
@@ -22,8 +24,8 @@ public class TransactionResource {
 
     private TransactionService transactionService;
 
-    public TransactionResource(TransactionService transactionService) {
-        this.transactionService = transactionService;
+    public TransactionResource(final TransactionService transactionService) {
+        this.transactionService = requireNonNull(transactionService,"transactionService must not be null");
     }
 
     @POST
