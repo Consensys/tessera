@@ -1,1 +1,12 @@
 language: java
+
+# runs on default infrastructure (a container running Ubuntu 14.04)
+sudo: enabled
+
+script:
+- mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+- mvn test -Dmaven.javadoc.skip=true -B
+- mvn integration-test -Dmaven.javadoc.skip=true
+
+after_success:
+- mvn javadoc:javadoc
