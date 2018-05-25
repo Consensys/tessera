@@ -4,7 +4,6 @@ import com.github.nexus.service.TransactionService;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -24,14 +23,11 @@ public class TransactionResourceTest extends JerseyTest {
     @Mock
     private TransactionService transactionService;
 
-    @InjectMocks
-    private TransactionResource transactionResource;
-
     @Override
     public Application configure() {
         MockitoAnnotations.initMocks(this);
         return new ResourceConfig()
-                .register(transactionResource);
+                .register(new TransactionResource(transactionService));
     }
 
     @Test
@@ -55,6 +51,7 @@ public class TransactionResourceTest extends JerseyTest {
 
     @Test
     public void testReceive(){
+
         JsonObject requestObj = Json.createObjectBuilder()
                 .add("key","mypublickey")
                 .add("to","ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=").build();
@@ -65,6 +62,42 @@ public class TransactionResourceTest extends JerseyTest {
                 .invoke();
 
         verify(transactionService, times(1)).receive();
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(201);
+    }
+
+    @Test
+    public void testDelete(){
+
+        JsonObject requestObj = Json.createObjectBuilder()
+                .add("key","mykey")
+                .build();
+
+        Response response = target("/transaction/delete")
+                .request(MediaType.APPLICATION_JSON)
+                .buildPost(Entity.entity(requestObj.toString(), MediaType.APPLICATION_JSON))
+                .invoke();
+
+        verify(transactionService, times(1)).delete();
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(201);
+    }
+
+    @Test
+    public void testResend(){
+
+        JsonObject requestObj = Json.createObjectBuilder()
+                .add("type","test")
+                .add("publickey","mypublickey")
+                .add("key","mykey")
+                .build();
+
+        Response response = target("/transaction/resend")
+                .request(MediaType.APPLICATION_JSON)
+                .buildPost(Entity.entity(requestObj.toString(), MediaType.APPLICATION_JSON))
+                .invoke();
+
+        verify(transactionService, times(1)).resend();
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
     }
