@@ -25,11 +25,28 @@
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.7.7.201606060606</version>
                 </plugin>
+
+                <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-javadoc-plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.9.1</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+
+        </plugins>
+
+
     </build>
-    
+
     <modules>
         <module>nexus-app</module>
         <module>rest-server</module>
@@ -40,20 +57,20 @@
 
     <dependencyManagement>
         <dependencies>
-            
+
             <dependency>
                 <groupId>com.github.nexus</groupId>
                 <artifactId>service-locator</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.github.nexus</groupId>
                 <artifactId>service-locator-spring</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
-            
-            
+
+
             <dependency>
                 <groupId>com.github.nexus</groupId>
                 <artifactId>rest-server</artifactId>
@@ -64,7 +81,7 @@
                 <artifactId>jersey-server</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.glassfish.jersey</groupId>
                 <artifactId>jersey-bom</artifactId>
@@ -93,14 +110,14 @@
                 <version>3.9.1</version>
                 <scope>test</scope>
             </dependency>
-        
+
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>2.15.0</version>
                 <scope>test</scope>
             </dependency>
-            
+
             <dependency>
                 <groupId>javax.ws.rs</groupId>
                 <artifactId>javax.ws.rs-api</artifactId>
@@ -111,33 +128,33 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${spring.version}</version>
-            </dependency>   
-            
+            </dependency>
+
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
                 <version>${spring.version}</version>
-            </dependency>   
-            
+            </dependency>
+
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
                 <version>${spring.version}</version>
-            </dependency>   
-            
+            </dependency>
+
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
                 <scope>test</scope>
-            </dependency>   
-            
+            </dependency>
+
             <dependency>
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
                 <version>1.1.0.Final</version>
             </dependency>
-            
+
         </dependencies>
     </dependencyManagement>
 
@@ -146,7 +163,7 @@
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -158,7 +175,7 @@
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
@@ -166,7 +183,6 @@
         </dependency>
 
     </dependencies>
-    
 
-    
+
 </project>
