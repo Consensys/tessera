@@ -18,6 +18,12 @@
             <type>jar</type>
             <scope>runtime</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+            <scope>test</scope>
+        </dependency>
         
         <dependency>
             <groupId>com.github.nexus</groupId>
