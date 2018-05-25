@@ -15,4 +15,14 @@ public class TransactionServiceImpl implements TransactionService{
     public void receive() {
         LOGGER.info("receive");
     }
+
+    @Override
+    public void delete() {
+        LOGGER.info("delete");
+    }
+
+    @Override
+    public void resend(){
+        LOGGER.info("resend");
+    }
 }

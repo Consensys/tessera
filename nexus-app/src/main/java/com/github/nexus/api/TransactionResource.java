@@ -1,6 +1,8 @@
 package com.github.nexus.api;
 
+import com.github.nexus.api.model.DeleteRequest;
 import com.github.nexus.api.model.ReceiveRequest;
+import com.github.nexus.api.model.ResendRequest;
 import com.github.nexus.api.model.SendRequest;
 import com.github.nexus.service.TransactionService;
 
@@ -39,6 +41,24 @@ public class TransactionResource {
     public Response receive(@Valid final ReceiveRequest receiveRequest){
         LOGGER.log(Level.INFO,"POST receive");
         transactionService.receive();
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    @POST
+    @Path("/delete")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response delete(@Valid final DeleteRequest deleteRequest){
+        LOGGER.log(Level.INFO,"POST delete");
+        transactionService.delete();
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    @POST
+    @Path("/resend")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response delete(@Valid final ResendRequest resendRequest){
+        LOGGER.log(Level.INFO,"POST resend");
+        transactionService.resend();
         return Response.status(Response.Status.CREATED).build();
     }
 
