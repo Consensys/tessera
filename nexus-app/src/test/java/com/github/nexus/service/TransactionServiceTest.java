@@ -25,4 +25,9 @@ public class TransactionServiceTest {
     public void testResend(){
         transactionService.resend();
     }
+
+    @Test
+    public void testPush(){
+        transactionService.push();
+    }
 }
