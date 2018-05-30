@@ -6,4 +6,10 @@ public interface TransactionService {
 
     void receive();
 
+    void delete();
+
+    void resend();
+
+    void push();
+
 }
