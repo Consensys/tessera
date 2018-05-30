@@ -1,6 +1,8 @@
 package com.github.nexus.api;
 
+import com.github.nexus.api.model.DeleteRequest;
 import com.github.nexus.api.model.ReceiveRequest;
+import com.github.nexus.api.model.ResendRequest;
 import com.github.nexus.api.model.SendRequest;
 import com.github.nexus.service.TransactionService;
 
@@ -8,10 +10,19 @@ import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 @Path("/transaction")
 public class TransactionResource {
@@ -20,8 +31,8 @@ public class TransactionResource {
 
     private TransactionService transactionService;
 
-    public TransactionResource(TransactionService transactionService) {
-        this.transactionService = transactionService;
+    public TransactionResource(final TransactionService transactionService) {
+        this.transactionService = requireNonNull(transactionService,"transactionService must not be null");
     }
 
     @POST
@@ -29,6 +40,16 @@ public class TransactionResource {
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response send(@Valid final SendRequest sendRequest){
         LOGGER.log(Level.INFO,"POST send");
+        transactionService.send();
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    @POST
+    @Path("/sendraw")
+    public Response sendRaw(@Context final HttpHeaders headers, InputStream inputStream) throws IOException {
+        LOGGER.log(Level.INFO, "from: {0}",headers.getHeaderString("hFrom"));
+        LOGGER.log(Level.INFO, "to: {0}", headers.getRequestHeader("hTo").toArray());
+        LOGGER.log(Level.INFO, "payload: {0}", readInputStream(inputStream));
         transactionService.send();
         return Response.status(Response.Status.CREATED).build();
     }
@@ -42,5 +63,55 @@ public class TransactionResource {
         return Response.status(Response.Status.CREATED).build();
     }
 
+    @POST
+    @Path("/receiveraw")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response reveiveRaw(@Context final HttpHeaders headers){
+        LOGGER.log(Level.INFO, "from: {0}",headers.getHeaderString("hKey"));
+        LOGGER.log(Level.INFO, "to: {0}",headers.getHeaderString("hTo"));
+        transactionService.receive();
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+
+    @POST
+    @Path("/delete")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response delete(@Valid final DeleteRequest deleteRequest){
+        LOGGER.log(Level.INFO,"POST delete");
+        transactionService.delete();
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    @POST
+    @Path("/resend")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response resend(@Valid final ResendRequest resendRequest){
+        LOGGER.log(Level.INFO,"POST resend");
+        transactionService.resend();
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    @POST
+    @Path("/push")
+    public Response push(final InputStream payload) throws IOException {
+        LOGGER.log(Level.INFO, "payload: {0}", readInputStream(payload));
+        transactionService.push();
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    @POST
+    @Path("/partyinfo")
+    public Response partyInfo(final InputStream payload) throws IOException{
+        LOGGER.log(Level.INFO, "payload: {0}", readInputStream(payload));
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+
+    private String readInputStream(InputStream inputStream) throws IOException{
+        try (BufferedReader buffer = new BufferedReader(new InputStreamReader(inputStream))) {
+            return buffer.lines().collect(Collectors.joining("\n"));
+        }
+    }
 
 }

@@ -1,5 +1,5 @@
 
-package com.github.nexus.api;
+package com.github.nexus.api.example;
 
 import javax.validation.constraints.NotNull;
 
