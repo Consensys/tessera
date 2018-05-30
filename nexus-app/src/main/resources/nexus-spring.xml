@@ -7,7 +7,7 @@
     
     <!--<bean class="com.github.nexus.api.PublicAPI" />-->
     
-    <bean class="com.github.nexus.api.SomeResource" />
+    <bean class="com.github.nexus.api.example.SomeResource" />
     
     <bean class="com.github.nexus.api.VersionResource"/>
     <bean class="com.github.nexus.api.UpCheckResource"/>
