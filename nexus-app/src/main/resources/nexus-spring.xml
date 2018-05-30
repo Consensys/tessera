@@ -4,11 +4,7 @@
 
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 ">
-    
-    <!--<bean class="com.github.nexus.api.PublicAPI" />-->
-    
-    <bean class="com.github.nexus.api.example.SomeResource" />
-    
+
     <bean class="com.github.nexus.api.VersionResource"/>
     <bean class="com.github.nexus.api.UpCheckResource"/>
     <bean class="com.github.nexus.api.TransactionResource">
@@ -26,12 +22,10 @@
     </bean>
     
     <bean class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        
-        <property name="dataSource" ref="dataSource" />
 
-        <property name="persistenceUnitName" value="hello" />
-        
-       
+        <property name="dataSource" ref="dataSource" />
+        <property name="persistenceUnitName" value="nexus" />
+
         <property name="jpaVendorAdapter">
             <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
                 <property name="showSql" value="true"/>
@@ -46,7 +40,8 @@
         <property name="jpaPropertyMap">
             <props>
                 <prop key="eclipselink.weaving">false</prop>
-                <prop key="eclipselink.logging.level">FINEST</prop>
+                <prop key="eclipselink.logging.level">FINE</prop>
+                <prop key="javax.persistence.schema-generation.database.action">create</prop>
             </props>
         </property>         
 
