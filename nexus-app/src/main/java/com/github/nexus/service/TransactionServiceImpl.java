@@ -25,4 +25,9 @@ public class TransactionServiceImpl implements TransactionService{
     public void resend(){
         LOGGER.info("resend");
     }
+
+    @Override
+    public void push(){
+        LOGGER.info("push");
+    }
 }

@@ -10,4 +10,6 @@ public interface TransactionService {
 
     void resend();
 
+    void push();
+
 }
