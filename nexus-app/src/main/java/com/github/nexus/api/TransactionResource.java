@@ -10,10 +10,17 @@ import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -38,6 +45,16 @@ public class TransactionResource {
     }
 
     @POST
+    @Path("/sendraw")
+    public Response sendRaw(@Context final HttpHeaders headers, InputStream inputStream) throws IOException {
+        LOGGER.log(Level.INFO, "from: {0}",headers.getHeaderString("hFrom"));
+        LOGGER.log(Level.INFO, "to: {0}", headers.getRequestHeader("hTo").toArray());
+        LOGGER.log(Level.INFO, "payload: {0}", readInputStream(inputStream));
+        transactionService.send();
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    @POST
     @Path("/receive")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response receive(@Valid final ReceiveRequest receiveRequest){
@@ -45,6 +62,17 @@ public class TransactionResource {
         transactionService.receive();
         return Response.status(Response.Status.CREATED).build();
     }
+
+    @POST
+    @Path("/receiveraw")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response reveiveRaw(@Context final HttpHeaders headers){
+        LOGGER.log(Level.INFO, "from: {0}",headers.getHeaderString("hKey"));
+        LOGGER.log(Level.INFO, "to: {0}",headers.getHeaderString("hTo"));
+        transactionService.receive();
+        return Response.status(Response.Status.CREATED).build();
+    }
+
 
     @POST
     @Path("/delete")
@@ -58,11 +86,32 @@ public class TransactionResource {
     @POST
     @Path("/resend")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response delete(@Valid final ResendRequest resendRequest){
+    public Response resend(@Valid final ResendRequest resendRequest){
         LOGGER.log(Level.INFO,"POST resend");
         transactionService.resend();
         return Response.status(Response.Status.CREATED).build();
     }
 
+    @POST
+    @Path("/push")
+    public Response push(final InputStream payload) throws IOException {
+        LOGGER.log(Level.INFO, "payload: {0}", readInputStream(payload));
+        transactionService.push();
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    @POST
+    @Path("/partyinfo")
+    public Response partyInfo(final InputStream payload) throws IOException{
+        LOGGER.log(Level.INFO, "payload: {0}", readInputStream(payload));
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+
+    private String readInputStream(InputStream inputStream) throws IOException{
+        try (BufferedReader buffer = new BufferedReader(new InputStreamReader(inputStream))) {
+            return buffer.lines().collect(Collectors.joining("\n"));
+        }
+    }
 
 }

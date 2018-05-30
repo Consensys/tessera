@@ -50,6 +50,11 @@ public class TransactionResourceTest extends JerseyTest {
     }
 
     @Test
+    public void testSendRaw(){
+
+    }
+
+    @Test
     public void testReceive(){
 
         JsonObject requestObj = Json.createObjectBuilder()
@@ -64,6 +69,11 @@ public class TransactionResourceTest extends JerseyTest {
         verify(transactionService, times(1)).receive();
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
+    }
+
+    @Test
+    public void testReceiveRaw(){
+
     }
 
     @Test
@@ -100,6 +110,16 @@ public class TransactionResourceTest extends JerseyTest {
         verify(transactionService, times(1)).resend();
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
+    }
+
+    @Test
+    public void testPush(){
+
+    }
+
+    @Test
+    public void testUpdatePartyInfo(){
+
     }
 }
 
