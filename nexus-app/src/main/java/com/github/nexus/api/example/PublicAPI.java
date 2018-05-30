@@ -1,4 +1,4 @@
-package com.github.nexus.api;
+package com.github.nexus.api.example;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
