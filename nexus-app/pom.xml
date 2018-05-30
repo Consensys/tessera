@@ -59,9 +59,21 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>5.3.6.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+ 
             <scope>runtime</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>org.eclipse.persistence.jpa</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
     </dependencies>
     
     <build>
@@ -113,6 +125,7 @@
                 <version>0.13.3</version>
                 <configuration>
                     <schemaDirectory>${project.basedir}/src/main/resources/xsd</schemaDirectory>
+                    
                 </configuration>
                 <executions>
                     <execution>
