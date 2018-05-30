@@ -19,4 +19,37 @@
         
     <bean class="com.github.nexus.app.DefaultExceptionMapper" />
     
+    <bean id="dataSource" class="org.h2.jdbcx.JdbcDataSource">
+        <property name="url" value="jdbc:h2:mem:hello" />
+        <property name="user" value="sa" />
+        <property name="password" value="" />
+    </bean>
+    
+    <bean class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        
+        <property name="dataSource" ref="dataSource" />
+
+        <property name="persistenceUnitName" value="hello" />
+        
+       
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
+                <property name="showSql" value="true"/>
+                <property name="generateDdl" value="true"/>
+                <property name="databasePlatform" value="org.eclipse.persistence.platform.database.H2Platform"/>
+            </bean>
+        </property>
+        <property name="jpaDialect">
+            <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaDialect" />
+        </property>  
+        
+        <property name="jpaPropertyMap">
+            <props>
+                <prop key="eclipselink.weaving">false</prop>
+                <prop key="eclipselink.logging.level">FINEST</prop>
+            </props>
+        </property>         
+
+    </bean>
+    
 </beans>
