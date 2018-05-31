@@ -3,22 +3,19 @@ package com.github.nexus.dao;
 import com.github.nexus.entity.SomeEntity;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
 
 public class SomeDAOImpl implements SomeDAO {
 
-    private static EntityManagerFactory entityManagerFactory;
+    @PersistenceContext(unitName = "nexus")
+    private EntityManager entityManager;
 
-    public static EntityManager getEntityManager(){
-        return entityManagerFactory.createEntityManager();
-    }
+
 
     @Override
     public void save(SomeEntity entity) {
-       getEntityManager().persist(entity);
+       entityManager.persist(entity);
     }
 
-    public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
-        this.entityManagerFactory = entityManagerFactory;
-    }
+
 }
