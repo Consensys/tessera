@@ -6,10 +6,7 @@ sudo: enabled
 addons:
   apt:
     sources:
-      - sourceline: 'ppa:chris-lea/libsodium'
-
-addons:
-  apt:
+    - sourceline: 'ppa:chris-lea/libsodium'
     packages:
     - libsodium-dev
 
