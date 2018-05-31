@@ -15,7 +15,13 @@
         <constructor-arg ref="transactionService"/>
     </bean>
 
-    <bean name="transactionService" class="com.github.nexus.service.TransactionServiceImpl"/>
+    <bean name="transactionService" class="com.github.nexus.service.TransactionServiceImpl">
+        <constructor-arg ref="someDAO"/>
+    </bean>
+
+    <bean name="someDAO" class="com.github.nexus.dao.SomeDAOImpl">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
         
     <bean class="com.github.nexus.app.DefaultExceptionMapper" />
     
