@@ -10,3 +10,5 @@
 /nb-configuration.xml
 *.iml
 /.idea/
+/service-locator-spring/nb-configuration.xml
+/service-locator/nb-configuration.xml

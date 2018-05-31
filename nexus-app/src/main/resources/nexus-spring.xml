@@ -2,12 +2,17 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx" 
+       xmlns:context="http://www.springframework.org/schema/context" 
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd 
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 ">
 
 
     <tx:annotation-driven transaction-manager="jpaTransactionManager" />
+    
+    <context:component-scan base-package="com.github.nexus" />
+    
     
     <bean class="com.github.nexus.api.VersionResource"/>
     <bean class="com.github.nexus.api.UpCheckResource"/>
@@ -15,7 +20,11 @@
         <constructor-arg ref="transactionService"/>
     </bean>
 
-    <bean name="transactionService" class="com.github.nexus.service.TransactionServiceImpl"/>
+    <bean name="transactionService" class="com.github.nexus.service.TransactionServiceImpl">
+        <constructor-arg ref="someDAO"/>
+    </bean>
+
+    <bean name="someDAO" class="com.github.nexus.dao.SomeDAOImpl" />
         
     <bean class="com.github.nexus.app.DefaultExceptionMapper" />
     
@@ -51,6 +60,9 @@
             <props>
                 <prop key="eclipselink.weaving">false</prop>
                 <prop key="eclipselink.logging.level">FINE</prop>
+                <prop key="eclipselink.logging.level.sql">FINE</prop>
+                <prop key="eclipselink.logging.parameters">true</prop>
+                <prop key="eclipselink.logging.logger">JavaLogger</prop>
                 <prop key="javax.persistence.schema-generation.database.action">create</prop>
             </props>
         </property>         
