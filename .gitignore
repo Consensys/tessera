@@ -8,3 +8,5 @@
 /service-locator-spring/target/
 /service-locator/target/
 /nb-configuration.xml
+*.iml
+/.idea/
