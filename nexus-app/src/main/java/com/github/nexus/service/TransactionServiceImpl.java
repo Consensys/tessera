@@ -1,16 +1,26 @@
 package com.github.nexus.service;
 
-import java.util.logging.Logger;
+import com.github.nexus.dao.SomeDAO;
+import com.github.nexus.entity.SomeEntity;
+
 import javax.transaction.Transactional;
+import java.util.logging.Logger;
 
 @Transactional
 public class TransactionServiceImpl implements TransactionService{
 
     private static final Logger LOGGER = Logger.getLogger(TransactionServiceImpl.class.getName());
 
+    private SomeDAO someDAO;
+
+    public TransactionServiceImpl(final SomeDAO someDAO) {
+        this.someDAO = someDAO;
+    }
+
     @Override
-    public void send(){
-        LOGGER.info("send");
+    public byte[] send(){
+        someDAO.save(new SomeEntity("someValue"));
+        return "mykey".getBytes();
     }
 
     @Override

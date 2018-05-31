@@ -2,7 +2,7 @@ package com.github.nexus.service;
 
 public interface TransactionService {
 
-    void send();
+    byte[] send();
 
     void receive();
 

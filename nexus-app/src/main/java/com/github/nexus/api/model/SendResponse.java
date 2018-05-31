@@ -4,6 +4,13 @@ public class SendResponse {
 
     private String key;
 
+    public SendResponse(String key) {
+        this.key = key;
+    }
+
+    public SendResponse() {
+    }
+
     public String getKey() {
         return key;
     }

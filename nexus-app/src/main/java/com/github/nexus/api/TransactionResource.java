@@ -1,15 +1,13 @@
 package com.github.nexus.api;
 
-import com.github.nexus.api.model.DeleteRequest;
-import com.github.nexus.api.model.ReceiveRequest;
-import com.github.nexus.api.model.ResendRequest;
-import com.github.nexus.api.model.SendRequest;
+import com.github.nexus.api.model.*;
 import com.github.nexus.service.TransactionService;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -18,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -30,8 +29,6 @@ public class TransactionResource {
     private static final Logger LOGGER = Logger.getLogger(TransactionResource.class.getName());
 
     private TransactionService transactionService;
-
-
     
     public TransactionResource(final TransactionService transactionService) {
         this.transactionService = requireNonNull(transactionService,"transactionService must not be null");
@@ -40,10 +37,13 @@ public class TransactionResource {
     @POST
     @Path("/send")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON})
     public Response send(@Valid final SendRequest sendRequest){
-        LOGGER.log(Level.INFO,"POST send");
-        transactionService.send();
-        return Response.status(Response.Status.CREATED).build();
+        byte[] payload = Base64.getDecoder().decode(sendRequest.getPayload());
+        byte[] key = transactionService.send();
+        String encodedKey = Base64.getEncoder().encodeToString(key);
+        SendResponse response = new SendResponse(encodedKey);
+        return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
     @POST
