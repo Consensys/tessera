@@ -24,9 +24,7 @@
         <constructor-arg ref="someDAO"/>
     </bean>
 
-    <bean name="someDAO" class="com.github.nexus.dao.SomeDAOImpl">
-        <property name="entityManagerFactory" ref="entityManagerFactory"/>
-    </bean>
+    <bean name="someDAO" class="com.github.nexus.dao.SomeDAOImpl" />
         
     <bean class="com.github.nexus.app.DefaultExceptionMapper" />
     
