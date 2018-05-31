@@ -14,9 +14,6 @@
     <context:component-scan base-package="com.github.nexus" />
     
     
-    <bean class="com.github.nexus.api.example.PublicAPI" />
- 
-    
     <bean class="com.github.nexus.api.VersionResource"/>
     <bean class="com.github.nexus.api.UpCheckResource"/>
     <bean class="com.github.nexus.api.TransactionResource">
