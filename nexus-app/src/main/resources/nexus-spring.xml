@@ -57,6 +57,9 @@
             <props>
                 <prop key="eclipselink.weaving">false</prop>
                 <prop key="eclipselink.logging.level">FINE</prop>
+                <prop key="eclipselink.logging.level.sql">FINE</prop>
+                <prop key="eclipselink.logging.parameters">true</prop>
+                <prop key="eclipselink.logging.logger">JavaLogger</prop>
                 <prop key="javax.persistence.schema-generation.database.action">create</prop>
             </props>
         </property>         
