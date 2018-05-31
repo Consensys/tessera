@@ -33,13 +33,16 @@ public class SomeDAOTest {
     
     
     @Test
-    public void doStuff() {
-        assertThat(someDAO).isNotNull();
+    public void save() {
+  
         SomeEntity someEntity = new SomeEntity();
         
         someDAO.save(someEntity);
-                
+              
+        assertThat(someEntity).isNotNull();
         assertThat(someEntity.getId()).isNotNull();
+        assertThat(someEntity.getValue()).isNull();
+        
     }
 
 
