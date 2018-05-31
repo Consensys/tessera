@@ -1,7 +1,9 @@
 package com.github.nexus.service;
 
 import java.util.logging.Logger;
+import javax.transaction.Transactional;
 
+@Transactional
 public class TransactionServiceImpl implements TransactionService{
 
     private static final Logger LOGGER = Logger.getLogger(TransactionServiceImpl.class.getName());
