@@ -3,6 +3,10 @@ language: java
 # runs on default infrastructure (a container running Ubuntu 14.04)
 sudo: enabled
 
+before_install:
+- sudo apt-get -qq update
+- sudo apt-get install -y libsodium-dev
+
 script:
 - mvn --batch-mode install -DskipTests=true -Dmaven.javadoc.skip=true -V
 - mvn --batch-mode test -Dmaven.javadoc.skip=true
