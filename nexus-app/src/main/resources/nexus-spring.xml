@@ -6,6 +6,7 @@
                            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 ">
 
+
     <tx:annotation-driven transaction-manager="jpaTransactionManager" />
     
     <bean class="com.github.nexus.api.VersionResource"/>
@@ -24,11 +25,13 @@
         <property name="password" value="" />
     </bean>
     
+
     <bean id="jpaTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
         <property name="entityManagerFactory" ref="entityManagerFactory" />
     </bean>
     
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+
 
         <property name="dataSource" ref="dataSource" />
         <property name="persistenceUnitName" value="nexus" />
