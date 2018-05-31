@@ -1,5 +1,6 @@
 package com.github.nexus.api;
 
+import com.github.nexus.api.model.SendResponse;
 import com.github.nexus.service.TransactionService;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -15,8 +16,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 public class TransactionResourceTest extends JerseyTest {
 
@@ -26,6 +27,7 @@ public class TransactionResourceTest extends JerseyTest {
     @Override
     public Application configure() {
         MockitoAnnotations.initMocks(this);
+        when(transactionService.send()).thenReturn("mykey".getBytes());
         return new ResourceConfig()
                 .register(new TransactionResource(transactionService));
     }
@@ -45,6 +47,7 @@ public class TransactionResourceTest extends JerseyTest {
 
         verify(transactionService, times(1)).send();
         assertThat(response).isNotNull();
+        assertEquals("bXlrZXk=",response.readEntity(SendResponse.class).getKey());
         assertThat(response.getStatus()).isEqualTo(201);
 
     }
