@@ -3,6 +3,13 @@ language: java
 # runs on default infrastructure (a container running Ubuntu 14.04)
 sudo: enabled
 
+addons:
+  apt:
+    sources:
+    - sourceline: 'ppa:chris-lea/libsodium'
+    packages:
+    - libsodium-dev
+
 script:
 - mvn --batch-mode install -DskipTests=true -Dmaven.javadoc.skip=true -V
 - mvn --batch-mode test -Dmaven.javadoc.skip=true
