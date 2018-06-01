@@ -2,6 +2,10 @@ package com.github.nexus.api;
 
 import com.github.nexus.api.model.SendResponse;
 import com.github.nexus.service.TransactionService;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
@@ -18,6 +22,7 @@ import javax.ws.rs.core.Response;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 public class TransactionResourceTest extends JerseyTest {
@@ -168,5 +173,34 @@ public class TransactionResourceTest extends JerseyTest {
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
+    }
+
+    @Test
+    public void testReadInputStreamJustForCoverage() throws IOException {
+
+        final String data = "I LOVE SPARROWS!!";
+        
+        InputStream inputStream = spy(new ByteArrayInputStream(data.getBytes()));
+
+        String result = TransactionResource.readInputStream(inputStream);
+            
+        assertThat(result).isEqualTo(data);
+        verify(inputStream).close();
+
+    }
+
+    @Test
+    public void testReadInputStreamJustForCoverageThrowsIO() throws IOException {
+
+        InputStream inputStream = mock(InputStream.class);
+
+        try {
+            TransactionResource.readInputStream(inputStream);
+            fail();
+        } catch (UncheckedIOException ex) {
+            assertThat(ex).isNotNull();
+        }
+        verify(inputStream).close();
+
     }
 }
