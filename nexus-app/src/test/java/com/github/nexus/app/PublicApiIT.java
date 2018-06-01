@@ -3,6 +3,7 @@ package com.github.nexus.app;
 import static com.github.nexus.app.Launcher.SERVER_URI;
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
+import com.github.nexus.service.locator.ServiceLocator;
 import java.net.URI;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -23,7 +24,7 @@ public class PublicApiIT {
     
     @Before
     public void setUp() throws Exception {
-        Nexus nexus = new Nexus();
+        Nexus nexus = new Nexus(ServiceLocator.create());
         restServer = RestServerFactory.create().createServer(SERVER_URI, nexus);
         restServer.start();
     }
