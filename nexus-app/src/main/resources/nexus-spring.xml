@@ -29,7 +29,7 @@
     <bean class="com.github.nexus.app.DefaultExceptionMapper" />
     
     <bean id="dataSource" class="org.h2.jdbcx.JdbcDataSource">
-        <property name="url" value="jdbc:h2:mem:hello" />
+        <property name="url" value="jdbc:h2:./target/h2/nexus;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0" />
         <property name="user" value="sa" />
         <property name="password" value="" />
     </bean>
@@ -47,8 +47,6 @@
 
         <property name="jpaVendorAdapter">
             <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
-                <property name="showSql" value="true"/>
-                <property name="generateDdl" value="true"/>
                 <property name="databasePlatform" value="org.eclipse.persistence.platform.database.H2Platform"/>
             </bean>
         </property>
@@ -59,11 +57,15 @@
         <property name="jpaPropertyMap">
             <props>
                 <prop key="eclipselink.weaving">false</prop>
+                <prop key="eclipselink.session-name">nexus</prop>
                 <prop key="eclipselink.logging.level">FINE</prop>
-                <prop key="eclipselink.logging.level.sql">FINE</prop>
-                <prop key="eclipselink.logging.parameters">true</prop>
-                <prop key="eclipselink.logging.logger">JavaLogger</prop>
+                <prop key="eclipselink.logging.logger">JavaLogger</prop>                
+                <prop key="eclipselink.logging.session">false</prop>
+
                 <prop key="javax.persistence.schema-generation.database.action">create</prop>
+                <prop key="javax.persistence.schema-generation.scripts.action">create</prop>
+                <prop key="javax.persistence.schema-generation.scripts.create-target">CreateStuff.sql</prop>
+
             </props>
         </property>         
 
