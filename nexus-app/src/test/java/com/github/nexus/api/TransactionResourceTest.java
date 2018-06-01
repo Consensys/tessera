@@ -16,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -32,6 +33,11 @@ public class TransactionResourceTest extends JerseyTest {
                 .register(new TransactionResource(transactionService));
     }
 
+    @After
+    public void onTearDown() {
+        verifyNoMoreInteractions(transactionService);
+    }
+    
     @Test
     public void testSend() {
 
