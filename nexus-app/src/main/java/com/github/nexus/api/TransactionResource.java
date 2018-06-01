@@ -48,6 +48,7 @@ public class TransactionResource {
 
     @POST
     @Path("/sendraw")
+    @Consumes(MediaType.TEXT_PLAIN)
     public Response sendRaw(@Context final HttpHeaders headers, InputStream inputStream) throws IOException {
         LOGGER.log(Level.INFO, "from: {0}",headers.getHeaderString("hFrom"));
         LOGGER.log(Level.INFO, "to: {0}", headers.getRequestHeader("hTo").toArray());
@@ -68,7 +69,7 @@ public class TransactionResource {
     @POST
     @Path("/receiveraw")
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response reveiveRaw(@Context final HttpHeaders headers){
+    public Response receiveRaw(@Context final HttpHeaders headers){
         LOGGER.log(Level.INFO, "from: {0}",headers.getHeaderString("hKey"));
         LOGGER.log(Level.INFO, "to: {0}",headers.getHeaderString("hTo"));
         transactionService.receive();

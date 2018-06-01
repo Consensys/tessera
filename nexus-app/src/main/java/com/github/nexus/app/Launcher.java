@@ -2,6 +2,7 @@ package com.github.nexus.app;
 
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
+import com.github.nexus.service.locator.ServiceLocator;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.logging.LogManager;
@@ -21,7 +22,7 @@ public class Launcher {
             LogManager.getLogManager().readConfiguration(loggingConfig);
         }
         
-        Nexus nexus = new Nexus();
+        Nexus nexus = new Nexus(ServiceLocator.create());
 
         RestServer restServer = RestServerFactory.create().createServer(SERVER_URI, nexus);
         
