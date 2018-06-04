@@ -1,5 +1,8 @@
 package com.github.nexus.encryption;
 
+import com.github.nexus.enclave.keys.model.Key;
+import com.github.nexus.enclave.keys.model.KeyPair;
+
 /**
  * An facade against a particular implementation of NaCL libraries
  * <p>
@@ -21,7 +24,7 @@ public interface NaclFacade {
      * @param keyTwo A public or private key from the second keyset
      * @return The shared key for this key pair.
      */
-    byte[] computeSharedKey(byte[] keyOne, byte[] keyTwo);
+    Key computeSharedKey(Key keyOne, Key keyTwo);
 
     /**
      * Encrypt a payload directly using the given public/private key pair for the sender/recipient
@@ -32,7 +35,7 @@ public interface NaclFacade {
      * @param privateKey The other key from either sender or recipient
      * @return The encrypted payload
      */
-    byte[] seal(byte[] message, byte[] nonce, byte[] publicKey, byte[] privateKey);
+    byte[] seal(byte[] message, byte[] nonce, Key publicKey, Key privateKey);
 
     /**
      * Decrypt a payload directly using the given public/private key pair for the sender/recipient
@@ -43,7 +46,7 @@ public interface NaclFacade {
      * @param privateKey The other key from either sender or recipient
      * @return The encrypted payload
      */
-    byte[] open(byte[] cipherText, byte[] nonce, byte[] publicKey, byte[] privateKey);
+    byte[] open(byte[] cipherText, byte[] nonce, Key publicKey, Key privateKey);
 
     /**
      * Encrypt a payload using the given public/private key pair for the sender/recipient
@@ -54,7 +57,7 @@ public interface NaclFacade {
      * @param sharedKey The shared key between the sender and recipient of the payload
      * @return The encrypted payload
      */
-    byte[] sealAfterPrecomputation(byte[] message, byte[] nonce, byte[] sharedKey);
+    byte[] sealAfterPrecomputation(byte[] message, byte[] nonce, Key sharedKey);
 
     /**
      * Decrypts a payload using the shared key between the sender and recipient
@@ -64,7 +67,7 @@ public interface NaclFacade {
      * @param sharedKey The shared key for the sender and recipient
      * @return The decrypted payload
      */
-    byte[] openAfterPrecomputation(byte[] input, byte[] nonce, byte[] sharedKey);
+    byte[] openAfterPrecomputation(byte[] input, byte[] nonce, Key sharedKey);
 
     /**
      * Generates a new random nonce of the correct size
