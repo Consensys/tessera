@@ -1,5 +1,7 @@
 package com.github.nexus.encryption;
 
+import com.github.nexus.enclave.keys.model.Key;
+import com.github.nexus.enclave.keys.model.KeyPair;
 import org.abstractj.kalium.NaCl;
 
 import java.util.Objects;
@@ -19,20 +21,22 @@ public class Kalium implements NaclFacade {
     }
 
     @Override
-    public byte[] computeSharedKey(final byte[] publicKey, final byte[] privateKey) {
+    public Key computeSharedKey(final Key publicKey, final Key privateKey) {
         final byte[] output = new byte[NaCl.Sodium.CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BEFORENMBYTES];
 
-        final int sodiumResult = this.sodium.crypto_box_curve25519xsalsa20poly1305_beforenm(output, publicKey, privateKey);
+        final int sodiumResult = this.sodium.crypto_box_curve25519xsalsa20poly1305_beforenm(
+                output, publicKey.getKeyBytes(), privateKey.getKeyBytes()
+        );
 
         if(sodiumResult == -1) {
             throw new NaclException("Kalium could not compute the shared key");
         }
 
-        return output;
+        return new Key(output);
     }
 
     @Override
-    public byte[] seal(final byte[] message, final byte[] nonce, final byte[] publicKey, final byte[] privateKey) {
+    public byte[] seal(final byte[] message, final byte[] nonce, final Key publicKey, final Key privateKey) {
         /*
          * The Kalium library uses the C API
          * which expects the first CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES bytes to be zero
@@ -40,7 +44,9 @@ public class Kalium implements NaclFacade {
         final byte[] paddedMessage = pad(message, CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES);
         final byte[] output = new byte[paddedMessage.length];
 
-        final int sodiumResult = sodium.crypto_box_curve25519xsalsa20poly1305(output, paddedMessage, paddedMessage.length, nonce, publicKey, privateKey);
+        final int sodiumResult = sodium.crypto_box_curve25519xsalsa20poly1305(
+                output, paddedMessage, paddedMessage.length, nonce, publicKey.getKeyBytes(), privateKey.getKeyBytes()
+        );
 
         if(sodiumResult == -1) {
             throw new NaclException("Kalium could not seal the payload using the provided keys directly");
@@ -50,10 +56,12 @@ public class Kalium implements NaclFacade {
     }
 
     @Override
-    public byte[] open(final byte[] cipherText, final byte[] nonce, final byte[] publicKey, final byte[] privateKey) {
+    public byte[] open(final byte[] cipherText, final byte[] nonce, final Key publicKey, final Key privateKey) {
         final byte[] paddedOutput = new byte[cipherText.length];
 
-        final int sodiumResult = sodium.crypto_box_curve25519xsalsa20poly1305_open(paddedOutput, cipherText, cipherText.length, nonce, publicKey, privateKey);
+        final int sodiumResult = sodium.crypto_box_curve25519xsalsa20poly1305_open(
+                paddedOutput, cipherText, cipherText.length, nonce, publicKey.getKeyBytes(), privateKey.getKeyBytes()
+        );
 
         if(sodiumResult == -1) {
             throw new NaclException("Kalium could not open the payload using the provided keys directly");
@@ -63,7 +71,7 @@ public class Kalium implements NaclFacade {
     }
 
     @Override
-    public byte[] sealAfterPrecomputation(final byte[] message, final byte[] nonce, final byte[] sharedKey) {
+    public byte[] sealAfterPrecomputation(final byte[] message, final byte[] nonce, final Key sharedKey) {
         /*
          * The Kalium library uses the C API
          * which expects the first CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES bytes to be zero
@@ -71,7 +79,9 @@ public class Kalium implements NaclFacade {
         final byte[] paddedMessage = pad(message, CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES);
         final byte[] output = new byte[paddedMessage.length];
 
-        final int sodiumResult = this.sodium.crypto_box_curve25519xsalsa20poly1305_afternm(output, paddedMessage, paddedMessage.length, nonce, sharedKey);
+        final int sodiumResult = this.sodium.crypto_box_curve25519xsalsa20poly1305_afternm(
+                output, paddedMessage, paddedMessage.length, nonce, sharedKey.getKeyBytes()
+        );
 
         if(sodiumResult == -1) {
             throw new NaclException("Kalium could not seal the payload using the shared key");
@@ -81,10 +91,12 @@ public class Kalium implements NaclFacade {
     }
 
     @Override
-    public byte[] openAfterPrecomputation(final byte[] encryptedPayload, final byte[] nonce, final byte[] sharedKey) {
+    public byte[] openAfterPrecomputation(final byte[] encryptedPayload, final byte[] nonce, final Key sharedKey) {
         final byte[] paddedOutput = new byte[encryptedPayload.length];
 
-        final int sodiumResult = this.sodium.crypto_box_curve25519xsalsa20poly1305_open_afternm(paddedOutput, encryptedPayload, encryptedPayload.length, nonce, sharedKey);
+        final int sodiumResult = this.sodium.crypto_box_curve25519xsalsa20poly1305_open_afternm(
+                paddedOutput, encryptedPayload, encryptedPayload.length, nonce, sharedKey.getKeyBytes()
+        );
 
         if(sodiumResult == -1) {
             throw new NaclException("Kalium could not open the payload using the shared key");
@@ -113,7 +125,7 @@ public class Kalium implements NaclFacade {
             throw new NaclException("Kalium could not generate a new public/private keypair");
         }
 
-        return new KeyPair(publicKey, privateKey);
+        return new KeyPair(new Key(publicKey), new Key(privateKey));
     }
 
     /**
