@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>nexus-app</artifactId>
@@ -12,7 +14,7 @@
     </parent>
 
     <dependencies>
-        
+
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>
@@ -25,39 +27,39 @@
             <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>rest-server</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>jersey-server</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>service-locator</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>service-locator-spring</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
@@ -80,22 +82,22 @@
             <artifactId>javax.transaction-api</artifactId>
         </dependency>
 
-        
+
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.json</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
@@ -126,25 +128,27 @@
         </dependency>
 
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.1.0</version>
-                <configuration> 
+                <configuration>
                     <minimizeJar>false</minimizeJar>
                     <shadedArtifactAttached>true</shadedArtifactAttached>
                     <shadedClassifierName>app</shadedClassifierName>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
 
                     <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                             <mainClass>com.github.nexus.app.Launcher</mainClass>
                         </transformer>
-                        
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
 
                         <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                             <resource>META-INF/spring.handlers</resource>
@@ -154,7 +158,7 @@
                         </transformer>
 
                     </transformers>
-                    
+
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>
@@ -164,7 +168,7 @@
                                 <exclude>META-INF/*.RSA</exclude>
                                 <exclude>META-INF/maven/**</exclude>
                             </excludes>
-                                
+
                         </filter>
                     </filters>
                 </configuration>
@@ -183,10 +187,12 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.21.0</version>
                 <configuration>
+                    <argLine>-Djava.awt.headless=true</argLine>
                     <forkCount>1</forkCount>
                     <skip>false</skip>
                     <systemPropertyVariables>
-                        <java.util.logging.config.file>${project.build.outputDirectory}/logging.properties</java.util.logging.config.file>
+                        <java.util.logging.config.file>${project.build.outputDirectory}/logging.properties
+                        </java.util.logging.config.file>
                     </systemPropertyVariables>
                 </configuration>
                 <executions>
@@ -199,7 +205,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -215,7 +221,7 @@
                             <propertyName>failsafeArgLine</propertyName>
                         </configuration>
                     </execution>
-                    
+
                     <execution>
                         <id>post-integration-test</id>
                         <phase>post-integration-test</phase>
@@ -227,7 +233,7 @@
                             <outputDirectory>${project.reporting.outputDirectory}/jacoco-it</outputDirectory>
                         </configuration>
                     </execution>
-                    
+
                     <execution>
                         <goals>
                             <goal>prepare-agent</goal>
@@ -246,7 +252,7 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
-                        
+
                         <configuration>
                             <excludes>
                                 <exclude>com/github/nexus/app/Launcher.*</exclude>
@@ -299,13 +305,22 @@
                                 </rule>
                             </rules>
                         </configuration>
-                        
+
                     </execution>
-                    
+
                 </executions>
             </plugin>
-            
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.12.4</version>
+                <configuration>
+                    <argLine>-Djava.awt.headless=true</argLine>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
-    
+
 </project>
