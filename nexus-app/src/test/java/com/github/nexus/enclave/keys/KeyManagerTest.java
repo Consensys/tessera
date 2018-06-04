@@ -13,6 +13,7 @@ import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -101,15 +102,19 @@ public class KeyManagerTest {
 
         assertThat(generated).isEqualTo(keyPair);
 
-        final byte[] publicKey = Files.readAllBytes(keygenPath.resolve("testkey.pub"));
+        final String publicKeyBase64 = new String(Files.readAllBytes(keygenPath.resolve("testkey.pub")), UTF_8);
         final byte[] privateKeyJson = Files.readAllBytes(keygenPath.resolve("testkey.key"));
 
         final JsonReader reader = Json.createReader(new StringReader(new String(privateKeyJson, UTF_8)));
-        final String privateKey = reader.readObject().getJsonObject("data").getString("bytes");
+        final String privateKeyBase64 = reader.readObject().getJsonObject("data").getString("bytes");
+
+        final byte[] publicKey = Base64.getDecoder().decode(publicKeyBase64);
+        final byte[] privateKey = Base64.getDecoder().decode(privateKeyBase64);
+
 
 
         assertThat(new Key(publicKey)).isEqualTo(keyPair.getPublicKey());
-        assertThat(new Key(privateKey.getBytes(UTF_8))).isEqualTo(keyPair.getPrivateKey());
+        assertThat(new Key(privateKey)).isEqualTo(keyPair.getPrivateKey());
     }
 
     @Test
