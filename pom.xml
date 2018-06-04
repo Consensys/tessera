@@ -19,6 +19,7 @@
         <spring.version>5.0.6.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
         <eclipselink.version>2.7.1</eclipselink.version>
+      
     </properties>
 
     <build>
@@ -231,16 +232,29 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
-                <scope>runtime</scope>
             </dependency>
             
             <dependency>
                 <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-jdk14</artifactId>
+                <artifactId>jul-to-slf4j</artifactId>
                 <version>${slf4j.version}</version>
                 <scope>runtime</scope>
             </dependency>
 
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.0.13</version>
+                <scope>runtime</scope>
+            </dependency>
+            
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>1.0.13</version>
+                <scope>runtime</scope>
+            </dependency>
+            
             <!-- 
                 APIs
             -->
@@ -275,11 +289,7 @@
                 <version>1.1.2</version>
             </dependency>
 
-            <dependency>
-                <groupId>javax.transaction</groupId>
-                <artifactId>javax.transaction-api</artifactId>
-                <version>1.3</version>
-            </dependency>
+ 
 
             <dependency>
                 <groupId>javax.inject</groupId>
@@ -326,6 +336,24 @@
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
         </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <scope>runtime</scope>
+            </dependency>
+            
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <scope>compile</scope>
+            </dependency>
 
     </dependencies>
 
