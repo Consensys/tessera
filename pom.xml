@@ -67,6 +67,66 @@
                 </configuration>
             </plugin>
 
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>verify-style</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <logViolationsToConsole>true</logViolationsToConsole>
+                    <checkstyleRules>
+                        <module name="Checker">
+
+                            <module name="FileLength">
+                                <property name="max" value="3500" />
+                                <property name="fileExtensions" value="java"/>
+                            </module>
+                                
+                            <module name="FileTabCharacter"/>
+
+                            <module name="TreeWalker">
+                                <module name="InterfaceTypeParameterName"/>
+                                <module name="MethodName" />
+                                <module name="LocalFinalVariableName" />
+                                <module name="LocalVariableName" />
+                                <module name="UnusedImports"/>
+                                <module name="StaticVariableName"/>
+                                <module name="TypeName" />
+                                <module name="MemberName" />
+                                <module name="MethodTypeParameterName" />
+                                <module name="PackageName" />
+                                <module name="ParameterName"/>
+                                <module name="StaticVariableName"/>
+                                <module name="TypeName" />
+                                <module name="RedundantModifier"/>
+                                <module name="ModifierOrder"/>
+                                <module name="ParenPad"/>
+                                <module name="EqualsHashCode"/>
+                                <module name="EmptyStatement"/>
+                                <module name="SimplifyBooleanExpression"/>
+                                <module name="ParameterAssignment"/>
+                                <module name="SimplifyBooleanReturn"/>
+                                <module name="VariableDeclarationUsageDistance"/>
+                                <module name="ParameterNumber">
+                                    <property name="max" value="5"/>
+                                    <property name="tokens" value="METHOD_DEF"/>
+                                </module>
+                            </module>
+                        </module>
+                    </checkstyleRules>
+                </configuration>
+            </plugin>
+
         </plugins>
 
 

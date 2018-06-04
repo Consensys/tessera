@@ -3,9 +3,7 @@ package com.github.nexus.app;
 
 import javax.ws.rs.core.Response;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.assertj.core.api.Assertions.*;
 

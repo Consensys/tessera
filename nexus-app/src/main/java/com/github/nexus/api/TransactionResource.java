@@ -22,14 +22,13 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
-import java.util.stream.Stream;
 
 @Path("/transaction")
 public class TransactionResource {
 
     private static final Logger LOGGER = Logger.getLogger(TransactionResource.class.getName());
 
-    private TransactionService transactionService;
+    private final TransactionService transactionService;
 
     public TransactionResource(final TransactionService transactionService) {
         this.transactionService = requireNonNull(transactionService, "transactionService must not be null");
