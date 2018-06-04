@@ -1,6 +1,5 @@
-package com.github.nexus.enclave;
+package com.github.nexus.enclave.model;
 
-import com.github.nexus.enclave.model.MessageHash;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -44,5 +43,11 @@ public class MessageHashTest {
 
     }
 
+    @Test
+    public void sameObjectIsEqual() {
+        MessageHash hash = new MessageHash("I LOVE SPARROWS".getBytes());
+        assertThat(hash).isEqualTo(hash).hasSameHashCodeAs(hash);
+    }
+    
 
 }
