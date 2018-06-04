@@ -8,7 +8,6 @@ import com.openpojo.validation.rule.impl.GetterMustExistRule;
 import com.openpojo.validation.rule.impl.NoPrimitivesRule;
 import com.openpojo.validation.rule.impl.NoPublicFieldsExceptStaticFinalRule;
 import com.openpojo.validation.rule.impl.SetterMustExistRule;
-import com.openpojo.validation.test.impl.BusinessIdentityTester;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
 import org.junit.Test;
