@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MessageHashTest {
 
     @Test
-    public void message_hash_makes_copy_of_input() {
+    public void messageHashMakesCopyOfInput() {
 
         final byte[] testMessage = "test_message".getBytes();
 
@@ -21,7 +21,7 @@ public class MessageHashTest {
     }
 
     @Test
-    public void test_different_instances_of_same_bytes_is_equal() {
+    public void differentInstancesOfSameBytesIsEqual() {
 
         final byte[] testMessage = "test_message".getBytes();
 
@@ -33,7 +33,7 @@ public class MessageHashTest {
     }
 
     @Test
-    public void test_different_object_types() {
+    public void differentObjectTypesAreNotEqual() {
 
         final byte[] testMessage = "test_message".getBytes();
 
@@ -45,7 +45,7 @@ public class MessageHashTest {
 
     @Test
     public void sameObjectIsEqual() {
-        MessageHash hash = new MessageHash("I LOVE SPARROWS".getBytes());
+        final MessageHash hash = new MessageHash("I LOVE SPARROWS".getBytes());
         assertThat(hash).isEqualTo(hash).hasSameHashCodeAs(hash);
     }
     
