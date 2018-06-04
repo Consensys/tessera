@@ -28,7 +28,7 @@ public class KaliumIT {
     }
 
     @Test
-    public void shared_key_pubAprivB_equals_privApubB() {
+    public void sharedKeyPubaprivbEqualsPrivapubb() {
 
         final Key sharedKey = kalium.computeSharedKey(keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
 
@@ -39,7 +39,7 @@ public class KaliumIT {
     }
 
     @Test
-    public void encrypt_and_decrypt_payload_using_same_keys() {
+    public void encryptAndDecryptPayloadUsingSameKeys() {
         final String payload = "Hello world";
 
         final Key sharedKey = kalium.computeSharedKey(keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
@@ -55,7 +55,7 @@ public class KaliumIT {
     }
 
     @Test
-    public void encrypt_decrpyt_without_precomputation() {
+    public void encryptDecrpytWithoutPrecomputation() {
         final String payload = "Hello world";
 
         final byte[] payloadBytes = payload.getBytes(UTF_8);

@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class KeyPairTest {
 
     @Test
-    public void different_classes_are_not_equal() {
+    public void differentClassesAreNotEqual() {
         final KeyPair keyPair = new KeyPair(
                 new Key("test".getBytes()),
                 new Key("test".getBytes())

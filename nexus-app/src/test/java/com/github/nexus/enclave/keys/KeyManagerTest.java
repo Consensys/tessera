@@ -55,7 +55,7 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void public_key_found_given_private_key() {
+    public void publicKeyFoundGivenPrivateKey() {
 
         final Key publicKey = keyManager.getPublicKeyForPrivateKey(keyPair.getPrivateKey());
 
@@ -63,7 +63,7 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void exception_thrown_when_private_key_not_found() {
+    public void exceptionThrownWhenPrivateKeyNotFound() {
 
         final Key unknownKey = new Key("unknownKey".getBytes(UTF_8));
         final Throwable throwable = catchThrowable(() -> keyManager.getPublicKeyForPrivateKey(unknownKey));
@@ -73,7 +73,7 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void private_key_found_given_public_key() {
+    public void privateKeyFoundGivenPublicKey() {
 
         final Key privateKey = keyManager.getPrivateKeyForPublicKey(keyPair.getPublicKey());
 
@@ -81,7 +81,7 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void exception_thrown_when_public_key_not_found() {
+    public void exceptionThrownWhenPublicKeyNotFound() {
 
         final Key unknownKey = new Key("unknownKey".getBytes(UTF_8));
         final Throwable throwable = catchThrowable(() -> keyManager.getPrivateKeyForPublicKey(unknownKey));
@@ -91,7 +91,7 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void generating_new_keys_creates_two_files() throws IOException {
+    public void generatingNewKeysCreatesTwoFiles() throws IOException {
 
         final String keyName = "testkey";
 
@@ -113,7 +113,7 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void generating_new_keys_throws_exception_if_cant_write() throws IOException {
+    public void generatingNewKeysThrowsExceptionIfCantWrite() throws IOException {
 
         final String keyName = "testkey";
 
@@ -129,7 +129,7 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void load_nonexistant_keys_throws_exception() {
+    public void loadNonexistantKeysThrowsException() {
 
         final Path publicKeyPath = keygenPath.resolve("unknownKey.pub");
         final Path privateKeyPath = keygenPath.resolve("unknownKey.key");
@@ -142,7 +142,7 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void load_keys_returns_keypair() {
+    public void loadKeysReturnsKeypair() {
         final String keyName = "testkey";
         doReturn(keyPair).when(naclFacade).generateNewKeys();
         final KeyPair generated = keyManager.generateNewKeys(keyName);
@@ -156,7 +156,7 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void loaded_keys_can_be_searched_for() {
+    public void loadedKeysCanBeSearchedFor() {
         final String keyName = "testkey";
         doReturn(keyPair).when(naclFacade).generateNewKeys();
         final KeyPair generated = keyManager.generateNewKeys(keyName);
@@ -172,7 +172,7 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void keymanager_loads_given_keys_when_instantiated_with_paths() {
+    public void keymanagerLoadsGivenKeysWhenInstantiatedWithPaths() {
         final String keyName = "testkey";
         doReturn(keyPair).when(naclFacade).generateNewKeys();
         final KeyPair generated = keyManager.generateNewKeys(keyName);
@@ -191,7 +191,7 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void different_number_of_keys_throws_exception() {
+    public void differentNumberOfKeysThrowsException() {
 
         final Throwable throwable = catchThrowable(
                 () -> new KeyManagerImpl(keygenPath.toString(), naclFacade, emptyList(), singletonList(Paths.get(".")))
