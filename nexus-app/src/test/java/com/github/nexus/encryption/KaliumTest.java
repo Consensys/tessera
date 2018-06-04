@@ -45,7 +45,7 @@ public class KaliumTest {
     }
 
     @Test
-    public void sodium_is_initialised_on_startup() {
+    public void sodiumIsInitialisedOnStartup() {
         final NaCl.Sodium sodium = mock(NaCl.Sodium.class);
 
         final Kalium kalium = new Kalium(sodium);
@@ -54,7 +54,7 @@ public class KaliumTest {
     }
 
     @Test
-    public void computing_shared_key_throws_exception_on_failure() {
+    public void computingSharedKeyThrowsExceptionOnFailure() {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_beforenm(any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes()));
@@ -67,7 +67,7 @@ public class KaliumTest {
     }
 
     @Test
-    public void seal_using_keys_throws_exception_on_failure() {
+    public void sealUsingKeysThrowsExceptionOnFailure() {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305(
@@ -84,7 +84,7 @@ public class KaliumTest {
     }
 
     @Test
-    public void open_using_keys_throws_exception_on_failure() {
+    public void openUsingKeysThrowsExceptionOnFailure() {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_open(
@@ -101,7 +101,7 @@ public class KaliumTest {
     }
 
     @Test
-    public void seal_using_sharedkey_throws_exception_on_failure() {
+    public void sealUsingSharedkeyThrowsExceptionOnFailure() {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_afternm(
@@ -118,7 +118,7 @@ public class KaliumTest {
     }
 
     @Test
-    public void open_using_sharedkey_throws_exception_on_failure() {
+    public void openUsingSharedkeyThrowsExceptionOnFailure() {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_open_afternm(
@@ -135,14 +135,14 @@ public class KaliumTest {
     }
 
     @Test
-    public void nonce_contains_random_data() {
+    public void nonceContainsRandomData() {
         this.kalium.randomNonce();
 
         verify(this.sodium).randombytes(any(byte[].class), anyInt());
     }
 
     @Test
-    public void generating_new_keys_throws_exception_on_failure() {
+    public void generatingNewKeysThrowsExceptionOnFailure() {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_keypair(any(byte[].class), any(byte[].class));
