@@ -1,5 +1,7 @@
 package com.github.nexus.encryption;
 
+import com.github.nexus.enclave.keys.model.Key;
+import com.github.nexus.enclave.keys.model.KeyPair;
 import org.abstractj.kalium.NaCl;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,11 +30,11 @@ public class KaliumIT {
     @Test
     public void shared_key_pubAprivB_equals_privApubB() {
 
-        final byte[] sharedKey = kalium.computeSharedKey(keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
+        final Key sharedKey = kalium.computeSharedKey(keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
 
-        final byte[] secondSharedKey = kalium.computeSharedKey(keypairTwo.getPublicKey(), keypairOne.getPrivateKey());
+        final Key secondSharedKey = kalium.computeSharedKey(keypairTwo.getPublicKey(), keypairOne.getPrivateKey());
 
-        assertThat(sharedKey).containsExactly(secondSharedKey);
+        assertThat(sharedKey).isEqualTo(secondSharedKey);
 
     }
 
@@ -40,7 +42,7 @@ public class KaliumIT {
     public void encrypt_and_decrypt_payload_using_same_keys() {
         final String payload = "Hello world";
 
-        final byte[] sharedKey = kalium.computeSharedKey(keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
+        final Key sharedKey = kalium.computeSharedKey(keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
         final byte[] payloadBytes = payload.getBytes(UTF_8);
         final byte[] nonce = kalium.randomNonce();
 
