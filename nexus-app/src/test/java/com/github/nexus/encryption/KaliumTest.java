@@ -1,5 +1,6 @@
 package com.github.nexus.encryption;
 
+import com.github.nexus.enclave.keys.model.Key;
 import org.abstractj.kalium.NaCl;
 import org.junit.After;
 import org.junit.Before;
@@ -15,11 +16,11 @@ import static org.mockito.Mockito.*;
 
 public class KaliumTest {
 
-    private byte[] publicKey = "publickey".getBytes(UTF_8);
+    private Key publicKey = new Key("publickey".getBytes(UTF_8));
 
-    private byte[] privateKey = "privateKey".getBytes(UTF_8);
+    private Key privateKey = new Key("privateKey".getBytes(UTF_8));
 
-    private byte[] sharedKey = "sharedKey".getBytes(UTF_8);
+    private Key sharedKey = new Key("sharedKey".getBytes(UTF_8));
 
     private byte[] message = "TEST_MESSAGE".getBytes(UTF_8);
 
@@ -55,13 +56,13 @@ public class KaliumTest {
     public void computing_shared_key_throws_exception_on_failure() {
         doReturn(-1)
                 .when(this.sodium)
-                .crypto_box_curve25519xsalsa20poly1305_beforenm(any(byte[].class), eq(publicKey), eq(privateKey));
+                .crypto_box_curve25519xsalsa20poly1305_beforenm(any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes()));
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.computeSharedKey(publicKey, privateKey));
 
         assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("Kalium could not compute the shared key");
 
-        verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_beforenm(any(byte[].class), eq(publicKey), eq(privateKey));
+        verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_beforenm(any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes()));
     }
 
     @Test
@@ -69,7 +70,7 @@ public class KaliumTest {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305(
-                        any(byte[].class), any(byte[].class), anyInt(), eq(nonce), eq(publicKey), eq(privateKey)
+                        any(byte[].class), any(byte[].class), anyInt(), eq(nonce), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
                 );
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.seal(message, nonce, publicKey, privateKey));
@@ -86,7 +87,7 @@ public class KaliumTest {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_open(
-                        any(byte[].class), eq(message), anyInt(), eq(nonce), eq(publicKey), eq(privateKey)
+                        any(byte[].class), eq(message), anyInt(), eq(nonce), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
                 );
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.open(message, nonce, publicKey, privateKey));
@@ -103,7 +104,7 @@ public class KaliumTest {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_afternm(
-                        any(byte[].class), any(byte[].class), anyInt(), eq(nonce), eq(sharedKey)
+                        any(byte[].class), any(byte[].class), anyInt(), eq(nonce), eq(sharedKey.getKeyBytes())
                 );
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.sealAfterPrecomputation(message, nonce, sharedKey));
@@ -120,7 +121,7 @@ public class KaliumTest {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_open_afternm(
-                        any(byte[].class), eq(message), anyInt(), eq(nonce), eq(sharedKey)
+                        any(byte[].class), eq(message), anyInt(), eq(nonce), eq(sharedKey.getKeyBytes())
                 );
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.openAfterPrecomputation(message, nonce, sharedKey));
