@@ -1,6 +1,7 @@
 package com.github.nexus.encryption;
 
 import com.github.nexus.enclave.keys.model.Key;
+import com.github.nexus.enclave.keys.model.KeyPair;
 import org.abstractj.kalium.NaCl;
 import org.junit.After;
 import org.junit.Before;
@@ -153,5 +154,110 @@ public class KaliumTest {
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_keypair(any(byte[].class), any(byte[].class));
     }
 
+    @Test
+    public void computeSharedKeySodiumReturnsSuccess() {
+
+        when(sodium.crypto_box_curve25519xsalsa20poly1305_beforenm(any(byte[].class),
+                any(byte[].class), any(byte[].class))).thenReturn(1);
+
+        Key result = kalium.computeSharedKey(publicKey, privateKey);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getKeyBytes())
+                .isEqualTo(new byte[NaCl.Sodium.CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BEFORENMBYTES]);
+
+        verify(sodium).crypto_box_curve25519xsalsa20poly1305_beforenm(
+                any(byte[].class), any(byte[].class), any(byte[].class));
+
+    }
+
+    @Test
+    public void generateNewKeysSodiumSucess() {
+
+        when(sodium.crypto_box_curve25519xsalsa20poly1305_keypair(
+                any(byte[].class), any(byte[].class))).thenReturn(1);
+
+        KeyPair result = kalium.generateNewKeys();
+        assertThat(result).isNotNull();
+        assertThat(result.getPrivateKey()).isNotNull();
+        assertThat(result.getPublicKey()).isNotNull();
+
+        verify(sodium).crypto_box_curve25519xsalsa20poly1305_keypair(any(byte[].class), any(byte[].class));
+
+    }
+
+    @Test
+    public void sealAfterPrecomputationSodiumReturnsSuccess() {
+        doReturn(1)
+                .when(this.sodium)
+                .crypto_box_curve25519xsalsa20poly1305_afternm(
+                        any(byte[].class), any(byte[].class), anyInt(), eq(nonce), eq(sharedKey.getKeyBytes())
+                );
+
+        byte[] result = kalium.sealAfterPrecomputation(message, nonce, sharedKey);
+
+        assertThat(result).isNotEmpty();
+
+        verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_afternm(
+                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
+        );
+    }
+
+    @Test
+    public void openUsingSharedKeySodiumReturnsSuccess() {
+
+        byte[] data = new byte[100];
+
+        doReturn(1)
+                .when(this.sodium)
+                .crypto_box_curve25519xsalsa20poly1305_open_afternm(
+                        any(byte[].class), eq(data), anyInt(), eq(nonce), eq(sharedKey.getKeyBytes())
+                );
+
+        byte[] results = kalium.openAfterPrecomputation(data, nonce, sharedKey);
+
+        assertThat(results).isNotEmpty();
+
+        verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_open_afternm(
+                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
+        );
+    }
+
+    @Test
+    public void openUsingKeysSodiumReturnsSucesss() {
+        byte[] data = new byte[100];
+
+        doReturn(1)
+                .when(this.sodium)
+                .crypto_box_curve25519xsalsa20poly1305_open(
+                        any(byte[].class), eq(data), anyInt(), eq(nonce), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
+                );
+
+        byte[] result = this.kalium.open(data, nonce, publicKey, privateKey);
+
+        assertThat(result).isNotEmpty();
+
+        verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_open(
+                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class), any(byte[].class)
+        );
+    }
+    
+    @Test
+    public void sealUsingKeysSodiumReturnsSucess() {
+        doReturn(1)
+                .when(this.sodium)
+                .crypto_box_curve25519xsalsa20poly1305(
+                        any(byte[].class), any(byte[].class), anyInt(), eq(nonce), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
+                );
+
+        byte[] results = this.kalium.seal(message, nonce, publicKey, privateKey);
+
+
+        assertThat(results).isNotEmpty();
+
+        verify(this.sodium).crypto_box_curve25519xsalsa20poly1305(
+                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class), any(byte[].class)
+        );
+    }
 
 }
