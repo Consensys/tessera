@@ -29,7 +29,7 @@
 
     <bean name="encryptedTransactionDAO" class="com.github.nexus.dao.EncryptedTransactionDAOImpl" />
         
-    <bean class="com.github.nexus.app.DefaultExceptionMapper" />
+    <bean class="com.github.nexus.api.exception.DefaultExceptionMapper" />
     <bean class="com.github.nexus.api.exception.DecodingExceptionMapper"/>
     
     <bean id="dataSource" class="org.h2.jdbcx.JdbcDataSource">
