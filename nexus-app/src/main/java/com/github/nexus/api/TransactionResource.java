@@ -145,14 +145,6 @@ public class TransactionResource {
 
         byte[] payload = Base64.getDecoder().decode(readInputStream(inputStream));
 
-
-        return Response.status(Response.Status.CREATED).build();
-    }
-
-    @POST
-    @Path("/partyinfo")
-    public Response partyInfo(final InputStream payload) throws IOException {
-        LOGGER.log(Level.INFO, "payload: {0}", readInputStream(payload));
         return Response.status(Response.Status.CREATED).build();
     }
 
