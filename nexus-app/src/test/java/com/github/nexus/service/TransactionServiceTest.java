@@ -1,34 +1,29 @@
 package com.github.nexus.service;
 
-import com.github.nexus.dao.SomeDAO;
-import com.github.nexus.entity.SomeEntity;
+import com.github.nexus.dao.EncryptedTransactionDAO;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 
 public class TransactionServiceTest {
 
-    @Mock
-    SomeDAO dao;
+    private EncryptedTransactionDAO dao;
 
-    TransactionService transactionService;
+    private TransactionService transactionService;
 
     @Before
     public void init(){
-        MockitoAnnotations.initMocks(this);
+        this.dao = mock(EncryptedTransactionDAO.class);
         transactionService = new TransactionServiceImpl(dao);
-        Mockito.doNothing().when(dao).save(any(SomeEntity.class));
     }
 
     @Test
     public void testSend(){
         transactionService.send();
-        Mockito.verify(dao, Mockito.times(1)).save(any());
-
+        Mockito.verify(dao).save(any());
     }
 
     @Test

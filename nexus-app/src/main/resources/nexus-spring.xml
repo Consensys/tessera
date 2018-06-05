@@ -21,10 +21,10 @@
     </bean>
 
     <bean name="transactionService" class="com.github.nexus.service.TransactionServiceImpl">
-        <constructor-arg ref="someDAO"/>
+        <constructor-arg ref="encryptedTransactionDAO"/>
     </bean>
 
-    <bean name="someDAO" class="com.github.nexus.dao.SomeDAOImpl" />
+    <bean name="encryptedTransactionDAO" class="com.github.nexus.dao.EncryptedTransactionDAOImpl" />
         
     <bean class="com.github.nexus.app.DefaultExceptionMapper" />
     
