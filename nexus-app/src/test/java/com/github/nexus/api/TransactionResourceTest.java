@@ -1,5 +1,6 @@
 package com.github.nexus.api;
 
+import com.github.nexus.Base64Decoder;
 import com.github.nexus.api.exception.DecodingException;
 import com.github.nexus.api.model.*;
 import com.github.nexus.service.TransactionService;
@@ -17,7 +18,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import org.assertj.core.api.Assertions;
 import org.junit.After;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,10 +32,14 @@ public class TransactionResourceTest {
 
     private TransactionResource transactionResource;
 
+    private Base64Decoder base64Decoder = Base64Decoder.create();
+    
     @Before
     public void onSetup() {
         MockitoAnnotations.initMocks(this);
-        transactionResource = new TransactionResource(transactionService);
+        
+        
+        transactionResource = new TransactionResource(transactionService,base64Decoder);
     }
 
     @After
@@ -62,25 +66,7 @@ public class TransactionResourceTest {
         assertThat(response.getStatus()).isEqualTo(201);
     }
 
-    @Test
-    public void sendThrowsDecodingException() {
 
-        SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom("bXlwdWJsaWNrZXk=");
-        sendRequest.setTo(new String[]{"cmVjaXBpZW50MQ=="});
-        sendRequest.setPayload("Zm9v");
-
-        when(transactionService.send(any(), any(), any())).thenThrow(new IllegalArgumentException());
-
-        try {
-            transactionResource.send(sendRequest);
-            Assertions.failBecauseExceptionWasNotThrown(DecodingException.class);
-        } catch (DecodingException ex) {
-            assertThat(ex).isNotNull();
-        }
-        verify(transactionService, times(1)).send(any(), any(), any());
-
-    }
 
     @Test
     public void testSendRaw() throws Exception {

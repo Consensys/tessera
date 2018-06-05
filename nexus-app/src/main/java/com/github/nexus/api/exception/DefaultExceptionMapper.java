@@ -1,4 +1,4 @@
-package com.github.nexus.app;
+package com.github.nexus.api.exception;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
