@@ -74,4 +74,6 @@ public interface Enclave {
      */
     Map<Key, Map<byte[], byte[]>> encryptPayload(byte[] message, Key senderPublicKey, Collection<Key> recipientPublicKeys);
 
+
+    byte[] store(byte[] sender, byte[][] recipients, byte[] message);
 }

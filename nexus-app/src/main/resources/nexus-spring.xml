@@ -17,11 +17,13 @@
     <bean class="com.github.nexus.api.VersionResource"/>
     <bean class="com.github.nexus.api.UpCheckResource"/>
     <bean class="com.github.nexus.api.TransactionResource">
-        <constructor-arg ref="transactionService"/>
+        <constructor-arg ref="enclave"/>
         <constructor-arg>
-            <bean class="com.github.nexus.Base64Decoder" factory-method="create" />
+            <bean class="com.github.nexus.util.Base64Decoder" factory-method="create" />
         </constructor-arg>
     </bean>
+
+    <bean name="enclave" class="com.github.nexus.enclave.EnclaveImpl"/>
 
     <bean name="transactionService" class="com.github.nexus.service.TransactionServiceImpl">
         <constructor-arg ref="encryptedTransactionDAO"/>
