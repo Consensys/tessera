@@ -1,7 +1,6 @@
-package com.github.nexus;
+package com.github.nexus.util;
 
 import com.github.nexus.api.exception.DecodingException;
-import com.github.nexus.util.Base64Decoder;
 import org.junit.Test;
 
 import java.util.Base64;
