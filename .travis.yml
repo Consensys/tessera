@@ -13,6 +13,3 @@ addons:
 script:
 - mvn --batch-mode install
 #- mvn --batch-mode org.pitest:pitest-maven:mutationCoverage
-
-after_success:
-- mvn javadoc:javadoc
