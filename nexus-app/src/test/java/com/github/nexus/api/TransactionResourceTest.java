@@ -2,12 +2,16 @@ package com.github.nexus.api;
 
 import com.github.nexus.api.exception.DecodingException;
 import com.github.nexus.api.model.*;
-import com.github.nexus.service.TransactionService;
+import com.github.nexus.enclave.Enclave;
+import org.assertj.core.api.Assertions;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,32 +19,27 @@ import java.io.UncheckedIOException;
 import java.util.Base64;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import org.assertj.core.api.Assertions;
-import org.junit.After;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 public class TransactionResourceTest {
 
     @Mock
-    private TransactionService transactionService;
+    private Enclave enclave;
 
     private TransactionResource transactionResource;
 
     @Before
     public void onSetup() {
         MockitoAnnotations.initMocks(this);
-        transactionResource = new TransactionResource(transactionService);
+        transactionResource = new TransactionResource(enclave);
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(transactionService);
+        verifyNoMoreInteractions(enclave);
     }
 
     @Test
@@ -51,11 +50,11 @@ public class TransactionResourceTest {
         sendRequest.setTo(new String[]{"cmVjaXBpZW50MQ=="});
         sendRequest.setPayload("Zm9v");
 
-        when(transactionService.send(any(), any(), any())).thenReturn("SOMEKEY".getBytes());
+        when(enclave.store(any(), any(), any())).thenReturn("SOMEKEY".getBytes());
 
         Response response = transactionResource.send(sendRequest);
 
-        verify(transactionService, times(1)).send(any(), any(), any());
+        verify(enclave, times(1)).store(any(), any(), any());
         assertThat(response).isNotNull();
         SendResponse sr = (SendResponse) response.getEntity();
         assertThat(sr.getKey()).isNotEmpty();
@@ -70,7 +69,7 @@ public class TransactionResourceTest {
         sendRequest.setTo(new String[]{"cmVjaXBpZW50MQ=="});
         sendRequest.setPayload("Zm9v");
 
-        when(transactionService.send(any(), any(), any())).thenThrow(new IllegalArgumentException());
+        when(enclave.store(any(), any(), any())).thenThrow(new IllegalArgumentException());
 
         try {
             transactionResource.send(sendRequest);
@@ -78,7 +77,7 @@ public class TransactionResourceTest {
         } catch (DecodingException ex) {
             assertThat(ex).isNotNull();
         }
-        verify(transactionService, times(1)).send(any(), any(), any());
+        verify(enclave, times(1)).store(any(), any(), any());
 
     }
 
@@ -109,16 +108,16 @@ public class TransactionResourceTest {
         receiveRequest.setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
         receiveRequest.setTo("cmVjaXBpZW50MQ==");
 
-        when(transactionService.receive(any(), any())).thenReturn("SOME DATA".getBytes());
+//        when(enclave.receive(any(), any())).thenReturn("SOME DATA".getBytes());
 
         Response response = transactionResource.receive(receiveRequest);
 
-        verify(transactionService, times(1)).receive(any(), any());
+//        verify(transactionService, times(1)).receive(any(), any());
         assertThat(response).isNotNull();
 
         ReceiveResponse receiveResponse = (ReceiveResponse) response.getEntity();
 
-        assertThat(receiveResponse.getPayload()).isEqualTo("U09NRSBEQVRB");
+        assertThat(receiveResponse.getPayload()).isEqualTo("UmV0cmlldmVkIHBheWxvYWQ=");
 
         assertThat(response.getStatus()).isEqualTo(201);
     }
@@ -129,7 +128,7 @@ public class TransactionResourceTest {
         receiveRequest.setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
         receiveRequest.setTo("1");
 
-        when(transactionService.receive(any(), any())).thenReturn("SOME DATA".getBytes());
+//        when(transactionService.receive(any(), any())).thenReturn("SOME DATA".getBytes());
 
         Response response = transactionResource.receive(receiveRequest);
 
