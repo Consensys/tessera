@@ -1,12 +1,15 @@
 package com.github.nexus.api;
 
-import com.github.nexus.api.model.DeleteRequest;
-import com.github.nexus.api.model.ReceiveRequest;
-import com.github.nexus.api.model.ReceiveResponse;
-import com.github.nexus.api.model.ResendRequest;
-import com.github.nexus.api.model.SendRequest;
-import com.github.nexus.api.model.SendResponse;
+import com.github.nexus.api.model.*;
 import com.github.nexus.service.TransactionService;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,16 +17,10 @@ import java.io.UncheckedIOException;
 import java.util.Base64;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.After;
 import static org.junit.Assert.fail;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 import static org.mockito.Mockito.*;
-import org.mockito.MockitoAnnotations;
 
 public class TransactionResourceTest {
 
@@ -150,16 +147,6 @@ public class TransactionResourceTest {
     public void testPush() throws IOException {
 
         Response response = transactionResource.push(new ByteArrayInputStream("SOMEDATA".getBytes()));
-
-//
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
-    }
-
-    @Test
-    public void testUpdatePartyInfo() throws IOException {
-
-        Response response = transactionResource.partyInfo(new ByteArrayInputStream("{}".getBytes()));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
