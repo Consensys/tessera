@@ -1,45 +1,41 @@
 package com.github.nexus.api;
 
+import com.github.nexus.api.model.DeleteRequest;
+import com.github.nexus.api.model.ReceiveRequest;
 import com.github.nexus.api.model.ReceiveResponse;
+import com.github.nexus.api.model.ResendRequest;
+import com.github.nexus.api.model.SendRequest;
 import com.github.nexus.api.model.SendResponse;
 import com.github.nexus.service.TransactionService;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.junit.After;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-
+import java.util.Base64;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import org.junit.After;
 import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 import static org.mockito.Mockito.*;
+import org.mockito.MockitoAnnotations;
 
-public class TransactionResourceTest extends JerseyTest {
+public class TransactionResourceTest {
 
     @Mock
     private TransactionService transactionService;
 
-    @Override
-    public Application configure() {
+    private TransactionResource transactionResource;
+
+    @Before
+    public void onSetup() {
         MockitoAnnotations.initMocks(this);
-
-        when(transactionService.send(any(), any(), any())).thenReturn("mykey".getBytes());
-        when(transactionService.receive(any(), any())).thenReturn("foo".getBytes());
-
-        return new ResourceConfig()
-                .register(new TransactionResource(transactionService));
+        transactionResource = new TransactionResource(transactionService);
     }
 
     @After
@@ -50,67 +46,78 @@ public class TransactionResourceTest extends JerseyTest {
     @Test
     public void testSend() {
 
-        JsonObject requestObj = Json.createObjectBuilder()
-                .add("payload", "Zm9v")
-                .add("from", "bXlwdWJsaWNrZXk=")
-                .add("to", "cmVjaXBpZW50MQ==").build();
+        SendRequest sendRequest = new SendRequest();
+        sendRequest.setFrom("bXlwdWJsaWNrZXk=");
+        sendRequest.setTo(new String[]{"cmVjaXBpZW50MQ=="});
+        sendRequest.setPayload("Zm9v");
 
-        Response response = target("/transaction/send")
-                .request(MediaType.APPLICATION_JSON)
-                .buildPost(Entity.entity(requestObj.toString(), MediaType.APPLICATION_JSON))
-                .invoke();
-
-        verify(transactionService, times(1)).send(any(),any(),any());
+        when(transactionService.send(any(), any(), any())).thenReturn("SOMEKEY".getBytes());
+        
+        Response response = transactionResource.send(sendRequest);
+        
+        verify(transactionService, times(1)).send(any(), any(), any());
         assertThat(response).isNotNull();
-        assertEquals("bXlrZXk=", response.readEntity(SendResponse.class).getKey());
+        SendResponse sr = (SendResponse)  response.getEntity();
+        assertThat(sr.getKey()).isNotEmpty();
         assertThat(response.getStatus()).isEqualTo(201);
-
     }
 
     @Test
-    public void testSendRaw() {
+    public void testSendRaw() throws Exception {
 
-        Response response = target("/transaction/sendraw")
-                .request(MediaType.TEXT_PLAIN)
-                .header("hFrom", "c2VuZGVy")
-                .header("hTo", new String[]{"cmVjaXBpZW50MQ=="})
-                .buildPost(Entity.entity("Zm9v", MediaType.TEXT_PLAIN))
-                .invoke();
+        HttpHeaders headers = mock(HttpHeaders.class);
 
-//        verify(transactionService, times(1)).send(any(),any(),any());
+        when(headers.getRequestHeader("hFrom"))
+                .thenReturn(Stream.of("c2VuZGVy")
+                        .collect(Collectors.toList()));
+
+        when(headers.getRequestHeader("hTo"))
+                .thenReturn(Stream.of("cmVjaXBpZW50MQ==")
+                        .collect(Collectors.toList()));
+
+        Response response = transactionResource.sendRaw(headers, new ByteArrayInputStream("Zm9v".getBytes()));
+
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
+
     }
 
     @Test
     public void testReceive() {
 
-        JsonObject requestObj = Json.createObjectBuilder()
-                .add("key", "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=")
-                .add("to", "cmVjaXBpZW50MQ==").build();
+        ReceiveRequest receiveRequest = new ReceiveRequest();
+        receiveRequest.setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
+        receiveRequest.setTo("cmVjaXBpZW50MQ==");
 
-        Response response = target("/transaction/receive")
-                .request(MediaType.APPLICATION_JSON)
-                .buildPost(Entity.entity(requestObj.toString(), MediaType.APPLICATION_JSON))
-                .invoke();
+        when(transactionService.receive(any(), any())).thenReturn("SOME DATA".getBytes());
+        
+        Response response = transactionResource.receive(receiveRequest);
 
-        verify(transactionService, times(1)).receive(any(),any());
+        verify(transactionService, times(1)).receive(any(), any());
         assertThat(response).isNotNull();
-        assertEquals("Zm9v", response.readEntity(ReceiveResponse.class).getPayload());
+        
+        ReceiveResponse receiveResponse = (ReceiveResponse) response.getEntity();
+        
+        assertThat(receiveResponse.getPayload()).isEqualTo("U09NRSBEQVRB");
+   
         assertThat(response.getStatus()).isEqualTo(201);
     }
 
     @Test
     public void testReceiveRaw() {
 
-        Response response = target("/transaction/receiveraw")
-                .request(MediaType.APPLICATION_JSON)
-                .header("hKey", "FOO")
-                .header("hTo", "BAR")
-                .buildPost(Entity.entity("", MediaType.TEXT_PLAIN))
-                .invoke();
+        HttpHeaders headers = mock(HttpHeaders.class);
 
-//        verify(transactionService, times(1)).receive();
+        when(headers.getRequestHeader("hKey"))
+                .thenReturn(Stream.of("FOO")
+                        .collect(Collectors.toList()));
+
+        when(headers.getRequestHeader("hTo"))
+                .thenReturn(Stream.of("BAR")
+                        .collect(Collectors.toList()));
+
+        Response response = transactionResource.receiveRaw(headers);
+
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
     }
@@ -118,61 +125,41 @@ public class TransactionResourceTest extends JerseyTest {
     @Test
     public void testDelete() {
 
-        JsonObject requestObj = Json.createObjectBuilder()
-                .add("key", "mykey")
-                .build();
+        DeleteRequest deleteRequest = new DeleteRequest();
+        deleteRequest.setKey(Base64.getEncoder().encodeToString("HELLOW".getBytes()));
+        Response response = transactionResource.delete(deleteRequest);
 
-        Response response = target("/transaction/delete")
-                .request(MediaType.APPLICATION_JSON)
-                .buildPost(Entity.entity(requestObj.toString(), MediaType.APPLICATION_JSON))
-                .invoke();
-//
-//        verify(transactionService, times(1)).delete(any());
-//        assertThat(response).isNotNull();
-//        assertThat(response.getStatus()).isEqualTo(201);
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(201);
     }
 
     @Test
     public void testResend() {
+        ResendRequest resendRequest = new ResendRequest();
+        resendRequest.setType("test");
+        resendRequest.setPublicKey("mypublickey");
+        resendRequest.setKey("mykey");
 
-        JsonObject requestObj = Json.createObjectBuilder()
-                .add("type", "test")
-                .add("publickey", "mypublickey")
-                .add("key", "mykey")
-                .build();
+        Response response = transactionResource.resend(resendRequest);
 
-        Response response = target("/transaction/resend")
-                .request(MediaType.APPLICATION_JSON)
-                .buildPost(Entity.entity(requestObj.toString(), MediaType.APPLICATION_JSON))
-                .invoke();
-//
-//        assertThat(response).isNotNull();
-//        assertThat(response.getStatus()).isEqualTo(201);
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(201);
     }
 
     @Test
-    public void testPush() {
-        JsonObject requestObj = Json.createObjectBuilder()
-                .build();
+    public void testPush() throws IOException {
 
-        Response response = target("/transaction/push")
-                .request(MediaType.APPLICATION_JSON)
-                .buildPost(Entity.entity(requestObj.toString(), MediaType.APPLICATION_JSON))
-                .invoke();
+        Response response = transactionResource.push(new ByteArrayInputStream("SOMEDATA".getBytes()));
+
 //
-//        assertThat(response).isNotNull();
-//        assertThat(response.getStatus()).isEqualTo(201);
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(201);
     }
 
     @Test
-    public void testUpdatePartyInfo() {
-        JsonObject requestObj = Json.createObjectBuilder()
-                .build();
+    public void testUpdatePartyInfo() throws IOException {
 
-        Response response = target("/transaction/partyinfo")
-                .request(MediaType.APPLICATION_JSON)
-                .buildPost(Entity.entity(requestObj.toString(), MediaType.APPLICATION_JSON))
-                .invoke();
+        Response response = transactionResource.partyInfo(new ByteArrayInputStream("{}".getBytes()));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
@@ -182,11 +169,11 @@ public class TransactionResourceTest extends JerseyTest {
     public void testReadInputStreamJustForCoverage() throws IOException {
 
         final String data = "I LOVE SPARROWS!!";
-        
+
         InputStream inputStream = spy(new ByteArrayInputStream(data.getBytes()));
 
         String result = TransactionResource.readInputStream(inputStream);
-            
+
         assertThat(result).isEqualTo(data);
         verify(inputStream).close();
 
