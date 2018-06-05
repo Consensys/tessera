@@ -1,5 +1,6 @@
 package com.github.nexus.dao;
 
+import com.github.nexus.enclave.model.MessageHash;
 import com.github.nexus.entity.EncryptedTransaction;
 import org.junit.After;
 import org.junit.Before;
@@ -127,6 +128,35 @@ public class EncryptedTransactionDAOTest {
 
     }
 
+    @Test
+    public void deleteTransactionRemovesFromDatabaseAndReturnsTrue() {
 
+        //put a transaction in the database
+        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+        encryptedTransaction.setEncodedPayload(new byte[]{5});
+        encryptedTransaction.setHash(new byte[]{1});
+        encryptedTransactionDAO.save(encryptedTransaction);
+
+        //check that it is actually in the database
+        final EncryptedTransaction retrieved
+            = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getId());
+        assertThat(retrieved).isNotNull();
+
+        //delete the transaction
+        final boolean deletedFlag = encryptedTransactionDAO.delete(new MessageHash(new byte[]{1}));
+        assertThat(deletedFlag).isTrue();
+
+        //check it is not longer in the database
+        final EncryptedTransaction deleted
+            = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getId());
+        assertThat(deleted).isNull();
+    }
+
+    @Test
+    public void deleteReturnsFalseIfNotExist() {
+        //delete the transaction
+        final boolean deletedFlag = encryptedTransactionDAO.delete(new MessageHash(new byte[]{1}));
+        assertThat(deletedFlag).isFalse();
+    }
 
 }
