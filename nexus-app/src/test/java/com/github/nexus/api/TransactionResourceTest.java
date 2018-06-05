@@ -1,5 +1,6 @@
 package com.github.nexus.api;
 
+import com.github.nexus.api.exception.DecodingException;
 import com.github.nexus.api.model.DeleteRequest;
 import com.github.nexus.api.model.ReceiveRequest;
 import com.github.nexus.api.model.ReceiveResponse;
@@ -16,7 +17,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.assertj.core.api.Assertions;
+import static org.assertj.core.api.Assertions.*;
 import org.junit.After;
 import static org.junit.Assert.fail;
 import org.junit.Before;
@@ -52,14 +54,34 @@ public class TransactionResourceTest {
         sendRequest.setPayload("Zm9v");
 
         when(transactionService.send(any(), any(), any())).thenReturn("SOMEKEY".getBytes());
-        
+
         Response response = transactionResource.send(sendRequest);
-        
+
         verify(transactionService, times(1)).send(any(), any(), any());
         assertThat(response).isNotNull();
-        SendResponse sr = (SendResponse)  response.getEntity();
+        SendResponse sr = (SendResponse) response.getEntity();
         assertThat(sr.getKey()).isNotEmpty();
         assertThat(response.getStatus()).isEqualTo(201);
+    }
+
+    @Test
+    public void sendThrowsDecodingException() {
+
+        SendRequest sendRequest = new SendRequest();
+        sendRequest.setFrom("bXlwdWJsaWNrZXk=");
+        sendRequest.setTo(new String[]{"cmVjaXBpZW50MQ=="});
+        sendRequest.setPayload("Zm9v");
+
+        when(transactionService.send(any(), any(), any())).thenThrow(new IllegalArgumentException());
+
+        try {
+            transactionResource.send(sendRequest);
+            Assertions.failBecauseExceptionWasNotThrown(DecodingException.class);
+        } catch (DecodingException ex) {
+            assertThat(ex).isNotNull();
+        }
+        verify(transactionService, times(1)).send(any(), any(), any());
+
     }
 
     @Test
@@ -90,16 +112,16 @@ public class TransactionResourceTest {
         receiveRequest.setTo("cmVjaXBpZW50MQ==");
 
         when(transactionService.receive(any(), any())).thenReturn("SOME DATA".getBytes());
-        
+
         Response response = transactionResource.receive(receiveRequest);
 
         verify(transactionService, times(1)).receive(any(), any());
         assertThat(response).isNotNull();
-        
+
         ReceiveResponse receiveResponse = (ReceiveResponse) response.getEntity();
-        
+
         assertThat(receiveResponse.getPayload()).isEqualTo("U09NRSBEQVRB");
-   
+
         assertThat(response.getStatus()).isEqualTo(201);
     }
 
@@ -193,4 +215,5 @@ public class TransactionResourceTest {
         verify(inputStream).close();
 
     }
+
 }
