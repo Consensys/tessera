@@ -3,7 +3,10 @@ package com.github.nexus.encryption;
 import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.enclave.keys.model.KeyPair;
 import org.abstractj.kalium.NaCl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import static org.abstractj.kalium.NaCl.Sodium.*;
@@ -13,26 +16,40 @@ import static org.abstractj.kalium.NaCl.Sodium.*;
  */
 public class Kalium implements NaclFacade {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Kalium.class);
+
     private final NaCl.Sodium sodium;
 
     public Kalium(final NaCl.Sodium sodium) {
         this.sodium = Objects.requireNonNull(sodium, "Kalium sodium implementation was null");
+
+        LOGGER.info("Initialising Sodium...");
         this.sodium.sodium_init();
+        LOGGER.info("Sodium initialised");
     }
 
     @Override
     public Key computeSharedKey(final Key publicKey, final Key privateKey) {
         final byte[] output = new byte[NaCl.Sodium.CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BEFORENMBYTES];
 
+        LOGGER.info("Computing the shared key for public key {} and private key {}", publicKey, "REDACTED");
+        LOGGER.debug("Computing the shared key for public key {} and private key {}", publicKey, privateKey);
         final int sodiumResult = this.sodium.crypto_box_curve25519xsalsa20poly1305_beforenm(
                 output, publicKey.getKeyBytes(), privateKey.getKeyBytes()
         );
 
         if(sodiumResult == -1) {
+            LOGGER.warn("Could not compute the shared key for pub {} and priv {}", publicKey, "REDACTED");
+            LOGGER.debug("Could not compute the shared key for pub {} and priv {}", publicKey, privateKey);
             throw new NaclException("Kalium could not compute the shared key");
         }
 
-        return new Key(output);
+        final Key sharedKey = new Key(output);
+
+        LOGGER.info("Computed shared key {} for pub {} and priv {}", sharedKey, publicKey, "REDACTED");
+        LOGGER.debug("Computed shared key {} for pub {} and priv {}", sharedKey, publicKey, privateKey);
+
+        return sharedKey;
     }
 
     @Override
@@ -44,13 +61,27 @@ public class Kalium implements NaclFacade {
         final byte[] paddedMessage = pad(message, CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES);
         final byte[] output = new byte[paddedMessage.length];
 
+        LOGGER.info("Sealing message using public key {}", publicKey);
+        LOGGER.debug(
+            "Sealing message {} using nonce {}, public key {} and private key {}",
+            Arrays.toString(message), Arrays.toString(nonce), publicKey, privateKey
+        );
+
         final int sodiumResult = sodium.crypto_box_curve25519xsalsa20poly1305(
                 output, paddedMessage, paddedMessage.length, nonce, publicKey.getKeyBytes(), privateKey.getKeyBytes()
         );
 
         if(sodiumResult == -1) {
+            LOGGER.warn("Could not create sealed payload using public key {} and private key {}", publicKey, "REDACTED");
+            LOGGER.debug("Could not create sealed payload using public key {} and private key {}", publicKey, privateKey);
             throw new NaclException("Kalium could not seal the payload using the provided keys directly");
         }
+
+        LOGGER.info("Created sealed payload for public key {}", publicKey);
+        LOGGER.debug(
+            "Created sealed payload {} using nonce {}, public key {} and private key {}",
+            Arrays.toString(output), Arrays.toString(nonce), publicKey, privateKey
+        );
 
         return output;
     }
@@ -59,13 +90,27 @@ public class Kalium implements NaclFacade {
     public byte[] open(final byte[] cipherText, final byte[] nonce, final Key publicKey, final Key privateKey) {
         final byte[] paddedOutput = new byte[cipherText.length];
 
+        LOGGER.info("Opening message using public key {}", publicKey);
+        LOGGER.debug(
+            "Opening message {} using nonce {}, public key {} and private key {}",
+            Arrays.toString(cipherText), Arrays.toString(nonce), publicKey, privateKey
+        );
+
         final int sodiumResult = sodium.crypto_box_curve25519xsalsa20poly1305_open(
                 paddedOutput, cipherText, cipherText.length, nonce, publicKey.getKeyBytes(), privateKey.getKeyBytes()
         );
 
         if(sodiumResult == -1) {
+            LOGGER.warn("Could not open sealed payload using public key {} and private key {}", publicKey, "REDACTED");
+            LOGGER.debug("Could not opern sealed payload using public key {} and private key {}", publicKey, privateKey);
             throw new NaclException("Kalium could not open the payload using the provided keys directly");
         }
+
+        LOGGER.info("Opened sealed payload for public key {}", publicKey);
+        LOGGER.debug(
+            "Opened payload {} using nonce {}, public key {} and private key {} to get result {}",
+            Arrays.toString(cipherText), Arrays.toString(nonce), publicKey, privateKey, Arrays.toString(paddedOutput)
+        );
 
         return extract(paddedOutput, CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES);
     }
@@ -79,14 +124,27 @@ public class Kalium implements NaclFacade {
         final byte[] paddedMessage = pad(message, CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES);
         final byte[] output = new byte[paddedMessage.length];
 
+        LOGGER.info("Sealing message using public key {}", sharedKey);
+        LOGGER.debug(
+            "Sealing message {} using nonce {} and shared key {}",
+            Arrays.toString(message), Arrays.toString(nonce), sharedKey
+        );
+
         final int sodiumResult = this.sodium.crypto_box_curve25519xsalsa20poly1305_afternm(
                 output, paddedMessage, paddedMessage.length, nonce, sharedKey.getKeyBytes()
         );
 
         if(sodiumResult == -1) {
+            LOGGER.warn("Could not create sealed payload using shared key {}", sharedKey);
+            LOGGER.debug("Could not create sealed payload using shared key {}", sharedKey);
             throw new NaclException("Kalium could not seal the payload using the shared key");
         }
 
+        LOGGER.info("Created sealed payload for shared key {}", sharedKey);
+        LOGGER.debug(
+            "Created sealed payload {} using nonce {} and shared key {}",
+            Arrays.toString(output), Arrays.toString(nonce), sharedKey
+        );
         return output;
     }
 
@@ -94,22 +152,39 @@ public class Kalium implements NaclFacade {
     public byte[] openAfterPrecomputation(final byte[] encryptedPayload, final byte[] nonce, final Key sharedKey) {
         final byte[] paddedOutput = new byte[encryptedPayload.length];
 
+        LOGGER.info("Opening message using shared key {}", sharedKey);
+        LOGGER.debug(
+            "Opening message {} using nonce {} and shared key {}",
+            Arrays.toString(encryptedPayload), Arrays.toString(nonce), sharedKey
+        );
+
         final int sodiumResult = this.sodium.crypto_box_curve25519xsalsa20poly1305_open_afternm(
                 paddedOutput, encryptedPayload, encryptedPayload.length, nonce, sharedKey.getKeyBytes()
         );
 
         if(sodiumResult == -1) {
+            LOGGER.warn("Could not open sealed payload using shared key {}", sharedKey);
+            LOGGER.debug("Could not open sealed payload using shared key {}", sharedKey);
             throw new NaclException("Kalium could not open the payload using the shared key");
         }
+
+        LOGGER.info("Opened sealed payload for shared key {}", sharedKey);
+        LOGGER.debug(
+            "Opened payload {} using nonce {}, public key {} and private key {} to get result {}",
+            Arrays.toString(encryptedPayload), Arrays.toString(nonce), sharedKey, Arrays.toString(paddedOutput)
+        );
 
         return extract(paddedOutput, CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES);
     }
 
     @Override
     public byte[] randomNonce() {
+
         final byte[] nonce = new byte[CRYPTO_BOX_CURVE25519XSALSA20POLY1305_NONCEBYTES];
 
         this.sodium.randombytes(nonce, nonce.length);
+
+        LOGGER.debug("Generated random nonce {}", Arrays.toString(nonce));
 
         return nonce;
     }
@@ -119,13 +194,22 @@ public class Kalium implements NaclFacade {
         final byte[] publicKey = new byte[CRYPTO_BOX_CURVE25519XSALSA20POLY1305_PUBLICKEYBYTES];
         final byte[] privateKey = new byte[CRYPTO_BOX_CURVE25519XSALSA20POLY1305_SECRETKEYBYTES];
 
+        LOGGER.info("Generating new keypair...");
+
         final int sodiumResult = this.sodium.crypto_box_curve25519xsalsa20poly1305_keypair(publicKey, privateKey);
 
         if(sodiumResult == -1) {
+            LOGGER.warn("Unable to generate a new keypair!");
             throw new NaclException("Kalium could not generate a new public/private keypair");
         }
 
-        return new KeyPair(new Key(publicKey), new Key(privateKey));
+        final Key pubKey = new Key(publicKey);
+        final Key privKey = new Key(privateKey);
+
+        LOGGER.info("Generated public key {} and private key {}", pubKey, "REDACTED");
+        LOGGER.debug("Generated public key {} and private key {}", pubKey, privKey);
+
+        return new KeyPair(pubKey, privKey);
     }
 
     /**
