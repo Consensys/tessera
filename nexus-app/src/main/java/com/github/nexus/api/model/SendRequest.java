@@ -1,14 +1,11 @@
 package com.github.nexus.api.model;
 
-import com.sun.istack.internal.Nullable;
-
 import javax.validation.constraints.NotNull;
 
 public class SendRequest{
 
     @NotNull
     private String payload;
-    @Nullable
     private String from;
     @NotNull
     private String[] to;
