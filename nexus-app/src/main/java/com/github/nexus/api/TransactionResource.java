@@ -2,7 +2,7 @@ package com.github.nexus.api;
 
 import com.github.nexus.api.exception.DecodingException;
 import com.github.nexus.api.model.*;
-import com.github.nexus.service.TransactionService;
+import com.github.nexus.enclave.Enclave;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -31,10 +31,10 @@ public class TransactionResource {
 
     private static final Logger LOGGER = Logger.getLogger(TransactionResource.class.getName());
 
-    private final TransactionService transactionService;
+    private final Enclave enclave;
 
-    public TransactionResource(final TransactionService transactionService) {
-        this.transactionService = requireNonNull(transactionService, "transactionService must not be null");
+    public TransactionResource(final Enclave enclave) {
+        this.enclave = requireNonNull(enclave, "enclave must not be null");
     }
 
     @POST
@@ -50,7 +50,7 @@ public class TransactionResource {
                             .toArray(byte[][]::new);
             byte[] payload = Base64.getDecoder().decode(sendRequest.getPayload());
 
-            byte[] key = transactionService.send(from, recipients, payload);
+            byte[] key = enclave.store(from, recipients, payload);
 
             String encodedKey = Base64.getEncoder().encodeToString(key);
             SendResponse response = new SendResponse(encodedKey);
@@ -84,7 +84,8 @@ public class TransactionResource {
 
             byte[] to = Base64.getDecoder().decode(receiveRequest.getTo());
 
-            byte[] payload = transactionService.receive(key, to);
+            //TODO Call enlave retrieve here
+            byte[] payload = "Retrieved payload".getBytes();
             String encodedPayload = Base64.getEncoder().encodeToString(payload);
             ReceiveResponse response = new ReceiveResponse(encodedPayload);
 
