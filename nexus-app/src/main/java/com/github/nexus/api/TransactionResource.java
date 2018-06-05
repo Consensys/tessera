@@ -80,21 +80,24 @@ public class TransactionResource {
     @POST
     @Path("/receive")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response receive(@Valid final ReceiveRequest receiveRequest) {
+    public Response receive(@Valid final ReceiveRequest receiveRequest) throws DecodingException {
+        try {
+            byte[] key = Base64.getDecoder().decode(receiveRequest.getKey());
 
-        byte[] key = Base64.getDecoder().decode(receiveRequest.getKey());
+            byte[] to = Base64.getDecoder().decode(receiveRequest.getTo());
 
-        byte[] to = Base64.getDecoder().decode(receiveRequest.getTo());
+            byte[] payload = transactionService.receive(key, to);
+            String encodedPayload = Base64.getEncoder().encodeToString(payload);
+            ReceiveResponse response = new ReceiveResponse(encodedPayload);
 
-        byte[] payload = transactionService.receive(key, to);
-        String encodedPayload = Base64.getEncoder().encodeToString(payload);
-        ReceiveResponse response = new ReceiveResponse(encodedPayload);
-
-        return Response.status(Response.Status.CREATED)
-                .header("Content-Type","application/json")
+            return Response.status(Response.Status.CREATED)
+                .header("Content-Type", "application/json")
                 .entity(response)
                 .build();
-
+        }
+        catch (IllegalArgumentException e){
+            throw new DecodingException("Unable to decode input values. Cause: " + e.getMessage(),e);
+        }
     }
 
     @POST
