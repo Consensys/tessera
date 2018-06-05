@@ -113,8 +113,6 @@ public class TransactionResource {
 
         byte[] key = Base64.getDecoder().decode(deleteRequest.getKey());
 
-        transactionService.delete(key);
-
         return Response.status(Response.Status.CREATED).build();
     }
 
