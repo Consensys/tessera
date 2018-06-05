@@ -2,14 +2,26 @@ package com.github.nexus.service;
 
 public interface TransactionService {
 
-    byte[] send();
+    /**
+     *
+     * @param from
+     * @param recipients
+     * @param payload
+     * @return
+     */
+    byte[] send(byte[] from, byte[][] recipients, byte[] payload);
 
-    void receive();
 
-    void delete();
+    /**
+     *
+     * @param key
+     * @param to
+     * @return
+     */
+    byte[] receive(byte[] key, byte[] to);
 
-    void resend();
+    void delete(byte[] key);
 
-    void push();
+    byte[] push(byte[] payload);
 
 }
