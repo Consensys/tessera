@@ -1,5 +1,6 @@
 package com.github.nexus.api;
 
+import com.github.nexus.Base64Decoder;
 import com.github.nexus.api.exception.DecodingException;
 import com.github.nexus.api.model.*;
 import com.github.nexus.enclave.Enclave;
@@ -19,6 +20,9 @@ import java.io.UncheckedIOException;
 import java.util.Base64;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import org.junit.After;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -31,10 +35,12 @@ public class TransactionResourceTest {
 
     private TransactionResource transactionResource;
 
+    private Base64Decoder base64Decoder = Base64Decoder.create();
+    
     @Before
     public void onSetup() {
         MockitoAnnotations.initMocks(this);
-        transactionResource = new TransactionResource(enclave);
+        transactionResource = new TransactionResource(enclave,base64Decoder);
     }
 
     @After
