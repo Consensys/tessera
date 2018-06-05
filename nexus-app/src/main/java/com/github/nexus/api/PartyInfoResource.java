@@ -19,7 +19,7 @@ public class PartyInfoResource {
     private final PartyInfoService partyInfoService;
 
     public PartyInfoResource(final PartyInfoService partyInfoService) {
-        this.partyInfoService = requireNonNull(partyInfoService, "transactionService must not be null");
+        this.partyInfoService = requireNonNull(partyInfoService, "partyInfoService must not be null");
     }
 
     @POST
