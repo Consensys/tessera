@@ -5,6 +5,9 @@ import com.github.nexus.enclave.keys.model.KeyPair;
 
 import java.nio.file.Path;
 
+/**
+ * Manages local keys for the running node, include key lookups and key loading/generation
+ */
 public interface KeyManager {
 
     /**
