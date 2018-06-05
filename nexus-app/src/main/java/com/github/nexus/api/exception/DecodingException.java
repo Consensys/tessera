@@ -1,6 +1,6 @@
 package com.github.nexus.api.exception;
 
-public class DecodingException extends RuntimeException {
+public class DecodingException extends NexusException {
 
     public DecodingException(String message) {
         super(message);

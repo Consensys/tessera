@@ -1,6 +1,7 @@
 
-package com.github.nexus.app;
+package com.github.nexus.api.exception;
 
+import com.github.nexus.api.exception.DefaultExceptionMapper;
 import javax.ws.rs.core.Response;
 import org.junit.After;
 import org.junit.Before;
