@@ -1,5 +1,6 @@
 package com.github.nexus.api;
 
+import com.github.nexus.enclave.model.MessageHash;
 import com.github.nexus.util.Base64Decoder;
 import com.github.nexus.api.exception.DecodingException;
 import com.github.nexus.api.model.*;
@@ -38,7 +39,6 @@ public class TransactionResource {
     public TransactionResource(final Enclave enclave,final Base64Decoder base64Decoder) {
         this.enclave = requireNonNull(enclave, "enclave must not be null");
         this.base64Decoder = requireNonNull(base64Decoder, "decoder must not be null");
-
     }
 
     @POST
@@ -115,7 +115,9 @@ public class TransactionResource {
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response delete(@Valid final DeleteRequest deleteRequest) {
 
-        byte[] key = Base64.getDecoder().decode(deleteRequest.getKey());
+        byte[] hashBytes = base64Decoder.decode(deleteRequest.getKey());
+
+        enclave.delete(new MessageHash(hashBytes));
 
         return Response.status(Response.Status.CREATED).build();
     }
