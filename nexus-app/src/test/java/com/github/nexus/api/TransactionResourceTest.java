@@ -1,13 +1,13 @@
 package com.github.nexus.api;
 
 import com.github.nexus.api.exception.DecodingException;
-import com.github.nexus.api.model.DeleteRequest;
-import com.github.nexus.api.model.ReceiveRequest;
-import com.github.nexus.api.model.ReceiveResponse;
-import com.github.nexus.api.model.ResendRequest;
-import com.github.nexus.api.model.SendRequest;
-import com.github.nexus.api.model.SendResponse;
+import com.github.nexus.api.model.*;
 import com.github.nexus.service.TransactionService;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,14 +18,12 @@ import java.util.stream.Stream;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.assertj.core.api.Assertions;
-import static org.assertj.core.api.Assertions.*;
 import org.junit.After;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.junit.Assert.fail;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 import static org.mockito.Mockito.*;
-import org.mockito.MockitoAnnotations;
 
 public class TransactionResourceTest {
 
@@ -169,19 +167,36 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void testPush() throws IOException {
+    public void testResendAll() {
+        ResendRequest resendRequest = new ResendRequest();
+        resendRequest.setType(ResendRequestType.ALL.name());
+        resendRequest.setPublicKey("mypublickey");
+        resendRequest.setKey("mykey");
 
-        Response response = transactionResource.push(new ByteArrayInputStream("SOMEDATA".getBytes()));
+        Response response = transactionResource.resend(resendRequest);
 
-//
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
     }
 
     @Test
-    public void testUpdatePartyInfo() throws IOException {
+    public void testResendIndividual() {
 
-        Response response = transactionResource.partyInfo(new ByteArrayInputStream("{}".getBytes()));
+        ResendRequest resendRequest = new ResendRequest();
+        resendRequest.setType(ResendRequestType.INDIVIDUAL.name());
+        resendRequest.setPublicKey("mypublickey");
+        resendRequest.setKey(Base64.getEncoder().encodeToString("mykey".getBytes()));
+
+        Response response = transactionResource.resend(resendRequest);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(201);
+    }
+
+    @Test
+    public void testPush() throws IOException {
+
+        Response response = transactionResource.push(new ByteArrayInputStream("SOMEDATA".getBytes()));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
