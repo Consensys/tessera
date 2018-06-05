@@ -1,5 +1,6 @@
 package com.github.nexus.api;
 
+import com.github.nexus.api.exception.DecodingException;
 import com.github.nexus.api.model.*;
 import com.github.nexus.service.TransactionService;
 import org.junit.After;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
@@ -57,6 +59,20 @@ public class TransactionResourceTest {
         SendResponse sr = (SendResponse)  response.getEntity();
         assertThat(sr.getKey()).isNotEmpty();
         assertThat(response.getStatus()).isEqualTo(201);
+    }
+
+    @Test(expected = DecodingException.class)
+    public void testSendThrowDecodingException(){
+        SendRequest sendRequest = new SendRequest();
+        sendRequest.setFrom("bXlwdWJsaWNrZXk=");
+        sendRequest.setTo(new String[]{"cmVjaXBpZW50MQ=="});
+        sendRequest.setPayload("1");
+
+        when(transactionService.send(any(), any(), any())).thenReturn("SOMEKEY".getBytes());
+        Response response = transactionResource.send(sendRequest);
+        assertThat(response).isNotNull();
+        assertEquals(Response.Status.BAD_REQUEST, response.getStatus());
+
     }
 
     @Test
