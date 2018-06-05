@@ -1,9 +1,9 @@
 package com.github.nexus.api;
 
-import com.github.nexus.Base64Decoder;
+import com.github.nexus.util.Base64Decoder;
 import com.github.nexus.api.exception.DecodingException;
 import com.github.nexus.api.model.*;
-import com.github.nexus.service.TransactionService;
+import com.github.nexus.enclave.Enclave;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -32,13 +32,13 @@ public class TransactionResource {
 
     private static final Logger LOGGER = Logger.getLogger(TransactionResource.class.getName());
 
-    private final TransactionService transactionService;
-
+    private final Enclave enclave;
     private final Base64Decoder base64Decoder;
     
-    public TransactionResource(final TransactionService transactionService,final Base64Decoder base64Decoder) {
-        this.transactionService = requireNonNull(transactionService, "transactionService must not be null");
-        this.base64Decoder = requireNonNull(base64Decoder);
+    public TransactionResource(final Enclave enclave,final Base64Decoder base64Decoder) {
+        this.enclave = requireNonNull(enclave, "enclave must not be null");
+        this.base64Decoder = requireNonNull(base64Decoder, "decoder must not be null");
+
     }
 
     @POST
@@ -56,7 +56,7 @@ public class TransactionResource {
             
             byte[] payload = base64Decoder.decode(sendRequest.getPayload());
 
-            byte[] key = transactionService.send(from, recipients, payload);
+            byte[] key = enclave.store(from, recipients, payload);
 
             String encodedKey = base64Decoder.encodeToString(key);
             SendResponse response = new SendResponse(encodedKey);
@@ -88,7 +88,9 @@ public class TransactionResource {
 
             byte[] to = base64Decoder.decode(receiveRequest.getTo());
 
-            byte[] payload = transactionService.receive(key, to);
+            //TODO Call enlave retrieve here
+            byte[] payload = "Retrieved payload".getBytes();
+
             String encodedPayload = base64Decoder.encodeToString(payload);
             ReceiveResponse response = new ReceiveResponse(encodedPayload);
 

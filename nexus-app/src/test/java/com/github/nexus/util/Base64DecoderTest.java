@@ -1,9 +1,11 @@
-package com.github.nexus;
+package com.github.nexus.util;
 
 import com.github.nexus.api.exception.DecodingException;
-import java.util.Base64;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
+
+import java.util.Base64;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class Base64DecoderTest {
 
