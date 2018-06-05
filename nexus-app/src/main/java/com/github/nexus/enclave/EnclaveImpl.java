@@ -1,19 +1,25 @@
 package com.github.nexus.enclave;
 
+import com.github.nexus.dao.EncryptedTransactionDAO;
 import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.enclave.model.MessageHash;
 
 import java.util.Collection;
 import java.util.Map;
 
+import static java.util.Objects.requireNonNull;
+
 public class EnclaveImpl implements Enclave {
 
+    private final EncryptedTransactionDAO encryptedTransactionDAO;
 
-
+    public EnclaveImpl(final EncryptedTransactionDAO encryptedTransactionDAO) {
+        this.encryptedTransactionDAO = requireNonNull(encryptedTransactionDAO,"dao cannot be null");
+    }
 
     @Override
     public boolean delete(final MessageHash hash) {
-        return true;
+        return encryptedTransactionDAO.delete(hash);
     }
 
     @Override
