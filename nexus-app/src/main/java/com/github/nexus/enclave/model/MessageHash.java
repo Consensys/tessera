@@ -11,7 +11,7 @@ public class MessageHash {
     }
 
     public byte[] getHashBytes() {
-        return hashBytes;
+        return Arrays.copyOf(hashBytes, hashBytes.length);
     }
 
     @Override
@@ -31,6 +31,11 @@ public class MessageHash {
     @Override
     public int hashCode() {
         return Arrays.hashCode(getHashBytes());
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(hashBytes);
     }
 
 }
