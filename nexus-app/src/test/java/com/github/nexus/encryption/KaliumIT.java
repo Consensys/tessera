@@ -69,5 +69,20 @@ public class KaliumIT {
         assertThat(decryptedMessage).isEqualTo(payload);
     }
 
+    @Test
+    public void randomKeyCanEncryptAndDecrpytPayload() {
+
+        final String payload = "Hello world";
+        final byte[] payloadBytes = payload.getBytes(UTF_8);
+        final byte[] nonce = kalium.randomNonce();
+
+        final Key symmentricKey = kalium.createSingleKey();
+
+        final byte[] encryptedPayload = kalium.sealAfterPrecomputation(payloadBytes, nonce, symmentricKey);
+        final byte[] decryptedPayload = kalium.openAfterPrecomputation(encryptedPayload, nonce, symmentricKey);
+
+        final String decryptedMessage = new String(decryptedPayload, UTF_8);
+        assertThat(decryptedMessage).isEqualTo(payload);
+    }
 
 }

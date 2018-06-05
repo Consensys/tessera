@@ -50,7 +50,6 @@ public interface NaclFacade {
 
     /**
      * Encrypt a payload using the given public/private key pair for the sender/recipient
-     * This computes the shared key and then calls {@see NaclFacade#sealAfterPrecomputation}
      *
      * @param message   The payload to be encrypted
      * @param nonce     A unique nonce for this public/private pair
@@ -82,5 +81,12 @@ public interface NaclFacade {
      * @return A pair of public and private keys
      */
     KeyPair generateNewKeys();
+
+    /**
+     * Creates a single standalone key
+     *
+     * @return The randomly generated key
+     */
+    Key createSingleKey();
 
 }
