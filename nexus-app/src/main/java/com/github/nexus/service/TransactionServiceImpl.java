@@ -18,28 +18,15 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
-    public byte[] send(){
+    public byte[] send(byte[] from, byte[][] to, byte[] payload){
         encryptedTransactionDAO.save(new EncryptedTransaction("someValue".getBytes(), "somePayload".getBytes()));
         return "mykey".getBytes();
     }
 
     @Override
-    public void receive() {
+    public byte[] receive(byte[] key, byte[] to) {
         LOGGER.info("receive");
-    }
-
-    @Override
-    public void delete() {
-        LOGGER.info("delete");
-    }
-
-    @Override
-    public void resend(){
-        LOGGER.info("resend");
-    }
-
-    @Override
-    public void push(){
-        LOGGER.info("push");
+        encryptedTransactionDAO.retrieveAllTransactions();
+        return "payload".getBytes();
     }
 }
