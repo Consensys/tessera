@@ -43,10 +43,10 @@ public class TransactionResource {
     @Produces({MediaType.APPLICATION_JSON})
     public Response send(@Valid final SendRequest sendRequest) throws DecodingException {
         try {
-            byte[] from = sendRequest.getFrom() == null ?
-                    new byte[0] : Base64.getDecoder().decode(sendRequest.getFrom());
-            byte[][] recipients =
-                Stream.of(sendRequest.getTo())
+            byte[] from = sendRequest.getFrom() == null
+                    ? new byte[0] : Base64.getDecoder().decode(sendRequest.getFrom());
+            byte[][] recipients
+                    = Stream.of(sendRequest.getTo())
                             .map(x -> Base64.getDecoder().decode(x))
                             .toArray(byte[][]::new);
             byte[] payload = Base64.getDecoder().decode(sendRequest.getPayload());
@@ -57,12 +57,11 @@ public class TransactionResource {
             SendResponse response = new SendResponse(encodedKey);
 
             return Response.status(Response.Status.CREATED)
-                .header("Content-Type","application/json")
-                .entity(response)
-                .build();
-        }
-        catch (IllegalArgumentException e){
-            throw new DecodingException("Unable to decode input values. Cause: " + e.getMessage(),e);
+                    .header("Content-Type", "application/json")
+                    .entity(response)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            throw new DecodingException("Unable to decode input values. Cause: " + e.getMessage(), e);
         }
     }
 
@@ -91,12 +90,11 @@ public class TransactionResource {
             ReceiveResponse response = new ReceiveResponse(encodedPayload);
 
             return Response.status(Response.Status.CREATED)
-                .header("Content-Type", "application/json")
-                .entity(response)
-                .build();
-        }
-        catch (IllegalArgumentException e){
-            throw new DecodingException("Unable to decode input values. Cause: " + e.getMessage(),e);
+                    .header("Content-Type", "application/json")
+                    .entity(response)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            throw new DecodingException("Unable to decode input values. Cause: " + e.getMessage(), e);
         }
     }
 
@@ -126,14 +124,12 @@ public class TransactionResource {
         String type = resendRequest.getType();
         byte[] publickey = Base64.getDecoder().decode(resendRequest.getPublicKey());
 
-        if (type.equalsIgnoreCase(ResendRequestType.ALL.name())){
+        if (type.equalsIgnoreCase(ResendRequestType.ALL.name())) {
             LOGGER.info("ALL");
-        }
-        else {
-            if (type.equalsIgnoreCase(ResendRequestType.INDIVIDUAL.name())){
-                byte[] key = Base64.getDecoder().decode(resendRequest.getKey());
-                LOGGER.info("INDIVIDUAL");
-            }
+        } else if (type.equalsIgnoreCase(ResendRequestType.INDIVIDUAL.name())) {
+            byte[] key = Base64.getDecoder().decode(resendRequest.getKey());
+            LOGGER.info("INDIVIDUAL");
+
         }
 
         return Response.status(Response.Status.CREATED).build();
@@ -145,13 +141,6 @@ public class TransactionResource {
 
         byte[] payload = Base64.getDecoder().decode(readInputStream(inputStream));
 
-        return Response.status(Response.Status.CREATED).build();
-    }
-
-    @POST
-    @Path("/partyinfo")
-    public Response partyInfo(final InputStream payload) throws IOException {
-        LOGGER.log(Level.INFO, "payload: {0}", readInputStream(payload));
         return Response.status(Response.Status.CREATED).build();
     }
 
