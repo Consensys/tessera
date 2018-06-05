@@ -1,21 +1,34 @@
 package com.github.nexus.enclave;
 
+import com.github.nexus.dao.EncryptedTransactionDAO;
 import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.enclave.model.MessageHash;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collections;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 public class EnclaveImplTest {
 
-    private Enclave enclave = new EnclaveImpl();
+    private EncryptedTransactionDAO dao;
 
-    //TODO Please implement these tests
+    private Enclave enclave;
+
+    @Before
+    public void setUp(){
+        this.dao = mock(EncryptedTransactionDAO.class);
+        enclave = new EnclaveImpl(dao);
+    }
 
 
     @Test
     public void testDelete(){
+        when(dao.delete(any())).thenReturn(true);
         enclave.delete(new MessageHash(new byte[0]));
+        verify(dao, times(1)).delete(any());
     }
 
     @Test
