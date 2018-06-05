@@ -1,6 +1,7 @@
 package com.github.nexus.enclave.keys.model;
 
 import java.util.Arrays;
+import java.util.Base64;
 
 public class Key {
 
@@ -26,5 +27,10 @@ public class Key {
     @Override
     public int hashCode() {
         return Arrays.hashCode(key);
+    }
+
+    @Override
+    public String toString() {
+        return Base64.getEncoder().encodeToString(this.key);
     }
 }
