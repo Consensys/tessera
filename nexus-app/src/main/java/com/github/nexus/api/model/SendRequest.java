@@ -6,6 +6,7 @@ public class SendRequest{
 
     @NotNull
     private String payload;
+    @NotNull
     private String from;
     @NotNull
     private String[] to;

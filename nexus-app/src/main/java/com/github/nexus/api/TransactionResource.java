@@ -43,8 +43,7 @@ public class TransactionResource {
     @Produces({MediaType.APPLICATION_JSON})
     public Response send(@Valid final SendRequest sendRequest) throws DecodingException {
         try {
-            byte[] from = sendRequest.getFrom() == null ?
-                    new byte[0] : Base64.getDecoder().decode(sendRequest.getFrom());
+            byte[] from = Base64.getDecoder().decode(sendRequest.getFrom());
             byte[][] recipients =
                 Stream.of(sendRequest.getTo())
                             .map(x -> Base64.getDecoder().decode(x))
@@ -129,12 +128,11 @@ public class TransactionResource {
         if (type.equalsIgnoreCase(ResendRequestType.ALL.name())){
             LOGGER.info("ALL");
         }
-        else {
+        else
             if (type.equalsIgnoreCase(ResendRequestType.INDIVIDUAL.name())){
                 byte[] key = Base64.getDecoder().decode(resendRequest.getKey());
                 LOGGER.info("INDIVIDUAL");
             }
-        }
 
         return Response.status(Response.Status.CREATED).build();
     }
