@@ -18,6 +18,9 @@
     <bean class="com.github.nexus.api.UpCheckResource"/>
     <bean class="com.github.nexus.api.TransactionResource">
         <constructor-arg ref="transactionService"/>
+        <constructor-arg>
+            <bean class="com.github.nexus.Base64Decoder" factory-method="create" />
+        </constructor-arg>
     </bean>
 
     <bean name="transactionService" class="com.github.nexus.service.TransactionServiceImpl">
