@@ -1,36 +1,34 @@
 package com.github.nexus.entity;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
-public class SomeEntityTest {
+import static org.assertj.core.api.Assertions.assertThat;
 
-    public SomeEntityTest() {
-    }
+public class EncryptedTransactionTest {
 
     @Test
     public void twoObjectWithSameIdAreEqual() {
 
         final Long id = 1L;
 
-        final SomeEntity first = new SomeEntity();
+        final EncryptedTransaction first = new EncryptedTransaction();
         first.setId(id);
 
-        final SomeEntity second = new SomeEntity();
+        final EncryptedTransaction second = new EncryptedTransaction();
         second.setId(id);
 
         assertThat(first).isEqualTo(second).isNotSameAs(second)
-                .hasSameHashCodeAs(second);
+            .hasSameHashCodeAs(second);
 
     }
 
     @Test
     public void twoObjectWithDifferentIdAreNotEqual() {
 
-        final SomeEntity first = new SomeEntity();
+        final EncryptedTransaction first = new EncryptedTransaction();
         first.setId(1L);
 
-        final SomeEntity second = new SomeEntity();
+        final EncryptedTransaction second = new EncryptedTransaction();
         second.setId(2L);
 
         assertThat(first).isNotEqualTo(second);
@@ -40,7 +38,7 @@ public class SomeEntityTest {
     @Test
     public void sameObjectIsEqual() {
 
-        final SomeEntity first = new SomeEntity();
+        final EncryptedTransaction first = new EncryptedTransaction();
         first.setId(1L);
 
         assertThat(first).isEqualTo(first).isSameAs(first);
@@ -50,19 +48,19 @@ public class SomeEntityTest {
     @Test
     public void nullObjectIsNotEqual() {
 
-        final SomeEntity first = new SomeEntity();
+        final EncryptedTransaction first = new EncryptedTransaction();
         first.setId(1L);
 
-        final SomeEntity second = null;
+        final EncryptedTransaction second = null;
 
         assertThat(first).isNotEqualTo(second);
 
     }
-    
-        @Test
+
+    @Test
     public void objectOfDifferentTypesAreNotEqual() {
 
-        final SomeEntity first = new SomeEntity();
+        final EncryptedTransaction first = new EncryptedTransaction();
         first.setId(1L);
 
         final OtherType second = new OtherType();
@@ -71,6 +69,7 @@ public class SomeEntityTest {
         assertThat(first).isNotEqualTo(second);
 
     }
-    
-    static class OtherType extends SomeEntity {}
+
+    private static class OtherType extends EncryptedTransaction {
+    }
 }
