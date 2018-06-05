@@ -148,6 +148,13 @@ public class TransactionResource {
         return Response.status(Response.Status.CREATED).build();
     }
 
+    @POST
+    @Path("/partyinfo")
+    public Response partyInfo(final InputStream payload) throws IOException {
+        LOGGER.log(Level.INFO, "payload: {0}", readInputStream(payload));
+        return Response.status(Response.Status.CREATED).build();
+    }
+
     protected static String readInputStream(InputStream inputStream) throws IOException {
 
         try (BufferedReader buffer = new BufferedReader(new InputStreamReader(inputStream))) {
