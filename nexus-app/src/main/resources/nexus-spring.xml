@@ -19,7 +19,7 @@
     <bean class="com.github.nexus.api.TransactionResource">
         <constructor-arg ref="enclave"/>
         <constructor-arg>
-            <bean class="com.github.nexus.Base64Decoder" factory-method="create" />
+            <bean class="com.github.nexus.util.Base64Decoder" factory-method="create" />
         </constructor-arg>
     </bean>
 
