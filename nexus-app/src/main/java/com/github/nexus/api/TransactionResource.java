@@ -36,7 +36,7 @@ public class TransactionResource {
     private final Base64Decoder base64Decoder;
     
     public TransactionResource(final Enclave enclave,final Base64Decoder base64Decoder) {
-        this.Enclave = requireNonNull(Enclave, "enclave must not be null");
+        this.enclave = requireNonNull(enclave, "enclave must not be null");
         this.base64Decoder = requireNonNull(base64Decoder, "decoder must not be null");
 
     }
@@ -90,7 +90,6 @@ public class TransactionResource {
 
             //TODO Call enlave retrieve here
             byte[] payload = "Retrieved payload".getBytes();
-            String encodedPayload = Base64.getEncoder().encodeToString(payload);
 
             String encodedPayload = base64Decoder.encodeToString(payload);
             ReceiveResponse response = new ReceiveResponse(encodedPayload);
