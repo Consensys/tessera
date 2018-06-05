@@ -17,12 +17,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -46,7 +46,7 @@ public class TransactionResource {
             byte[] from = sendRequest.getFrom() == null ?
                     new byte[0] : Base64.getDecoder().decode(sendRequest.getFrom());
             byte[][] recipients =
-                    Arrays.stream(sendRequest.getTo())
+                Stream.of(sendRequest.getTo())
                             .map(x -> Base64.getDecoder().decode(x))
                             .toArray(byte[][]::new);
             byte[] payload = Base64.getDecoder().decode(sendRequest.getPayload());
@@ -112,8 +112,6 @@ public class TransactionResource {
     public Response delete(@Valid final DeleteRequest deleteRequest) {
 
         byte[] key = Base64.getDecoder().decode(deleteRequest.getKey());
-
-        transactionService.delete(key);
 
         return Response.status(Response.Status.CREATED).build();
     }
