@@ -86,6 +86,9 @@ public class KeyManagerImpl implements KeyManager {
     public KeyPair generateNewKeys(final String name) {
         final KeyPair generated = nacl.generateNewKeys();
 
+        final String publicKeyBase64 = Base64.getEncoder().encodeToString(generated.getPublicKey().getKeyBytes());
+        final String privateKeyBase64 = Base64.getEncoder().encodeToString(generated.getPrivateKey().getKeyBytes());
+
         final Path workingDirectory = Paths.get(baseKeygenPath).toAbsolutePath();
         final Path publicKeyPath = workingDirectory.resolve(name + ".pub");
         final Path privateKeyPath = workingDirectory.resolve(name + ".key");
@@ -93,12 +96,12 @@ public class KeyManagerImpl implements KeyManager {
         final byte[] privateKeyJson = Json.createObjectBuilder()
                 .add("type", "unlocked")
                 .add("data", Json.createObjectBuilder()
-                        .add("bytes", new String(generated.getPrivateKey().getKeyBytes(), UTF_8))
+                        .add("bytes", privateKeyBase64)
                 ).build().toString().getBytes(UTF_8);
 
         try {
 
-            Files.write(publicKeyPath, generated.getPublicKey().getKeyBytes(), StandardOpenOption.CREATE_NEW);
+            Files.write(publicKeyPath, publicKeyBase64.getBytes(UTF_8), StandardOpenOption.CREATE_NEW);
             Files.write(privateKeyPath, privateKeyJson, StandardOpenOption.CREATE_NEW);
 
         } catch (final IOException ex) {
@@ -130,7 +133,8 @@ public class KeyManagerImpl implements KeyManager {
     }
 
     private Key loadPublicKey(final Path publicKeyPath) throws IOException {
-        final byte[] publicKeyBytes = Files.readAllBytes(publicKeyPath);
+        final String publicKeyBase64 = new String(Files.readAllBytes(publicKeyPath), UTF_8);
+        final byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyBase64);
 
         return new Key(publicKeyBytes);
     }
@@ -140,9 +144,11 @@ public class KeyManagerImpl implements KeyManager {
         final String jsonKey = new String(privateKeyBytes, UTF_8);
 
         final JsonReader reader = Json.createReader(new StringReader(jsonKey));
-        final String key = reader.readObject().getJsonObject("data").getString("bytes");
+        final String keyBase64 = reader.readObject().getJsonObject("data").getString("bytes");
 
-        return new Key(key.getBytes(UTF_8));
+        final byte[] key = Base64.getDecoder().decode(keyBase64);
+
+        return new Key(key);
     }
 
 
