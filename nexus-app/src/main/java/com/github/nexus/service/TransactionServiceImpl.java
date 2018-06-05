@@ -26,17 +26,7 @@ public class TransactionServiceImpl implements TransactionService{
     @Override
     public byte[] receive(byte[] key, byte[] to) {
         LOGGER.info("receive");
+        encryptedTransactionDAO.retrieveAllTransactions();
         return "payload".getBytes();
-    }
-
-    @Override
-    public void delete(byte[] key) {
-        LOGGER.info("delete");
-    }
-
-    @Override
-    public byte[] push(byte[] payload){
-        LOGGER.info("push");
-        return "somehash".getBytes();
     }
 }

@@ -4,7 +4,10 @@ import com.github.nexus.dao.EncryptedTransactionDAO;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class TransactionServiceTest {
 
@@ -20,22 +23,13 @@ public class TransactionServiceTest {
 
     @Test
     public void testSend(){
-
+        transactionService.send(new byte[0], new byte[0][0], new byte[0]);
+        verify(dao, times((1))).save(any());
     }
 
     @Test
     public void testReceive(){
-    }
-
-    @Test
-    public void testDelete(){
-    }
-
-    @Test
-    public void testResend(){
-    }
-
-    @Test
-    public void testPush(){
+        transactionService.receive(new byte[0], new byte[0]);
+        verify(dao, times(1)).retrieveAllTransactions();
     }
 }
