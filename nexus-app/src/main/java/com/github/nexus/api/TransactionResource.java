@@ -1,5 +1,6 @@
 package com.github.nexus.api;
 
+import com.github.nexus.Base64Decoder;
 import com.github.nexus.api.exception.DecodingException;
 import com.github.nexus.api.model.*;
 import com.github.nexus.enclave.Enclave;
@@ -32,9 +33,12 @@ public class TransactionResource {
     private static final Logger LOGGER = Logger.getLogger(TransactionResource.class.getName());
 
     private final Enclave enclave;
+    private final Base64Decoder base64Decoder;
+    
+    public TransactionResource(final Enclave enclave,final Base64Decoder base64Decoder) {
+        this.Enclave = requireNonNull(Enclave, "enclave must not be null");
+        this.base64Decoder = requireNonNull(base64Decoder, "decoder must not be null");
 
-    public TransactionResource(final Enclave enclave) {
-        this.enclave = requireNonNull(enclave, "enclave must not be null");
     }
 
     @POST
@@ -42,26 +46,26 @@ public class TransactionResource {
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON})
     public Response send(@Valid final SendRequest sendRequest) throws DecodingException {
-        try {
-            byte[] from = Base64.getDecoder().decode(sendRequest.getFrom());
+    
+            byte[] from = base64Decoder.decode(sendRequest.getFrom());
+            
             byte[][] recipients =
                 Stream.of(sendRequest.getTo())
-                            .map(x -> Base64.getDecoder().decode(x))
+                            .map(x -> base64Decoder.decode(x))
                             .toArray(byte[][]::new);
-            byte[] payload = Base64.getDecoder().decode(sendRequest.getPayload());
+            
+            byte[] payload = base64Decoder.decode(sendRequest.getPayload());
 
             byte[] key = enclave.store(from, recipients, payload);
 
-            String encodedKey = Base64.getEncoder().encodeToString(key);
+            String encodedKey = base64Decoder.encodeToString(key);
             SendResponse response = new SendResponse(encodedKey);
 
             return Response.status(Response.Status.CREATED)
                     .header("Content-Type", "application/json")
                     .entity(response)
                     .build();
-        } catch (IllegalArgumentException e) {
-            throw new DecodingException("Unable to decode input values. Cause: " + e.getMessage(), e);
-        }
+
     }
 
     @POST
@@ -79,23 +83,23 @@ public class TransactionResource {
     @Path("/receive")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response receive(@Valid final ReceiveRequest receiveRequest) throws DecodingException {
-        try {
-            byte[] key = Base64.getDecoder().decode(receiveRequest.getKey());
+  
+            byte[] key = base64Decoder.decode(receiveRequest.getKey());
 
-            byte[] to = Base64.getDecoder().decode(receiveRequest.getTo());
+            byte[] to = base64Decoder.decode(receiveRequest.getTo());
 
             //TODO Call enlave retrieve here
             byte[] payload = "Retrieved payload".getBytes();
             String encodedPayload = Base64.getEncoder().encodeToString(payload);
+
+            String encodedPayload = base64Decoder.encodeToString(payload);
             ReceiveResponse response = new ReceiveResponse(encodedPayload);
 
             return Response.status(Response.Status.CREATED)
                     .header("Content-Type", "application/json")
                     .entity(response)
                     .build();
-        } catch (IllegalArgumentException e) {
-            throw new DecodingException("Unable to decode input values. Cause: " + e.getMessage(), e);
-        }
+
     }
 
     @POST
