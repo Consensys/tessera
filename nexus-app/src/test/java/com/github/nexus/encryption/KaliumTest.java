@@ -172,7 +172,7 @@ public class KaliumTest {
     }
 
     @Test
-    public void generateNewKeysSodiumSucess() {
+    public void generateNewKeysSodiumSuccess() {
 
         when(sodium.crypto_box_curve25519xsalsa20poly1305_keypair(
                 any(byte[].class), any(byte[].class))).thenReturn(1);
@@ -243,7 +243,7 @@ public class KaliumTest {
     }
     
     @Test
-    public void sealUsingKeysSodiumReturnsSucess() {
+    public void sealUsingKeysSodiumReturnsSuccess() {
         doReturn(1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305(
@@ -258,6 +258,16 @@ public class KaliumTest {
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305(
                 any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class), any(byte[].class)
         );
+    }
+
+    @Test
+    public void generatingRandomKeyReturnsCorrectSize() {
+        final int expectedKeysize = 32;
+
+        final Key key = this.kalium.createSingleKey();
+
+        verify(this.sodium).randombytes(any(byte[].class), eq(expectedKeysize));
+
     }
 
 }

@@ -240,4 +240,19 @@ public class Kalium implements NaclFacade {
         return extractedMessage;
     }
 
+    @Override
+    public Key createSingleKey() {
+        LOGGER.info("Generating random key");
+
+        final byte[] keyBytes = new byte[CRYPTO_BOX_CURVE25519XSALSA20POLY1305_PUBLICKEYBYTES];
+
+        this.sodium.randombytes(keyBytes, keyBytes.length);
+
+        final Key key = new Key(keyBytes);
+
+        LOGGER.info("Random key generated");
+        LOGGER.debug("Generated key with value {}", key);
+
+        return key;
+    }
 }

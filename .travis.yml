@@ -3,6 +3,10 @@ language: java
 # runs on default infrastructure (a container running Ubuntu 14.04)
 sudo: enabled
 
+cache:
+  directories:
+  - $HOME/.m2
+
 addons:
   apt:
     sources:
@@ -11,11 +15,5 @@ addons:
     - libsodium-dev
 
 script:
-- mvn --batch-mode install -DskipTests=true -Dmaven.javadoc.skip=true -V
-- mvn --batch-mode test -Dmaven.javadoc.skip=true
-- mvn --batch-mode integration-test -Dmaven.javadoc.skip=true
 - mvn --batch-mode install
 #- mvn --batch-mode org.pitest:pitest-maven:mutationCoverage
-
-after_success:
-- mvn javadoc:javadoc
