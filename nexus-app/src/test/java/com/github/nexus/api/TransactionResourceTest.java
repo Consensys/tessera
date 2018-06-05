@@ -116,6 +116,22 @@ public class TransactionResourceTest {
         assertThat(response.getStatus()).isEqualTo(201);
     }
 
+    @Test(expected = DecodingException.class)
+    public void testReceiveThrowDecodingException(){
+        ReceiveRequest receiveRequest = new ReceiveRequest();
+        receiveRequest.setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
+        receiveRequest.setTo("1");
+
+        when(transactionService.receive(any(), any())).thenReturn("SOME DATA".getBytes());
+
+        Response response = transactionResource.receive(receiveRequest);
+
+        assertThat(response).isNotNull();
+        ReceiveResponse receiveResponse = (ReceiveResponse) response.getEntity();
+        assertThat(response.getStatus()).isEqualTo(400);
+
+    }
+
     @Test
     public void testReceiveRaw() {
 
@@ -147,11 +163,24 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void testResend() {
+    public void testResendAll() {
         ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setType("test");
+        resendRequest.setType("all");
         resendRequest.setPublicKey("mypublickey");
         resendRequest.setKey("mykey");
+
+        Response response = transactionResource.resend(resendRequest);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(201);
+    }
+
+    @Test
+    public void testResendIndividual() {
+        ResendRequest resendRequest = new ResendRequest();
+        resendRequest.setType("individual");
+        resendRequest.setPublicKey("mypublickey");
+        resendRequest.setKey("cmVjaXBpZW50MQ==");
 
         Response response = transactionResource.resend(resendRequest);
 
