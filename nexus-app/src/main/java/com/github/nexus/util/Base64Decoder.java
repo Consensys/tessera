@@ -1,4 +1,4 @@
-package com.github.nexus;
+package com.github.nexus.util;
 
 import com.github.nexus.api.exception.DecodingException;
 import java.util.Base64;
