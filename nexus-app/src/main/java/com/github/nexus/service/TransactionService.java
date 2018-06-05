@@ -15,7 +15,7 @@ public interface TransactionService {
     /**
      * Retrieve a particular transaction
      * @param key hash key used to retrieve transaction
-     * @param to
+     * @param to the recipient of the transaction
      * @return the raw payload associated with the request.
      */
     byte[] receive(byte[] key, byte[] to);
