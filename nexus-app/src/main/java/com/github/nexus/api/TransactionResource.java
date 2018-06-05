@@ -56,12 +56,11 @@ public class TransactionResource {
             SendResponse response = new SendResponse(encodedKey);
 
             return Response.status(Response.Status.CREATED)
-                .header("Content-Type","application/json")
-                .entity(response)
-                .build();
-        }
-        catch (IllegalArgumentException e){
-            throw new DecodingException("Unable to decode input values. Cause: " + e.getMessage(),e);
+                    .header("Content-Type", "application/json")
+                    .entity(response)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            throw new DecodingException("Unable to decode input values. Cause: " + e.getMessage(), e);
         }
     }
 
@@ -90,12 +89,11 @@ public class TransactionResource {
             ReceiveResponse response = new ReceiveResponse(encodedPayload);
 
             return Response.status(Response.Status.CREATED)
-                .header("Content-Type", "application/json")
-                .entity(response)
-                .build();
-        }
-        catch (IllegalArgumentException e){
-            throw new DecodingException("Unable to decode input values. Cause: " + e.getMessage(),e);
+                    .header("Content-Type", "application/json")
+                    .entity(response)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            throw new DecodingException("Unable to decode input values. Cause: " + e.getMessage(), e);
         }
     }
 
@@ -125,14 +123,13 @@ public class TransactionResource {
         String type = resendRequest.getType();
         byte[] publickey = Base64.getDecoder().decode(resendRequest.getPublicKey());
 
-        if (type.equalsIgnoreCase(ResendRequestType.ALL.name())){
+        if (type.equalsIgnoreCase(ResendRequestType.ALL.name())) {
             LOGGER.info("ALL");
+        } else if (type.equalsIgnoreCase(ResendRequestType.INDIVIDUAL.name())) {
+            byte[] key = Base64.getDecoder().decode(resendRequest.getKey());
+            LOGGER.info("INDIVIDUAL");
+
         }
-        else
-            if (type.equalsIgnoreCase(ResendRequestType.INDIVIDUAL.name())){
-                byte[] key = Base64.getDecoder().decode(resendRequest.getKey());
-                LOGGER.info("INDIVIDUAL");
-            }
 
         return Response.status(Response.Status.CREATED).build();
     }

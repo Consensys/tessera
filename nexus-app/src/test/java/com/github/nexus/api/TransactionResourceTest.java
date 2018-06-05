@@ -3,14 +3,11 @@ package com.github.nexus.api;
 import com.github.nexus.api.exception.DecodingException;
 import com.github.nexus.api.model.*;
 import com.github.nexus.service.TransactionService;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,9 +15,13 @@ import java.io.UncheckedIOException;
 import java.util.Base64;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import org.assertj.core.api.Assertions;
+import org.junit.After;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
@@ -51,27 +52,33 @@ public class TransactionResourceTest {
         sendRequest.setPayload("Zm9v");
 
         when(transactionService.send(any(), any(), any())).thenReturn("SOMEKEY".getBytes());
-        
+
         Response response = transactionResource.send(sendRequest);
-        
+
         verify(transactionService, times(1)).send(any(), any(), any());
         assertThat(response).isNotNull();
-        SendResponse sr = (SendResponse)  response.getEntity();
+        SendResponse sr = (SendResponse) response.getEntity();
         assertThat(sr.getKey()).isNotEmpty();
         assertThat(response.getStatus()).isEqualTo(201);
     }
 
-    @Test(expected = DecodingException.class)
-    public void testSendThrowDecodingException(){
+    @Test
+    public void sendThrowsDecodingException() {
+
         SendRequest sendRequest = new SendRequest();
         sendRequest.setFrom("bXlwdWJsaWNrZXk=");
         sendRequest.setTo(new String[]{"cmVjaXBpZW50MQ=="});
-        sendRequest.setPayload("1");
+        sendRequest.setPayload("Zm9v");
 
-        when(transactionService.send(any(), any(), any())).thenReturn("SOMEKEY".getBytes());
-        Response response = transactionResource.send(sendRequest);
-        assertThat(response).isNotNull();
-        assertEquals(Response.Status.BAD_REQUEST, response.getStatus());
+        when(transactionService.send(any(), any(), any())).thenThrow(new IllegalArgumentException());
+
+        try {
+            transactionResource.send(sendRequest);
+            Assertions.failBecauseExceptionWasNotThrown(DecodingException.class);
+        } catch (DecodingException ex) {
+            assertThat(ex).isNotNull();
+        }
+        verify(transactionService, times(1)).send(any(), any(), any());
 
     }
 
@@ -103,16 +110,16 @@ public class TransactionResourceTest {
         receiveRequest.setTo("cmVjaXBpZW50MQ==");
 
         when(transactionService.receive(any(), any())).thenReturn("SOME DATA".getBytes());
-        
+
         Response response = transactionResource.receive(receiveRequest);
 
         verify(transactionService, times(1)).receive(any(), any());
         assertThat(response).isNotNull();
-        
+
         ReceiveResponse receiveResponse = (ReceiveResponse) response.getEntity();
-        
+
         assertThat(receiveResponse.getPayload()).isEqualTo("U09NRSBEQVRB");
-   
+
         assertThat(response.getStatus()).isEqualTo(201);
     }
 
@@ -163,9 +170,35 @@ public class TransactionResourceTest {
     }
 
     @Test
+    public void testResendAllLowercase() {
+        ResendRequest resendRequest = new ResendRequest();
+        resendRequest.setType(ResendRequestType.ALL.name().toLowerCase());
+        resendRequest.setPublicKey("mypublickey");
+        resendRequest.setKey("mykey");
+
+        Response response = transactionResource.resend(resendRequest);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(201);
+    }
+
+    @Test
+    public void testResendIndividualLowercase() {
+        ResendRequest resendRequest = new ResendRequest();
+        resendRequest.setType(ResendRequestType.INDIVIDUAL.name().toLowerCase());
+        resendRequest.setPublicKey("mypublickey");
+        resendRequest.setKey("cmVjaXBpZW50MQ==");
+
+        Response response = transactionResource.resend(resendRequest);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(201);
+    }
+
+    @Test
     public void testResendAll() {
         ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setType("all");
+        resendRequest.setType(ResendRequestType.ALL.name());
         resendRequest.setPublicKey("mypublickey");
         resendRequest.setKey("mykey");
 
@@ -177,10 +210,11 @@ public class TransactionResourceTest {
 
     @Test
     public void testResendIndividual() {
+
         ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setType("individual");
+        resendRequest.setType(ResendRequestType.INDIVIDUAL.name());
         resendRequest.setPublicKey("mypublickey");
-        resendRequest.setKey("cmVjaXBpZW50MQ==");
+        resendRequest.setKey(Base64.getEncoder().encodeToString("mykey".getBytes()));
 
         Response response = transactionResource.resend(resendRequest);
 
@@ -225,4 +259,5 @@ public class TransactionResourceTest {
         verify(inputStream).close();
 
     }
+
 }
