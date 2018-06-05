@@ -1,10 +1,12 @@
 package com.github.nexus.dao;
 
+import com.github.nexus.enclave.model.MessageHash;
 import com.github.nexus.entity.EncryptedTransaction;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
+import java.util.Optional;
 
 public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
 
@@ -24,4 +26,23 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
             .getResultList();
     }
 
+    @Override
+    public boolean delete(final MessageHash hash) {
+        final String query = "SELECT et FROM EncryptedTransaction et WHERE et.hash = :hash";
+
+        final Optional<EncryptedTransaction> message = entityManager
+            .createQuery(query, EncryptedTransaction.class)
+            .setParameter("hash", hash.getHashBytes())
+            .getResultList()
+            .stream()
+            .findAny();
+
+        if(message.isPresent()) {
+            entityManager.remove(message.get());
+            return true;
+        } else {
+            return false;
+        }
+
+    }
 }
