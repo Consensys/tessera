@@ -69,7 +69,7 @@ public class KeyManagerTest {
         final Key unknownKey = new Key("unknownKey".getBytes(UTF_8));
         final Throwable throwable = catchThrowable(() -> keyManager.getPublicKeyForPrivateKey(unknownKey));
 
-        assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("Public key not found!");
+        assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("Private key dW5rbm93bktleQ== not found when searching for public key");
 
     }
 
@@ -87,7 +87,7 @@ public class KeyManagerTest {
         final Key unknownKey = new Key("unknownKey".getBytes(UTF_8));
         final Throwable throwable = catchThrowable(() -> keyManager.getPrivateKeyForPublicKey(unknownKey));
 
-        assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("Private key not found!");
+        assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("Public key dW5rbm93bktleQ== not found when searching for private key");
 
     }
 
@@ -202,7 +202,7 @@ public class KeyManagerTest {
                 () -> new KeyManagerImpl(keygenPath.toString(), naclFacade, emptyList(), singletonList(Paths.get(".")))
         );
 
-        assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("Key sizes don't match");
+        assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("Initial key list sizes don't match");
     }
 
 }
