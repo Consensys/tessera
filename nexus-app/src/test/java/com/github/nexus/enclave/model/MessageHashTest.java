@@ -48,6 +48,17 @@ public class MessageHashTest {
         final MessageHash hash = new MessageHash("I LOVE SPARROWS".getBytes());
         assertThat(hash).isEqualTo(hash).hasSameHashCodeAs(hash);
     }
+
+    @Test
+    public void toStringOutputsCorrectString() {
+
+        final MessageHash hash = new MessageHash(new byte[]{5, 6, 7});
+
+        final String toString = hash.toString();
+
+        assertThat(toString).isEqualTo("[5, 6, 7]");
+
+    }
     
 
 }
