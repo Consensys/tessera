@@ -25,7 +25,7 @@ public class KaliumTest {
 
     private byte[] message = "TEST_MESSAGE".getBytes(UTF_8);
 
-    private byte[] nonce = "TEST_NONCE".getBytes(UTF_8);
+    private Nonce nonce = new Nonce("TEST_NONCE".getBytes(UTF_8));
 
     private NaCl.Sodium sodium;
 
@@ -71,7 +71,7 @@ public class KaliumTest {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305(
-                        any(byte[].class), any(byte[].class), anyInt(), eq(nonce), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
+                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
                 );
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.seal(message, nonce, publicKey, privateKey));
@@ -88,7 +88,7 @@ public class KaliumTest {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_open(
-                        any(byte[].class), any(byte[].class), anyInt(), eq(nonce), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
+                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
                 );
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.open(message, nonce, publicKey, privateKey));
@@ -105,7 +105,7 @@ public class KaliumTest {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_afternm(
-                        any(byte[].class), any(byte[].class), anyInt(), eq(nonce), eq(sharedKey.getKeyBytes())
+                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
                 );
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.sealAfterPrecomputation(message, nonce, sharedKey));
@@ -122,7 +122,7 @@ public class KaliumTest {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_open_afternm(
-                        any(byte[].class), any(byte[].class), anyInt(), eq(nonce), eq(sharedKey.getKeyBytes())
+                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
                 );
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.openAfterPrecomputation(message, nonce, sharedKey));
@@ -191,7 +191,7 @@ public class KaliumTest {
         doReturn(1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_afternm(
-                        any(byte[].class), any(byte[].class), anyInt(), eq(nonce), eq(sharedKey.getKeyBytes())
+                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
                 );
 
         byte[] result = kalium.sealAfterPrecomputation(message, nonce, sharedKey);
@@ -211,7 +211,7 @@ public class KaliumTest {
         doReturn(1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_open_afternm(
-                        any(byte[].class), eq(data), anyInt(), eq(nonce), eq(sharedKey.getKeyBytes())
+                        any(byte[].class), eq(data), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
                 );
 
         byte[] results = kalium.openAfterPrecomputation(data, nonce, sharedKey);
@@ -230,7 +230,7 @@ public class KaliumTest {
         doReturn(1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_open(
-                        any(byte[].class), eq(data), anyInt(), eq(nonce), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
+                        any(byte[].class), eq(data), anyInt(), any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
                 );
 
         byte[] result = this.kalium.open(data, nonce, publicKey, privateKey);
@@ -247,7 +247,7 @@ public class KaliumTest {
         doReturn(1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305(
-                        any(byte[].class), any(byte[].class), anyInt(), eq(nonce), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
+                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
                 );
 
         byte[] results = this.kalium.seal(message, nonce, publicKey, privateKey);
