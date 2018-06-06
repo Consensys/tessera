@@ -35,7 +35,7 @@ public interface NaclFacade {
      * @param privateKey The other key from either sender or recipient
      * @return The encrypted payload
      */
-    byte[] seal(byte[] message, byte[] nonce, Key publicKey, Key privateKey);
+    byte[] seal(byte[] message, Nonce nonce, Key publicKey, Key privateKey);
 
     /**
      * Decrypt a payload directly using the given public/private key pair for the sender/recipient
@@ -46,7 +46,7 @@ public interface NaclFacade {
      * @param privateKey The other key from either sender or recipient
      * @return The encrypted payload
      */
-    byte[] open(byte[] cipherText, byte[] nonce, Key publicKey, Key privateKey);
+    byte[] open(byte[] cipherText, Nonce nonce, Key publicKey, Key privateKey);
 
     /**
      * Encrypt a payload using the given public/private key pair for the sender/recipient
@@ -56,7 +56,7 @@ public interface NaclFacade {
      * @param sharedKey The shared key between the sender and recipient of the payload
      * @return The encrypted payload
      */
-    byte[] sealAfterPrecomputation(byte[] message, byte[] nonce, Key sharedKey);
+    byte[] sealAfterPrecomputation(byte[] message, Nonce nonce, Key sharedKey);
 
     /**
      * Decrypts a payload using the shared key between the sender and recipient
@@ -66,14 +66,14 @@ public interface NaclFacade {
      * @param sharedKey The shared key for the sender and recipient
      * @return The decrypted payload
      */
-    byte[] openAfterPrecomputation(byte[] input, byte[] nonce, Key sharedKey);
+    byte[] openAfterPrecomputation(byte[] input, Nonce nonce, Key sharedKey);
 
     /**
      * Generates a new random nonce of the correct size
      *
-     * @return a byte array containing random data to be used as a nonce
+     * @return a {@link Nonce} containing random data to be used as a nonce
      */
-    byte[] randomNonce();
+    Nonce randomNonce();
 
     /**
      * Generates a new public and private keypair
