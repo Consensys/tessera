@@ -163,11 +163,10 @@ public class TransactionResourceTest {
 
     @Test
     public void testDelete() {
-
         DeleteRequest deleteRequest = new DeleteRequest();
         deleteRequest.setKey(Base64.getEncoder().encodeToString("HELLOW".getBytes()));
         Response response = transactionResource.delete(deleteRequest);
-
+        verify(enclave, times(1)).delete(any());
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
     }
