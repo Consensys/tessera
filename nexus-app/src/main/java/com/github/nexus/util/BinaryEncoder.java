@@ -6,8 +6,19 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Encodes bytes to the binary form expected by other nodes on the network
+ */
 public interface BinaryEncoder {
 
+    /**
+     * Converts a byte array to its binary form, which takes the following:
+     * 8 bytes to describe the number of bytes long the data is
+     * the bytes of the data
+     *
+     * @param data the input array to encode
+     * @return the encoded byte array
+     */
     default byte[] encodeField(final byte[] data) {
         return ByteBuffer
             .allocate(Long.BYTES + data.length)
@@ -16,10 +27,32 @@ public interface BinaryEncoder {
             .array();
     }
 
+    /**
+     * Converts a 2d-byte array to its binary form, which takes the following:
+     *
+     * 8 bytes to describe the number of elements
+     * and for each element:
+     * - 8 bytes to describe the number of bytes long the element is
+     * - the bytes of the element
+     *
+     * @param data the input array to encode
+     * @return the encoded byte array
+     */
     default byte[] encodeArray(final byte[][] data) {
         return encodeArray(Stream.of(data).collect(toList()));
     }
 
+    /**
+     * Converts a list of byte arrays to its binary form, which takes the following:
+     *
+     * 8 bytes to describe the number of elements
+     * and for each element:
+     * - 8 bytes to describe the number of bytes long the element is
+     * - the bytes of the element
+     *
+     * @param data the input array to encode
+     * @return the encoded byte array
+     */
     default byte[] encodeArray(final List<byte[]> data) {
         final int numberOfElements = data.size();
 

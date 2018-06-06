@@ -1,5 +1,8 @@
 package com.github.nexus.transaction;
 
+/**
+ * Encodes and decodes a {@link EncodedPayload} to and from its binary representation
+ */
 public interface PayloadEncoder {
 
     /**
