@@ -1,13 +1,15 @@
 package com.github.nexus.service;
 
 import com.github.nexus.dao.EncryptedTransactionDAO;
+import com.github.nexus.enclave.keys.model.Key;
+import com.github.nexus.enclave.model.MessageHash;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
+
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class TransactionServiceTest {
 
@@ -16,20 +18,40 @@ public class TransactionServiceTest {
     private TransactionService transactionService;
 
     @Before
-    public void init(){
+    public void init() {
         this.dao = mock(EncryptedTransactionDAO.class);
-        transactionService = new TransactionServiceImpl(dao);
+        this.transactionService = new TransactionServiceImpl(dao);
     }
 
     @Test
-    public void testSend(){
-        transactionService.send(new byte[0], new byte[0][0], new byte[0]);
-        verify(dao, times((1))).save(any());
+    public void testDelete(){
+        when(dao.delete(any())).thenReturn(true);
+        transactionService.delete(new MessageHash(new byte[0]));
+        verify(dao, times(1)).delete(any());
     }
 
     @Test
-    public void testReceive(){
-        transactionService.receive(new byte[0], new byte[0]);
-        verify(dao, times(1)).retrieveAllTransactions();
+    public void testRetrieveAllForRecipient(){
+        transactionService.retrieveAllForRecipient(new Key(new byte[0]));
+    }
+
+    @Test
+    public void testRetrievePayload(){
+        transactionService.retrievePayload(new MessageHash(new byte[0]), new Key(new byte[0]));
+    }
+
+    @Test
+    public void testRetrieve(){
+        transactionService.retrieve(new MessageHash(new byte[0]), new Key(new byte[0]));
+    }
+
+    @Test
+    public void testStorePayloadFromOtherNode(){
+        transactionService.storePayloadFromOtherNode(new byte[0]);
+    }
+
+    @Test
+    public void testEncryptPayload(){
+        transactionService.encryptPayload(new byte[0], new Key(new byte[0]), Collections.EMPTY_LIST);
     }
 }
