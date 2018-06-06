@@ -1,7 +1,7 @@
 package com.github.nexus.enclave;
 
 import com.github.nexus.enclave.model.MessageHash;
-import com.github.nexus.service.TransactionService;
+import com.github.nexus.service.TransactionManager;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,13 +10,13 @@ import static org.mockito.Mockito.*;
 
 public class EnclaveImplTest {
 
-    private TransactionService txService;
+    private TransactionManager txService;
 
     private Enclave enclave;
 
     @Before
     public void setUp(){
-        this.txService = mock(TransactionService.class);
+        this.txService = mock(TransactionManager.class);
         enclave = new EnclaveImpl(txService);
     }
 

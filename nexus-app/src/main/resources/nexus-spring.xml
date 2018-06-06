@@ -23,9 +23,11 @@
         </constructor-arg>
     </bean>
 
-    <bean name="enclave" class="com.github.nexus.enclave.EnclaveImpl"/>
+    <bean name="enclave" class="com.github.nexus.enclave.EnclaveImpl">
+        <constructor-arg ref="transactionManager" />
+    </bean>
 
-    <bean name="transactionService" class="com.github.nexus.service.TransactionServiceImpl">
+    <bean name="transactionManager" class="com.github.nexus.service.TransactionManagerImpl">
         <constructor-arg ref="encryptedTransactionDAO"/>
     </bean>
 
