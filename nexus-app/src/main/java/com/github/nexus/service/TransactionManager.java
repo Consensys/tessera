@@ -6,7 +6,7 @@ import com.github.nexus.enclave.model.MessageHash;
 import java.util.Collection;
 import java.util.Map;
 
-public interface TransactionService {
+public interface TransactionManager {
 
     /**
      * Deletes a particular transaction from the enclave

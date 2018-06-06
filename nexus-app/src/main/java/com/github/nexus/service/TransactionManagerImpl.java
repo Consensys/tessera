@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 @Transactional
-public class TransactionServiceImpl implements TransactionService{
+public class TransactionManagerImpl implements TransactionManager {
 
-    private static final Logger LOGGER = Logger.getLogger(TransactionServiceImpl.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(TransactionManagerImpl.class.getName());
 
     private EncryptedTransactionDAO encryptedTransactionDAO;
 
-    public TransactionServiceImpl(final EncryptedTransactionDAO encryptedTransactionDAO) {
+    public TransactionManagerImpl(final EncryptedTransactionDAO encryptedTransactionDAO) {
         this.encryptedTransactionDAO = encryptedTransactionDAO;
     }
 

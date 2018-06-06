@@ -11,47 +11,47 @@ import java.util.Collections;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class TransactionServiceTest {
+public class TransactionManagerTest {
 
     private EncryptedTransactionDAO dao;
 
-    private TransactionService transactionService;
+    private TransactionManager transactionManager;
 
     @Before
     public void init() {
         this.dao = mock(EncryptedTransactionDAO.class);
-        this.transactionService = new TransactionServiceImpl(dao);
+        this.transactionManager = new TransactionManagerImpl(dao);
     }
 
     @Test
     public void testDelete(){
         when(dao.delete(any())).thenReturn(true);
-        transactionService.delete(new MessageHash(new byte[0]));
+        transactionManager.delete(new MessageHash(new byte[0]));
         verify(dao, times(1)).delete(any());
     }
 
     @Test
     public void testRetrieveAllForRecipient(){
-        transactionService.retrieveAllForRecipient(new Key(new byte[0]));
+        transactionManager.retrieveAllForRecipient(new Key(new byte[0]));
     }
 
     @Test
     public void testRetrievePayload(){
-        transactionService.retrievePayload(new MessageHash(new byte[0]), new Key(new byte[0]));
+        transactionManager.retrievePayload(new MessageHash(new byte[0]), new Key(new byte[0]));
     }
 
     @Test
     public void testRetrieve(){
-        transactionService.retrieve(new MessageHash(new byte[0]), new Key(new byte[0]));
+        transactionManager.retrieve(new MessageHash(new byte[0]), new Key(new byte[0]));
     }
 
     @Test
     public void testStorePayloadFromOtherNode(){
-        transactionService.storePayloadFromOtherNode(new byte[0]);
+        transactionManager.storePayloadFromOtherNode(new byte[0]);
     }
 
     @Test
     public void testEncryptPayload(){
-        transactionService.encryptPayload(new byte[0], new Key(new byte[0]), Collections.EMPTY_LIST);
+        transactionManager.encryptPayload(new byte[0], new Key(new byte[0]), Collections.EMPTY_LIST);
     }
 }
