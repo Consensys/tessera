@@ -1,50 +1,33 @@
 package com.github.nexus.enclave;
 
-import com.github.nexus.dao.EncryptedTransactionDAO;
-import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.enclave.model.MessageHash;
-
-import java.util.Collection;
-import java.util.Map;
+import com.github.nexus.service.TransactionService;
 
 import static java.util.Objects.requireNonNull;
 
 public class EnclaveImpl implements Enclave {
 
-    private final EncryptedTransactionDAO encryptedTransactionDAO;
+    private final TransactionService transactionService;
 
-    public EnclaveImpl(final EncryptedTransactionDAO encryptedTransactionDAO) {
-        this.encryptedTransactionDAO = requireNonNull(encryptedTransactionDAO,"dao cannot be null");
+    public EnclaveImpl(final TransactionService transactionService) {
+        this.transactionService = requireNonNull(transactionService,"transaction service cannot be null");
     }
 
     @Override
     public boolean delete(final MessageHash hash) {
-        return encryptedTransactionDAO.delete(hash);
+        return transactionService.delete(hash);
     }
 
     @Override
-    public Collection<String> retrieveAllForRecipient(final Key recipientPublicKey) {
-        return null;
+    public byte[] send(byte[] from, byte[][] to, byte[] payload){
+//        transactionService.(new EncryptedTransaction("someValue".getBytes(), "somePayload".getBytes()));
+        return "mykey".getBytes();
     }
 
     @Override
-    public String retrievePayload(final MessageHash hash, final Key intendedRecipient) {
-        return null;
-    }
-
-    @Override
-    public String retrieve(final MessageHash hash, final Key sender) {
-        return null;
-    }
-
-    @Override
-    public MessageHash storePayloadFromOtherNode(final byte[] sealedPayload) {
-        return null;
-    }
-
-    @Override
-    public Map<Key, Map<byte[], byte[]>> encryptPayload(final byte[] message, final Key senderPublicKey, final Collection<Key> recipientPublicKeys) {
-        return null;
+    public byte[] receive(byte[] key, byte[] to) {
+//        transactionService.retrieveAllTransactions();
+        return "payload".getBytes();
     }
 
     @Override
