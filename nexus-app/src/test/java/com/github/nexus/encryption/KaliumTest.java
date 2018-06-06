@@ -88,7 +88,7 @@ public class KaliumTest {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_open(
-                        any(byte[].class), eq(message), anyInt(), eq(nonce), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
+                        any(byte[].class), any(byte[].class), anyInt(), eq(nonce), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
                 );
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.open(message, nonce, publicKey, privateKey));
@@ -122,7 +122,7 @@ public class KaliumTest {
         doReturn(-1)
                 .when(this.sodium)
                 .crypto_box_curve25519xsalsa20poly1305_open_afternm(
-                        any(byte[].class), eq(message), anyInt(), eq(nonce), eq(sharedKey.getKeyBytes())
+                        any(byte[].class), any(byte[].class), anyInt(), eq(nonce), eq(sharedKey.getKeyBytes())
                 );
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.openAfterPrecomputation(message, nonce, sharedKey));
