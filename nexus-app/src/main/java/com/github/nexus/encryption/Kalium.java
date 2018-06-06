@@ -83,21 +83,30 @@ public class Kalium implements NaclFacade {
             Arrays.toString(output), Arrays.toString(nonce), publicKey, privateKey
         );
 
-        return output;
+        /*
+         * NaCL C API states that first crypto_secretbox_BOXZEROBYTES must be zero
+         * but these are not part of the message, and must be stripped out
+         */
+        return extract(output, CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BOXZEROBYTES);
     }
 
     @Override
     public byte[] open(final byte[] cipherText, final byte[] nonce, final Key publicKey, final Key privateKey) {
-        final byte[] paddedOutput = new byte[cipherText.length];
-
         LOGGER.info("Opening message using public key {}", publicKey);
         LOGGER.debug(
             "Opening message {} using nonce {}, public key {} and private key {}",
             Arrays.toString(cipherText), Arrays.toString(nonce), publicKey, privateKey
         );
 
+        /*
+         * NaCL C API states that first crypto_secretbox_BOXZEROBYTES must be zero
+         * but these are not part of the ciphertext, and must be added in
+         */
+        final byte[] paddedInput = pad(cipherText, CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BOXZEROBYTES);
+        final byte[] paddedOutput = new byte[paddedInput.length];
+
         final int sodiumResult = sodium.crypto_box_curve25519xsalsa20poly1305_open(
-                paddedOutput, cipherText, cipherText.length, nonce, publicKey.getKeyBytes(), privateKey.getKeyBytes()
+                paddedOutput, paddedInput, paddedInput.length, nonce, publicKey.getKeyBytes(), privateKey.getKeyBytes()
         );
 
         if(sodiumResult == -1) {
@@ -145,21 +154,31 @@ public class Kalium implements NaclFacade {
             "Created sealed payload {} using nonce {} and shared key {}",
             Arrays.toString(output), Arrays.toString(nonce), sharedKey
         );
-        return output;
+
+        /*
+         * NaCL C API states that first crypto_secretbox_BOXZEROBYTES must be zero
+         * but these are not part of the message, and must be stripped out
+         */
+        return extract(output, CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BOXZEROBYTES);
     }
 
     @Override
     public byte[] openAfterPrecomputation(final byte[] encryptedPayload, final byte[] nonce, final Key sharedKey) {
-        final byte[] paddedOutput = new byte[encryptedPayload.length];
-
         LOGGER.info("Opening message using shared key {}", sharedKey);
         LOGGER.debug(
             "Opening message {} using nonce {} and shared key {}",
             Arrays.toString(encryptedPayload), Arrays.toString(nonce), sharedKey
         );
 
+        /*
+         * NaCL C API states that first crypto_secretbox_BOXZEROBYTES must be zero
+         * but these are not part of the ciphertext, and must be added in
+         */
+        final byte[] paddedInput = pad(encryptedPayload, CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BOXZEROBYTES);
+        final byte[] paddedOutput = new byte[paddedInput.length];
+
         final int sodiumResult = this.sodium.crypto_box_curve25519xsalsa20poly1305_open_afternm(
-                paddedOutput, encryptedPayload, encryptedPayload.length, nonce, sharedKey.getKeyBytes()
+                paddedOutput, paddedInput, paddedInput.length, nonce, sharedKey.getKeyBytes()
         );
 
         if(sodiumResult == -1) {
