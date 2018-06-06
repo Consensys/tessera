@@ -44,7 +44,7 @@ public class KaliumIT {
 
         final Key sharedKey = kalium.computeSharedKey(keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
         final byte[] payloadBytes = payload.getBytes(UTF_8);
-        final byte[] nonce = kalium.randomNonce();
+        final Nonce nonce = kalium.randomNonce();
 
         final byte[] encryptedPayload = kalium.sealAfterPrecomputation(payloadBytes, nonce, sharedKey);
         final byte[] decryptedPayload = kalium.openAfterPrecomputation(encryptedPayload, nonce, sharedKey);
@@ -59,7 +59,7 @@ public class KaliumIT {
         final String payload = "Hello world";
 
         final byte[] payloadBytes = payload.getBytes(UTF_8);
-        final byte[] nonce = kalium.randomNonce();
+        final Nonce nonce = kalium.randomNonce();
 
         final byte[] encryptedPayload = kalium.seal(payloadBytes, nonce, keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
         final byte[] decryptedPayload = kalium.open(encryptedPayload, nonce, keypairTwo.getPublicKey(), keypairOne.getPrivateKey());
@@ -74,7 +74,7 @@ public class KaliumIT {
 
         final String payload = "Hello world";
         final byte[] payloadBytes = payload.getBytes(UTF_8);
-        final byte[] nonce = kalium.randomNonce();
+        final Nonce nonce = kalium.randomNonce();
 
         final Key symmentricKey = kalium.createSingleKey();
 
