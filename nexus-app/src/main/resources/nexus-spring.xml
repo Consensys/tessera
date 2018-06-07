@@ -25,11 +25,11 @@
 
     <bean name="enclave" class="com.github.nexus.enclave.EnclaveImpl"/>
 
-    <bean name="transactionService" class="com.github.nexus.service.TransactionServiceImpl">
+    <bean name="transactionService" class="com.github.nexus.transaction.TransactionServiceImpl">
         <constructor-arg ref="encryptedTransactionDAO"/>
     </bean>
 
-    <bean name="encryptedTransactionDAO" class="com.github.nexus.dao.EncryptedTransactionDAOImpl" />
+    <bean name="encryptedTransactionDAO" class="com.github.nexus.transaction.EncryptedTransactionDAOImpl" />
         
     <bean class="com.github.nexus.api.exception.DefaultExceptionMapper" />
     <bean class="com.github.nexus.api.exception.DecodingExceptionMapper"/>
