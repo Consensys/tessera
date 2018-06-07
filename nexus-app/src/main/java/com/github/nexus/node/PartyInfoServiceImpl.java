@@ -1,12 +1,12 @@
-package com.github.nexus.service;
+package com.github.nexus.node;
 
 import com.github.nexus.enclave.keys.model.Key;
-import com.github.nexus.entity.PartyInfo;
 
 import javax.ws.rs.client.Client;
 
 public class PartyInfoServiceImpl implements PartyInfoService {
 
+    private PartyInfoStore partyInfoStore = PartyInfoStore.INSTANCE;
 
     @Override
     public void initPartyInfo(String rawUrl, String[] otherNodes, Client client) {
@@ -20,16 +20,14 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     @Override
     public PartyInfo getPartyInfo() {
-         throw new UnsupportedOperationException("IMPLEMENT ME");
+        return partyInfoStore.getPartyInfo();
     }
 
     @Override
-    public PartyInfo pollPartyInfo() {
-         throw new UnsupportedOperationException("IMPLEMENT ME");
-    }
+    public PartyInfo updatePartyInfo(PartyInfo partyInfo) {
 
-    @Override
-    public PartyInfo updatePartyInfo(byte[] encoded) {
-        throw new UnsupportedOperationException("IMPLEMENT ME");
+        partyInfoStore.store(partyInfo);
+
+        return partyInfoStore.getPartyInfo();
     }
 }
