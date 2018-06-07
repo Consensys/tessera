@@ -1,21 +1,24 @@
 package com.github.nexus;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PartyInfoThing {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoThing.class);
+    
     private final String url;
 
-    private final Recipient recipient;
+    private final List<Recipient> recipient;
 
     private final List<Party> parties;
 
-    private PartyInfoThing(String url, Recipient recipient, Party... party) {
+    private PartyInfoThing(String url, Recipient[] recipient, Party[] party) {
         this.url = url;
-        this.recipient = recipient;
+        this.recipient = Arrays.asList(recipient);
         this.parties = Arrays.asList(party);
     }
 
@@ -23,14 +26,13 @@ public class PartyInfoThing {
         return url;
     }
 
-    public Recipient getRecipient() {
+    public List<Recipient> getRecipients() {
         return recipient;
     }
 
     public List<Party> getParties() {
         return parties;
     }
-
 
     public static PartyInfoThing from(byte[] data) {
 
@@ -44,31 +46,37 @@ public class PartyInfoThing {
 
         final int numberOfRecipients = (int) byteBuffer.getLong();
         final int recipientElementCount = (int) byteBuffer.getLong();
+        LOGGER.trace("recipientElementCount {}",recipientElementCount);
+        
+        final Recipient[] recipients = new Recipient[numberOfRecipients];
+        
+        for (int i = 0; i < numberOfRecipients; i++) {
+            final int recipientKeyLength = (int) byteBuffer.getLong();
+            final byte[] recipientKeyBytes = new byte[recipientKeyLength];
+            byteBuffer.get(recipientKeyBytes);
 
-        assert (numberOfRecipients == 1);
-        assert (recipientElementCount == 2);
+            final int recipientUrlValueLength = (int) byteBuffer.getLong();
+            final byte[] urlValueData = new byte[recipientUrlValueLength];
+            byteBuffer.get(urlValueData);
+            final String recipientUrl = new String(urlValueData);
 
-        final int recipientKeyLength = (int) byteBuffer.getLong();
-        final byte[] recipientKeyBytes = new byte[recipientKeyLength];
-        byteBuffer.get(recipientKeyBytes);
+            recipients[i] = new Recipient(recipientKeyBytes, recipientUrl);
 
-        final int length = (int) byteBuffer.getLong();
-        final byte[] valueData = new byte[length];
-        byteBuffer.get(valueData);
-        final String recipientUrl = new String(valueData);
+        }
 
-        final long partyCount = byteBuffer.getLong();
 
-        final List<Party> parties = new ArrayList<>();
-        for (long i = 0; i < partyCount; i++) {
+        final int partyCount = (int) byteBuffer.getLong();
+
+        final Party[] parties = new Party[partyCount];
+        for (int i = 0; i < partyCount; i++) {
             long partyElementLength = byteBuffer.getLong();
             byte[] ptyData = new byte[(int) partyElementLength];
             byteBuffer.get(ptyData);
             String ptyURL = new String(ptyData);
-            parties.add(new Party(ptyURL));
+            parties[i] = new Party(ptyURL);
         }
 
-        return new PartyInfoThing(url, new Recipient(recipientKeyBytes, recipientUrl), parties.toArray(new Party[0]));
+        return new PartyInfoThing(url,recipients, parties);
     }
 
     public static class Recipient {
