@@ -31,31 +31,6 @@ public class PartyInfoThing {
         return parties;
     }
 
-    static int extractUrlLength(byte[] data) {
-        byte[] firstNum = Arrays.copyOfRange(data, 0, 8);
-
-        long num = ByteBuffer.wrap(firstNum).getLong();
-
-        return (int) num;
-    }
-
-    static String extractUrl(int urlLength, byte[] data) {
-
-        byte[] firstBitOfData = Arrays.copyOfRange(data, 8, urlLength + 8);
-
-        return new String(firstBitOfData);
-    }
-
-    static int recipientCount(int start, byte[] data) {
-        byte[] secondNum = Arrays.copyOfRange(data, start, start + 8);
-        long numberOfRecipients = ByteBuffer.wrap(secondNum).getLong();
-
-        return (int) numberOfRecipients;
-    }
-
-    static String extractRecipientUrl(int start, byte[] data) {
-        return null;
-    }
 
     public static PartyInfoThing from(byte[] data) {
 
