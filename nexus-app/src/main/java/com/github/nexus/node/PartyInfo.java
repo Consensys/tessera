@@ -3,7 +3,6 @@ package com.github.nexus.node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class PartyInfo {
@@ -12,14 +11,14 @@ public class PartyInfo {
     
     private final String url;
 
-    private final List<Recipient> recipient;
+    private List<Recipient> recipients;
 
-    private final List<Party> parties;
+    private List<Party> parties;
 
-    protected PartyInfo(String url, Recipient[] recipient, Party[] party) {
+    protected PartyInfo(String url, List<Recipient> recipients, List<Party> parties) {
         this.url = url;
-        this.recipient = Arrays.asList(recipient);
-        this.parties = Arrays.asList(party);
+        this.recipients = recipients;
+        this.parties = parties;
     }
 
     public String getUrl() {
@@ -27,7 +26,7 @@ public class PartyInfo {
     }
 
     public List<Recipient> getRecipients() {
-        return recipient;
+        return recipients;
     }
 
     public List<Party> getParties() {
