@@ -3,10 +3,11 @@ package com.github.nexus.node;
 import com.github.nexus.enclave.keys.model.Key;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 public interface PartyInfoParser {
 
-    default PartyInfo from(byte[] encoded){
+    default PartyInfo from(byte[] encoded) {
 
         final ByteBuffer byteBuffer = ByteBuffer.wrap(encoded);
 
@@ -35,7 +36,6 @@ public interface PartyInfoParser {
 
         }
 
-
         final int partyCount = (int) byteBuffer.getLong();
 
         final Party[] parties = new Party[partyCount];
@@ -47,22 +47,34 @@ public interface PartyInfoParser {
             parties[i] = new Party(ptyURL);
         }
 
-        return new PartyInfo(url,recipients, parties);
-    };
-
-
-
-
-    byte[] to(PartyInfo partyInfoThing);
-
-    static PartyInfoParser create(){
-        return new PartyInfoParser() {
-            @Override
-            public byte[] to(PartyInfo partyInfoThing) {
-                return new byte[0];
-            }
-        };
+        return new PartyInfo(url, recipients, parties);
     }
 
+    ;
+
+
+
+
+   default byte[] to(PartyInfo partyInfo) {
+       
+       int urlLength = partyInfo.getUrl().length();
+       ByteBuffer byteBuffer = ByteBuffer.allocate(256);
+       byteBuffer.putLong(urlLength);
+       byteBuffer.put(partyInfo.getUrl().getBytes(StandardCharsets.UTF_8));
+       byteBuffer.putLong(partyInfo.getRecipients().size());
+       byteBuffer.putLong(2);//Recipient Element count
+       partyInfo.getRecipients().forEach((r) -> {
+           byteBuffer.putLong(32L);//recipient key length
+           byteBuffer.put(r.getKey().getKeyBytes());
+        });
+       
+       return byteBuffer.array();
+
+    }
+
+    static PartyInfoParser create() {
+        return new PartyInfoParser() {
+        };
+    }
 
 }
