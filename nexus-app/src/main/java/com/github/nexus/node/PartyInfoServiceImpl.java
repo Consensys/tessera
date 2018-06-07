@@ -2,6 +2,10 @@ package com.github.nexus.node;
 
 import com.github.nexus.enclave.keys.model.Key;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PartyInfoServiceImpl implements PartyInfoService {
@@ -10,15 +14,18 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     @Override
     public void initPartyInfo(String url, String[] otherNodes) {
-        Party[] parties = Stream.of(otherNodes)
-            .map(node -> new Party(node)).toArray(Party[]::new);
+        List<Party> parties = Stream.of(otherNodes)
+            .map(node -> new Party(node)).collect(Collectors.toList());
 
-        partyInfoStore.store(new PartyInfo(url, new Recipient[]{}, parties));
+        partyInfoStore.store(new PartyInfo(url, new ArrayList<Recipient>(), parties));
     }
 
     @Override
     public void registerPublicKeys(Key[] publicKeys) {
-         throw new UnsupportedOperationException("IMPLEMENT ME");
+        Arrays.asList(publicKeys).forEach(key ->{
+            Recipient recipient = new Recipient(key);
+            partyInfoStore.getPartyInfo().getRecipients().add(recipient);
+        });
     }
 
     @Override
