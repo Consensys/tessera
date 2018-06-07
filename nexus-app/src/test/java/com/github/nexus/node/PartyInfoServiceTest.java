@@ -1,4 +1,4 @@
-package com.github.nexus.service;
+package com.github.nexus.node;
 
 import org.junit.Test;
 
@@ -22,11 +22,6 @@ public class PartyInfoServiceTest {
     @Test(expected = UnsupportedOperationException.class)
     public void getPartyInfo() {
          partyInfoService.getPartyInfo();
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void pollPartyInfo() {
-         partyInfoService.pollPartyInfo();
     }
 
     @Test(expected = UnsupportedOperationException.class)

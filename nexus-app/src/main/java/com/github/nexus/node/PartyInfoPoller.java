@@ -5,13 +5,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static java.util.Objects.requireNonNull;
 
 public class PartyInfoPoller implements Runnable {
 
@@ -25,20 +22,21 @@ public class PartyInfoPoller implements Runnable {
 
     private static final String PATH = "/partyinfo";
 
-    private PartyInfoParser partyInfoParser = new PartyInfoParser() {
-        @Override
-        public byte[] to(PartyInfo partyInfoThing) {
-            return new byte[0];
-        }
-    };
+    private  PartyInfoPostDelegate partyInfoPostDelegate;
+
+    private PartyInfoParser partyInfoParser;
 
     public PartyInfoPoller(
             final PartyInfoService partyInfoService,
             final ScheduledExecutorService scheduledExecutorService,
+            final PartyInfoParser partyInfoParser,
+            PartyInfoPostDelegate partyInfoPostDelegate,
             final long rateInSeconds) {
-        this.partyInfoService = Objects.requireNonNull(partyInfoService);
-        this.scheduledExecutorService = Objects.requireNonNull(scheduledExecutorService);
+        this.partyInfoService = requireNonNull(partyInfoService);
+        this.scheduledExecutorService = requireNonNull(scheduledExecutorService);
+        this.partyInfoParser = requireNonNull(partyInfoParser);
         this.rateInSeconds = rateInSeconds;
+        this.partyInfoPostDelegate = requireNonNull(partyInfoPostDelegate);
 
     }
 
@@ -61,15 +59,15 @@ public class PartyInfoPoller implements Runnable {
     @Override
     public void run() {
         LOGGER.debug("Polling {}", getClass().getSimpleName());
-        Client client = ClientBuilder.newClient();
         try {
 
             PartyInfo partyInfo = partyInfoService.getPartyInfo();
-            List<Party> parties = partyInfo.getParties();
-            parties.stream().map(party -> party.getUrl())
+            byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
+
+            partyInfo.getParties().stream()
+                .map(party -> party.getUrl())
             .forEach(url -> {
-                Response response = client.target(url).path(PATH).request().get();
-                byte[] encoded = response.readEntity(byte[].class);
+                byte[] encoded =  partyInfoPostDelegate.doPost(url,encodedPartyInfo);
                 PartyInfo updatedPartyInfo = partyInfoParser.from(encoded);
                 partyInfoService.updatePartyInfo(updatedPartyInfo);
             });
