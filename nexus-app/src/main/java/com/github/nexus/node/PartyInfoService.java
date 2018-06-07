@@ -2,13 +2,20 @@ package com.github.nexus.node;
 
 import com.github.nexus.enclave.keys.model.Key;
 
-import javax.ws.rs.client.Client;
-
 public interface PartyInfoService {
 
+    /**
+     *
+     * @param rawUrl
+     * @param otherNodes
+     */
+    void initPartyInfo(String rawUrl, String[] otherNodes);
 
-    void initPartyInfo(String rawUrl, String[] otherNodes, Client client);
 
+    /**
+     *
+     * @param publicKeys
+     */
     void registerPublicKeys(Key[] publicKeys);
 
     /**
