@@ -1,6 +1,5 @@
-package com.github.nexus.entity;
+package com.github.nexus.transaction.model;
 
-import com.github.nexus.transaction.EncryptedTransaction;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

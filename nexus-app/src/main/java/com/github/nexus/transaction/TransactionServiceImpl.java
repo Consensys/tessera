@@ -2,21 +2,27 @@ package com.github.nexus.transaction;
 
 import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.enclave.model.MessageHash;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.Map;
-import java.util.logging.Logger;
+import java.util.Objects;
 
 @Transactional
 public class TransactionServiceImpl implements TransactionService {
 
-    private static final Logger LOGGER = Logger.getLogger(TransactionServiceImpl.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionServiceImpl.class);
 
     private EncryptedTransactionDAO encryptedTransactionDAO;
 
-    public TransactionServiceImpl(final EncryptedTransactionDAO encryptedTransactionDAO) {
-        this.encryptedTransactionDAO = encryptedTransactionDAO;
+    private PayloadEncoder payloadEncoder;
+
+    public TransactionServiceImpl(final EncryptedTransactionDAO encryptedTransactionDAO,
+                                  final PayloadEncoder payloadEncoder) {
+        this.encryptedTransactionDAO = Objects.requireNonNull(encryptedTransactionDAO);
+        this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
     }
 
     @Override
