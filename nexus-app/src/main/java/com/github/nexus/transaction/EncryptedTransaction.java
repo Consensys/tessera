@@ -1,4 +1,4 @@
-package com.github.nexus.entity;
+package com.github.nexus.transaction;
 
 import javax.persistence.*;
 import java.io.Serializable;
