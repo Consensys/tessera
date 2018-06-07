@@ -1,7 +1,7 @@
 package com.github.nexus.enclave;
 
 import com.github.nexus.enclave.model.MessageHash;
-import com.github.nexus.service.TransactionService;
+import com.github.nexus.transaction.TransactionService;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -1,6 +1,8 @@
 
 package com.github.nexus.dao;
 
+import com.github.nexus.transaction.EncryptedTransactionDAO;
+import com.github.nexus.transaction.EncryptedTransactionDAOImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.github.nexus.service;
+package com.github.nexus.transaction;
 
 import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.enclave.model.MessageHash;

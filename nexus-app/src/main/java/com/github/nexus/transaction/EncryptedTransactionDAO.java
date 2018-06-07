@@ -1,7 +1,6 @@
-package com.github.nexus.dao;
+package com.github.nexus.transaction;
 
 import com.github.nexus.enclave.model.MessageHash;
-import com.github.nexus.entity.EncryptedTransaction;
 
 import java.util.List;
 
