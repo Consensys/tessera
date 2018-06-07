@@ -63,32 +63,29 @@ public class PartyInfoThing {
 
         final int urlLength = (int) byteBuffer.getLong();
 
-        byte[] urlBytes = new byte[urlLength];
+        final byte[] urlBytes = new byte[urlLength];
         byteBuffer.get(urlBytes);
-        String url = new String(urlBytes);
+        final String url = new String(urlBytes);
 
-        int numberOfRecipients = (int) byteBuffer.getLong();
-
-        int recipientElementCount = (int) byteBuffer.getLong();
+        final int numberOfRecipients = (int) byteBuffer.getLong();
+        final int recipientElementCount = (int) byteBuffer.getLong();
 
         assert (numberOfRecipients == 1);
         assert (recipientElementCount == 2);
-        
-        int recipientKeyLength = (int) byteBuffer.getLong();
 
-        byte[] recipientKeyBytes = new byte[recipientKeyLength];
-
+        final int recipientKeyLength = (int) byteBuffer.getLong();
+        final byte[] recipientKeyBytes = new byte[recipientKeyLength];
         byteBuffer.get(recipientKeyBytes);
-        
-        int length = (int) byteBuffer.getLong();
-        byte[] valueData = new byte[length];
+
+        final int length = (int) byteBuffer.getLong();
+        final byte[] valueData = new byte[length];
         byteBuffer.get(valueData);
         final String recipientUrl = new String(valueData);
 
-        long partyCount = byteBuffer.getLong();
-        
-        List<Party> parties = new ArrayList<>();
-        for(long i = 0;i < partyCount;i++) {
+        final long partyCount = byteBuffer.getLong();
+
+        final List<Party> parties = new ArrayList<>();
+        for (long i = 0; i < partyCount; i++) {
             long partyElementLength = byteBuffer.getLong();
             byte[] ptyData = new byte[(int) partyElementLength];
             byteBuffer.get(ptyData);
@@ -96,16 +93,16 @@ public class PartyInfoThing {
             parties.add(new Party(ptyURL));
         }
 
-        return new PartyInfoThing(url, new Recipient(recipientKeyBytes,recipientUrl),parties.toArray(new Party[0]));
+        return new PartyInfoThing(url, new Recipient(recipientKeyBytes, recipientUrl), parties.toArray(new Party[0]));
     }
 
     public static class Recipient {
-        
+
         private final byte[] key;
-        
+
         private final String url;
 
-        public Recipient(byte[]  key,String url) {
+        public Recipient(byte[] key, String url) {
             this.url = url;
             this.key = key;
         }
