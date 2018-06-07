@@ -1,7 +1,6 @@
-package com.github.nexus.service;
+package com.github.nexus.node;
 
 import com.github.nexus.enclave.keys.model.Key;
-import com.github.nexus.entity.PartyInfo;
 
 import javax.ws.rs.client.Client;
 
@@ -19,20 +18,12 @@ public interface PartyInfoService {
     PartyInfo getPartyInfo();
 
     /**
-     * Poll to request PartyInfo data.
-     * Time invervals should be configurable.
-     * @return PartyInfo object
-     */
-    PartyInfo pollPartyInfo();
-
-    /**
      * Update the PartyInfo data store with the provided encoded data.
      * This can happen when endpoint /partyinfo is triggered,
      * or by a response from this node hitting another node /partyinfo endpoint
-     * @param encoded encoded payload
      * @return updated PartyInfo object
      */
-    PartyInfo updatePartyInfo(byte[] encoded);
+    PartyInfo updatePartyInfo(PartyInfo partyInfo);
 
 
 
