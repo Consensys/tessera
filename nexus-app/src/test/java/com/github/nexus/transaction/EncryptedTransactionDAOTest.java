@@ -1,7 +1,9 @@
-package com.github.nexus.dao;
+package com.github.nexus.transaction;
 
+import com.github.nexus.dao.JpaConfig;
 import com.github.nexus.enclave.model.MessageHash;
-import com.github.nexus.entity.EncryptedTransaction;
+import com.github.nexus.transaction.EncryptedTransaction;
+import com.github.nexus.transaction.EncryptedTransactionDAO;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
