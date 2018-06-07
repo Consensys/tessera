@@ -2,11 +2,15 @@ package com.github.nexus.transaction;
 
 import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.encryption.Nonce;
+import com.github.nexus.transaction.model.EncodedPayload;
+import com.github.nexus.transaction.model.EncodedPayloadWithRecipients;
 import com.github.nexus.util.BinaryEncoder;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
 
@@ -44,7 +48,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         buffer.get(nonce);
 
         final long numberOfRecipients = buffer.getLong();
-        List<byte[]> recipientBoxes = new ArrayList<>();
+        final List<byte[]> recipientBoxes = new ArrayList<>();
         for(long i=0; i<numberOfRecipients; i++) {
             final long boxSize = buffer.getLong();
             final byte[] box = new byte[new Long(boxSize).intValue()];
@@ -65,4 +69,49 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         );
     }
 
+    @Override
+    public byte[] encode(final EncodedPayloadWithRecipients encodedPayloadWithRecipients) {
+        final byte[] payloadBytes = encode(encodedPayloadWithRecipients.getEncodedPayload());
+
+        final List<byte[]> keysAsBytes = encodedPayloadWithRecipients
+            .getRecipientKeys()
+            .stream()
+            .map(Key::getKeyBytes)
+            .collect(toList());
+
+        final byte[] recipientBytes = encodeArray(keysAsBytes);
+
+        return encodeArray(new byte[][]{payloadBytes, recipientBytes});
+    }
+
+    @Override
+    public EncodedPayloadWithRecipients decodePayloadWithRecipients(final byte[] input) {
+        final ByteBuffer buffer = ByteBuffer.wrap(input);
+
+        buffer.getLong();
+
+        final long lengthOfPayload = buffer.getLong();
+        final byte[] payload = new byte[(int)lengthOfPayload];
+        buffer.get(payload);
+
+        final long recipientLength = buffer.getLong();
+        final byte[] recipientsRaw = new byte[(int)recipientLength];
+        buffer.get(recipientsRaw);
+
+        final ByteBuffer recipientBuffer = ByteBuffer.wrap(recipientsRaw);
+        final long numberOfRecipients = recipientBuffer.getLong();
+
+        final List<byte[]> recipientKeys = new ArrayList<>();
+        for(long i=0; i<numberOfRecipients; i++) {
+            final long boxSize = recipientBuffer.getLong();
+            final byte[] box = new byte[new Long(boxSize).intValue()];
+            recipientBuffer.get(box);
+            recipientKeys.add(box);
+        }
+
+        return new EncodedPayloadWithRecipients(
+            decode(payload),
+            recipientKeys.stream().map(Key::new).collect(toList())
+        );
+    }
 }

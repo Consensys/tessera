@@ -1,4 +1,4 @@
-package com.github.nexus.transaction;
+package com.github.nexus.transaction.model;
 
 import javax.persistence.*;
 import java.io.Serializable;
