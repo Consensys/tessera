@@ -55,5 +55,14 @@ public interface PartyInfoParser {
 
     byte[] to(PartyInfo partyInfoThing);
 
+    static PartyInfoParser create(){
+        return new PartyInfoParser() {
+            @Override
+            public byte[] to(PartyInfo partyInfoThing) {
+                return new byte[0];
+            }
+        };
+    }
+
 
 }

@@ -1,14 +1,16 @@
-package com.github.nexus;
+package com.github.nexus.node;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PartyInfoThingTest {
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class PartyInfoParserTest {
 
     private final int[] sampleData = new int[] {
         
@@ -38,7 +40,14 @@ public class PartyInfoThingTest {
 
     private byte[] data;
 
-    public PartyInfoThingTest() {
+    private PartyInfoParser partyInfoParser = new PartyInfoParser() {
+        @Override
+        public byte[] to(PartyInfo partyInfoThing) {
+            return new byte[0];
+        }
+    };
+
+    public PartyInfoParserTest() {
     }
 
     @Before
@@ -62,14 +71,14 @@ public class PartyInfoThingTest {
     @Test
     public void from() {
 
-        PartyInfoThing result = PartyInfoThing.from(data);
+        PartyInfo result = partyInfoParser.from(data);
 
         assertThat(result).isNotNull();
 
         assertThat(result.getUrl()).isEqualTo("http://localhost:8000");
         assertThat(result.getRecipients()).hasSize(1);
         assertThat(result.getRecipients().get(0).getUrl()).isEqualTo("http://localhost:8001");
-        assertThat(result.getRecipients().get(0).getKey()).isNotEmpty().hasSize(32);
+        assertThat(result.getRecipients().get(0).getKey()).isNotNull();
         assertThat(result.getParties()).hasSize(1);
         assertThat(result.getParties().get(0).getUrl()).isEqualTo("http://localhost:8001");
 

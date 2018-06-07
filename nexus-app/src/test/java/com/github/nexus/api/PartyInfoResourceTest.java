@@ -1,6 +1,6 @@
 package com.github.nexus.api;
 
-import com.github.nexus.service.PartyInfoService;
+import com.github.nexus.node.PartyInfoService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
