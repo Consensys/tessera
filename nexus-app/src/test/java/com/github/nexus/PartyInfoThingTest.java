@@ -27,7 +27,15 @@ public class PartyInfoThingTest {
         
         0, 0, 0, 0, 0, 0, 0, 21, //recipient value length/ URL 
         
-        104, 116, 116, 112, 58, 47, 47, 108, 111, 99, 97, 108, 104, 111, 115, 116, 58, 56, 48, 48, 49, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 21, 104, 116, 116, 112, 58, 47, 47, 108, 111, 99, 97, 108, 104, 111, 115, 116, 58, 56, 48, 48, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        104, 116, 116, 112, 58, 47, 47, 108, 111, 99, 97, 108, 104, 111, 115, 116, 58, 56, 48, 48, 49, 
+        
+        0, 0, 0, 0, 0, 0, 0, 1, //Number of parties
+        
+        0, 0, 0, 0, 0, 0, 0, 21, //Length of party url
+        
+        104, 116, 116, 112, 58, 47, 47, 108, 111, 99, 97, 108, 104, 111, 115, 116, 58, 56, 48, 48, 49, //party URL data
+        
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     byte[] data;
 
@@ -54,7 +62,7 @@ public class PartyInfoThingTest {
 
 
     @Test
-    public void hello() {
+    public void from() {
         
       PartyInfoThing result =   PartyInfoThing.from(data);
       
@@ -62,7 +70,10 @@ public class PartyInfoThingTest {
       
       assertThat(result.getUrl()).isEqualTo("http://localhost:8000");
       assertThat(result.getRecipient()).isNotNull();
+      assertThat(result.getRecipient().getUrl()).isEqualTo("http://localhost:8001");
+      assertThat(result.getRecipient().getKey()).isNotEmpty().hasSize(32);
       assertThat(result.getParties()).hasSize(1);
+      assertThat(result.getParties().get(0).getUrl()).isEqualTo("http://localhost:8001");
 
     }
 }
