@@ -1,8 +1,10 @@
-package com.github.nexus.service;
+package com.github.nexus.transaction;
 
-import com.github.nexus.dao.EncryptedTransactionDAO;
+import com.github.nexus.transaction.EncryptedTransactionDAO;
 import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.enclave.model.MessageHash;
+import com.github.nexus.transaction.TransactionService;
+import com.github.nexus.transaction.TransactionServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 
