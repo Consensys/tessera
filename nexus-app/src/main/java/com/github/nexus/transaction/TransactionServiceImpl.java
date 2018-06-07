@@ -1,6 +1,5 @@
-package com.github.nexus.service;
+package com.github.nexus.transaction;
 
-import com.github.nexus.dao.EncryptedTransactionDAO;
 import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.enclave.model.MessageHash;
 
@@ -10,7 +9,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 @Transactional
-public class TransactionServiceImpl implements TransactionService{
+public class TransactionServiceImpl implements TransactionService {
 
     private static final Logger LOGGER = Logger.getLogger(TransactionServiceImpl.class.getName());
 
