@@ -29,11 +29,6 @@ public class EnclaveImpl implements Enclave {
     }
 
     @Override
-    public byte[] send(byte[] from, byte[][] to, byte[] payload){
-        return "mykey".getBytes();
-    }
-
-    @Override
     public byte[] receive(byte[] key, byte[] to) {
         return transactionService.retrieveUnencryptedTransaction(new MessageHash(key), new Key(to));
     }
