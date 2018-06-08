@@ -1,14 +1,14 @@
-package com.github.nexus;
+package com.github.nexus.node;
 
-import com.github.nexus.entity.PartyInfo;
-import com.github.nexus.service.PartyInfoService;
-import java.util.Objects;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.Objects.requireNonNull;
 
 public class PartyInfoPoller implements Runnable {
 
@@ -20,13 +20,23 @@ public class PartyInfoPoller implements Runnable {
 
     private final long rateInSeconds;
 
+    private static final String PATH = "/partyinfo";
+
+    private  PartyInfoPostDelegate partyInfoPostDelegate;
+
+    private PartyInfoParser partyInfoParser;
+
     public PartyInfoPoller(
             final PartyInfoService partyInfoService,
             final ScheduledExecutorService scheduledExecutorService,
+            final PartyInfoParser partyInfoParser,
+            PartyInfoPostDelegate partyInfoPostDelegate,
             final long rateInSeconds) {
-        this.partyInfoService = Objects.requireNonNull(partyInfoService);
-        this.scheduledExecutorService = Objects.requireNonNull(scheduledExecutorService);
+        this.partyInfoService = requireNonNull(partyInfoService);
+        this.scheduledExecutorService = requireNonNull(scheduledExecutorService);
+        this.partyInfoParser = requireNonNull(partyInfoParser);
         this.rateInSeconds = rateInSeconds;
+        this.partyInfoPostDelegate = requireNonNull(partyInfoPostDelegate);
 
     }
 
@@ -50,7 +60,19 @@ public class PartyInfoPoller implements Runnable {
     public void run() {
         LOGGER.debug("Polling {}", getClass().getSimpleName());
         try {
-            PartyInfo partyInfo = partyInfoService.pollPartyInfo();
+
+            PartyInfo partyInfo = partyInfoService.getPartyInfo();
+            byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
+
+            partyInfo.getParties().stream()
+                .map(party -> party.getUrl())
+            .forEach(url -> {
+                byte[] encoded =  partyInfoPostDelegate.doPost(url,encodedPartyInfo);
+                PartyInfo updatedPartyInfo = partyInfoParser.from(encoded);
+                partyInfoService.updatePartyInfo(updatedPartyInfo);
+            });
+
+
             LOGGER.debug("Polled {}. PartyInfo : {}", getClass().getSimpleName(), partyInfo);
         } catch(Throwable ex) {
             LOGGER.error("Error thrown while executing poller. ",ex);

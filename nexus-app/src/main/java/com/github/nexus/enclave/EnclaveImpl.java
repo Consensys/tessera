@@ -1,7 +1,14 @@
 package com.github.nexus.enclave;
 
+import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.enclave.model.MessageHash;
+import com.github.nexus.transaction.PayloadEncoder;
 import com.github.nexus.transaction.TransactionService;
+import com.github.nexus.transaction.model.EncodedPayloadWithRecipients;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -9,8 +16,11 @@ public class EnclaveImpl implements Enclave {
 
     private final TransactionService transactionService;
 
-    public EnclaveImpl(final TransactionService transactionService) {
-        this.transactionService = requireNonNull(transactionService,"transaction service cannot be null");
+    private final PayloadEncoder payloadEncoder;
+
+    public EnclaveImpl(final TransactionService transactionService, PayloadEncoder payloadEncoder) {
+        this.transactionService = requireNonNull(transactionService,"transactionService cannot be null");
+        this.payloadEncoder = requireNonNull(payloadEncoder,"encoder cannot be null");
     }
 
     @Override
@@ -19,19 +29,22 @@ public class EnclaveImpl implements Enclave {
     }
 
     @Override
-    public byte[] send(byte[] from, byte[][] to, byte[] payload){
-//        transactionService.(new EncryptedTransaction("someValue".getBytes(), "somePayload".getBytes()));
-        return "mykey".getBytes();
-    }
-
-    @Override
     public byte[] receive(byte[] key, byte[] to) {
-//        transactionService.retrieveAllTransactions();
-        return "payload".getBytes();
+        return transactionService.retrieveUnencryptedTransaction(new MessageHash(key), new Key(to));
     }
 
     @Override
-    public byte[] store(byte[] sender, byte[][] recipients, byte[] message) {
-        return new byte[0];
+    public MessageHash store(byte[] sender, byte[][] recipients, byte[] message) {
+        Key senderPublicKey = new Key(sender);
+        List<Key> recipientList = Arrays.stream(recipients)
+            .map(recipient -> new Key(recipient))
+            .collect(Collectors.toList());
+
+        EncodedPayloadWithRecipients encryptedPayload =
+            transactionService.encryptPayload(message, senderPublicKey, recipientList);
+
+        return transactionService.storeEncodedPayload(encryptedPayload);
+
+
     }
 }
