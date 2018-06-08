@@ -3,10 +3,14 @@ package com.github.nexus.node;
 import com.github.nexus.enclave.keys.model.Key;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.nio.charset.StandardCharsets;
 
 public interface PartyInfoParser {
 
-    default PartyInfo from(byte[] encoded){
+    default PartyInfo from(byte[] encoded) {
 
         final ByteBuffer byteBuffer = ByteBuffer.wrap(encoded);
 
@@ -19,9 +23,10 @@ public interface PartyInfoParser {
         final int numberOfRecipients = (int) byteBuffer.getLong();
         final int recipientElementCount = (int) byteBuffer.getLong();
 
-        final Recipient[] recipients = new Recipient[numberOfRecipients];
+        final List<Recipient> recipients = new ArrayList<>();
 
         for (int i = 0; i < numberOfRecipients; i++) {
+            
             final int recipientKeyLength = (int) byteBuffer.getLong();
             final byte[] recipientKeyBytes = new byte[recipientKeyLength];
             byteBuffer.get(recipientKeyBytes);
@@ -31,10 +36,9 @@ public interface PartyInfoParser {
             byteBuffer.get(urlValueData);
             final String recipientUrl = new String(urlValueData);
 
-            recipients[i] = new Recipient(new Key(recipientKeyBytes), recipientUrl);
+            recipients.add(new Recipient(new Key(recipientKeyBytes), recipientUrl));
 
         }
-
 
         final int partyCount = (int) byteBuffer.getLong();
 
@@ -47,22 +51,42 @@ public interface PartyInfoParser {
             parties[i] = new Party(ptyURL);
         }
 
-        return new PartyInfo(url,recipients, parties);
+        return new PartyInfo(url, recipients, Arrays.asList(parties));
     };
 
 
+   default byte[] to(PartyInfo partyInfo) {
 
+       int urlLength = partyInfo.getUrl().length();
+       
+       ByteBuffer byteBuffer = ByteBuffer.allocate(256);
+       byteBuffer.putLong(urlLength);
+       byteBuffer.put(partyInfo.getUrl().getBytes(StandardCharsets.UTF_8));
+       byteBuffer.putLong(partyInfo.getRecipients().size());
+       byteBuffer.putLong(2);//Recipient Element count
 
-    byte[] to(PartyInfo partyInfoThing);
+       partyInfo.getRecipients().forEach((r) -> {
+           byteBuffer.putLong(32L);//recipient key length
+           byteBuffer.put(r.getKey().getKeyBytes()); //Recipient Key
+           byteBuffer.putLong(r.getUrl().length());//recipient url length.
+           byteBuffer.put(r.getUrl().getBytes(StandardCharsets.UTF_8)); 
+        });
+       
+       byteBuffer.putLong(partyInfo.getParties().size());
+       partyInfo.getParties().forEach(p -> {
+           byteBuffer.putLong(p.getUrl().length());
+           byteBuffer.put(p.getUrl().getBytes(StandardCharsets.UTF_8));
+       });
+       
+       
+       
+       return byteBuffer.array();
 
-    static PartyInfoParser create(){
-        return new PartyInfoParser() {
-            @Override
-            public byte[] to(PartyInfo partyInfoThing) {
-                return new byte[0];
-            }
-        };
     }
 
+    static PartyInfoParser create() {
+        return new PartyInfoParser() {
+    };
+    }
 
 }

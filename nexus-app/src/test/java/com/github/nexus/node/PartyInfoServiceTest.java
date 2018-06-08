@@ -1,6 +1,14 @@
 package com.github.nexus.node;
 
+import com.github.nexus.enclave.keys.model.Key;
+import org.assertj.core.util.Arrays;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class PartyInfoServiceTest {
     
@@ -9,24 +17,32 @@ public class PartyInfoServiceTest {
     public PartyInfoServiceTest() {
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void initPartyInfo() {
-        partyInfoService.initPartyInfo(null, null, null);
+    private String url = "http://someurl.com";
+
+    @Before
+    public void init(){
+        partyInfoService.initPartyInfo(url, new String[]{"node1","node2"});
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void registerPublicKeys() {
-        partyInfoService.registerPublicKeys(null);
+    @Test
+    public void testInitPartyInfo() {
+        assertEquals(2,partyInfoService.getPartyInfo().getParties().size());
+        assertEquals(url, partyInfoService.getPartyInfo().getUrl());
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void getPartyInfo() {
-         partyInfoService.getPartyInfo();
+    @Test
+    public void testRegisterPublicKeys() {
+        Key key = new Key("somekey".getBytes());
+        partyInfoService.registerPublicKeys(Arrays.array(key));
+        assertEquals(1, partyInfoService.getPartyInfo().getRecipients().size());
+        assertThat(partyInfoService.getPartyInfo().getRecipients().get(0).getKey()).isSameAs(key);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void updatePartyInfo() {
-         partyInfoService.updatePartyInfo(null);
+    @Test
+    public void testUpdatePartyInfo() {
+        PartyInfo partyInfo = new PartyInfo(url, new ArrayList<Recipient>(), new ArrayList<Party>());
+        assertThat(partyInfoService.updatePartyInfo(partyInfo)).isNotNull().isSameAs(partyInfo);
+
     }
 
 

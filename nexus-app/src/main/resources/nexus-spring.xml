@@ -13,7 +13,8 @@
     
     <context:component-scan base-package="com.github.nexus" />
     
-    
+
+    <!-- Resources -->
     <bean class="com.github.nexus.api.VersionResource"/>
     <bean class="com.github.nexus.api.UpCheckResource"/>
     <bean class="com.github.nexus.api.TransactionResource">
@@ -22,11 +23,22 @@
             <bean class="com.github.nexus.util.Base64Decoder" factory-method="create" />
         </constructor-arg>
     </bean>
+    <bean class="com.github.nexus.api.PartyInfoResource">
+        <constructor-arg ref="partyInfoService"/>
+        <constructor-arg>
+            <bean class="com.github.nexus.node.PartyInfoParser" factory-method="create"/>
+        </constructor-arg>
+    </bean>
+
+
+    <bean name="partyInfoService" class="com.github.nexus.node.PartyInfoServiceImpl"/>
+
 
     <bean name="payloadEncoder" class="com.github.nexus.transaction.PayloadEncoderImpl" />
 
     <bean name="enclave" class="com.github.nexus.enclave.EnclaveImpl">
         <constructor-arg ref="transactionService" />
+        <constructor-arg ref="payloadEncoder"/>
     </bean>
 
     <bean name="transactionService" class="com.github.nexus.transaction.TransactionServiceImpl">
@@ -36,15 +48,15 @@
         <constructor-arg ref="nacl" />
     </bean>
 
-    <bean id="configHolder" class="com.github.nexus.config.ConfigHolder" factory-method="getInstance" />
-
     <bean name="keyManager" class="com.github.nexus.enclave.keys.KeyManagerImpl">
         <constructor-arg value="./" />
         <constructor-arg ref="nacl" />
         <constructor-arg>
-          <bean factory-bean="configHolder" factory-method="getConfig" />
+            <bean factory-bean="configHolder" factory-method="getConfig" />
         </constructor-arg>
     </bean>
+
+    <bean id="configHolder" class="com.github.nexus.config.ConfigHolder" factory-method="getInstance" />
 
     <bean name="nacl" class="com.github.nexus.encryption.Kalium">
         <constructor-arg>
@@ -56,6 +68,7 @@
         
     <bean class="com.github.nexus.api.exception.DefaultExceptionMapper" />
     <bean class="com.github.nexus.api.exception.DecodingExceptionMapper"/>
+    <bean class="com.github.nexus.enclave.exception.KeyNotFoundExceptionMapper"/>
     
     <bean id="dataSource" class="org.h2.jdbcx.JdbcDataSource">
         <property name="url" value="jdbc:h2:./target/h2/nexus;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0" />

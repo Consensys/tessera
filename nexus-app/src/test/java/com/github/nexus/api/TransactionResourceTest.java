@@ -1,9 +1,10 @@
 package com.github.nexus.api;
 
-import com.github.nexus.util.Base64Decoder;
 import com.github.nexus.api.exception.DecodingException;
 import com.github.nexus.api.model.*;
 import com.github.nexus.enclave.Enclave;
+import com.github.nexus.enclave.model.MessageHash;
+import com.github.nexus.util.Base64Decoder;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
@@ -54,7 +55,7 @@ public class TransactionResourceTest {
         sendRequest.setTo(new String[]{"cmVjaXBpZW50MQ=="});
         sendRequest.setPayload("Zm9v");
 
-        when(enclave.store(any(), any(), any())).thenReturn("SOMEKEY".getBytes());
+        when(enclave.store(any(), any(), any())).thenReturn(new MessageHash("SOMEKEY".getBytes()));
 
         Response response = transactionResource.send(sendRequest);
 
@@ -112,7 +113,7 @@ public class TransactionResourceTest {
         receiveRequest.setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
         receiveRequest.setTo("cmVjaXBpZW50MQ==");
 
-//        when(enclave.receive(any(), any())).thenReturn("SOME DATA".getBytes());
+        when(enclave.receive(any(), any())).thenReturn("SOME DATA".getBytes());
 
         Response response = transactionResource.receive(receiveRequest);
 
@@ -121,8 +122,8 @@ public class TransactionResourceTest {
 
         ReceiveResponse receiveResponse = (ReceiveResponse) response.getEntity();
 
-        assertThat(receiveResponse.getPayload()).isEqualTo("UmV0cmlldmVkIHBheWxvYWQ=");
-
+        assertThat(receiveResponse.getPayload()).isEqualTo("U09NRSBEQVRB");
+        verify(enclave).receive(any(),any());
         assertThat(response.getStatus()).isEqualTo(201);
     }
 
