@@ -2,9 +2,11 @@ package com.github.nexus.transaction;
 
 import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.enclave.model.MessageHash;
+import com.github.nexus.transaction.model.EncodedPayload;
+import com.github.nexus.transaction.model.EncodedPayloadWithRecipients;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
 public interface TransactionService {
 
@@ -27,11 +29,14 @@ public interface TransactionService {
      * @param recipientPublicKey The key for which to search over
      * @return The list of all payloads that have the given key as a recipient
      */
-    Collection<String> retrieveAllForRecipient(Key recipientPublicKey);
+    Collection<EncodedPayloadWithRecipients> retrieveAllForRecipient(Key recipientPublicKey);
 
     /**
      * Retrieves the message specified by the provided hash,
      * and checks the intended recipient is present in the recipient list
+     *
+     * If the given recipient is present, then modifies the returned payload to only include
+     * that recipient in the sealed box list so that it can be sent to the other nodes
      *
      * @param hash              The hash of the message to retrieve
      * @param intendedRecipient The public key of a recipient to check is present
@@ -39,27 +44,30 @@ public interface TransactionService {
      * @throws NullPointerException if the hash or intended recipient is null
      * @throws RuntimeException     if the provided recipient is not on the message recipient list
      */
-    String retrievePayload(MessageHash hash, Key intendedRecipient);
+    EncodedPayload retrievePayload(MessageHash hash, Key intendedRecipient);
 
     /**
      * Retrieves the message specified by the provided hash,
      * and uses the provided key as the sender of the message
      *
+     * Returns the unencrypted payload that is contained within so that
+     * Quorum can process it
+     *
      * @param hash   The hash of the message to retrieve
-     * @param sender The public key of the sender to use
+     * @param sender The public key of the sender to use (or {@code null} if we are the originator)
      * @return The encrypted payload if the sender keys match
      * @throws NullPointerException if the hash or sender is null
      * @throws RuntimeException     if the provided sender is not the original sender of the message
      */
-    String retrieve(MessageHash hash, Key sender);
+    byte[] retrieveUnencryptedTransaction(MessageHash hash, Key sender);
 
     /**
      * Store the sealed payload in the database that was propagated to from another node
      *
-     * @param sealedPayload the encrypted and encoded payload
-     * @return The hash of the sealed payload
+     * @param payloadWithRecipients the decoded message that gets sent between nodes
+     * @return the SHA3-513 hash of the encrypted message
      */
-    MessageHash storePayloadFromOtherNode(byte[] sealedPayload);
+    MessageHash storeEncodedPayload(EncodedPayloadWithRecipients payloadWithRecipients);
 
     /**
      * Encrypts the payload using each of the given recipient keys and a random nonce
@@ -72,6 +80,6 @@ public interface TransactionService {
      * @param recipientPublicKeys The list of public keys that are recipients of the this message
      * @return A map of keys to nonces to cipher texts
      */
-    Map<Key, Map<byte[], byte[]>> encryptPayload(byte[] message, Key senderPublicKey, Collection<Key> recipientPublicKeys);
+    EncodedPayloadWithRecipients encryptPayload(byte[] message, Key senderPublicKey, List<Key> recipientPublicKeys);
 
 }

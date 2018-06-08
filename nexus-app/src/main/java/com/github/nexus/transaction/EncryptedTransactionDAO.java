@@ -4,6 +4,7 @@ import com.github.nexus.enclave.model.MessageHash;
 import com.github.nexus.transaction.model.EncryptedTransaction;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EncryptedTransactionDAO {
 
@@ -15,6 +16,14 @@ public interface EncryptedTransactionDAO {
      * @return The entity that was persisted
      */
     EncryptedTransaction save(EncryptedTransaction entity);
+
+    /**
+     * Retrieve a transaction based on its hash
+     *
+     * @param hash the hash of the transaction to retrieve
+     * @return the encrypted transaction with the given hash
+     */
+    Optional<EncryptedTransaction> retrieveByHash(MessageHash hash);
 
     /**
      * Retrieves a list of all transactions stored in the database
