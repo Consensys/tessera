@@ -1,10 +1,14 @@
-package com.github.nexus.transaction;
+package com.github.nexus.transaction.model;
 
 import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.encryption.Nonce;
 
 import java.util.*;
 
+/**
+ * This class contains the base data that is sent to other nodes
+ * (it is wrapped further, but the main data that is needed is here)
+ */
 public class EncodedPayload {
 
     private final Key senderKey;

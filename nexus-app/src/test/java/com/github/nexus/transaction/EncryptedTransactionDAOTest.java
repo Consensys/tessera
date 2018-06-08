@@ -2,10 +2,7 @@ package com.github.nexus.transaction;
 
 import com.github.nexus.dao.JpaConfig;
 import com.github.nexus.enclave.model.MessageHash;
-import com.github.nexus.transaction.EncryptedTransaction;
-import com.github.nexus.transaction.EncryptedTransactionDAO;
-import org.junit.After;
-import org.junit.Before;
+import com.github.nexus.transaction.model.EncryptedTransaction;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -17,6 +14,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -33,14 +31,6 @@ public class EncryptedTransactionDAOTest {
 
     @Inject
     private EncryptedTransactionDAO encryptedTransactionDAO;
-
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
 
     @Test
     public void saveDoesntAllowNullEncodedPayload() {
@@ -159,6 +149,31 @@ public class EncryptedTransactionDAOTest {
         //delete the transaction
         final boolean deletedFlag = encryptedTransactionDAO.delete(new MessageHash(new byte[]{1}));
         assertThat(deletedFlag).isFalse();
+    }
+
+    @Test
+    public void retrieveByHashFindsTransactionThatIsPresent() {
+        //put a transaction in the database
+        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+        encryptedTransaction.setEncodedPayload(new byte[]{5});
+        encryptedTransaction.setHash(new byte[]{1});
+        encryptedTransactionDAO.save(encryptedTransaction);
+
+        final MessageHash searchHash = new MessageHash(new byte[]{1});
+
+        final Optional<EncryptedTransaction> retrieved = encryptedTransactionDAO.retrieveByHash(searchHash);
+
+        assertThat(retrieved.isPresent()).isTrue();
+        assertThat(retrieved.get()).isEqualToComparingFieldByField(encryptedTransaction);
+    }
+
+    @Test
+    public void retrieveByHashThrowsExceptionWhenNotPresent() {
+        final MessageHash searchHash = new MessageHash(new byte[]{1});
+
+        final Optional<EncryptedTransaction> retrieved = encryptedTransactionDAO.retrieveByHash(searchHash);
+
+        assertThat(retrieved.isPresent()).isFalse();
     }
 
 }
