@@ -1,26 +1,37 @@
 package com.github.nexus;
 
 import com.github.nexus.app.Nexus;
+import com.github.nexus.config.ConfigHolder;
+import com.github.nexus.config.Configuration;
 import com.github.nexus.service.locator.ServiceLocator;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Base64;
-import javax.json.Json;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class NexusIT extends JerseyTest {
+import javax.json.Json;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.MediaType;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Base64;
 
-    public NexusIT() {
-    }
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class NexusIT extends JerseyTest {
 
     @Override
     protected Application configure() {
+
+        if (ConfigHolder.INSTANCE.getConfig() == null) {
+            ConfigHolder.INSTANCE.setConfiguration(new Configuration());
+        }
+
+        final Configuration config = ConfigHolder.INSTANCE.getConfig();
+        config.setPublicKeys(singletonList("./target/test-classes/key.pub"));
+        config.setPrivateKeys(singletonList("./target/test-classes/key.key"));
+
         ServiceLocator serviceLocator = ServiceLocator.create();
         return new Nexus(serviceLocator);
     }
