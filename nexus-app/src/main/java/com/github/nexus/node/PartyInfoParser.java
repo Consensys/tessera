@@ -26,6 +26,7 @@ public interface PartyInfoParser {
         final List<Recipient> recipients = new ArrayList<>();
 
         for (int i = 0; i < numberOfRecipients; i++) {
+            
             final int recipientKeyLength = (int) byteBuffer.getLong();
             final byte[] recipientKeyBytes = new byte[recipientKeyLength];
             byteBuffer.get(recipientKeyBytes);
@@ -57,23 +58,35 @@ public interface PartyInfoParser {
    default byte[] to(PartyInfo partyInfo) {
 
        int urlLength = partyInfo.getUrl().length();
+       
        ByteBuffer byteBuffer = ByteBuffer.allocate(256);
        byteBuffer.putLong(urlLength);
        byteBuffer.put(partyInfo.getUrl().getBytes(StandardCharsets.UTF_8));
        byteBuffer.putLong(partyInfo.getRecipients().size());
        byteBuffer.putLong(2);//Recipient Element count
+
        partyInfo.getRecipients().forEach((r) -> {
            byteBuffer.putLong(32L);//recipient key length
-           byteBuffer.put(r.getKey().getKeyBytes());
+           byteBuffer.put(r.getKey().getKeyBytes()); //Recipient Key
+           byteBuffer.putLong(r.getUrl().length());//recipient url length.
+           byteBuffer.put(r.getUrl().getBytes(StandardCharsets.UTF_8)); 
         });
-
+       
+       byteBuffer.putLong(partyInfo.getParties().size());
+       partyInfo.getParties().forEach(p -> {
+           byteBuffer.putLong(p.getUrl().length());
+           byteBuffer.put(p.getUrl().getBytes(StandardCharsets.UTF_8));
+       });
+       
+       
+       
        return byteBuffer.array();
 
     }
 
     static PartyInfoParser create() {
         return new PartyInfoParser() {
-        };
+    };
     }
 
 }
