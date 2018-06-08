@@ -1,5 +1,6 @@
 package com.github.nexus.enclave.keys;
 
+import com.github.nexus.config.Configuration;
 import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.enclave.keys.model.KeyException;
 import com.github.nexus.enclave.keys.model.KeyPair;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.stream.Collectors.toList;
 
 public class KeyManagerImpl implements KeyManager {
 
@@ -35,7 +37,11 @@ public class KeyManagerImpl implements KeyManager {
     private final String baseKeygenPath;
 
     public KeyManagerImpl(final String baseKeygenPath, final NaclFacade nacl, final List<Path> publicKeyPaths, final List<Path> privateKeyPaths) {
-        this(baseKeygenPath, nacl, null);
+
+        this.nacl = Objects.requireNonNull(nacl, "nacl is required");
+        this.baseKeygenPath = Objects.requireNonNull(baseKeygenPath, "basepath is required");
+
+        this.ourKeys = new HashSet<>();
 
         if (publicKeyPaths.size() != privateKeyPaths.size()) {
             LOGGER.error(
@@ -46,25 +52,22 @@ public class KeyManagerImpl implements KeyManager {
         }
 
         final Set<KeyPair> keys = IntStream
-                .range(0, publicKeyPaths.size())
-                .mapToObj(i -> loadKeypair(publicKeyPaths.get(i), privateKeyPaths.get(i)))
-                .collect(Collectors.toSet());
+            .range(0, publicKeyPaths.size())
+            .mapToObj(i -> loadKeypair(publicKeyPaths.get(i), privateKeyPaths.get(i)))
+            .collect(Collectors.toSet());
 
         ourKeys.addAll(keys);
 
-
     }
 
-    public KeyManagerImpl(final String baseKeygenPath, final NaclFacade nacl, final Collection<KeyPair> initialKeyset) {
+    public KeyManagerImpl(final String baseKeygenPath, final NaclFacade nacl, final Configuration configuration) {
 
-        this.nacl = Objects.requireNonNull(nacl);
-        this.baseKeygenPath = Objects.requireNonNull(baseKeygenPath);
-
-        this.ourKeys = new HashSet<>();
-
-        if (initialKeyset != null) {
-            this.ourKeys.addAll(initialKeyset);
-        }
+        this(
+            baseKeygenPath,
+            nacl,
+            Objects.requireNonNull(configuration, "config must not be null").getPublicKeys().stream().map(Paths::get).collect(toList()),
+            configuration.getPrivateKeys().stream().map(Paths::get).collect(toList())
+        );
 
     }
 
@@ -73,13 +76,13 @@ public class KeyManagerImpl implements KeyManager {
         LOGGER.debug("Attempting to find public key for the private key {}", privateKey);
 
         final Key publicKey = ourKeys
-                .stream()
-                .filter(keypair -> Objects.equals(keypair.getPrivateKey(), privateKey))
-                .findFirst()
-                .map(KeyPair::getPublicKey)
-                .orElseThrow(
-                    () -> new RuntimeException("Private key " + privateKey + " not found when searching for public key")
-                );
+            .stream()
+            .filter(keypair -> Objects.equals(keypair.getPrivateKey(), privateKey))
+            .findFirst()
+            .map(KeyPair::getPublicKey)
+            .orElseThrow(
+                () -> new RuntimeException("Private key " + privateKey + " not found when searching for public key")
+            );
 
         LOGGER.debug("Found public key {} for private key {}", publicKey, privateKey);
 
@@ -91,13 +94,13 @@ public class KeyManagerImpl implements KeyManager {
         LOGGER.debug("Attempting to find private key for the public key {}", publicKey);
 
         final Key privateKey = ourKeys
-                .stream()
-                .filter(keypair -> Objects.equals(keypair.getPublicKey(), publicKey))
-                .findFirst()
-                .map(KeyPair::getPrivateKey)
-                .orElseThrow(
-                    () -> new RuntimeException("Public key " + publicKey + " not found when searching for private key")
-                );
+            .stream()
+            .filter(keypair -> Objects.equals(keypair.getPublicKey(), publicKey))
+            .findFirst()
+            .map(KeyPair::getPrivateKey)
+            .orElseThrow(
+                () -> new RuntimeException("Public key " + publicKey + " not found when searching for private key")
+            );
 
         LOGGER.debug("Found private key {} for public key {}", privateKey, publicKey);
 
@@ -119,10 +122,10 @@ public class KeyManagerImpl implements KeyManager {
         final Path privateKeyPath = workingDirectory.resolve(name + ".key");
 
         final byte[] privateKeyJson = Json.createObjectBuilder()
-                .add("type", "unlocked")
-                .add("data", Json.createObjectBuilder()
-                        .add("bytes", privateKeyBase64)
-                ).build().toString().getBytes(UTF_8);
+            .add("type", "unlocked")
+            .add("data", Json.createObjectBuilder()
+                .add("bytes", privateKeyBase64)
+            ).build().toString().getBytes(UTF_8);
 
         try {
 
