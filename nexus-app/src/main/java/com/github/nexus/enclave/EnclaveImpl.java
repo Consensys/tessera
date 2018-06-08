@@ -36,8 +36,7 @@ public class EnclaveImpl implements Enclave {
 
     @Override
     public byte[] receive(byte[] key, byte[] to) {
-//        transactionService.retrieveAllTransactions();
-        return "payload".getBytes();
+        return transactionService.retrieveUnencryptedTransaction(new MessageHash(key), new Key(to));
     }
 
     @Override
