@@ -56,7 +56,7 @@ public class TransactionResource {
             
             byte[] payload = base64Decoder.decode(sendRequest.getPayload());
 
-            byte[] key = enclave.store(from, recipients, payload);
+            byte[] key = enclave.store(from, recipients, payload).getHashBytes();
 
             String encodedKey = base64Decoder.encodeToString(key);
             SendResponse response = new SendResponse(encodedKey);
@@ -88,8 +88,7 @@ public class TransactionResource {
 
             byte[] to = base64Decoder.decode(receiveRequest.getTo());
 
-            //TODO Call enlave retrieve here
-            byte[] payload = "Retrieved payload".getBytes();
+            byte[] payload = enclave.receive(key, to);
 
             String encodedPayload = base64Decoder.encodeToString(payload);
             ReceiveResponse response = new ReceiveResponse(encodedPayload);

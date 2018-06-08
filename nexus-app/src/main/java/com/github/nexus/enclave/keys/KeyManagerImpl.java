@@ -52,9 +52,9 @@ public class KeyManagerImpl implements KeyManager {
         }
 
         final Set<KeyPair> keys = IntStream
-                .range(0, publicKeyPaths.size())
-                .mapToObj(i -> loadKeypair(publicKeyPaths.get(i), privateKeyPaths.get(i)))
-                .collect(Collectors.toSet());
+            .range(0, publicKeyPaths.size())
+            .mapToObj(i -> loadKeypair(publicKeyPaths.get(i), privateKeyPaths.get(i)))
+            .collect(Collectors.toSet());
 
         ourKeys.addAll(keys);
 
@@ -76,13 +76,13 @@ public class KeyManagerImpl implements KeyManager {
         LOGGER.debug("Attempting to find public key for the private key {}", privateKey);
 
         final Key publicKey = ourKeys
-                .stream()
-                .filter(keypair -> Objects.equals(keypair.getPrivateKey(), privateKey))
-                .findFirst()
-                .map(KeyPair::getPublicKey)
-                .orElseThrow(
-                    () -> new RuntimeException("Private key " + privateKey + " not found when searching for public key")
-                );
+            .stream()
+            .filter(keypair -> Objects.equals(keypair.getPrivateKey(), privateKey))
+            .findFirst()
+            .map(KeyPair::getPublicKey)
+            .orElseThrow(
+                () -> new RuntimeException("Private key " + privateKey + " not found when searching for public key")
+            );
 
         LOGGER.debug("Found public key {} for private key {}", publicKey, privateKey);
 
@@ -94,13 +94,13 @@ public class KeyManagerImpl implements KeyManager {
         LOGGER.debug("Attempting to find private key for the public key {}", publicKey);
 
         final Key privateKey = ourKeys
-                .stream()
-                .filter(keypair -> Objects.equals(keypair.getPublicKey(), publicKey))
-                .findFirst()
-                .map(KeyPair::getPrivateKey)
-                .orElseThrow(
-                    () -> new RuntimeException("Public key " + publicKey + " not found when searching for private key")
-                );
+            .stream()
+            .filter(keypair -> Objects.equals(keypair.getPublicKey(), publicKey))
+            .findFirst()
+            .map(KeyPair::getPrivateKey)
+            .orElseThrow(
+                () -> new RuntimeException("Public key " + publicKey + " not found when searching for private key")
+            );
 
         LOGGER.debug("Found private key {} for public key {}", privateKey, publicKey);
 
@@ -122,10 +122,10 @@ public class KeyManagerImpl implements KeyManager {
         final Path privateKeyPath = workingDirectory.resolve(name + ".key");
 
         final byte[] privateKeyJson = Json.createObjectBuilder()
-                .add("type", "unlocked")
-                .add("data", Json.createObjectBuilder()
-                        .add("bytes", privateKeyBase64)
-                ).build().toString().getBytes(UTF_8);
+            .add("type", "unlocked")
+            .add("data", Json.createObjectBuilder()
+                .add("bytes", privateKeyBase64)
+            ).build().toString().getBytes(UTF_8);
 
         try {
 
