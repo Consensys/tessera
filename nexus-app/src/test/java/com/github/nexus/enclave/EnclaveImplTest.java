@@ -42,6 +42,11 @@ public class EnclaveImplTest {
     }
 
     @Test
+    public void testStore(){
+        enclave.store(new byte[0], new byte[0][0], new byte[0]);
+    }
+
+    @Test
     public void testSend(){
         enclave.send(new byte[0], new byte[0][0], new byte[0]);
     }
@@ -49,11 +54,6 @@ public class EnclaveImplTest {
     @Test
     public void testReceive(){
         enclave.receive(new byte[0], new byte[0]);
-    }
-
-    @Test
-    public void testStore(){
-        enclave.store(new byte[0], new byte[0][0], new byte[0]);
     }
 
 }

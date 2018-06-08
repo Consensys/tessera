@@ -36,13 +36,12 @@ public class NexusIT extends JerseyTest {
         return new Nexus(serviceLocator);
     }
 
-    @Ignore
     @Test
     public void sendSingleTransactionToSingleParty() {
 
         String sendRequest = Json.createObjectBuilder()
-            .add("from", "bXlwdWJsaWNrZXk=")
-            .add("to", Json.createArrayBuilder().add("cmVjaXBpZW50MQ=="))
+            .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+            .add("to", Json.createArrayBuilder().add("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0="))
             .add("payload", "Zm9v").build().toString();
 
         javax.ws.rs.core.Response response = target()
