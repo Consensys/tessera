@@ -14,6 +14,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Base64;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class NexusIT extends JerseyTest {
 
     public NexusIT() {
