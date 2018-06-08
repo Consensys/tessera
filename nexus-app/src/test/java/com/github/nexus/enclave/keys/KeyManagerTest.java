@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -53,6 +54,14 @@ public class KeyManagerTest {
 
         this.keyManager = new KeyManagerImpl(keygenPath.toString(), naclFacade, Collections.singleton(keyPair));
 
+    }
+
+    @Test
+    public void initialisedWithNoKeys() {
+
+        this.keyManager = new KeyManagerImpl(keygenPath.toString(), naclFacade);
+
+        assertThat(keyManager).extracting("ourKeys").containsExactly(emptySet());
     }
 
     @Test
