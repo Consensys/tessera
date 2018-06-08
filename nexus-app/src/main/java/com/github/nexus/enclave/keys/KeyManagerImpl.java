@@ -1,5 +1,6 @@
 package com.github.nexus.enclave.keys;
 
+import com.github.nexus.config.Configuration;
 import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.enclave.keys.model.KeyException;
 import com.github.nexus.enclave.keys.model.KeyPair;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.stream.Collectors.toList;
 
 public class KeyManagerImpl implements KeyManager {
 
@@ -35,7 +37,11 @@ public class KeyManagerImpl implements KeyManager {
     private final String baseKeygenPath;
 
     public KeyManagerImpl(final String baseKeygenPath, final NaclFacade nacl, final List<Path> publicKeyPaths, final List<Path> privateKeyPaths) {
-        this(baseKeygenPath, nacl, null);
+
+        this.nacl = Objects.requireNonNull(nacl, "nacl is required");
+        this.baseKeygenPath = Objects.requireNonNull(baseKeygenPath, "basepath is required");
+
+        this.ourKeys = new HashSet<>();
 
         if (publicKeyPaths.size() != privateKeyPaths.size()) {
             LOGGER.error(
@@ -52,24 +58,17 @@ public class KeyManagerImpl implements KeyManager {
 
         ourKeys.addAll(keys);
 
-
     }
 
-    public KeyManagerImpl(final String baseKeygenPath, final NaclFacade nacl, final Collection<KeyPair> initialKeyset) {
+    public KeyManagerImpl(final String baseKeygenPath, final NaclFacade nacl, final Configuration configuration) {
 
-        this.nacl = Objects.requireNonNull(nacl);
-        this.baseKeygenPath = Objects.requireNonNull(baseKeygenPath);
+        this(
+            baseKeygenPath,
+            nacl,
+            Objects.requireNonNull(configuration, "config must not be null").getPublicKeys().stream().map(Paths::get).collect(toList()),
+            configuration.getPrivateKeys().stream().map(Paths::get).collect(toList())
+        );
 
-        this.ourKeys = new HashSet<>();
-
-        if (initialKeyset != null) {
-            this.ourKeys.addAll(initialKeyset);
-        }
-
-    }
-
-    public KeyManagerImpl(final String baseKeygenPath, final NaclFacade nacl) {
-        this(baseKeygenPath, nacl, null);
     }
 
     @Override
