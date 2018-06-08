@@ -43,16 +43,14 @@ public class EnclaveImplTest {
         verify(txService).delete(any(MessageHash.class));
     }
 
-    @Test
-    public void testSend() {
-        enclave.send(new byte[0], new byte[0][0], new byte[0]);
-    }
+
 
     @Test
     public void testReceive() {
         enclave.receive(new byte[0], new byte[0]);
         verify(txService).retrieveUnencryptedTransaction(any(), any());
     }
+
 
     @Test
     public void testStore() {
@@ -82,5 +80,6 @@ public class EnclaveImplTest {
         
         verify(txService).storeEncodedPayload(payload);
     }
+
 
 }
