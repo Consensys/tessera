@@ -56,7 +56,7 @@ public class TransactionResource {
             
             byte[] payload = base64Decoder.decode(sendRequest.getPayload());
 
-            byte[] key = enclave.store(from, recipients, payload);
+            byte[] key = enclave.store(from, recipients, payload).getHashBytes();
 
             String encodedKey = base64Decoder.encodeToString(key);
             SendResponse response = new SendResponse(encodedKey);

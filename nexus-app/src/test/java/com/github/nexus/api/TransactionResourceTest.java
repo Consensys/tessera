@@ -1,9 +1,10 @@
 package com.github.nexus.api;
 
-import com.github.nexus.util.Base64Decoder;
 import com.github.nexus.api.exception.DecodingException;
 import com.github.nexus.api.model.*;
 import com.github.nexus.enclave.Enclave;
+import com.github.nexus.enclave.model.MessageHash;
+import com.github.nexus.util.Base64Decoder;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
@@ -54,7 +55,7 @@ public class TransactionResourceTest {
         sendRequest.setTo(new String[]{"cmVjaXBpZW50MQ=="});
         sendRequest.setPayload("Zm9v");
 
-        when(enclave.store(any(), any(), any())).thenReturn("SOMEKEY".getBytes());
+        when(enclave.store(any(), any(), any())).thenReturn(new MessageHash("SOMEKEY".getBytes()));
 
         Response response = transactionResource.send(sendRequest);
 

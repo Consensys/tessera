@@ -1,23 +1,35 @@
 package com.github.nexus.enclave;
 
 import com.github.nexus.enclave.model.MessageHash;
+import com.github.nexus.transaction.PayloadEncoder;
 import com.github.nexus.transaction.TransactionService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class EnclaveImplTest {
 
+    @Mock
     private TransactionService txService;
+    @Mock
+    private PayloadEncoder encoder;
 
     private Enclave enclave;
 
     @Before
     public void setUp(){
-        this.txService = mock(TransactionService.class);
-        enclave = new EnclaveImpl(txService);
+        MockitoAnnotations.initMocks(this);
+        enclave = new EnclaveImpl(txService,encoder);
+    }
+
+    @After
+    public void tearDown(){
+
     }
 
     @Test

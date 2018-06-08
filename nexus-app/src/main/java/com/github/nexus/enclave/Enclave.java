@@ -34,5 +34,13 @@ public interface Enclave {
      */
     byte[] receive(byte[] key, byte[] to);
 
-    byte[] store(byte[] sender, byte[][] recipients, byte[] message);
+
+    /**
+     *
+     * @param sender
+     * @param recipients
+     * @param message
+     * @return
+     */
+    MessageHash store(byte[] sender, byte[][] recipients, byte[] message);
 }
