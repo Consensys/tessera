@@ -49,9 +49,14 @@
     </bean>
 
     <bean name="keyManager" class="com.github.nexus.enclave.keys.KeyManagerImpl">
-        <constructor-arg value="." />
+        <constructor-arg value="./" />
         <constructor-arg ref="nacl" />
+        <constructor-arg>
+            <bean factory-bean="configHolder" factory-method="getConfig" />
+        </constructor-arg>
     </bean>
+
+    <bean id="configHolder" class="com.github.nexus.config.ConfigHolder" factory-method="getInstance" />
 
     <bean name="nacl" class="com.github.nexus.encryption.Kalium">
         <constructor-arg>

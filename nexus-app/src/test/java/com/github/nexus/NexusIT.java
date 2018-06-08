@@ -40,19 +40,19 @@ public class NexusIT extends JerseyTest {
     public void sendSingleTransactionToSingleParty() {
 
         String sendRequest = Json.createObjectBuilder()
-                .add("from", "bXlwdWJsaWNrZXk=")
-                .add("to", Json.createArrayBuilder().add("cmVjaXBpZW50MQ=="))
-                .add("payload", "Zm9v").build().toString();
+            .add("from", "bXlwdWJsaWNrZXk=")
+            .add("to", Json.createArrayBuilder().add("cmVjaXBpZW50MQ=="))
+            .add("payload", "Zm9v").build().toString();
 
         javax.ws.rs.core.Response response = target()
-                .path("/transaction/send")
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-        
-        
+            .path("/transaction/send")
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+
+
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
-        
+
     }
 
     /**
@@ -61,19 +61,19 @@ public class NexusIT extends JerseyTest {
     @Test
     public void sendSingleTransactionToMultipleParties() {
         String sendRequest = Json.createObjectBuilder()
-                .add("from", "bXlwdWJsaWNrZXk=")
-                .add("to", Json.createArrayBuilder()
-                                .add("cmVjaXBpZW50MQ==")
-                                .add(Base64.getEncoder().encodeToString("HELLOW".getBytes()))
-                )
-                .add("payload", "Zm9v").build().toString();
+            .add("from", "bXlwdWJsaWNrZXk=")
+            .add("to", Json.createArrayBuilder()
+                .add("cmVjaXBpZW50MQ==")
+                .add(Base64.getEncoder().encodeToString("HELLOW".getBytes()))
+            )
+            .add("payload", "Zm9v").build().toString();
 
         javax.ws.rs.core.Response response = target()
-                .path("/transaction/send")
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-        
-        
+            .path("/transaction/send")
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+
+
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
     }
@@ -85,18 +85,18 @@ public class NexusIT extends JerseyTest {
     @Test
     public void sendUnknownPublicKey() {
         String sendRequest = Json.createObjectBuilder()
-                .add("from", "bXlwdWJsaWNrZXk=")
-                .add("to", Json.createArrayBuilder()
-                                .add(Base64.getEncoder().encodeToString("BOGUS".getBytes()))
-                )
-                .add("payload", "Zm9v").build().toString();
+            .add("from", "bXlwdWJsaWNrZXk=")
+            .add("to", Json.createArrayBuilder()
+                .add(Base64.getEncoder().encodeToString("BOGUS".getBytes()))
+            )
+            .add("payload", "Zm9v").build().toString();
 
         javax.ws.rs.core.Response response = target()
-                .path("/transaction/send")
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-        
-        
+            .path("/transaction/send")
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+
+
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(404);
     }
@@ -108,9 +108,9 @@ public class NexusIT extends JerseyTest {
         InputStream data = new ByteArrayInputStream("SOMEDATA".getBytes());
 
         javax.ws.rs.core.Response response = target()
-                .path("/partyinfo")
-                .request()
-                .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
+            .path("/partyinfo")
+            .request()
+            .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
@@ -119,13 +119,13 @@ public class NexusIT extends JerseyTest {
     @Test
     public void upcheck() {
         javax.ws.rs.core.Response response = target()
-                .path("/upcheck")
-                .request()
-                .get();
+            .path("/upcheck")
+            .request()
+            .get();
 
         assertThat(response).isNotNull();
         assertThat(response.readEntity(String.class))
-                .isEqualTo("I'm up!");
+            .isEqualTo("I'm up!");
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
@@ -133,13 +133,13 @@ public class NexusIT extends JerseyTest {
     public void requestVersion() {
 
         javax.ws.rs.core.Response response = target()
-                .path("/version")
-                .request()
-                .get();
+            .path("/version")
+            .request()
+            .get();
 
         assertThat(response).isNotNull();
         assertThat(response.readEntity(String.class))
-                .isEqualTo("No version defined yet!");
+            .isEqualTo("No version defined yet!");
         assertThat(response.getStatus()).isEqualTo(200);
 
     }
