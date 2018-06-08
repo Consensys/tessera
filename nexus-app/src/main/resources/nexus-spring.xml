@@ -23,10 +23,33 @@
         </constructor-arg>
     </bean>
 
-    <bean name="enclave" class="com.github.nexus.enclave.EnclaveImpl"/>
+    <bean name="payloadEncoder" class="com.github.nexus.transaction.PayloadEncoderImpl" />
+
+    <bean name="enclave" class="com.github.nexus.enclave.EnclaveImpl">
+        <constructor-arg ref="transactionService" />
+    </bean>
 
     <bean name="transactionService" class="com.github.nexus.transaction.TransactionServiceImpl">
         <constructor-arg ref="encryptedTransactionDAO"/>
+        <constructor-arg ref="payloadEncoder" />
+        <constructor-arg ref="keyManager" />
+        <constructor-arg ref="nacl" />
+    </bean>
+
+    <bean id="configHolder" class="com.github.nexus.config.ConfigHolder" factory-method="getInstance" />
+
+    <bean name="keyManager" class="com.github.nexus.enclave.keys.KeyManagerImpl">
+        <constructor-arg value="./" />
+        <constructor-arg ref="nacl" />
+        <constructor-arg>
+          <bean factory-bean="configHolder" factory-method="getConfig" />
+        </constructor-arg>
+    </bean>
+
+    <bean name="nacl" class="com.github.nexus.encryption.Kalium">
+        <constructor-arg>
+            <bean class="org.abstractj.kalium.NaCl" factory-method="sodium" />
+        </constructor-arg>
     </bean>
 
     <bean name="encryptedTransactionDAO" class="com.github.nexus.transaction.EncryptedTransactionDAOImpl" />
