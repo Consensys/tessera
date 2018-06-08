@@ -4,7 +4,8 @@ import com.github.nexus.enclave.keys.model.Key;
 import org.assertj.core.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -39,7 +40,8 @@ public class PartyInfoServiceTest {
 
     @Test
     public void testUpdatePartyInfo() {
-        partyInfoService.updatePartyInfo(Mockito.mock(PartyInfo.class));
+        PartyInfo partyInfo = new PartyInfo(url, new ArrayList<Recipient>(), new ArrayList<Party>());
+        assertThat(partyInfoService.updatePartyInfo(partyInfo)).isNotNull().isSameAs(partyInfo);
 
     }
 

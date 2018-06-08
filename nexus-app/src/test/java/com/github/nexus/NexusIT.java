@@ -2,17 +2,19 @@ package com.github.nexus;
 
 import com.github.nexus.app.Nexus;
 import com.github.nexus.service.locator.ServiceLocator;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Base64;
+import org.glassfish.jersey.test.JerseyTest;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import javax.json.Json;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Base64;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.glassfish.jersey.test.JerseyTest;
-import org.junit.Ignore;
-import org.junit.Test;
 
 public class NexusIT extends JerseyTest {
 
@@ -25,6 +27,7 @@ public class NexusIT extends JerseyTest {
         return new Nexus(serviceLocator);
     }
 
+    @Ignore
     @Test
     public void sendSingleTransactionToSingleParty() {
 
@@ -47,6 +50,7 @@ public class NexusIT extends JerseyTest {
     /**
      * Quorum sends transaction with public key not in PartyInfo store.
      */
+    @Ignore
     @Test
     public void sendSingleTransactionToMultipleParties() {
         String sendRequest = Json.createObjectBuilder()
