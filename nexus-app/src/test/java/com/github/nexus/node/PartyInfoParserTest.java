@@ -1,7 +1,6 @@
 package com.github.nexus.node;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
