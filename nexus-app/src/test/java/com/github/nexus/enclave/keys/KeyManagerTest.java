@@ -43,8 +43,8 @@ public class KeyManagerTest {
     public void init() throws IOException {
 
         this.keyPair = new KeyPair(
-                new Key(publicKey.getBytes(UTF_8)),
-                new Key(privateKey.getBytes(UTF_8))
+            new Key(publicKey.getBytes(UTF_8)),
+            new Key(privateKey.getBytes(UTF_8))
         );
 
         this.keygenPath = Files.createTempDirectory(UUID.randomUUID().toString());
@@ -207,7 +207,7 @@ public class KeyManagerTest {
         final Path privateKeyPath = keygenPath.resolve("testkey.key");
 
         final KeyManager pathLoadingKeyManager
-                = new KeyManagerImpl(keygenPath.toString(), naclFacade, singletonList(publicKeyPath), singletonList(privateKeyPath));
+            = new KeyManagerImpl(keygenPath.toString(), naclFacade, singletonList(publicKeyPath), singletonList(privateKeyPath));
 
         //check the keys got loaded okay
         final Key publicKey = keyManager.getPublicKeyForPrivateKey(keyPair.getPrivateKey());
@@ -220,7 +220,7 @@ public class KeyManagerTest {
     public void differentNumberOfKeysThrowsException() {
 
         final Throwable throwable = catchThrowable(
-                () -> new KeyManagerImpl(keygenPath.toString(), naclFacade, emptyList(), singletonList(Paths.get(".")))
+            () -> new KeyManagerImpl(keygenPath.toString(), naclFacade, emptyList(), singletonList(Paths.get(".")))
         );
 
         assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("Initial key list sizes don't match");
