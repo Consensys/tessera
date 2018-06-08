@@ -30,7 +30,6 @@ public class EnclaveImpl implements Enclave {
 
     @Override
     public byte[] send(byte[] from, byte[][] to, byte[] payload){
-//        transactionService.(new EncryptedTransaction("someValue".getBytes(), "somePayload".getBytes()));
         return "mykey".getBytes();
     }
 
@@ -45,6 +44,7 @@ public class EnclaveImpl implements Enclave {
         List<Key> recipientList = Arrays.stream(recipients)
             .map(recipient -> new Key(recipient))
             .collect(Collectors.toList());
+
         EncodedPayloadWithRecipients encryptedPayload =
             transactionService.encryptPayload(message, senderPublicKey, recipientList);
 
