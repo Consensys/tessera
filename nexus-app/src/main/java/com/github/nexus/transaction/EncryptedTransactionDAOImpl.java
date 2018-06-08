@@ -1,6 +1,7 @@
 package com.github.nexus.transaction;
 
 import com.github.nexus.enclave.model.MessageHash;
+import com.github.nexus.transaction.model.EncryptedTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,17 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
     }
 
     @Override
+    public Optional<EncryptedTransaction> retrieveByHash(final MessageHash hash) {
+        final String query = "SELECT et FROM EncryptedTransaction et WHERE et.hash = :hash";
+
+        return entityManager
+            .createQuery(query, EncryptedTransaction.class)
+            .setParameter("hash", hash.getHashBytes())
+            .getResultStream()
+            .findAny();
+    }
+
+    @Override
     public List<EncryptedTransaction> retrieveAllTransactions() {
         LOGGER.debug("Fetching all EncryptedTransaction database rows");
 
@@ -44,8 +56,7 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
         final Optional<EncryptedTransaction> message = entityManager
             .createQuery(query, EncryptedTransaction.class)
             .setParameter("hash", hash.getHashBytes())
-            .getResultList()
-            .stream()
+            .getResultStream()
             .findAny();
 
         if(message.isPresent()) {

@@ -1,5 +1,6 @@
 package com.github.nexus.enclave.keys;
 
+import com.github.nexus.config.Configuration;
 import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.enclave.keys.model.KeyPair;
 import com.github.nexus.encryption.NaclFacade;
@@ -13,13 +14,12 @@ import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.doReturn;
@@ -49,10 +49,31 @@ public class KeyManagerTest {
 
         this.keygenPath = Files.createTempDirectory(UUID.randomUUID().toString());
 
+        final byte[] privateKeyJson = Json.createObjectBuilder()
+            .add("type", "unlocked")
+            .add("data", Json.createObjectBuilder().add("bytes", keyPair.getPrivateKey().toString()))
+            .build()
+            .toString()
+            .getBytes(UTF_8);
+
+        Files.write(keygenPath.resolve("key.pub"), keyPair.getPublicKey().toString().getBytes(UTF_8), StandardOpenOption.CREATE_NEW);
+        Files.write(keygenPath.resolve("key.key"), privateKeyJson, StandardOpenOption.CREATE_NEW);
+
+        final Configuration configuration = new Configuration();
+        configuration.setPublicKeys(singletonList(keygenPath.resolve("key.pub").toString()));
+        configuration.setPrivateKeys(singletonList(keygenPath.resolve("key.key").toString()));
+
         this.naclFacade = mock(NaclFacade.class);
 
-        this.keyManager = new KeyManagerImpl(keygenPath.toString(), naclFacade, Collections.singleton(keyPair));
+        this.keyManager = new KeyManagerImpl(keygenPath.toString(), naclFacade, configuration);
+    }
 
+    @Test
+    public void initialisedWithNoKeys() {
+
+        this.keyManager = new KeyManagerImpl(keygenPath.toString(), naclFacade, new Configuration());
+
+        assertThat(keyManager).extracting("ourKeys").containsExactly(emptySet());
     }
 
     @Test
