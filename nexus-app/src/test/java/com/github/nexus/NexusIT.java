@@ -36,6 +36,7 @@ public class NexusIT extends JerseyTest {
         return new Nexus(serviceLocator);
     }
 
+    @Ignore
     @Test
     public void sendSingleTransactionToSingleParty() {
 
@@ -58,6 +59,7 @@ public class NexusIT extends JerseyTest {
     /**
      * Quorum sends transaction with public key not in PartyInfo store.
      */
+    @Ignore
     @Test
     public void sendSingleTransactionToMultipleParties() {
         String sendRequest = Json.createObjectBuilder()
