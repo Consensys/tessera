@@ -23,8 +23,8 @@ public class Launcher {
 
         final Configuration configuration = new Configuration();
         ConfigHolder.INSTANCE.setConfiguration(configuration);
-        configuration.setPublicKeys(singletonList("key.pub"));
-        configuration.setPrivateKeys(singletonList("key.key"));
+        configuration.setPublicKeys(singletonList("./nexus-app/src/test/resources/key.pub"));
+        configuration.setPrivateKeys(singletonList("./nexus-app/src/test/resources/key.key"));
 
         final Nexus nexus = new Nexus(ServiceLocator.create());
 
