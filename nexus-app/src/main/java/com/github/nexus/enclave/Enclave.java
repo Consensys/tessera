@@ -24,7 +24,7 @@ public interface Enclave {
      * @param payload transaction payload data we wish to store.
      * @return a hash key. This key can be used to retrieve the submitted transaction
      */
-    byte[] send(byte[] from, byte[][] recipients, byte[] payload);
+//    byte[] send(byte[] from, byte[][] recipients, byte[] payload);
 
     /**
      * Retrieve a particular transaction
