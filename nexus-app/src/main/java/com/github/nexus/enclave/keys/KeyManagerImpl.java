@@ -68,6 +68,10 @@ public class KeyManagerImpl implements KeyManager {
 
     }
 
+    public KeyManagerImpl(final String baseKeygenPath, final NaclFacade nacl) {
+        this(baseKeygenPath, nacl, null);
+    }
+
     @Override
     public Key getPublicKeyForPrivateKey(final Key privateKey) {
         LOGGER.debug("Attempting to find public key for the private key {}", privateKey);
