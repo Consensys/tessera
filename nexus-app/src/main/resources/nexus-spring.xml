@@ -13,7 +13,8 @@
     
     <context:component-scan base-package="com.github.nexus" />
     
-    
+
+    <!-- Resources -->
     <bean class="com.github.nexus.api.VersionResource"/>
     <bean class="com.github.nexus.api.UpCheckResource"/>
     <bean class="com.github.nexus.api.TransactionResource">
@@ -22,6 +23,16 @@
             <bean class="com.github.nexus.util.Base64Decoder" factory-method="create" />
         </constructor-arg>
     </bean>
+    <bean class="com.github.nexus.api.PartyInfoResource">
+        <constructor-arg ref="partyInfoService"/>
+        <constructor-arg>
+            <bean class="com.github.nexus.node.PartyInfoParser" factory-method="create"/>
+        </constructor-arg>
+    </bean>
+
+
+    <bean name="partyInfoService" class="com.github.nexus.node.PartyInfoServiceImpl"/>
+
 
     <bean name="enclave" class="com.github.nexus.enclave.EnclaveImpl"/>
 
