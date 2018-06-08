@@ -113,7 +113,7 @@ public class TransactionResourceTest {
         receiveRequest.setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
         receiveRequest.setTo("cmVjaXBpZW50MQ==");
 
-//        when(enclave.receive(any(), any())).thenReturn("SOME DATA".getBytes());
+        when(enclave.receive(any(), any())).thenReturn("SOME DATA".getBytes());
 
         Response response = transactionResource.receive(receiveRequest);
 
@@ -122,8 +122,8 @@ public class TransactionResourceTest {
 
         ReceiveResponse receiveResponse = (ReceiveResponse) response.getEntity();
 
-        assertThat(receiveResponse.getPayload()).isEqualTo("UmV0cmlldmVkIHBheWxvYWQ=");
-
+        assertThat(receiveResponse.getPayload()).isEqualTo("U09NRSBEQVRB");
+        verify(enclave).receive(any(),any());
         assertThat(response.getStatus()).isEqualTo(201);
     }
 
