@@ -1,6 +1,5 @@
 package com.github.nexus.enclave.keys;
 
-import com.github.nexus.enclave.exception.KeyNotFoundException;
 import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.enclave.keys.model.KeyException;
 import com.github.nexus.enclave.keys.model.KeyPair;
@@ -69,10 +68,6 @@ public class KeyManagerImpl implements KeyManager {
 
     }
 
-    public KeyManagerImpl(final String baseKeygenPath, final NaclFacade nacl) {
-        this(baseKeygenPath, nacl, null);
-    }
-
     @Override
     public Key getPublicKeyForPrivateKey(final Key privateKey) {
         LOGGER.debug("Attempting to find public key for the private key {}", privateKey);
@@ -83,7 +78,7 @@ public class KeyManagerImpl implements KeyManager {
                 .findFirst()
                 .map(KeyPair::getPublicKey)
                 .orElseThrow(
-                    () -> new KeyNotFoundException("Private key " + privateKey + " not found when searching for public key")
+                    () -> new RuntimeException("Private key " + privateKey + " not found when searching for public key")
                 );
 
         LOGGER.debug("Found public key {} for private key {}", publicKey, privateKey);
@@ -101,7 +96,7 @@ public class KeyManagerImpl implements KeyManager {
                 .findFirst()
                 .map(KeyPair::getPrivateKey)
                 .orElseThrow(
-                    () -> new KeyNotFoundException("Public key " + publicKey + " not found when searching for private key")
+                    () -> new RuntimeException("Public key " + publicKey + " not found when searching for private key")
                 );
 
         LOGGER.debug("Found private key {} for public key {}", privateKey, publicKey);
