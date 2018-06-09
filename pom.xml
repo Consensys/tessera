@@ -192,6 +192,7 @@
         <module>service-locator-spring</module>
         <module>nexus-encryption</module>
         <module>nexus-encryption-kalium</module>
+        <module>nexus-encryption-jnacl</module>
     </modules>
 
     <dependencyManagement>
