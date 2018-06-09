@@ -1,5 +1,6 @@
-package com.github.nexus.encryption;
+package com.github.nexus.nacl;
 
+import com.github.nexus.nacl.Nonce;
 import org.junit.Test;
 
 import java.util.Arrays;

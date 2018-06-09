@@ -1,13 +1,15 @@
-package com.github.nexus.encryption;
+package com.github.nexus.nacl.kalium;
 
-import com.github.nexus.enclave.keys.model.Key;
-import com.github.nexus.enclave.keys.model.KeyPair;
-import org.abstractj.kalium.NaCl;
+import com.github.nexus.nacl.Key;
+import com.github.nexus.nacl.KeyPair;
+import com.github.nexus.nacl.NaclException;
+import com.github.nexus.nacl.Nonce;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import org.abstractj.kalium.NaCl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;

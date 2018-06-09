@@ -12,3 +12,9 @@
 /.idea/
 /service-locator-spring/nb-configuration.xml
 /service-locator/nb-configuration.xml
+/nacl-util/target/
+/nacl-util-kalium/nbproject/
+/nacl-util-kalium/target/
+/nexus-encryption/target/
+/nexus-encryption-kalium/target/
+/nexus-encryption-kalium/nbproject/
