@@ -1,4 +1,4 @@
-package com.github.nexus.encryption;
+package com.github.nexus.nacl;
 
 public class NaclException extends RuntimeException {
 

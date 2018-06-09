@@ -1,8 +1,7 @@
 package com.github.nexus.enclave.keys;
 
-import com.github.nexus.enclave.keys.model.Key;
-import com.github.nexus.enclave.keys.model.KeyPair;
-
+import com.github.nexus.nacl.Key;
+import com.github.nexus.nacl.KeyPair;
 import java.nio.file.Path;
 
 /**

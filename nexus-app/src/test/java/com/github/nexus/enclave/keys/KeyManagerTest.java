@@ -1,9 +1,9 @@
 package com.github.nexus.enclave.keys;
 
 import com.github.nexus.config.Configuration;
-import com.github.nexus.enclave.keys.model.Key;
-import com.github.nexus.enclave.keys.model.KeyPair;
-import com.github.nexus.encryption.NaclFacade;
+import com.github.nexus.nacl.Key;
+import com.github.nexus.nacl.KeyPair;
+import com.github.nexus.nacl.NaclFacade;
 import org.junit.Before;
 import org.junit.Test;
 

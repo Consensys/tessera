@@ -1,16 +1,8 @@
-package com.github.nexus.encryption;
 
-import com.github.nexus.enclave.keys.model.Key;
-import com.github.nexus.enclave.keys.model.KeyPair;
+package com.github.nexus.nacl;
 
-/**
- * An facade against a particular implementation of NaCL libraries
- * <p>
- * Terminology is kept in line with the NaCL binding found at
- * http://nacl.cr.yp.to/index.html
- */
+
 public interface NaclFacade {
-
     /**
      * Compute the shared key from a public/private key combination
      * The keys must be from different keysets.
@@ -88,5 +80,8 @@ public interface NaclFacade {
      * @return The randomly generated key
      */
     Key createSingleKey();
+    
 
+    
+    
 }

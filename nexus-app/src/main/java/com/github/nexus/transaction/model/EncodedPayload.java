@@ -1,8 +1,8 @@
 package com.github.nexus.transaction.model;
 
-import com.github.nexus.enclave.keys.model.Key;
-import com.github.nexus.encryption.Nonce;
 
+import com.github.nexus.nacl.Key;
+import com.github.nexus.nacl.Nonce;
 import java.util.*;
 
 /**
