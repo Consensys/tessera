@@ -1,10 +1,11 @@
-package com.github.nexus.encryption;
+package com.github.nexus.nacl;
 
 import java.util.Arrays;
 
-public class Nonce {
 
-    private final byte[] nonceBytes;
+public class Nonce {
+    
+private final byte[] nonceBytes;
 
     public Nonce(final byte[] nonceBytes) {
         this.nonceBytes = Arrays.copyOf(nonceBytes, nonceBytes.length);
@@ -32,4 +33,5 @@ public class Nonce {
     public String toString() {
         return Arrays.toString(nonceBytes);
     }
+    
 }
