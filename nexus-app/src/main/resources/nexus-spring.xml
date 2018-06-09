@@ -58,11 +58,9 @@
 
     <bean id="configHolder" class="com.github.nexus.config.ConfigHolder" factory-method="getInstance" />
 
-    <bean name="nacl" class="com.github.nexus.encryption.Kalium">
-        <constructor-arg>
-            <bean class="org.abstractj.kalium.NaCl" factory-method="sodium" />
-        </constructor-arg>
-    </bean>
+    <bean name="naclFactory" class="com.github.nexus.nacl.NaclFacadeFactory" factory-method="newFactory" />
+    
+    <bean name="nacl" factory-bean="naclFactory" factory-method="create" />
 
     <bean name="encryptedTransactionDAO" class="com.github.nexus.transaction.EncryptedTransactionDAOImpl" />
         
