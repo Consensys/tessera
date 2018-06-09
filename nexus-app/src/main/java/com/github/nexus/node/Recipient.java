@@ -1,10 +1,11 @@
 package com.github.nexus.node;
 
-import com.github.nexus.enclave.keys.model.Key;
+import com.github.nexus.nacl.Key;
 
 public class Recipient {
 
     private Key key;
+    
     private String url;
 
     public Recipient(Key key, String url) {

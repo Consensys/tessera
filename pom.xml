@@ -114,11 +114,27 @@
         <module>jersey-server</module>
         <module>service-locator</module>
         <module>service-locator-spring</module>
+        <module>nexus-encryption</module>
+        <module>nexus-encryption-kalium</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
-
+            
+            <dependency>
+                <groupId>com.github.nexus</groupId>
+                <artifactId>nexus-encryption</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            
+                        
+            <dependency>
+                <groupId>com.github.nexus</groupId>
+                <artifactId>nexus-encryption-kalium</artifactId>
+                <version>1.0-SNAPSHOT</version>
+                <scope>runtime</scope>
+            </dependency>
+            
             <dependency>
                 <groupId>com.github.nexus</groupId>
                 <artifactId>service-locator</artifactId>

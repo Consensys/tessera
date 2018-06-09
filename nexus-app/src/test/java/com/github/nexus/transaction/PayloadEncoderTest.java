@@ -1,7 +1,8 @@
 package com.github.nexus.transaction;
 
-import com.github.nexus.enclave.keys.model.Key;
-import com.github.nexus.encryption.Nonce;
+
+import com.github.nexus.nacl.Key;
+import com.github.nexus.nacl.Nonce;
 import com.github.nexus.transaction.model.EncodedPayload;
 import com.github.nexus.transaction.model.EncodedPayloadWithRecipients;
 import org.junit.Test;

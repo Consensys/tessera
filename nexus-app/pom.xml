@@ -15,6 +15,17 @@
 
     <dependencies>
 
+                    
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-encryption</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-encryption-kalium</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>
@@ -109,11 +120,6 @@
             <artifactId>jul-to-slf4j</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.abstractj.kalium</groupId>
-            <artifactId>kalium</artifactId>
-            <version>0.8.0</version>
-        </dependency>
 
         <dependency>
             <groupId>org.bouncycastle</groupId>
@@ -263,36 +269,6 @@
                                 <exclude>com/github/nexus/app/Launcher.*</exclude>
                             </excludes>
                             <rules>
-                                <rule>
-                                    <element>PACKAGE</element>
-                                    <limits>
-                                        <limit>
-                                            <counter>LINE</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>1.00</minimum>
-                                        </limit>
-                                        <limit>
-                                            <counter>INSTRUCTION</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>1.00</minimum>
-                                        </limit>
-                                    </limits>
-                                </rule>
-                                <rule>
-                                    <element>BUNDLE</element>
-                                    <limits>
-                                        <limit>
-                                            <counter>LINE</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>1.00</minimum>
-                                        </limit>
-                                        <limit>
-                                            <counter>INSTRUCTION</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>1.00</minimum>
-                                        </limit>
-                                    </limits>
-                                </rule>
                                 <rule>
                                     <element>CLASS</element>
                                     <limits>

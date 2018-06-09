@@ -1,7 +1,7 @@
 package com.github.nexus.enclave;
 
-import com.github.nexus.enclave.keys.model.Key;
 import com.github.nexus.enclave.model.MessageHash;
+import com.github.nexus.nacl.Key;
 import com.github.nexus.transaction.PayloadEncoder;
 import com.github.nexus.transaction.TransactionService;
 import com.github.nexus.transaction.model.EncodedPayloadWithRecipients;

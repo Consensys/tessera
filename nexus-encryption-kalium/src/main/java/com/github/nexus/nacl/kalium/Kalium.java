@@ -1,7 +1,10 @@
-package com.github.nexus.encryption;
+package com.github.nexus.nacl.kalium;
 
-import com.github.nexus.enclave.keys.model.Key;
-import com.github.nexus.enclave.keys.model.KeyPair;
+import com.github.nexus.nacl.Key;
+import com.github.nexus.nacl.KeyPair;
+import com.github.nexus.nacl.NaclException;
+import com.github.nexus.nacl.NaclFacade;
+import com.github.nexus.nacl.Nonce;
 import org.abstractj.kalium.NaCl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

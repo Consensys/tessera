@@ -1,7 +1,7 @@
 package com.github.nexus.node;
 
-import com.github.nexus.enclave.keys.model.Key;
 
+import com.github.nexus.nacl.Key;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
