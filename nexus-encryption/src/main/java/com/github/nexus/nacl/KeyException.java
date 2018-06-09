@@ -1,4 +1,4 @@
-package com.github.nexus.enclave.keys.model;
+package com.github.nexus.nacl;
 
 public class KeyException extends RuntimeException {
 

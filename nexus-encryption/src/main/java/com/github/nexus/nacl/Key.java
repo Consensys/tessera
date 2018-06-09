@@ -1,10 +1,12 @@
-package com.github.nexus.enclave.keys.model;
+
+package com.github.nexus.nacl;
 
 import java.util.Arrays;
 import java.util.Base64;
 
-public class Key {
 
+public class Key {
+    
     private final byte[] key;
 
     public Key(final byte[] keyBytes) {
