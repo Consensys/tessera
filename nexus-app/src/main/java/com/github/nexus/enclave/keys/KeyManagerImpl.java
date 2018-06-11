@@ -1,9 +1,9 @@
 package com.github.nexus.enclave.keys;
 
-import com.github.nexus.config.Configuration;
-import com.github.nexus.nacl.KeyPair;
+import com.github.nexus.configuration.Configuration;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyException;
+import com.github.nexus.nacl.KeyPair;
 import com.github.nexus.nacl.NaclFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +65,8 @@ public class KeyManagerImpl implements KeyManager {
         this(
             baseKeygenPath,
             nacl,
-            Objects.requireNonNull(configuration, "config must not be null").getPublicKeys().stream().map(Paths::get).collect(toList()),
-            configuration.getPrivateKeys().stream().map(Paths::get).collect(toList())
+            configuration.publicKeys().stream().map(Paths::get).collect(toList()),
+            configuration.privateKeys().stream().map(Paths::get).collect(toList())
         );
 
     }

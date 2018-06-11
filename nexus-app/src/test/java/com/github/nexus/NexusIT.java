@@ -1,8 +1,7 @@
 package com.github.nexus;
 
 import com.github.nexus.app.Nexus;
-import com.github.nexus.config.ConfigHolder;
-import com.github.nexus.config.Configuration;
+import com.github.nexus.configuration.ConfigurationFactory;
 import com.github.nexus.service.locator.ServiceLocator;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Ignore;
@@ -16,21 +15,17 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Base64;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class NexusIT extends JerseyTest {
 
     @Override
     protected Application configure() {
-
-        if (ConfigHolder.INSTANCE.getConfig() == null) {
-            ConfigHolder.INSTANCE.setConfiguration(new Configuration());
-        }
-
-        final Configuration config = ConfigHolder.INSTANCE.getConfig();
-        config.setPublicKeys(singletonList("./target/test-classes/key.pub"));
-        config.setPrivateKeys(singletonList("./target/test-classes/key.key"));
+        final String[] cliArgs = new String[] {
+            "-publicKeys", "./target/test-classes/key.pub",
+            "-privateKeys", "./target/test-classes/key.key"
+        };
+        ConfigurationFactory.cliParameters(cliArgs);
 
         ServiceLocator serviceLocator = ServiceLocator.create();
         return new Nexus(serviceLocator);
