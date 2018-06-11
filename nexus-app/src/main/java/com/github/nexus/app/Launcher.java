@@ -1,15 +1,12 @@
 package com.github.nexus.app;
 
-import com.github.nexus.config.ConfigHolder;
-import com.github.nexus.config.Configuration;
+import com.github.nexus.configuration.ConfigurationFactory;
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
 import com.github.nexus.service.locator.ServiceLocator;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-
-import static java.util.Collections.singletonList;
 
 /**
  * The main entry point for the application.
@@ -21,10 +18,7 @@ public class Launcher {
 
     public static void main(final String... args) throws Exception {
 
-        final Configuration configuration = new Configuration();
-        ConfigHolder.INSTANCE.setConfiguration(configuration);
-        configuration.setPublicKeys(singletonList("./nexus-app/src/test/resources/key.pub"));
-        configuration.setPrivateKeys(singletonList("./nexus-app/src/test/resources/key.key"));
+        ConfigurationFactory.cliParameters(args);
 
         final Nexus nexus = new Nexus(ServiceLocator.create());
 
