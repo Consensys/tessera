@@ -1,18 +1,18 @@
 package com.github.nexus.api;
 
-import com.github.nexus.node.PartyInfo;
 import com.github.nexus.node.PartyInfoParser;
 import com.github.nexus.node.PartyInfoService;
+import com.github.nexus.node.model.PartyInfo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import javax.ws.rs.core.Response;
-import java.io.IOException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
