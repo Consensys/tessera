@@ -1,13 +1,15 @@
 package com.github.nexus.node;
 
+import com.github.nexus.node.model.Party;
+import com.github.nexus.node.model.PartyInfo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
@@ -68,7 +70,7 @@ public class PartyInfoPollerTest {
         PartyInfo partyInfo = mock(PartyInfo.class);
         Party party = mock(Party.class);
         when(party.getUrl()).thenReturn(url);
-        when(partyInfo.getParties()).thenReturn(Arrays.asList(party));
+        when(partyInfo.getParties()).thenReturn(singleton(party));
 
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
 
