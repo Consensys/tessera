@@ -1,5 +1,6 @@
-package com.github.nexus.app;
+package com.github.nexus;
 
+import com.github.nexus.api.Nexus;
 import com.github.nexus.configuration.ConfigurationFactory;
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;

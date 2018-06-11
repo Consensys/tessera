@@ -1,6 +1,6 @@
 package com.github.nexus;
 
-import com.github.nexus.app.Nexus;
+import com.github.nexus.api.Nexus;
 import com.github.nexus.configuration.ConfigurationFactory;
 import com.github.nexus.service.locator.ServiceLocator;
 import org.glassfish.jersey.test.JerseyTest;
