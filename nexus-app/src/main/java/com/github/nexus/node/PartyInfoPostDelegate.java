@@ -4,17 +4,23 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Objects;
 
 public class PartyInfoPostDelegate {
 
-    private Client client;
+    private static final String PATH = "/partyinfo";
 
-    public PartyInfoPostDelegate(Client client) {
-        this.client = client;
+    private final Client client;
+
+    public PartyInfoPostDelegate(final Client client) {
+        this.client = Objects.requireNonNull(client);
     }
 
-    public byte[] doPost(String url, byte[] data) {
-        Response response = client.target(url).path("/partyinfo").request()
+    public byte[] doPost(final String url, final byte[] data) {
+        final Response response = client
+            .target(url)
+            .path(PATH)
+            .request()
             .post(Entity.entity(data,MediaType.APPLICATION_OCTET_STREAM_TYPE));
 
         return response.readEntity(byte[].class);

@@ -1,31 +1,43 @@
 package com.github.nexus.node;
 
 
+import com.github.nexus.configuration.Configuration;
 import com.github.nexus.nacl.Key;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.github.nexus.node.model.Party;
+import com.github.nexus.node.model.PartyInfo;
+import com.github.nexus.node.model.Recipient;
+
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Collections.emptySet;
+
 public class PartyInfoServiceImpl implements PartyInfoService {
 
-    private PartyInfoStore partyInfoStore = PartyInfoStore.INSTANCE;
+    private final PartyInfoStore partyInfoStore;
 
-    @Override
-    public void initPartyInfo(String url, String[] otherNodes) {
-        List<Party> parties = Stream.of(otherNodes)
-            .map(node -> new Party(node)).collect(Collectors.toList());
+    public PartyInfoServiceImpl(final PartyInfoStore partyInfoStore, final Configuration configuration) {
+        this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
 
-        partyInfoStore.store(new PartyInfo(url, new ArrayList<Recipient>(), parties));
+        final Set<Party> parties = configuration.othernodes()
+            .stream()
+            .map(Party::new)
+            .collect(Collectors.toSet());
+
+        partyInfoStore.store(new PartyInfo("", emptySet(), parties));
     }
 
     @Override
-    public void registerPublicKeys(Key[] publicKeys) {
-        Arrays.asList(publicKeys).forEach(key ->{
-            Recipient recipient = new Recipient(key);
-            partyInfoStore.getPartyInfo().getRecipients().add(recipient);
-        });
+    public void registerPublicKeys(final String ourUrl, final Key[] publicKeys) {
+
+        final Set<Recipient> ourKeys = Stream.of(publicKeys)
+            .map(key -> new Recipient(key, ourUrl))
+            .collect(Collectors.toSet());
+
+        final PartyInfo selfPartyInfo = new PartyInfo(ourUrl, ourKeys, emptySet());
+        partyInfoStore.store(selfPartyInfo);
     }
 
     @Override
@@ -34,7 +46,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     }
 
     @Override
-    public PartyInfo updatePartyInfo(PartyInfo partyInfo) {
+    public PartyInfo updatePartyInfo(final PartyInfo partyInfo) {
 
         partyInfoStore.store(partyInfo);
 
