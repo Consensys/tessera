@@ -1,6 +1,6 @@
 package com.github.nexus.enclave.keys;
 
-import com.github.nexus.config.Configuration;
+import com.github.nexus.configuration.Configuration;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import com.github.nexus.nacl.NaclFacade;
@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -59,9 +60,17 @@ public class KeyManagerTest {
         Files.write(keygenPath.resolve("key.pub"), keyPair.getPublicKey().toString().getBytes(UTF_8), StandardOpenOption.CREATE_NEW);
         Files.write(keygenPath.resolve("key.key"), privateKeyJson, StandardOpenOption.CREATE_NEW);
 
-        final Configuration configuration = new Configuration();
-        configuration.setPublicKeys(singletonList(keygenPath.resolve("key.pub").toString()));
-        configuration.setPrivateKeys(singletonList(keygenPath.resolve("key.key").toString()));
+        final Configuration configuration = new Configuration(){
+            @Override
+            public List<String> publicKeys() {
+                return singletonList(keygenPath.resolve("key.pub").toString());
+            }
+
+            @Override
+            public List<String> privateKeys() {
+                return singletonList(keygenPath.resolve("key.key").toString());
+            }
+        };
 
         this.naclFacade = mock(NaclFacade.class);
 
@@ -71,7 +80,17 @@ public class KeyManagerTest {
     @Test
     public void initialisedWithNoKeys() {
 
-        this.keyManager = new KeyManagerImpl(keygenPath.toString(), naclFacade, new Configuration());
+        this.keyManager = new KeyManagerImpl(keygenPath.toString(), naclFacade, new Configuration(){
+            @Override
+            public List<String> publicKeys() {
+                return emptyList();
+            }
+
+            @Override
+            public List<String> privateKeys() {
+                return emptyList();
+            }
+        });
 
         assertThat(keyManager).extracting("ourKeys").containsExactly(emptySet());
     }
