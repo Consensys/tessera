@@ -1,5 +1,6 @@
 package com.github.nexus.enclave.keys;
 
+import com.github.nexus.TestConfiguration;
 import com.github.nexus.configuration.Configuration;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
@@ -60,7 +61,7 @@ public class KeyManagerTest {
         Files.write(keygenPath.resolve("key.pub"), keyPair.getPublicKey().toString().getBytes(UTF_8), StandardOpenOption.CREATE_NEW);
         Files.write(keygenPath.resolve("key.key"), privateKeyJson, StandardOpenOption.CREATE_NEW);
 
-        final Configuration configuration = new Configuration(){
+        final Configuration configuration = new TestConfiguration(){
             @Override
             public List<String> publicKeys() {
                 return singletonList(keygenPath.resolve("key.pub").toString());
@@ -80,17 +81,7 @@ public class KeyManagerTest {
     @Test
     public void initialisedWithNoKeys() {
 
-        this.keyManager = new KeyManagerImpl(keygenPath.toString(), naclFacade, new Configuration(){
-            @Override
-            public List<String> publicKeys() {
-                return emptyList();
-            }
-
-            @Override
-            public List<String> privateKeys() {
-                return emptyList();
-            }
-        });
+        this.keyManager = new KeyManagerImpl(keygenPath.toString(), naclFacade, new TestConfiguration());
 
         assertThat(keyManager).extracting("ourKeys").containsExactly(emptySet());
     }

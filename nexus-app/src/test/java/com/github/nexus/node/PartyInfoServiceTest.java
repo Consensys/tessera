@@ -1,48 +1,135 @@
 package com.github.nexus.node;
 
-
+import com.github.nexus.TestConfiguration;
+import com.github.nexus.configuration.Configuration;
 import com.github.nexus.nacl.Key;
-import org.assertj.core.util.Arrays;
+import com.github.nexus.node.model.Party;
+import com.github.nexus.node.model.PartyInfo;
+import com.github.nexus.node.model.Recipient;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 public class PartyInfoServiceTest {
-    
-    private final PartyInfoService partyInfoService = new PartyInfoServiceImpl();
-    
-    public PartyInfoServiceTest() {
-    }
 
-    private String url = "http://someurl.com";
+    private PartyInfoStore partyInfoStore;
+
+    private Configuration configuration;
+
+    private PartyInfoService partyInfoService;
+
+    private static final String url = "http://localhost";
 
     @Before
-    public void init(){
-        partyInfoService.initPartyInfo(url, new String[]{"node1","node2"});
+    public void init() {
+        this.partyInfoStore = mock(PartyInfoStore.class);
+        this.configuration = new TestConfiguration() {
+
+            @Override
+            public List<String> othernodes() {
+                return Collections.singletonList("http://other-node.com:8080");
+            }
+
+        };
+
+        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration);
+    }
+
+    @After
+    public void after() {
+        verifyNoMoreInteractions(partyInfoStore);
     }
 
     @Test
-    public void testInitPartyInfo() {
-        assertEquals(2,partyInfoService.getPartyInfo().getParties().size());
-        assertEquals(url, partyInfoService.getPartyInfo().getUrl());
+    public void initialPartiesCorrectlyReadFromConfiguration() {
+
+        final PartyInfo partyInfo = new PartyInfo(url, emptySet(), singleton(new Party("http://other-node.com:8080")));
+        doReturn(partyInfo).when(partyInfoStore).getPartyInfo();
+
+        final Set<Party> initialParties = partyInfoService.getPartyInfo().getParties();
+        final Set<Recipient> initialRecipients = partyInfoService.getPartyInfo().getRecipients();
+        final String ourUrl = partyInfoService.getPartyInfo().getUrl();
+
+        assertThat(initialParties).hasSize(1).containsExactly(new Party("http://other-node.com:8080"));
+        assertThat(initialRecipients).hasSize(0);
+        assertThat(ourUrl).isEqualTo(url);
+
+        verify(partyInfoStore).store(any(PartyInfo.class));
+        verify(partyInfoStore, times(3)).getPartyInfo();
+
+        //TODO: add a captor for verification
     }
 
     @Test
-    public void testRegisterPublicKeys() {
-        Key key = new Key("somekey".getBytes());
-        partyInfoService.registerPublicKeys(Arrays.array(key));
-        assertEquals(1, partyInfoService.getPartyInfo().getRecipients().size());
-        assertThat(partyInfoService.getPartyInfo().getRecipients().get(0).getKey()).isSameAs(key);
+    public void registeringPublicKeysUsesOurUrl() {
+
+        final String ourUrl = this.configuration.url();
+        final Key[] ourPublicKeys = new Key[]{
+            new Key("some-key".getBytes()),
+            new Key("another-public-key".getBytes())
+        };
+
+        final PartyInfo partyInfo = new PartyInfo(
+            url,
+            Stream.of(
+                new Recipient(new Key("some-key".getBytes()), url),
+                new Recipient(new Key("another-public-key".getBytes()), url)
+            ).collect(toSet()),
+            emptySet()
+        );
+        doReturn(partyInfo).when(partyInfoStore).getPartyInfo();
+
+
+        final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
+        partyInfoService.registerPublicKeys(ourUrl, ourPublicKeys);
+
+        final String fetchedUrl = partyInfoService.getPartyInfo().getUrl();
+        assertThat(fetchedUrl).isEqualTo(ourUrl);
+        verify(partyInfoStore).getPartyInfo();
+
+        verify(partyInfoStore, times(2)).store(captor.capture());
+        final List<Recipient> allRegisteredKeys = captor.getAllValues()
+            .stream()
+            .map(PartyInfo::getRecipients)
+            .flatMap(Set::stream)
+            .collect(toList());
+
+        assertThat(allRegisteredKeys).hasSize(2).containsExactlyInAnyOrder(
+            new Recipient(new Key("some-key".getBytes()), ourUrl),
+            new Recipient(new Key("another-public-key".getBytes()), ourUrl)
+        );
     }
 
     @Test
-    public void testUpdatePartyInfo() {
-        PartyInfo partyInfo = new PartyInfo(url, new ArrayList<Recipient>(), new ArrayList<Party>());
-        assertThat(partyInfoService.updatePartyInfo(partyInfo)).isNotNull().isSameAs(partyInfo);
+    public void updatePartyInfoDelegatesToStore() {
+
+        final String secondParty = "http://other-node.com:8080";
+        final String thirdParty = "http://third-url.com:8080";
+
+        final PartyInfo secondNodePartyInfo = new PartyInfo(secondParty, emptySet(), emptySet());
+        final PartyInfo thirdNodePartyInfo = new PartyInfo(thirdParty, emptySet(), emptySet());
+
+        partyInfoService.updatePartyInfo(secondNodePartyInfo);
+        partyInfoService.updatePartyInfo(thirdNodePartyInfo);
+
+        verify(partyInfoStore).store(secondNodePartyInfo);
+        verify(partyInfoStore).store(thirdNodePartyInfo);
+        verify(partyInfoStore, times(3)).store(any(PartyInfo.class));
+
+        verify(partyInfoStore, times(2)).getPartyInfo();
 
     }
 

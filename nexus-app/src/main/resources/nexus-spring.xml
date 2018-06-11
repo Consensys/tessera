@@ -30,8 +30,14 @@
         </constructor-arg>
     </bean>
 
+    <bean id="partyInfoStore" class="com.github.nexus.node.PartyInfoStore">
+        <constructor-arg ref="config" />
+    </bean>
 
-    <bean name="partyInfoService" class="com.github.nexus.node.PartyInfoServiceImpl"/>
+    <bean name="partyInfoService" class="com.github.nexus.node.PartyInfoServiceImpl">
+        <constructor-arg ref="partyInfoStore"/>
+        <constructor-arg ref="config"/>
+    </bean>
 
 
     <bean name="payloadEncoder" class="com.github.nexus.transaction.PayloadEncoderImpl" />
