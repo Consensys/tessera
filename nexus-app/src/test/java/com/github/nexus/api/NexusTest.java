@@ -1,4 +1,4 @@
-package com.github.nexus.app;
+package com.github.nexus.api;
 
 import com.github.nexus.service.locator.ServiceLocator;
 import org.junit.After;
