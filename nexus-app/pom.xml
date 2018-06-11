@@ -26,10 +26,6 @@
             <artifactId>nexus-encryption</artifactId>
         </dependency>
         
-        <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>nexus-encryption-kalium</artifactId>
-        </dependency>
         
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
@@ -165,7 +161,7 @@
                     <transformers>
                         <transformer
                             implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>com.github.nexus.app.Launcher</mainClass>
+                            <mainClass>com.github.nexus.Launcher</mainClass>
                         </transformer>
 
                         <transformer
@@ -226,5 +222,31 @@
 
         </plugins>
     </build>
+
+    
+    <profiles>
+       <profile>
+            <id>jnacl</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>       
+                <dependency>
+                    <groupId>com.github.nexus</groupId>
+                    <artifactId>nexus-encryption-jnacl</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>kalium</id>
+            <dependencies>       
+                <dependency>
+                    <groupId>com.github.nexus</groupId>
+                    <artifactId>nexus-encryption-kalium</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
 
 </project>
