@@ -21,3 +21,5 @@
 /nexus-encryption/nbproject/
 /nexus-encryption-jnacl/target/
 /nexus-configurator/target/
+/nexus-test/target/
+/nexus-test/nb-configuration.xml
