@@ -2,11 +2,15 @@ package com.github.nexus.node;
 
 
 import com.github.nexus.nacl.Key;
+import com.github.nexus.node.model.Party;
+import com.github.nexus.node.model.PartyInfo;
+import com.github.nexus.node.model.Recipient;
+
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public interface PartyInfoParser {
 
@@ -23,7 +27,7 @@ public interface PartyInfoParser {
         final int numberOfRecipients = (int) byteBuffer.getLong();
         final int recipientElementCount = (int) byteBuffer.getLong();
 
-        final List<Recipient> recipients = new ArrayList<>();
+        final Set<Recipient> recipients = new HashSet<>();
 
         for (int i = 0; i < numberOfRecipients; i++) {
             
@@ -51,7 +55,7 @@ public interface PartyInfoParser {
             parties[i] = new Party(ptyURL);
         }
 
-        return new PartyInfo(url, recipients, Arrays.asList(parties));
+        return new PartyInfo(url, recipients, new HashSet<>(Arrays.asList(parties)));
     };
 
 

@@ -1,22 +1,16 @@
 package com.github.nexus.node;
 
 import com.github.nexus.nacl.Key;
+import com.github.nexus.node.model.PartyInfo;
 
 public interface PartyInfoService {
 
     /**
      *
-     * @param rawUrl
-     * @param otherNodes
-     */
-    void initPartyInfo(String rawUrl, String[] otherNodes);
-
-
-    /**
      *
      * @param publicKeys
      */
-    void registerPublicKeys(Key[] publicKeys);
+    void registerPublicKeys(String ourUrl, Key[] publicKeys);
 
     /**
      * Request PartyInfo data from all remote nodes that this node is aware of.
