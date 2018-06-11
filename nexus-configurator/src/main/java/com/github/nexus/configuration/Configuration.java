@@ -8,4 +8,10 @@ public interface Configuration {
 
     List<String> privateKeys();
 
+    String url();
+
+    int port();
+
+    List<String> othernodes();
+
 }
