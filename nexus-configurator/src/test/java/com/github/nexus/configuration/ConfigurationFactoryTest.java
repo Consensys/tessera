@@ -72,10 +72,10 @@ public class ConfigurationFactoryTest {
     @Test
     public void noPropertySetUsesDefaultProperty() throws NoSuchMethodException {
 
-        final Configuration configuration = factory.init();
+        final Configuration configuration = ConfigurationFactory.init();
 
-        final List<String> privateKeyList = configuration.privateKeys();
-        assertThat(privateKeyList).hasSize(2).containsExactly("10", "20");
+        final String privateKeyList = configuration.privateKeys();
+        assertThat(privateKeyList).isEqualTo("10,20");
 
         final List<String> publicKeyList = configuration.publicKeys();
         assertThat(publicKeyList).hasSize(1).containsExactly("5");
@@ -89,8 +89,8 @@ public class ConfigurationFactoryTest {
 
         final Configuration configuration = factory.init();
 
-        final List<String> privateKeyList = configuration.privateKeys();
-        assertThat(privateKeyList).hasSize(1).containsExactly("other-config-file-value");
+        final String privateKeyList = configuration.privateKeys();
+        assertThat(privateKeyList).isEqualTo("other-config-file-value");
 
         final List<String> publicKeyList = configuration.publicKeys();
         assertThat(publicKeyList).hasSize(1).containsExactly("other-config-file-value");
