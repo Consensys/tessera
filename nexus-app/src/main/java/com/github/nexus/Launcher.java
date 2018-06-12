@@ -1,6 +1,7 @@
 package com.github.nexus;
 
 import com.github.nexus.api.Nexus;
+import com.github.nexus.configuration.Configuration;
 import com.github.nexus.configuration.ConfigurationFactory;
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
@@ -18,17 +19,25 @@ import org.slf4j.LoggerFactory;
  */
 public class Launcher {
 
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Launcher.class);
     
     public static final URI SERVER_URI = UriBuilder.fromUri("http://0.0.0.0/").port(8080).build();
 
+
     public static void main(final String... args) throws Exception {
 
         ConfigurationFactory.cliArgsArray = args;
+        final Configuration config = ConfigurationFactory.init();
+
+        final URI serverUri = UriBuilder
+            .fromUri(config.url())
+            .port(config.port())
+            .build();
 
         final Nexus nexus = new Nexus(ServiceLocator.create());
 
-        final RestServer restServer = RestServerFactory.create().createServer(SERVER_URI, nexus);
+        final RestServer restServer = RestServerFactory.create().createServer(serverUri, nexus);
         
         CountDownLatch countDown = new CountDownLatch(1);
         
