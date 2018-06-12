@@ -54,5 +54,14 @@ public class FileLoadingInterceptorTest {
         verify(mapper).mapFunction("", "file", expectedMethod);
 
     }
+    
+    @Test(expected = RuntimeException.class)
+    public void testExecuteCallbackThrowsNoSuchMethodExceptionForCoverage() throws Exception {
+        FileLoadingInterceptor.execute(() -> {
+            throw new NoSuchMethodException();
+        });  
+    }
+    
+
 
 }
