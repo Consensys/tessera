@@ -23,6 +23,8 @@ org.glassfish.level=INFO
 org.glassfish.jersey.internal.inject.Providers.level=SEVERE 
 -->
 
+    <logger name="org.glassfish.jersey.internal.inject.Providers" level="ERROR" />
+
   <root level="INFO">
     <appender-ref ref="STDOUT" />
   </root>
