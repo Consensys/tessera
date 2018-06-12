@@ -22,6 +22,7 @@ public class NexusIT  {
     
     private Client client = ClientBuilder.newClient();
 
+    @Ignore
     @Test
     public void sendSingleTransactionToSingleParty() {
 
