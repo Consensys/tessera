@@ -37,7 +37,7 @@ public class NexusIT  {
 
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getStatus()).isEqualTo(201);
 
     }
 
