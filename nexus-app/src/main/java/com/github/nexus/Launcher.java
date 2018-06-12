@@ -22,12 +22,6 @@ public class Launcher {
     
     public static final URI SERVER_URI = UriBuilder.fromUri("http://0.0.0.0/").port(8080).build();
 
-    private static boolean shutdown = false;
-    
-    public static void shutdown() {
-        shutdown = true;
-    }
-    
     public static void main(final String... args) throws Exception {
 
         ConfigurationFactory.cliArgsArray = args;
@@ -52,10 +46,6 @@ public class Launcher {
         });
         
         restServer.start();
-
-        while(!shutdown) {
-            Thread.sleep(2000L);
-        }
 
         countDown.await();
         
