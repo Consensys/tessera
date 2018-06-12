@@ -8,7 +8,7 @@ public interface Configuration {
 
     List<String> publicKeys();
 
-    List<String> privateKeys();
+    String privateKeys();
 
     String url();
 
