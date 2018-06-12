@@ -2,6 +2,9 @@ package com.github.nexus.nacl.jnacl;
 
 import com.neilalexander.jnacl.crypto.curve25519xsalsa20poly1305;
 
+/**
+ * An implementation of {@link SecretBox} that delegates to the JNaCL static methods
+ */
 public class JnaclSecretBox implements SecretBox {
 
     @Override
