@@ -22,8 +22,8 @@ public class NexusIT extends JerseyTest {
     @Override
     protected Application configure() {
         ConfigurationFactory.cliArgsArray = new String[]{
-            "-publicKeys", "./target/test-classes/key.pub",
-            "-privateKeys", "./target/test-classes/key.key"
+            "-publicKeys", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
+            "-privateKeys", "{\"data\":{\"bytes\":\"yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=\"},\"type\":\"unlocked\"}"
         };
 
         final ServiceLocator serviceLocator = ServiceLocator.create();

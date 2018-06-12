@@ -119,7 +119,7 @@ public class ConfigurationFactory {
             .getConfiguration(new ImmutableEnvironment(""))
             .entrySet()
             .stream()
-            .filter((k) -> Stream.of(KNOWN_PROPERTIES).anyMatch(prop -> prop.equals(k.getKey())))
+            .filter(k -> Stream.of(KNOWN_PROPERTIES).anyMatch(k.getKey()::equals))
             .forEach(k -> filteredProperties.setProperty(k.getKey().toString(), k.getValue().toString()));
 
         return filteredProperties;
@@ -145,6 +145,8 @@ public class ConfigurationFactory {
         final ConfigurationResolverImpl resolver = new ConfigurationResolverImpl(factory.interceptors);
 
         final Properties resolvedProperties = resolver.resolveProperties(properties(cliArgsArray));
+
+        //{"abc":5,"q":7},{"abc":6}
 
         final InMemoryConfigurationSource configurationSource = new InMemoryConfigurationSource(resolvedProperties);
 
