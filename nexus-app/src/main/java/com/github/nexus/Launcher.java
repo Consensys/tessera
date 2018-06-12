@@ -30,7 +30,7 @@ public class Launcher {
     
     public static void main(final String... args) throws Exception {
 
-        ConfigurationFactory.cliParameters(args);
+        ConfigurationFactory.cliArgsArray = args;
 
         final Nexus nexus = new Nexus(ServiceLocator.create());
 
