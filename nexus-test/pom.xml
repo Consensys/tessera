@@ -89,8 +89,8 @@
                         <configuration>
                             <properties>
                                 <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
-                                <publicKeys>${project.build.testOutputDirectory}/key.pub</publicKeys>
-                                <privateKeys>${project.build.testOutputDirectory}/key.key</privateKeys>
+                                <publicKeys>/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=</publicKeys>
+                                <privateKeys>{\"data\":{\"bytes\":\"yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=\"},\"type\":\"unlocked\"}</privateKeys>
                             </properties>
                             <source>${basedir}/src/test/groovy/startNode.groovy</source>
                         </configuration>
