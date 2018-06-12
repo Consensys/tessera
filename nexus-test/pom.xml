@@ -17,8 +17,11 @@
             <classifier>app</classifier>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-        
-        
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>2.4.5</version>
+        </dependency>
     </dependencies>
     
     <build>
@@ -42,12 +45,21 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.21.0</version>
                 <configuration>
-                    <skip>true</skip>
+                    <skip>false</skip>
                 </configuration>
                 <executions>
                     <execution>
+                        <id>integration-test</id>
+                        <phase>integration-test</phase>
                         <goals>
                             <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <phase>verify</phase>
+                        <goals>
                             <goal>verify</goal>
                         </goals>
                     </execution>
@@ -56,34 +68,37 @@
             </plugin>
 
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+                <version>2.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-all</artifactId>
+                        <version>2.0.6</version>
+                    </dependency>
+                </dependencies>
+                
                 <executions>
                     <execution>
+                        <id>start-node</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>execute</goal>
                         </goals>
-                        
                         <configuration>
-                            <skip>true</skip>
-                            <executable>java</executable>
-                            <workingDirectory>${project.build.directory}</workingDirectory>
-                            <arguments>
-                                <argument>-jar</argument>
-                                <argument>${com.github.nexus:nexus-app:jar:app}</argument>
-                                <argument>-publicKeys</argument>
-                                <argument>${project.build.testOutputDirectory}/key.pub</argument>
-                                <argument>-privateKeys</argument>
-                                <argument>${project.build.testOutputDirectory}/key.key</argument>
-                            </arguments>
-                        </configuration>  
+                            <properties>
+                                <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
+                                <publicKeys>${project.build.testOutputDirectory}/key.pub</publicKeys>
+                                <privateKeys>${project.build.testOutputDirectory}/key.key</privateKeys>
+                            </properties>
+                            <source>${basedir}/src/test/groovy/startNode.groovy</source>
+                        </configuration>
                     </execution>
                 </executions>
-
             </plugin>
 
+           
         </plugins>       
     </build>
 
