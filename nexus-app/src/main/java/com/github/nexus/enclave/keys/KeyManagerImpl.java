@@ -2,14 +2,14 @@ package com.github.nexus.enclave.keys;
 
 import com.github.nexus.configuration.Configuration;
 import com.github.nexus.nacl.Key;
-import com.github.nexus.nacl.KeyException;
 import com.github.nexus.nacl.KeyPair;
 import com.github.nexus.nacl.NaclFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
-import javax.json.JsonReader;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.stream.Collectors.toList;
 
 public class KeyManagerImpl implements KeyManager {
 
@@ -36,24 +35,27 @@ public class KeyManagerImpl implements KeyManager {
 
     private final String baseKeygenPath;
 
-    public KeyManagerImpl(final String baseKeygenPath, final NaclFacade nacl, final List<Path> publicKeyPaths, final List<Path> privateKeyPaths) {
+    public KeyManagerImpl(final String baseKeygenPath,
+                          final NaclFacade nacl,
+                          final List<String> publicKeys,
+                          final List<JsonValue> privateKeys) {
 
         this.nacl = Objects.requireNonNull(nacl, "nacl is required");
         this.baseKeygenPath = Objects.requireNonNull(baseKeygenPath, "basepath is required");
 
         this.ourKeys = new HashSet<>();
 
-        if (publicKeyPaths.size() != privateKeyPaths.size()) {
+        if (publicKeys.size() != privateKeys.size()) {
             LOGGER.error(
                 "Provided public and private keys aren't one-to-one, {} public keys, {} private keys",
-                publicKeyPaths.size(), privateKeyPaths.size()
+                publicKeys.size(), privateKeys.size()
             );
             throw new RuntimeException("Initial key list sizes don't match");
         }
 
         final Set<KeyPair> keys = IntStream
-            .range(0, publicKeyPaths.size())
-            .mapToObj(i -> loadKeypair(publicKeyPaths.get(i), privateKeyPaths.get(i)))
+            .range(0, publicKeys.size())
+            .mapToObj(i -> loadKeypair(publicKeys.get(i), privateKeys.get(i).asJsonObject()))
             .collect(Collectors.toSet());
 
         ourKeys.addAll(keys);
@@ -65,8 +67,8 @@ public class KeyManagerImpl implements KeyManager {
         this(
             configuration.keygenBasePath(),
             nacl,
-            configuration.publicKeys().stream().map(Paths::get).collect(toList()),
-            configuration.privateKeys().stream().map(Paths::get).collect(toList())
+            configuration.publicKeys(),
+            Json.createReader(new StringReader("[" + configuration.privateKeys() + "]")).readArray()
         );
 
     }
@@ -145,52 +147,38 @@ public class KeyManagerImpl implements KeyManager {
     }
 
     @Override
-    public KeyPair loadKeypair(final Path publicKeyPath, final Path privateKeyPath) {
+    public KeyPair loadKeypair(final String publicKeyb64, final JsonObject privateKeyJson) {
 
-        LOGGER.info("Attempting to load the public key at path {}", publicKeyPath);
-        LOGGER.info("Attempting to load the private key at path {}", privateKeyPath);
+        LOGGER.info("Attempting to load the public key at path {}", publicKeyb64);
+        LOGGER.info("Attempting to load the private key at path {}", privateKeyJson);
 
-        try {
+        final Key publicKey = loadPublicKey(publicKeyb64);
+        final Key privateKey = loadPrivateKey(privateKeyJson, null);
 
-            final Key publicKey = loadPublicKey(publicKeyPath);
+        final KeyPair keyPair = new KeyPair(publicKey, privateKey);
 
-            final Key privateKey = loadPrivateKey(privateKeyPath, null);
+        ourKeys.add(keyPair);
 
-            final KeyPair keyPair = new KeyPair(publicKey, privateKey);
-
-            ourKeys.add(keyPair);
-
-            return keyPair;
-
-        } catch (final IOException ex) {
-            throw new KeyException("Unable to load keypair", ex);
-        }
+        return keyPair;
 
     }
 
-    private Key loadPublicKey(final Path publicKeyPath) throws IOException {
-        LOGGER.debug("Loading the public key at path {}", publicKeyPath);
+    private Key loadPublicKey(final String publicKeyBase64) {
+        LOGGER.debug("Loading the public key {}", publicKeyBase64);
 
-        final String publicKeyBase64 = new String(Files.readAllBytes(publicKeyPath), UTF_8);
         final byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyBase64);
-
-        LOGGER.debug("Public key {} loaded from path {} loaded", publicKeyBase64, publicKeyPath);
 
         return new Key(publicKeyBytes);
     }
 
-    private Key loadPrivateKey(final Path privateKeyPath, final String password) throws IOException {
-        LOGGER.debug("Loading the private key at path {}", privateKeyPath);
+    private Key loadPrivateKey(final JsonObject privateKeyJson, final String password) {
+        LOGGER.debug("Loading the private key at path {}", privateKeyJson);
 
-        final byte[] privateKeyBytes = Files.readAllBytes(privateKeyPath);
-        final String jsonKey = new String(privateKeyBytes, UTF_8);
-
-        final JsonReader reader = Json.createReader(new StringReader(jsonKey));
-        final String keyBase64 = reader.readObject().getJsonObject("data").getString("bytes");
+        final String keyBase64 = privateKeyJson.getJsonObject("data").getString("bytes");
 
         final byte[] key = Base64.getDecoder().decode(keyBase64);
 
-        LOGGER.debug("Private key {} loaded from path {} loaded", keyBase64, privateKeyPath);
+        LOGGER.debug("Private key {} loaded from path {} loaded", keyBase64, privateKeyJson);
 
         return new Key(key);
     }

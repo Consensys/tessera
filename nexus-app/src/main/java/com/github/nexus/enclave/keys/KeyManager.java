@@ -2,7 +2,8 @@ package com.github.nexus.enclave.keys;
 
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
-import java.nio.file.Path;
+
+import javax.json.JsonObject;
 
 /**
  * Manages local keys for the running node, include key lookups and key loading/generation
@@ -45,11 +46,10 @@ public interface KeyManager {
     /**
      * Loads the specified keys from file
      *
-     * @param publicKeyPath  The path to the public key
-     * @param privateKeyPath The path to the private key
+     * @param publicKeyb64  The public key in base64 encoding
+     * @param privateKeyJson The private key JSON
      * @return the loaded {@link KeyPair}
-     * @throws RuntimeException if the keys could not be found
      */
-    KeyPair loadKeypair(Path publicKeyPath, Path privateKeyPath);
+    KeyPair loadKeypair(final String publicKeyb64, final JsonObject privateKeyJson);
 
 }
