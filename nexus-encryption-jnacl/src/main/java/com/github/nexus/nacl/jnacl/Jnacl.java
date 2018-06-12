@@ -11,6 +11,9 @@ import java.util.Objects;
 
 import static com.neilalexander.jnacl.crypto.curve25519xsalsa20poly1305.*;
 
+/**
+ * Uses JNaCL, which is a pure Java implementation of the NaCL standard
+ */
 public class Jnacl implements NaclFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Jnacl.class);
