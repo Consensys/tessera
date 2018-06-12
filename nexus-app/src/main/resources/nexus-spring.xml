@@ -70,7 +70,7 @@
     <bean class="com.github.nexus.api.exception.DefaultExceptionMapper" />
     <bean class="com.github.nexus.api.exception.DecodingExceptionMapper"/>
     <bean class="com.github.nexus.enclave.exception.KeyNotFoundExceptionMapper"/>
-    <bean class="com.github.nexus.enclave.exception.NotFoundExceptionMapper" />
+    <bean class="com.github.nexus.api.exception.NotFoundExceptionMapper" />
     
     <bean id="dataSource" class="org.h2.jdbcx.JdbcDataSource">
         <property name="url" value="jdbc:h2:./target/h2/nexus;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0" />
