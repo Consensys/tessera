@@ -60,10 +60,10 @@ public class KeyManagerImpl implements KeyManager {
 
     }
 
-    public KeyManagerImpl(final String baseKeygenPath, final NaclFacade nacl, final Configuration configuration) {
+    public KeyManagerImpl(final NaclFacade nacl, final Configuration configuration) {
 
         this(
-            baseKeygenPath,
+            configuration.keygenBasePath(),
             nacl,
             configuration.publicKeys().stream().map(Paths::get).collect(toList()),
             configuration.privateKeys().stream().map(Paths::get).collect(toList())

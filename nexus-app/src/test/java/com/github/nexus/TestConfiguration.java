@@ -32,4 +32,9 @@ public class TestConfiguration implements Configuration {
         return Collections.emptyList();
     }
 
+    @Override
+    public String keygenBasePath() {
+        return "./";
+    }
+
 }
