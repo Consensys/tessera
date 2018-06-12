@@ -117,12 +117,12 @@ public class ConfigurationFactory {
 
         final Properties filteredProperties = new Properties();
         configuration
-                .getConfiguration(new ImmutableEnvironment(""))
-                .entrySet()
-                .stream()
-                .filter((k) -> Stream.of(KNOWN_PROPERTIES).anyMatch(prop -> prop.equals(k.getKey())))
-                .forEach(k -> filteredProperties.setProperty(k.getKey().toString(), k.getValue().toString()));
-
+            .getConfiguration(new ImmutableEnvironment(""))
+            .entrySet()
+            .stream()
+            .filter(k -> Stream.of(KNOWN_PROPERTIES).anyMatch(k.getKey()::equals))
+            .forEach(k -> filteredProperties.setProperty(k.getKey().toString(), k.getValue().toString()));
+                
         return filteredProperties;
     }
 
