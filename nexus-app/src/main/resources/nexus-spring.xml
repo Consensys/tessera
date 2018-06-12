@@ -55,7 +55,6 @@
     </bean>
 
     <bean name="keyManager" class="com.github.nexus.enclave.keys.KeyManagerImpl">
-        <constructor-arg value="./" />
         <constructor-arg ref="nacl" />
         <constructor-arg ref="config" />
     </bean>

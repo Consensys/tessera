@@ -21,13 +21,12 @@ public class NexusIT extends JerseyTest {
 
     @Override
     protected Application configure() {
-        final String[] cliArgs = new String[] {
+        ConfigurationFactory.cliArgsArray = new String[]{
             "-publicKeys", "./target/test-classes/key.pub",
             "-privateKeys", "./target/test-classes/key.key"
         };
-        ConfigurationFactory.cliParameters(cliArgs);
 
-        ServiceLocator serviceLocator = ServiceLocator.create();
+        final ServiceLocator serviceLocator = ServiceLocator.create();
         return new Nexus(serviceLocator);
     }
 
