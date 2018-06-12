@@ -13,8 +13,8 @@ public class TestConfiguration implements Configuration {
     }
 
     @Override
-    public List<String> privateKeys() {
-        return Collections.emptyList();
+    public String privateKeys() {
+        return "";
     }
 
     @Override
