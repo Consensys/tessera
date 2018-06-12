@@ -5,6 +5,9 @@ import com.github.nexus.nacl.NaclFacadeFactory;
 
 import java.security.SecureRandom;
 
+/**
+ * Provides the JNaCL implementation of the {@link NaclFacade}
+ */
 public class JnaclFactory implements NaclFacadeFactory {
 
     @Override
