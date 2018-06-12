@@ -28,7 +28,7 @@ import static java.util.stream.Collectors.toList;
  *
  * Contains which keys are known properties
  * Parses provided CLI parameters and merges different sources of properties
- * to provide a single interface which applications can use to fetch properties ferom
+ * to provide a single interface which applications can use to fetch properties from
  */
 public class ConfigurationFactory {
 
@@ -44,6 +44,9 @@ public class ConfigurationFactory {
         addOption("publicKeys", "publicKeys", true, "public keys");
         addOption("privateKeys", "privateKeys", true, "private keys");
         addOption("configfile", "configfile", true, "config file location");
+        addOption("url", "url", true, "base url to use");
+        addOption("port", "port", true, "port to listen for http requests on");
+        addOption("othernodes", "othernodes", true, "initial set of other nodes");
     }};
 
     private ConfigurationInterceptor[] interceptors = new ConfigurationInterceptor[]{
