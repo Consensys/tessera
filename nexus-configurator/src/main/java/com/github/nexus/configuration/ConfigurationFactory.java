@@ -29,6 +29,10 @@ public class ConfigurationFactory {
 
     private static final String CONFIG_FILE_PROPERTY = "configfile";
 
+    private static final String[] KNOWN_PROPERTIES = new String[] {
+        "publicKeys", "privateKeys", "port", "url", "othernodes"
+    };
+
     private static Options options = new Options(){{
         addOption("publicKeys", "publicKeys", true, "public keys");
         addOption("privateKeys", "privateKeys", true, "private keys");
@@ -92,7 +96,15 @@ public class ConfigurationFactory {
 
         configuration.init();
 
-        return configuration.getConfiguration(new ImmutableEnvironment(""));
+        final Properties filteredProperties = new Properties();
+        configuration
+            .getConfiguration(new ImmutableEnvironment(""))
+            .entrySet()
+            .stream()
+            .filter((k) -> Stream.of(KNOWN_PROPERTIES).anyMatch(prop -> prop.equals(k.getKey())))
+            .forEach(k -> filteredProperties.setProperty(k.getKey().toString(), k.getValue().toString()));
+
+        return filteredProperties;
     }
 
     /**
