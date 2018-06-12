@@ -9,6 +9,10 @@ import java.nio.file.Paths;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * Uses Java EL to load files and replace their position in the configuration
+ * to the file contents
+ */
 public class FileLoadingInterceptor implements ConfigurationInterceptor {
 
     private final Method method = FileLoadingInterceptor.class.getDeclaredMethod("loadFile", String.class);

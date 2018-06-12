@@ -23,6 +23,13 @@ import java.util.stream.Stream;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Overall orchestrator for configuration loading
+ *
+ * Contains which keys are known properties
+ * Parses provided CLI parameters and merges different sources of properties
+ * to provide a single interface which applications can use to fetch properties ferom
+ */
 public class ConfigurationFactory {
 
     public static String[] cliArgsArray = new String[]{};
@@ -84,6 +91,13 @@ public class ConfigurationFactory {
             .collect(toList());
     }
 
+    /**
+     * Returns a {@link Properties} that contains all the properties that are known to the system
+     * by merging various sources and filtering out any unknown properties
+     *
+     * @param args CLI parameters that should be parsed for extra properties
+     * @return all known properties that were provided to the application
+     */
     public static Properties properties(final String... args) {
 
         final ConfigurationSource configuration = new MergeConfigurationSource(
