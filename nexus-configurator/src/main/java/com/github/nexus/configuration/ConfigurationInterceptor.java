@@ -12,7 +12,6 @@ public interface ConfigurationInterceptor {
 
     /**
      * Register intercepting functions on the provided context
-     * {@see FileLoadingInterceptor} for an example on how it works
      *
      * @param eLContext The context on which to provide mapping functions
      */
