@@ -62,6 +62,7 @@ public class KeyManagerTest {
         Files.write(keygenPath.resolve("key.key"), privateKeyJson, StandardOpenOption.CREATE_NEW);
 
         final Configuration configuration = new TestConfiguration(){
+
             @Override
             public List<String> publicKeys() {
                 return singletonList(keygenPath.resolve("key.pub").toString());
@@ -71,17 +72,23 @@ public class KeyManagerTest {
             public List<String> privateKeys() {
                 return singletonList(keygenPath.resolve("key.key").toString());
             }
+
+            @Override
+            public String keygenBasePath() {
+                return keygenPath.toString();
+            }
+
         };
 
         this.naclFacade = mock(NaclFacade.class);
 
-        this.keyManager = new KeyManagerImpl(keygenPath.toString(), naclFacade, configuration);
+        this.keyManager = new KeyManagerImpl(naclFacade, configuration);
     }
 
     @Test
     public void initialisedWithNoKeys() {
 
-        this.keyManager = new KeyManagerImpl(keygenPath.toString(), naclFacade, new TestConfiguration());
+        this.keyManager = new KeyManagerImpl(naclFacade, new TestConfiguration());
 
         assertThat(keyManager).extracting("ourKeys").containsExactly(emptySet());
     }
