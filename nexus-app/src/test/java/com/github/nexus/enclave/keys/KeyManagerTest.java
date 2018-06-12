@@ -9,13 +9,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.JsonReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -51,26 +50,22 @@ public class KeyManagerTest {
 
         this.keygenPath = Files.createTempDirectory(UUID.randomUUID().toString());
 
-        final byte[] privateKeyJson = Json.createObjectBuilder()
+        final String privateKeyJson = Json.createObjectBuilder()
             .add("type", "unlocked")
             .add("data", Json.createObjectBuilder().add("bytes", keyPair.getPrivateKey().toString()))
             .build()
-            .toString()
-            .getBytes(UTF_8);
-
-        Files.write(keygenPath.resolve("key.pub"), keyPair.getPublicKey().toString().getBytes(UTF_8), StandardOpenOption.CREATE_NEW);
-        Files.write(keygenPath.resolve("key.key"), privateKeyJson, StandardOpenOption.CREATE_NEW);
+            .toString();
 
         final Configuration configuration = new TestConfiguration(){
 
             @Override
             public List<String> publicKeys() {
-                return singletonList(keygenPath.resolve("key.pub").toString());
+                return singletonList(keyPair.getPublicKey().toString());
             }
 
             @Override
-            public List<String> privateKeys() {
-                return singletonList(keygenPath.resolve("key.key").toString());
+            public String privateKeys() {
+                return privateKeyJson;
             }
 
             @Override
@@ -149,8 +144,6 @@ public class KeyManagerTest {
         final byte[] publicKey = Base64.getDecoder().decode(publicKeyBase64);
         final byte[] privateKey = Base64.getDecoder().decode(privateKeyBase64);
 
-
-
         assertThat(new Key(publicKey)).isEqualTo(keyPair.getPublicKey());
         assertThat(new Key(privateKey)).isEqualTo(keyPair.getPrivateKey());
     }
@@ -172,42 +165,25 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void loadNonexistantKeysThrowsException() {
-
-        final Path publicKeyPath = keygenPath.resolve("unknownKey.pub");
-        final Path privateKeyPath = keygenPath.resolve("unknownKey.key");
-
-        final Throwable throwable = catchThrowable(() -> keyManager.loadKeypair(publicKeyPath, privateKeyPath));
-
-        assertThat(throwable).isNotNull().isInstanceOf(RuntimeException.class);
-        assertThat(throwable.getCause()).isInstanceOf(IOException.class);
-
-    }
-
-    @Test
     public void loadKeysReturnsKeypair() {
-        final String keyName = "testkey";
-        doReturn(keyPair).when(naclFacade).generateNewKeys();
-        final KeyPair generated = keyManager.generateNewKeys(keyName);
+        final JsonObject privateKeyJson = Json.createObjectBuilder()
+            .add("type", "unlocked")
+            .add("data", Json.createObjectBuilder().add("bytes", keyPair.getPrivateKey().toString()))
+            .build();
 
-        final Path publicKeyPath = keygenPath.resolve("testkey.pub");
-        final Path privateKeyPath = keygenPath.resolve("testkey.key");
+        final KeyPair loaded = keyManager.loadKeypair(keyPair.getPublicKey().toString(), privateKeyJson);
 
-        final KeyPair loaded = keyManager.loadKeypair(publicKeyPath, privateKeyPath);
-
-        assertThat(generated).isEqualTo(loaded);
+        assertThat(keyPair).isEqualTo(loaded);
     }
 
     @Test
     public void loadedKeysCanBeSearchedFor() {
-        final String keyName = "testkey";
-        doReturn(keyPair).when(naclFacade).generateNewKeys();
-        final KeyPair generated = keyManager.generateNewKeys(keyName);
+        final JsonObject privateKey = Json.createObjectBuilder()
+            .add("type", "unlocked")
+            .add("data", Json.createObjectBuilder().add("bytes", keyPair.getPrivateKey().toString()))
+            .build();
 
-        final Path publicKeyPath = keygenPath.resolve("testkey.pub");
-        final Path privateKeyPath = keygenPath.resolve("testkey.key");
-
-        final KeyPair loaded = keyManager.loadKeypair(publicKeyPath, privateKeyPath);
+        final KeyPair loaded = keyManager.loadKeypair(keyPair.getPublicKey().toString(), privateKey);
 
         final Key publicKey = keyManager.getPublicKeyForPrivateKey(loaded.getPrivateKey());
 
@@ -215,29 +191,14 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void keymanagerLoadsGivenKeysWhenInstantiatedWithPaths() {
-        final String keyName = "testkey";
-        doReturn(keyPair).when(naclFacade).generateNewKeys();
-        final KeyPair generated = keyManager.generateNewKeys(keyName);
-
-        final Path publicKeyPath = keygenPath.resolve("testkey.pub");
-        final Path privateKeyPath = keygenPath.resolve("testkey.key");
-
-        final KeyManager pathLoadingKeyManager
-            = new KeyManagerImpl(keygenPath.toString(), naclFacade, singletonList(publicKeyPath), singletonList(privateKeyPath));
-
-        //check the keys got loaded okay
-        final Key publicKey = keyManager.getPublicKeyForPrivateKey(keyPair.getPrivateKey());
-
-        assertThat(publicKey).isEqualTo(keyPair.getPublicKey());
-
-    }
-
-    @Test
     public void differentNumberOfKeysThrowsException() {
+        final JsonObject privateKey = Json.createObjectBuilder()
+            .add("type", "unlocked")
+            .add("data", Json.createObjectBuilder().add("bytes", keyPair.getPrivateKey().toString()))
+            .build();
 
         final Throwable throwable = catchThrowable(
-            () -> new KeyManagerImpl(keygenPath.toString(), naclFacade, emptyList(), singletonList(Paths.get(".")))
+            () -> new KeyManagerImpl(keygenPath.toString(), naclFacade, emptyList(), singletonList(privateKey))
         );
 
         assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("Initial key list sizes don't match");
