@@ -9,15 +9,18 @@ import java.nio.file.Paths;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+
 /**
  * Uses Java EL to load files and replace their position in the configuration
  * to the file contents
  */
 public class FileLoadingInterceptor implements ConfigurationInterceptor {
 
-    private final Method method = FileLoadingInterceptor.class.getDeclaredMethod("loadFile", String.class);
+    private final Method method;
+    
 
-    public FileLoadingInterceptor() throws NoSuchMethodException {
+    public FileLoadingInterceptor() {
+         method = execute(() -> FileLoadingInterceptor.class.getDeclaredMethod("loadFile", String.class));
     }
 
     public static String loadFile(final String filePath) throws IOException {
@@ -34,4 +37,17 @@ public class FileLoadingInterceptor implements ConfigurationInterceptor {
             .getFunctionMapper()
             .mapFunction("", "file", method);
     }
+    
+    protected static <T> T execute(Callback<T> callback) {
+        try {
+            return callback.execute();
+        } catch (NoSuchMethodException ex) {
+            throw new RuntimeException(ex);
+        } 
+    }
+    
+    interface Callback<T> {
+        T execute() throws NoSuchMethodException;
+    }
+    
 }
