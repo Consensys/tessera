@@ -37,7 +37,7 @@ public class ConfigurationFactory {
     private static final String CONFIG_FILE_PROPERTY = "configfile";
 
     private static final String[] KNOWN_PROPERTIES = new String[] {
-        "publicKeys", "privateKeys", "port", "url", "othernodes"
+        "publicKeys", "privateKeys", "port", "url", "othernodes", "keygenBasePath"
     };
 
     private static Options options = new Options(){{
@@ -47,6 +47,7 @@ public class ConfigurationFactory {
         addOption("url", "url", true, "base url to use");
         addOption("port", "port", true, "port to listen for http requests on");
         addOption("othernodes", "othernodes", true, "initial set of other nodes");
+        addOption("keygenBasePath", "keygenBasePath", true, "base path that generated keys should be placed");
     }};
 
     private ConfigurationInterceptor[] interceptors = new ConfigurationInterceptor[]{
