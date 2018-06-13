@@ -1,5 +1,6 @@
 package com.github.nexus.node;
 
+import com.github.nexus.api.model.ApiPath;
 import com.github.nexus.node.model.Party;
 import com.github.nexus.node.model.PartyInfo;
 import org.slf4j.Logger;
@@ -7,8 +8,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.net.ConnectException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -22,20 +25,20 @@ public class PartyInfoPoller implements Runnable {
 
     private final long rateInSeconds;
 
-    private PartyInfoPostDelegate partyInfoPostDelegate;
+    private PostDelegate postDelegate;
 
     private PartyInfoParser partyInfoParser;
 
     public PartyInfoPoller(final PartyInfoService partyInfoService,
                            final ScheduledExecutorService scheduledExecutorService,
                            final PartyInfoParser partyInfoParser,
-                           final PartyInfoPostDelegate partyInfoPostDelegate,
+                           final PostDelegate postDelegate,
                            final long rateInSeconds) {
         this.partyInfoService = requireNonNull(partyInfoService);
         this.scheduledExecutorService = requireNonNull(scheduledExecutorService);
         this.partyInfoParser = requireNonNull(partyInfoParser);
         this.rateInSeconds = rateInSeconds;
-        this.partyInfoPostDelegate = requireNonNull(partyInfoPostDelegate);
+        this.postDelegate = requireNonNull(postDelegate);
 
     }
 
@@ -58,6 +61,7 @@ public class PartyInfoPoller implements Runnable {
     @Override
     public void run() {
         LOGGER.debug("Polling {}", getClass().getSimpleName());
+
         try {
 
             final PartyInfo partyInfo = partyInfoService.getPartyInfo();
@@ -66,15 +70,22 @@ public class PartyInfoPoller implements Runnable {
 
             partyInfo.getParties()
                 .stream()
+                .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
                 .map(Party::getUrl)
-                .map(url -> partyInfoPostDelegate.doPost(url, encodedPartyInfo))
+                .map(url -> postDelegate.doPost(url, ApiPath.PARTYINFO, encodedPartyInfo))
                 .map(partyInfoParser::from)
+                .collect(Collectors.toList())
                 .forEach(partyInfoService::updatePartyInfo);
 
             LOGGER.debug("Polled {}. PartyInfo : {}", getClass().getSimpleName(), partyInfo);
-        } catch (Throwable ex) {
-            LOGGER.error("Error thrown while executing poller. ", ex);
-            throw ex;
+        }
+        catch (Throwable ex) {
+            if (ex.getCause() instanceof ConnectException)
+                LOGGER.error("Server error");
+            else {
+                LOGGER.error("Error thrown while executing poller. ", ex);
+                throw ex;
+            }
         }
 
     }
