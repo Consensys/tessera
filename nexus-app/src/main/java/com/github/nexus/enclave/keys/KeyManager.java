@@ -4,6 +4,7 @@ import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 
 import javax.json.JsonObject;
+import java.util.Set;
 
 /**
  * Manages local keys for the running node, include key lookups and key loading/generation
@@ -51,5 +52,11 @@ public interface KeyManager {
      * @return the loaded {@link KeyPair}
      */
     KeyPair loadKeypair(final String publicKeyb64, final JsonObject privateKeyJson);
+
+    /**
+     * Return a list of all recipients public keys of this node
+     * @return
+     */
+    Set<Key> getPublicKeys();
 
 }

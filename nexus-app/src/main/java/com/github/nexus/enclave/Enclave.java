@@ -1,6 +1,8 @@
 package com.github.nexus.enclave;
 
 import com.github.nexus.enclave.model.MessageHash;
+import com.github.nexus.nacl.Key;
+import com.github.nexus.transaction.model.EncodedPayloadWithRecipients;
 
 public interface Enclave {
 
@@ -12,19 +14,10 @@ public interface Enclave {
      * Note that the method will return true if trying to delete a non-existant message,
      * since the desired state of the message no longer existing is satisfied
      *
-     * @param hash The hash of the payload that should be deleted
+     * @param hashBytes The hash of the payload that should be deleted
      * @return States whether the delete operation was successful
      */
-    boolean delete(MessageHash hash);
-
-    /**
-     * Sends a new transaction to the enclave for storage and propagation to the provided list of recipients
-     * @param from sender node identification.
-     * @param recipients a list of the recipient nodes.
-     * @param payload transaction payload data we wish to store.
-     * @return a hash key. This key can be used to retrieve the submitted transaction
-     */
-//    byte[] send(byte[] from, byte[][] recipients, byte[] payload);
+    boolean delete(byte[] hashBytes);
 
     /**
      * Retrieve a particular transaction
@@ -43,4 +36,8 @@ public interface Enclave {
      * @return
      */
     MessageHash store(byte[] sender, byte[][] recipients, byte[] message);
+
+    MessageHash storePayload(byte[] encodedPayloadWithRecipients);
+
+    void publishPayload(EncodedPayloadWithRecipients encodedPayload, Key recipient);
 }
