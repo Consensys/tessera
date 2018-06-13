@@ -19,7 +19,7 @@ def t = new Thread({
     countdownLatch.countDown()
 })
 t.start()
-countdownLatch.await(1,java.util.concurrent.TimeUnit.MINUTE)
+countdownLatch.await(1,java.util.concurrent.TimeUnit.MINUTES)
 
 
 
