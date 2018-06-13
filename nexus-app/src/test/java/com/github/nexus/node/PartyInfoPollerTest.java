@@ -1,5 +1,6 @@
 package com.github.nexus.node;
 
+import com.github.nexus.api.model.ApiPath;
 import com.github.nexus.node.model.Party;
 import com.github.nexus.node.model.PartyInfo;
 import org.junit.After;
@@ -25,19 +26,19 @@ public class PartyInfoPollerTest {
 
     private final long rateInSeconds = 2L;
 
-    private PartyInfoPostDelegate partyInfoPostDelegate;
+    private PostDelegate postDelegate;
 
     public PartyInfoPollerTest() {
     }
 
     @Before
     public void setUp() {
-        partyInfoPostDelegate = mock(PartyInfoPostDelegate.class);
+        postDelegate = mock(PostDelegate.class);
         partyInfoService = mock(PartyInfoService.class);
         partyInfoParser = mock(PartyInfoParser.class);
         scheduledExecutorService = mock(ScheduledExecutorService.class);
         partyInfoPoller = new PartyInfoPoller(partyInfoService, scheduledExecutorService,
-            partyInfoParser, partyInfoPostDelegate, rateInSeconds);
+            partyInfoParser, postDelegate, rateInSeconds);
     }
 
     @After
@@ -65,7 +66,7 @@ public class PartyInfoPollerTest {
         String url = "http://bogus.com:9878";
         byte[] response = "BOGUS".getBytes();
 
-        when(partyInfoPostDelegate.doPost(url,response)).thenReturn(response);
+        when(postDelegate.doPost(url, ApiPath.PARTYINFO, response)).thenReturn(response);
 
         PartyInfo partyInfo = mock(PartyInfo.class);
         Party party = mock(Party.class);
@@ -86,7 +87,7 @@ public class PartyInfoPollerTest {
         verify(partyInfoService).updatePartyInfo(updatedPartyInfo);
         verify(partyInfoParser).from(response);
         verify(partyInfoParser).to(partyInfo);
-        verify(partyInfoPostDelegate).doPost(url,response);
+        verify(postDelegate).doPost(url, ApiPath.PARTYINFO,response);
 
     }
 

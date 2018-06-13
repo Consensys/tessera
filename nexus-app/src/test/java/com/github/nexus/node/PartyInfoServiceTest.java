@@ -2,6 +2,7 @@ package com.github.nexus.node;
 
 import com.github.nexus.TestConfiguration;
 import com.github.nexus.configuration.Configuration;
+import com.github.nexus.enclave.keys.KeyManager;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.node.model.Party;
 import com.github.nexus.node.model.PartyInfo;
@@ -12,6 +13,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -31,6 +33,8 @@ public class PartyInfoServiceTest {
 
     private PartyInfoService partyInfoService;
 
+    private KeyManager keyManager;
+
     private static final String url = "http://localhost";
 
     @Before
@@ -44,8 +48,8 @@ public class PartyInfoServiceTest {
             }
 
         };
-
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration);
+        this.keyManager = mock(KeyManager.class);
+        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
     }
 
     @After
@@ -67,7 +71,7 @@ public class PartyInfoServiceTest {
         assertThat(initialRecipients).hasSize(0);
         assertThat(ourUrl).isEqualTo(url);
 
-        verify(partyInfoStore).store(any(PartyInfo.class));
+        verify(partyInfoStore, times(2)).store(any(PartyInfo.class));
         verify(partyInfoStore, times(3)).getPartyInfo();
 
         //TODO: add a captor for verification
@@ -77,10 +81,14 @@ public class PartyInfoServiceTest {
     public void registeringPublicKeysUsesOurUrl() {
 
         final String ourUrl = this.configuration.url();
-        final Key[] ourPublicKeys = new Key[]{
-            new Key("some-key".getBytes()),
-            new Key("another-public-key".getBytes())
-        };
+//        final Set<Key> ourPublicKeys = new Key[]{
+//            new Key("some-key".getBytes()),
+//            new Key("another-public-key".getBytes())
+//        };
+
+        final Set<Key> ourPublicKeys2 = new HashSet<>();
+        ourPublicKeys2.add(new Key("some-key".getBytes()));
+        ourPublicKeys2.add(new Key("another-public-key".getBytes()));
 
         final PartyInfo partyInfo = new PartyInfo(
             url,
@@ -94,13 +102,13 @@ public class PartyInfoServiceTest {
 
 
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
-        partyInfoService.registerPublicKeys(ourUrl, ourPublicKeys);
+        partyInfoService.registerPublicKeys(ourUrl, ourPublicKeys2);
 
         final String fetchedUrl = partyInfoService.getPartyInfo().getUrl();
         assertThat(fetchedUrl).isEqualTo(ourUrl);
         verify(partyInfoStore).getPartyInfo();
 
-        verify(partyInfoStore, times(2)).store(captor.capture());
+        verify(partyInfoStore, times(3)).store(captor.capture());
         final List<Recipient> allRegisteredKeys = captor.getAllValues()
             .stream()
             .map(PartyInfo::getRecipients)
@@ -127,11 +135,23 @@ public class PartyInfoServiceTest {
 
         verify(partyInfoStore).store(secondNodePartyInfo);
         verify(partyInfoStore).store(thirdNodePartyInfo);
-        verify(partyInfoStore, times(3)).store(any(PartyInfo.class));
+        verify(partyInfoStore, times(4)).store(any(PartyInfo.class));
 
         verify(partyInfoStore, times(2)).getPartyInfo();
 
     }
 
+    @Test
+    public void getRecipientURLFromPartyInfoStore(){
+        Recipient recipient = new Recipient(new Key("key".getBytes()),"someurl");
+        PartyInfo partyInfo = new PartyInfo(url, Collections.singleton(recipient), emptySet());
+        when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
+
+        assertThat(partyInfoService.getURLFromRecipientKey(new Key("key".getBytes()))).isEqualTo("someurl");
+
+        verify(partyInfoStore, times(1)).getPartyInfo();
+        verify(partyInfoStore, times(2)).store(any());
+
+    }
 
 }
