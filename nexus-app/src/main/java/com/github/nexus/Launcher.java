@@ -1,17 +1,21 @@
 package com.github.nexus;
 
 import com.github.nexus.api.Nexus;
+import com.github.nexus.configuration.ConfigurationParser;
+import com.github.nexus.configuration.PropertyLoader;
 import com.github.nexus.configuration.Configuration;
-import com.github.nexus.configuration.ConfigurationFactory;
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
 import com.github.nexus.service.locator.ServiceLocator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The main entry point for the application.
@@ -19,16 +23,17 @@ import org.slf4j.LoggerFactory;
  */
 public class Launcher {
 
+    public static List<String> cliArgumentList = Collections.emptyList();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Launcher.class);
-    
+
     public static final URI SERVER_URI = UriBuilder.fromUri("http://0.0.0.0/").port(8080).build();
 
 
     public static void main(final String... args) throws Exception {
 
-        ConfigurationFactory.cliArgsArray = args;
-        final Configuration config = ConfigurationFactory.init();
+        Launcher.cliArgumentList = Arrays.asList(args);
+        final Configuration config = ConfigurationParser.create().config(PropertyLoader.create(), cliArgumentList);
 
         final URI serverUri = UriBuilder
             .fromUri(config.url())
@@ -44,13 +49,13 @@ public class Launcher {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                try {
-                    restServer.stop();
-                } catch (Exception ex) {
-                    LOGGER.error(null,ex);
-                } finally {
-                    countDown.countDown();
-                }
+            try {
+                restServer.stop();
+            } catch (Exception ex) {
+                LOGGER.error(null,ex);
+            } finally {
+                countDown.countDown();
+            }
             }
         });
         
