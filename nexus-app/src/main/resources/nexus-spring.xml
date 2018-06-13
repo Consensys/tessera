@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:tx="http://www.springframework.org/schema/tx" 
-       xmlns:context="http://www.springframework.org/schema/context" 
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd
-                           http://www.springframework.org/schema/tx
-                           http://www.springframework.org/schema/tx/spring-tx.xsd
-                           http://www.springframework.org/schema/context
-                           http://www.springframework.org/schema/context/spring-context.xsd">
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd 
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
 
 
     <tx:annotation-driven transaction-manager="jpaTransactionManager" />
     
     <context:component-scan base-package="com.github.nexus" />
-    
+
 
     <!-- Resources -->
     <bean class="com.github.nexus.api.VersionResource"/>
@@ -90,7 +90,14 @@
         <constructor-arg ref="config" />
     </bean>
 
-    <bean id="config" class="com.github.nexus.configuration.ConfigurationFactory" factory-method="init" />
+    <util:constant id="cliArgs" static-field="com.github.nexus.Launcher.cliArgumentList"/>
+    <bean id="configParser" class="com.github.nexus.configuration.ConfigurationParser" factory-method="create" />
+    <bean id="config" class="com.github.nexus.configuration.Configuration" factory-bean="configParser" factory-method="config" >
+        <constructor-arg>
+            <bean class="com.github.nexus.configuration.PropertyLoader" factory-method="create" />
+        </constructor-arg>
+        <constructor-arg ref="cliArgs"/>
+    </bean>
 
     <bean name="naclFactory" class="com.github.nexus.nacl.NaclFacadeFactory" factory-method="newFactory" />
     
