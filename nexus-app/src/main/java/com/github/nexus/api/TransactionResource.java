@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
-@Path("/transaction")
+@Path("/")
 public class TransactionResource {
 
     private static final Logger LOGGER = Logger.getLogger(TransactionResource.class.getName());
