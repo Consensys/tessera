@@ -1,6 +1,5 @@
 package com.github.nexus.api;
 
-import com.github.nexus.Nexus;
 import com.github.nexus.service.locator.ServiceLocator;
 import org.junit.After;
 import org.junit.Before;
