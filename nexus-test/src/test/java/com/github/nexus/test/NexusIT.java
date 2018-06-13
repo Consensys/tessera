@@ -22,9 +22,9 @@ public class NexusIT  {
     
     private Client client = ClientBuilder.newClient();
 
-    @Ignore
     @Test
     public void sendSingleTransactionToSingleParty() {
+
 
         String sendRequest = Json.createObjectBuilder()
             .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
@@ -32,7 +32,7 @@ public class NexusIT  {
             .add("payload", "Zm9v").build().toString();
 
         javax.ws.rs.core.Response response = client.target(SERVER_URI)
-            .path("/send")
+            .path("/transaction/send")
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
