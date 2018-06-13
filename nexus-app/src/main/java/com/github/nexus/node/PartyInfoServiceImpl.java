@@ -31,7 +31,6 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         final Set<Party> parties = configuration.othernodes()
             .stream()
-            .filter(url -> !url.isEmpty())
             .map(Party::new)
             .collect(Collectors.toSet());
 

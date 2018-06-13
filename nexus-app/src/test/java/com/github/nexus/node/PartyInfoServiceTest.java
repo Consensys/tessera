@@ -23,6 +23,7 @@ import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.*;
 
 public class PartyInfoServiceTest {
@@ -143,6 +144,7 @@ public class PartyInfoServiceTest {
 
     @Test
     public void getRecipientURLFromPartyInfoStore(){
+        verify(partyInfoStore, times(2)).store(any());
         Recipient recipient = new Recipient(new Key("key".getBytes()),"someurl");
         PartyInfo partyInfo = new PartyInfo(url, Collections.singleton(recipient), emptySet());
         when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
@@ -150,7 +152,16 @@ public class PartyInfoServiceTest {
         assertThat(partyInfoService.getURLFromRecipientKey(new Key("key".getBytes()))).isEqualTo("someurl");
 
         verify(partyInfoStore, times(1)).getPartyInfo();
-        verify(partyInfoStore, times(2)).store(any());
+
+        try {
+            partyInfoService.getURLFromRecipientKey(new Key("otherKey".getBytes()));
+            assertThatExceptionOfType(RuntimeException.class);
+        }
+        catch (Exception ex){
+
+        }
+
+        verify(partyInfoStore, times(2)).getPartyInfo();
 
     }
 
