@@ -9,10 +9,11 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+
 import java.io.IOException;
+import java.io.OutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -54,10 +55,14 @@ public class PartyInfoResourceTest {
         Response response = partyInfoResource.partyInfo(data);
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
-        assertThat(response.getEntity())
-                .isEqualTo(Entity.entity(resultData, MediaType.APPLICATION_OCTET_STREAM));
-        
+        assertThat(response.getStatus()).isEqualTo(200);
+
+        StreamingOutput o = (StreamingOutput) response.getEntity();
+        o.write(mock(OutputStream.class));
+
+        assertThat(o).isNotNull();
+
+
         verify(partyInfoParser).from(data);
         verify(partyInfoService).updatePartyInfo(partyInfo);
         verify(partyInfoParser).to(partyInfo);

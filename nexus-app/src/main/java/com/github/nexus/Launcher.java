@@ -1,5 +1,6 @@
 package com.github.nexus;
 
+
 import com.github.nexus.api.Nexus;
 import com.github.nexus.configuration.ConfigurationParser;
 import com.github.nexus.configuration.PropertyLoader;

@@ -20,13 +20,14 @@ public class PartyInfoStore {
         this.partyInfo = new PartyInfo(advertisedUrl, Collections.emptySet(), Collections.emptySet());
     }
 
-    public void store(final PartyInfo partyInfo) {
+    public void store(final PartyInfo partyInfoToUpdate) {
         final Set<Recipient> existingRecipients = this.partyInfo.getRecipients();
-        final Set<Recipient> newRecipients = partyInfo.getRecipients();
+        final Set<Recipient> newRecipients = partyInfoToUpdate.getRecipients();
+
         existingRecipients.addAll(newRecipients);
 
         final Set<Party> existingParties = this.partyInfo.getParties();
-        final Set<Party> newParties = partyInfo.getParties();
+        final Set<Party> newParties = partyInfoToUpdate.getParties();
         existingParties.addAll(newParties);
     }
 
