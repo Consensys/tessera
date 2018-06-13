@@ -1,9 +1,10 @@
-package com.github.nexus.api;
+package com.github.nexus;
 
 import com.github.nexus.service.locator.ServiceLocator;
+
+import javax.ws.rs.core.Application;
 import java.util.Objects;
 import java.util.Set;
-import javax.ws.rs.core.Application;
 
 public class Nexus extends Application {
     
