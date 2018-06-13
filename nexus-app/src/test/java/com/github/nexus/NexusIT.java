@@ -1,7 +1,5 @@
 package com.github.nexus;
 
-
-import com.github.nexus.configuration.ConfigurationFactory;
 import com.github.nexus.node.PartyInfoParser;
 import com.github.nexus.node.model.PartyInfo;
 import com.github.nexus.api.Nexus;

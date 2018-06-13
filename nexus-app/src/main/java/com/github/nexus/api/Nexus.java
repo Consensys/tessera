@@ -1,4 +1,4 @@
-package com.github.nexus;
+package com.github.nexus.api;
 
 import com.github.nexus.service.locator.ServiceLocator;
 
