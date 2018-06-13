@@ -85,7 +85,7 @@
         <constructor-arg ref="nacl" />
     </bean>
 
-    <bean name="keyManager" class="com.github.nexus.enclave.keys.KeyManagerImpl">
+    <bean name="keyManager" class="com.github.nexus.keys.KeyManagerImpl">
         <constructor-arg ref="nacl" />
         <constructor-arg ref="config" />
     </bean>
