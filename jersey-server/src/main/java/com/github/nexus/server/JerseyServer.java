@@ -61,7 +61,7 @@ public class JerseyServer implements RestServer {
 
         LOGGER.info("Started {}", uri);
 
-        LOGGER.info("WADL {0}/application.wadl", uri);
+        LOGGER.info("WADL {}/application.wadl", uri);
     }
 
     @Override
