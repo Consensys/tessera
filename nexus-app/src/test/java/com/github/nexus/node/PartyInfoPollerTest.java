@@ -3,6 +3,7 @@ package com.github.nexus.node;
 import com.github.nexus.api.model.ApiPath;
 import com.github.nexus.node.model.Party;
 import com.github.nexus.node.model.PartyInfo;
+import java.net.ConnectException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +19,7 @@ import static org.mockito.Mockito.*;
 public class PartyInfoPollerTest {
 
     private PartyInfoService partyInfoService;
+
     private PartyInfoParser partyInfoParser;
 
     private ScheduledExecutorService scheduledExecutorService;
@@ -38,7 +40,7 @@ public class PartyInfoPollerTest {
         partyInfoParser = mock(PartyInfoParser.class);
         scheduledExecutorService = mock(ScheduledExecutorService.class);
         partyInfoPoller = new PartyInfoPoller(partyInfoService, scheduledExecutorService,
-            partyInfoParser, postDelegate, rateInSeconds);
+                partyInfoParser, postDelegate, rateInSeconds);
     }
 
     @After
@@ -77,7 +79,6 @@ public class PartyInfoPollerTest {
 
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
 
-
         when(partyInfoParser.to(partyInfo)).thenReturn("BOGUS".getBytes());
 
         PartyInfo updatedPartyInfo = mock(PartyInfo.class);
@@ -85,17 +86,16 @@ public class PartyInfoPollerTest {
 
         partyInfoPoller.run();
 
-
         verify(partyInfoService).getPartyInfo();
         verify(partyInfoService).updatePartyInfo(updatedPartyInfo);
         verify(partyInfoParser).from(response);
         verify(partyInfoParser).to(partyInfo);
-        verify(postDelegate).doPost(url, ApiPath.PARTYINFO,response);
+        verify(postDelegate).doPost(url, ApiPath.PARTYINFO, response);
 
     }
 
     @Test
-    public void testWhenURLISOwn(){
+    public void testWhenURLISOwn() {
         String ownURL = "http://own.com:8080";
         byte[] response = "BOGUS".getBytes();
 
@@ -108,7 +108,6 @@ public class PartyInfoPollerTest {
         when(partyInfo.getParties()).thenReturn(singleton(party));
 
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
-
 
         when(partyInfoParser.to(partyInfo)).thenReturn("BOGUS".getBytes());
 
@@ -124,9 +123,9 @@ public class PartyInfoPollerTest {
     @Test
     public void runThrowsException() {
 
-        UnsupportedOperationException someException 
+        UnsupportedOperationException someException
                 = new UnsupportedOperationException("OUCH");
-        
+
         when(partyInfoService.getPartyInfo()).thenThrow(someException);
 
         try {
@@ -138,4 +137,17 @@ public class PartyInfoPollerTest {
         verify(partyInfoService).getPartyInfo();
     }
 
+    @Test
+    public void runThrowsConnectionExceptionAndDoesnotThrow() {
+
+        Exception connectionException
+                = new RuntimeException(new ConnectException("OUCH"));
+
+        doThrow(connectionException).when(partyInfoService).getPartyInfo();
+
+        partyInfoPoller.run();
+        verify(partyInfoService).getPartyInfo();
+
+        
+    }
 }

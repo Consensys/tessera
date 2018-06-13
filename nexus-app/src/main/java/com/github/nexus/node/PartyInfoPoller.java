@@ -30,10 +30,10 @@ public class PartyInfoPoller implements Runnable {
     private PartyInfoParser partyInfoParser;
 
     public PartyInfoPoller(final PartyInfoService partyInfoService,
-                           final ScheduledExecutorService scheduledExecutorService,
-                           final PartyInfoParser partyInfoParser,
-                           final PostDelegate postDelegate,
-                           final long rateInSeconds) {
+            final ScheduledExecutorService scheduledExecutorService,
+            final PartyInfoParser partyInfoParser,
+            final PostDelegate postDelegate,
+            final long rateInSeconds) {
         this.partyInfoService = requireNonNull(partyInfoService);
         this.scheduledExecutorService = requireNonNull(scheduledExecutorService);
         this.partyInfoParser = requireNonNull(partyInfoParser);
@@ -69,20 +69,21 @@ public class PartyInfoPoller implements Runnable {
             final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
             partyInfo.getParties()
-                .stream()
-                .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
-                .map(Party::getUrl)
-                .map(url -> postDelegate.doPost(url, ApiPath.PARTYINFO, encodedPartyInfo))
-                .map(partyInfoParser::from)
-                .collect(Collectors.toList())
-                .forEach(partyInfoService::updatePartyInfo);
+                    .stream()
+                    .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
+                    .map(Party::getUrl)
+                    .map(url -> postDelegate.doPost(url, ApiPath.PARTYINFO, encodedPartyInfo))
+                    .map(partyInfoParser::from)
+                    .collect(Collectors.toList())
+                    .forEach(partyInfoService::updatePartyInfo);
 
             LOGGER.debug("Polled {}. PartyInfo : {}", getClass().getSimpleName(), partyInfo);
-        }
-        catch (Throwable ex) {
-            if (ex.getCause() instanceof ConnectException)
-                LOGGER.error("Server error");
-            else {
+        } catch (Throwable ex) {
+
+            if (ConnectException.class.isInstance(ex.getCause())) {
+                LOGGER.error("Server error {}", ex.getMessage());
+                LOGGER.debug(null, ex);
+            } else {
                 LOGGER.error("Error thrown while executing poller. ", ex);
                 throw ex;
             }
