@@ -42,7 +42,7 @@ public class NexusIT extends JerseyTest {
             .add("payload", "Zm9v").build().toString();
 
         javax.ws.rs.core.Response response = target()
-            .path("/transaction/send")
+            .path("/send")
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
@@ -67,7 +67,7 @@ public class NexusIT extends JerseyTest {
             .add("payload", "Zm9v").build().toString();
 
         javax.ws.rs.core.Response response = target()
-            .path("/transaction/send")
+            .path("/send")
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
