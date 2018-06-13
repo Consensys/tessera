@@ -1,5 +1,6 @@
-package com.github.nexus.configuration;
+package com.github.nexus.configuration.interceptor;
 
+import com.github.nexus.configuration.interceptor.FileLoadingInterceptor;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,7 +18,7 @@ public class FileLoadingInterceptorTest {
     private FileLoadingInterceptor fileLoadingInterceptor;
 
     @Before
-    public void init() throws NoSuchMethodException {
+    public void init() {
         this.fileLoadingInterceptor = new FileLoadingInterceptor();
     }
 
@@ -54,14 +55,13 @@ public class FileLoadingInterceptorTest {
         verify(mapper).mapFunction("", "file", expectedMethod);
 
     }
-    
+
     @Test(expected = RuntimeException.class)
-    public void testExecuteCallbackThrowsNoSuchMethodExceptionForCoverage() throws Exception {
+    public void testExecuteCallbackThrowsNoSuchMethodExceptionForCoverage() {
         FileLoadingInterceptor.execute(() -> {
             throw new NoSuchMethodException();
-        });  
+        });
     }
-    
 
 
 }
