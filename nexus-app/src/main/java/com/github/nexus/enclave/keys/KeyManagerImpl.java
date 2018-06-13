@@ -163,6 +163,12 @@ public class KeyManagerImpl implements KeyManager {
 
     }
 
+    @Override
+    public Set<Key> getPublicKeys() {
+        return ourKeys.stream().map(keyPair -> keyPair.getPublicKey())
+            .collect(Collectors.toSet());
+    }
+
     private Key loadPublicKey(final String publicKeyBase64) {
         LOGGER.debug("Loading the public key {}", publicKeyBase64);
 

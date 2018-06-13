@@ -1,5 +1,6 @@
 package com.github.nexus.node;
 
+import com.github.nexus.api.model.ApiPath;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,12 +13,11 @@ import javax.ws.rs.core.Response;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-public class PartyInfoPostDelegateTest {
+public class PostDelegateTest {
 
-    private PartyInfoPostDelegate delegate;
+    private PostDelegate delegate;
 
     private Invocation.Builder builder;
 
@@ -32,7 +32,7 @@ public class PartyInfoPostDelegateTest {
         when(client.target(anyString())).thenReturn(webTarget);
         when(webTarget.path(anyString())).thenReturn(webTarget);
 
-        delegate = new PartyInfoPostDelegate(client);
+        delegate = new PostDelegate(client);
 
     }
 
@@ -43,7 +43,7 @@ public class PartyInfoPostDelegateTest {
         when(response.readEntity(byte[].class)).thenReturn(responseData);
         when(builder.post(any(Entity.class))).thenReturn(response);
         byte[] data = "BOGUS".getBytes();
-        byte[]  result = delegate.doPost("http://bogus.com",data);
+        byte[]  result = delegate.doPost("http://bogus.com",ApiPath.PARTYINFO,data);
         assertThat(result).isSameAs(responseData);
     }
 }

@@ -1,29 +1,18 @@
 package com.github.nexus.api;
 
-import com.github.nexus.enclave.model.MessageHash;
-import com.github.nexus.util.Base64Decoder;
-import com.github.nexus.api.exception.DecodingException;
 import com.github.nexus.api.model.*;
 import com.github.nexus.enclave.Enclave;
+import com.github.nexus.util.Base64Decoder;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Base64;
-import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
@@ -45,68 +34,49 @@ public class TransactionResource {
     @Path("/send")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response send(@Valid final SendRequest sendRequest) throws DecodingException {
-    
-            byte[] from = base64Decoder.decode(sendRequest.getFrom());
+    public Response send(@Valid final SendRequest sendRequest) {
+
+        byte[] from = base64Decoder.decode(sendRequest.getFrom());
             
-            byte[][] recipients =
-                Stream.of(sendRequest.getTo())
-                            .map(x -> base64Decoder.decode(x))
-                            .toArray(byte[][]::new);
+        byte[][] recipients =
+            Stream.of(sendRequest.getTo())
+                .map(x -> base64Decoder.decode(x))
+                .toArray(byte[][]::new);
             
-            byte[] payload = base64Decoder.decode(sendRequest.getPayload());
+        byte[] payload = base64Decoder.decode(sendRequest.getPayload());
 
-            byte[] key = enclave.store(from, recipients, payload).getHashBytes();
+        byte[] key = enclave.store(from, recipients, payload).getHashBytes();
 
-            String encodedKey = base64Decoder.encodeToString(key);
-            SendResponse response = new SendResponse(encodedKey);
+        String encodedKey = base64Decoder.encodeToString(key);
+        SendResponse response = new SendResponse(encodedKey);
 
-            return Response.status(Response.Status.CREATED)
-                    .header("Content-Type", "application/json")
-                    .entity(response)
-                    .build();
+        return Response.status(Response.Status.CREATED)
+            .header("Content-Type", "application/json")
+            .entity(response)
+            .build();
 
-    }
-
-    @POST
-    @Path("/sendraw")
-    @Consumes(MediaType.TEXT_PLAIN)
-    public Response sendRaw(@Context final HttpHeaders headers, InputStream inputStream) throws IOException {
-        LOGGER.log(Level.INFO, "from: {0}", headers.getHeaderString("hFrom"));
-        List<String> hTo = headers.getRequestHeader("hTo");
-        LOGGER.log(Level.INFO, "to: {0}", hTo);
-        LOGGER.log(Level.INFO, "payload: {0}", readInputStream(inputStream));
-        return Response.status(Response.Status.CREATED).build();
     }
 
     @POST
     @Path("/receive")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response receive(@Valid final ReceiveRequest receiveRequest) throws DecodingException {
-  
-            byte[] key = base64Decoder.decode(receiveRequest.getKey());
+    public Response receive(@Valid final ReceiveRequest receiveRequest) {
 
-            byte[] to = base64Decoder.decode(receiveRequest.getTo());
+        byte[] key = base64Decoder.decode(receiveRequest.getKey());
 
-            byte[] payload = enclave.receive(key, to);
+        byte[] to = base64Decoder.decode(receiveRequest.getTo());
 
-            String encodedPayload = base64Decoder.encodeToString(payload);
-            ReceiveResponse response = new ReceiveResponse(encodedPayload);
+        byte[] payload = enclave.receive(key, to);
 
-            return Response.status(Response.Status.CREATED)
-                    .header("Content-Type", "application/json")
-                    .entity(response)
-                    .build();
+        String encodedPayload = base64Decoder.encodeToString(payload);
 
-    }
+        ReceiveResponse response = new ReceiveResponse(encodedPayload);
 
-    @POST
-    @Path("/receiveraw")
-    @Consumes(MediaType.TEXT_PLAIN)
-    public Response receiveRaw(@Context final HttpHeaders headers) {
-        LOGGER.log(Level.INFO, "from: {0}", headers.getHeaderString("hKey"));
-        LOGGER.log(Level.INFO, "to: {0}", headers.getHeaderString("hTo"));
-        return Response.status(Response.Status.CREATED).build();
+        return Response.status(Response.Status.CREATED)
+            .header("Content-Type", "application/json")
+            .entity(response)
+            .build();
+
     }
 
     @POST
@@ -116,9 +86,12 @@ public class TransactionResource {
 
         byte[] hashBytes = base64Decoder.decode(deleteRequest.getKey());
 
-        enclave.delete(new MessageHash(hashBytes));
+        enclave.delete(hashBytes);
 
-        return Response.status(Response.Status.CREATED).build();
+        return Response.status(Response.Status.OK)
+            .entity("Delete successful")
+            .build();
+
     }
 
     @POST
@@ -135,24 +108,17 @@ public class TransactionResource {
             LOGGER.info("INDIVIDUAL");
 
         }
-
         return Response.status(Response.Status.CREATED).build();
     }
 
     @POST
     @Path("/push")
-    public Response push(final InputStream inputStream) throws IOException {
-
-        byte[] payload = Base64.getDecoder().decode(readInputStream(inputStream));
+    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+    public Response push(final byte[] payload) {
+        LOGGER.info(Base64.getEncoder().encodeToString(enclave.storePayload(payload).getHashBytes()));
 
         return Response.status(Response.Status.CREATED).build();
     }
 
-    protected static String readInputStream(InputStream inputStream) throws IOException {
-
-        try (BufferedReader buffer = new BufferedReader(new InputStreamReader(inputStream))) {
-            return buffer.lines().collect(Collectors.joining("\n"));
-        }
-    }
 
 }

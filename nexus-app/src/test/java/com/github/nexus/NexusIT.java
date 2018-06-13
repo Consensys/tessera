@@ -1,5 +1,7 @@
 package com.github.nexus;
 
+import com.github.nexus.node.PartyInfoParser;
+import com.github.nexus.node.model.PartyInfo;
 import com.github.nexus.api.Nexus;
 import com.github.nexus.service.locator.ServiceLocator;
 import org.glassfish.jersey.test.JerseyTest;
@@ -14,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +38,7 @@ public class NexusIT extends JerseyTest {
 
         String sendRequest = Json.createObjectBuilder()
             .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-            .add("to", Json.createArrayBuilder().add("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0="))
+            .add("to", Json.createArrayBuilder().add("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="))
             .add("payload", "Zm9v").build().toString();
 
         javax.ws.rs.core.Response response = target()
@@ -99,8 +102,9 @@ public class NexusIT extends JerseyTest {
     @Ignore
     @Test
     public void partyInfo() {
-
-        InputStream data = new ByteArrayInputStream("SOMEDATA".getBytes());
+        PartyInfo partyInfo = new PartyInfo("http://someurl.com", Collections.emptySet(), Collections.emptySet());
+        byte[] encoded = PartyInfoParser.create().to(partyInfo);
+        InputStream data = new ByteArrayInputStream(encoded);
 
         javax.ws.rs.core.Response response = target()
             .path("/partyinfo")
