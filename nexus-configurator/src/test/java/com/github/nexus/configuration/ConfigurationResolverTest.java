@@ -1,5 +1,6 @@
 package com.github.nexus.configuration;
 
+import com.github.nexus.configuration.interceptor.ConfigurationInterceptor;
 import org.junit.Test;
 
 import javax.el.ELContext;

@@ -1,5 +1,7 @@
 package com.github.nexus.configuration;
 
+import com.github.nexus.configuration.interceptor.ConfigurationInterceptor;
+
 import javax.el.*;
 import java.util.Properties;
 import java.util.stream.Stream;
