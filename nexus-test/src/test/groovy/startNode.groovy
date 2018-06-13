@@ -16,12 +16,10 @@ def countdownLatch = new java.util.concurrent.CountDownLatch(1)
 def process = "$processDesc".execute();
 def t = new Thread({
     process.waitFor()
-    def output = process.in.text
-    log.info output
     countdownLatch.countDown()
 })
 t.start()
-countdownLatch.await(15,java.util.concurrent.TimeUnit.SECONDS)
+countdownLatch.await(1,java.util.concurrent.TimeUnit.MINUTE)
 
 
 
