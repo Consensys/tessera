@@ -1,4 +1,4 @@
-package com.github.nexus.enclave.keys;
+package com.github.nexus.keys;
 
 import com.github.nexus.configuration.Configuration;
 import com.github.nexus.nacl.Key;
