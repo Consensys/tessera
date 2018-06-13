@@ -1,4 +1,4 @@
-package com.github.nexus.configuration;
+package com.github.nexus.configuration.interceptor;
 
 import javax.el.ELContext;
 

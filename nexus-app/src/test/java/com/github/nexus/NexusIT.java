@@ -1,7 +1,6 @@
 package com.github.nexus;
 
 import com.github.nexus.api.Nexus;
-import com.github.nexus.configuration.ConfigurationFactory;
 import com.github.nexus.service.locator.ServiceLocator;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Ignore;
@@ -13,6 +12,7 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,10 +21,10 @@ public class NexusIT extends JerseyTest {
 
     @Override
     protected Application configure() {
-        ConfigurationFactory.cliArgsArray = new String[]{
+        Launcher.cliArgumentList = Arrays.asList(
             "-publicKeys", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
             "-privateKeys", "{\"data\":{\"bytes\":\"yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=\"},\"type\":\"unlocked\"}"
-        };
+        );
 
         final ServiceLocator serviceLocator = ServiceLocator.create();
         return new Nexus(serviceLocator);
