@@ -46,6 +46,7 @@
                 <version>2.21.0</version>
                 <configuration>
                     <skip>false</skip>
+                    <rerunFailingTestsCount>3</rerunFailingTestsCount>
                 </configuration>
                 <executions>
                     <execution>
@@ -53,7 +54,6 @@
                         <phase>integration-test</phase>
                         <goals>
                             <goal>integration-test</goal>
-                            <goal>verify</goal>
                         </goals>
                     </execution>
                     <execution>
