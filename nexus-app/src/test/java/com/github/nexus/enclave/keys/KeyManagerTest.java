@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -202,6 +203,14 @@ public class KeyManagerTest {
         );
 
         assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("Initial key list sizes don't match");
+    }
+
+    @Test
+    public void testGetPublicKeys(){
+        Set<Key> publicKeys = keyManager.getPublicKeys();
+        assertThat(publicKeys).isNotEmpty();
+        assertThat(publicKeys.size()).isEqualTo(1);
+        assertThat(publicKeys.iterator().next().getKeyBytes()).isEqualTo(publicKey.getBytes());
     }
 
 }

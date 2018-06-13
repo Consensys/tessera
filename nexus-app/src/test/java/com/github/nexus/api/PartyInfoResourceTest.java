@@ -9,10 +9,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -39,7 +36,7 @@ public class PartyInfoResourceTest {
     }
 
     @Test
-    public void testPartyInfo() throws IOException {
+    public void testPartyInfo() {
         
         byte[] data = "{}".getBytes();
         
@@ -54,10 +51,8 @@ public class PartyInfoResourceTest {
         Response response = partyInfoResource.partyInfo(data);
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
-        assertThat(response.getEntity())
-                .isEqualTo(Entity.entity(resultData, MediaType.APPLICATION_OCTET_STREAM));
-        
+        assertThat(response.getStatus()).isEqualTo(200);
+
         verify(partyInfoParser).from(data);
         verify(partyInfoService).updatePartyInfo(partyInfo);
         verify(partyInfoParser).to(partyInfo);

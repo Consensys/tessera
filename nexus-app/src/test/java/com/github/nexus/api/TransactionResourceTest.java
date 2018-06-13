@@ -13,18 +13,10 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.Base64;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 public class TransactionResourceTest {
@@ -87,26 +79,6 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void testSendRaw() throws Exception {
-
-        HttpHeaders headers = mock(HttpHeaders.class);
-
-        when(headers.getRequestHeader("hFrom"))
-                .thenReturn(Stream.of("c2VuZGVy")
-                        .collect(Collectors.toList()));
-
-        when(headers.getRequestHeader("hTo"))
-                .thenReturn(Stream.of("cmVjaXBpZW50MQ==")
-                        .collect(Collectors.toList()));
-
-        Response response = transactionResource.sendRaw(headers, new ByteArrayInputStream("Zm9v".getBytes()));
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
-
-    }
-
-    @Test
     public void testReceive() {
 
         ReceiveRequest receiveRequest = new ReceiveRequest();
@@ -144,32 +116,14 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void testReceiveRaw() {
-
-        HttpHeaders headers = mock(HttpHeaders.class);
-
-        when(headers.getRequestHeader("hKey"))
-                .thenReturn(Stream.of("FOO")
-                        .collect(Collectors.toList()));
-
-        when(headers.getRequestHeader("hTo"))
-                .thenReturn(Stream.of("BAR")
-                        .collect(Collectors.toList()));
-
-        Response response = transactionResource.receiveRaw(headers);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
-    }
-
-    @Test
     public void testDelete() {
+        when(enclave.delete(any())).thenReturn(true);
         DeleteRequest deleteRequest = new DeleteRequest();
         deleteRequest.setKey(Base64.getEncoder().encodeToString("HELLOW".getBytes()));
         Response response = transactionResource.delete(deleteRequest);
         verify(enclave, times(1)).delete(any());
         assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 
     @Test
@@ -226,41 +180,12 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void testPush() throws IOException {
-
-        Response response = transactionResource.push(new ByteArrayInputStream("SOMEDATA".getBytes()));
-
+    public void testPush() {
+        when(enclave.storePayload(any())).thenReturn(new MessageHash("somehash".getBytes()));
+        Response response = transactionResource.push("SOMEDATA".getBytes());
+        verify(enclave).storePayload(any());
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
-    }
-
-    @Test
-    public void testReadInputStreamJustForCoverage() throws IOException {
-
-        final String data = "I LOVE SPARROWS!!";
-
-        InputStream inputStream = spy(new ByteArrayInputStream(data.getBytes()));
-
-        String result = TransactionResource.readInputStream(inputStream);
-
-        assertThat(result).isEqualTo(data);
-        verify(inputStream).close();
-
-    }
-
-    @Test
-    public void testReadInputStreamJustForCoverageThrowsIO() throws IOException {
-
-        InputStream inputStream = mock(InputStream.class);
-
-        try {
-            TransactionResource.readInputStream(inputStream);
-            fail();
-        } catch (UncheckedIOException ex) {
-            assertThat(ex).isNotNull();
-        }
-        verify(inputStream).close();
-
     }
 
 }
