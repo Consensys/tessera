@@ -81,7 +81,7 @@ public class PartyInfoPoller implements Runnable {
         } catch (Throwable ex) {
 
             if (ConnectException.class.isInstance(ex.getCause())) {
-                LOGGER.error("Server error {}", ex.getMessage());
+                LOGGER.warn("Server error {}", ex.getMessage());
                 LOGGER.debug(null, ex);
             } else {
                 LOGGER.error("Error thrown while executing poller. ", ex);
