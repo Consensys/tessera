@@ -1,7 +1,9 @@
-package com.github.nexus.enclave.keys;
+package com.github.nexus.keys;
 
 import com.github.nexus.TestConfiguration;
 import com.github.nexus.configuration.Configuration;
+import com.github.nexus.keys.KeyManager;
+import com.github.nexus.keys.KeyManagerImpl;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import com.github.nexus.nacl.NaclFacade;
