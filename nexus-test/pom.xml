@@ -45,7 +45,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.21.0</version>
                 <configuration>
-                    <skip>false</skip>
+                   <skip>true</skip>
                     <rerunFailingTestsCount>3</rerunFailingTestsCount>
                 </configuration>
                 <executions>
@@ -78,6 +78,10 @@
                         <version>2.0.6</version>
                     </dependency>
                 </dependencies>
+                
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
                 
                 <executions>
                     <execution>
