@@ -45,7 +45,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.21.0</version>
                 <configuration>
-                    <skip>false</skip>
+                   <skip>true</skip>
                     <rerunFailingTestsCount>3</rerunFailingTestsCount>
                 </configuration>
                 <executions>
@@ -79,6 +79,10 @@
                     </dependency>
                 </dependencies>
                 
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+                
                 <executions>
                     <execution>
                         <id>start-node</id>
@@ -89,8 +93,21 @@
                         <configuration>
                             <properties>
                                 <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
-                                <publicKeys>/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=</publicKeys>
-                                <privateKeys>{\"data\":{\"bytes\":\"yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=\"},\"type\":\"unlocked\"}</privateKeys>
+                                <configFile>${basedir}/src/test/resources/config.properties</configFile>
+                            </properties>
+                            <source>${basedir}/src/test/groovy/startNode.groovy</source>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>start-node2</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
+                                <configFile>${basedir}/src/test/resources/config2.properties</configFile>
                             </properties>
                             <source>${basedir}/src/test/groovy/startNode.groovy</source>
                         </configuration>
