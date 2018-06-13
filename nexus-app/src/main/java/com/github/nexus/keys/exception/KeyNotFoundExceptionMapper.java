@@ -1,4 +1,4 @@
-package com.github.nexus.enclave.exception;
+package com.github.nexus.keys.exception;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
