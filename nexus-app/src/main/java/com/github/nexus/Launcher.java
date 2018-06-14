@@ -44,14 +44,11 @@ public class Launcher {
            
             String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
             
-            Path filePath = Paths.get(pidFilePath);
-            Files.deleteIfExists(filePath);
-            Files.createFile(filePath);
-            
+            Path filePath = Files.createFile(Paths.get(pidFilePath));
+
             try (OutputStream stream = Files.newOutputStream(filePath, 
                     StandardOpenOption.CREATE, 
-                    StandardOpenOption.TRUNCATE_EXISTING,
-                    StandardOpenOption.DELETE_ON_CLOSE)) {
+                    StandardOpenOption.TRUNCATE_EXISTING)) {
                 stream.write(pid.getBytes(StandardCharsets.UTF_8));
             }
         }
