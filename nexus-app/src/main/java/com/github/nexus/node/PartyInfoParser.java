@@ -63,7 +63,7 @@ public interface PartyInfoParser {
 
        int urlLength = partyInfo.getUrl().length();
        
-       ByteBuffer byteBuffer = ByteBuffer.allocate(256);
+       ByteBuffer byteBuffer = ByteBuffer.allocate(2048);
        byteBuffer.putLong(urlLength);
        byteBuffer.put(partyInfo.getUrl().getBytes(StandardCharsets.UTF_8));
        byteBuffer.putLong(partyInfo.getRecipients().size());
