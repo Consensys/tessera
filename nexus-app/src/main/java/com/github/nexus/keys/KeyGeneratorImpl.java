@@ -10,7 +10,6 @@ import javax.json.Json;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import java.util.Objects;
@@ -21,7 +20,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyGeneratorImpl.class);
 
-    private final String basePath;
+    private final Path basePath;
 
     private final NaclFacade nacl;
 
@@ -41,9 +40,8 @@ public class KeyGeneratorImpl implements KeyGenerator {
         final String publicKeyBase64 = Base64.getEncoder().encodeToString(generated.getPublicKey().getKeyBytes());
         final String privateKeyBase64 = Base64.getEncoder().encodeToString(generated.getPrivateKey().getKeyBytes());
 
-        final Path workingDirectory = Paths.get(basePath).toAbsolutePath();
-        final Path publicKeyPath = workingDirectory.resolve(name + ".pub");
-        final Path privateKeyPath = workingDirectory.resolve(name + ".key");
+        final Path publicKeyPath = basePath.resolve(name + ".pub");
+        final Path privateKeyPath = basePath.resolve(name + ".key");
 
         final byte[] privateKeyJson = Json.createObjectBuilder()
             .add("type", "unlocked")
