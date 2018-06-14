@@ -1,10 +1,11 @@
 package com.github.nexus.configuration;
 
+import java.nio.file.Path;
 import java.util.List;
 
 public interface Configuration {
 
-    String keygenBasePath();
+    Path keygenBasePath();
 
     List<String> publicKeys();
 
