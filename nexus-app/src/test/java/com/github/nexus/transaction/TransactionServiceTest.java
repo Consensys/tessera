@@ -1,6 +1,6 @@
 package com.github.nexus.transaction;
 
-import com.github.nexus.enclave.keys.KeyManager;
+import com.github.nexus.keys.KeyManager;
 import com.github.nexus.enclave.model.MessageHash;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.NaclException;
