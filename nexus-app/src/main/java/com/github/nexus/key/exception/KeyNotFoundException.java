@@ -1,4 +1,4 @@
-package com.github.nexus.keys.exception;
+package com.github.nexus.key.exception;
 
 import com.github.nexus.api.exception.NexusException;
 
