@@ -54,8 +54,8 @@ public class KeyGeneratorTest {
         final Configuration configuration = new TestConfiguration(){
 
             @Override
-            public String keygenBasePath() {
-                return keygenPath.toString();
+            public Path keygenBasePath() {
+                return keygenPath;
             }
 
         };
