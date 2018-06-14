@@ -1,4 +1,4 @@
-package com.github.nexus;
+package com.github.nexus.socket;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Provide support for servers over a Unix Domain Socket.
+ * Uses junixsocket: https://github.com/kohlschutter/junixsocket
  */
 public class UnixDomainServerSocket {
 
@@ -47,7 +48,7 @@ public class UnixDomainServerSocket {
     /**
      * Listen for, and accept connections from clients.
      */
-    public void connect() {
+    public void connect() throws IOException {
 
         try {
             LOGGER.info("Waiting for connection...");

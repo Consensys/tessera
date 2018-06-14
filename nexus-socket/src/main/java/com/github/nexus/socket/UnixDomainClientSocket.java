@@ -1,4 +1,4 @@
-package com.github.nexus;
+package com.github.nexus.socket;
 
 import org.newsclub.net.unix.AFUNIXSocket;
 import org.newsclub.net.unix.AFUNIXSocketAddress;

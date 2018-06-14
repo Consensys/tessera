@@ -1,19 +1,23 @@
 package com.github.nexus;
 
+import com.github.nexus.socket.UnixDomainClientSocket;
+import com.github.nexus.socket.UnixDomainServerSocket;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UnixDomainSocketIT {
 
-    final static private String CLIENT_MESSAGE_SENT = "Message sent by client";
-    final static private String SERVER_MESSAGE_SENT = "Response sent by server";
+    private static final String CLIENT_MESSAGE_SENT = "Message sent by client";
+    private static final String SERVER_MESSAGE_SENT = "Response sent by server";
 
     @Test
     public void sendMessageToClient() {
 
         //Create a server which is listening on the socket
-        SocketServer server = new SocketServer();
+        TestSocketServer server = new TestSocketServer();
         server.start();
 
         //Create a client which will send a message
@@ -32,19 +36,24 @@ public class UnixDomainSocketIT {
     /**
      * Server listener thread
      */
-    class SocketServer extends Thread {
+    class TestSocketServer extends Thread {
         UnixDomainServerSocket serverUds;
 
-        public SocketServer() {
+        TestSocketServer() {
             serverUds = new UnixDomainServerSocket();
             serverUds.create("/tmp", "tst1.ipc");
         }
 
         public void run() {
-            //wait for a client to connect
-            System.out.println("Waiting for client connection...");
-            serverUds.connect();
-            System.out.println("Client connection received");
+
+            try {
+                //wait for a client to connect
+                System.out.println("Waiting for client connection...");
+                serverUds.connect();
+                System.out.println("Client connection received");
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
 
             //write to client
             serverUds.write(SERVER_MESSAGE_SENT);
