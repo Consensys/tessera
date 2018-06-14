@@ -34,17 +34,6 @@ public interface KeyManager {
     Key getPrivateKeyForPublicKey(Key publicKey);
 
     /**
-     * Generates a new keypair and saves it to a file using the given name
-     * The public key has extension {@code .pub} and the private key has extension {@code .key}
-     * The folder in which the keys are saved is up to the implementor
-     *
-     * @param name the name of the files to save
-     * @return the {@link KeyPair} of generated public/private keys
-     * @throws RuntimeException if the keys could not be written to file
-     */
-    KeyPair generateNewKeys(String name);
-
-    /**
      * Loads the specified keys from file
      *
      * @param publicKeyb64  The public key in base64 encoding
@@ -55,7 +44,8 @@ public interface KeyManager {
 
     /**
      * Return a list of all recipients public keys of this node
-     * @return
+     *
+     * @return the set of all public keys
      */
     Set<Key> getPublicKeys();
 
