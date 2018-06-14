@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class NexusIT  {
 
-    public static final URI SERVER_URI = UriBuilder.fromUri("http://localhost/").port(8080).build();
+    public static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1/").port(8080).build();
     
     private Client client = ClientBuilder.newClient();
 
