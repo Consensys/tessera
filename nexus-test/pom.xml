@@ -45,7 +45,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.21.0</version>
                 <configuration>
-                   <skip>true</skip>
+                   <skip>false</skip>
                     <rerunFailingTestsCount>3</rerunFailingTestsCount>
                 </configuration>
                 <executions>
@@ -80,7 +80,7 @@
                 </dependencies>
                 
                 <configuration>
-                    <skip>true</skip>
+                    <skip>false</skip>
                 </configuration>
                 
                 <executions>
@@ -94,6 +94,7 @@
                             <properties>
                                 <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
                                 <configFile>${basedir}/src/test/resources/config.properties</configFile>
+                                <pidFile>${project.build.directory}/node1.pid</pidFile>
                             </properties>
                             <source>${basedir}/src/test/groovy/startNode.groovy</source>
                         </configuration>
@@ -112,6 +113,23 @@
                             <source>${basedir}/src/test/groovy/startNode.groovy</source>
                         </configuration>
                     </execution>
+                    
+<!--                   <execution>
+                        <id>kill-nodes</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
+                            </properties>
+                            <source>
+                                "jps -l | grep $jarfile | kill ".execute()
+                            </source>
+                        </configuration>
+                    </execution>-->
+                    
                 </executions>
             </plugin>
 
