@@ -8,11 +8,14 @@ import com.github.nexus.configuration.Configuration;
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
 import com.github.nexus.service.locator.ServiceLocator;
+import com.github.nexus.socket.SocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +47,18 @@ public class Launcher {
         final Nexus nexus = new Nexus(ServiceLocator.create());
 
         final RestServer restServer = RestServerFactory.create().createServer(serverUri, nexus);
+
+        //TODO: TEMPORARY
+        System.out.println("Printing out CLASSPATH:");
+        ClassLoader cl = ClassLoader.getSystemClassLoader();
+        URL[] urls = ((URLClassLoader)cl).getURLs();
+        for(URL url: urls){
+            System.out.println(url.getFile());
+        }
+
+        //TODO: decouple from the implementation
+        final SocketServer socketServer = new SocketServer();
+        socketServer.start();
         
         CountDownLatch countDown = new CountDownLatch(1);
         
