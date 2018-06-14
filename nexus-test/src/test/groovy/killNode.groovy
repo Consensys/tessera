@@ -1,10 +1,11 @@
 
+def pidFile = properties['pidFile'];
+def pid = new File(pidFile).text
 
-def pid = new File(properties['pidFile']).text
+log.info "Found Pid file :" + pidFile
 
 def processDesc = "kill $pid"
 
-log.info processDesc
+log.info "Executing: {}", processDesc
 def process = processDesc.execute()
-
-log.info  "Exit code "+process.waitFor()
+log.info  "Executed: "+ processDesc +" with exit code: "+ process.waitFor()
