@@ -3,9 +3,11 @@ def jarfile = properties['jarfile']
 
 def configFile = properties['configFile']
 
+def pidFile = properties['pidFile']
+
 log.info "$jarfile"
 
-def processDesc = "java -jar $jarfile -configfile $configFile & echo \$! > /path/to/pid.file"
+def processDesc = "java -Dnexus.pid.file=$pidFile -jar $jarfile -configfile $configFile"
 
 log.info "$processDesc"
 
@@ -15,7 +17,7 @@ def process = "$processDesc".execute();
 
 def t = new Thread({
     process.waitFor()
-    log.info "HERE"+ process.pid
+
     countdownLatch.countDown()
 })
 

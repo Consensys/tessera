@@ -45,7 +45,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.21.0</version>
                 <configuration>
-                   <skip>false</skip>
+                    <skip>false</skip>
                     <rerunFailingTestsCount>3</rerunFailingTestsCount>
                 </configuration>
                 <executions>
@@ -109,26 +109,39 @@
                             <properties>
                                 <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
                                 <configFile>${basedir}/src/test/resources/config2.properties</configFile>
+                                <pidFile>${project.build.directory}/node2.pid</pidFile>
                             </properties>
                             <source>${basedir}/src/test/groovy/startNode.groovy</source>
                         </configuration>
                     </execution>
                     
-<!--                   <execution>
-                        <id>kill-nodes</id>
+                    <execution>
+                        <id>kill-node1</id>
                         <phase>post-integration-test</phase>
                         <goals>
                             <goal>execute</goal>
                         </goals>
                         <configuration>
                             <properties>
-                                <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
+                                <pidFile>${project.build.directory}/node1.pid</pidFile>
                             </properties>
-                            <source>
-                                "jps -l | grep $jarfile | kill ".execute()
-                            </source>
+                            <source>${basedir}/src/test/groovy/killNode.groovy</source>
                         </configuration>
-                    </execution>-->
+                    </execution>
+                    
+                    <execution>
+                        <id>kill-node2</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <pidFile>${project.build.directory}/node2.pid</pidFile>
+                            </properties>
+                            <source>${basedir}/src/test/groovy/killNode.groovy</source>
+                        </configuration>
+                    </execution>
                     
                 </executions>
             </plugin>
