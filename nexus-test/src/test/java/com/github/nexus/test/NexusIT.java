@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class NexusIT  {
 
-    public static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1/").port(8080).build();
+    public static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
     
     private Client client = ClientBuilder.newClient();
 
@@ -32,7 +32,7 @@ public class NexusIT  {
             .add("payload", "Zm9v").build().toString();
 
         javax.ws.rs.core.Response response = client.target(SERVER_URI)
-            .path("/transaction/send")
+            .path("/send")
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
