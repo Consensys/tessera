@@ -1,7 +1,7 @@
-package com.github.nexus.keys;
+package com.github.nexus.key;
 
 import com.github.nexus.configuration.Configuration;
-import com.github.nexus.keys.exception.KeyNotFoundException;
+import com.github.nexus.key.exception.KeyNotFoundException;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import org.slf4j.Logger;

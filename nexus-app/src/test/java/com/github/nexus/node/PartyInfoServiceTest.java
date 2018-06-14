@@ -2,7 +2,7 @@ package com.github.nexus.node;
 
 import com.github.nexus.TestConfiguration;
 import com.github.nexus.configuration.Configuration;
-import com.github.nexus.keys.KeyManager;
+import com.github.nexus.key.KeyManager;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.node.model.Party;
 import com.github.nexus.node.model.PartyInfo;

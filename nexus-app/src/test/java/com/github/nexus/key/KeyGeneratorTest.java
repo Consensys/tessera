@@ -1,7 +1,9 @@
-package com.github.nexus.keys;
+package com.github.nexus.key;
 
 import com.github.nexus.TestConfiguration;
 import com.github.nexus.configuration.Configuration;
+import com.github.nexus.key.KeyGenerator;
+import com.github.nexus.key.KeyGeneratorImpl;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import com.github.nexus.nacl.NaclFacade;
