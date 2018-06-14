@@ -7,6 +7,11 @@
         <property name="fileExtensions" value="java"/>
     </module>
     <module name="FileTabCharacter"/>
+    
+    <module name="SuppressionFilter">
+        <property name="file" value="${checkstyle.suppressions.file}" />
+    </module>
+    
     <module name="TreeWalker">
         <module name="InterfaceTypeParameterName"/>
         <module name="MethodName"/>
@@ -22,7 +27,9 @@
         <module name="StaticVariableName"/>
         <module name="TypeName"/>
         <module name="RedundantModifier"/>
-        <module name="ModifierOrder"/>
+        <module name="ModifierOrder">
+            
+        </module>
         <module name="ParenPad"/>
         <module name="EqualsHashCode"/>
         <module name="EmptyStatement"/>
