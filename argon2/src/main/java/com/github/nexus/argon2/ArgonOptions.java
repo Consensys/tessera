@@ -1,5 +1,11 @@
 package com.github.nexus.argon2;
 
+/**
+ * Contains options when calling Argon2
+ *
+ * such as which algorithm to use when hashing, iterations to cycle though,
+ * memory limit and number of threads to use
+ */
 public class ArgonOptions {
 
     private final String algorithm;

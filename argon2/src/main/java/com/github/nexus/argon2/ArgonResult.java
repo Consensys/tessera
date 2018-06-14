@@ -2,6 +2,10 @@ package com.github.nexus.argon2;
 
 import java.util.Arrays;
 
+/**
+ * The result of a hash call to Argon2
+ * contains the input options and the output hash
+ */
 public class ArgonResult {
 
     private final ArgonOptions options;
