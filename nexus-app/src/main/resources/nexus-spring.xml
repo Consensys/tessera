@@ -85,14 +85,18 @@
         <constructor-arg ref="nacl" />
     </bean>
 
-    <bean name="keyManager" class="com.github.nexus.keys.KeyManagerImpl">
+    <bean name="keyGenerator" class="com.github.nexus.keys.KeyGeneratorImpl" >
         <constructor-arg ref="nacl" />
         <constructor-arg ref="config" />
     </bean>
 
+    <bean name="keyManager" class="com.github.nexus.keys.KeyManagerImpl">
+        <constructor-arg ref="config" />
+    </bean>
+
     <util:constant id="cliArgs" static-field="com.github.nexus.Launcher.cliArgumentList"/>
-    <bean id="configParser" class="com.github.nexus.configuration.ConfigurationParser" factory-method="create" />
-    <bean id="config" class="com.github.nexus.configuration.Configuration" factory-bean="configParser" factory-method="config" >
+    <bean name="configParser" class="com.github.nexus.configuration.ConfigurationParser" factory-method="create" />
+    <bean name="config" class="com.github.nexus.configuration.Configuration" factory-bean="configParser" factory-method="config" >
         <constructor-arg>
             <bean class="com.github.nexus.configuration.PropertyLoader" factory-method="create" />
         </constructor-arg>
