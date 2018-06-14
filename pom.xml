@@ -182,6 +182,7 @@
         <module>nexus-encryption</module>
         <module>nexus-configurator</module>
         <module>nexus-test</module>
+        <module>argon2</module>
     </modules>
 
     <dependencyManagement>
