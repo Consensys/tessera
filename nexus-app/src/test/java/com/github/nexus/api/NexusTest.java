@@ -4,21 +4,23 @@ import com.github.nexus.service.locator.ServiceLocator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class NexusTest {
+
+    private static final String contextName = "context";
 
     private ServiceLocator serviceLocator;
 
     private Nexus nexus;
 
-    public NexusTest() {
-    }
-
     @Before
     public void setUp() {
         serviceLocator = mock(ServiceLocator.class);
-        nexus = new Nexus(serviceLocator);
+        nexus = new Nexus(serviceLocator, contextName);
     }
 
     @After
@@ -29,11 +31,17 @@ public class NexusTest {
     @Test
     public void getSingletons() {
         nexus.getSingletons();
-        verify(serviceLocator).getServices();
+        verify(serviceLocator).getServices(contextName);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void createWithNoServiceLocator() {
-        new Nexus(null);
+
+        final Throwable throwable = catchThrowable(() -> new Nexus(null, contextName));
+        assertThat(throwable).isInstanceOf(NullPointerException.class);
+
+        final Throwable throwableName = catchThrowable(() -> new Nexus(serviceLocator, null));
+        assertThat(throwableName).isInstanceOf(NullPointerException.class);
+
     }
 }
