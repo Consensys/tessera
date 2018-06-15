@@ -1,4 +1,6 @@
-package com.github.nexus.key.exception;
+package com.github.nexus.api.exception;
+
+import com.github.nexus.key.exception.KeyNotFoundException;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
