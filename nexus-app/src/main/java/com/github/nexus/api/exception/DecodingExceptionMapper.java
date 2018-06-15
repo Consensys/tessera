@@ -1,6 +1,8 @@
 package com.github.nexus.api.exception;
 
 
+import com.github.nexus.util.exception.DecodingException;
+
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
