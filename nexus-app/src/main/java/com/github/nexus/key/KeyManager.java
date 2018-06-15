@@ -1,9 +1,9 @@
 package com.github.nexus.key;
 
+import com.github.nexus.configuration.model.KeyData;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 
-import javax.json.JsonObject;
 import java.util.Set;
 
 /**
@@ -35,12 +35,12 @@ public interface KeyManager {
 
     /**
      * Loads the specified keys from file
+     * The password may be null if not required
      *
-     * @param publicKeyb64  The public key in base64 encoding
-     * @param privateKeyJson The private key JSON
+     * @param keyData a data object containing a public key, private key json and a password
      * @return the loaded {@link KeyPair}
      */
-    KeyPair loadKeypair(final String publicKeyb64, final JsonObject privateKeyJson);
+    KeyPair loadKeypair(KeyData keyData);
 
     /**
      * Return a list of all recipients public keys of this node
