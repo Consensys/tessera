@@ -18,4 +18,4 @@ addons:
     - libsodium-dev
 
 script:
-- mvn --batch-mode install -Pkalium
+- mvn --batch-mode install
