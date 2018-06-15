@@ -7,7 +7,7 @@ import javax.json.JsonObject;
 
 /**
  * POJO encapsulating the structure of the "data" field in a private key
- * when it as been encrypted using Argon2/NaCL
+ * when it has been encrypted using Argon2/NaCL
  */
 public class EncryptedPrivateKey {
 

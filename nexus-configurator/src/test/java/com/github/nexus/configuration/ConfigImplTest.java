@@ -22,6 +22,7 @@ public class ConfigImplTest {
         configProperties.setProperty("url", "http://url.com");
         configProperties.setProperty("port", "2000");
         configProperties.setProperty("othernodes", "node1.com,node2.com:10000");
+        configProperties.setProperty("generatekeys", "newkey1,newkey2");
 
         final Configuration configuration = new ConfigurationImpl(configProperties);
 
@@ -29,6 +30,7 @@ public class ConfigImplTest {
         assertThat(configuration.url()).isEqualTo("http://url.com");
         assertThat(configuration.port()).isEqualTo(2000);
         assertThat(configuration.othernodes()).hasSize(2).containsExactly("node1.com", "node2.com:10000");
+        assertThat(configuration.generatekeys()).hasSize(2).containsExactly("newkey1", "newkey2");
 
     }
 
@@ -91,5 +93,14 @@ public class ConfigImplTest {
 
     }
 
+    @Test
+    public void emptyKeynamesGetFiltered() {
+        final Properties configProperties = new Properties();
+        configProperties.put("generatekeys", "p1,,p2");
+
+        final Configuration configuration = new ConfigurationImpl(configProperties);
+
+        assertThat(configuration.generatekeys()).hasSize(2);
+    }
 
 }
