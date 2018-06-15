@@ -1,26 +1,19 @@
-package com.github.nexus.keys;
+package com.github.nexus.key;
 
 import com.github.nexus.configuration.Configuration;
+import com.github.nexus.key.exception.KeyNotFoundException;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
-import com.github.nexus.nacl.NaclFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
-import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class KeyManagerImpl implements KeyManager {
 
@@ -31,17 +24,7 @@ public class KeyManagerImpl implements KeyManager {
      */
     private final Set<KeyPair> ourKeys;
 
-    private final NaclFacade nacl;
-
-    private final String baseKeygenPath;
-
-    public KeyManagerImpl(final String baseKeygenPath,
-                          final NaclFacade nacl,
-                          final List<String> publicKeys,
-                          final List<JsonValue> privateKeys) {
-
-        this.nacl = Objects.requireNonNull(nacl, "nacl is required");
-        this.baseKeygenPath = Objects.requireNonNull(baseKeygenPath, "basepath is required");
+    public KeyManagerImpl(final List<String> publicKeys, final List<JsonValue> privateKeys) {
 
         this.ourKeys = new HashSet<>();
 
@@ -62,11 +45,9 @@ public class KeyManagerImpl implements KeyManager {
 
     }
 
-    public KeyManagerImpl(final NaclFacade nacl, final Configuration configuration) {
+    public KeyManagerImpl(final Configuration configuration) {
 
         this(
-            configuration.keygenBasePath(),
-            nacl,
             configuration.publicKeys(),
             Json.createReader(new StringReader("[" + configuration.privateKeys() + "]")).readArray()
         );
@@ -83,7 +64,7 @@ public class KeyManagerImpl implements KeyManager {
             .findFirst()
             .map(KeyPair::getPublicKey)
             .orElseThrow(
-                () -> new RuntimeException("Private key " + privateKey + " not found when searching for public key")
+                () -> new KeyNotFoundException("Private key " + privateKey + " not found when searching for public key")
             );
 
         LOGGER.debug("Found public key {} for private key {}", publicKey, privateKey);
@@ -101,49 +82,12 @@ public class KeyManagerImpl implements KeyManager {
             .findFirst()
             .map(KeyPair::getPrivateKey)
             .orElseThrow(
-                () -> new RuntimeException("Public key " + publicKey + " not found when searching for private key")
+                () -> new KeyNotFoundException("Public key " + publicKey + " not found when searching for private key")
             );
 
         LOGGER.debug("Found private key {} for public key {}", privateKey, publicKey);
 
         return privateKey;
-    }
-
-    public KeyPair generateNewKeys(final String name) {
-        LOGGER.info("Generating new public/private keypair with name " + name);
-
-        final KeyPair generated = nacl.generateNewKeys();
-
-        LOGGER.info("Generated new public/private keypair with name " + name);
-
-        final String publicKeyBase64 = Base64.getEncoder().encodeToString(generated.getPublicKey().getKeyBytes());
-        final String privateKeyBase64 = Base64.getEncoder().encodeToString(generated.getPrivateKey().getKeyBytes());
-
-        final Path workingDirectory = Paths.get(baseKeygenPath).toAbsolutePath();
-        final Path publicKeyPath = workingDirectory.resolve(name + ".pub");
-        final Path privateKeyPath = workingDirectory.resolve(name + ".key");
-
-        final byte[] privateKeyJson = Json.createObjectBuilder()
-            .add("type", "unlocked")
-            .add("data", Json.createObjectBuilder()
-                .add("bytes", privateKeyBase64)
-            ).build().toString().getBytes(UTF_8);
-
-        try {
-
-            LOGGER.info("Attempting to write newly generated keys to file...");
-
-            Files.write(publicKeyPath, publicKeyBase64.getBytes(UTF_8), StandardOpenOption.CREATE_NEW);
-            Files.write(privateKeyPath, privateKeyJson, StandardOpenOption.CREATE_NEW);
-
-            LOGGER.info("Successfully wrote newly generated keys to file");
-
-        } catch (final IOException ex) {
-            LOGGER.error("Unable to write the newly generated keys to file", ex);
-            throw new RuntimeException(ex);
-        }
-
-        return generated;
     }
 
     @Override
@@ -165,7 +109,9 @@ public class KeyManagerImpl implements KeyManager {
 
     @Override
     public Set<Key> getPublicKeys() {
-        return ourKeys.stream().map(keyPair -> keyPair.getPublicKey())
+        return ourKeys
+            .stream()
+            .map(KeyPair::getPublicKey)
             .collect(Collectors.toSet());
     }
 

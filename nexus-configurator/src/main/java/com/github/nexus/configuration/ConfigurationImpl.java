@@ -1,5 +1,7 @@
 package com.github.nexus.configuration;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -14,8 +16,8 @@ public class ConfigurationImpl implements Configuration {
     }
 
     @Override
-    public String keygenBasePath() {
-        return properties.getProperty("keygenBasePath");
+    public Path keygenBasePath() {
+        return Paths.get(properties.getProperty("keygenBasePath")).toAbsolutePath();
     }
 
     @Override

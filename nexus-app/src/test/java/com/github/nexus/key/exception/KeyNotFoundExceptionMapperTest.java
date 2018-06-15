@@ -1,5 +1,7 @@
-package com.github.nexus.enclave.exception;
+package com.github.nexus.key.exception;
 
+import com.github.nexus.key.exception.KeyNotFoundException;
+import com.github.nexus.key.exception.KeyNotFoundExceptionMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
