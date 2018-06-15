@@ -1,22 +1,35 @@
 package com.github.nexus;
 
 import com.github.nexus.configuration.Configuration;
+import com.github.nexus.configuration.model.KeyData;
 
+import javax.json.JsonObject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
+
+import static java.util.Collections.emptyList;
 
 public class TestConfiguration implements Configuration {
 
     @Override
     public List<String> publicKeys() {
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Override
-    public String privateKeys() {
-        return "";
+    public List<JsonObject> privateKeys() {
+        return emptyList();
+    }
+
+    @Override
+    public List<String> passwords() {
+        return emptyList();
+    }
+
+    @Override
+    public List<KeyData> keyData() {
+        return emptyList();
     }
 
     @Override
@@ -31,7 +44,7 @@ public class TestConfiguration implements Configuration {
 
     @Override
     public List<String> othernodes() {
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Override
@@ -39,4 +52,8 @@ public class TestConfiguration implements Configuration {
         return Paths.get("./").toAbsolutePath();
     }
 
+    @Override
+    public List<String> generatekeys() {
+        return emptyList();
+    }
 }
