@@ -27,7 +27,7 @@ def t = new Thread({
 
 t.start()
 
-countdownLatch.await(30,java.util.concurrent.TimeUnit.SECONDS)
+countdownLatch.await(10,java.util.concurrent.TimeUnit.SECONDS)
 
 
 
