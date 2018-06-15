@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
+import javax.json.JsonObject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,9 +25,35 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
     private final NaclFacade nacl;
 
-    public KeyGeneratorImpl(final NaclFacade nacl, final Configuration configuration) {
+    private final KeyEncryptor keyEncryptor;
+
+    public KeyGeneratorImpl(final NaclFacade nacl,
+                            final Configuration configuration,
+                            final KeyEncryptor keyEncryptor) {
         this.basePath = configuration.keygenBasePath();
         this.nacl = Objects.requireNonNull(nacl);
+        this.keyEncryptor = Objects.requireNonNull(keyEncryptor);
+    }
+
+    public KeyPair generateNewKeys(final String name, final String password) {
+        LOGGER.info("Generating new public/private keypair with name " + name);
+
+        final KeyPair generated = nacl.generateNewKeys();
+
+        LOGGER.info("Generated new public/private keypair with name " + name);
+
+        final String publicKeyBase64 = Base64.getEncoder().encodeToString(generated.getPublicKey().getKeyBytes());
+        final JsonObject encryptedKey = keyEncryptor.encryptPrivateKey(generated.getPrivateKey(), password);
+
+        final String privateKeyJson = Json.createObjectBuilder()
+            .add("type", "argon2sbox")
+            .add("data", encryptedKey)
+            .build()
+            .toString();
+
+        writeKeysToFile(name, publicKeyBase64, privateKeyJson);
+
+        return generated;
     }
 
     @Override
@@ -40,21 +67,28 @@ public class KeyGeneratorImpl implements KeyGenerator {
         final String publicKeyBase64 = Base64.getEncoder().encodeToString(generated.getPublicKey().getKeyBytes());
         final String privateKeyBase64 = Base64.getEncoder().encodeToString(generated.getPrivateKey().getKeyBytes());
 
-        final Path publicKeyPath = basePath.resolve(name + ".pub");
-        final Path privateKeyPath = basePath.resolve(name + ".key");
-
-        final byte[] privateKeyJson = Json.createObjectBuilder()
+        final String privateKeyJson = Json.createObjectBuilder()
             .add("type", "unlocked")
             .add("data", Json.createObjectBuilder()
                 .add("bytes", privateKeyBase64)
-            ).build().toString().getBytes(UTF_8);
+            ).build().toString();
+
+        writeKeysToFile(name, publicKeyBase64, privateKeyJson);
+
+        return generated;
+    }
+
+    private void writeKeysToFile(final String name, final String publicKeyb64, final String privateKeyJson) {
+
+        final Path publicKeyPath = basePath.resolve(name + ".pub");
+        final Path privateKeyPath = basePath.resolve(name + ".key");
 
         try {
 
             LOGGER.info("Attempting to write newly generated keys to file...");
 
-            Files.write(publicKeyPath, publicKeyBase64.getBytes(UTF_8), StandardOpenOption.CREATE_NEW);
-            Files.write(privateKeyPath, privateKeyJson, StandardOpenOption.CREATE_NEW);
+            Files.write(publicKeyPath, publicKeyb64.getBytes(UTF_8), StandardOpenOption.CREATE_NEW);
+            Files.write(privateKeyPath, privateKeyJson.getBytes(UTF_8), StandardOpenOption.CREATE_NEW);
 
             LOGGER.info("Successfully wrote newly generated keys to file");
 
@@ -63,6 +97,6 @@ public class KeyGeneratorImpl implements KeyGenerator {
             throw new RuntimeException(ex);
         }
 
-        return generated;
     }
+
 }

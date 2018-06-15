@@ -9,12 +9,9 @@
                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-
-
     <tx:annotation-driven transaction-manager="jpaTransactionManager" />
     
     <context:component-scan base-package="com.github.nexus" />
-
 
     <!-- Resources -->
     <bean class="com.github.nexus.api.VersionResource"/>
@@ -76,8 +73,6 @@
         <constructor-arg value="2"/>
     </bean>
 
-
-
     <bean name="transactionService" class="com.github.nexus.transaction.TransactionServiceImpl">
         <constructor-arg ref="encryptedTransactionDAO"/>
         <constructor-arg ref="payloadEncoder" />
@@ -85,12 +80,18 @@
         <constructor-arg ref="nacl" />
     </bean>
 
-    <bean name="keyGenerator" class="com.github.nexus.key.KeyGeneratorImpl" >
-        <constructor-arg ref="nacl" />
-        <constructor-arg ref="config" />
+    <bean name="argon2" class="com.github.nexus.argon2.Argon2" factory-method="create" />
+
+    <bean name="keyEncryptor" class="com.github.nexus.key.KeyEncryptorImpl" >
+        <constructor-arg ref="argon2"/>
+        <constructor-arg ref="nacl"/>
+        <constructor-arg>
+            <bean class="com.github.nexus.util.Base64Decoder" factory-method="create" />
+        </constructor-arg>
     </bean>
 
     <bean name="keyManager" class="com.github.nexus.key.KeyManagerImpl">
+        <constructor-arg ref="keyEncryptor" />
         <constructor-arg ref="config" />
     </bean>
 
