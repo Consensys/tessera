@@ -30,7 +30,7 @@ public class NexusIT extends JerseyTest {
         );
 
         final ServiceLocator serviceLocator = ServiceLocator.create();
-        return new Nexus(serviceLocator);
+        return new Nexus(serviceLocator, "nexus-spring.xml");
     }
 
     @Test
