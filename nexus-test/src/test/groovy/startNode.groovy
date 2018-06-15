@@ -18,12 +18,16 @@ def process = "$processDesc".execute();
 def t = new Thread({
     def exitCode = process.waitFor()
     log.info "Exit code: {}",exitCode
+    if(exitCode != 0) {
+        log.error process.err.text
+            
+    }
     countdownLatch.countDown()
 })
 
 t.start()
 
-countdownLatch.await(10,java.util.concurrent.TimeUnit.SECONDS)
+countdownLatch.await(30,java.util.concurrent.TimeUnit.SECONDS)
 
 
 
