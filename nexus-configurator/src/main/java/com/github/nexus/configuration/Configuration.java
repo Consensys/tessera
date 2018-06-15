@@ -1,5 +1,8 @@
 package com.github.nexus.configuration;
 
+import com.github.nexus.configuration.model.KeyData;
+
+import javax.json.JsonObject;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -9,7 +12,11 @@ public interface Configuration {
 
     List<String> publicKeys();
 
-    String privateKeys();
+    List<JsonObject> privateKeys();
+
+    List<String> passwords();
+
+    List<KeyData> keyData();
 
     String url();
 
