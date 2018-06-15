@@ -10,9 +10,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Provider
-public class TransactionNotFoundMapper implements ExceptionMapper<TransactionNotFoundException> {
+public class TransactionNotFoundExceptionMapper implements ExceptionMapper<TransactionNotFoundException> {
 
-    private static final Logger LOGGER = Logger.getLogger(TransactionNotFoundMapper.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(TransactionNotFoundExceptionMapper.class.getName());
 
     @Override
     public Response toResponse(TransactionNotFoundException e) {
