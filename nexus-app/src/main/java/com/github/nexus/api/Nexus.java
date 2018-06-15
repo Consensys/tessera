@@ -5,7 +5,10 @@ import com.github.nexus.service.locator.ServiceLocator;
 import javax.ws.rs.core.Application;
 import java.util.Objects;
 import java.util.Set;
+import javax.ws.rs.ApplicationPath;
 
+@Logged
+@ApplicationPath("/")
 public class Nexus extends Application {
     
     private final ServiceLocator serviceLocator;
