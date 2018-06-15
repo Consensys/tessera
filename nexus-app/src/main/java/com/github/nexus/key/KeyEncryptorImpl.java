@@ -11,8 +11,15 @@ import org.slf4j.LoggerFactory;
 
 import javax.json.JsonObject;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * An implementation of {@link KeyEncryptor} that uses Argon2
+ *
+ * The password is hashed using the generated/provided salt to generate a 32 byte hash
+ * This hash is then used as the symmetric key to encrypt the private key
+ */
 public class KeyEncryptorImpl implements KeyEncryptor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyEncryptorImpl.class);
@@ -34,14 +41,19 @@ public class KeyEncryptorImpl implements KeyEncryptor {
     @Override
     public JsonObject encryptPrivateKey(final Key privateKey, final String password) {
 
+        LOGGER.info("Encrypting a private key");
+
         LOGGER.debug("Encrypting private key {} using password {}", privateKey, password);
 
         final byte[] salt = new byte[KeyEncryptor.SALTLENGTH];
         secureRandom.nextBytes(salt);
 
+        LOGGER.debug("Generated the random salt {}", Arrays.toString(salt));
+
         final ArgonResult argonResult = argon2.hash(password, salt);
 
         final Nonce nonce = nacl.randomNonce();
+        LOGGER.debug("Generated the random nonce {}", nonce);
 
         final byte[] encryptedKey = nacl.sealAfterPrecomputation(
             privateKey.getKeyBytes(),
@@ -56,12 +68,17 @@ public class KeyEncryptorImpl implements KeyEncryptor {
             decoder.encodeToString(encryptedKey)
         );
 
+        LOGGER.info("Private key encrypted");
+
         return EncryptedPrivateKey.to(encryptedPrivateKey);
 
     }
 
     @Override
     public Key decryptPrivateKey(final JsonObject encryptedKey, final String password) {
+
+        LOGGER.info("Decrypting private key");
+        LOGGER.debug("Decrypting private key {} using password {}", encryptedKey.toString(), password);
 
         final EncryptedPrivateKey encryptedPrivateKey = EncryptedPrivateKey.from(encryptedKey);
 
@@ -74,6 +91,9 @@ public class KeyEncryptorImpl implements KeyEncryptor {
             new Nonce(decoder.decode(encryptedPrivateKey.getSnonce())),
             new Key(argonResult.getHash())
         );
+
+        LOGGER.info("Decrypting private key");
+        LOGGER.debug("Decrypted private key {}", new Key(originalKey));
 
         return new Key(originalKey);
     }

@@ -5,6 +5,10 @@ import com.github.nexus.argon2.ArgonOptions;
 import javax.json.Json;
 import javax.json.JsonObject;
 
+/**
+ * POJO encapsulating the structure of the "data" field in a private key
+ * when it as been encrypted using Argon2/NaCL
+ */
 public class EncryptedPrivateKey {
 
     private final ArgonOptions aopts;
@@ -41,6 +45,13 @@ public class EncryptedPrivateKey {
         return sbox;
     }
 
+    /**
+     * Reads a JSON Object that has the same structure as this class
+     * convenience method for marshalling
+     *
+     * @param json the json object that is expected to have the same properties as this class
+     * @return a populated object with the same properties as the input
+     */
     public static EncryptedPrivateKey from(final JsonObject json) {
 
         final JsonObject aopts = json.getJsonObject("aopts");
@@ -59,6 +70,12 @@ public class EncryptedPrivateKey {
 
     }
 
+    /**
+     * Writes to a JSON representation of this object, including nested objects
+     *
+     * @param epk the object to marshall
+     * @return a {@link JsonObject} with the fields populated using values from the given object
+     */
     public static JsonObject to(final EncryptedPrivateKey epk) {
 
         return Json.createObjectBuilder()
