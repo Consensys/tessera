@@ -15,6 +15,7 @@
 
     <dependencies>
 
+        
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>argon2</artifactId>
@@ -229,14 +230,76 @@
                 </executions>
             </plugin>
 
-           
+            <plugin>
+                <groupId>com.github.kongchen</groupId>
+                <artifactId>swagger-maven-plugin</artifactId>
+                <version>3.1.7</version>
+     
+                <configuration>
+                    <apiSources>
+                        <apiSource>
+                            <schemes>
+                                <scheme>http</scheme>
+                            </schemes>
+                            <host>localhost:8080</host>
+                            <basePath>/</basePath>
+                            <springmvc>false</springmvc>
+                            <info>
+                                <title>Nexus rest stuff</title>
+                                <version>${project.version}</version>
+                            </info>
+                            
+                            <locations>
+                                <location>com.github.nexus.api</location>
+                            </locations>
+                            <templatePath>${basedir}/src/main/swagger/strapdown.html.hbs</templatePath>
+                            <outputPath>${project.build.directory}/generated-resources/swagger/swagger.html</outputPath>
+                            <swaggerDirectory>${project.build.directory}/generated-resources/swagger</swaggerDirectory>
+                        </apiSource>
+                    </apiSources>
+                    
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            <resources>          
+                                <resource>
+                                    <directory>${project.build.directory}/generated-resources/swagger</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>              
+                        </configuration>            
+                    </execution>
+                </executions>
+            </plugin>
 
         </plugins>
     </build>
 
     
     <profiles>
-       <profile>
+        <profile>
             <id>jnacl</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
