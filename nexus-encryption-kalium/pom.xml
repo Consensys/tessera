@@ -13,7 +13,10 @@
 
     <artifactId>nexus-encryption-kalium</artifactId>
     <packaging>jar</packaging>
-
+  
+    <properties>
+        <maven.test.skip>true</maven.test.skip>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -40,5 +43,15 @@
 
 
     </dependencies>
-    <name>nexus-encryption-kalium</name>
+
+    
+    <profiles>
+        <profile>
+            <id>kalium</id>
+            <properties>
+                <maven.test.skip>false</maven.test.skip>
+            </properties>
+        </profile>
+    </profiles>
+    
 </project>

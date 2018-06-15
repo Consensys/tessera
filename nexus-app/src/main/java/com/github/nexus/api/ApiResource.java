@@ -1,5 +1,6 @@
 package com.github.nexus.api;
 
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -8,6 +9,7 @@ import javax.ws.rs.core.Response.Status;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+
 
 @Path("/api")
 public class ApiResource {
@@ -25,6 +27,7 @@ public class ApiResource {
         if (variant.getMediaType() == MediaType.APPLICATION_JSON_TYPE) {
             url = getClass().getResource("/swagger.json");
         } else if (variant.getMediaType() == MediaType.TEXT_HTML_TYPE) {
+
             url = getClass().getResource("/swagger.html");
         } else {
             return Response.status(Status.BAD_REQUEST).build();
