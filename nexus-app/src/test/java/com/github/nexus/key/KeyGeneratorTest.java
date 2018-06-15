@@ -2,8 +2,6 @@ package com.github.nexus.key;
 
 import com.github.nexus.TestConfiguration;
 import com.github.nexus.configuration.Configuration;
-import com.github.nexus.key.KeyGenerator;
-import com.github.nexus.key.KeyGeneratorImpl;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import com.github.nexus.nacl.NaclFacade;
@@ -11,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.JsonReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -37,6 +36,8 @@ public class KeyGeneratorTest {
 
     private NaclFacade nacl;
 
+    private KeyEncryptor keyEncryptor;
+
     private KeyGenerator generator;
 
     @Before
@@ -50,6 +51,7 @@ public class KeyGeneratorTest {
         this.keygenPath = Files.createTempDirectory(UUID.randomUUID().toString());
 
         this.nacl = mock(NaclFacade.class);
+        this.keyEncryptor = mock(KeyEncryptor.class);
 
         final Configuration configuration = new TestConfiguration(){
 
@@ -60,7 +62,7 @@ public class KeyGeneratorTest {
 
         };
 
-        this.generator = new KeyGeneratorImpl(nacl, configuration);
+        this.generator = new KeyGeneratorImpl(nacl, configuration, keyEncryptor);
 
     }
 
@@ -86,6 +88,32 @@ public class KeyGeneratorTest {
 
         assertThat(new Key(publicKey)).isEqualTo(keyPair.getPublicKey());
         assertThat(new Key(privateKey)).isEqualTo(keyPair.getPrivateKey());
+    }
+
+    @Test
+    public void generatingNewKeysWithPasswordCreatesCorrectJson() throws IOException {
+
+        final String keyName = "testkey";
+        final String password = "testpassword";
+
+        doReturn(keyPair).when(nacl).generateNewKeys();
+        doReturn(Json.createObjectBuilder().add("test", "obj").build())
+            .when(keyEncryptor)
+            .encryptPrivateKey(keyPair.getPrivateKey(), password);
+
+        generator.generateNewKeys(keyName, password);
+
+        final byte[] privateKeyJson = Files.readAllBytes(keygenPath.resolve("testkey.key"));
+
+        final JsonReader reader = Json.createReader(new StringReader(new String(privateKeyJson, UTF_8)));
+
+        final JsonObject expected = Json.createObjectBuilder()
+            .add("type", "argon2sbox")
+            .add("data", Json.createObjectBuilder().add("test", "obj"))
+            .build();
+
+        assertThat(reader.readObject()).isEqualTo(expected);
+
     }
 
     @Test
