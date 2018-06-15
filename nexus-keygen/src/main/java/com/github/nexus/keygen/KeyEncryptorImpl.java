@@ -1,17 +1,17 @@
-package com.github.nexus.key;
+package com.github.nexus.keygen;
 
 import com.github.nexus.argon2.Argon2;
 import com.github.nexus.argon2.ArgonResult;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.NaclFacade;
 import com.github.nexus.nacl.Nonce;
-import com.github.nexus.util.Base64Decoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.json.JsonObject;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Objects;
 
 /**
@@ -28,14 +28,15 @@ public class KeyEncryptorImpl implements KeyEncryptor {
 
     private final NaclFacade nacl;
 
-    private final Base64Decoder decoder;
+    private final Base64.Decoder decoder = Base64.getDecoder();
+
+    private final Base64.Encoder encoder = Base64.getEncoder();
 
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public KeyEncryptorImpl(final Argon2 argon2, final NaclFacade nacl, final Base64Decoder decoder) {
+    public KeyEncryptorImpl(final Argon2 argon2, final NaclFacade nacl) {
         this.argon2 = Objects.requireNonNull(argon2);
         this.nacl = Objects.requireNonNull(nacl);
-        this.decoder = Objects.requireNonNull(decoder);
     }
 
     @Override
@@ -63,9 +64,9 @@ public class KeyEncryptorImpl implements KeyEncryptor {
 
         final EncryptedPrivateKey encryptedPrivateKey = new EncryptedPrivateKey(
             argonResult.getOptions(),
-            decoder.encodeToString(nonce.getNonceBytes()),
-            decoder.encodeToString(salt),
-            decoder.encodeToString(encryptedKey)
+            encoder.encodeToString(nonce.getNonceBytes()),
+            encoder.encodeToString(salt),
+            encoder.encodeToString(encryptedKey)
         );
 
         LOGGER.info("Private key encrypted");

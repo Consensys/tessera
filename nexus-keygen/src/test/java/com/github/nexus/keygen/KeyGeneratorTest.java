@@ -1,12 +1,13 @@
-package com.github.nexus.key;
+package com.github.nexus.keygen;
 
-import com.github.nexus.TestConfiguration;
 import com.github.nexus.configuration.Configuration;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import com.github.nexus.nacl.NaclFacade;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -53,14 +54,8 @@ public class KeyGeneratorTest {
         this.nacl = mock(NaclFacade.class);
         this.keyEncryptor = mock(KeyEncryptor.class);
 
-        final Configuration configuration = new TestConfiguration(){
-
-            @Override
-            public Path keygenBasePath() {
-                return keygenPath;
-            }
-
-        };
+        final Configuration configuration = mock(Configuration.class);
+        doReturn(keygenPath).when(configuration).keygenBasePath();
 
         this.generator = new KeyGeneratorImpl(nacl, configuration, keyEncryptor);
 
@@ -97,7 +92,7 @@ public class KeyGeneratorTest {
         final String password = "testpassword";
 
         doReturn(keyPair).when(nacl).generateNewKeys();
-        doReturn(Json.createObjectBuilder().add("test", "obj").build())
+        Mockito.doReturn(Json.createObjectBuilder().add("test", "obj").build())
             .when(keyEncryptor)
             .encryptPrivateKey(keyPair.getPrivateKey(), password);
 
@@ -112,7 +107,7 @@ public class KeyGeneratorTest {
             .add("data", Json.createObjectBuilder().add("test", "obj"))
             .build();
 
-        assertThat(reader.readObject()).isEqualTo(expected);
+        Assertions.assertThat(reader.readObject()).isEqualTo(expected);
 
     }
 
