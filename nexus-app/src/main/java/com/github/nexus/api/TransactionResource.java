@@ -12,17 +12,19 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Base64;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Path("/")
+@Path("")
 public class TransactionResource {
 
-    private static final Logger LOGGER = Logger.getLogger(TransactionResource.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionResource.class);
 
     private final Enclave enclave;
+    
     private final Base64Decoder base64Decoder;
     
     public TransactionResource(final Enclave enclave,final Base64Decoder base64Decoder) {
@@ -32,7 +34,7 @@ public class TransactionResource {
 
     @POST
     @Path("/send")
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     public Response send(@Valid final SendRequest sendRequest) {
 
@@ -42,7 +44,7 @@ public class TransactionResource {
             Stream.of(sendRequest.getTo())
                 .map(x -> base64Decoder.decode(x))
                 .toArray(byte[][]::new);
-            
+
         byte[] payload = base64Decoder.decode(sendRequest.getPayload());
 
         byte[] key = enclave.store(from, recipients, payload).getHashBytes();
@@ -51,7 +53,7 @@ public class TransactionResource {
         SendResponse response = new SendResponse(encodedKey);
 
         return Response.status(Response.Status.CREATED)
-            .header("Content-Type", "application/json")
+            .header("Content-Type", MediaType.APPLICATION_JSON)
             .entity(response)
             .build();
 
@@ -59,7 +61,8 @@ public class TransactionResource {
 
     @POST
     @Path("/receive")
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes(value = {MediaType.APPLICATION_JSON})
+    @Produces(value = MediaType.APPLICATION_JSON)
     public Response receive(@Valid final ReceiveRequest receiveRequest) {
 
         byte[] key = base64Decoder.decode(receiveRequest.getKey());
@@ -73,7 +76,7 @@ public class TransactionResource {
         ReceiveResponse response = new ReceiveResponse(encodedPayload);
 
         return Response.status(Response.Status.CREATED)
-            .header("Content-Type", "application/json")
+            .header("Content-Type", MediaType.APPLICATION_JSON)
             .entity(response)
             .build();
 
@@ -81,7 +84,8 @@ public class TransactionResource {
 
     @POST
     @Path("/delete")
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces(MediaType.TEXT_PLAIN)
     public Response delete(@Valid final DeleteRequest deleteRequest) {
 
         byte[] hashBytes = base64Decoder.decode(deleteRequest.getKey());
@@ -96,7 +100,7 @@ public class TransactionResource {
 
     @POST
     @Path("/resend")
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON})
     public Response resend(@Valid final ResendRequest resendRequest) {
         String type = resendRequest.getType();
         byte[] publickey = Base64.getDecoder().decode(resendRequest.getPublicKey());
