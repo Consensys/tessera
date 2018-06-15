@@ -24,4 +24,6 @@ public interface Configuration {
 
     List<String> othernodes();
 
+    List<String> generatekeys();
+
 }
