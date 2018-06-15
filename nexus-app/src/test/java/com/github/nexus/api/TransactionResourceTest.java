@@ -1,6 +1,6 @@
 package com.github.nexus.api;
 
-import com.github.nexus.api.exception.DecodingException;
+import com.github.nexus.util.exception.DecodingException;
 import com.github.nexus.api.model.*;
 import com.github.nexus.enclave.Enclave;
 import com.github.nexus.enclave.model.MessageHash;
