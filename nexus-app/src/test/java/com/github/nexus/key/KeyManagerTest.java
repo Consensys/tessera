@@ -2,8 +2,7 @@ package com.github.nexus.key;
 
 import com.github.nexus.TestConfiguration;
 import com.github.nexus.configuration.Configuration;
-import com.github.nexus.key.KeyManager;
-import com.github.nexus.key.KeyManagerImpl;
+import com.github.nexus.configuration.model.KeyData;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import org.junit.Before;
@@ -15,9 +14,15 @@ import java.util.List;
 import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.*;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class KeyManagerTest {
 
@@ -26,6 +31,8 @@ public class KeyManagerTest {
     private static final String publicKey = "publicKey";
 
     private KeyPair keyPair;
+
+    private KeyEncryptor keyEncryptor;
 
     private KeyManager keyManager;
 
@@ -37,33 +44,31 @@ public class KeyManagerTest {
             new Key(privateKey.getBytes(UTF_8))
         );
 
-        final String privateKeyJson = Json.createObjectBuilder()
+        final JsonObject privateKeyJson = Json.createObjectBuilder()
             .add("type", "unlocked")
             .add("data", Json.createObjectBuilder().add("bytes", keyPair.getPrivateKey().toString()))
-            .build()
-            .toString();
+            .build();
 
         final Configuration configuration = new TestConfiguration(){
 
             @Override
-            public List<String> publicKeys() {
-                return singletonList(keyPair.getPublicKey().toString());
-            }
-
-            @Override
-            public String privateKeys() {
-                return privateKeyJson;
+            public List<KeyData> keyData() {
+                return singletonList(
+                    new KeyData(keyPair.getPublicKey().toString(), privateKeyJson, null)
+                );
             }
 
         };
 
-        this.keyManager = new KeyManagerImpl(configuration);
+        this.keyEncryptor = mock(KeyEncryptor.class);
+
+        this.keyManager = new KeyManagerImpl(keyEncryptor, configuration);
     }
 
     @Test
     public void initialisedWithNoKeys() {
 
-        this.keyManager = new KeyManagerImpl(new TestConfiguration());
+        this.keyManager = new KeyManagerImpl(keyEncryptor, new TestConfiguration());
 
         assertThat(keyManager).extracting("ourKeys").containsExactly(emptySet());
     }
@@ -111,7 +116,9 @@ public class KeyManagerTest {
             .add("data", Json.createObjectBuilder().add("bytes", keyPair.getPrivateKey().toString()))
             .build();
 
-        final KeyPair loaded = keyManager.loadKeypair(keyPair.getPublicKey().toString(), privateKeyJson);
+        final KeyData keyData = new KeyData(keyPair.getPublicKey().toString(), privateKeyJson, null);
+
+        final KeyPair loaded = keyManager.loadKeypair(keyData);
 
         assertThat(keyPair).isEqualTo(loaded);
     }
@@ -123,7 +130,9 @@ public class KeyManagerTest {
             .add("data", Json.createObjectBuilder().add("bytes", keyPair.getPrivateKey().toString()))
             .build();
 
-        final KeyPair loaded = keyManager.loadKeypair(keyPair.getPublicKey().toString(), privateKey);
+        final KeyData keyData = new KeyData(keyPair.getPublicKey().toString(), privateKey, null);
+
+        final KeyPair loaded = keyManager.loadKeypair(keyData);
 
         final Key publicKey = keyManager.getPublicKeyForPrivateKey(loaded.getPrivateKey());
 
@@ -131,24 +140,30 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void differentNumberOfKeysThrowsException() {
-        final JsonObject privateKey = Json.createObjectBuilder()
-            .add("type", "unlocked")
-            .add("data", Json.createObjectBuilder().add("bytes", keyPair.getPrivateKey().toString()))
-            .build();
-
-        final Throwable throwable = catchThrowable(() -> new KeyManagerImpl(emptyList(), singletonList(privateKey)));
-
-        assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("Initial key list sizes don't match");
-    }
-
-    @Test
-    public void testGetPublicKeys(){
-        Set<Key> publicKeys = keyManager.getPublicKeys();
+    public void getPublicKeysReturnsAllKeys(){
+        final Set<Key> publicKeys = keyManager.getPublicKeys();
 
         assertThat(publicKeys).isNotEmpty();
         assertThat(publicKeys.size()).isEqualTo(1);
         assertThat(publicKeys.iterator().next().getKeyBytes()).isEqualTo(publicKey.getBytes());
     }
+
+    @Test
+    public void loadingPrivateKeyWithPasswordCallsKeyEncryptor() {
+        final JsonObject privateKey = Json.createObjectBuilder()
+            .add("type", "argon2sbox")
+            .add("data", Json.createObjectBuilder().build())
+            .build();
+
+        final KeyData keyData = new KeyData(keyPair.getPublicKey().toString(), privateKey, "pass");
+
+        doReturn(new Key(new byte[]{})).when(keyEncryptor).decryptPrivateKey(any(JsonObject.class), eq("pass"));
+
+        keyManager.loadKeypair(keyData);
+
+        verify(keyEncryptor).decryptPrivateKey(any(JsonObject.class), eq("pass"));
+    }
+
+
 
 }

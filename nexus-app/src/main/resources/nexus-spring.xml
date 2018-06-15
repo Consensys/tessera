@@ -85,12 +85,24 @@
         <constructor-arg ref="nacl" />
     </bean>
 
+    <bean name="argon2" class="com.github.nexus.argon2.Argon2" factory-method="create" />
+
+    <bean name="keyEncryptor" class="com.github.nexus.key.KeyEncryptorImpl" >
+        <constructor-arg ref="argon2"/>
+        <constructor-arg ref="nacl"/>
+        <constructor-arg>
+            <bean class="com.github.nexus.util.Base64Decoder" factory-method="create" />
+        </constructor-arg>
+    </bean>
+
     <bean name="keyGenerator" class="com.github.nexus.key.KeyGeneratorImpl" >
         <constructor-arg ref="nacl" />
         <constructor-arg ref="config" />
+        <constructor-arg ref="keyEncryptor" />
     </bean>
 
     <bean name="keyManager" class="com.github.nexus.key.KeyManagerImpl">
+        <constructor-arg ref="keyEncryptor" />
         <constructor-arg ref="config" />
     </bean>
 
