@@ -3,9 +3,11 @@ def jarfile = properties['jarfile']
 
 def configFile = properties['configFile']
 
+def pidFile = properties['pidFile']
+
 log.info "$jarfile"
 
-def processDesc = "java -jar $jarfile -configfile $configFile"
+def processDesc = "java -Dnexus.pid.file=$pidFile -jar $jarfile -configfile $configFile"
 
 log.info "$processDesc"
 
@@ -14,7 +16,12 @@ def countdownLatch = new java.util.concurrent.CountDownLatch(1)
 def process = "$processDesc".execute();
 
 def t = new Thread({
-    process.waitFor()
+    def exitCode = process.waitFor()
+    log.info "Exit code: {}",exitCode
+    if(exitCode != 0) {
+        log.error process.err.text
+            
+    }
     countdownLatch.countDown()
 })
 

@@ -2,6 +2,8 @@ package com.github.nexus;
 
 import com.github.nexus.configuration.Configuration;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,8 +35,8 @@ public class TestConfiguration implements Configuration {
     }
 
     @Override
-    public String keygenBasePath() {
-        return "./";
+    public Path keygenBasePath() {
+        return Paths.get("./").toAbsolutePath();
     }
 
 }

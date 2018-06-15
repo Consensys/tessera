@@ -85,14 +85,18 @@
         <constructor-arg ref="nacl" />
     </bean>
 
-    <bean name="keyManager" class="com.github.nexus.keys.KeyManagerImpl">
+    <bean name="keyGenerator" class="com.github.nexus.key.KeyGeneratorImpl" >
         <constructor-arg ref="nacl" />
         <constructor-arg ref="config" />
     </bean>
 
+    <bean name="keyManager" class="com.github.nexus.key.KeyManagerImpl">
+        <constructor-arg ref="config" />
+    </bean>
+
     <util:constant id="cliArgs" static-field="com.github.nexus.Launcher.cliArgumentList"/>
-    <bean id="configParser" class="com.github.nexus.configuration.ConfigurationParser" factory-method="create" />
-    <bean id="config" class="com.github.nexus.configuration.Configuration" factory-bean="configParser" factory-method="config" >
+    <bean name="configParser" class="com.github.nexus.configuration.ConfigurationParser" factory-method="create" />
+    <bean name="config" class="com.github.nexus.configuration.Configuration" factory-bean="configParser" factory-method="config" >
         <constructor-arg>
             <bean class="com.github.nexus.configuration.PropertyLoader" factory-method="create" />
         </constructor-arg>
@@ -107,11 +111,11 @@
         
     <bean class="com.github.nexus.api.exception.DefaultExceptionMapper" />
     <bean class="com.github.nexus.api.exception.DecodingExceptionMapper"/>
-    <bean class="com.github.nexus.enclave.exception.KeyNotFoundExceptionMapper"/>
+    <bean class="com.github.nexus.key.exception.KeyNotFoundExceptionMapper"/>
     <bean class="com.github.nexus.api.exception.NotFoundExceptionMapper" />
 
     <bean id="dataSource" class="org.h2.jdbcx.JdbcDataSource">
-        <property name="url" value="jdbc:h2:./target/h2/nexus8082;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0" />
+        <property name="url" value="jdbc:h2:./target/h2/nexus;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0" />
         <property name="user" value="sa" />
         <property name="password" value="" />
     </bean>

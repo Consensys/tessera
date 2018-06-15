@@ -23,3 +23,8 @@
 /nexus-configurator/target/
 /nexus-test/target/
 /nexus-test/nb-configuration.xml
+/openapi-maven-plugin/target/
+/nexus-config/target/
+/nexus-configurator/nbproject/
+/nexus-configurator/nb-configuration.xml
+/argon2/target/
