@@ -43,10 +43,12 @@ public class Launcher {
         if (Objects.nonNull(pidFilePath)) {
            
             String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-            
-            
-            
-            Path filePath = Files.createFile(Paths.get(pidFilePath));
+
+            Path filePath = Paths.get(pidFilePath);
+            if(Files.deleteIfExists(filePath)) {
+                LOGGER.info("Deleted pid file {}",filePath);
+            }
+            Files.createFile(filePath);
             LOGGER.info("Creating pid file {}",filePath);
             try (OutputStream stream = Files.newOutputStream(filePath, 
                     StandardOpenOption.CREATE, 
