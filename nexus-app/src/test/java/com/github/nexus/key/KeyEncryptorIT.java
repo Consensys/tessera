@@ -3,14 +3,12 @@ package com.github.nexus.key;
 import com.github.nexus.argon2.Argon2;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.NaclFacade;
-import com.github.nexus.nacl.jnacl.Jnacl;
-import com.github.nexus.nacl.jnacl.JnaclSecretBox;
+import com.github.nexus.nacl.NaclFacadeFactory;
 import com.github.nexus.util.Base64Decoder;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.json.JsonObject;
-import java.security.SecureRandom;
 import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,7 +25,8 @@ public class KeyEncryptorIT {
 
     @Before
     public void init() {
-        final NaclFacade nacl = new Jnacl(new SecureRandom(), new JnaclSecretBox());
+
+        final NaclFacade nacl = NaclFacadeFactory.newFactory().create();
         final Argon2 argon2 = Argon2.create();
 
         this.privateKey = new Key(Base64.getDecoder().decode(pkeyBase64));
