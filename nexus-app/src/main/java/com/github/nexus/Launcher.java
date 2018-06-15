@@ -41,17 +41,19 @@ public class Launcher {
 
         String pidFilePath = System.getProperty("nexus.pid.file", null);
         if (Objects.nonNull(pidFilePath)) {
-           
+
             String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
 
-            Path filePath = Paths.get(pidFilePath);
-            if(Files.deleteIfExists(filePath)) {
-                LOGGER.info("Deleted pid file {}",filePath);
+            final Path filePath = Paths.get(pidFilePath);
+            if (Files.exists(filePath)) {
+                LOGGER.info("File already exists {}", filePath);
+            } else {
+                Files.createFile(filePath);
+                LOGGER.info("Creating pid file {}", filePath);
             }
-            Files.createFile(filePath);
-            LOGGER.info("Creating pid file {}",filePath);
-            try (OutputStream stream = Files.newOutputStream(filePath, 
-                    StandardOpenOption.CREATE, 
+
+            try (OutputStream stream = Files.newOutputStream(filePath,
+                    StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING)) {
                 stream.write(pid.getBytes(StandardCharsets.UTF_8));
             }
