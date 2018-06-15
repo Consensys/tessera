@@ -15,27 +15,48 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.UriBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class NexusIT  {
+public class NexusIT {
 
     public static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
-    
+
     private Client client = ClientBuilder.newClient();
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NexusIT.class);
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Before
+    public void beforeTest() {
+        LOGGER.info("Begin test: {}", testName.getMethodName());
+    }
+
+    @After
+    public void afterTest() {
+        LOGGER.info("After test: {}", testName.getMethodName());
+    }
 
     @Test
     public void sendSingleTransactionToSingleParty() {
 
-
         String sendRequest = Json.createObjectBuilder()
-            .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-            .add("to", Json.createArrayBuilder().add("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0="))
-            .add("payload", "Zm9v").build().toString();
+                .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+                .add("to", Json.createArrayBuilder().add("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0="))
+                .add("payload", "Zm9v").build().toString();
+
+        LOGGER.info("sendRequest: {}", sendRequest);
 
         javax.ws.rs.core.Response response = client.target(SERVER_URI)
-            .path("/send")
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-
+                .path("/send")
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
@@ -49,18 +70,19 @@ public class NexusIT  {
     @Test
     public void sendSingleTransactionToMultipleParties() {
         String sendRequest = Json.createObjectBuilder()
-            .add("from", "bXlwdWJsaWNrZXk=")
-            .add("to", Json.createArrayBuilder()
-                .add("cmVjaXBpZW50MQ==")
-                .add(Base64.getEncoder().encodeToString("HELLOW".getBytes()))
-            )
-            .add("payload", "Zm9v").build().toString();
+                .add("from", "bXlwdWJsaWNrZXk=")
+                .add("to", Json.createArrayBuilder()
+                        .add("cmVjaXBpZW50MQ==")
+                        .add(Base64.getEncoder().encodeToString("HELLOW".getBytes()))
+                )
+                .add("payload", "Zm9v").build().toString();
+
+        LOGGER.info("sendRequest: {}", sendRequest);
 
         javax.ws.rs.core.Response response = client.target(SERVER_URI)
-            .path("/send")
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-
+                .path("/send")
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
@@ -73,17 +95,18 @@ public class NexusIT  {
     @Test
     public void sendUnknownPublicKey() {
         String sendRequest = Json.createObjectBuilder()
-            .add("from", "bXlwdWJsaWNrZXk=")
-            .add("to", Json.createArrayBuilder()
-                .add(Base64.getEncoder().encodeToString("BOGUS".getBytes()))
-            )
-            .add("payload", "Zm9v").build().toString();
+                .add("from", "bXlwdWJsaWNrZXk=")
+                .add("to", Json.createArrayBuilder()
+                        .add(Base64.getEncoder().encodeToString("BOGUS".getBytes()))
+                )
+                .add("payload", "Zm9v").build().toString();
+
+        LOGGER.info("sendRequest: {}", sendRequest);
 
         javax.ws.rs.core.Response response = client.target(SERVER_URI)
-            .path("/send")
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-
+                .path("/send")
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(404);
@@ -96,9 +119,9 @@ public class NexusIT  {
         InputStream data = new ByteArrayInputStream("SOMEDATA".getBytes());
 
         javax.ws.rs.core.Response response = client.target(SERVER_URI)
-            .path("/partyinfo")
-            .request()
-            .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
+                .path("/partyinfo")
+                .request()
+                .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
@@ -107,13 +130,13 @@ public class NexusIT  {
     @Test
     public void upcheck() {
         javax.ws.rs.core.Response response = client.target(SERVER_URI)
-            .path("/upcheck")
-            .request()
-            .get();
+                .path("/upcheck")
+                .request()
+                .get();
 
         assertThat(response).isNotNull();
         assertThat(response.readEntity(String.class))
-            .isEqualTo("I'm up!");
+                .isEqualTo("I'm up!");
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
@@ -121,13 +144,13 @@ public class NexusIT  {
     public void requestVersion() {
 
         javax.ws.rs.core.Response response = client.target(SERVER_URI)
-            .path("/version")
-            .request()
-            .get();
+                .path("/version")
+                .request()
+                .get();
 
         assertThat(response).isNotNull();
         assertThat(response.readEntity(String.class))
-            .isEqualTo("No version defined yet!");
+                .isEqualTo("No version defined yet!");
         assertThat(response.getStatus()).isEqualTo(200);
 
     }

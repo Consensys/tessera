@@ -16,8 +16,8 @@ def countdownLatch = new java.util.concurrent.CountDownLatch(1)
 def process = "$processDesc".execute();
 
 def t = new Thread({
-    process.waitFor()
-
+    def exitCode = process.waitFor()
+    log.info "Exit code: {}",exitCode
     countdownLatch.countDown()
 })
 
