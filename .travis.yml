@@ -10,13 +10,5 @@ cache:
   directories:
   - "$HOME/.m2"
 
-addons:
-  apt:
-    sources:
-    - sourceline: ppa:chris-lea/libsodium
-    packages:
-    - libsodium-dev
-
 script:
 - mvn --batch-mode install
-- mvn --batch-mode install -Pkalium
