@@ -44,8 +44,10 @@ public class Launcher {
            
             String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
             
+            
+            
             Path filePath = Files.createFile(Paths.get(pidFilePath));
-
+            LOGGER.info("Creating pid file {}",filePath);
             try (OutputStream stream = Files.newOutputStream(filePath, 
                     StandardOpenOption.CREATE, 
                     StandardOpenOption.TRUNCATE_EXISTING)) {
@@ -54,7 +56,8 @@ public class Launcher {
         }
 
         Launcher.cliArgumentList = Arrays.asList(args);
-        final Configuration config = ConfigurationParser.create().config(PropertyLoader.create(), cliArgumentList);
+        final Configuration config = ConfigurationParser.create()
+                .config(PropertyLoader.create(), cliArgumentList);
 
         final URI serverUri = UriBuilder
                 .fromUri(config.url())

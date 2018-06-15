@@ -4,8 +4,12 @@ def pid = new File(pidFile).text
 
 log.info "Found Pid file :" + pidFile
 
-def processDesc = "kill $pid"
+def processDesc = "kill -9 $pid"
 
 log.info "Executing: {}", processDesc
 def process = processDesc.execute()
-log.info  "Executed: "+ processDesc +" with exit code: "+ process.waitFor()
+def exitCode = process.waitFor()
+log.info  "Executed: {} with exit code: {}", processDesc, exitCode
+if(exitCode != 0) {
+    log.error "{}",process.err.text
+}
