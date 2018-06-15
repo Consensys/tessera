@@ -114,7 +114,7 @@
     <bean class="com.github.nexus.api.exception.DecodingExceptionMapper"/>
     <bean class="com.github.nexus.api.exception.KeyNotFoundExceptionMapper"/>
     <bean class="com.github.nexus.api.exception.NotFoundExceptionMapper" />
-    <bean class="com.github.nexus.api.exception.TransactionNotFoundMapper"/>
+    <bean class="com.github.nexus.api.exception.TransactionNotFoundExceptionMapper"/>
 
     <bean class="com.github.nexus.api.ApiResource" />
     
