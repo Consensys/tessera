@@ -10,13 +10,16 @@ public class Nexus extends Application {
     
     private final ServiceLocator serviceLocator;
 
-    public Nexus(ServiceLocator serviceLocator) {
+    private final String contextName;
+
+    public Nexus(final ServiceLocator serviceLocator, final String contextName) {
         this.serviceLocator = Objects.requireNonNull(serviceLocator);
+        this.contextName = Objects.requireNonNull(contextName);
     }
     
     @Override
     public Set<Object> getSingletons() {
-       return serviceLocator.getServices();
+       return serviceLocator.getServices(contextName);
     }
     
 }
