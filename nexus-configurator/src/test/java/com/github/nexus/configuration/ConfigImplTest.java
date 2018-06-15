@@ -79,5 +79,17 @@ public class ConfigImplTest {
 
     }
 
+    @Test
+    public void emptyKeysAtEndReturnsCorrectAmount() {
+
+        final Properties configProperties = new Properties();
+        configProperties.put("passwords", "p1,p2,,");
+
+        final Configuration configuration = new ConfigurationImpl(configProperties);
+
+        assertThat(configuration.passwords()).hasSize(4);
+
+    }
+
 
 }

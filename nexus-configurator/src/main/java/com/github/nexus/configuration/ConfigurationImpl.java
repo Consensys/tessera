@@ -42,7 +42,7 @@ public class ConfigurationImpl implements Configuration {
 
     @Override
     public List<String> passwords() {
-        return Stream.of(properties.getProperty("passwords").split(",")).collect(Collectors.toList());
+        return Stream.of(properties.getProperty("passwords").split(",", -1)).collect(Collectors.toList());
     }
 
     @Override
