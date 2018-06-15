@@ -19,6 +19,7 @@ public interface PropertyLoader {
             addOption("port", "port", true, "port to listen for http requests on");
             addOption("othernodes", "othernodes", true, "initial set of other nodes");
             addOption("keygenBasePath", "keygenBasePath", true, "base path that generated keys should be placed");
+            addOption("generatekeys", "generatekeys", true, "key names to generate a public/private keypair for");
         }
     };
 
