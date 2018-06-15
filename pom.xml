@@ -187,6 +187,7 @@
         <module>argon2</module>
         <module>nexus-encryption-jnacl</module>
         <module>nexus-encryption-kalium</module>
+        <module>nexus-keygen</module>
     </modules>
 
     <dependencyManagement>
