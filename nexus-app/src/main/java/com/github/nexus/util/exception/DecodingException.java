@@ -1,4 +1,6 @@
-package com.github.nexus.api.exception;
+package com.github.nexus.util.exception;
+
+import com.github.nexus.exception.NexusException;
 
 public class DecodingException extends NexusException {
 
