@@ -185,6 +185,8 @@
         <module>nexus-configurator</module>
         <module>nexus-test</module>
         <module>argon2</module>
+        <module>nexus-encryption-jnacl</module>
+        <module>nexus-encryption-kalium</module>
     </modules>
 
     <dependencyManagement>
@@ -509,23 +511,6 @@
     </dependencies>
 
 
-    <profiles>
-        <profile>
-            <id>jnacl</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>nexus-encryption-jnacl</module>
-            </modules>
-        </profile>
-        
-        <profile>
-            <id>kalium</id>
-            <modules>
-                <module>nexus-encryption-kalium</module>
-            </modules>
-        </profile>
-    </profiles>
+
 
 </project>
