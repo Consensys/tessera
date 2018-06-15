@@ -11,8 +11,10 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 public class ConfigurationImpl implements Configuration {
 
@@ -58,7 +60,7 @@ public class ConfigurationImpl implements Configuration {
         return IntStream
             .range(0, passwords.size())
             .mapToObj(i -> new KeyData(publicKeys.get(i), privateKeys.get(i), passwords.get(i)))
-            .collect(Collectors.toList());
+            .collect(toList());
     }
 
     @Override
@@ -78,6 +80,9 @@ public class ConfigurationImpl implements Configuration {
 
     @Override
     public List<String> generatekeys() {
-        return Arrays.asList(properties.getProperty("generatekeys").split(","));
+        return Stream
+            .of(properties.getProperty("generatekeys").split(","))
+            .filter(str -> !str.isEmpty())
+            .collect(toList());
     }
 }
