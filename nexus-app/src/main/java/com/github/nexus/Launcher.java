@@ -14,8 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -48,18 +46,8 @@ public class Launcher {
 
         final RestServer restServer = RestServerFactory.create().createServer(serverUri, nexus);
 
-        //TODO: TEMPORARY
-        System.out.println("Printing out CLASSPATH:");
-        ClassLoader cl = ClassLoader.getSystemClassLoader();
-        URL[] urls = ((URLClassLoader)cl).getURLs();
-        for(URL url: urls){
-            System.out.println(url.getFile());
-        }
-
-        //TODO: decouple from the implementation
         final SocketServer socketServer = new SocketServer();
-        socketServer.start();
-        
+
         CountDownLatch countDown = new CountDownLatch(1);
         
         Runtime.getRuntime().addShutdownHook(new Thread() {

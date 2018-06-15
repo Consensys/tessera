@@ -1,5 +1,6 @@
 package com.github.nexus;
 
+import com.github.nexus.socket.HttpProxy;
 import com.github.nexus.socket.UnixDomainServerSocket;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -10,6 +11,7 @@ import org.newsclub.net.unix.AFUNIXServerSocket;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -26,20 +28,6 @@ public class UnixDomainServerSocketTest {
 
     @After
     public void tearDown() {
-    }
-
-    @Ignore
-    public void testItAll() throws IOException {
-        UnixDomainServerSocket uds1 = new UnixDomainServerSocket();
-        uds1.create("/tmp", "tst1.ipc");
-        uds1.connect();
-
-        //write on serverUds
-        uds1.write(new String("wrote message on serverUds"));
-
-        //read it back
-        String line = uds1.read();
-        System.out.println("Received message: " + line);
     }
 
     @Test

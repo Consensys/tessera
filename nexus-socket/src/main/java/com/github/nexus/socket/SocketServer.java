@@ -8,6 +8,8 @@ import java.io.IOException;
 /**
  * Create a server listening on a Unix Domain Socket and processing http requests
  * received over the socket.
+ * The http requests are sent to the local http server, and responses are sent
+ * back to the socket.
  */
 public class SocketServer extends Thread {
 
@@ -24,6 +26,7 @@ public class SocketServer extends Thread {
     public SocketServer() {
 
         serverUds = new UnixDomainServerSocket();
+//        serverUds.create("/home/vagrant/quorum-examples/7nodes/qdata/c1/", "tm.ipc");
         serverUds.create("/tmp", "tst1.ipc");
 
         this.start();
