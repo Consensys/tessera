@@ -107,28 +107,26 @@ public class HttpProxy {
 
         try {
             int contentLength = 0;
-            StringBuilder header = new StringBuilder();
+            StringBuilder response = new StringBuilder();
             String line;
             while ((line = httpReader.readLine()) != null && !line.equals("")) {
                 LOGGER.debug("Received HTTP line: {}", line);
 
-                header.append(line + "\n");
+                response.append(line + "\n");
                 if (line.contains("Content-Length")) {
                     contentLength = getContentLength(line);
                 }
             }
-            header.append("\n");
-            LOGGER.debug("Received HTTP header {}", header);
+            response.append("\n");
+            LOGGER.debug("Received HTTP header {}", response);
             LOGGER.debug("Reading HTTP data ({} bytes)", contentLength);
 
-            StringBuilder data = new StringBuilder();
             char[] arr = new char[contentLength];
             httpReader.read(arr, 0, arr.length);
-            data.append(arr);
-            LOGGER.debug("Received HTTP data: {}", data.toString());
+            response.append(arr);
 
-            LOGGER.info("Received HTTP response: {}", header.toString() + data.toString());
-            return header.toString() + data.toString();
+            LOGGER.info("Received HTTP response: {}", response.toString());
+            return response.toString();
 
         } catch (IOException ex) {
             LOGGER.error("Failed to read from HTTP server");
