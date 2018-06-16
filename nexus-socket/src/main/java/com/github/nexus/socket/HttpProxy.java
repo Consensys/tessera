@@ -6,8 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.*;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Proxy that acts as an interface to an HTTP Server.
@@ -83,56 +81,12 @@ public class HttpProxy {
     }
 
     /**
-     * Parse an HTTP header content-length line to get the value.
-     */
-    protected static int getContentLength(String headerLine) {
-
-        Pattern pattern = Pattern.compile("\\d+");
-        Matcher matcher = pattern.matcher(headerLine);
-
-        if (matcher.find()) {
-            String lengthStr = matcher.group();
-
-            return Integer.valueOf(lengthStr);
-        }
-
-        return 0;
-    }
-
-    /**
      * Read response from the http connection.
      * Note that an http response will consist of multiple lines.
      */
     public String getResponse() {
 
-        try {
-            int contentLength = 0;
-            StringBuilder response = new StringBuilder();
-            String line;
-            while ((line = httpReader.readLine()) != null && !line.equals("")) {
-                LOGGER.debug("Received HTTP line: {}", line);
-
-                response.append(line + "\n");
-                if (line.contains("Content-Length")) {
-                    contentLength = getContentLength(line);
-                }
-            }
-            response.append("\n");
-            LOGGER.debug("Received HTTP header {}", response);
-            LOGGER.debug("Reading HTTP data ({} bytes)", contentLength);
-
-            char[] arr = new char[contentLength];
-            httpReader.read(arr, 0, arr.length);
-            response.append(arr);
-
-            LOGGER.info("Received HTTP response: {}", response.toString());
-            return response.toString();
-
-        } catch (IOException ex) {
-            LOGGER.error("Failed to read from HTTP server");
-            throw new RuntimeException(ex);
-        }
-
+        return HttpMessageUtils.getHttpMessage(httpReader);
     }
 
     /**
