@@ -85,7 +85,7 @@ public class HttpProxy {
     /**
      * Parse an HTTP header content-length line to get the value.
      */
-    public static int getContentLength(String headerLine) {
+    protected static int getContentLength(String headerLine) {
 
         Pattern pattern = Pattern.compile("\\d+");
         Matcher matcher = pattern.matcher(headerLine);
@@ -110,7 +110,7 @@ public class HttpProxy {
             StringBuilder header = new StringBuilder();
             String line;
             while ((line = httpReader.readLine()) != null && !line.equals("")) {
-                LOGGER.info("Received HTTP line: {}", line);
+                LOGGER.debug("Received HTTP line: {}", line);
 
                 header.append(line + "\n");
                 if (line.contains("Content-Length")) {
@@ -118,15 +118,16 @@ public class HttpProxy {
                 }
             }
             header.append("\n");
-            LOGGER.info("Received HTTP header {}", header);
-            LOGGER.info("Reading HTTP data ({} bytes)", contentLength);
+            LOGGER.debug("Received HTTP header {}", header);
+            LOGGER.debug("Reading HTTP data ({} bytes)", contentLength);
 
             StringBuilder data = new StringBuilder();
             char[] arr = new char[contentLength];
             httpReader.read(arr, 0, arr.length);
             data.append(arr);
-            LOGGER.info("Received HTTP data: {}", data.toString());
+            LOGGER.debug("Received HTTP data: {}", data.toString());
 
+            LOGGER.info("Received HTTP response: {}", header.toString() + data.toString());
             return header.toString() + data.toString();
 
         } catch (IOException ex) {
