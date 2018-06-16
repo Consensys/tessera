@@ -4,13 +4,13 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("/upcheck")
 public class UpCheckResource {
 
-    private static final Logger LOGGER = Logger.getLogger(UpCheckResource.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpCheckResource.class);
 
     private static final String UPCHECK_RESPONSE = "I'm up!";
 
@@ -23,7 +23,7 @@ public class UpCheckResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String upCheck() {
-        LOGGER.log(Level.INFO,"GET upcheck");
+        LOGGER.info("GET upcheck");
 
         return UPCHECK_RESPONSE;
     }
