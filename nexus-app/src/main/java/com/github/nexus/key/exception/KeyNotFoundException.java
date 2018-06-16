@@ -1,6 +1,6 @@
 package com.github.nexus.key.exception;
 
-import com.github.nexus.api.exception.NexusException;
+import com.github.nexus.exception.NexusException;
 
 public class KeyNotFoundException extends NexusException {
 
