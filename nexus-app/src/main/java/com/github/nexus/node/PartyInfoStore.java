@@ -6,7 +6,6 @@ import com.github.nexus.node.model.PartyInfo;
 import com.github.nexus.node.model.Recipient;
 
 import java.util.Collections;
-import java.util.Objects;
 import java.util.Set;
 
 public class PartyInfoStore {
@@ -15,7 +14,7 @@ public class PartyInfoStore {
 
     public PartyInfoStore(final Configuration configuration) {
 
-        final String advertisedUrl = configuration.url() + ":" + Objects.toString(configuration.port());
+        final String advertisedUrl = configuration.uri().toString();
 
         this.partyInfo = new PartyInfo(advertisedUrl, Collections.emptySet(), Collections.emptySet());
     }

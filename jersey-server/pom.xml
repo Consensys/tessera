@@ -62,6 +62,13 @@
             <artifactId>jul-to-slf4j</artifactId>
             <scope>compile</scope>
         </dependency>
+        
+        
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>
