@@ -30,7 +30,7 @@ public class PartyInfoStoreTest {
     @Test
     public void registeringSamePublicKeyTwice() {
 
-        final String ourUrl = this.configuration.url() + ":" + this.configuration.port();
+        final String ourUrl = this.configuration.uri().toString();
 
         final Set<Recipient> ourKeys = singleton(
             new Recipient(new Key("some-key".getBytes()), ourUrl)

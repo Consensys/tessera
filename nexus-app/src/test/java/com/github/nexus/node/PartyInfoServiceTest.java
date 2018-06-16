@@ -36,7 +36,7 @@ public class PartyInfoServiceTest {
 
     private KeyManager keyManager;
 
-    private static final String url = "http://localhost";
+    private static final String uri = "http://localhost:8080";
 
     @Before
     public void init() {
@@ -61,7 +61,7 @@ public class PartyInfoServiceTest {
     @Test
     public void initialPartiesCorrectlyReadFromConfiguration() {
 
-        final PartyInfo partyInfo = new PartyInfo(url, emptySet(), singleton(new Party("http://other-node.com:8080")));
+        final PartyInfo partyInfo = new PartyInfo(uri, emptySet(), singleton(new Party("http://other-node.com:8080")));
         doReturn(partyInfo).when(partyInfoStore).getPartyInfo();
 
         final Set<Party> initialParties = partyInfoService.getPartyInfo().getParties();
@@ -70,7 +70,7 @@ public class PartyInfoServiceTest {
 
         assertThat(initialParties).hasSize(1).containsExactly(new Party("http://other-node.com:8080"));
         assertThat(initialRecipients).hasSize(0);
-        assertThat(ourUrl).isEqualTo(url);
+        assertThat(ourUrl).isEqualTo(uri);
 
         verify(partyInfoStore, times(2)).store(any(PartyInfo.class));
         verify(partyInfoStore, times(3)).getPartyInfo();
@@ -81,21 +81,17 @@ public class PartyInfoServiceTest {
     @Test
     public void registeringPublicKeysUsesOurUrl() {
 
-        final String ourUrl = this.configuration.url();
-//        final Set<Key> ourPublicKeys = new Key[]{
-//            new Key("some-key".getBytes()),
-//            new Key("another-public-key".getBytes())
-//        };
+        final String ourUrl = this.configuration.uri().toString();
 
         final Set<Key> ourPublicKeys2 = new HashSet<>();
         ourPublicKeys2.add(new Key("some-key".getBytes()));
         ourPublicKeys2.add(new Key("another-public-key".getBytes()));
 
         final PartyInfo partyInfo = new PartyInfo(
-            url,
+            uri,
             Stream.of(
-                new Recipient(new Key("some-key".getBytes()), url),
-                new Recipient(new Key("another-public-key".getBytes()), url)
+                new Recipient(new Key("some-key".getBytes()), uri),
+                new Recipient(new Key("another-public-key".getBytes()), uri)
             ).collect(toSet()),
             emptySet()
         );
@@ -146,7 +142,7 @@ public class PartyInfoServiceTest {
     public void getRecipientURLFromPartyInfoStore(){
         verify(partyInfoStore, times(2)).store(any());
         Recipient recipient = new Recipient(new Key("key".getBytes()),"someurl");
-        PartyInfo partyInfo = new PartyInfo(url, Collections.singleton(recipient), emptySet());
+        PartyInfo partyInfo = new PartyInfo(uri, Collections.singleton(recipient), emptySet());
         when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
 
         assertThat(partyInfoService.getURLFromRecipientKey(new Key("key".getBytes()))).isEqualTo("someurl");
