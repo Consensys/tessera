@@ -1,6 +1,5 @@
 package com.github.nexus;
 
-import com.github.nexus.socket.HttpProxy;
 import com.github.nexus.socket.UnixDomainServerSocket;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -11,7 +10,6 @@ import org.newsclub.net.unix.AFUNIXServerSocket;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;

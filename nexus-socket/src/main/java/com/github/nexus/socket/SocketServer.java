@@ -1,51 +1,104 @@
 package com.github.nexus.socket;
 
+import com.github.nexus.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Create a server listening on a Unix Domain Socket and processing http requests
  * received over the socket.
  * The http requests are sent to the local http server, and responses are sent
  * back to the socket.
+ * TODO: if client disconects then we don't listen for a reconnect
+ * TODO: should possibly allow multiple clients to connect
  */
 public class SocketServer extends Thread {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SocketServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SocketServer.class);;
 
-    UnixDomainServerSocket serverUds;
+    private final UnixDomainServerSocket serverUds;
 
-    private UnixDomainServerSocket serverSocket;
+    private HttpProxy httpProxy;
 
     /**
-     * Initialize the streams and start the thread
-     * TODO: should pull the hard-coded details from config.
+     * Create the unix domain socket and start the listener thread.
      */
-    public SocketServer() {
+    public SocketServer(Configuration config, HttpProxy httpProxy) {
+
+        Objects.requireNonNull(config);
+        Objects.requireNonNull(httpProxy);
+
+        this.httpProxy = httpProxy;
 
         serverUds = new UnixDomainServerSocket();
-//        serverUds.create("/home/vagrant/quorum-examples/7nodes/qdata/c1/", "tm.ipc");
-        serverUds.create("/tmp", "tst1.ipc");
+        serverUds.create(config.workdir(), config.socket());
 
         this.start();
     }
 
+    /**
+     * Get a connection to the HTTP Server, then loop forever, servicing socket requests.
+     */
     public void run() {
+
+        connectToHttpServer();
+
+        while (true) {
+            serveSocketRequest();
+        }
+
+    }
+
+    /**
+     * Get a connection to the HTTP Server.
+     */
+    public void connectToHttpServer() {
+
+        // Need to wait until we connect to the HTTP server
+        boolean connected = false;
+        while (!connected) {
+            LOGGER.info("Attempting connection to HTTP server...");
+            connected = httpProxy.connect();
+
+            try {
+                Thread.sleep(5 * 1000);
+            } catch (InterruptedException ex) {
+                LOGGER.info("Interrupted - exiting");
+                return;
+            }
+        }
+        LOGGER.info("Connected to HTTP server");
+
+    }
+
+    /**
+     * Listen for a client connection, then act as the interface to the HTTP proxy for this request.
+     * Note that Quorum opens a new connection for each request.
+     */
+    public void serveSocketRequest() {
+
         try {
-            //wait for a client to connect
-            System.out.println("Waiting for client connection...");
+            //wait for a client to connect to the socket
+            LOGGER.info("Waiting for client connection on unix domain socket...");
             serverUds.connect();
-            System.out.println("Client connection received");
+            LOGGER.info("Client connection received");
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
 
-        while (true) {
-            String line = serverUds.read();
-            LOGGER.info("Received message: {}", line);
-        }
+        //Read the request from the socket and send it to the HTTP server
+        String message = serverUds.read();
+        LOGGER.info("Received message on socket: {}", message);
+        httpProxy.sendRequest(new String(message));
+
+        //Return the HTTP response to the socket
+        String response = httpProxy.getResponse();
+        LOGGER.info("Received http response: {}", response);
+        serverUds.write(response);
+
     }
 
 }

@@ -18,6 +18,8 @@ public interface PropertyLoader {
             addOption("port", "port", true, "port to listen for http requests on");
             addOption("othernodes", "othernodes", true, "initial set of other nodes");
             addOption("keygenBasePath", "keygenBasePath", true, "base path that generated keys should be placed");
+            addOption("workdir", "workdir", true, "directory where work files are placed (must match value specified to Quorum)");
+            addOption("socket", "socket", true, "IPC socket to create for access to the Private API");
         }
     };
 

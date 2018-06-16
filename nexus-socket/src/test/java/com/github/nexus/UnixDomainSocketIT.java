@@ -55,7 +55,7 @@ public class UnixDomainSocketIT {
                 throw new RuntimeException(ex);
             }
 
-            //write to client
+            //sendRequest to client
             serverUds.write(SERVER_MESSAGE_SENT);
 
             //read response back

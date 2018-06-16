@@ -17,4 +17,8 @@ public interface Configuration {
 
     List<String> othernodes();
 
+    String workdir();
+
+    String socket();
+
 }
