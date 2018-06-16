@@ -15,7 +15,8 @@
 
     <dependencies>
 
-        
+        <!-- Nexus modules -->
+
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>argon2</artifactId>
@@ -31,8 +32,15 @@
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-encryption</artifactId>
         </dependency>
-        
-        
+
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-keygen</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+
+
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>
@@ -234,7 +242,7 @@
                 <groupId>com.github.kongchen</groupId>
                 <artifactId>swagger-maven-plugin</artifactId>
                 <version>3.1.7</version>
-     
+
                 <configuration>
                     <apiSources>
                         <apiSource>
@@ -248,7 +256,7 @@
                                 <title>Nexus rest stuff</title>
                                 <version>${project.version}</version>
                             </info>
-                            
+
                             <locations>
                                 <location>com.github.nexus.api</location>
                             </locations>
@@ -257,7 +265,7 @@
                             <swaggerDirectory>${project.build.directory}/generated-resources/swagger</swaggerDirectory>
                         </apiSource>
                     </apiSources>
-                    
+
                 </configuration>
 
                 <executions>
@@ -283,13 +291,13 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                            <resources>          
+                            <resources>
                                 <resource>
                                     <directory>${project.build.directory}/generated-resources/swagger</directory>
                                     <filtering>false</filtering>
                                 </resource>
-                            </resources>              
-                        </configuration>            
+                            </resources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

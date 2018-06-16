@@ -1,4 +1,4 @@
-package com.github.nexus.key;
+package com.github.nexus.keygen;
 
 import com.github.nexus.configuration.Configuration;
 import com.github.nexus.nacl.KeyPair;
