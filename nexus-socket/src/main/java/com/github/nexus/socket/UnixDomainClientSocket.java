@@ -63,7 +63,7 @@ public class UnixDomainClientSocket {
 
     public void write(String payload) {
 
-        Objects.requireNonNull(socket, "No client connection to sendRequest to");
+        Objects.requireNonNull(socket, "No client connection to write to");
 
         try (OutputStream os = socket.getOutputStream()) {
 

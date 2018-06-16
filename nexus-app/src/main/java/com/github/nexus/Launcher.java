@@ -11,7 +11,7 @@ import com.github.nexus.service.locator.ServiceLocator;
 import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 
-import com.github.nexus.socket.HttpProxy;
+import com.github.nexus.socket.HttpProxyFactory;
 import com.github.nexus.socket.SocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +77,7 @@ public class Launcher {
         final RestServer restServer = RestServerFactory.create().createServer(serverUri, nexus);
 
         // Start a listener on the unix domain socket, that attaches to the HTTP server
-        final SocketServer socketServer = new SocketServer(config, new HttpProxy(serverUri));
+        final SocketServer socketServer = new SocketServer(config, new HttpProxyFactory(), serverUri);
 
         CountDownLatch countDown = new CountDownLatch(1);
 
