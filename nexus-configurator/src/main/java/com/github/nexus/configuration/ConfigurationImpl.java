@@ -5,7 +5,9 @@ import com.github.nexus.configuration.model.KeyData;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
+import javax.ws.rs.core.UriBuilder;
 import java.io.StringReader;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -71,6 +73,11 @@ public class ConfigurationImpl implements Configuration {
     @Override
     public int port() {
         return Integer.valueOf(properties.getProperty("port"));
+    }
+
+    @Override
+    public URI uri() {
+        return UriBuilder.fromUri(url()).port(port()).build();
     }
 
     @Override

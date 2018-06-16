@@ -4,13 +4,14 @@ import com.github.nexus.api.Nexus;
 import com.github.nexus.configuration.Configuration;
 import com.github.nexus.configuration.ConfigurationParser;
 import com.github.nexus.configuration.PropertyLoader;
+import com.github.nexus.keygen.KeyGenerator;
+import com.github.nexus.keygen.KeyGeneratorFactory;
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
 import com.github.nexus.service.locator.ServiceLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
@@ -38,8 +39,6 @@ public class Launcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Launcher.class);
 
-    public static final URI SERVER_URI = UriBuilder.fromUri("http://0.0.0.0/").port(8080).build();
-
     public static void main(final String... args) throws Exception {
 
         Launcher.createPidFile();
@@ -49,11 +48,19 @@ public class Launcher {
             .create()
             .config(PropertyLoader.create(), cliArgumentList);
 
-        final URI serverUri = UriBuilder
-                .fromUri(config.url())
-                .port(config.port())
-                .build();
+        if(config.generatekeys().isEmpty()) {
+            //no keys to generate
+            runWebServer(config.uri());
+        } else {
+            //keys to generate
+            final KeyGenerator keyGenerator = KeyGeneratorFactory.create(config);
+            config.generatekeys().forEach(name -> keyGenerator.promptForGeneration(name, System.in));
+        }
 
+        System.exit(0);
+    }
+
+    private static void runWebServer(final URI serverUri) throws Exception {
         final Nexus nexus = new Nexus(ServiceLocator.create(), "nexus-spring.xml");
 
         final RestServer restServer = RestServerFactory.create().createServer(serverUri, nexus);
@@ -73,8 +80,6 @@ public class Launcher {
         restServer.start();
 
         countDown.await();
-
-        System.exit(0);
     }
 
     private static void createPidFile() throws IOException {
