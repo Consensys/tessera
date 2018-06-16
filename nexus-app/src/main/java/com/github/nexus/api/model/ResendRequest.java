@@ -2,15 +2,15 @@ package com.github.nexus.api.model;
 
 public class ResendRequest {
 
-    private String type;
+    private ResendRequestType type;
     private String publicKey;
     private String key;
 
-    public String getType() {
+    public ResendRequestType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(ResendRequestType type) {
         this.type = type;
     }
 

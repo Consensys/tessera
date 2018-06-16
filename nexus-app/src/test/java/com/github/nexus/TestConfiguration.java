@@ -4,6 +4,8 @@ import com.github.nexus.configuration.Configuration;
 import com.github.nexus.configuration.model.KeyData;
 
 import javax.json.JsonObject;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -40,6 +42,11 @@ public class TestConfiguration implements Configuration {
     @Override
     public int port() {
         return 8080;
+    }
+
+    @Override
+    public URI uri() {
+        return UriBuilder.fromUri(url()).port(port()).build();
     }
 
     @Override
