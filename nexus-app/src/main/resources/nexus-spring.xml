@@ -109,13 +109,14 @@
         
     <bean class="com.github.nexus.api.exception.DefaultExceptionMapper" />
     <bean class="com.github.nexus.api.exception.DecodingExceptionMapper"/>
-    <bean class="com.github.nexus.key.exception.KeyNotFoundExceptionMapper"/>
+    <bean class="com.github.nexus.api.exception.KeyNotFoundExceptionMapper"/>
     <bean class="com.github.nexus.api.exception.NotFoundExceptionMapper" />
+    <bean class="com.github.nexus.api.exception.TransactionNotFoundExceptionMapper"/>
 
     <bean class="com.github.nexus.api.ApiResource" />
     
     <bean id="dataSource" class="org.h2.jdbcx.JdbcDataSource">
-        <property name="url" value="jdbc:h2:./target/h2/nexus;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0" />
+        <property name="url" value="jdbc:h2:./target/h2/nexus8082;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0" />
         <property name="user" value="sa" />
         <property name="password" value="" />
     </bean>
