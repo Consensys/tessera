@@ -1,10 +1,12 @@
 package com.github.nexus.api.exception;
 
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Response;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Response;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NotFoundExceptionMapperTest {
     
@@ -22,7 +24,7 @@ public class NotFoundExceptionMapperTest {
     @Test
     public void toResponse() {
         
-        String message = "What are you talking aboit Willis?!?";
+        String message = "What are you talking about Willis?!?";
         NotFoundException exception = new NotFoundException(message);
         Response response = mapper.toResponse(exception);
         
