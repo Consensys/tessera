@@ -1,21 +1,23 @@
 package com.github.nexus.api.exception;
 
+
 import com.github.nexus.util.exception.DecodingException;
+
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Provider
 public class DecodingExceptionMapper implements ExceptionMapper<DecodingException> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DecodingExceptionMapper.class);
+    private static final Logger LOGGER = Logger.getLogger(DecodingExceptionMapper.class.getName());
 
     @Override
     public Response toResponse(DecodingException e) {
-        LOGGER.error("",e);
+        LOGGER.log(Level.SEVERE, "",e);
 
         return Response.status(Response.Status.BAD_REQUEST)
                 .entity(e.getMessage())

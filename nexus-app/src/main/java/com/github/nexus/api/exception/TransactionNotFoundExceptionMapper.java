@@ -6,17 +6,17 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Provider
 public class TransactionNotFoundExceptionMapper implements ExceptionMapper<TransactionNotFoundException> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionNotFoundExceptionMapper.class);
+    private static final Logger LOGGER = Logger.getLogger(TransactionNotFoundExceptionMapper.class.getName());
 
     @Override
     public Response toResponse(TransactionNotFoundException e) {
-        LOGGER.error("",e);
+        LOGGER.log(Level.SEVERE, "",e);
 
         return Response.status(Response.Status.BAD_REQUEST)
             .entity(e.getMessage())
