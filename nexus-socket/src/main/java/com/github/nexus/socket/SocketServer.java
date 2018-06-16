@@ -9,12 +9,9 @@ import java.net.URI;
 import java.util.Objects;
 
 /**
- * Create a server listening on a Unix Domain Socket and processing http requests
- * received over the socket.
- * The http requests are sent to the local http server, and responses are sent
- * back to the socket.
- * TODO: if client disconects then we don't listen for a reconnect
- * TODO: should possibly allow multiple clients to connect
+ * Create a server listening on a Unix Domain Socket for http requests.
+ * We create a connection to an HTTP server, and act as a proxy between the socket and the HTTP server.
+ * TODO: should possibly support connections from multiple clients
  */
 public class SocketServer extends Thread {
 
@@ -47,7 +44,7 @@ public class SocketServer extends Thread {
     }
 
     /**
-     * Get a connection to the HTTP Server, then loop forever, servicing socket requests.
+     * Run forever, servicing requests received on the socket.
      */
     public void run() {
 
@@ -58,13 +55,48 @@ public class SocketServer extends Thread {
     }
 
     /**
+     * Wait for a client connection, then:
+     * - create a connection to the HTTP server
+     * - read the client HTTP request and forward it to the HTTP server
+     * - read the HTTP response and return it to the client
+     * Note that Quorum opens a new client connection for each request.
+     */
+    private void serveSocketRequest() {
+
+        try {
+            LOGGER.info("Waiting for client connection on unix domain socket...");
+            serverUds.connect();
+            LOGGER.info("Client connection received");
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        //Get a connection to the HTTP server.
+        if (createHttpServerConnection()) {
+
+            //Read the request from the socket and send it to the HTTP server
+            String message = serverUds.read();
+            LOGGER.info("Received message on socket: {}", message);
+            httpProxy.sendRequest(new String(message));
+
+            //Return the HTTP response to the socket
+            String response = httpProxy.getResponse();
+            LOGGER.info("Received http response: {}", response);
+            serverUds.write(response);
+
+            cleanupHttpServerConnection();
+        }
+
+    }
+
+    /**
      * Get a connection to the HTTP Server.
      */
-    public void createHttpServerConnection() {
+    private boolean createHttpServerConnection() {
 
         httpProxy = httpProxyFactory.create(serverUri);
 
-        // Need to wait until we connect to the HTTP server
+        // TODO: add configurable number of attempts, instead of looping forever
         boolean connected = false;
         while (!connected) {
             LOGGER.info("Attempting connection to HTTP server...");
@@ -74,42 +106,19 @@ public class SocketServer extends Thread {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
                 LOGGER.info("Interrupted - exiting");
-                return;
+                return false;
             }
         }
         LOGGER.info("Connected to HTTP server");
 
+        return true;
     }
 
     /**
-     * Listen for a client connection, then act as the interface to the HTTP proxy for this request.
-     * Note that Quorum opens a new connection for each request.
+     * Clean up the connection to the HTTP Server.
      */
-    public void serveSocketRequest() {
-
-        try {
-            //wait for a client to connect to the socket
-            LOGGER.info("Waiting for client connection on unix domain socket...");
-            serverUds.connect();
-            LOGGER.info("Client connection received");
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-
-        //Get a connection to the HTTP server.
-        createHttpServerConnection();
-
-        //Read the request from the socket and send it to the HTTP server
-        String message = serverUds.read();
-        LOGGER.info("Received message on socket: {}", message);
-        httpProxy.sendRequest(new String(message));
-
-        //Return the HTTP response to the socket
-        String response = httpProxy.getResponse();
-        LOGGER.info("Received http response: {}", response);
-        serverUds.write(response);
-
-
+    private void cleanupHttpServerConnection() {
+        httpProxy.disconnect();
     }
 
 }
