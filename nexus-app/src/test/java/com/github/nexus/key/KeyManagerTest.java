@@ -3,6 +3,7 @@ package com.github.nexus.key;
 import com.github.nexus.TestConfiguration;
 import com.github.nexus.configuration.Configuration;
 import com.github.nexus.configuration.model.KeyData;
+import com.github.nexus.keygen.KeyEncryptor;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import org.junit.Before;
@@ -20,9 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class KeyManagerTest {
 

@@ -1,10 +1,9 @@
-package com.github.nexus.key;
+package com.github.nexus.keygen;
 
 import com.github.nexus.argon2.Argon2;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.NaclFacade;
 import com.github.nexus.nacl.NaclFacadeFactory;
-import com.github.nexus.util.Base64Decoder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,7 +30,7 @@ public class KeyEncryptorIT {
 
         this.privateKey = new Key(Base64.getDecoder().decode(pkeyBase64));
 
-        this.keyEncryptor = new KeyEncryptorImpl(argon2, nacl, Base64Decoder.create());
+        this.keyEncryptor = new KeyEncryptorImpl(argon2, nacl);
     }
 
     @Test
