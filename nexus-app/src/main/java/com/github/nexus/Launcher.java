@@ -4,6 +4,8 @@ import com.github.nexus.api.Nexus;
 import com.github.nexus.configuration.Configuration;
 import com.github.nexus.configuration.ConfigurationParser;
 import com.github.nexus.configuration.PropertyLoader;
+import com.github.nexus.keygen.KeyGenerator;
+import com.github.nexus.keygen.KeyGeneratorFactory;
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
 import com.github.nexus.service.locator.ServiceLocator;
@@ -49,11 +51,19 @@ public class Launcher {
             .create()
             .config(PropertyLoader.create(), cliArgumentList);
 
-        final URI serverUri = UriBuilder
-                .fromUri(config.url())
-                .port(config.port())
-                .build();
+        if(config.generatekeys().isEmpty()) {
+            //no keys to generate
+            runWebServer(UriBuilder.fromUri(config.url()).port(config.port()).build());
+        } else {
+            //keys to generate
+            final KeyGenerator keyGenerator = KeyGeneratorFactory.create(config);
+            config.generatekeys().forEach(name -> keyGenerator.promptForGeneration(name, System.in));
+        }
 
+        System.exit(0);
+    }
+
+    private static void runWebServer(final URI serverUri) throws Exception {
         final Nexus nexus = new Nexus(ServiceLocator.create(), "nexus-spring.xml");
 
         final RestServer restServer = RestServerFactory.create().createServer(serverUri, nexus);
@@ -73,8 +83,6 @@ public class Launcher {
         restServer.start();
 
         countDown.await();
-
-        System.exit(0);
     }
 
     private static void createPidFile() throws IOException {
