@@ -1,6 +1,6 @@
 package com.github.nexus.util;
 
-import com.github.nexus.api.exception.DecodingException;
+import com.github.nexus.util.exception.DecodingException;
 import java.util.Base64;
 
 public interface Base64Decoder {

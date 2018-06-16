@@ -1,11 +1,14 @@
 
 package com.github.nexus.api.exception;
 
-import javax.ws.rs.core.Response;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.github.nexus.util.exception.DecodingException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.ws.rs.core.Response;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DecodingExceptionMapperTest {
     
