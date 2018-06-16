@@ -12,7 +12,6 @@ import com.github.nexus.service.locator.ServiceLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
@@ -40,8 +39,6 @@ public class Launcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Launcher.class);
 
-    public static final URI SERVER_URI = UriBuilder.fromUri("http://0.0.0.0/").port(8080).build();
-
     public static void main(final String... args) throws Exception {
 
         Launcher.createPidFile();
@@ -53,7 +50,7 @@ public class Launcher {
 
         if(config.generatekeys().isEmpty()) {
             //no keys to generate
-            runWebServer(UriBuilder.fromUri(config.url()).port(config.port()).build());
+            runWebServer(config.uri());
         } else {
             //keys to generate
             final KeyGenerator keyGenerator = KeyGeneratorFactory.create(config);
