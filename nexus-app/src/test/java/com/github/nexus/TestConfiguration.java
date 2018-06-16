@@ -39,4 +39,10 @@ public class TestConfiguration implements Configuration {
         return Paths.get("./").toAbsolutePath();
     }
 
+    @Override
+    public String workdir() { return "qdata"; };
+
+    @Override
+    public String socket() { return "/tmp/tst1.ipc"; };
+
 }

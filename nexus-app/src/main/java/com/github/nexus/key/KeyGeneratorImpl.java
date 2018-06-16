@@ -51,7 +51,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
         try {
 
-            LOGGER.info("Attempting to write newly generated keys to file...");
+            LOGGER.info("Attempting to sendRequest newly generated keys to file...");
 
             Files.write(publicKeyPath, publicKeyBase64.getBytes(UTF_8), StandardOpenOption.CREATE_NEW);
             Files.write(privateKeyPath, privateKeyJson, StandardOpenOption.CREATE_NEW);
@@ -59,7 +59,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
             LOGGER.info("Successfully wrote newly generated keys to file");
 
         } catch (final IOException ex) {
-            LOGGER.error("Unable to write the newly generated keys to file", ex);
+            LOGGER.error("Unable to sendRequest the newly generated keys to file", ex);
             throw new RuntimeException(ex);
         }
 

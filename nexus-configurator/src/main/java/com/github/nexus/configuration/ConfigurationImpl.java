@@ -44,4 +44,14 @@ public class ConfigurationImpl implements Configuration {
     public List<String> othernodes() {
         return Stream.of(properties.getProperty("othernodes").split(",")).collect(Collectors.toList());
     }
+
+    @Override
+    public String workdir() {
+        return properties.getProperty("workdir");
+    }
+
+    @Override
+    public String socket() {
+        return properties.getProperty("socket");
+    }
 }

@@ -51,9 +51,7 @@ public class UnixDomainServerSocket {
     public void connect() throws IOException {
 
         try {
-            LOGGER.info("Waiting for connection...");
             socket = server.accept();
-            LOGGER.info("Connected: {}", socket);
 
         } catch (IOException ex) {
             LOGGER.error("Failed to create Socket");
@@ -83,13 +81,14 @@ public class UnixDomainServerSocket {
 
     public void write(String payload) {
 
-        Objects.requireNonNull(socket, "No client connection to write to");
+        Objects.requireNonNull(socket, "No client connection to sendRequest to");
 
         try (OutputStream os = socket.getOutputStream()) {
 
-            os.write(payload.getBytes());
-            os.flush();
-
+            if (!payload.isEmpty()) {
+                os.write(payload.getBytes());
+                os.flush();
+            }
         } catch (IOException ex) {
             LOGGER.error("Failed to read from Socket");
             throw new RuntimeException(ex);
