@@ -6,17 +6,17 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Provider
 public class KeyNotFoundExceptionMapper implements ExceptionMapper<KeyNotFoundException> {
 
-    private static final Logger LOGGER = Logger.getLogger(KeyNotFoundExceptionMapper.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(KeyNotFoundExceptionMapper.class);
 
     @Override
     public Response toResponse(KeyNotFoundException e) {
-        LOGGER.log(Level.SEVERE, "",e);
+        LOGGER.error("",e);
 
         return Response.status(Response.Status.BAD_REQUEST)
             .entity(e.getMessage())

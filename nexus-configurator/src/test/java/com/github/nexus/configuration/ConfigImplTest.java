@@ -31,6 +31,7 @@ public class ConfigImplTest {
         assertThat(configuration.port()).isEqualTo(2000);
         assertThat(configuration.othernodes()).hasSize(2).containsExactly("node1.com", "node2.com:10000");
         assertThat(configuration.generatekeys()).hasSize(2).containsExactly("newkey1", "newkey2");
+        assertThat(configuration.uri().toString()).isEqualTo("http://url.com:2000");
 
     }
 
