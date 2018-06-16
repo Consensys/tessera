@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Objects;
 
 /**
@@ -21,17 +22,23 @@ public class SocketServer extends Thread {
 
     private final UnixDomainServerSocket serverUds;
 
+    private HttpProxyFactory httpProxyFactory;
+
     private HttpProxy httpProxy;
+
+    private final URI serverUri;
 
     /**
      * Create the unix domain socket and start the listener thread.
      */
-    public SocketServer(Configuration config, HttpProxy httpProxy) {
+    public SocketServer(Configuration config, HttpProxyFactory httpProxyFactory, URI serverUri) {
 
         Objects.requireNonNull(config);
-        Objects.requireNonNull(httpProxy);
+        Objects.requireNonNull(httpProxyFactory);
+        Objects.requireNonNull(serverUri);
 
-        this.httpProxy = httpProxy;
+        this.httpProxyFactory = httpProxyFactory;
+        this.serverUri = serverUri;
 
         serverUds = new UnixDomainServerSocket();
         serverUds.create(config.workdir(), config.socket());
@@ -44,8 +51,6 @@ public class SocketServer extends Thread {
      */
     public void run() {
 
-        connectToHttpServer();
-
         while (true) {
             serveSocketRequest();
         }
@@ -55,7 +60,9 @@ public class SocketServer extends Thread {
     /**
      * Get a connection to the HTTP Server.
      */
-    public void connectToHttpServer() {
+    public void createHttpServerConnection() {
+
+        httpProxy = httpProxyFactory.create(serverUri);
 
         // Need to wait until we connect to the HTTP server
         boolean connected = false;
@@ -64,7 +71,7 @@ public class SocketServer extends Thread {
             connected = httpProxy.connect();
 
             try {
-                Thread.sleep(5 * 1000);
+                Thread.sleep(1000);
             } catch (InterruptedException ex) {
                 LOGGER.info("Interrupted - exiting");
                 return;
@@ -89,6 +96,9 @@ public class SocketServer extends Thread {
             throw new RuntimeException(ex);
         }
 
+        //Get a connection to the HTTP server.
+        createHttpServerConnection();
+
         //Read the request from the socket and send it to the HTTP server
         String message = serverUds.read();
         LOGGER.info("Received message on socket: {}", message);
@@ -98,6 +108,7 @@ public class SocketServer extends Thread {
         String response = httpProxy.getResponse();
         LOGGER.info("Received http response: {}", response);
         serverUds.write(response);
+
 
     }
 

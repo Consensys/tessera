@@ -19,11 +19,9 @@ public class HttpProxy {
 
     private final URI serverUri;
 
+    private Socket socket;
+
     private PrintWriter httpPrintWriter;
-
-    private InputStreamReader httpInputStreamReader;
-
-    private DataInputStream httpDataInputStream;
 
     private BufferedReader httpReader;
 
@@ -41,15 +39,14 @@ public class HttpProxy {
      */
     public boolean connect() {
         try {
-            Socket s = new Socket(serverUri.getHost(), serverUri.getPort());
+            socket = new Socket(serverUri.getHost(), serverUri.getPort());
 
-            OutputStream httpOutputStream = s.getOutputStream();
+            OutputStream httpOutputStream = socket.getOutputStream();
             httpPrintWriter = new PrintWriter(httpOutputStream, true);
 
-            InputStream httpInputStream = s.getInputStream();
-            httpDataInputStream = new DataInputStream(httpInputStream);
-            httpInputStreamReader = new InputStreamReader(httpInputStream); //############
-            httpReader = new BufferedReader(httpInputStreamReader); //#####
+            InputStream httpInputStream = socket.getInputStream();
+            InputStreamReader httpInputStreamReader = new InputStreamReader(httpInputStream);
+            httpReader = new BufferedReader(httpInputStreamReader);
 
             return true;
 
@@ -59,6 +56,20 @@ public class HttpProxy {
         } catch (IOException ex) {
             LOGGER.error("Failed to connect to URL: {}", serverUri);
             throw new RuntimeException(ex);
+        }
+    }
+
+    /**
+     * Disconnect from HTTP server and clean up.
+     */
+    public void disconnect() {
+        try {
+            httpPrintWriter.close();
+            httpReader.close();
+            socket.close();
+
+        } catch (IOException ex) {
+            LOGGER.info("Ignoring exception on HttpProxy disconnect: {}", ex.getMessage());
         }
     }
 
@@ -131,14 +142,20 @@ public class HttpProxy {
     public static void main(final String... args) throws Exception {
         HttpProxy httpProxy = new HttpProxy(new URI("http://localhost" + ":" + "8080"));
 
-        String message = "GET /upcheck HTTP/1.1\n" +
-            "Host: c\n" +
-            "User-Agent: Go-http-client/1.1\n" +
-            "\n";
-        httpProxy.sendRequest(new String(message));
+        if (httpProxy.connect()) {
+            String message = "GET /upcheck HTTP/1.1\n" +
+                "Host: c\n" +
+                "User-Agent: Go-http-client/1.1\n" +
+                "\n";
+            httpProxy.sendRequest(new String(message));
 
-        String line = httpProxy.getResponse();
-        LOGGER.info("Received message: {}", line);
+            String line = httpProxy.getResponse();
+            LOGGER.info("Received message: {}", line);
+
+        } else {
+            LOGGER.info("Failed to connect");
+
+        }
     }
 
 }
