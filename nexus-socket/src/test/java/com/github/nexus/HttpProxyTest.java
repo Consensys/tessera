@@ -1,6 +1,6 @@
 package com.github.nexus;
 
-import com.github.nexus.socket.HttpProxy;
+import com.github.nexus.socket.HttpMessageUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -12,7 +12,7 @@ public class HttpProxyTest {
     public void testContentLengthParser() {
         final String headerLine = "Content-Length: 42";
 
-        assertEquals(42, HttpProxy.getContentLength(headerLine));
+        assertEquals(42, HttpMessageUtils.getContentLength(headerLine));
     }
 
 

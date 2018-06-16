@@ -1,9 +1,6 @@
 package com.github.nexus.socket;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Objects;
@@ -60,24 +57,47 @@ public class UnixDomainServerSocket {
 
     }
 
-    public String read() {
+    // Keeping this code for the moment...
+    // could re-implement the solution using 2 threads and basic read(), so it's not limited to HTTP.
+//    public String read() {
+//
+//        Objects.requireNonNull(socket, "No client connection to read from");
+//
+//        try (InputStream is = socket.getInputStream()) {
+//
+//            byte[] buf = new byte[128];
+//            int read = is.read(buf);
+//            String message = new String(buf, 0, read);
+//            LOGGER.info("Received: {}", message);
+//
+//            return message;
+//
+//        } catch (IOException ex) {
+//            LOGGER.error("Failed to read from Socket");
+//            throw new RuntimeException(ex);
+//        }
+//    }
 
+
+    /**
+     * Read HTTP request from the socket.
+     */
+    public String read() {
         Objects.requireNonNull(socket, "No client connection to read from");
 
-        try (InputStream is = socket.getInputStream()) {
+        try {
+            InputStream is = socket.getInputStream();
+            InputStreamReader httpInputStreamReader = new InputStreamReader(is);
+            BufferedReader bufferedReader = new BufferedReader(httpInputStreamReader);
 
-            byte[] buf = new byte[128];
-            int read = is.read(buf);
-            String message = new String(buf, 0, read);
-            LOGGER.info("Received: {}", message);
-
-            return message;
+            return HttpMessageUtils.getHttpMessage(bufferedReader);
 
         } catch (IOException ex) {
-            LOGGER.error("Failed to read from Socket");
+            LOGGER.error("Failed to read from socket");
             throw new RuntimeException(ex);
         }
     }
+
 
     public void write(String payload) {
 
