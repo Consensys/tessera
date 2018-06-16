@@ -68,10 +68,10 @@ public class UnixDomainServerSocket {
 
             byte[] buf = new byte[128];
             int read = is.read(buf);
-            String response = new String(buf, 0, read);
-            LOGGER.info("Received: {}", response);
+            String message = new String(buf, 0, read);
+            LOGGER.info("Received: {}", message);
 
-            return response;
+            return message;
 
         } catch (IOException ex) {
             LOGGER.error("Failed to read from Socket");
