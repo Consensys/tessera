@@ -30,3 +30,7 @@
 /argon2/target/
 /jersey-server/nb-configuration.xml
 /resteasy-server/target/
+/nexus-app/nbactions.xml
+/nbactions.xml
+/jersey-server/nb-configuration.xml
+/resteasy-server/target/
