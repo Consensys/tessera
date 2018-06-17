@@ -135,6 +135,10 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
 
     </dependencies>
 
@@ -300,7 +304,7 @@
                 </dependency>
             </dependencies>
         </profile>
-        
+
         <profile>
             <id>jersey</id>
             <activation>
@@ -313,12 +317,12 @@
                     <scope>runtime</scope>
                 </dependency>
             </dependencies>
-            
+
         </profile>
-        
+
         <profile>
             <id>resteasy</id>
-            
+
             <dependencies>
                 <dependency>
                     <groupId>com.github.nexus</groupId>
@@ -326,9 +330,9 @@
                     <scope>runtime</scope>
                 </dependency>
             </dependencies>
-            
+
         </profile>
-        
+
     </profiles>
 
 

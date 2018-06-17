@@ -10,13 +10,12 @@ import java.io.StringReader;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 public class ConfigurationImpl implements Configuration {
 
@@ -91,5 +90,14 @@ public class ConfigurationImpl implements Configuration {
             .of(properties.getProperty("generatekeys").split(","))
             .filter(str -> !str.isEmpty())
             .collect(toList());
+    }
+
+    @Override
+    public Set<String> whitelist() {
+        return Stream.of(properties.getProperty("whitelist").split(","))
+            .filter(Objects::nonNull)
+            .map(String::trim)
+            .filter(str -> !str.isEmpty())
+            .collect(toSet());
     }
 }
