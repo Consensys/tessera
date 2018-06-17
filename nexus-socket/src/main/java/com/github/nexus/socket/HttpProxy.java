@@ -37,7 +37,7 @@ public class HttpProxy {
      */
     public boolean connect() {
         try {
-            socket = new Socket(serverUri.getHost(), serverUri.getPort());
+            socket = SocketFactory.create(serverUri);
 
             OutputStream httpOutputStream = socket.getOutputStream();
             httpPrintWriter = new PrintWriter(httpOutputStream, true);

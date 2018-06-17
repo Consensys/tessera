@@ -19,10 +19,7 @@ import java.lang.management.ManagementFactory;
 
 import com.github.nexus.socket.HttpProxyFactory;
 import com.github.nexus.socket.SocketServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -58,6 +55,10 @@ public class Launcher {
 
         if(config.generatekeys().isEmpty()) {
             //no keys to generate
+
+            // Start a listener on the unix domain socket, that attaches to the HTTP server
+            final SocketServer socketServer = new SocketServer(config, new HttpProxyFactory(), config.uri());
+
             runWebServer(config.uri());
         } else {
             //keys to generate
@@ -72,9 +73,6 @@ public class Launcher {
         final Nexus nexus = new Nexus(ServiceLocator.create(), "nexus-spring.xml");
 
         final RestServer restServer = RestServerFactory.create().createServer(serverUri, nexus);
-
-        // Start a listener on the unix domain socket, that attaches to the HTTP server
-        final SocketServer socketServer = new SocketServer(config, new HttpProxyFactory(), serverUri);
 
         CountDownLatch countDown = new CountDownLatch(1);
 
