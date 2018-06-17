@@ -13,11 +13,13 @@ public interface PropertyLoader {
         {
             addOption("publicKeys", "publicKeys", true, "public keys");
             addOption("privateKeys", "privateKeys", true, "private keys");
+            addOption("passwords", "passwords", true, "passwords for encrypted private keys");
             addOption("configfile", "configfile", true, "config file location");
             addOption("url", "url", true, "base url to use");
             addOption("port", "port", true, "port to listen for http requests on");
             addOption("othernodes", "othernodes", true, "initial set of other nodes");
             addOption("keygenBasePath", "keygenBasePath", true, "base path that generated keys should be placed");
+            addOption("generatekeys", "generatekeys", true, "key names to generate a public/private keypair for");
             addOption("workdir", "workdir", true, "directory where work files are placed (must match value specified to Quorum)");
             addOption("socket", "socket", true, "IPC socket to create for access to the Private API");
         }

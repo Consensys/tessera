@@ -1,19 +1,17 @@
 package com.github.nexus.key;
 
 import com.github.nexus.configuration.Configuration;
+import com.github.nexus.configuration.model.KeyData;
 import com.github.nexus.key.exception.KeyNotFoundException;
+import com.github.nexus.keygen.KeyEncryptor;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
 import javax.json.JsonObject;
-import javax.json.JsonValue;
-import java.io.StringReader;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class KeyManagerImpl implements KeyManager {
 
@@ -24,34 +22,18 @@ public class KeyManagerImpl implements KeyManager {
      */
     private final Set<KeyPair> ourKeys;
 
-    public KeyManagerImpl(final List<String> publicKeys, final List<JsonValue> privateKeys) {
+    private final KeyEncryptor keyEncryptor;
+
+    public KeyManagerImpl(final KeyEncryptor keyEncryptor, final List<KeyData> keys) {
+        this.keyEncryptor = Objects.requireNonNull(keyEncryptor);
 
         this.ourKeys = new HashSet<>();
-
-        if (publicKeys.size() != privateKeys.size()) {
-            LOGGER.error(
-                "Provided public and private keys aren't one-to-one, {} public keys, {} private keys",
-                publicKeys.size(), privateKeys.size()
-            );
-            throw new RuntimeException("Initial key list sizes don't match");
-        }
-
-        final Set<KeyPair> keys = IntStream
-            .range(0, publicKeys.size())
-            .mapToObj(i -> loadKeypair(publicKeys.get(i), privateKeys.get(i).asJsonObject()))
-            .collect(Collectors.toSet());
-
-        ourKeys.addAll(keys);
+        keys.forEach(this::loadKeypair);
 
     }
 
-    public KeyManagerImpl(final Configuration configuration) {
-
-        this(
-            configuration.publicKeys(),
-            Json.createReader(new StringReader("[" + configuration.privateKeys() + "]")).readArray()
-        );
-
+    public KeyManagerImpl(final KeyEncryptor keyEncryptor, final Configuration configuration) {
+        this(keyEncryptor, configuration.keyData());
     }
 
     @Override
@@ -91,13 +73,15 @@ public class KeyManagerImpl implements KeyManager {
     }
 
     @Override
-    public KeyPair loadKeypair(final String publicKeyb64, final JsonObject privateKeyJson) {
+    public KeyPair loadKeypair(final KeyData data) {
 
-        LOGGER.info("Attempting to load the public key at path {}", publicKeyb64);
-        LOGGER.info("Attempting to load the private key at path {}", privateKeyJson);
+        LOGGER.info("Attempting to load the public key {}", data.getPublicKey());
+        LOGGER.info("Attempting to load the private key {}", data.getPrivateKey());
 
-        final Key publicKey = loadPublicKey(publicKeyb64);
-        final Key privateKey = loadPrivateKey(privateKeyJson, null);
+        final Key publicKey = new Key(
+            Base64.getDecoder().decode(data.getPublicKey())
+        );
+        final Key privateKey = loadPrivateKey(data.getPrivateKey(), data.getPassword());
 
         final KeyPair keyPair = new KeyPair(publicKey, privateKey);
 
@@ -115,24 +99,18 @@ public class KeyManagerImpl implements KeyManager {
             .collect(Collectors.toSet());
     }
 
-    private Key loadPublicKey(final String publicKeyBase64) {
-        LOGGER.debug("Loading the public key {}", publicKeyBase64);
-
-        final byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyBase64);
-
-        return new Key(publicKeyBytes);
-    }
-
     private Key loadPrivateKey(final JsonObject privateKeyJson, final String password) {
         LOGGER.debug("Loading the private key at path {}", privateKeyJson);
 
-        final String keyBase64 = privateKeyJson.getJsonObject("data").getString("bytes");
+        if("unlocked".equals(privateKeyJson.getString("type"))) {
+            final String keyBase64 = privateKeyJson.getJsonObject("data").getString("bytes");
+            final byte[] key = Base64.getDecoder().decode(keyBase64);
+            LOGGER.debug("Private key {} loaded from path {} loaded", keyBase64, privateKeyJson);
+            return new Key(key);
+        } else {
+            return keyEncryptor.decryptPrivateKey(privateKeyJson.getJsonObject("data"), password);
+        }
 
-        final byte[] key = Base64.getDecoder().decode(keyBase64);
-
-        LOGGER.debug("Private key {} loaded from path {} loaded", keyBase64, privateKeyJson);
-
-        return new Key(key);
     }
 
 

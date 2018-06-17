@@ -9,12 +9,9 @@
                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-
-
     <tx:annotation-driven transaction-manager="jpaTransactionManager" />
     
     <context:component-scan base-package="com.github.nexus" />
-
 
     <!-- Resources -->
     <bean class="com.github.nexus.api.VersionResource"/>
@@ -58,7 +55,7 @@
 
     <bean name="client" class="javax.ws.rs.client.ClientBuilder" factory-method="newClient"/>
 
-
+    <bean class="com.github.nexus.api.LoggingFilter" />
 
     <bean name="partyInfoPoller" class="com.github.nexus.node.PartyInfoPoller">
         <constructor-arg ref="partyInfoService"/>
@@ -76,8 +73,6 @@
         <constructor-arg value="2"/>
     </bean>
 
-
-
     <bean name="transactionService" class="com.github.nexus.transaction.TransactionServiceImpl">
         <constructor-arg ref="encryptedTransactionDAO"/>
         <constructor-arg ref="payloadEncoder" />
@@ -85,12 +80,15 @@
         <constructor-arg ref="nacl" />
     </bean>
 
-    <bean name="keyGenerator" class="com.github.nexus.key.KeyGeneratorImpl" >
-        <constructor-arg ref="nacl" />
-        <constructor-arg ref="config" />
+    <bean name="argon2" class="com.github.nexus.argon2.Argon2" factory-method="create" />
+
+    <bean name="keyEncryptor" class="com.github.nexus.keygen.KeyEncryptorImpl" >
+        <constructor-arg ref="argon2"/>
+        <constructor-arg ref="nacl"/>
     </bean>
 
     <bean name="keyManager" class="com.github.nexus.key.KeyManagerImpl">
+        <constructor-arg ref="keyEncryptor" />
         <constructor-arg ref="config" />
     </bean>
 
@@ -111,15 +109,17 @@
         
     <bean class="com.github.nexus.api.exception.DefaultExceptionMapper" />
     <bean class="com.github.nexus.api.exception.DecodingExceptionMapper"/>
-    <bean class="com.github.nexus.key.exception.KeyNotFoundExceptionMapper"/>
+    <bean class="com.github.nexus.api.exception.KeyNotFoundExceptionMapper"/>
     <bean class="com.github.nexus.api.exception.NotFoundExceptionMapper" />
+    <bean class="com.github.nexus.api.exception.TransactionNotFoundExceptionMapper"/>
 
+    <bean class="com.github.nexus.api.ApiResource" />
+    
     <bean id="dataSource" class="org.h2.jdbcx.JdbcDataSource">
-        <property name="url" value="jdbc:h2:./target/h2/nexus;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0" />
+        <property name="url" value="jdbc:h2:./target/h2/nexus8082;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0" />
         <property name="user" value="sa" />
         <property name="password" value="" />
     </bean>
-    
 
     <bean id="jpaTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
         <property name="entityManagerFactory" ref="entityManagerFactory" />

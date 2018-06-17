@@ -1,4 +1,4 @@
-package com.github.nexus.api.exception;
+package com.github.nexus.exception;
 
 
 public abstract class NexusException extends RuntimeException {

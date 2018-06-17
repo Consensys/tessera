@@ -103,6 +103,10 @@ Configuration can be specified in multiple ways, in the following priority:
 * workdir: directory where work files are placed (must match value specified to Quorum)
 * socket: name of the unix domain socket used for communication with Quorum
 * othernodes: comma seperated list of known Nexus nodes
+* keygenBasePath: the base path for new generated keys to be placed - can be absolute or relative
+* passwords: a list of passwords used to unlock encrypted private keys
+
+(n.b. if a private key isn't encrypted, give it an empty password, e.g. passwords=abc,,def)
 
 <h2>Building Nexus</h2>
 Checkout nexus from github and build using maven.

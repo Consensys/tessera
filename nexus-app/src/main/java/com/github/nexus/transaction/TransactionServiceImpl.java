@@ -5,6 +5,7 @@ import com.github.nexus.enclave.model.MessageHash;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.NaclFacade;
 import com.github.nexus.nacl.Nonce;
+import com.github.nexus.transaction.exception.TransactionNotFoundException;
 import com.github.nexus.transaction.model.EncodedPayload;
 import com.github.nexus.transaction.model.EncodedPayloadWithRecipients;
 import com.github.nexus.transaction.model.EncryptedTransaction;
@@ -67,7 +68,7 @@ public class TransactionServiceImpl implements TransactionService {
     public EncodedPayload retrievePayload(final MessageHash hash, final Key intendedRecipient) {
         final EncryptedTransaction encryptedTransaction = encryptedTransactionDAO
             .retrieveByHash(hash)
-            .orElseThrow(() -> new RuntimeException("Message with hash " + hash + " was not found"));
+            .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
 
         final EncodedPayloadWithRecipients payloadWithRecipients
             = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
@@ -95,7 +96,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         final EncryptedTransaction encryptedTransaction = encryptedTransactionDAO
             .retrieveByHash(hash)
-            .orElseThrow(() -> new RuntimeException("Message with hash " + hash + " was not found"));
+            .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
 
         final EncodedPayloadWithRecipients payloadWithRecipients
             = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
