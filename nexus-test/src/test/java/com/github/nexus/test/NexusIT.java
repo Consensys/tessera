@@ -2,14 +2,17 @@ package com.github.nexus.test;
 
 import org.junit.Ignore;
 import org.junit.Test;
-
 import javax.json.Json;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.URI;
 import java.util.Base64;
+import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.UriBuilder;
@@ -26,7 +29,7 @@ public class NexusIT {
 
     public static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
 
-    private Client client = ClientBuilder.newClient();
+    private final Client client = ClientBuilder.newClient();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NexusIT.class);
 
@@ -155,4 +158,89 @@ public class NexusIT {
 
     }
 
+    @Test
+    public void requestOpenApiSchema() throws IOException {
+
+        javax.ws.rs.core.Response response = client
+                .target(SERVER_URI)
+                .path("/api")
+                .request(MediaType.APPLICATION_JSON)
+                .get();
+
+        assertThat(response).isNotNull();
+        String body = response.readEntity(String.class);
+        LOGGER.debug("Schema {}", body);
+
+        assertThat(body).isNotEmpty();
+        assertThat(response.getMediaType())
+                .isEqualTo(MediaType.APPLICATION_JSON_TYPE);
+        assertThat(response.getStatus()).isEqualTo(200);
+
+        try (Reader reader = new StringReader(body)) {
+            JsonObject result = Json.createReader(reader).readObject();
+
+            assertThat(result).isNotEmpty();
+
+        }
+
+    }
+
+    @Test
+    public void requestOpenApiSchemaDocument() throws IOException {
+
+        javax.ws.rs.core.Response response = client
+                .target(SERVER_URI)
+                .path("/api")
+                .request(MediaType.TEXT_HTML)
+                .get();
+
+        assertThat(response).isNotNull();
+        String body = response.readEntity(String.class);
+        LOGGER.debug("Doc {}", body);
+        assertThat(body).isNotEmpty();
+        assertThat(response.getMediaType())
+                .isEqualTo(MediaType.TEXT_HTML_TYPE);
+        assertThat(response.getStatus()).isEqualTo(200);
+
+    }
+
+    @Test
+    public void sendraw() throws Exception {
+
+        javax.ws.rs.core.Response response = client.target(SERVER_URI)
+                .path("/sendraw")
+                .request()
+                .header("c11n-from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+                .header("c11n-to", "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
+                .post(Entity.entity("Zm9v", MediaType.APPLICATION_OCTET_STREAM));
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(201);
+    }
+
+
+    @Ignore
+    @Test
+    public void receiveraw() throws Exception {
+
+        String key = Base64.getEncoder().encodeToString("<replace the hashkey here>".getBytes());
+        String recipient =  Base64.getEncoder().encodeToString("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=".getBytes());
+        
+        javax.ws.rs.core.Response response = client.target(SERVER_URI)
+                .path("/receiveraw")
+                .request()
+                .header("c11n-key",key)
+                .header("c11n-to", recipient)
+                .post(Entity.entity("", MediaType.APPLICATION_OCTET_STREAM));
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(201);
+        String body = response.readEntity(String.class);
+        LOGGER.debug("Response body : ",body);
+        assertThat(body).isNotEmpty();
+        assertThat(response.getMediaType()).isEqualTo(MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        
+        
+    }
+    
 }
