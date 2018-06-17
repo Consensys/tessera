@@ -9,8 +9,10 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 
 public class TestConfiguration implements Configuration {
 
@@ -62,5 +64,10 @@ public class TestConfiguration implements Configuration {
     @Override
     public List<String> generatekeys() {
         return emptyList();
+    }
+
+    @Override
+    public Set<String> whitelist() {
+        return emptySet();
     }
 }
