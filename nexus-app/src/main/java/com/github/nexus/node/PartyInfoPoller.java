@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.ConnectException;
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -68,13 +69,13 @@ public class PartyInfoPoller implements Runnable {
 
             final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
-            partyInfo.getParties()
-                    .stream()
+            final Set<Party> partySet = partyInfo.getParties().stream().collect(Collectors.toSet());
+
+            partySet.stream()
                     .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
                     .map(Party::getUrl)
                     .map(url -> postDelegate.doPost(url, ApiPath.PARTYINFO, encodedPartyInfo))
                     .map(partyInfoParser::from)
-                    .collect(Collectors.toList())
                     .forEach(partyInfoService::updatePartyInfo);
 
             LOGGER.debug("Polled {}. PartyInfo : {}", getClass().getSimpleName(), partyInfo);
