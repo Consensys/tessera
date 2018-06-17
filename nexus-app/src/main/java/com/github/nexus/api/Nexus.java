@@ -1,14 +1,16 @@
 package com.github.nexus.api;
 
+import com.github.nexus.api.filter.GlobalFilter;
 import com.github.nexus.service.locator.ServiceLocator;
 
+import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.ws.rs.ApplicationPath;
 
 @Logged
+@GlobalFilter
 @ApplicationPath("/")
 public class Nexus extends Application {
 
@@ -25,11 +27,11 @@ public class Nexus extends Application {
     public Set<Object> getSingletons() {
         String apiPackageName = getClass().getPackage().getName();
         return serviceLocator.getServices(contextName).stream()
-                .filter(Objects::nonNull)
-                .filter(o -> Objects.nonNull(o.getClass()))
-                .filter(o -> Objects.nonNull(o.getClass().getPackage()))
-                .filter(o -> o.getClass().getPackage().getName().startsWith(apiPackageName))
-                .collect(Collectors.toSet());
+            .filter(Objects::nonNull)
+            .filter(o -> Objects.nonNull(o.getClass()))
+            .filter(o -> Objects.nonNull(o.getClass().getPackage()))
+            .filter(o -> o.getClass().getPackage().getName().startsWith(apiPackageName))
+            .collect(Collectors.toSet());
     }
 
 }
