@@ -1,6 +1,11 @@
 package com.github.nexus.api;
 
+import com.github.nexus.api.exception.DefaultExceptionMapper;
 import com.github.nexus.service.locator.ServiceLocator;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,4 +49,20 @@ public class NexusTest {
         assertThat(throwableName).isInstanceOf(NullPointerException.class);
 
     }
+    
+    @Test
+    public void onCreateApiObjects() {
+        ApiResource apiObject = new ApiResource();
+        DefaultExceptionMapper nestedApiObject = new DefaultExceptionMapper();
+        Object nonApiObject = new HashMap<>();
+        
+        when(serviceLocator.getServices(contextName))
+                .thenReturn(Stream.of(apiObject,nestedApiObject,nonApiObject)
+                        .collect(Collectors.toSet()));
+        
+        Set<Object> result = nexus.getSingletons();
+        assertThat(result).containsOnly(apiObject,nestedApiObject);
+        verify(serviceLocator).getServices(contextName);
+    }
+    
 }
