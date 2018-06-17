@@ -27,7 +27,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         Objects.requireNonNull(keyManager);
 
-        final String advertisedUrl = configuration.url() + ":" + Objects.toString(configuration.port());
+        final String advertisedUrl = configuration.uri().toString();
 
         final Set<Party> parties = configuration.othernodes()
             .stream()

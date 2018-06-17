@@ -8,7 +8,7 @@ public interface ConfigurationParser {
     String CONFIG_FILE_PROPERTY = "configfile";
 
     String[] KNOWN_PROPERTIES = new String[]{
-        "publicKeys", "privateKeys", "port", "url", "othernodes", "keygenBasePath", "workdir", "socket"
+        "publicKeys", "privateKeys", "port", "url", "othernodes", "keygenBasePath", "passwords", "generatekeys", "workdir", "socket"
     };
 
     Configuration config(PropertyLoader propertyLoader, List<String> cliParameters);
