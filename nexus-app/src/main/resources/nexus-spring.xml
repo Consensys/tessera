@@ -56,6 +56,9 @@
     <bean name="client" class="javax.ws.rs.client.ClientBuilder" factory-method="newClient"/>
 
     <bean class="com.github.nexus.api.LoggingFilter" />
+    <bean class="com.github.nexus.api.filter.IPWhitelistFilter">
+        <constructor-arg ref="config"/>
+    </bean>
 
     <bean name="partyInfoPoller" class="com.github.nexus.node.PartyInfoPoller">
         <constructor-arg ref="partyInfoService"/>
@@ -64,7 +67,7 @@
                   factory-method="newScheduledThreadPool"
                   destroy-method="shutdown">
                 <constructor-arg type="int" value="1"/>
-            </bean>
+    </bean>
         </constructor-arg>
         <constructor-arg>
             <bean class="com.github.nexus.node.PartyInfoParser" factory-method="create"/>

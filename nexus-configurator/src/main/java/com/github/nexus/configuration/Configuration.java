@@ -6,6 +6,7 @@ import javax.json.JsonObject;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 public interface Configuration {
 
@@ -30,6 +31,8 @@ public interface Configuration {
     List<String> othernodes();
 
     List<String> generatekeys();
+
+    Set<String> whitelist();
 
     String workdir();
 
