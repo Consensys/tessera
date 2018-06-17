@@ -22,7 +22,7 @@ public class UnixDomainSocketIT {
 
         //Create a client which will send a message
         UnixDomainClientSocket clientUds = new UnixDomainClientSocket();
-        clientUds.connect("/tmp", "tst1.ipc");
+        clientUds.connect("/tmp", "tst2.ipc");
 
         //read message sent by server
         String line = clientUds.read();
@@ -41,7 +41,7 @@ public class UnixDomainSocketIT {
 
         TestSocketServer() {
             serverUds = new UnixDomainServerSocket();
-            serverUds.create("/tmp", "tst1.ipc");
+            serverUds.create("/tmp", "tst2.ipc");
         }
 
         public void run() {
