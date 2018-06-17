@@ -106,6 +106,7 @@
                             <goal>prepare-agent</goal>
                         </goals>
                         <configuration>
+                            <skip>true</skip>
                             <destFile>${project.build.directory}/jacoco-it.exec</destFile>
                             <propertyName>failsafeArgLine</propertyName>
                         </configuration>
@@ -189,6 +190,7 @@
         <module>nexus-encryption-jnacl</module>
         <module>nexus-encryption-kalium</module>
         <module>nexus-keygen</module>
+        <module>resteasy-server</module>
     </modules>
 
     <dependencyManagement>
@@ -250,9 +252,16 @@
                 <artifactId>rest-server</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
+            
             <dependency>
                 <groupId>com.github.nexus</groupId>
                 <artifactId>jersey-server</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.nexus</groupId>
+                <artifactId>resteasy-server</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
@@ -434,6 +443,7 @@
                 <groupId>javax.ws.rs</groupId>
                 <artifactId>javax.ws.rs-api</artifactId>
                 <version>2.1</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>

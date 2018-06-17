@@ -13,8 +13,11 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.util.Base64;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -58,6 +61,27 @@ public class TransactionResourceTest {
         assertThat(response.getStatus()).isEqualTo(201);
     }
 
+    @Test
+    public void testSendRaw(){
+        HttpHeaders headers = mock(HttpHeaders.class);
+
+        when(headers.getHeaderString("c11n-from"))
+            .thenReturn("bXlwdWJsaWNrZXk=");
+
+        when(headers.getRequestHeader("c11n-to"))
+            .thenReturn(Stream.of("cmVjaXBpZW50MQ==")
+                .collect(Collectors.toList()));
+
+        when(enclave.store(any(), any(), any())).thenReturn(new MessageHash("SOMEKEY".getBytes()));
+
+        Response response = transactionResource.sendRaw(headers, "Zm9v".getBytes());
+
+        verify(enclave, times(1)).store(any(), any(), any());
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(201);
+    }
+
+
     @Ignore
     public void sendThrowsDecodingException() {
 
@@ -99,6 +123,25 @@ public class TransactionResourceTest {
         assertThat(response.getStatus()).isEqualTo(201);
     }
 
+    @Test
+    public void testReceiveRaw(){
+        HttpHeaders headers = mock(HttpHeaders.class);
+
+        when(headers.getHeaderString("c11n-key"))
+            .thenReturn("AFT757zkDmMksHdut9zeFXdd5wptBNlZtxrjlvuJkihf+rb6VH+go28Ih0nJ3wvCDei02sCcoN++Qbp5hULokQ==");
+
+        when(headers.getHeaderString("c11n-to"))
+            .thenReturn("cmVjaXBpZW50MQ==");
+
+        when(enclave.receive(any(), any())).thenReturn("SOMEKEY".getBytes());
+
+        Response response = transactionResource.receiveRaw(headers);
+
+        verify(enclave).receive(any(), any());
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(201);
+    }
+
     @Test(expected = DecodingException.class)
     public void testReceiveThrowDecodingException(){
         ReceiveRequest receiveRequest = new ReceiveRequest();
@@ -129,7 +172,7 @@ public class TransactionResourceTest {
     @Test
     public void testResendAllLowercase() {
         ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setType(ResendRequestType.ALL.name().toLowerCase());
+        resendRequest.setType(ResendRequestType.ALL);
         resendRequest.setPublicKey("mypublickey");
         resendRequest.setKey("mykey");
 
@@ -142,7 +185,7 @@ public class TransactionResourceTest {
     @Test
     public void testResendIndividualLowercase() {
         ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setType(ResendRequestType.INDIVIDUAL.name().toLowerCase());
+        resendRequest.setType(ResendRequestType.INDIVIDUAL);
         resendRequest.setPublicKey("mypublickey");
         resendRequest.setKey("cmVjaXBpZW50MQ==");
 
@@ -155,7 +198,7 @@ public class TransactionResourceTest {
     @Test
     public void testResendAll() {
         ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setType(ResendRequestType.ALL.name());
+        resendRequest.setType(ResendRequestType.ALL);
         resendRequest.setPublicKey("mypublickey");
         resendRequest.setKey("mykey");
 
@@ -169,7 +212,7 @@ public class TransactionResourceTest {
     public void testResendIndividual() {
 
         ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setType(ResendRequestType.INDIVIDUAL.name());
+        resendRequest.setType(ResendRequestType.INDIVIDUAL);
         resendRequest.setPublicKey("mypublickey");
         resendRequest.setKey(Base64.getEncoder().encodeToString("mykey".getBytes()));
 
