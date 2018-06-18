@@ -17,9 +17,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 
-import com.github.nexus.socket.HttpProxyFactory;
-import com.github.nexus.socket.SocketServer;
-
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -55,10 +52,6 @@ public class Launcher {
 
         if(config.generatekeys().isEmpty()) {
             //no keys to generate
-
-            // Start a listener on the unix domain socket, that attaches to the HTTP server
-            final SocketServer socketServer = new SocketServer(config, new HttpProxyFactory(), config.uri());
-
             runWebServer(config.uri());
         } else {
             //keys to generate
