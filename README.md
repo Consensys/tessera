@@ -98,7 +98,7 @@ Configuration can be specified in multiple ways, in the following priority:
 <h4>Configuration properties</h4>
 * publicKeys: comma-separated list of public key file locations to use
 * privateKeys: comma separated list of private key file locations to use
-* url: URL used by this node listen to remote Nexus nodes
+* url: URL of this Nexus node (used by Quorum and also advertised to remote Nexus nodes)
 * port: port used by this node to listen to remote Nexus nodes
 * workdir: directory where work files are placed (must match value specified to Quorum)
 * socket: name of the unix domain socket used for communication with Quorum
