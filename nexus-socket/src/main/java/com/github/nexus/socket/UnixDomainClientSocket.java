@@ -20,8 +20,10 @@ public class UnixDomainClientSocket {
 
     private Socket socket;
 
-
-    public UnixDomainClientSocket() {
+    private final UnixSocketFactory unixSocketFactory;
+    
+    public UnixDomainClientSocket(UnixSocketFactory unixSocketFactory) {
+        this.unixSocketFactory = Objects.requireNonNull(unixSocketFactory);
     }
 
     /**
@@ -32,10 +34,10 @@ public class UnixDomainClientSocket {
         final File socketFile = new File(new File(directory), filename);
 
         try {
-            socket = UnixSocketFactory.create().createSocket(socketFile.toPath());
+            socket = unixSocketFactory.createSocket(socketFile.toPath());
         } catch (IOException ex) {
             LOGGER.error("Cannot connect to server using {}/{}", directory, filename);
-            throw new RuntimeException(ex);
+            throw new NexusSocketException(ex);
         }
     }
 
@@ -54,7 +56,7 @@ public class UnixDomainClientSocket {
 
         } catch (IOException ex) {
             LOGGER.error("Failed to read from Socket");
-            throw new RuntimeException(ex);
+            throw new NexusSocketException(ex);
         }
     }
 
@@ -69,7 +71,7 @@ public class UnixDomainClientSocket {
 
         } catch (IOException ex) {
             LOGGER.error("Failed to read from Socket");
-            throw new RuntimeException(ex);
+            throw new NexusSocketException(ex);
         }
     }
 }

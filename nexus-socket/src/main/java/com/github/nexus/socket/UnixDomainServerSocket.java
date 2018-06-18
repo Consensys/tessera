@@ -18,10 +18,13 @@ public class UnixDomainServerSocket {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnixDomainServerSocket.class);
 
     private ServerSocket server;
+    
     private Socket socket;
 
-
-    public UnixDomainServerSocket() {
+    private  final UnixSocketFactory unixSocketFactory;
+    
+    public UnixDomainServerSocket(UnixSocketFactory unixSocketFactory) {
+        this.unixSocketFactory = Objects.requireNonNull(unixSocketFactory);
     }
 
     /**
@@ -31,12 +34,12 @@ public class UnixDomainServerSocket {
         final File socketFile = new File(new File(directory), filename);
 
         try {
-            server = UnixSocketFactory.create().createServerSocket(socketFile.toPath());
+            server = unixSocketFactory.createServerSocket(socketFile.toPath());
             LOGGER.info("server: {}", server);
 
         } catch (IOException ex) {
             LOGGER.error("Failed to create Unix Domain Socket: {}/{}", directory, filename);
-            throw new RuntimeException(ex);
+            throw new NexusSocketException(ex);
         }
     }
 
@@ -92,7 +95,7 @@ public class UnixDomainServerSocket {
 
         } catch (IOException ex) {
             LOGGER.error("Failed to read from socket");
-            throw new RuntimeException(ex);
+            throw new NexusSocketException(ex);
         }
     }
 
@@ -109,7 +112,7 @@ public class UnixDomainServerSocket {
             }
         } catch (IOException ex) {
             LOGGER.error("Failed to read from Socket");
-            throw new RuntimeException(ex);
+            throw new NexusSocketException(ex);
         }
     }
 }

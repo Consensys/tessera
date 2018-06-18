@@ -1,19 +1,23 @@
 package com.github.nexus.socket;
 
 import com.github.nexus.configuration.Configuration;
+import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 /**
  * Create a server listening on a Unix Domain Socket for http requests.
  * We create a connection to an HTTP server, and act as a proxy between the socket and the HTTP server.
  * TODO: should possibly support connections from multiple clients
  */
-public class SocketServer extends Thread {
+public class SocketServer implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SocketServer.class);;
 
@@ -24,28 +28,45 @@ public class SocketServer extends Thread {
     private HttpProxy httpProxy;
 
     private final URI serverUri;
-
+   
+    private final ExecutorService executor;
+    
+    
     /**
      * Create the unix domain socket and start the listener thread.
      */
-    public SocketServer(Configuration config, HttpProxyFactory httpProxyFactory, URI serverUri) {
+    public SocketServer(Configuration config, HttpProxyFactory httpProxyFactory, 
+            URI serverUri,ExecutorService executor) {
 
         Objects.requireNonNull(config);
         Objects.requireNonNull(httpProxyFactory);
         Objects.requireNonNull(serverUri);
-
+        
+        this.executor = Objects.requireNonNull(executor,"Executor service is required");
         this.httpProxyFactory = httpProxyFactory;
         this.serverUri = serverUri;
 
-        serverUds = new UnixDomainServerSocket();
+        serverUds = new UnixDomainServerSocket(UnixSocketFactory.create());
         serverUds.create(config.workdir(), config.socket());
+        
+ 
 
-        this.start();
     }
 
+    @PostConstruct
+    public void start()   {
+        executor.submit(this);
+    }
+    
+    @PreDestroy
+    public void stop() {
+        executor.shutdown();
+    }
+    
     /**
      * Run forever, servicing requests received on the socket.
      */
+    @Override
     public void run() {
 
         while (true) {

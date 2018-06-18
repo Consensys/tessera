@@ -1,7 +1,6 @@
-package com.github.nexus;
+package com.github.nexus.socket;
 
-import com.github.nexus.socket.UnixDomainClientSocket;
-import com.github.nexus.socket.UnixDomainServerSocket;
+import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -11,8 +10,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UnixDomainSocketIT {
 
     private static final String CLIENT_MESSAGE_SENT = "Message sent by client";
+    
     private static final String SERVER_MESSAGE_SENT = "Response sent by server";
 
+    private UnixSocketFactory unixSocketFactory = UnixSocketFactory.create();
+    
+    
     @Test
     public void sendMessageToClient() {
 
@@ -21,7 +24,7 @@ public class UnixDomainSocketIT {
         server.start();
 
         //Create a client which will send a message
-        UnixDomainClientSocket clientUds = new UnixDomainClientSocket();
+        UnixDomainClientSocket clientUds = new UnixDomainClientSocket(unixSocketFactory);
         clientUds.connect("/tmp", "tst2.ipc");
 
         //read message sent by server
@@ -40,7 +43,7 @@ public class UnixDomainSocketIT {
         UnixDomainServerSocket serverUds;
 
         TestSocketServer() {
-            serverUds = new UnixDomainServerSocket();
+            serverUds = new UnixDomainServerSocket(unixSocketFactory);
             serverUds.create("/tmp", "tst2.ipc");
         }
 
