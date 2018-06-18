@@ -89,8 +89,8 @@
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <logViolationsToConsole>true</logViolationsToConsole>
                     <configLocation>checkstyle.xml</configLocation>
-                   <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
-                   <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
+                    <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
+                    <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
                 </configuration>
             </plugin>
 
@@ -485,7 +485,13 @@
                 <version>1.2.2</version>
                 <scope>provided</scope>
             </dependency>
-
+            
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>1.5.4</version>
+            </dependency>
+            
         </dependencies>
     </dependencyManagement>
 
