@@ -175,6 +175,35 @@ public class EnclaveImplTest {
         verify(partyInfoService).getURLFromRecipientKey(new Key("key2".getBytes()));
         verify(partyInfoService, times(3)).getPartyInfo();
         verify(partyInfoService, times(3)).getPartyInfo();
+    }
+
+    @Test
+    public void testResendAll(){
+        EncodedPayload encodedPayload =
+            new EncodedPayload(new Key(new byte[0]),
+                new byte[0],
+                new Nonce(new byte[0]),
+                Arrays.asList("box1".getBytes(), "box2".getBytes()),
+                new Nonce(new byte[0]));
+        List<Key> recipientKeys =  Arrays.asList(new Key("somekey".getBytes()), new Key("key2".getBytes()));
+        EncodedPayloadWithRecipients encodedPayloadWithRecipients =
+            new EncodedPayloadWithRecipients(encodedPayload, recipientKeys);
+
+        when(transactionService.retrieveAllForRecipient(any()))
+            .thenReturn(Arrays.asList(encodedPayloadWithRecipients));
+
+        Key recipientKey = new Key("somekey".getBytes());
+        when(partyInfoService.getURLFromRecipientKey(recipientKey)).thenReturn("http://someurl.com");
+        PartyInfo partyInfo = new PartyInfo("http://someurl.com",Collections.emptySet(), Collections.emptySet());
+        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+
+        enclave.resendAll("someKey".getBytes());
+
+        verify(transactionService, times(1)).retrieveAllForRecipient(any());
+
+        verify(encoder).encode(any(EncodedPayloadWithRecipients.class));
+
+        verify(postDelegate, times(1)).doPost(any(),any(),any());
 
     }
 }
