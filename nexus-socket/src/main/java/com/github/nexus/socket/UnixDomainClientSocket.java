@@ -1,7 +1,6 @@
 package com.github.nexus.socket;
 
-import org.newsclub.net.unix.AFUNIXSocket;
-import org.newsclub.net.unix.AFUNIXSocketAddress;
+import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +32,7 @@ public class UnixDomainClientSocket {
         final File socketFile = new File(new File(directory), filename);
 
         try {
-            socket = AFUNIXSocket.newInstance();
-            socket.connect(new AFUNIXSocketAddress(socketFile));
-
+            socket = UnixSocketFactory.create().createSocket(socketFile.toPath());
         } catch (IOException ex) {
             LOGGER.error("Cannot connect to server using {}/{}", directory, filename);
             throw new RuntimeException(ex);
