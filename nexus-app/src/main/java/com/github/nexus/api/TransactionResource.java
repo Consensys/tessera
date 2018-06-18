@@ -147,16 +147,20 @@ public class TransactionResource {
     @Consumes({MediaType.APPLICATION_JSON})
     public Response resend(@Valid final ResendRequest resendRequest) {
 
-        byte[] publickey = Base64.getDecoder().decode(resendRequest.getPublicKey());
+        byte[] publicKey = Base64.getDecoder().decode(resendRequest.getPublicKey());
 
         if (resendRequest.getType() == ResendRequestType.ALL) {
-            LOGGER.info("ALL");
+            enclave.resendAll(publicKey);
         } else if (resendRequest.getType() == ResendRequestType.INDIVIDUAL) {
-            byte[] key = Base64.getDecoder().decode(resendRequest.getKey());
-            LOGGER.info("INDIVIDUAL");
-
+            byte[] hashKey = Base64.getDecoder().decode(resendRequest.getKey());
+            byte[] payload = enclave.receive(hashKey, publicKey);
+            String encodedPayload = base64Decoder.encodeToString(payload);
+            return Response.status(Response.Status.OK)
+                .entity(encodedPayload)
+                .build();
         }
-        return Response.status(Response.Status.CREATED).build();
+
+        return Response.status(Response.Status.OK).build();
     }
 
     @POST
