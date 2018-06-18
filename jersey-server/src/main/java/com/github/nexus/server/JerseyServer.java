@@ -1,15 +1,20 @@
 package com.github.nexus.server;
 
+import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.servlet.ServletRegistration;
+import org.glassfish.grizzly.servlet.WebappContext;
+import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
+
+import javax.ws.rs.core.Application;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import javax.ws.rs.core.Application;
-import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 
 /**
  * Implementation of a RestServer using Jersey and Grizzly.
@@ -42,18 +47,20 @@ public class JerseyServer implements RestServer {
         initParams.put("jersey.config.server.tracing.threshold", "SUMMARY");
         initParams.put("jersey.config.logging.verbosity", "PAYLOAD_ANY");
         initParams.put("jersey.config.beanValidation.enableOutputValidationErrorEntity.server", "true");
-        initParams.put("jersey.config.server.monitoring.statistics.enabled","true");
+        initParams.put("jersey.config.server.monitoring.statistics.enabled", "true");
         initParams.put("jersey.config.server.monitoring.enabled", "true");
-        initParams.put("jersey.config.server.monitoring.statistics.mbeans.enabled","true");
-        
-        
-        
-        final org.glassfish.jersey.server.ResourceConfig config
-                = org.glassfish.jersey.server.ResourceConfig.forApplication(application);
+        initParams.put("jersey.config.server.monitoring.statistics.mbeans.enabled", "true");
 
+
+        final ResourceConfig config = ResourceConfig.forApplication(application);
         config.addProperties(initParams);
 
-        server = GrizzlyHttpServerFactory.createHttpServer(uri, config);
+        server = GrizzlyHttpServerFactory.createHttpServer(uri);
+
+        final WebappContext ctx = new WebappContext("WebappContext");
+        final ServletRegistration registration = ctx.addServlet("ServletContainer", new ServletContainer(config));
+        registration.addMapping("/*");
+        ctx.deploy(server);
 
         LOGGER.info("Starting {}", uri);
 

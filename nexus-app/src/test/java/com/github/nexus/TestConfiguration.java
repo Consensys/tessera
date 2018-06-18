@@ -4,11 +4,15 @@ import com.github.nexus.configuration.Configuration;
 import com.github.nexus.configuration.model.KeyData;
 
 import javax.json.JsonObject;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 
 public class TestConfiguration implements Configuration {
 
@@ -43,6 +47,11 @@ public class TestConfiguration implements Configuration {
     }
 
     @Override
+    public URI uri() {
+        return UriBuilder.fromUri(url()).port(port()).build();
+    }
+
+    @Override
     public List<String> othernodes() {
         return emptyList();
     }
@@ -55,5 +64,10 @@ public class TestConfiguration implements Configuration {
     @Override
     public List<String> generatekeys() {
         return emptyList();
+    }
+
+    @Override
+    public Set<String> whitelist() {
+        return emptySet();
     }
 }

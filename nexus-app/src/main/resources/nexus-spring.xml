@@ -56,6 +56,9 @@
     <bean name="client" class="javax.ws.rs.client.ClientBuilder" factory-method="newClient"/>
 
     <bean class="com.github.nexus.api.LoggingFilter" />
+    <bean class="com.github.nexus.api.filter.IPWhitelistFilter">
+        <constructor-arg ref="config"/>
+    </bean>
 
     <bean name="partyInfoPoller" class="com.github.nexus.node.PartyInfoPoller">
         <constructor-arg ref="partyInfoService"/>
@@ -64,7 +67,7 @@
                   factory-method="newScheduledThreadPool"
                   destroy-method="shutdown">
                 <constructor-arg type="int" value="1"/>
-            </bean>
+    </bean>
         </constructor-arg>
         <constructor-arg>
             <bean class="com.github.nexus.node.PartyInfoParser" factory-method="create"/>
@@ -82,12 +85,9 @@
 
     <bean name="argon2" class="com.github.nexus.argon2.Argon2" factory-method="create" />
 
-    <bean name="keyEncryptor" class="com.github.nexus.key.KeyEncryptorImpl" >
+    <bean name="keyEncryptor" class="com.github.nexus.keygen.KeyEncryptorImpl" >
         <constructor-arg ref="argon2"/>
         <constructor-arg ref="nacl"/>
-        <constructor-arg>
-            <bean class="com.github.nexus.util.Base64Decoder" factory-method="create" />
-        </constructor-arg>
     </bean>
 
     <bean name="keyManager" class="com.github.nexus.key.KeyManagerImpl">
@@ -112,8 +112,9 @@
         
     <bean class="com.github.nexus.api.exception.DefaultExceptionMapper" />
     <bean class="com.github.nexus.api.exception.DecodingExceptionMapper"/>
-    <bean class="com.github.nexus.key.exception.KeyNotFoundExceptionMapper"/>
+    <bean class="com.github.nexus.api.exception.KeyNotFoundExceptionMapper"/>
     <bean class="com.github.nexus.api.exception.NotFoundExceptionMapper" />
+    <bean class="com.github.nexus.api.exception.TransactionNotFoundExceptionMapper"/>
 
     <bean class="com.github.nexus.api.ApiResource" />
     

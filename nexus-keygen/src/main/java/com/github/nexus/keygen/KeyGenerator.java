@@ -1,6 +1,8 @@
-package com.github.nexus.key;
+package com.github.nexus.keygen;
 
 import com.github.nexus.nacl.KeyPair;
+
+import java.io.InputStream;
 
 public interface KeyGenerator {
 
@@ -14,7 +16,7 @@ public interface KeyGenerator {
      * @return the {@link KeyPair} of generated public/private keys
      * @throws RuntimeException if the keys could not be written to file
      */
-    KeyPair generateNewKeys(String name, String password);
+    Pair<String, String> generateNewKeys(String name, String password);
 
     /**
      * Generates a new keypair and saves it to a file using the given name
@@ -24,6 +26,26 @@ public interface KeyGenerator {
      * @return the {@link KeyPair} of generated public/private keys
      * @throws RuntimeException if the keys could not be written to file
      */
-    KeyPair generateNewKeys(String name);
+    Pair<String, String> generateNewKeys(String name);
+
+    /**
+     * Suuplies prompts to stdin and stdout for a password to use and whether
+     * to save to file or not
+     *
+     * @param name
+     */
+    void promptForGeneration(String name, InputStream input);
+
+    class Pair<T, U> {
+
+        public final T left;
+
+        public final U right;
+
+        public Pair(final T left, final U right) {
+            this.left = left;
+            this.right = right;
+        }
+    }
 
 }

@@ -1,4 +1,4 @@
-package com.github.nexus.key;
+package com.github.nexus.keygen;
 
 import com.github.nexus.argon2.Argon2;
 import com.github.nexus.argon2.ArgonOptions;
@@ -6,7 +6,6 @@ import com.github.nexus.argon2.ArgonResult;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.NaclFacade;
 import com.github.nexus.nacl.Nonce;
-import com.github.nexus.util.Base64Decoder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,8 +26,6 @@ public class KeyEncryptorTest {
 
     private NaclFacade nacl;
 
-    private Base64Decoder decoder;
-
     private KeyEncryptor keyEncryptor;
 
     @Before
@@ -36,9 +33,8 @@ public class KeyEncryptorTest {
 
         this.argon2 = mock(Argon2.class);
         this.nacl = mock(NaclFacade.class);
-        this.decoder = Base64Decoder.create();
 
-        this.keyEncryptor = new KeyEncryptorImpl(argon2, nacl, decoder);
+        this.keyEncryptor = new KeyEncryptorImpl(argon2, nacl);
 
     }
 

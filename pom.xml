@@ -106,6 +106,7 @@
                             <goal>prepare-agent</goal>
                         </goals>
                         <configuration>
+                            <skip>true</skip>
                             <destFile>${project.build.directory}/jacoco-it.exec</destFile>
                             <propertyName>failsafeArgLine</propertyName>
                         </configuration>
@@ -187,6 +188,8 @@
         <module>argon2</module>
         <module>nexus-encryption-jnacl</module>
         <module>nexus-encryption-kalium</module>
+        <module>nexus-keygen</module>
+        <module>resteasy-server</module>
     </modules>
 
     <dependencyManagement>
@@ -195,6 +198,24 @@
             <dependency>
                 <groupId>com.github.nexus</groupId>
                 <artifactId>nexus-encryption</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.nexus</groupId>
+                <artifactId>nexus-keygen</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.nexus</groupId>
+                <artifactId>argon2</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.nexus</groupId>
+                <artifactId>nexus-configurator</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             
@@ -230,9 +251,16 @@
                 <artifactId>rest-server</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
+            
             <dependency>
                 <groupId>com.github.nexus</groupId>
                 <artifactId>jersey-server</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.nexus</groupId>
+                <artifactId>resteasy-server</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
@@ -421,6 +449,12 @@
                 <artifactId>javax.persistence-api</artifactId>
                 <version>2.2</version>
                 <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>4.0.1</version>
             </dependency>
 
             <dependency>
