@@ -5,9 +5,11 @@ def configFile = properties['configFile']
 
 def pidFile = properties['pidFile']
 
+def logbackConfigFile = properties['logbackConfigFile']
+
 log.info "$jarfile"
 
-def processDesc = "java -Dnexus.pid.file=$pidFile -jar $jarfile -configfile $configFile"
+def processDesc = "java -Dnexus.pid.file=$pidFile -Dlogback.configurationFile=$logbackConfigFile -jar $jarfile -configfile $configFile"
 
 log.info "$processDesc"
 

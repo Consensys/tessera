@@ -15,7 +15,8 @@
 
     <dependencies>
 
-        
+        <!-- Nexus modules -->
+
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>argon2</artifactId>
@@ -24,37 +25,21 @@
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-configurator</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-encryption</artifactId>
         </dependency>
-        
-        
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-server</artifactId>
-            <type>jar</type>
-            <scope>runtime</scope>
-        </dependency>
 
         <dependency>
-            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
-            <scope>test</scope>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-keygen</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>rest-server</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>jersey-server</artifactId>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -149,11 +134,10 @@
             <artifactId>openpojo</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>argon2</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
         </dependency>
 
     </dependencies>
@@ -234,7 +218,7 @@
                 <groupId>com.github.kongchen</groupId>
                 <artifactId>swagger-maven-plugin</artifactId>
                 <version>3.1.7</version>
-     
+
                 <configuration>
                     <apiSources>
                         <apiSource>
@@ -248,7 +232,7 @@
                                 <title>Nexus rest stuff</title>
                                 <version>${project.version}</version>
                             </info>
-                            
+
                             <locations>
                                 <location>com.github.nexus.api</location>
                             </locations>
@@ -257,7 +241,7 @@
                             <swaggerDirectory>${project.build.directory}/generated-resources/swagger</swaggerDirectory>
                         </apiSource>
                     </apiSources>
-                    
+
                 </configuration>
 
                 <executions>
@@ -283,13 +267,13 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                            <resources>          
+                            <resources>
                                 <resource>
                                     <directory>${project.build.directory}/generated-resources/swagger</directory>
                                     <filtering>false</filtering>
                                 </resource>
-                            </resources>              
-                        </configuration>            
+                            </resources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -320,6 +304,35 @@
                 </dependency>
             </dependencies>
         </profile>
+
+        <profile>
+            <id>jersey</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.github.nexus</groupId>
+                    <artifactId>jersey-server</artifactId>
+                    <scope>runtime</scope>
+                </dependency>
+            </dependencies>
+
+        </profile>
+
+        <profile>
+            <id>resteasy</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>com.github.nexus</groupId>
+                    <artifactId>resteasy-server</artifactId>
+                    <scope>runtime</scope>
+                </dependency>
+            </dependencies>
+
+        </profile>
+
     </profiles>
 
 
