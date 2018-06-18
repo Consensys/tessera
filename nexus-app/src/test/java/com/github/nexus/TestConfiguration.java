@@ -70,4 +70,9 @@ public class TestConfiguration implements Configuration {
     public Set<String> whitelist() {
         return emptySet();
     }
+
+    @Override
+    public String databaseURL() {
+        return "jdbc:h2:./target/h2/nexus;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0";
+    }
 }

@@ -100,4 +100,9 @@ public class ConfigurationImpl implements Configuration {
             .filter(str -> !str.isEmpty())
             .collect(toSet());
     }
+
+    @Override
+    public String databaseURL() {
+        return properties.getProperty("databaseURL");
+    }
 }
