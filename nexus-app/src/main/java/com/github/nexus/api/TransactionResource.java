@@ -26,9 +26,9 @@ public class TransactionResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionResource.class);
 
     private final Enclave enclave;
-    
+
     private final Base64Decoder base64Decoder;
-    
+
     public TransactionResource(final Enclave enclave,final Base64Decoder base64Decoder) {
         this.enclave = requireNonNull(enclave, "enclave must not be null");
         this.base64Decoder = requireNonNull(base64Decoder, "decoder must not be null");
@@ -41,7 +41,7 @@ public class TransactionResource {
     public Response send(@Valid final SendRequest sendRequest) {
 
         byte[] from = base64Decoder.decode(sendRequest.getFrom());
-            
+
         byte[][] recipients =
             Stream.of(sendRequest.getTo())
                 .map(base64Decoder::decode)
@@ -65,20 +65,21 @@ public class TransactionResource {
     @Path("/sendraw")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response sendRaw(@Context final HttpHeaders headers, byte[] b64Payload) {
+    public Response sendRaw(@Context final HttpHeaders headers, byte[] payload) {
 
-        byte[] from = base64Decoder.decode(headers.getHeaderString("c11n-from"));
+        final byte[] from = base64Decoder.decode(headers.getHeaderString("c11n-from"));
 
-        byte[][] recipients = headers.getRequestHeader("c11n-from")
-            .stream().map(base64Decoder::decode).toArray(byte[][]::new);
+        final byte[][] recipients = headers.getRequestHeader("c11n-to")
+            .stream()
+            .map(base64Decoder::decode)
+            .toArray(byte[][]::new);
 
-        byte[] payload = base64Decoder.decode(new String(b64Payload));
+        final byte[] key = enclave.store(from, recipients, payload).getHashBytes();
 
-        byte[] key = enclave.store(from, recipients, payload).getHashBytes();
+        final String encodedKey = base64Decoder.encodeToString(key);
 
-        String encodedKey = base64Decoder.encodeToString(key);
-
-        return Response.status(Response.Status.CREATED)
+        //TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
+        return Response.status(Response.Status.OK)
             .entity(encodedKey)
             .build();
     }
