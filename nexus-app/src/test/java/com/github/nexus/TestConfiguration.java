@@ -70,6 +70,11 @@ public class TestConfiguration implements Configuration {
     public Set<String> whitelist() {
         return emptySet();
     }
+    @Override
+    public String workdir() { return "qdata"; };
+
+    @Override
+    public String socket() { return "/tmp/tst1.ipc"; }
 
     @Override
     public String databaseURL() {

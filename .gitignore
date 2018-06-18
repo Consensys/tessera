@@ -34,3 +34,7 @@
 /nbactions.xml
 /jersey-server/nb-configuration.xml
 /resteasy-server/target/
+/nexus-keygen/target/
+/nexus-socket/target/
+/junixsocket-adapter/nb-configuration.xml
+/junixsocket-adapter/target/
