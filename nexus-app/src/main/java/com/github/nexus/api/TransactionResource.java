@@ -16,6 +16,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
@@ -40,7 +41,9 @@ public class TransactionResource {
     @Produces({MediaType.APPLICATION_JSON})
     public Response send(@Valid final SendRequest sendRequest) {
 
-        final byte[] from = base64Decoder.decode(sendRequest.getFrom());
+        final String sender = sendRequest.getFrom();
+        final Optional<byte[]> from = Optional.ofNullable(sender)
+            .map(base64Decoder::decode);
 
         final byte[][] recipients =
             Stream.of(sendRequest.getTo())
@@ -54,7 +57,7 @@ public class TransactionResource {
         final String encodedKey = base64Decoder.encodeToString(key);
         final SendResponse response = new SendResponse(encodedKey);
 
-        return Response.status(Response.Status.CREATED)
+        return Response.status(Response.Status.OK)
             .header("Content-Type", MediaType.APPLICATION_JSON)
             .entity(response)
             .build();
@@ -65,9 +68,11 @@ public class TransactionResource {
     @Path("/sendraw")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response sendRaw(@Context final HttpHeaders headers, byte[] payload) {
+    public Response sendRaw(@Context final HttpHeaders headers, final byte[] payload) {
 
-        final byte[] from = base64Decoder.decode(headers.getHeaderString("c11n-from"));
+        final String sender = headers.getHeaderString("c11n-from");
+        final Optional<byte[]> from = Optional.ofNullable(sender)
+            .map(base64Decoder::decode);
 
         final byte[][] recipients = headers.getRequestHeader("c11n-to")
             .stream()
