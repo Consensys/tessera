@@ -21,6 +21,7 @@ public interface PropertyLoader {
             addOption("keygenBasePath", "keygenBasePath", true, "base path that generated keys should be placed");
             addOption("generatekeys", "generatekeys", true, "key names to generate a public/private keypair for");
             addOption("whitelist", "whitelist", true, "a whitelist of allowed hosts that can connect to this node");
+            addOption("databaseURL", "databaseURL", true, "database url specify db driver");
         }
     };
 
