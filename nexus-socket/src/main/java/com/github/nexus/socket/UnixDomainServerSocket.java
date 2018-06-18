@@ -1,12 +1,11 @@
 package com.github.nexus.socket;
 
+import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Objects;
 
-import org.newsclub.net.unix.AFUNIXServerSocket;
-import org.newsclub.net.unix.AFUNIXSocketAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +31,7 @@ public class UnixDomainServerSocket {
         final File socketFile = new File(new File(directory), filename);
 
         try {
-            server = AFUNIXServerSocket.newInstance();
-            server.bind(new AFUNIXSocketAddress(socketFile));
+            server = UnixSocketFactory.create().createServerSocket(socketFile.toPath());
             LOGGER.info("server: {}", server);
 
         } catch (IOException ex) {
