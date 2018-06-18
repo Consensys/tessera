@@ -85,12 +85,12 @@
                     </execution>
                 </executions>
                 <configuration>
-                    
+
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <logViolationsToConsole>true</logViolationsToConsole>
                     <configLocation>checkstyle.xml</configLocation>
-                   <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
-                   <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
+                    <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
+                    <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
                 </configuration>
             </plugin>
 
@@ -184,12 +184,14 @@
         <module>service-locator-spring</module>
         <module>nexus-encryption</module>
         <module>nexus-configurator</module>
+        <module>nexus-socket</module>
         <module>nexus-test</module>
         <module>argon2</module>
         <module>nexus-encryption-jnacl</module>
         <module>nexus-encryption-kalium</module>
         <module>nexus-keygen</module>
         <module>resteasy-server</module>
+        <module>junixsocket-adapter</module>
     </modules>
 
     <dependencyManagement>
@@ -219,6 +221,17 @@
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             
+            <dependency>
+                <groupId>com.github.nexus</groupId>
+                <artifactId>nexus-socket</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+       
+            <dependency>
+                <groupId>com.github.nexus</groupId>
+                <artifactId>junixsocket-adapter</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
             
             <dependency>
                 <groupId>com.github.nexus</groupId>
@@ -484,7 +497,13 @@
                 <version>1.2.2</version>
                 <scope>provided</scope>
             </dependency>
-
+            
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>1.5.4</version>
+            </dependency>
+            
         </dependencies>
     </dependencyManagement>
 
@@ -545,6 +564,13 @@
     </dependencies>
 
 
+    <!--add local repo for external dependencies that we want to bundle-->
+    <repositories>
+        <repository>
+            <id>repo</id>
+            <url>file://${project.basedir}/../repo</url>
+        </repository>
 
+    </repositories>
 
 </project>

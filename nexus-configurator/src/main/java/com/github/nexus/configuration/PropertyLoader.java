@@ -21,6 +21,8 @@ public interface PropertyLoader {
             addOption("keygenBasePath", "keygenBasePath", true, "base path that generated keys should be placed");
             addOption("generatekeys", "generatekeys", true, "key names to generate a public/private keypair for");
             addOption("whitelist", "whitelist", true, "a whitelist of allowed hosts that can connect to this node");
+            addOption("workdir", "workdir", true, "directory where work files are placed (must match value specified to Quorum)");
+            addOption("socket", "socket", true, "IPC socket to create for access to the Private API");
             addOption("databaseURL", "databaseURL", true, "database url specify db driver");
         }
     };

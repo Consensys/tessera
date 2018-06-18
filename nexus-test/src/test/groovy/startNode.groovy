@@ -9,7 +9,7 @@ def logbackConfigFile = properties['logbackConfigFile']
 
 log.info "$jarfile"
 
-def processDesc = "java -Dnexus.pid.file=$pidFile -Dlogback.configurationFile=$logbackConfigFile -jar $jarfile -configfile $configFile"
+def processDesc = "java -Dnexus.pid.file=$pidFile -Dspring.profiles.active=disable-unixsocket -Dlogback.configurationFile=$logbackConfigFile -jar $jarfile -configfile $configFile"
 
 log.info "$processDesc"
 
