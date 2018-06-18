@@ -18,14 +18,26 @@
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-configurator</artifactId>
         </dependency>
-
+        
         <dependency>
-            <groupId>junixsocket</groupId>
-            <artifactId>junixsocket</artifactId>
-            <scope>compile</scope>
-            <version>0.0.0</version>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>junixsocket-adapter</artifactId>
         </dependency>
+        
+
 
     </dependencies>
+
+    <build>
+        <plugins>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
+                </plugin>
+        </plugins>
+    </build>
 
 </project>
