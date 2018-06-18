@@ -133,10 +133,10 @@ public class EnclaveImplTest {
 
         final EncodedPayload encodedPayload = new EncodedPayload(
             new Key(new byte[0]),
-                new byte[0],
-                new Nonce(new byte[0]),
-                Arrays.asList("box1".getBytes(), "box2".getBytes()),
-                new Nonce(new byte[0])
+            new byte[0],
+            new Nonce(new byte[0]),
+            Arrays.asList("box1".getBytes(), "box2".getBytes()),
+            new Nonce(new byte[0])
         );
 
         final List<Key> recipientKeys = Arrays.asList(new Key("somekey".getBytes()), new Key("key2".getBytes()));
@@ -178,14 +178,14 @@ public class EnclaveImplTest {
     }
 
     @Test
-    public void testResendAll(){
+    public void testResendAll() {
         EncodedPayload encodedPayload =
             new EncodedPayload(new Key(new byte[0]),
                 new byte[0],
                 new Nonce(new byte[0]),
                 Arrays.asList("box1".getBytes(), "box2".getBytes()),
                 new Nonce(new byte[0]));
-        List<Key> recipientKeys =  Arrays.asList(new Key("somekey".getBytes()), new Key("key2".getBytes()));
+        List<Key> recipientKeys = Arrays.asList(new Key("somekey".getBytes()), new Key("key2".getBytes()));
         EncodedPayloadWithRecipients encodedPayloadWithRecipients =
             new EncodedPayloadWithRecipients(encodedPayload, recipientKeys);
 
@@ -194,16 +194,19 @@ public class EnclaveImplTest {
 
         Key recipientKey = new Key("somekey".getBytes());
         when(partyInfoService.getURLFromRecipientKey(recipientKey)).thenReturn("http://someurl.com");
-        PartyInfo partyInfo = new PartyInfo("http://someurl.com",Collections.emptySet(), Collections.emptySet());
+        PartyInfo partyInfo = new PartyInfo("http://someurl.com", emptySet(), emptySet());
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
 
         enclave.resendAll("someKey".getBytes());
 
-        verify(transactionService, times(1)).retrieveAllForRecipient(any());
+        verify(transactionService).retrieveAllForRecipient(any());
 
         verify(encoder).encode(any(EncodedPayloadWithRecipients.class));
 
-        verify(postDelegate, times(1)).doPost(any(),any(),any());
+        verify(postDelegate).doPost(any(), any(), any());
+
+        verify(partyInfoService, times(2)).getURLFromRecipientKey(any());
+        verify(partyInfoService, times(2)).getPartyInfo();
 
     }
 }
