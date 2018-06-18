@@ -110,4 +110,9 @@ public class ConfigurationImpl implements Configuration {
     public String socket() {
         return properties.getProperty("socket");
     }
+
+    @Override
+    public String databaseURL() {
+        return properties.getProperty("databaseURL");
+    }
 }

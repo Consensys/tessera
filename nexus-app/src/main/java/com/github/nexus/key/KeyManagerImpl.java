@@ -22,6 +22,8 @@ public class KeyManagerImpl implements KeyManager {
      */
     private final Set<KeyPair> ourKeys;
 
+    private final KeyPair defaultKeys;
+
     private final KeyEncryptor keyEncryptor;
 
     public KeyManagerImpl(final KeyEncryptor keyEncryptor, final List<KeyData> keys) {
@@ -29,6 +31,8 @@ public class KeyManagerImpl implements KeyManager {
 
         this.ourKeys = new HashSet<>();
         keys.forEach(this::loadKeypair);
+
+        this.defaultKeys = ourKeys.iterator().next();
 
     }
 
@@ -97,6 +101,11 @@ public class KeyManagerImpl implements KeyManager {
             .stream()
             .map(KeyPair::getPublicKey)
             .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Key defaultPublicKey() {
+        return defaultKeys.getPublicKey();
     }
 
     private Key loadPrivateKey(final JsonObject privateKeyJson, final String password) {
