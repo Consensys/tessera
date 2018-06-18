@@ -4,6 +4,8 @@ import com.github.nexus.enclave.model.MessageHash;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.transaction.model.EncodedPayloadWithRecipients;
 
+import java.util.Optional;
+
 public interface Enclave {
 
     /**
@@ -35,9 +37,11 @@ public interface Enclave {
      * @param message
      * @return
      */
-    MessageHash store(byte[] sender, byte[][] recipients, byte[] message);
+    MessageHash store(Optional<byte[]> sender, byte[][] recipients, byte[] message);
 
     MessageHash storePayload(byte[] encodedPayloadWithRecipients);
 
     void publishPayload(EncodedPayloadWithRecipients encodedPayload, Key recipient);
+
+    void resendAll(byte[] recipientKey);
 }

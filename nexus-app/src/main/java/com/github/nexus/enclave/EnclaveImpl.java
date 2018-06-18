@@ -2,19 +2,23 @@ package com.github.nexus.enclave;
 
 import com.github.nexus.api.model.ApiPath;
 import com.github.nexus.enclave.model.MessageHash;
+import com.github.nexus.key.KeyManager;
 import com.github.nexus.nacl.Key;
-import com.github.nexus.node.PostDelegate;
 import com.github.nexus.node.PartyInfoService;
+import com.github.nexus.node.PostDelegate;
 import com.github.nexus.transaction.PayloadEncoder;
 import com.github.nexus.transaction.TransactionService;
 import com.github.nexus.transaction.model.EncodedPayload;
 import com.github.nexus.transaction.model.EncodedPayloadWithRecipients;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 public class EnclaveImpl implements Enclave {
@@ -27,20 +31,24 @@ public class EnclaveImpl implements Enclave {
 
     private final PostDelegate postDelegate;
 
-    public EnclaveImpl(final TransactionService transactionService,
-                             PartyInfoService partyInfoService,
-                             PayloadEncoder payloadEncoder,
-                             PostDelegate postDelegate) {
-            this.transactionService = requireNonNull(transactionService,"transactionService cannot be null");
-            this.partyInfoService = requireNonNull(partyInfoService, "partyInfoService cannot be null");
-            this.payloadEncoder = requireNonNull(payloadEncoder,"encoder cannot be null");
-            this.postDelegate = requireNonNull(postDelegate, "postDelegate cannot be null");
+    private final KeyManager keyManager;
 
+    public EnclaveImpl(final TransactionService transactionService,
+                       final PartyInfoService partyInfoService,
+                       final PayloadEncoder payloadEncoder,
+                       final PostDelegate postDelegate,
+                       final KeyManager keyManager) {
+        this.transactionService = requireNonNull(transactionService, "transactionService cannot be null");
+        this.partyInfoService = requireNonNull(partyInfoService, "partyInfoService cannot be null");
+        this.payloadEncoder = requireNonNull(payloadEncoder, "encoder cannot be null");
+        this.postDelegate = requireNonNull(postDelegate, "postDelegate cannot be null");
+        this.keyManager = requireNonNull(keyManager, "keyManager cannot be null");
     }
 
     @Override
     public boolean delete(final byte[] hashBytes) {
-        MessageHash messageHash = new MessageHash(hashBytes);
+        final MessageHash messageHash = new MessageHash(hashBytes);
+
         return transactionService.delete(messageHash);
     }
 
@@ -50,10 +58,15 @@ public class EnclaveImpl implements Enclave {
     }
 
     @Override
-    public MessageHash store(final byte[] sender, final byte[][] recipients, final byte[] message) {
-        Key senderPublicKey = new Key(sender);
-        List<Key> recipientList = Arrays.stream(recipients)
-            .map(recipient -> new Key(recipient))
+    public MessageHash store(final Optional<byte[]> sender, final byte[][] recipients, final byte[] message) {
+
+        final Key senderPublicKey = sender
+            .map(Key::new)
+            .orElseGet(keyManager::defaultPublicKey);
+
+        final List<Key> recipientList = Stream
+            .of(recipients)
+            .map(Key::new)
             .collect(Collectors.toList());
 
         EncodedPayloadWithRecipients encryptedPayload =
@@ -61,10 +74,7 @@ public class EnclaveImpl implements Enclave {
 
         MessageHash messageHash = transactionService.storeEncodedPayload(encryptedPayload);
 
-        recipientList.forEach(recipient -> {
-            publishPayload(encryptedPayload, recipient);
-        });
-
+        recipientList.forEach(recipient -> publishPayload(encryptedPayload, recipient));
 
         return messageHash;
 
@@ -82,28 +92,41 @@ public class EnclaveImpl implements Enclave {
     public void publishPayload(final EncodedPayloadWithRecipients encodedPayloadWithRecipients,
                                final Key recipientKey) {
 
-        String url = partyInfoService.getURLFromRecipientKey(recipientKey);
+        final String targetUrl = partyInfoService.getURLFromRecipientKey(recipientKey);
 
-        if (!partyInfoService.getPartyInfo().getUrl().equals(url)){
+        if (!partyInfoService.getPartyInfo().getUrl().equals(targetUrl)) {
 
-            EncodedPayload encodedPayload = encodedPayloadWithRecipients.getEncodedPayload();
+            final EncodedPayload encodedPayload = encodedPayloadWithRecipients.getEncodedPayload();
 
-            int index = encodedPayloadWithRecipients.getRecipientKeys().indexOf(recipientKey);
+            final int index = encodedPayloadWithRecipients.getRecipientKeys().indexOf(recipientKey);
 
-            EncodedPayloadWithRecipients encodedPayloadWithOneRecipient =
+            final EncodedPayloadWithRecipients encodedPayloadWithOneRecipient =
                 new EncodedPayloadWithRecipients(
-                    new EncodedPayload(encodedPayload.getSenderKey(),
+                    new EncodedPayload(
+                        encodedPayload.getSenderKey(),
                         encodedPayload.getCipherText(),
                         encodedPayload.getCipherTextNonce(),
-                        Arrays.asList(encodedPayload.getRecipientBoxes().get(index)),
-                        encodedPayload.getRecipientNonce()),
-                    Collections.emptyList());
+                        singletonList(encodedPayload.getRecipientBoxes().get(index)),
+                        encodedPayload.getRecipientNonce()
+                    ),
+                    emptyList()
+                );
 
-            byte[] encoded = payloadEncoder.encode(encodedPayloadWithOneRecipient);
+            final byte[] encoded = payloadEncoder.encode(encodedPayloadWithOneRecipient);
 
-            postDelegate.doPost(url, ApiPath.PUSH, encoded);
+            postDelegate.doPost(targetUrl, ApiPath.PUSH, encoded);
         }
     }
 
+    @Override
+    public void resendAll(byte[] recipientPublicKey) {
+        Key recipient = new Key(recipientPublicKey);
+        Collection<EncodedPayloadWithRecipients> payloads = transactionService.retrieveAllForRecipient(recipient);
 
+        payloads.forEach(payload -> {
+            payload.getRecipientKeys().forEach(recipientKey -> {
+                publishPayload(payload, recipientKey);
+            });
+        });
+    }
 }
