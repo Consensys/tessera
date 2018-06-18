@@ -28,6 +28,7 @@ public class UnixDomainServerSocketTest {
     public void tearDown() {
     }
 
+    @Ignore
     @Test
     public void testServerCreate() {
         final String path = "/tmp";
