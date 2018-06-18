@@ -14,6 +14,7 @@ import org.junit.Test;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.util.Base64;
+import java.util.Optional;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +55,7 @@ public class TransactionResourceTest {
         assertThat(response).isNotNull();
         SendResponse sr = (SendResponse) response.getEntity();
         assertThat(sr.getKey()).isNotEmpty();
-        assertThat(response.getStatus()).isEqualTo(201);
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 
     @Test
@@ -69,7 +70,7 @@ public class TransactionResourceTest {
 
         final Response response = transactionResource.sendRaw(headers, payload);
 
-        verify(enclave).store(any(byte[].class), any(byte[][].class), eq(payload));
+        verify(enclave).store(any(Optional.class), any(byte[][].class), eq(payload));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);

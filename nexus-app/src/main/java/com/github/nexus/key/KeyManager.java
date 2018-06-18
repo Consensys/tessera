@@ -49,4 +49,16 @@ public interface KeyManager {
      */
     Set<Key> getPublicKeys();
 
+    /**
+     * Returns the default public key of this node if a transaction is
+     * sent that doesn't have a sender.
+     *
+     * Must return the same key each time during a single run,
+     * but no guarantee is made about which key is returned if the
+     * application is restarted.
+     *
+     * @return The public key to use as the default sender
+     */
+    Key defaultPublicKey();
+
 }
