@@ -45,17 +45,17 @@ public class TransactionResource {
         final Optional<byte[]> from = Optional.ofNullable(sender)
             .map(base64Decoder::decode);
 
-        byte[][] recipients =
+        final byte[][] recipients =
             Stream.of(sendRequest.getTo())
                 .map(base64Decoder::decode)
                 .toArray(byte[][]::new);
 
-        byte[] payload = base64Decoder.decode(sendRequest.getPayload());
+        final byte[] payload = base64Decoder.decode(sendRequest.getPayload());
 
-        byte[] key = enclave.store(from, recipients, payload).getHashBytes();
+        final byte[] key = enclave.store(from, recipients, payload).getHashBytes();
 
-        String encodedKey = base64Decoder.encodeToString(key);
-        SendResponse response = new SendResponse(encodedKey);
+        final String encodedKey = base64Decoder.encodeToString(key);
+        final SendResponse response = new SendResponse(encodedKey);
 
         return Response.status(Response.Status.OK)
             .header("Content-Type", MediaType.APPLICATION_JSON)
@@ -95,15 +95,15 @@ public class TransactionResource {
     @Produces(value = MediaType.APPLICATION_JSON)
     public Response receive(@Valid final ReceiveRequest receiveRequest) {
 
-        byte[] key = base64Decoder.decode(receiveRequest.getKey());
+        final byte[] key = base64Decoder.decode(receiveRequest.getKey());
 
-        byte[] to = base64Decoder.decode(receiveRequest.getTo());
+        final byte[] to = base64Decoder.decode(receiveRequest.getTo());
 
-        byte[] payload = enclave.receive(key, to);
+        final byte[] payload = enclave.receive(key, to);
 
-        String encodedPayload = base64Decoder.encodeToString(payload);
+        final String encodedPayload = base64Decoder.encodeToString(payload);
 
-        ReceiveResponse response = new ReceiveResponse(encodedPayload);
+        final ReceiveResponse response = new ReceiveResponse(encodedPayload);
 
         return Response.status(Response.Status.CREATED)
             .header("Content-Type", MediaType.APPLICATION_JSON)
@@ -118,13 +118,13 @@ public class TransactionResource {
     @Produces(MediaType.TEXT_PLAIN)
     public Response receiveRaw(@Context final HttpHeaders headers) {
 
-        byte[] key = base64Decoder.decode(headers.getHeaderString("c11n-key"));
+        final byte[] key = base64Decoder.decode(headers.getHeaderString("c11n-key"));
 
-        byte[] to = base64Decoder.decode(headers.getHeaderString("c11n-to"));
+        final byte[] to = base64Decoder.decode(headers.getHeaderString("c11n-to"));
 
-        byte[] payload = enclave.receive(key, to);
+        final byte[] payload = enclave.receive(key, to);
 
-        String encodedPayload = base64Decoder.encodeToString(payload);
+        final String encodedPayload = base64Decoder.encodeToString(payload);
 
         return Response.status(Response.Status.CREATED)
             .entity(encodedPayload)
@@ -137,7 +137,7 @@ public class TransactionResource {
     @Produces(MediaType.TEXT_PLAIN)
     public Response delete(@Valid final DeleteRequest deleteRequest) {
 
-        byte[] hashBytes = base64Decoder.decode(deleteRequest.getKey());
+        final byte[] hashBytes = base64Decoder.decode(deleteRequest.getKey());
 
         enclave.delete(hashBytes);
 
@@ -152,16 +152,20 @@ public class TransactionResource {
     @Consumes({MediaType.APPLICATION_JSON})
     public Response resend(@Valid final ResendRequest resendRequest) {
 
-        byte[] publickey = Base64.getDecoder().decode(resendRequest.getPublicKey());
+        final byte[] publicKey = Base64.getDecoder().decode(resendRequest.getPublicKey());
 
         if (resendRequest.getType() == ResendRequestType.ALL) {
-            LOGGER.info("ALL");
+            enclave.resendAll(publicKey);
         } else if (resendRequest.getType() == ResendRequestType.INDIVIDUAL) {
-            byte[] key = Base64.getDecoder().decode(resendRequest.getKey());
-            LOGGER.info("INDIVIDUAL");
-
+            final byte[] hashKey = Base64.getDecoder().decode(resendRequest.getKey());
+            final byte[] payload = enclave.receive(hashKey, publicKey);
+            final String encodedPayload = base64Decoder.encodeToString(payload);
+            return Response.status(Response.Status.OK)
+                .entity(encodedPayload)
+                .build();
         }
-        return Response.status(Response.Status.CREATED).build();
+
+        return Response.status(Response.Status.OK).build();
     }
 
     @POST
