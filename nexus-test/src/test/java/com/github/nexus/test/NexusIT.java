@@ -1,29 +1,22 @@
 package com.github.nexus.test;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import javax.json.Json;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
-import java.net.URI;
-import java.util.Base64;
-import javax.json.JsonObject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.UriBuilder;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.*;
 import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriBuilder;
+import java.io.*;
+import java.net.URI;
+import java.util.Base64;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NexusIT {
 
@@ -186,7 +179,7 @@ public class NexusIT {
     }
 
     @Test
-    public void requestOpenApiSchemaDocument() throws IOException {
+    public void requestOpenApiSchemaDocument() {
 
         javax.ws.rs.core.Response response = client
                 .target(SERVER_URI)
@@ -205,7 +198,7 @@ public class NexusIT {
     }
 
     @Test
-    public void sendraw() throws Exception {
+    public void sendraw() {
 
         javax.ws.rs.core.Response response = client.target(SERVER_URI)
                 .path("/sendraw")
@@ -215,13 +208,13 @@ public class NexusIT {
                 .post(Entity.entity("Zm9v", MediaType.APPLICATION_OCTET_STREAM));
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 
 
     @Ignore
     @Test
-    public void receiveraw() throws Exception {
+    public void receiveraw() {
 
         String key = Base64.getEncoder().encodeToString("<replace the hashkey here>".getBytes());
         String recipient =  Base64.getEncoder().encodeToString("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=".getBytes());
