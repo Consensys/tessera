@@ -34,4 +34,6 @@ public interface Configuration {
 
     Set<String> whitelist();
 
+    String databaseURL();
+
 }
