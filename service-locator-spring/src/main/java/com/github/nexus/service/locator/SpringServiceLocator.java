@@ -8,11 +8,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SpringServiceLocator implements ServiceLocator {
-    
+
+    private static ApplicationContext context;
+
     @Override
     public Set<Object> getServices(final String filename) {
-
-        final ApplicationContext context = new ClassPathXmlApplicationContext(filename);
+        if(context == null) {
+            context = new ClassPathXmlApplicationContext(filename);
+        }
 
         return Stream
             .of(context.getBeanDefinitionNames())

@@ -47,6 +47,7 @@
         <constructor-arg ref="partyInfoService"/>
         <constructor-arg ref="payloadEncoder"/>
         <constructor-arg ref="postDelegate"/>
+        <constructor-arg ref="keyManager" />
     </bean>
 
     <bean name="postDelegate" class="com.github.nexus.node.PostDelegate">
