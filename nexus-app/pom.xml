@@ -41,7 +41,7 @@
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-socket</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
