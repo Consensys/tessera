@@ -119,7 +119,7 @@
     <bean class="com.github.nexus.api.ApiResource" />
     
     <bean id="dataSource" class="org.h2.jdbcx.JdbcDataSource">
-        <property name="url" value="jdbc:h2:./target/h2/nexus;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0" />
+        <property name="url" value="#{ config.databaseURL() }" />
         <property name="user" value="sa" />
         <property name="password" value="" />
     </bean>

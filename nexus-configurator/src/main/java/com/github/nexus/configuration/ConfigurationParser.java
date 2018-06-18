@@ -9,7 +9,7 @@ public interface ConfigurationParser {
 
     String[] KNOWN_PROPERTIES = new String[]{
         "publicKeys", "privateKeys", "port", "url", "othernodes", "keygenBasePath", "passwords", "generatekeys",
-        "whitelist", "workdir", "socket"
+        "whitelist", "workdir", "socket", "databaseURL"
     };
 
     Configuration config(PropertyLoader propertyLoader, List<String> cliParameters);
