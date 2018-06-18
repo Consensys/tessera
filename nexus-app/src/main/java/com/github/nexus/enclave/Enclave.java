@@ -40,4 +40,6 @@ public interface Enclave {
     MessageHash storePayload(byte[] encodedPayloadWithRecipients);
 
     void publishPayload(EncodedPayloadWithRecipients encodedPayload, Key recipient);
+
+    void resendAll(byte[] recipientKey);
 }
