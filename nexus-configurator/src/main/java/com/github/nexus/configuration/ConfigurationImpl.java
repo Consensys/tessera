@@ -102,6 +102,16 @@ public class ConfigurationImpl implements Configuration {
     }
 
     @Override
+    public String workdir() {
+        return properties.getProperty("workdir");
+    }
+
+    @Override
+    public String socket() {
+        return properties.getProperty("socket");
+    }
+
+    @Override
     public String databaseURL() {
         return properties.getProperty("databaseURL");
     }
