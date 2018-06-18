@@ -3,14 +3,15 @@ package com.github.nexus.enclave;
 import com.github.nexus.api.model.ApiPath;
 import com.github.nexus.enclave.model.MessageHash;
 import com.github.nexus.nacl.Key;
-import com.github.nexus.node.PostDelegate;
 import com.github.nexus.node.PartyInfoService;
+import com.github.nexus.node.PostDelegate;
 import com.github.nexus.transaction.PayloadEncoder;
 import com.github.nexus.transaction.TransactionService;
 import com.github.nexus.transaction.model.EncodedPayload;
 import com.github.nexus.transaction.model.EncodedPayloadWithRecipients;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,7 +66,6 @@ public class EnclaveImpl implements Enclave {
             publishPayload(encryptedPayload, recipient);
         });
 
-
         return messageHash;
 
     }
@@ -105,5 +105,15 @@ public class EnclaveImpl implements Enclave {
         }
     }
 
+    @Override
+    public void resendAll(byte[] recipientPublicKey) {
+        Key recipient = new Key(recipientPublicKey);
+        Collection<EncodedPayloadWithRecipients> payloads = transactionService.retrieveAllForRecipient(recipient);
 
+        payloads.forEach(payload -> {
+            payload.getRecipientKeys().forEach(recipientKey -> {
+                publishPayload(payload, recipientKey);
+            });
+        });
+    }
 }
