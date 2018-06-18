@@ -3,7 +3,6 @@ package com.github.nexus.node;
 import com.github.nexus.node.model.Party;
 import com.github.nexus.node.model.PartyInfo;
 import com.github.nexus.node.model.Recipient;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,25 +45,20 @@ public class PartyInfoParserTest {
 
     private PartyInfoParser partyInfoParser = PartyInfoParser.create();
 
-    public PartyInfoParserTest() {
-    }
-
     @Before
     public void setUp() {
-        List<Byte> bbdata = IntStream.of(sampleData).boxed()
+        final List<Byte> bbdata = IntStream
+            .of(sampleData)
+            .boxed()
             .map(Integer::byteValue)
             .collect(Collectors.toList());
 
-        data = new byte[bbdata.size()];
+        this.data = new byte[bbdata.size()];
 
         for (int i = 0; i < bbdata.size(); i++) {
-            data[i] = bbdata.get(i);
+            this.data[i] = bbdata.get(i);
         }
 
-    }
-
-    @After
-    public void tearDown() {
     }
 
     @Test
