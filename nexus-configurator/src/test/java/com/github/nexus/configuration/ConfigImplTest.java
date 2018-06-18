@@ -24,6 +24,7 @@ public class ConfigImplTest {
         configProperties.setProperty("othernodes", "node1.com,node2.com:10000");
         configProperties.setProperty("generatekeys", "newkey1,newkey2");
         configProperties.setProperty("whitelist", "ip1,,ip2");
+        configProperties.setProperty("databaseURL","h2");
 
         final Configuration configuration = new ConfigurationImpl(configProperties);
 
@@ -34,6 +35,7 @@ public class ConfigImplTest {
         assertThat(configuration.generatekeys()).hasSize(2).containsExactly("newkey1", "newkey2");
         assertThat(configuration.uri().toString()).isEqualTo("http://url.com:2000");
         assertThat(configuration.whitelist()).hasSize(2).containsExactlyInAnyOrder("ip1", "ip2");
+        assertThat(configuration.databaseURL()).isEqualTo("h2");
 
     }
 
