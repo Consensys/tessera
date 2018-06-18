@@ -159,4 +159,10 @@
 
     </bean>
     
+    <beans profile="unix-socket">
+        <bean class="com.github.nexus.socket.SocketServerFactory" factory-method="createSocketServer">
+            <constructor-arg ref="config" />
+        </bean>
+    </beans>
+    
 </beans>
