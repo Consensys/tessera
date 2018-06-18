@@ -14,8 +14,36 @@
             <groupId>junixsocket</groupId>
             <artifactId>junixsocket</artifactId>
             <scope>compile</scope>
-            <version>0.0.0</version>
+            <version>1.3</version>
         </dependency>
     </dependencies>
+    
+    
+    <build>
+        <plugins>
+
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <file>${basedir}/src/main/lib/junixsocket-1.3.jar</file>
+                            <groupId>junixsocket</groupId>
+                            <artifactId>junixsocket</artifactId>
+                            <version>1.3</version>
+                            <packaging>jar</packaging>
+                        </configuration>
+                    </execution>
+                </executions>
+                
+            </plugin>
+        </plugins>
+    </build>
     
 </project>
