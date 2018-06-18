@@ -38,4 +38,6 @@ public interface Configuration {
 
     String socket();
 
+    String databaseURL();
+
 }

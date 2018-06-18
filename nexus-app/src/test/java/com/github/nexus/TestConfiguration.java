@@ -74,6 +74,10 @@ public class TestConfiguration implements Configuration {
     public String workdir() { return "qdata"; };
 
     @Override
-    public String socket() { return "/tmp/tst1.ipc"; };
+    public String socket() { return "/tmp/tst1.ipc"; }
 
+    @Override
+    public String databaseURL() {
+        return "jdbc:h2:./target/h2/nexus;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0";
+    }
 }

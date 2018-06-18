@@ -10,31 +10,28 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.util.Base64;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Optional;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class TransactionResourceTest {
 
-    @Mock
     private Enclave enclave;
+
+    private Base64Decoder base64Decoder = Base64Decoder.create();
 
     private TransactionResource transactionResource;
 
-    private Base64Decoder base64Decoder = Base64Decoder.create();
-    
     @Before
     public void onSetup() {
-        MockitoAnnotations.initMocks(this);
-        transactionResource = new TransactionResource(enclave,base64Decoder);
+        this.enclave = mock(Enclave.class);
+        transactionResource = new TransactionResource(enclave, base64Decoder);
     }
 
     @After
@@ -58,27 +55,25 @@ public class TransactionResourceTest {
         assertThat(response).isNotNull();
         SendResponse sr = (SendResponse) response.getEntity();
         assertThat(sr.getKey()).isNotEmpty();
-        assertThat(response.getStatus()).isEqualTo(201);
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 
     @Test
-    public void testSendRaw(){
-        HttpHeaders headers = mock(HttpHeaders.class);
+    public void testSendRaw() {
+        final HttpHeaders headers = mock(HttpHeaders.class);
+        final byte[] payload = "Zm9v".getBytes();
 
-        when(headers.getHeaderString("c11n-from"))
-            .thenReturn("bXlwdWJsaWNrZXk=");
+        doReturn("bXlwdWJsaWNrZXk=").when(headers).getHeaderString("c11n-from");
+        doReturn(singletonList("cmVjaXBpZW50MQ==")).when(headers).getRequestHeader("c11n-to");
 
-        when(headers.getRequestHeader("c11n-to"))
-            .thenReturn(Stream.of("cmVjaXBpZW50MQ==")
-                .collect(Collectors.toList()));
+        doReturn(new MessageHash("SOMEKEY".getBytes())).when(enclave).store(any(), any(), eq(payload));
 
-        when(enclave.store(any(), any(), any())).thenReturn(new MessageHash("SOMEKEY".getBytes()));
+        final Response response = transactionResource.sendRaw(headers, payload);
 
-        Response response = transactionResource.sendRaw(headers, "Zm9v".getBytes());
+        verify(enclave).store(any(Optional.class), any(byte[][].class), eq(payload));
 
-        verify(enclave, times(1)).store(any(), any(), any());
         assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 
 
@@ -119,12 +114,12 @@ public class TransactionResourceTest {
         ReceiveResponse receiveResponse = (ReceiveResponse) response.getEntity();
 
         assertThat(receiveResponse.getPayload()).isEqualTo("U09NRSBEQVRB");
-        verify(enclave).receive(any(),any());
+        verify(enclave).receive(any(), any());
         assertThat(response.getStatus()).isEqualTo(201);
     }
 
     @Test
-    public void testReceiveRaw(){
+    public void testReceiveRaw() {
         HttpHeaders headers = mock(HttpHeaders.class);
 
         when(headers.getHeaderString("c11n-key"))
@@ -143,7 +138,7 @@ public class TransactionResourceTest {
     }
 
     @Test(expected = DecodingException.class)
-    public void testReceiveThrowDecodingException(){
+    public void testReceiveThrowDecodingException() {
         ReceiveRequest receiveRequest = new ReceiveRequest();
         receiveRequest.setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
         receiveRequest.setTo("1");
@@ -170,32 +165,6 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void testResendAllLowercase() {
-        ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setType(ResendRequestType.ALL);
-        resendRequest.setPublicKey("mypublickey");
-        resendRequest.setKey("mykey");
-
-        Response response = transactionResource.resend(resendRequest);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
-    }
-
-    @Test
-    public void testResendIndividualLowercase() {
-        ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setType(ResendRequestType.INDIVIDUAL);
-        resendRequest.setPublicKey("mypublickey");
-        resendRequest.setKey("cmVjaXBpZW50MQ==");
-
-        Response response = transactionResource.resend(resendRequest);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
-    }
-
-    @Test
     public void testResendAll() {
         ResendRequest resendRequest = new ResendRequest();
         resendRequest.setType(ResendRequestType.ALL);
@@ -203,9 +172,12 @@ public class TransactionResourceTest {
         resendRequest.setKey("mykey");
 
         Response response = transactionResource.resend(resendRequest);
+        byte[] decodedKey = base64Decoder.decode(resendRequest.getPublicKey());
+
+        verify(enclave).resendAll(decodedKey);
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 
     @Test
@@ -215,11 +187,14 @@ public class TransactionResourceTest {
         resendRequest.setType(ResendRequestType.INDIVIDUAL);
         resendRequest.setPublicKey("mypublickey");
         resendRequest.setKey(Base64.getEncoder().encodeToString("mykey".getBytes()));
+        when(enclave.receive(any(),any())).thenReturn("payload".getBytes());
 
         Response response = transactionResource.resend(resendRequest);
 
+        verify(enclave).receive(any(),any());
+
         assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 
     @Test
