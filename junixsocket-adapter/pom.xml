@@ -13,8 +13,9 @@
         <dependency>
             <groupId>junixsocket</groupId>
             <artifactId>junixsocket</artifactId>
-            <scope>compile</scope>
+            <scope>system</scope>
             <version>1.3</version>
+            <systemPath>${basedir}/src/main/lib/junixsocket-1.3.jar</systemPath>
         </dependency>
     </dependencies>
     
