@@ -3,8 +3,6 @@ package com.github.nexus.api;
 import com.github.nexus.api.model.*;
 import com.github.nexus.enclave.Enclave;
 import com.github.nexus.util.Base64Decoder;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -27,7 +25,7 @@ import static java.util.Objects.requireNonNull;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-@Path("")
+@Path("/")
 public class TransactionResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionResource.class);
@@ -48,7 +46,7 @@ public class TransactionResource {
             @ApiResponse(code = 400,message = "For unknown and unknown keys")
     })
     @POST
-    @Path("/send")
+    @Path("send")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     public Response send(
@@ -87,12 +85,8 @@ public class TransactionResource {
     @ApiResponses({
         @ApiResponse(code = 200,message = "Encoded Key",response = String.class)
     })
-    @ApiImplicitParams({
-        @ApiImplicitParam(name = "c11n-from",paramType = "header",required = true,value = "Sender key"),
-        @ApiImplicitParam(name = "c11n-to",paramType = "header",required = true,value = "Recipients keys")
-    })
     @POST
-    @Path("/sendraw")
+    @Path("sendraw")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.TEXT_PLAIN)
     public Response sendRaw(
@@ -123,7 +117,7 @@ public class TransactionResource {
         @ApiResponse(code = 200,response = ReceiveResponse.class,message = "Receive Response object")
     })
     @GET
-    @Path("/receive")
+    @Path("receive")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response receive(
@@ -153,7 +147,7 @@ public class TransactionResource {
         @ApiResponse(code=200,message = "Encoded value",response = String.class)
     })
     @GET
-    @Path("/receiveraw")
+    @Path("receiveraw")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.TEXT_PLAIN)
     public Response receiveRaw(
@@ -179,7 +173,7 @@ public class TransactionResource {
         @ApiResponse(code = 200,message = "Status message",response = String.class)
     })
     @POST
-    @Path("/delete")
+    @Path("delete")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces(MediaType.TEXT_PLAIN)
     public Response delete(
@@ -203,7 +197,7 @@ public class TransactionResource {
             }
     )
     @POST
-    @Path("/resend")
+    @Path("resend")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces(MediaType.TEXT_PLAIN)
     public Response resend(
@@ -230,7 +224,7 @@ public class TransactionResource {
             {@ApiResponse(code = 201,message = "Key created status")}
     )
     @POST
-    @Path("/push")
+    @Path("push")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     public Response push(
             @ApiParam(name = "payload",required = true,value = "Key data to be stored.")
