@@ -3,6 +3,13 @@ package com.github.nexus.api;
 import com.github.nexus.api.model.*;
 import com.github.nexus.enclave.Enclave;
 import com.github.nexus.util.Base64Decoder;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,11 +39,18 @@ public class TransactionResource {
         this.base64Decoder = requireNonNull(base64Decoder, "decoder must not be null");
     }
 
+    @ApiResponses(
+            @ApiResponse(code = 200,
+                    response = SendResponse.class,
+                    message = "Send response")
+    )
     @POST
     @Path("/send")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response send(@Valid final SendRequest sendRequest) {
+    public Response send(
+            @ApiParam(name = "sendRequest",required = true) 
+            @Valid final SendRequest sendRequest) {
 
         final String sender = sendRequest.getFrom();
         final Optional<byte[]> from = Optional.ofNullable(sender)
@@ -61,11 +75,19 @@ public class TransactionResource {
 
     }
 
+    @ApiResponses({
+        @ApiResponse(code = 200,message = "Encoded Key",response = String.class)
+    })
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "c11n-from",paramType = "header",required = true,value = "Sender key"),
+        @ApiImplicitParam(name = "c11n-to",paramType = "header",required = true,value = "Recipients keys")
+    })
     @POST
     @Path("/sendraw")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response sendRaw(@Context final HttpHeaders headers, final byte[] payload) {
+    public Response sendRaw(
+            @Context final HttpHeaders headers, final byte[] payload) {
 
         final String sender = headers.getHeaderString("c11n-from");
         final Optional<byte[]> from = Optional.ofNullable(sender)
@@ -86,11 +108,16 @@ public class TransactionResource {
             .build();
     }
 
+    @ApiResponses({
+        @ApiResponse(code = 200,response = ReceiveResponse.class,message = "Receive Response object")
+    })
     @GET
     @Path("/receive")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response receive(@Valid final ReceiveRequest receiveRequest) {
+    public Response receive(
+            @ApiParam(name = "receiveRequest",required = true)
+            @Valid final ReceiveRequest receiveRequest) {
 
         final byte[] key = base64Decoder.decode(receiveRequest.getKey());
 
@@ -111,11 +138,16 @@ public class TransactionResource {
 
     }
 
+    @ApiResponses({
+        @ApiResponse(code=200,message = "Encoded value",response = String.class)
+    })
     @GET
     @Path("/receiveraw")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response receiveRaw(@Context final HttpHeaders headers) {
+    public Response receiveRaw(
+            
+            @Context final HttpHeaders headers) {
 
         final byte[] key = base64Decoder.decode(headers.getHeaderString("c11n-key"));
 
