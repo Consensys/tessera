@@ -5,7 +5,6 @@ import com.github.nexus.enclave.Enclave;
 import com.github.nexus.enclave.model.MessageHash;
 import com.github.nexus.util.Base64Decoder;
 import com.github.nexus.util.exception.DecodingException;
-import java.util.Arrays;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
@@ -16,7 +15,6 @@ import javax.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.Optional;
 
-import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -65,8 +63,7 @@ public class TransactionResourceTest {
         doReturn(new MessageHash("SOMEKEY".getBytes())).when(enclave).store(any(), any(), eq(payload));
 
         String senderKey = "bXlwdWJsaWNrZXk=";
-        List<String> recipientKeys = Arrays.asList("cmVjaXBpZW50MQ==");
-        final Response response = transactionResource.sendRaw(senderKey,recipientKeys, payload);
+        final Response response = transactionResource.sendRaw(senderKey, "cmVjaXBpZW50MQ==", payload);
 
         verify(enclave).store(any(Optional.class), any(byte[][].class), eq(payload));
 
@@ -120,12 +117,12 @@ public class TransactionResourceTest {
     public void testReceiveRaw() {
 
         String key = "AFT757zkDmMksHdut9zeFXdd5wptBNlZtxrjlvuJkihf+rb6VH+go28Ih0nJ3wvCDei02sCcoN++Qbp5hULokQ==";
-        
+
         String recipientKey = "cmVjaXBpZW50MQ==";
-        
+
         when(enclave.receive(any(), any())).thenReturn("SOMEKEY".getBytes());
 
-        Response response = transactionResource.receiveRaw(key,recipientKey);
+        Response response = transactionResource.receiveRaw(key, recipientKey);
 
         verify(enclave).receive(any(), any());
         assertThat(response).isNotNull();
@@ -182,11 +179,11 @@ public class TransactionResourceTest {
         resendRequest.setType(ResendRequestType.INDIVIDUAL);
         resendRequest.setPublicKey("mypublickey");
         resendRequest.setKey(Base64.getEncoder().encodeToString("mykey".getBytes()));
-        when(enclave.receive(any(),any())).thenReturn("payload".getBytes());
+        when(enclave.receive(any(), any())).thenReturn("payload".getBytes());
 
         Response response = transactionResource.resend(resendRequest);
 
-        verify(enclave).receive(any(),any());
+        verify(enclave).receive(any(), any());
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
