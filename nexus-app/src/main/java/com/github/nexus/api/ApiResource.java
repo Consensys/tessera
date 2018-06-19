@@ -13,12 +13,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-@Api("Some api description")
+@Api("Provided access to openapi schema documentation.")
 @Path("/api")
 public class ApiResource {
 
     
-    @ApiResponses({@ApiResponse(code = 200,message = "Success")})
+    @ApiResponses({
+        @ApiResponse(code = 200,message = "Returns json or html openapi document")
+    })
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
     public Response api(@Context Request request) throws IOException {

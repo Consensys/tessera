@@ -1,5 +1,7 @@
 package com.github.nexus.api;
 
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -20,6 +22,7 @@ public class VersionResource {
      *
      * @return String that will be returned as a text/plain response.
      */
+    @ApiResponses({@ApiResponse(code = 200,message = "Current application version ",response = String.class)})
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getVersion() {

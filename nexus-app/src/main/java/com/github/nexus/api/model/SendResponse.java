@@ -1,5 +1,8 @@
 package com.github.nexus.api.model;
 
+import io.swagger.annotations.ApiModel;
+
+@ApiModel
 public class SendResponse {
 
     private String key;
