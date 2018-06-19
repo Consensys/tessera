@@ -55,7 +55,7 @@ public class HttpProxy {
 
         } catch (IOException ex) {
             LOGGER.error("Failed to connect to URL: {}", serverUri);
-            throw new RuntimeException(ex);
+            throw new NexusSocketException(ex);
         }
     }
 

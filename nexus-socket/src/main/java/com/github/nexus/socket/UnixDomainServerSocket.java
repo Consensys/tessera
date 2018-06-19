@@ -4,6 +4,8 @@ import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -31,10 +33,10 @@ public class UnixDomainServerSocket {
      * Create a unix domain socket, using the specified directory + path.
      */
     public void create(final String directory, final String filename) {
-        final File socketFile = new File(new File(directory), filename);
+        final Path socketFile = Paths.get(directory, filename);
 
         try {
-            server = unixSocketFactory.createServerSocket(socketFile.toPath());
+            server = unixSocketFactory.createServerSocket(socketFile);
             LOGGER.info("server: {}", server);
 
         } catch (IOException ex) {
@@ -46,14 +48,14 @@ public class UnixDomainServerSocket {
     /**
      * Listen for, and accept connections from clients.
      */
-    public void connect() throws IOException {
+    public void connect() {
 
         try {
             socket = server.accept();
 
         } catch (IOException ex) {
             LOGGER.error("Failed to create Socket");
-            throw new RuntimeException(ex);
+            throw new NexusSocketException(ex);
         }
 
     }
