@@ -34,4 +34,10 @@ public interface Configuration {
 
     Set<String> whitelist();
 
+    String workdir();
+
+    String socket();
+
+    String databaseURL();
+
 }

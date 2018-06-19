@@ -35,6 +35,13 @@
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-keygen</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-socket</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -139,7 +146,12 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
-
+        
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+        </dependency>
+        
     </dependencies>
 
     <build>

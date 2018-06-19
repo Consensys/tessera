@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
+<beans xmlns="http://www.springframework.org/schema/beans" 
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -47,6 +47,7 @@
         <constructor-arg ref="partyInfoService"/>
         <constructor-arg ref="payloadEncoder"/>
         <constructor-arg ref="postDelegate"/>
+        <constructor-arg ref="keyManager" />
     </bean>
 
     <bean name="postDelegate" class="com.github.nexus.node.PostDelegate">
@@ -119,7 +120,7 @@
     <bean class="com.github.nexus.api.ApiResource" />
     
     <bean id="dataSource" class="org.h2.jdbcx.JdbcDataSource">
-        <property name="url" value="jdbc:h2:./target/h2/nexus;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0" />
+        <property name="url" value="#{ config.databaseURL() }" />
         <property name="user" value="sa" />
         <property name="password" value="" />
     </bean>
@@ -158,5 +159,11 @@
         </property>         
 
     </bean>
+    
+    <beans profile="!disable-unixsocket">
+        <bean class="com.github.nexus.socket.SocketServerFactory" factory-method="createSocketServer">
+            <constructor-arg ref="config" />
+        </bean>
+    </beans>
     
 </beans>
