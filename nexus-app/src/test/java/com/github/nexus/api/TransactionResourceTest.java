@@ -5,18 +5,18 @@ import com.github.nexus.enclave.Enclave;
 import com.github.nexus.enclave.model.MessageHash;
 import com.github.nexus.util.Base64Decoder;
 import com.github.nexus.util.exception.DecodingException;
+import java.util.Arrays;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.Optional;
 
-import static java.util.Collections.singletonList;
+import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -60,15 +60,13 @@ public class TransactionResourceTest {
 
     @Test
     public void testSendRaw() {
-        final HttpHeaders headers = mock(HttpHeaders.class);
         final byte[] payload = "Zm9v".getBytes();
-
-        doReturn("bXlwdWJsaWNrZXk=").when(headers).getHeaderString("c11n-from");
-        doReturn(singletonList("cmVjaXBpZW50MQ==")).when(headers).getRequestHeader("c11n-to");
 
         doReturn(new MessageHash("SOMEKEY".getBytes())).when(enclave).store(any(), any(), eq(payload));
 
-        final Response response = transactionResource.sendRaw(headers, payload);
+        String senderKey = "bXlwdWJsaWNrZXk=";
+        List<String> recipientKeys = Arrays.asList("cmVjaXBpZW50MQ==");
+        final Response response = transactionResource.sendRaw(senderKey,recipientKeys, payload);
 
         verify(enclave).store(any(Optional.class), any(byte[][].class), eq(payload));
 
@@ -120,17 +118,14 @@ public class TransactionResourceTest {
 
     @Test
     public void testReceiveRaw() {
-        HttpHeaders headers = mock(HttpHeaders.class);
 
-        when(headers.getHeaderString("c11n-key"))
-            .thenReturn("AFT757zkDmMksHdut9zeFXdd5wptBNlZtxrjlvuJkihf+rb6VH+go28Ih0nJ3wvCDei02sCcoN++Qbp5hULokQ==");
-
-        when(headers.getHeaderString("c11n-to"))
-            .thenReturn("cmVjaXBpZW50MQ==");
-
+        String key = "AFT757zkDmMksHdut9zeFXdd5wptBNlZtxrjlvuJkihf+rb6VH+go28Ih0nJ3wvCDei02sCcoN++Qbp5hULokQ==";
+        
+        String recipientKey = "cmVjaXBpZW50MQ==";
+        
         when(enclave.receive(any(), any())).thenReturn("SOMEKEY".getBytes());
 
-        Response response = transactionResource.receiveRaw(headers);
+        Response response = transactionResource.receiveRaw(key,recipientKey);
 
         verify(enclave).receive(any(), any());
         assertThat(response).isNotNull();
