@@ -84,11 +84,6 @@ public class EnclaveImplTest {
     }
 
     @Test
-    public void receiveWhenKeyNotProvided() {
-
-    }
-
-    @Test
     public void storeDoesntNeedToFetchSenderKeyIfOneProvided() {
 
         EncodedPayloadWithRecipients payload = mock(EncodedPayloadWithRecipients.class);
