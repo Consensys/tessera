@@ -230,16 +230,17 @@
                 <groupId>com.github.kongchen</groupId>
                 <artifactId>swagger-maven-plugin</artifactId>
                 <version>3.1.7</version>
-
                 <configuration>
                     <apiSources>
                         <apiSource>
                             <schemes>
                                 <scheme>http</scheme>
+                                <scheme>https</scheme>
                             </schemes>
                             <host>localhost:8080</host>
                             <basePath>/</basePath>
                             <springmvc>false</springmvc>
+                            
                             <info>
                                 <title>Nexus rest stuff</title>
                                 <version>${project.version}</version>
