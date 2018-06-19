@@ -55,11 +55,12 @@ public class JerseyServer implements RestServer {
         final ResourceConfig config = ResourceConfig.forApplication(application);
         config.addProperties(initParams);
 
-        server = GrizzlyHttpServerFactory.createHttpServer(uri);
+        server = GrizzlyHttpServerFactory.createHttpServer(uri,false);
 
         final WebappContext ctx = new WebappContext("WebappContext");
         final ServletRegistration registration = ctx.addServlet("ServletContainer", new ServletContainer(config));
         registration.addMapping("/*");
+        
         ctx.deploy(server);
 
         LOGGER.info("Starting {}", uri);

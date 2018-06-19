@@ -62,11 +62,26 @@ public class EnclaveImplTest {
     }
 
     @Test
-    public void testReceive() {
-        enclave.receive(new byte[0], new byte[0]);
-        verify(transactionService).retrieveUnencryptedTransaction(any(), any());
+    public void receiveWhenKeyProvided() {
+        final byte[] hash = new byte[]{};
+        final byte[] key = new byte[]{};
+
+        enclave.receive(hash, Optional.of(new byte[0]));
+
+        verify(transactionService).retrieveUnencryptedTransaction(eq(new MessageHash(hash)), eq(new Key(key)));
     }
 
+    @Test
+    public void receiveWhenNoKeyProvided() {
+        final byte[] hash = new byte[]{};
+
+        doReturn(new Key(new byte[]{})).when(keyManager).defaultPublicKey();
+
+        enclave.receive(hash, Optional.empty());
+
+        verify(keyManager).defaultPublicKey();
+        verify(transactionService).retrieveUnencryptedTransaction(eq(new MessageHash(hash)), any(Key.class));
+    }
 
     @Test
     public void storeDoesntNeedToFetchSenderKeyIfOneProvided() {
