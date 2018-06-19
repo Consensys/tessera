@@ -564,13 +564,5 @@
     </dependencies>
 
 
-    <!--add local repo for external dependencies that we want to bundle-->
-    <repositories>
-        <repository>
-            <id>repo</id>
-            <url>file://${project.basedir}/../repo</url>
-        </repository>
-
-    </repositories>
 
 </project>
