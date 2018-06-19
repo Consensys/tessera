@@ -27,11 +27,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <p>
  * - 1 sender, 1 private for
  * - 1 sender, 2 private for
- *********** - 1 sender, 2 private for, 1 is down
+ * - TODO: 1 sender, 2 private for, 1 is down
  * - 0 sender, 1 private for
  * - 1 sender, 0 private for
  * - no payload
  * - sending when it isn't json
+ * - sending to an unknown recipient
+ * - TODO: send using an unknown sender key
  */
 public class SendIT {
 
@@ -238,6 +240,28 @@ public class SendIT {
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(400);
+    }
+
+    /**
+     * Quorum sends transaction with unknown public key
+     */
+    @Test
+    public void sendUnknownPublicKey() {
+
+        final String sendRequest = Json.createObjectBuilder()
+            .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+            .add("to", Json.createArrayBuilder().add("8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0="))
+            .add("payload", "Zm9v").build().toString();
+
+        LOGGER.info("sendRequest: {}", sendRequest);
+
+        final Response response = client.target(SERVER_URI)
+            .path(SEND_PATH)
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(400);
