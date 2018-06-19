@@ -115,7 +115,7 @@ public class TransactionResourceTest {
 
         assertThat(receiveResponse.getPayload()).isEqualTo("U09NRSBEQVRB");
         verify(enclave).receive(any(), any());
-        assertThat(response.getStatus()).isEqualTo(201);
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class TransactionResourceTest {
 
         verify(enclave).receive(any(), any());
         assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 
     @Test(expected = DecodingException.class)

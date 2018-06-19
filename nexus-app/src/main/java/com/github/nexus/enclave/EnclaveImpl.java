@@ -53,8 +53,11 @@ public class EnclaveImpl implements Enclave {
     }
 
     @Override
-    public byte[] receive(final byte[] key, final byte[] to) {
-        return transactionService.retrieveUnencryptedTransaction(new MessageHash(key), new Key(to));
+    public byte[] receive(final byte[] key, final Optional<byte[]> to) {
+        return transactionService.retrieveUnencryptedTransaction(
+            new MessageHash(key),
+            to.map(Key::new).orElseGet(keyManager::defaultPublicKey)
+        );
     }
 
     @Override
