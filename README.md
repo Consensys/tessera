@@ -1,13 +1,19 @@
 # Nexus
 A stateless JAVA application responsible for encryption and decryption of private transaction data and for off-chain private messaging.It is also responsible for generating and managing private key locally in each node in Quorum Network.
 
+##Running Nexus
 Usage:
-`java -jar nexus-app/target/nexus-app-1.0-SNAPSHOT-app.jar` 
 
-<h2>Interface Details</h2>
+`java -jar nexus-app/target/nexus-app-1.0-SNAPSHOT-app.jar [properties]`
+
+See the section on 'Configuration' for a description of the available properties.
+
+##Interface Details
+
 Nexus has two interfaces which allow endpoints from the API to be called.
 
-<h5>HTTP (Public API)</h5>
+#####HTTP (Public API)
+
 This is used for communication between Nexus instances.
 Nexus instances communicate with each other for:
 - Learning what nodes to connect to.
@@ -21,7 +27,7 @@ The following endpoints are advertised on this interface:
 - resend
 - partyinfo
 
-<h5>Unix Domain Socket (Private API)</h5>
+#####Unix Domain Socket (Private API)
 This is used for communication with Quorum.
 Quorum needs to be able to:
 - Check if the local Nexus node is running.
@@ -36,29 +42,29 @@ The following endpoints are advertised on this interface:
 - receiveraw
 - delete
 
-<h2>API Details</h2>
+##API Details
 
-<b>version</b> - <i>Get Nexus version</i>
+**version** - _Get Nexus version_
 
 Returns the version of Nexus that is running.
 
-<b>upcheck</b> - <i>Check that Nexus is running</i>
+**upcheck** - _Check that Nexus is running_
 
 Returns the text "I'm up!"
 
-<b>push</b> - <i>Details to be provided</i>
+**push** - _Details to be provided_
 
 Details to be provided.
 
-<b>resend</b> - <i>Details to be provided</i>
+**resend** - _Details to be provided_
 
 Details to be provided
 
-<b>partyinfo</b> - <i>Retrieve details of known nodes</i>
+**partyinfo** - _Retrieve details of known nodes_
 
 Details to be provided
 
-<b>send</b> - <i>Send transaction</i>
+**send** - _Send transaction_
 
 Allows you to send a bytestring to one or more public keys,
 returning a content-addressable identifier.
@@ -68,32 +74,35 @@ The identifier is a hash digest of the encrypted payload that every receipient n
 Each recipient node also receives a small blob encrypted for their public key which contains
 the Master Key for the encrypted payload.
 
-<b>sendraw</b> - <i>Details to be provided</i>
+**sendraw** - _Details to be provided_
 
 Details to be provided
 
-<b>receive</b> - <i>Receive a transaction</i>
+**receive** - _Receive a transaction_
 
 Allows you to receive a decrypted bytestring based on an identifier.
 Payloads which your node has sent or received can be decrypted and retrieved in this way.
 
-<b>receiveraw</b> - <i>Details to be provided</i> 
+**receiveraw** - _Details to be provided_ 
 
 Details to be provided
 
-<b>delete</b> - <i>Delete a transaction</i> 
+**delete** - _Delete a transaction_ 
 
 Details to be provided
 
-<h2>Configuration</h2>
-<h4>Configuration sources</h4>
+##Configuration
+
+####Configuration sources
+
 Configuration can be specified in multiple ways, in the following priority:
 - system properties (-DprivateKeys=...)
 - environment variables (export privateKeys=...)
 - command line properties (--privateKeys ...)
 - config files (-Dconfig.file=conf.properties, -Dconfig.file=conf.yml)
 
-<h4>Configuration properties</h4>
+####Configuration properties
+
 * publicKeys: comma-separated list of public key file locations to use
 * privateKeys: comma separated list of private key file locations to use
 * url: URL of this Nexus node (used by Quorum and also advertised to remote Nexus nodes)
@@ -106,14 +115,32 @@ Configuration can be specified in multiple ways, in the following priority:
 
 (n.b. if a private key isn't encrypted, give it an empty password, e.g. passwords=abc,,def)
 
-<h2>Building Nexus</h2>
+##Building Nexus
+
 Checkout nexus from github and build using maven.
-<p>Nexus can be built with different nacl implementations:
-<h5>jnacl</h5>
+Nexus can be built with different nacl implementations:
+
+####jnacl
+
 * mvn --batch-mode install
 
-<h5>kalium</h5>
+#####kalium
+
 * mvn --batch-mode install -Pkalium
 
-Note that the Kalium implementation requires that you have sodium installed at runtime:
+Note that the Kalium implementation requires that you have sodium installed at runtime (see runtime dependencies below).
+
+##Runtime Dependencies
+Nexus has the folllowing runtime dependencies which must be installed.
+
+####junixsocket
+
+1. Get junixsocket-1.3-bin.tar.bz2 from https://code.google.com/archive/p/junixsocket/downloads
+2. Unpack it
+4. sudo mkdir -p /opt/newsclub/lib-native
+5. sudo cp junixsocket-1.3/lib-native/libjunixsocket-macosx-1.5-x86_64.dylib /opt/newsclub/lib-native/
+
+####sodium
+
+This is only required if Nexus is built to use the Kalium implementation.
 * brew install libsodium
