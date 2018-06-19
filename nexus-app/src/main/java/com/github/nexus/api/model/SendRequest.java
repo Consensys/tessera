@@ -1,8 +1,10 @@
 package com.github.nexus.api.model;
 
+import io.swagger.annotations.ApiModel;
 import javax.validation.constraints.NotNull;
 
-public class SendRequest {
+@ApiModel
+public class SendRequest{
 
     @NotNull
     private String payload;
