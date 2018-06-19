@@ -1,10 +1,6 @@
 package com.github.nexus.test;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,19 +40,6 @@ public class SendIT {
     private final Client client = ClientBuilder.newClient();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NexusIT.class);
-
-    @Rule
-    public TestName testName = new TestName();
-
-    @Before
-    public void beforeTest() {
-        LOGGER.info("Begin test: {}", testName.getMethodName());
-    }
-
-    @After
-    public void afterTest() {
-        LOGGER.info("After test: {}", testName.getMethodName());
-    }
 
     /**
      * Quorum sends transaction with singe public recipient key
@@ -104,7 +87,7 @@ public class SendIT {
         LOGGER.info("sendRequest: {}", sendRequest);
 
         final Response response = client.target(SERVER_URI)
-            .path("/send")
+            .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
