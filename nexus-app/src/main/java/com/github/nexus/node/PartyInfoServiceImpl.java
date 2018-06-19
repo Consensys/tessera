@@ -3,6 +3,7 @@ package com.github.nexus.node;
 
 import com.github.nexus.configuration.Configuration;
 import com.github.nexus.key.KeyManager;
+import com.github.nexus.key.exception.KeyNotFoundException;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.node.model.Party;
 import com.github.nexus.node.model.PartyInfo;
@@ -70,7 +71,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
             .stream()
             .filter(recipient -> key.equals(recipient.getKey()))
             .findAny()
-            .orElseThrow(() -> new RuntimeException("Recipient not found"));
+            .orElseThrow(() -> new KeyNotFoundException("Recipient not found"));
         return retrievedRecipientFromStore.getUrl();
     }
 }
