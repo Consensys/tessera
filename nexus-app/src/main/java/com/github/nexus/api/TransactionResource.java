@@ -15,16 +15,17 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Path("")
 public class TransactionResource {
@@ -40,11 +41,12 @@ public class TransactionResource {
         this.base64Decoder = requireNonNull(base64Decoder, "decoder must not be null");
     }
 
-    @ApiResponses(
+    @ApiResponses({
             @ApiResponse(code = 200,
                     response = SendResponse.class,
-                    message = "Send response")
-    )
+                    message = "Send response"),
+            @ApiResponse(code = 400,message = "For unknown and unknown keys")
+    })
     @POST
     @Path("/send")
     @Consumes({MediaType.APPLICATION_JSON})
@@ -94,13 +96,15 @@ public class TransactionResource {
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.TEXT_PLAIN)
     public Response sendRaw(
-            @Context final HttpHeaders headers, final byte[] payload) {
+            @NotNull @HeaderParam("c11n-from") final String sender,
+            @NotNull @Size(min = 1) @HeaderParam("c11n-to") final List<String> recipientKeys,
+            final byte[] payload) {
 
-        final String sender = headers.getHeaderString("c11n-from");
+
         final Optional<byte[]> from = Optional.ofNullable(sender)
             .map(base64Decoder::decode);
 
-        final byte[][] recipients = headers.getRequestHeader("c11n-to")
+        final byte[][] recipients = recipientKeys
             .stream()
             .map(base64Decoder::decode)
             .toArray(byte[][]::new);
@@ -153,16 +157,16 @@ public class TransactionResource {
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.TEXT_PLAIN)
     public Response receiveRaw(
-            
-            @Context final HttpHeaders headers) {
+            @NotNull @HeaderParam(value="c11n-key") String key,
+            @HeaderParam(value="c11n-to") String recipientKey) {
 
-        final byte[] key = base64Decoder.decode(headers.getHeaderString("c11n-key"));
+        final byte[] decodedKey = base64Decoder.decode(key);
 
         final Optional<byte[]> to = Optional
-            .ofNullable(headers.getHeaderString("c11n-to"))
+            .ofNullable(recipientKey)
             .map(base64Decoder::decode);
 
-        final byte[] payload = enclave.receive(key, to);
+        final byte[] payload = enclave.receive(decodedKey, to);
 
         final String encodedPayload = base64Decoder.encodeToString(payload);
 
@@ -193,14 +197,18 @@ public class TransactionResource {
     }
 
     @ApiResponses(
-            {@ApiResponse(code = 200,message = "Encoded payload",response = String.class)}
+            {@ApiResponse(code = 200,
+                    message = "Encoded payload when ResendRequestType is INDIVIDUAL",
+                    response = String.class)
+            }
     )
     @POST
     @Path("/resend")
     @Consumes({MediaType.APPLICATION_JSON})
+    @Produces(MediaType.TEXT_PLAIN)
     public Response resend(
             @ApiParam(name = "resendRequest",required = true)
-            @Valid final ResendRequest resendRequest) {
+            @Valid @NotNull final ResendRequest resendRequest) {
 
         final byte[] publicKey = base64Decoder.decode(resendRequest.getPublicKey());
 
