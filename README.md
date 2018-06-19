@@ -1,5 +1,4 @@
 # Nexus
-
 A stateless JAVA application responsible for encryption and decryption of private transaction data and for off-chain private messaging.It is also responsible for generating and managing private key locally in each node in Quorum Network.
 
 ##Running Nexus

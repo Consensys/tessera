@@ -39,50 +39,7 @@ public class NexusIT {
         LOGGER.info("After test: {}", testName.getMethodName());
     }
 
-    @Test
-    public void sendSingleTransactionToSingleParty() {
 
-        String sendRequest = Json.createObjectBuilder()
-                .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-                .add("to", Json.createArrayBuilder().add("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0="))
-                .add("payload", "Zm9v").build().toString();
-
-        LOGGER.info("sendRequest: {}", sendRequest);
-
-        javax.ws.rs.core.Response response = client.target(SERVER_URI)
-                .path("/send")
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(200);
-
-    }
-
-    /**
-     * Quorum sends transaction with public key not in PartyInfo store.
-     */
-    @Ignore
-    @Test
-    public void sendSingleTransactionToMultipleParties() {
-        String sendRequest = Json.createObjectBuilder()
-                .add("from", "bXlwdWJsaWNrZXk=")
-                .add("to", Json.createArrayBuilder()
-                        .add("cmVjaXBpZW50MQ==")
-                        .add(Base64.getEncoder().encodeToString("HELLOW".getBytes()))
-                )
-                .add("payload", "Zm9v").build().toString();
-
-        LOGGER.info("sendRequest: {}", sendRequest);
-
-        javax.ws.rs.core.Response response = client.target(SERVER_URI)
-                .path("/send")
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
-    }
 
     /**
      * Quorum sends transaction with public key not in PartyInfo store.

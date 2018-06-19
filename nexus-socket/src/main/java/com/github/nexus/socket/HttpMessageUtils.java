@@ -9,8 +9,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HttpMessageUtils {
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpMessageUtils.class);
 
+    private HttpMessageUtils() {
+        throw new UnsupportedOperationException();
+    }
+
+    
     /**
      * Parse an HTTP header content-length line to get the value.
      */
@@ -58,7 +64,7 @@ public class HttpMessageUtils {
 
         } catch (IOException ex) {
             LOGGER.error("Failed to read from HTTP server");
-            throw new RuntimeException(ex);
+            throw new NexusSocketException(ex);
         }
 
     }
