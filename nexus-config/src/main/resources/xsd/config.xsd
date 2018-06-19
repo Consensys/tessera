@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<xsd:schema version="2.0"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="qualified" 
+            attributeFormDefault="unqualified" 
+            xmlns:tns="http://nexus.github.com/config/api" 
+            xmlns="http://nexus.github.com/config/api" 
+            targetNamespace="http://nexus.github.com/config/api"
+>
+
+    <xsd:element name="configuration" type="tns:Configuration" />
+
+    <xsd:complexType name="Configuration">
+        <xsd:sequence>
+            <xsd:element name="keygenBasePath" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The base path used to resolve stuff
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="jdbcConfig" type="tns:JdbcConfig" />
+            <xsd:element name="serverConfig" type="tns:ServerConfig" />
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="JdbcConfig">
+        <xsd:sequence>
+            <xsd:element name="username" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        JDBC Username
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="password" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        JDBC Password
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="url" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        JDBC URL
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+        
+    </xsd:complexType>
+    
+    <xsd:complexType name="ServerConfig">
+        <xsd:sequence>
+            <xsd:element name="port" type="xsd:integer">
+                
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="Peer">
+        <xsd:sequence>
+            <xsd:element name="url" type="xsd:anyURI"></xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="PrivateKey">
+        <xsd:sequence>
+            <xsd:element name="path" type="xsd:anyURI"></xsd:element>
+            <xsd:element name="value" type="xsd:string"></xsd:element>
+            <xsd:element name="type" type="tns:PrivateKeyType" />
+            <xsd:element name="password" type="xsd:string"></xsd:element>
+        </xsd:sequence>
+        
+    </xsd:complexType>
+    
+    <xsd:simpleType name="PrivateKeyType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="locked" />
+            <xsd:enumeration value="unlocked" />
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:complexType name="PublicKey">
+        <xsd:sequence>
+            <xsd:element name="path" type="xsd:anyURI"></xsd:element>
+            <xsd:element name="value" type="xsd:string"></xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+</xsd:schema>
