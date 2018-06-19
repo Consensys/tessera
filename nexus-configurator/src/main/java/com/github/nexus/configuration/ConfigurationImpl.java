@@ -100,4 +100,19 @@ public class ConfigurationImpl implements Configuration {
             .filter(str -> !str.isEmpty())
             .collect(toSet());
     }
+
+    @Override
+    public String workdir() {
+        return properties.getProperty("workdir");
+    }
+
+    @Override
+    public String socket() {
+        return properties.getProperty("socket");
+    }
+
+    @Override
+    public String databaseURL() {
+        return properties.getProperty("databaseURL");
+    }
 }

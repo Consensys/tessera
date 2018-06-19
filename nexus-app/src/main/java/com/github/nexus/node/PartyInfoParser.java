@@ -5,14 +5,18 @@ import com.github.nexus.nacl.Key;
 import com.github.nexus.node.model.Party;
 import com.github.nexus.node.model.PartyInfo;
 import com.github.nexus.node.model.Recipient;
+import com.github.nexus.util.BinaryEncoder;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public interface PartyInfoParser {
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+public interface PartyInfoParser extends BinaryEncoder {
 
     default PartyInfo from(byte[] encoded) {
 
@@ -25,12 +29,13 @@ public interface PartyInfoParser {
         final String url = new String(urlBytes);
 
         final int numberOfRecipients = (int) byteBuffer.getLong();
-        final int recipientElementCount = (int) byteBuffer.getLong();
 
         final Set<Recipient> recipients = new HashSet<>();
 
         for (int i = 0; i < numberOfRecipients; i++) {
-            
+
+            final int recipientElementCount = (int) byteBuffer.getLong();
+
             final int recipientKeyLength = (int) byteBuffer.getLong();
             final byte[] recipientKeyBytes = new byte[recipientKeyLength];
             byteBuffer.get(recipientKeyBytes);
@@ -56,41 +61,47 @@ public interface PartyInfoParser {
         }
 
         return new PartyInfo(url, recipients, new HashSet<>(Arrays.asList(parties)));
-    };
+    }
 
+    default byte[] to(PartyInfo partyInfo) {
 
-   default byte[] to(PartyInfo partyInfo) {
+        //prefix and url bytes
+        final byte[] url = encodeField(partyInfo.getUrl().getBytes(UTF_8));
 
-       int urlLength = partyInfo.getUrl().length();
-       
-       ByteBuffer byteBuffer = ByteBuffer.allocate(2048);
-       byteBuffer.putLong(urlLength);
-       byteBuffer.put(partyInfo.getUrl().getBytes(StandardCharsets.UTF_8));
-       byteBuffer.putLong(partyInfo.getRecipients().size());
-       byteBuffer.putLong(2);//Recipient Element count
+        //each element in the list is one encoded element from the map
+        //so the prefix is always 2 (2 elements) and
+        final List<byte[]> recipients = partyInfo.getRecipients()
+            .stream()
+            .map(r -> new byte[][]{
+                    r.getKey().getKeyBytes(),
+                    r.getUrl().getBytes(UTF_8)
+                }
+            ).map(this::encodeArray)
+            .collect(Collectors.toList());
+        final int recipientLength = recipients.stream().mapToInt(r -> r.length).sum();
 
-       partyInfo.getRecipients().forEach((r) -> {
-           byteBuffer.putLong(32L);//recipient key length
-           byteBuffer.put(r.getKey().getKeyBytes()); //Recipient Key
-           byteBuffer.putLong(r.getUrl().length());//recipient url length.
-           byteBuffer.put(r.getUrl().getBytes(StandardCharsets.UTF_8)); 
-        });
-       
-       byteBuffer.putLong(partyInfo.getParties().size());
-       partyInfo.getParties().forEach(p -> {
-           byteBuffer.putLong(p.getUrl().length());
-           byteBuffer.put(p.getUrl().getBytes(StandardCharsets.UTF_8));
-       });
-       
-       
-       
-       return byteBuffer.array();
+        final List<byte[]> parties = partyInfo.getParties()
+            .stream()
+            .map(p -> p.getUrl().getBytes(UTF_8))
+            .collect(Collectors.toList());
+
+        final byte[] partiesBytes = encodeArray(parties);
+
+        final ByteBuffer byteBuffer = ByteBuffer
+            .allocate(url.length + Long.BYTES + recipientLength + partiesBytes.length)
+            .put(url)
+            .putLong(partyInfo.getRecipients().size());
+
+        recipients.forEach(byteBuffer::put);
+        byteBuffer.put(partiesBytes);
+
+        return byteBuffer.array();
 
     }
 
     static PartyInfoParser create() {
         return new PartyInfoParser() {
-    };
+        };
     }
 
 }

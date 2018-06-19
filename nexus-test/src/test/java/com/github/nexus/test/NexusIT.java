@@ -55,7 +55,7 @@ public class NexusIT {
                 .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
+        assertThat(response.getStatus()).isEqualTo(200);
 
     }
 

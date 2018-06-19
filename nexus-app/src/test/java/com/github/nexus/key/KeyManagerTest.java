@@ -12,10 +12,10 @@ import org.junit.Test;
 import javax.json.Json;
 import javax.json.JsonObject;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -65,11 +65,14 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void initialisedWithNoKeys() {
+    public void initialisedWithNoKeysThrowsError() {
+        //throws error because there is no default key
 
-        this.keyManager = new KeyManagerImpl(keyEncryptor, new TestConfiguration());
+        final Throwable throwable = catchThrowable(
+            () -> new KeyManagerImpl(keyEncryptor, new TestConfiguration())
+        );
 
-        assertThat(keyManager).extracting("ourKeys").containsExactly(emptySet());
+        assertThat(throwable).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
@@ -163,6 +166,11 @@ public class KeyManagerTest {
         verify(keyEncryptor).decryptPrivateKey(any(JsonObject.class), eq("pass"));
     }
 
+    @Test
+    public void defaultKeyIsPopulated() {
 
+        //the key manager is already set up with a keypair, so just check that
+        assertThat(keyManager.defaultPublicKey()).isEqualTo(keyPair.getPublicKey());
+    }
 
 }
