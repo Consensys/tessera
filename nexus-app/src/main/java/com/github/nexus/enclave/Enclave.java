@@ -27,7 +27,7 @@ public interface Enclave {
      * @param to the recipient of the transaction
      * @return the raw payload associated with the request.
      */
-    byte[] receive(byte[] key, byte[] to);
+    byte[] receive(byte[] key, Optional<byte[]> to);
 
 
     /**
