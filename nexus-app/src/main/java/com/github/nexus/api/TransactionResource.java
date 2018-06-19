@@ -14,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
@@ -27,7 +28,7 @@ public class TransactionResource {
 
     private final Base64Decoder base64Decoder;
 
-    public TransactionResource(final Enclave enclave,final Base64Decoder base64Decoder) {
+    public TransactionResource(final Enclave enclave, final Base64Decoder base64Decoder) {
         this.enclave = requireNonNull(enclave, "enclave must not be null");
         this.base64Decoder = requireNonNull(base64Decoder, "decoder must not be null");
     }
@@ -38,14 +39,20 @@ public class TransactionResource {
     @Produces({MediaType.APPLICATION_JSON})
     public Response send(@Valid final SendRequest sendRequest) {
 
+        LOGGER.debug("Received send request");
+
         final String sender = sendRequest.getFrom();
         final Optional<byte[]> from = Optional.ofNullable(sender)
             .map(base64Decoder::decode);
 
-        final byte[][] recipients =
-            Stream.of(sendRequest.getTo())
-                .map(base64Decoder::decode)
-                .toArray(byte[][]::new);
+        LOGGER.debug("SEND: sender {}", sender);
+
+        final byte[][] recipients = Stream
+            .of(sendRequest.getTo())
+            .map(base64Decoder::decode)
+            .toArray(byte[][]::new);
+
+        LOGGER.debug("SEND: recipients {}", Stream.of(sendRequest.getTo()).collect(Collectors.joining()));
 
         final byte[] payload = base64Decoder.decode(sendRequest.getPayload());
 
