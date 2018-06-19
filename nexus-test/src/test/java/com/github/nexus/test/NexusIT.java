@@ -39,32 +39,6 @@ public class NexusIT {
         LOGGER.info("After test: {}", testName.getMethodName());
     }
 
-
-
-    /**
-     * Quorum sends transaction with public key not in PartyInfo store.
-     */
-    @Ignore
-    @Test
-    public void sendUnknownPublicKey() {
-        String sendRequest = Json.createObjectBuilder()
-                .add("from", "bXlwdWJsaWNrZXk=")
-                .add("to", Json.createArrayBuilder()
-                        .add(Base64.getEncoder().encodeToString("BOGUS".getBytes()))
-                )
-                .add("payload", "Zm9v").build().toString();
-
-        LOGGER.info("sendRequest: {}", sendRequest);
-
-        javax.ws.rs.core.Response response = client.target(SERVER_URI)
-                .path("/send")
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(404);
-    }
-
     @Ignore
     @Test
     public void partyInfo() {
@@ -175,7 +149,7 @@ public class NexusIT {
 
         String key = Base64.getEncoder().encodeToString("<replace the hashkey here>".getBytes());
         String recipient =  Base64.getEncoder().encodeToString("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=".getBytes());
-        
+
         javax.ws.rs.core.Response response = client.target(SERVER_URI)
                 .path("/receiveraw")
                 .request()
@@ -189,8 +163,8 @@ public class NexusIT {
         LOGGER.debug("Response body : ",body);
         assertThat(body).isNotEmpty();
         assertThat(response.getMediaType()).isEqualTo(MediaType.APPLICATION_OCTET_STREAM_TYPE);
-        
-        
+
+
     }
-    
+
 }
