@@ -171,11 +171,16 @@ public class TransactionResource {
             .build();
     }
 
+    @ApiResponses({
+        @ApiResponse(code = 200,message = "Status message",response = String.class)
+    })
     @POST
     @Path("/delete")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces(MediaType.TEXT_PLAIN)
-    public Response delete(@Valid final DeleteRequest deleteRequest) {
+    public Response delete(
+            @ApiParam(name = "deleteRequest",required = true)
+            @Valid final DeleteRequest deleteRequest) {
 
         final byte[] hashBytes = base64Decoder.decode(deleteRequest.getKey());
 
@@ -187,10 +192,15 @@ public class TransactionResource {
 
     }
 
+    @ApiResponses(
+            {@ApiResponse(code = 200,message = "Encoded payload",response = String.class)}
+    )
     @POST
     @Path("/resend")
     @Consumes({MediaType.APPLICATION_JSON})
-    public Response resend(@Valid final ResendRequest resendRequest) {
+    public Response resend(
+            @ApiParam(name = "resendRequest",required = true)
+            @Valid final ResendRequest resendRequest) {
 
         final byte[] publicKey = base64Decoder.decode(resendRequest.getPublicKey());
 
@@ -208,10 +218,15 @@ public class TransactionResource {
         return Response.status(Response.Status.OK).build();
     }
 
+    @ApiResponses(
+            {@ApiResponse(code = 201,message = "Key created status")}
+    )
     @POST
     @Path("/push")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
-    public Response push(final byte[] payload) {
+    public Response push(
+            @ApiParam(name = "payload",required = true,value = "Key data to be stored.")
+            final byte[] payload) {
         LOGGER.info(Base64.getEncoder().encodeToString(enclave.storePayload(payload).getHashBytes()));
 
         return Response.status(Response.Status.CREATED).build();

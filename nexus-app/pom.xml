@@ -242,7 +242,7 @@
                             <springmvc>false</springmvc>
                             
                             <info>
-                                <title>Nexus rest stuff</title>
+                                <title>Nexus rest</title>
                                 <version>${project.version}</version>
                             </info>
 
