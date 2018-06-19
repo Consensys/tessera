@@ -72,6 +72,22 @@ public class TransactionResourceTest {
     }
 
 
+    @Test
+    public void sendrawWithNoRecipients() {
+        final byte[] payload = "Zm9v".getBytes();
+
+        doReturn(new MessageHash("SOMEKEY".getBytes())).when(enclave).store(any(), any(), eq(payload));
+
+        String senderKey = "bXlwdWJsaWNrZXk=";
+        final Response response = transactionResource.sendRaw(senderKey, null, payload);
+
+        verify(enclave).store(any(Optional.class), any(byte[][].class), eq(payload));
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+
     @Ignore
     public void sendThrowsDecodingException() {
 
