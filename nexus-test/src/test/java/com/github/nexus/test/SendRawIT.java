@@ -94,7 +94,7 @@ public class SendRawIT {
             .path(SEND_PATH)
             .request()
             .header(SENDER, SENDER_KEY)
-            .header(RECIPIENTS, null)
+            .header(RECIPIENTS, "")
             .post(Entity.entity("Zm9v".getBytes(), MediaType.APPLICATION_OCTET_STREAM));
 
         //validate result
