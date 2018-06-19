@@ -22,14 +22,16 @@ public class HttpProxy {
     private PrintWriter httpPrintWriter;
 
     private BufferedReader httpReader;
-
+    
+    
+    private SocketFactory socketFactory;
+    
     /**
      * Connect to specified URL and create read/sendRequest streams.
      */
-    public HttpProxy(URI uri) {
-
-        Objects.requireNonNull(uri);
-        serverUri = uri;
+    public HttpProxy(URI serverUri,SocketFactory socketFactory) {
+        this.socketFactory = Objects.requireNonNull(socketFactory);
+        this.serverUri = Objects.requireNonNull(serverUri);
     }
 
     /**
@@ -37,7 +39,7 @@ public class HttpProxy {
      */
     public boolean connect() {
         try {
-            socket = SocketFactory.create(serverUri);
+            socket = socketFactory.create(serverUri);
 
             OutputStream httpOutputStream = socket.getOutputStream();
             httpPrintWriter = new PrintWriter(httpOutputStream, true);
@@ -53,7 +55,7 @@ public class HttpProxy {
 
         } catch (IOException ex) {
             LOGGER.error("Failed to connect to URL: {}", serverUri);
-            throw new RuntimeException(ex);
+            throw new NexusSocketException(ex);
         }
     }
 
@@ -89,26 +91,6 @@ public class HttpProxy {
         return HttpMessageUtils.getHttpMessage(httpReader);
     }
 
-    /**
-     * Main method for testing purposes only.
-     */
-    public static void main(final String... args) throws Exception {
-        HttpProxy httpProxy = new HttpProxy(new URI("http://localhost" + ":" + "8080"));
 
-        if (httpProxy.connect()) {
-            String message = "GET /upcheck HTTP/1.1\n" +
-                "Host: c\n" +
-                "User-Agent: Go-http-client/1.1\n" +
-                "\n";
-            httpProxy.sendRequest(new String(message));
-
-            String line = httpProxy.getResponse();
-            LOGGER.info("Received message: {}", line);
-
-        } else {
-            LOGGER.info("Failed to connect");
-
-        }
-    }
 
 }
