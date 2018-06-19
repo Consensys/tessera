@@ -88,15 +88,17 @@ public class TransactionResource {
 
     @GET
     @Path("/receive")
-    @Consumes(value = {MediaType.APPLICATION_JSON})
-    @Produces(value = MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response receive(@Valid final ReceiveRequest receiveRequest) {
 
         final byte[] key = base64Decoder.decode(receiveRequest.getKey());
 
-        final byte[] to = base64Decoder.decode(receiveRequest.getTo());
+        final Optional<byte[]> to = Optional
+            .ofNullable(receiveRequest.getTo())
+            .map(base64Decoder::decode);
 
-        final byte[] payload = enclave.receive(key, Optional.of(to));
+        final byte[] payload = enclave.receive(key, to);
 
         final String encodedPayload = base64Decoder.encodeToString(payload);
 
