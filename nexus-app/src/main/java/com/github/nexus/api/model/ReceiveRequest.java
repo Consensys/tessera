@@ -1,15 +1,18 @@
 package com.github.nexus.api.model;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotNull;
 
 @ApiModel
 public class ReceiveRequest {
 
     @NotNull
+    @ApiModelProperty("Encoded sender public key")
     private String key;
 
     @NotNull
+    @ApiModelProperty("Encoded recipient public key")
     private String to;
 
     public String getKey() {
