@@ -90,6 +90,7 @@ public class TransactionResource {
                             @HeaderParam("c11n-to") final String recipientKeys,
                             @NotNull @Size(min = 1) final byte[] payload) {
 
+        LOGGER.info("Received payload {}", base64Decoder.encodeToString(payload));
 
         final Optional<byte[]> from = Optional
             .ofNullable(sender)
