@@ -149,6 +149,17 @@ public class TransactionResource {
 
     }
 
+    @GET
+    @Deprecated
+    @Path("/receive")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response receive(
+        @Valid final ReceiveRequest request
+    ) {
+        return this.receive(request.getKey(), request.getTo());
+    }
+
     @ApiResponses({
         @ApiResponse(code = 200, message = "Encoded value", response = String.class)
     })

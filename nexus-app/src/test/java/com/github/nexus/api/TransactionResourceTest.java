@@ -145,6 +145,28 @@ public class TransactionResourceTest {
     }
 
     @Test
+    @Deprecated
+    public void receiveWithDeprecatedEndpoint() {
+
+        ReceiveRequest receiveRequest = new ReceiveRequest();
+        receiveRequest.setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
+        receiveRequest.setTo("cmVjaXBpZW50MQ==");
+
+        doReturn("SOME DATA".getBytes()).when(enclave).receive(any(), any());
+
+        Response response = transactionResource.receive(receiveRequest);
+
+//        verify(transactionService).receive(any(), any());
+        assertThat(response).isNotNull();
+
+        ReceiveResponse receiveResponse = (ReceiveResponse) response.getEntity();
+
+        assertThat(receiveResponse.getPayload()).isEqualTo("U09NRSBEQVRB");
+        verify(enclave).receive(any(), any());
+        assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    @Test
     public void testReceiveRaw() {
 
         String key = "AFT757zkDmMksHdut9zeFXdd5wptBNlZtxrjlvuJkihf+rb6VH+go28Ih0nJ3wvCDei02sCcoN++Qbp5hULokQ==";
