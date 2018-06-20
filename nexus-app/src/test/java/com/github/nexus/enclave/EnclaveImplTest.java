@@ -56,7 +56,7 @@ public class EnclaveImplTest {
 
     @Test
     public void testDelete() {
-        doReturn(true).when(transactionService).delete(any(MessageHash.class));
+   
         enclave.delete(new byte[0]);
         verify(transactionService).delete(any(MessageHash.class));
     }

@@ -2,14 +2,13 @@ package com.github.nexus.config;
 
 import java.nio.file.Path;
 
-
 public interface PrivateKey {
     
     Path getPath();
     
     String getValue();
     
-    PrivateKeyType getType();
+    <T extends PrivateKeyType>  T getType();
     
     String getPassword();
     

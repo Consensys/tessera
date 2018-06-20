@@ -1,10 +1,12 @@
 package com.github.nexus.api.model;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel
 public class SendResponse {
 
+    @ApiModelProperty("TODO: Define this key as something")
     private String key;
 
     public SendResponse(String key) {

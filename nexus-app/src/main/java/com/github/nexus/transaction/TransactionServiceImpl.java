@@ -46,9 +46,9 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public boolean delete(final MessageHash hash) {
+    public void delete(final MessageHash hash) {
         LOGGER.info("Received request to delete message with hash {}", hash);
-        return encryptedTransactionDAO.delete(hash);
+        encryptedTransactionDAO.delete(hash);
     }
 
     @Override
