@@ -4,6 +4,8 @@ import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -18,39 +20,42 @@ public class UnixDomainServerSocket {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnixDomainServerSocket.class);
 
     private ServerSocket server;
+    
     private Socket socket;
 
-
-    public UnixDomainServerSocket() {
+    private  final UnixSocketFactory unixSocketFactory;
+    
+    public UnixDomainServerSocket(UnixSocketFactory unixSocketFactory) {
+        this.unixSocketFactory = Objects.requireNonNull(unixSocketFactory);
     }
 
     /**
      * Create a unix domain socket, using the specified directory + path.
      */
     public void create(final String directory, final String filename) {
-        final File socketFile = new File(new File(directory), filename);
+        final Path socketFile = Paths.get(directory, filename);
 
         try {
-            server = UnixSocketFactory.create().createServerSocket(socketFile.toPath());
+            server = unixSocketFactory.createServerSocket(socketFile);
             LOGGER.info("server: {}", server);
 
         } catch (IOException ex) {
             LOGGER.error("Failed to create Unix Domain Socket: {}/{}", directory, filename);
-            throw new RuntimeException(ex);
+            throw new NexusSocketException(ex);
         }
     }
 
     /**
      * Listen for, and accept connections from clients.
      */
-    public void connect() throws IOException {
+    public void connect() {
 
         try {
             socket = server.accept();
 
         } catch (IOException ex) {
             LOGGER.error("Failed to create Socket");
-            throw new RuntimeException(ex);
+            throw new NexusSocketException(ex);
         }
 
     }
@@ -92,7 +97,7 @@ public class UnixDomainServerSocket {
 
         } catch (IOException ex) {
             LOGGER.error("Failed to read from socket");
-            throw new RuntimeException(ex);
+            throw new NexusSocketException(ex);
         }
     }
 
@@ -109,7 +114,7 @@ public class UnixDomainServerSocket {
             }
         } catch (IOException ex) {
             LOGGER.error("Failed to read from Socket");
-            throw new RuntimeException(ex);
+            throw new NexusSocketException(ex);
         }
     }
 }

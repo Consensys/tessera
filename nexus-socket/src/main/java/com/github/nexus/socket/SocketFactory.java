@@ -9,7 +9,7 @@ import java.net.URI;
  */
 public class SocketFactory {
 
-    public static Socket create(URI serverUri) throws IOException {
+    public Socket create(URI serverUri) throws IOException {
         return new Socket(serverUri.getHost(), serverUri.getPort());
     }
 }

@@ -3,6 +3,9 @@ package com.github.nexus.api;
 import com.github.nexus.node.PartyInfoParser;
 import com.github.nexus.node.PartyInfoService;
 import com.github.nexus.node.model.PartyInfo;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +35,14 @@ public class PartyInfoResource {
         this.partyInfoParser = requireNonNull(partyInfoParser);
     }
 
+
+    @ApiResponses({
+        @ApiResponse(code = 200,message = "Endcoded PartyInfo Data",response = byte[].class)
+    })
     @POST
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response partyInfo(final byte[] payload) {
+    public Response partyInfo(@ApiParam(required = true) final byte[] payload) {
 
         final PartyInfo partyInfo = partyInfoParser.from(payload);
 
