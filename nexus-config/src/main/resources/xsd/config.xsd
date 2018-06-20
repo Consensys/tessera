@@ -12,15 +12,38 @@
 
     <xsd:complexType name="Configuration">
         <xsd:sequence>
-            <xsd:element name="keygenBasePath" type="xsd:string">
+            <xsd:element name="keyGenBasePath" type="tns:Path">
                 <xsd:annotation>
                     <xsd:documentation>
                         The base path used to resolve stuff
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
-            <xsd:element name="jdbcConfig" type="tns:JdbcConfig" />
-            <xsd:element name="serverConfig" type="tns:ServerConfig" />
+            <xsd:element name="jdbcConfig" type="tns:JdbcConfig">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        JDBC Settings for node's internal database. 
+                        H2 Jdbc drivers are bundled, other jdbc drivers need to 
+                        be added to process's class path. 
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="serverConfig" type="tns:ServerConfig">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Embedded Http Rest server configuration. 
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            
+            <xsd:element name="peer" type="tns:Peer" maxOccurs="unbounded" />
+            
+            <xsd:element name="privateKey" type="tns:PrivateKey"  maxOccurs="unbounded" />
+            
+            <xsd:element name="publicKey" type="tns:PublicKey"  maxOccurs="unbounded" />
+            
+            <xsd:element name="unixSocketFile" type="tns:Path" />
+            
         </xsd:sequence>
     </xsd:complexType>
     
@@ -52,8 +75,9 @@
     </xsd:complexType>
     
     <xsd:complexType name="ServerConfig">
+
         <xsd:sequence>
-            <xsd:element name="port" type="xsd:integer">
+            <xsd:element name="port" type="xsd:int">
                 
             </xsd:element>
         </xsd:sequence>
@@ -66,13 +90,20 @@
     </xsd:complexType>
     
     <xsd:complexType name="PrivateKey">
+
         <xsd:sequence>
-            <xsd:element name="path" type="xsd:anyURI"></xsd:element>
-            <xsd:element name="value" type="xsd:string"></xsd:element>
-            <xsd:element name="type" type="tns:PrivateKeyType" />
+
+            <xsd:choice>
+                <xsd:element name="path" type="tns:Path"></xsd:element>
+                <xsd:element name="value" type="xsd:string"></xsd:element>  
+            </xsd:choice>
+
             <xsd:element name="password" type="xsd:string"></xsd:element>
+            
         </xsd:sequence>
-        
+
+        <xsd:attribute name="type" type="tns:PrivateKeyType" />
+
     </xsd:complexType>
     
     <xsd:simpleType name="PrivateKeyType">
@@ -84,9 +115,18 @@
     
     <xsd:complexType name="PublicKey">
         <xsd:sequence>
-            <xsd:element name="path" type="xsd:anyURI"></xsd:element>
-            <xsd:element name="value" type="xsd:string"></xsd:element>
+            <xsd:choice>
+                <xsd:element name="path" type="tns:Path"></xsd:element>
+                <xsd:element name="value" type="xsd:string"></xsd:element>
+            </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
+    
+        
+    <xsd:simpleType name="Path">
+        <xsd:restriction base="xsd:string" />
+    </xsd:simpleType>
+
+    
     
 </xsd:schema>
