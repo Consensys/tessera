@@ -1,7 +1,9 @@
 package com.github.nexus.api.model;
 
+import io.swagger.annotations.ApiModel;
 import javax.validation.constraints.NotNull;
 
+@ApiModel
 public class ReceiveRequest {
 
     @NotNull

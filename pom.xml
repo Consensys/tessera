@@ -192,6 +192,7 @@
         <module>nexus-keygen</module>
         <module>resteasy-server</module>
         <module>junixsocket-adapter</module>
+        <module>nexus-config</module>
     </modules>
 
     <dependencyManagement>
