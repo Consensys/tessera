@@ -39,3 +39,5 @@
 /junixsocket-adapter/nb-configuration.xml
 /junixsocket-adapter/target/
 /nexus-config/nb-configuration.xml
+/nexus-config/nbproject/
+/junixsocket-adapter/target/

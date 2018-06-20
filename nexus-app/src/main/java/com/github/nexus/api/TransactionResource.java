@@ -3,6 +3,7 @@ package com.github.nexus.api;
 import com.github.nexus.api.model.*;
 import com.github.nexus.enclave.Enclave;
 import com.github.nexus.util.Base64Decoder;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -38,8 +39,8 @@ public class TransactionResource {
 
     @ApiResponses({
         @ApiResponse(code = 200,
-            response = SendResponse.class,
-            message = "Send response"),
+                response = SendResponse.class,
+                message = "Send response"),
         @ApiResponse(code = 400, message = "For unknown and unknown keys")
     })
     @POST
@@ -47,21 +48,21 @@ public class TransactionResource {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     public Response send(
-        @ApiParam(name = "sendRequest", required = true)
-        @Valid final SendRequest sendRequest) {
+            @ApiParam(name = "sendRequest", required = true)
+            @Valid final SendRequest sendRequest) {
 
         LOGGER.debug("Received send request");
 
         final String sender = sendRequest.getFrom();
         final Optional<byte[]> from = Optional.ofNullable(sender)
-            .map(base64Decoder::decode);
+                .map(base64Decoder::decode);
 
         LOGGER.debug("SEND: sender {}", sender);
 
         final byte[][] recipients = Stream
-            .of(sendRequest.getTo())
-            .map(base64Decoder::decode)
-            .toArray(byte[][]::new);
+                .of(sendRequest.getTo())
+                .map(base64Decoder::decode)
+                .toArray(byte[][]::new);
 
         LOGGER.debug("SEND: recipients {}", Stream.of(sendRequest.getTo()).collect(joining()));
 
@@ -73,33 +74,33 @@ public class TransactionResource {
         final SendResponse response = new SendResponse(encodedKey);
 
         return Response.status(Response.Status.OK)
-            .header("Content-Type", MediaType.APPLICATION_JSON)
-            .entity(response)
-            .build();
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .entity(response)
+                .build();
 
     }
 
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Encoded Key", response = String.class)
+        @ApiResponse(code = 200, message = "Encoded Key", response = String.class),
+        @ApiResponse(code = 500, message = "Unknown server error")
     })
     @POST
     @Path("sendraw")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.TEXT_PLAIN)
     public Response sendRaw(@HeaderParam("c11n-from") final String sender,
-                            @HeaderParam("c11n-to") final String recipientKeys,
-                            @NotNull @Size(min = 1) final byte[] payload) {
-
+            @HeaderParam("c11n-to") final String recipientKeys,
+            @NotNull @Size(min = 1) final byte[] payload) {
 
         final Optional<byte[]> from = Optional
-            .ofNullable(sender)
-            .map(base64Decoder::decode);
+                .ofNullable(sender)
+                .map(base64Decoder::decode);
 
         final String nonnullRecipients = Optional.ofNullable(recipientKeys).orElse("");
         final byte[][] recipients = Stream.of(nonnullRecipients.split(","))
-            .filter(str -> !str.isEmpty())
-            .map(base64Decoder::decode)
-            .toArray(byte[][]::new);
+                .filter(str -> !str.isEmpty())
+                .map(base64Decoder::decode)
+                .toArray(byte[][]::new);
 
         LOGGER.debug("SendRaw Recipients: {}", nonnullRecipients);
 
@@ -111,26 +112,29 @@ public class TransactionResource {
 
         //TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
         return Response.status(Response.Status.OK)
-            .entity(encodedKey)
-            .build();
+                .entity(encodedKey)
+                .build();
     }
 
     @ApiResponses({
         @ApiResponse(code = 200, response = ReceiveResponse.class, message = "Receive Response object")
     })
     @GET
-    @Path("receive")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/transaction/{hash}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response receive(
-        @ApiParam(name = "receiveRequest", required = true)
-        @Valid final ReceiveRequest receiveRequest) {
+            @ApiParam("Encoded hash used to decrypt the payload")
+            @NotNull @Valid @PathParam("hash") final String hash,
+            @ApiParam("Encoded recipient key")
+            @Valid @QueryParam("to") final String toStr
+    ) {
 
-        final byte[] key = base64Decoder.decode(receiveRequest.getKey());
+        final byte[] key = base64Decoder.decode(hash);
 
         final Optional<byte[]> to = Optional
-            .ofNullable(receiveRequest.getTo())
-            .map(base64Decoder::decode);
+                .ofNullable(toStr)
+                .filter(str -> !str.isEmpty())
+                .map(base64Decoder::decode);
 
         final byte[] payload = enclave.receive(key, to);
 
@@ -139,72 +143,110 @@ public class TransactionResource {
         final ReceiveResponse response = new ReceiveResponse(encodedPayload);
 
         return Response.status(Response.Status.OK)
-            .header("Content-Type", MediaType.APPLICATION_JSON)
-            .entity(response)
-            .build();
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .entity(response)
+                .build();
 
     }
 
+    @GET
+    @Deprecated
+    @Path("/receive")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response receive(
+            @Valid final ReceiveRequest request
+    ) {
+        return this.receive(request.getKey(), request.getTo());
+    }
+
+    @ApiOperation(value = "Summit keys to retrieve payload and decrypt it",
+            produces = "Unencypted payload")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Encoded value", response = String.class)
+        @ApiResponse(code = 200, message = "Unencrypted payload", response = String.class)
     })
     @GET
     @Path("receiveraw")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.TEXT_PLAIN)
     public Response receiveRaw(
-        @NotNull @HeaderParam(value = "c11n-key") String key,
-        @HeaderParam(value = "c11n-to") String recipientKey) {
+            @ApiParam("Encoded Sender Public Key")
+            @NotNull @HeaderParam(value = "c11n-key") String senderKey,
+            @ApiParam("Encoded Recipient Public Key")
+            @HeaderParam(value = "c11n-to") String recipientKey) {
 
-        final byte[] decodedKey = base64Decoder.decode(key);
+        final byte[] decodedKey = base64Decoder.decode(senderKey);
 
         final Optional<byte[]> to = Optional
-            .ofNullable(recipientKey)
-            .map(base64Decoder::decode);
+                .ofNullable(recipientKey)
+                .map(base64Decoder::decode);
 
         final byte[] payload = enclave.receive(decodedKey, to);
 
         final String encodedPayload = base64Decoder.encodeToString(payload);
 
         return Response.status(Response.Status.OK)
-            .entity(encodedPayload)
-            .build();
+                .entity(encodedPayload)
+                .build();
     }
 
+    @Deprecated
+    @ApiOperation("Delete key provided in request. Deprecated: Deletes will be done with DELETE http method")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Status message", response = String.class)
+        @ApiResponse(code = 200, message = "Status message", response = String.class),
+        @ApiResponse(code = 404, message = "If the entity doesn't exist")
     })
     @POST
     @Path("delete")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces(MediaType.TEXT_PLAIN)
     public Response delete(
-        @ApiParam(name = "deleteRequest", required = true)
-        @Valid final DeleteRequest deleteRequest) {
+            @ApiParam(name = "deleteRequest", required = true)
+            @Valid final DeleteRequest deleteRequest) {
 
         final byte[] hashBytes = base64Decoder.decode(deleteRequest.getKey());
 
         enclave.delete(hashBytes);
 
         return Response.status(Response.Status.OK)
-            .entity("Delete successful")
-            .build();
+                .entity("Delete successful")
+                .build();
+
+    }
+
+    @ApiResponses({
+        @ApiResponse(code = 204, message = "Successful deletion"),
+        @ApiResponse(code = 404, message = "If the entity doesn't exist")
+    })
+    @DELETE
+    @Path("{key}")
+    public Response deleteKey(
+            @ApiParam("Encoded key")
+            @PathParam("key") String key) {
+
+        final byte[] hashBytes = base64Decoder.decode(key);
+        enclave.delete(hashBytes);
+
+        return Response.accepted().build();
 
     }
 
     @ApiResponses(
-        {@ApiResponse(code = 200,
-            message = "Encoded payload when ResendRequestType is INDIVIDUAL",
-            response = String.class)
-        }
+            {
+                @ApiResponse(code = 200,
+                        message = "Encoded payload when ResendRequestType is INDIVIDUAL",
+                        response = String.class),
+                @ApiResponse(code = 500,
+                        message = "General error")
+            }
     )
     @POST
     @Path("resend")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces(MediaType.TEXT_PLAIN)
     public Response resend(
-        @ApiParam(name = "resendRequest", required = true)
-        @Valid @NotNull final ResendRequest resendRequest) {
+            @ApiParam(name = "resendRequest", required = true)
+            @Valid @NotNull final ResendRequest resendRequest) {
 
         final byte[] publicKey = base64Decoder.decode(resendRequest.getPublicKey());
 
@@ -215,25 +257,26 @@ public class TransactionResource {
             final byte[] payload = enclave.receive(hashKey, Optional.of(publicKey));
             final String encodedPayload = base64Decoder.encodeToString(payload);
             return Response.status(Response.Status.OK)
-                .entity(encodedPayload)
-                .build();
+                    .entity(encodedPayload)
+                    .build();
         }
 
         return Response.status(Response.Status.OK).build();
     }
 
     @ApiResponses(
-        {@ApiResponse(code = 201, message = "Key created status")}
+            {
+                @ApiResponse(code = 201, message = "Key created status"),
+                @ApiResponse(code = 500, message = "General error")}
     )
     @POST
     @Path("push")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     public Response push(
-        @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload) {
+            @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload) {
         LOGGER.info(Base64.getEncoder().encodeToString(enclave.storePayload(payload).getHashBytes()));
 
         return Response.status(Response.Status.CREATED).build();
     }
-
 
 }

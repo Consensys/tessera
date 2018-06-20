@@ -1,6 +1,7 @@
 package com.github.nexus.enclave.model;
 
 import java.util.Arrays;
+import java.util.Base64;
 
 public class MessageHash {
 
@@ -35,7 +36,7 @@ public class MessageHash {
 
     @Override
     public String toString() {
-        return Arrays.toString(hashBytes);
+        return Base64.getEncoder().encodeToString(hashBytes);
     }
 
 }
