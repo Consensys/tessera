@@ -215,7 +215,7 @@ public class TransactionResource {
     }
 
     @ApiResponses({
-        @ApiResponse(code = 204, message = "Successfil deletion"),
+        @ApiResponse(code = 204, message = "Successful deletion"),
         @ApiResponse(code = 404, message = "If the entity doesn't exist")
     })
     @DELETE
