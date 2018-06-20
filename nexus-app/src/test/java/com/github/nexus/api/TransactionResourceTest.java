@@ -71,7 +71,6 @@ public class TransactionResourceTest {
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
-
     @Test
     public void sendrawWithNoRecipients() {
         final byte[] payload = "Zm9v".getBytes();
@@ -86,7 +85,6 @@ public class TransactionResourceTest {
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
     }
-
 
     @Ignore
     public void sendThrowsDecodingException() {
@@ -114,7 +112,7 @@ public class TransactionResourceTest {
         doReturn("SOME DATA".getBytes()).when(enclave).receive(any(), any());
 
         Response response = transactionResource
-            .receive("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=", "cmVjaXBpZW50MQ==");
+                .receive("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=", "cmVjaXBpZW50MQ==");
 
 //        verify(transactionService).receive(any(), any());
         assertThat(response).isNotNull();
@@ -132,7 +130,7 @@ public class TransactionResourceTest {
         doReturn("SOME DATA".getBytes()).when(enclave).receive(any(), any());
 
         Response response = transactionResource
-            .receive("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=", "");
+                .receive("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=", "");
 
 //        verify(transactionService).receive(any(), any());
         assertThat(response).isNotNull();
@@ -244,6 +242,17 @@ public class TransactionResourceTest {
         verify(enclave).storePayload(any());
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
+    }
+
+    @Test
+    public void testDeleteKey() {
+        when(enclave.delete(any())).thenReturn(true);
+
+        String key = Base64.getEncoder().encodeToString("HELLOW".getBytes());
+        
+        transactionResource.deleteKey(key);
+        verify(enclave, times(1)).delete(any());
+
     }
 
 }

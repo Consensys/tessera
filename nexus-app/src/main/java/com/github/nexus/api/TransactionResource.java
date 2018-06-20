@@ -190,6 +190,8 @@ public class TransactionResource {
                 .build();
     }
 
+    @Deprecated
+    @ApiOperation("Delete key provided in request. Deprecated: Deletes will be done with DELETE http method")
     @ApiResponses({
         @ApiResponse(code = 200, message = "Status message", response = String.class)
     })
@@ -211,6 +213,17 @@ public class TransactionResource {
 
     }
 
+    
+    @DELETE
+    @Path("{key}")
+    public void deleteKey(
+                @ApiParam("Encoded key") 
+                @PathParam("key") String key) {
+        
+        final byte[] hashBytes = base64Decoder.decode(key);
+        enclave.delete(hashBytes);
+    }
+    
     @ApiResponses(
             {
                 @ApiResponse(code = 200,

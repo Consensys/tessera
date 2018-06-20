@@ -9,7 +9,7 @@ public class ResendRequest {
     @ApiModelProperty("Resend type INDIVIDUAL or ALL")
     private ResendRequestType type;
 
-    @ApiModelProperty("Define this publicKey, what is it?")
+    @ApiModelProperty("TODO: Define this publicKey, what is it?")
     private String publicKey;
     
     @ApiModelProperty("TODO: Define this key, what is it?")
