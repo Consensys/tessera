@@ -1,6 +1,7 @@
-package com.github.nexus.ssl.util;
+package com.github.nexus.ssl;
 
 import javax.net.ssl.*;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.*;
@@ -31,7 +32,7 @@ public class SSLContextBuilder {
             trustStorePassword);
     }
 
-    public SSLContext forSelfSignedCertificates() throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException {
+    public SSLContext forCASignedCertificates() throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException {
 
         final KeyManager[] keyManagers = buildKeyManagers();
 
@@ -47,7 +48,17 @@ public class SSLContextBuilder {
     public SSLContext forAllCertificates() throws NoSuchAlgorithmException, KeyManagementException {
 
         final SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
-        sslContext.init( new KeyManager[0], new TrustManager[]{new TrustAllManager()}, null );
+        sslContext.init(new KeyManager[0], new TrustManager[]{new TrustAllManager()}, null);
+
+        return sslContext;
+    }
+
+    public SSLContext forTrustOnFirstUse(String address, File knownHostsFile) throws NoSuchAlgorithmException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, CertificateException {
+        SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
+        final KeyManager[] keyManagers = buildKeyManagers();
+
+        sslContext.init(keyManagers,
+            new TrustManager[]{new TrustOnFirstUseManager(address, knownHostsFile)}, null);
 
         return sslContext;
     }

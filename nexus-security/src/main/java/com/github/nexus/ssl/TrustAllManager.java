@@ -1,4 +1,4 @@
-package com.github.nexus.ssl.util;
+package com.github.nexus.ssl;
 
 import javax.net.ssl.X509TrustManager;
 import java.security.cert.CertificateException;
