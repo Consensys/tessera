@@ -1,0 +1,97 @@
+
+
+    configuration
+
+    
+        
+            keyGenBasePath
+                        The base path used to resolve stuff
+                    
+            jdbcConfig
+                        JDBC Settings for node's internal database. 
+                        H2 Jdbc drivers are bundled, other jdbc drivers need to 
+                        be added to process's class path. 
+                    
+            serverConfig
+                        Embedded Http Rest server configuration. 
+                    
+            
+            peer
+            
+            privateKey
+            
+            publicKey
+            
+            unixSocketFile
+            
+        
+    
+    
+    
+        
+            username
+                        JDBC Username
+                    
+            password
+                        JDBC Password
+                    
+            url
+                        JDBC URL
+                    
+        
+        
+    
+    
+    
+
+        
+            port
+        
+    
+    
+    
+        
+            url
+        
+    
+    
+    
+
+        
+
+            
+                path
+                value  
+            
+
+            password
+            
+        
+
+        
+
+    
+    
+    
+        
+            
+            
+        
+    
+    
+    
+        
+            
+                path
+                value
+            
+        
+    
+    
+        
+    
+        
+    
+
+    
+    

@@ -10,6 +10,7 @@ import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.EntityNotFoundException;
 
 public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
 
@@ -48,23 +49,21 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
             .createQuery("SELECT et FROM EncryptedTransaction et", EncryptedTransaction.class)
             .getResultList();
     }
-
+    
+    
     @Override
-    public boolean delete(final MessageHash hash) {
-        final String query = "SELECT et FROM EncryptedTransaction et WHERE et.hash = :hash";
+    public void delete(final MessageHash hash) {
+        final String query = "select et from EncryptedTransaction et where et.hash = :hash";
 
-        final Optional<EncryptedTransaction> message = entityManager
+        final EncryptedTransaction message = entityManager
             .createQuery(query, EncryptedTransaction.class)
             .setParameter("hash", hash.getHashBytes())
             .getResultStream()
-            .findAny();
+            .findAny()
+                .orElseThrow(EntityNotFoundException::new);
 
-        if(message.isPresent()) {
-            entityManager.remove(message.get());
-            return true;
-        } else {
-            return false;
-        }
+        entityManager.remove(message);
+
 
     }
 }

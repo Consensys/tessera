@@ -1,12 +1,18 @@
 package com.github.nexus.api.model;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel
 public class ResendRequest {
 
+    @ApiModelProperty("Resend type INDIVIDUAL or ALL")
     private ResendRequestType type;
+
+    @ApiModelProperty("TODO: Define this publicKey, what is it?")
     private String publicKey;
+    
+    @ApiModelProperty("TODO: Define this key, what is it?")
     private String key;
 
     public ResendRequestType getType() {

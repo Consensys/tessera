@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration xmlns="http://nexus.github.com/config/api" >
+    
+    <keyGenBasePath>/tmp/somedir</keyGenBasePath>
+    
+    <jdbcConfig>
+        <username>scott</username>
+        <password>tiger</password>
+        <url>foo:bar</url>
+    </jdbcConfig>
+    
+    <serverConfig>
+        <port>99</port>
+    </serverConfig>
+    
+    
+    
+    <peer>
+        <url>http://bogus.com</url>
+    </peer>
+    
+
+    <privateKey type="locked">
+        <value></value>
+        <password></password>
+    </privateKey>
+    
+    <privateKey type="unlocked">
+        <value></value>
+        <password></password>
+    </privateKey>
+    
+    <publicKey>
+        <path>/tmp/someppath</path>
+        
+    </publicKey>
+    
+    <unixSocketFile>/tmp/socket</unixSocketFile>
+    
+</configuration>
