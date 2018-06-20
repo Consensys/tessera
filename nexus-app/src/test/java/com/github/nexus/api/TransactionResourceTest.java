@@ -109,17 +109,32 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void testReceive() {
+    public void receiveWithValidParameters() {
 
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
-        receiveRequest.setTo("cmVjaXBpZW50MQ==");
+        doReturn("SOME DATA".getBytes()).when(enclave).receive(any(), any());
 
-        when(enclave.receive(any(), any())).thenReturn("SOME DATA".getBytes());
+        Response response = transactionResource
+            .receive("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=", "cmVjaXBpZW50MQ==");
 
-        Response response = transactionResource.receive(receiveRequest);
+//        verify(transactionService).receive(any(), any());
+        assertThat(response).isNotNull();
 
-//        verify(transactionService, times(1)).receive(any(), any());
+        ReceiveResponse receiveResponse = (ReceiveResponse) response.getEntity();
+
+        assertThat(receiveResponse.getPayload()).isEqualTo("U09NRSBEQVRB");
+        verify(enclave).receive(any(), any());
+        assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    public void receiveWithNoToField() {
+
+        doReturn("SOME DATA".getBytes()).when(enclave).receive(any(), any());
+
+        Response response = transactionResource
+            .receive("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=", "");
+
+//        verify(transactionService).receive(any(), any());
         assertThat(response).isNotNull();
 
         ReceiveResponse receiveResponse = (ReceiveResponse) response.getEntity();
@@ -147,16 +162,11 @@ public class TransactionResourceTest {
 
     @Test(expected = DecodingException.class)
     public void testReceiveThrowDecodingException() {
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
-        receiveRequest.setTo("1");
-
 //        when(transactionService.receive(any(), any())).thenReturn("SOME DATA".getBytes());
 
-        Response response = transactionResource.receive(receiveRequest);
+        Response response = transactionResource.receive("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=", "1");
 
         assertThat(response).isNotNull();
-        ReceiveResponse receiveResponse = (ReceiveResponse) response.getEntity();
         assertThat(response.getStatus()).isEqualTo(400);
 
     }

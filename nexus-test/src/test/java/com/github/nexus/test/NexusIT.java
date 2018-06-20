@@ -128,21 +128,6 @@ public class NexusIT {
 
     }
 
-    @Test
-    public void sendraw() {
-
-        javax.ws.rs.core.Response response = client.target(SERVER_URI)
-                .path("/sendraw")
-                .request()
-                .header("c11n-from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-                .header("c11n-to", "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
-                .post(Entity.entity("Zm9v", MediaType.APPLICATION_OCTET_STREAM));
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(200);
-    }
-
-
     @Ignore
     @Test
     public void receiveraw() {
