@@ -193,7 +193,7 @@ public class TransactionResourceTest {
 
     @Test
     public void testDelete() {
-        when(enclave.delete(any())).thenReturn(true);
+       
         DeleteRequest deleteRequest = new DeleteRequest();
         deleteRequest.setKey(Base64.getEncoder().encodeToString("HELLOW".getBytes()));
         Response response = transactionResource.delete(deleteRequest);
@@ -246,7 +246,7 @@ public class TransactionResourceTest {
 
     @Test
     public void testDeleteKey() {
-        when(enclave.delete(any())).thenReturn(true);
+
 
         String key = Base64.getEncoder().encodeToString("HELLOW".getBytes());
         
