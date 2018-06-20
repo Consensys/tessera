@@ -193,7 +193,8 @@ public class TransactionResource {
     @Deprecated
     @ApiOperation("Delete key provided in request. Deprecated: Deletes will be done with DELETE http method")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Status message", response = String.class)
+        @ApiResponse(code = 200, message = "Status message", response = String.class),
+        @ApiResponse(code = 404, message = "If the entity doesn't exist")
     })
     @POST
     @Path("delete")
@@ -213,17 +214,23 @@ public class TransactionResource {
 
     }
 
-    
+    @ApiResponses({
+        @ApiResponse(code = 204, message = "Successfil deletion"),
+        @ApiResponse(code = 404, message = "If the entity doesn't exist")
+    })
     @DELETE
     @Path("{key}")
-    public void deleteKey(
-                @ApiParam("Encoded key") 
-                @PathParam("key") String key) {
-        
+    public Response deleteKey(
+            @ApiParam("Encoded key")
+            @PathParam("key") String key) {
+
         final byte[] hashBytes = base64Decoder.decode(key);
         enclave.delete(hashBytes);
+
+        return Response.accepted().build();
+
     }
-    
+
     @ApiResponses(
             {
                 @ApiResponse(code = 200,

@@ -17,9 +17,8 @@ public interface Enclave {
      * since the desired state of the message no longer existing is satisfied
      *
      * @param hashBytes The hash of the payload that should be deleted
-     * @return States whether the delete operation was successful
      */
-    boolean delete(byte[] hashBytes);
+    void delete(byte[] hashBytes);
 
     /**
      * Retrieve a particular transaction
