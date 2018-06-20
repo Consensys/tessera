@@ -56,7 +56,7 @@
 
     <bean name="client" class="javax.ws.rs.client.ClientBuilder" factory-method="newClient"/>
 
-    <bean class="com.github.nexus.api.LoggingFilter" />
+    <bean class="com.github.nexus.api.filter.LoggingFilter" />
     <bean class="com.github.nexus.api.filter.IPWhitelistFilter">
         <constructor-arg ref="config"/>
     </bean>

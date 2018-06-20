@@ -1,6 +1,7 @@
 package com.github.nexus.api;
 
 import com.github.nexus.api.filter.GlobalFilter;
+import com.github.nexus.api.filter.Logged;
 import com.github.nexus.service.locator.ServiceLocator;
 
 import javax.ws.rs.ApplicationPath;
