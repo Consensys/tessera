@@ -8,6 +8,7 @@ public class ReceiveRequest {
 
     @NotNull
     private String key;
+
     @NotNull
     private String to;
 
@@ -15,7 +16,7 @@ public class ReceiveRequest {
         return key;
     }
 
-    public void setKey(String key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 
@@ -23,7 +24,7 @@ public class ReceiveRequest {
         return to;
     }
 
-    public void setTo(String to) {
+    public void setTo(final String to) {
         this.to = to;
     }
 }

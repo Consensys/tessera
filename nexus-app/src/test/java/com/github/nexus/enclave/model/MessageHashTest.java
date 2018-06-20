@@ -52,11 +52,13 @@ public class MessageHashTest {
     @Test
     public void toStringOutputsCorrectString() {
 
-        final MessageHash hash = new MessageHash(new byte[]{5, 6, 7});
+        //dmFs is "val" encoded as base64 in UTF_8
+
+        final MessageHash hash = new MessageHash("val".getBytes());
 
         final String toString = hash.toString();
 
-        assertThat(toString).isEqualTo("[5, 6, 7]");
+        assertThat(toString).isEqualTo("dmFs");
 
     }
     
