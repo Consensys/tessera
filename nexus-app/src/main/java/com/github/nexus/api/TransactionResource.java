@@ -119,17 +119,21 @@ public class TransactionResource {
         @ApiResponse(code = 200, response = ReceiveResponse.class, message = "Receive Response object")
     })
     @GET
-    @Path("receive")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/transaction/{hash}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response receive(
-        @ApiParam(name = "receiveRequest", required = true)
-        @Valid final ReceiveRequest receiveRequest) {
+        @ApiParam(name = "hash", required = true)
+        @Valid @PathParam("hash") final String hash,
 
-        final byte[] key = base64Decoder.decode(receiveRequest.getKey());
+        @ApiParam(name = "to")
+        @Valid @QueryParam("to") final String toStr
+    ) {
+
+        final byte[] key = base64Decoder.decode(hash);
 
         final Optional<byte[]> to = Optional
-            .ofNullable(receiveRequest.getTo())
+            .ofNullable(toStr)
+            .filter(str -> !str.isEmpty())
             .map(base64Decoder::decode);
 
         final byte[] payload = enclave.receive(key, to);
@@ -143,6 +147,17 @@ public class TransactionResource {
             .entity(response)
             .build();
 
+    }
+
+    @GET
+    @Deprecated
+    @Path("/receive")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response receive(
+        @Valid final ReceiveRequest request
+    ) {
+        return this.receive(request.getKey(), request.getTo());
     }
 
     @ApiResponses({
