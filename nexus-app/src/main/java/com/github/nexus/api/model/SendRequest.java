@@ -1,16 +1,20 @@
 package com.github.nexus.api.model;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotNull;
 
 @ApiModel
-public class SendRequest{
+public class SendRequest {
 
     @NotNull
+    @ApiModelProperty("Encyrpted payload to send to other parties.")
     private String payload;
 
+    @ApiModelProperty("Sender public key")
     private String from;
 
+    @ApiModelProperty("Recipient public keys")
     private String[] to;
 
     public String getPayload() {

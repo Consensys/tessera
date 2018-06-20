@@ -46,10 +46,10 @@ public class EnclaveImpl implements Enclave {
     }
 
     @Override
-    public boolean delete(final byte[] hashBytes) {
+    public void delete(final byte[] hashBytes) {
         final MessageHash messageHash = new MessageHash(hashBytes);
 
-        return transactionService.delete(messageHash);
+         transactionService.delete(messageHash);
     }
 
     @Override
