@@ -35,8 +35,6 @@ public class SocketServer implements Runnable {
 
     private final ScheduledExecutorService executor;
 
-    private final ThreadDelegate threadDelegate = ThreadDelegate.create();
-
     /**
      * Create the unix domain socket and start the listener thread.
      */
@@ -109,12 +107,6 @@ public class SocketServer implements Runnable {
         while (!connected) {
             LOGGER.info("Attempting connection to HTTP server...");
             connected = httpProxy.connect();
-            try {
-                threadDelegate.sleep(1000);
-            } catch (InterruptedException ex) {
-                LOGGER.info("Interrupted - exiting");
-                return false;
-            }
         }
         LOGGER.info("Connected to HTTP server");
 
