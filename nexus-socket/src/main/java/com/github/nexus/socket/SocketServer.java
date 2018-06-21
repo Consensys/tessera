@@ -5,11 +5,11 @@ import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.net.URI;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 /**
  *
@@ -99,12 +99,12 @@ public class SocketServer implements Runnable {
         if (createHttpServerConnection()) {
 
             //Read the request from the socket and send it to the HTTP server
-            String message = serverUds.read();
+            byte[] message = serverUds.read();
             LOGGER.info("Received message on socket: {}", message);
-            httpProxy.sendRequest(new String(message));
+            httpProxy.sendRequest(message);
 
             //Return the HTTP response to the socket
-            String response = httpProxy.getResponse();
+            byte[] response = httpProxy.getResponse();
             LOGGER.info("Received http response: {}", response);
             serverUds.write(response);
 
