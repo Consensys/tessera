@@ -9,7 +9,6 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
@@ -23,7 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class SocketServerTest {
@@ -136,7 +135,7 @@ public class SocketServerTest {
 
 
     @Test
-    public void runThrowsIOExceptionOnClientSocket() throws IOException, InterruptedException {
+    public void runThrowsIOExceptionOnClientSocket() throws IOException {
 
         HttpProxy httpProxy = mock(HttpProxy.class);
         when(httpProxy.connect()).thenReturn(true);
@@ -154,50 +153,10 @@ public class SocketServerTest {
 
         doThrow(IOException.class).when(serverSocket).accept();
 
-        try {
-            socketServer.run();
-            failBecauseExceptionWasNotThrown(NexusSocketException.class);
-        } catch(NexusSocketException ex) {
-            assertThat(ex).hasCauseExactlyInstanceOf(IOException.class);
-        }
+        final Throwable throwable = catchThrowable(socketServer::run);
 
-    }
+        assertThat(throwable).isInstanceOf(NexusSocketException.class).hasCauseExactlyInstanceOf(IOException.class);
 
-    @Test
-    public void runInterrupt() throws Exception {
-
-        HttpProxy httpProxy = mock(HttpProxy.class);
-        when(httpProxy.connect()).thenReturn(false);
-
-        when(httpProxyFactory.create(uri)).thenReturn(httpProxy);
-
-        ByteArrayInputStream inputStream = new ByteArrayInputStream("SOMEDATA".getBytes());
-
-        when(socket.getInputStream()).thenReturn(inputStream);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        when(socket.getOutputStream()).thenReturn(outputStream);
-
-        when(httpProxy.getResponse()).thenReturn("SOMERESPONSE".getBytes());
-
-        ThreadDelegate threadDelegate = mock(ThreadDelegate.class);
-        doThrow(InterruptedException.class)
-        .doThrow(new StopProcess())
-                .when(threadDelegate).sleep(anyLong());
-
-        Field field = SocketServer.class.getDeclaredField("threadDelegate");
-        field.setAccessible(true);
-        field.set(socketServer, threadDelegate);
-        try {
-            socketServer.run();
-        } catch(StopProcess ex) {}
-        //Reset as we dont know how many times anuything has been called
-        reset(httpProxyFactory);
-
-    }
-
-
-    static class StopProcess extends RuntimeException {
     }
 
 }
