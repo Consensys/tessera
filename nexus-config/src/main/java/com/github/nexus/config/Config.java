@@ -10,9 +10,7 @@ public interface Config {
     <J extends JdbcConfig> J getJdbcConfig();
     
     <S extends ServerConfig> S getServerConfig();
-    
-    List<? extends PublicKey> getPublicKeys();
-    
+
     List<? extends PrivateKey> getPrivateKeys();
     
     Path getUnixSocketFile();

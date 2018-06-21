@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <xsd:schema version="2.0"
-            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
             elementFormDefault="qualified" 
             attributeFormDefault="unqualified" 
             xmlns:tns="http://nexus.github.com/config/api" 
@@ -19,7 +19,7 @@
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
-            <xsd:element name="jdbcConfig" type="tns:JdbcConfig">
+            <xsd:element name="jdbc" type="tns:JdbcConfig">
                 <xsd:annotation>
                     <xsd:documentation>
                         JDBC Settings for node's internal database. 
@@ -28,7 +28,8 @@
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
-            <xsd:element name="serverConfig" type="tns:ServerConfig">
+            
+            <xsd:element name="server" type="tns:ServerConfig">
                 <xsd:annotation>
                     <xsd:documentation>
                         Embedded Http Rest server configuration. 
@@ -36,13 +37,29 @@
                 </xsd:annotation>
             </xsd:element>
             
-            <xsd:element name="peer" type="tns:Peer" maxOccurs="unbounded" />
+            <xsd:element name="peer" type="tns:Peer" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Other nodes known but this node.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
             
-            <xsd:element name="privateKey" type="tns:PrivateKey"  maxOccurs="unbounded" />
-            
-            <xsd:element name="publicKey" type="tns:PublicKey"  maxOccurs="unbounded" />
-            
-            <xsd:element name="unixSocketFile" type="tns:Path" />
+            <xsd:element name="privateKey" type="tns:PrivateKey"  maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Private keys available to this node for decrypting.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="unixSocketFile" type="tns:Path">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Unix domain socket file used for geth to commuciate with Nexus. 
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
             
         </xsd:sequence>
     </xsd:complexType>
@@ -78,14 +95,19 @@
 
         <xsd:sequence>
             <xsd:element name="port" type="xsd:int">
-                
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Server port to use for rest services
+                    </xsd:documentation>
+                </xsd:annotation>
             </xsd:element>
         </xsd:sequence>
     </xsd:complexType>
     
     <xsd:complexType name="Peer">
         <xsd:sequence>
-            <xsd:element name="url" type="xsd:anyURI"></xsd:element>
+            <xsd:element name="url" type="xsd:string" />
+            <xsd:element name="publicKey" type="tns:PublicKey" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     
@@ -94,19 +116,47 @@
         <xsd:sequence>
 
             <xsd:choice>
-                <xsd:element name="path" type="tns:Path"></xsd:element>
-                <xsd:element name="value" type="xsd:string"></xsd:element>  
+                <xsd:element name="path" type="tns:Path">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            File system  path to private key
+                        </xsd:documentation>
+                    </xsd:annotation>  
+                </xsd:element>
+                <xsd:element name="value" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Private key value
+                        </xsd:documentation>
+                    </xsd:annotation>
+                    
+                </xsd:element>  
             </xsd:choice>
 
-            <xsd:element name="password" type="xsd:string"></xsd:element>
+            <xsd:element name="password" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Private key password
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
             
         </xsd:sequence>
+  
+        <xsd:attribute name="type" type="tns:PrivateKeyType">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Private keys can be locked or unlocked. Locked means 
+                    that it requires a password.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
 
-        <xsd:attribute name="type" type="tns:PrivateKeyType" />
-
+<!--         <xsd:assert test="(@type = 'locked' and not(password) = false())" />-->
     </xsd:complexType>
     
     <xsd:simpleType name="PrivateKeyType">
+        
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="locked" />
             <xsd:enumeration value="unlocked" />
@@ -116,8 +166,20 @@
     <xsd:complexType name="PublicKey">
         <xsd:sequence>
             <xsd:choice>
-                <xsd:element name="path" type="tns:Path"></xsd:element>
-                <xsd:element name="value" type="xsd:string"></xsd:element>
+                <xsd:element name="path" type="tns:Path">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            File system  path to public key
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="value" type="xsd:anyURI">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Public key value
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
