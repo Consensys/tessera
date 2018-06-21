@@ -14,6 +14,7 @@
             <artifactId>org.eclipse.persistence.moxy</artifactId>
             <scope>runtime</scope>
         </dependency>
+                
     </dependencies>
     
     <build>

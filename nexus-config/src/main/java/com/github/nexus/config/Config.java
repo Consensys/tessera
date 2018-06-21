@@ -7,16 +7,16 @@ public interface Config {
     
     Path getKeyGenBasePath();
     
-    JdbcConfig getJdbcConfig();
+    <J extends JdbcConfig> J getJdbcConfig();
     
-    ServerConfig getServerConfig();
+    <S extends ServerConfig> S getServerConfig();
     
-    List<PublicKey> getPublicKeys();
+    List<? extends PublicKey> getPublicKeys();
     
-    List<PrivateKey> getPrivateKeys();
+    List<? extends PrivateKey> getPrivateKeys();
     
     Path getUnixSocketFile();
     
-    List<Peer> getPeers();
+    List<? extends Peer> getPeers();
 
 }

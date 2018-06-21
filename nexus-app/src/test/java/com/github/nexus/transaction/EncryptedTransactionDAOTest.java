@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javax.persistence.EntityNotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -135,8 +136,7 @@ public class EncryptedTransactionDAOTest {
         assertThat(retrieved).isNotNull();
 
         //delete the transaction
-        final boolean deletedFlag = encryptedTransactionDAO.delete(new MessageHash(new byte[]{1}));
-        assertThat(deletedFlag).isTrue();
+        encryptedTransactionDAO.delete(new MessageHash(new byte[]{1}));
 
         //check it is not longer in the database
         final EncryptedTransaction deleted
@@ -144,11 +144,10 @@ public class EncryptedTransactionDAOTest {
         assertThat(deleted).isNull();
     }
 
-    @Test
-    public void deleteReturnsFalseIfNotExist() {
+    @Test(expected = EntityNotFoundException.class)
+    public void deleteThrowsEntityNotFoundExceptionForNonExistentHash() {
         //delete the transaction
-        final boolean deletedFlag = encryptedTransactionDAO.delete(new MessageHash(new byte[]{1}));
-        assertThat(deletedFlag).isFalse();
+        encryptedTransactionDAO.delete(new MessageHash(new byte[]{1}));
     }
 
     @Test
