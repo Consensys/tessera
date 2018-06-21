@@ -11,8 +11,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class PostDelegateTest {
@@ -31,13 +29,12 @@ public class PostDelegateTest {
 
         when(client.target(anyString())).thenReturn(webTarget);
         when(webTarget.path(anyString())).thenReturn(webTarget);
-
         delegate = new PostDelegate(client);
-
     }
 
     @Test
     public void doPost() {
+
         byte[] responseData = "I LOVE SPARROWS!".getBytes();
         Response response = mock(Response.class);
         when(response.readEntity(byte[].class)).thenReturn(responseData);
