@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.github.nexus</groupId>
@@ -9,11 +10,28 @@
     <artifactId>nexus-config</artifactId>
     <packaging>jar</packaging>
     <dependencies>
+        
+        
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.moxy</artifactId>
             <scope>runtime</scope>
         </dependency>
+                
+                
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.el</artifactId>
+            <version>3.0.1-b10</version>
+        </dependency>
+                
+                
+        <dependency>
+            <groupId>com.openpojo</groupId>
+            <artifactId>openpojo</artifactId>
+            <scope>test</scope>
+        </dependency>
+
                 
     </dependencies>
     
@@ -24,6 +42,8 @@
                 <artifactId>maven-jaxb2-plugin</artifactId>
                 <version>0.13.3</version>
                 <configuration>
+                    <markGenerated>true</markGenerated>
+                    <specVersion>2.2</specVersion>
                     <schemaDirectory>${project.basedir}/src/main/resources/xsd</schemaDirectory>
                     <extension>true</extension>
                     <args>
@@ -46,10 +66,38 @@
                         </goals>
                     </execution>
                 </executions>
-                <dependencies>
-      
-                </dependencies>
+
             </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <configuration>
+                    
+                    <target>
+                        <xslt 
+                              in="src/main/resources/xsd/config.xsd" 
+                              out="target/config-schema-doc.html" 
+                              style="src/main/xsl/schema-doc.xsl" />
+
+                        
+                    </target>
+                </configuration>
+                
+                <executions>
+                    <execution>
+                        <id>generate-schemadoc</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                
+            </plugin>
+       
+            
         </plugins>
     </build>
 </project>
