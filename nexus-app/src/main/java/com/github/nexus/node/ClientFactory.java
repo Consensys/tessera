@@ -1,7 +1,8 @@
 package com.github.nexus.node;
 
 import com.github.nexus.ssl.SSLContextBuilder;
-import com.github.nexus.ssl.mode.TrustMode;
+import com.github.nexus.node.model.ClientAuthMode;
+import com.github.nexus.node.model.TrustMode;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
@@ -45,7 +46,7 @@ public class ClientFactory {
 
     public static Client buildClient(String secure, String keyStore, String keyStorePassword, String trustStore,
                                      String trustStorePassword, String trustMode) throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
-        if (secure.equals("strict")){
+        if (ClientAuthMode.strict == ClientAuthMode.valueOf(secure)){
             return buildSecureClient(keyStore, keyStorePassword, trustStore, trustStorePassword, trustMode);
         }
         else {
