@@ -98,6 +98,10 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <detail>true</detail>
+                </configuration>
+                
                 <executions>
                     <execution>
                         <id>pre-integration-test</id>
@@ -106,7 +110,6 @@
                             <goal>prepare-agent</goal>
                         </goals>
                         <configuration>
-                            <skip>true</skip>
                             <destFile>${project.build.directory}/jacoco-it.exec</destFile>
                             <propertyName>failsafeArgLine</propertyName>
                         </configuration>
@@ -146,7 +149,10 @@
                         <configuration>
                             <excludes>
                                 <exclude>com/github/nexus/Launcher*</exclude>
+                                <!--TODO: Excluding generated sources. need jacoco to ignore @javax.annotaion.Generated -->
+                                <exclude>com/github/nexus/config/api/*</exclude>
                             </excludes>
+                            
                             <rules>
                                 <rule>
                                     <element>CLASS</element>
