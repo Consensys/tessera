@@ -1,15 +1,17 @@
 package com.github.nexus.socket;
 
 import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
-import java.io.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Provide support for servers over a Unix Domain Socket.
@@ -85,16 +87,12 @@ public class UnixDomainServerSocket {
     /**
      * Read HTTP request from the socket.
      */
-    public String read() {
+    public byte[] read() {
         Objects.requireNonNull(socket, "No client connection to read from");
 
         try {
             InputStream is = socket.getInputStream();
-            InputStreamReader httpInputStreamReader = new InputStreamReader(is);
-            BufferedReader bufferedReader = new BufferedReader(httpInputStreamReader);
-
-            return HttpMessageUtils.getHttpMessage(bufferedReader);
-
+            return InputStreamUtils.readAllBytes(is);
         } catch (IOException ex) {
             LOGGER.error("Failed to read from socket");
             throw new NexusSocketException(ex);
@@ -102,14 +100,14 @@ public class UnixDomainServerSocket {
     }
 
 
-    public void write(String payload) {
+    public void write(byte[] payload) {
 
         Objects.requireNonNull(socket, "No client connection to write to");
 
         try (OutputStream os = socket.getOutputStream()) {
 
-            if (!payload.isEmpty()) {
-                os.write(payload.getBytes());
+            if (payload.length != 0) {
+                os.write(payload);
                 os.flush();
             }
         } catch (IOException ex) {

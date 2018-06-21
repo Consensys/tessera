@@ -53,10 +53,10 @@ public class UnixDomainSocketIT {
             System.out.println("Client connection received");
 
             //sendRequest to client
-            serverUds.write(SERVER_MESSAGE_SENT);
+            serverUds.write(SERVER_MESSAGE_SENT.getBytes());
 
             //read response back
-            String line = serverUds.read();
+            byte[] line = serverUds.read();
             assertThat(line).isEqualTo(CLIENT_MESSAGE_SENT);
         }
     }
