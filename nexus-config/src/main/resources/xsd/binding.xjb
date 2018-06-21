@@ -50,14 +50,14 @@
         <jxb:bindings node="//xsd:element[@name='privateKey' and @type='tns:PrivateKey']">
             <jxb:property name="privateKeys"/>
         </jxb:bindings>
-        
-        
-        <jxb:bindings node="//xsd:element[@name='publicKey' and @type='tns:PublicKey']">
-            <jxb:property name="publicKeys"/>
+
+        <jxb:bindings node="//xsd:element[@type='tns:JdbcConfig']">
+            <jxb:property name="jdbcConfig"/>
         </jxb:bindings>
         
-        
-
+        <jxb:bindings node="//xsd:element[@type='tns:ServerConfig']">
+            <jxb:property name="serverConfig"/>
+        </jxb:bindings>
                 
     </jxb:bindings>
 
