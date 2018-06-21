@@ -163,12 +163,12 @@ public class TransactionResource {
     @ApiOperation(value = "Summit keys to retrieve payload and decrypt it",
             produces = "Unencypted payload")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Unencrypted payload", response = String.class)
+        @ApiResponse(code = 200, message = "Raw payload", response = byte[].class)
     })
     @GET
     @Path("receiveraw")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response receiveRaw(
             @ApiParam("Encoded Sender Public Key")
             @NotNull @HeaderParam(value = "c11n-key") String senderKey,
@@ -183,11 +183,9 @@ public class TransactionResource {
 
         final byte[] payload = enclave.receive(decodedKey, to);
 
-        final String encodedPayload = base64Decoder.encodeToString(payload);
-
         return Response.status(Response.Status.OK)
-                .entity(encodedPayload)
-                .build();
+            .entity(payload)
+            .build();
     }
 
     @Deprecated

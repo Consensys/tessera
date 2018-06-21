@@ -3,8 +3,12 @@ package com.github.nexus.socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ConnectException;
+import java.net.Socket;
+import java.net.URI;
 import java.util.Objects;
 
 /**
@@ -19,10 +23,9 @@ public class HttpProxy {
 
     private Socket socket;
 
-    private PrintWriter httpPrintWriter;
+    private OutputStream os;
 
-    private BufferedReader httpReader;
-    
+    private InputStream is;
     
     private SocketFactory socketFactory;
     
@@ -41,12 +44,8 @@ public class HttpProxy {
         try {
             socket = socketFactory.create(serverUri);
 
-            OutputStream httpOutputStream = socket.getOutputStream();
-            httpPrintWriter = new PrintWriter(httpOutputStream, true);
-
-            InputStream httpInputStream = socket.getInputStream();
-            InputStreamReader httpInputStreamReader = new InputStreamReader(httpInputStream);
-            httpReader = new BufferedReader(httpInputStreamReader);
+            this.os = socket.getOutputStream();
+            this.is = socket.getInputStream();
 
             return true;
 
@@ -64,8 +63,8 @@ public class HttpProxy {
      */
     public void disconnect() {
         try {
-            httpPrintWriter.close();
-            httpReader.close();
+            is.close();
+            os.close();
             socket.close();
 
         } catch (IOException ex) {
@@ -76,21 +75,30 @@ public class HttpProxy {
     /**
      * Write data to the http connection.
      */
-    public void sendRequest(String data) {
+    public void sendRequest(byte[] data) {
         LOGGER.info("Sending HTTP request: {}", data);
-        httpPrintWriter.write(data);
-        httpPrintWriter.flush();
+        try {
+            os.write(data);
+            os.flush();
+        } catch (IOException ex) {
+            LOGGER.error("Failed to write to socket");
+            throw new NexusSocketException(ex);
+        }
+
     }
 
     /**
      * Read response from the http connection.
      * Note that an http response will consist of multiple lines.
      */
-    public String getResponse() {
+    public byte[] getResponse() {
+        try {
+            return InputStreamUtils.readAllBytes(is);
+        } catch (IOException ex) {
+            LOGGER.error("Failed to read from http socket");
+            throw new NexusSocketException(ex);
+        }
 
-        return HttpMessageUtils.getHttpMessage(httpReader);
     }
-
-
 
 }
