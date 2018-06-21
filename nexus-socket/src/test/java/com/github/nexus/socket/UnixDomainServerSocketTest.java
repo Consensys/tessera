@@ -1,13 +1,13 @@
 package com.github.nexus.socket;
 
 import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -15,7 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
 public class UnixDomainServerSocketTest {
@@ -23,9 +24,6 @@ public class UnixDomainServerSocketTest {
     private UnixSocketFactory mockUnixSocketFactory;
 
     private UnixDomainServerSocket unixDomainServerSocket;
-
-    public UnixDomainServerSocketTest() {
-    }
 
     @Before
     public void setUp() {
@@ -139,10 +137,10 @@ public class UnixDomainServerSocketTest {
 
         unixDomainServerSocket.connect();
 
-        final String result = unixDomainServerSocket.read();
+        final byte[] result = unixDomainServerSocket.read();
 
         //TODO: Verify that the right padding is correct behaviour
-        assertThat(result).startsWith(data);
+        assertThat(new String(result)).startsWith(data);
 
         verify(mockUnixSocketFactory).createServerSocket(any(Path.class));
 
@@ -174,7 +172,7 @@ public class UnixDomainServerSocketTest {
 
         unixDomainServerSocket.connect();
 
-        unixDomainServerSocket.write(data);
+        unixDomainServerSocket.write(data.getBytes());
 
         assertThat(data).isEqualTo(new String(outputStream.toByteArray()));
 
@@ -204,7 +202,7 @@ public class UnixDomainServerSocketTest {
         Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
         unixDomainServerSocket.create(socketFile.toFile().getParent(), socketFile.toFile().getName());
         unixDomainServerSocket.connect();
-        
+
         try {
             unixDomainServerSocket.read();
             failBecauseExceptionWasNotThrown(NexusSocketException.class);
@@ -221,7 +219,7 @@ public class UnixDomainServerSocketTest {
 
         Files.deleteIfExists(socketFile);
     }
-    
+
     @Test
     public void connectAndWriteThrowsException() throws IOException {
 
@@ -239,9 +237,9 @@ public class UnixDomainServerSocketTest {
         Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
         unixDomainServerSocket.create(socketFile.toFile().getParent(), socketFile.toFile().getName());
         unixDomainServerSocket.connect();
-        
+
         try {
-            unixDomainServerSocket.write("HELLOW");
+            unixDomainServerSocket.write("HELLOW".getBytes());
             failBecauseExceptionWasNotThrown(NexusSocketException.class);
         } catch(NexusSocketException ex) {
             assertThat(ex).hasCauseExactlyInstanceOf(IOException.class);

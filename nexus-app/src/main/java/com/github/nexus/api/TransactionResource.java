@@ -162,15 +162,15 @@ public class TransactionResource {
     }
 
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Encoded value", response = String.class)
+        @ApiResponse(code = 200, message = "Raw payload", response = byte[].class)
     })
     @GET
     @Path("receiveraw")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response receiveRaw(
-        @NotNull @HeaderParam(value = "c11n-key") String key,
-        @HeaderParam(value = "c11n-to") String recipientKey) {
+        @NotNull @HeaderParam(value = "c11n-key") final String key,
+        @HeaderParam(value = "c11n-to") final String recipientKey) {
 
         final byte[] decodedKey = base64Decoder.decode(key);
 
@@ -180,10 +180,8 @@ public class TransactionResource {
 
         final byte[] payload = enclave.receive(decodedKey, to);
 
-        final String encodedPayload = base64Decoder.encodeToString(payload);
-
         return Response.status(Response.Status.OK)
-            .entity(encodedPayload)
+            .entity(payload)
             .build();
     }
 
