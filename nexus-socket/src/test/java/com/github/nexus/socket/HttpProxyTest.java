@@ -1,5 +1,9 @@
 package com.github.nexus.socket;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
@@ -7,10 +11,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import static org.mockito.Mockito.*;
 
 public class HttpProxyTest {
@@ -19,11 +21,20 @@ public class HttpProxyTest {
 
     private Socket mockSocket;
 
+    private URI uri;
+
+    private HttpProxy httpProxy;
+
     @Before
-    public void onSetUp() throws IOException {
+    public void onSetUp() throws IOException, URISyntaxException {
+        this.uri = new URI("http://localhost:8080");
+
         this.mockSocket = mock(Socket.class);
         this.mockSocketFactory = mock(SocketFactory.class);
-        when(mockSocketFactory.create(any(URI.class))).thenReturn(mockSocket);
+
+        doReturn(mockSocket).when(mockSocketFactory).create(eq(uri));
+
+        this.httpProxy = new HttpProxy(uri, mockSocketFactory);
     }
 
     @After
@@ -32,11 +43,7 @@ public class HttpProxyTest {
     }
 
     @Test
-    public void testConnection() throws IOException, URISyntaxException {
-
-        URI uri = new URI("http://localhost:8080");
-        HttpProxy httpProxy = new HttpProxy(uri, mockSocketFactory);
-
+    public void testConnection() throws IOException {
         OutputStream outputStream = new ObjectOutputStream(new ByteArrayOutputStream());
         when(mockSocket.getOutputStream()).thenReturn(outputStream);
 
@@ -55,11 +62,7 @@ public class HttpProxyTest {
     }
 
     @Test
-    public void testConnectionThrowsConnectException() throws IOException, URISyntaxException {
-
-        URI uri = new URI("http://localhost:8080");
-        HttpProxy httpProxy = new HttpProxy(uri, mockSocketFactory);
-
+    public void testConnectionThrowsConnectException() throws IOException {
         ConnectException connectionException = new ConnectException("Sorry Dave I cant let you do that");
 
         doThrow(connectionException).when(mockSocketFactory).create(uri);
@@ -73,11 +76,7 @@ public class HttpProxyTest {
     }
 
     @Test
-    public void testConnectionThrowsIOException() throws IOException, URISyntaxException {
-
-        URI uri = new URI("http://localhost:8080");
-        HttpProxy httpProxy = new HttpProxy(uri, mockSocketFactory);
-
+    public void testConnectionThrowsIOException() throws IOException {
         IOException ioexception = new IOException("Sorry Dave I cant let you do that");
 
         doThrow(ioexception).when(mockSocketFactory).create(uri);
@@ -95,9 +94,7 @@ public class HttpProxyTest {
 
     //Difficult to unit test in isolation due to class design
     @Test
-    public void connectAndThenDisconnect() throws URISyntaxException, IOException {
-        URI uri = new URI("http://localhost:8080");
-
+    public void connectAndThenDisconnect() throws IOException {
         OutputStream outputStream = new ByteArrayOutputStream();
 
         when(mockSocket.getOutputStream()).thenReturn(outputStream);
@@ -105,7 +102,6 @@ public class HttpProxyTest {
         InputStream inputStream = new ByteArrayInputStream(new byte[0]);
         when(mockSocket.getInputStream()).thenReturn(inputStream);
 
-        HttpProxy httpProxy = new HttpProxy(uri, mockSocketFactory);
         assertThat(httpProxy.connect()).isTrue();
 
         httpProxy.disconnect();
@@ -118,9 +114,7 @@ public class HttpProxyTest {
     }
 
     @Test
-    public void connectAndThenDisconnectThrowsIOException() throws URISyntaxException, IOException {
-        URI uri = new URI("http://localhost:8080");
-
+    public void connectAndThenDisconnectThrowsIOException() throws IOException {
         OutputStream outputStream = new ByteArrayOutputStream();
 
         when(mockSocket.getOutputStream()).thenReturn(outputStream);
@@ -130,7 +124,6 @@ public class HttpProxyTest {
 
         doThrow(IOException.class).when(mockSocket).close();
 
-        HttpProxy httpProxy = new HttpProxy(uri, mockSocketFactory);
         assertThat(httpProxy.connect()).isTrue();
 
         httpProxy.disconnect();
@@ -141,12 +134,9 @@ public class HttpProxyTest {
         verify(mockSocket).getOutputStream();
 
     }
-    
-    @Test
-    public void connectAndSend() throws URISyntaxException, IOException {
-        
-        URI uri = new URI("http://localhost:8080");
 
+    @Test
+    public void connectAndSend() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         when(mockSocket.getOutputStream()).thenReturn(outputStream);
@@ -154,39 +144,70 @@ public class HttpProxyTest {
         InputStream inputStream = new ByteArrayInputStream(new byte[0]);
         when(mockSocket.getInputStream()).thenReturn(inputStream);
 
-        HttpProxy httpProxy = new HttpProxy(uri, mockSocketFactory);
         assertThat(httpProxy.connect()).isTrue();
 
-        httpProxy.sendRequest("HELLOW");
+        httpProxy.sendRequest("HELLOW".getBytes());
 
         assertThat(outputStream.toByteArray()).isEqualTo("HELLOW".getBytes());
-        
+
         verify(mockSocketFactory).create(uri);
         verify(mockSocket).getInputStream();
         verify(mockSocket).getOutputStream();
     }
-    
-    
-    @Test
-    public void connectAndGetResponse() throws URISyntaxException, IOException {
-        
-        URI uri = new URI("http://localhost:8080");
 
+    @Test
+    public void connectAndGetResponse() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         when(mockSocket.getOutputStream()).thenReturn(outputStream);
 
-        InputStream inputStream = new ByteArrayInputStream(new byte[0]);
+        InputStream inputStream = new ByteArrayInputStream(new byte[]{1});
         when(mockSocket.getInputStream()).thenReturn(inputStream);
 
-        HttpProxy httpProxy = new HttpProxy(uri, mockSocketFactory);
         assertThat(httpProxy.connect()).isTrue();
 
-        String result =  httpProxy.getResponse();
-
+        byte[] result = httpProxy.getResponse();
 
         verify(mockSocketFactory).create(uri);
         verify(mockSocket).getInputStream();
         verify(mockSocket).getOutputStream();
-    } 
+    }
+
+    @Test
+    public void outputStreamThrowsException() throws IOException {
+
+        OutputStream outputStream = mock(OutputStream.class);
+        doReturn(outputStream).when(mockSocket).getOutputStream();
+        doThrow(IOException.class).when(outputStream).flush();
+
+        httpProxy.connect();
+
+        final Throwable throwable = catchThrowable(() -> httpProxy.sendRequest(new byte[]{}));
+
+        assertThat(throwable).isInstanceOf(NexusSocketException.class);
+
+        verify(mockSocketFactory).create(uri);
+        verify(mockSocket).getInputStream();
+        verify(mockSocket).getOutputStream();
+
+    }
+
+    @Test
+    public void exceptionThrownIfNoDataToRead() throws IOException {
+
+        InputStream inputStream = mock(InputStream.class);
+        doReturn(inputStream).when(mockSocket).getInputStream();
+        doThrow(IOException.class).when(inputStream).read(any(byte[].class));
+
+        httpProxy.connect();
+
+        final Throwable throwable = catchThrowable(() -> httpProxy.getResponse());
+
+        assertThat(throwable).isInstanceOf(NexusSocketException.class);
+
+        verify(mockSocketFactory).create(uri);
+        verify(mockSocket).getInputStream();
+        verify(mockSocket).getOutputStream();
+
+    }
 }
