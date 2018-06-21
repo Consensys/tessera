@@ -19,9 +19,8 @@ public interface TransactionService {
      * since the desired state of the message no longer existing is satisfied
      *
      * @param hash The hash of the payload that should be deleted
-     * @return States whether the delete operation was successful
      */
-    boolean delete(MessageHash hash);
+    void delete(MessageHash hash);
 
     /**
      * Retrieves all payloads that the provided key is a recipient to

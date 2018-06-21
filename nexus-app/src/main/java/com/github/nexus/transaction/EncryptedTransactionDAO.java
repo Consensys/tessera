@@ -36,8 +36,8 @@ public interface EncryptedTransactionDAO {
      * Deletes a transaction that has the given hash as its digest
      *
      * @param hash The hash of the message to be deleted
-     * @return whether an entity was deleted
+     * @throws javax.persistence.EntityNotFoundException 
      */
-    boolean delete(MessageHash hash);
+    void delete(MessageHash hash);
 
 }
