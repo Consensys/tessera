@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +36,7 @@ public class SocketServerTest {
 
     private URI uri;
 
-    private ExecutorService executorService;
+    private ScheduledExecutorService executorService;
 
     private UnixSocketFactory unixSocketFactory;
 
@@ -62,7 +63,7 @@ public class SocketServerTest {
 
         httpProxyFactory = mock(HttpProxyFactory.class);
         uri = new URI("http://bogus.com:9819");
-        executorService = mock(ExecutorService.class);
+        executorService = mock(ScheduledExecutorService.class);
 
         serverSocket = mock(ServerSocket.class);
         socket = mock(Socket.class);
@@ -73,8 +74,9 @@ public class SocketServerTest {
 
         when(unixSocketFactory.createServerSocket(socketFile)).thenReturn(serverSocket);
 
-        socketServer = new SocketServer(config, httpProxyFactory,
-                uri, executorService, unixSocketFactory);
+        socketServer = new SocketServer(
+            config, httpProxyFactory, uri, executorService, unixSocketFactory
+        );
     }
 
     @After
@@ -86,7 +88,7 @@ public class SocketServerTest {
     @Test
     public void start() {
         socketServer.start();
-        verify(executorService).submit(socketServer);
+        verify(executorService).scheduleWithFixedDelay(socketServer, 1, 1, TimeUnit.MILLISECONDS);
 
     }
 
