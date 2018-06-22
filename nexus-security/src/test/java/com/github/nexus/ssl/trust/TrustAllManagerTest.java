@@ -1,4 +1,4 @@
-package com.github.nexus.ssl;
+package com.github.nexus.ssl.trust;
 
 import org.junit.Test;
 

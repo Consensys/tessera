@@ -1,5 +1,6 @@
-package com.github.nexus.ssl;
+package com.github.nexus.ssl.trust;
 
+import com.github.nexus.ssl.trust.ExtendedTrustManager;
 import com.github.nexus.ssl.util.CertificateUtil;
 
 import java.io.File;
@@ -7,9 +8,9 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-public class WhiteListTrustManager extends ExtendedTrustManager {
+public class TrustOnFirstUseManager extends ExtendedTrustManager {
 
-    public WhiteListTrustManager(File knownHosts) throws IOException {
+    public TrustOnFirstUseManager(File knownHosts) throws IOException {
         super(knownHosts);
     }
 
@@ -30,10 +31,15 @@ public class WhiteListTrustManager extends ExtendedTrustManager {
 
     private void checkTrusted(X509Certificate[] x509Certificates) throws CertificateException{
         final X509Certificate certificate = x509Certificates[0];
-        final String fingerPrint = CertificateUtil.generateFingerprint(certificate);
-        if (!certificateExistsInKnownHosts(fingerPrint)) {
-            throw new CertificateException("Connections not allowed");
+        final String thumbPrint = CertificateUtil.create().thumbPrint(certificate);
+
+        if (!certificateExistsInKnownHosts(thumbPrint)){
+            try {
+                addServerToKnownHostsList(thumbPrint);
+            }
+            catch (IOException ex){
+                throw new CertificateException("Failed to save address and certificate fingerprint to whitelist");
+            }
         }
     }
-
 }
