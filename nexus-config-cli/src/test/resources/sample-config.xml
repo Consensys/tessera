@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration xmlns="http://nexus.github.com/config/api">
+    
     <keyGenBasePath>/tmp/somedir</keyGenBasePath>
     
     <jdbc>
@@ -49,3 +50,4 @@
     <unixSocketFile>/tmp/bogus.socket</unixSocketFile>
     
 </configuration>
+
