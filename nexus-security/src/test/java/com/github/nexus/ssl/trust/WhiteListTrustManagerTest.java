@@ -1,4 +1,4 @@
-package com.github.nexus.ssl;
+package com.github.nexus.ssl.trust;
 
 import com.github.nexus.ssl.util.CertificateUtil;
 import org.junit.After;
@@ -37,15 +37,15 @@ public class WhiteListTrustManagerTest {
     @Before
     public void setUp() throws IOException, CertificateException {
         MockitoAnnotations.initMocks(this);
-        when(certificate.getEncoded()).thenReturn("fingerprint".getBytes());
+        when(certificate.getEncoded()).thenReturn("thumbprint".getBytes());
         knownHosts = new File(tmpDir.getRoot(), "knownHosts");
         knownHosts.createNewFile();
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(knownHosts, true)))
         {
-            writer.write("somefingerprint");
+            writer.write("somethumbprint");
             writer.newLine();
-            writer.write(CertificateUtil.generateFingerprint(certificate));
+            writer.write(CertificateUtil.create().thumbPrint(certificate));
             writer.newLine();
         }
 
@@ -70,7 +70,7 @@ public class WhiteListTrustManagerTest {
 
     @Test
     public void testCertificatesNotInWhiteList() throws CertificateException {
-        when(certificate.getEncoded()).thenReturn("some-other-fingerprint".getBytes());
+        when(certificate.getEncoded()).thenReturn("some-other-thumbprint".getBytes());
         try {
             trustManager.checkClientTrusted(new X509Certificate[]{certificate}, "str");
             failBecauseExceptionWasNotThrown(Exception.class);

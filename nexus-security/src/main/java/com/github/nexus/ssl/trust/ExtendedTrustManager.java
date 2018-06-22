@@ -1,4 +1,4 @@
-package com.github.nexus.ssl;
+package com.github.nexus.ssl.trust;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,20 +53,20 @@ public abstract class ExtendedTrustManager implements X509TrustManager {
         }
     }
 
-    protected void addServerToKnownHostsList(String fingerPrint) throws IOException {
+    protected void addServerToKnownHostsList(String thumbPrint) throws IOException {
         LOGGER.info("Add entry to known host file");
 
         generateWhiteListedFileIfNotExisted();
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(knownHostsFile, true)))
         {
-            writer.write(fingerPrint);
+            writer.write(thumbPrint);
             writer.newLine();
         }
     }
 
-    protected boolean certificateExistsInKnownHosts(String fingerPrint) {
-        return this.certificates.stream().anyMatch(cert -> fingerPrint.equals(cert));
+    protected boolean certificateExistsInKnownHosts(String thumbPrint) {
+        return this.certificates.stream().anyMatch(cert -> thumbPrint.equals(cert));
     }
 
 }

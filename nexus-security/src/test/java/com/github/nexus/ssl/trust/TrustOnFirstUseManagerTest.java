@@ -1,4 +1,4 @@
-package com.github.nexus.ssl;
+package com.github.nexus.ssl.trust;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,7 +14,8 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import static org.assertj.core.api.Java6Assertions.*;
+import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
 public class TrustOnFirstUseManagerTest {
