@@ -148,7 +148,7 @@
                         </xsd:documentation>
                     </xsd:annotation>  
                 </xsd:element>
-                <xsd:element name="value" type="xsd:string">
+                <xsd:element name="value" type="xsd:anyURI">
                     <xsd:annotation>
                         <xsd:documentation>
                             Private key value
