@@ -1,6 +1,5 @@
 package com.github.nexus.ssl.util;
 
-import com.github.nexus.ssl.util.CertificateUtil;
 import org.junit.Test;
 
 import java.security.cert.CertificateException;
@@ -20,7 +19,7 @@ public class CertificateUtilTest {
         X509Certificate certificate = mock(X509Certificate.class);
         when(certificate.getEncoded()).thenReturn("some".getBytes());
 
-        assertThat(CertificateUtil.generateThumbPrint(certificate))
+        assertThat(CertificateUtil.create().thumbPrint(certificate))
             .isEqualTo("eb875812858d27b22cb2b75f992dffadc1b05c66");
 
     }
@@ -29,7 +28,7 @@ public class CertificateUtilTest {
     public void testGenerateThrowException(){
         X509Certificate certificate = mock(X509Certificate.class);
         try {
-            CertificateUtil.generateThumbPrint(certificate);
+            CertificateUtil.create().thumbPrint(certificate);
             failBecauseExceptionWasNotThrown(Exception.class);
 
         } catch (Exception ex) {

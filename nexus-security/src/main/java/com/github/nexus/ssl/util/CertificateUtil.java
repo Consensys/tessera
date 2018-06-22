@@ -5,9 +5,9 @@ import java.security.MessageDigest;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-public class CertificateUtil {
+public interface CertificateUtil {
 
-    public static String generateThumbPrint(final X509Certificate certificate) throws CertificateException {
+    default String thumbPrint(final X509Certificate certificate) throws CertificateException {
         try {
             byte[] encoded = certificate.getEncoded();
             return DatatypeConverter.printHexBinary(
@@ -16,5 +16,9 @@ public class CertificateUtil {
         catch (Exception ex){
             throw new CertificateException("Cannot generate thumbprint for this certificate");
         }
+    }
+
+    static CertificateUtil create(){
+        return new CertificateUtil(){};
     }
 }
