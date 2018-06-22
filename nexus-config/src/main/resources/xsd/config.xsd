@@ -12,13 +12,7 @@
 
     <xsd:complexType name="Configuration">
         <xsd:sequence>
-            <xsd:element name="keyGenBasePath" type="tns:Path">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        The base path used to resolve stuff
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
+
             <xsd:element name="jdbc" type="tns:JdbcConfig">
                 <xsd:annotation>
                     <xsd:documentation>
@@ -37,6 +31,14 @@
                 </xsd:annotation>
             </xsd:element>
             
+            <xsd:element name="keyGen" type="tns:KeyGenConfig">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Key generation configuration options.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            
             <xsd:element name="peer" type="tns:Peer" maxOccurs="unbounded">
                 <xsd:annotation>
                     <xsd:documentation>
@@ -45,10 +47,18 @@
                 </xsd:annotation>
             </xsd:element>
             
-            <xsd:element name="privateKey" type="tns:PrivateKey"  maxOccurs="unbounded">
+            <xsd:element name="privateKey" type="tns:PrivateKey" minOccurs="1"  maxOccurs="1">
                 <xsd:annotation>
                     <xsd:documentation>
-                        Private keys available to this node for decrypting.
+                        Private key available to this node for decrypting.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="publicKey" type="tns:PublicKey" minOccurs="1"  maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Public key available to this node for decrypting.
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
@@ -62,6 +72,22 @@
             </xsd:element>
             
         </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="KeyGenConfig">
+        
+        <xsd:sequence>
+            <xsd:element name="basePath" type="tns:Path">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The path used to generate keys into
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+        
+        <xsd:attribute name="generateIfMissing" type="xsd:boolean" default="false" />
+
     </xsd:complexType>
     
     <xsd:complexType name="JdbcConfig">
@@ -107,7 +133,6 @@
     <xsd:complexType name="Peer">
         <xsd:sequence>
             <xsd:element name="url" type="xsd:string" />
-            <xsd:element name="publicKey" type="tns:PublicKey" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     
@@ -152,7 +177,7 @@
             </xsd:annotation>
         </xsd:attribute>
 
-<!--         <xsd:assert test="(@type = 'locked' and not(password) = false())" />-->
+        <!--         <xsd:assert test="(@type = 'locked' and not(password) = false())" />-->
     </xsd:complexType>
     
     <xsd:simpleType name="PrivateKeyType">

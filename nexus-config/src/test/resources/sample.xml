@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration xmlns="http://nexus.github.com/config/api">
-    <keyGenBasePath>/tmp/somedir</keyGenBasePath>
-    
+
     <jdbc>
         <username>scott</username>
         <password>tiger</password>
@@ -12,18 +11,16 @@
         <port>99</port>
     </server>
     
+    <keyGen>
+        <basePath>/tmp/somedir</basePath>
+    </keyGen>
+    
     <peer>
         <url>http://bogus1.com</url>
-        <publicKey>
-            <path>/tmp/someppath1</path>
-        </publicKey>
     </peer>
     
     <peer>
         <url>http://bogus2.com</url>
-                <publicKey>
-            <path>/tmp/someppath2</path>
-        </publicKey>
     </peer>
     
 
@@ -32,19 +29,9 @@
         <password>TOP_SECRET</password>
     </privateKey>
     
-
-    
-    <privateKey type="unlocked">
-        <value />
-        <password />
-    </privateKey>
-    
-    <privateKey type="locked">
-        <path>/some/bogus/path</path>
-        <password>TOP_SECRET</password>
-    </privateKey>
-    
-
+    <publicKey>
+        <path>/somepath</path>
+    </publicKey>
     
     <unixSocketFile>/tmp/bogus.socket</unixSocketFile>
     

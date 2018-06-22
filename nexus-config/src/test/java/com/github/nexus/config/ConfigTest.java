@@ -3,7 +3,6 @@ package com.github.nexus.config;
 import com.github.nexus.config.api.Configuration;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
@@ -57,21 +56,13 @@ public class ConfigTest {
             assertThat(config.getPeers().stream().map(Peer::getUrl).collect(Collectors.toList()))
                     .containsExactly("http://bogus1.com", "http://bogus2.com");
 
-            assertThat(config.getPeers().get(0).getPublicKey().getPath()).isEqualTo(Paths.get("/tmp/someppath1"));
-            assertThat(config.getPeers().get(1).getPublicKey().getPath()).isEqualTo(Paths.get("/tmp/someppath2"));
 
-            assertThat(config.getPrivateKeys()).hasSize(3);
-            assertThat(config.getPrivateKeys().get(0).getType()).isEqualTo(PrivateKeyType.LOCKED);
-            assertThat(config.getPrivateKeys().get(0).getPath()).isNull();
-            assertThat(config.getPrivateKeys().get(0).getValue()).isEqualTo("PRIVATEKEY");
-            assertThat(config.getPrivateKeys().get(0).getPassword()).isEqualTo("TOP_SECRET");
+            assertThat(config.getPrivateKey().getType()).isEqualTo(PrivateKeyType.LOCKED);
+            assertThat(config.getPrivateKey().getPath()).isNull();
+            assertThat(config.getPrivateKey().getValue()).isEqualTo("PRIVATEKEY");
+            assertThat(config.getPrivateKey().getPassword()).isEqualTo("TOP_SECRET");
 
-            assertThat(config.getPrivateKeys().get(1).getType()).isEqualTo(PrivateKeyType.UNLOCKED);
 
-            assertThat(config.getPrivateKeys().get(2).getType()).isEqualTo(PrivateKeyType.LOCKED);
-
-            assertThat(config.getPrivateKeys().get(2).getPath()).isEqualTo(Paths.get("/some/bogus/path"));
-            assertThat(config.getPrivateKeys().get(2).getValue()).isNull();
         }
     }
 
