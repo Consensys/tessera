@@ -10,6 +10,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
@@ -18,7 +19,7 @@ import static org.mockito.Mockito.*;
 
 public class TrustOnFirstUseManagerTest {
 
-    TrustOnFirstUseManager trustManager;
+    private TrustOnFirstUseManager trustManager;
 
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
@@ -39,13 +40,46 @@ public class TrustOnFirstUseManagerTest {
         verifyNoMoreInteractions(certificate);
     }
 
+
+
     @Test
     public void testAddFingerPrintToKnownHostsList() throws CertificateException, IOException {
         trustManager = new TrustOnFirstUseManager(knownHosts);
         when(certificate.getEncoded()).thenReturn("certificate".getBytes());
+
+        assertThat(knownHosts.exists()).isFalse();
+
         trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "s");
+
+        assertThat(knownHosts.exists()).isTrue();
+
         trustManager.checkClientTrusted(new X509Certificate[]{certificate}, "s");
         verify(certificate, times(2)).getEncoded();
+    }
+
+    @Test
+    public void testFailedToGenerateWhiteListFile() throws IOException, CertificateEncodingException {
+        File anotherFile = mock(File.class);
+        File parentDir = mock(File.class);
+        when(anotherFile.getParentFile()).thenReturn(parentDir);
+        when(parentDir.exists()).thenReturn(false);
+        when(parentDir.mkdirs()).thenReturn(false);
+
+        trustManager = new TrustOnFirstUseManager(anotherFile);
+        when(certificate.getEncoded()).thenReturn("certificate".getBytes());
+
+        try {
+            trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "str");
+            failBecauseExceptionWasNotThrown(IOException.class);
+        }
+        catch (Exception ex){
+            assertThat(ex)
+                .isInstanceOf(CertificateException.class)
+                .hasMessage("Failed to save address and certificate fingerprint to whitelist");
+        }
+
+        verify(certificate).getEncoded();
+
     }
 
     @Test
@@ -61,6 +95,8 @@ public class TrustOnFirstUseManagerTest {
         try {
             trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "s");
             trustManager.checkClientTrusted(new X509Certificate[]{certificate}, "s");
+
+            failBecauseExceptionWasNotThrown(CertificateException.class);
         }
         catch(Exception ex){
             assertThat(ex).isInstanceOf(CertificateException.class);
