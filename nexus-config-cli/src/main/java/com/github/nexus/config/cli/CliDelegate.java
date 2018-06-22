@@ -41,9 +41,8 @@ public enum CliDelegate {
         CommandLineParser parser = new DefaultParser();
 
         try {
-            // parse the command line arguments
             CommandLine line = parser.parse(options, args);
-
+            
             Path path = Paths.get(line.getOptionValue("configfile"));
 
             try (InputStream in = Files.newInputStream(path)) {
