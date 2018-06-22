@@ -9,17 +9,15 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.URI;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
- *
- *
- *
  * Create a server listening on a Unix Domain Socket for http requests. We
  * create a connection to an HTTP server, and act as a proxy between the socket
  * and the HTTP server. TODO: should possibly support connections from multiple
  * clients
- *
+ * <p>
  * FIXME: This object has far too many internal dependencies, making it
  * resistant to effective testing.
  */
@@ -35,24 +33,23 @@ public class SocketServer implements Runnable {
 
     private final URI serverUri;
 
-    private final ExecutorService executor;
+    private final ScheduledExecutorService executor;
 
-    private final ThreadDelegate threadDelegate = ThreadDelegate.create();
-    
     /**
      * Create the unix domain socket and start the listener thread.
      */
-    public SocketServer(Configuration config, HttpProxyFactory httpProxyFactory,
-            URI serverUri, ExecutorService executor, UnixSocketFactory unixSocketFactory) {
+    public SocketServer(Configuration config,
+                        HttpProxyFactory httpProxyFactory,
+                        URI serverUri,
+                        ScheduledExecutorService executor,
+                        UnixSocketFactory unixSocketFactory) {
 
         Objects.requireNonNull(config);
-        Objects.requireNonNull(httpProxyFactory);
-        Objects.requireNonNull(serverUri);
         Objects.requireNonNull(unixSocketFactory);
 
         this.executor = Objects.requireNonNull(executor, "Executor service is required");
-        this.httpProxyFactory = httpProxyFactory;
-        this.serverUri = serverUri;
+        this.httpProxyFactory = Objects.requireNonNull(httpProxyFactory);
+        this.serverUri = Objects.requireNonNull(serverUri);
 
         serverUds = new UnixDomainServerSocket(unixSocketFactory);
         serverUds.create(config.workdir(), config.socket());
@@ -60,8 +57,7 @@ public class SocketServer implements Runnable {
 
     @PostConstruct
     public void start() {
-
-        executor.submit(this);
+        executor.scheduleWithFixedDelay(this, 1, 1, TimeUnit.MILLISECONDS);
     }
 
     @PreDestroy
@@ -70,27 +66,13 @@ public class SocketServer implements Runnable {
     }
 
     /**
-     * Run forever, servicing requests received on the socket.
-     */
-    @Override
-    public void run() {
-
-        while (true) {
-            //FIXME: Hiding functions in private functions just makes it 
-            //harder to navigate code. 
-            serveSocketRequest();
-        }
-
-    }
-
-    /**
      * Wait for a client connection, then: - create a connection to the HTTP
      * server - read the client HTTP request and forward it to the HTTP server -
      * read the HTTP response and return it to the client Note that Quorum opens
      * a new client connection for each request.
      */
-    private void serveSocketRequest() {
-
+    @Override
+    public void run() {
         LOGGER.info("Waiting for client connection on unix domain socket...");
         serverUds.connect();
         LOGGER.info("Client connection received");
@@ -110,7 +92,6 @@ public class SocketServer implements Runnable {
 
             httpProxy.disconnect();
         }
-
     }
 
     /**
@@ -126,19 +107,11 @@ public class SocketServer implements Runnable {
         while (!connected) {
             LOGGER.info("Attempting connection to HTTP server...");
             connected = httpProxy.connect();
-            try {
-                threadDelegate.sleep(1000);
-            } catch (InterruptedException ex) {
-                LOGGER.info("Interrupted - exiting");
-                return false;
-            }
         }
         LOGGER.info("Connected to HTTP server");
 
         return true;
     }
-    
-
 
 
 }
