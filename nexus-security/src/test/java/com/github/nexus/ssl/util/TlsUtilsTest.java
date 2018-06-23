@@ -1,6 +1,5 @@
-package com.github.nexus.ssl;
+package com.github.nexus.ssl.util;
 
-import com.github.nexus.ssl.util.TlsUtils;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.junit.Rule;
 import org.junit.Test;

@@ -29,12 +29,12 @@ public class TlsUtils {
     private static final char[] DEFAULT_PASSWORD = "password".toCharArray();
 
     private static final Provider provider = new BouncyCastleProvider();
-    private static final HostnameResolver hostNameResolver;
+    private static final HostnameUtil HOST_NAME_UTIL;
 
     static
     {
         Security.addProvider(provider);
-        hostNameResolver = HostnameResolver.create();
+        HOST_NAME_UTIL = HostnameUtil.create();
     }
 
     public void generateKeyStoreWithSelfSignedCertificate(File privateKeyFile, File certificateFile)
@@ -49,7 +49,7 @@ public class TlsUtils {
         PublicKey publicKey = keypair.getPublic();
         PrivateKey privateKey = keypair.getPrivate();
 
-        X500Name commonName = new X500Name(COMMON_NAME_STRING + "localhost");
+        X500Name commonName = new X500Name(COMMON_NAME_STRING + HOST_NAME_UTIL.getHostName());
         Date startDate = new Date(System.currentTimeMillis());
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
@@ -77,12 +77,8 @@ public class TlsUtils {
 
         FileOutputStream keyStoreFile = new FileOutputStream(privateKeyFile);
 
-        try {
-            keyStore.store(keyStoreFile, DEFAULT_PASSWORD);
-        }
-        finally {
-            if (keyStoreFile != null) keyStoreFile.close();
-        }
+        keyStore.store(keyStoreFile, DEFAULT_PASSWORD);
+        keyStoreFile.close();
 
     }
 
