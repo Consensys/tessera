@@ -1,5 +1,10 @@
 package com.github.nexus.ssl;
 
+import com.github.nexus.ssl.trust.ExtendedTrustManager;
+import com.github.nexus.ssl.trust.TrustAllManager;
+import com.github.nexus.ssl.trust.TrustOnFirstUseManager;
+import com.github.nexus.ssl.trust.WhiteListTrustManager;
+
 import javax.net.ssl.*;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,14 +22,19 @@ public class SSLContextBuilder {
     private String trustStore;
     private String trustStorePassword;
 
-    private SSLContextBuilder(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword) {
+    private SSLContext sslContext;
+
+    private SSLContextBuilder(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword) throws NoSuchAlgorithmException {
         this.keyStore = keyStore;
         this.keyStorePassword = keyStorePassword;
         this.trustStore = trustStore;
         this.trustStorePassword = trustStorePassword;
+
+        this.sslContext = SSLContext.getInstance(PROTOCOL);
     }
 
-    public static SSLContextBuilder buildSSLContext(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword) throws NoSuchAlgorithmException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, KeyManagementException {
+
+    public static SSLContextBuilder createBuilder(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword) throws NoSuchAlgorithmException {
         return new SSLContextBuilder(
             keyStore,
             keyStorePassword,
@@ -32,35 +42,47 @@ public class SSLContextBuilder {
             trustStorePassword);
     }
 
-    public SSLContext forCASignedCertificates() throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException {
+    public SSLContext build() {
+        return sslContext;
+    }
+
+
+    public SSLContextBuilder forWhiteList(File knownHosts) throws NoSuchAlgorithmException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, CertificateException {
+
+        sslContext.init(buildKeyManagers(), new TrustManager[]{new WhiteListTrustManager(knownHosts)}, null);
+
+        return this;
+    }
+
+
+    public SSLContextBuilder forCASignedCertificates() throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException {
 
         final KeyManager[] keyManagers = buildKeyManagers();
 
         final TrustManager[] trustManagers = buildTrustManagers();
 
-        final SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
         sslContext.init(keyManagers, trustManagers, new SecureRandom());
 
-        return sslContext;
+        return this;
     }
 
 
-    public SSLContext forAllCertificates() throws NoSuchAlgorithmException, KeyManagementException {
+    public SSLContextBuilder forAllCertificates() throws KeyManagementException {
 
-        final SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
         sslContext.init(new KeyManager[0], new TrustManager[]{new TrustAllManager()}, null);
 
-        return sslContext;
+        return this;
     }
 
-    public SSLContext forTrustOnFirstUse(String address, File knownHostsFile) throws NoSuchAlgorithmException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, CertificateException {
-        SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
+
+    public SSLContextBuilder forTrustOnFirstUse(File knownHostsFile) throws NoSuchAlgorithmException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, CertificateException {
+
         final KeyManager[] keyManagers = buildKeyManagers();
 
         sslContext.init(keyManagers,
-            new TrustManager[]{new TrustOnFirstUseManager(address, knownHostsFile)}, null);
+            new TrustManager[]{new TrustOnFirstUseManager(knownHostsFile)}, null);
 
-        return sslContext;
+        return this;
     }
 
 
@@ -79,7 +101,7 @@ public class SSLContextBuilder {
 
 
     private TrustManager[] buildTrustManagers() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-        if (trustStore.isEmpty()) return new TrustManager[0];
+        if (trustStore.isEmpty()) return new ExtendedTrustManager[0];
 
         final KeyStore trustStore = KeyStore.getInstance(KEYSTORE_TYPE);
         trustStore.load(new FileInputStream(this.trustStore), trustStorePassword.toCharArray());
@@ -90,4 +112,5 @@ public class SSLContextBuilder {
 
         return trustManagerFactory.getTrustManagers();
     }
+
 }
