@@ -1,6 +1,6 @@
 package com.github.nexus.ssl;
 
-import com.github.nexus.ssl.trust.ExtendedTrustManager;
+import com.github.nexus.ssl.trust.AbstractTrustManager;
 import com.github.nexus.ssl.trust.TrustAllManager;
 import com.github.nexus.ssl.trust.TrustOnFirstUseManager;
 import com.github.nexus.ssl.trust.WhiteListTrustManager;
@@ -101,7 +101,7 @@ public class SSLContextBuilder {
 
 
     private TrustManager[] buildTrustManagers() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-        if (trustStore.isEmpty()) return new ExtendedTrustManager[0];
+        if (trustStore.isEmpty()) return new AbstractTrustManager[0];
 
         final KeyStore trustStore = KeyStore.getInstance(KEYSTORE_TYPE);
         trustStore.load(new FileInputStream(this.trustStore), trustStorePassword.toCharArray());

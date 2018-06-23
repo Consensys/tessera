@@ -3,7 +3,7 @@ package com.github.nexus.ssl.trust;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-public class TrustAllManager extends ExtendedTrustManager {
+public class TrustAllManager extends AbstractTrustManager {
 
     @Override
     public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {

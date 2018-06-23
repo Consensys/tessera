@@ -1,6 +1,5 @@
 package com.github.nexus.ssl.trust;
 
-import com.github.nexus.ssl.trust.ExtendedTrustManager;
 import com.github.nexus.ssl.util.CertificateUtil;
 
 import java.io.File;
@@ -8,7 +7,7 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-public class TrustOnFirstUseManager extends ExtendedTrustManager {
+public class TrustOnFirstUseManager extends AbstractTrustManager {
 
     public TrustOnFirstUseManager(File knownHosts) throws IOException {
         super(knownHosts);
