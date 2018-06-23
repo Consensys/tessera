@@ -8,20 +8,20 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ExtendedTrustManager implements X509TrustManager {
+public abstract class AbstractTrustManager implements X509TrustManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedTrustManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTrustManager.class);
 
     private File knownHostsFile;
     private List<String> certificates;
 
-    public ExtendedTrustManager(final File knownHostsFile) throws IOException {
+    public AbstractTrustManager(final File knownHostsFile) throws IOException {
         this.knownHostsFile = knownHostsFile;
         certificates = new ArrayList<>();
         getWhiteListedCertificateForServerAddress();
     }
 
-    public ExtendedTrustManager(){
+    public AbstractTrustManager(){
     }
 
     private void getWhiteListedCertificateForServerAddress() throws IOException {

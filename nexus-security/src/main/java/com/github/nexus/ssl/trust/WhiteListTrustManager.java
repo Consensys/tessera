@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-public class WhiteListTrustManager extends ExtendedTrustManager {
+public class WhiteListTrustManager extends AbstractTrustManager {
 
     public WhiteListTrustManager(File knownHosts) throws IOException {
         super(knownHosts);
