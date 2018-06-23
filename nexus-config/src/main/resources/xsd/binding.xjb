@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<jxb:bindings version="2.0" 
+<jxb:bindings version="2.1" 
               xmlns:jxb="http://java.sun.com/xml/ns/jaxb" 
               xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
               xmlns:tns="http://nexus.github.com/config/api" 
@@ -43,12 +43,12 @@
             <inheritance:implements>com.github.nexus.config.JdbcConfig</inheritance:implements> 
         </jxb:bindings>
 
+        <jxb:bindings node="//xsd:complexType[@name='KeyGenConfig']">
+            <inheritance:implements>com.github.nexus.config.KeyGenConfig</inheritance:implements> 
+        </jxb:bindings>
+
         <jxb:bindings node="//xsd:element[@name='peer' and @type='tns:Peer']">
             <jxb:property name="peers"/>
-        </jxb:bindings>
-        
-        <jxb:bindings node="//xsd:element[@name='privateKey' and @type='tns:PrivateKey']">
-            <jxb:property name="privateKeys"/>
         </jxb:bindings>
 
         <jxb:bindings node="//xsd:element[@type='tns:JdbcConfig']">
@@ -58,7 +58,11 @@
         <jxb:bindings node="//xsd:element[@type='tns:ServerConfig']">
             <jxb:property name="serverConfig"/>
         </jxb:bindings>
-                
+        
+        <jxb:bindings node="//xsd:element[@type='tns:KeyGenConfig']">
+            <jxb:property name="keyGenConfig"/>
+        </jxb:bindings> 
+                                
     </jxb:bindings>
 
 </jxb:bindings>
