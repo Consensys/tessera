@@ -29,9 +29,9 @@ public class SSLContextBuilderTest {
     @Before
     public void setUp() throws NoSuchAlgorithmException {
         sslContextBuilder = SSLContextBuilder.createBuilder(
-            "/Users/namtruong/workspace/Nexus/nexus-security/src/test/resources/test-keystore",
+            getClass().getResource("/test-keystore").getFile(),
             "quorum",
-            "/Users/namtruong/workspace/Nexus/nexus-security/src/test/resources/test-truststore",
+            getClass().getResource("/test-truststore").getFile(),
             "quorum");
     }
 
