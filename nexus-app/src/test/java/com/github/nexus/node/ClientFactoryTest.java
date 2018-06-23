@@ -18,13 +18,13 @@ public class ClientFactoryTest {
 
     @Test
     public void testBuildInsecureClient() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
-        Client client = factory.buildClient("off","","","","","");
+        Client client = factory.buildClient("off","","","","","","");
         assertThat(client).isNotNull();
     }
 
     @Test
-    public void testBuildSecureClient() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
-        Client client = factory.buildClient("strict","","","","","CA");
+    public void testBuildSecureClientCAMode() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
+        Client client = factory.buildClient("strict","","","","","CA","");
         assertThat(client).isNotNull();
         assertThat(client.getSslContext()).isNotNull();
         assertThat(client.getSslContext().getProtocol().equals("TLS"));
@@ -32,7 +32,31 @@ public class ClientFactoryTest {
 
     @Test
     public void testBuildSecureClientDefaultMode() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
-        Client client = factory.buildClient("strict","","","","","CA_OR_TOFU");
+        Client client = factory.buildClient("strict","","","","","something invalid","");
+        assertThat(client).isNotNull();
+        assertThat(client.getSslContext()).isNotNull();
+        assertThat(client.getSslContext().getProtocol().equals("TLS"));
+    }
+
+    @Test
+    public void testBuildSecureClientTOFUMode() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
+        Client client = factory.buildClient("strict","","","","","TOFU","");
+        assertThat(client).isNotNull();
+        assertThat(client.getSslContext()).isNotNull();
+        assertThat(client.getSslContext().getProtocol().equals("TLS"));
+    }
+
+    @Test
+    public void testBuildSecureClientWhiteListMode() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
+        Client client = factory.buildClient("strict","","","","","WHITELIST","");
+        assertThat(client).isNotNull();
+        assertThat(client.getSslContext()).isNotNull();
+        assertThat(client.getSslContext().getProtocol().equals("TLS"));
+    }
+
+    @Test
+    public void testBuildSecureTrustAllMode() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
+        Client client = factory.buildClient("strict","","","","","NONE","");
         assertThat(client).isNotNull();
         assertThat(client.getSslContext()).isNotNull();
         assertThat(client.getSslContext().getProtocol().equals("TLS"));
