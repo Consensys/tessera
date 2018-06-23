@@ -1,6 +1,5 @@
 package com.github.nexus.node;
 
-import com.github.nexus.ssl.SSLContextBuilder;
 import com.github.nexus.node.model.ClientAuthMode;
 import com.github.nexus.node.model.TrustMode;
 
@@ -16,38 +15,29 @@ import java.security.cert.CertificateException;
 
 public class ClientFactory {
 
-
     private static Client buildInsecureClient(){
         return ClientBuilder.newClient();
     }
 
     private static Client buildSecureClient(String keyStore, String keyStorePassword, String trustStore,
-                                           String trustStorePassword, String trustMode) throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
-        final SSLContextBuilder sslContextBuilder = SSLContextBuilder.buildSSLContext(
-            keyStore,
-            keyStorePassword,
-            trustStore,
-            trustStorePassword);
+                                           String trustStorePassword, String trustMode, String knownServers)
+        throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
+        KeyStoreException, KeyManagementException, IOException {
 
-        final SSLContext sslContext;
+        final SSLContext sslContext = TrustMode
+            .getValueIfPresent(trustMode)
+            .orElse(TrustMode.NONE)
+            .createSSLContext(keyStore,keyStorePassword,trustStore,trustStorePassword,knownServers);
 
-        switch (TrustMode.valueOf(trustMode)){
-            case CA : {
-                sslContext = sslContextBuilder.forCASignedCertificates();
-                break;
-            }
-            default : {
-                sslContext = sslContextBuilder.forCASignedCertificates();
-                break;
-            }
-        }
-        return  ClientBuilder.newBuilder().sslContext(sslContext).build();
+        return  ClientBuilder.newBuilder()
+            .sslContext(sslContext)
+            .build();
     }
 
     public static Client buildClient(String secure, String keyStore, String keyStorePassword, String trustStore,
-                                     String trustStorePassword, String trustMode) throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
+                                     String trustStorePassword, String trustMode, String knownServers) throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
         if (ClientAuthMode.strict == ClientAuthMode.valueOf(secure)){
-            return buildSecureClient(keyStore, keyStorePassword, trustStore, trustStorePassword, trustMode);
+            return buildSecureClient(keyStore, keyStorePassword, trustStore, trustStorePassword, trustMode, knownServers);
         }
         else {
             return buildInsecureClient();

@@ -6,17 +6,18 @@ import com.github.nexus.configuration.ConfigurationParser;
 import com.github.nexus.configuration.PropertyLoader;
 import com.github.nexus.keygen.KeyGenerator;
 import com.github.nexus.keygen.KeyGeneratorFactory;
+import com.github.nexus.node.model.ClientAuthMode;
+import com.github.nexus.node.model.TrustMode;
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
 import com.github.nexus.service.locator.ServiceLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
-
 import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
-
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -52,7 +53,23 @@ public class Launcher {
 
         if(config.generatekeys().isEmpty()) {
             //no keys to generate
-            runWebServer(config.uri());
+
+            if (ClientAuthMode.strict == ClientAuthMode.valueOf(config.tls())) {
+                final SSLContext sslContext = TrustMode
+                    .getValueIfPresent(config.serverTrustMode())
+                    .orElse(TrustMode.NONE)
+                    .createSSLContext(
+                        config.serverKeyStore(),
+                        config.serverKeyStorePassword(),
+                        config.serverTrustStore(),
+                        config.serverTrustStorePassword(),
+                        config.knownClients());
+                runWebServer(config.uri(), sslContext, true);
+            }
+            else {
+                runWebServer(config.uri(), SSLContext.getDefault(), false);
+            }
+
         } else {
             //keys to generate
             final KeyGenerator keyGenerator = KeyGeneratorFactory.create(config);
@@ -62,10 +79,11 @@ public class Launcher {
         System.exit(0);
     }
 
-    private static void runWebServer(final URI serverUri) throws Exception {
+    private static void runWebServer(final URI serverUri, SSLContext sslContext, boolean secure) throws Exception {
+
         final Nexus nexus = new Nexus(ServiceLocator.create(), "nexus-spring.xml");
 
-        final RestServer restServer = RestServerFactory.create().createServer(serverUri, nexus);
+        final RestServer restServer = RestServerFactory.create().createServer(serverUri, nexus, sslContext, secure);
 
         CountDownLatch countDown = new CountDownLatch(1);
 
