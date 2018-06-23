@@ -27,7 +27,7 @@ public class SocketServer implements Runnable {
 
     private final UnixDomainServerSocket serverUds;
 
-    private HttpProxyFactory httpProxyFactory;
+    private final HttpProxyFactory httpProxyFactory;
 
     private HttpProxy httpProxy;
 
@@ -38,11 +38,11 @@ public class SocketServer implements Runnable {
     /**
      * Create the unix domain socket and start the listener thread.
      */
-    public SocketServer(Configuration config,
-                        HttpProxyFactory httpProxyFactory,
-                        URI serverUri,
-                        ScheduledExecutorService executor,
-                        UnixSocketFactory unixSocketFactory) {
+    public SocketServer(final Configuration config,
+                        final HttpProxyFactory httpProxyFactory,
+                        final URI serverUri,
+                        final ScheduledExecutorService executor,
+                        final UnixSocketFactory unixSocketFactory) {
 
         Objects.requireNonNull(config);
         Objects.requireNonNull(unixSocketFactory);

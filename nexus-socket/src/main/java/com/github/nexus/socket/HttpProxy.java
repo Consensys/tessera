@@ -26,13 +26,13 @@ public class HttpProxy {
     private OutputStream os;
 
     private InputStream is;
-    
-    private SocketFactory socketFactory;
-    
+
+    private final SocketFactory socketFactory;
+
     /**
      * Connect to specified URL and create read/sendRequest streams.
      */
-    public HttpProxy(URI serverUri,SocketFactory socketFactory) {
+    public HttpProxy(final URI serverUri, final SocketFactory socketFactory) {
         this.socketFactory = Objects.requireNonNull(socketFactory);
         this.serverUri = Objects.requireNonNull(serverUri);
     }
