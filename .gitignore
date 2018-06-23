@@ -42,3 +42,5 @@
 /nexus-config/nbproject/
 /junixsocket-adapter/target/
 /netty-adapter/target/
+/nexus-config-cli/target/
+/nexus-config-cli/nbproject/
