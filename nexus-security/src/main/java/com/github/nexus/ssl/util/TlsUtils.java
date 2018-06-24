@@ -20,24 +20,19 @@ import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
 
-public class TlsUtils {
+public interface TlsUtils {
 
-    private static final String ENCRYPTION = "RSA";
-    private static final String COMMON_NAME_STRING = "CN=";
-    private static final String SIGNATURE_ALGORITHM = "SHA512WithRSAEncryption";
-    private static final String KEYSTORE_TYPE = "JKS";
-    private static final char[] DEFAULT_PASSWORD = "password".toCharArray();
 
-    private static final Provider provider = new BouncyCastleProvider();
-    private static final HostnameUtil HOST_NAME_UTIL;
+    String ENCRYPTION = "RSA";
+    String COMMON_NAME_STRING = "CN=";
+    String SIGNATURE_ALGORITHM = "SHA512WithRSAEncryption";
+    String KEYSTORE_TYPE = "JKS";
+    String DEFAULT_HOSTNAME = "localhost";
 
-    static
-    {
-        Security.addProvider(provider);
-        HOST_NAME_UTIL = HostnameUtil.create();
-    }
+    Provider provider = new BouncyCastleProvider();
+    HostnameUtil HOST_NAME_UTIL = HostnameUtil.create();
 
-    public void generateKeyStoreWithSelfSignedCertificate(File privateKeyFile, File certificateFile)
+    default void generateKeyStoreWithSelfSignedCertificate(File privateKeyFile, String password)
         throws NoSuchAlgorithmException, IOException, OperatorCreationException,
         CertificateException, InvalidKeyException, NoSuchProviderException, SignatureException, KeyStoreException {
 
@@ -49,7 +44,7 @@ public class TlsUtils {
         PublicKey publicKey = keypair.getPublic();
         PrivateKey privateKey = keypair.getPrivate();
 
-        X500Name commonName = new X500Name(COMMON_NAME_STRING + HOST_NAME_UTIL.getHostName());
+        X500Name commonName = new X500Name(COMMON_NAME_STRING + DEFAULT_HOSTNAME);
         Date startDate = new Date(System.currentTimeMillis());
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
@@ -73,13 +68,20 @@ public class TlsUtils {
 
         KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
         keyStore.load(null, null);
-        keyStore.setKeyEntry("nexus",privateKey, DEFAULT_PASSWORD, new X509Certificate[]{certificate});
+        keyStore.setKeyEntry("nexus",privateKey, password.toCharArray(), new X509Certificate[]{certificate});
 
         FileOutputStream keyStoreFile = new FileOutputStream(privateKeyFile);
 
-        keyStore.store(keyStoreFile, DEFAULT_PASSWORD);
+        keyStore.store(keyStoreFile, password.toCharArray());
         keyStoreFile.close();
 
     }
+
+    static TlsUtils create(){
+        Security.addProvider(new BouncyCastleProvider());
+        return new TlsUtils() {
+        };
+    }
+
 
 }
