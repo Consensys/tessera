@@ -44,7 +44,7 @@ public class TrustOnFirstUseManagerTest {
 
 
     @Test
-    public void testAddFingerPrintToKnownHostsList() throws CertificateException, IOException {
+    public void testAddThumbPrintToKnownHostsList() throws CertificateException, IOException {
         trustManager = new TrustOnFirstUseManager(knownHosts);
         when(certificate.getEncoded()).thenReturn("certificate".getBytes());
 
