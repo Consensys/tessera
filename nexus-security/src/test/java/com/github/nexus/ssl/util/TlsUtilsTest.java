@@ -17,15 +17,12 @@ public class TlsUtilsTest {
 
     @Test
     public void testGenerateKeys() throws OperatorCreationException, InvalidKeyException, NoSuchAlgorithmException, IOException, SignatureException, NoSuchProviderException, CertificateException, KeyStoreException {
-        TlsUtils tlsUtils = new TlsUtils();
 
-        File certificateFile = new File(tmpDir.getRoot(), "server.key");
-        File privateKeyFile = new File(tmpDir.getRoot(), "server.cer");
+        File privateKeyFile = new File(tmpDir.getRoot(),"./test-keystore");
 
-        tlsUtils.generateKeyStoreWithSelfSignedCertificate(privateKeyFile, certificateFile);
+        privateKeyFile.createNewFile();
 
-//        File resultPrivateKeyFile = new File(tmpDir.getRoot(), "server.key");
-//        assertTrue(resultPrivateKeyFile.exists());
+        TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(privateKeyFile,"quorum");
 
     }
 }
