@@ -1,6 +1,6 @@
 package com.github.nexus.node;
 
-import com.github.nexus.node.model.ClientAuthMode;
+import com.github.nexus.ssl.strategy.AuthenticationMode;
 import com.github.nexus.node.model.TrustMode;
 import org.bouncycastle.operator.OperatorCreationException;
 
@@ -13,28 +13,9 @@ import java.security.cert.CertificateException;
 
 public class ClientFactory {
 
-    private static Client buildInsecureClient(){
-        return ClientBuilder.newClient();
-    }
-
-    private static Client buildSecureClient(String keyStore, String keyStorePassword, String trustStore,
-                                           String trustStorePassword, String trustMode, String knownServers)
-        throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
-        KeyStoreException, KeyManagementException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
-
-        final SSLContext sslContext = TrustMode
-            .getValueIfPresent(trustMode)
-            .orElse(TrustMode.NONE)
-            .createSSLContext(keyStore,keyStorePassword,trustStore,trustStorePassword,knownServers);
-
-        return  ClientBuilder.newBuilder()
-            .sslContext(sslContext)
-            .build();
-    }
-
     public static Client buildClient(String secure, String keyStore, String keyStorePassword, String trustStore,
                                      String trustStorePassword, String trustMode, String knownServers) throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
-        if (ClientAuthMode.strict == ClientAuthMode.getValue(secure)){
+        if (AuthenticationMode.strict == AuthenticationMode.getValue(secure)){
             return buildSecureClient(keyStore, keyStorePassword, trustStore, trustStorePassword, trustMode, knownServers);
         }
         else {
@@ -42,5 +23,21 @@ public class ClientFactory {
         }
     }
 
+    private static Client buildInsecureClient(){
+        return ClientBuilder.newClient();
+    }
+
+    private static Client buildSecureClient(String keyStore, String keyStorePassword, String trustStore,
+                                           String trustStorePassword, String trustMode, String knownServers) throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+
+        final SSLContext sslContext = TrustMode
+            .getValueIfPresent(trustMode)
+            .orElse(TrustMode.NONE)
+            .createSSLContext(keyStore,keyStorePassword,trustStore,trustStorePassword,knownServers);
+
+        return ClientBuilder.newBuilder()
+            .sslContext(sslContext)
+            .build();
+    }
 
 }

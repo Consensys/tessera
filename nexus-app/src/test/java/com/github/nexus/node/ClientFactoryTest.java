@@ -31,6 +31,7 @@ public class ClientFactoryTest {
     @After
     public void after(){
         delegate = temporaryFolder;
+        assertThat(delegate.getRoot().exists()).isTrue();
     }
 
     @AfterClass

@@ -6,7 +6,7 @@ import com.github.nexus.configuration.ConfigurationParser;
 import com.github.nexus.configuration.PropertyLoader;
 import com.github.nexus.keygen.KeyGenerator;
 import com.github.nexus.keygen.KeyGeneratorFactory;
-import com.github.nexus.node.model.ClientAuthMode;
+import com.github.nexus.ssl.strategy.AuthenticationMode;
 import com.github.nexus.node.model.TrustMode;
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
@@ -53,7 +53,7 @@ public class Launcher {
 
         if(config.generatekeys().isEmpty()) {
             //no keys to generate
-            if (ClientAuthMode.strict == ClientAuthMode.getValue(config.tls())) {
+            if (AuthenticationMode.strict == AuthenticationMode.getValue(config.tls())) {
                 final SSLContext sslContext = TrustMode
                     .getValueIfPresent(config.serverTrustMode())
                     .orElse(TrustMode.NONE)
