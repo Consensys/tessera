@@ -22,12 +22,12 @@ public class UnixDomainServerSocket {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnixDomainServerSocket.class);
 
     private ServerSocket server;
-    
+
     private Socket socket;
 
-    private  final UnixSocketFactory unixSocketFactory;
-    
-    public UnixDomainServerSocket(UnixSocketFactory unixSocketFactory) {
+    private final UnixSocketFactory unixSocketFactory;
+
+    public UnixDomainServerSocket(final UnixSocketFactory unixSocketFactory) {
         this.unixSocketFactory = Objects.requireNonNull(unixSocketFactory);
     }
 
@@ -100,17 +100,16 @@ public class UnixDomainServerSocket {
     }
 
 
-    public void write(byte[] payload) {
+    public void write(final byte[] payload) {
 
         Objects.requireNonNull(socket, "No client connection to write to");
 
-        try (OutputStream os = socket.getOutputStream()) {
+        try (final OutputStream os = socket.getOutputStream()) {
 
-            if (payload.length != 0) {
-                os.write(payload);
-                os.flush();
-            }
-        } catch (IOException ex) {
+            os.write(payload);
+            os.flush();
+
+        } catch (final IOException ex) {
             LOGGER.error("Failed to read from Socket");
             throw new NexusSocketException(ex);
         }
