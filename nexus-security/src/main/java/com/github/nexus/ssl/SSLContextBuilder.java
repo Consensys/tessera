@@ -1,9 +1,10 @@
 package com.github.nexus.ssl;
 
-import com.github.nexus.ssl.trust.AbstractTrustManager;
 import com.github.nexus.ssl.trust.TrustAllManager;
 import com.github.nexus.ssl.trust.TrustOnFirstUseManager;
 import com.github.nexus.ssl.trust.WhiteListTrustManager;
+import com.github.nexus.ssl.util.TlsUtils;
+import org.bouncycastle.operator.OperatorCreationException;
 
 import javax.net.ssl.*;
 import java.io.File;
@@ -47,7 +48,7 @@ public class SSLContextBuilder {
     }
 
 
-    public SSLContextBuilder forWhiteList(File knownHosts) throws NoSuchAlgorithmException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, CertificateException {
+    public SSLContextBuilder forWhiteList(File knownHosts) throws NoSuchAlgorithmException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, CertificateException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
         sslContext.init(buildKeyManagers(), new TrustManager[]{new WhiteListTrustManager(knownHosts)}, null);
 
@@ -55,7 +56,7 @@ public class SSLContextBuilder {
     }
 
 
-    public SSLContextBuilder forCASignedCertificates() throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException {
+    public SSLContextBuilder forCASignedCertificates() throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
         final KeyManager[] keyManagers = buildKeyManagers();
 
@@ -75,7 +76,7 @@ public class SSLContextBuilder {
     }
 
 
-    public SSLContextBuilder forTrustOnFirstUse(File knownHostsFile) throws NoSuchAlgorithmException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, CertificateException {
+    public SSLContextBuilder forTrustOnFirstUse(File knownHostsFile) throws NoSuchAlgorithmException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, CertificateException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
         final KeyManager[] keyManagers = buildKeyManagers();
 
@@ -86,8 +87,13 @@ public class SSLContextBuilder {
     }
 
 
-    private KeyManager[] buildKeyManagers() throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException, IOException, CertificateException {
-        if (keyStore.isEmpty()) return new KeyManager[0];
+    private KeyManager[] buildKeyManagers() throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException, IOException, CertificateException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+
+        final File keyStoreFile = new File(keyStore);
+
+        if (!keyStoreFile.exists()) {
+            TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(keyStoreFile, keyStorePassword);
+        }
 
         final KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
         keyStore.load(new FileInputStream(this.keyStore), keyStorePassword.toCharArray());
@@ -101,7 +107,7 @@ public class SSLContextBuilder {
 
 
     private TrustManager[] buildTrustManagers() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-        if (trustStore.isEmpty()) return new AbstractTrustManager[0];
+        if (trustStore.isEmpty()) return new TrustManager[0];
 
         final KeyStore trustStore = KeyStore.getInstance(KEYSTORE_TYPE);
         trustStore.load(new FileInputStream(this.trustStore), trustStorePassword.toCharArray());
