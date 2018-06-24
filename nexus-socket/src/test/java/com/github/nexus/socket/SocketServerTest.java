@@ -45,9 +45,6 @@ public class SocketServerTest {
 
     private Socket socket;
 
-    public SocketServerTest() {
-    }
-
     @Before
     public void setUp() throws URISyntaxException, IOException {
 
