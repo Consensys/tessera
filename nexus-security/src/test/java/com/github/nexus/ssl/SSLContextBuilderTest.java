@@ -2,6 +2,7 @@ package com.github.nexus.ssl;
 
 import com.github.nexus.ssl.trust.TrustOnFirstUseManager;
 import com.github.nexus.ssl.trust.WhiteListTrustManager;
+import org.bouncycastle.operator.OperatorCreationException;
 import org.junit.Before;
 import org.junit.Test;
 import sun.security.ssl.SSLContextImpl;
@@ -11,10 +12,7 @@ import javax.net.ssl.TrustManager;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.CertificateException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +34,7 @@ public class SSLContextBuilderTest {
     }
 
     @Test
-    public void testBuildForTrustOnFirstUse() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, IllegalAccessException, NoSuchFieldException {
+    public void testBuildForTrustOnFirstUse() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, IllegalAccessException, NoSuchFieldException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
         final SSLContext sslContext = sslContextBuilder.forTrustOnFirstUse(file).build();
 
@@ -47,7 +45,7 @@ public class SSLContextBuilderTest {
     }
 
     @Test
-    public void testBuildForWhiteList() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, NoSuchFieldException, IllegalAccessException {
+    public void testBuildForWhiteList() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, NoSuchFieldException, IllegalAccessException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
         final SSLContext sslContext = sslContextBuilder.forWhiteList(file).build();
 
         Object trustManager = useReflectionToRetrieveTrustManagerFromSSLContext(sslContext);
@@ -58,7 +56,7 @@ public class SSLContextBuilderTest {
     }
 
     @Test
-    public void testBuildForCASignedCertificates() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, NoSuchFieldException, IllegalAccessException {
+    public void testBuildForCASignedCertificates() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, NoSuchFieldException, IllegalAccessException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
         final SSLContext sslContext = sslContextBuilder.forCASignedCertificates().build();
 
@@ -74,6 +72,18 @@ public class SSLContextBuilderTest {
         Object trustManager = useReflectionToRetrieveTrustManagerFromSSLContext(sslContext);
 
         assertThat(trustManager).isInstanceOf(TrustManager.class);
+    }
+
+    @Test
+    public void testKeyStoreNotExistedThenGenerated() throws NoSuchAlgorithmException, UnrecoverableKeyException, CertificateException, KeyManagementException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+        SSLContextBuilder otherContextBuilder = SSLContextBuilder
+            .createBuilder("./nonexisted-keystore","password","","");
+        assertThat(otherContextBuilder.forCASignedCertificates().build()).isNotNull();
+
+        File file = new File("./nonexisted-keystore");
+        assertThat(file.exists()).isTrue();
+
+        file.deleteOnExit();
     }
 
 
