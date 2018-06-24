@@ -59,6 +59,7 @@
                 <constructor-arg value="#{ config.clientTrustStore() }"/>
                 <constructor-arg value="#{ config.clientTrustStorePassword() }"/>
                 <constructor-arg value="#{ config.clientTrustMode() }"/>
+                <constructor-arg value="#{ config.knownServers() }"/>
             </bean>
         </constructor-arg>
     </bean>
