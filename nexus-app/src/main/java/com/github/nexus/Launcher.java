@@ -53,8 +53,7 @@ public class Launcher {
 
         if(config.generatekeys().isEmpty()) {
             //no keys to generate
-
-            if (ClientAuthMode.strict == ClientAuthMode.valueOf(config.tls())) {
+            if (ClientAuthMode.strict == ClientAuthMode.getValue(config.tls())) {
                 final SSLContext sslContext = TrustMode
                     .getValueIfPresent(config.serverTrustMode())
                     .orElse(TrustMode.NONE)
@@ -64,6 +63,7 @@ public class Launcher {
                         config.serverTrustStore(),
                         config.serverTrustStorePassword(),
                         config.knownClients());
+
                 runWebServer(config.uri(), sslContext, true);
             }
             else {
