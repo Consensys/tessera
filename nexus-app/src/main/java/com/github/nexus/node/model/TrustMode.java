@@ -1,14 +1,12 @@
 package com.github.nexus.node.model;
 
 import com.github.nexus.ssl.SSLContextBuilder;
+import org.bouncycastle.operator.OperatorCreationException;
 
 import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.Optional;
 
@@ -26,7 +24,7 @@ public enum TrustMode {
 
     WHITELIST {
         @Override
-        public SSLContext createSSLContext(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword, String knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException {
+        public SSLContext createSSLContext(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword, String knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
             File knownHostsFile = new File(knownHosts);
             return SSLContextBuilder
                 .createBuilder(keyStore,keyStorePassword,trustStore, trustStorePassword)
@@ -37,7 +35,7 @@ public enum TrustMode {
 
     TOFU {
         @Override
-        public SSLContext createSSLContext(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword, String knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException {
+        public SSLContext createSSLContext(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword, String knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
             File knownHostsFile = new File(knownHosts);
             return SSLContextBuilder
                 .createBuilder(keyStore,keyStorePassword,trustStore, trustStorePassword)
@@ -48,7 +46,7 @@ public enum TrustMode {
 
     CA {
         @Override
-        public SSLContext createSSLContext(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword, String knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException {
+        public SSLContext createSSLContext(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword, String knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
             return SSLContextBuilder
                 .createBuilder(keyStore,keyStorePassword,trustStore, trustStorePassword)
                 .forCASignedCertificates()
@@ -60,7 +58,7 @@ public enum TrustMode {
                                                 String keyStorePassword,
                                                 String trustStore,
                                                 String trustStorePassword,
-                                                String knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException;
+                                                String knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException;
 
     public static Optional<TrustMode> getValueIfPresent(String value){
         TrustMode trustMode = null;
