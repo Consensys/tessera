@@ -30,7 +30,7 @@ public interface TlsUtils {
     String DEFAULT_HOSTNAME = "localhost";
 
     Provider provider = new BouncyCastleProvider();
-    HostnameUtil HOST_NAME_UTIL = HostnameUtil.create();
+    HostnameUtil HOSTNAME_UTIL = HostnameUtil.create();
 
     default void generateKeyStoreWithSelfSignedCertificate(File privateKeyFile, String password)
         throws NoSuchAlgorithmException, IOException, OperatorCreationException,
