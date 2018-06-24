@@ -27,6 +27,19 @@ public class ConfigImplTest {
         configProperties.setProperty("workdir", "/tmp");
         configProperties.setProperty("socket", "tst.ipc");
         configProperties.setProperty("databaseURL","h2");
+        configProperties.setProperty("tls","off");
+        configProperties.setProperty("serverKeyStore","serverKeyStore");
+        configProperties.setProperty("serverKeyStorePassword","serverKeyStorePassword");
+        configProperties.setProperty("serverTrustStore","serverTrustStore");
+        configProperties.setProperty("serverTrustStorePassword","serverTrustStorePassword");
+        configProperties.setProperty("serverTrustMode","CA");
+        configProperties.setProperty("knownClients","knownClients");
+        configProperties.setProperty("clientKeyStore","clientKeyStore");
+        configProperties.setProperty("clientKeyStorePassword","clientKeyStorePassword");
+        configProperties.setProperty("clientTrustStore","clientTrustStore");
+        configProperties.setProperty("clientTrustStorePassword","clientTrustStorePassword");
+        configProperties.setProperty("clientTrustMode","TOFU");
+        configProperties.setProperty("knownServers","knownServers");
 
         final Configuration configuration = new ConfigurationImpl(configProperties);
 
@@ -40,6 +53,21 @@ public class ConfigImplTest {
         assertThat(configuration.workdir()).isEqualTo("/tmp");
         assertThat(configuration.socket()).isEqualTo("tst.ipc");
         assertThat(configuration.databaseURL()).isEqualTo("h2");
+        assertThat(configuration.tls()).isEqualTo("off");
+        assertThat(configuration.serverKeyStore()).isEqualTo("serverKeyStore");
+        assertThat(configuration.serverKeyStorePassword()).isEqualTo("serverKeyStorePassword");
+        assertThat(configuration.serverTrustStore()).isEqualTo("serverTrustStore");
+        assertThat(configuration.serverTrustStorePassword()).isEqualTo("serverTrustStorePassword");
+        assertThat(configuration.serverTrustMode()).isEqualTo("CA");
+        assertThat(configuration.knownClients()).isEqualTo("knownClients");
+        assertThat(configuration.clientKeyStore()).isEqualTo("clientKeyStore");
+        assertThat(configuration.clientKeyStorePassword()).isEqualTo("clientKeyStorePassword");
+        assertThat(configuration.clientTrustStore()).isEqualTo("clientTrustStore");
+        assertThat(configuration.clientTrustStorePassword()).isEqualTo("clientTrustStorePassword");
+        assertThat(configuration.clientTrustMode()).isEqualTo("TOFU");
+        assertThat(configuration.knownServers()).isEqualTo("knownServers");
+
+
 
     }
 
