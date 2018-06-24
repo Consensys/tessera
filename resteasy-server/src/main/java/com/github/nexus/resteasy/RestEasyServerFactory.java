@@ -7,8 +7,6 @@ import com.github.nexus.server.RestServerFactory;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Application;
 import java.net.URI;
-import java.util.Properties;
-
 
 public class RestEasyServerFactory implements RestServerFactory {
 
