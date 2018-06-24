@@ -2,9 +2,10 @@ package com.github.nexus.ssl;
 
 import com.github.nexus.ssl.trust.TrustOnFirstUseManager;
 import com.github.nexus.ssl.trust.WhiteListTrustManager;
+import com.github.nexus.ssl.util.TlsUtils;
 import org.bouncycastle.operator.OperatorCreationException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import sun.security.ssl.SSLContextImpl;
 
 import javax.net.ssl.SSLContext;
@@ -20,23 +21,49 @@ import static org.mockito.Mockito.mock;
 
 public class SSLContextBuilderTest {
 
+    @Rule
+    public TemporaryFolder tmpDir = new TemporaryFolder();
+
+    private static TemporaryFolder dirDelegate;
+
+    private File keyStoreFile;
+
+    private File trustStoreFile;
+
+    private static final String PASSWORD = "quorum";
+
     private SSLContextBuilder sslContextBuilder;
 
-    File file = mock(File.class);
+    File knownHostFile = mock(File.class);
 
     @Before
-    public void setUp() throws NoSuchAlgorithmException {
+    public void setUp() throws NoSuchAlgorithmException, OperatorCreationException, InvalidKeyException, IOException, KeyStoreException, SignatureException, NoSuchProviderException, CertificateException {
+        keyStoreFile = new File(tmpDir.getRoot(), "tmp-keystore");
+        trustStoreFile = new File(tmpDir.getRoot(), "tmp-keystore");
         sslContextBuilder = SSLContextBuilder.createBuilder(
-            getClass().getResource("/test-keystore").getFile(),
-            "quorum",
-            getClass().getResource("/test-truststore").getFile(),
-            "quorum");
+            keyStoreFile.getPath(),
+            PASSWORD,
+            trustStoreFile.getPath(),
+            PASSWORD
+        );
+        TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(keyStoreFile, PASSWORD);
+    }
+
+    @After
+    public void after(){
+        dirDelegate = tmpDir;
+        assertThat(dirDelegate.getRoot().exists()).isTrue();
+    }
+
+    @AfterClass
+    public static void tearDown(){
+        assertThat(dirDelegate.getRoot().exists()).isFalse();
     }
 
     @Test
     public void testBuildForTrustOnFirstUse() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, IllegalAccessException, NoSuchFieldException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
-        final SSLContext sslContext = sslContextBuilder.forTrustOnFirstUse(file).build();
+        final SSLContext sslContext = sslContextBuilder.forTrustOnFirstUse(knownHostFile).build();
 
         Object trustManager = useReflectionToRetrieveTrustManagerFromSSLContext(sslContext);
 
@@ -46,7 +73,8 @@ public class SSLContextBuilderTest {
 
     @Test
     public void testBuildForWhiteList() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, NoSuchFieldException, IllegalAccessException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
-        final SSLContext sslContext = sslContextBuilder.forWhiteList(file).build();
+
+        final SSLContext sslContext = sslContextBuilder.forWhiteList(knownHostFile).build();
 
         Object trustManager = useReflectionToRetrieveTrustManagerFromSSLContext(sslContext);
 
@@ -76,14 +104,18 @@ public class SSLContextBuilderTest {
 
     @Test
     public void testKeyStoreNotExistedThenGenerated() throws NoSuchAlgorithmException, UnrecoverableKeyException, CertificateException, KeyManagementException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
-        SSLContextBuilder otherContextBuilder = SSLContextBuilder
-            .createBuilder("./nonexisted-keystore","password","","");
+
+        final File nonExistedFile = new File(tmpDir.getRoot(), "keystore");
+
+        assertThat(nonExistedFile.exists()).isFalse();
+
+        SSLContextBuilder otherContextBuilder = SSLContextBuilder.createBuilder(
+            nonExistedFile.getPath(),"password","","");
+
         assertThat(otherContextBuilder.forCASignedCertificates().build()).isNotNull();
 
-        File file = new File("./nonexisted-keystore");
-        assertThat(file.exists()).isTrue();
+        assertThat(nonExistedFile.exists()).isTrue();
 
-        file.deleteOnExit();
     }
 
 
