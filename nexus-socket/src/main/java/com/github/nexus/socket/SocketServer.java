@@ -10,8 +10,9 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Create a server listening on a Unix Domain Socket for http requests. We
@@ -34,6 +35,8 @@ public class SocketServer implements Runnable {
 
     private final ExecutorService executor;
 
+    private final Configuration config;
+
     ////
 
     private final Path socketFile;
@@ -52,11 +55,13 @@ public class SocketServer implements Runnable {
                         final ExecutorService executor,
                         final UnixSocketFactory unixSocketFactory) {
 
-        Objects.requireNonNull(config);
-        this.unixSocketFactory = Objects.requireNonNull(unixSocketFactory);
+        this.config  = requireNonNull(config);
+        this.unixSocketFactory = requireNonNull(unixSocketFactory);
 
-        this.executor = Objects.requireNonNull(executor, "Executor service is required");
-        this.httpProxyFactory = Objects.requireNonNull(httpProxyFactory);
+        this.httpProxyFactory = httpProxyFactory;
+        requireNonNull(unixSocketFactory);
+
+        this.executor = requireNonNull(executor, "Executor service is required");
 
         this.socketFile = Paths.get(config.workdir(), config.socket());
     }
@@ -110,7 +115,19 @@ public class SocketServer implements Runnable {
      */
     private boolean createHttpServerConnection() {
 
-        httpProxy = httpProxyFactory.create();
+        try {
+            httpProxy = httpProxyFactory
+                .auth(config.tls())
+                .keyStore(config.clientKeyStore())
+                .keyStorePassword(config.clientKeyStorePassword())
+                .trustStore(config.clientTrustStore())
+                .trustStorePassword(config.clientTrustStorePassword())
+                .trustMode("NONE")
+                .knownServers(config.knownServers())
+                .create();
+        } catch (Exception ex) {
+            return false;
+        }
 
         // TODO: add configurable number of attempts, instead of looping forever
         boolean connected = false;
