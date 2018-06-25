@@ -11,8 +11,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,8 +31,6 @@ public class SocketServerTest {
 
     private HttpProxyFactory httpProxyFactory;
 
-    private URI uri;
-
     private ScheduledExecutorService executorService;
 
     private UnixSocketFactory unixSocketFactory;
@@ -46,32 +42,30 @@ public class SocketServerTest {
     private Socket socket;
 
     @Before
-    public void setUp() throws URISyntaxException, IOException {
+    public void setUp() throws IOException {
 
-        socketFile = Paths.get(System.getProperty("java.io.tmpdir"), "junit.txt");
+        this.socketFile = Paths.get(System.getProperty("java.io.tmpdir"), "junit.txt");
 
-        config = mock(Configuration.class);
+        this.config = mock(Configuration.class);
 
-        when(config.workdir())
-                .thenReturn(socketFile.toFile().getParent());
+        doReturn(socketFile.toFile().getParent()).when(config).workdir();
 
-        when(config.socket()).thenReturn(socketFile.toFile().getName());
+        doReturn(socketFile.toFile().getName()).when(config).socket();
 
-        httpProxyFactory = mock(HttpProxyFactory.class);
-        uri = new URI("http://bogus.com:9819");
-        executorService = mock(ScheduledExecutorService.class);
+        this.httpProxyFactory = mock(HttpProxyFactory.class);
+        this.executorService = mock(ScheduledExecutorService.class);
 
-        serverSocket = mock(ServerSocket.class);
-        socket = mock(Socket.class);
+        this.serverSocket = mock(ServerSocket.class);
+        this.socket = mock(Socket.class);
 
-        when(serverSocket.accept()).thenReturn(socket);
+        doReturn(socket).when(serverSocket).accept();
 
-        unixSocketFactory = mock(UnixSocketFactory.class);
+        this.unixSocketFactory = mock(UnixSocketFactory.class);
 
-        when(unixSocketFactory.createServerSocket(socketFile)).thenReturn(serverSocket);
+        doReturn(serverSocket).when(unixSocketFactory).createServerSocket(socketFile);
 
         socketServer = new SocketServer(
-            config, httpProxyFactory, uri, executorService, unixSocketFactory
+            config, httpProxyFactory, executorService, unixSocketFactory
         );
     }
 
@@ -79,20 +73,6 @@ public class SocketServerTest {
     public void tearDown() throws IOException {
         verifyNoMoreInteractions(httpProxyFactory, executorService);
         Files.deleteIfExists(socketFile);
-    }
-
-    @Test
-    public void start() {
-        socketServer.start();
-        verify(executorService).scheduleWithFixedDelay(socketServer, 1, 1, TimeUnit.MILLISECONDS);
-
-    }
-
-    @Test
-    public void stop() {
-        socketServer.stop();
-        verify(executorService).shutdown();
-
     }
 
     /*
@@ -104,7 +84,7 @@ public class SocketServerTest {
         HttpProxy httpProxy = mock(HttpProxy.class);
         when(httpProxy.connect()).thenReturn(true);
 
-        when(httpProxyFactory.create(uri)).thenReturn(httpProxy);
+        when(httpProxyFactory.create()).thenReturn(httpProxy);
 
         ByteArrayInputStream inputStream = new ByteArrayInputStream("SOMEDATA".getBytes());
 
@@ -137,7 +117,7 @@ public class SocketServerTest {
         HttpProxy httpProxy = mock(HttpProxy.class);
         when(httpProxy.connect()).thenReturn(true);
 
-        when(httpProxyFactory.create(uri)).thenReturn(httpProxy);
+        when(httpProxyFactory.create()).thenReturn(httpProxy);
 
         ByteArrayInputStream inputStream = new ByteArrayInputStream("SOMEDATA".getBytes());
 

@@ -5,12 +5,10 @@ import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Create a server listening on a Unix Domain Socket for http requests. We
@@ -31,17 +29,14 @@ public class SocketServer implements Runnable {
 
     private HttpProxy httpProxy;
 
-    private final URI serverUri;
-
-    private final ScheduledExecutorService executor;
+    private final ExecutorService executor;
 
     /**
      * Create the unix domain socket and start the listener thread.
      */
     public SocketServer(final Configuration config,
                         final HttpProxyFactory httpProxyFactory,
-                        final URI serverUri,
-                        final ScheduledExecutorService executor,
+                        final ExecutorService executor,
                         final UnixSocketFactory unixSocketFactory) {
 
         Objects.requireNonNull(config);
@@ -49,20 +44,11 @@ public class SocketServer implements Runnable {
 
         this.executor = Objects.requireNonNull(executor, "Executor service is required");
         this.httpProxyFactory = Objects.requireNonNull(httpProxyFactory);
-        this.serverUri = Objects.requireNonNull(serverUri);
+
+        final Path socketPath = Paths.get(config.workdir(), config.socket());
 
         serverUds = new UnixDomainServerSocket(unixSocketFactory);
-        serverUds.create(config.workdir(), config.socket());
-    }
-
-    @PostConstruct
-    public void start() {
-        executor.scheduleWithFixedDelay(this, 1, 1, TimeUnit.MILLISECONDS);
-    }
-
-    @PreDestroy
-    public void stop() {
-        executor.shutdown();
+        serverUds.create(socketPath);
     }
 
     /**
@@ -92,15 +78,15 @@ public class SocketServer implements Runnable {
 
             httpProxy.disconnect();
         }
+
     }
 
     /**
      * Get a connection to the HTTP Server.
      */
-    //FIXME: 
     private boolean createHttpServerConnection() {
 
-        httpProxy = httpProxyFactory.create(serverUri);
+        httpProxy = httpProxyFactory.create();
 
         // TODO: add configurable number of attempts, instead of looping forever
         boolean connected = false;
