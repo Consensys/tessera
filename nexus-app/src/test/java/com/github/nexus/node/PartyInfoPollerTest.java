@@ -95,7 +95,7 @@ public class PartyInfoPollerTest {
     }
 
     @Test
-    public void testWhenURLISOwn() {
+    public void testWhenURLIsOwn() {
         String ownURL = "http://own.com:8080";
         byte[] response = "BOGUS".getBytes();
 
@@ -118,6 +118,36 @@ public class PartyInfoPollerTest {
 
         verify(partyInfoParser).to(partyInfo);
         verify(partyInfoService).getPartyInfo();
+    }
+
+    @Test
+    public void testWhenPostFails() {
+        String url = "http://bogus.com:9878";
+        String ownURL = "http://own.com:8080";
+        byte[] response = "BOGUS".getBytes();
+
+        when(postDelegate.doPost(url, ApiPath.PARTYINFO, response)).thenReturn(null);
+
+        PartyInfo partyInfo = mock(PartyInfo.class);
+        Party party = mock(Party.class);
+        when(party.getUrl()).thenReturn(url);
+        when(partyInfo.getUrl()).thenReturn(ownURL);
+        when(partyInfo.getParties()).thenReturn(singleton(party));
+
+        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+
+        when(partyInfoParser.to(partyInfo)).thenReturn("BOGUS".getBytes());
+
+        PartyInfo updatedPartyInfo = mock(PartyInfo.class);
+        when(partyInfoParser.from(response)).thenReturn(updatedPartyInfo);
+
+        partyInfoPoller.run();
+
+        verify(partyInfoParser, times(0)).from(response);
+        verify(partyInfoParser).to(partyInfo);
+        verify(partyInfoService).getPartyInfo();
+        verify(postDelegate).doPost(url, ApiPath.PARTYINFO, response);
+
     }
 
     @Test
