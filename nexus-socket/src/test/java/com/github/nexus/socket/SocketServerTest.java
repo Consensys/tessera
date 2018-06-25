@@ -27,8 +27,6 @@ public class SocketServerTest {
 
     private SocketServer socketServer;
 
-    private Configuration config;
-
     private HttpProxyFactory httpProxyFactory;
 
     private ScheduledExecutorService executorService;
@@ -46,7 +44,7 @@ public class SocketServerTest {
 
         this.socketFile = Paths.get(System.getProperty("java.io.tmpdir"), "junit.txt");
 
-        this.config = mock(Configuration.class);
+        final Configuration config = mock(Configuration.class);
 
         doReturn(socketFile.toFile().getParent()).when(config).workdir();
 
@@ -81,6 +79,8 @@ public class SocketServerTest {
     @Test
     public void run() throws IOException, InterruptedException {
 
+        socketServer.init();
+
         HttpProxy httpProxy = mock(HttpProxy.class);
         when(httpProxy.connect()).thenReturn(true);
 
@@ -109,10 +109,10 @@ public class SocketServerTest {
 
     }
 
-
-
     @Test
     public void runThrowsIOExceptionOnClientSocket() throws IOException {
+
+        socketServer.init();
 
         HttpProxy httpProxy = mock(HttpProxy.class);
         when(httpProxy.connect()).thenReturn(true);
@@ -134,6 +134,28 @@ public class SocketServerTest {
 
         assertThat(throwable).isInstanceOf(NexusSocketException.class).hasCauseExactlyInstanceOf(IOException.class);
 
+    }
+
+    @Test
+    public void initServerSocketSucceeds() throws IOException {
+        socketServer.init();
+
+        verify(unixSocketFactory).createServerSocket(any(Path.class));
+    }
+
+    @Test
+    public void initServerFails() throws IOException {
+        final IOException exception = new IOException("BANG!!");
+
+        doThrow(exception).when(unixSocketFactory).createServerSocket(any(Path.class));
+
+        final Throwable ex = catchThrowable(socketServer::init);
+        assertThat(ex)
+            .isInstanceOf(NexusSocketException.class)
+            .hasMessageContaining("BANG!!")
+            .hasCauseExactlyInstanceOf(IOException.class);
+
+        verify(unixSocketFactory).createServerSocket(any(Path.class));
     }
 
 }
