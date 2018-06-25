@@ -5,6 +5,9 @@ import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -23,13 +26,23 @@ public class SocketServer implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SocketServer.class);
 
-    private final UnixDomainServerSocket serverUds;
+    private UnixDomainServerSocket serverUds;
 
     private final HttpProxyFactory httpProxyFactory;
 
     private HttpProxy httpProxy;
 
     private final ExecutorService executor;
+
+    ////
+
+    private final Path socketFile;
+
+    private final UnixSocketFactory unixSocketFactory;
+
+    private ServerSocket server;
+
+    ////
 
     /**
      * Create the unix domain socket and start the listener thread.
@@ -40,15 +53,26 @@ public class SocketServer implements Runnable {
                         final UnixSocketFactory unixSocketFactory) {
 
         Objects.requireNonNull(config);
-        Objects.requireNonNull(unixSocketFactory);
+        this.unixSocketFactory = Objects.requireNonNull(unixSocketFactory);
 
         this.executor = Objects.requireNonNull(executor, "Executor service is required");
         this.httpProxyFactory = Objects.requireNonNull(httpProxyFactory);
 
-        final Path socketPath = Paths.get(config.workdir(), config.socket());
+        this.socketFile = Paths.get(config.workdir(), config.socket());
+    }
 
-        serverUds = new UnixDomainServerSocket(unixSocketFactory);
-        serverUds.create(socketPath);
+    @PostConstruct
+    public void init() {
+        try {
+            server = unixSocketFactory.createServerSocket(socketFile);
+            LOGGER.info("server: {}", server);
+
+            serverUds = new UnixDomainServerSocket(server);
+
+        } catch (final IOException ex) {
+            LOGGER.error("Failed to create Unix Domain Socket: {}/{}", socketFile.toString());
+            throw new NexusSocketException(ex);
+        }
     }
 
     /**
