@@ -27,7 +27,7 @@ public class CliDelegateTest {
     public void processArgs() throws Exception {
     
         Config result =     configProvider.execute("-configfile",
-                getClass().getResource("/sample-config.xml").getFile());
+                getClass().getResource("/sample-config.json").getFile());
         
         assertThat(result).isNotNull();
         
