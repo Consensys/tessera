@@ -10,7 +10,6 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 /**
@@ -34,15 +33,14 @@ public class UnixDomainServerSocket {
     /**
      * Create a unix domain socket, using the specified directory + path.
      */
-    public void create(final String directory, final String filename) {
-        final Path socketFile = Paths.get(directory, filename);
+    public void create(final Path socketFile) {
 
         try {
             server = unixSocketFactory.createServerSocket(socketFile);
             LOGGER.info("server: {}", server);
 
         } catch (IOException ex) {
-            LOGGER.error("Failed to create Unix Domain Socket: {}/{}", directory, filename);
+            LOGGER.error("Failed to create Unix Domain Socket: {}/{}", socketFile.toString());
             throw new NexusSocketException(ex);
         }
     }
@@ -61,28 +59,6 @@ public class UnixDomainServerSocket {
         }
 
     }
-
-    // Keeping this code for the moment...
-    // could re-implement the solution using 2 threads and basic read(), so it's not limited to HTTP.
-//    public String read() {
-//
-//        Objects.requireNonNull(socket, "No client connection to read from");
-//
-//        try (InputStream is = socket.getInputStream()) {
-//
-//            byte[] buf = new byte[128];
-//            int read = is.read(buf);
-//            String message = new String(buf, 0, read);
-//            LOGGER.info("Received: {}", message);
-//
-//            return message;
-//
-//        } catch (IOException ex) {
-//            LOGGER.error("Failed to read from Socket");
-//            throw new RuntimeException(ex);
-//        }
-//    }
-
 
     /**
      * Read HTTP request from the socket.
