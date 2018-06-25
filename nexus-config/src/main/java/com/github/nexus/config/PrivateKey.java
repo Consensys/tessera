@@ -8,8 +8,11 @@ public interface PrivateKey {
     
     String getValue();
     
-    <T extends PrivateKeyType>  T getType();
+    PrivateKeyType getType();
     
     String getPassword();
+    
+    
+    
     
 }

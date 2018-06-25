@@ -9,8 +9,9 @@
 >
 
     <xsd:element name="configuration" type="tns:Configuration" />
-
+    
     <xsd:complexType name="Configuration">
+        
         <xsd:sequence>
 
             <xsd:element name="jdbc" type="tns:JdbcConfig">
@@ -39,21 +40,8 @@
                 </xsd:annotation>
             </xsd:element>
             
-            <xsd:element name="privateKey" type="tns:PrivateKey" minOccurs="1"  maxOccurs="1">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        Private key available to this node for decrypting.
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="publicKey" type="tns:PublicKey" minOccurs="1"  maxOccurs="1">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        Public key available to this node for decrypting.
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
+            <xsd:element name="keys" type="tns:KeyData" minOccurs="1"  maxOccurs="unbounded" />
+            
 
             <xsd:element name="unixSocketFile" type="tns:Path">
                 <xsd:annotation>
@@ -64,6 +52,9 @@
             </xsd:element>
             
         </xsd:sequence>
+        
+        
+        <xsd:attribute name="useWhiteList" type="xsd:boolean" />
     </xsd:complexType>
     
 
@@ -187,7 +178,22 @@
                     </xsd:annotation>
                 </xsd:element>
             </xsd:choice>
+            
+            <xsd:element name="argonOptions" type="tns:ArgonOptions" />
+            
         </xsd:sequence>
+        
+
+        
+    </xsd:complexType>
+    
+    <xsd:complexType name="ArgonOptions">
+        
+        <xsd:attribute name="algorithm" type="xsd:string" />
+        <xsd:attribute name="iterations" type="xsd:int" />
+        <xsd:attribute name="memory" type="xsd:int" />
+        <xsd:attribute name="parallelism" type="xsd:int" />
+        
     </xsd:complexType>
     
         
@@ -250,10 +256,29 @@
             <xsd:enumeration value="CA" />
             <xsd:enumeration value="TOFU" />
             <xsd:enumeration value="WHITELIST" />
+            <xsd:enumeration value="NONE" />
         </xsd:restriction>
     </xsd:simpleType>
     
-    
+    <xsd:complexType name="KeyData">
+        <xsd:sequence>
+            <xsd:element name="privateKey" type="tns:PrivateKey" minOccurs="1" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Private key available to this node for decrypting.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="publicKey" type="tns:PublicKey" minOccurs="1" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Public key available to this node for decrypting.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+        
+    </xsd:complexType>
     
     
 </xsd:schema>

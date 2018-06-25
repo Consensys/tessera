@@ -3,5 +3,5 @@ package com.github.nexus.config;
 
 
 public enum SslTrustMode {
-    CA,TOFU,WHITELIST
+    CA,TOFU,WHITELIST,NONE
 }

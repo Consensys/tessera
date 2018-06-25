@@ -38,7 +38,7 @@ public class PrivateKey
     @XmlAttribute(name = "type")
     @XmlJavaTypeAdapter(PrivateKeyTypeAdapter.class)
     private PrivateKeyType type;
-
+    
 
     @Override
     public Path getPath() {
