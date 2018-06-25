@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -26,6 +27,7 @@ public class SocketServerFactoryTest {
         when(config.uri()).thenReturn(new URI("http://bogos.com"));
         when(config.workdir()).thenReturn(socketDir.toString());
         when(config.socket()).thenReturn(socketFile);
+        doReturn("off").when(config).tls();
         
         final SocketServer result = SocketServerFactory.createSocketServer(config);
         assertThat(result).isNotNull();
