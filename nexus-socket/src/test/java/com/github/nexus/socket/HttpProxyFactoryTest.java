@@ -1,19 +1,19 @@
 
 package com.github.nexus.socket;
 
-import org.bouncycastle.operator.OperatorCreationException;
+import com.github.nexus.configuration.Configuration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import sun.security.ssl.SSLSocketFactoryImpl;
 
+import javax.net.SocketFactory;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.*;
-import java.security.cert.CertificateException;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 public class HttpProxyFactoryTest {
 
@@ -21,43 +21,48 @@ public class HttpProxyFactoryTest {
     public TemporaryFolder tmpDir = new TemporaryFolder();
 
     @Test
-    public void testcreateSecureHttpProxy() throws URISyntaxException, IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
+    public void secureHttpProxy() throws Exception {
 
         final URI uri = new URI("http://bogus.com");
 
-        File tmpFile = new File(tmpDir.getRoot(), "keystores");
+        final File tmpFile = new File(tmpDir.getRoot(), "keystores");
 
-        final HttpProxy httpProxy = new HttpProxyFactory(uri)
-            .auth("strict")
-            .keyStore(tmpFile.getPath())
-            .keyStorePassword("somepwd")
-            .trustStore(tmpFile.getPath())
-            .trustStorePassword("somepwd")
-            .knownServers(tmpFile.getPath())
-            .trustMode("NONE")
-            .create();
+        final Configuration configuration = mock(Configuration.class);
+        doReturn(uri).when(configuration).uri();
+        doReturn("strict").when(configuration).tls();
+        doReturn(tmpFile.getPath()).when(configuration).clientKeyStore();
+        doReturn("somepwd").when(configuration).clientKeyStorePassword();
+        doReturn(tmpFile.getPath()).when(configuration).clientTrustStore();
+        doReturn("somepwd").when(configuration).clientTrustStorePassword();
+        doReturn(tmpFile.getPath()).when(configuration).knownServers();
 
-        assertThat(httpProxy).isNotNull();
+        HttpProxyFactory proxyFactory = new HttpProxyFactory(configuration);
+        HttpProxy proxy = proxyFactory.create();
+
+        assertThat(proxy)
+            .isNotNull()
+            .extracting("socketFactory")
+            .extracting("class")
+            .containsExactly(SSLSocketFactoryImpl.class);
 
     }
 
     @Test
-    public void testInsecureHttpProxy() throws URISyntaxException, IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
+    public void insecureHttpProxy() throws Exception {
         final URI uri = new URI("http://bogus.com");
 
-        File tmpFile = new File(tmpDir.getRoot(), "keystores");
+        final Configuration configuration = mock(Configuration.class);
+        doReturn(uri).when(configuration).uri();
+        doReturn("off").when(configuration).tls();
 
-        final HttpProxy httpProxy = new HttpProxyFactory(uri)
-            .auth("off")
-            .keyStore(tmpFile.getPath())
-            .keyStorePassword("somepwd")
-            .trustStore(tmpFile.getPath())
-            .trustStorePassword("somepwd")
-            .knownServers(tmpFile.getPath())
-            .trustMode("NONE")
-            .create();
+        final HttpProxyFactory proxyFactory = new HttpProxyFactory(configuration);
+        final HttpProxy proxy = proxyFactory.create();
 
-        assertThat(httpProxy).isNotNull();
+        assertThat(proxy)
+            .isNotNull()
+            .extracting("socketFactory")
+            .containsExactly(SocketFactory.getDefault());
+
     }
 
 }
