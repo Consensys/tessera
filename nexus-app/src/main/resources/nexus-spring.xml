@@ -162,8 +162,15 @@
     </bean>
     
     <beans profile="!disable-unixsocket">
-        <bean class="com.github.nexus.socket.SocketServerFactory" factory-method="createSocketServer">
+        <bean id="socketServer" class="com.github.nexus.socket.SocketServerFactory" factory-method="createSocketServer">
             <constructor-arg ref="config" />
+        </bean>
+
+        <bean class="com.github.nexus.socket.SocketExecutor">
+            <constructor-arg>
+                <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor" />
+            </constructor-arg>
+            <constructor-arg ref="socketServer" />
         </bean>
     </beans>
     

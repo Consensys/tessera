@@ -1,16 +1,18 @@
 package com.github.nexus.socket;
 
 import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
+import org.assertj.core.api.Assertions;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Path;
-import org.assertj.core.api.Assertions;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -21,9 +23,6 @@ public class UnixDomainClientSocketTest {
     private UnixSocketFactory unixSocketFactory;
 
     private Socket socket;
-
-    public UnixDomainClientSocketTest() {
-    }
 
     @Before
     public void setUp() throws Exception {

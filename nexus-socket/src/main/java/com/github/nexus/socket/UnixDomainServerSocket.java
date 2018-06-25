@@ -22,12 +22,12 @@ public class UnixDomainServerSocket {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnixDomainServerSocket.class);
 
     private ServerSocket server;
-    
+
     private Socket socket;
 
-    private  final UnixSocketFactory unixSocketFactory;
-    
-    public UnixDomainServerSocket(UnixSocketFactory unixSocketFactory) {
+    private final UnixSocketFactory unixSocketFactory;
+
+    public UnixDomainServerSocket(final UnixSocketFactory unixSocketFactory) {
         this.unixSocketFactory = Objects.requireNonNull(unixSocketFactory);
     }
 
@@ -62,28 +62,6 @@ public class UnixDomainServerSocket {
 
     }
 
-    // Keeping this code for the moment...
-    // could re-implement the solution using 2 threads and basic read(), so it's not limited to HTTP.
-//    public String read() {
-//
-//        Objects.requireNonNull(socket, "No client connection to read from");
-//
-//        try (InputStream is = socket.getInputStream()) {
-//
-//            byte[] buf = new byte[128];
-//            int read = is.read(buf);
-//            String message = new String(buf, 0, read);
-//            LOGGER.info("Received: {}", message);
-//
-//            return message;
-//
-//        } catch (IOException ex) {
-//            LOGGER.error("Failed to read from Socket");
-//            throw new RuntimeException(ex);
-//        }
-//    }
-
-
     /**
      * Read HTTP request from the socket.
      */
@@ -100,17 +78,16 @@ public class UnixDomainServerSocket {
     }
 
 
-    public void write(byte[] payload) {
+    public void write(final byte[] payload) {
 
         Objects.requireNonNull(socket, "No client connection to write to");
 
-        try (OutputStream os = socket.getOutputStream()) {
+        try (final OutputStream os = socket.getOutputStream()) {
 
-            if (payload.length != 0) {
-                os.write(payload);
-                os.flush();
-            }
-        } catch (IOException ex) {
+            os.write(payload);
+            os.flush();
+
+        } catch (final IOException ex) {
             LOGGER.error("Failed to read from Socket");
             throw new NexusSocketException(ex);
         }
