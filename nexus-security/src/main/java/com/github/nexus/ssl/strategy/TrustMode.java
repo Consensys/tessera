@@ -1,4 +1,4 @@
-package com.github.nexus.node.model;
+package com.github.nexus.ssl.strategy;
 
 import com.github.nexus.ssl.SSLContextBuilder;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -14,7 +14,7 @@ public enum TrustMode {
 
     NONE {
         @Override
-        public SSLContext createSSLContext(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword, String knownHosts) throws NoSuchAlgorithmException, KeyManagementException {
+        public SSLContext createSSLContext(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword, String knownHosts) throws NoSuchAlgorithmException, KeyManagementException, CertificateException, UnrecoverableKeyException, OperatorCreationException, IOException, KeyStoreException, SignatureException, NoSuchProviderException, InvalidKeyException {
             return SSLContextBuilder
                 .createBuilder(keyStore,keyStorePassword,trustStore,trustStorePassword)
                 .forAllCertificates()

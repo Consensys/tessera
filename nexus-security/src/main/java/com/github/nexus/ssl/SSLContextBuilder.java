@@ -68,9 +68,9 @@ public class SSLContextBuilder {
     }
 
 
-    public SSLContextBuilder forAllCertificates() throws KeyManagementException {
+    public SSLContextBuilder forAllCertificates() throws KeyManagementException, IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException {
 
-        sslContext.init(new KeyManager[0], new TrustManager[]{new TrustAllManager()}, null);
+        sslContext.init(buildKeyManagers(), new TrustManager[]{new TrustAllManager()}, null);
 
         return this;
     }

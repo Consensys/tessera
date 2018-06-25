@@ -2,6 +2,7 @@ package com.github.nexus.socket;
 
 import com.github.nexus.configuration.Configuration;
 import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
+import org.bouncycastle.operator.OperatorCreationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,8 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -77,12 +80,21 @@ public class SocketServerTest {
     FIXME: The class itself needs refectoring to be easier to test
     */
     @Test
-    public void run() throws IOException, InterruptedException {
+    public void run() throws IOException, InterruptedException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
 
         socketServer.init();
 
         HttpProxy httpProxy = mock(HttpProxy.class);
         when(httpProxy.connect()).thenReturn(true);
+
+        when(httpProxyFactory.auth(any())).thenReturn(httpProxyFactory);
+        when(httpProxyFactory.keyStore(any())).thenReturn(httpProxyFactory);
+        when(httpProxyFactory.keyStorePassword(any())).thenReturn(httpProxyFactory);
+        when(httpProxyFactory.trustStore(any())).thenReturn(httpProxyFactory);
+        when(httpProxyFactory.trustStorePassword(any())).thenReturn(httpProxyFactory);
+        when(httpProxyFactory.trustMode(any())).thenReturn(httpProxyFactory);
+        when(httpProxyFactory.knownServers(any())).thenReturn(httpProxyFactory);
+
 
         when(httpProxyFactory.create()).thenReturn(httpProxy);
 
@@ -110,7 +122,41 @@ public class SocketServerTest {
     }
 
     @Test
-    public void runThrowsIOExceptionOnClientSocket() throws IOException {
+    public void testThrowExceptionWhenCreateSecureHttpProxy() throws IOException, InterruptedException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
+
+        socketServer.init();
+
+        HttpProxy httpProxy = mock(HttpProxy.class);
+        when(httpProxy.connect()).thenReturn(true);
+
+        when(httpProxyFactory.create()).thenThrow(IOException.class);
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("SOMEDATA".getBytes());
+
+        when(socket.getInputStream()).thenReturn(inputStream);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        when(socket.getOutputStream()).thenReturn(outputStream);
+
+        when(httpProxy.getResponse()).thenReturn("SOMERESPONSE".getBytes());
+
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(socketServer);
+
+        TimeUnit.SECONDS.sleep(2L);
+
+
+        executor.shutdown();
+
+        //Reset as we dont know how many times anuything has been called
+        reset(httpProxyFactory);
+
+
+    }
+
+    @Test
+    public void runThrowsIOExceptionOnClientSocket() throws IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
 
         socketServer.init();
 

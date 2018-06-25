@@ -14,9 +14,10 @@ public class HttpProxyMain {
      * Main method for testing purposes only.
      */
     public static void main(final String... args) throws Exception {
-        SocketFactory socketFactory = new SocketFactory();
 
-        HttpProxy httpProxy = new HttpProxy(new URI("http://localhost" + ":" + "8080"), socketFactory);
+        URI uri = new URI("http://localhost" + ":" + "8080");
+
+        HttpProxy httpProxy = new HttpProxyFactory(uri).auth("off").create();
 
         if (httpProxy.connect()) {
             String message = "GET /upcheck HTTP/1.1\n" +
