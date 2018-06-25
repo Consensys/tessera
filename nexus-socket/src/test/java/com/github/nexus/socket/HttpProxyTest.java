@@ -12,7 +12,6 @@ import java.net.URISyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
 public class HttpProxyTest {
@@ -55,10 +54,7 @@ public class HttpProxyTest {
 
         assertThat(result).isTrue();
 
-        verify(mockSocket).getOutputStream();
-        verify(mockSocket).getInputStream();
         verify(mockSocketFactory).create(uri);
-
     }
 
     @Test
@@ -81,47 +77,25 @@ public class HttpProxyTest {
 
         doThrow(ioexception).when(mockSocketFactory).create(uri);
 
-        try {
-            httpProxy.connect();
-            failBecauseExceptionWasNotThrown(IOException.class);
-        } catch (NexusSocketException ex) {
-            assertThat(ex).hasCause(ioexception);
-        }
+        final Throwable throwable = catchThrowable(httpProxy::connect);
+        assertThat(throwable).hasCause(ioexception);
 
         verify(mockSocketFactory).create(uri);
 
     }
 
-    //Difficult to unit test in isolation due to class design
     @Test
     public void connectAndThenDisconnect() throws IOException {
-        OutputStream outputStream = new ByteArrayOutputStream();
-
-        when(mockSocket.getOutputStream()).thenReturn(outputStream);
-
-        InputStream inputStream = new ByteArrayInputStream(new byte[0]);
-        when(mockSocket.getInputStream()).thenReturn(inputStream);
-
         assertThat(httpProxy.connect()).isTrue();
 
         httpProxy.disconnect();
 
         verify(mockSocketFactory).create(uri);
         verify(mockSocket).close();
-        verify(mockSocket).getInputStream();
-        verify(mockSocket).getOutputStream();
-
     }
 
     @Test
     public void connectAndThenDisconnectThrowsIOException() throws IOException {
-        OutputStream outputStream = new ByteArrayOutputStream();
-
-        when(mockSocket.getOutputStream()).thenReturn(outputStream);
-
-        InputStream inputStream = new ByteArrayInputStream(new byte[0]);
-        when(mockSocket.getInputStream()).thenReturn(inputStream);
-
         doThrow(IOException.class).when(mockSocket).close();
 
         assertThat(httpProxy.connect()).isTrue();
@@ -130,19 +104,13 @@ public class HttpProxyTest {
 
         verify(mockSocketFactory).create(uri);
         verify(mockSocket).close();
-        verify(mockSocket).getInputStream();
-        verify(mockSocket).getOutputStream();
-
     }
 
     @Test
     public void connectAndSend() throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        when(mockSocket.getOutputStream()).thenReturn(outputStream);
-
-        InputStream inputStream = new ByteArrayInputStream(new byte[0]);
-        when(mockSocket.getInputStream()).thenReturn(inputStream);
+        doReturn(outputStream).when(mockSocket).getOutputStream();
 
         assertThat(httpProxy.connect()).isTrue();
 
@@ -151,7 +119,6 @@ public class HttpProxyTest {
         assertThat(outputStream.toByteArray()).isEqualTo("HELLOW".getBytes());
 
         verify(mockSocketFactory).create(uri);
-        verify(mockSocket).getInputStream();
         verify(mockSocket).getOutputStream();
     }
 
@@ -170,7 +137,6 @@ public class HttpProxyTest {
 
         verify(mockSocketFactory).create(uri);
         verify(mockSocket).getInputStream();
-        verify(mockSocket).getOutputStream();
     }
 
     @Test
@@ -187,7 +153,6 @@ public class HttpProxyTest {
         assertThat(throwable).isInstanceOf(NexusSocketException.class);
 
         verify(mockSocketFactory).create(uri);
-        verify(mockSocket).getInputStream();
         verify(mockSocket).getOutputStream();
 
     }
@@ -207,7 +172,5 @@ public class HttpProxyTest {
 
         verify(mockSocketFactory).create(uri);
         verify(mockSocket).getInputStream();
-        verify(mockSocket).getOutputStream();
-
     }
 }

@@ -23,16 +23,12 @@ public class HttpProxy {
 
     private Socket socket;
 
-    private OutputStream os;
+    private final SocketFactory socketFactory;
 
-    private InputStream is;
-    
-    private SocketFactory socketFactory;
-    
     /**
      * Connect to specified URL and create read/sendRequest streams.
      */
-    public HttpProxy(URI serverUri,SocketFactory socketFactory) {
+    public HttpProxy(final URI serverUri, final SocketFactory socketFactory) {
         this.socketFactory = Objects.requireNonNull(socketFactory);
         this.serverUri = Objects.requireNonNull(serverUri);
     }
@@ -43,9 +39,6 @@ public class HttpProxy {
     public boolean connect() {
         try {
             socket = socketFactory.create(serverUri);
-
-            this.os = socket.getOutputStream();
-            this.is = socket.getInputStream();
 
             return true;
 
@@ -63,10 +56,7 @@ public class HttpProxy {
      */
     public void disconnect() {
         try {
-            is.close();
-            os.close();
             socket.close();
-
         } catch (IOException ex) {
             LOGGER.info("Ignoring exception on HttpProxy disconnect: {}", ex.getMessage());
         }
@@ -75,9 +65,12 @@ public class HttpProxy {
     /**
      * Write data to the http connection.
      */
-    public void sendRequest(byte[] data) {
+    public void sendRequest(final byte[] data) {
         LOGGER.info("Sending HTTP request: {}", data);
+
         try {
+            final OutputStream os = socket.getOutputStream();
+
             os.write(data);
             os.flush();
         } catch (IOException ex) {
@@ -93,6 +86,8 @@ public class HttpProxy {
      */
     public byte[] getResponse() {
         try {
+            final InputStream is = socket.getInputStream();
+
             return InputStreamUtils.readAllBytes(is);
         } catch (IOException ex) {
             LOGGER.error("Failed to read from http socket");

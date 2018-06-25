@@ -51,10 +51,18 @@
     </bean>
 
     <bean name="postDelegate" class="com.github.nexus.node.PostDelegate">
-        <constructor-arg ref="client"/>
+        <constructor-arg>
+            <bean name="client" class="com.github.nexus.node.ClientFactory" factory-method="buildClient">
+                <constructor-arg value="#{ config.tls() }"/>
+                <constructor-arg value="#{ config.clientKeyStore() }"/>
+                <constructor-arg value="#{ config.clientKeyStorePassword() }"/>
+                <constructor-arg value="#{ config.clientTrustStore() }"/>
+                <constructor-arg value="#{ config.clientTrustStorePassword() }"/>
+                <constructor-arg value="#{ config.clientTrustMode() }"/>
+                <constructor-arg value="#{ config.knownServers() }"/>
+            </bean>
+        </constructor-arg>
     </bean>
-
-    <bean name="client" class="javax.ws.rs.client.ClientBuilder" factory-method="newClient"/>
 
     <bean class="com.github.nexus.api.filter.LoggingFilter" />
     <bean class="com.github.nexus.api.filter.IPWhitelistFilter">
@@ -68,7 +76,7 @@
                   factory-method="newScheduledThreadPool"
                   destroy-method="shutdown">
                 <constructor-arg type="int" value="1"/>
-    </bean>
+            </bean>
         </constructor-arg>
         <constructor-arg>
             <bean class="com.github.nexus.node.PartyInfoParser" factory-method="create"/>
@@ -162,8 +170,15 @@
     </bean>
     
     <beans profile="!disable-unixsocket">
-        <bean class="com.github.nexus.socket.SocketServerFactory" factory-method="createSocketServer">
+        <bean id="socketServer" class="com.github.nexus.socket.SocketServerFactory" factory-method="createSocketServer">
             <constructor-arg ref="config" />
+        </bean>
+
+        <bean class="com.github.nexus.socket.SocketExecutor">
+            <constructor-arg>
+                <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor" />
+            </constructor-arg>
+            <constructor-arg ref="socketServer" />
         </bean>
     </beans>
     

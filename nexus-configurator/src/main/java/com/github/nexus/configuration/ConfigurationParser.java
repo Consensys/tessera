@@ -8,8 +8,10 @@ public interface ConfigurationParser {
     String CONFIG_FILE_PROPERTY = "configfile";
 
     String[] KNOWN_PROPERTIES = new String[]{
-        "publicKeys", "privateKeys", "port", "url", "othernodes", "keygenBasePath", "passwords", "generatekeys",
-        "whitelist", "workdir", "socket", "databaseURL"
+        "publicKeys", "privateKeys", "port", "url", "othernodes", "keygenBasePath", "passwords",
+        "generatekeys", "whitelist", "workdir", "socket", "databaseURL", "tls",
+        "serverKeyStore", "serverKeyStorePassword", "serverTrustStore", "serverTrustStorePassword", "serverTrustMode", "knownClients",
+        "clientKeyStore", "clientKeyStorePassword", "clientTrustStore", "clientTrustStorePassword", "clientTrustMode", "knownServers"
     };
 
     Configuration config(PropertyLoader propertyLoader, List<String> cliParameters);

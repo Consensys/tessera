@@ -11,9 +11,8 @@ public interface SocketServerFactory {
     static SocketServer createSocketServer(final Configuration config) {
         return new SocketServer(
             config,
-            new HttpProxyFactory(),
-            config.uri(),
-            Executors.newSingleThreadScheduledExecutor(),
+            new HttpProxyFactory(config.uri()),
+            Executors.newCachedThreadPool(),
             UnixSocketFactory.create()
         );
     }
