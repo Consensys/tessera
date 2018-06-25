@@ -40,8 +40,9 @@ public class UnixDomainServerSocketTest {
     public void testServerCreate() throws IOException {
         final String path = "/tmp";
         final String filename = "tst1.ipc";
+        final Path socketPath = Paths.get(path, filename);
 
-        unixDomainServerSocket.create(path, filename);
+        unixDomainServerSocket.create(socketPath);
 
         verify(mockUnixSocketFactory).createServerSocket(any(Path.class));
 
@@ -54,12 +55,13 @@ public class UnixDomainServerSocketTest {
         final String filename = "tst1.ipc";
 
         IOException exception = new IOException("BANG!!");
+        final Path socketPath = Paths.get(path, filename);
 
         doThrow(exception).when(mockUnixSocketFactory)
                 .createServerSocket(any(Path.class));
 
         try {
-            unixDomainServerSocket.create(path, filename);
+            unixDomainServerSocket.create(socketPath);
             Assertions.failBecauseExceptionWasNotThrown(NexusSocketException.class);
 
         } catch (NexusSocketException ex) {
@@ -77,7 +79,7 @@ public class UnixDomainServerSocketTest {
 
         Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
 
-        unixDomainServerSocket.create(socketFile.toFile().getParent(), socketFile.toFile().getName());
+        unixDomainServerSocket.create(socketFile);
 
         unixDomainServerSocket.connect();
 
@@ -97,7 +99,7 @@ public class UnixDomainServerSocketTest {
 
         Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
 
-        unixDomainServerSocket.create(socketFile.toFile().getParent(), socketFile.toFile().getName());
+        unixDomainServerSocket.create(socketFile);
 
         doThrow(IOException.class).when(serverSocket).accept();
 
@@ -133,7 +135,7 @@ public class UnixDomainServerSocketTest {
         when(mockUnixSocketFactory.createServerSocket(any(Path.class))).thenReturn(serverSocket);
 
         Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
-        unixDomainServerSocket.create(socketFile.toFile().getParent(), socketFile.toFile().getName());
+        unixDomainServerSocket.create(socketFile);
 
         unixDomainServerSocket.connect();
 
@@ -168,7 +170,7 @@ public class UnixDomainServerSocketTest {
         when(mockUnixSocketFactory.createServerSocket(any(Path.class))).thenReturn(serverSocket);
 
         Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
-        unixDomainServerSocket.create(socketFile.toFile().getParent(), socketFile.toFile().getName());
+        unixDomainServerSocket.create(socketFile);
 
         unixDomainServerSocket.connect();
 
@@ -200,7 +202,7 @@ public class UnixDomainServerSocketTest {
         when(mockUnixSocketFactory.createServerSocket(any(Path.class))).thenReturn(serverSocket);
 
         Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
-        unixDomainServerSocket.create(socketFile.toFile().getParent(), socketFile.toFile().getName());
+        unixDomainServerSocket.create(socketFile);
         unixDomainServerSocket.connect();
 
         try {
@@ -235,7 +237,7 @@ public class UnixDomainServerSocketTest {
         when(mockUnixSocketFactory.createServerSocket(any(Path.class))).thenReturn(serverSocket);
 
         Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
-        unixDomainServerSocket.create(socketFile.toFile().getParent(), socketFile.toFile().getName());
+        unixDomainServerSocket.create(socketFile);
         unixDomainServerSocket.connect();
 
         try {

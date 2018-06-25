@@ -20,18 +20,23 @@ public class PartyInfoStore {
     }
 
     public void store(final PartyInfo partyInfoToUpdate) {
-        final Set<Recipient> existingRecipients = this.partyInfo.getRecipients();
-        final Set<Recipient> newRecipients = partyInfoToUpdate.getRecipients();
+        synchronized (partyInfo) {
+            final Set<Recipient> existingRecipients = this.partyInfo.getRecipients();
+            final Set<Recipient> newRecipients = partyInfoToUpdate.getRecipients();
 
-        existingRecipients.addAll(newRecipients);
+            existingRecipients.addAll(newRecipients);
 
-        final Set<Party> existingParties = this.partyInfo.getParties();
-        final Set<Party> newParties = partyInfoToUpdate.getParties();
-        existingParties.addAll(newParties);
+            final Set<Party> existingParties = this.partyInfo.getParties();
+            final Set<Party> newParties = partyInfoToUpdate.getParties();
+            existingParties.addAll(newParties);
+        }
     }
 
     public PartyInfo getPartyInfo() {
-        return partyInfo;
+        synchronized (partyInfo) {
+            final PartyInfo partyInfoCopy = new PartyInfo(partyInfo);
+            return partyInfoCopy;
+        }
     }
 
 }
