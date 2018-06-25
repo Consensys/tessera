@@ -38,31 +38,32 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb2-plugin</artifactId>
-                <version>0.13.3</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>2.4</version>
                 <configuration>
-                    <markGenerated>true</markGenerated>
-                    <specVersion>2.2</specVersion>
-                    <schemaDirectory>${project.basedir}/src/main/resources/xsd</schemaDirectory>
-                    <extension>true</extension>
-                    <args>
-                        <arg>-Xinheritance</arg>
-                    </args>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.jvnet.jaxb2_commons</groupId>
-                            <artifactId>jaxb2-basics</artifactId>
-                            <version>1.11.1</version>
-                        </plugin>
-                    </plugins>
-		
+<!--                    <schemaSourceExcludeFilters>
+                        <noJaxbIndex implementation="org.codehaus.mojo.jaxb2.shared.filters.pattern.PatternFileFilter">
+                            <patterns>
+                                <pattern>com/github/nexus/config/api/*</pattern>
+                            </patterns>
+                        </noJaxbIndex>
+                        
+                          </schemaSourceExcludeFilters>-->
+                      <sources>
+                        <source>src/main/java/com/github/nexus/config/api</source>
+                    </sources>
+                      
+                      
+                      
+                  
+              
                 </configuration>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
                         <goals>  
-                            <goal>generate</goal>
+                            <goal>schemagen</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -77,9 +78,9 @@
                     
                     <target>
                         <xslt 
-                              in="src/main/resources/xsd/config.xsd" 
-                              out="target/config-schema-doc.html" 
-                              style="src/main/xsl/schema-doc.xsl" />
+                            in="src/main/resources/xsd/config.xsd" 
+                            out="target/config-schema-doc.html" 
+                            style="src/main/xsl/schema-doc.xsl" />
 
                         
                     </target>
