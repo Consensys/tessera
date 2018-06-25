@@ -93,7 +93,7 @@ public class SSLContextBuilderTest {
     }
 
     @Test
-    public void testBuildForAllCertificates() throws KeyManagementException, NoSuchFieldException, IllegalAccessException {
+    public void testBuildForAllCertificates() throws KeyManagementException, NoSuchFieldException, IllegalAccessException, IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, InvalidKeyException, SignatureException, OperatorCreationException, NoSuchProviderException {
 
         final SSLContext sslContext = sslContextBuilder.forAllCertificates().build();
 
