@@ -3,6 +3,8 @@ package com.github.nexus.socket;
 import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,7 +18,7 @@ public class UnixDomainSocketIT {
     private UnixSocketFactory unixSocketFactory = UnixSocketFactory.create();
 
     @Test
-    public void sendMessageToClient() {
+    public void sendMessageToClient() throws IOException {
 
         //Create a server which is listening on the socket
         TestSocketServer server = new TestSocketServer();
@@ -41,9 +43,10 @@ public class UnixDomainSocketIT {
 
         UnixDomainServerSocket serverUds;
 
-        TestSocketServer() {
-            serverUds = new UnixDomainServerSocket(unixSocketFactory);
-            serverUds.create(Paths.get("/tmp", "tst2.ipc"));
+        TestSocketServer() throws IOException {
+            final ServerSocket serverSocket = unixSocketFactory.createServerSocket(Paths.get("/tmp", "tst2.ipc"));
+
+            serverUds = new UnixDomainServerSocket(serverSocket);
         }
 
         public void run() {

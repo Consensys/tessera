@@ -1,6 +1,5 @@
 package com.github.nexus.socket;
 
-import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Path;
 import java.util.Objects;
 
 /**
@@ -24,25 +22,8 @@ public class UnixDomainServerSocket {
 
     private Socket socket;
 
-    private final UnixSocketFactory unixSocketFactory;
-
-    public UnixDomainServerSocket(final UnixSocketFactory unixSocketFactory) {
-        this.unixSocketFactory = Objects.requireNonNull(unixSocketFactory);
-    }
-
-    /**
-     * Create a unix domain socket, using the specified directory + path.
-     */
-    public void create(final Path socketFile) {
-
-        try {
-            server = unixSocketFactory.createServerSocket(socketFile);
-            LOGGER.info("server: {}", server);
-
-        } catch (IOException ex) {
-            LOGGER.error("Failed to create Unix Domain Socket: {}/{}", socketFile.toString());
-            throw new NexusSocketException(ex);
-        }
+    public UnixDomainServerSocket(final ServerSocket server) {
+        this.server = Objects.requireNonNull(server);
     }
 
     /**
