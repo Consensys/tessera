@@ -1,5 +1,8 @@
 package com.github.nexus.socket;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.Objects;
@@ -8,18 +11,28 @@ import java.util.concurrent.TimeUnit;
 
 public class SocketExecutor {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SocketExecutor.class);
+
     private final ScheduledExecutorService executor;
 
-    private final SocketServer socketServer;
+    private final Runnable socketServer;
 
-    public SocketExecutor(final ScheduledExecutorService executor, final SocketServer socketServer) {
+    public SocketExecutor(final ScheduledExecutorService executor, final Runnable socketServer) {
         this.executor = Objects.requireNonNull(executor);
         this.socketServer = Objects.requireNonNull(socketServer);
     }
 
     @PostConstruct
     public void start() {
-        this.executor.scheduleWithFixedDelay(socketServer, 1, 1, TimeUnit.MILLISECONDS);
+        final Runnable exceptionSafeRunnable = () -> {
+            try {
+                socketServer.run();
+            } catch (final Throwable ex) {
+                LOGGER.error("Error when executing socket listener", ex);
+            }
+        };
+
+        this.executor.scheduleWithFixedDelay(exceptionSafeRunnable, 1L, 1L, TimeUnit.MILLISECONDS);
     }
 
     @PreDestroy
