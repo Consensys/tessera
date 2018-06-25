@@ -1,7 +1,6 @@
 package com.github.nexus.socket;
 
 import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
-import org.bouncycastle.operator.OperatorCreationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,8 +13,6 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.*;
-import java.security.cert.CertificateException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -71,9 +68,7 @@ public class SocketServerTest {
     FIXME: The class itself needs refectoring to be easier to test
     */
     @Test
-    public void run() throws IOException, InterruptedException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
-
-        socketServer.init();
+    public void run() throws Exception {
 
         HttpProxy httpProxy = mock(HttpProxy.class);
         when(httpProxy.connect()).thenReturn(true);
@@ -104,9 +99,7 @@ public class SocketServerTest {
     }
 
     @Test
-    public void testThrowExceptionWhenCreateSecureHttpProxy() throws IOException, InterruptedException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
-
-        socketServer.init();
+    public void testThrowExceptionWhenCreateSecureHttpProxy() throws Exception {
 
         HttpProxy httpProxy = mock(HttpProxy.class);
         when(httpProxy.connect()).thenReturn(true);
@@ -138,9 +131,7 @@ public class SocketServerTest {
     }
 
     @Test
-    public void runThrowsIOExceptionOnClientSocket() throws IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
-
-        socketServer.init();
+    public void runThrowsIOExceptionOnClientSocket() throws Exception {
 
         HttpProxy httpProxy = mock(HttpProxy.class);
         when(httpProxy.connect()).thenReturn(true);
@@ -165,25 +156,19 @@ public class SocketServerTest {
     }
 
     @Test
-    public void initServerSocketSucceeds() throws IOException {
-        socketServer.init();
-
-        verify(unixSocketFactory).createServerSocket(any(Path.class));
-    }
-
-    @Test
     public void initServerFails() throws IOException {
         final IOException exception = new IOException("BANG!!");
 
         doThrow(exception).when(unixSocketFactory).createServerSocket(any(Path.class));
 
-        final Throwable ex = catchThrowable(socketServer::init);
+        final Throwable ex = catchThrowable(
+            () -> new SocketServer(socketFile, httpProxyFactory, executorService, unixSocketFactory)
+        );
+
         assertThat(ex)
             .isInstanceOf(NexusSocketException.class)
             .hasMessageContaining("BANG!!")
             .hasCauseExactlyInstanceOf(IOException.class);
-
-        verify(unixSocketFactory).createServerSocket(any(Path.class));
     }
 
 }
