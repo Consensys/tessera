@@ -1,4 +1,4 @@
-package com.github.nexus.config.api;
+package com.github.nexus.config.jaxb;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

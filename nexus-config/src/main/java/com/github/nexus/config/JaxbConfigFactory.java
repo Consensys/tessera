@@ -1,6 +1,6 @@
 package com.github.nexus.config;
 
-import com.github.nexus.config.api.Configuration;
+import com.github.nexus.config.jaxb.Configuration;
 import java.io.InputStream;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;

@@ -1,6 +1,6 @@
 package com.github.nexus.config;
 
-import com.github.nexus.config.api.Configuration;
+import com.github.nexus.config.jaxb.Configuration;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Objects;

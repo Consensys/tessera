@@ -1,6 +1,6 @@
 
 
-package com.github.nexus.config.api;
+package com.github.nexus.config.jaxb;
 
 import java.nio.file.Path;
 import javax.xml.bind.annotation.XmlAccessType;

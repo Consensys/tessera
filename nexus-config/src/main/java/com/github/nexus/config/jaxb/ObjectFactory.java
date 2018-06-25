@@ -1,4 +1,4 @@
-package com.github.nexus.config.api;
+package com.github.nexus.config.jaxb;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;
@@ -8,7 +8,7 @@ import javax.xml.namespace.QName;
 @XmlRegistry
 public class ObjectFactory {
 
-    private static final QName QNAME = new QName("http://nexus.github.com/config/api", "configuration");
+    private static final QName QNAME = new QName("http://nexus.github.com/config", "configuration");
 
     public ObjectFactory() {
     }
@@ -17,10 +17,6 @@ public class ObjectFactory {
         
       
         return new Configuration();
-    }
-
-    public KeyGenConfig createKeyGenConfig() {
-        return new KeyGenConfig();
     }
 
     public JdbcConfig createJdbcConfig() {
@@ -51,7 +47,7 @@ public class ObjectFactory {
         return new PublicKey();
     }
 
-    @XmlElementDecl(namespace = "http://nexus.github.com/config/api", name = "configuration")
+    @XmlElementDecl(namespace = "http://nexus.github.com/config", name = "configuration")
     public JAXBElement<Configuration> createConfiguration(Configuration value) {
         return new JAXBElement<>(QNAME, Configuration.class, null, value);
     }
