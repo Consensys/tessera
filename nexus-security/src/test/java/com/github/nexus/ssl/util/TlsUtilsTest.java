@@ -23,9 +23,9 @@ public class TlsUtilsTest {
 
     public static TemporaryFolder dirDelegate;
 
-    private final String FILE = "./test-keystore";
-    private final String PASSWORD ="quorum";
-    private final String ALIAS = "nexus";
+    private static final String FILE = "./test-keystore";
+    private static final String PASSWORD ="quorum";
+    private static final String ALIAS = "nexus";
 
     @After
     public void after(){
