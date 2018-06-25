@@ -46,6 +46,11 @@
 
         <dependency>
             <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.nexus</groupId>
             <artifactId>rest-server</artifactId>
         </dependency>
 

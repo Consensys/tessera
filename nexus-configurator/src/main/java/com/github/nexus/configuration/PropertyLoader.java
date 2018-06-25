@@ -24,6 +24,19 @@ public interface PropertyLoader {
             addOption("workdir", "workdir", true, "directory where work files are placed (must match value specified to Quorum)");
             addOption("socket", "socket", true, "IPC socket to create for access to the Private API");
             addOption("databaseURL", "databaseURL", true, "database url specify db driver");
+            addOption("tls", "tls", true, "enable or disable ssl");
+            addOption("serverKeyStore", "serverKeyStore", true, "server keystore file");
+            addOption("serverKeyStorePassword", "serverKeyStorePassword", true, "server keystore password");
+            addOption("serverTrustStore", "serverTrustStore", true, "server truststore file");
+            addOption("serverTrustStorePassword", "serverTrustStorePassword", true, "server truststore password");
+            addOption("serverTrustMode", "serverTrustMode", true, "server trust mode");
+            addOption("knownClients", "knownClients", true, "server known clients");
+            addOption("clientKeyStore", "clientKeyStore", true, "client keystore file");
+            addOption("clientKeyStorePassword", "clientKeyStorePassword", true, "client keystore password");
+            addOption("clientTrustStore", "clientTrustStore", true, "client truststore file");
+            addOption("clientTrustStorePassword", "clientTrustStorePassword", true, "client truststore password");
+            addOption("clientTrustMode", "clientTrustMode", true, "client trust mode");
+            addOption("knownServers", "knownServers", true, "known servers list");
         }
     };
 

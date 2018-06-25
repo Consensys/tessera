@@ -3,6 +3,7 @@ package com.github.nexus.server;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
+import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Application;
 import java.net.URI;
 import java.util.HashMap;
@@ -27,9 +29,17 @@ public class JerseyServer implements RestServer {
 
     private final Application application;
 
-    public JerseyServer(URI uri, Application application) {
+    private final SSLContext sslContext;
+
+    private final boolean secure;
+
+
+    public JerseyServer(
+        URI uri, Application application, SSLContext sslContext, boolean secure) {
         this.uri = Objects.requireNonNull(uri);
         this.application = Objects.requireNonNull(application);
+        this.sslContext = Objects.requireNonNull(sslContext);
+        this.secure = Objects.requireNonNull(secure);
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JerseyServer.class);
@@ -55,12 +65,17 @@ public class JerseyServer implements RestServer {
         final ResourceConfig config = ResourceConfig.forApplication(application);
         config.addProperties(initParams);
 
-        server = GrizzlyHttpServerFactory.createHttpServer(uri,false);
+        server = GrizzlyHttpServerFactory.createHttpServer(
+            uri,
+            new ResourceConfig(),
+            secure,
+            new SSLEngineConfigurator(sslContext).setClientMode(false).setNeedClientAuth(true),
+            false);
 
         final WebappContext ctx = new WebappContext("WebappContext");
         final ServletRegistration registration = ctx.addServlet("ServletContainer", new ServletContainer(config));
         registration.addMapping("/*");
-        
+
         ctx.deploy(server);
 
         LOGGER.info("Starting {}", uri);
