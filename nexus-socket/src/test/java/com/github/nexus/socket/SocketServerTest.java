@@ -87,15 +87,6 @@ public class SocketServerTest {
         HttpProxy httpProxy = mock(HttpProxy.class);
         when(httpProxy.connect()).thenReturn(true);
 
-        when(httpProxyFactory.auth(any())).thenReturn(httpProxyFactory);
-        when(httpProxyFactory.keyStore(any())).thenReturn(httpProxyFactory);
-        when(httpProxyFactory.keyStorePassword(any())).thenReturn(httpProxyFactory);
-        when(httpProxyFactory.trustStore(any())).thenReturn(httpProxyFactory);
-        when(httpProxyFactory.trustStorePassword(any())).thenReturn(httpProxyFactory);
-        when(httpProxyFactory.trustMode(any())).thenReturn(httpProxyFactory);
-        when(httpProxyFactory.knownServers(any())).thenReturn(httpProxyFactory);
-
-
         when(httpProxyFactory.create()).thenReturn(httpProxy);
 
         ByteArrayInputStream inputStream = new ByteArrayInputStream("SOMEDATA".getBytes());
