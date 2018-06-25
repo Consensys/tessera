@@ -30,6 +30,7 @@ public class TlsUtilsTest {
     @After
     public void after(){
         dirDelegate = tmpDir;
+        assertThat(dirDelegate.getRoot().exists()).isTrue();
     }
 
     @AfterClass
