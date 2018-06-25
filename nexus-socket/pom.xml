@@ -23,6 +23,11 @@
             <groupId>com.github.nexus</groupId>
             <artifactId>junixsocket-adapter</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-security</artifactId>
+        </dependency>
         
         <dependency>
             <groupId>junixsocket</groupId>

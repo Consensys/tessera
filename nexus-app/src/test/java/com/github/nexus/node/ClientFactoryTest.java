@@ -62,7 +62,7 @@ public class ClientFactoryTest {
 
     @Test
     public void testBuildSecureClientDefaultMode() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
-        Client client = factory.buildClient("strict","","","","","something invalid","");
+        Client client = factory.buildClient("strict",tmpKeyFile.getPath(),"","","","something invalid","");
         assertThat(client).isNotNull();
         assertThat(client.getSslContext()).isNotNull();
         assertThat(client.getSslContext().getProtocol().equals("TLS"));
