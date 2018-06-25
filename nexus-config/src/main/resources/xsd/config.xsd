@@ -105,6 +105,9 @@
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
+            
+            <xsd:element name="ssl" type="tns:SslConfig" minOccurs="0" maxOccurs="1" />
+            
         </xsd:sequence>
     </xsd:complexType>
     
@@ -192,6 +195,65 @@
         <xsd:restriction base="xsd:string" />
     </xsd:simpleType>
 
+    
+    <xsd:complexType name="SslConfig">
+        
+        <xsd:sequence>
+            
+            <xsd:element name="tls" type="tns:SslAuthenticationMode" />
+            
+            <xsd:element name="serverKeyStore" type="tns:Path" />
+            <xsd:element name="serverKeyStorePassword" type="xsd:string" />
+            
+            <xsd:element name="serverTrustStore" type="tns:Path" />
+            <xsd:element name="serverTrustStorePassword" type="xsd:string" />
+            <xsd:element name="serverTrustMode" type="tns:SslTrustMode" />
+            
+            
+            <xsd:element name="clientKeyStore" type="tns:Path" />
+            <xsd:element name="clientKeyStorePassword" type="xsd:string" />
+            <xsd:element name="clientTrustStore" type="tns:Path" />
+            <xsd:element name="clientTrustStorePassword" type="xsd:string" />
+            
+            <xsd:element name="clientTrustMode" type="tns:SslTrustMode" />
+ 
+            <xsd:element name="knownClientsFile" type="tns:Path">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        File where client certificates are stored. 
+                    </xsd:documentation>
+                </xsd:annotation>
+                
+            </xsd:element>
+            
+            <xsd:element name="knownServersFile" type="tns:Path">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        File where server certificates are stored. 
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            
+        </xsd:sequence>
+
+    </xsd:complexType>
+    
+    <xsd:simpleType name="SslAuthenticationMode">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="STRICT" />
+            <xsd:enumeration value="OFF" />
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:simpleType name="SslTrustMode">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="CA" />
+            <xsd:enumeration value="TOFU" />
+            <xsd:enumeration value="WHITELIST" />
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    
     
     
 </xsd:schema>

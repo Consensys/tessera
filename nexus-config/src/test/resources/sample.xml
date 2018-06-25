@@ -9,6 +9,30 @@
     
     <server>
         <port>99</port>
+        
+        <ssl>
+            <tls>STRICT</tls>
+            <serverKeyStore>/keystorepath</serverKeyStore>
+            <serverKeyStorePassword>serverKeyStorePassword</serverKeyStorePassword>
+            <serverTrustStore>/serverTrustStore</serverTrustStore>
+            
+            <serverTrustStorePassword>serverTrustStorePassword</serverTrustStorePassword>
+            <serverTrustMode>TOFU</serverTrustMode>
+            
+            
+            <clientKeyStore>/clientKeyStore</clientKeyStore>
+            <clientKeyStorePassword>clientKeyStorePassword</clientKeyStorePassword>
+            
+            <clientTrustStore>/clientTrustStore</clientTrustStore>
+            <clientTrustStorePassword>clientTrustStorePassword</clientTrustStorePassword>
+            <clientTrustMode>TOFU</clientTrustMode>
+            
+            <knownClientsFile>/pathtonoclients</knownClientsFile>
+            <knownServersFile>/pathtoknownservers</knownServersFile>
+            
+            
+        </ssl>
+        
     </server>
 
     <peer>
@@ -30,5 +54,7 @@
     </publicKey>
     
     <unixSocketFile>/tmp/bogus.socket</unixSocketFile>
+    
+    
     
 </configuration>

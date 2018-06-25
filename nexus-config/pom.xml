@@ -37,7 +37,42 @@
     
     <build>
         <plugins>
+<!--
+  <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+                <version>0.13.3</version>
+                <configuration>
+                    
+                    <generatePackage>com.github.nexus.config.gen</generatePackage>
+                    <markGenerated>false</markGenerated>
+                    <specVersion>2.2</specVersion>
+                    
+                    <schemaDirectory>${project.basedir}/src/main/resources/xsd</schemaDirectory>
+                    <extension>true</extension>
+                    <args>
+                        <arg>-Xinheritance</arg>
+                    </args>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.jvnet.jaxb2_commons</groupId>
+                            <artifactId>jaxb2-basics</artifactId>
+                            <version>1.11.1</version>
+                        </plugin>
+                    </plugins>
+		
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>  
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
 
+            </plugin>-->
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
