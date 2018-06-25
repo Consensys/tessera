@@ -1,7 +1,7 @@
 package com.github.nexus.node;
 
 import com.github.nexus.ssl.strategy.AuthenticationMode;
-import com.github.nexus.node.model.TrustMode;
+import com.github.nexus.ssl.strategy.TrustMode;
 import org.bouncycastle.operator.OperatorCreationException;
 
 import javax.net.ssl.SSLContext;
