@@ -1,7 +1,6 @@
 package com.github.nexus.socket;
 
 import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
-import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,10 +15,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class UnixDomainServerSocketTest {
+
+    private Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
 
     private UnixSocketFactory mockUnixSocketFactory;
 
@@ -32,8 +33,9 @@ public class UnixDomainServerSocketTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
         verifyNoMoreInteractions(mockUnixSocketFactory);
+        Files.deleteIfExists(socketFile);
     }
 
     @Test
@@ -57,17 +59,14 @@ public class UnixDomainServerSocketTest {
         IOException exception = new IOException("BANG!!");
         final Path socketPath = Paths.get(path, filename);
 
-        doThrow(exception).when(mockUnixSocketFactory)
-                .createServerSocket(any(Path.class));
+        doThrow(exception).when(mockUnixSocketFactory).createServerSocket(any(Path.class));
 
-        try {
-            unixDomainServerSocket.create(socketPath);
-            Assertions.failBecauseExceptionWasNotThrown(NexusSocketException.class);
+        final Throwable ex = catchThrowable(() -> unixDomainServerSocket.create(socketPath));
+        assertThat(ex)
+            .isInstanceOf(NexusSocketException.class)
+            .hasMessageContaining("BANG!!")
+            .hasCauseExactlyInstanceOf(IOException.class);
 
-        } catch (NexusSocketException ex) {
-            assertThat(ex.getMessage()).contains("BANG!!");
-            assertThat(ex).hasCause(exception);
-        }
         verify(mockUnixSocketFactory).createServerSocket(any(Path.class));
     }
 
@@ -77,8 +76,6 @@ public class UnixDomainServerSocketTest {
 
         when(mockUnixSocketFactory.createServerSocket(any(Path.class))).thenReturn(serverSocket);
 
-        Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
-
         unixDomainServerSocket.create(socketFile);
 
         unixDomainServerSocket.connect();
@@ -86,9 +83,6 @@ public class UnixDomainServerSocketTest {
         verify(serverSocket).accept();
         verifyNoMoreInteractions(serverSocket);
         verify(mockUnixSocketFactory).createServerSocket(any(Path.class));
-
-        Files.deleteIfExists(socketFile);
-
     }
 
     @Test
@@ -97,25 +91,16 @@ public class UnixDomainServerSocketTest {
 
         when(mockUnixSocketFactory.createServerSocket(any(Path.class))).thenReturn(serverSocket);
 
-        Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
-
         unixDomainServerSocket.create(socketFile);
 
         doThrow(IOException.class).when(serverSocket).accept();
 
-        try {
-            unixDomainServerSocket.connect();
-            failBecauseExceptionWasNotThrown(NexusSocketException.class);
-        } catch (NexusSocketException ex) {
-            assertThat(ex)
-                    .hasCauseExactlyInstanceOf(IOException.class);
-        }
+        final Throwable ex = catchThrowable(unixDomainServerSocket::connect);
+        assertThat(ex).isInstanceOf(NexusSocketException.class).hasCauseExactlyInstanceOf(IOException.class);
+
         verify(serverSocket).accept();
         verifyNoMoreInteractions(serverSocket);
         verify(mockUnixSocketFactory).createServerSocket(any(Path.class));
-
-        Files.deleteIfExists(socketFile);
-
     }
 
     @Test
@@ -134,7 +119,6 @@ public class UnixDomainServerSocketTest {
 
         when(mockUnixSocketFactory.createServerSocket(any(Path.class))).thenReturn(serverSocket);
 
-        Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
         unixDomainServerSocket.create(socketFile);
 
         unixDomainServerSocket.connect();
@@ -148,9 +132,6 @@ public class UnixDomainServerSocketTest {
 
         verify(serverSocket).accept();
         verify(mockSocket).getInputStream();
-        verifyNoMoreInteractions(serverSocket, mockSocket);
-
-        Files.deleteIfExists(socketFile);
     }
 
     @Test
@@ -169,7 +150,6 @@ public class UnixDomainServerSocketTest {
 
         when(mockUnixSocketFactory.createServerSocket(any(Path.class))).thenReturn(serverSocket);
 
-        Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
         unixDomainServerSocket.create(socketFile);
 
         unixDomainServerSocket.connect();
@@ -183,14 +163,10 @@ public class UnixDomainServerSocketTest {
         verify(serverSocket).accept();
         verify(mockSocket).getOutputStream();
         verifyNoMoreInteractions(serverSocket, mockSocket);
-
-        Files.deleteIfExists(socketFile);
     }
 
     @Test
     public void connectAndReadThrowsException() throws IOException {
-
-        final String data = "HELLOW-99";
 
         Socket mockSocket = mock(Socket.class);
 
@@ -201,16 +177,11 @@ public class UnixDomainServerSocketTest {
 
         when(mockUnixSocketFactory.createServerSocket(any(Path.class))).thenReturn(serverSocket);
 
-        Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
         unixDomainServerSocket.create(socketFile);
         unixDomainServerSocket.connect();
 
-        try {
-            unixDomainServerSocket.read();
-            failBecauseExceptionWasNotThrown(NexusSocketException.class);
-        } catch(NexusSocketException ex) {
-            assertThat(ex).hasCauseExactlyInstanceOf(IOException.class);
-        }
+        final Throwable ex = catchThrowable(unixDomainServerSocket::read);
+        assertThat(ex).isInstanceOf(NexusSocketException.class).hasCauseExactlyInstanceOf(IOException.class);
 
 
         verify(mockUnixSocketFactory).createServerSocket(any(Path.class));
@@ -218,14 +189,10 @@ public class UnixDomainServerSocketTest {
         verify(serverSocket).accept();
         verify(mockSocket).getInputStream();
         verifyNoMoreInteractions(serverSocket, mockSocket);
-
-        Files.deleteIfExists(socketFile);
     }
 
     @Test
     public void connectAndWriteThrowsException() throws IOException {
-
-        final String data = "HELLOW-99";
 
         Socket mockSocket = mock(Socket.class);
 
@@ -236,24 +203,16 @@ public class UnixDomainServerSocketTest {
 
         when(mockUnixSocketFactory.createServerSocket(any(Path.class))).thenReturn(serverSocket);
 
-        Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
         unixDomainServerSocket.create(socketFile);
         unixDomainServerSocket.connect();
 
-        try {
-            unixDomainServerSocket.write("HELLOW".getBytes());
-            failBecauseExceptionWasNotThrown(NexusSocketException.class);
-        } catch(NexusSocketException ex) {
-            assertThat(ex).hasCauseExactlyInstanceOf(IOException.class);
-        }
+        final Throwable ex = catchThrowable(() -> unixDomainServerSocket.write("HELLOW".getBytes()));
+        assertThat(ex).isInstanceOf(NexusSocketException.class).hasCauseExactlyInstanceOf(IOException.class);
 
 
         verify(mockUnixSocketFactory).createServerSocket(any(Path.class));
-
         verify(serverSocket).accept();
         verify(mockSocket).getOutputStream();
         verifyNoMoreInteractions(serverSocket, mockSocket);
-
-        Files.deleteIfExists(socketFile);
     }
 }
