@@ -5,6 +5,8 @@ import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
@@ -43,8 +45,10 @@ public class SocketServer implements Runnable {
         this.executor = Objects.requireNonNull(executor, "Executor service is required");
         this.httpProxyFactory = Objects.requireNonNull(httpProxyFactory);
 
+        final Path socketPath = Paths.get(config.workdir(), config.socket());
+
         serverUds = new UnixDomainServerSocket(unixSocketFactory);
-        serverUds.create(config.workdir(), config.socket());
+        serverUds.create(socketPath);
     }
 
     /**
@@ -80,7 +84,6 @@ public class SocketServer implements Runnable {
     /**
      * Get a connection to the HTTP Server.
      */
-    //FIXME: 
     private boolean createHttpServerConnection() {
 
         httpProxy = httpProxyFactory.create();
