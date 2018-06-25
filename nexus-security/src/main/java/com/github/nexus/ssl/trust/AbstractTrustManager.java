@@ -58,6 +58,8 @@ public abstract class AbstractTrustManager implements X509TrustManager {
 
         generateWhiteListedFileIfNotExisted();
 
+        this.certificates.add(thumbPrint);
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(knownHostsFile, true)))
         {
             writer.write(thumbPrint);
