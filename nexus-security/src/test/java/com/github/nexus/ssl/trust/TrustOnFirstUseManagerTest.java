@@ -1,9 +1,6 @@
 package com.github.nexus.ssl.trust;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -25,6 +22,8 @@ public class TrustOnFirstUseManagerTest {
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
 
+    private static TemporaryFolder tmpDirDelegate;
+
     File knownHosts;
 
     @Mock
@@ -37,8 +36,15 @@ public class TrustOnFirstUseManagerTest {
     }
 
     @After
-    public void tearDown(){
+    public void after() {
         verifyNoMoreInteractions(certificate);
+        tmpDirDelegate = tmpDir;
+        assertThat(tmpDirDelegate.getRoot().exists()).isTrue();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        assertThat(tmpDirDelegate.getRoot().exists()).isFalse();
     }
 
 
