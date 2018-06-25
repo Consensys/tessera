@@ -40,4 +40,30 @@ public interface Configuration {
 
     String databaseURL();
 
+    String tls();
+
+    String serverKeyStore();
+
+    String serverKeyStorePassword();
+
+    String serverTrustStore();
+
+    String serverTrustStorePassword();
+
+    String serverTrustMode();
+
+    String knownClients();
+
+    String clientKeyStore();
+
+    String clientKeyStorePassword();
+
+    String clientTrustStore();
+
+    String clientTrustStorePassword();
+
+    String clientTrustMode();
+
+    String knownServers();
+
 }

@@ -80,4 +80,69 @@ public class TestConfiguration implements Configuration {
     public String databaseURL() {
         return "jdbc:h2:./target/h2/nexus;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0";
     }
+
+    @Override
+    public String tls() {
+        return "off";
+    }
+
+    @Override
+    public String serverKeyStore() {
+        return null;
+    }
+
+    @Override
+    public String serverKeyStorePassword() {
+        return null;
+    }
+
+    @Override
+    public String serverTrustStore() {
+        return null;
+    }
+
+    @Override
+    public String serverTrustStorePassword() {
+        return null;
+    }
+
+    @Override
+    public String knownClients() {
+        return null;
+    }
+
+    @Override
+    public String serverTrustMode() {
+        return null;
+    }
+
+    @Override
+    public String clientTrustMode() {
+        return null;
+    }
+
+    @Override
+    public String knownServers() {
+        return null;
+    }
+
+    @Override
+    public String clientKeyStore() {
+        return null;
+    }
+
+    @Override
+    public String clientKeyStorePassword() {
+        return null;
+    }
+
+    @Override
+    public String clientTrustStore() {
+        return null;
+    }
+
+    @Override
+    public String clientTrustStorePassword() {
+        return null;
+    }
 }

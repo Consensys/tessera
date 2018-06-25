@@ -115,4 +115,69 @@ public class ConfigurationImpl implements Configuration {
     public String databaseURL() {
         return properties.getProperty("databaseURL");
     }
+
+    @Override
+    public String tls() {
+        return properties.getProperty("tls");
+    }
+
+    @Override
+    public String serverKeyStore() {
+        return properties.getProperty("serverKeyStore");
+    }
+
+    @Override
+    public String serverKeyStorePassword() {
+        return properties.getProperty("serverKeyStorePassword");
+    }
+
+    @Override
+    public String serverTrustStore() {
+        return properties.getProperty("serverTrustStore");
+    }
+
+    @Override
+    public String serverTrustStorePassword() {
+        return properties.getProperty("serverTrustStorePassword");
+    }
+
+    @Override
+    public String serverTrustMode() {
+        return properties.getProperty("serverTrustMode");
+    }
+
+    @Override
+    public String knownClients() {
+        return properties.getProperty("knownClients");
+    }
+
+    @Override
+    public String clientKeyStore() {
+        return properties.getProperty("clientKeyStore");
+    }
+
+    @Override
+    public String clientKeyStorePassword() {
+        return properties.getProperty("clientKeyStorePassword");
+    }
+
+    @Override
+    public String clientTrustStore() {
+        return properties.getProperty("clientTrustStore");
+    }
+
+    @Override
+    public String clientTrustStorePassword() {
+        return properties.getProperty("clientTrustStorePassword");
+    }
+
+    @Override
+    public String clientTrustMode() {
+        return properties.getProperty("clientTrustMode");
+    }
+
+    @Override
+    public String knownServers() {
+        return properties.getProperty("knownServers");
+    }
 }
