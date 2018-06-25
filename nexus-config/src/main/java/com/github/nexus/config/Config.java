@@ -5,18 +5,18 @@ import java.util.List;
 
 public interface Config {
     
-    <J extends JdbcConfig> J getJdbcConfig();
+   JdbcConfig getJdbcConfig();
     
-    <S extends ServerConfig> S getServerConfig();
+    ServerConfig getServerConfig();
 
-    <R extends PrivateKey> R getPrivateKey();
+   PrivateKey getPrivateKey();
     
-    <P extends PublicKey> P getPublicKey();
+   PublicKey getPublicKey();
     
     Path getUnixSocketFile();
     
-    List<? extends Peer> getPeers();
+    List<Peer> getPeers();
 
-    <K extends KeyGenConfig> K  getKeyGenConfig();
+    KeyGenConfig  getKeyGenConfig();
     
 }
