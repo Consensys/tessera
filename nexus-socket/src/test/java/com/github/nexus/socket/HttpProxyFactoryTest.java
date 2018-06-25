@@ -13,11 +13,11 @@ public class HttpProxyFactoryTest {
     @Test
     public void create() throws URISyntaxException {
 
-        final HttpProxyFactory httpProxyFactory = new HttpProxyFactory();
-
         final URI uri = new URI("http://bogus.com");
 
-        final HttpProxy httpProxy = httpProxyFactory.create(uri);
+        final HttpProxyFactory httpProxyFactory = new HttpProxyFactory(uri);
+
+        final HttpProxy httpProxy = httpProxyFactory.create();
 
         assertThat(httpProxy).isNotNull();
 
