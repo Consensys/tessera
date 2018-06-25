@@ -3,6 +3,7 @@ package com.github.nexus.socket;
 import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 import org.junit.Test;
 
+import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,7 +43,7 @@ public class UnixDomainSocketIT {
 
         TestSocketServer() {
             serverUds = new UnixDomainServerSocket(unixSocketFactory);
-            serverUds.create("/tmp", "tst2.ipc");
+            serverUds.create(Paths.get("/tmp", "tst2.ipc"));
         }
 
         public void run() {
