@@ -1,6 +1,5 @@
 package com.github.nexus.socket;
 
-import com.github.nexus.configuration.Configuration;
 import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.junit.After;
@@ -47,12 +46,6 @@ public class SocketServerTest {
 
         this.socketFile = Paths.get(System.getProperty("java.io.tmpdir"), "junit.txt");
 
-        final Configuration config = mock(Configuration.class);
-
-        doReturn(socketFile.toFile().getParent()).when(config).workdir();
-
-        doReturn(socketFile.toFile().getName()).when(config).socket();
-
         this.httpProxyFactory = mock(HttpProxyFactory.class);
         this.executorService = mock(ScheduledExecutorService.class);
 
@@ -65,9 +58,7 @@ public class SocketServerTest {
 
         doReturn(serverSocket).when(unixSocketFactory).createServerSocket(socketFile);
 
-        socketServer = new SocketServer(
-            config, httpProxyFactory, executorService, unixSocketFactory
-        );
+        this.socketServer = new SocketServer(socketFile, httpProxyFactory, executorService, unixSocketFactory);
     }
 
     @After
