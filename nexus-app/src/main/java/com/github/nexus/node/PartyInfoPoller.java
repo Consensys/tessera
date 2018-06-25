@@ -75,6 +75,7 @@ public class PartyInfoPoller implements Runnable {
                     .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
                     .map(Party::getUrl)
                     .map(url -> postDelegate.doPost(url, ApiPath.PARTYINFO, encodedPartyInfo))
+                    .filter(response -> response != null)
                     .map(partyInfoParser::from)
                     .forEach(partyInfoService::updatePartyInfo);
 
