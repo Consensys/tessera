@@ -1,0 +1,14 @@
+
+{
+    "jdbc": {
+        "username":"",
+        "password":"",
+        "url":"url"
+    },
+
+    "server": {
+        
+
+    }
+
+}

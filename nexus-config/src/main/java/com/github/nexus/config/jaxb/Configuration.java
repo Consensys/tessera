@@ -9,16 +9,18 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import com.github.nexus.config.Config;
+
 import java.util.stream.Collectors;
+import javax.xml.bind.annotation.XmlAttribute;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Configuration", propOrder = {
     "jdbcConfig",
     "serverConfig",
     "peers",
-    "privateKey",
-    "publicKey",
-    "unixSocketFile"
+    "keys",
+    "unixSocketFile",
+    "useWhiteList"
 })
 public class Configuration implements Config {
 
@@ -32,16 +34,17 @@ public class Configuration implements Config {
     @XmlElement(name = "peer", required = true)
     private final List<Peer> peers = new ArrayList<>();
 
-    @XmlElement(required = true)
-    private PrivateKey privateKey;
-
-    @XmlElement(required = true)
-    private PublicKey publicKey;
+    
+    @XmlElement(name="keys",required = true)
+    private List<KeyData> keys = new ArrayList<>();
 
     @XmlElement(required = true, type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path unixSocketFile;
-
+    
+    @XmlAttribute(name = "useWhiteList")
+    private boolean useWhiteList;
+    
     @Override
     public com.github.nexus.config.JdbcConfig getJdbcConfig() {
         return jdbcConfig;
@@ -50,16 +53,6 @@ public class Configuration implements Config {
     @Override
     public com.github.nexus.config.ServerConfig getServerConfig() {
         return serverConfig;
-    }
-
-    @Override
-    public com.github.nexus.config.PrivateKey getPrivateKey() {
-        return privateKey;
-    }
-
-    @Override
-    public com.github.nexus.config.PublicKey getPublicKey() {
-        return publicKey;
     }
 
     @Override
@@ -72,6 +65,27 @@ public class Configuration implements Config {
         return  peers.stream()
                 .map(com.github.nexus.config.Peer.class::cast)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<com.github.nexus.config.KeyData> getKeys() {
+        return keys.stream()
+                .map(KeyData.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    public void setKeys(List<com.github.nexus.config.KeyData> keys) {
+        this.keys = keys.stream()
+                .map(KeyData.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    public boolean isUseWhiteList() {
+        return useWhiteList;
+    }
+
+    public void setUseWhiteList(boolean useWhiteList) {
+        this.useWhiteList = useWhiteList;
     }
 
    

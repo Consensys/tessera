@@ -22,17 +22,16 @@ public class ConfigTest {
     @Test
     public void validateXmlConfig() throws Exception {
         URL url = Objects.requireNonNull(getClass().getResource("/sample.xml"));
-       SchemaFactory schemaFactory =  SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
-       Schema schema = schemaFactory.newSchema(getClass().getResource("/xsd/config.xsd"));
-       try (InputStream inputStream = url.openStream()) {
-        Validator validator =  schema.newValidator();
-        
-        validator.validate(new StreamSource(inputStream));
+        Schema schema = schemaFactory.newSchema(getClass().getResource("/xsd/config.xsd"));
+        try (InputStream inputStream = url.openStream()) {
+            Validator validator = schema.newValidator();
 
-       }
-        
-        
+            validator.validate(new StreamSource(inputStream));
+
+        }
+
     }
 
     @Test
@@ -48,6 +47,7 @@ public class ConfigTest {
             assertThat(config.getJdbcConfig()).isNotNull();
             assertThat(config.getServerConfig()).isNotNull();
             assertThat(config.getServerConfig().getPort()).isEqualTo(99);
+
             assertThat(config.getJdbcConfig().getUsername()).isEqualTo("scott");
             assertThat(config.getJdbcConfig().getPassword()).isEqualTo("tiger");
             assertThat(config.getJdbcConfig().getUrl()).isEqualTo("foo:bar");
@@ -56,12 +56,17 @@ public class ConfigTest {
             assertThat(config.getPeers().stream().map(Peer::getUrl).collect(Collectors.toList()))
                     .containsExactly("http://bogus1.com", "http://bogus2.com");
 
+            // assertThat(config.getPrivateKey().getType()).isEqualTo(PrivateKeyType.LOCKED);
+            assertThat(config.getKeys()).hasSize(1);
 
-           // assertThat(config.getPrivateKey().getType()).isEqualTo(PrivateKeyType.LOCKED);
-            assertThat(config.getPrivateKey().getPath()).isNull();
-            assertThat(config.getPrivateKey().getValue()).isEqualTo("PRIVATEKEY");
-            assertThat(config.getPrivateKey().getPassword()).isEqualTo("TOP_SECRET");
+            assertThat(config.getKeys().get(0).getPrivateKey().getPath()).isNull();
+            assertThat(config.getKeys().get(0).getPrivateKey().getValue()).isEqualTo("PRIVATEKEY");
+            assertThat(config.getKeys().get(0).getPrivateKey().getPassword()).isEqualTo("TOP_SECRET");
 
+            assertThat(config.getKeys().get(0).getPublicKey().getPath()).isNotNull();
+
+            assertThat(config.getServerConfig()).isNotNull();
+            assertThat(config.hasSslConfig()).isTrue();
 
         }
     }

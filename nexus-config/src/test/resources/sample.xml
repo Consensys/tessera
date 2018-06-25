@@ -44,14 +44,19 @@
     </peer>
     
 
-    <privateKey type="locked">
-        <value>PRIVATEKEY</value>
-        <password>TOP_SECRET</password>
-    </privateKey>
+    <keys>
+        <privateKey type="locked">
+            <value>PRIVATEKEY</value>
+            <password>TOP_SECRET</password>
+        </privateKey>
     
-    <publicKey>
-        <path>/somepath</path>
-    </publicKey>
+        <publicKey>
+            <path>/somepath</path>
+            <argonOptions algorithm="SHA" iterations="1" 
+                          memory="256" parallelism="1"  />
+        </publicKey>
+    </keys>
+    
     
     <unixSocketFile>/tmp/bogus.socket</unixSocketFile>
     

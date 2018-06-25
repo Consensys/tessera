@@ -7,16 +7,28 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ServerConfig", propOrder = {
-    "port","sslConfig"
+    "hostName","port","sslConfig"
 })
 public class ServerConfig
     implements com.github.nexus.config.ServerConfig
 {
+    
+    @XmlElement(required = false,defaultValue = "0.0.0.0")
+    private String hostName;
 
     private int port;
 
     @XmlElement(required = false)
     private SslConfig sslConfig;
+
+    @Override
+    public String getHostName() {
+        return hostName;
+    }
+
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
+    }
 
     @Override
     public int getPort() {
