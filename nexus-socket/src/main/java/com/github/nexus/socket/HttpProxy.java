@@ -3,6 +3,7 @@ package com.github.nexus.socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.SocketFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,7 +29,7 @@ public class HttpProxy {
     /**
      * Connect to specified URL and create read/sendRequest streams.
      */
-    public HttpProxy(final URI serverUri, final SocketFactory socketFactory) {
+    public HttpProxy(final URI serverUri, final javax.net.SocketFactory socketFactory) {
         this.socketFactory = Objects.requireNonNull(socketFactory);
         this.serverUri = Objects.requireNonNull(serverUri);
     }
@@ -38,14 +39,15 @@ public class HttpProxy {
      */
     public boolean connect() {
         try {
-            socket = socketFactory.create(serverUri);
+
+            socket = socketFactory.createSocket(serverUri.getHost(), serverUri.getPort());
 
             return true;
 
         } catch (ConnectException ex) {
             return false;
 
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             LOGGER.error("Failed to connect to URL: {}", serverUri);
             throw new NexusSocketException(ex);
         }

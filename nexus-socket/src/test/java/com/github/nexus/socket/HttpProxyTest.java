@@ -4,14 +4,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.net.SocketFactory;
 import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class HttpProxyTest {
@@ -29,9 +30,9 @@ public class HttpProxyTest {
         this.uri = new URI("http://localhost:8080");
 
         this.mockSocket = mock(Socket.class);
-        this.mockSocketFactory = mock(SocketFactory.class);
+        this.mockSocketFactory = mock(javax.net.SocketFactory.class);
 
-        doReturn(mockSocket).when(mockSocketFactory).create(eq(uri));
+        doReturn(mockSocket).when(mockSocketFactory).createSocket(eq(uri.getHost()), eq(uri.getPort()));
 
         this.httpProxy = new HttpProxy(uri, mockSocketFactory);
     }
@@ -54,20 +55,20 @@ public class HttpProxyTest {
 
         assertThat(result).isTrue();
 
-        verify(mockSocketFactory).create(uri);
+        verify(mockSocketFactory).createSocket(uri.getHost(), uri.getPort());
     }
 
     @Test
     public void testConnectionThrowsConnectException() throws IOException {
         ConnectException connectionException = new ConnectException("Sorry Dave I cant let you do that");
 
-        doThrow(connectionException).when(mockSocketFactory).create(uri);
+        doThrow(connectionException).when(mockSocketFactory).createSocket(uri.getHost(), uri.getPort());
 
         boolean result = httpProxy.connect();
 
         assertThat(result).isFalse();
 
-        verify(mockSocketFactory).create(uri);
+        verify(mockSocketFactory).createSocket(uri.getHost(), uri.getPort());
 
     }
 
@@ -75,12 +76,12 @@ public class HttpProxyTest {
     public void testConnectionThrowsIOException() throws IOException {
         IOException ioexception = new IOException("Sorry Dave I cant let you do that");
 
-        doThrow(ioexception).when(mockSocketFactory).create(uri);
+        doThrow(ioexception).when(mockSocketFactory).createSocket(uri.getHost(), uri.getPort());
 
         final Throwable throwable = catchThrowable(httpProxy::connect);
         assertThat(throwable).hasCause(ioexception);
 
-        verify(mockSocketFactory).create(uri);
+        verify(mockSocketFactory).createSocket(uri.getHost(), uri.getPort());
 
     }
 
@@ -90,7 +91,7 @@ public class HttpProxyTest {
 
         httpProxy.disconnect();
 
-        verify(mockSocketFactory).create(uri);
+        verify(mockSocketFactory).createSocket(uri.getHost(), uri.getPort());
         verify(mockSocket).close();
     }
 
@@ -102,7 +103,7 @@ public class HttpProxyTest {
 
         httpProxy.disconnect();
 
-        verify(mockSocketFactory).create(uri);
+        verify(mockSocketFactory).createSocket(uri.getHost(), uri.getPort());
         verify(mockSocket).close();
     }
 
@@ -118,7 +119,7 @@ public class HttpProxyTest {
 
         assertThat(outputStream.toByteArray()).isEqualTo("HELLOW".getBytes());
 
-        verify(mockSocketFactory).create(uri);
+        verify(mockSocketFactory).createSocket(uri.getHost(), uri.getPort());
         verify(mockSocket).getOutputStream();
     }
 
@@ -135,7 +136,7 @@ public class HttpProxyTest {
 
         byte[] result = httpProxy.getResponse();
 
-        verify(mockSocketFactory).create(uri);
+        verify(mockSocketFactory).createSocket(uri.getHost(), uri.getPort());
         verify(mockSocket).getInputStream();
     }
 
@@ -152,7 +153,7 @@ public class HttpProxyTest {
 
         assertThat(throwable).isInstanceOf(NexusSocketException.class);
 
-        verify(mockSocketFactory).create(uri);
+        verify(mockSocketFactory).createSocket(uri.getHost(), uri.getPort());
         verify(mockSocket).getOutputStream();
 
     }
@@ -170,7 +171,7 @@ public class HttpProxyTest {
 
         assertThat(throwable).isInstanceOf(NexusSocketException.class);
 
-        verify(mockSocketFactory).create(uri);
+        verify(mockSocketFactory).createSocket(uri.getHost(), uri.getPort());
         verify(mockSocket).getInputStream();
     }
 }
