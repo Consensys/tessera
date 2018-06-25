@@ -13,6 +13,10 @@ public class PostDelegate {
         this.client = client;
     }
 
+    /**
+     * POST request to specified url, where the request is a binary data array.
+     * Returns the response as a byte array, or null if the request failed
+     */
     public byte[] doPost(final String url, final String path, final byte[] data) {
 
         final Response response = client
@@ -20,6 +24,10 @@ public class PostDelegate {
             .path(path)
             .request()
             .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM_TYPE));
+
+        if (Response.Status.OK.getStatusCode() != response.getStatus()) {
+            return null;
+        }
 
         return response.readEntity(byte[].class);
     }
