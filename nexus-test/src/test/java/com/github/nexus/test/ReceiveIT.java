@@ -1,6 +1,7 @@
 package com.github.nexus.test;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.json.Json;
@@ -75,6 +76,7 @@ public class ReceiveIT {
 
     }
 
+    @Ignore
     @Test
     public void fetchExistingTransactionUsingOwnKey() {
 
@@ -98,6 +100,7 @@ public class ReceiveIT {
 
     }
 
+    @Ignore
     @Test
     public void fetchExistingTransactionNotUsingKey() {
 
