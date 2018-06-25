@@ -10,7 +10,6 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 /**
@@ -34,15 +33,14 @@ public class UnixDomainServerSocket {
     /**
      * Create a unix domain socket, using the specified directory + path.
      */
-    public void create(final String directory, final String filename) {
-        final Path socketFile = Paths.get(directory, filename);
+    public void create(final Path socketFile) {
 
         try {
             server = unixSocketFactory.createServerSocket(socketFile);
             LOGGER.info("server: {}", server);
 
         } catch (IOException ex) {
-            LOGGER.error("Failed to create Unix Domain Socket: {}/{}", directory, filename);
+            LOGGER.error("Failed to create Unix Domain Socket: {}/{}", socketFile.toString());
             throw new NexusSocketException(ex);
         }
     }
