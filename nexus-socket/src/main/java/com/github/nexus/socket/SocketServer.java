@@ -35,8 +35,6 @@ public class SocketServer implements Runnable {
 
     private final ExecutorService executor;
 
-    private final Configuration config;
-
     ////
 
     private final Path socketFile;
@@ -55,7 +53,6 @@ public class SocketServer implements Runnable {
                         final ExecutorService executor,
                         final UnixSocketFactory unixSocketFactory) {
 
-        this.config  = requireNonNull(config);
         this.unixSocketFactory = requireNonNull(unixSocketFactory);
 
         this.httpProxyFactory = httpProxyFactory;
@@ -116,15 +113,7 @@ public class SocketServer implements Runnable {
     private boolean createHttpServerConnection() {
 
         try {
-            httpProxy = httpProxyFactory
-                .auth(config.tls())
-                .keyStore(config.clientKeyStore())
-                .keyStorePassword(config.clientKeyStorePassword())
-                .trustStore(config.clientTrustStore())
-                .trustStorePassword(config.clientTrustStorePassword())
-                .trustMode("NONE")
-                .knownServers(config.knownServers())
-                .create();
+            httpProxy = httpProxyFactory.create();
         } catch (Exception ex) {
             return false;
         }
