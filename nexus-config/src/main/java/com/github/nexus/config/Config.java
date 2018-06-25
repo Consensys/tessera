@@ -4,19 +4,18 @@ import java.nio.file.Path;
 import java.util.List;
 
 public interface Config {
-    
-   JdbcConfig getJdbcConfig();
-    
+
+    JdbcConfig getJdbcConfig();
+
     ServerConfig getServerConfig();
 
-   PrivateKey getPrivateKey();
-    
-   PublicKey getPublicKey();
-    
+    PrivateKey getPrivateKey();
+
+    PublicKey getPublicKey();
+
     Path getUnixSocketFile();
-    
+
     List<Peer> getPeers();
 
-    KeyGenConfig  getKeyGenConfig();
-    
+
 }

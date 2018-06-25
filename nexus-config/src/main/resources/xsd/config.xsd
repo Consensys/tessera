@@ -3,9 +3,9 @@
             xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
             elementFormDefault="qualified" 
             attributeFormDefault="unqualified" 
-            xmlns:tns="http://nexus.github.com/config/api" 
-            xmlns="http://nexus.github.com/config/api" 
-            targetNamespace="http://nexus.github.com/config/api"
+            xmlns:tns="http://nexus.github.com/config" 
+            xmlns="http://nexus.github.com/config" 
+            targetNamespace="http://nexus.github.com/config"
 >
 
     <xsd:element name="configuration" type="tns:Configuration" />
@@ -30,15 +30,7 @@
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
-            
-            <xsd:element name="keyGen" type="tns:KeyGenConfig">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        Key generation configuration options.
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            
+                        
             <xsd:element name="peer" type="tns:Peer" maxOccurs="unbounded">
                 <xsd:annotation>
                     <xsd:documentation>
@@ -74,21 +66,7 @@
         </xsd:sequence>
     </xsd:complexType>
     
-    <xsd:complexType name="KeyGenConfig">
-        
-        <xsd:sequence>
-            <xsd:element name="basePath" type="tns:Path">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        The path used to generate keys into
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-        </xsd:sequence>
-        
-        <xsd:attribute name="generateIfMissing" type="xsd:boolean" default="false" />
 
-    </xsd:complexType>
     
     <xsd:complexType name="JdbcConfig">
         <xsd:sequence>
