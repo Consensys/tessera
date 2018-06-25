@@ -11,8 +11,13 @@ public interface PrivateKey {
     PrivateKeyType getType();
     
     String getPassword();
+
+    String getSnonce();
     
+    String getAsalt();
     
+    String getSbox();
     
+    ArgonOptions getArgonOptions();
     
 }

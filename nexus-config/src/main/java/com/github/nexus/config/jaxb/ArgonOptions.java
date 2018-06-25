@@ -54,7 +54,5 @@ public class ArgonOptions implements com.github.nexus.config.ArgonOptions{
     public void setParallelism(int parallelism) {
         this.parallelism = parallelism;
     }
-    
-
-    
+ 
 }
