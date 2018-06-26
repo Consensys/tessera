@@ -31,7 +31,7 @@ public class IPWhitelistFilterTest {
         when(peer.getUrl()).thenReturn("whitelistedHost");
         when(configuration.getPeers())
                 .thenReturn(Arrays.asList(peer));
-
+        when(configuration.isUseWhiteList()).thenReturn(true);
         this.filter = new IPWhitelistFilter(configuration);
 
     }
