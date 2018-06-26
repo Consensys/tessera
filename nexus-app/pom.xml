@@ -24,7 +24,7 @@
 
         <dependency>
             <groupId>com.github.nexus</groupId>
-            <artifactId>nexus-configurator</artifactId>
+            <artifactId>nexus-config-cli</artifactId>
         </dependency>
 
         <dependency>
@@ -36,12 +36,24 @@
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-keygen</artifactId>
             <version>1.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.nexus</groupId>
+                    <artifactId>nexus-configurator</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-socket</artifactId>
             <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.nexus</groupId>
+                    <artifactId>nexus-configurator</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
