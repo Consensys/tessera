@@ -36,7 +36,7 @@ public interface TlsUtils {
         throws NoSuchAlgorithmException, IOException, OperatorCreationException,
         CertificateException, InvalidKeyException, NoSuchProviderException, SignatureException, KeyStoreException {
 
-        SecureRandom secureRandom = new SecureRandom();
+        final SecureRandom secureRandom = new SecureRandom();
 
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ENCRYPTION);
         keyGen.initialize(2048, secureRandom);
@@ -44,7 +44,7 @@ public interface TlsUtils {
         PublicKey publicKey = keypair.getPublic();
         PrivateKey privateKey = keypair.getPrivate();
 
-        X500Name commonName = new X500Name(COMMON_NAME_STRING + DEFAULT_HOSTNAME);
+        final X500Name commonName = new X500Name(COMMON_NAME_STRING + DEFAULT_HOSTNAME);
         Date startDate = new Date(System.currentTimeMillis());
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);

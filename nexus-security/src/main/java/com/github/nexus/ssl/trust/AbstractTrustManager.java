@@ -40,7 +40,7 @@ public abstract class AbstractTrustManager implements X509TrustManager {
 
         if (!knownHostsFile.exists()) {
 
-            File parentDirectory = knownHostsFile.getParentFile();
+            final File parentDirectory = knownHostsFile.getParentFile();
 
             if (parentDirectory != null && !parentDirectory.exists())
                 if (!parentDirectory.mkdirs()) {
