@@ -13,10 +13,12 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlType(factoryMethod = "create")
 public class PrivateKey {
 
+ 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path path;
 
+    
     @XmlSchemaType(name = "anyURI")
     private final String value;
 

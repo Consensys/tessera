@@ -1,5 +1,6 @@
 package com.github.nexus.config;
 
+import javax.validation.Valid;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -13,7 +14,8 @@ public class ServerConfig {
     private final String hostName;
 
     private final int port;
-
+    
+    @Valid
     @XmlElement(required = false)
     private final SslConfig sslConfig;
 
