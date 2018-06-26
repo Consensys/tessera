@@ -1,8 +1,33 @@
 package com.github.nexus.config;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
 
-public interface Peer {
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(factoryMethod = "create")
+public class Peer {
+
+    @XmlElement(required = true)
+    private final String url;
+
+    public Peer(String url) {
+        this.url = url;
+    }
+
+    private Peer() {
+        this(null);
+    }
+
+    private static Peer create() {
+        return new Peer();
+    }
     
-    String getUrl();
+
+    public String getUrl() {
+        return url;
+    }
+
 
 }

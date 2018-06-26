@@ -1,4 +1,4 @@
-package com.github.nexus.config.jaxb;
+package com.github.nexus.config;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

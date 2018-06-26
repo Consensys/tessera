@@ -25,7 +25,7 @@ public enum TrustMode {
     WHITELIST {
         @Override
         public SSLContext createSSLContext(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword, String knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
-            File knownHostsFile = new File(knownHosts);
+            final File knownHostsFile = new File(knownHosts);
             return SSLContextBuilder
                 .createBuilder(keyStore,keyStorePassword,trustStore, trustStorePassword)
                 .forWhiteList(knownHostsFile)
@@ -36,7 +36,7 @@ public enum TrustMode {
     TOFU {
         @Override
         public SSLContext createSSLContext(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword, String knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
-            File knownHostsFile = new File(knownHosts);
+            final File knownHostsFile = new File(knownHosts);
             return SSLContextBuilder
                 .createBuilder(keyStore,keyStorePassword,trustStore, trustStorePassword)
                 .forTrustOnFirstUse(knownHostsFile)
@@ -63,7 +63,7 @@ public enum TrustMode {
     public static Optional<TrustMode> getValueIfPresent(String value){
         TrustMode trustMode = null;
         try {
-            trustMode = TrustMode.valueOf(value);
+            trustMode = TrustMode.valueOf(value.toUpperCase());
         }
         catch (IllegalArgumentException ex){
 
