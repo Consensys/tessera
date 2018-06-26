@@ -106,12 +106,11 @@
 
     <util:constant id="cliArgs" static-field="com.github.nexus.Launcher.cliArgumentList"/>
     <bean name="configParser" class="com.github.nexus.configuration.ConfigurationParser" factory-method="create" />
-    <bean name="config" class="com.github.nexus.configuration.Configuration" factory-bean="configParser" factory-method="config" >
-        <constructor-arg>
-            <bean class="com.github.nexus.configuration.PropertyLoader" factory-method="create" />
-        </constructor-arg>
-        <constructor-arg ref="cliArgs"/>
-    </bean>
+   
+    <bean id="cliDelegate" class="com.github.nexus.config.cli.CliDelegate" factory-method="instance"></bean>
+    
+    
+    <bean id="config" factory-bean="cliDelegate" factory-method="getConfig" />
 
     <bean name="naclFactory" class="com.github.nexus.nacl.NaclFacadeFactory" factory-method="newFactory" />
     
@@ -129,9 +128,9 @@
     <bean class="com.github.nexus.api.ApiResource" />
     
     <bean id="dataSource" class="org.h2.jdbcx.JdbcDataSource">
-        <property name="url" value="#{ config.databaseURL() }" />
-        <property name="user" value="sa" />
-        <property name="password" value="" />
+        <property name="url" value="#{ config.getJdbcConfig().getUrl() }" />
+        <property name="user" value="#{ config.getJdbcConfig().getUserName() }" />
+        <property name="password" value="#{ config.getJdbcConfig().getPassword() }" />
     </bean>
 
     <bean id="jpaTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
