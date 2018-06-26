@@ -3,22 +3,18 @@ package com.github.nexus.socket;
 import com.github.nexus.configuration.Configuration;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class SocketServerFactoryTest {
 
     @Test
-    public void testSocketServerFactory() throws URISyntaxException, IOException {
+    public void testSocketServerFactory() throws Exception {
 
         final Path socketDir = Files.createTempDirectory(UUID.randomUUID().toString());
         final String socketFile = "junit.txt";
