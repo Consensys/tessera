@@ -27,7 +27,7 @@ public class SocketServerFactoryTest {
         when(config.uri()).thenReturn(new URI("http://bogos.com"));
         when(config.workdir()).thenReturn(socketDir.toString());
         when(config.socket()).thenReturn(socketFile);
-        doReturn("off").when(config).tls();
+        doReturn("OFF").when(config).tls();
         
         final SocketServer result = SocketServerFactory.createSocketServer(config);
         assertThat(result).isNotNull();
