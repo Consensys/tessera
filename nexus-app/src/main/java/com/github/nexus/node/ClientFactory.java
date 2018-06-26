@@ -15,7 +15,7 @@ public class ClientFactory {
 
     public static Client buildClient(String secure, String keyStore, String keyStorePassword, String trustStore,
                                      String trustStorePassword, String trustMode, String knownServers) throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
-        if (AuthenticationMode.strict == AuthenticationMode.getValue(secure)){
+        if (AuthenticationMode.STRICT == AuthenticationMode.getValue(secure)){
             return buildSecureClient(keyStore, keyStorePassword, trustStore, trustStorePassword, trustMode, knownServers);
         }
         else {
