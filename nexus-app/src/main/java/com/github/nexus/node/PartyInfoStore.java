@@ -1,6 +1,5 @@
 package com.github.nexus.node;
 
-import com.github.nexus.config.Config;
 import com.github.nexus.config.ServerConfig;
 import com.github.nexus.node.model.Party;
 import com.github.nexus.node.model.PartyInfo;
