@@ -149,8 +149,6 @@
                         <configuration>
                             <excludes>
                                 <exclude>com/github/nexus/Launcher*</exclude>
-                                <!--TODO: Excluding generated sources. need jacoco to ignore @javax.annotaion.Generated -->
-                                <exclude>com/github/nexus/config/api/*</exclude>
                             </excludes>
                             
                             <rules>
