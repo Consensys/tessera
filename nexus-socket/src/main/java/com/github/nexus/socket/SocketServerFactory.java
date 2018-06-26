@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 
 public interface SocketServerFactory {
 
-    static SocketServer createSocketServer(final Configuration config) {
+    static SocketServer createSocketServer(final Configuration config) throws Exception {
         return new SocketServer(
             Paths.get(config.workdir(), config.socket()),
             new HttpProxyFactory(config),

@@ -1,6 +1,7 @@
 package com.github.nexus.socket;
 
 import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
+import com.github.nexus.socket.client.UnixDomainClientSocket;
 import org.junit.Test;
 
 import java.io.IOException;
