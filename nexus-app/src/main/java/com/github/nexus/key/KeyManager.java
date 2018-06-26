@@ -1,6 +1,6 @@
 package com.github.nexus.key;
 
-import com.github.nexus.configuration.model.KeyData;
+import com.github.nexus.config.KeyData;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 
