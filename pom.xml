@@ -193,7 +193,7 @@
         <module>argon2</module>
         <module>nexus-encryption-jnacl</module>
         <module>nexus-encryption-kalium</module>
-        <module>nexus-keygen</module>
+<!--        <module>nexus-keygen</module>-->
         <module>resteasy-server</module>
         <module>junixsocket-adapter</module>
         <module>nexus-security</module>
