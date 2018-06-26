@@ -23,8 +23,6 @@ public class SocketServer implements Runnable {
 
     private final HttpProxyFactory httpProxyFactory;
 
-    private HttpProxy httpProxy;
-
     private final ExecutorService executor;
 
     private final ServerSocket server;
@@ -61,59 +59,26 @@ public class SocketServer implements Runnable {
      */
     @Override
     public void run() {
-        final UnixDomainServerSocket udss;
 
         LOGGER.info("Waiting for client connection on unix domain socket...");
+
         try {
+
             final Socket accept = server.accept();
 
-            udss = new UnixDomainServerSocket(accept);
+            final UnixDomainServerSocket udss = new UnixDomainServerSocket(accept);
 
-        } catch (IOException ex) {
+            LOGGER.info("Client connection received");
+
+            final SocketHandler handler = new SocketHandler(udss, httpProxyFactory);
+
+            executor.submit(handler);
+
+        } catch (final IOException ex) {
             LOGGER.error("Failed to create Socket");
             throw new NexusSocketException(ex);
         }
-        LOGGER.info("Client connection received");
-
-        //Get a connection to the HTTP server.
-        if (createHttpServerConnection()) {
-
-            //Read the request from the socket and send it to the HTTP server
-            byte[] message = udss.read();
-            LOGGER.info("Received message on socket: {}", message);
-            httpProxy.sendRequest(message);
-
-            //Return the HTTP response to the socket
-            byte[] response = httpProxy.getResponse();
-            LOGGER.info("Received http response: {}", response);
-            udss.write(response);
-
-            httpProxy.disconnect();
-        }
 
     }
-
-    /**
-     * Get a connection to the HTTP Server.
-     */
-    private boolean createHttpServerConnection() {
-
-        try {
-            httpProxy = httpProxyFactory.create();
-        } catch (Exception ex) {
-            return false;
-        }
-
-        // TODO: add configurable number of attempts, instead of looping forever
-        boolean connected = false;
-        while (!connected) {
-            LOGGER.info("Attempting connection to HTTP server...");
-            connected = httpProxy.connect();
-        }
-        LOGGER.info("Connected to HTTP server");
-
-        return true;
-    }
-
 
 }
