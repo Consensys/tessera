@@ -9,7 +9,7 @@ public interface CertificateUtil {
 
     default String thumbPrint(final X509Certificate certificate) throws CertificateException {
         try {
-            byte[] encoded = certificate.getEncoded();
+            final byte[] encoded = certificate.getEncoded();
             return DatatypeConverter.printHexBinary(
                 MessageDigest.getInstance("SHA-1").digest(encoded)).toLowerCase();
         }
