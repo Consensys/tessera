@@ -69,7 +69,7 @@ public class HttpProxyFactory {
         UnrecoverableKeyException, KeyStoreException, InvalidKeyException, SignatureException,
         OperatorCreationException, NoSuchProviderException, KeyManagementException
     {
-        if (AuthenticationMode.strict == authenticationMode) {
+        if (AuthenticationMode.STRICT == authenticationMode) {
             return createSecureConnection();
         } else {
             return createInsecureConnection();

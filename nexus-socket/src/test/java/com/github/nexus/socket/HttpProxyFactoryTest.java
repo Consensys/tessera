@@ -29,7 +29,7 @@ public class HttpProxyFactoryTest {
 
         final Configuration configuration = mock(Configuration.class);
         doReturn(uri).when(configuration).uri();
-        doReturn("strict").when(configuration).tls();
+        doReturn("STRICT").when(configuration).tls();
         doReturn(tmpFile.getPath()).when(configuration).clientKeyStore();
         doReturn("somepwd").when(configuration).clientKeyStorePassword();
         doReturn(tmpFile.getPath()).when(configuration).clientTrustStore();
