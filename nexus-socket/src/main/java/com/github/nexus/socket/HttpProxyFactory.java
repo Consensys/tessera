@@ -19,7 +19,7 @@ public class HttpProxyFactory {
 
         final AuthenticationMode authenticationMode = AuthenticationMode.getValue(configuration.tls());
 
-        if (AuthenticationMode.strict.equals(authenticationMode)) {
+        if (AuthenticationMode.STRICT.equals(authenticationMode)) {
 
             final SSLContext sslContext = TrustMode.NONE.createSSLContext(
                 configuration.clientKeyStore(),
