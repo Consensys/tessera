@@ -39,7 +39,7 @@ public class HttpProxyFactory {
             SslConfig sslConfg = serverConfig.getSslConfig();
 
             this.authenticationMode
-                    = AuthenticationMode.getValue(sslConfg.getClientTrustMode().name());
+                    = AuthenticationMode.getValue(sslConfg.getTls().name());
 
             this.keyStore = sslConfg.getClientTrustStore().toString();
             this.keyStorePassword = sslConfg.getClientKeyStorePassword();
@@ -86,6 +86,7 @@ public class HttpProxyFactory {
     public HttpProxy create() throws IOException, CertificateException, NoSuchAlgorithmException,
             UnrecoverableKeyException, KeyStoreException, InvalidKeyException, SignatureException,
             OperatorCreationException, NoSuchProviderException, KeyManagementException {
+        
         if (AuthenticationMode.STRICT == authenticationMode) {
             return createSecureConnection();
         } else {
