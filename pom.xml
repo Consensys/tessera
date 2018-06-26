@@ -186,7 +186,7 @@
         <module>service-locator-spring</module>
         <module>nexus-encryption</module>
         <module>nexus-socket</module>
-        <module>nexus-test</module>
+<!--        <module>nexus-test</module>-->
         <module>argon2</module>
         <module>nexus-encryption-jnacl</module>
         <module>nexus-encryption-kalium</module>
