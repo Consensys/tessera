@@ -98,7 +98,7 @@ public class SslConfig  {
         return new SslConfig();
     }
 
-    public com.github.nexus.config.SslAuthenticationMode getTls() {
+    public SslAuthenticationMode getTls() {
         return tls;
     }
 
@@ -149,8 +149,5 @@ public class SslConfig  {
     public Path getKnownServersFile() {
         return knownServersFile;
     }
-
-
-
 
 }
