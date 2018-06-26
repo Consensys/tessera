@@ -9,18 +9,18 @@ public class AuthenticationModeTest {
     @Test
     public void testAuthenticationOn(){
         assertThat(AuthenticationMode.getValue("strict"))
-            .isEqualByComparingTo(AuthenticationMode.strict);
+            .isEqualByComparingTo(AuthenticationMode.STRICT);
     }
 
     @Test
     public void testAuthenticationOff(){
         assertThat(AuthenticationMode.getValue("off"))
-            .isEqualByComparingTo(AuthenticationMode.off);
+            .isEqualByComparingTo(AuthenticationMode.OFF);
     }
 
     @Test
     public void testAuthenticationOffForInvalidValue(){
         assertThat(AuthenticationMode.getValue("something"))
-            .isEqualByComparingTo(AuthenticationMode.off);
+            .isEqualByComparingTo(AuthenticationMode.OFF);
     }
 }

@@ -41,6 +41,7 @@ public class TrustModeTest {
 
     @Test
     public void testNone() throws IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
+
         assertThat(
             TrustMode.getValueIfPresent("NONE").get().createSSLContext(
                 tmpFile.getPath(),
@@ -50,6 +51,7 @@ public class TrustModeTest {
                 tmpKnownHosts.getPath()
             )
         ).isNotNull();
+
     }
 
     @Test
