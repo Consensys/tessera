@@ -1,16 +1,15 @@
-package com.github.nexus.keygen;
+package com.github.nexus.keyenc;
 
 import com.github.nexus.argon2.Argon2;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.NaclFacade;
 import com.github.nexus.nacl.NaclFacadeFactory;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.json.JsonObject;
 import java.util.Base64;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class KeyEncryptorIT {
 
@@ -40,7 +39,7 @@ public class KeyEncryptorIT {
 
         final Key decryptedKey = keyEncryptor.decryptPrivateKey(jsonObject, password);
 
-        assertThat(decryptedKey).isEqualTo(privateKey);
+        Assertions.assertThat(decryptedKey).isEqualTo(privateKey);
 
     }
 
