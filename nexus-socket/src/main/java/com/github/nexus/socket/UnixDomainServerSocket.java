@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Objects;
 
@@ -18,39 +17,20 @@ public class UnixDomainServerSocket {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UnixDomainServerSocket.class);
 
-    private ServerSocket server;
+    private final Socket socket;
 
-    private Socket socket;
-
-    public UnixDomainServerSocket(final ServerSocket server) {
-        this.server = Objects.requireNonNull(server);
-    }
-
-    /**
-     * Listen for, and accept connections from clients.
-     */
-    public void connect() {
-
-        try {
-            socket = server.accept();
-
-        } catch (IOException ex) {
-            LOGGER.error("Failed to create Socket");
-            throw new NexusSocketException(ex);
-        }
-
+    public UnixDomainServerSocket(final Socket socket) {
+        this.socket = Objects.requireNonNull(socket);
     }
 
     /**
      * Read HTTP request from the socket.
      */
     public byte[] read() {
-        Objects.requireNonNull(socket, "No client connection to read from");
-
         try {
-            InputStream is = socket.getInputStream();
+            final InputStream is = socket.getInputStream();
             return InputStreamUtils.readAllBytes(is);
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             LOGGER.error("Failed to read from socket");
             throw new NexusSocketException(ex);
         }
@@ -58,8 +38,6 @@ public class UnixDomainServerSocket {
 
 
     public void write(final byte[] payload) {
-
-        Objects.requireNonNull(socket, "No client connection to write to");
 
         try (final OutputStream os = socket.getOutputStream()) {
 

@@ -1,10 +1,12 @@
 package com.github.nexus.socket;
 
 import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
+import com.github.nexus.socket.client.UnixDomainClientSocket;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,27 +43,33 @@ public class UnixDomainSocketIT {
      */
     class TestSocketServer extends Thread {
 
-        UnixDomainServerSocket serverUds;
+        final ServerSocket server;
 
         TestSocketServer() throws IOException {
-            final ServerSocket serverSocket = unixSocketFactory.createServerSocket(Paths.get("/tmp", "tst2.ipc"));
-
-            serverUds = new UnixDomainServerSocket(serverSocket);
+            this.server = unixSocketFactory.createServerSocket(Paths.get("/tmp", "tst2.ipc"));
         }
 
         public void run() {
+            try {
 
-            //wait for a client to connect
-            System.out.println("Waiting for client connection...");
-            serverUds.connect();
-            System.out.println("Client connection received");
+                //wait for a client to connect
+                System.out.println("Waiting for client connection...");
+                final Socket socket = server.accept();
 
-            //sendRequest to client
-            serverUds.write(SERVER_MESSAGE_SENT.getBytes());
+                final UnixDomainServerSocket udss = new UnixDomainServerSocket(socket);
 
-            //read response back
-            byte[] line = serverUds.read();
-            assertThat(line).isEqualTo(CLIENT_MESSAGE_SENT);
+                System.out.println("Client connection received");
+
+                //sendRequest to client
+                udss.write(SERVER_MESSAGE_SENT.getBytes());
+
+                //read response back
+                byte[] line = udss.read();
+                assertThat(line).isEqualTo(CLIENT_MESSAGE_SENT);
+
+            } catch (final Exception ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
