@@ -64,6 +64,17 @@ public class SocketServerTest {
         Files.deleteIfExists(socketFile);
     }
 
+    @Test
+    public void connectThrowsIOException() throws IOException {
+        doThrow(IOException.class).when(serverSocket).accept();
+
+        final Throwable ex = catchThrowable(socketServer::run);
+        assertThat(ex).isInstanceOf(NexusSocketException.class).hasCauseExactlyInstanceOf(IOException.class);
+
+        verify(serverSocket).accept();
+        verifyNoMoreInteractions(serverSocket);
+    }
+
     /*
     FIXME: The class itself needs refectoring to be easier to test
     */
