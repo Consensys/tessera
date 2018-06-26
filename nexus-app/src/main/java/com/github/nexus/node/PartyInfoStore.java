@@ -1,6 +1,7 @@
 package com.github.nexus.node;
 
-import com.github.nexus.configuration.Configuration;
+import com.github.nexus.config.Config;
+import com.github.nexus.config.ServerConfig;
 import com.github.nexus.node.model.Party;
 import com.github.nexus.node.model.PartyInfo;
 import com.github.nexus.node.model.Recipient;
@@ -12,9 +13,9 @@ public class PartyInfoStore {
 
     private PartyInfo partyInfo;
 
-    public PartyInfoStore(final Configuration configuration) {
+    public PartyInfoStore(final ServerConfig configuration) {
 
-        final String advertisedUrl = configuration.uri().toString();
+        final String advertisedUrl = configuration.getServerUri().toString();
 
         this.partyInfo = new PartyInfo(advertisedUrl, Collections.emptySet(), Collections.emptySet());
     }
