@@ -15,7 +15,6 @@ import java.util.concurrent.ExecutorService;
  * Create a server listening on a Unix Domain Socket for http requests. We
  * create a connection to an HTTP server, and act as a proxy between the socket
  * and the HTTP server.
- * TODO: should possibly support connections from multiple clients
  */
 public class SocketServer implements Runnable {
 
