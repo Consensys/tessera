@@ -13,11 +13,9 @@ import javax.net.SocketFactory;
 import java.io.File;
 import java.net.URI;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import org.junit.Ignore;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-@Ignore
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 public class HttpProxyFactoryTest {
 
     @Rule
@@ -34,7 +32,7 @@ public class HttpProxyFactoryTest {
         when(configuration.getServerUri()).thenReturn(uri);
         when(configuration.isSsl()).thenReturn(true);
         SslConfig sslConfig = mock(SslConfig.class);
-
+        
         when(sslConfig.getTls()).thenReturn(SslAuthenticationMode.STRICT);
         when(sslConfig.getClientKeyStore()).thenReturn(tmpFile.toPath());
         when(sslConfig.getClientKeyStorePassword()).thenReturn("somepwd");
@@ -44,6 +42,7 @@ public class HttpProxyFactoryTest {
 
         when(sslConfig.getKnownServersFile())
                 .thenReturn(tmpFile.toPath());
+        
         when(configuration.getSslConfig()).thenReturn(sslConfig);
 
         HttpProxyFactory proxyFactory = new HttpProxyFactory(configuration);
