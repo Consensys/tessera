@@ -59,8 +59,6 @@
 
         <plugins>
 
-
-
             <plugin>
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-maven</artifactId>
@@ -187,13 +185,11 @@
         <module>service-locator</module>
         <module>service-locator-spring</module>
         <module>nexus-encryption</module>
-<!--        <module>nexus-configurator</module>-->
         <module>nexus-socket</module>
         <module>nexus-test</module>
         <module>argon2</module>
         <module>nexus-encryption-jnacl</module>
         <module>nexus-encryption-kalium</module>
-<!--        <module>nexus-keygen</module>-->
         <module>resteasy-server</module>
         <module>junixsocket-adapter</module>
         <module>nexus-security</module>
