@@ -1,46 +1,59 @@
-
 package com.github.nexus.config.cli;
 
 import com.github.nexus.config.Config;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.After;
+import java.io.FileNotFoundException;
+import javax.validation.ConstraintViolationException;
+import static org.assertj.core.api.Assertions.*;
 import org.junit.Before;
 import org.junit.Test;
 
 public class CliDelegateTest {
-    
-    private CliDelegate configProvider;
-    
+
+    private CliDelegate cliDelegate;
+
     public CliDelegateTest() {
     }
-    
+
     @Before
     public void setUp() {
-        configProvider = CliDelegate.instance();
+        cliDelegate = CliDelegate.instance();
     }
-    
-    @After
-    public void tearDown() {
-    }
-    
+
     @Test
-    public void processArgs() throws Exception {
-    
-        Config result =     configProvider.execute("-configfile",
-                getClass().getResource("/sample-config.json").getFile());
-        
+    public void callApiVersionWithValidConfig() throws Exception {
+
+        Config result = cliDelegate.execute(
+                "-configfile",
+                getClass().getResource("/sample-config.json").getFile(),
+                "-version");
+
         assertThat(result).isNotNull();
-        
-        
-        assertThat(result).isSameAs(configProvider.getConfig());
-        
-        
+        assertThat(result).isSameAs(cliDelegate.getConfig());
     }
-    
+
+    @Test(expected = FileNotFoundException.class)
+    public void callApiVersionWithConfigFileDoesnotExist() throws Exception {
+        cliDelegate.execute("-configfile", "bogus.json", "-version");
+    }
+
     @Test(expected = CliException.class)
     public void processArgsMissing() throws Exception {
-        configProvider.execute();
+        cliDelegate.execute();
     }
-    
 
+    @Test
+    public void withConstraintViolations() throws Exception {
+
+        try {
+            cliDelegate.execute(
+                    "-configfile",
+                    getClass().getResource("/missing-config.json").getFile(),
+                    "-version");
+                    
+            failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
+        } catch (ConstraintViolationException ex) {
+               assertThat(ex.getConstraintViolations()).hasSize(1);
+        }
+
+    }
 }
