@@ -11,4 +11,4 @@ cache:
   - "$HOME/.m2"
 
 script:
-- mvn --batch-mode install
+- mvn -Djacoco.skip=true install
