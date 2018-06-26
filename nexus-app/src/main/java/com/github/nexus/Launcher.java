@@ -53,7 +53,7 @@ public class Launcher {
 
         if(config.generatekeys().isEmpty()) {
             //no keys to generate
-            if (AuthenticationMode.strict == AuthenticationMode.getValue(config.tls())) {
+            if (AuthenticationMode.STRICT == AuthenticationMode.getValue(config.tls())) {
                 final SSLContext sslContext = TrustMode
                     .getValueIfPresent(config.serverTrustMode())
                     .orElse(TrustMode.NONE)
