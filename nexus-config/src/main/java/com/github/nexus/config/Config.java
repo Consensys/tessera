@@ -2,6 +2,9 @@ package com.github.nexus.config;
 
 import java.nio.file.Path;
 import java.util.List;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -16,18 +19,27 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlType(factoryMethod = "create")
 public class Config {
 
+    @NotNull
+    @Valid
     @XmlElement(name = "jdbc", required = true)
     private final JdbcConfig jdbcConfig;
 
+    @NotNull
+    @Valid
     @XmlElement(name = "server", required = true)
     private final ServerConfig serverConfig;
 
+    @NotNull
+    @Size(min = 1)
     @XmlElement(name = "peer", required = true)
     private final List<Peer> peers;
 
+    @NotNull
+    @Size(min = 1)
     @XmlElement(name = "keys", required = true)
     private final List<KeyData> keys;
 
+    @NotNull
     @XmlElement(required = true, type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path unixSocketFile;
@@ -55,9 +67,8 @@ public class Config {
     }
 
     private Config() {
-        this(null, null, null, null,null, false);
+        this(null, null, null, null, null, false);
     }
-
 
     public JdbcConfig getJdbcConfig() {
         return jdbcConfig;
