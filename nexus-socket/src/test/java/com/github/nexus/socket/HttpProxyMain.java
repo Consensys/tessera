@@ -1,14 +1,16 @@
 
 package com.github.nexus.socket;
 
-import com.github.nexus.configuration.Configuration;
+
+import com.github.nexus.config.Config;
+import com.github.nexus.config.ServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class HttpProxyMain {
 
@@ -21,11 +23,11 @@ public class HttpProxyMain {
 
         URI uri = new URI("http://localhost:8080");
 
-        Configuration config = mock(Configuration.class);
-        doReturn(uri).when(config).uri();
-        doReturn("off").when(config).tls();
-
-        HttpProxy httpProxy = new HttpProxyFactory(config).create();
+        Config config = mock(Config.class);
+        ServerConfig serverConfig = mock(ServerConfig.class);
+        when(serverConfig.getServerUri()).thenReturn(uri);
+        when(serverConfig.isSsl()).thenReturn(false);
+        HttpProxy httpProxy = new HttpProxyFactory(serverConfig).create();
 
         if (httpProxy.connect()) {
 

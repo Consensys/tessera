@@ -1,5 +1,8 @@
 package com.github.nexus.config;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Objects;
 import javax.validation.Valid;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -39,6 +42,18 @@ public class ServerConfig {
 
     public SslConfig getSslConfig() {
         return sslConfig;
+    }
+    
+    public URI getServerUri() {
+        try {
+            return new URI(hostName +":"+ port);
+        } catch (URISyntaxException ex) {
+            throw new ConfigException(ex);
+        }
+    }
+    
+    public boolean isSsl() {
+        return Objects.nonNull(sslConfig);
     }
 
 }

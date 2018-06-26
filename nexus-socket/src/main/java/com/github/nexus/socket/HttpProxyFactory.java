@@ -1,6 +1,7 @@
 package com.github.nexus.socket;
 
-import com.github.nexus.configuration.Configuration;
+import com.github.nexus.config.ServerConfig;
+import com.github.nexus.config.SslConfig;
 import com.github.nexus.ssl.strategy.AuthenticationMode;
 import com.github.nexus.ssl.strategy.TrustMode;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -27,31 +28,48 @@ public class HttpProxyFactory {
 
     private final String trustStorePassword;
 
-    private final String knownServer;
+    private final String knownServers;
 
     private final TrustMode trustMode;
 
-    public HttpProxyFactory(final Configuration configuration) {
-        this.serverUri = configuration.uri();
-        this.authenticationMode = AuthenticationMode.getValue(configuration.tls());
-        this.keyStore = configuration.clientKeyStore();
-        this.keyStorePassword = configuration.clientKeyStorePassword();
-        this.trustStore = configuration.clientTrustStore();
-        this.trustStorePassword = configuration.clientTrustStorePassword();
-        this.trustMode = TrustMode.NONE;
-        this.knownServer = configuration.knownServers();
+    public HttpProxyFactory(final ServerConfig serverConfig) {
+        this.serverUri = serverConfig.getServerUri();
+
+        if (serverConfig.isSsl()) {
+            SslConfig sslConfg = serverConfig.getSslConfig();
+
+            this.authenticationMode
+                    = AuthenticationMode.getValue(sslConfg.getClientTrustMode().name());
+
+            this.keyStore = sslConfg.getClientTrustStore().toString();
+            this.keyStorePassword = sslConfg.getClientKeyStorePassword();
+            this.trustStore = sslConfg.getClientTrustStore().toString();
+            this.trustStorePassword = sslConfg.getClientTrustStorePassword();
+            this.trustMode = TrustMode.NONE;
+            this.knownServers = sslConfg.getKnownServersFile().toString();
+        } else {
+            this.authenticationMode = AuthenticationMode.OFF;
+
+            this.keyStore = null;
+            this.keyStorePassword = null;
+            this.trustStore = null;
+            this.trustStorePassword = null;
+            this.trustMode = TrustMode.NONE;
+            this.knownServers = null;
+        }
+
     }
 
     private HttpProxy createSecureConnection() throws IOException, CertificateException, NoSuchAlgorithmException,
-        UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException,
-        OperatorCreationException, KeyStoreException, KeyManagementException {
+            UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException,
+            OperatorCreationException, KeyStoreException, KeyManagementException {
 
         final SSLContext sslContext = trustMode.createSSLContext(
-            keyStore,
-            keyStorePassword,
-            trustStore,
-            trustStorePassword,
-            knownServer
+                keyStore,
+                keyStorePassword,
+                trustStore,
+                trustStorePassword,
+                knownServers
         );
 
         final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
@@ -66,15 +84,13 @@ public class HttpProxyFactory {
     }
 
     public HttpProxy create() throws IOException, CertificateException, NoSuchAlgorithmException,
-        UnrecoverableKeyException, KeyStoreException, InvalidKeyException, SignatureException,
-        OperatorCreationException, NoSuchProviderException, KeyManagementException
-    {
+            UnrecoverableKeyException, KeyStoreException, InvalidKeyException, SignatureException,
+            OperatorCreationException, NoSuchProviderException, KeyManagementException {
         if (AuthenticationMode.STRICT == authenticationMode) {
             return createSecureConnection();
         } else {
             return createInsecureConnection();
         }
     }
-
 
 }
