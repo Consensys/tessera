@@ -45,8 +45,7 @@ public class Launcher {
         if (Objects.nonNull(config.getServerConfig().getSslConfig())) {
 
             SslConfig sslConfig = config.getServerConfig().getSslConfig();
-
-            final SSLContext sslContext = SSLContextFactory.from(sslConfig);
+            final SSLContext sslContext = SSLContextFactory.create().from(sslConfig);
 
             runWebServer(uri, sslContext, true);
 
