@@ -1,4 +1,4 @@
-package com.github.nexus.keygen;
+package com.github.nexus.keyenc;
 
 import org.junit.Test;
 

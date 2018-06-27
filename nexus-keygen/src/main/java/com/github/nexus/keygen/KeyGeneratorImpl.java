@@ -1,6 +1,7 @@
 package com.github.nexus.keygen;
 
-
+import com.github.nexus.configuration.Configuration;
+import com.github.nexus.keyenc.KeyEncryptor;
 import com.github.nexus.nacl.KeyPair;
 import com.github.nexus.nacl.NaclFacade;
 import org.slf4j.Logger;
@@ -44,6 +45,10 @@ public class KeyGeneratorImpl implements KeyGenerator {
         LOGGER.debug("Generated new public/private keypair with name " + name);
 
         final String publicKeyBase64 = Base64.getEncoder().encodeToString(generated.getPublicKey().getKeyBytes());
+        
+        
+
+        
         final JsonObject encryptedKey = keyEncryptor.encryptPrivateKey(generated.getPrivateKey(), password);
 
         final String privateKeyJson = Json.createObjectBuilder()

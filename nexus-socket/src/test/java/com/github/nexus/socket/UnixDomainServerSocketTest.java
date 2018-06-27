@@ -226,9 +226,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -240,39 +238,19 @@ public class UnixDomainServerSocketTest {
 
     private Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
 
-    private ServerSocket serverSocket;
+    private Socket socket;
 
     private UnixDomainServerSocket unixDomainServerSocket;
 
     @Before
     public void setUp() {
-        serverSocket = mock(ServerSocket.class);
-        unixDomainServerSocket = new UnixDomainServerSocket(serverSocket);
+        this.socket = mock(Socket.class);
+        this.unixDomainServerSocket = new UnixDomainServerSocket(socket);
     }
 
     @After
-    public void tearDown() throws IOException {
-        verifyNoMoreInteractions(serverSocket);
-        Files.deleteIfExists(socketFile);
-    }
-
-    @Test
-    public void connect() throws IOException {
-        unixDomainServerSocket.connect();
-
-        verify(serverSocket).accept();
-        verifyNoMoreInteractions(serverSocket);
-    }
-
-    @Test
-    public void connectThrowsIOException() throws IOException {
-        doThrow(IOException.class).when(serverSocket).accept();
-
-        final Throwable ex = catchThrowable(unixDomainServerSocket::connect);
-        assertThat(ex).isInstanceOf(NexusSocketException.class).hasCauseExactlyInstanceOf(IOException.class);
-
-        verify(serverSocket).accept();
-        verifyNoMoreInteractions(serverSocket);
+    public void tearDown() {
+        verifyNoMoreInteractions(socket);
     }
 
     @Test
@@ -280,23 +258,16 @@ public class UnixDomainServerSocketTest {
 
         final String data = "HELLOW-99";
 
-        final Socket mockSocket = mock(Socket.class);
-
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(data.getBytes());
 
-        doReturn(inputStream).when(mockSocket).getInputStream();
-
-        doReturn(mockSocket).when(serverSocket).accept();
-
-        unixDomainServerSocket.connect();
+        doReturn(inputStream).when(socket).getInputStream();
 
         final byte[] result = unixDomainServerSocket.read();
 
         //TODO: Verify that the right padding is correct behaviour
         assertThat(new String(result)).startsWith(data);
 
-        verify(serverSocket).accept();
-        verify(mockSocket).getInputStream();
+        verify(socket).getInputStream();
     }
 
     @Test
@@ -304,61 +275,36 @@ public class UnixDomainServerSocketTest {
 
         final String data = "HELLOW-99";
 
-        final Socket mockSocket = mock(Socket.class);
-
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        doReturn(outputStream).when(mockSocket).getOutputStream();
-
-        doReturn(mockSocket).when(serverSocket).accept();
-
-        unixDomainServerSocket.connect();
+        doReturn(outputStream).when(socket).getOutputStream();
 
         unixDomainServerSocket.write(data.getBytes());
 
         assertThat(data).isEqualTo(new String(outputStream.toByteArray()));
 
-        verify(serverSocket).accept();
-        verify(mockSocket).getOutputStream();
-        verifyNoMoreInteractions(serverSocket, mockSocket);
+        verify(socket).getOutputStream();
     }
 
     @Test
     public void connectAndReadThrowsException() throws IOException {
 
-        Socket mockSocket = mock(Socket.class);
-
-        doThrow(IOException.class).when(mockSocket).getInputStream();
-
-        when(serverSocket.accept()).thenReturn(mockSocket);
-
-        unixDomainServerSocket.connect();
+        doThrow(IOException.class).when(socket).getInputStream();
 
         final Throwable ex = catchThrowable(unixDomainServerSocket::read);
         assertThat(ex).isInstanceOf(NexusSocketException.class).hasCauseExactlyInstanceOf(IOException.class);
 
-        verify(serverSocket).accept();
-        verify(mockSocket).getInputStream();
-        verifyNoMoreInteractions(serverSocket, mockSocket);
+        verify(socket).getInputStream();
     }
 
     @Test
     public void connectAndWriteThrowsException() throws IOException {
 
-        Socket mockSocket = mock(Socket.class);
-
-        doThrow(IOException.class).when(mockSocket).getOutputStream();
-
-        when(serverSocket.accept()).thenReturn(mockSocket);
-
-        unixDomainServerSocket.connect();
+        doThrow(IOException.class).when(socket).getOutputStream();
 
         final Throwable ex = catchThrowable(() -> unixDomainServerSocket.write("HELLOW".getBytes()));
         assertThat(ex).isInstanceOf(NexusSocketException.class).hasCauseExactlyInstanceOf(IOException.class);
 
-
-        verify(serverSocket).accept();
-        verify(mockSocket).getOutputStream();
-        verifyNoMoreInteractions(serverSocket, mockSocket);
+        verify(socket).getOutputStream();
     }
 }
