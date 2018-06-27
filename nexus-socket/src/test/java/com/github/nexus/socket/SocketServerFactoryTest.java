@@ -35,4 +35,12 @@ public class SocketServerFactoryTest {
 
     }
     
+    @Test(expected = NexusSocketException.class)
+    public void testSocketServerFactoryThrowsException() throws Exception {
+        
+        final Config config = mock(Config.class);
+        doThrow(UnsupportedOperationException.class).when(config).getUnixSocketFile();
+        
+        SocketServerFactory.createSocketServer(config);
+    }
 }
