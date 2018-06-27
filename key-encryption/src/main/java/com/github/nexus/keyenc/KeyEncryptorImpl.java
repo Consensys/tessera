@@ -64,13 +64,6 @@ public class KeyEncryptorImpl implements KeyEncryptor {
             new Key(argonResult.getHash())
         );
 
-        final EncryptedPrivateKey encryptedPrivateKey = new EncryptedPrivateKey(
-            argonResult.getOptions(),
-            encoder.encodeToString(nonce.getNonceBytes()),
-            encoder.encodeToString(salt),
-            encoder.encodeToString(encryptedKey)
-        );
-
         LOGGER.info("Private key encrypted");
         
         ArgonOptions argonOptions = new ArgonOptions(argonResult.getOptions().getAlgorithm(), 
