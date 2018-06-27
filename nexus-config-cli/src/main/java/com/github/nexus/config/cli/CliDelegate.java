@@ -17,7 +17,6 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 //import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
@@ -47,29 +46,29 @@ delete
     public Config execute(String... args) throws Exception {
 
         
-        OptionGroup apiCommands = new OptionGroup();
-
-        apiCommands.setRequired(true);
-
-        apiCommands.addOption(Option.builder("upcheck")
-                .desc("Check that Nexus is running")
-                .numberOfArgs(0)
-                .build());
-
-        apiCommands.addOption(Option.builder("version")
-                .desc("Get Nexus version")
-                .numberOfArgs(0)
-                .build());
-
-        apiCommands.addOption(Option.builder("send")
-                .desc("Send transaction")
-                .numberOfArgs(1)
-                .build());
-
-        apiCommands.addOption(Option.builder("send")
-                .desc("Send transaction")
-                .numberOfArgs(1)
-                .build());
+//        OptionGroup apiCommands = new OptionGroup();
+//
+//        apiCommands.setRequired(true);
+//
+//        apiCommands.addOption(Option.builder("upcheck")
+//                .desc("Check that Nexus is running")
+//                .numberOfArgs(0)
+//                .build());
+//
+//        apiCommands.addOption(Option.builder("version")
+//                .desc("Get Nexus version")
+//                .numberOfArgs(0)
+//                .build());
+//
+//        apiCommands.addOption(Option.builder("send")
+//                .desc("Send transaction")
+//                .numberOfArgs(1)
+//                .build());
+//
+//        apiCommands.addOption(Option.builder("send")
+//                .desc("Send transaction")
+//                .numberOfArgs(1)
+//                .build());
                 
         Options options = new Options();
        // options.addOptionGroup(helpOrConfigFile);
@@ -84,7 +83,7 @@ delete
                         .required()
                         .build());
         
-        options.addOptionGroup(apiCommands);
+     //   options.addOptionGroup(apiCommands);
         
         CommandLineParser parser = new DefaultParser();
 
