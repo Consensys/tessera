@@ -1,9 +1,7 @@
 package com.github.nexus.config;
 
-import java.nio.file.Files;
+import com.github.nexus.config.util.PathUtil;
 import java.nio.file.Path;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -54,13 +52,7 @@ public class PrivateKey {
             ArgonOptions argonOptions) {
         
         this.path = path;
-         this.value = value;
-//        if(Objects.nonNull(value)) {
-//            this.value = value;
-//        } else if(Objects.nonNull(path) && Objects.isNull(value)) {
-//            this.value = Files.lines(path)
-//                    .collect(Collectors.joining());
-//        }
+        this.value = PathUtil.readData(path, value);
         
         this.password = password;
         this.type = type;
