@@ -3,7 +3,7 @@ package com.github.nexus.key;
 import com.github.nexus.configuration.Configuration;
 import com.github.nexus.configuration.model.KeyData;
 import com.github.nexus.key.exception.KeyNotFoundException;
-import com.github.nexus.keygen.KeyEncryptor;
+import com.github.nexus.keyenc.KeyEncryptor;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import org.slf4j.Logger;

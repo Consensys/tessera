@@ -199,6 +199,7 @@
         <module>nexus-security</module>
         <module>nexus-config</module>
         <module>nexus-config-cli</module>
+        <module>key-encryption</module>
     </modules>
 
     <dependencyManagement>
