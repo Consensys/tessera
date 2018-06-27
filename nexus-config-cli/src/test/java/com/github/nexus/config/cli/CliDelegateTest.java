@@ -24,8 +24,7 @@ public class CliDelegateTest {
 
         Config result = cliDelegate.execute(
                 "-configfile",
-                getClass().getResource("/sample-config.json").getFile(),
-                "-version");
+                getClass().getResource("/sample-config.json").getFile());
 
         assertThat(result).isNotNull();
         assertThat(result).isSameAs(cliDelegate.getConfig());
@@ -33,7 +32,7 @@ public class CliDelegateTest {
 
     @Test(expected = FileNotFoundException.class)
     public void callApiVersionWithConfigFileDoesnotExist() throws Exception {
-        cliDelegate.execute("-configfile", "bogus.json", "-version");
+        cliDelegate.execute("-configfile", "bogus.json");
     }
 
     @Test(expected = CliException.class)
@@ -47,8 +46,7 @@ public class CliDelegateTest {
         try {
             cliDelegate.execute(
                     "-configfile",
-                    getClass().getResource("/missing-config.json").getFile(),
-                    "-version");
+                    getClass().getResource("/missing-config.json").getFile());
                     
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
