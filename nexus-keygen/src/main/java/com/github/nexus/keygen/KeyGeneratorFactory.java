@@ -1,6 +1,7 @@
 package com.github.nexus.keygen;
 
 import com.github.nexus.configuration.Configuration;
+import com.github.nexus.keyenc.KeyEncryptorFactory;
 import com.github.nexus.nacl.NaclFacadeFactory;
 
 public interface KeyGeneratorFactory {

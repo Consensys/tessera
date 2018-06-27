@@ -1,4 +1,4 @@
-package com.github.nexus.keygen;
+package com.github.nexus.keyenc;
 
 import com.github.nexus.argon2.Argon2;
 import com.github.nexus.argon2.ArgonResult;
