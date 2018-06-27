@@ -39,7 +39,7 @@ public class SSLContextFactoryTest {
         when(config.getServerTrustStorePassword()).thenReturn("password");
         when(config.getKnownServersFile()).thenReturn(knownServers);
 
-        SSLContext result = SSLContextFactory.from(config);
+        SSLContext result = SSLContextFactory.create().from(config);
 
         assertThat(result).isNotNull();
 
@@ -59,7 +59,7 @@ public class SSLContextFactoryTest {
         when(config.getServerTrustStorePassword()).thenReturn("password");
         when(config.getKnownServersFile()).thenReturn(knownServers);
 
-        SSLContext result = SSLContextFactory.from(config);
+        SSLContext result = SSLContextFactory.create().from(config);
 
         assertThat(result).isNotNull();
 
@@ -79,7 +79,7 @@ public class SSLContextFactoryTest {
         when(config.getServerTrustStorePassword()).thenReturn("password");
         when(config.getKnownServersFile()).thenReturn(knownServers);
 
-        SSLContextFactory.from(config);
+        SSLContextFactory.create().from(config);
 
     }
 }
