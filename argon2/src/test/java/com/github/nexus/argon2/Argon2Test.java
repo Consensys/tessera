@@ -11,6 +11,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class Argon2Test {
 
+    private static final ArgonOptions TEST_OPTIONS = new ArgonOptions("i", 1, 1024, 1);
+
     private SecureRandom secureRandom = new SecureRandom();
 
     private Argon2 argon2;
@@ -50,8 +52,7 @@ public class Argon2Test {
         final byte[] salt = new byte[Argon2Constants.DEFAULT_SALT_LENGTH];
         secureRandom.nextBytes(salt);
 
-
-        final ArgonResult hash = argon2.hash("password", salt);
+        final ArgonResult hash = argon2.hash(TEST_OPTIONS, "password", salt);
 
         assertThat(hash.getSalt()).isEqualTo(salt);
     }
@@ -61,9 +62,7 @@ public class Argon2Test {
         final byte[] salt = new byte[Argon2Constants.DEFAULT_SALT_LENGTH];
         secureRandom.nextBytes(salt);
 
-        final ArgonOptions options = new ArgonOptions("invalid", 1, 1024, 1);
-
-        final ArgonResult hash = argon2.hash(options, "password", salt);
+        final ArgonResult hash = argon2.hash(TEST_OPTIONS, "password", salt);
 
         assertThat(hash.getOptions().getAlgorithm()).isEqualTo("i");
         assertThat(hash.getOptions().getIterations()).isEqualTo(1);
@@ -79,8 +78,8 @@ public class Argon2Test {
         secureRandom.nextBytes(saltOne);
         secureRandom.nextBytes(saltTwo);
 
-        final ArgonResult hashOne = argon2.hash("password", saltOne);
-        final ArgonResult hashTwo = argon2.hash("password", saltTwo);
+        final ArgonResult hashOne = argon2.hash(TEST_OPTIONS, "password", saltOne);
+        final ArgonResult hashTwo = argon2.hash(TEST_OPTIONS, "password", saltTwo);
 
         assertThat(hashOne.getHash()).isNotEqualTo(hashTwo.getHash());
 
@@ -93,8 +92,8 @@ public class Argon2Test {
         secureRandom.nextBytes(saltOne);
         final byte[] saltTwo = Arrays.copyOf(saltOne, saltOne.length);
 
-        final ArgonResult hashOne = argon2.hash("password", saltOne);
-        final ArgonResult hashTwo = argon2.hash("password", saltTwo);
+        final ArgonResult hashOne = argon2.hash(TEST_OPTIONS, "password", saltOne);
+        final ArgonResult hashTwo = argon2.hash(TEST_OPTIONS, "password", saltTwo);
 
         assertThat(hashOne.getHash()).isEqualTo(hashTwo.getHash());
 
