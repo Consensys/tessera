@@ -4,7 +4,7 @@ A stateless JAVA application responsible for encryption and decryption of privat
 ##Running Nexus
 Usage:
 
-`java -jar nexus-app/target/nexus-app-1.0-SNAPSHOT-app.jar [properties]`
+`java -jar nexus-app/target/nexus-app-${version}-app.jar -c config.json`
 
 See the section on 'Configuration' for a description of the available properties.
 
