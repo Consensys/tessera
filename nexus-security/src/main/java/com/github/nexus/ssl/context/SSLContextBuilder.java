@@ -1,4 +1,4 @@
-package com.github.nexus.ssl;
+package com.github.nexus.ssl.context;
 
 import com.github.nexus.ssl.trust.TrustAllManager;
 import com.github.nexus.ssl.trust.TrustOnFirstUseManager;
