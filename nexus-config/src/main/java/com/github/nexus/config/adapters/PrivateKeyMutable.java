@@ -60,7 +60,7 @@ public class PrivateKeyMutable {
         return password;
     }
 
-    public PrivateKey getPrivateKey() {
+    public PrivateKey getContents() {
         return contents;
     }
 

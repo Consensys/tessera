@@ -1,11 +1,11 @@
 package com.github.nexus.config;
 
+import javax.xml.bind.annotation.XmlElement;
+
 public class PrivateKey {
 
-    //field called "bytes" as is expected in the file (during deserialisation)
-    //the getter is called getValue() as it is the value of the key
-    //both refer to the same thing
-    private final String bytes;
+    @XmlElement(name = "bytes")
+    private final String value;
 
     private final String password;
 
@@ -23,14 +23,14 @@ public class PrivateKey {
         this(null, null, null, null, null, null, null);
     }
 
-    public PrivateKey(final String bytes,
+    public PrivateKey(final String value,
                       final String password,
                       final PrivateKeyType type,
                       final String snonce,
                       final String asalt,
                       final String sbox,
                       final ArgonOptions argonOptions) {
-        this.bytes = bytes;
+        this.value = value;
         this.password = password;
         this.type = type;
         this.snonce = snonce;
@@ -40,7 +40,7 @@ public class PrivateKey {
     }
 
     public String getValue() {
-        return this.bytes;
+        return this.value;
     }
 
     public String getPassword() {

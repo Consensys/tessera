@@ -94,7 +94,7 @@ public class PrivateKeyAdapterTest {
         final PrivateKeyMutable pkm = new PrivateKeyMutable(
             null,
             null,
-            "KEY-DATA",
+            null,
             "PASSWORD",
             new PrivateKey("KEY-DATA", null, UNLOCKED, null, null, null, null)
         );

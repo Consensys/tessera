@@ -48,13 +48,13 @@ public class PrivateKeyAdapter extends XmlAdapter<PrivateKeyMutable, PrivateKey>
         } else {
 
             return new PrivateKey(
-                input.getValue(),
+                input.getContents().getValue(),
                 input.getPassword(),
-                input.getPrivateKey().getType(),
-                input.getPrivateKey().getSnonce(),
-                input.getPrivateKey().getAsalt(),
-                input.getPrivateKey().getSbox(),
-                input.getPrivateKey().getArgonOptions()
+                input.getContents().getType(),
+                input.getContents().getSnonce(),
+                input.getContents().getAsalt(),
+                input.getContents().getSbox(),
+                input.getContents().getArgonOptions()
             );
 
         }
