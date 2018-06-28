@@ -1,13 +1,15 @@
 package com.github.nexus.config;
 
+import com.github.nexus.config.adapters.PathAdapter;
 import com.github.nexus.config.constraints.ValidPath;
-import java.nio.file.Path;
+
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.nio.file.Path;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
