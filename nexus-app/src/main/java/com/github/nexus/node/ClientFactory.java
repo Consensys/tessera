@@ -1,12 +1,12 @@
 package com.github.nexus.node;
 
 import com.github.nexus.config.ServerConfig;
-import com.github.nexus.ssl.SSLContextFactory;
-import java.util.Objects;
+import com.github.nexus.ssl.context.SSLContextFactory;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import java.util.Objects;
 
 public class ClientFactory {
 

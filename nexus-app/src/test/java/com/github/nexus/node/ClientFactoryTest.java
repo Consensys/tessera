@@ -2,17 +2,16 @@ package com.github.nexus.node;
 
 import com.github.nexus.config.ServerConfig;
 import com.github.nexus.config.SslConfig;
-import com.github.nexus.ssl.SSLContextFactory;
-import javax.net.ssl.SSLContext;
-import org.junit.*;
+import com.github.nexus.ssl.context.SSLContextFactory;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ClientFactoryTest {
 

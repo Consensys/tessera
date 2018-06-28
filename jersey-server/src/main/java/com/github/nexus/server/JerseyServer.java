@@ -1,7 +1,7 @@
 package com.github.nexus.server;
 
 import com.github.nexus.config.ServerConfig;
-import com.github.nexus.ssl.SSLContextFactory;
+import com.github.nexus.ssl.context.SSLContextFactory;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
