@@ -16,7 +16,7 @@
 
         <dependency>
             <groupId>com.github.nexus</groupId>
-            <artifactId>nexus-configurator</artifactId>
+            <artifactId>nexus-config</artifactId>
         </dependency>
         
         <dependency>

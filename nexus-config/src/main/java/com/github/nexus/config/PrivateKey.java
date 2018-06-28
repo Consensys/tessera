@@ -1,5 +1,6 @@
 package com.github.nexus.config;
 
+import com.github.nexus.config.util.PathUtil;
 import java.nio.file.Path;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -13,10 +14,12 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlType(factoryMethod = "create")
 public class PrivateKey {
 
+ 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path path;
 
+    
     @XmlSchemaType(name = "anyURI")
     private final String value;
 
@@ -47,8 +50,10 @@ public class PrivateKey {
             String asalt, 
             String sbox, 
             ArgonOptions argonOptions) {
+        
         this.path = path;
-        this.value = value;
+        this.value = PathUtil.readData(path, value);
+        
         this.password = password;
         this.type = type;
         this.snonce = snonce;

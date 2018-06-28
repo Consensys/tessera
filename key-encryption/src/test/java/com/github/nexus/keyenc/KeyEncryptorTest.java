@@ -3,6 +3,8 @@ package com.github.nexus.keyenc;
 import com.github.nexus.argon2.Argon2;
 import com.github.nexus.argon2.ArgonOptions;
 import com.github.nexus.argon2.ArgonResult;
+import com.github.nexus.config.PrivateKey;
+import com.github.nexus.config.PrivateKeyType;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.NaclFacade;
 import com.github.nexus.nacl.Nonce;
@@ -11,10 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import java.io.StringReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -51,18 +49,19 @@ public class KeyEncryptorTest {
         Mockito.doReturn(new Nonce(new byte[]{})).when(nacl).randomNonce();
         doReturn(new byte[]{}).when(nacl).sealAfterPrecomputation(any(byte[].class), any(Nonce.class), any(Key.class));
 
-        final JsonObject returnJson = keyEncryptor.encryptPrivateKey(key, password);
+        final PrivateKey privateKey = keyEncryptor.encryptPrivateKey(key, password);
 
-        final JsonObject aopts = returnJson.getJsonObject("aopts");
+        final com.github.nexus.config.ArgonOptions aopts = privateKey.getArgonOptions();
 
-        Assertions.assertThat(returnJson.getString("sbox")).isNotNull();
-        Assertions.assertThat(returnJson.getString("asalt")).isNotNull();
-        Assertions.assertThat(returnJson.getString("snonce")).isNotNull();
+        Assertions.assertThat(privateKey.getSbox()).isNotNull();
+        Assertions.assertThat(privateKey.getAsalt()).isNotNull();
+        Assertions.assertThat(privateKey.getSnonce()).isNotNull();
+        
         Assertions.assertThat(aopts).isNotNull();
-        Assertions.assertThat(aopts.getInt("memory")).isNotNull();
-        Assertions.assertThat(aopts.getInt("parallelism")).isNotNull();
-        Assertions.assertThat(aopts.getInt("iterations")).isNotNull();
-        Assertions.assertThat(aopts.getString("variant")).isNotNull();
+        Assertions.assertThat(aopts.getMemory()).isNotNull();
+        Assertions.assertThat(aopts.getParallelism()).isNotNull();
+        Assertions.assertThat(aopts.getIterations()).isNotNull();
+        Assertions.assertThat(aopts.getAlgorithm()).isNotNull();
 
         verify(argon2).hash(eq(password), any(byte[].class));
         verify(nacl).randomNonce();
@@ -83,10 +82,10 @@ public class KeyEncryptorTest {
     public void correntJsonGivesDecryptedKey() {
 
         final String password = "pass";
-        final String json = "{\"snonce\":\"\",\"sbox\":\"\",\"asalt\":\"uZAfjmMwEepP8kzZCnmH6g==\",\"aopts\":{\"variant\":\"i\",\"iterations\":1,\"memory\":1,\"parallelism\":1}}";
 
-        final JsonReader reader = Json.createReader(new StringReader(json));
-        final JsonObject parsed = reader.readObject();
+        com.github.nexus.config.ArgonOptions argonOptions = new com.github.nexus.config.ArgonOptions("i", 1, 1, 1);
+        
+        PrivateKey privateKey = new PrivateKey(null, "", password, PrivateKeyType.LOCKED, "", "uZAfjmMwEepP8kzZCnmH6g==", "", argonOptions);
 
         doReturn(new byte[]{1, 2, 3})
             .when(nacl)
@@ -96,7 +95,7 @@ public class KeyEncryptorTest {
             .when(argon2)
             .hash(any(ArgonOptions.class), eq(password), any(byte[].class));
 
-        final Key key = keyEncryptor.decryptPrivateKey(parsed, password);
+        final Key key = keyEncryptor.decryptPrivateKey(privateKey);
 
         Assertions.assertThat(key.getKeyBytes()).isEqualTo(new byte[]{1, 2, 3});
 

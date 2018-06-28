@@ -1,6 +1,8 @@
 package com.github.nexus.config;
 
+import com.github.nexus.config.constraints.ValidPath;
 import java.nio.file.Path;
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -11,9 +13,12 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlType(factoryMethod = "create")
 public class SslConfig  {
 
+    @NotNull
     @XmlElement(required = true)
     private final SslAuthenticationMode tls;
 
+    @NotNull
+    @ValidPath(checkExists = true)
     @XmlElement(required = true, type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path serverKeyStore;
@@ -93,7 +98,7 @@ public class SslConfig  {
         return new SslConfig();
     }
 
-    public com.github.nexus.config.SslAuthenticationMode getTls() {
+    public SslAuthenticationMode getTls() {
         return tls;
     }
 
@@ -144,8 +149,5 @@ public class SslConfig  {
     public Path getKnownServersFile() {
         return knownServersFile;
     }
-
-
-
 
 }

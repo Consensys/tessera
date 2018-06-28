@@ -1,7 +1,9 @@
-
 package com.github.nexus.socket;
 
-import com.github.nexus.configuration.Configuration;
+import com.github.nexus.config.ServerConfig;
+import com.github.nexus.config.SslAuthenticationMode;
+import com.github.nexus.config.SslConfig;
+import com.github.nexus.config.SslTrustMode;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -11,9 +13,8 @@ import javax.net.SocketFactory;
 import java.io.File;
 import java.net.URI;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class HttpProxyFactoryTest {
 
@@ -27,23 +28,31 @@ public class HttpProxyFactoryTest {
 
         final File tmpFile = new File(tmpDir.getRoot(), "keystores");
 
-        final Configuration configuration = mock(Configuration.class);
-        doReturn(uri).when(configuration).uri();
-        doReturn("STRICT").when(configuration).tls();
-        doReturn(tmpFile.getPath()).when(configuration).clientKeyStore();
-        doReturn("somepwd").when(configuration).clientKeyStorePassword();
-        doReturn(tmpFile.getPath()).when(configuration).clientTrustStore();
-        doReturn("somepwd").when(configuration).clientTrustStorePassword();
-        doReturn(tmpFile.getPath()).when(configuration).knownServers();
+        final ServerConfig configuration = mock(ServerConfig.class);
+        when(configuration.getServerUri()).thenReturn(uri);
+        when(configuration.isSsl()).thenReturn(true);
+        SslConfig sslConfig = mock(SslConfig.class);
+        
+        when(sslConfig.getTls()).thenReturn(SslAuthenticationMode.STRICT);
+        when(sslConfig.getClientKeyStore()).thenReturn(tmpFile.toPath());
+        when(sslConfig.getClientKeyStorePassword()).thenReturn("somepwd");
+        when(sslConfig.getClientTrustMode()).thenReturn(SslTrustMode.NONE);
+        when(sslConfig.getClientTrustStore()).thenReturn(tmpFile.toPath());
+        when(sslConfig.getClientTrustStorePassword()).thenReturn("somepwd");
+
+        when(sslConfig.getKnownServersFile())
+                .thenReturn(tmpFile.toPath());
+        
+        when(configuration.getSslConfig()).thenReturn(sslConfig);
 
         HttpProxyFactory proxyFactory = new HttpProxyFactory(configuration);
         HttpProxy proxy = proxyFactory.create();
 
         assertThat(proxy)
-            .isNotNull()
-            .extracting("socketFactory")
-            .extracting("class")
-            .containsExactly(SSLSocketFactoryImpl.class);
+                .isNotNull()
+                .extracting("socketFactory")
+                .extracting("class")
+                .containsExactly(SSLSocketFactoryImpl.class);
 
     }
 
@@ -51,17 +60,17 @@ public class HttpProxyFactoryTest {
     public void insecureHttpProxy() throws Exception {
         final URI uri = new URI("http://bogus.com");
 
-        final Configuration configuration = mock(Configuration.class);
-        doReturn(uri).when(configuration).uri();
-        doReturn("off").when(configuration).tls();
+        final ServerConfig configuration = mock(ServerConfig.class);
+        when(configuration.getServerUri()).thenReturn(uri);
+        when(configuration.isSsl()).thenReturn(false);
 
         final HttpProxyFactory proxyFactory = new HttpProxyFactory(configuration);
         final HttpProxy proxy = proxyFactory.create();
 
         assertThat(proxy)
-            .isNotNull()
-            .extracting("socketFactory")
-            .containsExactly(SocketFactory.getDefault());
+                .isNotNull()
+                .extracting("socketFactory")
+                .containsExactly(SocketFactory.getDefault());
 
     }
 

@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(factoryMethod = "create")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ArgonOptions {
-
+    //i, d,id (defaylt id)
     @XmlAttribute
     private final String algorithm;
 
@@ -20,7 +20,7 @@ public class ArgonOptions {
 
     @XmlAttribute
     private int parallelism;
-
+    
     private static ArgonOptions create() {
         return new ArgonOptions();
     }

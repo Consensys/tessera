@@ -1,16 +1,13 @@
 package com.github.nexus;
 
 import com.github.nexus.api.Nexus;
-import com.github.nexus.configuration.Configuration;
-import com.github.nexus.configuration.ConfigurationParser;
-import com.github.nexus.configuration.PropertyLoader;
-import com.github.nexus.keygen.KeyGenerator;
-import com.github.nexus.keygen.KeyGeneratorFactory;
+import com.github.nexus.config.Config;
+import com.github.nexus.config.SslConfig;
+import com.github.nexus.config.cli.CliDelegate;
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
 import com.github.nexus.service.locator.ServiceLocator;
-import com.github.nexus.ssl.strategy.AuthenticationMode;
-import com.github.nexus.ssl.strategy.TrustMode;
+import com.github.nexus.ssl.SSLContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
@@ -38,42 +32,25 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
  */
 public class Launcher {
 
-    public static List<String> cliArgumentList = Collections.emptyList();
-
     private static final Logger LOGGER = LoggerFactory.getLogger(Launcher.class);
 
     public static void main(final String... args) throws Exception {
 
+        Config config = CliDelegate.instance().execute(args);
+
         Launcher.createPidFile();
 
-        Launcher.cliArgumentList = Arrays.asList(args);
-        final Configuration config = ConfigurationParser
-            .create()
-            .config(PropertyLoader.create(), cliArgumentList);
+        final URI uri = new URI(config.getServerConfig().getHostName() + ":" + config.getServerConfig().getPort());
 
-        if(config.generatekeys().isEmpty()) {
-            //no keys to generate
-            if (AuthenticationMode.STRICT == AuthenticationMode.getValue(config.tls())) {
-                final SSLContext sslContext = TrustMode
-                    .getValueIfPresent(config.serverTrustMode())
-                    .orElse(TrustMode.NONE)
-                    .createSSLContext(
-                        config.serverKeyStore(),
-                        config.serverKeyStorePassword(),
-                        config.serverTrustStore(),
-                        config.serverTrustStorePassword(),
-                        config.knownClients());
+        if (Objects.nonNull(config.getServerConfig().getSslConfig())) {
 
-                runWebServer(config.uri(), sslContext, true);
-            }
-            else {
-                runWebServer(config.uri(), SSLContext.getDefault(), false);
-            }
+            SslConfig sslConfig = config.getServerConfig().getSslConfig();
+            final SSLContext sslContext = SSLContextFactory.create().from(sslConfig);
+
+            runWebServer(uri, sslContext, true);
 
         } else {
-            //keys to generate
-            final KeyGenerator keyGenerator = KeyGeneratorFactory.create(config);
-            config.generatekeys().forEach(name -> keyGenerator.promptForGeneration(name, System.in));
+            runWebServer(uri, SSLContext.getDefault(), false);
         }
 
         System.exit(0);

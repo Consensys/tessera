@@ -45,3 +45,8 @@
 /nexus-config-cli/target/
 /nexus-config-cli/nbproject/
 /nexus-security/target/
+/key-encryption/target/
+/nexus-security/nbproject/
+/nexus-security/nb-configuration.xml
+/nexus-socket/nb-configuration.xml
+/nexus-encryption-kalium/nb-configuration.xml

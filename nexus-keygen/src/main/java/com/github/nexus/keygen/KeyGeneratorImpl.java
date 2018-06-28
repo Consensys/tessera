@@ -45,6 +45,10 @@ public class KeyGeneratorImpl implements KeyGenerator {
         LOGGER.debug("Generated new public/private keypair with name " + name);
 
         final String publicKeyBase64 = Base64.getEncoder().encodeToString(generated.getPublicKey().getKeyBytes());
+        
+        
+
+        
         final JsonObject encryptedKey = keyEncryptor.encryptPrivateKey(generated.getPrivateKey(), password);
 
         final String privateKeyJson = Json.createObjectBuilder()

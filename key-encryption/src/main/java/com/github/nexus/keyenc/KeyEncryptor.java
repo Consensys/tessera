@@ -1,8 +1,8 @@
 package com.github.nexus.keyenc;
 
+import com.github.nexus.config.PrivateKey;
 import com.github.nexus.nacl.Key;
 
-import javax.json.JsonObject;
 
 /**
  * Provides key encryption and decryption for private keys
@@ -18,18 +18,17 @@ public interface KeyEncryptor {
      *
      * @param privateKey the key to encrypt
      * @param password the password to encrypt the key with
-     * @return a JSON representation of all the parameters needed to decrypt the key
+     * @return com.github.nexus.config.PrivateKey
      */
-    JsonObject encryptPrivateKey(Key privateKey, String password);
+    PrivateKey encryptPrivateKey(Key privateKey, String password);
 
     /**
      * Decrypts a private key using the password and information provided by the given
      * JSON object. What information the object contains is up to the implementor.
      *
-     * @param encryptedKey the JSON representation of the encrypted private key
-     * @param password the password to be used to decrypt the private key
+     * @param privateKey
      * @return the decrypted private key
      */
-    Key decryptPrivateKey(JsonObject encryptedKey, String password);
+    Key decryptPrivateKey(PrivateKey privateKey);
 
 }

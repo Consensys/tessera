@@ -1,7 +1,9 @@
 package com.github.nexus.key;
 
-import com.github.nexus.configuration.Configuration;
-import com.github.nexus.configuration.model.KeyData;
+import com.github.nexus.config.Config;
+import com.github.nexus.config.KeyData;
+import com.github.nexus.config.PrivateKey;
+import com.github.nexus.config.PrivateKeyType;
 import com.github.nexus.key.exception.KeyNotFoundException;
 import com.github.nexus.keyenc.KeyEncryptor;
 import com.github.nexus.nacl.Key;
@@ -9,7 +11,6 @@ import com.github.nexus.nacl.KeyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.JsonObject;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,7 +27,7 @@ public class KeyManagerImpl implements KeyManager {
 
     private final KeyEncryptor keyEncryptor;
 
-    public KeyManagerImpl(final KeyEncryptor keyEncryptor, final List<KeyData> keys) {
+    private KeyManagerImpl(final KeyEncryptor keyEncryptor, final List<KeyData> keys) {
         this.keyEncryptor = Objects.requireNonNull(keyEncryptor);
 
         this.ourKeys = new HashSet<>();
@@ -36,8 +37,8 @@ public class KeyManagerImpl implements KeyManager {
 
     }
 
-    public KeyManagerImpl(final KeyEncryptor keyEncryptor, final Configuration configuration) {
-        this(keyEncryptor, configuration.keyData());
+    public KeyManagerImpl(final KeyEncryptor keyEncryptor, final Config configuration) {
+        this(keyEncryptor, configuration.getKeys());
     }
 
     @Override
@@ -83,9 +84,9 @@ public class KeyManagerImpl implements KeyManager {
         LOGGER.info("Attempting to load the private key {}", data.getPrivateKey());
 
         final Key publicKey = new Key(
-            Base64.getDecoder().decode(data.getPublicKey())
+            Base64.getDecoder().decode(data.getPublicKey().getValue())
         );
-        final Key privateKey = loadPrivateKey(data.getPrivateKey(), data.getPassword());
+        final Key privateKey = loadPrivateKey(data.getPrivateKey());
 
         final KeyPair keyPair = new KeyPair(publicKey, privateKey);
 
@@ -108,16 +109,17 @@ public class KeyManagerImpl implements KeyManager {
         return defaultKeys.getPublicKey();
     }
 
-    private Key loadPrivateKey(final JsonObject privateKeyJson, final String password) {
-        LOGGER.debug("Loading the private key at path {}", privateKeyJson);
+    private Key loadPrivateKey(final PrivateKey privateKey) {
+        
+        LOGGER.debug("Loading the private key at path {}", privateKey);
 
-        if("unlocked".equals(privateKeyJson.getString("type"))) {
-            final String keyBase64 = privateKeyJson.getJsonObject("data").getString("bytes");
+        if(privateKey.getType() == PrivateKeyType.UNLOCKED) {
+            final String keyBase64 = privateKey.getValue();
             final byte[] key = Base64.getDecoder().decode(keyBase64);
-            LOGGER.debug("Private key {} loaded from path {} loaded", keyBase64, privateKeyJson);
+            LOGGER.debug("Private key {} loaded from path {} loaded", keyBase64, privateKey);
             return new Key(key);
         } else {
-            return keyEncryptor.decryptPrivateKey(privateKeyJson.getJsonObject("data"), password);
+            return keyEncryptor.decryptPrivateKey(privateKey);
         }
 
     }

@@ -1,14 +1,14 @@
 package com.github.nexus.api.filter;
 
-import com.github.nexus.configuration.Configuration;
-
+import com.github.nexus.config.Config;
+import com.github.nexus.config.Peer;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Applies a filter to all endpoints that only allows certain IP address and ghost names to
@@ -27,9 +27,10 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
 
     private HttpServletRequest httpServletRequest;
 
-    public IPWhitelistFilter(final Configuration configuration) {
-        this.whitelisted = new HashSet<>(configuration.whitelist());
-        this.disabled = this.whitelisted.isEmpty();
+    public IPWhitelistFilter(final Config configuration) {
+        this.whitelisted = configuration.getPeers().stream()
+                .map(Peer::getUrl).collect(Collectors.toSet());
+        this.disabled = !configuration.isUseWhiteList();
     }
 
     /**

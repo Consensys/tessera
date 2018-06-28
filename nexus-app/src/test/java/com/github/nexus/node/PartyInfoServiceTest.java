@@ -1,12 +1,16 @@
 package com.github.nexus.node;
 
-import com.github.nexus.TestConfiguration;
-import com.github.nexus.configuration.Configuration;
+
+import com.github.nexus.config.Config;
+import com.github.nexus.config.Peer;
+import com.github.nexus.config.ServerConfig;
 import com.github.nexus.key.KeyManager;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.node.model.Party;
 import com.github.nexus.node.model.PartyInfo;
 import com.github.nexus.node.model.Recipient;
+import java.net.URI;
+import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,13 +28,14 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import static org.mockito.Mockito.*;
 
 public class PartyInfoServiceTest {
 
     private PartyInfoStore partyInfoStore;
 
-    private Configuration configuration;
+    private Config configuration;
 
     private PartyInfoService partyInfoService;
 
@@ -39,16 +44,17 @@ public class PartyInfoServiceTest {
     private static final String uri = "http://localhost:8080";
 
     @Before
-    public void init() {
+    public void onSetUp() throws Exception {
         this.partyInfoStore = mock(PartyInfoStore.class);
-        this.configuration = new TestConfiguration() {
+        this.configuration = mock(Config.class);
+        ServerConfig serverConfig = mock(ServerConfig.class);
+        when(serverConfig.getServerUri()).thenReturn(new URI(uri));
+        when(configuration.getServerConfig()).thenReturn(serverConfig);
+        
+        Peer peer = mock(Peer.class);
+        when(peer.getUrl()).thenReturn("http://other-node.com:8080");
+        when(configuration.getPeers()).thenReturn(Arrays.asList(peer));
 
-            @Override
-            public List<String> othernodes() {
-                return Collections.singletonList("http://other-node.com:8080");
-            }
-
-        };
         this.keyManager = mock(KeyManager.class);
         this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
     }
@@ -81,7 +87,7 @@ public class PartyInfoServiceTest {
     @Test
     public void registeringPublicKeysUsesOurUrl() {
 
-        final String ourUrl = this.configuration.uri().toString();
+        final String ourUrl = this.configuration.getServerConfig().getServerUri().toString();
 
         final Set<Key> ourPublicKeys2 = new HashSet<>();
         ourPublicKeys2.add(new Key("some-key".getBytes()));

@@ -1,7 +1,7 @@
 package com.github.nexus.socket;
 
-import com.github.nexus.configuration.Configuration;
-import com.github.nexus.ssl.strategy.AuthenticationMode;
+import com.github.nexus.config.ServerConfig;
+import com.github.nexus.config.SslConfig;
 import com.github.nexus.ssl.strategy.TrustMode;
 
 import javax.net.SocketFactory;
@@ -14,31 +14,33 @@ public class HttpProxyFactory {
 
     private final SocketFactory socketFactory;
 
-    public HttpProxyFactory(final Configuration configuration) throws Exception {
-        this.serverUri = configuration.uri();
+    public HttpProxyFactory(final ServerConfig serverConfig) throws Exception {
+        this.serverUri = serverConfig.getServerUri();
 
-        final AuthenticationMode authenticationMode = AuthenticationMode.getValue(configuration.tls());
-
-        if (AuthenticationMode.STRICT.equals(authenticationMode)) {
+        if (serverConfig.isSsl()) {
+            SslConfig sslConfg = serverConfig.getSslConfig();
 
             final SSLContext sslContext = TrustMode.NONE.createSSLContext(
-                configuration.clientKeyStore(),
-                configuration.clientKeyStorePassword(),
-                configuration.clientTrustStore(),
-                configuration.clientTrustStorePassword(),
-                configuration.knownServers()
+                sslConfg.getClientKeyStore().toString(),
+                sslConfg.getClientKeyStorePassword(),
+                sslConfg.getClientTrustStore().toString(),
+                sslConfg.getClientTrustStorePassword(),
+                sslConfg.getKnownServersFile().toString()
             );
-
+            
             this.socketFactory = sslContext.getSocketFactory();
         } else {
-
             this.socketFactory = SocketFactory.getDefault();
         }
+
     }
 
     public HttpProxy create() {
         return new HttpProxy(serverUri, socketFactory);
     }
 
+    
+    
+    
 
 }

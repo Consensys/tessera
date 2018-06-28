@@ -1,7 +1,7 @@
 package com.github.nexus.node;
 
-
-import com.github.nexus.configuration.Configuration;
+import com.github.nexus.config.Config;
+import com.github.nexus.config.Peer;
 import com.github.nexus.key.KeyManager;
 import com.github.nexus.key.exception.KeyNotFoundException;
 import com.github.nexus.nacl.Key;
@@ -21,17 +21,18 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
 
     public PartyInfoServiceImpl(final PartyInfoStore partyInfoStore,
-                                final Configuration configuration,
+                                final Config configuration,
                                 final KeyManager keyManager) {
 
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
 
         Objects.requireNonNull(keyManager);
 
-        final String advertisedUrl = configuration.uri().toString();
+        final String advertisedUrl = configuration.getServerConfig().getServerUri().toString();
 
-        final Set<Party> parties = configuration.othernodes()
+        final Set<Party> parties = configuration.getPeers()
             .stream()
+            .map(Peer::getUrl)
             .map(Party::new)
             .collect(Collectors.toSet());
 

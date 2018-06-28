@@ -16,6 +16,12 @@
             <artifactId>nexus-app</artifactId>
             <classifier>app</classifier>
             <version>1.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.nexus</groupId>
+                    <artifactId>nexus-configurator</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         
         <dependency>
@@ -127,7 +133,7 @@
                         <configuration>
                             <properties>
                                 <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
-                                <configFile>${project.build.testOutputDirectory}/config.properties</configFile>
+                                <configFile>${project.build.testOutputDirectory}/config1.json</configFile>
                                 <pidFile>${project.build.directory}/node1.pid</pidFile>
                                 <logbackConfigFile>${project.build.testOutputDirectory}/logback-node1.xml</logbackConfigFile>
                                 <junixsocketLibPath>${project.build.directory}/junixsocket-1.3/lib-native</junixsocketLibPath>
@@ -144,7 +150,7 @@
                         <configuration>
                             <properties>
                                 <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
-                                <configFile>${project.build.testOutputDirectory}/config2.properties</configFile>
+                                <configFile>${project.build.testOutputDirectory}/config2.json</configFile>
                                 <pidFile>${project.build.directory}/node2.pid</pidFile>
                                 <logbackConfigFile>${project.build.testOutputDirectory}/logback-node2.xml</logbackConfigFile>
                                 <junixsocketLibPath>${project.build.directory}/junixsocket-1.3/lib-native</junixsocketLibPath>

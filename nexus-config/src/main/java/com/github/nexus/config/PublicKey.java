@@ -1,5 +1,6 @@
 package com.github.nexus.config;
 
+import com.github.nexus.config.util.PathUtil;
 import java.nio.file.Path;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -15,17 +16,18 @@ public class PublicKey {
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path path;
-    
+
     @XmlSchemaType(name = "anyURI")
     private final String value;
 
     public PublicKey(Path path, String value) {
         this.path = path;
-        this.value = value;
+        this.value = PathUtil.readData(path, value);
+
     }
-    
+
     private static PublicKey create() {
-        return new PublicKey(null,null);
+        return new PublicKey(null, null);
     }
 
     public Path getPath() {

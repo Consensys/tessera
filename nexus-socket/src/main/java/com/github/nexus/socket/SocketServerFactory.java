@@ -1,21 +1,24 @@
-
 package com.github.nexus.socket;
 
-import com.github.nexus.configuration.Configuration;
+
+import com.github.nexus.config.Config;
 import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 
-import java.nio.file.Paths;
 import java.util.concurrent.Executors;
 
 public interface SocketServerFactory {
 
-    static SocketServer createSocketServer(final Configuration config) throws Exception {
+    static SocketServer createSocketServer(final Config config) {
+        try {
         return new SocketServer(
-            Paths.get(config.workdir(), config.socket()),
-            new HttpProxyFactory(config),
+            config.getUnixSocketFile(),
+            new HttpProxyFactory(config.getServerConfig()),
             Executors.newCachedThreadPool(),
             UnixSocketFactory.create()
         );
+        } catch(Exception ex) {
+            throw new NexusSocketException(ex);
+        }
     }
 
 }

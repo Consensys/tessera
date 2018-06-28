@@ -1,7 +1,9 @@
 package com.github.nexus.api.filter;
 
-import com.github.nexus.TestConfiguration;
-import com.github.nexus.configuration.Configuration;
+import com.github.nexus.config.Config;
+import com.github.nexus.config.Peer;
+import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -9,10 +11,8 @@ import org.mockito.ArgumentCaptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
-import java.util.Set;
-
-import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.Mockito.*;
 
 public class IPWhitelistFilterTest {
@@ -26,22 +26,23 @@ public class IPWhitelistFilterTest {
 
         this.ctx = mock(ContainerRequestContext.class);
 
-        final Configuration configuration = new TestConfiguration(){
-
-            @Override
-            public Set<String> whitelist() {
-                return singleton("whitelistedHost");
-            }
-
-        };
-
+        final Config configuration = mock(Config.class);
+        Peer peer = mock(Peer.class);
+        when(peer.getUrl()).thenReturn("whitelistedHost");
+        when(configuration.getPeers())
+                .thenReturn(Arrays.asList(peer));
+        when(configuration.isUseWhiteList()).thenReturn(true);
         this.filter = new IPWhitelistFilter(configuration);
 
     }
 
     @Test
     public void noAddressesInWhitelistDisablesFilter() {
-        final IPWhitelistFilter filter = new IPWhitelistFilter(new TestConfiguration());
+          final Config configuration = mock(Config.class);
+          when(configuration.getPeers()).thenReturn(Collections.EMPTY_LIST);
+          when(configuration.isUseWhiteList()).thenReturn(false);
+          
+        final IPWhitelistFilter filter = new IPWhitelistFilter(configuration);
 
         final HttpServletRequest request = mock(HttpServletRequest.class);
 

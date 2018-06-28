@@ -1,94 +1,63 @@
 package com.github.nexus.node;
 
-import org.bouncycastle.operator.OperatorCreationException;
+import com.github.nexus.config.ServerConfig;
+import com.github.nexus.config.SslConfig;
+import com.github.nexus.ssl.SSLContextFactory;
+import javax.net.ssl.SSLContext;
 import org.junit.*;
-import org.junit.rules.TemporaryFolder;
 
 import javax.ws.rs.client.Client;
-import java.io.File;
-import java.io.IOException;
-import java.security.*;
-import java.security.cert.CertificateException;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class ClientFactoryTest {
 
-    ClientFactory factory = new ClientFactory();
+    private SSLContextFactory sslContextFactory;
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-    static TemporaryFolder delegate;
-
-    File tmpKeyFile;
+    private ClientFactory factory;
 
     @Before
     public void setUp() {
-        tmpKeyFile = new File(temporaryFolder.getRoot(), "test-keystore");
+        sslContextFactory = mock(SSLContextFactory.class);
+        factory = new ClientFactory(sslContextFactory);
+
     }
 
     @After
-    public void after(){
-        delegate = temporaryFolder;
-        assertThat(delegate.getRoot().exists()).isTrue();
-    }
-
-    @AfterClass
-    public static void tearDown(){
-        assertThat(delegate.getRoot().exists()).isFalse();
+    public void after() {
+        verifyNoMoreInteractions(sslContextFactory);
     }
 
     @Test
-    public void testBuildInsecureClient() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
-        Client client = factory.buildClient("somethingInvalid","","","","","","");
+    public void testBuildInsecureClient() {
+
+        ServerConfig serverConfig = mock(ServerConfig.class);
+        when(serverConfig.isSsl()).thenReturn(false);
+
+        Client client = factory.buildFrom(serverConfig);
         assertThat(client).isNotNull();
+
     }
 
     @Test
-    public void testBuildSecureClientCAMode() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
-        Client client = factory.buildClient(
-            "strict",
-            tmpKeyFile.getPath(),
-            "quorum",
-            "",
-            "",
-            "CA",
-            "");
+    public void testBuildSecureClientCAMode() {
+
+        ServerConfig serverConfig = mock(ServerConfig.class);
+        SslConfig sslConfig = mock(SslConfig.class);
+        when(serverConfig.isSsl()).thenReturn(true);
+        when(serverConfig.getSslConfig()).thenReturn(sslConfig);
+        
+        SSLContext sslContext = mock(SSLContext.class);
+        when(sslContextFactory.from(sslConfig)).thenReturn(sslContext);
+        
+        Client client = factory.buildFrom(serverConfig);
         assertThat(client).isNotNull();
-        assertThat(client.getSslContext()).isNotNull();
-        assertThat(client.getSslContext().getProtocol().equals("TLS"));
+
+        verify(sslContextFactory).from(sslConfig);
     }
 
-    @Test
-    public void testBuildSecureClientDefaultMode() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
-        Client client = factory.buildClient("strict",tmpKeyFile.getPath(),"","","","something invalid","");
-        assertThat(client).isNotNull();
-        assertThat(client.getSslContext()).isNotNull();
-        assertThat(client.getSslContext().getProtocol().equals("TLS"));
-    }
-
-    @Test
-    public void testBuildSecureClientTOFUMode() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
-        Client client = factory.buildClient("strict",tmpKeyFile.getPath(),"quorum","","","TOFU","");
-        assertThat(client).isNotNull();
-        assertThat(client.getSslContext()).isNotNull();
-        assertThat(client.getSslContext().getProtocol().equals("TLS"));
-    }
-
-    @Test
-    public void testBuildSecureClientWhiteListMode() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
-        Client client = factory.buildClient("strict",tmpKeyFile.getPath(),"quorum","","","WHITELIST","");
-        assertThat(client).isNotNull();
-        assertThat(client.getSslContext()).isNotNull();
-        assertThat(client.getSslContext().getProtocol().equals("TLS"));
-    }
-
-    @Test
-    public void testBuildSecureTrustAllMode() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
-        Client client = factory.buildClient("strict",tmpKeyFile.getPath(),"quorum","","","NONE","");
-        assertThat(client).isNotNull();
-        assertThat(client.getSslContext()).isNotNull();
-        assertThat(client.getSslContext().getProtocol().equals("TLS"));
-    }
 }

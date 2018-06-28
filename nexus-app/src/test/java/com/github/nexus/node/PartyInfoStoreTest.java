@@ -1,11 +1,13 @@
 package com.github.nexus.node;
 
-import com.github.nexus.TestConfiguration;
-import com.github.nexus.configuration.Configuration;
+
+import com.github.nexus.config.ServerConfig;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.node.model.Party;
 import com.github.nexus.node.model.PartyInfo;
 import com.github.nexus.node.model.Recipient;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,16 +15,21 @@ import java.util.Set;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PartyInfoStoreTest {
 
-    private Configuration configuration = new TestConfiguration();
+    private String annoyingUriAsAString = "FIXME";
+    
+    private ServerConfig configuration;
 
     private PartyInfoStore partyInfoStore;
 
     @Before
-    public void init() {
-
+    public void onSetUp() throws URISyntaxException {
+        configuration = mock(ServerConfig.class);
+        when(configuration.getServerUri()).thenReturn(new URI(annoyingUriAsAString));
         this.partyInfoStore = new PartyInfoStore(configuration);
 
     }
@@ -30,7 +37,7 @@ public class PartyInfoStoreTest {
     @Test
     public void registeringSamePublicKeyTwice() {
 
-        final String ourUrl = this.configuration.uri().toString();
+        final String ourUrl = annoyingUriAsAString;
 
         final Set<Recipient> ourKeys = singleton(
             new Recipient(new Key("some-key".getBytes()), ourUrl)
