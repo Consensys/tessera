@@ -2,9 +2,18 @@
 A stateless JAVA application responsible for encryption and decryption of private transaction data and for off-chain private messaging.It is also responsible for generating and managing private key locally in each node in Quorum Network.
 
 ##Running Nexus
-Usage:
 
 `java -jar nexus-app/target/nexus-app-${version}-app.jar -c config.json`
+
+
+Probably best to copy the jar somewhere and create an alias
+<pre>
+alias nexus="java -jar /somewhere/nexus-app.jar"
+</pre>
+
+And add the nexus to your PATH.
+
+
 
 See the section on 'Configuration' for a description of the available properties.
 
