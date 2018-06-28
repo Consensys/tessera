@@ -1,6 +1,8 @@
 package com.github.nexus.resteasy;
 
+import com.github.nexus.config.ServerConfig;
 import com.github.nexus.server.RestServer;
+import com.github.nexus.ssl.SSLContextFactory;
 import com.sun.net.httpserver.HttpServer;
 import org.jboss.resteasy.plugins.server.sun.http.HttpContextBuilder;
 
@@ -21,12 +23,18 @@ public class RestEasyServer implements RestServer {
 
     private final boolean secure;
 
+    private final SSLContextFactory sslContextFactory = SSLContextFactory.create();
 
-    public RestEasyServer(URI uri, Application application, SSLContext sslContext, boolean secure) {
+    public RestEasyServer(URI uri, Application application, ServerConfig serverConfig) {
         this.uri = uri;
         this.application = application;
-        this.sslContext = sslContext;
-        this.secure = secure;
+       
+        this.secure = serverConfig.isSsl();
+        if(this.secure) {
+             this.sslContext = sslContextFactory.from(serverConfig.getSslConfig());
+        } else {
+            this.sslContext = null;
+        }
     }
 
 
