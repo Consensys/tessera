@@ -1,4 +1,4 @@
-package com.github.nexus.ssl;
+package com.github.nexus.ssl.context;
 
 import com.github.nexus.config.SslConfig;
 import com.github.nexus.config.SslTrustMode;
@@ -6,6 +6,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.net.ssl.SSLContext;
 import static org.assertj.core.api.Assertions.*;
+
+import com.github.nexus.ssl.exception.NexusSecurityException;
+import com.github.nexus.ssl.context.SSLContextFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

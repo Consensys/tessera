@@ -1,22 +1,18 @@
-package com.github.nexus.ssl;
+package com.github.nexus.ssl.context;
 
 import com.github.nexus.config.SslConfig;
 import com.github.nexus.config.SslTrustMode;
+import com.github.nexus.ssl.exception.NexusSecurityException;
 import com.github.nexus.ssl.strategy.TrustMode;
+import org.bouncycastle.operator.OperatorCreationException;
+
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.SignatureException;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.net.ssl.SSLContext;
-import org.bouncycastle.operator.OperatorCreationException;
 
 public class DefaultSSLContextFactory implements SSLContextFactory {
 
