@@ -16,12 +16,6 @@
             <artifactId>nexus-app</artifactId>
             <classifier>app</classifier>
             <version>1.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.github.nexus</groupId>
-                    <artifactId>nexus-configurator</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         
         <dependency>

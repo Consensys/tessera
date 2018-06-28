@@ -193,7 +193,6 @@
         <module>resteasy-server</module>
         <module>junixsocket-adapter</module>
         <module>nexus-security</module>
-        <module>nexus-configurator</module>
         <module>nexus-config</module>
 
         <module>nexus-config-cli</module>
@@ -218,12 +217,6 @@
             <dependency>
                 <groupId>com.github.nexus</groupId>
                 <artifactId>argon2</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.github.nexus</groupId>
-                <artifactId>nexus-configurator</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             
