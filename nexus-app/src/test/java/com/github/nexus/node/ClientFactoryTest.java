@@ -3,6 +3,7 @@ package com.github.nexus.node;
 import com.github.nexus.config.ServerConfig;
 import com.github.nexus.config.SslConfig;
 import com.github.nexus.ssl.SSLContextFactory;
+import javax.net.ssl.SSLContext;
 import org.junit.*;
 
 import javax.ws.rs.client.Client;
@@ -49,6 +50,9 @@ public class ClientFactoryTest {
         SslConfig sslConfig = mock(SslConfig.class);
         when(serverConfig.isSsl()).thenReturn(true);
         when(serverConfig.getSslConfig()).thenReturn(sslConfig);
+        
+        SSLContext sslContext = mock(SSLContext.class);
+        when(sslContextFactory.from(sslConfig)).thenReturn(sslContext);
         
         Client client = factory.buildFrom(serverConfig);
         assertThat(client).isNotNull();
