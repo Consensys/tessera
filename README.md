@@ -101,19 +101,7 @@ Configuration can be specified in multiple ways, in the following priority:
 - command line properties (--privateKeys ...)
 - config files (-Dconfig.file=conf.properties, -Dconfig.file=conf.yml)
 
-####Configuration properties
 
-* publicKeys: comma-separated list of public key file locations to use
-* privateKeys: comma separated list of private key file locations to use
-* url: URL of this Nexus node (used by Quorum and also advertised to remote Nexus nodes)
-* port: port used by this node to listen to remote Nexus nodes
-* workdir: directory where work files are placed (must match value specified to Quorum)
-* socket: name of the unix domain socket used for communication with Quorum
-* othernodes: comma seperated list of known Nexus nodes
-* keygenBasePath: the base path for new generated keys to be placed - can be absolute or relative
-* passwords: a list of passwords used to unlock encrypted private keys
-
-(n.b. if a private key isn't encrypted, give it an empty password, e.g. passwords=abc,,def)
 
 ##Building Nexus
 
@@ -122,11 +110,11 @@ Nexus can be built with different nacl implementations:
 
 ####jnacl
 
-* mvn --batch-mode install
+* mvn install
 
 #####kalium
 
-* mvn --batch-mode install -Pkalium
+* mvn install -Pkalium
 
 Note that the Kalium implementation requires that you have sodium installed at runtime (see runtime dependencies below).
 
