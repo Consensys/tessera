@@ -1,6 +1,6 @@
 package com.github.nexus.ssl.strategy;
 
-import com.github.nexus.ssl.SSLContextBuilder;
+import com.github.nexus.ssl.context.SSLContextBuilder;
 import org.bouncycastle.operator.OperatorCreationException;
 
 import javax.net.ssl.SSLContext;

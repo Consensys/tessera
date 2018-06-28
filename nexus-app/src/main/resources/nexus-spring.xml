@@ -50,7 +50,7 @@
 
     <bean name="clientFactory" class="com.github.nexus.node.ClientFactory">
         <constructor-arg>
-            <bean class="com.github.nexus.ssl.SSLContextFactory" factory-method="create" />
+            <bean class="com.github.nexus.ssl.context.SSLContextFactory" factory-method="create" />
         </constructor-arg>
     </bean>
 
