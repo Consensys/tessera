@@ -1,0 +1,36 @@
+{
+   "useWhiteList" : false,
+   "jdbc" : {
+      "username" : "sa",
+      "password" : "",
+      "url" : "jdbc:h2:./target/h2/nexus2;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
+   },
+   "server" : {
+      "port" : 8081,
+      "hostName":"http://localhost"
+
+   },
+   "peer" : [ {
+      "url" : "http://localhost:8080"
+   }],
+   "keys" : [ {
+      "privateKey" : {
+         "value" : "fF5UOlKKIwuaNrZ8+KU4WO+pxOYu8tNMQncyxbsSC6U=",
+         "type": "UNLOCKED"
+      },
+      "publicKey" : {
+         "value":"yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0="
+      }
+   } ,
+{
+      "privateKey" : {
+         "value" : "ygQVE998+w/C+rU/4CVgyhSAJf63YLKufbkqihcpjVI=",
+         "type": "UNLOCKED"
+      },
+      "publicKey" : {
+         "value":"giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE="
+      }
+   } 
+],
+   "unixSocketFile" : "/tmp/tm1.ipc"
+}

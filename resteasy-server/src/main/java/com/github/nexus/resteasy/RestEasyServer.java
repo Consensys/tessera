@@ -2,7 +2,7 @@ package com.github.nexus.resteasy;
 
 import com.github.nexus.config.ServerConfig;
 import com.github.nexus.server.RestServer;
-import com.github.nexus.ssl.SSLContextFactory;
+import com.github.nexus.ssl.context.SSLContextFactory;
 import com.sun.net.httpserver.HttpServer;
 import org.jboss.resteasy.plugins.server.sun.http.HttpContextBuilder;
 

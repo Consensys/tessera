@@ -1,8 +1,9 @@
-package com.github.nexus.ssl;
+package com.github.nexus.ssl.context;
 
 import com.github.nexus.config.SslConfig;
-import java.util.ServiceLoader;
+
 import javax.net.ssl.SSLContext;
+import java.util.ServiceLoader;
 
 public interface SSLContextFactory {
     

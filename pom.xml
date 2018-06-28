@@ -179,25 +179,33 @@
     </build>
 
     <modules>
-        <module>nexus-app</module>
         <module>rest-server</module>
         <module>jersey-server</module>
+        <module>resteasy-server</module>
         <module>service-locator</module>
         <module>service-locator-spring</module>
+        <module>argon2</module>
+        <module>junixsocket-adapter</module>
+        <module>key-encryption</module>
+        <module>nexus-app</module>
         <module>nexus-encryption</module>
         <module>nexus-socket</module>
-        <module>nexus-test</module>
-        <module>argon2</module>
         <module>nexus-encryption-jnacl</module>
         <module>nexus-encryption-kalium</module>
-        <module>resteasy-server</module>
-        <module>junixsocket-adapter</module>
         <module>nexus-security</module>
         <module>nexus-config</module>
-
         <module>nexus-config-cli</module>
-        <module>key-encryption</module>
+        <module>nexus-test</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>performance-test</id>
+            <modules>
+                <module>nexus-test-jmeter</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <dependencyManagement>
         <dependencies>
