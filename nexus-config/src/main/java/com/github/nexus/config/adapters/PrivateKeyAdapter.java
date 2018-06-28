@@ -30,13 +30,13 @@ public class PrivateKeyAdapter extends XmlAdapter<PrivateKeyMutable, PrivateKey>
     @Override
     public PrivateKey unmarshal(final PrivateKeyMutable input) throws IOException {
 
-        if(input.getLegacyPath() != null) {
+        if(input.getPath() != null) {
 
             return this.handleJsonFile(input);
 
-        } else if (input.getPath() != null) {
+        } else if (input.getRawPath() != null) {
 
-            final byte[] keyBytes = Files.readAllBytes(input.getPath());
+            final byte[] keyBytes = Files.readAllBytes(input.getRawPath());
             final String key = new String(keyBytes);
 
             return new PrivateKey(key, null, UNLOCKED, null, null, null, null);
@@ -63,7 +63,7 @@ public class PrivateKeyAdapter extends XmlAdapter<PrivateKeyMutable, PrivateKey>
 
     private PrivateKey handleJsonFile(final PrivateKeyMutable input) throws IOException {
 
-        final String json = new String(Files.readAllBytes(input.getLegacyPath()));
+        final String json = new String(Files.readAllBytes(input.getPath()));
 
         final JsonObject topLevelObject = Json.createReader(new StringReader(json)).readObject();
         final JsonObject data = topLevelObject.getJsonObject("data");
