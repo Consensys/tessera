@@ -7,7 +7,7 @@
    },
    "server" : {
       "port" : 8080,
-      "hostname":"http://localhost"
+      "hostName":"http://localhost"
 
    },
    "peer" : [ {

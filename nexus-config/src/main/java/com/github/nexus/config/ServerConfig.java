@@ -3,7 +3,9 @@ package com.github.nexus.config;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
+import java.util.Optional;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -13,6 +15,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(factoryMethod = "create")
 public class ServerConfig {
     
+    @NotNull
     @XmlElement(required = false,defaultValue = "0.0.0.0")
     private final String hostName;
 
@@ -23,7 +26,7 @@ public class ServerConfig {
     private final SslConfig sslConfig;
 
     public ServerConfig(String hostName, int port, SslConfig sslConfig) {
-        this.hostName = hostName;
+        this.hostName = Optional.ofNullable(hostName).orElse("0.0.0.0");
         this.port = port;
         this.sslConfig = sslConfig;
     }
