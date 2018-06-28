@@ -19,6 +19,15 @@
             <artifactId>rest-server</artifactId>
         </dependency>
         
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-config</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-security</artifactId>
+        </dependency>
         
         <dependency>
             <groupId>org.jboss.resteasy</groupId>

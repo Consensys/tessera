@@ -24,7 +24,17 @@
             <groupId>com.github.nexus</groupId>
             <artifactId>rest-server</artifactId>
         </dependency>
-
+        
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-config</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-security</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-grizzly2-http</artifactId>

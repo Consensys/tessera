@@ -2,16 +2,14 @@ package com.github.nexus;
 
 import com.github.nexus.api.Nexus;
 import com.github.nexus.config.Config;
-import com.github.nexus.config.SslConfig;
+import com.github.nexus.config.ServerConfig;
 import com.github.nexus.config.cli.CliDelegate;
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
 import com.github.nexus.service.locator.ServiceLocator;
-import com.github.nexus.ssl.SSLContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
@@ -42,25 +40,16 @@ public class Launcher {
 
         final URI uri = new URI(config.getServerConfig().getHostName() + ":" + config.getServerConfig().getPort());
 
-        if (Objects.nonNull(config.getServerConfig().getSslConfig())) {
-
-            SslConfig sslConfig = config.getServerConfig().getSslConfig();
-            final SSLContext sslContext = SSLContextFactory.create().from(sslConfig);
-
-            runWebServer(uri, sslContext, true);
-
-        } else {
-            runWebServer(uri, SSLContext.getDefault(), false);
-        }
+        runWebServer(uri, config.getServerConfig());
 
         System.exit(0);
     }
 
-    private static void runWebServer(final URI serverUri, SSLContext sslContext, boolean secure) throws Exception {
+    private static void runWebServer(final URI serverUri, ServerConfig serverConfig) throws Exception {
 
         final Nexus nexus = new Nexus(ServiceLocator.create(), "nexus-spring.xml");
 
-        final RestServer restServer = RestServerFactory.create().createServer(serverUri, nexus, sslContext, secure);
+        final RestServer restServer = RestServerFactory.create().createServer(serverUri, nexus, serverConfig);
 
         CountDownLatch countDown = new CountDownLatch(1);
 
