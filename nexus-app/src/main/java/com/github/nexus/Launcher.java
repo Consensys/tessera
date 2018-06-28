@@ -7,7 +7,7 @@ import com.github.nexus.config.cli.CliDelegate;
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
 import com.github.nexus.service.locator.ServiceLocator;
-import com.github.nexus.ssl.strategy.TrustMode;
+import com.github.nexus.ssl.SSLContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,6 @@ import java.util.concurrent.CountDownLatch;
 
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import java.util.stream.Stream;
 
 /**
  * The main entry point for the application. This just starts up the application
@@ -33,38 +32,25 @@ import java.util.stream.Stream;
  */
 public class Launcher {
 
-
     private static final Logger LOGGER = LoggerFactory.getLogger(Launcher.class);
 
     public static void main(final String... args) throws Exception {
-        
+
         Config config = CliDelegate.instance().execute(args);
-        
+
         Launcher.createPidFile();
 
-         final URI uri = new URI(config.getServerConfig().getHostName() + ":"+ config.getServerConfig().getPort());
-        
-        if(Objects.nonNull(config.getServerConfig().getSslConfig())) {
-            
+        final URI uri = new URI(config.getServerConfig().getHostName() + ":" + config.getServerConfig().getPort());
+
+        if (Objects.nonNull(config.getServerConfig().getSslConfig())) {
+
             SslConfig sslConfig = config.getServerConfig().getSslConfig();
+            final SSLContext sslContext = SSLContextFactory.create().from(sslConfig);
 
-                TrustMode trustMode = Stream.of(TrustMode.values())
-                        .filter(tm -> Objects.equals(tm.name(), sslConfig.getServerTrustMode().name()))
-                        .findAny().orElse(TrustMode.NONE);
-                
-                String keyStore = sslConfig.getServerKeyStore().toString();
-                String keyStorePassword = sslConfig.getServerKeyStorePassword();
-                String trustStore = sslConfig.getServerTrustStore().toString();
-                String trustStorePassword = sslConfig.getServerTrustStorePassword();
-                String knownHostsFile = sslConfig.getKnownServersFile().toString();
-                
-                final SSLContext sslContext = trustMode
-                        .createSSLContext(keyStore, keyStorePassword, trustStore, trustStorePassword, knownHostsFile);
-
-                runWebServer(uri, sslContext, true);
+            runWebServer(uri, sslContext, true);
 
         } else {
-             runWebServer(uri, SSLContext.getDefault(), false);
+            runWebServer(uri, SSLContext.getDefault(), false);
         }
 
         System.exit(0);

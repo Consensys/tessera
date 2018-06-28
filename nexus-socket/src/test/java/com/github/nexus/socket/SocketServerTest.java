@@ -1,25 +1,17 @@
 package com.github.nexus.socket;
 
 import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
-import org.bouncycastle.operator.OperatorCreationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.*;
-import java.security.cert.CertificateException;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -31,7 +23,7 @@ public class SocketServerTest {
 
     private HttpProxyFactory httpProxyFactory;
 
-    private ScheduledExecutorService executorService;
+    private ExecutorService executorService;
 
     private UnixSocketFactory unixSocketFactory;
 
@@ -39,19 +31,18 @@ public class SocketServerTest {
 
     private ServerSocket serverSocket;
 
-    private Socket socket;
-
     @Before
     public void setUp() throws IOException {
 
-        this.socketFile = Paths.get(System.getProperty("java.io.tmpdir"), "junit.txt");
+        final Path tempDirectory = Files.createTempDirectory(UUID.randomUUID().toString());
+        this.socketFile = tempDirectory.resolve("junit.txt");
 
         this.httpProxyFactory = mock(HttpProxyFactory.class);
-        this.executorService = mock(ScheduledExecutorService.class);
+        this.executorService = mock(ExecutorService.class);
 
         this.serverSocket = mock(ServerSocket.class);
-        this.socket = mock(Socket.class);
 
+        final Socket socket = mock(Socket.class);
         doReturn(socket).when(serverSocket).accept();
 
         this.unixSocketFactory = mock(UnixSocketFactory.class);
@@ -62,113 +53,43 @@ public class SocketServerTest {
     }
 
     @After
-    public void tearDown() throws IOException {
+    public void tearDown() {
         verifyNoMoreInteractions(httpProxyFactory, executorService);
-        Files.deleteIfExists(socketFile);
-    }
-
-    /*
-    FIXME: The class itself needs refectoring to be easier to test
-    */
-    @Test
-    public void run() throws IOException, InterruptedException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
-
-        socketServer.init();
-
-        HttpProxy httpProxy = mock(HttpProxy.class);
-        when(httpProxy.connect()).thenReturn(true);
-
-        when(httpProxyFactory.create()).thenReturn(httpProxy);
-
-        ByteArrayInputStream inputStream = new ByteArrayInputStream("SOMEDATA".getBytes());
-
-        when(socket.getInputStream()).thenReturn(inputStream);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        when(socket.getOutputStream()).thenReturn(outputStream);
-
-        when(httpProxy.getResponse()).thenReturn("SOMERESPONSE".getBytes());
-
-
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.submit(socketServer);
-
-        TimeUnit.SECONDS.sleep(2L);
-
-
-        executor.shutdown();
-
-        //Reset as we dont know how many times anuything has been called
-        reset(httpProxyFactory);
-
     }
 
     @Test
-    public void testThrowExceptionWhenCreateSecureHttpProxy() throws IOException, InterruptedException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
+    public void connectThrowsIOException() throws IOException {
+        doThrow(IOException.class).when(serverSocket).accept();
 
-        socketServer.init();
+        final Throwable ex = catchThrowable(socketServer::run);
+        assertThat(ex)
+            .isInstanceOf(NexusSocketException.class)
+            .hasCauseExactlyInstanceOf(IOException.class);
 
-        HttpProxy httpProxy = mock(HttpProxy.class);
-        when(httpProxy.connect()).thenReturn(true);
-
-        when(httpProxyFactory.create()).thenThrow(IOException.class);
-
-        ByteArrayInputStream inputStream = new ByteArrayInputStream("SOMEDATA".getBytes());
-
-        when(socket.getInputStream()).thenReturn(inputStream);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        when(socket.getOutputStream()).thenReturn(outputStream);
-
-        when(httpProxy.getResponse()).thenReturn("SOMERESPONSE".getBytes());
-
-
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.submit(socketServer);
-
-        TimeUnit.SECONDS.sleep(2L);
-
-
-        executor.shutdown();
-
-        //Reset as we dont know how many times anuything has been called
-        reset(httpProxyFactory);
-
-
+        verify(serverSocket).accept();
+        verifyNoMoreInteractions(serverSocket);
     }
 
     @Test
-    public void runThrowsIOExceptionOnClientSocket() throws IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
+    public void run() throws Exception {
 
-        socketServer.init();
+        socketServer.run();
 
-        HttpProxy httpProxy = mock(HttpProxy.class);
-        when(httpProxy.connect()).thenReturn(true);
+        verify(serverSocket).accept();
+        verify(executorService).submit(any(SocketHandler.class));
+    }
 
-        when(httpProxyFactory.create()).thenReturn(httpProxy);
-
-        ByteArrayInputStream inputStream = new ByteArrayInputStream("SOMEDATA".getBytes());
-
-        when(socket.getInputStream()).thenReturn(inputStream);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        when(socket.getOutputStream()).thenReturn(outputStream);
-
-        when(httpProxy.getResponse()).thenReturn("SOMERESPONSE".getBytes());
+    @Test
+    public void runThrowsIOExceptionOnClientSocket() throws Exception {
 
         doThrow(IOException.class).when(serverSocket).accept();
 
         final Throwable throwable = catchThrowable(socketServer::run);
 
-        assertThat(throwable).isInstanceOf(NexusSocketException.class).hasCauseExactlyInstanceOf(IOException.class);
+        assertThat(throwable)
+            .isInstanceOf(NexusSocketException.class)
+            .hasCauseExactlyInstanceOf(IOException.class);
 
-    }
-
-    @Test
-    public void initServerSocketSucceeds() throws IOException {
-        socketServer.init();
-
-        verify(unixSocketFactory).createServerSocket(any(Path.class));
     }
 
     @Test
@@ -177,13 +98,14 @@ public class SocketServerTest {
 
         doThrow(exception).when(unixSocketFactory).createServerSocket(any(Path.class));
 
-        final Throwable ex = catchThrowable(socketServer::init);
+        final Throwable ex = catchThrowable(
+            () -> new SocketServer(socketFile, httpProxyFactory, executorService, unixSocketFactory)
+        );
+
         assertThat(ex)
             .isInstanceOf(NexusSocketException.class)
             .hasMessageContaining("BANG!!")
             .hasCauseExactlyInstanceOf(IOException.class);
-
-        verify(unixSocketFactory).createServerSocket(any(Path.class));
     }
 
 }
