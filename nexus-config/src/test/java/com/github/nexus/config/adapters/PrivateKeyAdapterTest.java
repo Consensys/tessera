@@ -30,7 +30,7 @@ public class PrivateKeyAdapterTest {
     @Test
     public void valueIsPassedInDirect() throws IOException {
 
-        final PrivateKeyMutable pkm = new PrivateKeyMutable(null, null, "DATA", null, UNLOCKED, null, null, null, null);
+        final PrivateKeyMutable pkm = new PrivateKeyMutable(null, null, "DATA", null, null);
 
         final PrivateKey pk = adapter.unmarshal(pkm);
 
@@ -45,7 +45,7 @@ public class PrivateKeyAdapterTest {
         final URI uri = ClassLoader.getSystemResource("keyfile.txt").toURI();
         final Path path = Paths.get(uri);
 
-        final PrivateKeyMutable pkm = new PrivateKeyMutable(null, path, null, null, null, null, null, null, null);
+        final PrivateKeyMutable pkm = new PrivateKeyMutable(null, path, null, null, null);
 
         final PrivateKey pk = adapter.unmarshal(pkm);
 
@@ -59,7 +59,7 @@ public class PrivateKeyAdapterTest {
 
         final URI uri = ClassLoader.getSystemResource("unlockedprivatekey.json").toURI();
         final Path path = Paths.get(uri);
-        final PrivateKeyMutable pkm = new PrivateKeyMutable(path, null, null, null, null, null, null, null, null);
+        final PrivateKeyMutable pkm = new PrivateKeyMutable(path, null, null, null, null);
 
         final PrivateKey result = adapter.unmarshal(pkm);
 
@@ -73,7 +73,7 @@ public class PrivateKeyAdapterTest {
 
         final URI uri = ClassLoader.getSystemResource("lockedprivatekey.json").toURI();
         final Path path = Paths.get(uri);
-        final PrivateKeyMutable pkm = new PrivateKeyMutable(path, null, null, null, null, null, null, null, null);
+        final PrivateKeyMutable pkm = new PrivateKeyMutable(path, null, null, null, null);
 
         final PrivateKey result = adapter.unmarshal(pkm);
 
@@ -87,6 +87,23 @@ public class PrivateKeyAdapterTest {
         assertThat(result.getArgonOptions().getMemory()).isEqualTo(1048576);
         assertThat(result.getArgonOptions().getParallelism()).isEqualTo(4);
 
+    }
+
+    @Test
+    public void defaultOptionsUsed() throws IOException {
+        final PrivateKeyMutable pkm = new PrivateKeyMutable(
+            null,
+            null,
+            "KEY-DATA",
+            "PASSWORD",
+            new PrivateKey("KEY-DATA", null, UNLOCKED, null, null, null, null)
+        );
+
+        final PrivateKey result = adapter.unmarshal(pkm);
+
+        assertThat(result.getType()).isEqualTo(PrivateKeyType.UNLOCKED);
+        assertThat(result.getValue()).isEqualTo("KEY-DATA");
+        assertThat(result.getPassword()).isEqualTo("PASSWORD");
     }
 
 }

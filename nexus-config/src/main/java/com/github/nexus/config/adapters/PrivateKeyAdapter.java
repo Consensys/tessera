@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
-import java.util.Objects;
 
 import static com.github.nexus.config.PrivateKeyType.LOCKED;
 import static com.github.nexus.config.PrivateKeyType.UNLOCKED;
@@ -31,28 +30,33 @@ public class PrivateKeyAdapter extends XmlAdapter<PrivateKeyMutable, PrivateKey>
     @Override
     public PrivateKey unmarshal(final PrivateKeyMutable input) throws IOException {
 
-        if(Objects.nonNull(input.getLegacyPath())) {
+        if(input.getLegacyPath() != null) {
 
             return this.handleJsonFile(input);
 
-        } else if (Objects.nonNull(input.getPath())) {
+        } else if (input.getPath() != null) {
 
             final byte[] keyBytes = Files.readAllBytes(input.getPath());
             final String key = new String(keyBytes);
 
             return new PrivateKey(key, null, UNLOCKED, null, null, null, null);
 
+        } else if(input.getValue() != null){
+
+            return new PrivateKey(input.getValue(), null, UNLOCKED, null, null, null, null);
+
         } else {
 
             return new PrivateKey(
                 input.getValue(),
                 input.getPassword(),
-                input.getType(),
-                input.getSnonce(),
-                input.getAsalt(),
-                input.getSbox(),
-                input.getArgonOptions()
+                input.getPrivateKey().getType(),
+                input.getPrivateKey().getSnonce(),
+                input.getPrivateKey().getAsalt(),
+                input.getPrivateKey().getSbox(),
+                input.getPrivateKey().getArgonOptions()
             );
+
         }
 
     }

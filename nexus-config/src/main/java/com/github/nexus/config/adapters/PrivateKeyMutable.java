@@ -1,9 +1,7 @@
 package com.github.nexus.config.adapters;
 
-import com.github.nexus.config.ArgonOptions;
-import com.github.nexus.config.PrivateKeyType;
+import com.github.nexus.config.PrivateKey;
 
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
@@ -27,43 +25,23 @@ public class PrivateKeyMutable {
     @XmlElement(required = true)
     private final String password;
 
-    @XmlAttribute
-    private final PrivateKeyType type;
-
     @XmlElement
-    private final String snonce;
-
-    @XmlElement
-    private final String asalt;
-
-    @XmlElement
-    private final String sbox;
-
-    @XmlElement
-    private final ArgonOptions argonOptions;
+    private final PrivateKey contents;
 
     public PrivateKeyMutable() {
-        this(null, null, null, null, null, null, null, null, null);
+        this(null, null, null, null, null);
     }
 
     public PrivateKeyMutable(final Path legacyPath,
                              final Path path,
                              final String value,
                              final String password,
-                             final PrivateKeyType type,
-                             final String snonce,
-                             final String asalt,
-                             final String sbox,
-                             final ArgonOptions argonOptions) {
+                             final PrivateKey contents) {
         this.legacyPath = legacyPath;
         this.path = path;
         this.value = value;
         this.password = password;
-        this.type = type;
-        this.snonce = snonce;
-        this.asalt = asalt;
-        this.sbox = sbox;
-        this.argonOptions = argonOptions;
+        this.contents = contents;
     }
 
     public Path getLegacyPath() {
@@ -82,24 +60,8 @@ public class PrivateKeyMutable {
         return password;
     }
 
-    public PrivateKeyType getType() {
-        return type;
-    }
-
-    public String getSnonce() {
-        return snonce;
-    }
-
-    public String getAsalt() {
-        return asalt;
-    }
-
-    public String getSbox() {
-        return sbox;
-    }
-
-    public ArgonOptions getArgonOptions() {
-        return argonOptions;
+    public PrivateKey getPrivateKey() {
+        return contents;
     }
 
 }

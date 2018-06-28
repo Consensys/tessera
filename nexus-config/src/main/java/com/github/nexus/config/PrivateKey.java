@@ -2,7 +2,10 @@ package com.github.nexus.config;
 
 public class PrivateKey {
 
-    private final String value;
+    //field called "bytes" as is expected in the file (during deserialisation)
+    //the getter is called getValue() as it is the value of the key
+    //both refer to the same thing
+    private final String bytes;
 
     private final String password;
 
@@ -16,15 +19,18 @@ public class PrivateKey {
 
     private final ArgonOptions argonOptions;
 
-    public PrivateKey(
-                      String value,
-                      String password,
-                      PrivateKeyType type,
-                      String snonce,
-                      String asalt,
-                      String sbox,
-                      ArgonOptions argonOptions) {
-        this.value = value;
+    public PrivateKey() {
+        this(null, null, null, null, null, null, null);
+    }
+
+    public PrivateKey(final String bytes,
+                      final String password,
+                      final PrivateKeyType type,
+                      final String snonce,
+                      final String asalt,
+                      final String sbox,
+                      final ArgonOptions argonOptions) {
+        this.bytes = bytes;
         this.password = password;
         this.type = type;
         this.snonce = snonce;
@@ -34,7 +40,7 @@ public class PrivateKey {
     }
 
     public String getValue() {
-        return this.value;
+        return this.bytes;
     }
 
     public String getPassword() {
