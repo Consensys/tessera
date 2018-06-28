@@ -73,7 +73,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
         String saltString = encoder.encodeToString(salt);
         String encyptKeyString =  encoder.encodeToString(encryptedKey);
         
-        PrivateKey privateKey1 = new PrivateKey(null, privateKey.toString(), password, PrivateKeyType.LOCKED, nonceString, saltString, encyptKeyString, argonOptions);
+        PrivateKey privateKey1 = new PrivateKey(null, null, privateKey.toString(), password, PrivateKeyType.LOCKED, nonceString, saltString, encyptKeyString, argonOptions);
         
         return privateKey1;
 

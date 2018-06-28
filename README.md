@@ -2,11 +2,71 @@
 A stateless JAVA application responsible for encryption and decryption of private transaction data and for off-chain private messaging.It is also responsible for generating and managing private key locally in each node in Quorum Network.
 
 ##Running Nexus
-Usage:
 
 `java -jar nexus-app/target/nexus-app-${version}-app.jar -c config.json`
 
+
+Probably best to copy the jar somewhere and create an alias
+<pre>
+alias nexus="java -jar /somewhere/nexus-app.jar"
+</pre>
+
+And add the nexus to your PATH.
+
+
+
 See the section on 'Configuration' for a description of the available properties.
+
+
+<pre>
+  {
+   "useWhiteList" : false,
+   "jdbc" : {
+      "username" : "sa",
+      "password" : "",
+      "url" : "jdbc:h2:./target/h2/nexus1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
+   },
+   "server" : {
+      "port" : 8080,
+      "hostName":"http://localhost"
+
+   },
+   "peer" : [ {
+      "url" : "http://localhost:8081"
+   }],
+   "keys" : [ {
+      "privateKey" : {
+         "value" : "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
+         "type": "UNLOCKED"
+      },
+      "publicKey" : {
+         "value":"/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+      }
+   } ],
+   "unixSocketFile" : "/tmp/tm1.ipc"
+  }
+</pre>
+
+Keys can be provided using paths or values, for example 
+
+<pre>
+      "privateKey" : {
+         "path" : "/somepath/somefile.key",
+         "type": "UNLOCKED"
+      },
+      "publicKey" : {
+         "path":"/somepath/someotherfile.key"
+      }
+
+</pre>
+
+
+If the keys dont already exist they can be generated using the -keygen option. 
+
+<pre>
+    nexus -configfile config.json -keygen
+</pre>
+
 
 ##Interface Details
 

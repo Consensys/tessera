@@ -5,22 +5,39 @@ import java.io.FileNotFoundException;
 import javax.validation.ConstraintViolationException;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.ExpectedSystemExit;
 
 public class CliDelegateTest {
 
     private CliDelegate cliDelegate;
+
+    @Rule
+    public final ExpectedSystemExit exit = ExpectedSystemExit.none();
+    
 
     public CliDelegateTest() {
     }
 
     @Before
     public void setUp() {
+
+        
+        
         cliDelegate = CliDelegate.instance();
     }
 
     @Test
-    public void callApiVersionWithValidConfig() throws Exception {
+    public void help() throws Exception {
+        exit.expectSystemExitWithStatus(0);
+        cliDelegate.execute("help");
+
+
+    }
+
+    @Test
+    public void withValidConfig() throws Exception {
 
         Config result = cliDelegate.execute(
                 "-configfile",
@@ -28,6 +45,17 @@ public class CliDelegateTest {
 
         assertThat(result).isNotNull();
         assertThat(result).isSameAs(cliDelegate.getConfig());
+    }
+
+    @Test
+    public void withValidConfigAndKeygen() throws Exception {
+        exit.expectSystemExitWithStatus(0);
+        cliDelegate.execute(
+                "-keygen",
+                "-configfile",
+                getClass().getResource("/sample-config.json").getFile());
+
+
     }
 
     @Test(expected = FileNotFoundException.class)
@@ -47,10 +75,10 @@ public class CliDelegateTest {
             cliDelegate.execute(
                     "-configfile",
                     getClass().getResource("/missing-config.json").getFile());
-                    
+
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
-               assertThat(ex.getConstraintViolations()).hasSize(1);
+            assertThat(ex.getConstraintViolations()).hasSize(1);
         }
 
     }

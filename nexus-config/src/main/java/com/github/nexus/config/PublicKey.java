@@ -1,13 +1,10 @@
 package com.github.nexus.config;
 
 import com.github.nexus.config.util.PathUtil;
-import java.nio.file.Path;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
+
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.nio.file.Path;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
@@ -18,12 +15,15 @@ public class PublicKey {
     private final Path path;
 
     @XmlSchemaType(name = "anyURI")
-    private final String value;
+    private String value;
 
     public PublicKey(Path path, String value) {
         this.path = path;
         this.value = PathUtil.readData(path, value);
+    }
 
+    public PublicKey() {
+        this(null, null);
     }
 
     private static PublicKey create() {
@@ -35,6 +35,10 @@ public class PublicKey {
     }
 
     public String getValue() {
+        if (this.value == null) {
+            this.value = PathUtil.readData(path, null);
+        }
+
         return value;
     }
 
