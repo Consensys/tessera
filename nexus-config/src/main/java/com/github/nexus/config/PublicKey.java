@@ -1,5 +1,6 @@
 package com.github.nexus.config;
 
+import com.github.nexus.config.adapters.PathAdapter;
 import com.github.nexus.config.util.PathUtil;
 
 import javax.xml.bind.annotation.*;

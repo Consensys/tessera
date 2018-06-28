@@ -1,27 +1,16 @@
 package com.github.nexus.config.constraints;
 
+import org.junit.Test;
+
+import javax.validation.ConstraintValidatorContext;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import javax.validation.ConstraintValidatorContext;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PathValidatorTest {
-
-    public PathValidatorTest() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
 
     @Test
     public void validateFileExists() {

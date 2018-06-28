@@ -1,11 +1,13 @@
-package com.github.nexus.config;
+package com.github.nexus.config.adapters;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PathAdapterTest {
 
