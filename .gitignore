@@ -48,3 +48,4 @@
 /nexus-security/nb-configuration.xml
 /nexus-socket/nb-configuration.xml
 /nexus-encryption-kalium/nb-configuration.xml
+/nexus-config-cli/nbactions.xml
