@@ -1,5 +1,5 @@
 
-package com.github.nexus.ssl;
+package com.github.nexus.ssl.exception;
 
 
 public class NexusSecurityException extends RuntimeException {
