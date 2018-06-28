@@ -1,5 +1,7 @@
 package com.github.nexus.server;
 
+import com.github.nexus.config.ServerConfig;
+import com.github.nexus.ssl.SSLContextFactory;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
@@ -33,13 +35,18 @@ public class JerseyServer implements RestServer {
 
     private final boolean secure;
 
+    private final SSLContextFactory sslContextFactory = SSLContextFactory.create();
 
     public JerseyServer(
-        URI uri, Application application, SSLContext sslContext, boolean secure) {
+            URI uri, Application application, ServerConfig serverConfig) {
         this.uri = Objects.requireNonNull(uri);
         this.application = Objects.requireNonNull(application);
-        this.sslContext = Objects.requireNonNull(sslContext);
-        this.secure = Objects.requireNonNull(secure);
+        this.secure = serverConfig.isSsl();
+        if (serverConfig.isSsl()) {
+            this.sslContext = sslContextFactory.from(serverConfig.getSslConfig());
+        } else {
+            this.sslContext = null;
+        }
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JerseyServer.class);
@@ -61,16 +68,19 @@ public class JerseyServer implements RestServer {
         initParams.put("jersey.config.server.monitoring.enabled", "true");
         initParams.put("jersey.config.server.monitoring.statistics.mbeans.enabled", "true");
 
-
         final ResourceConfig config = ResourceConfig.forApplication(application);
         config.addProperties(initParams);
 
-        server = GrizzlyHttpServerFactory.createHttpServer(
-            uri,
-            new ResourceConfig(),
-            secure,
-            new SSLEngineConfigurator(sslContext).setClientMode(false).setNeedClientAuth(true),
-            false);
+        if (secure) {
+            server = GrizzlyHttpServerFactory.createHttpServer(
+                    uri,
+                    new ResourceConfig(),
+                    secure,
+                    new SSLEngineConfigurator(sslContext).setClientMode(false).setNeedClientAuth(true),
+                    false);
+        } else {
+            server = GrizzlyHttpServerFactory.createHttpServer(uri,false);
+        }
 
         final WebappContext ctx = new WebappContext("WebappContext");
         final ServletRegistration registration = ctx.addServlet("ServletContainer", new ServletContainer(config));
