@@ -20,7 +20,12 @@
             <artifactId>commons-cli</artifactId>
             <version>1.4</version>
         </dependency>
-        
+        <dependency>
+            <groupId>com.github.stefanbirkner</groupId>
+            <artifactId>system-rules</artifactId>
+            <version>1.18.0</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-config</artifactId>
@@ -35,5 +40,55 @@
             <artifactId>hibernate-validator</artifactId>
         </dependency>
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <detail>true</detail>
+                </configuration>
+                
+                <executions>
+
+
+                    <execution>
+                        <id>check</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+
+                        <configuration>
+<!-- Only allow the 100% coveregae to be lowered for this module 
+as jacoco cant account for System.exit calls. 
+                            -->
+                            <rules>
+                                <rule>
+                                    <element>CLASS</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.94</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.97</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+
+                    </execution>
+
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
     
 </project>

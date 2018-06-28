@@ -1,27 +1,26 @@
 package com.github.nexus.config;
 
 import com.github.nexus.config.util.PathUtil;
-import java.nio.file.Path;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
+
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.nio.file.Path;
+import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
 public class PrivateKey {
 
- 
+    @XmlElement(type = String.class, name = "legacyPath")
+    @XmlJavaTypeAdapter(LegacyPrivateKeyFileAdapter.class)
+    private final LegacyPrivateKeyFile legacyKey;
+
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path path;
+    private Path path;
 
-    
     @XmlSchemaType(name = "anyURI")
-    private final String value;
+    private String value;
 
     @XmlElement(required = true)
     private final String password;
@@ -41,19 +40,19 @@ public class PrivateKey {
     @XmlElement
     private final ArgonOptions argonOptions;
 
-    public PrivateKey(
-            Path path, 
-            String value, 
-            String password, 
-            PrivateKeyType type, 
-            String snonce, 
-            String asalt, 
-            String sbox, 
-            ArgonOptions argonOptions) {
-        
+    public PrivateKey(final LegacyPrivateKeyFile legacyKey,
+                      Path path,
+                      String value,
+                      String password,
+                      PrivateKeyType type,
+                      String snonce,
+                      String asalt,
+                      String sbox,
+                      ArgonOptions argonOptions) {
+
+        this.legacyKey = legacyKey;
         this.path = path;
-        this.value = PathUtil.readData(path, value);
-        
+        this.value = value;
         this.password = password;
         this.type = type;
         this.snonce = snonce;
@@ -62,21 +61,26 @@ public class PrivateKey {
         this.argonOptions = argonOptions;
     }
 
-    private PrivateKey() {
-        this(null,null,null,null,null,null,null,null);
+    public PrivateKey() {
+        this(null, null, null, null, null, null, null, null, null);
     }
 
     private static PrivateKey create() {
         return new PrivateKey();
     }
-    
-    
+
     public Path getPath() {
-        return path;
+        return this.path;
     }
 
     public String getValue() {
-        return value;
+        if (Objects.nonNull(legacyKey)) {
+            return legacyKey.getBytes();
+        } else if (Objects.nonNull(path)) {
+            return PathUtil.readData(path, value);
+        }
+
+        return this.value;
     }
 
     public String getPassword() {
@@ -84,24 +88,46 @@ public class PrivateKey {
     }
 
     public PrivateKeyType getType() {
+        if (Objects.nonNull(legacyKey)) {
+            return legacyKey.getType();
+        }
+
         return type;
     }
 
     public String getSnonce() {
+        if (Objects.nonNull(legacyKey)) {
+            return legacyKey.getSnonce();
+        }
+
         return snonce;
     }
 
     public String getAsalt() {
+        if (Objects.nonNull(legacyKey)) {
+            return legacyKey.getAsalt();
+        }
+
         return asalt;
     }
 
     public String getSbox() {
+        if (Objects.nonNull(legacyKey)) {
+            return legacyKey.getSbox();
+        }
+
         return sbox;
     }
 
-
     public ArgonOptions getArgonOptions() {
+        if (Objects.nonNull(legacyKey)) {
+            return legacyKey.getArgonOptions();
+        }
+
         return argonOptions;
     }
 
+    public LegacyPrivateKeyFile getLegacyKey() {
+        return legacyKey;
+    }
 }
