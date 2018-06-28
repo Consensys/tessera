@@ -1,5 +1,5 @@
 # Nexus
-A stateless JAVA application responsible for encryption and decryption of private transaction data and for off-chain private messaging.It is also responsible for generating and managing private key locally in each node in Quorum Network.
+A stateless java application responsible for encryption and decryption of private transaction data and for off-chain private messaging.It is also responsible for generating and managing private key locally in each node in Quorum Network.
 
 ##Running Nexus
 
@@ -7,29 +7,29 @@ A stateless JAVA application responsible for encryption and decryption of privat
 
 
 Probably best to copy the jar somewhere and create an alias
-<pre>
-alias nexus="java -jar /somewhere/nexus-app.jar"
-</pre>
+
+`alias nexus="java -jar /somewhere/nexus-app.jar"`
 
 And add the nexus to your PATH.
 
+If you want to use an alternative database then you'll need to add the drivers to the classpath
+
+`java -cp some-jdbc-driver.jar -jar /somewhere/nexus-app.jar`
 
 
 See the section on 'Configuration' for a description of the available properties.
 
-
-<pre>
+```
   {
    "useWhiteList" : false,
    "jdbc" : {
       "username" : "sa",
       "password" : "",
-      "url" : "jdbc:h2:./target/h2/nexus1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
+      "url" : "jdbc:h2:./target/h2/nexus1"
    },
    "server" : {
       "port" : 8080,
       "hostName":"http://localhost"
-
    },
    "peer" : [ {
       "url" : "http://localhost:8081"
@@ -45,11 +45,11 @@ See the section on 'Configuration' for a description of the available properties
    } ],
    "unixSocketFile" : "/tmp/tm1.ipc"
   }
-</pre>
+```
 
 Keys can be provided using paths or values, for example 
 
-<pre>
+```
       "privateKey" : {
          "path" : "/somepath/somefile.key",
          "type": "UNLOCKED"
@@ -58,14 +58,14 @@ Keys can be provided using paths or values, for example
          "path":"/somepath/someotherfile.key"
       }
 
-</pre>
+```
 
 
 If the keys dont already exist they can be generated using the -keygen option. 
 
-<pre>
+```
     nexus -configfile config.json -keygen
-</pre>
+```
 
 
 ##Interface Details
@@ -163,17 +163,6 @@ Configuration can be specified in multiple ways, in the following priority:
 
 ####Configuration properties
 
-* publicKeys: comma-separated list of public key file locations to use
-* privateKeys: comma separated list of private key file locations to use
-* url: URL of this Nexus node (used by Quorum and also advertised to remote Nexus nodes)
-* port: port used by this node to listen to remote Nexus nodes
-* workdir: directory where work files are placed (must match value specified to Quorum)
-* socket: name of the unix domain socket used for communication with Quorum
-* othernodes: comma seperated list of known Nexus nodes
-* keygenBasePath: the base path for new generated keys to be placed - can be absolute or relative
-* passwords: a list of passwords used to unlock encrypted private keys
-
-(n.b. if a private key isn't encrypted, give it an empty password, e.g. passwords=abc,,def)
 
 ##Building Nexus
 
@@ -204,3 +193,4 @@ Nexus has the folllowing runtime dependencies which must be installed.
 
 This is only required if Nexus is built to use the Kalium implementation.
 * brew install libsodium
+
