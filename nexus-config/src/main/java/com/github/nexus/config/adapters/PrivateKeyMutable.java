@@ -13,11 +13,11 @@ public class PrivateKeyMutable {
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path legacyPath;
+    private final Path path;
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path path;
+    private final Path rawPath;
 
     @XmlElement
     private final String value;
@@ -32,24 +32,24 @@ public class PrivateKeyMutable {
         this(null, null, null, null, null);
     }
 
-    public PrivateKeyMutable(final Path legacyPath,
-                             final Path path,
+    public PrivateKeyMutable(final Path path,
+                             final Path rawPath,
                              final String value,
                              final String password,
                              final PrivateKey contents) {
-        this.legacyPath = legacyPath;
         this.path = path;
+        this.rawPath = rawPath;
         this.value = value;
         this.password = password;
         this.contents = contents;
     }
 
-    public Path getLegacyPath() {
-        return legacyPath;
-    }
-
     public Path getPath() {
         return path;
+    }
+
+    public Path getRawPath() {
+        return rawPath;
     }
 
     public String getValue() {
