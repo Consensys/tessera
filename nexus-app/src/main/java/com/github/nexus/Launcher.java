@@ -4,6 +4,7 @@ import com.github.nexus.api.Nexus;
 import com.github.nexus.config.Config;
 import com.github.nexus.config.ServerConfig;
 import com.github.nexus.config.cli.CliDelegate;
+import com.github.nexus.config.cli.CliResult;
 import com.github.nexus.server.RestServer;
 import com.github.nexus.server.RestServerFactory;
 import com.github.nexus.service.locator.ServiceLocator;
@@ -34,8 +35,14 @@ public class Launcher {
 
     public static void main(final String... args) throws Exception {
 
-        Config config = CliDelegate.instance().execute(args);
+        CliResult cliResult = CliDelegate.instance().execute(args);
 
+        if(cliResult.getStatus() != 0) {
+            System.exit(cliResult.getStatus());
+        }
+        
+        Config config = cliResult.getConfig().get();
+        
         Launcher.createPidFile();
 
         final URI uri = new URI(config.getServerConfig().getHostName() + ":" + config.getServerConfig().getPort());
