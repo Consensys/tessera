@@ -13,23 +13,20 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
+import java.util.Base64;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * retrieve tx with hash
- * retrieve tx with hash and sender
- * retrieve hash that doesn't exist
- */
-public class ReceiveIT {
+public class ReceiveRawIT {
 
     private static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
 
-    private static final String RECEIVE_PATH = "/transaction";
+    private static final String RECEIVE_PATH = "/receiveraw";
+
+    private static final String C11N_TO = "c11n-to";
+
+    private static final String C11N_KEY = "c11n-key";
 
     private static final String SENDER_KEY = "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=";
 
@@ -37,18 +34,15 @@ public class ReceiveIT {
 
     private static final String PAYLOAD = "Zm9v";
 
+    private static final String RAW_PAYLOAD = new String(Base64.getDecoder().decode(PAYLOAD));
+
     private static final Client client = ClientBuilder.newClient();
 
-    private String encodedHash;
-
-    private String encodedSender;
-
-    private String encodedRecipientOne;
+    private String hash;
 
     //Persist a single transaction that can be used later
     @Before
-    public void init() throws UnsupportedEncodingException {
-
+    public void init() {
         final String sendRequest = Json.createObjectBuilder()
             .add("from", SENDER_KEY)
             .add("to", Json.createArrayBuilder().add(RECIPIENT_ONE))
@@ -64,11 +58,7 @@ public class ReceiveIT {
 
         final JsonObject jsonResult = Json.createReader(reader).readObject();
 
-        final String hash = jsonResult.getString("key");
-
-        this.encodedHash = URLEncoder.encode(hash, UTF_8.toString());
-        this.encodedSender = URLEncoder.encode(SENDER_KEY, UTF_8.toString());
-        this.encodedRecipientOne = URLEncoder.encode(RECIPIENT_ONE, UTF_8.toString());
+        this.hash = jsonResult.getString("key");
 
     }
 
@@ -76,10 +66,11 @@ public class ReceiveIT {
     public void fetchExistingTransactionUsingOwnKey() {
 
         final Response response = client.target(SERVER_URI)
-            .path(RECEIVE_PATH + "/" + this.encodedHash)
+            .path(RECEIVE_PATH)
             .request()
+            .header(C11N_KEY, this.hash)
+            .header(C11N_TO, SENDER_KEY)
             .buildGet()
-            .property("to", this.encodedSender)
             .invoke();
 
         //validate result
@@ -87,34 +78,9 @@ public class ReceiveIT {
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
 
-        final String result = response.readEntity(String.class);
-        final Reader reader = new StringReader(result);
-        final JsonObject jsonResult = Json.createReader(reader).readObject();
-        assertThat(jsonResult).containsKeys("payload");
-        assertThat(jsonResult.getString("payload")).isEqualTo(PAYLOAD);
+        final byte[] result = response.readEntity(byte[].class);
 
-    }
-
-    @Test
-    public void fetchExistingTransactionUsingRecipientKey() {
-
-        final Response response = client.target(SERVER_URI)
-            .path(RECEIVE_PATH + "/" + this.encodedHash)
-            .request()
-            .buildGet()
-            .property("to", this.encodedRecipientOne)
-            .invoke();
-
-        //validate result
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(200);
-
-        final String result = response.readEntity(String.class);
-        final Reader reader = new StringReader(result);
-        final JsonObject jsonResult = Json.createReader(reader).readObject();
-        assertThat(jsonResult).containsKeys("payload");
-        assertThat(jsonResult.getString("payload")).isEqualTo(PAYLOAD);
+        assertThat(new String(result)).isEqualTo(RAW_PAYLOAD);
 
     }
 
@@ -122,8 +88,9 @@ public class ReceiveIT {
     public void fetchExistingTransactionNotUsingKey() {
 
         final Response response = client.target(SERVER_URI)
-            .path(RECEIVE_PATH + "/" + this.encodedHash)
+            .path(RECEIVE_PATH)
             .request()
+            .header(C11N_KEY, this.hash)
             .buildGet()
             .invoke();
 
@@ -132,11 +99,31 @@ public class ReceiveIT {
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
 
-        final String result = response.readEntity(String.class);
-        final Reader reader = new StringReader(result);
-        final JsonObject jsonResult = Json.createReader(reader).readObject();
-        assertThat(jsonResult).containsKeys("payload");
-        assertThat(jsonResult.getString("payload")).isEqualTo(PAYLOAD);
+        final byte[] result = response.readEntity(byte[].class);
+
+        assertThat(new String(result)).isEqualTo(RAW_PAYLOAD);
+
+    }
+
+    @Test
+    public void fetchExistingTransactionUsingRecipientKey() {
+
+        final Response response = client.target(SERVER_URI)
+            .path(RECEIVE_PATH)
+            .request()
+            .header(C11N_KEY, this.hash)
+            .header(C11N_TO, RECIPIENT_ONE)
+            .buildGet()
+            .invoke();
+
+        //validate result
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(200);
+
+        final byte[] result = response.readEntity(byte[].class);
+
+        assertThat(new String(result)).isEqualTo(RAW_PAYLOAD);
 
     }
 
@@ -144,8 +131,9 @@ public class ReceiveIT {
     public void fetchNonexistantTransactionFails() {
 
         final Response response = client.target(SERVER_URI)
-            .path(RECEIVE_PATH + "/" + "invalidhashvalue")
+            .path(RECEIVE_PATH)
             .request()
+            .header(C11N_KEY, "invalidhashvalue")
             .buildGet()
             .invoke();
 
