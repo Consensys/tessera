@@ -45,8 +45,8 @@ public class TransactionResource {
     })
     @POST
     @Path("send")
-    @Consumes({MediaType.APPLICATION_JSON})
-    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response send(
             @ApiParam(name = "sendRequest", required = true)
             @Valid final SendRequest sendRequest) {
@@ -196,15 +196,13 @@ public class TransactionResource {
     })
     @POST
     @Path("delete")
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public Response delete(
             @ApiParam(name = "deleteRequest", required = true)
             @Valid final DeleteRequest deleteRequest) {
 
-        final byte[] hashBytes = base64Decoder.decode(deleteRequest.getKey());
-
-        enclave.delete(hashBytes);
+        this.deleteKey(deleteRequest.getKey());
 
         return Response.status(Response.Status.OK)
                 .entity("Delete successful")
@@ -217,16 +215,13 @@ public class TransactionResource {
         @ApiResponse(code = 404, message = "If the entity doesn't exist")
     })
     @DELETE
-    @Path("{key}")
-    public Response deleteKey(
-            @ApiParam("Encoded key")
-            @PathParam("key") String key) {
+    @Path("/transaction/{key}")
+    public Response deleteKey(@ApiParam("Encoded hash") @PathParam("key") final String key) {
 
         final byte[] hashBytes = base64Decoder.decode(key);
         enclave.delete(hashBytes);
 
-        return Response.accepted().build();
-
+        return Response.noContent().build();
     }
 
     @ApiResponses(
@@ -240,7 +235,7 @@ public class TransactionResource {
     )
     @POST
     @Path("resend")
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public Response resend(
             @ApiParam(name = "resendRequest", required = true)

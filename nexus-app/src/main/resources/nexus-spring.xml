@@ -120,6 +120,7 @@
         <bean class="com.github.nexus.api.exception.NotFoundExceptionMapper" />
         <bean class="com.github.nexus.api.exception.TransactionNotFoundExceptionMapper"/>
         <bean class="com.github.nexus.api.exception.WebApplicationExceptionMapper"/>
+        <bean class="com.github.nexus.api.exception.EntityNotFoundExceptionMapper"/>
 
         <bean class="com.github.nexus.api.ApiResource" />
     
