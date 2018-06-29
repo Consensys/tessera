@@ -1,12 +1,72 @@
 # Nexus
-A stateless JAVA application responsible for encryption and decryption of private transaction data and for off-chain private messaging.It is also responsible for generating and managing private key locally in each node in Quorum Network.
+A stateless java application responsible for encryption and decryption of private transaction data and for off-chain private messaging.It is also responsible for generating and managing private key locally in each node in Quorum Network.
 
 ##Running Nexus
-Usage:
 
 `java -jar nexus-app/target/nexus-app-${version}-app.jar -c config.json`
 
+
+Probably best to copy the jar somewhere and create an alias
+
+`alias nexus="java -jar /somewhere/nexus-app.jar"`
+
+And add the nexus to your PATH.
+
+If you want to use an alternative database then you'll need to add the drivers to the classpath
+
+`java -cp some-jdbc-driver.jar -jar /somewhere/nexus-app.jar`
+
+
 See the section on 'Configuration' for a description of the available properties.
+
+```
+  {
+   "useWhiteList" : false,
+   "jdbc" : {
+      "username" : "sa",
+      "password" : "",
+      "url" : "jdbc:h2:./target/h2/nexus1"
+   },
+   "server" : {
+      "port" : 8080,
+      "hostName":"http://localhost"
+   },
+   "peer" : [ {
+      "url" : "http://localhost:8081"
+   }],
+   "keys" : [ {
+      "privateKey" : {
+         "value" : "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
+         "type": "UNLOCKED"
+      },
+      "publicKey" : {
+         "value":"/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+      }
+   } ],
+   "unixSocketFile" : "/tmp/tm1.ipc"
+  }
+```
+
+Keys can be provided using paths or values, for example 
+
+```
+      "privateKey" : {
+         "path" : "/somepath/somefile.key",
+         "type": "UNLOCKED"
+      },
+      "publicKey" : {
+         "path":"/somepath/someotherfile.key"
+      }
+
+```
+
+
+If the keys dont already exist they can be generated using the -keygen option. 
+
+```
+    nexus -configfile config.json -keygen
+```
+
 
 ##Interface Details
 
@@ -132,3 +192,4 @@ Nexus has the folllowing runtime dependencies which must be installed.
 
 This is only required if Nexus is built to use the Kalium implementation.
 * brew install libsodium
+

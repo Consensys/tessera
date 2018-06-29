@@ -1,11 +1,13 @@
 package com.github.nexus.config.util;
 
 import com.github.nexus.config.ConfigException;
+import org.junit.Test;
+
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
 import static org.mockito.Mockito.mock;
 
 public class PathUtilTest {
@@ -40,7 +42,7 @@ public class PathUtilTest {
     }
 
     @Test(expected = ConfigException.class)
-    public void readPathThrowsIOException() throws URISyntaxException {
+    public void readPathThrowsIOException() {
 
         Path path = Paths.get("bogus");
         
