@@ -50,29 +50,28 @@ See the section on 'Configuration' for a description of the available properties
 Keys can be provided using paths or values, for example 
 
 ```
-      "privateKey" : {
-         "path" : "/somepath/somefile.key",
-         "type": "UNLOCKED"
-      },
-      "publicKey" : {
-         "path":"/somepath/someotherfile.key"
-      }
+"privateKey" : {
+   "path" : "/somepath/somefile.key",
+   "type": "UNLOCKED"
+},
+"publicKey" : {
+   "path":"/somepath/someotherfile.key"
+}
 
 ```
-
 
 If the keys dont already exist they can be generated using the -keygen option. 
 
 ```
-    nexus -configfile config.json -keygen
+nexus -configfile config.json -keygen
 ```
 
 
-##Interface Details
+## Interface Details
 
 Nexus has two interfaces which allow endpoints from the API to be called.
 
-#####HTTP (Public API)
+##### HTTP (Public API)
 
 This is used for communication between Nexus instances.
 Nexus instances communicate with each other for:
@@ -87,7 +86,7 @@ The following endpoints are advertised on this interface:
 - resend
 - partyinfo
 
-#####Unix Domain Socket (Private API)
+##### Unix Domain Socket (Private API)
 This is used for communication with Quorum.
 Quorum needs to be able to:
 - Check if the local Nexus node is running.
@@ -102,7 +101,7 @@ The following endpoints are advertised on this interface:
 - receiveraw
 - delete
 
-##API Details
+## API Details
 
 **version** - _Get Nexus version_
 
@@ -151,45 +150,36 @@ Details to be provided
 
 Details to be provided
 
-##Configuration
+## Configuration
 
-####Configuration sources
+#### Configuration sources
 
-Configuration can be specified in multiple ways, in the following priority:
-- system properties (-DprivateKeys=...)
-- environment variables (export privateKeys=...)
-- command line properties (--privateKeys ...)
-- config files (-Dconfig.file=conf.properties, -Dconfig.file=conf.yml)
-
-####Configuration properties
-
-
-##Building Nexus
+## Building Nexus
 
 Checkout nexus from github and build using maven.
 Nexus can be built with different nacl implementations:
 
-####jnacl
+#### jnacl
 
-* mvn --batch-mode install
+* mvn install
 
-#####kalium
+##### kalium
 
-* mvn --batch-mode install -Pkalium
+* mvn install -Pkalium
 
 Note that the Kalium implementation requires that you have sodium installed at runtime (see runtime dependencies below).
 
-##Runtime Dependencies
+## Runtime Dependencies
 Nexus has the folllowing runtime dependencies which must be installed.
 
-####junixsocket
+#### junixsocket
 
 1. Get junixsocket-1.3-bin.tar.bz2 from https://code.google.com/archive/p/junixsocket/downloads
 2. Unpack it
 4. sudo mkdir -p /opt/newsclub/lib-native
 5. sudo cp junixsocket-1.3/lib-native/libjunixsocket-macosx-1.5-x86_64.dylib /opt/newsclub/lib-native/
 
-####sodium
+#### sodium
 
 This is only required if Nexus is built to use the Kalium implementation.
 * brew install libsodium

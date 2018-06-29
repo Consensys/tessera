@@ -36,7 +36,7 @@ public enum CliDelegate {
         return config;
     }
 
-    public Config execute(String... args) throws Exception {
+    public CliResult execute(String... args) throws Exception {
 
         Options options = new Options();
         options.addOption(
@@ -56,7 +56,7 @@ public enum CliDelegate {
         if (Arrays.asList(args).contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("nexus", options);
-            System.exit(0);
+            return new CliResult(0, config) ;
         }
 
         CommandLineParser parser = new DefaultParser();
@@ -79,7 +79,7 @@ public enum CliDelegate {
 
             if (line.hasOption("keygen")) {
                 System.out.println("TODO: Generate keys from configrued paths");
-                System.exit(0);
+                return new CliResult(0, null);
             }
 
             Set<ConstraintViolation<Config>> violations = validator.validate(config);
@@ -88,7 +88,7 @@ public enum CliDelegate {
                 throw new ConstraintViolationException(violations);
             }
 
-            return config;
+            return new CliResult(0, config) ;
 
         } catch (ParseException exp) {
             throw new CliException(exp.getMessage());
