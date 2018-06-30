@@ -2,6 +2,7 @@ package com.github.nexus.api;
 
 import com.github.nexus.api.model.*;
 import com.github.nexus.enclave.Enclave;
+import com.github.nexus.enclave.model.MessageHash;
 import com.github.nexus.util.Base64Decoder;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -14,7 +15,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.Optional;
@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
+import static javax.ws.rs.core.MediaType.*;
 
 @Path("/")
 public class TransactionResource {
@@ -45,8 +46,8 @@ public class TransactionResource {
     })
     @POST
     @Path("send")
-    @Consumes({MediaType.APPLICATION_JSON})
-    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
     public Response send(
             @ApiParam(name = "sendRequest", required = true)
             @Valid final SendRequest sendRequest) {
@@ -74,7 +75,7 @@ public class TransactionResource {
         final SendResponse response = new SendResponse(encodedKey);
 
         return Response.status(Response.Status.OK)
-                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .header("Content-Type", APPLICATION_JSON)
                 .entity(response)
                 .build();
 
@@ -86,8 +87,8 @@ public class TransactionResource {
     })
     @POST
     @Path("sendraw")
-    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
-    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(APPLICATION_OCTET_STREAM)
+    @Produces(TEXT_PLAIN)
     public Response sendRaw(@HeaderParam("c11n-from") final String sender,
             @HeaderParam("c11n-to") final String recipientKeys,
             @NotNull @Size(min = 1) final byte[] payload) {
@@ -121,7 +122,7 @@ public class TransactionResource {
     })
     @GET
     @Path("/transaction/{hash}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
     public Response receive(
             @ApiParam("Encoded hash used to decrypt the payload")
             @NotNull @Valid @PathParam("hash") final String hash,
@@ -143,7 +144,7 @@ public class TransactionResource {
         final ReceiveResponse response = new ReceiveResponse(encodedPayload);
 
         return Response.status(Response.Status.OK)
-                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .header("Content-Type", APPLICATION_JSON)
                 .entity(response)
                 .build();
 
@@ -152,23 +153,20 @@ public class TransactionResource {
     @GET
     @Deprecated
     @Path("/receive")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response receive(
-            @Valid final ReceiveRequest request
-    ) {
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public Response receive(@Valid final ReceiveRequest request) {
         return this.receive(request.getKey(), request.getTo());
     }
 
-    @ApiOperation(value = "Summit keys to retrieve payload and decrypt it",
-            produces = "Unencypted payload")
+    @ApiOperation(value = "Summit keys to retrieve payload and decrypt it", produces = "Unencypted payload")
     @ApiResponses({
         @ApiResponse(code = 200, message = "Raw payload", response = byte[].class)
     })
     @GET
     @Path("receiveraw")
-    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Consumes(APPLICATION_OCTET_STREAM)
+    @Produces(APPLICATION_OCTET_STREAM)
     public Response receiveRaw(
             @ApiParam("Encoded Sender Public Key")
             @NotNull @HeaderParam(value = "c11n-key") String senderKey,
@@ -196,15 +194,13 @@ public class TransactionResource {
     })
     @POST
     @Path("delete")
-    @Consumes({MediaType.APPLICATION_JSON})
-    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(APPLICATION_JSON)
+    @Produces(TEXT_PLAIN)
     public Response delete(
             @ApiParam(name = "deleteRequest", required = true)
             @Valid final DeleteRequest deleteRequest) {
 
-        final byte[] hashBytes = base64Decoder.decode(deleteRequest.getKey());
-
-        enclave.delete(hashBytes);
+        this.deleteKey(deleteRequest.getKey());
 
         return Response.status(Response.Status.OK)
                 .entity("Delete successful")
@@ -217,16 +213,13 @@ public class TransactionResource {
         @ApiResponse(code = 404, message = "If the entity doesn't exist")
     })
     @DELETE
-    @Path("{key}")
-    public Response deleteKey(
-            @ApiParam("Encoded key")
-            @PathParam("key") String key) {
+    @Path("/transaction/{key}")
+    public Response deleteKey(@ApiParam("Encoded hash") @PathParam("key") final String key) {
 
         final byte[] hashBytes = base64Decoder.decode(key);
         enclave.delete(hashBytes);
 
-        return Response.accepted().build();
-
+        return Response.noContent().build();
     }
 
     @ApiResponses(
@@ -240,8 +233,8 @@ public class TransactionResource {
     )
     @POST
     @Path("resend")
-    @Consumes({MediaType.APPLICATION_JSON})
-    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(APPLICATION_JSON)
+    @Produces(TEXT_PLAIN)
     public Response resend(
             @ApiParam(name = "resendRequest", required = true)
             @Valid @NotNull final ResendRequest resendRequest) {
@@ -269,10 +262,14 @@ public class TransactionResource {
     )
     @POST
     @Path("push")
-    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+    @Consumes(APPLICATION_OCTET_STREAM)
     public Response push(
-            @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload) {
-        LOGGER.info(Base64.getEncoder().encodeToString(enclave.storePayload(payload).getHashBytes()));
+            @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload
+    ) {
+
+        final MessageHash messageHash = enclave.storePayload(payload);
+
+        LOGGER.info(base64Decoder.encodeToString(messageHash.getHashBytes()));
 
         return Response.status(Response.Status.CREATED).build();
     }

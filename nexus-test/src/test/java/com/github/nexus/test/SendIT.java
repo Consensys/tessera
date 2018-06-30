@@ -33,16 +33,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class SendIT {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SendIT.class);
+
     public static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
 
     private static final String SEND_PATH = "/send";
 
     private final Client client = ClientBuilder.newClient();
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NexusIT.class);
-
     /**
-     * Quorum sends transaction with singe public recipient key
+     * Quorum sends transaction with single public recipient key
      */
     @Test
     public void sendToSingleRecipient() {
