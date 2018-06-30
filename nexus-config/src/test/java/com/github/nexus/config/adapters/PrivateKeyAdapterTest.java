@@ -96,7 +96,7 @@ public class PrivateKeyAdapterTest {
             null,
             null,
             "PASSWORD",
-            new PrivateKey("KEY-DATA", null, UNLOCKED, null, null, null, null)
+            new PrivateKey("KEY-DATA", null, UNLOCKED, null, null, null, null,null)
         );
 
         final PrivateKey result = adapter.unmarshal(pkm);

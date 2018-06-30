@@ -1,7 +1,15 @@
 package com.github.nexus.config;
 
+import com.github.nexus.config.adapters.PathAdapter;
+import java.nio.file.Path;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(factoryMethod = "create")
 public class PrivateKey {
 
     @XmlElement(name = "bytes")
@@ -19,17 +27,27 @@ public class PrivateKey {
 
     private final ArgonOptions argonOptions;
 
-    public PrivateKey() {
-        this(null, null, null, null, null, null, null);
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private final Path path;
+    
+    private PrivateKey() {
+        this(null, null, null, null, null, null, null,null);
     }
-
+    
+    
+    private static PrivateKey create() {
+        return new PrivateKey();
+    }
+    
     public PrivateKey(final String value,
                       final String password,
                       final PrivateKeyType type,
                       final String snonce,
                       final String asalt,
                       final String sbox,
-                      final ArgonOptions argonOptions) {
+                      final ArgonOptions argonOptions,
+                      final Path path) {
         this.value = value;
         this.password = password;
         this.type = type;
@@ -37,6 +55,7 @@ public class PrivateKey {
         this.asalt = asalt;
         this.sbox = sbox;
         this.argonOptions = argonOptions;
+        this.path = path;
     }
 
     public String getValue() {
@@ -65,6 +84,10 @@ public class PrivateKey {
 
     public ArgonOptions getArgonOptions() {
         return argonOptions;
+    }
+
+    public Path getPath() {
+        return path;
     }
 
 }

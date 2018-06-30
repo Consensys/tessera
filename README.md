@@ -1,7 +1,7 @@
 # Nexus
 A stateless java application responsible for encryption and decryption of private transaction data and for off-chain private messaging.It is also responsible for generating and managing private key locally in each node in Quorum Network.
 
-##Running Nexus
+## Running Nexus
 
 `java -jar nexus-app/target/nexus-app-${version}-app.jar -c config.json`
 
@@ -161,11 +161,11 @@ Nexus can be built with different nacl implementations:
 
 #### jnacl
 
-* mvn install
+`mvn install`
 
 ##### kalium
 
-* mvn install -Pkalium
+`mvn install -Pkalium`
 
 Note that the Kalium implementation requires that you have sodium installed at runtime (see runtime dependencies below).
 

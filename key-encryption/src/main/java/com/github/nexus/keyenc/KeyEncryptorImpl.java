@@ -54,7 +54,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
         LOGGER.debug("Generated the random salt {}", Arrays.toString(salt));
 
         final ArgonResult argonResult = argon2.hash(password, salt);
-
+        
         final Nonce nonce = nacl.randomNonce();
         LOGGER.debug("Generated the random nonce {}", nonce);
 
@@ -73,7 +73,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
         String saltString = encoder.encodeToString(salt);
         String encyptKeyString =  encoder.encodeToString(encryptedKey);
         
-        PrivateKey privateKey1 = new PrivateKey(privateKey.toString(), password, PrivateKeyType.LOCKED, nonceString, saltString, encyptKeyString, argonOptions);
+        PrivateKey privateKey1 = new PrivateKey(privateKey.toString(), password, PrivateKeyType.LOCKED, nonceString, saltString, encyptKeyString, argonOptions,null);
         
         return privateKey1;
 

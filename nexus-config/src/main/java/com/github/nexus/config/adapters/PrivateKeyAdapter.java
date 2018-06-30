@@ -39,11 +39,11 @@ public class PrivateKeyAdapter extends XmlAdapter<PrivateKeyMutable, PrivateKey>
             final byte[] keyBytes = Files.readAllBytes(input.getRawPath());
             final String key = new String(keyBytes);
 
-            return new PrivateKey(key, null, UNLOCKED, null, null, null, null);
+            return new PrivateKey(key, null, UNLOCKED, null, null, null, null,null);
 
         } else if(input.getValue() != null){
 
-            return new PrivateKey(input.getValue(), null, UNLOCKED, null, null, null, null);
+            return new PrivateKey(input.getValue(), null, UNLOCKED, null, null, null, null,null);
 
         } else {
 
@@ -54,7 +54,8 @@ public class PrivateKeyAdapter extends XmlAdapter<PrivateKeyMutable, PrivateKey>
                 input.getContents().getSnonce(),
                 input.getContents().getAsalt(),
                 input.getContents().getSbox(),
-                input.getContents().getArgonOptions()
+                input.getContents().getArgonOptions(),
+                input.getContents().getPath()
             );
 
         }
@@ -70,7 +71,7 @@ public class PrivateKeyAdapter extends XmlAdapter<PrivateKeyMutable, PrivateKey>
 
         if (topLevelObject.getString("type").equals("unlocked")) {
 
-            return new PrivateKey(data.getString("bytes"), null, UNLOCKED, null, null, null, null);
+            return new PrivateKey(data.getString("bytes"), null, UNLOCKED, null, null, null, null,null);
 
         } else {
             final JsonObject aopts = data.getJsonObject("aopts");
@@ -87,7 +88,7 @@ public class PrivateKeyAdapter extends XmlAdapter<PrivateKeyMutable, PrivateKey>
                     aopts.getInt("iterations"),
                     aopts.getInt("memory"),
                     aopts.getInt("parallelism")
-                )
+                ),null
             );
 
         }

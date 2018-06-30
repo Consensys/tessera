@@ -2,8 +2,14 @@ package com.github.nexus.config.cli;
 
 import com.github.nexus.config.Config;
 import com.github.nexus.config.ConfigFactory;
+import com.github.nexus.keygen.KeyGenerator;
+import com.github.nexus.keygen.KeyGeneratorFactory;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,6 +19,8 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import javax.xml.bind.JAXB;
+import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -26,7 +34,6 @@ public enum CliDelegate {
     INSTANCE;
 
     private Config config;
-
 
     public static CliDelegate instance() {
         return INSTANCE;
@@ -53,15 +60,23 @@ public enum CliDelegate {
                         .hasArg(false)
                         .build());
 
+        options.addOption(
+                Option.builder("pidfile")
+                        .desc("Pile file path")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .build());
+
         if (Arrays.asList(args).contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("nexus", options);
-            return new CliResult(0, config) ;
+            return new CliResult(0,  null);
         }
 
         CommandLineParser parser = new DefaultParser();
 
-        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
         try {
 
@@ -78,8 +93,23 @@ public enum CliDelegate {
             }
 
             if (line.hasOption("keygen")) {
-                System.out.println("TODO: Generate keys from configrued paths");
-                return new CliResult(0, null);
+
+                KeyGenerator keyGenerator = KeyGeneratorFactory.create();
+
+                config.getKeys().stream()
+                        .forEach(keyGenerator::generate);
+
+                try (final Writer writer = new StringWriter()) {
+
+                    JAXB.marshal(config, writer);
+
+                    final String data = writer.toString();
+
+                    try (Reader reader = new StringReader(data)) {
+                        Config newConfig = JAXB.unmarshal(new StreamSource(reader), Config.class);
+                        return new CliResult(0, newConfig);
+                    }
+                }
             }
 
             Set<ConstraintViolation<Config>> violations = validator.validate(config);
@@ -88,7 +118,7 @@ public enum CliDelegate {
                 throw new ConstraintViolationException(violations);
             }
 
-            return new CliResult(0, config) ;
+            return new CliResult(0, config);
 
         } catch (ParseException exp) {
             throw new CliException(exp.getMessage());

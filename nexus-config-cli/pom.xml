@@ -25,6 +25,12 @@
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-config</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-keygen</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
@@ -35,6 +41,34 @@
             <artifactId>hibernate-validator</artifactId>
         </dependency>
     </dependencies>
+
+    
+    <profiles>
+        <profile>
+            <id>jnacl</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>       
+                <dependency>
+                    <groupId>com.github.nexus</groupId>
+                    <artifactId>nexus-encryption-jnacl</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>kalium</id>
+            <dependencies>       
+                <dependency>
+                    <groupId>com.github.nexus</groupId>
+                    <artifactId>nexus-encryption-kalium</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+
+
+    </profiles>
+
 
     
 </project>

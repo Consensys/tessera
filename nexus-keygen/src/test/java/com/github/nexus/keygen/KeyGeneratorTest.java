@@ -1,6 +1,10 @@
 package com.github.nexus.keygen;
 
-import com.github.nexus.configuration.Configuration;
+import com.github.nexus.config.ArgonOptions;
+import com.github.nexus.config.KeyData;
+import com.github.nexus.config.PrivateKey;
+import com.github.nexus.config.PrivateKeyType;
+import com.github.nexus.config.PublicKey;
 import com.github.nexus.keyenc.KeyEncryptor;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
@@ -8,28 +12,26 @@ import com.github.nexus.nacl.NaclFacade;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Base64;
 import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
+import javax.json.Json;
+import javax.json.JsonObject;
+import static org.assertj.core.api.Assertions.*;
+import org.junit.After;
 import static org.mockito.Mockito.*;
 
 public class KeyGeneratorTest {
 
-    private static final String privateKey = "privateKey";
+    private static final String PRIVATE_KEY = "privateKey";
 
-    private static final String publicKey = "publicKey";
+    private static final String PUBLIC_KEY = "publicKey";
 
     private KeyPair keyPair;
 
@@ -45,8 +47,8 @@ public class KeyGeneratorTest {
     public void init() throws IOException {
 
         this.keyPair = new KeyPair(
-            new Key(publicKey.getBytes(UTF_8)),
-            new Key(privateKey.getBytes(UTF_8))
+                new Key(PUBLIC_KEY.getBytes(UTF_8)),
+                new Key(PRIVATE_KEY.getBytes(UTF_8))
         );
 
         this.keygenPath = Files.createTempDirectory(UUID.randomUUID().toString());
@@ -54,130 +56,148 @@ public class KeyGeneratorTest {
         this.nacl = mock(NaclFacade.class);
         this.keyEncryptor = mock(KeyEncryptor.class);
 
-        final Configuration configuration = mock(Configuration.class);
-        doReturn(keygenPath).when(configuration).keygenBasePath();
+        this.generator = new KeyGeneratorImpl(nacl, keyEncryptor);
 
-        this.generator = new KeyGeneratorImpl(nacl, configuration, keyEncryptor);
+    }
+
+    @After
+    public void onTearDown() {
+        verifyNoMoreInteractions(nacl, keyEncryptor);
 
     }
 
     @Test
-    public void generatingNewKeysCreatesTwoKeys() {
+    public void generateFromKeyDataUnlockedPrivateKey() throws Exception {
 
-        final String keyName = "testkey";
+        when(nacl.generateNewKeys()).thenReturn(keyPair);
 
-        doReturn(keyPair).when(nacl).generateNewKeys();
+        Path privateKeyPath = Paths.get(keygenPath.toString(), "privateKey.key");
 
-        final KeyGenerator.Pair<String, String> generated = generator.generateNewKeys(keyName);
+        Path publicKeyPath = Paths.get(keygenPath.toString(), "publicKey.key");
 
-        final JsonReader reader = Json.createReader(new StringReader(generated.right));
-        final String privateKeyBase64 = reader.readObject().getJsonObject("data").getString("bytes");
+        PrivateKey privateKey = mock(PrivateKey.class);
+        when(privateKey.getPath()).thenReturn(privateKeyPath);
 
-        final byte[] publicKey = Base64.getDecoder().decode(generated.left);
-        final byte[] privateKey = Base64.getDecoder().decode(privateKeyBase64);
+        when(privateKey.getType()).thenReturn(PrivateKeyType.UNLOCKED);
 
-        assertThat(new Key(publicKey)).isEqualTo(keyPair.getPublicKey());
-        assertThat(new Key(privateKey)).isEqualTo(keyPair.getPrivateKey());
+        PublicKey publicKey = mock(PublicKey.class);
+        when(publicKey.getPath()).thenReturn(publicKeyPath);
+
+        KeyData keyData = new KeyData(privateKey, publicKey);
+
+        generator.generate(keyData);
+
+        assertThat(privateKeyPath).exists();
+        assertThat(publicKeyPath).exists();
+
+        String privateKeyData = Files.lines(privateKeyPath).collect(Collectors.joining());
+
+        JsonObject privateKeyJson = Json.createReader(new StringReader(privateKeyData)).readObject();
+
+        assertThat(privateKeyJson).containsOnlyKeys("data", "type");
+
+        assertThat(privateKeyJson.getJsonObject("data")).containsOnlyKeys("bytes");
+        assertThat(privateKeyJson.getJsonObject("data").getString("bytes"))
+                .isEqualTo("cHJpdmF0ZUtleQ==");
+
+        String publicKeyData = Files.lines(publicKeyPath).collect(Collectors.joining());
+
+        assertThat(publicKeyData).isEqualTo("cHVibGljS2V5");
 
         verify(nacl).generateNewKeys();
-    }
-
-    @Test
-    public void generatingNewKeysWithPasswordCreatesCorrectJson() {
-
-        final String keyName = "testkey";
-        final String password = "testpassword";
-
-        doReturn(keyPair).when(nacl).generateNewKeys();
-        doReturn(Json.createObjectBuilder().add("test", "obj").build())
-            .when(keyEncryptor)
-            .encryptPrivateKey(keyPair.getPrivateKey(), password);
-
-        final KeyGenerator.Pair<String, String> generated = generator.generateNewKeys(keyName, password);
-
-        final JsonReader reader = Json.createReader(new StringReader(generated.right));
-
-        final JsonObject expected = Json.createObjectBuilder()
-            .add("type", "argon2sbox")
-            .add("data", Json.createObjectBuilder().add("test", "obj"))
-            .build();
-
-        assertThat(reader.readObject()).isEqualTo(expected);
 
     }
 
     @Test
-    public void writingToFileHappensIfRequested() {
+    public void generateFromKeyDataLockedPrivateKey() throws Exception {
 
-        final String keyName = "testkey";
-        final InputStream inputStream = new ByteArrayInputStream("\n\ny".getBytes());
+        when(nacl.generateNewKeys()).thenReturn(keyPair);
 
-        doReturn(keyPair).when(nacl).generateNewKeys();
-        doReturn(Json.createObjectBuilder().build())
-            .when(keyEncryptor)
-            .encryptPrivateKey(any(Key.class), eq(keyName));
+        PrivateKey encrypedPrivateKey = mock(PrivateKey.class);
+        when(encrypedPrivateKey.getAsalt()).thenReturn("ASALT");
+        when(encrypedPrivateKey.getSbox()).thenReturn("SBOX");
+        when(encrypedPrivateKey.getSnonce()).thenReturn("SNONCE");
 
-        generator.promptForGeneration(keyName, inputStream);
+        ArgonOptions argonOptions = mock(ArgonOptions.class);
+        when(argonOptions.getAlgorithm()).thenReturn("ib");
+        when(argonOptions.getIterations()).thenReturn(1);
+        when(argonOptions.getMemory()).thenReturn(1);
+        when(argonOptions.getParallelism()).thenReturn(1);
 
-        final boolean pubExists = Files.exists(keygenPath.resolve(keyName + ".pub"));
-        final boolean privExists = Files.exists(keygenPath.resolve(keyName + ".key"));
+        when(encrypedPrivateKey.getArgonOptions())
+                .thenReturn(argonOptions);
 
-        assertThat(pubExists).isTrue();
-        assertThat(privExists).isTrue();
+        when(keyEncryptor.encryptPrivateKey(any(Key.class), anyString()))
+                .thenReturn(encrypedPrivateKey);
 
-    }
+        Path privateKeyPath = Paths.get(keygenPath.toString(), "privateKey.key");
 
-    @Test
-    public void writingToFileDoesntHappenIfNotRequested() {
+        Path publicKeyPath = Paths.get(keygenPath.toString(), "publicKey.key");
 
-        final String keyName = "testkey";
-        final InputStream inputStream = new ByteArrayInputStream("\n\nn".getBytes());
+        PrivateKey privateKey = mock(PrivateKey.class);
+        when(privateKey.getPath()).thenReturn(privateKeyPath);
+        when(privateKey.getPassword()).thenReturn("PASSWORD");
+        when(privateKey.getType()).thenReturn(PrivateKeyType.LOCKED);
 
-        doReturn(keyPair).when(nacl).generateNewKeys();
+        PublicKey publicKey = mock(PublicKey.class);
+        when(publicKey.getPath()).thenReturn(publicKeyPath);
 
-        generator.promptForGeneration(keyName, inputStream);
+        KeyData keyData = new KeyData(privateKey, publicKey);
 
-        final boolean pubExists = Files.exists(keygenPath.resolve(keyName + ".pub"));
-        final boolean privExists = Files.exists(keygenPath.resolve(keyName + ".key"));
+        generator.generate(keyData);
 
-        assertThat(pubExists).isFalse();
-        assertThat(privExists).isFalse();
+        assertThat(privateKeyPath).exists();
+        assertThat(publicKeyPath).exists();
 
-    }
+        String privateKeyData = Files.lines(privateKeyPath).collect(Collectors.joining());
 
-    @Test
-    public void providingPasswordToPromptEncryptsKey() {
+        JsonObject privateKeyJson = Json.createReader(new StringReader(privateKeyData)).readObject();
 
-        final String keyName = "testkey";
-        final InputStream inputStream = new ByteArrayInputStream("pass\nn".getBytes());
+        assertThat(privateKeyJson).containsOnlyKeys("data", "type");
+        assertThat(privateKeyJson.getString("type")).isEqualTo("argon2sbox");
 
-        doReturn(keyPair).when(nacl).generateNewKeys();
-        doReturn(Json.createObjectBuilder().add("test", "obj").build())
-            .when(keyEncryptor)
-            .encryptPrivateKey(keyPair.getPrivateKey(), "pass");
+        assertThat(privateKeyJson.getJsonObject("data"))
+                .containsOnlyKeys("aopts", "snonce", "sbox", "asalt");
 
-        generator.promptForGeneration(keyName, inputStream);
+        assertThat(privateKeyJson.getJsonObject("data").getJsonObject("aopts"))
+                .containsOnlyKeys("variant", "memory", "iterations", "parallelism");
+
+        String publicKeyData = Files.lines(publicKeyPath).collect(Collectors.joining());
+
+        assertThat(publicKeyData).isEqualTo("cHVibGljS2V5");
 
         verify(nacl).generateNewKeys();
-        verify(keyEncryptor).encryptPrivateKey(keyPair.getPrivateKey(), "pass");
-
+        verify(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
     }
 
     @Test
-    public void generatingNewKeysThrowsExceptionIfCantWrite() throws IOException {
+    public void generateIOException() throws Exception {
 
-        final String keyName = "testkey";
-        final InputStream inputStream = new ByteArrayInputStream("\n\ny".getBytes());
+        when(nacl.generateNewKeys()).thenReturn(keyPair);
+        
+        //Should throw IO as file exists
+        Path privateKeyPath = Files.createTempFile(keygenPath , "privateKey",".key");
 
-        Files.write(keygenPath.resolve(keyName + ".pub"), "tst".getBytes());
-        Files.write(keygenPath.resolve(keyName + ".key"), "tst".getBytes());
+        Path publicKeyPath = Paths.get(keygenPath.toString(), "publicKey.key");
 
-        doReturn(keyPair).when(nacl).generateNewKeys();
+        PrivateKey privateKey = mock(PrivateKey.class);
+        when(privateKey.getPath()).thenReturn(privateKeyPath);
 
-        final Throwable throwable = catchThrowable(() -> generator.promptForGeneration(keyName, inputStream));
+        when(privateKey.getType()).thenReturn(PrivateKeyType.UNLOCKED);
 
-        assertThat(throwable).isNotNull().isInstanceOf(RuntimeException.class);
-        assertThat(throwable.getCause()).isInstanceOf(IOException.class);
+        PublicKey publicKey = mock(PublicKey.class);
+        when(publicKey.getPath()).thenReturn(publicKeyPath);
+
+        KeyData keyData = new KeyData(privateKey, publicKey);
+
+        try {
+            generator.generate(keyData);
+            failBecauseExceptionWasNotThrown(KeyGeneratorException.class);
+        } catch (KeyGeneratorException ex) {
+            assertThat(ex).hasCauseInstanceOf(IOException.class);
+        }
+
+        verify(nacl).generateNewKeys();
 
     }
 

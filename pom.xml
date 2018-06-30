@@ -196,6 +196,7 @@
         <module>nexus-config</module>
         <module>nexus-config-cli</module>
         <module>nexus-test</module>
+        <module>nexus-keygen</module>
     </modules>
 
     <profiles>

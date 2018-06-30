@@ -23,7 +23,7 @@ public class PublicKey {
         this.value = PathUtil.readData(path, value);
     }
 
-    public PublicKey() {
+    private PublicKey() {
         this(null, null);
     }
 
@@ -36,10 +36,6 @@ public class PublicKey {
     }
 
     public String getValue() {
-        if (this.value == null) {
-            this.value = PathUtil.readData(path, null);
-        }
-
         return value;
     }
 
