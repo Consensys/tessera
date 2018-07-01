@@ -179,9 +179,6 @@
     </build>
 
     <modules>
-        <module>rest-server</module>
-        <module>jersey-server</module>
-        <module>resteasy-server</module>
         <module>service-locator</module>
         <module>service-locator-spring</module>
         <module>argon2</module>
@@ -196,6 +193,7 @@
         <module>nexus-config</module>
         <module>nexus-config-cli</module>
         <module>nexus-test</module>
+        <module>rest-server-parent</module>
     </modules>
 
     <profiles>
