@@ -30,6 +30,7 @@ public class Config {
     @XmlElement(name = "peer", required = true)
     private final List<Peer> peers;
 
+    @Valid
     @NotNull
     @Size(min = 1)
     @XmlElement(name = "keys", required = true)
