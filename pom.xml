@@ -181,9 +181,6 @@
     </build>
 
     <modules>
-        <module>rest-server</module>
-        <module>jersey-server</module>
-        <module>resteasy-server</module>
         <module>argon2</module>
         <module>junixsocket-adapter</module>
         <module>key-encryption</module>
@@ -197,6 +194,7 @@
         <module>nexus-config-cli</module>
         <module>nexus-test</module>
         <module>service-locator-parent</module>
+        <module>rest-server-parent</module>
     </modules>
 
     <profiles>
