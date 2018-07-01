@@ -30,7 +30,7 @@ public class PrivateKeyAdapter extends XmlAdapter<PrivateKeyMutable, PrivateKey>
     @Override
     public PrivateKey unmarshal(final PrivateKeyMutable input) throws IOException {
 
-        if(input.getPath() != null) {
+        if (input.getPath() != null) {
 
             return this.handleJsonFile(input);
 
@@ -39,11 +39,11 @@ public class PrivateKeyAdapter extends XmlAdapter<PrivateKeyMutable, PrivateKey>
             final byte[] keyBytes = Files.readAllBytes(input.getRawPath());
             final String key = new String(keyBytes);
 
-            return new PrivateKey(key, null, UNLOCKED, null, null, null, null,input.getPath());
+            return new PrivateKey(key, null, UNLOCKED, null, null, null, null, input.getPath());
 
-        } else if(input.getValue() != null){
+        } else if (input.getValue() != null) {
 
-            return new PrivateKey(input.getValue(), null, UNLOCKED, null, null, null, null,null);
+            return new PrivateKey(input.getValue(), null, UNLOCKED, null, null, null, null, null);
 
         } else {
 
@@ -64,6 +64,10 @@ public class PrivateKeyAdapter extends XmlAdapter<PrivateKeyMutable, PrivateKey>
 
     private PrivateKey handleJsonFile(final PrivateKeyMutable input) throws IOException {
 
+        if (!Files.exists(input.getPath())) {
+            return new PrivateKey(null, null, null, null, null, null, null, input.getPath());
+        }
+
         final String json = new String(Files.readAllBytes(input.getPath()));
 
         final JsonObject topLevelObject = Json.createReader(new StringReader(json)).readObject();
@@ -71,7 +75,7 @@ public class PrivateKeyAdapter extends XmlAdapter<PrivateKeyMutable, PrivateKey>
 
         if (topLevelObject.getString("type").equals(UNLOCKED.name().toLowerCase())) {
 
-            return new PrivateKey(data.getString("bytes"), null, UNLOCKED, null, null, null, null,input.getPath());
+            return new PrivateKey(data.getString("bytes"), null, UNLOCKED, null, null, null, null, input.getPath());
 
         } else {
             final JsonObject aopts = data.getJsonObject("aopts");
@@ -88,7 +92,7 @@ public class PrivateKeyAdapter extends XmlAdapter<PrivateKeyMutable, PrivateKey>
                     aopts.getInt("iterations"),
                     aopts.getInt("memory"),
                     aopts.getInt("parallelism")
-                ),input.getPath()
+                ), input.getPath()
             );
 
         }
@@ -96,6 +100,6 @@ public class PrivateKeyAdapter extends XmlAdapter<PrivateKeyMutable, PrivateKey>
 
     @Override
     public PrivateKeyMutable marshal(final PrivateKey input) {
-        throw new UnsupportedOperationException();
+        return new PrivateKeyMutable(input.getPath(), null, input.getValue(), input.getPassword(), input);
     }
 }
