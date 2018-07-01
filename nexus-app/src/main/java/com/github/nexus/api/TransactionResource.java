@@ -3,6 +3,9 @@ package com.github.nexus.api;
 import com.github.nexus.api.model.*;
 import com.github.nexus.enclave.Enclave;
 import com.github.nexus.enclave.model.MessageHash;
+import com.github.nexus.nacl.Key;
+import com.github.nexus.transaction.PayloadEncoderImpl;
+import com.github.nexus.transaction.model.EncodedPayloadWithRecipients;
 import com.github.nexus.util.Base64Decoder;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -234,16 +237,17 @@ public class TransactionResource {
         if (resendRequest.getType() == ResendRequestType.ALL) {
             enclave.resendAll(publicKey);
         } else if (resendRequest.getType() == ResendRequestType.INDIVIDUAL) {
+
             final byte[] hashKey = base64Decoder.decode(resendRequest.getKey());
-            final byte[] payload = enclave.receive(hashKey, Optional.of(publicKey));
-            final String encodedPayload = base64Decoder.encodeToString(payload);
+
+            final EncodedPayloadWithRecipients payloadWithRecipients = enclave
+                .fetchTransactionForRecipient(new MessageHash(hashKey), new Key(publicKey));
+
+            final byte[] encoded = new PayloadEncoderImpl().encode(payloadWithRecipients);
 
             return Response.status(Response.Status.OK)
-                    .entity(encodedPayload)
+                    .entity(encoded)
                     .build();
-
-
-
         }
 
         return Response.status(Response.Status.OK).build();

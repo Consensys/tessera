@@ -3,6 +3,10 @@ package com.github.nexus.api;
 import com.github.nexus.api.model.*;
 import com.github.nexus.enclave.Enclave;
 import com.github.nexus.enclave.model.MessageHash;
+import com.github.nexus.nacl.Key;
+import com.github.nexus.nacl.Nonce;
+import com.github.nexus.transaction.model.EncodedPayload;
+import com.github.nexus.transaction.model.EncodedPayloadWithRecipients;
 import com.github.nexus.util.Base64Decoder;
 import com.github.nexus.util.exception.DecodingException;
 import org.assertj.core.api.Assertions;
@@ -15,6 +19,7 @@ import javax.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.Optional;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -221,15 +226,24 @@ public class TransactionResourceTest {
     @Test
     public void testResendIndividual() {
 
+        final Key sender = new Key(new byte[]{});
+        final Nonce nonce = new Nonce(new byte[]{});
+
+        final EncodedPayloadWithRecipients epwr = new EncodedPayloadWithRecipients(
+            new EncodedPayload(sender, new byte[]{}, nonce, emptyList(), nonce),
+            emptyList()
+        );
+
         ResendRequest resendRequest = new ResendRequest();
         resendRequest.setType(ResendRequestType.INDIVIDUAL);
         resendRequest.setPublicKey("mypublickey");
         resendRequest.setKey(Base64.getEncoder().encodeToString("mykey".getBytes()));
-        when(enclave.receive(any(), any())).thenReturn("payload".getBytes());
+
+        when(enclave.fetchTransactionForRecipient(any(), any())).thenReturn(epwr);
 
         Response response = transactionResource.resend(resendRequest);
 
-        verify(enclave).receive(any(), any());
+        verify(enclave).fetchTransactionForRecipient(any(), any());
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
