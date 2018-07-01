@@ -19,12 +19,16 @@ public class PrivateKeyAdapterTest {
     private PrivateKeyAdapter adapter = new PrivateKeyAdapter();
 
     @Test
-    public void marshalThrowsError() {
+    public void marshallCreatesProperObject() {
 
-        final Throwable throwable = catchThrowable(() -> adapter.marshal(null));
+        final PrivateKey privateKey = new PrivateKey(
+            null, null, null, null, null, null, null, Paths.get("/some/random/path")
+        );
 
-        assertThat(throwable).isInstanceOf(UnsupportedOperationException.class);
+        final PrivateKeyMutable marshalledObject = adapter.marshal(privateKey);
 
+        assertThat(marshalledObject).isNotNull();
+        assertThat(marshalledObject.getPath()).isEqualTo(Paths.get("/some/random/path"));
     }
 
     @Test
