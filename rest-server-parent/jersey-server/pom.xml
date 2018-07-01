@@ -1,45 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>jersey-server</artifactId>
-    <version>1.0-SNAPSHOT</version>
+
+    <name>jersey-server</name>
     <packaging>jar</packaging>
 
     <parent>
         <groupId>com.github.nexus</groupId>
-        <artifactId>nexus</artifactId>
+        <artifactId>rest-server-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
-    
+
     <dependencies>
-        
+
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>rest-server</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-config</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-security</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-grizzly2-http</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-moxy</artifactId>
@@ -61,12 +65,12 @@
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
             <artifactId>jersey-bean-validation</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
@@ -89,11 +93,6 @@
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
 </project>
