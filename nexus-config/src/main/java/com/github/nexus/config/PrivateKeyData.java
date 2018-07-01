@@ -26,7 +26,7 @@ public class PrivateKeyData {
     @XmlSchemaType(name = "anyURI")
     private final String sbox;
 
-    @XmlElement(name = "argon")
+    @XmlElement(name = "aopts")
     private final ArgonOptions argonOptions;
 
     @XmlElement

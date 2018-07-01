@@ -8,8 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(factoryMethod = "create")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ArgonOptions {
+
     //i, d,id (defaylt id)
-    @XmlAttribute
+    @XmlAttribute(name = "variant")
     private final String algorithm;
 
     @XmlAttribute
@@ -20,11 +21,11 @@ public class ArgonOptions {
 
     @XmlAttribute
     private int parallelism;
-    
+
     private static ArgonOptions create() {
         return new ArgonOptions();
     }
-    
+
     public ArgonOptions(String algorithm, int iterations, int memory, int parallelism) {
         this.algorithm = algorithm;
         this.iterations = iterations;
@@ -51,6 +52,5 @@ public class ArgonOptions {
     public int getParallelism() {
         return parallelism;
     }
-
 
 }
