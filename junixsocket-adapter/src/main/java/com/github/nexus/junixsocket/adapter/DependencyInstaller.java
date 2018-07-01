@@ -22,13 +22,14 @@ public class DependencyInstaller {
     };
 
     public void installDependencies() {
-        Stream.of(FILES).forEach(this::copy);
+        final String presetDirectory = System.getProperty(SOCKET_SYS_PROP, INSTALL_DIRECTORY.toString());
+        System.setProperty(SOCKET_SYS_PROP, presetDirectory);
 
-        System.setProperty(SOCKET_SYS_PROP, INSTALL_DIRECTORY.toString());
+        Stream.of(FILES).forEach(file -> this.copy(file, presetDirectory));
     }
 
-    public void copy(final String name) {
-        final Path filepath = INSTALL_DIRECTORY.resolve(name);
+    public void copy(final String name, final String installPath) {
+        final Path filepath = Paths.get(installPath, name);
 
         if(Files.exists(filepath)) {
             return;
