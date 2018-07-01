@@ -2,6 +2,7 @@ package com.github.nexus.config.cli;
 
 import com.github.nexus.config.Config;
 import com.github.nexus.config.ConfigFactory;
+import com.github.nexus.config.constraints.KeyGen;
 import com.github.nexus.keygen.KeyGenerator;
 import com.github.nexus.keygen.KeyGeneratorFactory;
 import java.io.FileNotFoundException;
@@ -94,6 +95,11 @@ public enum CliDelegate {
 
             if (line.hasOption("keygen")) {
 
+                Set<ConstraintViolation<Config>> keyGenViolations = validator.validate(config, KeyGen.class);
+                if(!keyGenViolations.isEmpty()) {
+                    throw new ConstraintViolationException(keyGenViolations);
+                }
+                
                 KeyGenerator keyGenerator = KeyGeneratorFactory.create();
 
                 config.getKeys().stream()

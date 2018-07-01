@@ -25,7 +25,7 @@
          }
       },
       "publicKey" : {
-         "path" : "/somepath"
+         "value" : "PUBLICKEY"
       }
    } ],
    "unixSocketFile" : "/tmp/bogus.socket"

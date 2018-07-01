@@ -36,7 +36,10 @@ public class KeyGeneratorImpl implements KeyGenerator {
         final KeyPair generated = nacl.generateNewKeys();
 
         final PrivateKey privateKey = keyData.getPrivateKey();
-
+        
+        Objects.requireNonNull(privateKey.getPath(),"Private key path must be provided");
+        Objects.requireNonNull(keyData.getPublicKey().getPath(),"Public key path must be provided");
+        
         final String privateKeyData;
 
         if (privateKey.getType() == PrivateKeyType.LOCKED) {

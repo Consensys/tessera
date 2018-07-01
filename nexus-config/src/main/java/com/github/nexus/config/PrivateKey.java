@@ -1,7 +1,10 @@
 package com.github.nexus.config;
 
 import com.github.nexus.config.adapters.PathAdapter;
+import com.github.nexus.config.constraints.KeyGen;
+import com.github.nexus.config.constraints.ValidPath;
 import java.nio.file.Path;
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -27,6 +30,8 @@ public class PrivateKey {
 
     private final ArgonOptions argonOptions;
 
+    @NotNull(groups = KeyGen.class)
+    @ValidPath(groups = KeyGen.class)
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path path;
