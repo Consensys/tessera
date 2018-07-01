@@ -8,16 +8,24 @@ import javax.xml.transform.stream.StreamSource;
 
 public class JaxbConfigFactory implements ConfigFactory {
 
+    private final JAXBContext jaxbContext;
+
+    public JaxbConfigFactory() {
+        try {
+            this.jaxbContext = JAXBContext.newInstance(Config.class);
+        } catch (JAXBException ex) {
+            throw new ConfigException(ex);
+        }
+    }
 
     @Override
     public Config create(InputStream inputStream) {
 
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(Config.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             unmarshaller.setProperty("eclipselink.media-type", "application/json");
             unmarshaller.setProperty("eclipselink.json.include-root", false);
-            return unmarshaller.unmarshal(new StreamSource(inputStream),Config.class).getValue();
+            return unmarshaller.unmarshal(new StreamSource(inputStream), Config.class).getValue();
         } catch (JAXBException ex) {
             throw new ConfigException(ex);
         }
