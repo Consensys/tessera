@@ -4,6 +4,7 @@ import com.github.nexus.argon2.Argon2;
 import com.github.nexus.argon2.ArgonResult;
 import com.github.nexus.config.ArgonOptions;
 import com.github.nexus.config.PrivateKey;
+import com.github.nexus.config.PrivateKeyData;
 import com.github.nexus.config.PrivateKeyType;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.NaclFacade;
@@ -19,8 +20,9 @@ import java.util.Objects;
 /**
  * An implementation of {@link KeyEncryptor} that uses Argon2
  *
- * The password is hashed using the generated/provided salt to generate a 32 byte hash
- * This hash is then used as the symmetric key to encrypt the private key
+ * The password is hashed using the generated/provided salt to generate a 32
+ * byte hash This hash is then used as the symmetric key to encrypt the private
+ * key
  */
 public class KeyEncryptorImpl implements KeyEncryptor {
 
@@ -54,55 +56,53 @@ public class KeyEncryptorImpl implements KeyEncryptor {
         LOGGER.debug("Generated the random salt {}", Arrays.toString(salt));
 
         final ArgonResult argonResult = argon2.hash(password, salt);
-        
+
         final Nonce nonce = nacl.randomNonce();
         LOGGER.debug("Generated the random nonce {}", nonce);
 
         final byte[] encryptedKey = nacl.sealAfterPrecomputation(
-            privateKey.getKeyBytes(),
-            nonce,
-            new Key(argonResult.getHash())
+                privateKey.getKeyBytes(),
+                nonce,
+                new Key(argonResult.getHash())
         );
 
         LOGGER.info("Private key encrypted");
-        
-        ArgonOptions argonOptions = new ArgonOptions(argonResult.getOptions().getAlgorithm(), 
+
+        ArgonOptions argonOptions = new ArgonOptions(argonResult.getOptions().getAlgorithm(),
                 argonResult.getOptions().getIterations(), argonResult.getOptions().getMemory(), argonResult.getOptions().getParallelism());
-        
+
         String nonceString = encoder.encodeToString(nonce.getNonceBytes());
         String saltString = encoder.encodeToString(salt);
-        String encyptKeyString =  encoder.encodeToString(encryptedKey);
-        
-        PrivateKey privateKey1 = new PrivateKey(privateKey.toString(), password, PrivateKeyType.LOCKED, nonceString, saltString, encyptKeyString, argonOptions,null);
-        
-        return privateKey1;
+        String encyptKeyString = encoder.encodeToString(encryptedKey);
+
+        PrivateKeyData privateKeyData = new PrivateKeyData(privateKey.toString(), nonceString, saltString, encyptKeyString, argonOptions, password);
+
+        return new PrivateKey(privateKeyData, null, PrivateKeyType.LOCKED);
 
     }
-    
+
     static com.github.nexus.argon2.ArgonOptions toArgonOptions(ArgonOptions opts) {
-        com.github.nexus.argon2.ArgonOptions argonOptions = 
-                new com.github.nexus.argon2.ArgonOptions(opts.getAlgorithm(), 
+        com.github.nexus.argon2.ArgonOptions argonOptions
+                = new com.github.nexus.argon2.ArgonOptions(opts.getAlgorithm(),
                         opts.getIterations(), opts.getMemory(), opts.getParallelism());
         return argonOptions;
-        
+
     }
-    
+
     @Override
     public Key decryptPrivateKey(final PrivateKey privateKey) {
 
         LOGGER.info("Decrypting private key");
         LOGGER.debug("Decrypting private key {} using password {}", privateKey.getValue(), privateKey.getPassword());
 
-
         final byte[] salt = decoder.decode(privateKey.getAsalt());
-        
-        
+
         final ArgonResult argonResult = argon2.hash(toArgonOptions(privateKey.getArgonOptions()), privateKey.getPassword(), salt);
 
         final byte[] originalKey = nacl.openAfterPrecomputation(
-            decoder.decode(privateKey.getSbox()),
-            new Nonce(decoder.decode(privateKey.getSnonce())),
-            new Key(argonResult.getHash())
+                decoder.decode(privateKey.getSbox()),
+                new Nonce(decoder.decode(privateKey.getSnonce())),
+                new Key(argonResult.getHash())
         );
 
         LOGGER.info("Decrypting private key");

@@ -22,14 +22,16 @@ public class JaxbCreateFactoryTest {
     @Parameterized.Parameters
     public static List<Class> params() {
         return Arrays.asList(
-            ArgonOptions.class,
-            Config.class,
-            KeyData.class,
-            Peer.class,
-            PublicKey.class,
-            ServerConfig.class,
-            SslConfig.class,
-            JdbcConfig.class
+                ArgonOptions.class,
+                Config.class,
+                KeyData.class,
+                Peer.class,
+                PublicKey.class,
+                ServerConfig.class,
+                SslConfig.class,
+                JdbcConfig.class,
+                PrivateKey.class,
+                PrivateKeyData.class
         );
 
     }
