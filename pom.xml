@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.nexus</groupId>
     <artifactId>nexus</artifactId>
-    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+
     <name>nexus</name>
+    <packaging>pom</packaging>
 
     <properties>
         <jersey.version>2.27</jersey.version>
@@ -18,7 +21,6 @@
         <spring.version>5.0.6.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
         <eclipselink.version>2.7.1</eclipselink.version>
-      
     </properties>
 
     <build>
@@ -182,8 +184,6 @@
         <module>rest-server</module>
         <module>jersey-server</module>
         <module>resteasy-server</module>
-        <module>service-locator</module>
-        <module>service-locator-spring</module>
         <module>argon2</module>
         <module>junixsocket-adapter</module>
         <module>key-encryption</module>
@@ -197,6 +197,7 @@
         <module>nexus-config-cli</module>
         <module>nexus-test</module>
         <module>nexus-keygen</module>
+        <module>service-locator-parent</module>
     </modules>
 
     <profiles>
