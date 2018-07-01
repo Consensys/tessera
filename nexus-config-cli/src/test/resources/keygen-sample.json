@@ -15,7 +15,7 @@
    } ],
    "keys" : [ {
       "privateKey" : {
-         "path" : "/somepath/privateKey.key",
+         "path" : "/tmp/privateKey.key",
          "password" : "TOP_SECRET",
          "argonOptions" : {
             "algorithm" : "SHA",
@@ -25,7 +25,7 @@
          }
       },
       "publicKey" : {
-         "path" : "/somepath/publicKey.key"
+         "path" : "/tmp/publicKey.key"
       }
    } ],
    "unixSocketFile" : "/tmp/bogus.socket"
