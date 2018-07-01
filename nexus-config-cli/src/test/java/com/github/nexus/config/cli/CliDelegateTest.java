@@ -2,6 +2,8 @@ package com.github.nexus.config.cli;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -26,7 +28,8 @@ public class CliDelegateTest {
 
     @After
     public void tearDown() throws IOException {
-
+        Files.deleteIfExists(Paths.get("/tmp/anotherPrivateKey.key").toAbsolutePath());
+        Files.deleteIfExists(Paths.get("/tmp/anotherPublicKey.key").toAbsolutePath());
     }
 
     @Test
