@@ -12,7 +12,6 @@ import java.nio.file.Paths;
 
 import static com.github.nexus.config.PrivateKeyType.UNLOCKED;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class PrivateKeyAdapterTest {
 
@@ -22,7 +21,7 @@ public class PrivateKeyAdapterTest {
     public void marshallCreatesProperObject() {
 
         final PrivateKey privateKey = new PrivateKey(
-            null, null, null, null, null, null, null, Paths.get("/some/random/path")
+                null, null, null, null, null, null, null, Paths.get("/some/random/path")
         );
 
         final PrivateKeyMutable marshalledObject = adapter.marshal(privateKey);
@@ -96,11 +95,11 @@ public class PrivateKeyAdapterTest {
     @Test
     public void defaultOptionsUsed() throws IOException {
         final PrivateKeyMutable pkm = new PrivateKeyMutable(
-            null,
-            null,
-            null,
-            "PASSWORD",
-            new PrivateKey("KEY-DATA", null, UNLOCKED, null, null, null, null,null)
+                null,
+                null,
+                null,
+                "PASSWORD",
+                new PrivateKey("KEY-DATA", null, UNLOCKED, null, null, null, null, null)
         );
 
         final PrivateKey result = adapter.unmarshal(pkm);
@@ -108,6 +107,23 @@ public class PrivateKeyAdapterTest {
         assertThat(result.getType()).isEqualTo(PrivateKeyType.UNLOCKED);
         assertThat(result.getValue()).isEqualTo("KEY-DATA");
         assertThat(result.getPassword()).isEqualTo("PASSWORD");
+    }
+
+    @Test
+    public void nonExistentPrivateKeyPath() throws IOException {
+        Path path = Paths.get("bogus.somename");
+
+        final PrivateKeyMutable pkm = new PrivateKeyMutable(
+                path,
+                null,
+                null,
+                null,
+                new PrivateKey(null, null, UNLOCKED, null, null, null, null, null)
+        );
+
+        final PrivateKey result = adapter.unmarshal(pkm);
+
+        assertThat(result.getPath()).isEqualTo(path);
     }
 
 }
