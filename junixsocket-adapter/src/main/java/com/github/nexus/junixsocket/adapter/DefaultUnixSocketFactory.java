@@ -11,8 +11,8 @@ import java.nio.file.Path;
 
 public class DefaultUnixSocketFactory implements UnixSocketFactory {
 
-    public DefaultUnixSocketFactory(final DependencyInstaller installer) {
-        installer.installDependencies();
+    public DefaultUnixSocketFactory() {
+        new DependencyInstaller().installDependencies();
     }
 
     @Override
