@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Collections.emptySet;
+import static java.util.Collections.singletonList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -205,7 +206,7 @@ public class EnclaveImplTest {
             new EncodedPayloadWithRecipients(encodedPayload, recipientKeys);
 
         when(transactionService.retrieveAllForRecipient(any()))
-            .thenReturn(Arrays.asList(encodedPayloadWithRecipients));
+            .thenReturn(singletonList(encodedPayloadWithRecipients));
 
         Key recipientKey = new Key("somekey".getBytes());
         when(partyInfoService.getURLFromRecipientKey(recipientKey)).thenReturn("http://someurl.com");
@@ -222,6 +223,19 @@ public class EnclaveImplTest {
 
         verify(partyInfoService, times(2)).getURLFromRecipientKey(any());
         verify(partyInfoService, times(2)).getPartyInfo();
+
+    }
+
+    @Test
+    public void retrievingEncodedPayloadDelegatesToTransactionService() {
+
+        final MessageHash hash = new MessageHash(new byte[]{});
+        final Key key = new Key(new byte[]{});
+
+        enclave.fetchTransactionForRecipient(hash, key);
+
+        verify(transactionService).retrievePayload(hash, key);
+
 
     }
 }
