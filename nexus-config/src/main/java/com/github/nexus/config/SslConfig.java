@@ -1,8 +1,6 @@
 package com.github.nexus.config;
 
 import com.github.nexus.config.adapters.PathAdapter;
-import com.github.nexus.config.constraints.ValidPath;
-
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -19,52 +17,54 @@ public class SslConfig  {
     @XmlElement(required = true)
     private final SslAuthenticationMode tls;
 
-    @NotNull
-    @ValidPath(checkExists = true)
-    @XmlElement(required = true, type = String.class)
+    @XmlElement (defaultValue = "false")
+    private final boolean generateKeyStoreIfNotExisted;
+
+    @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path serverKeyStore;
 
-    @XmlElement(required = true)
+    @XmlElement
     private final String serverKeyStorePassword;
 
-    @XmlElement(required = true, type = String.class)
+    @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path serverTrustStore;
 
-    @XmlElement(required = true)
+    @XmlElement
     private final String serverTrustStorePassword;
 
-    @XmlElement(required = true)
+    @XmlElement
     private final SslTrustMode serverTrustMode;
 
-    @XmlElement(required = true, type = String.class)
+    @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path clientKeyStore;
 
-    @XmlElement(required = true)
+    @XmlElement
     private final String clientKeyStorePassword;
 
-    @XmlElement(required = true, type = String.class)
+    @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path clientTrustStore;
 
-    @XmlElement(required = true)
+    @XmlElement
     private final String clientTrustStorePassword;
 
-    @XmlElement(required = true)
+    @XmlElement
     private final SslTrustMode clientTrustMode;
 
-    @XmlElement(required = true, type = String.class)
+    @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path knownClientsFile;
 
-    @XmlElement(required = true, type = String.class)
+    @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path knownServersFile;
 
     public SslConfig(
-            SslAuthenticationMode tls, 
+            SslAuthenticationMode tls,
+            boolean generateKeyStoreIfNotExisted,
             Path serverKeyStore, 
             String serverKeyStorePassword, 
             Path serverTrustStore, 
@@ -78,6 +78,7 @@ public class SslConfig  {
             Path knownClientsFile, 
             Path knownServersFile) {
         this.tls = tls;
+        this.generateKeyStoreIfNotExisted = generateKeyStoreIfNotExisted;
         this.serverKeyStore = serverKeyStore;
         this.serverKeyStorePassword = serverKeyStorePassword;
         this.serverTrustStore = serverTrustStore;
@@ -93,7 +94,7 @@ public class SslConfig  {
     }
 
     private SslConfig() {
-        this(null,null,null,null,null,null,null,null,null,null,null,null,null);
+        this(null,false,null,null,null,null,null,null,null,null,null,null,null,null);
     }
     
     private static SslConfig create() {
@@ -102,6 +103,10 @@ public class SslConfig  {
 
     public SslAuthenticationMode getTls() {
         return tls;
+    }
+
+    public boolean isGenerateKeyStoreIfNotExisted() {
+        return generateKeyStoreIfNotExisted;
     }
 
     public Path getServerKeyStore() {

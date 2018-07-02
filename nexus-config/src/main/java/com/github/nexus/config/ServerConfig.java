@@ -1,5 +1,7 @@
 package com.github.nexus.config;
 
+import com.github.nexus.config.constraints.ValidSsl;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
@@ -23,6 +25,7 @@ public class ServerConfig {
     
     @Valid
     @XmlElement(required = false)
+    @ValidSsl
     private final SslConfig sslConfig;
 
     public ServerConfig(String hostName, int port, SslConfig sslConfig) {
@@ -56,7 +59,7 @@ public class ServerConfig {
     }
     
     public boolean isSsl() {
-        return Objects.nonNull(sslConfig);
+        return Objects.nonNull(sslConfig) && sslConfig.getTls() == SslAuthenticationMode.STRICT;
     }
 
 }
