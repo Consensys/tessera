@@ -7,13 +7,11 @@ def pidFile = properties['pidFile']
 
 def logbackConfigFile = properties['logbackConfigFile']
 
-def junixsocketLibPath = properties['junixsocketLibPath']
+def nodeNumber = properties['nodeNumber']
 
 log.info "$jarfile"
 // -Dspring.profiles.active=disable-unixsocket
-//org.newsclub.net.unix.library.path
-//-Dorg.newsclub.net.unix.library.path=$junixsocketLibPath
-def processDesc = "java -Dnexus.pid.file=$pidFile -Dspring.profiles.active=disable-unixsocket -Dlogback.configurationFile=$logbackConfigFile -jar $jarfile -configfile $configFile"
+def processDesc = "java -Dnexus.pid.file=$pidFile -Dspring.profiles.active=disable-unixsocket -Dnode.number=$nodeNumber -Dlogback.configurationFile=$logbackConfigFile -jar $jarfile -configfile $configFile"
 
 log.info "$processDesc"
 

@@ -82,7 +82,6 @@ public class PushIT {
             .request()
             .post(Entity.entity(message, APPLICATION_OCTET_STREAM));
 
-
         assertThat(pushReponse).isNotNull();
         assertThat(pushReponse.getStatus()).isEqualTo(201);
 
@@ -93,8 +92,8 @@ public class PushIT {
             .request()
             .post(Entity.entity(message, APPLICATION_OCTET_STREAM));
 
-
         assertThat(pushReponseDup).isNotNull();
+        //TODO: should this be a 400?
         assertThat(pushReponseDup.getStatus()).isEqualTo(500);
     }
 
@@ -109,6 +108,7 @@ public class PushIT {
             .post(Entity.entity(badPayload, APPLICATION_OCTET_STREAM));
 
         assertThat(pushReponse).isNotNull();
+        //TODO: should be 400?
         assertThat(pushReponse.getStatus()).isEqualTo(500);
     }
 
