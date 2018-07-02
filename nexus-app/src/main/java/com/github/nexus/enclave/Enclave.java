@@ -43,4 +43,15 @@ public interface Enclave {
     void publishPayload(EncodedPayloadWithRecipients encodedPayload, Key recipient);
 
     void resendAll(byte[] recipientKey);
+
+    /**
+     * Fetch a transaction with the given hash
+     * The transaction should have originated from this node and the
+     * given key should appear in the recipients list
+     *
+     * @param hash the hash of the transaction to find
+     * @param recipient the recipient of the transaction
+     * @return The payload that was originally distributed to the node that managed the recipient
+     */
+    EncodedPayloadWithRecipients fetchTransactionForRecipient(MessageHash hash, Key recipient);
 }

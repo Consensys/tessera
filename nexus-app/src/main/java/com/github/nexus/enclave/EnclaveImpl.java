@@ -49,7 +49,7 @@ public class EnclaveImpl implements Enclave {
     public void delete(final byte[] hashBytes) {
         final MessageHash messageHash = new MessageHash(hashBytes);
 
-         transactionService.delete(messageHash);
+        transactionService.delete(messageHash);
     }
 
     @Override
@@ -85,10 +85,9 @@ public class EnclaveImpl implements Enclave {
 
     @Override
     public MessageHash storePayload(final byte[] payload) {
-        EncodedPayloadWithRecipients encodedPayloadWithRecipients =
-            payloadEncoder.decodePayloadWithRecipients(payload);
-
-        return transactionService.storeEncodedPayload(encodedPayloadWithRecipients);
+        return transactionService.storeEncodedPayload(
+            payloadEncoder.decodePayloadWithRecipients(payload)
+        );
     }
 
     @Override
@@ -131,5 +130,13 @@ public class EnclaveImpl implements Enclave {
                 publishPayload(payload, recipientKey);
             });
         });
+    }
+
+    @Override
+    public EncodedPayloadWithRecipients fetchTransactionForRecipient(final MessageHash hash, final Key recipient){
+        final EncodedPayload encodedPayload = transactionService.retrievePayload(hash, recipient);
+
+        return new EncodedPayloadWithRecipients(encodedPayload, emptyList());
+
     }
 }

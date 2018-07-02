@@ -3,6 +3,9 @@ package com.github.nexus.api;
 import com.github.nexus.api.model.*;
 import com.github.nexus.enclave.Enclave;
 import com.github.nexus.enclave.model.MessageHash;
+import com.github.nexus.nacl.Key;
+import com.github.nexus.transaction.PayloadEncoderImpl;
+import com.github.nexus.transaction.model.EncodedPayloadWithRecipients;
 import com.github.nexus.util.Base64Decoder;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -16,7 +19,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.util.Base64;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -39,9 +41,7 @@ public class TransactionResource {
     }
 
     @ApiResponses({
-        @ApiResponse(code = 200,
-                response = SendResponse.class,
-                message = "Send response"),
+        @ApiResponse(code = 200, response = SendResponse.class, message = "Send response"),
         @ApiResponse(code = 400, message = "For unknown and unknown keys")
     })
     @POST
@@ -160,9 +160,7 @@ public class TransactionResource {
     }
 
     @ApiOperation(value = "Summit keys to retrieve payload and decrypt it", produces = "Unencypted payload")
-    @ApiResponses({
-        @ApiResponse(code = 200, message = "Raw payload", response = byte[].class)
-    })
+    @ApiResponses({@ApiResponse(code = 200, message = "Raw payload", response = byte[].class)})
     @GET
     @Path("receiveraw")
     @Consumes(APPLICATION_OCTET_STREAM)
@@ -222,49 +220,48 @@ public class TransactionResource {
         return Response.noContent().build();
     }
 
-    @ApiResponses(
-            {
-                @ApiResponse(code = 200,
-                        message = "Encoded payload when ResendRequestType is INDIVIDUAL",
-                        response = String.class),
-                @ApiResponse(code = 500,
-                        message = "General error")
-            }
-    )
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "Encoded payload when TYPE is INDIVIDUAL", response = String.class),
+        @ApiResponse(code = 500, message = "General error")
+    })
     @POST
     @Path("resend")
     @Consumes(APPLICATION_JSON)
     @Produces(TEXT_PLAIN)
     public Response resend(
-            @ApiParam(name = "resendRequest", required = true)
-            @Valid @NotNull final ResendRequest resendRequest) {
+        @ApiParam(name = "resendRequest", required = true) @Valid @NotNull final ResendRequest resendRequest
+    ) {
 
         final byte[] publicKey = base64Decoder.decode(resendRequest.getPublicKey());
 
         if (resendRequest.getType() == ResendRequestType.ALL) {
             enclave.resendAll(publicKey);
         } else if (resendRequest.getType() == ResendRequestType.INDIVIDUAL) {
-            final byte[] hashKey = Base64.getDecoder().decode(resendRequest.getKey());
-            final byte[] payload = enclave.receive(hashKey, Optional.of(publicKey));
-            final String encodedPayload = base64Decoder.encodeToString(payload);
+
+            final byte[] hashKey = base64Decoder.decode(resendRequest.getKey());
+
+            final EncodedPayloadWithRecipients payloadWithRecipients = enclave
+                .fetchTransactionForRecipient(new MessageHash(hashKey), new Key(publicKey));
+
+            final byte[] encoded = new PayloadEncoderImpl().encode(payloadWithRecipients);
+
             return Response.status(Response.Status.OK)
-                    .entity(encodedPayload)
+                    .entity(encoded)
                     .build();
         }
 
         return Response.status(Response.Status.OK).build();
     }
 
-    @ApiResponses(
-            {
-                @ApiResponse(code = 201, message = "Key created status"),
-                @ApiResponse(code = 500, message = "General error")}
-    )
+    @ApiResponses({
+        @ApiResponse(code = 201, message = "Key created status"),
+        @ApiResponse(code = 500, message = "General error")
+    })
     @POST
     @Path("push")
     @Consumes(APPLICATION_OCTET_STREAM)
     public Response push(
-            @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload
+        @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload
     ) {
 
         final MessageHash messageHash = enclave.storePayload(payload);
