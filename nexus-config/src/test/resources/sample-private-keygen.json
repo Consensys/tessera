@@ -16,6 +16,7 @@
    "keys" : [ {
 
       "privateKey" : {
+      "path":"${privateKeyFile}",
     "data": {
         "aopts": {
             "variant": "id",

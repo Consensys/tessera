@@ -77,7 +77,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
 
         PrivateKeyData privateKeyData = new PrivateKeyData(privateKey.toString(), nonceString, saltString, encyptKeyString, argonOptions, password);
 
-        return new PrivateKey(privateKeyData, null, PrivateKeyType.LOCKED);
+        return new PrivateKey(privateKeyData, PrivateKeyType.LOCKED);
 
     }
 

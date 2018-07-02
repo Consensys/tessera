@@ -86,7 +86,7 @@ public class KeyEncryptorTest {
         com.github.nexus.config.ArgonOptions argonOptions = new com.github.nexus.config.ArgonOptions("i", 1, 1, 1);
         PrivateKeyData privateKeyData = new PrivateKeyData("", "", "uZAfjmMwEepP8kzZCnmH6g==", "", argonOptions, password);
 
-        PrivateKey privateKey = new PrivateKey(privateKeyData, null, PrivateKeyType.LOCKED);
+        PrivateKey privateKey = new PrivateKey(privateKeyData, PrivateKeyType.LOCKED);
 
         doReturn(new byte[]{1, 2, 3})
                 .when(nacl)
