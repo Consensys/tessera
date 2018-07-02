@@ -5,53 +5,52 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <artifactId>nexus-encryption-jnacl</artifactId>
+
+    <name>nexus-encryption-jnacl</name>
+    <packaging>jar</packaging>
+
     <parent>
         <groupId>com.github.nexus</groupId>
-        <artifactId>nexus</artifactId>
+        <artifactId>nexus-encryption-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>nexus-encryption-kalium</artifactId>
-    <packaging>jar</packaging>
-  
-    <properties>
-        <maven.test.skip>true</maven.test.skip>
-    </properties>
-
     <dependencyManagement>
+
         <dependencies>
+
             <dependency>
-                <groupId>org.abstractj.kalium</groupId>
-                <artifactId>kalium</artifactId>
-                <version>0.8.0</version>
+                <groupId>eu.neilalexander</groupId>
+                <artifactId>jnacl</artifactId>
+                <version>1.0.0</version>
             </dependency>
 
-
         </dependencies>
+
     </dependencyManagement>
 
     <dependencies>
+
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-encryption</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.abstractj.kalium</groupId>
-            <artifactId>kalium</artifactId>
+            <groupId>eu.neilalexander</groupId>
+            <artifactId>jnacl</artifactId>
         </dependency>
 
-
     </dependencies>
-
     
     <profiles>
         <profile>
             <id>kalium</id>
             <properties>
-                <maven.test.skip>false</maven.test.skip>
+                <maven.test.skip>true</maven.test.skip>
             </properties>
         </profile>
     </profiles>
-    
+
 </project>
