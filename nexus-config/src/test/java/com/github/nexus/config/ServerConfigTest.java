@@ -21,4 +21,23 @@ public class ServerConfigTest {
     public void serverUriInvalidUri() throws URISyntaxException {
         new ServerConfig("&@€~:*&2", -1, null).getServerUri();
     }
+
+    @Test
+    public void sslNotNullButTlsFlagOff() {
+        SslConfig sslConfig = new SslConfig(
+            SslAuthenticationMode.OFF,false, null,null,null,null,null,null,null,null,null,null,null,null
+        );
+        ServerConfig serverConfig = new ServerConfig("somedomain", 8989, sslConfig);
+        assertThat(serverConfig.isSsl()).isFalse();
+    }
+
+    @Test
+    public void tlsFlagOn() {
+        SslConfig sslConfig = new SslConfig(
+            SslAuthenticationMode.STRICT,false, null,null,null,null,null,null,null,null,null,null,null,null
+        );
+        ServerConfig serverConfig = new ServerConfig("somedomain", 8989, sslConfig);
+        assertThat(serverConfig.isSsl()).isTrue();
+    }
+
 }
