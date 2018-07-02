@@ -63,6 +63,11 @@
                 </executions>
                 <configuration>
                     <generateReports>true</generateReports>
+                    <testFilesIncluded>
+                        <jMeterTestFile>send.jmx</jMeterTestFile>
+                        <jMeterTestFile>sendraw.jmx</jMeterTestFile>
+                        <jMeterTestFile>receiveraw.jmx</jMeterTestFile>
+                    </testFilesIncluded>
                 </configuration>
             </plugin>
 
