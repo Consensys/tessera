@@ -48,34 +48,6 @@
             
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-
-                                <get src="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/junixsocket/junixsocket-1.3-bin.tar.bz2" 
-                                     dest="target/junixsocket-1.3-bin.tar.bz2" />
-                        
-                                <bunzip2 src="target/junixsocket-1.3-bin.tar.bz2" dest="target/junixsocket-1.3.tar"/>
-                                
-                                <untar src="target/junixsocket-1.3.tar" dest="target/"/>
-                            </target>
-                    
-                        </configuration>
-                    </execution>
-                </executions>
-                
-            </plugin>
-            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.21.0</version>
                 <configuration>
@@ -152,6 +124,23 @@
                             <source>${basedir}/src/test/groovy/startNode.groovy</source>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>start-node3</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
+                                <configFile>${project.build.testOutputDirectory}/config3.json</configFile>
+                                <pidFile>${project.build.directory}/node3.pid</pidFile>
+                                <logbackConfigFile>${project.build.testOutputDirectory}/logback-node3.xml</logbackConfigFile>
+                                <junixsocketLibPath>${project.build.directory}/junixsocket-1.3/lib-native</junixsocketLibPath>
+                            </properties>
+                            <source>${basedir}/src/test/groovy/startNode.groovy</source>
+                        </configuration>
+                    </execution>
                     
                     <execution>
                         <id>kill-node1</id>
@@ -169,6 +158,20 @@
                     
                     <execution>
                         <id>kill-node2</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <pidFile>${project.build.directory}/node2.pid</pidFile>
+                            </properties>
+                            <source>${basedir}/src/test/groovy/killNode.groovy</source>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>kill-node3</id>
                         <phase>post-integration-test</phase>
                         <goals>
                             <goal>execute</goal>
