@@ -1,9 +1,11 @@
 package com.github.nexus.config;
 
+import org.junit.Test;
+
 import java.net.URI;
 import java.net.URISyntaxException;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
 
 public class ServerConfigTest {
 
