@@ -404,6 +404,13 @@
             </dependency>
 
             <dependency>
+                <groupId>commons-dbcp</groupId>
+                <artifactId>commons-dbcp</artifactId>
+                <version>1.4</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
                 <groupId>org.eclipse.persistence</groupId>
                 <artifactId>org.eclipse.persistence.core</artifactId>
                 <version>${eclipselink.version}</version>

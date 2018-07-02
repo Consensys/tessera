@@ -124,9 +124,10 @@
 
         <bean class="com.github.nexus.api.ApiResource" />
     
-        <bean id="dataSource" class="org.h2.jdbcx.JdbcDataSource">
+        <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+            <property name="driverClassName" value="org.h2.Driver"/>
             <property name="url" value="#{ config.getJdbcConfig().getUrl() }" />
-            <property name="user" value="#{ config.getJdbcConfig().getUsername() }" />
+            <property name="username" value="#{ config.getJdbcConfig().getUsername() }" />
             <property name="password" value="#{ config.getJdbcConfig().getPassword() }" />
         </bean>
 
