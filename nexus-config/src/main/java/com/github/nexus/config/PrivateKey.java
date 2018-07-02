@@ -1,12 +1,12 @@
 package com.github.nexus.config;
 
 import com.github.nexus.config.adapters.PathAdapter;
-import com.github.nexus.config.constraints.KeyGen;
-import com.github.nexus.config.constraints.ValidPath;
+import com.github.nexus.config.adapters.PrivateKeyTypeAdapter;
 import java.nio.file.Path;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -15,84 +15,67 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlType(factoryMethod = "create")
 public class PrivateKey {
 
-    @XmlElement(name = "bytes")
-    private final String value;
+    @NotNull
+    @XmlElement(name = "data")
+    private final PrivateKeyData privateKeyData;
 
-    private final String password;
-
+    @NotNull
+    @XmlAttribute
+    @XmlJavaTypeAdapter(PrivateKeyTypeAdapter.class)
     private final PrivateKeyType type;
 
-    private final String snonce;
-
-    private final String asalt;
-
-    private final String sbox;
-
-    private final ArgonOptions argonOptions;
-
-    @NotNull(groups = KeyGen.class)
-    @ValidPath(groups = KeyGen.class)
+    //FIXME: Mutable 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path path;
-    
-    private PrivateKey() {
-        this(null, null, null, null, null, null, null,null);
-    }
-    
-    
-    private static PrivateKey create() {
-        return new PrivateKey();
-    }
-    
-    public PrivateKey(final String value,
-                      final String password,
-                      final PrivateKeyType type,
-                      final String snonce,
-                      final String asalt,
-                      final String sbox,
-                      final ArgonOptions argonOptions,
-                      final Path path) {
-        this.value = value;
-        this.password = password;
+    private Path path;
+
+    public PrivateKey(PrivateKeyData privateKeyData, PrivateKeyType type) {
+        this.privateKeyData = privateKeyData;
         this.type = type;
-        this.snonce = snonce;
-        this.asalt = asalt;
-        this.sbox = sbox;
-        this.argonOptions = argonOptions;
-        this.path = path;
     }
 
-    public String getValue() {
-        return this.value;
-    }
-
-    public String getPassword() {
-        return password;
+    private static PrivateKey create() {
+        return new PrivateKey(null, null);
     }
 
     public PrivateKeyType getType() {
         return type;
     }
 
+    public PrivateKeyData getPrivateKeyData() {
+        return privateKeyData;
+    }
+
+    public String getValue() {
+        return privateKeyData.getValue();
+    }
+
     public String getSnonce() {
-        return snonce;
+        return privateKeyData.getSnonce();
     }
 
     public String getAsalt() {
-        return asalt;
+        return privateKeyData.getAsalt();
     }
 
     public String getSbox() {
-        return sbox;
+        return privateKeyData.getSbox();
     }
 
     public ArgonOptions getArgonOptions() {
-        return argonOptions;
+        return privateKeyData.getArgonOptions();
+    }
+
+    public String getPassword() {
+        return privateKeyData.getPassword();
     }
 
     public Path getPath() {
         return path;
+    }
+
+    public void setPath(Path path) {
+        this.path = path;
     }
 
 }

@@ -14,10 +14,10 @@ public class OpenPojoTest {
     public void executeOpenPojoValidations() {
 
         final Validator pojoValidator = ValidatorBuilder.create()
-            .with(new GetterMustExistRule())
-            .with(new GetterTester())
-            .with(new DefaultValuesNullTester())
-            .build();
+                .with(new GetterMustExistRule())
+                .with(new GetterTester())
+                .with(new DefaultValuesNullTester())
+                .build();
 
         final PojoClassFilter[] filters = new PojoClassFilter[]{
             pc -> !pc.getClazz().isAssignableFrom(ObjectFactory.class),
@@ -26,7 +26,6 @@ public class OpenPojoTest {
         };
 
         pojoValidator.validate("com.github.nexus.config", filters);
-        pojoValidator.validate("com.github.nexus.config.adapters", filters);
 
     }
 

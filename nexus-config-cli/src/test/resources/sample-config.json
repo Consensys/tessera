@@ -15,15 +15,18 @@
    } ],
    "keys" : [ {
       "privateKey" : {
-         "value" : "PRIVATEKEY",
-         "password" : "TOP_SECRET",
-         "argonOptions" : {
-            "algorithm" : "SHA",
-            "iterations" : 1,
-            "memory" : 256,
-            "parallelism" : 1
-         }
-      },
+        "data":{
+             "value" : "PRIVATEKEY",
+             "password" : "TOP_SECRET",
+             "argonOptions" : {
+                "algorithm" : "SHA",
+                "iterations" : 1,
+                "memory" : 256,
+                "parallelism" : 1
+             }
+          },
+    "type":"argon2sbox"},
+
       "publicKey" : {
          "value" : "PUBLICKEY"
       }

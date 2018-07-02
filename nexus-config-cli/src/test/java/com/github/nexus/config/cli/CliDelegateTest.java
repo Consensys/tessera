@@ -65,7 +65,7 @@ public class CliDelegateTest {
 
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
-            assertThat(ex.getConstraintViolations()).hasSize(2);
+            assertThat(ex.getConstraintViolations()).hasSize(1);
 
             List<String> paths = ex.getConstraintViolations().stream()
                     .map(v -> v.getPropertyPath())
@@ -73,7 +73,7 @@ public class CliDelegateTest {
                     .sorted()
                     .collect(Collectors.toList());
 
-            assertThat(paths).containsExactly("keys[0].privateKey.path", "keys[0].publicKey.path");
+            assertThat(paths).containsExactly("keys[0].publicKey.path");
         }
     }
 

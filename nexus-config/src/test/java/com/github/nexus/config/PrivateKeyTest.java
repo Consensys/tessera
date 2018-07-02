@@ -1,21 +1,41 @@
-
 package com.github.nexus.config;
 
-import java.lang.reflect.Method;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class PrivateKeyTest {
-    
+
     @Test
-    public void create() throws Exception {
-    
-       Method createMethod =  PrivateKey.class.getDeclaredMethod("create");
-       createMethod.setAccessible(true);
-       
-       PrivateKey result = (PrivateKey) createMethod.invoke(null);
-       assertThat(result).isNotNull();
+    public void delegateGetters() {
+        PrivateKeyData data = mock(PrivateKeyData.class);
+        PrivateKey privateKey = new PrivateKey(data, PrivateKeyType.LOCKED);
+
+        privateKey.getArgonOptions();
+        privateKey.getAsalt();
+        privateKey.getPassword();
+        privateKey.getValue();
+        privateKey.getSbox();
+        privateKey.getSnonce();
+
+        assertThat(privateKey.getPrivateKeyData()).isSameAs(data);
+
+        verify(data).getArgonOptions();
+        verify(data).getAsalt();
+        verify(data).getPassword();
+        verify(data).getValue();
+        verify(data).getSbox();
+        verify(data).getSnonce();
+
+        verifyNoMoreInteractions(data);
 
     }
-    
+
+    @Test
+    public void loadSample() {
+
+    }
+
 }
