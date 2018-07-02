@@ -173,6 +173,12 @@ Note that the Kalium implementation requires that you have sodium installed at r
 Nexus has the folllowing runtime dependencies which must be installed.
 
 #### junixsocket
+JUnixSocket will unpack required dependencies if they are not found
+By default, they get unpacked to /tmp, but this can be
+changed by setting the system property "org.newsclub.net.unix.library.path"
+
+Alternatively, you can install the dependency yourself, and point the 
+above system property to the install location.
 
 1. Get junixsocket-1.3-bin.tar.bz2 from https://code.google.com/archive/p/junixsocket/downloads
 2. Unpack it
