@@ -14,7 +14,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 import java.io.*;
 import java.net.URI;
-import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -125,30 +124,6 @@ public class NexusIT {
         assertThat(response.getMediaType())
                 .isEqualTo(MediaType.TEXT_HTML_TYPE);
         assertThat(response.getStatus()).isEqualTo(200);
-
-    }
-
-    @Ignore
-    @Test
-    public void receiveraw() {
-
-        String key = Base64.getEncoder().encodeToString("<replace the hashkey here>".getBytes());
-        String recipient =  Base64.getEncoder().encodeToString("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=".getBytes());
-
-        javax.ws.rs.core.Response response = client.target(SERVER_URI)
-                .path("/receiveraw")
-                .request()
-                .header("c11n-key",key)
-                .header("c11n-to", recipient)
-                .post(Entity.entity("", MediaType.APPLICATION_OCTET_STREAM));
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
-        String body = response.readEntity(String.class);
-        LOGGER.debug("Response body : ",body);
-        assertThat(body).isNotEmpty();
-        assertThat(response.getMediaType()).isEqualTo(MediaType.APPLICATION_OCTET_STREAM_TYPE);
-
 
     }
 

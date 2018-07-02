@@ -22,6 +22,8 @@ public class ReceiveRawIT {
 
     private static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
 
+    private static final URI SECONDAERY_SERVER = UriBuilder.fromUri("http://127.0.0.1").port(8081).build();
+
     private static final String RECEIVE_PATH = "/receiveraw";
 
     private static final String C11N_TO = "c11n-to";
@@ -85,7 +87,7 @@ public class ReceiveRawIT {
     }
 
     @Test
-    public void fetchExistingTransactionNotUsingKey() {
+    public void fetchExistingTransactionNotUsingKeyOnSender() {
 
         final Response response = client.target(SERVER_URI)
             .path(RECEIVE_PATH)
@@ -106,9 +108,30 @@ public class ReceiveRawIT {
     }
 
     @Test
+    public void fetchExistingTransactionNotUsingKeyOnRecipient() {
+
+        final Response response = client.target(SECONDAERY_SERVER)
+            .path(RECEIVE_PATH)
+            .request()
+            .header(C11N_KEY, this.hash)
+            .buildGet()
+            .invoke();
+
+        //validate result
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(200);
+
+        final byte[] result = response.readEntity(byte[].class);
+
+        assertThat(new String(result)).isEqualTo(RAW_PAYLOAD);
+
+    }
+
+    @Test
     public void fetchExistingTransactionUsingRecipientKey() {
 
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(SECONDAERY_SERVER)
             .path(RECEIVE_PATH)
             .request()
             .header(C11N_KEY, this.hash)
