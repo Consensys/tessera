@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 public class SslConfigValidatorTest {
@@ -31,12 +33,18 @@ public class SslConfigValidatorTest {
     @Mock
     private ConstraintValidatorContext context;
 
+    @Mock
+    private ConstraintValidatorContext.ConstraintViolationBuilder builder;
+
     private SslConfigValidator validator;
 
 
     @Before
     public void setUp() throws IOException {
         MockitoAnnotations.initMocks(this);
+        doNothing().when(context).disableDefaultConstraintViolation();
+        when(builder.addConstraintViolation()).thenReturn(context);
+        when(context.buildConstraintViolationWithTemplate(any())).thenReturn(builder);
         tmpFile = new File(tmpDir.getRoot(), "tmpFile");
         tmpFile.createNewFile();
         validator = new SslConfigValidator();

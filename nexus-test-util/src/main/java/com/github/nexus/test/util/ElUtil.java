@@ -1,11 +1,10 @@
-package com.github.nexus.config.util;
+package com.github.nexus.test.util;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,7 +22,7 @@ public class ElUtil {
                 .map(BufferedReader::new)
                 .flatMap(BufferedReader::lines).collect(Collectors.joining());
         String result = process(data, parameters);
-        System.out.println(result);
+
         return new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8));
 
     }
@@ -37,17 +36,6 @@ public class ElUtil {
         ValueExpression valueExpression = ExpressionFactory.newInstance()
                 .createValueExpression(eLContext, data, String.class);
         return (String) valueExpression.getValue(eLContext);
-    }
-
-    public static void main(String[] args) {
-
-        String result = ElUtil.process("Hello ${thing}", new HashMap() {
-            {
-                put("thing", "World");
-            }
-        });
-        System.out.println(result);
-
     }
 
 }
