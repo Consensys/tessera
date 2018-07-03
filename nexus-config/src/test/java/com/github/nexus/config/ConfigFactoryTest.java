@@ -1,6 +1,6 @@
 package com.github.nexus.config;
 
-import com.github.nexus.config.util.ElUtil;
+import com.github.nexus.test.util.ElUtil;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
