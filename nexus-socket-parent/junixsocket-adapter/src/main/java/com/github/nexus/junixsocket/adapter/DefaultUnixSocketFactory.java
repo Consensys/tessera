@@ -13,16 +13,17 @@ import java.nio.file.Path;
 public class DefaultUnixSocketFactory implements UnixSocketFactory {
 
     @Override
-    public ServerSocket createServerSocket(Path socketFile) throws IOException {
-        ServerSocket server = AFUNIXServerSocket.newInstance();
+    public ServerSocket createServerSocket(final Path socketFile) throws IOException {
+        final ServerSocket server = AFUNIXServerSocket.newInstance();
         server.bind(new AFUNIXSocketAddress(socketFile.toFile()));
         return server;
     }
 
     @Override
-    public Socket createSocket(Path socketFile) throws IOException {
-        Socket socket = AFUNIXSocket.newInstance();
+    public Socket createSocket(final Path socketFile) throws IOException {
+        final Socket socket = AFUNIXSocket.newInstance();
         socket.connect(new AFUNIXSocketAddress(socketFile.toFile()));
         return socket;
     }
+
 }
