@@ -70,11 +70,9 @@ public interface TlsUtils {
         keyStore.load(null, null);
         keyStore.setKeyEntry("nexus",privateKey, password.toCharArray(), new X509Certificate[]{certificate});
 
-        FileOutputStream keyStoreFile = new FileOutputStream(privateKeyFile);
-
-        keyStore.store(keyStoreFile, password.toCharArray());
-        keyStoreFile.close();
-
+        try(final FileOutputStream keyStoreFile = new FileOutputStream(privateKeyFile)) {
+            keyStore.store(keyStoreFile, password.toCharArray());
+        }
     }
 
     static TlsUtils create(){

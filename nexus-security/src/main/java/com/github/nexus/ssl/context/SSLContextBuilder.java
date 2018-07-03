@@ -96,7 +96,10 @@ public class SSLContextBuilder {
         }
 
         final KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
-        keyStore.load(new FileInputStream(this.keyStore), keyStorePassword.toCharArray());
+
+        try (final FileInputStream in = new FileInputStream(this.keyStore)) {
+            keyStore.load(in, keyStorePassword.toCharArray());
+        }
 
         final KeyManagerFactory keyManagerFactory =
             KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -110,7 +113,10 @@ public class SSLContextBuilder {
         if (trustStore.isEmpty()) return new TrustManager[0];
 
         final KeyStore trustStore = KeyStore.getInstance(KEYSTORE_TYPE);
-        trustStore.load(new FileInputStream(this.trustStore), trustStorePassword.toCharArray());
+
+        try (final FileInputStream in = new FileInputStream(this.trustStore)) {
+            trustStore.load(in, trustStorePassword.toCharArray());
+        }
 
         final TrustManagerFactory trustManagerFactory =
             TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
