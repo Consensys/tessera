@@ -9,7 +9,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+
 import org.abstractj.kalium.NaCl;
+
+import static org.abstractj.kalium.NaCl.Sodium.CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BEFORENMBYTES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -58,8 +61,8 @@ public class KaliumTest {
     @Test
     public void computingSharedKeyThrowsExceptionOnFailure() {
         doReturn(-1)
-                .when(this.sodium)
-                .crypto_box_curve25519xsalsa20poly1305_beforenm(any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes()));
+            .when(this.sodium)
+            .crypto_box_curve25519xsalsa20poly1305_beforenm(any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes()));
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.computeSharedKey(publicKey, privateKey));
 
@@ -71,68 +74,68 @@ public class KaliumTest {
     @Test
     public void sealUsingKeysThrowsExceptionOnFailure() {
         doReturn(-1)
-                .when(this.sodium)
-                .crypto_box_curve25519xsalsa20poly1305(
-                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
-                );
+            .when(this.sodium)
+            .crypto_box_curve25519xsalsa20poly1305(
+                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
+            );
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.seal(message, nonce, publicKey, privateKey));
 
         assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("Kalium could not seal the payload using the provided keys directly");
 
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305(
-                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class), any(byte[].class)
+            any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class), any(byte[].class)
         );
     }
 
     @Test
     public void openUsingKeysThrowsExceptionOnFailure() {
         doReturn(-1)
-                .when(this.sodium)
-                .crypto_box_curve25519xsalsa20poly1305_open(
-                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
-                );
+            .when(this.sodium)
+            .crypto_box_curve25519xsalsa20poly1305_open(
+                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
+            );
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.open(message, nonce, publicKey, privateKey));
 
         assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("Kalium could not open the payload using the provided keys directly");
 
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_open(
-                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class), any(byte[].class)
+            any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class), any(byte[].class)
         );
     }
 
     @Test
     public void sealUsingSharedkeyThrowsExceptionOnFailure() {
         doReturn(-1)
-                .when(this.sodium)
-                .crypto_box_curve25519xsalsa20poly1305_afternm(
-                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
-                );
+            .when(this.sodium)
+            .crypto_box_curve25519xsalsa20poly1305_afternm(
+                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
+            );
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.sealAfterPrecomputation(message, nonce, sharedKey));
 
         assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("Kalium could not seal the payload using the shared key");
 
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_afternm(
-                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
+            any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
         );
     }
 
     @Test
     public void openUsingSharedkeyThrowsExceptionOnFailure() {
         doReturn(-1)
-                .when(this.sodium)
-                .crypto_box_curve25519xsalsa20poly1305_open_afternm(
-                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
-                );
+            .when(this.sodium)
+            .crypto_box_curve25519xsalsa20poly1305_open_afternm(
+                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
+            );
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.openAfterPrecomputation(message, nonce, sharedKey));
 
         assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("Kalium could not open the payload using the shared key");
 
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_open_afternm(
-                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
+            any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
         );
     }
 
@@ -146,8 +149,8 @@ public class KaliumTest {
     @Test
     public void generatingNewKeysThrowsExceptionOnFailure() {
         doReturn(-1)
-                .when(this.sodium)
-                .crypto_box_curve25519xsalsa20poly1305_keypair(any(byte[].class), any(byte[].class));
+            .when(this.sodium)
+            .crypto_box_curve25519xsalsa20poly1305_keypair(any(byte[].class), any(byte[].class));
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.generateNewKeys());
 
@@ -159,27 +162,28 @@ public class KaliumTest {
     @Test
     public void computeSharedKeySodiumReturnsSuccess() {
 
-        when(sodium.crypto_box_curve25519xsalsa20poly1305_beforenm(any(byte[].class),
-                any(byte[].class), any(byte[].class))).thenReturn(1);
+        when(sodium.crypto_box_curve25519xsalsa20poly1305_beforenm(
+            any(byte[].class), any(byte[].class), any(byte[].class))
+        ).thenReturn(1);
 
-        Key result = kalium.computeSharedKey(publicKey, privateKey);
+        final Key result = kalium.computeSharedKey(publicKey, privateKey);
 
         assertThat(result).isNotNull();
-        assertThat(result.getKeyBytes())
-                .isEqualTo(new byte[NaCl.Sodium.CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BEFORENMBYTES]);
+        assertThat(result.getKeyBytes()).isEqualTo(new byte[CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BEFORENMBYTES]);
 
         verify(sodium).crypto_box_curve25519xsalsa20poly1305_beforenm(
-                any(byte[].class), any(byte[].class), any(byte[].class));
+            any(byte[].class), any(byte[].class), any(byte[].class)
+        );
 
     }
 
     @Test
     public void generateNewKeysSodiumSuccess() {
 
-        when(sodium.crypto_box_curve25519xsalsa20poly1305_keypair(
-                any(byte[].class), any(byte[].class))).thenReturn(1);
+        when(sodium.crypto_box_curve25519xsalsa20poly1305_keypair(any(byte[].class), any(byte[].class))).thenReturn(1);
 
-        KeyPair result = kalium.generateNewKeys();
+        final KeyPair result = kalium.generateNewKeys();
+
         assertThat(result).isNotNull();
         assertThat(result.getPrivateKey()).isNotNull();
         assertThat(result.getPublicKey()).isNotNull();
@@ -191,74 +195,73 @@ public class KaliumTest {
     @Test
     public void sealAfterPrecomputationSodiumReturnsSuccess() {
         doReturn(1)
-                .when(this.sodium)
-                .crypto_box_curve25519xsalsa20poly1305_afternm(
-                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
-                );
+            .when(this.sodium)
+            .crypto_box_curve25519xsalsa20poly1305_afternm(
+                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
+            );
 
-        byte[] result = kalium.sealAfterPrecomputation(message, nonce, sharedKey);
+        final byte[] result = kalium.sealAfterPrecomputation(message, nonce, sharedKey);
 
         assertThat(result).isNotEmpty();
 
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_afternm(
-                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
+            any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
         );
     }
 
     @Test
     public void openUsingSharedKeySodiumReturnsSuccess() {
 
-        byte[] data = new byte[100];
+        final byte[] data = new byte[100];
 
         doReturn(1)
-                .when(this.sodium)
-                .crypto_box_curve25519xsalsa20poly1305_open_afternm(
-                        any(byte[].class), eq(data), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
-                );
+            .when(this.sodium)
+            .crypto_box_curve25519xsalsa20poly1305_open_afternm(
+                any(byte[].class), eq(data), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
+            );
 
-        byte[] results = kalium.openAfterPrecomputation(data, nonce, sharedKey);
+        final byte[] results = kalium.openAfterPrecomputation(data, nonce, sharedKey);
 
         assertThat(results).isNotEmpty();
 
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_open_afternm(
-                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
+            any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
         );
     }
 
     @Test
     public void openUsingKeysSodiumReturnsSucesss() {
-        byte[] data = new byte[100];
+        final byte[] data = new byte[100];
 
         doReturn(1)
-                .when(this.sodium)
-                .crypto_box_curve25519xsalsa20poly1305_open(
-                        any(byte[].class), eq(data), anyInt(), any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
-                );
+            .when(this.sodium)
+            .crypto_box_curve25519xsalsa20poly1305_open(
+                any(byte[].class), eq(data), anyInt(), any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
+            );
 
-        byte[] result = this.kalium.open(data, nonce, publicKey, privateKey);
+        final byte[] result = this.kalium.open(data, nonce, publicKey, privateKey);
 
         assertThat(result).isNotEmpty();
 
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_open(
-                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class), any(byte[].class)
+            any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class), any(byte[].class)
         );
     }
-    
+
     @Test
     public void sealUsingKeysSodiumReturnsSuccess() {
         doReturn(1)
-                .when(this.sodium)
-                .crypto_box_curve25519xsalsa20poly1305(
-                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
-                );
+            .when(this.sodium)
+            .crypto_box_curve25519xsalsa20poly1305(
+                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes())
+            );
 
-        byte[] results = this.kalium.seal(message, nonce, publicKey, privateKey);
-
+        final byte[] results = this.kalium.seal(message, nonce, publicKey, privateKey);
 
         assertThat(results).isNotEmpty();
 
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305(
-                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class), any(byte[].class)
+            any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class), any(byte[].class)
         );
     }
 
