@@ -1,4 +1,4 @@
-package com.github.nexus.junixsocket.adapter;
+package com.github.nexus.socket;
 
 import java.io.IOException;
 import java.net.ServerSocket;

@@ -1,7 +1,5 @@
 package com.github.nexus.socket;
 
-import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
-
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Path;

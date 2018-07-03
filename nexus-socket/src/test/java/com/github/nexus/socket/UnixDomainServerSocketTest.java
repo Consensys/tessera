@@ -1,6 +1,6 @@
 //package com.github.nexus.socket;
 //
-//import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
+//import com.github.nexus.socket.UnixSocketFactory;
 //import org.junit.After;
 //import org.junit.Before;
 //import org.junit.Test;
