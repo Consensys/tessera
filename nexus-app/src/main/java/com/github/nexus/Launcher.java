@@ -11,6 +11,8 @@ import com.github.nexus.service.locator.ServiceLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
@@ -20,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -35,21 +38,31 @@ public class Launcher {
 
     public static void main(final String... args) throws Exception {
 
-        CliResult cliResult = CliDelegate.instance().execute(args);
+        try {
+            CliResult cliResult = CliDelegate.instance().execute(args);
 
-        if(cliResult.getStatus() != 0) {
-            System.exit(cliResult.getStatus());
+            if(cliResult.getStatus() != 0) {
+                System.exit(cliResult.getStatus());
+            }
+
+            Config config = cliResult.getConfig().get();
+
+            Launcher.createPidFile();
+
+            final URI uri = new URI(config.getServerConfig().getHostName() + ":" + config.getServerConfig().getPort());
+
+            runWebServer(uri, config.getServerConfig());
+
+            System.exit(0);
+
+        } catch(ConstraintViolationException ex) {
+            Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
+
+            for(ConstraintViolation<?> violation : violations) {
+                System.out.println("Config validation issue: " + violation.getPropertyPath() + " " + violation.getMessage());
+            }
+            System.exit(1);
         }
-        
-        Config config = cliResult.getConfig().get();
-        
-        Launcher.createPidFile();
-
-        final URI uri = new URI(config.getServerConfig().getHostName() + ":" + config.getServerConfig().getPort());
-
-        runWebServer(uri, config.getServerConfig());
-
-        System.exit(0);
     }
 
     private static void runWebServer(final URI serverUri, ServerConfig serverConfig) throws Exception {
