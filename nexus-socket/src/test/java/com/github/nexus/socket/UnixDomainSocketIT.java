@@ -1,5 +1,5 @@
 package com.github.nexus.socket;
-;
+
 import com.github.nexus.socket.client.UnixDomainClientSocket;
 import org.junit.Test;
 
