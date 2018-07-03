@@ -2,6 +2,7 @@ package com.github.nexus.server;
 
 import com.github.nexus.config.ServerConfig;
 import com.github.nexus.ssl.context.SSLContextFactory;
+import com.github.nexus.ssl.context.ServerSSLContextFactory;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
@@ -35,7 +36,7 @@ public class JerseyServer implements RestServer {
 
     private final boolean secure;
 
-    private final SSLContextFactory sslContextFactory = SSLContextFactory.create();
+    private final SSLContextFactory sslContextFactory = ServerSSLContextFactory.create();
 
     public JerseyServer(
             URI uri, Application application, ServerConfig serverConfig) {
