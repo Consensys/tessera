@@ -33,7 +33,7 @@ public class KeyPair {
 
     @Override
     public int hashCode() {
-        return Objects.hash(publicKey, privateKey);
+        return Objects.hash(getPublicKey(), getPrivateKey());
     }
 
 }
