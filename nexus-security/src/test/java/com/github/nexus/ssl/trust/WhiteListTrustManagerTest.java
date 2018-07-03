@@ -1,15 +1,17 @@
 package com.github.nexus.ssl.trust;
 
 import com.github.nexus.ssl.util.CertificateUtil;
-import org.junit.*;
-import org.junit.rules.TemporaryFolder;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -22,12 +24,7 @@ public class WhiteListTrustManagerTest {
 
     private WhiteListTrustManager trustManager;
 
-    @Rule
-    public TemporaryFolder tmpDir = new TemporaryFolder();
-
-    private static TemporaryFolder tmpDirDelegate;
-
-    File knownHosts;
+    Path knownHosts;
 
     @Mock
     X509Certificate certificate;
@@ -37,10 +34,9 @@ public class WhiteListTrustManagerTest {
     public void setUp() throws IOException, CertificateException {
         MockitoAnnotations.initMocks(this);
         when(certificate.getEncoded()).thenReturn("thumbprint".getBytes());
-        knownHosts = new File(tmpDir.getRoot(), "knownHosts");
-        knownHosts.createNewFile();
+        knownHosts = Files.createTempFile("test", "knownHosts");
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(knownHosts, true)))
+        try (BufferedWriter writer = Files.newBufferedWriter(knownHosts, StandardOpenOption.APPEND))
         {
             writer.write("somethumbprint");
             writer.newLine();
@@ -55,13 +51,6 @@ public class WhiteListTrustManagerTest {
     @After
     public void after() {
         verifyNoMoreInteractions(certificate);
-        tmpDirDelegate = tmpDir;
-        assertThat(tmpDirDelegate.getRoot().exists()).isTrue();
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        assertThat(tmpDirDelegate.getRoot().exists()).isFalse();
     }
 
     @Test

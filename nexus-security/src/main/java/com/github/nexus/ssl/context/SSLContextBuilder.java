@@ -7,9 +7,10 @@ import com.github.nexus.ssl.util.TlsUtils;
 import org.bouncycastle.operator.OperatorCreationException;
 
 import javax.net.ssl.*;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.*;
 import java.security.cert.CertificateException;
 
@@ -18,14 +19,14 @@ public class SSLContextBuilder {
     private static final String KEYSTORE_TYPE="JKS";
     private static final String PROTOCOL="TLS";
 
-    private String keyStore;
+    private Path keyStore;
     private String keyStorePassword;
-    private String trustStore;
+    private Path trustStore;
     private String trustStorePassword;
 
     private SSLContext sslContext;
 
-    private SSLContextBuilder(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword) throws NoSuchAlgorithmException {
+    private SSLContextBuilder(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword) throws NoSuchAlgorithmException {
         this.keyStore = keyStore;
         this.keyStorePassword = keyStorePassword;
         this.trustStore = trustStore;
@@ -35,7 +36,7 @@ public class SSLContextBuilder {
     }
 
 
-    public static SSLContextBuilder createBuilder(String keyStore, String keyStorePassword, String trustStore, String trustStorePassword) throws NoSuchAlgorithmException {
+    public static SSLContextBuilder createBuilder(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword) throws NoSuchAlgorithmException {
         return new SSLContextBuilder(
             keyStore,
             keyStorePassword,
@@ -48,7 +49,7 @@ public class SSLContextBuilder {
     }
 
 
-    public SSLContextBuilder forWhiteList(File knownHosts) throws NoSuchAlgorithmException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, CertificateException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+    public SSLContextBuilder forWhiteList(Path knownHosts) throws NoSuchAlgorithmException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, CertificateException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
         sslContext.init(buildKeyManagers(), new TrustManager[]{new WhiteListTrustManager(knownHosts)}, null);
 
@@ -76,7 +77,7 @@ public class SSLContextBuilder {
     }
 
 
-    public SSLContextBuilder forTrustOnFirstUse(File knownHostsFile) throws NoSuchAlgorithmException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, CertificateException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+    public SSLContextBuilder forTrustOnFirstUse(Path knownHostsFile) throws NoSuchAlgorithmException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, CertificateException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
         final KeyManager[] keyManagers = buildKeyManagers();
 
@@ -89,15 +90,13 @@ public class SSLContextBuilder {
 
     private KeyManager[] buildKeyManagers() throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException, IOException, CertificateException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
-        final File keyStoreFile = new File(keyStore);
-
-        if (!keyStoreFile.exists()) {
-            TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(keyStoreFile, keyStorePassword);
+        if (Files.notExists(keyStore)) {
+            TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(keyStore, keyStorePassword);
         }
 
         final KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
 
-        try (final FileInputStream in = new FileInputStream(this.keyStore)) {
+        try (final InputStream in = Files.newInputStream(this.keyStore)) {
             keyStore.load(in, keyStorePassword.toCharArray());
         }
 
@@ -110,11 +109,11 @@ public class SSLContextBuilder {
 
 
     private TrustManager[] buildTrustManagers() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-        if (trustStore.isEmpty()) return new TrustManager[0];
+//        if (trustStore.isEmpty()) return new TrustManager[0];
 
         final KeyStore trustStore = KeyStore.getInstance(KEYSTORE_TYPE);
 
-        try (final FileInputStream in = new FileInputStream(this.trustStore)) {
+        try (final InputStream in = Files.newInputStream(this.trustStore)) {
             trustStore.load(in, trustStorePassword.toCharArray());
         }
 
