@@ -3,7 +3,7 @@ A stateless java application responsible for encryption and decryption of privat
 
 ## Running Nexus
 
-`java -jar nexus-app/target/nexus-app-${version}-app.jar -c config.json`
+`java -jar nexus-app/target/nexus-app-${version}-app.jar -configfile config.json`
 
 
 Probably best to copy the jar somewhere and create an alias
