@@ -17,12 +17,10 @@
             <artifactId>org.eclipse.persistence.moxy</artifactId>
             <scope>runtime</scope>
         </dependency>
-                
-                
+
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.el</artifactId>
-            <version>3.0.1-b10</version>
         </dependency>
 
         <dependency>
@@ -30,6 +28,7 @@
             <artifactId>javax.json</artifactId>
         </dependency>
                 
+
                 
         <dependency>
             <groupId>com.openpojo</groupId>
@@ -45,6 +44,16 @@
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-test-util</artifactId>
             <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>key-encryption</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-encryption-jnacl</artifactId>
         </dependency>
         
     </dependencies>

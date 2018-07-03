@@ -33,7 +33,8 @@ public class PrivateKeyData {
     @XmlSchemaType(name = "anyURI")
     private final String password;
 
-    public PrivateKeyData(String value, String snonce, String asalt, String sbox, ArgonOptions argonOptions, String password) {
+    public PrivateKeyData(String value, String snonce, String asalt,
+            String sbox, ArgonOptions argonOptions, String password) {
         this.value = value;
         this.snonce = snonce;
         this.asalt = asalt;

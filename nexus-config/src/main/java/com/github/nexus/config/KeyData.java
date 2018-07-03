@@ -1,9 +1,6 @@
 package com.github.nexus.config;
 
 import com.github.nexus.config.adapters.PrivateKeyFileAdapter;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -14,12 +11,10 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlType(factoryMethod = "create")
 public class KeyData {
 
-    @XmlElement(type = JAXBElement.class)
+    @XmlElement
     @XmlJavaTypeAdapter(PrivateKeyFileAdapter.class)
     private final PrivateKey privateKey;
 
-    @NotNull
-    @Valid
     @XmlElement
     private final PublicKey publicKey;
 

@@ -11,7 +11,7 @@ public class PrivateKeyTest {
     @Test
     public void delegateGetters() {
         PrivateKeyData data = mock(PrivateKeyData.class);
-        PrivateKey privateKey = new PrivateKey(data, PrivateKeyType.LOCKED);
+        PrivateKeyConfig privateKey = new PrivateKeyConfig(data, PrivateKeyType.LOCKED);
 
         privateKey.getArgonOptions();
         privateKey.getAsalt();

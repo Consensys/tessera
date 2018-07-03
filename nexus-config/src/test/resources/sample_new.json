@@ -14,11 +14,9 @@
             "url": "http://bogus2.com"
         }],
     "keys": [{
-
             "privateKey": {
                 "path": "${privateKeyFile}"
-            }
-            ,
+            },
 
             "publicKey": {
                 "path": "/somepath"

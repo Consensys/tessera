@@ -8,8 +8,8 @@
         </xsl:copy>
     </xsl:template>
     
-    <xsl:template match="privateKey" priority="1">
-        <xsl:element name="privateKey" namespace="http://nexus.github.com/config">
+    <xsl:template match="*" priority="1">
+        <xsl:element name="{local-name()}" namespace="http://nexus.github.com/config">
             <xsl:apply-templates select="@*|node()"/>
         </xsl:element>
     </xsl:template>
