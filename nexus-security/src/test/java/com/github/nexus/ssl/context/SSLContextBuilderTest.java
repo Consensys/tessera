@@ -59,7 +59,7 @@ public class SSLContextBuilderTest {
     }
 
     @Test
-    public void testBuildForTrustOnFirstUse() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, IllegalAccessException, NoSuchFieldException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+    public void testBuildForTrustOnFirstUse() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
         final SSLContext sslContext = sslContextBuilder.forTrustOnFirstUse(knownHostFile).build();
 
@@ -72,7 +72,7 @@ public class SSLContextBuilderTest {
     }
 
     @Test
-    public void testBuildForWhiteList() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, NoSuchFieldException, IllegalAccessException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+    public void testBuildForWhiteList() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
         final SSLContext sslContext = sslContextBuilder.forWhiteList(knownHostFile).build();
 
@@ -86,7 +86,7 @@ public class SSLContextBuilderTest {
     }
 
     @Test
-    public void testBuildForCASignedCertificates() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, NoSuchFieldException, IllegalAccessException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+    public void testBuildForCASignedCertificates() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
         final SSLContext sslContext = sslContextBuilder.forCASignedCertificates().build();
 
