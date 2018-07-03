@@ -1,5 +1,6 @@
 package com.github.nexus.junixsocket.adapter;
 
+import com.github.nexus.socket.UnixSocketFactory;
 import org.newsclub.net.unix.AFUNIXServerSocket;
 import org.newsclub.net.unix.AFUNIXSocket;
 import org.newsclub.net.unix.AFUNIXSocketAddress;

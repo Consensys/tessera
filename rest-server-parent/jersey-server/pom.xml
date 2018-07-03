@@ -16,12 +16,6 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
-
     <dependencies>
 
         <dependency>
@@ -53,12 +47,6 @@
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
             <scope>runtime</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.inject</groupId>
-                    <artifactId>javax.inject</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>

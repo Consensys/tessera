@@ -1,6 +1,5 @@
 package com.github.nexus.socket;
 
-
 import com.github.nexus.config.Config;
 import com.github.nexus.config.ServerConfig;
 import org.junit.Test;
@@ -30,13 +29,14 @@ public class SocketServerFactoryTest {
                 .thenReturn(Paths.get(socketDir.toString(), socketFile));
 
         when(config.getServerConfig()).thenReturn(serverConfig);
+
         final SocketServer result = SocketServerFactory.createSocketServer(config);
         assertThat(result).isNotNull();
 
     }
     
     @Test(expected = NexusSocketException.class)
-    public void testSocketServerFactoryThrowsException() throws Exception {
+    public void testSocketServerFactoryThrowsException() {
         
         final Config config = mock(Config.class);
         doThrow(UnsupportedOperationException.class).when(config).getUnixSocketFile();

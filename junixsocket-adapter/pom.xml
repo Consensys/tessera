@@ -26,6 +26,11 @@
             <systemPath>${basedir}/src/main/lib/junixsocket-1.3.jar</systemPath>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-socket</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -50,6 +55,15 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <failIfNoTests>false</failIfNoTests>
+                </configuration>
             </plugin>
 
         </plugins>
