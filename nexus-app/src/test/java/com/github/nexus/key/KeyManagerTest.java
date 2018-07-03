@@ -1,10 +1,13 @@
 package com.github.nexus.key;
 
+import com.github.nexus.config.ArgonOptions;
 import com.github.nexus.config.Config;
 import com.github.nexus.config.KeyData;
 import com.github.nexus.config.PrivateKey;
+import com.github.nexus.config.PrivateKeyConfig;
 import com.github.nexus.config.PrivateKeyType;
 import com.github.nexus.config.PublicKey;
+import com.github.nexus.keyenc.KeyConfig;
 import com.github.nexus.keyenc.KeyEncryptor;
 
 import com.github.nexus.nacl.Key;
@@ -44,8 +47,10 @@ public class KeyManagerTest {
         );
 
         PrivateKey privateKey = mock(PrivateKey.class);
-        when(privateKey.getValue()).thenReturn(keyPair.getPrivateKey().toString());
-        when(privateKey.getType()).thenReturn(PrivateKeyType.UNLOCKED);
+        PrivateKeyConfig privateKeyConfig = mock(PrivateKeyConfig.class);
+        when(privateKeyConfig.getValue()).thenReturn(keyPair.getPrivateKey().toString());
+        when(privateKeyConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
+        when(privateKey.getConfig()).thenReturn(privateKeyConfig);
 
         PublicKey publicKey = mock(PublicKey.class);
         when(publicKey.getValue()).thenReturn(keyPair.getPublicKey().toString());
@@ -111,9 +116,13 @@ public class KeyManagerTest {
     public void loadKeysReturnsKeypair() {
 
         PrivateKey privateKey = mock(PrivateKey.class);
-        when(privateKey.getValue()).thenReturn(keyPair.getPrivateKey().toString());
-        when(privateKey.getType()).thenReturn(PrivateKeyType.UNLOCKED);
-        
+
+        PrivateKeyConfig privateKeyConfig = mock(PrivateKeyConfig.class);
+        when(privateKeyConfig.getValue()).thenReturn(keyPair.getPrivateKey().toString());
+        when(privateKeyConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
+
+        when(privateKey.getConfig()).thenReturn(privateKeyConfig);
+
         PublicKey publicKey = mock(PublicKey.class);
         when(publicKey.getValue()).thenReturn(keyPair.getPublicKey().toString());
 
@@ -128,9 +137,11 @@ public class KeyManagerTest {
     public void loadedKeysCanBeSearchedFor() {
 
         PrivateKey privateKey = mock(PrivateKey.class);
-        when(privateKey.getValue()).thenReturn(keyPair.getPrivateKey().toString());
-        when(privateKey.getType()).thenReturn(PrivateKeyType.UNLOCKED);
-        
+        PrivateKeyConfig privateKeyConfig = mock(PrivateKeyConfig.class);
+        when(privateKeyConfig.getValue()).thenReturn(keyPair.getPrivateKey().toString());
+        when(privateKeyConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
+        when(privateKey.getConfig()).thenReturn(privateKeyConfig);
+
         PublicKey publicKey = mock(PublicKey.class);
         when(publicKey.getValue()).thenReturn(keyPair.getPublicKey().toString());
 
@@ -157,19 +168,26 @@ public class KeyManagerTest {
 
         PrivateKey privateKey = mock(PrivateKey.class);
         when(privateKey.getValue()).thenReturn(keyPair.getPrivateKey().toString());
-        when(privateKey.getType()).thenReturn(PrivateKeyType.LOCKED);
-        
+
+        PrivateKeyConfig privateKeyConfig = mock(PrivateKeyConfig.class);
+        when(privateKeyConfig.getType()).thenReturn(PrivateKeyType.LOCKED);
+
+        ArgonOptions argonOptions = mock(ArgonOptions.class);
+
+        when(privateKeyConfig.getArgonOptions()).thenReturn(argonOptions);
+        when(privateKey.getConfig()).thenReturn(privateKeyConfig);
+
         PublicKey publicKey = mock(PublicKey.class);
         when(publicKey.getValue()).thenReturn(keyPair.getPublicKey().toString());
 
         final KeyData keyData = new KeyData(privateKey, publicKey);
 
-        doReturn(new Key(new byte[]{})).when(keyEncryptor).decryptPrivateKey(any(PrivateKey.class));
+        doReturn(new Key(new byte[]{})).when(keyEncryptor).decryptPrivateKey(any(KeyConfig.class));
 
         keyManager.loadKeypair(keyData);
 
         verify(keyEncryptor)
-                .decryptPrivateKey(any(PrivateKey.class));
+                .decryptPrivateKey(any(KeyConfig.class));
     }
 
     @Test
