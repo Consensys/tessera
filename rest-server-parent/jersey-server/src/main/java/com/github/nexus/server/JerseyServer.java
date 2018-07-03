@@ -99,7 +99,7 @@ public class JerseyServer implements RestServer {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
 
         LOGGER.info("Stopping {}", uri);
         if (Objects.nonNull(server)) {
