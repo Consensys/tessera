@@ -4,9 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import javax.validation.ConstraintViolationException;
 
 import static org.assertj.core.api.Assertions.*;
@@ -52,29 +49,6 @@ public class CliDelegateTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig().get()).isSameAs(cliDelegate.getConfig());
         assertThat(result.getStatus()).isEqualTo(0);
-    }
-
-    @Test
-    public void withKeygenMissingKeyPaths() throws Exception {
-
-        try {
-            cliDelegate.execute(
-                    "-keygen",
-                    "-configfile",
-                    getClass().getResource("/sample-config.json").getFile());
-
-            failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
-        } catch (ConstraintViolationException ex) {
-            assertThat(ex.getConstraintViolations()).hasSize(1);
-
-            List<String> paths = ex.getConstraintViolations().stream()
-                    .map(v -> v.getPropertyPath())
-                    .map(Objects::toString)
-                    .sorted()
-                    .collect(Collectors.toList());
-
-            assertThat(paths).containsExactly("keys[0].publicKey.path");
-        }
     }
 
     @Test(expected = FileNotFoundException.class)

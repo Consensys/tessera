@@ -2,15 +2,9 @@ package com.github.nexus.config.cli;
 
 import com.github.nexus.config.Config;
 import com.github.nexus.config.ConfigFactory;
-import com.github.nexus.config.constraints.KeyGen;
-import com.github.nexus.keygen.KeyGenerator;
-import com.github.nexus.keygen.KeyGeneratorFactory;
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,8 +14,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.xml.bind.JAXB;
-import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -72,7 +64,7 @@ public enum CliDelegate {
         if (Arrays.asList(args).contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("nexus", options);
-            return new CliResult(0,  null);
+            return new CliResult(0, null);
         }
 
         CommandLineParser parser = new DefaultParser();
@@ -91,31 +83,6 @@ public enum CliDelegate {
 
             try (InputStream in = Files.newInputStream(path)) {
                 this.config = ConfigFactory.create().create(in);
-            }
-
-            if (line.hasOption("keygen")) {
-
-                Set<ConstraintViolation<Config>> keyGenViolations = validator.validate(config, KeyGen.class);
-                if(!keyGenViolations.isEmpty()) {
-                    throw new ConstraintViolationException(keyGenViolations);
-                }
-                
-                KeyGenerator keyGenerator = KeyGeneratorFactory.create();
-
-                config.getKeys().stream()
-                        .forEach(keyGenerator::generate);
-
-                try (final Writer writer = new StringWriter()) {
-
-                    JAXB.marshal(config, writer);
-
-                    final String data = writer.toString();
-
-                    try (Reader reader = new StringReader(data)) {
-                        Config newConfig = JAXB.unmarshal(new StreamSource(reader), Config.class);
-                        return new CliResult(0, newConfig);
-                    }
-                }
             }
 
             Set<ConstraintViolation<Config>> violations = validator.validate(config);
