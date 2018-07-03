@@ -54,15 +54,6 @@
                     <version>1.4.0</version>
                 </plugin>
 
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.1.1</version>
-                </plugin>
-
-
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -77,11 +68,6 @@
         </pluginManagement>
 
         <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-            </plugin>
 
             <plugin>
                 <groupId>org.pitest</groupId>
@@ -204,10 +190,8 @@
 
     <modules>
         <module>argon2</module>
-        <module>junixsocket-adapter</module>
         <module>key-encryption</module>
         <module>nexus-app</module>
-        <module>nexus-socket</module>
         <module>nexus-security</module>
         <module>nexus-config</module>
         <module>nexus-config-cli</module>
@@ -217,6 +201,7 @@
         <module>rest-server-parent</module>
         <module>nexus-encryption-parent</module>
         <module>nexus-test-util</module>
+        <module>nexus-socket-parent</module>
     </modules>
 
     <profiles>
