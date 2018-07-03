@@ -185,10 +185,7 @@
         <module>junixsocket-adapter</module>
         <module>key-encryption</module>
         <module>nexus-app</module>
-        <module>nexus-encryption</module>
         <module>nexus-socket</module>
-        <module>nexus-encryption-jnacl</module>
-        <module>nexus-encryption-kalium</module>
         <module>nexus-security</module>
         <module>nexus-config</module>
         <module>nexus-config-cli</module>
@@ -196,6 +193,7 @@
         <module>nexus-keygen</module>
         <module>service-locator-parent</module>
         <module>rest-server-parent</module>
+        <module>nexus-encryption-parent</module>
     </modules>
 
     <profiles>
