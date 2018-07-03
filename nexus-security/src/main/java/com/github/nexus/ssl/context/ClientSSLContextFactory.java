@@ -1,14 +1,9 @@
 package com.github.nexus.ssl.context;
 
-import com.github.nexus.config.SslConfig;
-
-import javax.net.ssl.SSLContext;
-
-public interface ClientSSLContextFactory {
+public interface ClientSSLContextFactory extends SSLContextFactory {
 
     static ClientSSLContextFactory create() {
         return new ClientSSLContextFactoryImpl();
     }
 
-    SSLContext from(SslConfig sslConfig);
 }
