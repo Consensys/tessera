@@ -8,16 +8,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class UnixDomainServerSocketTest {
-
-    private Path socketFile = Paths.get(System.getProperty("java.io.tempdir"), "junit.txt");
 
     private Socket socket;
 
