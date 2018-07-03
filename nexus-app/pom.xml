@@ -161,6 +161,11 @@
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>junixsocket-adapter</artifactId>
+        </dependency>
         
     </dependencies>
 
