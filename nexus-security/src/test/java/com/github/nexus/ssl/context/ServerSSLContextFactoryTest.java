@@ -2,31 +2,18 @@ package com.github.nexus.ssl.context;
 
 import com.github.nexus.config.SslConfig;
 import com.github.nexus.config.SslTrustMode;
+import com.github.nexus.ssl.exception.NexusSecurityException;
+import org.junit.Test;
+
+import javax.net.ssl.SSLContext;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import javax.net.ssl.SSLContext;
-import static org.assertj.core.api.Assertions.*;
 
-import com.github.nexus.ssl.exception.NexusSecurityException;
-import com.github.nexus.ssl.context.SSLContextFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SSLContextFactoryTest {
-
-    public SSLContextFactoryTest() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
+public class ServerSSLContextFactoryTest {
 
     @Test
     public void createFromConfig() throws Exception {
@@ -40,29 +27,9 @@ public class SSLContextFactoryTest {
         when(config.getServerKeyStorePassword()).thenReturn("password");
         when(config.getServerTrustStore()).thenReturn(trustStore);
         when(config.getServerTrustStorePassword()).thenReturn("password");
-        when(config.getKnownServersFile()).thenReturn(knownServers);
+        when(config.getKnownClientsFile()).thenReturn(knownServers);
 
-        SSLContext result = SSLContextFactory.create().from(config);
-
-        assertThat(result).isNotNull();
-
-    }
-
-    @Test
-    public void createFromConfigNoTrustMode() throws Exception {
-        SslConfig config = mock(SslConfig.class);
-
-        Path keyStore = Paths.get(getClass().getResource("/trust.jks").toURI());
-        Path trustStore = Paths.get(getClass().getResource("/trust.jks").toURI());
-        Path knownServers = Paths.get(getClass().getResource("/known-servers").toURI());
-
-        when(config.getServerKeyStore()).thenReturn(keyStore);
-        when(config.getServerKeyStorePassword()).thenReturn("password");
-        when(config.getServerTrustStore()).thenReturn(trustStore);
-        when(config.getServerTrustStorePassword()).thenReturn("password");
-        when(config.getKnownServersFile()).thenReturn(knownServers);
-
-        SSLContext result = SSLContextFactory.create().from(config);
+        SSLContext result = ServerSSLContextFactory.create().from(config);
 
         assertThat(result).isNotNull();
 
@@ -80,9 +47,9 @@ public class SSLContextFactoryTest {
         when(config.getServerKeyStorePassword()).thenReturn("bogus");
         when(config.getServerTrustStore()).thenReturn(trustStore);
         when(config.getServerTrustStorePassword()).thenReturn("password");
-        when(config.getKnownServersFile()).thenReturn(knownServers);
+        when(config.getKnownClientsFile()).thenReturn(knownServers);
 
-        SSLContextFactory.create().from(config);
+        ServerSSLContextFactory.create().from(config);
 
     }
 }
