@@ -167,7 +167,7 @@ public class KeyManagerTest {
     public void loadingPrivateKeyWithPasswordCallsKeyEncryptor() {
 
         PrivateKey privateKey = mock(PrivateKey.class);
-        when(privateKey.getValue()).thenReturn(keyPair.getPrivateKey().toString());
+        //when(privateKey.getValue()).thenReturn(keyPair.getPrivateKey().toString());
 
         PrivateKeyConfig privateKeyConfig = mock(PrivateKeyConfig.class);
         when(privateKeyConfig.getType()).thenReturn(PrivateKeyType.LOCKED);
@@ -188,6 +188,41 @@ public class KeyManagerTest {
 
         verify(keyEncryptor)
                 .decryptPrivateKey(any(KeyConfig.class));
+    }
+
+    @Test
+    public void loadingPrivateKeyWithPasswordValueDoesnotCallEncrpter() {
+
+        PrivateKey privateKey = mock(PrivateKey.class);
+        when(privateKey.getValue()).thenReturn(keyPair.getPrivateKey().toString());
+
+        PublicKey publicKey = mock(PublicKey.class);
+        when(publicKey.getValue()).thenReturn(keyPair.getPublicKey().toString());
+
+        final KeyData keyData = new KeyData(privateKey, publicKey);
+
+        doReturn(new Key(new byte[]{})).when(keyEncryptor).decryptPrivateKey(any(KeyConfig.class));
+
+        keyManager.loadKeypair(keyData);
+
+        verifyZeroInteractions(keyEncryptor);
+
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void loadingPrivateKeyWithNopPasswordOrConfigThrowsException() {
+
+        PrivateKey privateKey = mock(PrivateKey.class);
+
+        PublicKey publicKey = mock(PublicKey.class);
+        when(publicKey.getValue()).thenReturn(keyPair.getPublicKey().toString());
+
+        final KeyData keyData = new KeyData(privateKey, publicKey);
+
+        doReturn(new Key(new byte[]{})).when(keyEncryptor).decryptPrivateKey(any(KeyConfig.class));
+
+        keyManager.loadKeypair(keyData);
+
     }
 
     @Test

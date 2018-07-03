@@ -9,6 +9,7 @@ import com.github.nexus.keyenc.KeyConfig;
 import com.github.nexus.keyenc.KeyEncryptor;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
+import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +88,16 @@ public class KeyManagerImpl implements KeyManager {
         final Key publicKey = new Key(
                 Base64.getDecoder().decode(data.getPublicKey().getValue())
         );
-        final Key privateKey = loadPrivateKey(data.getPrivateKey().getConfig());
+
+        final Key privateKey;
+        if (Objects.nonNull(data.getPrivateKey().getValue())) {
+            privateKey = new Key(data.getPrivateKey().getValue().getBytes(StandardCharsets.UTF_8));
+        } else if (Objects.nonNull(data.getPrivateKey().getConfig())) {
+            //TODO: Evaluate whether all of this shoud have already been done in the config module
+            privateKey = loadPrivateKey(data.getPrivateKey().getConfig());
+        } else {
+            throw new IllegalStateException("Private Key has no value or configuration");
+        }
 
         final KeyPair keyPair = new KeyPair(publicKey, privateKey);
 

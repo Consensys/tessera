@@ -17,10 +17,7 @@
     "keys": [
         {
             "privateKey": {
-                "data": {
-                    "bytes": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM="
-                },
-                "type": "unlocked"
+                "value": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM="
             },
             "publicKey": {
                 "value": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
