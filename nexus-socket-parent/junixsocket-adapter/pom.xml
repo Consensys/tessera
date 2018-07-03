@@ -24,12 +24,6 @@
             <version>2.0.4</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>com.kohlschutter.junixsocket</groupId>-->
-            <!--<artifactId>junixsocket-native</artifactId>-->
-            <!--<version>2.0.4</version>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>com.kohlschutter.junixsocket</groupId>
             <artifactId>junixsocket-native-common</artifactId>

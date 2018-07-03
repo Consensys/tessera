@@ -22,10 +22,10 @@ public class DependencyInstaller {
     };
 
     public void installDependencies() {
-        final String presetDirectory = System.getProperty(SOCKET_SYS_PROP, INSTALL_DIRECTORY.toString());
-        System.setProperty(SOCKET_SYS_PROP, presetDirectory);
-
-        Stream.of(FILES).forEach(file -> this.copy(file, presetDirectory));
+//        final String presetDirectory = System.getProperty(SOCKET_SYS_PROP, INSTALL_DIRECTORY.toString());
+//        System.setProperty(SOCKET_SYS_PROP, presetDirectory);
+//
+//        Stream.of(FILES).forEach(file -> this.copy(file, presetDirectory));
     }
 
     public void copy(final String name, final String installPath) {
