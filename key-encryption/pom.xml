@@ -38,10 +38,7 @@
             <artifactId>nexus-encryption-jnacl</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>nexus-config</artifactId>
-        </dependency>
+
     </dependencies>
 
 </project>

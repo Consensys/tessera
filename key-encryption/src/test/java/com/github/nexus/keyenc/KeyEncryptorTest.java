@@ -3,9 +3,7 @@ package com.github.nexus.keyenc;
 import com.github.nexus.argon2.Argon2;
 import com.github.nexus.argon2.ArgonOptions;
 import com.github.nexus.argon2.ArgonResult;
-import com.github.nexus.config.PrivateKey;
-import com.github.nexus.config.PrivateKeyData;
-import com.github.nexus.config.PrivateKeyType;
+
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.NaclFacade;
 import com.github.nexus.nacl.Nonce;
@@ -49,9 +47,9 @@ public class KeyEncryptorTest {
         Mockito.doReturn(new Nonce(new byte[]{})).when(nacl).randomNonce();
         doReturn(new byte[]{}).when(nacl).sealAfterPrecomputation(any(byte[].class), any(Nonce.class), any(Key.class));
 
-        final PrivateKey privateKey = keyEncryptor.encryptPrivateKey(key, password);
+        final KeyConfig privateKey = keyEncryptor.encryptPrivateKey(key, password);
 
-        final com.github.nexus.config.ArgonOptions aopts = privateKey.getArgonOptions();
+        final ArgonOptions aopts = privateKey.getArgonOptions();
 
         Assertions.assertThat(privateKey.getSbox()).isNotNull();
         Assertions.assertThat(privateKey.getAsalt()).isNotNull();
@@ -83,10 +81,16 @@ public class KeyEncryptorTest {
 
         final String password = "pass";
 
-        com.github.nexus.config.ArgonOptions argonOptions = new com.github.nexus.config.ArgonOptions("i", 1, 1, 1);
-        PrivateKeyData privateKeyData = new PrivateKeyData("", "", "uZAfjmMwEepP8kzZCnmH6g==", "", argonOptions, password);
+        ArgonOptions argonOptions = new ArgonOptions("i", 1, 1, 1);
 
-        PrivateKey privateKey = new PrivateKey(privateKeyData, PrivateKeyType.LOCKED);
+        KeyConfig privateKey = KeyConfig.Builder.create()
+                .password(password)
+                .value("")
+                .snonce("".getBytes())
+                .asalt("uZAfjmMwEepP8kzZCnmH6g==".getBytes())
+                .sbox("".getBytes())
+                .argonOptions(argonOptions)
+                .build();
 
         doReturn(new byte[]{1, 2, 3})
                 .when(nacl)

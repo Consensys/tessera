@@ -1,11 +1,9 @@
 package com.github.nexus.keyenc;
 
 import com.github.nexus.argon2.Argon2;
+import com.github.nexus.argon2.ArgonOptions;
 import com.github.nexus.argon2.ArgonResult;
-import com.github.nexus.config.ArgonOptions;
-import com.github.nexus.config.PrivateKey;
-import com.github.nexus.config.PrivateKeyData;
-import com.github.nexus.config.PrivateKeyType;
+
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.NaclFacade;
 import com.github.nexus.nacl.Nonce;
@@ -44,7 +42,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
     }
 
     @Override
-    public PrivateKey encryptPrivateKey(final Key privateKey, final String password) {
+    public KeyConfig encryptPrivateKey(final Key privateKey, final String password) {
 
         LOGGER.info("Encrypting a private key");
 
@@ -71,33 +69,31 @@ public class KeyEncryptorImpl implements KeyEncryptor {
         ArgonOptions argonOptions = new ArgonOptions(argonResult.getOptions().getAlgorithm(),
                 argonResult.getOptions().getIterations(), argonResult.getOptions().getMemory(), argonResult.getOptions().getParallelism());
 
-        String nonceString = encoder.encodeToString(nonce.getNonceBytes());
-        String saltString = encoder.encodeToString(salt);
-        String encyptKeyString = encoder.encodeToString(encryptedKey);
+        byte[] nonceBytes = encoder.encode(nonce.getNonceBytes());
+        byte[] asalt = encoder.encode(salt);
+        byte[] sbox = encoder.encode(encryptedKey);
 
-        PrivateKeyData privateKeyData = new PrivateKeyData(privateKey.toString(), nonceString, saltString, encyptKeyString, argonOptions, password);
-
-        return new PrivateKey(privateKeyData, PrivateKeyType.LOCKED);
-
-    }
-
-    static com.github.nexus.argon2.ArgonOptions toArgonOptions(ArgonOptions opts) {
-        com.github.nexus.argon2.ArgonOptions argonOptions
-                = new com.github.nexus.argon2.ArgonOptions(opts.getAlgorithm(),
-                        opts.getIterations(), opts.getMemory(), opts.getParallelism());
-        return argonOptions;
+        //  PrivateKeyData privateKeyData = new PrivateKeyData(privateKey.toString(), nonceString, saltString, encyptKeyString, argonOptions, password);
+        return KeyConfig.Builder.create()
+                .asalt(asalt)
+                .snonce(nonceBytes)
+                .password(password)
+                .value(privateKey.toString())
+                .argonOptions(argonResult.getOptions())
+                .sbox(sbox)
+                .build();
 
     }
 
     @Override
-    public Key decryptPrivateKey(final PrivateKey privateKey) {
+    public Key decryptPrivateKey(final KeyConfig privateKey) {
 
         LOGGER.info("Decrypting private key");
         LOGGER.debug("Decrypting private key {} using password {}", privateKey.getValue(), privateKey.getPassword());
 
         final byte[] salt = decoder.decode(privateKey.getAsalt());
 
-        final ArgonResult argonResult = argon2.hash(toArgonOptions(privateKey.getArgonOptions()), privateKey.getPassword(), salt);
+        final ArgonResult argonResult = argon2.hash(privateKey.getArgonOptions(), privateKey.getPassword(), salt);
 
         final byte[] originalKey = nacl.openAfterPrecomputation(
                 decoder.decode(privateKey.getSbox()),
