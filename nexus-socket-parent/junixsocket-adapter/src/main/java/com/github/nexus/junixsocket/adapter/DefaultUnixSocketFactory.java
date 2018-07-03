@@ -12,10 +12,6 @@ import java.nio.file.Path;
 
 public class DefaultUnixSocketFactory implements UnixSocketFactory {
 
-    public DefaultUnixSocketFactory() {
-        new DependencyInstaller().installDependencies();
-    }
-
     @Override
     public ServerSocket createServerSocket(Path socketFile) throws IOException {
         ServerSocket server = AFUNIXServerSocket.newInstance();
