@@ -11,7 +11,7 @@
 
     <parent>
         <groupId>com.github.nexus</groupId>
-        <artifactId>nexus</artifactId>
+        <artifactId>nexus-socket-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
