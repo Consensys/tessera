@@ -1,8 +1,7 @@
-
 package com.github.nexus.nacl;
 
-
 public interface NaclFacade {
+
     /**
      * Compute the shared key from a public/private key combination
      * The keys must be from different keysets.
@@ -12,11 +11,11 @@ public interface NaclFacade {
      * were provided.
      * i.e. public1/private2 == private1/public2
      *
-     * @param keyOne A public or private key from the first keyset
-     * @param keyTwo A public or private key from the second keyset
+     * @param publicKey  A public from the first keyset
+     * @param privateKey A private key from the second keyset
      * @return The shared key for this key pair.
      */
-    Key computeSharedKey(Key keyOne, Key keyTwo);
+    Key computeSharedKey(Key publicKey, Key privateKey);
 
     /**
      * Encrypt a payload directly using the given public/private key pair for the sender/recipient
@@ -53,12 +52,12 @@ public interface NaclFacade {
     /**
      * Decrypts a payload using the shared key between the sender and recipient
      *
-     * @param input     The encrypted payload
-     * @param nonce     The nonce that was used to encrypt this payload
-     * @param sharedKey The shared key for the sender and recipient
+     * @param cipherText The encrypted payload
+     * @param nonce      The nonce that was used to encrypt this payload
+     * @param sharedKey  The shared key for the sender and recipient
      * @return The decrypted payload
      */
-    byte[] openAfterPrecomputation(byte[] input, Nonce nonce, Key sharedKey);
+    byte[] openAfterPrecomputation(byte[] cipherText, Nonce nonce, Key sharedKey);
 
     /**
      * Generates a new random nonce of the correct size
@@ -80,8 +79,5 @@ public interface NaclFacade {
      * @return The randomly generated key
      */
     Key createSingleKey();
-    
 
-    
-    
 }
