@@ -1,7 +1,7 @@
 package com.github.nexus.socket.client;
 
-import com.github.nexus.junixsocket.adapter.UnixSocketFactory;
 import com.github.nexus.socket.NexusSocketException;
+import com.github.nexus.socket.UnixSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
