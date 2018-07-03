@@ -2,6 +2,9 @@ package com.github.nexus.nacl;
 
 import java.util.Objects;
 
+/**
+ * Container object for a public/private key pair
+ */
 public class KeyPair {
 
     private final Key publicKey;
@@ -23,17 +26,14 @@ public class KeyPair {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
         return (o instanceof KeyPair) &&
-                Objects.equals(publicKey, ((KeyPair) o).publicKey) &&
-                Objects.equals(privateKey, ((KeyPair) o).privateKey);
+            Objects.equals(publicKey, ((KeyPair) o).publicKey) &&
+            Objects.equals(privateKey, ((KeyPair) o).privateKey);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getPublicKey(), getPrivateKey());
     }
+
 }
