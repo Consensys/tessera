@@ -1,26 +1,19 @@
 package com.github.nexus.nacl.kalium;
 
 import com.github.nexus.nacl.NaclFacade;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Before;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class KaliumFactoryTest {
-    
-    private KaliumFactory kaliumFactory;
-    
-    public KaliumFactoryTest() {
-    }
-    
-    @Before
-    public void setUp() {
-        kaliumFactory = new KaliumFactory();
-    }
-    
+
+    private final KaliumFactory kaliumFactory = new KaliumFactory();
+
     @Test
     public void createInstance() {
-        NaclFacade result =  kaliumFactory.create();
+        final NaclFacade result = this.kaliumFactory.create();
+
         assertThat(result).isNotNull().isExactlyInstanceOf(Kalium.class);
     }
-    
+
 }
