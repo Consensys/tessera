@@ -1,10 +1,11 @@
 package com.github.nexus.keygen;
 
-import com.github.nexus.config.ArgonOptions;
+import com.github.nexus.argon2.ArgonOptions;
 import com.github.nexus.config.KeyData;
 import com.github.nexus.config.PrivateKey;
 import com.github.nexus.config.PrivateKeyType;
 import com.github.nexus.config.PublicKey;
+import com.github.nexus.keyenc.KeyConfig;
 import com.github.nexus.keyenc.KeyEncryptor;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
@@ -113,22 +114,16 @@ public class KeyGeneratorTest {
 
         when(nacl.generateNewKeys()).thenReturn(keyPair);
 
-        PrivateKey encrypedPrivateKey = mock(PrivateKey.class);
-        when(encrypedPrivateKey.getAsalt()).thenReturn("ASALT");
-        when(encrypedPrivateKey.getSbox()).thenReturn("SBOX");
-        when(encrypedPrivateKey.getSnonce()).thenReturn("SNONCE");
+        ArgonOptions argonOptions = new ArgonOptions("ib", 1, 1, 1);
 
-        ArgonOptions argonOptions = mock(ArgonOptions.class);
-        when(argonOptions.getAlgorithm()).thenReturn("ib");
-        when(argonOptions.getIterations()).thenReturn(1);
-        when(argonOptions.getMemory()).thenReturn(1);
-        when(argonOptions.getParallelism()).thenReturn(1);
+        KeyConfig encrypedPrivateKey = KeyConfig.Builder.create()
+            .asalt("ASALT".getBytes())
+            .sbox("SBOX".getBytes())
+            .snonce("SNONCE".getBytes())
+            .argonOptions(argonOptions)
+            .build();
 
-        when(encrypedPrivateKey.getArgonOptions())
-                .thenReturn(argonOptions);
-
-        when(keyEncryptor.encryptPrivateKey(any(Key.class), anyString()))
-                .thenReturn(encrypedPrivateKey);
+        when(keyEncryptor.encryptPrivateKey(any(Key.class), anyString())).thenReturn(encrypedPrivateKey);
 
         Path privateKeyPath = Paths.get(keygenPath.toString(), "privateKey.key");
 
