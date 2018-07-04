@@ -7,6 +7,7 @@ import org.bouncycastle.operator.OperatorCreationException;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.*;
 import java.security.cert.CertificateException;
 
@@ -19,11 +20,11 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
             .getValueIfPresent(sslConfig.getClientTrustMode().name())
             .orElse(TrustMode.NONE);
 
-        String keyStore = sslConfig.getClientKeyStore().toString();
+        Path keyStore = sslConfig.getClientKeyStore();
         String keyStorePassword = sslConfig.getClientKeyStorePassword();
-        String trustStore = sslConfig.getClientTrustStore().toString();
+        Path trustStore = sslConfig.getClientTrustStore();
         String trustStorePassword = sslConfig.getClientTrustStorePassword();
-        String knownHostsFile = sslConfig.getKnownServersFile().toString();
+        Path knownHostsFile = sslConfig.getKnownServersFile();
 
         try {
             return trustMode

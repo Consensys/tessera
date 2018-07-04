@@ -18,14 +18,14 @@ public class HttpProxyFactory {
         this.serverUri = serverConfig.getServerUri();
 
         if (serverConfig.isSsl()) {
-            SslConfig sslConfg = serverConfig.getSslConfig();
+            SslConfig sslConfig = serverConfig.getSslConfig();
 
             final SSLContext sslContext = TrustMode.NONE.createSSLContext(
-                sslConfg.getClientKeyStore().toString(),
-                sslConfg.getClientKeyStorePassword(),
-                sslConfg.getClientTrustStore().toString(),
-                sslConfg.getClientTrustStorePassword(),
-                sslConfg.getKnownServersFile().toString()
+                sslConfig.getClientKeyStore(),
+                sslConfig.getClientKeyStorePassword(),
+                sslConfig.getClientTrustStore(),
+                sslConfig.getClientTrustStorePassword(),
+                sslConfig.getKnownServersFile()
             );
             
             this.socketFactory = sslContext.getSocketFactory();

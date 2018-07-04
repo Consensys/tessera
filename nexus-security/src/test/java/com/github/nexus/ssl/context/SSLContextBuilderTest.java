@@ -5,61 +5,50 @@ import com.github.nexus.ssl.trust.TrustOnFirstUseManager;
 import com.github.nexus.ssl.trust.WhiteListTrustManager;
 import com.github.nexus.ssl.util.TlsUtils;
 import org.bouncycastle.operator.OperatorCreationException;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import javax.net.ssl.SSLContext;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.*;
 import java.security.cert.CertificateException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class SSLContextBuilderTest {
 
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
 
-    private static TemporaryFolder dirDelegate;
+    private Path keyStoreFile;
 
-    private File keyStoreFile;
+    private Path knownHostFile;
 
-    private File trustStoreFile;
 
     private static final String PASSWORD = "quorum";
 
     private SSLContextBuilder sslContextBuilder;
 
-    File knownHostFile = mock(File.class);
-
     @Before
     public void setUp() throws NoSuchAlgorithmException, OperatorCreationException, InvalidKeyException, IOException, KeyStoreException, SignatureException, NoSuchProviderException, CertificateException {
-        keyStoreFile = new File(tmpDir.getRoot(), "tmp-keystore");
-        trustStoreFile = new File(tmpDir.getRoot(), "tmp-keystore");
+        keyStoreFile = Paths.get(tmpDir.getRoot().getPath(), "keystore");
+        knownHostFile = Paths.get(tmpDir.getRoot().getPath(), "knownHosts");
         sslContextBuilder = SSLContextBuilder.createBuilder(
-            keyStoreFile.getPath(),
+            keyStoreFile,
             PASSWORD,
-            trustStoreFile.getPath(),
+            keyStoreFile,
             PASSWORD
         );
         TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(keyStoreFile, PASSWORD);
     }
 
-    @After
-    public void after(){
-        dirDelegate = tmpDir;
-        assertThat(dirDelegate.getRoot().exists()).isTrue();
-    }
-
-    @AfterClass
-    public static void tearDown(){
-        assertThat(dirDelegate.getRoot().exists()).isFalse();
-    }
-
     @Test
-    public void testBuildForTrustOnFirstUse() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, IllegalAccessException, NoSuchFieldException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+    public void testBuildForTrustOnFirstUse() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
         final SSLContext sslContext = sslContextBuilder.forTrustOnFirstUse(knownHostFile).build();
 
@@ -72,7 +61,7 @@ public class SSLContextBuilderTest {
     }
 
     @Test
-    public void testBuildForWhiteList() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, NoSuchFieldException, IllegalAccessException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+    public void testBuildForWhiteList() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
         final SSLContext sslContext = sslContextBuilder.forWhiteList(knownHostFile).build();
 
@@ -86,7 +75,7 @@ public class SSLContextBuilderTest {
     }
 
     @Test
-    public void testBuildForCASignedCertificates() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, NoSuchFieldException, IllegalAccessException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+    public void testBuildForCASignedCertificates() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
         final SSLContext sslContext = sslContextBuilder.forCASignedCertificates().build();
 
@@ -119,16 +108,18 @@ public class SSLContextBuilderTest {
     @Test
     public void testKeyStoreNotExistedThenGenerated() throws NoSuchAlgorithmException, UnrecoverableKeyException, CertificateException, KeyManagementException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
 
-        final File nonExistedFile = new File(tmpDir.getRoot(), "keystore");
+        final Path nonExistedFile = Paths.get(tmpDir.getRoot().getPath(), "somefile");
 
-        assertThat(nonExistedFile.exists()).isFalse();
+        assertThat(Files.exists(nonExistedFile)).isFalse();
 
         SSLContextBuilder otherContextBuilder = SSLContextBuilder.createBuilder(
-            nonExistedFile.getPath(),"password","","");
+            nonExistedFile, "password", keyStoreFile, PASSWORD);
 
         assertThat(otherContextBuilder.forCASignedCertificates().build()).isNotNull();
 
-        assertThat(nonExistedFile.exists()).isTrue();
+        assertThat(Files.exists(nonExistedFile)).isTrue();
+
+        Files.deleteIfExists(nonExistedFile);
 
     }
 }
