@@ -17,9 +17,6 @@ public class KeyDataAdapterTest {
 
     private KeyDataConfig keyDataConfig;
 
-    public KeyDataAdapterTest() {
-    }
-
     @Before
     public void setUp() {
         keyDataConfig = mock(KeyDataConfig.class);

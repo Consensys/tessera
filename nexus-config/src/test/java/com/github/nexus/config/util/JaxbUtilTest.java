@@ -2,23 +2,11 @@ package com.github.nexus.config.util;
 
 import com.github.nexus.config.KeyDataConfig;
 import com.github.nexus.config.PrivateKeyType;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class JaxbUtilTest {
-
-    public JaxbUtilTest() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
 
     @Test
     public void unmarshalLocked() {

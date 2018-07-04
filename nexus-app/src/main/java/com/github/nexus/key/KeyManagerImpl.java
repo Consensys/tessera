@@ -48,13 +48,13 @@ public class KeyManagerImpl implements KeyManager {
         LOGGER.debug("Attempting to find public key for the private key {}", privateKey);
 
         final Key publicKey = ourKeys
-                .stream()
-                .filter(keypair -> Objects.equals(keypair.getPrivateKey(), privateKey))
-                .findFirst()
-                .map(KeyPair::getPublicKey)
-                .orElseThrow(
-                        () -> new KeyNotFoundException("Private key " + privateKey + " not found when searching for public key")
-                );
+            .stream()
+            .filter(keypair -> Objects.equals(keypair.getPrivateKey(), privateKey))
+            .findFirst()
+            .map(KeyPair::getPublicKey)
+            .orElseThrow(
+                () -> new KeyNotFoundException("Private key " + privateKey + " not found when searching for public key")
+            );
 
         LOGGER.debug("Found public key {} for private key {}", publicKey, privateKey);
 
@@ -66,13 +66,13 @@ public class KeyManagerImpl implements KeyManager {
         LOGGER.debug("Attempting to find private key for the public key {}", publicKey);
 
         final Key privateKey = ourKeys
-                .stream()
-                .filter(keypair -> Objects.equals(keypair.getPublicKey(), publicKey))
-                .findFirst()
-                .map(KeyPair::getPrivateKey)
-                .orElseThrow(
-                        () -> new KeyNotFoundException("Public key " + publicKey + " not found when searching for private key")
-                );
+            .stream()
+            .filter(keypair -> Objects.equals(keypair.getPublicKey(), publicKey))
+            .findFirst()
+            .map(KeyPair::getPrivateKey)
+            .orElseThrow(
+                () -> new KeyNotFoundException("Public key " + publicKey + " not found when searching for private key")
+            );
 
         LOGGER.debug("Found private key {} for public key {}", privateKey, publicKey);
 
@@ -86,7 +86,7 @@ public class KeyManagerImpl implements KeyManager {
         LOGGER.info("Attempting to load the private key {}", data.getPrivateKey());
 
         final Key publicKey = new Key(
-                Base64.getDecoder().decode(data.getPublicKey())
+            Base64.getDecoder().decode(data.getPublicKey())
         );
 
         final Key privateKey;
@@ -110,9 +110,9 @@ public class KeyManagerImpl implements KeyManager {
     @Override
     public Set<Key> getPublicKeys() {
         return ourKeys
-                .stream()
-                .map(KeyPair::getPublicKey)
-                .collect(Collectors.toSet());
+            .stream()
+            .map(KeyPair::getPublicKey)
+            .collect(Collectors.toSet());
     }
 
     @Override

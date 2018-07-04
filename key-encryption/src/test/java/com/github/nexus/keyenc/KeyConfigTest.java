@@ -1,23 +1,11 @@
 package com.github.nexus.keyenc;
 
 import com.github.nexus.argon2.ArgonOptions;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class KeyConfigTest {
-
-    public KeyConfigTest() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
 
     @Test
     public void buildWithoutArgonOptions() {
