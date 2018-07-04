@@ -1,35 +1,38 @@
 {
-   "useWhiteList" : false,
-   "jdbc" : {
-      "username" : "scott",
-      "password" : "tiger",
-      "url" : "foo:bar"
-   },
-   "server" : {
-      "port" : 99
-   },
-   "peer" : [ {
-      "url" : "http://bogus1.com"
-   }, {
-      "url" : "http://bogus2.com"
-   } ],
-   "keys" : [ {
-      "privateKey" : {
-        "data":{
-             "value" : "PRIVATEKEY",
-             "password" : "TOP_SECRET",
-             "argonOptions" : {
-                "algorithm" : "SHA",
-                "iterations" : 1,
-                "memory" : 256,
-                "parallelism" : 1
-             }
-          },
-    "type":"argon2sbox"},
-
-      "publicKey" : {
-         "value" : "PUBLICKEY"
-      }
-   } ],
-   "unixSocketFile" : "/tmp/bogus.socket"
+    "useWhiteList": false,
+    "jdbc": {
+        "username": "scott",
+        "password": "tiger",
+        "url": "foo:bar"
+    },
+    "server": {
+        "port": 99
+    },
+    "peer": [
+        {
+            "url": "http://bogus1.com"
+        },
+        {
+            "url": "http://bogus2.com"
+        }
+    ],
+    "keys": [
+        {
+            "privateKey": {
+                "data": {
+                    "value": "PRIVATEKEY",
+                    "password": "TOP_SECRET",
+                    "argonOptions": {
+                        "algorithm": "SHA",
+                        "iterations": 1,
+                        "memory": 256,
+                        "parallelism": 1
+                    }
+                },
+                "type": "argon2sbox"
+            },
+            "publicKey": "PUBLICKEY"
+        }
+    ],
+    "unixSocketFile": "/tmp/bogus.socket"
 }
