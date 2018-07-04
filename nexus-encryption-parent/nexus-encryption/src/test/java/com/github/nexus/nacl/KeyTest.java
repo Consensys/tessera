@@ -10,45 +10,41 @@ public class KeyTest {
 
     @Test
     public void differentClassesAreNotEqual() {
-        final boolean isEqual = Objects.equals(new Key("test".getBytes()), "test");
+        final Object key = new Key("bogus".getBytes());
+        final boolean isEqual = Objects.equals(key, "test");
 
         assertThat(isEqual).isFalse();
     }
 
     @Test
     public void sameInstanceIsEqual() {
-        Key key = new Key("bogus".getBytes());
+        final Key key = new Key("bogus".getBytes());
+
         assertThat(key).isEqualTo(key).isSameAs(key);
     }
 
     @Test
     public void getKeyBytes() {
-        byte[] data = "bogus".getBytes();
-        final Key key = new Key(data);
+        final byte[] data = "bogus".getBytes();
+        final Key key = new Key("bogus".getBytes());
 
-        
-        assertThat(key.getKeyBytes())
-                .isEqualTo(data)
-                .isNotSameAs(data);
-
+        assertThat(key.getKeyBytes()).isEqualTo(data).isNotSameAs(data);
     }
     
     @Test
     public void hashCodeTest() {
-        byte[] data = "bogus".getBytes();
+        final byte[] data = "bogus".getBytes();
         final Key key = new Key(data);
-        assertThat(key)
-                .hasSameHashCodeAs(new Key(data));
-        
+
+        assertThat(key).hasSameHashCodeAs(new Key(data));
     }
     
     @Test
     public void toStringTest() {
-        byte[] data = "bogus".getBytes();
+        final byte[] data = "bogus".getBytes();
         final Key key = new Key(data);
         
-        assertThat(key.toString())
-                .isNotBlank();
+        assertThat(key.toString()).isNotBlank();
     }
     
 }
