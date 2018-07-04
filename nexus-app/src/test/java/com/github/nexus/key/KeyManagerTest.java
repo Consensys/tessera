@@ -19,6 +19,8 @@ import java.util.Set;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.util.Arrays;
 import java.util.Collections;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -62,7 +64,7 @@ public class KeyManagerTest {
     public void initialisedWithNoKeysThrowsError() {
         //throws error because there is no default key
         final Config configuration = mock(Config.class);
-        when(configuration.getKeys()).thenReturn(Collections.EMPTY_LIST);
+        when(configuration.getKeys()).thenReturn(emptyList());
         final Throwable throwable = catchThrowable(
                 () -> new KeyManagerImpl(keyEncryptor, configuration)
         );

@@ -8,31 +8,31 @@
     "server": {
         "port": 99
     },
-    "peer": [{
+    "peer": [
+        {
             "url": "http://bogus1.com"
-        }, {
+        },
+        {
             "url": "http://bogus2.com"
-        }],
-    "keys": [{
+        }
+    ],
+    "keys": [
+        {
             "privateKey": {
-                "config": {
-                    "data": {
-                        "value": "PRIVATEKEY",
-                        "password": "TOP_SECRET",
-                        "argonOptions": {
-                            "algorithm": "SHA",
-                            "iterations": 1,
-                            "memory": 256,
-                            "parallelism": 1
-                        }
-                    },
-                    "type": "argon2sbox"
-                }
+                "data": {
+                    "value": "PRIVATEKEY",
+                    "password": "TOP_SECRET",
+                    "argonOptions": {
+                        "algorithm": "SHA",
+                        "iterations": 1,
+                        "memory": 256,
+                        "parallelism": 1
+                    }
+                },
+                "type": "argon2sbox"
             },
-
-            "publicKey": {
-                "value": "PUBLICKEY"
-            }
-        }],
+            "publicKey": "PUBLICKEY"
+        }
+    ],
     "unixSocketFile": "/tmp/bogus.socket"
 }

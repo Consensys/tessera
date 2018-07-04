@@ -21,9 +21,7 @@
             "privateKey": {
                 "path": "${privateKeyFile}"
             },
-            "publicKey": {
-                "path": "/somepath"
-            }
+            "publicKey": "/somepath"
         }
     ],
     "unixSocketFile": "/tmp/bogus.socket"

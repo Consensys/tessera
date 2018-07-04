@@ -1,23 +1,27 @@
 package com.github.nexus.config.cli;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.validation.ConstraintViolationException;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 public class CliDelegateTest {
 
     private CliDelegate cliDelegate;
-
-    public CliDelegateTest() {
-    }
 
     @Before
     public void setUp() {
