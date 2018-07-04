@@ -1,23 +1,19 @@
 package com.github.nexus.key;
 
-import com.github.nexus.config.Config;
-import com.github.nexus.config.KeyData;
-import com.github.nexus.config.PrivateKey;
-import com.github.nexus.config.PrivateKeyType;
-import com.github.nexus.config.PublicKey;
+import com.github.nexus.config.*;
+import com.github.nexus.keyenc.KeyConfig;
 import com.github.nexus.keyenc.KeyEncryptor;
-
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import java.util.Arrays;
-import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -155,8 +151,14 @@ public class KeyManagerTest {
     @Test
     public void loadingPrivateKeyWithPasswordCallsKeyEncryptor() {
 
+        ArgonOptions options = new ArgonOptions("id", 1, 1, 1);
+
         PrivateKey privateKey = mock(PrivateKey.class);
         when(privateKey.getValue()).thenReturn(keyPair.getPrivateKey().toString());
+        when(privateKey.getAsalt()).thenReturn("ASALT");
+        when(privateKey.getSbox()).thenReturn("SBOX");
+        when(privateKey.getSnonce()).thenReturn("SNONCE");
+        when(privateKey.getArgonOptions()).thenReturn(options);
         when(privateKey.getType()).thenReturn(PrivateKeyType.LOCKED);
         
         PublicKey publicKey = mock(PublicKey.class);
@@ -164,12 +166,11 @@ public class KeyManagerTest {
 
         final KeyData keyData = new KeyData(privateKey, publicKey);
 
-        doReturn(new Key(new byte[]{})).when(keyEncryptor).decryptPrivateKey(any(PrivateKey.class));
+        doReturn(new Key(new byte[]{})).when(keyEncryptor).decryptPrivateKey(any(KeyConfig.class));
 
         keyManager.loadKeypair(keyData);
 
-        verify(keyEncryptor)
-                .decryptPrivateKey(any(PrivateKey.class));
+        verify(keyEncryptor).decryptPrivateKey(any(KeyConfig.class));
     }
 
     @Test

@@ -169,15 +169,31 @@ public class PartyInfoPollerTest {
 
     @Test
     public void runThrowsConnectionExceptionAndDoesnotThrow() {
+        String url = "http://bogus.com:9878";
+        String ownURL = "http://own.com:8080";
+        byte[] response = "BOGUS".getBytes();
+
+        PartyInfo partyInfo = mock(PartyInfo.class);
+        Party party = mock(Party.class);
+        when(party.getUrl()).thenReturn(url);
+        when(partyInfo.getUrl()).thenReturn(ownURL);
+        when(partyInfo.getParties()).thenReturn(singleton(party));
+
+        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+
+        when(partyInfoParser.to(partyInfo)).thenReturn("BOGUS".getBytes());
+
+        PartyInfo updatedPartyInfo = mock(PartyInfo.class);
+        when(partyInfoParser.from(response)).thenReturn(updatedPartyInfo);
 
         Exception connectionException
                 = new RuntimeException(new ConnectException("OUCH"));
-
-        doThrow(connectionException).when(partyInfoService).getPartyInfo();
+        doThrow(connectionException).when(postDelegate).doPost(url, ApiPath.PARTYINFO, response);
 
         partyInfoPoller.run();
         verify(partyInfoService).getPartyInfo();
-
-        
+        verify(partyInfoService, times(0)).updatePartyInfo(updatedPartyInfo);
+        verify(partyInfoParser, times(0)).from(response);
+        verify(partyInfoParser).to(partyInfo);
     }
 }

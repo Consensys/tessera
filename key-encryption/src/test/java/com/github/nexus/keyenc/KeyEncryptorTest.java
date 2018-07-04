@@ -3,16 +3,11 @@ package com.github.nexus.keyenc;
 import com.github.nexus.argon2.Argon2;
 import com.github.nexus.argon2.ArgonOptions;
 import com.github.nexus.argon2.ArgonResult;
-import com.github.nexus.config.PrivateKey;
-import com.github.nexus.config.PrivateKeyData;
-import com.github.nexus.config.PrivateKeyType;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.NaclFacade;
 import com.github.nexus.nacl.Nonce;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -45,23 +40,23 @@ public class KeyEncryptorTest {
         final String password = "pass";
         final ArgonResult result = new ArgonResult(new ArgonOptions("i", 1, 1, 1), new byte[]{}, new byte[]{});
 
-        Mockito.doReturn(result).when(argon2).hash(eq(password), any(byte[].class));
-        Mockito.doReturn(new Nonce(new byte[]{})).when(nacl).randomNonce();
+        doReturn(result).when(argon2).hash(eq(password), any(byte[].class));
+        doReturn(new Nonce(new byte[]{})).when(nacl).randomNonce();
         doReturn(new byte[]{}).when(nacl).sealAfterPrecomputation(any(byte[].class), any(Nonce.class), any(Key.class));
 
-        final PrivateKey privateKey = keyEncryptor.encryptPrivateKey(key, password);
+        final KeyConfig privateKey = keyEncryptor.encryptPrivateKey(key, password);
 
-        final com.github.nexus.config.ArgonOptions aopts = privateKey.getArgonOptions();
+        final ArgonOptions aopts = privateKey.getArgonOptions();
 
-        Assertions.assertThat(privateKey.getSbox()).isNotNull();
-        Assertions.assertThat(privateKey.getAsalt()).isNotNull();
-        Assertions.assertThat(privateKey.getSnonce()).isNotNull();
+        assertThat(privateKey.getSbox()).isNotNull();
+        assertThat(privateKey.getAsalt()).isNotNull();
+        assertThat(privateKey.getSnonce()).isNotNull();
 
-        Assertions.assertThat(aopts).isNotNull();
-        Assertions.assertThat(aopts.getMemory()).isNotNull();
-        Assertions.assertThat(aopts.getParallelism()).isNotNull();
-        Assertions.assertThat(aopts.getIterations()).isNotNull();
-        Assertions.assertThat(aopts.getAlgorithm()).isNotNull();
+        assertThat(aopts).isNotNull();
+        assertThat(aopts.getMemory()).isNotNull();
+        assertThat(aopts.getParallelism()).isNotNull();
+        assertThat(aopts.getIterations()).isNotNull();
+        assertThat(aopts.getAlgorithm()).isNotNull();
 
         verify(argon2).hash(eq(password), any(byte[].class));
         verify(nacl).randomNonce();
@@ -83,22 +78,28 @@ public class KeyEncryptorTest {
 
         final String password = "pass";
 
-        com.github.nexus.config.ArgonOptions argonOptions = new com.github.nexus.config.ArgonOptions("i", 1, 1, 1);
-        PrivateKeyData privateKeyData = new PrivateKeyData("", "", "uZAfjmMwEepP8kzZCnmH6g==", "", argonOptions, password);
+        final ArgonOptions argonOptions = new ArgonOptions("i", 1, 1, 1);
 
-        PrivateKey privateKey = new PrivateKey(privateKeyData, PrivateKeyType.LOCKED);
+        final KeyConfig privateKey = KeyConfig.Builder.create()
+            .password(password)
+            .value("")
+            .snonce("".getBytes())
+            .asalt("uZAfjmMwEepP8kzZCnmH6g==".getBytes())
+            .sbox("".getBytes())
+            .argonOptions(argonOptions)
+            .build();
 
         doReturn(new byte[]{1, 2, 3})
-                .when(nacl)
-                .openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(Key.class));
+            .when(nacl)
+            .openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(Key.class));
 
-        Mockito.doReturn(new ArgonResult(null, new byte[]{}, new byte[]{4, 5, 6}))
-                .when(argon2)
-                .hash(any(ArgonOptions.class), eq(password), any(byte[].class));
+        doReturn(new ArgonResult(null, new byte[]{}, new byte[]{4, 5, 6}))
+            .when(argon2)
+            .hash(any(ArgonOptions.class), eq(password), any(byte[].class));
 
         final Key key = keyEncryptor.decryptPrivateKey(privateKey);
 
-        Assertions.assertThat(key.getKeyBytes()).isEqualTo(new byte[]{1, 2, 3});
+        assertThat(key.getKeyBytes()).isEqualTo(new byte[]{1, 2, 3});
 
         verify(nacl).openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(Key.class));
         verify(argon2).hash(any(ArgonOptions.class), eq(password), any(byte[].class));
