@@ -26,6 +26,8 @@ import java.util.Objects;
  */
 public class JerseyServer implements RestServer {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JerseyServer.class);
+
     private HttpServer server;
 
     private final URI uri;
@@ -49,8 +51,6 @@ public class JerseyServer implements RestServer {
             this.sslContext = null;
         }
     }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(JerseyServer.class);
 
     @Override
     public void start() throws Exception {
