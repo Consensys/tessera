@@ -86,7 +86,7 @@ public class KeyManagerImpl implements KeyManager {
         LOGGER.info("Attempting to load the private key {}", data.getPrivateKey());
 
         final Key publicKey = new Key(
-            Base64.getDecoder().decode(data.getPublicKey().getValue())
+            Base64.getDecoder().decode(data.getPublicKey())
         );
         final Key privateKey = loadPrivateKey(data.getPrivateKey());
 
