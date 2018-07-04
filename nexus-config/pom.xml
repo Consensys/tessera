@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>nexus-config</artifactId>
-
-    <name>nexus-config</name>
-    <packaging>jar</packaging>
-
     <parent>
         <groupId>com.github.nexus</groupId>
         <artifactId>nexus</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-
+    <artifactId>nexus-config</artifactId>
+    <packaging>jar</packaging>
     <dependencies>
+
 
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
@@ -28,6 +22,7 @@
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.el</artifactId>
+            <version>3.0.1-b10</version>
         </dependency>
 
         <dependency>
@@ -35,15 +30,6 @@
             <artifactId>javax.json</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>key-encryption</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>nexus-encryption-jnacl</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>com.openpojo</groupId>
