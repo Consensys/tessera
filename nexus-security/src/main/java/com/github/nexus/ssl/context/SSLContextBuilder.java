@@ -109,7 +109,6 @@ public class SSLContextBuilder {
 
 
     private TrustManager[] buildTrustManagers() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-//        if (trustStore.isEmpty()) return new TrustManager[0];
 
         final KeyStore trustStore = KeyStore.getInstance(KEYSTORE_TYPE);
 
