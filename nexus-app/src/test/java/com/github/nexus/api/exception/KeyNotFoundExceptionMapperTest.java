@@ -1,6 +1,5 @@
 package com.github.nexus.api.exception;
 
-import com.github.nexus.api.exception.KeyNotFoundExceptionMapper;
 import com.github.nexus.key.exception.KeyNotFoundException;
 import org.junit.After;
 import org.junit.Before;

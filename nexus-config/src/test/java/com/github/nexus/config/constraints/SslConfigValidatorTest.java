@@ -3,14 +3,17 @@ package com.github.nexus.config.constraints;
 import com.github.nexus.config.SslAuthenticationMode;
 import com.github.nexus.config.SslConfig;
 import com.github.nexus.config.SslTrustMode;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import javax.validation.ConstraintValidatorContext;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -23,9 +26,7 @@ public class SslConfigValidatorTest {
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
 
-    private File tmpFile;
-
-    private static TemporaryFolder delegate;
+    private Path tmpFile;
 
     @Mock
     private ValidSsl validSsl;
@@ -45,21 +46,11 @@ public class SslConfigValidatorTest {
         doNothing().when(context).disableDefaultConstraintViolation();
         when(builder.addConstraintViolation()).thenReturn(context);
         when(context.buildConstraintViolationWithTemplate(any())).thenReturn(builder);
-        tmpFile = new File(tmpDir.getRoot(), "tmpFile");
-        tmpFile.createNewFile();
+        tmpFile = Paths.get(tmpDir.getRoot().getPath(), "tmpFile");
+        Files.createFile(tmpFile);
         validator = new SslConfigValidator();
         when(validSsl.checkSslValid()).thenReturn(true);
         validator.initialize(validSsl);
-    }
-
-    @After
-    public void after() {
-        delegate = tmpDir;
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        assertThat(delegate.getRoot().exists()).isFalse();
     }
 
 
@@ -98,22 +89,22 @@ public class SslConfigValidatorTest {
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),null,null,null,null,Paths.get("somefile"),null,null,null,null,null,null
+            SslAuthenticationMode.STRICT,false, tmpFile,null,null,null,null,Paths.get("somefile"),null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),"password",null,null,null, null,null,null,null,null,null,null
+            SslAuthenticationMode.STRICT,false, tmpFile,"password",null,null,null, null,null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),"password",null,null,null, Paths.get("somefile"),"password",null,null,null,null,null
+            SslAuthenticationMode.STRICT,false, tmpFile,"password",null,null,null, Paths.get("somefile"),"password",null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),"password",null,null,null, Paths.get(tmpFile.getPath()),null,null,null,null,null,null
+            SslAuthenticationMode.STRICT,false, tmpFile,"password",null,null,null, tmpFile,null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
@@ -122,12 +113,12 @@ public class SslConfigValidatorTest {
     @Test
     public void testTrustModeNull() {
         SslConfig sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),"password",null,null,null,Paths.get(tmpFile.getPath()),"password",null,null,null,null,null
+            SslAuthenticationMode.STRICT,false, tmpFile,"password",null,null,null, tmpFile,"password",null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),"password",null,null,SslTrustMode.CA ,Paths.get(tmpFile.getPath()),"password",null,null,null,null,null
+            SslAuthenticationMode.STRICT,false, tmpFile,"password",null,null,SslTrustMode.CA , tmpFile,"password",null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
     }
@@ -135,22 +126,22 @@ public class SslConfigValidatorTest {
     @Test
     public void testTrustModeWhiteListButKnownHostsFileNotExisted() {
         SslConfig sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),"password",null,null,SslTrustMode.WHITELIST ,Paths.get(tmpFile.getPath()),"password",null,null,SslTrustMode.WHITELIST,null,null
+            SslAuthenticationMode.STRICT,false, tmpFile,"password",null,null,SslTrustMode.WHITELIST , tmpFile,"password",null,null,SslTrustMode.WHITELIST,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),"password",null,null,SslTrustMode.WHITELIST ,Paths.get(tmpFile.getPath()),"password",null,null,SslTrustMode.WHITELIST,Paths.get("somefile"),null
+            SslAuthenticationMode.STRICT,false, tmpFile,"password",null,null,SslTrustMode.WHITELIST , tmpFile,"password",null,null,SslTrustMode.WHITELIST,Paths.get("somefile"),null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),"password",null,null,SslTrustMode.WHITELIST ,Paths.get(tmpFile.getPath()),"password",null,null,SslTrustMode.WHITELIST,Paths.get(tmpFile.getPath()),null
+            SslAuthenticationMode.STRICT,false, tmpFile,"password",null,null,SslTrustMode.WHITELIST , tmpFile,"password",null,null,SslTrustMode.WHITELIST, tmpFile,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),"password",null,null,SslTrustMode.WHITELIST ,Paths.get(tmpFile.getPath()),"password",null,null,SslTrustMode.WHITELIST,Paths.get(tmpFile.getPath()),Paths.get("some")
+            SslAuthenticationMode.STRICT,false, tmpFile,"password",null,null,SslTrustMode.WHITELIST , tmpFile,"password",null,null,SslTrustMode.WHITELIST, tmpFile,Paths.get("some")
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
     }
@@ -158,32 +149,32 @@ public class SslConfigValidatorTest {
     @Test
     public void testTrustModeCAButTrustStoreConfigInValid() {
         SslConfig sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),"password",null,null,SslTrustMode.CA ,Paths.get(tmpFile.getPath()),"password",null,null,SslTrustMode.NONE,null,null
+            SslAuthenticationMode.STRICT,false, tmpFile,"password",null,null,SslTrustMode.CA , tmpFile,"password",null,null,SslTrustMode.NONE,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),"password",Paths.get(tmpFile.getPath()),null,SslTrustMode.CA ,Paths.get(tmpFile.getPath()),"password",null,null,SslTrustMode.NONE,null,null
+            SslAuthenticationMode.STRICT,false, tmpFile,"password", tmpFile,null,SslTrustMode.CA , tmpFile,"password",null,null,SslTrustMode.NONE,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),"password",Paths.get("somefile"),"password",SslTrustMode.CA ,Paths.get(tmpFile.getPath()),"password",null,null,SslTrustMode.NONE,null,null
+            SslAuthenticationMode.STRICT,false, tmpFile,"password",Paths.get("somefile"),"password",SslTrustMode.CA , tmpFile,"password",null,null,SslTrustMode.NONE,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),"password",Paths.get(tmpFile.getPath()),"p",SslTrustMode.NONE ,Paths.get(tmpFile.getPath()),"password",null,null,SslTrustMode.CA,null,null
+            SslAuthenticationMode.STRICT,false, tmpFile,"password", tmpFile,"p",SslTrustMode.NONE , tmpFile,"password",null,null,SslTrustMode.CA,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),"password",Paths.get(tmpFile.getPath()),null,SslTrustMode.NONE ,Paths.get(tmpFile.getPath()),"password",Paths.get(tmpFile.getPath()),null,SslTrustMode.CA,null,null
+            SslAuthenticationMode.STRICT,false, tmpFile,"password", tmpFile,null,SslTrustMode.NONE , tmpFile,"password", tmpFile,null,SslTrustMode.CA,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT,false, Paths.get(tmpFile.getPath()),"password",Paths.get("somefile"),"password",SslTrustMode.NONE ,Paths.get(tmpFile.getPath()),"password",Paths.get("somefile"),"p",SslTrustMode.CA,null,null
+            SslAuthenticationMode.STRICT,false, tmpFile,"password",Paths.get("somefile"),"password",SslTrustMode.NONE , tmpFile,"password",Paths.get("somefile"),"p",SslTrustMode.CA,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
     }

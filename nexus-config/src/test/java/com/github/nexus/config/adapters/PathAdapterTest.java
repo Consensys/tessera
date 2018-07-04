@@ -27,7 +27,7 @@ public class PathAdapterTest {
     }
 
     @Test
-    public void marshal() throws Exception {
+    public void marshal() {
 
         String value = "/somepath/to";
 
@@ -38,14 +38,14 @@ public class PathAdapterTest {
     }
     
     @Test
-    public void marshalNull() throws Exception {
+    public void marshalNull() {
 
         String result = pathAdapter.marshal(null);
         assertThat(result).isNull();
     }
     
     @Test
-    public void unmarshal() throws Exception {
+    public void unmarshal() {
 
         String value = "/somepath/to/someplace";
 
@@ -55,7 +55,7 @@ public class PathAdapterTest {
     }
     
     @Test
-    public void unmarshalNull() throws Exception {
+    public void unmarshalNull() {
 
         Path result = pathAdapter.unmarshal(null);
 
