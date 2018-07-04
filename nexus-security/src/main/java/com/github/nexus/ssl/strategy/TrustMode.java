@@ -16,7 +16,7 @@ public enum TrustMode {
         @Override
         public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws NoSuchAlgorithmException, KeyManagementException, CertificateException, UnrecoverableKeyException, OperatorCreationException, IOException, KeyStoreException, SignatureException, NoSuchProviderException, InvalidKeyException {
             return SSLContextBuilder
-                .createBuilder(keyStore,keyStorePassword,trustStore,trustStorePassword)
+                .createBuilder(keyStore, keyStorePassword, trustStore, trustStorePassword)
                 .forAllCertificates()
                 .build();
         }
@@ -26,7 +26,7 @@ public enum TrustMode {
         @Override
         public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
             return SSLContextBuilder
-                .createBuilder(keyStore,keyStorePassword,trustStore, trustStorePassword)
+                .createBuilder(keyStore, keyStorePassword, trustStore, trustStorePassword)
                 .forWhiteList(knownHosts)
                 .build();
         }
@@ -36,7 +36,7 @@ public enum TrustMode {
         @Override
         public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
             return SSLContextBuilder
-                .createBuilder(keyStore,keyStorePassword,trustStore, trustStorePassword)
+                .createBuilder(keyStore, keyStorePassword, trustStore, trustStorePassword)
                 .forTrustOnFirstUse(knownHosts)
                 .build();
         }
@@ -46,7 +46,7 @@ public enum TrustMode {
         @Override
         public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
             return SSLContextBuilder
-                .createBuilder(keyStore,keyStorePassword,trustStore, trustStorePassword)
+                .createBuilder(keyStore, keyStorePassword, trustStore, trustStorePassword)
                 .forCASignedCertificates()
                 .build();
         }
@@ -58,14 +58,12 @@ public enum TrustMode {
                                                 String trustStorePassword,
                                                 Path knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException;
 
-    public static Optional<TrustMode> getValueIfPresent(String value){
-        TrustMode trustMode = null;
+    public static Optional<TrustMode> getValueIfPresent(String value) {
         try {
-            trustMode = TrustMode.valueOf(value.toUpperCase());
+            final TrustMode trustMode = TrustMode.valueOf(value.toUpperCase());
+            return Optional.ofNullable(trustMode);
+        } catch (IllegalArgumentException ex) {
+            return Optional.empty();
         }
-        catch (IllegalArgumentException ex){
-
-        }
-        return Optional.ofNullable(trustMode);
     }
 }

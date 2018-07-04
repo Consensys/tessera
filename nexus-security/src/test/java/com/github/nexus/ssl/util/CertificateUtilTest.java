@@ -35,7 +35,7 @@ public class CertificateUtilTest {
         } catch (Exception ex) {
             assertThat(ex)
                 .isInstanceOf(CertificateException.class)
-                .hasMessage("Cannot generate thumbprint for this certificate");
+                .hasMessageContaining("Cannot generate thumbprint for this certificate");
         }
     }
 }

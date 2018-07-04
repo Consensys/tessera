@@ -14,20 +14,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class AbstractTrustManager implements X509TrustManager {
+abstract class AbstractTrustManager implements X509TrustManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTrustManager.class);
 
     private Path knownHostsFile;
     private List<String> certificates;
 
-    public AbstractTrustManager(final Path knownHostsFile) throws IOException {
+    AbstractTrustManager(final Path knownHostsFile) throws IOException {
         this.knownHostsFile = knownHostsFile;
         certificates = new ArrayList<>();
         getWhiteListedCertificateForServerAddress();
     }
 
-    public AbstractTrustManager(){
+    AbstractTrustManager(){
     }
 
     private void getWhiteListedCertificateForServerAddress() throws IOException {
@@ -42,7 +42,7 @@ public abstract class AbstractTrustManager implements X509TrustManager {
         }
     }
 
-    protected void generateWhiteListedFileIfNotExisted() throws IOException {
+    private void generateWhiteListedFileIfNotExisted() throws IOException {
 
         if (Files.notExists(knownHostsFile)) {
 
@@ -56,7 +56,7 @@ public abstract class AbstractTrustManager implements X509TrustManager {
         }
     }
 
-    protected void addServerToKnownHostsList(String thumbPrint) throws IOException {
+    void addServerToKnownHostsList(String thumbPrint) throws IOException {
         LOGGER.info("Add entry to known host file");
 
         generateWhiteListedFileIfNotExisted();
@@ -70,7 +70,7 @@ public abstract class AbstractTrustManager implements X509TrustManager {
         }
     }
 
-    protected boolean certificateExistsInKnownHosts(String thumbPrint) {
+    boolean certificateExistsInKnownHosts(String thumbPrint) {
         return this.certificates.stream().anyMatch(cert -> thumbPrint.equals(cert));
     }
 
