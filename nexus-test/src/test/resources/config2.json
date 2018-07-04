@@ -22,9 +22,7 @@
             },
              "type": "unlocked"
             },
-            "publicKey": {
-                "value": "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0="
-            }
+            "publicKey": "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0="
         }
     ],
     "unixSocketFile": "/tmp/tm1.ipc"
