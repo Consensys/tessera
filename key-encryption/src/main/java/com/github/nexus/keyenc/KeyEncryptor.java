@@ -1,8 +1,6 @@
 package com.github.nexus.keyenc;
 
-import com.github.nexus.config.PrivateKey;
 import com.github.nexus.nacl.Key;
-
 
 /**
  * Provides key encryption and decryption for private keys
@@ -17,10 +15,10 @@ public interface KeyEncryptor {
      * be interpreted when decrypting
      *
      * @param privateKey the key to encrypt
-     * @param password the password to encrypt the key with
+     * @param password   the password to encrypt the key with
      * @return com.github.nexus.config.PrivateKey
      */
-    PrivateKey encryptPrivateKey(Key privateKey, String password);
+    KeyConfig encryptPrivateKey(Key privateKey, String password);
 
     /**
      * Decrypts a private key using the password and information provided by the given
@@ -29,6 +27,6 @@ public interface KeyEncryptor {
      * @param privateKey
      * @return the decrypted private key
      */
-    Key decryptPrivateKey(PrivateKey privateKey);
+    Key decryptPrivateKey(KeyConfig privateKey);
 
 }

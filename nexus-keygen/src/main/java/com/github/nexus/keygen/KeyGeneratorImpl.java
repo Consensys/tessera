@@ -3,6 +3,7 @@ package com.github.nexus.keygen;
 import com.github.nexus.config.KeyData;
 import com.github.nexus.config.PrivateKey;
 import com.github.nexus.config.PrivateKeyType;
+import com.github.nexus.keyenc.KeyConfig;
 import com.github.nexus.keyenc.KeyEncryptor;
 import com.github.nexus.nacl.KeyPair;
 import com.github.nexus.nacl.NaclFacade;
@@ -44,8 +45,8 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
         if (privateKey.getType() == PrivateKeyType.LOCKED) {
 
-            PrivateKey encryptedPrivateKey = keyEncryptor.encryptPrivateKey(
-                    generated.getPrivateKey(), privateKey.getPassword());
+            final KeyConfig encryptedPrivateKey = keyEncryptor.encryptPrivateKey(
+                generated.getPrivateKey(), privateKey.getPassword());
 
             privateKeyData = Json.createObjectBuilder()
                     .add("type", "argon2sbox")
@@ -56,9 +57,9 @@ public class KeyGeneratorImpl implements KeyGenerator {
                                     .add("iterations", encryptedPrivateKey.getArgonOptions().getIterations())
                                     .add("parallelism", encryptedPrivateKey.getArgonOptions().getParallelism())
                             )
-                            .add("snonce", encryptedPrivateKey.getSnonce())
-                            .add("sbox", encryptedPrivateKey.getSbox())
-                            .add("asalt", encryptedPrivateKey.getAsalt())
+                            .add("snonce", new String(encryptedPrivateKey.getSnonce()))
+                            .add("sbox", new String(encryptedPrivateKey.getSbox()))
+                            .add("asalt", new String(encryptedPrivateKey.getAsalt()))
                     ).build()
                     .toString();
 
