@@ -41,6 +41,6 @@ public class SendRequest {
     }
 
     public void setTo(final String[] to) {
-        this.to = to.clone();
+        this.to = to;
     }
 }

@@ -18,7 +18,7 @@ public class ServerConfigTest {
     }
 
     @Test(expected = ConfigException.class)
-    public void serverUriInvalidUri() throws URISyntaxException {
+    public void serverUriInvalidUri() {
         new ServerConfig("&@€~:*&2", -1, null).getServerUri();
     }
 
