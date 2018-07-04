@@ -135,8 +135,8 @@ public class KeyManagerImpl implements KeyManager {
                             privateKey.getArgonOptions().getParallelism()
                         )
                     )
-                    .sbox(privateKey.getSbox().getBytes())
-                    .snonce(privateKey.getSnonce().getBytes())
+                    .sbox(privateKey.getSbox().getBytes(UTF_8))
+                    .snonce(privateKey.getSnonce().getBytes(UTF_8))
                     .build()
             );
         }
