@@ -26,7 +26,7 @@ public interface PartyInfoParser extends BinaryEncoder {
 
         final byte[] urlBytes = new byte[urlLength];
         byteBuffer.get(urlBytes);
-        final String url = new String(urlBytes);
+        final String url = new String(urlBytes, UTF_8);
 
         final int numberOfRecipients = (int) byteBuffer.getLong();
 
@@ -43,7 +43,7 @@ public interface PartyInfoParser extends BinaryEncoder {
             final int recipientUrlValueLength = (int) byteBuffer.getLong();
             final byte[] urlValueData = new byte[recipientUrlValueLength];
             byteBuffer.get(urlValueData);
-            final String recipientUrl = new String(urlValueData);
+            final String recipientUrl = new String(urlValueData, UTF_8);
 
             recipients.add(new Recipient(new Key(recipientKeyBytes), recipientUrl));
 
@@ -56,7 +56,7 @@ public interface PartyInfoParser extends BinaryEncoder {
             long partyElementLength = byteBuffer.getLong();
             byte[] ptyData = new byte[(int) partyElementLength];
             byteBuffer.get(ptyData);
-            String ptyURL = new String(ptyData);
+            String ptyURL = new String(ptyData, UTF_8);
             parties[i] = new Party(ptyURL);
         }
 
