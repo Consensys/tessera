@@ -156,6 +156,9 @@ public class TransactionResource {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     public Response receive(@Valid final ReceiveRequest request) {
+
+        LOGGER.debug("Received receive request");
+
         return this.receive(request.getKey(), request.getTo());
     }
 
@@ -170,6 +173,8 @@ public class TransactionResource {
             @NotNull @HeaderParam(value = "c11n-key") String senderKey,
             @ApiParam("Encoded Recipient Public Key")
             @HeaderParam(value = "c11n-to") String recipientKey) {
+
+        LOGGER.debug("Received receiveraw request");
 
         final byte[] decodedKey = base64Decoder.decode(senderKey);
 
@@ -198,6 +203,8 @@ public class TransactionResource {
             @ApiParam(name = "deleteRequest", required = true)
             @Valid final DeleteRequest deleteRequest) {
 
+        LOGGER.debug("Received deprecated delete request");
+
         this.deleteKey(deleteRequest.getKey());
 
         return Response.status(Response.Status.OK)
@@ -213,6 +220,8 @@ public class TransactionResource {
     @DELETE
     @Path("/transaction/{key}")
     public Response deleteKey(@ApiParam("Encoded hash") @PathParam("key") final String key) {
+
+        LOGGER.debug("Received delete key request");
 
         final byte[] hashBytes = base64Decoder.decode(key);
         enclave.delete(hashBytes);
@@ -231,6 +240,8 @@ public class TransactionResource {
     public Response resend(
         @ApiParam(name = "resendRequest", required = true) @Valid @NotNull final ResendRequest resendRequest
     ) {
+
+        LOGGER.debug("Received resend request");
 
         final byte[] publicKey = base64Decoder.decode(resendRequest.getPublicKey());
 
@@ -263,6 +274,8 @@ public class TransactionResource {
     public Response push(
         @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload
     ) {
+
+        LOGGER.debug("Received push request");
 
         final MessageHash messageHash = enclave.storePayload(payload);
 
