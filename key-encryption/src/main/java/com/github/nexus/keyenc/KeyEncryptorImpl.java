@@ -1,9 +1,7 @@
 package com.github.nexus.keyenc;
 
 import com.github.nexus.argon2.Argon2;
-import com.github.nexus.argon2.ArgonOptions;
 import com.github.nexus.argon2.ArgonResult;
-
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.NaclFacade;
 import com.github.nexus.nacl.Nonce;
@@ -66,23 +64,18 @@ public class KeyEncryptorImpl implements KeyEncryptor {
 
         LOGGER.info("Private key encrypted");
 
-        ArgonOptions argonOptions = new ArgonOptions(argonResult.getOptions().getAlgorithm(),
-                argonResult.getOptions().getIterations(), argonResult.getOptions().getMemory(), argonResult.getOptions().getParallelism());
+        final byte[] nonceBytes = encoder.encode(nonce.getNonceBytes());
+        final byte[] asalt = encoder.encode(salt);
+        final byte[] sbox = encoder.encode(encryptedKey);
 
-        byte[] nonceBytes = encoder.encode(nonce.getNonceBytes());
-        byte[] asalt = encoder.encode(salt);
-        byte[] sbox = encoder.encode(encryptedKey);
-
-        //  PrivateKeyData privateKeyData = new PrivateKeyData(privateKey.toString(), nonceString, saltString, encyptKeyString, argonOptions, password);
         return KeyConfig.Builder.create()
-                .asalt(asalt)
-                .snonce(nonceBytes)
-                .password(password)
-                .value(privateKey.toString())
-                .argonOptions(argonResult.getOptions())
-                .sbox(sbox)
-                .build();
-
+            .asalt(asalt)
+            .snonce(nonceBytes)
+            .password(password)
+            .value(privateKey.toString())
+            .argonOptions(argonResult.getOptions())
+            .sbox(sbox)
+            .build();
     }
 
     @Override

@@ -15,7 +15,7 @@ public interface KeyEncryptor {
      * be interpreted when decrypting
      *
      * @param privateKey the key to encrypt
-     * @param password the password to encrypt the key with
+     * @param password   the password to encrypt the key with
      * @return com.github.nexus.config.PrivateKey
      */
     KeyConfig encryptPrivateKey(Key privateKey, String password);

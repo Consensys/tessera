@@ -10,17 +10,17 @@ public class KeyConfigTest {
     @Test
     public void buildWithoutArgonOptions() {
 
-        KeyConfig keyConfig = KeyConfig.Builder.create()
-                .password("SECRET")
-                .value("SOMEVALUE")
-                .snonce("SNONCE".getBytes())
-                .asalt("uZAfjmMwEepP8kzZCnmH6g==".getBytes())
-                .sbox("SBOX".getBytes())
-                .argonAlgorithm("id")
-                .argonIterations(1)
-                .argonMemory(2)
-                .argonParallelism(3)
-                .build();
+        final KeyConfig keyConfig = KeyConfig.Builder.create()
+            .password("SECRET")
+            .value("SOMEVALUE")
+            .snonce("SNONCE".getBytes())
+            .asalt("uZAfjmMwEepP8kzZCnmH6g==".getBytes())
+            .sbox("SBOX".getBytes())
+            .argonAlgorithm("id")
+            .argonIterations(1)
+            .argonMemory(2)
+            .argonParallelism(3)
+            .build();
 
         assertThat(keyConfig).isNotNull();
         assertThat(keyConfig.getPassword()).isEqualTo("SECRET");
@@ -36,16 +36,17 @@ public class KeyConfigTest {
 
     @Test
     public void buildWithArgonOptions() {
-        ArgonOptions argonOptions = new ArgonOptions("id", 1, 2, 3);
 
-        KeyConfig keyConfig = KeyConfig.Builder.create()
-                .password("SECRET")
-                .value("SOMEVALUE")
-                .snonce("SNONCE".getBytes())
-                .asalt("uZAfjmMwEepP8kzZCnmH6g==".getBytes())
-                .sbox("SBOX".getBytes())
-                .argonOptions(argonOptions)
-                .build();
+        final ArgonOptions argonOptions = new ArgonOptions("id", 1, 2, 3);
+
+        final KeyConfig keyConfig = KeyConfig.Builder.create()
+            .password("SECRET")
+            .value("SOMEVALUE")
+            .snonce("SNONCE".getBytes())
+            .asalt("uZAfjmMwEepP8kzZCnmH6g==".getBytes())
+            .sbox("SBOX".getBytes())
+            .argonOptions(argonOptions)
+            .build();
 
         assertThat(keyConfig).isNotNull();
         assertThat(keyConfig.getPassword()).isEqualTo("SECRET");
