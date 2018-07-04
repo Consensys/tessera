@@ -24,7 +24,7 @@ public class TrustModeTest {
     private Path tmpKnownHosts;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         tmpFile = Paths.get(tmpDir.getRoot().getPath(), "tmpFile");
         tmpKnownHosts = Paths.get(tmpDir.getRoot().getPath(),"knownHosts");
     }

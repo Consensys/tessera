@@ -1,9 +1,10 @@
 package com.github.nexus.config.adapters;
 
 import com.github.nexus.config.PrivateKeyType;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class PrivateKeyTypeAdapter extends XmlAdapter<String, PrivateKeyType> {
 
@@ -16,12 +17,12 @@ public class PrivateKeyTypeAdapter extends XmlAdapter<String, PrivateKeyType> {
     };
 
     @Override
-    public PrivateKeyType unmarshal(String v) throws Exception {
+    public PrivateKeyType unmarshal(String v) {
         return MAPPING.get(v);
     }
 
     @Override
-    public String marshal(PrivateKeyType v) throws Exception {
+    public String marshal(PrivateKeyType v) {
         return MAPPING.entrySet().stream()
                 .filter(e -> e.getValue() == v).map(e -> e.getKey())
                 .findAny()

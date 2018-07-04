@@ -20,6 +20,8 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class WhiteListTrustManagerTest {
 
     private WhiteListTrustManager trustManager;
@@ -33,7 +35,7 @@ public class WhiteListTrustManagerTest {
     @Before
     public void setUp() throws IOException, CertificateException {
         MockitoAnnotations.initMocks(this);
-        when(certificate.getEncoded()).thenReturn("thumbprint".getBytes());
+        when(certificate.getEncoded()).thenReturn("thumbprint".getBytes(UTF_8));
         knownHosts = Files.createTempFile("test", "knownHosts");
 
         try (BufferedWriter writer = Files.newBufferedWriter(knownHosts, StandardOpenOption.APPEND))
@@ -65,7 +67,7 @@ public class WhiteListTrustManagerTest {
 
     @Test
     public void testCertificatesNotInWhiteList() throws CertificateException {
-        when(certificate.getEncoded()).thenReturn("some-other-thumbprint".getBytes());
+        when(certificate.getEncoded()).thenReturn("some-other-thumbprint".getBytes(UTF_8));
         try {
             trustManager.checkClientTrusted(new X509Certificate[]{certificate}, "str");
             failBecauseExceptionWasNotThrown(Exception.class);

@@ -12,13 +12,13 @@ public interface CertificateUtil {
             final byte[] encoded = certificate.getEncoded();
             return DatatypeConverter.printHexBinary(
                 MessageDigest.getInstance("SHA-1").digest(encoded)).toLowerCase();
-        }
-        catch (Exception ex){
-            throw new CertificateException("Cannot generate thumbprint for this certificate");
+        } catch (Exception ex) {
+            throw new CertificateException("Cannot generate thumbprint for this certificate. Cause by ", ex);
         }
     }
 
-    static CertificateUtil create(){
-        return new CertificateUtil(){};
+    static CertificateUtil create() {
+        return new CertificateUtil() {
+        };
     }
 }

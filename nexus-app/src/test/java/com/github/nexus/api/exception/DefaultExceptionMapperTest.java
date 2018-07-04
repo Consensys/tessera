@@ -1,12 +1,13 @@
 
 package com.github.nexus.api.exception;
 
-import com.github.nexus.api.exception.DefaultExceptionMapper;
-import javax.ws.rs.core.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.assertj.core.api.Assertions.*;
+
+import javax.ws.rs.core.Response;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultExceptionMapperTest {
     
