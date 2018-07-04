@@ -17,6 +17,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import java.util.Objects;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class KeyGeneratorImpl implements KeyGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyGeneratorImpl.class);
