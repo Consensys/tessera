@@ -34,9 +34,7 @@
 
 
 
-      "publicKey" : {
-         "path" : "/somepath"
-      }
+      "publicKey" : "/somepath"
    } ],
    "unixSocketFile" : "/tmp/bogus.socket"
 }
