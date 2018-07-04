@@ -10,10 +10,11 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -32,7 +33,7 @@ public interface TlsUtils {
     Provider provider = new BouncyCastleProvider();
     HostnameUtil HOSTNAME_UTIL = HostnameUtil.create();
 
-    default void generateKeyStoreWithSelfSignedCertificate(File privateKeyFile, String password)
+    default void generateKeyStoreWithSelfSignedCertificate(Path privateKeyFile, String password)
         throws NoSuchAlgorithmException, IOException, OperatorCreationException,
         CertificateException, InvalidKeyException, NoSuchProviderException, SignatureException, KeyStoreException {
 
@@ -70,11 +71,9 @@ public interface TlsUtils {
         keyStore.load(null, null);
         keyStore.setKeyEntry("nexus",privateKey, password.toCharArray(), new X509Certificate[]{certificate});
 
-        FileOutputStream keyStoreFile = new FileOutputStream(privateKeyFile);
-
-        keyStore.store(keyStoreFile, password.toCharArray());
-        keyStoreFile.close();
-
+        try(final OutputStream keyStoreFile = Files.newOutputStream(privateKeyFile)) {
+            keyStore.store(keyStoreFile, password.toCharArray());
+        }
     }
 
     static TlsUtils create(){

@@ -1,11 +1,14 @@
 package com.github.nexus.ssl.strategy;
 
 import org.bouncycastle.operator.OperatorCreationException;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.*;
 import java.security.cert.CertificateException;
 
@@ -16,39 +19,27 @@ public class TrustModeTest {
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
 
-    private static TemporaryFolder dirDelegate;
+    private Path tmpFile;
 
-    private File tmpFile;
-
-    private File tmpKnownHosts;
+    private Path tmpKnownHosts;
 
     @Before
-    public void setUp() {
-        tmpFile = new File(tmpDir.getRoot(), "tmpFile");
-        tmpKnownHosts = new File(tmpDir.getRoot(), "tmpKnownHosts");
+    public void setUp() throws IOException {
+        tmpFile = Paths.get(tmpDir.getRoot().getPath(), "tmpFile");
+        tmpKnownHosts = Paths.get(tmpDir.getRoot().getPath(),"knownHosts");
     }
 
-    @After
-    public void after(){
-        dirDelegate = tmpDir;
-        assertThat(dirDelegate.getRoot().exists()).isTrue();
-    }
-
-    @AfterClass
-    public static void tearDown(){
-        assertThat(dirDelegate.getRoot().exists()).isFalse();
-    }
 
     @Test
     public void testNone() throws IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
 
         assertThat(
-            TrustMode.getValueIfPresent("NONE").get().createSSLContext(
-                tmpFile.getPath(),
+            TrustMode.NONE.createSSLContext(
+                tmpFile,
                 "quorum",
-                tmpFile.getPath(),
+                tmpFile,
                 "quorum",
-                tmpKnownHosts.getPath()
+                tmpKnownHosts
             )
         ).isNotNull();
 
@@ -58,11 +49,11 @@ public class TrustModeTest {
     public void testWhiteList() throws IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
         assertThat(
             TrustMode.getValueIfPresent("WHITELIST").get().createSSLContext(
-                tmpFile.getPath(),
+                tmpFile,
                 "quorum",
-                tmpFile.getPath(),
+                tmpFile,
                 "quorum",
-                tmpKnownHosts.getPath()
+                tmpKnownHosts
             )
         ).isNotNull();
     }
@@ -71,11 +62,11 @@ public class TrustModeTest {
     public void testCA() throws IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
         assertThat(
             TrustMode.getValueIfPresent("CA").get().createSSLContext(
-                tmpFile.getPath(),
+                tmpFile,
                 "quorum",
-                tmpFile.getPath(),
+                tmpFile,
                 "quorum",
-                tmpKnownHosts.getPath()
+                tmpKnownHosts
             )
         ).isNotNull();
     }
@@ -84,11 +75,11 @@ public class TrustModeTest {
     public void testTOFU() throws IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
         assertThat(
             TrustMode.getValueIfPresent("TOFU").get().createSSLContext(
-                tmpFile.getPath(),
+                tmpFile,
                 "quorum",
-                tmpFile.getPath(),
+                tmpFile,
                 "quorum",
-                tmpKnownHosts.getPath()
+                tmpKnownHosts
             )
         ).isNotNull();
     }

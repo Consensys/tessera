@@ -1,30 +1,33 @@
 package com.github.nexus.ssl.trust;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
 public class TrustOnFirstUseManagerTest {
 
-    private TrustOnFirstUseManager trustManager;
-
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
 
-    private static TemporaryFolder tmpDirDelegate;
+    private TrustOnFirstUseManager trustManager;
 
-    File knownHosts;
+    Path knownHosts;
 
     @Mock
     X509Certificate certificate;
@@ -32,67 +35,82 @@ public class TrustOnFirstUseManagerTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        knownHosts = new File(tmpDir.getRoot(), "knownHosts");
+        knownHosts = Paths.get(tmpDir.getRoot().getPath(), "parent", "knownHosts");
     }
 
     @After
     public void after() {
         verifyNoMoreInteractions(certificate);
-        tmpDirDelegate = tmpDir;
-        assertThat(tmpDirDelegate.getRoot().exists()).isTrue();
     }
-
-    @AfterClass
-    public static void tearDown() {
-        assertThat(tmpDirDelegate.getRoot().exists()).isFalse();
-    }
-
 
 
     @Test
     public void testAddThumbPrintToKnownHostsList() throws CertificateException, IOException {
         trustManager = new TrustOnFirstUseManager(knownHosts);
+
         when(certificate.getEncoded()).thenReturn("certificate".getBytes());
 
-        assertThat(knownHosts.exists()).isFalse();
+        assertThat(Files.exists(knownHosts)).isFalse();
 
         trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "s");
 
-        assertThat(knownHosts.exists()).isTrue();
+        assertThat(Files.exists(knownHosts)).isTrue();
 
         trustManager.checkClientTrusted(new X509Certificate[]{certificate}, "s");
         verify(certificate, times(2)).getEncoded();
+
     }
 
     @Test
     public void testFailedToGenerateWhiteListFile() throws IOException, CertificateEncodingException {
-        File anotherFile = mock(File.class);
-        File parentDir = mock(File.class);
-        when(anotherFile.getParentFile()).thenReturn(parentDir);
-        when(parentDir.exists()).thenReturn(false);
-        when(parentDir.mkdirs()).thenReturn(false);
+        Path anotherFile = Paths.get(tmpDir.getRoot().getPath(),"parent", "anotherFile");
+        tmpDir.getRoot().setWritable(false);
 
         trustManager = new TrustOnFirstUseManager(anotherFile);
+
         when(certificate.getEncoded()).thenReturn("certificate".getBytes());
 
         try {
             trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "str");
             failBecauseExceptionWasNotThrown(IOException.class);
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             assertThat(ex)
                 .isInstanceOf(CertificateException.class)
                 .hasMessage("Failed to save address and certificate fingerprint to whitelist");
         }
 
         verify(certificate).getEncoded();
+        tmpDir.getRoot().setWritable(true);
+    }
+
+    @Test
+    public void testGenerateWhiteListFileNoParentDirectory() throws IOException, CertificateException {
+        Path anotherFile = Paths.get("anotherFileInRootDir");
+        trustManager = new TrustOnFirstUseManager(anotherFile);
+
+        when(certificate.getEncoded()).thenReturn("certificate".getBytes());
+
+        assertThat(Files.exists(anotherFile)).isFalse();
+
+        trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "str");
+
+        assertThat(Files.exists(anotherFile)).isTrue();
+
+        verify(certificate).getEncoded();
+
+        Files.deleteIfExists(anotherFile);
+
+        assertThat(Files.exists(anotherFile)).isFalse();
 
     }
 
     @Test
     public void testAddFingerPrintFailedToWrite() throws CertificateException, IOException {
-        File notWritable = mock(File.class);
-        when(notWritable.canWrite()).thenReturn(false);
+
+        Path notWritable = Paths.get(tmpDir.getRoot().getPath(), "notWritable");
+
+        notWritable.toFile().createNewFile();
+        notWritable.toFile().setReadOnly();
 
         trustManager = new TrustOnFirstUseManager(notWritable);
 
@@ -104,8 +122,7 @@ public class TrustOnFirstUseManagerTest {
             trustManager.checkClientTrusted(new X509Certificate[]{certificate}, "s");
 
             failBecauseExceptionWasNotThrown(CertificateException.class);
-        }
-        catch(Exception ex){
+        } catch (Exception ex) {
             assertThat(ex).isInstanceOf(CertificateException.class);
         }
     }
