@@ -4,7 +4,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -48,8 +47,8 @@ public class CliDelegateTest {
     public void withValidConfig() throws Exception {
 
         CliResult result = cliDelegate.execute(
-                "-configfile",
-                getClass().getResource("/sample-config.json").getFile());
+            "-configfile",
+            getClass().getResource("/sample-config.json").getFile());
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig().get()).isSameAs(cliDelegate.getConfig());
@@ -71,8 +70,8 @@ public class CliDelegateTest {
 
         try {
             cliDelegate.execute(
-                    "-configfile",
-                    getClass().getResource("/missing-config.json").getFile());
+                "-configfile",
+                getClass().getResource("/missing-config.json").getFile());
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
             assertThat(ex.getConstraintViolations()).hasSize(1);
