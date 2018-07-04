@@ -2,12 +2,9 @@ package com.github.nexus.config.adapters;
 
 import com.github.nexus.config.PrivateKey;
 import com.github.nexus.config.util.JaxbUtil;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.transform.OutputKeys;
@@ -20,8 +17,12 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class PrivateKeyFileAdapter extends XmlAdapter<Element, PrivateKey> {
 
@@ -32,6 +33,7 @@ public class PrivateKeyFileAdapter extends XmlAdapter<Element, PrivateKey> {
     @Override
     public PrivateKey unmarshal(Element privateKeyElement) throws Exception {
 
+        //FIXME : Is this being used?
         XPathExpression hasDefinedPath = xpath.compile("not(count(path) = 0)");
 
         XPathExpression hasTypeAttribute = xpath.compile("count(@type) = 1");
@@ -69,7 +71,7 @@ public class PrivateKeyFileAdapter extends XmlAdapter<Element, PrivateKey> {
 
     //FIXME: For this to work properly some more ns work is required
     @Override
-    public Element marshal(PrivateKey v) throws Exception {
+    public Element marshal(PrivateKey v) {
         DOMResult dOMResult = new DOMResult();
         JAXB.marshal(v, dOMResult);
         return ((Document) dOMResult.getNode()).getDocumentElement();

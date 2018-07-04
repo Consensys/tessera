@@ -12,11 +12,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import java.util.Objects;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class KeyGeneratorImpl implements KeyGenerator {
 
@@ -56,9 +57,9 @@ public class KeyGeneratorImpl implements KeyGenerator {
                                     .add("iterations", encryptedPrivateKey.getArgonOptions().getIterations())
                                     .add("parallelism", encryptedPrivateKey.getArgonOptions().getParallelism())
                             )
-                            .add("snonce", new String(encryptedPrivateKey.getSnonce()))
-                            .add("sbox", new String(encryptedPrivateKey.getSbox()))
-                            .add("asalt", new String(encryptedPrivateKey.getAsalt()))
+                            .add("snonce", new String(encryptedPrivateKey.getSnonce(), UTF_8))
+                            .add("sbox", new String(encryptedPrivateKey.getSbox(), UTF_8))
+                            .add("asalt", new String(encryptedPrivateKey.getAsalt(), UTF_8))
                     ).build()
                     .toString();
 
@@ -77,12 +78,12 @@ public class KeyGeneratorImpl implements KeyGenerator {
         try {
 
             Files.write(keyData.getPrivateKey().getPath(),
-                    privateKeyData.getBytes(StandardCharsets.UTF_8),
+                    privateKeyData.getBytes(UTF_8),
                     StandardOpenOption.CREATE_NEW);
 
-//            Files.write(keyData.getPublicKey().getPath(),
-//                    publicKeyBase64.getBytes(StandardCharsets.UTF_8),
-//                    StandardOpenOption.CREATE_NEW);
+            Files.write(keyData.getPublicKey().getPath(),
+                    publicKeyBase64.getBytes(UTF_8),
+                    StandardOpenOption.CREATE_NEW);
             
         } catch (IOException ex) {
             throw new KeyGeneratorException(ex);

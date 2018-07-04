@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -30,7 +29,7 @@ public class LoggingFilterTest {
     }
 
     @Test
-    public void filterRequest() throws IOException {
+    public void filterRequest() {
         ContainerRequestContext request = mock(ContainerRequestContext.class);
         loggingFilter.filter(request);
         //Very silly test 
@@ -39,7 +38,7 @@ public class LoggingFilterTest {
     }
 
     @Test
-    public void filterRequestAndResponse() throws IOException {
+    public void filterRequestAndResponse() {
         ContainerRequestContext request = mock(ContainerRequestContext.class);
         ContainerResponseContext response = mock(ContainerResponseContext.class);
         loggingFilter.filter(request,response);

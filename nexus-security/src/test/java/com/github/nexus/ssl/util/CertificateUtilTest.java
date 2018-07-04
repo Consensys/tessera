@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.mock;
@@ -17,7 +18,7 @@ public class CertificateUtilTest {
     public void testGenerateThumbPrint() throws CertificateException {
 
         X509Certificate certificate = mock(X509Certificate.class);
-        when(certificate.getEncoded()).thenReturn("some".getBytes());
+        when(certificate.getEncoded()).thenReturn("some".getBytes(UTF_8));
 
         assertThat(CertificateUtil.create().thumbPrint(certificate))
             .isEqualTo("eb875812858d27b22cb2b75f992dffadc1b05c66");
@@ -34,7 +35,7 @@ public class CertificateUtilTest {
         } catch (Exception ex) {
             assertThat(ex)
                 .isInstanceOf(CertificateException.class)
-                .hasMessage("Cannot generate thumbprint for this certificate");
+                .hasMessageContaining("Cannot generate thumbprint for this certificate");
         }
     }
 }

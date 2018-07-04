@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class KeyManagerImpl implements KeyManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyManagerImpl.class);
@@ -124,7 +126,7 @@ public class KeyManagerImpl implements KeyManager {
             return keyEncryptor.decryptPrivateKey(
                 KeyConfig.Builder.create()
                     .password(privateKey.getPassword())
-                    .asalt(privateKey.getAsalt().getBytes())
+                    .asalt(privateKey.getAsalt().getBytes(UTF_8))
                     .argonOptions(
                         new ArgonOptions(
                             privateKey.getArgonOptions().getAlgorithm(),
@@ -133,8 +135,8 @@ public class KeyManagerImpl implements KeyManager {
                             privateKey.getArgonOptions().getParallelism()
                         )
                     )
-                    .sbox(privateKey.getSbox().getBytes())
-                    .snonce(privateKey.getSnonce().getBytes())
+                    .sbox(privateKey.getSbox().getBytes(UTF_8))
+                    .snonce(privateKey.getSnonce().getBytes(UTF_8))
                     .build()
             );
         }
