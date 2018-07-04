@@ -1,6 +1,6 @@
 package com.github.nexus.config.util;
 
-import com.github.nexus.config.PrivateKeyConfig;
+import com.github.nexus.config.KeyDataConfig;
 import com.github.nexus.config.PrivateKeyType;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
@@ -23,7 +23,7 @@ public class JaxbUtilTest {
     @Test
     public void unmarshalLocked() {
 
-        PrivateKeyConfig result = JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), PrivateKeyConfig.class);
+        KeyDataConfig result = JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
         assertThat(result).isNotNull();
         assertThat(result.getType()).isEqualTo(PrivateKeyType.LOCKED);
         assertThat(result.getPrivateKeyData()).isNotNull();

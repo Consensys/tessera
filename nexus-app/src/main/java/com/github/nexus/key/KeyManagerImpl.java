@@ -2,7 +2,7 @@ package com.github.nexus.key;
 
 import com.github.nexus.config.Config;
 import com.github.nexus.config.KeyData;
-import com.github.nexus.config.PrivateKeyConfig;
+import com.github.nexus.config.KeyDataConfig;
 import com.github.nexus.config.PrivateKeyType;
 import com.github.nexus.key.exception.KeyNotFoundException;
 import com.github.nexus.keyenc.KeyConfig;
@@ -86,15 +86,15 @@ public class KeyManagerImpl implements KeyManager {
         LOGGER.info("Attempting to load the private key {}", data.getPrivateKey());
 
         final Key publicKey = new Key(
-                Base64.getDecoder().decode(data.getPublicKey().getValue())
+                Base64.getDecoder().decode(data.getPublicKey())
         );
 
         final Key privateKey;
-        if (Objects.nonNull(data.getPrivateKey().getValue())) {
-            privateKey = new Key(data.getPrivateKey().getValue().getBytes(StandardCharsets.UTF_8));
-        } else if (Objects.nonNull(data.getPrivateKey().getConfig())) {
+        if (Objects.nonNull(data.getPrivateKey())) {
+            privateKey = new Key(data.getPrivateKey().getBytes(StandardCharsets.UTF_8));
+        } else if (Objects.nonNull(data.getConfig())) {
             //TODO: Evaluate whether all of this shoud have already been done in the config module
-            privateKey = loadPrivateKey(data.getPrivateKey().getConfig());
+            privateKey = loadPrivateKey(data.getConfig());
         } else {
             throw new IllegalStateException("Private Key has no value or configuration");
         }
@@ -120,7 +120,7 @@ public class KeyManagerImpl implements KeyManager {
         return defaultKeys.getPublicKey();
     }
 
-    private Key loadPrivateKey(final PrivateKeyConfig privateKey) {
+    private Key loadPrivateKey(final KeyDataConfig privateKey) {
 
         LOGGER.debug("Loading the private key at path {}", privateKey);
 

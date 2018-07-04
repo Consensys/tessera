@@ -55,7 +55,7 @@
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-encryption-jnacl</artifactId>
         </dependency>
-        
+
     </dependencies>
 
 </project>

@@ -1,5 +1,6 @@
 package com.github.nexus.config;
 
+import com.github.nexus.config.adapters.KeyDataAdapter;
 import com.github.nexus.config.adapters.PathAdapter;
 
 import javax.validation.Valid;
@@ -33,7 +34,11 @@ public class Config {
     @Valid
     @NotNull
     @Size(min = 1)
-    @XmlElement(name = "keys", required = true)
+    @XmlElements({
+        @XmlElement(type = KeyData.class)
+    })
+    @XmlElement
+    @XmlJavaTypeAdapter(value = KeyDataAdapter.class)
     private final List<KeyData> keys;
 
     @NotNull

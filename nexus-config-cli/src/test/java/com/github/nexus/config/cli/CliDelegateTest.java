@@ -3,6 +3,7 @@ package com.github.nexus.config.cli;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.validation.ConstraintViolationException;
 
@@ -78,8 +79,11 @@ public class CliDelegateTest {
     @Test
     public void keygen() throws Exception {
 
+        Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
+
         CliResult result = cliDelegate.execute(
                 "-keygen",
+                keyConfigPath.toString(),
                 "-configfile",
                 getClass().getResource("/keygen-sample.json").getFile());
 

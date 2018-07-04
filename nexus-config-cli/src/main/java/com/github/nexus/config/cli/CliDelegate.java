@@ -8,8 +8,12 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
@@ -47,10 +51,12 @@ public enum CliDelegate {
                         .required()
                         .build());
 
+//If keygen then we require the path to the private key config path
         options.addOption(
                 Option.builder("keygen")
                         .desc("Create missing ssl key files")
-                        .hasArg(false)
+                        .hasArg(true)
+                        .numberOfArgs(1)
                         .build());
 
         options.addOption(
@@ -71,6 +77,8 @@ public enum CliDelegate {
 
         final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
+        final ConfigFactory configFactory = ConfigFactory.create();
+
         try {
 
             CommandLine line = parser.parse(options, args);
@@ -81,8 +89,20 @@ public enum CliDelegate {
                 throw new FileNotFoundException(String.format("%s not found.", path));
             }
 
+            List<InputStream> keyGetConfigs = new ArrayList<>();
+            if (line.hasOption("keygen")) {
+                String[] keyGenConfigFiles = line.getOptionValues("keygen");
+
+                List<Path> paths = Stream.of(keyGenConfigFiles)
+                        .map(Paths::get)
+                        .collect(Collectors.toList());
+                for (Path p : paths) {
+                    keyGetConfigs.add(Files.newInputStream(p));
+                }
+            }
+
             try (InputStream in = Files.newInputStream(path)) {
-                this.config = ConfigFactory.create().create(in);
+                this.config = configFactory.create(in, keyGetConfigs.toArray(new InputStream[0]));
             }
 
             Set<ConstraintViolation<Config>> violations = validator.validate(config);

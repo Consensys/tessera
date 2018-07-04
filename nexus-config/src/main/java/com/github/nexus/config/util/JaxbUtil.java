@@ -5,11 +5,10 @@ import com.github.nexus.config.Config;
 import com.github.nexus.config.ConfigException;
 import com.github.nexus.config.JdbcConfig;
 import com.github.nexus.config.KeyData;
+import com.github.nexus.config.KeyDataConfig;
 import com.github.nexus.config.Peer;
-import com.github.nexus.config.PrivateKey;
 import com.github.nexus.config.PrivateKeyData;
 import com.github.nexus.config.PrivateKeyType;
-import com.github.nexus.config.PublicKey;
 import com.github.nexus.config.ServerConfig;
 import com.github.nexus.config.SslAuthenticationMode;
 import com.github.nexus.config.SslConfig;
@@ -24,14 +23,13 @@ public interface JaxbUtil {
 
     Class[] JAXB_CLASSES = new Class[]{
         Config.class,
-        PrivateKey.class,
+        KeyDataConfig.class,
         PrivateKeyData.class,
         ArgonOptions.class,
         JdbcConfig.class,
         KeyData.class,
         Peer.class,
         PrivateKeyType.class,
-        PublicKey.class,
         ServerConfig.class,
         SslAuthenticationMode.class,
         SslConfig.class,

@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
-public class PrivateKeyConfig {
+public class KeyDataConfig {
 
     @NotNull
     @XmlElement(name = "data")
@@ -22,13 +22,13 @@ public class PrivateKeyConfig {
     @XmlJavaTypeAdapter(PrivateKeyTypeAdapter.class)
     private final PrivateKeyType type;
 
-    public PrivateKeyConfig(PrivateKeyData privateKeyData, PrivateKeyType type) {
+    public KeyDataConfig(PrivateKeyData privateKeyData, PrivateKeyType type) {
         this.privateKeyData = privateKeyData;
         this.type = type;
     }
 
-    private static PrivateKeyConfig create() {
-        return new PrivateKeyConfig(null, null);
+    private static KeyDataConfig create() {
+        return new KeyDataConfig(null, null);
     }
 
     public PrivateKeyType getType() {

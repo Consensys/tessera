@@ -1,38 +1,51 @@
 package com.github.nexus.config;
 
-import com.github.nexus.config.adapters.PrivateKeyFileAdapter;
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
 public class KeyData {
 
     @XmlElement
-    @XmlJavaTypeAdapter(PrivateKeyFileAdapter.class)
-    private final PrivateKey privateKey;
+    private final KeyDataConfig config;
 
     @XmlElement
-    private final PublicKey publicKey;
+    @XmlSchemaType(name = "anyURI")
+    private final String privateKey;
 
-    public KeyData(PrivateKey privateKey, PublicKey publicKey) {
+    @XmlElement
+    @XmlSchemaType(name = "anyURI")
+    private final String publicKey;
+
+    public KeyData(KeyDataConfig keyDataConfig, String privateKey, String publicKey) {
         this.privateKey = privateKey;
         this.publicKey = publicKey;
+        this.config = keyDataConfig;
     }
 
     private static KeyData create() {
-        return new KeyData(null, null);
+        return new KeyData(null, null, null);
     }
 
-    public PrivateKey getPrivateKey() {
+    public String getPrivateKey() {
         return privateKey;
     }
 
-    public PublicKey getPublicKey() {
+    public String getPublicKey() {
         return publicKey;
+    }
+
+    public KeyDataConfig getConfig() {
+        return config;
+    }
+
+    public boolean hasKeys() {
+        return Objects.nonNull(privateKey) && Objects.nonNull(publicKey);
     }
 
 }
