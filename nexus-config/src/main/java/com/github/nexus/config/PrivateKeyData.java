@@ -1,6 +1,5 @@
 package com.github.nexus.config;
 
-import com.github.nexus.config.ArgonOptions;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -34,8 +33,7 @@ public class PrivateKeyData {
     @XmlSchemaType(name = "anyURI")
     private final String password;
 
-    public PrivateKeyData(String value, String snonce, String asalt,
-            String sbox, ArgonOptions argonOptions, String password) {
+    public PrivateKeyData(String value, String snonce, String asalt, String sbox, ArgonOptions argonOptions, String password) {
         this.value = value;
         this.snonce = snonce;
         this.asalt = asalt;
