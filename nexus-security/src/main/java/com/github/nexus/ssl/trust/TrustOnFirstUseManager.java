@@ -28,16 +28,15 @@ public class TrustOnFirstUseManager extends AbstractTrustManager {
         return new X509Certificate[0];
     }
 
-    private void checkTrusted(X509Certificate[] x509Certificates) throws CertificateException{
+    private void checkTrusted(X509Certificate[] x509Certificates) throws CertificateException {
         final X509Certificate certificate = x509Certificates[0];
         final String thumbPrint = CertificateUtil.create().thumbPrint(certificate);
 
-        if (!certificateExistsInKnownHosts(thumbPrint)){
+        if (!certificateExistsInKnownHosts(thumbPrint)) {
             try {
                 addServerToKnownHostsList(thumbPrint);
-            }
-            catch (IOException ex){
-                throw new CertificateException("Failed to save address and certificate fingerprint to whitelist");
+            } catch (IOException ex) {
+                throw new CertificateException("Failed to save address and certificate fingerprint to whitelist. Cause by ", ex);
             }
         }
     }

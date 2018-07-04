@@ -4,14 +4,12 @@ import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import com.github.nexus.nacl.NaclException;
 import com.github.nexus.nacl.Nonce;
+import org.abstractj.kalium.NaCl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-
-import org.abstractj.kalium.NaCl;
-
 import static org.abstractj.kalium.NaCl.Sodium.CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BEFORENMBYTES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -53,6 +51,7 @@ public class KaliumTest {
     public void sodiumIsInitialisedOnStartup() {
         final NaCl.Sodium sodium = mock(NaCl.Sodium.class);
 
+        //FIXME Is this being used?
         final Kalium kalium = new Kalium(sodium);
 
         verify(sodium).sodium_init();
