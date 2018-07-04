@@ -8,19 +8,23 @@
     "server": {
         "port": 99
     },
-    "peer": [{
+    "peer": [
+        {
             "url": "http://bogus1.com"
-        }, {
+        },
+        {
             "url": "http://bogus2.com"
-        }],
-    "keys": [{
+        }
+    ],
+    "keys": [
+        {
             "privateKey": {
                 "path": "${privateKeyFile}"
             },
-
             "publicKey": {
                 "path": "/somepath"
             }
-        }],
+        }
+    ],
     "unixSocketFile": "/tmp/bogus.socket"
 }
