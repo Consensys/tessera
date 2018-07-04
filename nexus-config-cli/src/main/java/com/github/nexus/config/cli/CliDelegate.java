@@ -92,8 +92,7 @@ public enum CliDelegate {
                 
                 KeyGenerator keyGenerator = KeyGeneratorFactory.create();
 
-                config.getKeys().stream()
-                        .forEach(keyGenerator::generate);
+                config.getKeys().forEach(keyGenerator::generate);
 
                 try (final Writer writer = new StringWriter()) {
 

@@ -26,7 +26,6 @@ public class JaxbCreateFactoryTest {
                 Config.class,
                 KeyData.class,
                 Peer.class,
-                PublicKey.class,
                 ServerConfig.class,
                 SslConfig.class,
                 JdbcConfig.class,
