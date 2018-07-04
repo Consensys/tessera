@@ -4,7 +4,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class KeyEncryptorFactoryTest {
 
     @Test
@@ -15,6 +14,5 @@ public class KeyEncryptorFactoryTest {
         assertThat(keyEncryptor).isNotNull();
 
     }
-
 
 }

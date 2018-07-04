@@ -1,12 +1,17 @@
-
 package com.github.nexus.nacl;
 
 import java.util.Arrays;
 import java.util.Base64;
 
-
+/**
+ * Represents a Key, which is usually 32 bytes in length
+ * The possible types of keys include:
+ * - public
+ * - private
+ * - symmetric
+ */
 public class Key {
-    
+
     private final byte[] key;
 
     public Key(final byte[] keyBytes) {
@@ -14,15 +19,11 @@ public class Key {
     }
 
     public byte[] getKeyBytes() {
-        return key;
+        return Arrays.copyOf(this.key, this.key.length);
     }
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
         return (o instanceof Key) && Arrays.equals(key, ((Key) o).key);
     }
 
