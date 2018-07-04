@@ -6,8 +6,6 @@ import com.github.nexus.node.model.PartyInfo;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -23,8 +21,6 @@ import static java.util.Objects.requireNonNull;
 @Path("/partyinfo")
 public class PartyInfoResource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoResource.class);
-
     private final PartyInfoParser partyInfoParser;
 
     private final PartyInfoService partyInfoService;
@@ -32,7 +28,7 @@ public class PartyInfoResource {
     public PartyInfoResource(final PartyInfoService partyInfoService,
                              final PartyInfoParser partyInfoParser) {
         this.partyInfoService = requireNonNull(partyInfoService, "partyInfoService must not be null");
-        this.partyInfoParser = requireNonNull(partyInfoParser);
+        this.partyInfoParser = requireNonNull(partyInfoParser, "partyInfoParser must not be null");
     }
 
 

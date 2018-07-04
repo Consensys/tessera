@@ -5,30 +5,20 @@ import com.github.nexus.config.ConfigFactory;
 import com.github.nexus.config.constraints.KeyGen;
 import com.github.nexus.keygen.KeyGenerator;
 import com.github.nexus.keygen.KeyGeneratorFactory;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Set;
+import org.apache.commons.cli.*;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.xml.bind.JAXB;
 import javax.xml.transform.stream.StreamSource;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Set;
 
 public enum CliDelegate {
 

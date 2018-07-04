@@ -2,14 +2,14 @@ package com.github.nexus.ssl.trust;
 
 import com.github.nexus.ssl.util.CertificateUtil;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 public class WhiteListTrustManager extends AbstractTrustManager {
 
-    public WhiteListTrustManager(File knownHosts) throws IOException {
+    public WhiteListTrustManager(Path knownHosts) throws IOException {
         super(knownHosts);
     }
 
