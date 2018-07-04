@@ -61,10 +61,7 @@ public class PrivateKeyFileAdapter extends XmlAdapter<Element, PrivateKey> {
         Path path = Paths.get(pathString);
 
         try (InputStream inputStream = Files.newInputStream(path)) {
-            PrivateKey privateKey = JaxbUtil.unmarshal(inputStream, PrivateKey.class);
-            privateKey.setPath(path);
-            return privateKey;
-
+            return JaxbUtil.unmarshal(inputStream, PrivateKey.class);
         }
 
     }

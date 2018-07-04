@@ -2,18 +2,14 @@ package com.github.nexus.config.cli;
 
 import com.github.nexus.config.Config;
 import com.github.nexus.config.ConfigFactory;
-import com.github.nexus.config.constraints.KeyGen;
-import com.github.nexus.keyenc.KeyGenerator;
-import com.github.nexus.keyenc.KeyGeneratorFactory;
 import org.apache.commons.cli.*;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.xml.bind.JAXB;
-import javax.xml.transform.stream.StreamSource;
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -83,30 +79,30 @@ public enum CliDelegate {
                 this.config = ConfigFactory.create().create(in);
             }
 
-            if (line.hasOption("keygen")) {
-
-                Set<ConstraintViolation<Config>> keyGenViolations = validator.validate(config, KeyGen.class);
-                if(!keyGenViolations.isEmpty()) {
-                    throw new ConstraintViolationException(keyGenViolations);
-                }
-                
-                KeyGenerator keyGenerator = KeyGeneratorFactory.create();
-
-                config.getKeys().stream()
-                        .forEach(keyGenerator::generate);
-
-                try (final Writer writer = new StringWriter()) {
-
-                    JAXB.marshal(config, writer);
-
-                    final String data = writer.toString();
-
-                    try (Reader reader = new StringReader(data)) {
-                        Config newConfig = JAXB.unmarshal(new StreamSource(reader), Config.class);
-                        return new CliResult(0, newConfig);
-                    }
-                }
-            }
+//            if (line.hasOption("keygen")) {
+//
+//                Set<ConstraintViolation<Config>> keyGenViolations = validator.validate(config, KeyGen.class);
+//                if(!keyGenViolations.isEmpty()) {
+//                    throw new ConstraintViolationException(keyGenViolations);
+//                }
+//
+//                KeyGenerator keyGenerator = KeyGeneratorFactory.create();
+//
+//                config.getKeys().stream()
+//                        .forEach(keyGenerator::generate);
+//
+//                try (final Writer writer = new StringWriter()) {
+//
+//                    JAXB.marshal(config, writer);
+//
+//                    final String data = writer.toString();
+//
+//                    try (Reader reader = new StringReader(data)) {
+//                        Config newConfig = JAXB.unmarshal(new StreamSource(reader), Config.class);
+//                        return new CliResult(0, newConfig);
+//                    }
+//                }
+//            }
 
             Set<ConstraintViolation<Config>> violations = validator.validate(config);
 

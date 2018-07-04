@@ -1,14 +1,10 @@
 package com.github.nexus.config;
 
-import com.github.nexus.config.adapters.PathAdapter;
 import com.github.nexus.config.adapters.PrivateKeyTypeAdapter;
-import com.github.nexus.config.constraints.KeyGen;
-import com.github.nexus.config.constraints.ValidPath;
 
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.nio.file.Path;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
@@ -22,13 +18,6 @@ public class PrivateKey {
     @XmlAttribute
     @XmlJavaTypeAdapter(PrivateKeyTypeAdapter.class)
     private final PrivateKeyType type;
-
-    //FIXME: Mutable
-    @NotNull(groups = KeyGen.class)
-    @ValidPath(groups = KeyGen.class)
-    @XmlElement(type = String.class)
-    @XmlJavaTypeAdapter(PathAdapter.class)
-    private Path path;
 
     public PrivateKey(PrivateKeyData privateKeyData, PrivateKeyType type) {
         this.privateKeyData = privateKeyData;
@@ -69,14 +58,6 @@ public class PrivateKey {
 
     public String getPassword() {
         return privateKeyData.getPassword();
-    }
-
-    public Path getPath() {
-        return path;
-    }
-
-    public void setPath(Path path) {
-        this.path = path;
     }
 
 }

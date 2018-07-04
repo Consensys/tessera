@@ -1,17 +1,11 @@
 package com.github.nexus.keyenc;
 
-import com.github.nexus.config.KeyData;
-import com.github.nexus.config.PrivateKey;
-import com.github.nexus.config.PrivateKeyType;
+import com.github.nexus.config.*;
 import com.github.nexus.nacl.KeyPair;
 import com.github.nexus.nacl.NaclFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import java.util.Objects;
 
@@ -31,62 +25,48 @@ public class KeyGeneratorImpl implements KeyGenerator {
     }
 
     @Override
-    public void generate(KeyData keyData) {
+    public KeyData generate(final KeyData keyData) {
 
         final KeyPair generated = nacl.generateNewKeys();
 
         final PrivateKey privateKey = keyData.getPrivateKey();
         
-        Objects.requireNonNull(privateKey.getPath(),"Private key path must be provided");
-        
-        final String privateKeyData;
-
-        if (privateKey.getType() == PrivateKeyType.LOCKED) {
-
-            final KeyConfig encryptedPrivateKey = keyEncryptor.encryptPrivateKey(
-                generated.getPrivateKey(), privateKey.getPassword());
-
-            privateKeyData = Json.createObjectBuilder()
-                    .add("type", "argon2sbox")
-                    .add("data", Json.createObjectBuilder()
-                            .add("aopts", Json.createObjectBuilder()
-                                    .add("variant", encryptedPrivateKey.getArgonOptions().getAlgorithm())
-                                    .add("memory", encryptedPrivateKey.getArgonOptions().getMemory())
-                                    .add("iterations", encryptedPrivateKey.getArgonOptions().getIterations())
-                                    .add("parallelism", encryptedPrivateKey.getArgonOptions().getParallelism())
-                            )
-                            .add("snonce", new String(encryptedPrivateKey.getSnonce(), UTF_8))
-                            .add("sbox", new String(encryptedPrivateKey.getSbox(), UTF_8))
-                            .add("asalt", new String(encryptedPrivateKey.getAsalt(), UTF_8))
-                    ).build()
-                    .toString();
-
-        } else {
-
-            privateKeyData = Json.createObjectBuilder()
-                    .add("type", "unlocked")
-                    .add("data", Json.createObjectBuilder()
-                            .add("bytes", generated.getPrivateKey().toString()))
-                    .build()
-                    .toString();
-        }
+        final PrivateKey privateKeyData;
 
         final String publicKeyBase64 = Base64.getEncoder().encodeToString(generated.getPublicKey().getKeyBytes());
 
-        try {
+        if (privateKey.getType() == PrivateKeyType.LOCKED) {
 
-            Files.write(keyData.getPrivateKey().getPath(),
-                    privateKeyData.getBytes(UTF_8),
-                    StandardOpenOption.CREATE_NEW);
+            final KeyConfig encryptedPrivateKey
+                = keyEncryptor.encryptPrivateKey(generated.getPrivateKey(), privateKey.getPassword());
 
-//            Files.write(keyData.getPublicKey().getPath(),
-//                    publicKeyBase64.getBytes(StandardCharsets.UTF_8),
-//                    StandardOpenOption.CREATE_NEW);
-            
-        } catch (IOException ex) {
-            throw new KeyGeneratorException(ex);
+            privateKeyData = new PrivateKey(
+                new PrivateKeyData(
+                    null,
+                    new String(encryptedPrivateKey.getSnonce(), UTF_8),
+                    new String(encryptedPrivateKey.getAsalt(), UTF_8),
+                    new String(encryptedPrivateKey.getSbox(), UTF_8),
+                    new ArgonOptions(
+                        encryptedPrivateKey.getArgonOptions().getAlgorithm(),
+                        encryptedPrivateKey.getArgonOptions().getIterations(),
+                        encryptedPrivateKey.getArgonOptions().getMemory(),
+                        encryptedPrivateKey.getArgonOptions().getParallelism()
+                    ),
+                    privateKey.getPassword()
+                ),
+                PrivateKeyType.LOCKED
+            );
+
+        } else {
+
+            privateKeyData = new PrivateKey(
+                new PrivateKeyData(generated.getPrivateKey().toString(), null, null, null, null, null),
+                PrivateKeyType.UNLOCKED
+            );
+
         }
 
+        return new KeyData(privateKeyData, publicKeyBase64);
     }
 
 }

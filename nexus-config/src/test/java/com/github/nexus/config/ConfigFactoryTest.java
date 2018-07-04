@@ -97,8 +97,6 @@ public class ConfigFactoryTest {
         assertThat(privateKey.getType()).isEqualTo(PrivateKeyType.LOCKED);
         assertThat(privateKey.getPrivateKeyData()).isNotNull();
 
-        assertThat(privateKey.getPath()).isEqualTo(keyFile);
-
         assertThat(privateKey.getPrivateKeyData().getSnonce()).isEqualTo("x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC");
         assertThat(privateKey.getPrivateKeyData().getAsalt()).isEqualTo("7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=");
         assertThat(privateKey.getPrivateKeyData().getSbox()).isEqualTo("d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc");
@@ -139,7 +137,6 @@ public class ConfigFactoryTest {
                 .map(KeyData::getPrivateKey).findAny().get();
 
         assertThat(privateKey.getType()).isEqualTo(PrivateKeyType.LOCKED);
-        assertThat(privateKey.getPath()).isEqualTo(keyFile);
 
         assertThat(privateKey.getPrivateKeyData()).isNotNull();
 

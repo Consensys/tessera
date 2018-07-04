@@ -4,6 +4,6 @@ import com.github.nexus.config.KeyData;
 
 public interface KeyGenerator {
 
-    void generate(KeyData keyData);
+    KeyData generate(KeyData keyData);
 
 }
