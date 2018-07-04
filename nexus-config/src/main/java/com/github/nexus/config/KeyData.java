@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlType(factoryMethod = "create")
 public class KeyData {
 
+    @Valid
     @XmlElement(type = JAXBElement.class)
     @XmlJavaTypeAdapter(PrivateKeyFileAdapter.class)
     private final PrivateKey privateKey;
@@ -21,9 +22,9 @@ public class KeyData {
     @NotNull
     @Valid
     @XmlElement
-    private final PublicKey publicKey;
+    private final String publicKey;
 
-    public KeyData(PrivateKey privateKey, PublicKey publicKey) {
+    public KeyData(PrivateKey privateKey, String publicKey) {
         this.privateKey = privateKey;
         this.publicKey = publicKey;
     }
@@ -36,7 +37,7 @@ public class KeyData {
         return privateKey;
     }
 
-    public PublicKey getPublicKey() {
+    public String getPublicKey() {
         return publicKey;
     }
 

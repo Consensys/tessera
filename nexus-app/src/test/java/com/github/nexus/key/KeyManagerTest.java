@@ -8,12 +8,12 @@ import com.github.nexus.nacl.KeyPair;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,12 +43,9 @@ public class KeyManagerTest {
         when(privateKey.getValue()).thenReturn(keyPair.getPrivateKey().toString());
         when(privateKey.getType()).thenReturn(PrivateKeyType.UNLOCKED);
 
-        PublicKey publicKey = mock(PublicKey.class);
-        when(publicKey.getValue()).thenReturn(keyPair.getPublicKey().toString());
-
         final Config configuration = mock(Config.class);
-        com.github.nexus.config.KeyData keyData = new com.github.nexus.config.KeyData(privateKey, publicKey);
-        when(configuration.getKeys()).thenReturn(Arrays.asList(keyData));
+        KeyData keyData = new KeyData(privateKey, keyPair.getPublicKey().toString());
+        when(configuration.getKeys()).thenReturn(singletonList(keyData));
 
         this.keyEncryptor = mock(KeyEncryptor.class);
 
@@ -59,7 +56,7 @@ public class KeyManagerTest {
     public void initialisedWithNoKeysThrowsError() {
         //throws error because there is no default key
         final Config configuration = mock(Config.class);
-        when(configuration.getKeys()).thenReturn(Collections.EMPTY_LIST);
+        when(configuration.getKeys()).thenReturn(emptyList());
         final Throwable throwable = catchThrowable(
                 () -> new KeyManagerImpl(keyEncryptor, configuration)
         );
@@ -109,11 +106,8 @@ public class KeyManagerTest {
         PrivateKey privateKey = mock(PrivateKey.class);
         when(privateKey.getValue()).thenReturn(keyPair.getPrivateKey().toString());
         when(privateKey.getType()).thenReturn(PrivateKeyType.UNLOCKED);
-        
-        PublicKey publicKey = mock(PublicKey.class);
-        when(publicKey.getValue()).thenReturn(keyPair.getPublicKey().toString());
 
-        final KeyData keyData = new KeyData(privateKey, publicKey);
+        final KeyData keyData = new KeyData(privateKey, keyPair.getPublicKey().toString());
 
         final KeyPair loaded = keyManager.loadKeypair(keyData);
 
@@ -126,11 +120,8 @@ public class KeyManagerTest {
         PrivateKey privateKey = mock(PrivateKey.class);
         when(privateKey.getValue()).thenReturn(keyPair.getPrivateKey().toString());
         when(privateKey.getType()).thenReturn(PrivateKeyType.UNLOCKED);
-        
-        PublicKey publicKey = mock(PublicKey.class);
-        when(publicKey.getValue()).thenReturn(keyPair.getPublicKey().toString());
 
-        final KeyData keyData = new KeyData(privateKey, publicKey);
+        final KeyData keyData = new KeyData(privateKey, keyPair.getPublicKey().toString());
 
         final KeyPair loaded = keyManager.loadKeypair(keyData);
 
@@ -160,11 +151,8 @@ public class KeyManagerTest {
         when(privateKey.getSnonce()).thenReturn("SNONCE");
         when(privateKey.getArgonOptions()).thenReturn(options);
         when(privateKey.getType()).thenReturn(PrivateKeyType.LOCKED);
-        
-        PublicKey publicKey = mock(PublicKey.class);
-        when(publicKey.getValue()).thenReturn(keyPair.getPublicKey().toString());
 
-        final KeyData keyData = new KeyData(privateKey, publicKey);
+        final KeyData keyData = new KeyData(privateKey, keyPair.getPublicKey().toString());
 
         doReturn(new Key(new byte[]{})).when(keyEncryptor).decryptPrivateKey(any(KeyConfig.class));
 

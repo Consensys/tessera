@@ -1,5 +1,11 @@
 package com.github.nexus.config.cli;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,12 +13,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.validation.ConstraintViolationException;
 
-import static org.assertj.core.api.Assertions.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 public class CliDelegateTest {
 
@@ -68,12 +71,12 @@ public class CliDelegateTest {
             assertThat(ex.getConstraintViolations()).hasSize(1);
 
             List<String> paths = ex.getConstraintViolations().stream()
-                    .map(v -> v.getPropertyPath())
+                    .map(ConstraintViolation::getPropertyPath)
                     .map(Objects::toString)
                     .sorted()
                     .collect(Collectors.toList());
 
-            assertThat(paths).containsExactly("keys[0].publicKey.path");
+            assertThat(paths).containsExactly("keys[0].privateKey.path");
         }
     }
 
