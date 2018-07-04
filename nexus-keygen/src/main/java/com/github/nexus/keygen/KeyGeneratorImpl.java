@@ -40,7 +40,6 @@ public class KeyGeneratorImpl implements KeyGenerator {
         final PrivateKey privateKey = keyData.getPrivateKey();
         
         Objects.requireNonNull(privateKey.getPath(),"Private key path must be provided");
-        Objects.requireNonNull(keyData.getPublicKey().getPath(),"Public key path must be provided");
         
         final String privateKeyData;
 
@@ -77,7 +76,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
         final String publicKeyBase64 = Base64.getEncoder().encodeToString(generated.getPublicKey().getKeyBytes());
 
         try {
-            
+
             Files.write(keyData.getPrivateKey().getPath(),
                     privateKeyData.getBytes(UTF_8),
                     StandardOpenOption.CREATE_NEW);
