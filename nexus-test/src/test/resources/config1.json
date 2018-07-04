@@ -19,9 +19,8 @@
             "privateKey": {
                 "value": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM="
             },
-            "publicKey": {
-                "value": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-            }
+            "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+
         }
     ],
     "unixSocketFile": "/tmp/tm1.ipc"

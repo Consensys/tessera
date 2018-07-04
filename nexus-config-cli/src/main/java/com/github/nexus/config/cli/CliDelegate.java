@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.github.nexus.config.constraints.KeyGen;
-import com.github.nexus.keygen.KeyGenerator;
-import com.github.nexus.keygen.KeyGeneratorFactory;
+import com.github.nexus.keyenc.KeyGenerator;
+import com.github.nexus.keyenc.KeyGeneratorFactory;
 import org.apache.commons.cli.*;
 
 
