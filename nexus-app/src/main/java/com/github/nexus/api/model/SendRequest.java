@@ -37,11 +37,10 @@ public class SendRequest {
         if (to == null) {
             return new String[]{};
         }
-
-        return to;
+        return to.clone();
     }
 
     public void setTo(final String[] to) {
-        this.to = to;
+        this.to = to.clone();
     }
 }
