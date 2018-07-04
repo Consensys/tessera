@@ -22,13 +22,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.json</artifactId>
-        </dependency>
-
-
-
-        <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-encryption</artifactId>
         </dependency>
@@ -38,10 +31,7 @@
             <artifactId>nexus-encryption-jnacl</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>nexus-config</artifactId>
-        </dependency>
+
     </dependencies>
 
 </project>

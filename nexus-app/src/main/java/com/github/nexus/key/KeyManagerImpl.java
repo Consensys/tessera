@@ -1,10 +1,12 @@
 package com.github.nexus.key;
 
+import com.github.nexus.argon2.ArgonOptions;
 import com.github.nexus.config.Config;
 import com.github.nexus.config.KeyData;
 import com.github.nexus.config.PrivateKey;
 import com.github.nexus.config.PrivateKeyType;
 import com.github.nexus.key.exception.KeyNotFoundException;
+import com.github.nexus.keyenc.KeyConfig;
 import com.github.nexus.keyenc.KeyEncryptor;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
@@ -110,16 +112,31 @@ public class KeyManagerImpl implements KeyManager {
     }
 
     private Key loadPrivateKey(final PrivateKey privateKey) {
-        
+
         LOGGER.debug("Loading the private key at path {}", privateKey);
 
-        if(privateKey.getType() == PrivateKeyType.UNLOCKED) {
+        if (privateKey.getType() == PrivateKeyType.UNLOCKED) {
             final String keyBase64 = privateKey.getValue();
             final byte[] key = Base64.getDecoder().decode(keyBase64);
             LOGGER.debug("Private key {} loaded from path {} loaded", keyBase64, privateKey);
             return new Key(key);
         } else {
-            return keyEncryptor.decryptPrivateKey(privateKey);
+            return keyEncryptor.decryptPrivateKey(
+                KeyConfig.Builder.create()
+                    .password(privateKey.getPassword())
+                    .asalt(privateKey.getAsalt().getBytes())
+                    .argonOptions(
+                        new ArgonOptions(
+                            privateKey.getArgonOptions().getAlgorithm(),
+                            privateKey.getArgonOptions().getIterations(),
+                            privateKey.getArgonOptions().getMemory(),
+                            privateKey.getArgonOptions().getParallelism()
+                        )
+                    )
+                    .sbox(privateKey.getSbox().getBytes())
+                    .snonce(privateKey.getSnonce().getBytes())
+                    .build()
+            );
         }
 
     }
