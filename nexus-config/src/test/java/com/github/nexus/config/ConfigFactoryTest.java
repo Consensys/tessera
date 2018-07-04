@@ -1,6 +1,8 @@
 package com.github.nexus.config;
 
 import com.github.nexus.test.util.ElUtil;
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -8,13 +10,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
 
 public class ConfigFactoryTest {
 
     @Test
-    public void createFromSample() throws Exception {
+    public void createFromSample() {
 
         ConfigFactory configFactory = ConfigFactory.create();
 
@@ -53,7 +55,7 @@ public class ConfigFactoryTest {
     }
 
     @Test(expected = ConfigException.class)
-    public void createFromSampleJaxbException() throws Exception {
+    public void createFromSampleJaxbException() {
 
         ConfigFactory configFactory = ConfigFactory.create();
 

@@ -1,10 +1,11 @@
 package com.github.nexus.config.adapters;
 
 import com.github.nexus.config.PrivateKeyType;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PrivateKeyTypeAdapterTest {
 
@@ -24,32 +25,32 @@ public class PrivateKeyTypeAdapterTest {
     }
 
     @Test
-    public void marshalLocked() throws Exception {
+    public void marshalLocked() {
         assertThat(adapter.marshal(PrivateKeyType.LOCKED)).isEqualTo("argon2sbox");
     }
 
     @Test
-    public void marshalUnlocked() throws Exception {
+    public void marshalUnlocked() {
         assertThat(adapter.marshal(PrivateKeyType.UNLOCKED)).isEqualTo("unlocked");
     }
 
     @Test
-    public void marshalNull() throws Exception {
+    public void marshalNull() {
         assertThat(adapter.marshal(null)).isNull();
     }
 
     @Test
-    public void unmarshalLocked() throws Exception {
+    public void unmarshalLocked() {
         assertThat(adapter.unmarshal("argon2sbox")).isEqualTo(PrivateKeyType.LOCKED);
     }
 
     @Test
-    public void unmarshalUnlocked() throws Exception {
+    public void unmarshalUnlocked() {
         assertThat(adapter.unmarshal("unlocked")).isEqualTo(PrivateKeyType.UNLOCKED);
     }
 
     @Test
-    public void unmarshalNull() throws Exception {
+    public void unmarshalNull() {
         assertThat(adapter.unmarshal(null)).isNull();
     }
 }

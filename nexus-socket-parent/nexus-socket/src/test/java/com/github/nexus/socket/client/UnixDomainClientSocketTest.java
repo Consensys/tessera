@@ -35,7 +35,7 @@ public class UnixDomainClientSocketTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         verifyNoMoreInteractions(unixSocketFactory, socket);
     }
 

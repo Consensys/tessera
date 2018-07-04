@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -19,6 +20,9 @@ import java.security.cert.X509Certificate;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.*;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 
 public class TrustOnFirstUseManagerTest {
 
@@ -48,7 +52,7 @@ public class TrustOnFirstUseManagerTest {
     public void testAddThumbPrintToKnownHostsList() throws CertificateException, IOException {
         trustManager = new TrustOnFirstUseManager(knownHosts);
 
-        when(certificate.getEncoded()).thenReturn("certificate".getBytes());
+        when(certificate.getEncoded()).thenReturn("certificate".getBytes(UTF_8));
 
         assertThat(Files.exists(knownHosts)).isFalse();
 
@@ -68,7 +72,7 @@ public class TrustOnFirstUseManagerTest {
 
         trustManager = new TrustOnFirstUseManager(anotherFile);
 
-        when(certificate.getEncoded()).thenReturn("certificate".getBytes());
+        when(certificate.getEncoded()).thenReturn("certificate".getBytes(UTF_8));
 
         try {
             trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "str");
@@ -76,7 +80,7 @@ public class TrustOnFirstUseManagerTest {
         } catch (Exception ex) {
             assertThat(ex)
                 .isInstanceOf(CertificateException.class)
-                .hasMessage("Failed to save address and certificate fingerprint to whitelist");
+                .hasMessageContaining("Failed to save address and certificate fingerprint to whitelist");
         }
 
         verify(certificate).getEncoded();
@@ -88,7 +92,7 @@ public class TrustOnFirstUseManagerTest {
         Path anotherFile = Paths.get("anotherFileInRootDir");
         trustManager = new TrustOnFirstUseManager(anotherFile);
 
-        when(certificate.getEncoded()).thenReturn("certificate".getBytes());
+        when(certificate.getEncoded()).thenReturn("certificate".getBytes(UTF_8));
 
         assertThat(Files.exists(anotherFile)).isFalse();
 
@@ -109,13 +113,13 @@ public class TrustOnFirstUseManagerTest {
 
         Path notWritable = Paths.get(tmpDir.getRoot().getPath(), "notWritable");
 
-        notWritable.toFile().createNewFile();
-        notWritable.toFile().setReadOnly();
+        Files.createFile(notWritable);
+        Files.setPosixFilePermissions(notWritable, PosixFilePermissions.fromString("r--------"));
 
         trustManager = new TrustOnFirstUseManager(notWritable);
 
         X509Certificate certificate = mock(X509Certificate.class);
-        when(certificate.getEncoded()).thenReturn("certificate".getBytes());
+        when(certificate.getEncoded()).thenReturn("certificate".getBytes(UTF_8));
 
         try {
             trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "s");

@@ -35,28 +35,28 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         final ByteBuffer buffer = ByteBuffer.wrap(input);
 
         final long senderSize = buffer.getLong();
-        final byte[] senderKey = new byte[new Long(senderSize).intValue()];
+        final byte[] senderKey = new byte[Math.toIntExact(senderSize)];
         buffer.get(senderKey);
 
         final long cipherTextSize = buffer.getLong();
-        final byte[] cipherText = new byte[new Long(cipherTextSize).intValue()];
+        final byte[] cipherText = new byte[Math.toIntExact(cipherTextSize)];
         buffer.get(cipherText);
 
         final long nonceSize = buffer.getLong();
-        final byte[] nonce = new byte[new Long(nonceSize).intValue()];
+        final byte[] nonce = new byte[Math.toIntExact(nonceSize)];
         buffer.get(nonce);
 
         final long numberOfRecipients = buffer.getLong();
         final List<byte[]> recipientBoxes = new ArrayList<>();
         for(long i=0; i<numberOfRecipients; i++) {
             final long boxSize = buffer.getLong();
-            final byte[] box = new byte[new Long(boxSize).intValue()];
+            final byte[] box = new byte[Math.toIntExact(boxSize)];
             buffer.get(box);
             recipientBoxes.add(box);
         }
 
         final long recipientNonceSize = buffer.getLong();
-        final byte[] recipientNonce = new byte[new Long(recipientNonceSize).intValue()];
+        final byte[] recipientNonce = new byte[Math.toIntExact(recipientNonceSize)];
         buffer.get(recipientNonce);
 
         return new EncodedPayload(
@@ -90,11 +90,11 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         buffer.getLong();
 
         final long lengthOfPayload = buffer.getLong();
-        final byte[] payload = new byte[(int)lengthOfPayload];
+        final byte[] payload = new byte[Math.toIntExact(lengthOfPayload)];
         buffer.get(payload);
 
         final long recipientLength = buffer.getLong();
-        final byte[] recipientsRaw = new byte[(int)recipientLength];
+        final byte[] recipientsRaw = new byte[Math.toIntExact(recipientLength)];
         buffer.get(recipientsRaw);
 
         final ByteBuffer recipientBuffer = ByteBuffer.wrap(recipientsRaw);
@@ -103,7 +103,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         final List<byte[]> recipientKeys = new ArrayList<>();
         for(long i=0; i<numberOfRecipients; i++) {
             final long boxSize = recipientBuffer.getLong();
-            final byte[] box = new byte[new Long(boxSize).intValue()];
+            final byte[] box = new byte[Math.toIntExact(boxSize)];
             recipientBuffer.get(box);
             recipientKeys.add(box);
         }

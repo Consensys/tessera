@@ -52,7 +52,7 @@ public class RestEasyServer implements RestServer {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         server.stop(0);
     }
 

@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class KeyManagerImpl implements KeyManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyManagerImpl.class);

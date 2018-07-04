@@ -2,22 +2,20 @@ package com.github.nexus.ssl.trust;
 
 import org.junit.Test;
 
-import java.security.cert.CertificateException;
-
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 public class TrustAllManagerTest {
 
-    TrustAllManager trustAllManager = new TrustAllManager();
+    private TrustAllManager trustAllManager = new TrustAllManager();
 
     @Test
-    public void testCheckServerTrusted() throws CertificateException {
+    public void testCheckServerTrusted() {
         trustAllManager.checkServerTrusted(null, null);
         //Nothing to check here - allow all servers to connect
     }
 
     @Test
-    public void testCheckClientTrusted() throws CertificateException {
+    public void testCheckClientTrusted() {
         trustAllManager.checkClientTrusted(null, null);
         //Nothing to check here - allow all clients to connect
     }
