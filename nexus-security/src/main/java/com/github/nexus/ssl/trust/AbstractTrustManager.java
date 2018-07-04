@@ -4,18 +4,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.X509TrustManager;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class AbstractTrustManager implements X509TrustManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTrustManager.class);
 
-    private File knownHostsFile;
+    private Path knownHostsFile;
     private List<String> certificates;
 
-    public AbstractTrustManager(final File knownHostsFile) throws IOException {
+    public AbstractTrustManager(final Path knownHostsFile) throws IOException {
         this.knownHostsFile = knownHostsFile;
         certificates = new ArrayList<>();
         getWhiteListedCertificateForServerAddress();
@@ -26,8 +32,8 @@ public abstract class AbstractTrustManager implements X509TrustManager {
 
     private void getWhiteListedCertificateForServerAddress() throws IOException {
 
-        if (knownHostsFile.exists()){
-            try (BufferedReader reader = new BufferedReader(new FileReader(knownHostsFile))){
+        if (Files.exists(knownHostsFile)){
+            try (BufferedReader reader = Files.newBufferedReader(knownHostsFile)) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     this.certificates.add(line);
@@ -38,18 +44,15 @@ public abstract class AbstractTrustManager implements X509TrustManager {
 
     protected void generateWhiteListedFileIfNotExisted() throws IOException {
 
-        if (!knownHostsFile.exists()) {
+        if (Files.notExists(knownHostsFile)) {
 
-            final File parentDirectory = knownHostsFile.getParentFile();
+            final Path parentDirectory = knownHostsFile.getParent();
 
-            if (parentDirectory != null && !parentDirectory.exists())
-                if (!parentDirectory.mkdirs()) {
-                    throw new IOException("Fail to create directory");
-                }
-
-            if (!knownHostsFile.createNewFile()) {
-                throw new IOException("Fail to create file");
+            if (Objects.nonNull(parentDirectory) && Files.notExists(parentDirectory)) {
+                Files.createDirectory(parentDirectory);
             }
+
+            Files.createFile(knownHostsFile);
         }
     }
 
@@ -60,7 +63,7 @@ public abstract class AbstractTrustManager implements X509TrustManager {
 
         this.certificates.add(thumbPrint);
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(knownHostsFile, true)))
+        try (BufferedWriter writer = Files.newBufferedWriter(knownHostsFile, StandardOpenOption.APPEND))
         {
             writer.write(thumbPrint);
             writer.newLine();
