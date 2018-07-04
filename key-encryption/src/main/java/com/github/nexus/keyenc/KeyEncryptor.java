@@ -4,7 +4,7 @@ import com.github.nexus.nacl.Key;
 
 /**
  * Provides key encryption and decryption for private keys
- *  into the representation expected by a private key file
+ * into the representation expected by a private key file
  */
 public interface KeyEncryptor {
 
@@ -22,8 +22,7 @@ public interface KeyEncryptor {
 
     /**
      * Decrypts a private key using the password and information provided by the
-     * given JSON object. What information the object contains is up to the
-     * implementor.
+     * given JSON object. What information the object contains is up to the implementor.
      *
      * @param privateKey
      * @return the decrypted private key
