@@ -153,10 +153,26 @@ public class PartyInfoPollerTest {
     @Test
     public void runThrowsException() {
 
-        UnsupportedOperationException someException
-                = new UnsupportedOperationException("OUCH");
+        String url = "http://bogus.com:9878";
+        String ownURL = "http://own.com:8080";
+        byte[] response = "BOGUS".getBytes();
 
-        when(partyInfoService.getPartyInfo()).thenThrow(someException);
+        PartyInfo partyInfo = mock(PartyInfo.class);
+        Party party = mock(Party.class);
+        when(party.getUrl()).thenReturn(url);
+        when(partyInfo.getUrl()).thenReturn(ownURL);
+        when(partyInfo.getParties()).thenReturn(singleton(party));
+
+        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+
+        when(partyInfoParser.to(partyInfo)).thenReturn("BOGUS".getBytes());
+
+        PartyInfo updatedPartyInfo = mock(PartyInfo.class);
+        when(partyInfoParser.from(response)).thenReturn(updatedPartyInfo);
+
+        UnsupportedOperationException someException
+            = new UnsupportedOperationException("OUCH");
+        doThrow(someException).when(postDelegate).doPost(url, ApiPath.PARTYINFO, response);
 
         try {
             partyInfoPoller.run();
@@ -164,11 +180,15 @@ public class PartyInfoPollerTest {
         } catch (UnsupportedOperationException ex) {
             assertThat(ex).isSameAs(someException);
         }
+
         verify(partyInfoService).getPartyInfo();
+        verify(partyInfoService, times(0)).updatePartyInfo(updatedPartyInfo);
+        verify(partyInfoParser, times(0)).from(response);
+        verify(partyInfoParser).to(partyInfo);
     }
 
     @Test
-    public void runThrowsConnectionExceptionAndDoesnotThrow() {
+    public void runThrowsConnectionExceptionAndDoesNotThrow() {
         String url = "http://bogus.com:9878";
         String ownURL = "http://own.com:8080";
         byte[] response = "BOGUS".getBytes();
