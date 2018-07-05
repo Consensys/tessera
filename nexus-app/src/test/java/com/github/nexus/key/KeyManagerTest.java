@@ -1,13 +1,11 @@
 package com.github.nexus.key;
 
-import com.github.nexus.config.ArgonOptions;
 import com.github.nexus.config.Config;
 import com.github.nexus.config.KeyData;
 import com.github.nexus.config.KeyDataConfig;
 import com.github.nexus.config.PrivateKeyType;
 import com.github.nexus.config.keys.KeyConfig;
 import com.github.nexus.config.keys.KeyEncryptor;
-
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import org.junit.Before;
@@ -17,9 +15,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import java.util.Arrays;
-
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,18 +38,19 @@ public class KeyManagerTest {
     public void init() {
 
         this.keyPair = new KeyPair(
-                new Key(PUBLIC_KEY.getBytes(UTF_8)),
-                new Key(PRIVATE_KEY.getBytes(UTF_8))
+            new Key(PUBLIC_KEY.getBytes(UTF_8)),
+            new Key(PRIVATE_KEY.getBytes(UTF_8))
         );
-
-        KeyDataConfig privateKeyConfig = mock(KeyDataConfig.class);
-        when(privateKeyConfig.getValue()).thenReturn(keyPair.getPrivateKey().toString());
-        when(privateKeyConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
 
         final Config configuration = mock(Config.class);
 
-        KeyData keyData = new KeyData(privateKeyConfig, null, keyPair.getPublicKey().toString());
-        when(configuration.getKeys()).thenReturn(Arrays.asList(keyData));
+        KeyData keyData = new KeyData(
+            null,
+            keyPair.getPrivateKey().toString(),
+            keyPair.getPublicKey().toString()
+        );
+
+        when(configuration.getKeys()).thenReturn(singletonList(keyData));
 
         this.keyEncryptor = mock(KeyEncryptor.class);
 
@@ -65,7 +63,7 @@ public class KeyManagerTest {
         final Config configuration = mock(Config.class);
         when(configuration.getKeys()).thenReturn(emptyList());
         final Throwable throwable = catchThrowable(
-                () -> new KeyManagerImpl(keyEncryptor, configuration)
+            () -> new KeyManagerImpl(keyEncryptor, configuration)
         );
 
         assertThat(throwable).isInstanceOf(NoSuchElementException.class);
@@ -133,24 +131,6 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void loadingPrivateKeyWithPasswordCallsKeyEncryptor() {
-
-        KeyDataConfig privateKeyConfig = mock(KeyDataConfig.class);
-        when(privateKeyConfig.getType()).thenReturn(PrivateKeyType.LOCKED);
-        ArgonOptions argonOptions = mock(ArgonOptions.class);
-        when(privateKeyConfig.getArgonOptions()).thenReturn(argonOptions);
-
-        final KeyData keyData = new KeyData(privateKeyConfig, null, keyPair.getPublicKey().toString());
-
-        doReturn(new Key(new byte[]{})).when(keyEncryptor).decryptPrivateKey(any(KeyConfig.class));
-
-        keyManager.loadKeypair(keyData);
-
-        verify(keyEncryptor)
-                .decryptPrivateKey(any(KeyConfig.class));
-    }
-
-    @Test
     public void loadingPrivateKeyWithPasswordValueDoesnotCallEncrpter() {
 
         KeyDataConfig privateKeyConfig = mock(KeyDataConfig.class);
@@ -162,17 +142,6 @@ public class KeyManagerTest {
         keyManager.loadKeypair(keyData);
 
         verifyZeroInteractions(keyEncryptor);
-
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void loadingPrivateKeyWithNopPasswordOrConfigThrowsException() {
-
-        final KeyData keyData = new KeyData(null, null, keyPair.getPublicKey().toString());
-
-        doReturn(new Key(new byte[]{})).when(keyEncryptor).decryptPrivateKey(any(KeyConfig.class));
-
-        keyManager.loadKeypair(keyData);
 
     }
 
