@@ -63,34 +63,38 @@ public class PartyInfoPoller implements Runnable {
     public void run() {
         LOGGER.debug("Polling {}", getClass().getSimpleName());
 
+        final PartyInfo partyInfo = partyInfoService.getPartyInfo();
+
+        final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
+
+        final Set<Party> partySet = partyInfo.getParties().stream().collect(Collectors.toSet());
+
+        partySet.stream()
+            .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
+            .map(Party::getUrl)
+            .forEach(url -> pollSingleParty(url, encodedPartyInfo));
+
+        LOGGER.debug("Polled {}. PartyInfo : {}", getClass().getSimpleName(), partyInfo);
+    }
+
+    private void pollSingleParty(final String url, final byte[] encodedPartyInfo) {
         try {
+            byte[] response = postDelegate.doPost(url, ApiPath.PARTYINFO, encodedPartyInfo);
+            if (null != response) {
+                PartyInfo partyInfo = partyInfoParser.from(response);
+                partyInfoService.updatePartyInfo(partyInfo);
+            }
 
-            final PartyInfo partyInfo = partyInfoService.getPartyInfo();
-
-            final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
-
-            final Set<Party> partySet = partyInfo.getParties().stream().collect(Collectors.toSet());
-
-            partySet.stream()
-                    .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
-                    .map(Party::getUrl)
-                    .map(url -> postDelegate.doPost(url, ApiPath.PARTYINFO, encodedPartyInfo))
-                    .filter(response -> response != null)
-                    .map(partyInfoParser::from)
-                    .forEach(partyInfoService::updatePartyInfo);
-
-            LOGGER.debug("Polled {}. PartyInfo : {}", getClass().getSimpleName(), partyInfo);
         } catch (Throwable ex) {
 
             if (ConnectException.class.isInstance(ex.getCause())) {
-                LOGGER.warn("Server error {}", ex.getMessage());
+                LOGGER.warn("Server error {} when connecting to {}", ex.getMessage(), url);
                 LOGGER.debug(null, ex);
             } else {
                 LOGGER.error("Error thrown while executing poller. ", ex);
                 throw ex;
             }
         }
-
     }
 
 }
