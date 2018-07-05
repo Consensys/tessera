@@ -17,7 +17,10 @@ If you want to use an alternative database then you'll need to add the drivers t
 `java -cp some-jdbc-driver.jar -jar /somewhere/nexus-app.jar`
 
 
-See the section on 'Configuration' for a description of the available properties.
+## Configuration
+
+A configuration file must be specified using the `-configfile /path/to/config.json`
+command line property.
 
 A sample configuration can be found [here](https://raw.githubusercontent.com/QuorumEngineering/Nexus/master/nexus-config/src/test/resources/sample_full.json)
 
@@ -180,10 +183,6 @@ Details to be provided
 **delete** - _Delete a transaction_ 
 
 Details to be provided
-
-## Configuration
-
-#### Configuration sources
 
 ## Building Nexus
 
