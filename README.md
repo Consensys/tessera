@@ -19,40 +19,15 @@ If you want to use an alternative database then you'll need to add the drivers t
 
 See the section on 'Configuration' for a description of the available properties.
 
-```
-{
-    "useWhiteList": false,
-    "jdbc": {
-        "username": "sa",
-        "password": "",
-        "url": "jdbc:h2:./target/h2/nexus1"
-    },
-    "server": {
-        "port": 8080,
-        "hostName": "http://localhost"
-    },
-    "peer": [
-        {
-            "url": "http://localhost:8081"
-        }
-    ],
-    "keys": [
-        {
-            "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
-            "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-        }
-    ],
-    "unixSocketFile": "/tmp/tm1.ipc"
-}
-```
+A sample configuration can be found [here](https://raw.githubusercontent.com/QuorumEngineering/Nexus/master/nexus-config/src/test/resources/sample_full.json)
 
-Keys can be provided using values, for example 
+Keys can be provided using direct values, like in the example above,
+or by providing the format produced by previous versions. Just replace the
+`privateKey` field with the data in those files under a `config` key.
+
+Below is a sample snippet:
 
 ```
-{
-    "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
-    "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-}
 
 {
     "config": {
@@ -72,9 +47,8 @@ Keys can be provided using values, for example
                 "memory": 1048576,
                 "iterations": 10,
                 "parallelism": 4,
-                "version": "1.3"
             },
-            "password": "q",
+            "password": "password",
             "snonce": "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
             "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
             "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
@@ -115,6 +89,7 @@ Password protected key:
             "memory": 1048576,
             "iterations": 10,
             "parallelism": 4,
+
         },
         "password": "passwordToUse",
     },
