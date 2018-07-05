@@ -1,14 +1,14 @@
-package com.github.nexus.keygen;
+package com.github.nexus.keyenc;
 
 import com.github.nexus.argon2.ArgonOptions;
 import com.github.nexus.config.KeyData;
 import com.github.nexus.config.PrivateKey;
 import com.github.nexus.config.PrivateKeyType;
-import com.github.nexus.keyenc.KeyConfig;
-import com.github.nexus.keyenc.KeyEncryptor;
+import com.github.nexus.keyenc.*;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import com.github.nexus.nacl.NaclFacade;
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,10 +88,10 @@ public class KeyGeneratorTest {
 
         JsonObject privateKeyJson = Json.createReader(new StringReader(privateKeyData)).readObject();
 
-        assertThat(privateKeyJson).containsOnlyKeys("data", "type");
+        Assertions.assertThat(privateKeyJson).containsOnlyKeys("data", "type");
 
-        assertThat(privateKeyJson.getJsonObject("data")).containsOnlyKeys("bytes");
-        assertThat(privateKeyJson.getJsonObject("data").getString("bytes")).isEqualTo("cHJpdmF0ZUtleQ==");
+        Assertions.assertThat(privateKeyJson.getJsonObject("data")).containsOnlyKeys("bytes");
+        Assertions.assertThat(privateKeyJson.getJsonObject("data").getString("bytes")).isEqualTo("cHJpdmF0ZUtleQ==");
 
         verify(nacl).generateNewKeys();
 
@@ -130,13 +130,13 @@ public class KeyGeneratorTest {
 
         JsonObject privateKeyJson = Json.createReader(new StringReader(privateKeyData)).readObject();
 
-        assertThat(privateKeyJson).containsOnlyKeys("data", "type");
-        assertThat(privateKeyJson.getString("type")).isEqualTo("argon2sbox");
+        Assertions.assertThat(privateKeyJson).containsOnlyKeys("data", "type");
+        Assertions.assertThat(privateKeyJson.getString("type")).isEqualTo("argon2sbox");
 
-        assertThat(privateKeyJson.getJsonObject("data"))
+        Assertions.assertThat(privateKeyJson.getJsonObject("data"))
             .containsOnlyKeys("aopts", "snonce", "sbox", "asalt");
 
-        assertThat(privateKeyJson.getJsonObject("data").getJsonObject("aopts"))
+        Assertions.assertThat(privateKeyJson.getJsonObject("data").getJsonObject("aopts"))
             .containsOnlyKeys("variant", "memory", "iterations", "parallelism");
 
         verify(nacl).generateNewKeys();

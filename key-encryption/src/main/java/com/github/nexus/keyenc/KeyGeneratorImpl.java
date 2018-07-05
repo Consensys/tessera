@@ -1,10 +1,8 @@
-package com.github.nexus.keygen;
+package com.github.nexus.keyenc;
 
 import com.github.nexus.config.KeyData;
 import com.github.nexus.config.PrivateKey;
 import com.github.nexus.config.PrivateKeyType;
-import com.github.nexus.keyenc.KeyConfig;
-import com.github.nexus.keyenc.KeyEncryptor;
 import com.github.nexus.nacl.KeyPair;
 import com.github.nexus.nacl.NaclFacade;
 import org.slf4j.Logger;

@@ -3,8 +3,8 @@ package com.github.nexus.config.cli;
 import com.github.nexus.config.Config;
 import com.github.nexus.config.ConfigFactory;
 import com.github.nexus.config.constraints.KeyGen;
-import com.github.nexus.keygen.KeyGenerator;
-import com.github.nexus.keygen.KeyGeneratorFactory;
+import com.github.nexus.keyenc.KeyGenerator;
+import com.github.nexus.keyenc.KeyGeneratorFactory;
 import org.apache.commons.cli.*;
 
 import javax.validation.ConstraintViolation;

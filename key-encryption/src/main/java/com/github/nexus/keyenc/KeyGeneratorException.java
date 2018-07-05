@@ -1,11 +1,9 @@
-
-package com.github.nexus.keygen;
-
+package com.github.nexus.keyenc;
 
 public class KeyGeneratorException extends RuntimeException {
 
-    public KeyGeneratorException(Throwable cause) {
+    public KeyGeneratorException(final Throwable cause) {
         super(cause);
     }
-    
+
 }
