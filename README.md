@@ -95,12 +95,16 @@ nexus -configfile config.json -keygen /path/to/config1 /path/to/config2
 This will check the given paths for configuration of the private keys.
 The configuration for these is the same as what is produced for a key, e.g.
 
+Plaintext key:
+
 /path/to/config1
 ```
 {
     "type": "unlocked"
 }
 ```
+
+Password protected key:
 
 /path/to/config2
 ```
@@ -111,7 +115,6 @@ The configuration for these is the same as what is produced for a key, e.g.
             "memory": 1048576,
             "iterations": 10,
             "parallelism": 4,
-            "version": "1.3"
         },
         "password": "passwordToUse",
     },
