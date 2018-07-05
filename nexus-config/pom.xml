@@ -27,9 +27,9 @@
             <groupId>org.glassfish</groupId>
             <artifactId>javax.json</artifactId>
         </dependency>
-                
 
-                
+
+
         <dependency>
             <groupId>com.openpojo</groupId>
             <artifactId>openpojo</artifactId>
@@ -45,10 +45,15 @@
             <artifactId>nexus-test-util</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.github.nexus</groupId>
-            <artifactId>key-encryption</artifactId>
+            <artifactId>argon2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-encryption</artifactId>
         </dependency>
         
         <dependency>
