@@ -26,10 +26,7 @@
             <artifactId>nexus-config</artifactId>
         </dependency>
         
-        <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>nexus-keygen</artifactId>
-        </dependency>
+
 
         <dependency>
             <groupId>javax.validation</groupId>

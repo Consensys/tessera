@@ -190,7 +190,6 @@
 
     <modules>
         <module>argon2</module>
-        <module>key-encryption</module>
         <module>nexus-app</module>
         <module>nexus-security</module>
         <module>nexus-config</module>
@@ -221,11 +220,7 @@
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.github.nexus</groupId>
-                <artifactId>nexus-keygen</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
+
 
             <dependency>
                 <groupId>com.github.nexus</groupId>
@@ -307,12 +302,6 @@
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.github.nexus</groupId>
-                <artifactId>key-encryption</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            
             <dependency>
                 <groupId>com.github.nexus</groupId>
                 <artifactId>nexus-test-util</artifactId>

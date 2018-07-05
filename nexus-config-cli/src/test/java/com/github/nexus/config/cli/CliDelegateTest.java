@@ -8,6 +8,7 @@ import javax.validation.ConstraintViolationException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,10 +78,13 @@ public class CliDelegateTest {
     @Test
     public void keygen() throws Exception {
 
+        Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
+
         CliResult result = cliDelegate.execute(
-            "-keygen",
-            "-configfile",
-            getClass().getResource("/keygen-sample.json").getFile());
+                "-keygen",
+                keyConfigPath.toString(),
+                "-configfile",
+                getClass().getResource("/keygen-sample.json").getFile());
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);

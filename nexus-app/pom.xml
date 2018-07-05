@@ -34,11 +34,6 @@
 
         <dependency>
             <groupId>com.github.nexus</groupId>
-            <artifactId>key-encryption</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.nexus</groupId>
             <artifactId>nexus-socket</artifactId>
             <scope>runtime</scope>
         </dependency>

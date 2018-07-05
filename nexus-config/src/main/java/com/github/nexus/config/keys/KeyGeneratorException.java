@@ -1,4 +1,4 @@
-package com.github.nexus.keyenc;
+package com.github.nexus.config.keys;
 
 public class KeyGeneratorException extends RuntimeException {
 

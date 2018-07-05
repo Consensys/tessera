@@ -2,6 +2,7 @@ package com.github.nexus.config.cli;
 
 import com.github.nexus.config.Config;
 import com.github.nexus.config.ConfigFactory;
+import com.github.nexus.config.util.JaxbUtil;
 import org.apache.commons.cli.*;
 
 import javax.validation.ConstraintViolation;
@@ -13,7 +14,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 public enum CliDelegate {
@@ -41,10 +44,12 @@ public enum CliDelegate {
                         .required()
                         .build());
 
+        //If keygen then we require the path to the private key config path
         options.addOption(
                 Option.builder("keygen")
                         .desc("Create missing ssl key files")
-                        .hasArg(false)
+                        .hasArg(true)
+                        .numberOfArgs(1)
                         .build());
 
         options.addOption(
@@ -58,12 +63,14 @@ public enum CliDelegate {
         if (Arrays.asList(args).contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("nexus", options);
-            return new CliResult(0,  null);
+            return new CliResult(0, null);
         }
 
         CommandLineParser parser = new DefaultParser();
 
         final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+        final ConfigFactory configFactory = ConfigFactory.create();
 
         try {
 
@@ -75,39 +82,32 @@ public enum CliDelegate {
                 throw new FileNotFoundException(String.format("%s not found.", path));
             }
 
-            try (InputStream in = Files.newInputStream(path)) {
-                this.config = ConfigFactory.create().create(in);
+            List<InputStream> keyGetConfigs = new ArrayList<>();
+            if (line.hasOption("keygen")) {
+                String[] keyGenConfigFiles = line.getOptionValues("keygen");
+
+                for (final String pathStr : keyGenConfigFiles) {
+                    keyGetConfigs.add(
+                        Files.newInputStream(
+                            Paths.get(pathStr)
+                        )
+                    );
+                }
             }
 
-//            if (line.hasOption("keygen")) {
-//
-//                Set<ConstraintViolation<Config>> keyGenViolations = validator.validate(config, KeyGen.class);
-//                if(!keyGenViolations.isEmpty()) {
-//                    throw new ConstraintViolationException(keyGenViolations);
-//                }
-//
-//                KeyGenerator keyGenerator = KeyGeneratorFactory.create();
-//
-//                config.getKeys().stream()
-//                        .forEach(keyGenerator::generate);
-//
-//                try (final Writer writer = new StringWriter()) {
-//
-//                    JAXB.marshal(config, writer);
-//
-//                    final String data = writer.toString();
-//
-//                    try (Reader reader = new StringReader(data)) {
-//                        Config newConfig = JAXB.unmarshal(new StreamSource(reader), Config.class);
-//                        return new CliResult(0, newConfig);
-//                    }
-//                }
-//            }
+            try (InputStream in = Files.newInputStream(path)) {
+                this.config = configFactory.create(in, keyGetConfigs.toArray(new InputStream[0]));
+            }
 
             Set<ConstraintViolation<Config>> violations = validator.validate(config);
 
             if (!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);
+            }
+
+            if(!keyGetConfigs.isEmpty()) {
+                //we have generated new keys, so we need to output the new configuration
+                System.out.println(JaxbUtil.marshalToString(this.config));
             }
 
             return new CliResult(0, config);

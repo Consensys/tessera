@@ -1,8 +1,11 @@
-package com.github.nexus.keyenc;
+package com.github.nexus.config.keys;
 
 import com.github.nexus.argon2.Argon2;
 import com.github.nexus.argon2.ArgonOptions;
 import com.github.nexus.argon2.ArgonResult;
+import com.github.nexus.config.keys.KeyConfig;
+import com.github.nexus.config.keys.KeyEncryptor;
+import com.github.nexus.config.keys.KeyEncryptorImpl;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.NaclFacade;
 import com.github.nexus.nacl.Nonce;

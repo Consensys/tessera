@@ -1,4 +1,4 @@
-package com.github.nexus.keyenc;
+package com.github.nexus.config.keys;
 
 import com.github.nexus.argon2.Argon2;
 import com.github.nexus.nacl.NaclFacadeFactory;

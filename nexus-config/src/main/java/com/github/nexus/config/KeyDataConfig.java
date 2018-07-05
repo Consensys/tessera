@@ -1,14 +1,17 @@
 package com.github.nexus.config;
 
 import com.github.nexus.config.adapters.PrivateKeyTypeAdapter;
-
 import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
-public class PrivateKey {
+public class KeyDataConfig {
 
     @NotNull
     @XmlElement(name = "data")
@@ -19,13 +22,13 @@ public class PrivateKey {
     @XmlJavaTypeAdapter(PrivateKeyTypeAdapter.class)
     private final PrivateKeyType type;
 
-    public PrivateKey(PrivateKeyData privateKeyData, PrivateKeyType type) {
+    public KeyDataConfig(PrivateKeyData privateKeyData, PrivateKeyType type) {
         this.privateKeyData = privateKeyData;
         this.type = type;
     }
 
-    private static PrivateKey create() {
-        return new PrivateKey(null, null);
+    private static KeyDataConfig create() {
+        return new KeyDataConfig(null, null);
     }
 
     public PrivateKeyType getType() {

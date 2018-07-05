@@ -1,6 +1,5 @@
 package com.github.nexus.config;
 
-import com.github.nexus.test.util.ElUtil;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -8,8 +7,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,21 +32,22 @@ public class ConfigFactoryTest {
 
         assertThat(config.getKeys()).hasSize(1);
 
-        PrivateKey privateKey = config.getKeys().stream()
-                .map(KeyData::getPrivateKey).findAny().get();
+        KeyData keyData = config.getKeys().get(0);
 
-        assertThat(privateKey.getType()).isEqualTo(PrivateKeyType.LOCKED);
-        assertThat(privateKey.getPrivateKeyData()).isNotNull();
+        assertThat(keyData.getConfig()).isNotNull();
 
-        assertThat(privateKey.getPrivateKeyData().getSnonce()).isEqualTo("x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC");
-        assertThat(privateKey.getPrivateKeyData().getAsalt()).isEqualTo("7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=");
-        assertThat(privateKey.getPrivateKeyData().getSbox()).isEqualTo("d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc");
+        assertThat(keyData.getConfig().getType()).isEqualTo(PrivateKeyType.LOCKED);
+        assertThat(keyData.getConfig().getPrivateKeyData()).isNotNull();
 
-        assertThat(privateKey.getPrivateKeyData().getArgonOptions()).isNotNull();
-        assertThat(privateKey.getPrivateKeyData().getArgonOptions().getAlgorithm()).isEqualTo("id");
-        assertThat(privateKey.getPrivateKeyData().getArgonOptions().getIterations()).isEqualTo(10);
-        assertThat(privateKey.getPrivateKeyData().getArgonOptions().getParallelism()).isEqualTo(4);
-        assertThat(privateKey.getPrivateKeyData().getArgonOptions().getMemory()).isEqualTo(1048576);
+        assertThat(keyData.getConfig().getPrivateKeyData().getSnonce()).isEqualTo("x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC");
+        assertThat(keyData.getConfig().getPrivateKeyData().getAsalt()).isEqualTo("7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=");
+        assertThat(keyData.getConfig().getPrivateKeyData().getSbox()).isEqualTo("d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc");
+
+        assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions()).isNotNull();
+        assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions().getAlgorithm()).isEqualTo("id");
+        assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions().getIterations()).isEqualTo(10);
+        assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions().getParallelism()).isEqualTo(4);
+        assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions().getMemory()).isEqualTo(1048576);
 
     }
 
@@ -67,88 +65,34 @@ public class ConfigFactoryTest {
     }
 
     @Test
-    public void createFromSampleKeyFilePathsOnly() throws Exception {
-
-        ConfigFactory configFactory = ConfigFactory.create();
-
-        assertThat(configFactory).isExactlyInstanceOf(JaxbConfigFactory.class);
-
-        Path keyFile = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("privateKeyFile", keyFile.toAbsolutePath().toString());
-
-        InputStream inputStream = ElUtil.process(getClass().getResourceAsStream("/sample-private-key-file-path.json"), params);
-
-        Config config = configFactory.create(inputStream);
-        assertThat(config).isNotNull();
-
-        assertThat(config.isUseWhiteList()).isFalse();
-
-        assertThat(config.getJdbcConfig().getUsername()).isEqualTo("scott");
-
-        assertThat(config.getPeers()).hasSize(2);
-
-        assertThat(config.getKeys()).hasSize(1);
-
-        PrivateKey privateKey = config.getKeys().stream()
-                .map(KeyData::getPrivateKey).findAny().get();
-
-        assertThat(privateKey.getType()).isEqualTo(PrivateKeyType.LOCKED);
-        assertThat(privateKey.getPrivateKeyData()).isNotNull();
-
-        assertThat(privateKey.getPrivateKeyData().getSnonce()).isEqualTo("x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC");
-        assertThat(privateKey.getPrivateKeyData().getAsalt()).isEqualTo("7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=");
-        assertThat(privateKey.getPrivateKeyData().getSbox()).isEqualTo("d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc");
-
-        assertThat(privateKey.getPrivateKeyData().getArgonOptions()).isNotNull();
-        assertThat(privateKey.getPrivateKeyData().getArgonOptions().getAlgorithm()).isEqualTo("id");
-        assertThat(privateKey.getPrivateKeyData().getArgonOptions().getIterations()).isEqualTo(10);
-        assertThat(privateKey.getPrivateKeyData().getArgonOptions().getParallelism()).isEqualTo(4);
-        assertThat(privateKey.getPrivateKeyData().getArgonOptions().getMemory()).isEqualTo(1048576);
-
-    }
-
-    @Test
     public void createFromKeyGenSample() throws Exception {
 
-        ConfigFactory configFactory = ConfigFactory.create();
-
+        final ConfigFactory configFactory = ConfigFactory.create();
         assertThat(configFactory).isExactlyInstanceOf(JaxbConfigFactory.class);
 
-        Path keyFile = Paths.get(getClass().getResource("/sample-private-keygen.json").toURI());
-        Map<String, Object> params = new HashMap<>();
-        params.put("privateKeyFile", keyFile.toAbsolutePath().toString());
+        final Path keyFile = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
 
-        InputStream inputStream = ElUtil.process(Files.newInputStream(keyFile), params);
+        final Path configFile = Paths.get(getClass().getResource("/sample-private-keygen.json").toURI());
 
-        Config config = configFactory.create(inputStream);
+        Config config = configFactory.create(Files.newInputStream(configFile), Files.newInputStream(keyFile));
+
         assertThat(config).isNotNull();
-
-        assertThat(config.isUseWhiteList()).isFalse();
-
-        assertThat(config.getJdbcConfig().getUsername()).isEqualTo("scott");
-
-        assertThat(config.getPeers()).hasSize(2);
-
         assertThat(config.getKeys()).hasSize(1);
 
-        PrivateKey privateKey = config.getKeys().stream()
-                .map(KeyData::getPrivateKey).findAny().get();
+        KeyDataConfig keyDataConfig = config.getKeys().get(0).getConfig();
 
-        assertThat(privateKey.getType()).isEqualTo(PrivateKeyType.LOCKED);
+        assertThat(keyDataConfig.getType()).isEqualTo(PrivateKeyType.LOCKED);
+        assertThat(keyDataConfig.getPrivateKeyData()).isNotNull();
 
-        assertThat(privateKey.getPrivateKeyData()).isNotNull();
+        assertThat(keyDataConfig.getPrivateKeyData().getSnonce()).isNotEmpty();
+        assertThat(keyDataConfig.getPrivateKeyData().getAsalt()).isNotEmpty();
+        assertThat(keyDataConfig.getPrivateKeyData().getSbox()).isNotEmpty();
 
-        assertThat(privateKey.getPrivateKeyData().getSnonce()).isEqualTo("x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC");
-        assertThat(privateKey.getPrivateKeyData().getAsalt()).isEqualTo("7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=");
-        assertThat(privateKey.getPrivateKeyData().getSbox()).isEqualTo("d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc");
-
-        assertThat(privateKey.getPrivateKeyData().getArgonOptions()).isNotNull();
-        assertThat(privateKey.getPrivateKeyData().getArgonOptions().getAlgorithm()).isEqualTo("id");
-        assertThat(privateKey.getPrivateKeyData().getArgonOptions().getIterations()).isEqualTo(10);
-        assertThat(privateKey.getPrivateKeyData().getArgonOptions().getParallelism()).isEqualTo(4);
-        assertThat(privateKey.getPrivateKeyData().getArgonOptions().getMemory()).isEqualTo(1048576);
+        assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions()).isNotNull();
+        assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getAlgorithm()).isEqualTo("i");
+        assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getIterations()).isEqualTo(10);
+        assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getParallelism()).isEqualTo(4);
+        assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getMemory()).isEqualTo(1048576);
 
     }
 }

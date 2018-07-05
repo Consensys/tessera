@@ -1,8 +1,8 @@
-package com.github.nexus.keyenc;
+package com.github.nexus.config.keys;
 
 import com.github.nexus.argon2.ArgonOptions;
 import com.github.nexus.config.KeyData;
-import com.github.nexus.config.PrivateKey;
+import com.github.nexus.config.KeyDataConfig;
 import com.github.nexus.config.PrivateKeyData;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
@@ -56,14 +56,11 @@ public class KeyGeneratorTest {
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
-        final PrivateKey privateKey = new PrivateKey(null, UNLOCKED);
-        final KeyData keyData = new KeyData(privateKey, "publicKey");
-
-        final KeyData generated = generator.generate(keyData);
+        final KeyData generated = generator.generate(new KeyDataConfig(null, UNLOCKED));
 
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
-        assertThat(generated.getPrivateKey().getValue()).isEqualTo("cHJpdmF0ZUtleQ==");
-        assertThat(generated.getPrivateKey().getType()).isEqualTo(UNLOCKED);
+        assertThat(generated.getPrivateKey()).isEqualTo("cHJpdmF0ZUtleQ==");
+        assertThat(generated.getConfig().getType()).isEqualTo(UNLOCKED);
 
         verify(nacl).generateNewKeys();
 
@@ -83,7 +80,7 @@ public class KeyGeneratorTest {
 
         doReturn(encrypedPrivateKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
 
-        final PrivateKey privateKey = new PrivateKey(
+        final KeyDataConfig privateKeyConfig = new KeyDataConfig(
             new PrivateKeyData(
                 null,
                 null,
@@ -111,16 +108,14 @@ public class KeyGeneratorTest {
 
         doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
 
-        final KeyData keyData = new KeyData(privateKey, null);
-
-        final KeyData generated = generator.generate(keyData);
+        final KeyData generated = generator.generate(privateKeyConfig);
 
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
-        assertThat(generated.getPrivateKey().getPassword()).isEqualTo("PASSWORD");
-        assertThat(generated.getPrivateKey().getSbox()).isEqualTo("sbox");
-        assertThat(generated.getPrivateKey().getSnonce()).isEqualTo("snonce");
-        assertThat(generated.getPrivateKey().getAsalt()).isEqualTo("salt");
-        assertThat(generated.getPrivateKey().getType()).isEqualTo(LOCKED);
+        assertThat(generated.getConfig().getPassword()).isEqualTo("PASSWORD");
+        assertThat(generated.getConfig().getSbox()).isEqualTo("sbox");
+        assertThat(generated.getConfig().getSnonce()).isEqualTo("snonce");
+        assertThat(generated.getConfig().getAsalt()).isEqualTo("salt");
+        assertThat(generated.getConfig().getType()).isEqualTo(LOCKED);
 
         verify(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
         verify(nacl).generateNewKeys();

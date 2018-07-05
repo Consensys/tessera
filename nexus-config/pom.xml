@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -10,25 +10,24 @@
     <artifactId>nexus-config</artifactId>
     <packaging>jar</packaging>
     <dependencies>
-
-
+        
+        
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.moxy</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.el</artifactId>
-            <version>3.0.1-b10</version>
         </dependency>
 
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.json</artifactId>
         </dependency>
+
 
 
         <dependency>
@@ -40,11 +39,26 @@
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-test-util</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>argon2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-encryption</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.github.nexus</groupId>
+            <artifactId>nexus-encryption-jnacl</artifactId>
         </dependency>
 
     </dependencies>
