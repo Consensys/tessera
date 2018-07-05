@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" 
+<beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -8,7 +8,7 @@
                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
     <tx:annotation-driven transaction-manager="jpaTransactionManager" />
-    
+
     <context:component-scan base-package="com.github.nexus" />
 
     <!-- Resources -->
@@ -63,7 +63,7 @@
         </bean>
 
         <bean class="com.github.nexus.api.filter.LoggingFilter" />
-        
+
         <bean class="com.github.nexus.api.filter.IPWhitelistFilter">
             <constructor-arg ref="config"/>
         </bean>
@@ -99,21 +99,20 @@
         </bean>
 
         <bean name="keyManager" class="com.github.nexus.key.KeyManagerImpl">
-            <constructor-arg ref="keyEncryptor" />
             <constructor-arg ref="config" />
         </bean>
 
 
-        <bean id="cliDelegate" class="com.github.nexus.config.cli.CliDelegate" factory-method="instance"></bean>
+    <bean id="cliDelegate" class="com.github.nexus.config.cli.CliDelegate" factory-method="instance"/>
 
         <bean id="config" factory-bean="cliDelegate" factory-method="getConfig" />
 
         <bean name="naclFactory" class="com.github.nexus.nacl.NaclFacadeFactory" factory-method="newFactory" />
-    
+
         <bean name="nacl" factory-bean="naclFactory" factory-method="create" />
 
         <bean name="encryptedTransactionDAO" class="com.github.nexus.transaction.EncryptedTransactionDAOImpl" />
-        
+
         <bean class="com.github.nexus.api.exception.DefaultExceptionMapper" />
         <bean class="com.github.nexus.api.exception.DecodingExceptionMapper"/>
         <bean class="com.github.nexus.api.exception.KeyNotFoundExceptionMapper"/>
@@ -123,7 +122,7 @@
         <bean class="com.github.nexus.api.exception.EntityNotFoundExceptionMapper"/>
 
         <bean class="com.github.nexus.api.ApiResource" />
-    
+
         <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
             <property name="driverClassName" value="org.h2.Driver"/>
             <property name="url" value="#{ config.getJdbcConfig().getUrl() }" />
@@ -134,7 +133,7 @@
         <bean id="jpaTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
             <property name="entityManagerFactory" ref="entityManagerFactory" />
         </bean>
-    
+
         <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
 
 
@@ -148,24 +147,24 @@
             </property>
             <property name="jpaDialect">
                 <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaDialect" />
-            </property>  
-        
+            </property>
+
             <property name="jpaPropertyMap">
                 <props>
                     <prop key="eclipselink.weaving">false</prop>
                     <prop key="eclipselink.session-name">nexus</prop>
                     <!--                <prop key="eclipselink.logging.level">FINE</prop>-->
-                    <prop key="eclipselink.logging.logger">org.eclipse.persistence.logging.slf4j.SLF4JLogger</prop>                
+                    <prop key="eclipselink.logging.logger">org.eclipse.persistence.logging.slf4j.SLF4JLogger</prop>
                     <prop key="eclipselink.logging.session">false</prop>
 
                     <prop key="javax.persistence.schema-generation.database.action">create</prop>
                     <prop key="javax.persistence.schema-generation.scripts.action">none</prop>
 
                 </props>
-            </property>         
+            </property>
 
         </bean>
-    
+
         <beans profile="!disable-unixsocket">
             <bean id="socketServer" class="com.github.nexus.socket.SocketServerFactory" factory-method="createSocketServer">
                 <constructor-arg ref="config" />
@@ -178,5 +177,5 @@
                 <constructor-arg ref="socketServer" />
             </bean>
         </beans>
-    
+
 </beans>

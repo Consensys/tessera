@@ -1,9 +1,6 @@
 package com.github.nexus.key;
 
-
-import com.github.nexus.config.KeyData;
 import com.github.nexus.nacl.Key;
-import com.github.nexus.nacl.KeyPair;
 
 import java.util.Set;
 
@@ -35,15 +32,6 @@ public interface KeyManager {
     Key getPrivateKeyForPublicKey(Key publicKey);
 
     /**
-     * Loads the specified keys from file
-     * The password may be null if not required
-     *
-     * @param keyData a data object containing a public key, private key json and a password
-     * @return the loaded {@link KeyPair}
-     */
-    KeyPair loadKeypair(KeyData keyData);
-
-    /**
      * Return a list of all recipients public keys of this node
      *
      * @return the set of all public keys
@@ -53,7 +41,7 @@ public interface KeyManager {
     /**
      * Returns the default public key of this node if a transaction is
      * sent that doesn't have a sender.
-     *
+     * <p>
      * Must return the same key each time during a single run,
      * but no guarantee is made about which key is returned if the
      * application is restarted.

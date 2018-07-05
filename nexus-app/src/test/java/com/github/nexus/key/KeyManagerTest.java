@@ -2,10 +2,6 @@ package com.github.nexus.key;
 
 import com.github.nexus.config.Config;
 import com.github.nexus.config.KeyData;
-import com.github.nexus.config.KeyDataConfig;
-import com.github.nexus.config.PrivateKeyType;
-import com.github.nexus.config.keys.KeyConfig;
-import com.github.nexus.config.keys.KeyEncryptor;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import org.junit.Before;
@@ -19,8 +15,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class KeyManagerTest {
 
@@ -29,8 +25,6 @@ public class KeyManagerTest {
     private static final String PUBLIC_KEY = "publicKey";
 
     private KeyPair keyPair;
-
-    private KeyEncryptor keyEncryptor;
 
     private KeyManager keyManager;
 
@@ -52,9 +46,7 @@ public class KeyManagerTest {
 
         when(configuration.getKeys()).thenReturn(singletonList(keyData));
 
-        this.keyEncryptor = mock(KeyEncryptor.class);
-
-        this.keyManager = new KeyManagerImpl(keyEncryptor, configuration);
+        this.keyManager = new KeyManagerImpl(configuration);
     }
 
     @Test
@@ -62,9 +54,7 @@ public class KeyManagerTest {
         //throws error because there is no default key
         final Config configuration = mock(Config.class);
         when(configuration.getKeys()).thenReturn(emptyList());
-        final Throwable throwable = catchThrowable(
-            () -> new KeyManagerImpl(keyEncryptor, configuration)
-        );
+        final Throwable throwable = catchThrowable(() -> new KeyManagerImpl(configuration));
 
         assertThat(throwable).isInstanceOf(NoSuchElementException.class);
     }
@@ -106,22 +96,6 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void loadedKeysCanBeSearchedFor() {
-
-        KeyDataConfig privateKeyConfig = mock(KeyDataConfig.class);
-        when(privateKeyConfig.getValue()).thenReturn(keyPair.getPrivateKey().toString());
-        when(privateKeyConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
-
-        final KeyData keyData = new KeyData(privateKeyConfig, keyPair.getPrivateKey().toString(), keyPair.getPublicKey().toString());
-
-        final KeyPair loaded = keyManager.loadKeypair(keyData);
-
-        final Key result = keyManager.getPublicKeyForPrivateKey(loaded.getPrivateKey());
-
-        assertThat(result).isEqualTo(keyPair.getPublicKey());
-    }
-
-    @Test
     public void getPublicKeysReturnsAllKeys() {
         final Set<Key> publicKeys = keyManager.getPublicKeys();
 
@@ -131,23 +105,7 @@ public class KeyManagerTest {
     }
 
     @Test
-    public void loadingPrivateKeyWithPasswordValueDoesnotCallEncrpter() {
-
-        KeyDataConfig privateKeyConfig = mock(KeyDataConfig.class);
-
-        final KeyData keyData = new KeyData(privateKeyConfig, keyPair.getPrivateKey().toString(), keyPair.getPublicKey().toString());
-
-        doReturn(new Key(new byte[]{})).when(keyEncryptor).decryptPrivateKey(any(KeyConfig.class));
-
-        keyManager.loadKeypair(keyData);
-
-        verifyZeroInteractions(keyEncryptor);
-
-    }
-
-    @Test
     public void defaultKeyIsPopulated() {
-
         //the key manager is already set up with a keypair, so just check that
         assertThat(keyManager.defaultPublicKey()).isEqualTo(keyPair.getPublicKey());
     }
