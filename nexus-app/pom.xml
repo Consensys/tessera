@@ -29,7 +29,7 @@
 
         <dependency>
             <groupId>com.github.nexus</groupId>
-            <artifactId>key-encryption</artifactId>
+            <artifactId>nexus-encryption</artifactId>
         </dependency>
 
         <dependency>
