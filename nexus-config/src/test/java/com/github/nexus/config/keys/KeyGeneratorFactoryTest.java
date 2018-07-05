@@ -1,7 +1,7 @@
-package com.github.nexus.keyenc;
+package com.github.nexus.config.keys;
 
-import com.github.nexus.keyenc.KeyGenerator;
-import com.github.nexus.keyenc.KeyGeneratorFactory;
+import com.github.nexus.config.keys.KeyGenerator;
+import com.github.nexus.config.keys.KeyGeneratorFactory;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

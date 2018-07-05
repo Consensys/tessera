@@ -1,6 +1,7 @@
-package com.github.nexus.keyenc;
+package com.github.nexus.config.keys;
 
 import com.github.nexus.argon2.ArgonOptions;
+import com.github.nexus.config.keys.KeyConfig;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

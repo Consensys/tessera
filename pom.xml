@@ -190,7 +190,6 @@
 
     <modules>
         <module>argon2</module>
-        <module>key-encryption</module>
         <module>nexus-app</module>
         <module>nexus-security</module>
         <module>nexus-config</module>

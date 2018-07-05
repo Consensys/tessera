@@ -5,8 +5,8 @@ import com.github.nexus.config.Config;
 import com.github.nexus.config.KeyData;
 import com.github.nexus.config.KeyDataConfig;
 import com.github.nexus.config.PrivateKeyType;
-import com.github.nexus.keyenc.KeyConfig;
-import com.github.nexus.keyenc.KeyEncryptor;
+import com.github.nexus.config.keys.KeyConfig;
+import com.github.nexus.config.keys.KeyEncryptor;
 
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
@@ -18,9 +18,8 @@ import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.util.Arrays;
-import java.util.Collections;
+
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;

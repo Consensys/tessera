@@ -2,7 +2,13 @@ package com.github.nexus.config.cli;
 
 import com.github.nexus.config.Config;
 import com.github.nexus.config.ConfigFactory;
+import com.github.nexus.config.util.JaxbUtil;
+import org.apache.commons.cli.*;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -12,21 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
-import javax.validation.Validator;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 
 public enum CliDelegate {
 
@@ -53,7 +44,7 @@ public enum CliDelegate {
                         .required()
                         .build());
 
-//If keygen then we require the path to the private key config path
+        //If keygen then we require the path to the private key config path
         options.addOption(
                 Option.builder("keygen")
                         .desc("Create missing ssl key files")
@@ -95,11 +86,12 @@ public enum CliDelegate {
             if (line.hasOption("keygen")) {
                 String[] keyGenConfigFiles = line.getOptionValues("keygen");
 
-                List<Path> paths = Stream.of(keyGenConfigFiles)
-                        .map(Paths::get)
-                        .collect(Collectors.toList());
-                for (Path p : paths) {
-                    keyGetConfigs.add(Files.newInputStream(p));
+                for (final String pathStr : keyGenConfigFiles) {
+                    keyGetConfigs.add(
+                        Files.newInputStream(
+                            Paths.get(pathStr)
+                        )
+                    );
                 }
             }
 
@@ -111,6 +103,11 @@ public enum CliDelegate {
 
             if (!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);
+            }
+
+            if(!keyGetConfigs.isEmpty()) {
+                //we have generated new keys, so we need to output the new configuration
+                System.out.println(JaxbUtil.marshalToString(this.config));
             }
 
             return new CliResult(0, config);

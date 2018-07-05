@@ -5,8 +5,8 @@ import com.github.nexus.config.KeyData;
 import com.github.nexus.config.KeyDataConfig;
 import com.github.nexus.config.PrivateKeyType;
 import com.github.nexus.key.exception.KeyNotFoundException;
-import com.github.nexus.keyenc.KeyConfig;
-import com.github.nexus.keyenc.KeyEncryptor;
+import com.github.nexus.config.keys.KeyConfig;
+import com.github.nexus.config.keys.KeyEncryptor;
 import com.github.nexus.nacl.Key;
 import com.github.nexus.nacl.KeyPair;
 import java.nio.charset.StandardCharsets;
@@ -15,8 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class KeyManagerImpl implements KeyManager {
 

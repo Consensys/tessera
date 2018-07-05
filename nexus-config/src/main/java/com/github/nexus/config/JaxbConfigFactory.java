@@ -1,19 +1,30 @@
 package com.github.nexus.config;
 
 import com.github.nexus.config.util.JaxbUtil;
+import com.github.nexus.config.keys.KeyGenerator;
+import com.github.nexus.config.keys.KeyGeneratorFactory;
+
 import java.io.InputStream;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JaxbConfigFactory implements ConfigFactory {
 
+    private final KeyGenerator generator = KeyGeneratorFactory.create();
+
     @Override
-    public Config create(InputStream configData, InputStream... keyConfigData) {
+    public Config create(final InputStream configData, final InputStream... keyConfigData) {
 
-        for (InputStream d : keyConfigData) {
-            KeyDataConfig keyDataConfig = JaxbUtil.unmarshal(d, KeyDataConfig.class);
-            KeyDataConfigStore.INSTANCE.push(keyDataConfig);
+        final List<KeyData> newKeys = Stream.of(keyConfigData)
+            .map(kcd -> JaxbUtil.unmarshal(kcd, KeyDataConfig.class))
+            .map(generator::generate)
+            .collect(Collectors.toList());
 
-        }
-        return JaxbUtil.unmarshal(configData, Config.class);
+        final Config config = JaxbUtil.unmarshal(configData, Config.class);
+        config.getKeys().addAll(newKeys);
+
+        return config;
     }
 
 }

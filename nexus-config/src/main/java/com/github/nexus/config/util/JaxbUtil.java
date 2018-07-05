@@ -1,23 +1,15 @@
 package com.github.nexus.config.util;
 
-import com.github.nexus.config.ArgonOptions;
-import com.github.nexus.config.Config;
-import com.github.nexus.config.ConfigException;
-import com.github.nexus.config.JdbcConfig;
-import com.github.nexus.config.KeyData;
-import com.github.nexus.config.KeyDataConfig;
-import com.github.nexus.config.Peer;
-import com.github.nexus.config.PrivateKeyData;
-import com.github.nexus.config.PrivateKeyType;
-import com.github.nexus.config.ServerConfig;
-import com.github.nexus.config.SslAuthenticationMode;
-import com.github.nexus.config.SslConfig;
-import com.github.nexus.config.SslTrustMode;
-import java.io.InputStream;
+import com.github.nexus.config.*;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 
 public interface JaxbUtil {
 
@@ -45,6 +37,25 @@ public interface JaxbUtil {
             unmarshaller.setProperty("eclipselink.json.include-root", false);
 
             return unmarshaller.unmarshal(new StreamSource(inputStream), type).getValue();
+        } catch (JAXBException ex) {
+            throw new ConfigException(ex);
+        }
+    }
+
+    static String marshalToString(final Object object) {
+
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(JAXB_CLASSES);
+            Marshaller marshaller = jaxbContext.createMarshaller();
+            marshaller.setProperty("eclipselink.media-type", "application/json");
+            marshaller.setProperty("eclipselink.json.include-root", false);
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+            Writer writer = new StringWriter();
+            marshaller.marshal(object, writer);
+            return writer.toString();
+
+
         } catch (JAXBException ex) {
             throw new ConfigException(ex);
         }

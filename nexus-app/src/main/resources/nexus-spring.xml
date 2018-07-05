@@ -93,7 +93,7 @@
 
         <bean name="argon2" class="com.github.nexus.argon2.Argon2" factory-method="create" />
 
-        <bean name="keyEncryptor" class="com.github.nexus.keyenc.KeyEncryptorImpl" >
+        <bean name="keyEncryptor" class="com.github.nexus.config.keys.KeyEncryptorImpl" >
             <constructor-arg ref="argon2"/>
             <constructor-arg ref="nacl"/>
         </bean>
