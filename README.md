@@ -17,45 +17,48 @@ If you want to use an alternative database then you'll need to add the drivers t
 `java -cp some-jdbc-driver.jar -jar /somewhere/nexus-app.jar`
 
 
-See the section on 'Configuration' for a description of the available properties.
+## Configuration
+
+A configuration file must be specified using the `-configfile /path/to/config.json`
+command line property.
+
+A sample configuration can be found [here](https://raw.githubusercontent.com/QuorumEngineering/Nexus/master/nexus-config/src/test/resources/sample_full.json)
+
+Keys can be provided using direct values, like in the example above,
+or by providing the format produced by previous versions. Just replace the
+`privateKey` field with the data in those files under a `config` key.
+
+Below is a sample snippet:
 
 ```
-  {
-   "useWhiteList" : false,
-   "jdbc" : {
-      "username" : "sa",
-      "password" : "",
-      "url" : "jdbc:h2:./target/h2/nexus1"
-   },
-   "server" : {
-      "port" : 8080,
-      "hostName":"http://localhost"
-   },
-   "peer" : [ {
-      "url" : "http://localhost:8081"
-   }],
-   "keys" : [ {
-      "privateKey" : {
-         "value" : "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
-         "type": "UNLOCKED"
-      },
-      "publicKey" : {
-         "value":"/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-      }
-   } ],
-   "unixSocketFile" : "/tmp/tm1.ipc"
-  }
-```
 
-Keys can be provided using paths or values, for example 
+{
+    "config": {
+        "data": {
+            "bytes": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM="
+        },
+        "type": "unlocked"
+    },
+    "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+}
 
-```
-"privateKey" : {
-   "path" : "/somepath/somefile.key",
-   "type": "UNLOCKED"
-},
-"publicKey" : {
-   "path":"/somepath/someotherfile.key"
+{
+    "config": {
+        "data": {
+            "aopts": {
+                "variant": "id",
+                "memory": 1048576,
+                "iterations": 10,
+                "parallelism": 4,
+            },
+            "password": "password",
+            "snonce": "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+            "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+            "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
+        },
+        "type": "argon2sbox"
+    },
+    "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
 }
 
 ```
@@ -63,7 +66,38 @@ Keys can be provided using paths or values, for example
 If the keys dont already exist they can be generated using the -keygen option. 
 
 ```
-nexus -configfile config.json -keygen
+nexus -configfile config.json -keygen /path/to/config1 /path/to/config2
+```
+
+This will check the given paths for configuration of the private keys.
+The configuration for these is the same as what is produced for a key, e.g.
+
+Plaintext key:
+
+/path/to/config1
+```
+{
+    "type": "unlocked"
+}
+```
+
+Password protected key:
+
+/path/to/config2
+```
+{ 
+    "data": {
+        "aopts": {
+            "variant": "id",
+            "memory": 1048576,
+            "iterations": 10,
+            "parallelism": 4,
+
+        },
+        "password": "passwordToUse",
+    },
+    "type": "argon2sbox"
+}
 ```
 
 
@@ -149,10 +183,6 @@ Details to be provided
 **delete** - _Delete a transaction_ 
 
 Details to be provided
-
-## Configuration
-
-#### Configuration sources
 
 ## Building Nexus
 
