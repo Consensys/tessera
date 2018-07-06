@@ -114,14 +114,6 @@ public enum CliDelegate {
                     );
                 }
             }
-            for (final String pathStr : keyGenConfigFiles) {
-                keyGetConfigs.add(
-                    Files.newInputStream(
-                        Paths.get(pathStr)
-                    )
-                );
-            }
-        }
 
         try (InputStream in = Files.newInputStream(path)) {
             this.config = configFactory.create(in, keyGetConfigs.toArray(new InputStream[0]));
@@ -135,12 +127,8 @@ public enum CliDelegate {
 
         if (!keyGetConfigs.isEmpty()) {
             //we have generated new keys, so we need to output the new configuration
-            System.out.println(JaxbUtil.marshalToString(this.config));
+            JaxbUtil.marshal(this.config, System.out);
         }
-            if (!keyGetConfigs.isEmpty()) {
-                //we have generated new keys, so we need to output the new configuration
-                JaxbUtil.marshal(this.config, System.out);
-            }
 
     }
 
