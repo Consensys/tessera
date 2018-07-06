@@ -4,12 +4,16 @@ import com.github.nexus.config.ConfigException;
 import com.github.nexus.config.KeyDataConfig;
 import com.github.nexus.config.PrivateKeyData;
 import com.github.nexus.config.PrivateKeyType;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.xml.bind.MarshalException;
 import org.junit.Test;
 
-import javax.xml.bind.MarshalException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 public class JaxbUtilTest {
 
@@ -17,7 +21,7 @@ public class JaxbUtilTest {
     public void unmarshalLocked() {
 
         final KeyDataConfig result = JaxbUtil.unmarshal(
-            getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class
+                getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class
         );
 
         assertThat(result).isNotNull();
@@ -36,33 +40,38 @@ public class JaxbUtilTest {
     }
 
     @Test
-    public void marshallLocked() {
-
+    public void marshallingOutputStream() throws Exception {
         final KeyDataConfig input = new KeyDataConfig(
-            new PrivateKeyData("VAL", null, null, null, null, null),
-            PrivateKeyType.UNLOCKED
+                new PrivateKeyData("VAL", null, null, null, null, null),
+                PrivateKeyType.UNLOCKED
         );
 
-        final String result = JaxbUtil.marshalToString(input);
+        try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+            JaxbUtil.marshal(input, bout);
 
-        assertThat(result).isEqualTo("{\n" +
-            "   \"type\" : \"unlocked\",\n" +
-            "   \"data\" : {\n" +
-            "      \"bytes\" : \"VAL\"\n" +
-            "   }\n" +
-            "}");
+            JsonObject result = Json.createReader(new ByteArrayInputStream(bout.toByteArray())).readObject();
+
+            assertThat(result).containsOnlyKeys("type", "data");
+            assertThat(result.getString("type")).isEqualTo("unlocked");
+
+            JsonObject jsonDataNode = result.getJsonObject("data");
+            assertThat(jsonDataNode).containsOnlyKeys("bytes");
+            assertThat(jsonDataNode.getString("bytes")).isEqualTo("VAL");
+
+        }
+
     }
 
     @Test
     public void marshallingProducesError() {
         final Exception ex = new Exception();
 
-        final Throwable throwable = catchThrowable(() -> JaxbUtil.marshalToString(ex));
+        OutputStream out = mock(OutputStream.class);
+        final Throwable throwable = catchThrowable(() -> JaxbUtil.marshal(ex, out));
 
         assertThat(throwable)
-            .isInstanceOf(ConfigException.class)
-            .hasCauseExactlyInstanceOf(MarshalException.class);
+                .isInstanceOf(ConfigException.class)
+                .hasCauseExactlyInstanceOf(MarshalException.class);
     }
-
 
 }
