@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ArgonOptions {
 
-    @Pattern(regexp = "^(id|i|d)$)")
+    @Pattern(regexp = "^(id|i|d)$")
     @XmlAttribute(name = "variant")
     private final String algorithm;
 
