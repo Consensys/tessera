@@ -1,8 +1,6 @@
 package com.github.nexus.config.util;
 
 import com.github.nexus.config.*;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -11,7 +9,6 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
 public interface JaxbUtil {
 
