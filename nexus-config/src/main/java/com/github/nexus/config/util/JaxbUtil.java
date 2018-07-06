@@ -8,8 +8,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.OutputStream;
 
 public interface JaxbUtil {
 
@@ -42,8 +41,7 @@ public interface JaxbUtil {
         }
     }
 
-    static String marshalToString(final Object object) {
-
+    static void marshal(Object object, OutputStream outputStream) {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(JAXB_CLASSES);
             Marshaller marshaller = jaxbContext.createMarshaller();
@@ -51,13 +49,11 @@ public interface JaxbUtil {
             marshaller.setProperty("eclipselink.json.include-root", false);
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-            Writer writer = new StringWriter();
-            marshaller.marshal(object, writer);
-            return writer.toString();
-
-
+            marshaller.marshal(object, outputStream);
         } catch (JAXBException ex) {
             throw new ConfigException(ex);
         }
+
     }
+
 }

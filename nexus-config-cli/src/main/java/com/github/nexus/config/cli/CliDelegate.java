@@ -88,9 +88,9 @@ public enum CliDelegate {
 
                 for (final String pathStr : keyGenConfigFiles) {
                     keyGetConfigs.add(
-                        Files.newInputStream(
-                            Paths.get(pathStr)
-                        )
+                            Files.newInputStream(
+                                    Paths.get(pathStr)
+                            )
                     );
                 }
             }
@@ -105,9 +105,9 @@ public enum CliDelegate {
                 throw new ConstraintViolationException(violations);
             }
 
-            if(!keyGetConfigs.isEmpty()) {
+            if (!keyGetConfigs.isEmpty()) {
                 //we have generated new keys, so we need to output the new configuration
-                System.out.println(JaxbUtil.marshalToString(this.config));
+                JaxbUtil.marshal(this.config, System.out);
             }
 
             return new CliResult(0, config);
