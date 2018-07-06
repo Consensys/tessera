@@ -13,20 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.management.ManagementFactory;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 /**
  * The main entry point for the application. This just starts up the application
@@ -48,8 +37,6 @@ public class Launcher {
             }
 
             Config config = cliResult.getConfig().get();
-
-            Launcher.createPidFile();
 
             final URI uri = new URI(config.getServerConfig().getHostName() + ":" + config.getServerConfig().getPort());
 
@@ -88,28 +75,6 @@ public class Launcher {
         restServer.start();
 
         countDown.await();
-    }
-
-    private static void createPidFile() throws IOException {
-
-        final String pidFilePath = System.getProperty("nexus.pid.file", null);
-        if (Objects.nonNull(pidFilePath)) {
-
-            final String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-
-            final Path filePath = Paths.get(pidFilePath);
-            if (Files.exists(filePath)) {
-                LOGGER.info("File already exists {}", filePath);
-            } else {
-                Files.createFile(filePath);
-                LOGGER.info("Creating pid file {}", filePath);
-            }
-
-            try (final OutputStream stream = Files.newOutputStream(filePath, CREATE, TRUNCATE_EXISTING)) {
-                stream.write(pid.getBytes(StandardCharsets.UTF_8));
-            }
-        }
-
     }
 
 }

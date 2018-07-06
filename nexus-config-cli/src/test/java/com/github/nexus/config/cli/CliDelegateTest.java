@@ -7,6 +7,7 @@ import org.junit.Test;
 import javax.validation.ConstraintViolationException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -92,6 +93,51 @@ public class CliDelegateTest {
         assertThat(result.getStatus()).isEqualTo(0);
         assertThat(result.getConfig()).isNotNull();
         assertThat(result.isHelpOn()).isFalse();
+
+    }
+
+    @Test
+    public void pidFile() throws Exception {
+
+        Path pidFile = Paths.get(getClass().getResource("/pid").getFile());
+
+        CliResult result = cliDelegate.execute(
+            "-pidfile",
+            pidFile.toFile().getPath(),
+            "-configfile",
+            getClass().getResource("/keygen-sample.json").getFile()
+        );
+
+        assertThat(result).isNotNull();
+
+        try (InputStream in = Files.newInputStream(pidFile)) {
+            assertThat(in.read()).isGreaterThan(1);
+        }
+
+    }
+
+    @Test
+    public void pidFileNotExisted() throws Exception {
+
+        Path anotherPidFile = Paths.get("/tmp/anotherPidFile");
+
+        assertThat(Files.notExists(anotherPidFile)).isTrue();
+
+        CliResult result = cliDelegate.execute(
+            "-pidfile",
+            anotherPidFile.toFile().getPath(),
+            "-configfile",
+            getClass().getResource("/keygen-sample.json").getFile()
+        );
+
+        assertThat(result).isNotNull();
+        assertThat(Files.exists(anotherPidFile)).isTrue();
+
+        try (InputStream in = Files.newInputStream(anotherPidFile)) {
+            assertThat(in.read()).isGreaterThan(1);
+        }
+
+        Files.deleteIfExists(anotherPidFile);
 
     }
 
