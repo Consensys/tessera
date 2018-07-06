@@ -18,7 +18,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
@@ -52,6 +55,13 @@ public enum CliDelegate {
         options.addOption(
             Option.builder("keygen")
                 .desc("Create missing key files")
+                .hasArg(true)
+                .numberOfArgs(1)
+                .build());
+
+        options.addOption(
+            Option.builder("output")
+                .desc("Generate updated config file with generated keys")
                 .hasArg(true)
                 .numberOfArgs(1)
                 .build());
@@ -101,19 +111,8 @@ public enum CliDelegate {
             throw new FileNotFoundException(String.format("%s not found.", path));
         }
 
-        List<InputStream> keyGetConfigs = new ArrayList<>();
+        final List<InputStream> keyGetConfigs = getKeyGenConfig(commandLine);
 
-        if (commandLine.hasOption("keygen")) {
-            String[] keyGenConfigFiles = commandLine.getOptionValues("keygen");
-
-            for (final String pathStr : keyGenConfigFiles) {
-                keyGetConfigs.add(
-                    Files.newInputStream(
-                        Paths.get(pathStr)
-                    )
-                );
-            }
-        }
 
         try (InputStream in = Files.newInputStream(path)) {
             this.config = configFactory.create(in, keyGetConfigs.toArray(new InputStream[0]));
@@ -127,29 +126,61 @@ public enum CliDelegate {
 
         if (!keyGetConfigs.isEmpty()) {
             //we have generated new keys, so we need to output the new configuration
-            JaxbUtil.marshal(this.config, System.out);
+            output(commandLine);
         }
 
+    }
+
+    private List<InputStream> getKeyGenConfig(CommandLine commandLine) throws IOException {
+
+        List<InputStream> keyGenConfigs = new ArrayList<>();
+
+        if (commandLine.hasOption("keygen")) {
+            String[] keyGenConfigFiles = commandLine.getOptionValues("keygen");
+
+            for (final String pathStr : keyGenConfigFiles) {
+                keyGenConfigs.add(
+                    Files.newInputStream(
+                        Paths.get(pathStr)
+                    )
+                );
+            }
+        }
+
+        return keyGenConfigs;
+    }
+
+    private void output(CommandLine commandLine) throws IOException {
+
+        if (commandLine.hasOption("output")) {
+            final Path outputConfigFile = Paths.get(commandLine.getOptionValue("output"));
+
+            if (Files.notExists(outputConfigFile)) {
+                Files.createFile(outputConfigFile);
+            }
+            try (OutputStream out = Files.newOutputStream(outputConfigFile, CREATE, TRUNCATE_EXISTING)) {
+                JaxbUtil.marshal(this.config, out);
+            }
+        } else {
+            JaxbUtil.marshal(this.config, System.out);
+        }
     }
 
     private void createPidFile(CommandLine commandLine) throws IOException {
 
         final Path pidFilePath = Paths.get(commandLine.getOptionValue("pidfile"));
 
-        if (Objects.nonNull(pidFilePath)) {
+        if (Files.exists(pidFilePath)) {
+            System.out.println("File already exists " + pidFilePath);
+        } else {
+            Files.createFile(pidFilePath);
+            System.out.println("Creating pid file " + pidFilePath);
+        }
 
-            if (Files.exists(pidFilePath)) {
-                System.out.println("File already exists " + pidFilePath);
-            } else {
-                Files.createFile(pidFilePath);
-                System.out.println("Creating pid file " + pidFilePath);
-            }
+        final String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
 
-            final String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-
-            try (final OutputStream stream = Files.newOutputStream(pidFilePath, CREATE, TRUNCATE_EXISTING)) {
-                stream.write(pid.getBytes(StandardCharsets.UTF_8));
-            }
+        try (final OutputStream stream = Files.newOutputStream(pidFilePath, CREATE, TRUNCATE_EXISTING)) {
+            stream.write(pid.getBytes(StandardCharsets.UTF_8));
         }
     }
 

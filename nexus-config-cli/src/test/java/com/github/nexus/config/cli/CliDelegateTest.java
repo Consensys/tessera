@@ -95,6 +95,28 @@ public class CliDelegateTest {
     }
 
     @Test
+    public void output() throws Exception {
+
+        Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
+        Path generatedKey = Paths.get("/tmp/generatedKey");
+
+        CliResult result = cliDelegate.execute(
+            "-keygen",
+            keyConfigPath.toString(),
+            "-output",
+            generatedKey.toFile().getPath(),
+            "-configfile",
+            getClass().getResource("/keygen-sample.json").getFile()
+        );
+
+        assertThat(result).isNotNull();
+        assertThat(Files.exists(generatedKey)).isTrue();
+
+        Files.deleteIfExists(generatedKey);
+        assertThat(Files.exists(generatedKey)).isFalse();
+    }
+
+    @Test
     public void pidFile() throws Exception {
 
         Path pidFile = Paths.get(getClass().getResource("/pid").getFile());
