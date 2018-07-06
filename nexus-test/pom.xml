@@ -1,32 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>nexus-test</artifactId>
+
+    <name>nexus-test</name>
+    <packaging>jar</packaging>
+
     <parent>
         <groupId>com.github.nexus</groupId>
         <artifactId>nexus</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>nexus-test</artifactId>
-    <packaging>jar</packaging>
-    
+
     <dependencies>
-        
+
         <dependency>
             <groupId>com.github.nexus</groupId>
             <artifactId>nexus-app</artifactId>
             <classifier>app</classifier>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>2.4.5</version>
         </dependency>
-        
 
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -42,10 +48,10 @@
                         </goals>
                     </execution>
 
-                    
+
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -70,7 +76,7 @@
                         </goals>
                     </execution>
                 </executions>
-                
+
             </plugin>
 
             <plugin>
@@ -84,12 +90,32 @@
                         <version>2.0.6</version>
                     </dependency>
                 </dependencies>
-                
+
                 <configuration>
                     <skip>false</skip>
                 </configuration>
-                
+
                 <executions>
+
+                    <execution>
+                        <id>start-node4</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
+                                <configFile>${project.build.testOutputDirectory}/config4.json</configFile>
+                                <pidFile>${project.build.directory}/node4.pid</pidFile>
+                                <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
+                                </logbackConfigFile>
+                                <nodeNumber>4</nodeNumber>
+                            </properties>
+                            <source>${basedir}/src/test/groovy/startNode.groovy</source>
+                        </configuration>
+                    </execution>
+
                     <execution>
                         <id>start-node</id>
                         <phase>pre-integration-test</phase>
@@ -101,12 +127,14 @@
                                 <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
                                 <configFile>${project.build.testOutputDirectory}/config1.json</configFile>
                                 <pidFile>${project.build.directory}/node1.pid</pidFile>
-                                <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml</logbackConfigFile>
+                                <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
+                                </logbackConfigFile>
                                 <nodeNumber>1</nodeNumber>
                             </properties>
                             <source>${basedir}/src/test/groovy/startNode.groovy</source>
                         </configuration>
                     </execution>
+
                     <execution>
                         <id>start-node2</id>
                         <phase>pre-integration-test</phase>
@@ -118,12 +146,14 @@
                                 <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
                                 <configFile>${project.build.testOutputDirectory}/config2.json</configFile>
                                 <pidFile>${project.build.directory}/node2.pid</pidFile>
-                                <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml</logbackConfigFile>
+                                <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
+                                </logbackConfigFile>
                                 <nodeNumber>2</nodeNumber>
                             </properties>
                             <source>${basedir}/src/test/groovy/startNode.groovy</source>
                         </configuration>
                     </execution>
+
                     <execution>
                         <id>start-node3</id>
                         <phase>pre-integration-test</phase>
@@ -135,13 +165,28 @@
                                 <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
                                 <configFile>${project.build.testOutputDirectory}/config3.json</configFile>
                                 <pidFile>${project.build.directory}/node3.pid</pidFile>
-                                <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml</logbackConfigFile>
+                                <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
+                                </logbackConfigFile>
                                 <nodeNumber>3</nodeNumber>
                             </properties>
                             <source>${basedir}/src/test/groovy/startNode.groovy</source>
                         </configuration>
                     </execution>
-                    
+
+                    <execution>
+                        <id>kill-node4</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <pidFile>${project.build.directory}/node4.pid</pidFile>
+                            </properties>
+                            <source>${basedir}/src/test/groovy/killNode.groovy</source>
+                        </configuration>
+                    </execution>
+
                     <execution>
                         <id>kill-node1</id>
                         <phase>post-integration-test</phase>
@@ -155,7 +200,7 @@
                             <source>${basedir}/src/test/groovy/killNode.groovy</source>
                         </configuration>
                     </execution>
-                    
+
                     <execution>
                         <id>kill-node2</id>
                         <phase>post-integration-test</phase>
@@ -178,12 +223,12 @@
                         </goals>
                         <configuration>
                             <properties>
-                                <pidFile>${project.build.directory}/node2.pid</pidFile>
+                                <pidFile>${project.build.directory}/node3.pid</pidFile>
                             </properties>
                             <source>${basedir}/src/test/groovy/killNode.groovy</source>
                         </configuration>
                     </execution>
-                    
+
                 </executions>
             </plugin>
 
@@ -195,7 +240,7 @@
                 </configuration>
             </plugin>
 
-        </plugins>       
+        </plugins>
     </build>
 
 </project>
