@@ -70,7 +70,7 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
                     if (Objects.isNull(sslConfig.getServerTrustStore()) ||
                         Objects.isNull(sslConfig.getServerTrustStorePassword()) ||
                         Files.notExists(sslConfig.getServerTrustStore())) {
-                        setMessage("Trust store config not valid. If server trust mode is CA, trust store must be provided", context);
+                        setMessage("Trust store config not valid. If server trust mode is CA, trust store must exist and not be null", context);
                         return false;
                     }
                 }
@@ -87,7 +87,7 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
                     if (Objects.isNull(sslConfig.getClientTrustStore()) ||
                         Objects.isNull(sslConfig.getClientTrustStorePassword()) ||
                         Files.notExists(sslConfig.getClientTrustStore())) {
-                        setMessage("Trust store config not valid. If client trust mode is CA, trust store must be provided", context);
+                        setMessage("Trust store config not valid. If client trust mode is CA, trust store must exist and not be null", context);
                         return false;
                     }
                 }
