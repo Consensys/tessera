@@ -36,7 +36,7 @@ public class ValidationTest {
     }
 
     @Test
-    public void validateArgonOptionsAllNull_NullAlgoAllowedAsHasDefaultValue() {
+    public void validateArgonOptionsAllNullAlgoHasDefaultValue() {
         ArgonOptions options = new ArgonOptions(null, null, null, null);
 
         Set<ConstraintViolation<ArgonOptions>> violations = validator.validate(options);
