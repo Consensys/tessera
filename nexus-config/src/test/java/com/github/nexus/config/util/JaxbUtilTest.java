@@ -1,15 +1,19 @@
 package com.github.nexus.config.util;
 
+import com.github.nexus.config.ConfigException;
 import com.github.nexus.config.KeyDataConfig;
 import com.github.nexus.config.PrivateKeyData;
 import com.github.nexus.config.PrivateKeyType;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.xml.bind.MarshalException;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 public class JaxbUtilTest {
 
@@ -56,6 +60,18 @@ public class JaxbUtilTest {
 
         }
 
+    }
+
+    @Test
+    public void marshallingProducesError() {
+        final Exception ex = new Exception();
+
+        OutputStream out = mock(OutputStream.class);
+        final Throwable throwable = catchThrowable(() -> JaxbUtil.marshal(ex, out));
+
+        assertThat(throwable)
+                .isInstanceOf(ConfigException.class)
+                .hasCauseExactlyInstanceOf(MarshalException.class);
     }
 
 }
