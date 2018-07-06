@@ -30,7 +30,9 @@ public class Launcher {
         try {
             CliResult cliResult = CliDelegate.instance().execute(args);
 
-            if(cliResult.getStatus() != 0) {
+            if(cliResult.isHelpOn()) {
+                System.exit(0);
+            } else if(cliResult.getStatus() != 0) {
                 System.exit(cliResult.getStatus());
             }
 
