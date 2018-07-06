@@ -4,6 +4,8 @@ import com.github.nexus.config.Config;
 import com.github.nexus.config.ConfigFactory;
 import com.github.nexus.config.util.JaxbUtil;
 import org.apache.commons.cli.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -24,11 +26,14 @@ import java.util.List;
 import java.util.Set;
 
 import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 public enum CliDelegate {
 
     INSTANCE;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CliDelegate.class);
 
     private Config config;
 
@@ -155,10 +160,7 @@ public enum CliDelegate {
         if (commandLine.hasOption("output")) {
             final Path outputConfigFile = Paths.get(commandLine.getOptionValue("output"));
 
-            if (Files.notExists(outputConfigFile)) {
-                Files.createFile(outputConfigFile);
-            }
-            try (OutputStream out = Files.newOutputStream(outputConfigFile, CREATE, TRUNCATE_EXISTING)) {
+            try (OutputStream out = Files.newOutputStream(outputConfigFile, CREATE_NEW)) {
                 JaxbUtil.marshal(this.config, out);
             }
         } else {
@@ -171,10 +173,10 @@ public enum CliDelegate {
         final Path pidFilePath = Paths.get(commandLine.getOptionValue("pidfile"));
 
         if (Files.exists(pidFilePath)) {
-            System.out.println("File already exists " + pidFilePath);
+            LOGGER.info("File already exists " + pidFilePath);
         } else {
             Files.createFile(pidFilePath);
-            System.out.println("Creating pid file " + pidFilePath);
+            LOGGER.info("Creating pid file " + pidFilePath);
         }
 
         final String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
