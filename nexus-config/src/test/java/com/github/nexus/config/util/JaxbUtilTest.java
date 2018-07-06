@@ -1,22 +1,15 @@
 package com.github.nexus.config.util;
 
-import com.github.nexus.config.ConfigException;
 import com.github.nexus.config.KeyDataConfig;
 import com.github.nexus.config.PrivateKeyData;
 import com.github.nexus.config.PrivateKeyType;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import javax.json.Json;
 import javax.json.JsonObject;
 import org.junit.Test;
 
-import javax.xml.bind.MarshalException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.*;
 
 public class JaxbUtilTest {
 
@@ -40,40 +33,6 @@ public class JaxbUtilTest {
         assertThat(result.getArgonOptions().getIterations()).isEqualTo(10);
         assertThat(result.getArgonOptions().getParallelism()).isEqualTo(4);
         assertThat(result.getArgonOptions().getMemory()).isEqualTo(1048576);
-    }
-
-    @Test
-    public void marshallLocked() throws IOException {
-
-        final KeyDataConfig input = new KeyDataConfig(
-                new PrivateKeyData("VAL", null, null, null, null, null),
-                PrivateKeyType.UNLOCKED
-        );
-
-        final String marshalled = JaxbUtil.marshalToString(input);
-
-        try (Reader reader = new StringReader(marshalled)) {
-            JsonObject result = Json.createReader(reader).readObject();
-
-            assertThat(result).containsOnlyKeys("type", "data");
-            assertThat(result.getString("type")).isEqualTo("unlocked");
-
-            JsonObject jsonDataNode = result.getJsonObject("data");
-            assertThat(jsonDataNode).containsOnlyKeys("bytes");
-            assertThat(jsonDataNode.getString("bytes")).isEqualTo("VAL");
-        }
-
-    }
-
-    @Test
-    public void marshallingProducesError() {
-        final Exception ex = new Exception();
-
-        final Throwable throwable = catchThrowable(() -> JaxbUtil.marshalToString(ex));
-
-        assertThat(throwable)
-                .isInstanceOf(ConfigException.class)
-                .hasCauseExactlyInstanceOf(MarshalException.class);
     }
 
     @Test
