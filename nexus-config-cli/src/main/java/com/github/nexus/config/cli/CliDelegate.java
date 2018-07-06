@@ -63,7 +63,7 @@ public enum CliDelegate {
         if (Arrays.asList(args).contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("nexus", options);
-            return new CliResult(0, null);
+            return new CliResult(0, true, null);
         }
 
         CommandLineParser parser = new DefaultParser();
@@ -110,7 +110,7 @@ public enum CliDelegate {
                 JaxbUtil.marshal(this.config, System.out);
             }
 
-            return new CliResult(0, config);
+            return new CliResult(0, false, config);
 
         } catch (ParseException exp) {
             throw new CliException(exp.getMessage());
