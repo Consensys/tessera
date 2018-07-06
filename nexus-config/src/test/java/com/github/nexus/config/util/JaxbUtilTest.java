@@ -4,6 +4,13 @@ import com.github.nexus.config.ConfigException;
 import com.github.nexus.config.KeyDataConfig;
 import com.github.nexus.config.PrivateKeyData;
 import com.github.nexus.config.PrivateKeyType;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import javax.json.Json;
+import javax.json.JsonObject;
 import org.junit.Test;
 
 import javax.xml.bind.MarshalException;
@@ -17,7 +24,7 @@ public class JaxbUtilTest {
     public void unmarshalLocked() {
 
         final KeyDataConfig result = JaxbUtil.unmarshal(
-            getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class
+                getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class
         );
 
         assertThat(result).isNotNull();
@@ -36,21 +43,26 @@ public class JaxbUtilTest {
     }
 
     @Test
-    public void marshallLocked() {
+    public void marshallLocked() throws IOException {
 
         final KeyDataConfig input = new KeyDataConfig(
-            new PrivateKeyData("VAL", null, null, null, null, null),
-            PrivateKeyType.UNLOCKED
+                new PrivateKeyData("VAL", null, null, null, null, null),
+                PrivateKeyType.UNLOCKED
         );
 
-        final String result = JaxbUtil.marshalToString(input);
+        final String marshalled = JaxbUtil.marshalToString(input);
 
-        assertThat(result).isEqualTo("{\n" +
-            "   \"type\" : \"unlocked\",\n" +
-            "   \"data\" : {\n" +
-            "      \"bytes\" : \"VAL\"\n" +
-            "   }\n" +
-            "}");
+        try (Reader reader = new StringReader(marshalled)) {
+            JsonObject result = Json.createReader(reader).readObject();
+
+            assertThat(result).containsOnlyKeys("type", "data");
+            assertThat(result.getString("type")).isEqualTo("unlocked");
+
+            JsonObject jsonDataNode = result.getJsonObject("data");
+            assertThat(jsonDataNode).containsOnlyKeys("bytes");
+            assertThat(jsonDataNode.getString("bytes")).isEqualTo("VAL");
+        }
+
     }
 
     @Test
@@ -60,9 +72,31 @@ public class JaxbUtilTest {
         final Throwable throwable = catchThrowable(() -> JaxbUtil.marshalToString(ex));
 
         assertThat(throwable)
-            .isInstanceOf(ConfigException.class)
-            .hasCauseExactlyInstanceOf(MarshalException.class);
+                .isInstanceOf(ConfigException.class)
+                .hasCauseExactlyInstanceOf(MarshalException.class);
     }
 
+    @Test
+    public void marshallingOutputStream() throws Exception {
+        final KeyDataConfig input = new KeyDataConfig(
+                new PrivateKeyData("VAL", null, null, null, null, null),
+                PrivateKeyType.UNLOCKED
+        );
+
+        try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+            JaxbUtil.marshal(input, bout);
+
+            JsonObject result = Json.createReader(new ByteArrayInputStream(bout.toByteArray())).readObject();
+
+            assertThat(result).containsOnlyKeys("type", "data");
+            assertThat(result.getString("type")).isEqualTo("unlocked");
+
+            JsonObject jsonDataNode = result.getJsonObject("data");
+            assertThat(jsonDataNode).containsOnlyKeys("bytes");
+            assertThat(jsonDataNode.getString("bytes")).isEqualTo("VAL");
+
+        }
+
+    }
 
 }
