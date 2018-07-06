@@ -106,6 +106,14 @@ public enum CliDelegate {
         if (commandLine.hasOption("keygen")) {
             String[] keyGenConfigFiles = commandLine.getOptionValues("keygen");
 
+                for (final String pathStr : keyGenConfigFiles) {
+                    keyGetConfigs.add(
+                            Files.newInputStream(
+                                    Paths.get(pathStr)
+                            )
+                    );
+                }
+            }
             for (final String pathStr : keyGenConfigFiles) {
                 keyGetConfigs.add(
                     Files.newInputStream(
@@ -129,6 +137,10 @@ public enum CliDelegate {
             //we have generated new keys, so we need to output the new configuration
             System.out.println(JaxbUtil.marshalToString(this.config));
         }
+            if (!keyGetConfigs.isEmpty()) {
+                //we have generated new keys, so we need to output the new configuration
+                JaxbUtil.marshal(this.config, System.out);
+            }
 
     }
 
