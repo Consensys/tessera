@@ -81,7 +81,7 @@ public enum CliDelegate {
             if (line.hasOption("pidfile")) {
                 createPidFile(line);
             }
-          
+
             return new CliResult(0, config);
 
         } catch (ParseException exp) {
@@ -112,10 +112,6 @@ public enum CliDelegate {
                         Paths.get(pathStr)
                     )
                 );
-
-            if (!keyGetConfigs.isEmpty()) {
-                //we have generated new keys, so we need to output the new configuration
-                JaxbUtil.marshal(this.config, System.out);
             }
         }
 
@@ -131,7 +127,7 @@ public enum CliDelegate {
 
         if (!keyGetConfigs.isEmpty()) {
             //we have generated new keys, so we need to output the new configuration
-            System.out.println(JaxbUtil.marshalToString(this.config));
+            JaxbUtil.marshal(this.config, System.out);
         }
 
     }
