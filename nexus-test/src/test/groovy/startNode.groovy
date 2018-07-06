@@ -11,13 +11,13 @@ def nodeNumber = properties['nodeNumber']
 
 log.info "$jarfile"
 // -Dspring.profiles.active=disable-unixsocket
-def processDesc = "java -Dnexus.pid.file=$pidFile -Dspring.profiles.active=disable-unixsocket -Dnode.number=$nodeNumber -Dlogback.configurationFile=$logbackConfigFile -jar $jarfile -configfile $configFile"
+def processDesc = "java -Dspring.profiles.active=disable-unixsocket -Dnode.number=$nodeNumber -Dlogback.configurationFile=$logbackConfigFile -jar $jarfile -configfile $configFile -pidfile $pidFile "
 
 log.info "$processDesc"
 
 def countdownLatch = new java.util.concurrent.CountDownLatch(1)
 
-def process = "$processDesc".execute();
+def process = "$processDesc".execute()
 
 def t = new Thread({
     def exitCode = process.waitFor()
