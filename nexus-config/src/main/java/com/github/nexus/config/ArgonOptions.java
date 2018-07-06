@@ -1,5 +1,8 @@
 package com.github.nexus.config;
 
+import java.util.Optional;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -9,47 +12,50 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ArgonOptions {
 
-    //i, d,id (defaylt id)
+    @Pattern(regexp = "^(id|i|d)$)")
     @XmlAttribute(name = "variant")
     private final String algorithm;
 
+    @NotNull
     @XmlAttribute
-    private final int iterations;
+    private final Integer iterations;
 
+    @NotNull
     @XmlAttribute
-    private final int memory;
+    private final Integer memory;
 
+    @NotNull
     @XmlAttribute
-    private int parallelism;
+    private Integer parallelism;
 
     private static ArgonOptions create() {
         return new ArgonOptions();
     }
 
-    public ArgonOptions(String algorithm, int iterations, int memory, int parallelism) {
-        this.algorithm = algorithm;
+    public ArgonOptions(String algorithm, Integer iterations, Integer memory, Integer parallelism) {
+        this.algorithm = Optional.ofNullable(algorithm).orElse("id");
         this.iterations = iterations;
         this.memory = memory;
         this.parallelism = parallelism;
     }
 
     private ArgonOptions() {
-        this(null, -1, -1, -1);
+        this(null, null, null, null);
     }
 
     public String getAlgorithm() {
         return algorithm;
     }
 
-    public int getIterations() {
+    public Integer getIterations() {
         return iterations;
     }
 
-    public int getMemory() {
+    public Integer getMemory() {
         return memory;
     }
 
-    public int getParallelism() {
+    public Integer getParallelism() {
         return parallelism;
     }
 
