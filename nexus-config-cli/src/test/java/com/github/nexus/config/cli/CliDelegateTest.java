@@ -94,11 +94,16 @@ public class CliDelegateTest {
 
     }
 
+
     @Test
     public void output() throws Exception {
 
+
         Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
-        Path generatedKey = Paths.get("/tmp/generatedKey");
+        Path generatedKey = Paths.get("/tmp/generatedKey.json");
+
+        Files.deleteIfExists(generatedKey);
+        assertThat(Files.exists(generatedKey)).isFalse();
 
         CliResult result = cliDelegate.execute(
             "-keygen",
@@ -111,6 +116,22 @@ public class CliDelegateTest {
 
         assertThat(result).isNotNull();
         assertThat(Files.exists(generatedKey)).isTrue();
+
+        try {
+            CliResult anotherResult = cliDelegate.execute(
+                "-keygen",
+                keyConfigPath.toString(),
+                "-output",
+                generatedKey.toFile().getPath(),
+                "-configfile",
+                getClass().getResource("/keygen-sample.json").getFile()
+            );
+            failBecauseExceptionWasNotThrown(Exception.class);
+        }
+        catch (Exception ex) {
+            assertThat(ex).isInstanceOf(IOException.class);
+        }
+
 
         Files.deleteIfExists(generatedKey);
         assertThat(Files.exists(generatedKey)).isFalse();
