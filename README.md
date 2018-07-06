@@ -220,13 +220,30 @@ above system property to the install location.
 This is only required if Nexus is built to use the Kalium implementation.
 * brew install libsodium
 
-# Swagger api doc
+
+#Nexus rest
+
 
 ## HTTP | HTTPS://localhost:8080/
+
+
+
+
+
 
 **Version** 1.0-SNAPSHOT
 
 [**Terms of Service**]()
+
+
+
+
+
+
+
+
+
+
 
 
 # APIs
@@ -241,11 +258,21 @@ This is only required if Nexus is built to use the Kalium implementation.
 
 
 
+
+
+
+
+
+
 #### Request
 
 
 
 ##### Parameters
+
+
+
+
 
 
 #### Response
@@ -1364,3 +1391,4 @@ This is only required if Nexus is built to use the Kalium implementation.
     </tr>
 
 </table>
+
