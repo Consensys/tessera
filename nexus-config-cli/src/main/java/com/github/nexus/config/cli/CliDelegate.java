@@ -50,18 +50,22 @@ public enum CliDelegate {
         Options options = new Options();
         options.addOption(
             Option.builder("configfile")
-                .desc("Configuration file path")
+                .desc("Path to node configuration file")
                 .hasArg(true)
+                .optionalArg(false)
                 .numberOfArgs(1)
+                .argName("PATH")
                 .required()
                 .build());
 
         //If keygen then we require the path to the private key config path
         options.addOption(
             Option.builder("keygen")
-                .desc("Create missing key files")
+                .desc("Path to private key config for generation of missing key files")
                 .hasArg(true)
+                .optionalArg(false)
                 .numberOfArgs(1)
+                .argName("PATH")
                 .build());
 
         options.addOption(
@@ -73,16 +77,17 @@ public enum CliDelegate {
 
         options.addOption(
             Option.builder("pidfile")
-                .desc("Pid file path")
+                .desc("Path to pid file")
                 .hasArg(true)
                 .optionalArg(false)
                 .numberOfArgs(1)
+                .argName("PATH")
                 .build());
 
         if (Arrays.asList(args).contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("nexus", options);
-            return new CliResult(0, null);
+            formatter.printHelp("nexus -configfile <PATH> [-keygen <PATH>] [-pidfile <PATH>]", options);
+            return new CliResult(0, true, null);
         }
 
         CommandLineParser parser = new DefaultParser();
@@ -97,7 +102,7 @@ public enum CliDelegate {
                 createPidFile(line);
             }
 
-            return new CliResult(0, config);
+            return new CliResult(0, false, config);
 
         } catch (ParseException exp) {
             throw new CliException(exp.getMessage());

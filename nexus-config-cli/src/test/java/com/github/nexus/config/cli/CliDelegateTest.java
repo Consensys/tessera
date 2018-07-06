@@ -37,6 +37,7 @@ public class CliDelegateTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.isHelpOn()).isTrue();
 
     }
 
@@ -50,6 +51,7 @@ public class CliDelegateTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig().get()).isSameAs(cliDelegate.getConfig());
         assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.isHelpOn()).isFalse();
     }
 
     @Test(expected = FileNotFoundException.class)
@@ -89,8 +91,8 @@ public class CliDelegateTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
-
         assertThat(result.getConfig()).isNotNull();
+        assertThat(result.isHelpOn()).isFalse();
 
     }
 
