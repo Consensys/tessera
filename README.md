@@ -22,7 +22,7 @@ If you want to use an alternative database then you'll need to add the drivers t
 A configuration file must be specified using the `-configfile /path/to/config.json`
 command line property.
 
-A sample configuration can be found [here](https://raw.githubusercontent.com/QuorumEngineering/Nexus/master/nexus-config/src/test/resources/sample_full.json)
+A sample configuration can be found [here](/nexus-config/src/test/resources/sample_full.json)
 
 Keys can be provided using direct values, like in the example above,
 or by providing the format produced by previous versions. Just replace the
