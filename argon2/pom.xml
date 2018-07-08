@@ -16,19 +16,6 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <dependencyManagement>
-
-        <dependencies>
-
-            <dependency>
-                <groupId>de.mkammerer</groupId>
-                <artifactId>argon2-jvm</artifactId>
-                <version>2.4</version>
-            </dependency>
-
-        </dependencies>
-
-    </dependencyManagement>
 
     <dependencies>
 
