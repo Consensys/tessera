@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration xmlns="http://nexus.github.com/config">
+<configuration xmlns="http://tessera.github.com/config">
 
     <jdbc>
         <username>scott</username>

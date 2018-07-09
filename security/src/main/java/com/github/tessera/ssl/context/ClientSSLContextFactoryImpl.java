@@ -1,7 +1,7 @@
 package com.github.tessera.ssl.context;
 
 import com.github.tessera.config.SslConfig;
-import com.github.tessera.ssl.exception.NexusSecurityException;
+import com.github.tessera.ssl.exception.TesseraSecurityException;
 import com.github.tessera.ssl.strategy.TrustMode;
 import org.bouncycastle.operator.OperatorCreationException;
 
@@ -30,7 +30,7 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
             return trustMode
                 .createSSLContext(keyStore, keyStorePassword, trustStore, trustStorePassword, knownHostsFile);
         } catch (NoSuchAlgorithmException | KeyManagementException | UnrecoverableKeyException | CertificateException | KeyStoreException | IOException | OperatorCreationException | NoSuchProviderException | InvalidKeyException | SignatureException ex) {
-            throw new NexusSecurityException(ex);
+            throw new TesseraSecurityException(ex);
         }
     }
 }

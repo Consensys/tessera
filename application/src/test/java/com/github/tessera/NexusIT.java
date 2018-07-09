@@ -2,7 +2,7 @@
 //
 //import com.github.tessera.node.PartyInfoParser;
 //import com.github.tessera.node.model.PartyInfo;
-//import com.github.tessera.api.Nexus;
+//import com.github.tessera.api.Tessera;
 //import com.github.tessera.service.locator.ServiceLocator;
 //import org.glassfish.jersey.test.JerseyTest;
 //import org.junit.Ignore;
@@ -30,7 +30,7 @@
 //        );
 //
 //        final ServiceLocator serviceLocator = ServiceLocator.create();
-//        return new Nexus(serviceLocator, "tessera-spring.xml");
+//        return new Tessera(serviceLocator, "tessera-spring.xml");
 //    }
 //
 //    @Test

@@ -15,7 +15,7 @@ public interface SocketServerFactory {
                 UnixSocketFactory.create()
             );
         } catch (final Exception ex) {
-            throw new NexusSocketException(ex);
+            throw new TesseraSocketException(ex);
         }
     }
 

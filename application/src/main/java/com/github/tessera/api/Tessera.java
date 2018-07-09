@@ -13,13 +13,13 @@ import java.util.stream.Collectors;
 @Logged
 @GlobalFilter
 @ApplicationPath("/")
-public class Nexus extends Application {
+public class Tessera extends Application {
 
     private final ServiceLocator serviceLocator;
 
     private final String contextName;
 
-    public Nexus(final ServiceLocator serviceLocator, final String contextName) {
+    public Tessera(final ServiceLocator serviceLocator, final String contextName) {
         this.serviceLocator = Objects.requireNonNull(serviceLocator);
         this.contextName = Objects.requireNonNull(contextName);
     }

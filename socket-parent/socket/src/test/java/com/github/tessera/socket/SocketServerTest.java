@@ -62,7 +62,7 @@ public class SocketServerTest {
 
         final Throwable ex = catchThrowable(socketServer::run);
         assertThat(ex)
-            .isInstanceOf(NexusSocketException.class)
+            .isInstanceOf(TesseraSocketException.class)
             .hasCauseExactlyInstanceOf(IOException.class);
 
         verify(serverSocket).accept();
@@ -86,7 +86,7 @@ public class SocketServerTest {
         final Throwable throwable = catchThrowable(socketServer::run);
 
         assertThat(throwable)
-            .isInstanceOf(NexusSocketException.class)
+            .isInstanceOf(TesseraSocketException.class)
             .hasCauseExactlyInstanceOf(IOException.class);
 
     }
@@ -102,7 +102,7 @@ public class SocketServerTest {
         );
 
         assertThat(ex)
-            .isInstanceOf(NexusSocketException.class)
+            .isInstanceOf(TesseraSocketException.class)
             .hasMessageContaining("BANG!!")
             .hasCauseExactlyInstanceOf(IOException.class);
     }

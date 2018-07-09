@@ -32,7 +32,7 @@ public class UnixDomainServerSocket {
             return InputStreamUtils.readAllBytes(is);
         } catch (final IOException ex) {
             LOGGER.error("Failed to read from socket");
-            throw new NexusSocketException(ex);
+            throw new TesseraSocketException(ex);
         }
     }
 
@@ -46,7 +46,7 @@ public class UnixDomainServerSocket {
 
         } catch (final IOException ex) {
             LOGGER.error("Failed to read from Socket");
-            throw new NexusSocketException(ex);
+            throw new TesseraSocketException(ex);
         }
     }
 }

@@ -2,7 +2,7 @@ package com.github.tessera.ssl.context;
 
 import com.github.tessera.config.SslConfig;
 import com.github.tessera.config.SslTrustMode;
-import com.github.tessera.ssl.exception.NexusSecurityException;
+import com.github.tessera.ssl.exception.TesseraSecurityException;
 import org.junit.Test;
 
 import javax.net.ssl.SSLContext;
@@ -36,8 +36,8 @@ public class ClientSSLContextFactoryTest {
 
     }
 
-    @Test(expected = NexusSecurityException.class)
-    public void securityExceptionsAreThrownAsNexusException() throws Exception {
+    @Test(expected = TesseraSecurityException.class)
+    public void securityExceptionsAreThrownAsTesseraException() throws Exception {
         SslConfig config = mock(SslConfig.class);
 
         Path keyStore = Paths.get(getClass().getResource("/trust.jks").toURI());

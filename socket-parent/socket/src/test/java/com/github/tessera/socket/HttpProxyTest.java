@@ -151,7 +151,7 @@ public class HttpProxyTest {
 
         final Throwable throwable = catchThrowable(() -> httpProxy.sendRequest(new byte[]{}));
 
-        assertThat(throwable).isInstanceOf(NexusSocketException.class);
+        assertThat(throwable).isInstanceOf(TesseraSocketException.class);
 
         verify(mockSocketFactory).createSocket(uri.getHost(), uri.getPort());
         verify(mockSocket).getOutputStream();
@@ -169,7 +169,7 @@ public class HttpProxyTest {
 
         final Throwable throwable = catchThrowable(() -> httpProxy.getResponse());
 
-        assertThat(throwable).isInstanceOf(NexusSocketException.class);
+        assertThat(throwable).isInstanceOf(TesseraSocketException.class);
 
         verify(mockSocketFactory).createSocket(uri.getHost(), uri.getPort());
         verify(mockSocket).getInputStream();

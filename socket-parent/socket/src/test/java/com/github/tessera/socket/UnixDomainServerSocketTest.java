@@ -69,7 +69,7 @@ public class UnixDomainServerSocketTest {
         doThrow(IOException.class).when(socket).getInputStream();
 
         final Throwable ex = catchThrowable(unixDomainServerSocket::read);
-        assertThat(ex).isInstanceOf(NexusSocketException.class).hasCauseExactlyInstanceOf(IOException.class);
+        assertThat(ex).isInstanceOf(TesseraSocketException.class).hasCauseExactlyInstanceOf(IOException.class);
 
         verify(socket).getInputStream();
     }
@@ -80,7 +80,7 @@ public class UnixDomainServerSocketTest {
         doThrow(IOException.class).when(socket).getOutputStream();
 
         final Throwable ex = catchThrowable(() -> unixDomainServerSocket.write("HELLOW".getBytes()));
-        assertThat(ex).isInstanceOf(NexusSocketException.class).hasCauseExactlyInstanceOf(IOException.class);
+        assertThat(ex).isInstanceOf(TesseraSocketException.class).hasCauseExactlyInstanceOf(IOException.class);
 
         verify(socket).getOutputStream();
     }

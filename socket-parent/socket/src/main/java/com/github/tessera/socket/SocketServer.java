@@ -44,7 +44,7 @@ public class SocketServer implements Runnable {
 
         } catch (final IOException ex) {
             LOGGER.error("Failed to create Unix Domain Socket: {}", socketFile.toString());
-            throw new NexusSocketException(ex);
+            throw new TesseraSocketException(ex);
         }
 
     }
@@ -74,7 +74,7 @@ public class SocketServer implements Runnable {
 
         } catch (final IOException ex) {
             LOGGER.error("Failed to create Socket");
-            throw new NexusSocketException(ex);
+            throw new TesseraSocketException(ex);
         }
 
     }

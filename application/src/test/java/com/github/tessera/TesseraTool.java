@@ -13,7 +13,7 @@ import java.util.Base64;
  * formats a cmdline call to be pasted.
  *
  */
-public class NexusTool {
+public class TesseraTool {
 
     private static final String VERSION = "\"jsonrpc\":\"2.0\"";
 

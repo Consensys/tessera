@@ -49,7 +49,7 @@ public class HttpProxy {
 
         } catch (Exception ex) {
             LOGGER.error("Failed to connect to URL: {}", serverUri);
-            throw new NexusSocketException(ex);
+            throw new TesseraSocketException(ex);
         }
     }
 
@@ -77,7 +77,7 @@ public class HttpProxy {
             os.flush();
         } catch (IOException ex) {
             LOGGER.error("Failed to write to socket");
-            throw new NexusSocketException(ex);
+            throw new TesseraSocketException(ex);
         }
 
     }
@@ -93,7 +93,7 @@ public class HttpProxy {
             return InputStreamUtils.readAllBytes(is);
         } catch (IOException ex) {
             LOGGER.error("Failed to read from http socket");
-            throw new NexusSocketException(ex);
+            throw new TesseraSocketException(ex);
         }
 
     }

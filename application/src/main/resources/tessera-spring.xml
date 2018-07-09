@@ -152,7 +152,7 @@
             <property name="jpaPropertyMap">
                 <props>
                     <prop key="eclipselink.weaving">false</prop>
-                    <prop key="eclipselink.session-name">nexus</prop>
+                    <prop key="eclipselink.session-name">tessera</prop>
                     <!--                <prop key="eclipselink.logging.level">FINE</prop>-->
                     <prop key="eclipselink.logging.logger">org.eclipse.persistence.logging.slf4j.SLF4JLogger</prop>
                     <prop key="eclipselink.logging.session">false</prop>

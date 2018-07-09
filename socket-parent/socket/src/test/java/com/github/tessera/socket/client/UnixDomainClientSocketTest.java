@@ -1,6 +1,6 @@
 package com.github.tessera.socket.client;
 
-import com.github.tessera.socket.NexusSocketException;
+import com.github.tessera.socket.TesseraSocketException;
 import com.github.tessera.socket.UnixSocketFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -63,8 +63,8 @@ public class UnixDomainClientSocketTest {
 
         try {
             unixDomainClientSocket.connect(directory, filename);
-            Assertions.failBecauseExceptionWasNotThrown(NexusSocketException.class);
-        } catch (NexusSocketException ex) {
+            Assertions.failBecauseExceptionWasNotThrown(TesseraSocketException.class);
+        } catch (TesseraSocketException ex) {
             assertThat(ex).hasMessageContaining(message);
             assertThat(ex).hasCause(exception);
         }
@@ -126,7 +126,7 @@ public class UnixDomainClientSocketTest {
 
         try {
             unixDomainClientSocket.read();
-        } catch (NexusSocketException ex) {
+        } catch (TesseraSocketException ex) {
             assertThat(ex).hasCause(exception);
         }
         verify(socket).getInputStream();
@@ -146,7 +146,7 @@ public class UnixDomainClientSocketTest {
 
         try {
             unixDomainClientSocket.write("BOGUS");
-        } catch (NexusSocketException ex) {
+        } catch (TesseraSocketException ex) {
             assertThat(ex).hasCause(exception);
         }
         verify(socket).getOutputStream();

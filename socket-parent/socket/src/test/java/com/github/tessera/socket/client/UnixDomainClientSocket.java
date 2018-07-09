@@ -1,6 +1,6 @@
 package com.github.tessera.socket.client;
 
-import com.github.tessera.socket.NexusSocketException;
+import com.github.tessera.socket.TesseraSocketException;
 import com.github.tessera.socket.UnixSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public class UnixDomainClientSocket {
             socket = unixSocketFactory.createSocket(socketFile.toPath());
         } catch (IOException ex) {
             LOGGER.error("Cannot connect to server using {}/{}", directory, filename);
-            throw new NexusSocketException(ex);
+            throw new TesseraSocketException(ex);
         }
     }
 
@@ -57,7 +57,7 @@ public class UnixDomainClientSocket {
 
         } catch (IOException ex) {
             LOGGER.error("Failed to read from Socket");
-            throw new NexusSocketException(ex);
+            throw new TesseraSocketException(ex);
         }
     }
 
@@ -72,7 +72,7 @@ public class UnixDomainClientSocket {
 
         } catch (IOException ex) {
             LOGGER.error("Failed to read from Socket");
-            throw new NexusSocketException(ex);
+            throw new TesseraSocketException(ex);
         }
     }
 }

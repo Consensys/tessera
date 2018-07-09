@@ -14,18 +14,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
-public class NexusTest {
+public class TesseraTest {
 
     private static final String contextName = "context";
 
     private ServiceLocator serviceLocator;
 
-    private Nexus nexus;
+    private Tessera tessera;
 
     @Before
     public void setUp() {
         serviceLocator = mock(ServiceLocator.class);
-        nexus = new Nexus(serviceLocator, contextName);
+        tessera = new Tessera(serviceLocator, contextName);
     }
 
     @After
@@ -35,17 +35,17 @@ public class NexusTest {
 
     @Test
     public void getSingletons() {
-        nexus.getSingletons();
+        tessera.getSingletons();
         verify(serviceLocator).getServices(contextName);
     }
 
     @Test
     public void createWithNoServiceLocator() {
 
-        final Throwable throwable = catchThrowable(() -> new Nexus(null, contextName));
+        final Throwable throwable = catchThrowable(() -> new Tessera(null, contextName));
         assertThat(throwable).isInstanceOf(NullPointerException.class);
 
-        final Throwable throwableName = catchThrowable(() -> new Nexus(serviceLocator, null));
+        final Throwable throwableName = catchThrowable(() -> new Tessera(serviceLocator, null));
         assertThat(throwableName).isInstanceOf(NullPointerException.class);
 
     }
@@ -60,7 +60,7 @@ public class NexusTest {
                 .thenReturn(Stream.of(apiObject,nestedApiObject,nonApiObject)
                         .collect(Collectors.toSet()));
         
-        Set<Object> result = nexus.getSingletons();
+        Set<Object> result = tessera.getSingletons();
         assertThat(result).containsOnly(apiObject,nestedApiObject);
         verify(serviceLocator).getServices(contextName);
     }

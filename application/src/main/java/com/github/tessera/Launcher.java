@@ -1,6 +1,6 @@
 package com.github.tessera;
 
-import com.github.tessera.api.Nexus;
+import com.github.tessera.api.Tessera;
 import com.github.tessera.config.Config;
 import com.github.tessera.config.ServerConfig;
 import com.github.tessera.config.cli.CliDelegate;
@@ -56,9 +56,9 @@ public class Launcher {
 
     private static void runWebServer(final URI serverUri, ServerConfig serverConfig) throws Exception {
 
-        final Nexus nexus = new Nexus(ServiceLocator.create(), "nexus-spring.xml");
+        final Tessera tessera = new Tessera(ServiceLocator.create(), "tessera-spring.xml");
 
-        final RestServer restServer = RestServerFactory.create().createServer(serverUri, nexus, serverConfig);
+        final RestServer restServer = RestServerFactory.create().createServer(serverUri, tessera, serverConfig);
 
         CountDownLatch countDown = new CountDownLatch(1);
 

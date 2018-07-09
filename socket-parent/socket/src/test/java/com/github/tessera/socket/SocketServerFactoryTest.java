@@ -35,7 +35,7 @@ public class SocketServerFactoryTest {
 
     }
     
-    @Test(expected = NexusSocketException.class)
+    @Test(expected = TesseraSocketException.class)
     public void testSocketServerFactoryThrowsException() {
         
         final Config config = mock(Config.class);

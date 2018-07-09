@@ -15,7 +15,7 @@
 
     <dependencies>
 
-        <!-- Nexus modules -->
+        <!-- Tessera modules -->
 
         <dependency>
             <groupId>com.github.tessera</groupId>
@@ -277,7 +277,7 @@
                             <springmvc>false</springmvc>
                             
                             <info>
-                                <title>Nexus rest</title>
+                                <title>Tessera rest</title>
                                 <version>${project.version}</version>
                             </info>
 
