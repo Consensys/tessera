@@ -28,7 +28,7 @@ public class Launcher {
     public static void main(final String... args) throws Exception {
 
         try {
-            CliResult cliResult = CliDelegate.instance().execute(args);
+            final CliResult cliResult = CliDelegate.instance().execute(args);
 
             if(cliResult.isHelpOn()) {
                 System.exit(0);
