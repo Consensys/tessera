@@ -2,74 +2,40 @@ package com.github.nexus.transaction.model;
 
 import org.junit.Test;
 
+import java.util.Objects;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EncryptedTransactionTest {
 
     @Test
-    public void twoObjectWithSameIdAreEqual() {
+    public void subclassesEqual() {
 
-        final Long id = 1L;
+        class OtherClass extends EncryptedTransaction {
+        }
 
-        final EncryptedTransaction first = new EncryptedTransaction();
-        first.setId(id);
+        final OtherClass other = new OtherClass();
+        final EncryptedTransaction et = new EncryptedTransaction();
 
-        final EncryptedTransaction second = new EncryptedTransaction();
-        second.setId(id);
+        other.setId(1L);
+        et.setId(1L);
 
-        assertThat(first).isEqualTo(second).isNotSameAs(second)
-            .hasSameHashCodeAs(second);
+        final boolean equal = Objects.equals(et, other);
 
-    }
-
-    @Test
-    public void twoObjectWithDifferentIdAreNotEqual() {
-
-        final EncryptedTransaction first = new EncryptedTransaction();
-        first.setId(1L);
-
-        final EncryptedTransaction second = new EncryptedTransaction();
-        second.setId(2L);
-
-        assertThat(first).isNotEqualTo(second);
+        assertThat(equal).isTrue();
 
     }
 
     @Test
-    public void sameObjectIsEqual() {
+    public void differentClassesNotEqual() {
 
-        final EncryptedTransaction first = new EncryptedTransaction();
-        first.setId(1L);
+        final Object other = "OTHER";
+        final EncryptedTransaction et = new EncryptedTransaction();
 
-        assertThat(first).isEqualTo(first).isSameAs(first);
+        final boolean equal = Objects.equals(et, other);
 
-    }
-
-    @Test
-    public void nullObjectIsNotEqual() {
-
-        final EncryptedTransaction first = new EncryptedTransaction();
-        first.setId(1L);
-
-        final EncryptedTransaction second = null;
-
-        assertThat(first).isNotEqualTo(second);
+        assertThat(equal).isFalse();
 
     }
 
-    @Test
-    public void objectOfDifferentTypesAreNotEqual() {
-
-        final EncryptedTransaction first = new EncryptedTransaction();
-        first.setId(1L);
-
-        final OtherType second = new OtherType();
-        second.setId(1L);
-
-        assertThat(first).isNotEqualTo(second);
-
-    }
-
-    private static class OtherType extends EncryptedTransaction {
-    }
 }

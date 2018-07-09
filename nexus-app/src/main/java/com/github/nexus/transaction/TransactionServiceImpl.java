@@ -143,7 +143,7 @@ public class TransactionServiceImpl implements TransactionService {
         final byte[] digest = digestSHA3.digest(payloadWithRecipients.getEncodedPayload().getCipherText());
 
         final EncryptedTransaction newTransaction = new EncryptedTransaction(
-            digest,
+            new MessageHash(digest),
             payloadEncoder.encode(payloadWithRecipients)
         );
 

@@ -61,6 +61,5 @@ public class MessageHashTest {
         assertThat(toString).isEqualTo("dmFs");
 
     }
-    
 
 }
