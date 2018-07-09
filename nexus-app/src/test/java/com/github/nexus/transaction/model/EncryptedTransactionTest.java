@@ -59,20 +59,4 @@ public class EncryptedTransactionTest {
 
     }
 
-    @Test
-    public void objectOfDifferentTypesAreNotEqual() {
-
-        class OtherType extends EncryptedTransaction {
-        }
-
-        final EncryptedTransaction first = new EncryptedTransaction();
-        first.setId(1L);
-
-        final OtherType second = new OtherType();
-        second.setId(1L);
-
-        assertThat(first).isNotEqualTo(second);
-
-    }
-
 }

@@ -61,7 +61,7 @@ public class EncryptedTransaction implements Serializable {
 
     @Override
     public boolean equals(final Object obj) {
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof EncryptedTransaction)) {
             return false;
         }
 
