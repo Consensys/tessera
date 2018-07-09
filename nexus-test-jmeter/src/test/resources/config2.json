@@ -14,13 +14,15 @@
       "url" : "http://localhost:8080"
    }],
     "keys" : [ {
-        "privateKey" : {
-            "value" : "rmAhE3HxbQWG6TgjVYsLjQoHE06jZ60fXYsT5s7++rI=",
-            "type": "UNLOCKED"
+        "config" : {
+            "data" : {
+                "bytes" : "rmAhE3HxbQWG6TgjVYsLjQoHE06jZ60fXYsT5s7++rI="
+            },
+            "type" : "unlocked"
         },
         "publicKey" : {
             "value":"1CjgEocueKJQuFHm6pKVoSKXiMQvbehY04NjqyMtrjM="
         }
     } ],
-   "unixSocketFile" : "/tmp/tm1.ipc"
+   "unixSocketFile" : "/tmp/tm2.ipc"
 }
