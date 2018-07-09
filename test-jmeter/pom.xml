@@ -9,9 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>nexus-test-jmeter</artifactId>
+    <artifactId>test-jmeter</artifactId>
 
-    <name>nexus-test-jmeter</name>
+    <name>test-jmeter</name>
 
     <dependencies>
 
