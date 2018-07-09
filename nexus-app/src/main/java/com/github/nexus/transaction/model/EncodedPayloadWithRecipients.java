@@ -1,7 +1,7 @@
 package com.github.nexus.transaction.model;
 
-
 import com.github.nexus.nacl.Key;
+
 import java.util.Collections;
 import java.util.List;
 

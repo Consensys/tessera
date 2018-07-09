@@ -61,20 +61,11 @@ public class EncryptedTransaction implements Serializable {
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (null == obj) {
-            return false;
-        }
-
         if (getClass() != obj.getClass()) {
             return false;
         }
 
-        final EncryptedTransaction other = (EncryptedTransaction) obj;
-        return Objects.equals(this.id, other.id);
+        return Objects.equals(this.id, ((EncryptedTransaction) obj).id);
     }
 
 
