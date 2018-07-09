@@ -1,4 +1,4 @@
-package com.github.nexus.service.locator;
+package com.github.tessera.service.locator;
 
 import java.util.ServiceLoader;
 import java.util.Set;

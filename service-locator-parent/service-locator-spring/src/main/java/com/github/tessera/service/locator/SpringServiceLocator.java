@@ -1,4 +1,4 @@
-package com.github.nexus.service.locator;
+package com.github.tessera.service.locator;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;

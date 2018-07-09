@@ -3,15 +3,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.github.nexus</groupId>
-        <artifactId>nexus</artifactId>
+        <groupId>com.github.tessera</groupId>
+        <artifactId>tessera</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>config</artifactId>
     <packaging>jar</packaging>
+
+
     <dependencies>
-        
-        
+
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.moxy</artifactId>
@@ -41,24 +43,24 @@
         </dependency>
         
         <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>nexus-test-util</artifactId>
+            <groupId>com.github.tessera</groupId>
+            <artifactId>test-util</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.github.nexus</groupId>
+            <groupId>com.github.tessera</groupId>
             <artifactId>argon2</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>nexus-encryption</artifactId>
+            <groupId>com.github.tessera</groupId>
+            <artifactId>encryption</artifactId>
         </dependency>
         
         <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>nexus-encryption-jnacl</artifactId>
+            <groupId>com.github.tessera</groupId>
+            <artifactId>encryption-jnacl</artifactId>
         </dependency>
 
         <dependency>

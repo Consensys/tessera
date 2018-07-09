@@ -11,8 +11,8 @@
     <packaging>pom</packaging>
 
     <parent>
-        <groupId>com.github.nexus</groupId>
-        <artifactId>nexus</artifactId>
+        <groupId>com.github.tessera</groupId>
+        <artifactId>tessera</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 

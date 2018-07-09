@@ -1,6 +1,6 @@
-package com.github.nexus.server;
+package com.github.tessera.server;
 
-import com.github.nexus.config.ServerConfig;
+import com.github.tessera.config.ServerConfig;
 import javax.ws.rs.core.Application;
 import java.net.URI;
 

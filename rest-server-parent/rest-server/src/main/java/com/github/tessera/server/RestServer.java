@@ -1,4 +1,4 @@
-package com.github.nexus.server;
+package com.github.tessera.server;
 
 public interface RestServer {
 

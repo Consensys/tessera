@@ -1,9 +1,9 @@
 
-package com.github.nexus.resteasy;
+package com.github.tessera.resteasy;
 
-import com.github.nexus.config.ServerConfig;
-import com.github.nexus.server.RestServer;
-import com.github.nexus.server.RestServerFactory;
+import com.github.tessera.config.ServerConfig;
+import com.github.tessera.server.RestServer;
+import com.github.tessera.server.RestServerFactory;
 
 import javax.ws.rs.core.Application;
 import java.net.URI;

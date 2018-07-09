@@ -1,9 +1,9 @@
-package com.github.nexus.resteasy;
+package com.github.tessera.resteasy;
 
-import com.github.nexus.config.ServerConfig;
-import com.github.nexus.server.RestServer;
-import com.github.nexus.ssl.context.SSLContextFactory;
-import com.github.nexus.ssl.context.ServerSSLContextFactory;
+import com.github.tessera.config.ServerConfig;
+import com.github.tessera.server.RestServer;
+import com.github.tessera.ssl.context.SSLContextFactory;
+import com.github.tessera.ssl.context.ServerSSLContextFactory;
 import com.sun.net.httpserver.HttpServer;
 import org.jboss.resteasy.plugins.server.sun.http.HttpContextBuilder;
 

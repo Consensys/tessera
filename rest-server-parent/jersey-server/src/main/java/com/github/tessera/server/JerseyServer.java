@@ -1,8 +1,8 @@
-package com.github.nexus.server;
+package com.github.tessera.server;
 
-import com.github.nexus.config.ServerConfig;
-import com.github.nexus.ssl.context.SSLContextFactory;
-import com.github.nexus.ssl.context.ServerSSLContextFactory;
+import com.github.tessera.config.ServerConfig;
+import com.github.tessera.ssl.context.SSLContextFactory;
+import com.github.tessera.ssl.context.ServerSSLContextFactory;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;

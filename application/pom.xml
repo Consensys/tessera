@@ -8,8 +8,8 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>com.github.nexus</groupId>
-        <artifactId>nexus</artifactId>
+        <groupId>com.github.tessera</groupId>
+        <artifactId>tessera</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
@@ -18,43 +18,43 @@
         <!-- Nexus modules -->
 
         <dependency>
-            <groupId>com.github.nexus</groupId>
+            <groupId>com.github.tessera</groupId>
             <artifactId>argon2</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>nexus-config-cli</artifactId>
+            <groupId>com.github.tessera</groupId>
+            <artifactId>config-cli</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>nexus-encryption</artifactId>
+            <groupId>com.github.tessera</groupId>
+            <artifactId>encryption</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>nexus-socket</artifactId>
+            <groupId>com.github.tessera</groupId>
+            <artifactId>socket</artifactId>
             <scope>runtime</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>nexus-security</artifactId>
+            <groupId>com.github.tessera</groupId>
+            <artifactId>security</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.github.nexus</groupId>
+            <groupId>com.github.tessera</groupId>
             <artifactId>rest-server</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.github.nexus</groupId>
+            <groupId>com.github.tessera</groupId>
             <artifactId>service-locator</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.github.nexus</groupId>
+            <groupId>com.github.tessera</groupId>
             <artifactId>service-locator-spring</artifactId>
             <scope>runtime</scope>
         </dependency>
@@ -158,7 +158,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.nexus</groupId>
+            <groupId>com.github.tessera</groupId>
             <artifactId>junixsocket-adapter</artifactId>
             <scope>runtime</scope>
             <exclusions>
