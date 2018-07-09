@@ -1,4 +1,4 @@
-package com.github.nexus.argon2;
+package com.github.tessera.argon2;
 
 /**
  * Contains options when calling Argon2

@@ -1,4 +1,4 @@
-package com.github.nexus.argon2;
+package com.github.tessera.argon2;
 
 import de.mkammerer.argon2.Argon2Advanced;
 import de.mkammerer.argon2.Argon2Factory;
