@@ -1,28 +1,18 @@
-
-package com.github.tessera.entity;
+package com.github.tessera;
 
 import com.openpojo.validation.Validator;
 import com.openpojo.validation.ValidatorBuilder;
-import com.openpojo.validation.rule.impl.EqualsAndHashCodeMatchRule;
-import com.openpojo.validation.rule.impl.GetterMustExistRule;
-import com.openpojo.validation.rule.impl.NoPrimitivesRule;
-import com.openpojo.validation.rule.impl.NoPublicFieldsExceptStaticFinalRule;
-import com.openpojo.validation.rule.impl.SetterMustExistRule;
+import com.openpojo.validation.rule.impl.*;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
 import org.junit.Test;
 
-
 public class OpenPojoEntityTest {
-    
-    public OpenPojoEntityTest() {
-    }
-
 
     @Test
     public void executeOpenPojoValidations() {
 
-        Validator pojoValidator = ValidatorBuilder.create()
+        final Validator pojoValidator = ValidatorBuilder.create()
                 .with(new GetterMustExistRule())
                 .with(new SetterMustExistRule())
                 .with(new SetterTester())
@@ -33,6 +23,8 @@ public class OpenPojoEntityTest {
                 .build();
 
         pojoValidator.validate(getClass().getPackage().getName());
+        pojoValidator.validate("com.github.tessera.enclave.model");
 
     }
+
 }
