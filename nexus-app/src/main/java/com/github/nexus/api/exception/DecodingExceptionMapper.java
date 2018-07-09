@@ -1,14 +1,13 @@
 package com.github.nexus.api.exception;
 
-
 import com.github.nexus.util.exception.DecodingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Provider
 public class DecodingExceptionMapper implements ExceptionMapper<DecodingException> {
@@ -16,12 +15,12 @@ public class DecodingExceptionMapper implements ExceptionMapper<DecodingExceptio
     private static final Logger LOGGER = LoggerFactory.getLogger(DecodingExceptionMapper.class);
 
     @Override
-    public Response toResponse(DecodingException e) {
-        LOGGER.error("",e);
+    public Response toResponse(final DecodingException e) {
+        LOGGER.error("", e);
 
         return Response.status(Response.Status.BAD_REQUEST)
-                .entity(e.getMessage())
-                .header("Content-Type", MediaType.TEXT_PLAIN)
-                .build();
+            .entity(e.getMessage())
+            .header("Content-Type", MediaType.TEXT_PLAIN)
+            .build();
     }
 }
