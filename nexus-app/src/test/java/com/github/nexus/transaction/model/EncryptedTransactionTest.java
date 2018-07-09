@@ -17,7 +17,9 @@ public class EncryptedTransactionTest {
         final EncryptedTransaction second = new EncryptedTransaction();
         second.setId(id);
 
-        assertThat(first).isEqualTo(second).isNotSameAs(second)
+        assertThat(first)
+            .isEqualTo(second)
+            .isNotSameAs(second)
             .hasSameHashCodeAs(second);
 
     }
@@ -60,6 +62,9 @@ public class EncryptedTransactionTest {
     @Test
     public void objectOfDifferentTypesAreNotEqual() {
 
+        class OtherType extends EncryptedTransaction {
+        }
+
         final EncryptedTransaction first = new EncryptedTransaction();
         first.setId(1L);
 
@@ -70,6 +75,4 @@ public class EncryptedTransactionTest {
 
     }
 
-    private static class OtherType extends EncryptedTransaction {
-    }
 }
