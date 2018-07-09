@@ -11,15 +11,15 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>com.github.nexus</groupId>
-        <artifactId>nexus</artifactId>
+        <groupId>com.github.tessera</groupId>
+        <artifactId>tessera</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
     <dependencies>
 
         <dependency>
-            <groupId>com.github.nexus</groupId>
+            <groupId>com.github.tessera</groupId>
             <artifactId>application</artifactId>
             <classifier>app</classifier>
             <version>1.0-SNAPSHOT</version>
@@ -105,7 +105,7 @@
                         </goals>
                         <configuration>
                             <properties>
-                                <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
+                                <jarfile>${com.github.tessera:application:jar:app}</jarfile>
                                 <configFile>${project.build.testOutputDirectory}/config4.json</configFile>
                                 <pidFile>${project.build.directory}/node4.pid</pidFile>
                                 <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml</logbackConfigFile>
@@ -123,7 +123,7 @@
                         </goals>
                         <configuration>
                             <properties>
-                                <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
+                                <jarfile>${com.github.tessera:application:jar:app}</jarfile>
                                 <configFile>${project.build.testOutputDirectory}/config1.json</configFile>
                                 <pidFile>${project.build.directory}/node1.pid</pidFile>
                                 <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml</logbackConfigFile>
@@ -141,7 +141,7 @@
                         </goals>
                         <configuration>
                             <properties>
-                                <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
+                                <jarfile>${com.github.tessera:application:jar:app}</jarfile>
                                 <configFile>${project.build.testOutputDirectory}/config2.json</configFile>
                                 <pidFile>${project.build.directory}/node2.pid</pidFile>
                                 <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml</logbackConfigFile>
@@ -159,7 +159,7 @@
                         </goals>
                         <configuration>
                             <properties>
-                                <jarfile>${com.github.nexus:nexus-app:jar:app}</jarfile>
+                                <jarfile>${com.github.tessera:application:jar:app}</jarfile>
                                 <configFile>${project.build.testOutputDirectory}/config3.json</configFile>
                                 <pidFile>${project.build.directory}/node3.pid</pidFile>
                                 <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml</logbackConfigFile>

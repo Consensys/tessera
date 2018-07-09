@@ -338,8 +338,8 @@
             </activation>
             <dependencies>       
                 <dependency>
-                    <groupId>com.github.nexus</groupId>
-                    <artifactId>nexus-encryption-jnacl</artifactId>
+                    <groupId>com.github.tessera</groupId>
+                    <artifactId>encryption-jnacl</artifactId>
                 </dependency>
             </dependencies>
         </profile>
@@ -347,8 +347,8 @@
             <id>kalium</id>
             <dependencies>       
                 <dependency>
-                    <groupId>com.github.nexus</groupId>
-                    <artifactId>nexus-encryption-kalium</artifactId>
+                    <groupId>com.github.tessera</groupId>
+                    <artifactId>encryption-kalium</artifactId>
                 </dependency>
             </dependencies>
         </profile>
@@ -360,7 +360,7 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.github.nexus</groupId>
+                    <groupId>com.github.tessera</groupId>
                     <artifactId>jersey-server</artifactId>
                     <scope>runtime</scope>
                     <exclusions>
@@ -388,7 +388,7 @@
 
             <dependencies>
                 <dependency>
-                    <groupId>com.github.nexus</groupId>
+                    <groupId>com.github.tessera</groupId>
                     <artifactId>resteasy-server</artifactId>
                     <scope>runtime</scope>
                 </dependency>

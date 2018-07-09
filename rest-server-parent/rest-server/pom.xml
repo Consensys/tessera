@@ -19,8 +19,8 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.github.nexus</groupId>
-            <artifactId>nexus-config</artifactId>
+            <groupId>com.github.tessera</groupId>
+            <artifactId>config</artifactId>
         </dependency>
         
     </dependencies>
