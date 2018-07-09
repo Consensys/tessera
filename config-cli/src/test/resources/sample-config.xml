@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns="http://tessera.github.com/config">
+
+    <jdbc>
+        <username>scott</username>
+        <password>tiger</password>
+        <url>foo:bar</url>
+    </jdbc>
+    
+    <server>
+        <port>99</port>
+    </server>
+        
+    <peer>
+        <url>http://bogus1.com</url>
+    </peer>
+    
+    <peer>
+        <url>http://bogus2.com</url>
+    </peer>
+    
+    <keys>
+        <privateKey type="locked">
+            <value>PRIVATEKEY</value>
+            <password>TOP_SECRET</password>
+        </privateKey>
+    
+        <publicKey>
+            <path>/somepath</path>
+        </publicKey>
+    </keys>
+    <unixSocketFile>/tmp/bogus.socket</unixSocketFile>
+    
+</configuration>
