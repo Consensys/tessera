@@ -93,13 +93,13 @@ public class SendIT {
 
         //validate result
 
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(200);
+
         final String result = response.readEntity(String.class);
         final Reader reader = new StringReader(result);
         final JsonObject jsonResult = Json.createReader(reader).readObject();
         assertThat(jsonResult).containsKeys("key");
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(200);
     }
 
     @Test
@@ -248,6 +248,28 @@ public class SendIT {
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(400);
+    }
+
+    /**
+     * Quorum sends transaction with unknown public key
+     */
+    @Test
+    public void sendToDeadNode() {
+
+        final String sendRequest = Json.createObjectBuilder()
+            .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+            .add("to", Json.createArrayBuilder().add("Tj8xg/HpsYmh7Te3UerzlLx1HgpWVOGq25ZgbwaPNVM="))
+            .add("payload", "Zm9v").build().toString();
+
+        LOGGER.info("sendRequest: {}", sendRequest);
+
+        final Response response = client.target(SERVER_URI)
+            .path(SEND_PATH)
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(500);
     }
 
 }

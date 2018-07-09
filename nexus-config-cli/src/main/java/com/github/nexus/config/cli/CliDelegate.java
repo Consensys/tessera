@@ -49,40 +49,40 @@ public enum CliDelegate {
 
         Options options = new Options();
         options.addOption(
-            Option.builder("configfile")
-                .desc("Path to node configuration file")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("PATH")
-                .required()
-                .build());
+                Option.builder("configfile")
+                        .desc("Path to node configuration file")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("PATH")
+                        .required()
+                        .build());
 
         //If keygen then we require the path to the private key config path
         options.addOption(
-            Option.builder("keygen")
-                .desc("Path to private key config for generation of missing key files")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("PATH")
-                .build());
+                Option.builder("keygen")
+                        .desc("Path to private key config for generation of missing key files")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("PATH")
+                        .build());
 
         options.addOption(
-            Option.builder("output")
-                .desc("Generate updated config file with generated keys")
-                .hasArg(true)
-                .numberOfArgs(1)
-                .build());
+                Option.builder("output")
+                        .desc("Generate updated config file with generated keys")
+                        .hasArg(true)
+                        .numberOfArgs(1)
+                        .build());
 
         options.addOption(
-            Option.builder("pidfile")
-                .desc("Path to pid file")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("PATH")
-                .build());
+                Option.builder("pidfile")
+                        .desc("Path to pid file")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("PATH")
+                        .build());
 
         if (Arrays.asList(args).contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
@@ -123,7 +123,6 @@ public enum CliDelegate {
 
         final List<InputStream> keyGetConfigs = getKeyGenConfig(commandLine);
 
-
         try (InputStream in = Files.newInputStream(path)) {
             this.config = configFactory.create(in, keyGetConfigs.toArray(new InputStream[0]));
         }
@@ -150,9 +149,9 @@ public enum CliDelegate {
 
             for (final String pathStr : keyGenConfigFiles) {
                 keyGenConfigs.add(
-                    Files.newInputStream(
-                        Paths.get(pathStr)
-                    )
+                        Files.newInputStream(
+                                Paths.get(pathStr)
+                        )
                 );
             }
         }
@@ -178,10 +177,10 @@ public enum CliDelegate {
         final Path pidFilePath = Paths.get(commandLine.getOptionValue("pidfile"));
 
         if (Files.exists(pidFilePath)) {
-            LOGGER.info("File already exists " + pidFilePath);
+            LOGGER.info("File already exists {}", pidFilePath);
         } else {
             Files.createFile(pidFilePath);
-            LOGGER.info("Creating pid file " + pidFilePath);
+            LOGGER.info("Created pid file {}", pidFilePath);
         }
 
         final String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
