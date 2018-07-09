@@ -1,5 +1,7 @@
 package com.github.nexus.transaction.model;
 
+import com.github.nexus.enclave.model.MessageHash;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
@@ -14,15 +16,20 @@ public class EncryptedTransaction implements Serializable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ENC_TX_SEQ")
     private Long id;
 
-    @Lob
-    @Column(name = "HASH", nullable = false, unique = true)
-    private byte[] hash;
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(
+            name = "hashBytes",
+            column = @Column(name = "HASH", nullable = false, unique = true, updatable = false)
+        )
+    })
+    private MessageHash hash;
 
     @Lob
     @Column(name = "ENCODED_PAYLOAD", nullable = false)
     private byte[] encodedPayload;
 
-    public EncryptedTransaction(final byte[] hash, final byte[] encodedPayload) {
+    public EncryptedTransaction(final MessageHash hash, final byte[] encodedPayload) {
         this.hash = hash;
         this.encodedPayload = encodedPayload;
     }
@@ -38,11 +45,11 @@ public class EncryptedTransaction implements Serializable {
         this.id = id;
     }
 
-    public byte[] getHash() {
+    public MessageHash getHash() {
         return hash;
     }
 
-    public void setHash(final byte[] hash) {
+    public void setHash(final MessageHash hash) {
         this.hash = hash;
     }
 

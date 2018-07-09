@@ -37,7 +37,7 @@ public class EncryptedTransactionDAOTest {
     public void saveDoesntAllowNullEncodedPayload() {
 
         EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-        encryptedTransaction.setHash(new byte[]{5});
+        encryptedTransaction.setHash(new MessageHash(new byte[]{5}));
 
         final Throwable throwable = catchThrowable(() -> {
             encryptedTransactionDAO.save(encryptedTransaction);
@@ -72,12 +72,12 @@ public class EncryptedTransactionDAOTest {
 
         final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
         encryptedTransaction.setEncodedPayload(new byte[]{5});
-        encryptedTransaction.setHash(new byte[]{1});
+        encryptedTransaction.setHash(new MessageHash(new byte[]{1}));
         encryptedTransactionDAO.save(encryptedTransaction);
 
         final EncryptedTransaction duplicateTransaction = new EncryptedTransaction();
         duplicateTransaction.setEncodedPayload(new byte[]{6});
-        duplicateTransaction.setHash(new byte[]{1});
+        duplicateTransaction.setHash(new MessageHash(new byte[]{1}));
 
         final Throwable throwable = catchThrowable(() -> {
             encryptedTransactionDAO.save(duplicateTransaction);
@@ -96,7 +96,7 @@ public class EncryptedTransactionDAOTest {
 
         final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
         encryptedTransaction.setEncodedPayload(new byte[]{5});
-        encryptedTransaction.setHash(new byte[]{1});
+        encryptedTransaction.setHash(new MessageHash(new byte[]{1}));
         encryptedTransactionDAO.save(encryptedTransaction);
 
         final EncryptedTransaction retrieved
@@ -110,7 +110,11 @@ public class EncryptedTransactionDAOTest {
     public void fetchingAllTransactionsReturnsAll() {
 
         final List<EncryptedTransaction> payloads = IntStream.range(0, 50)
-            .mapToObj(i -> new EncryptedTransaction(new byte[]{(byte) i}, new byte[]{(byte) i}))
+            .mapToObj(i -> new EncryptedTransaction(
+                    new MessageHash(new byte[]{(byte) i}),
+                    new byte[]{(byte) i}
+                )
+            )
             .peek(entityManager::persist)
             .collect(Collectors.toList());
 
@@ -127,7 +131,7 @@ public class EncryptedTransactionDAOTest {
         //put a transaction in the database
         final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
         encryptedTransaction.setEncodedPayload(new byte[]{5});
-        encryptedTransaction.setHash(new byte[]{1});
+        encryptedTransaction.setHash(new MessageHash(new byte[]{1}));
         encryptedTransactionDAO.save(encryptedTransaction);
 
         //check that it is actually in the database
@@ -155,7 +159,7 @@ public class EncryptedTransactionDAOTest {
         //put a transaction in the database
         final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
         encryptedTransaction.setEncodedPayload(new byte[]{5});
-        encryptedTransaction.setHash(new byte[]{1});
+        encryptedTransaction.setHash(new MessageHash(new byte[]{1}));
         encryptedTransactionDAO.save(encryptedTransaction);
 
         final MessageHash searchHash = new MessageHash(new byte[]{1});

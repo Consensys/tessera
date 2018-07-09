@@ -16,7 +16,8 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EncryptedTransactionDAOImpl.class);
 
-    private static final String FIND_HASH_EQUAL = "SELECT et FROM EncryptedTransaction et WHERE et.hash = :hash";
+    private static final String FIND_HASH_EQUAL
+        = "SELECT et FROM EncryptedTransaction et WHERE et.hash.hashBytes = :hash";
 
     private static final String FIND_ALL = "SELECT et FROM EncryptedTransaction et";
 
@@ -28,7 +29,7 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
         entityManager.persist(entity);
 
         LOGGER.debug("Persisting entity with ID {}, hash {} and payload {}",
-            entity.getId(), Arrays.toString(entity.getHash()), Arrays.toString(entity.getEncodedPayload())
+            entity.getId(), entity.getHash(), Arrays.toString(entity.getEncodedPayload())
         );
 
         return entity;
