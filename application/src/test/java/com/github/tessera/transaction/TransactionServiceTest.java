@@ -60,7 +60,7 @@ public class TransactionServiceTest {
         this.naclFacade = mock(NaclFacade.class);
 
         this.encTx = new EncryptedTransaction(
-            new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9},
+            new MessageHash(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9}),
             payloadEncoder.encode(payload)
         );
 
@@ -167,7 +167,7 @@ public class TransactionServiceTest {
         );
 
         final EncryptedTransaction encTxTwoRecs = new EncryptedTransaction(
-            new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9},
+            new MessageHash(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9}),
             payloadEncoder.encode(payloadWithTwoRecs)
         );
 
@@ -267,8 +267,7 @@ public class TransactionServiceTest {
             emptyList()
         );
 
-        final EncryptedTransaction tx
-            = new EncryptedTransaction(hash.getHashBytes(), payloadEncoder.encode(payloadWithRecipients));
+        final EncryptedTransaction tx = new EncryptedTransaction(hash, payloadEncoder.encode(payloadWithRecipients));
 
         doReturn(Optional.of(tx)).when(dao).retrieveByHash(hash);
 
