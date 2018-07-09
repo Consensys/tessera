@@ -3,7 +3,9 @@ package com.github.tessera.transaction.model;
 
 import com.github.tessera.nacl.Key;
 import com.github.tessera.nacl.Nonce;
+
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class contains the base data that is sent to other nodes
@@ -28,13 +30,16 @@ public class EncodedPayload {
                           final Nonce recipientNonce) {
 
         this.senderKey = senderKey;
-        this.cipherText = cipherText;
+        this.cipherText = Arrays.copyOf(cipherText, cipherText.length);
         this.cipherTextNonce = cipherTextNonce;
         this.recipientNonce = recipientNonce;
 
         final List<byte[]> recBoxes = Optional
             .ofNullable(recipientBoxes)
-            .orElse(new ArrayList<>());
+            .orElse(new ArrayList<>())
+            .stream()
+            .map(arr -> Arrays.copyOf(arr, arr.length))
+            .collect(Collectors.toList());
 
         this.recipientBoxes = Collections.unmodifiableList(recBoxes);
     }
@@ -44,7 +49,7 @@ public class EncodedPayload {
     }
 
     public byte[] getCipherText() {
-        return cipherText;
+        return Arrays.copyOf(this.cipherText, this.cipherText.length);
     }
 
     public Nonce getCipherTextNonce() {
@@ -52,7 +57,10 @@ public class EncodedPayload {
     }
 
     public List<byte[]> getRecipientBoxes() {
-        return recipientBoxes;
+        return recipientBoxes
+            .stream()
+            .map(arr -> Arrays.copyOf(arr, arr.length))
+            .collect(Collectors.toList());
     }
 
     public Nonce getRecipientNonce() {

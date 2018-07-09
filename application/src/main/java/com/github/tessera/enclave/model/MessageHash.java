@@ -1,13 +1,24 @@
 package com.github.tessera.enclave.model;
 
+import javax.persistence.Embeddable;
+import javax.persistence.Lob;
 import java.util.Arrays;
 import java.util.Base64;
 
+@Embeddable
 public class MessageHash {
 
-    private final byte[] hashBytes;
+    @Lob
+    private byte[] hashBytes;
+
+    public MessageHash() {
+    }
 
     public MessageHash(final byte[] hashBytes) {
+        this.hashBytes = Arrays.copyOf(hashBytes, hashBytes.length);
+    }
+
+    public void setHashBytes(final byte[] hashBytes) {
         this.hashBytes = Arrays.copyOf(hashBytes, hashBytes.length);
     }
 
@@ -17,16 +28,8 @@ public class MessageHash {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (!(o instanceof MessageHash)) {
-            return false;
-        }
-
-        final MessageHash that = (MessageHash) o;
-        return Arrays.equals(getHashBytes(), that.getHashBytes());
+        return (o instanceof MessageHash) &&
+            Arrays.equals(hashBytes, ((MessageHash) o).hashBytes);
     }
 
     @Override

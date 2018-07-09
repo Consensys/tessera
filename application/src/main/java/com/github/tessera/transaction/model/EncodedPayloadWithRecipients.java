@@ -1,7 +1,7 @@
 package com.github.tessera.transaction.model;
 
-
 import com.github.tessera.nacl.Key;
+
 import java.util.Collections;
 import java.util.List;
 
