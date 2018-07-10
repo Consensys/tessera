@@ -21,7 +21,7 @@ A stateless java implementation responsible for encryption and decryption of pri
 
 ## Interface Details
 
-##### HTTP (Public API)<red>
+##### HTTP (Public API)
 
 Tessera Nodes communicate with each other for:
 
@@ -38,19 +38,19 @@ The following endpoints are advertised on this interface:
 - /delete
 
 ##### Unix Domain Socket (Private API)
-This is used for communication with Quorum.
+
 Quorum needs to be able to:
-- Check if the local Nexus node is running.
-- Send and receive details of private transactions.
+- Check if the local Tessera node is running.
+- Send and receive details of private transactions(hash).
 
 The following endpoints are advertised on this interface:
-- version
-- upcheck
-- send
-- sendraw
-- receive
-- receiveraw
-- delete
+- /version
+- /upcheck
+- /send
+- /sendraw
+- /receive
+- /receiveraw
+
 
 ## API Details
 
