@@ -50,7 +50,7 @@
 
         <dependency>
             <groupId>com.github.tessera</groupId>
-            <artifactId>service-locator</artifactId>
+            <artifactId>service-locator-api</artifactId>
         </dependency>
 
         <dependency>

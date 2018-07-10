@@ -7,7 +7,7 @@
 
     <artifactId>service-locator</artifactId>
 
-    <name>service-locator</name>
+    <name>service-locator-api</name>
     <packaging>jar</packaging>
 
     <parent>

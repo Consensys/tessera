@@ -5,9 +5,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>service-locator-parent</artifactId>
-
-    <name>service-locator-parent</name>
+    <artifactId>service-locator</artifactId>
     <packaging>pom</packaging>
 
     <parent>
@@ -17,7 +15,7 @@
     </parent>
 
     <modules>
-        <module>service-locator</module>
+        <module>service-locator-api</module>
         <module>service-locator-spring</module>
     </modules>
 
