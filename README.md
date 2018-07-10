@@ -1,30 +1,32 @@
-# Nexus
-A stateless java application responsible for encryption and decryption of private transaction data and for off-chain private messaging.It is also responsible for generating and managing private key locally in each node in Quorum Network.
-
-## Running Nexus
-
-`java -jar nexus-app/target/nexus-app-${version}-app.jar -configfile config.json`
+# Tessera
+A stateless Java application responsible for encryption and decryption of private transaction data and for off-chain private messaging.  Tessera is also responsible for generating and managing private keys locally in each node in a Quorum network.
 
 
-Probably best to copy the jar somewhere and create an alias
+## Running Tessera
 
-`alias nexus="java -jar /somewhere/nexus-app.jar"`
+`java -jar application/target/application-${version}-app.jar -configfile config.json`
 
-And add the nexus to your PATH.
+For ease-of-use you may want to copy the .jar to another location and create an alias:
 
-If you want to use an alternative database then you'll need to add the drivers to the classpath
+`alias tessera="java -jar /somewhere/tessera-app.jar"`
 
-`java -cp some-jdbc-driver.jar -jar /somewhere/nexus-app.jar`
+then add `tessera` to your PATH.
+
+By default, Tessera uses an H2 database.  To use an alternative database, add the necessary drivers to the classpath:
+
+`java -cp some-jdbc-driver.jar -jar /somewhere/tessera-app.jar`
 
 
 ## Configuration
 
-A configuration file must be specified using the `-configfile /path/to/config.json`
-command line property.
+A configuration file must be provided using the `-configfile /path/to/config.json`
+command line property.  A sample configuration file can be found [here](/config/src/test/resources/sample_full.json).
 
-A sample configuration can be found [here](/nexus-config/src/test/resources/sample_full.json)
+You can provide existing keys or generate new keys:
+* To provide existing keys
+Keys can be provided directly, as in the sample configuration file, 
 
-Keys can be provided using direct values, like in the example above,
+Keys can be provided using direct values, as in the config file above,
 or by providing the format produced by previous versions. Just replace the
 `privateKey` field with the data in those files under a `config` key.
 
@@ -63,7 +65,7 @@ Below is a sample snippet:
 
 ```
 
-If the keys dont already exist they can be generated using the -keygen option. 
+If the keys do not already exist they can be generated using the `-keygen` option. 
 
 ```
 nexus -configfile config.json -keygen /path/to/config1 /path/to/config2
@@ -103,15 +105,15 @@ Password protected key:
 
 ## Interface Details
 
-Nexus has two interfaces which allow endpoints from the API to be called.
+Tessera has two interfaces which allow endpoints from the API to be called.
 
-##### HTTP (Public API)
+#### HTTP (Public API)
 
-This is used for communication between Nexus instances.
-Nexus instances communicate with each other for:
-- Learning what nodes to connect to.
-- Sending and receiving public key information.
-- Sending private transactions to the other party(ies) in a transaction.
+This is used for communication between Tessera instances.
+Tessera instances communicate with each other to:
+- Learning which nodes to connect to
+- Send and receive public key information
+- Send private transactions to the other party(ies) in a transaction
 
 The following endpoints are advertised on this interface:
 - version
@@ -120,11 +122,11 @@ The following endpoints are advertised on this interface:
 - resend
 - partyinfo
 
-##### Unix Domain Socket (Private API)
+#### Unix Domain Socket (Private API)
 This is used for communication with Quorum.
 Quorum needs to be able to:
-- Check if the local Nexus node is running.
-- Send and receive details of private transactions.
+- Check if the local Tessera node is running
+- Send and receive details of private transactions
 
 The following endpoints are advertised on this interface:
 - version
@@ -137,11 +139,11 @@ The following endpoints are advertised on this interface:
 
 ## API Details
 
-**version** - _Get Nexus version_
+**version** - _Get Tessera version_
 
-Returns the version of Nexus that is running.
+Returns the version of Tessera that is running.
 
-**upcheck** - _Check that Nexus is running_
+**upcheck** - _Check that Tessera is running_
 
 Returns the text "I'm up!"
 
@@ -163,7 +165,7 @@ Allows you to send a bytestring to one or more public keys,
 returning a content-addressable identifier.
 This bytestring is encrypted transparently and efficiently (at symmetric encryption speeds)
 before being transmitted over the wire to the correct recipient nodes (and only those nodes).
-The identifier is a hash digest of the encrypted payload that every receipient node receives.
+The identifier is a hash digest of the encrypted payload that every recipient node receives.
 Each recipient node also receives a small blob encrypted for their public key which contains
 the Master Key for the encrypted payload.
 
@@ -184,40 +186,44 @@ Details to be provided
 
 Details to be provided
 
-## Building Nexus
+## Building Tessera
 
-Checkout nexus from github and build using maven.
-Nexus can be built with different nacl implementations:
+To start using Tessera: 
+1. Install the required runtime dependencies
+2. Checkout the project from GitHub
+3. Build using Maven
+
+For further details, see below.
+
+### Runtime Dependencies
+Tessera has the following runtime dependencies which must be installed.
+
+#### junixsocket
+junixsocket will unpack the required dependencies if they are not found.
+By default, they get unpacked to `/tmp`, but this can be
+changed by setting the system property `"org.newsclub.net.unix.library.path"`.
+
+Alternatively, you can install the dependency yourself and point the 
+above system property to the install location.
+
+1. Get `junixsocket-1.3-bin.tar.bz2` from https://code.google.com/archive/p/junixsocket/downloads
+2. Unpack it
+3. `sudo mkdir -p /opt/newsclub/lib-native`
+4. `sudo cp junixsocket-1.3/lib-native/libjunixsocket-macosx-1.5-x86_64.dylib /opt/newsclub/lib-native/`
+
+###NaCl Cryptography Implementations 
+Tessera can be built with different NaCl cryptography implementations:
 
 #### jnacl
 
 `mvn install`
 
-##### kalium
-
+#### kalium
+ 
 `mvn install -Pkalium`
 
-Note that the Kalium implementation requires that you have sodium installed at runtime (see runtime dependencies below).
+**Note:** To use the kalium implementation you must first install kalium as detailed on the [kalium project page](https://github.com/abstractj/kalium).
 
-## Runtime Dependencies
-Nexus has the folllowing runtime dependencies which must be installed.
 
-#### junixsocket
-JUnixSocket will unpack required dependencies if they are not found
-By default, they get unpacked to /tmp, but this can be
-changed by setting the system property "org.newsclub.net.unix.library.path"
-
-Alternatively, you can install the dependency yourself, and point the 
-above system property to the install location.
-
-1. Get junixsocket-1.3-bin.tar.bz2 from https://code.google.com/archive/p/junixsocket/downloads
-2. Unpack it
-4. sudo mkdir -p /opt/newsclub/lib-native
-5. sudo cp junixsocket-1.3/lib-native/libjunixsocket-macosx-1.5-x86_64.dylib /opt/newsclub/lib-native/
-
-#### sodium
-
-This is only required if Nexus is built to use the Kalium implementation.
-* brew install libsodium
 
 
