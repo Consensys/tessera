@@ -21,7 +21,7 @@
         <profile>
             <id>performance-test</id>
             <modules>
-                <module>test-jmeter</module>
+                <module>jmeter-test</module>
             </modules>
         </profile>
     </profiles>
