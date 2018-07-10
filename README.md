@@ -3,6 +3,7 @@ A stateless java implementation responsible for encryption and decryption of pri
 
 ## Quorum - Tessera Privacy Transaction Flow
 
+<img src='https://github.com/QuorumEngineering/tessera/blob/Krish1979-patch-1/Tessera%20Privacy%20Flow.jpeg/'>
 
 
 ## Running Tessera
