@@ -46,9 +46,7 @@ Quorum needs to be able to:
 The following endpoints are advertised on this interface:
 - /version
 - /upcheck
-- /send
 - /sendraw
-- /receive
 - /receiveraw
 
 
@@ -62,44 +60,29 @@ Returns the version of Tessera that is running.
 
 Returns the text "I'm up!"
 
-**push** - _Details to be provided_
+**push** - _Push transactions between nodes_
 
-Details to be provided.
+Persist encrypted payload received from another node.
 
-**resend** - _Details to be provided_
+**resend** - _Resend transaction_
 
-Details to be provided
+Resend all transactions for given key or given hash/recipient.
 
 **partyinfo** - _Retrieve details of known nodes_
 
-Details to be provided
+Request public keys/url of all known peer nodes.
 
-**send** - _Send transaction_
+**sendraw** - _Send transaction bytestring_
 
-Allows you to send a bytestring to one or more public keys,
-returning a content-addressable identifier.
-This bytestring is encrypted transparently and efficiently (at symmetric encryption speeds)
-before being transmitted over the wire to the correct recipient nodes (and only those nodes).
-The identifier is a hash digest of the encrypted payload that every receipient node receives.
-Each recipient node also receives a small blob encrypted for their public key which contains
-the Master Key for the encrypted payload.
+Send transaction payload bytestring from Quorum to Tessera node. Tessera send transaction hash in the response back. 
 
-**sendraw** - _Details to be provided_
+**receiveraw** - _Receive transaction bytestring_ 
 
-Details to be provided
-
-**receive** - _Receive a transaction_
-
-Allows you to receive a decrypted bytestring based on an identifier.
-Payloads which your node has sent or received can be decrypted and retrieved in this way.
-
-**receiveraw** - _Details to be provided_ 
-
-Details to be provided
+Receive decrypted bytestring of the transaction payload from Tessera to Quorum for transations it is party to.
 
 **delete** - _Delete a transaction_ 
 
-Details to be provided
+Delete hashed encrypted payload stored in Tessera nodes.
 
 
 ## Getting started
