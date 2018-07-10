@@ -197,7 +197,7 @@
         <module>security</module>
         <module>service-locator</module>
         <module>rest-server-parent</module>
-        <module>encryption-parent</module>
+        <module>encryption</module>
         <module>socket-parent</module>
     </modules>
 
