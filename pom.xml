@@ -191,25 +191,15 @@
     <modules>
         <module>app</module>
         <module>argon2</module>
-        <module>security</module>
         <module>config</module>
         <module>config-cli</module>
-        <module>test</module>
+        <module>tests</module>
+        <module>security</module>
         <module>service-locator-parent</module>
         <module>rest-server-parent</module>
         <module>encryption-parent</module>
-        <module>test-util</module>
         <module>socket-parent</module>
     </modules>
-
-    <profiles>
-        <profile>
-            <id>performance-test</id>
-            <modules>
-                <module>test-jmeter</module>
-            </modules>
-        </profile>
-    </profiles>
 
     <dependencyManagement>
         <dependencies>
