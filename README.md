@@ -7,7 +7,7 @@ Once Tessera has been configured and built, you may want to copy the .jar to ano
 
 `alias tessera="java -jar /somewhere/application-${version}-app.jar"`
 
-You will then be able to more concisely execute use the Tessera CLI commands, such as:
+You will then be able to more concisely use the Tessera CLI commands, such as:
 ```
 tessera help
 ```
