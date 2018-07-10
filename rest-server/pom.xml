@@ -5,9 +5,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>rest-server-parent</artifactId>
-
-    <name>rest-server-parent</name>
+    <artifactId>rest-server</artifactId>
     <packaging>pom</packaging>
 
     <parent>

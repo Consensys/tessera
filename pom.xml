@@ -196,7 +196,7 @@
         <module>tests</module>
         <module>security</module>
         <module>service-locator</module>
-        <module>rest-server-parent</module>
+        <module>rest-server</module>
         <module>encryption</module>
         <module>socket-parent</module>
     </modules>

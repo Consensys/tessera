@@ -5,14 +5,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>rest-server</artifactId>
-
-    <name>rest-server</name>
+    <artifactId>rest-server-api</artifactId>
     <packaging>jar</packaging>
 
     <parent>
         <groupId>com.github.tessera</groupId>
-        <artifactId>rest-server-parent</artifactId>
+        <artifactId>rest-server</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
