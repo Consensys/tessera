@@ -1,15 +1,21 @@
 # Tessera
-A stateless java implementation responsible for encryption and decryption of private transaction data and for off-chain private messaging.Each Tessera node
+
+A stateless java implementation responsible for encryption and decryption of private transaction data and for off-chain private messaging. Each Tessera node
 
   - Generate and maintain a number of private/public key pairs
+  
   - Self managing and discovery of all nodes(their public keys) in network using '/partyinfo' API 
     by connecting to as little as one other node
+	
   - Provides Private and Public API interfaces for communication
     - Private API - This is used for communication with Quorum
     - Public API - This is used for communication between Tessera peer nodes
+	
   - Provides two way SSL using TLS certificate and various trust models like Trust on first use, whitelist, 
     certificate authority etc
+	
   - Support IP whitelist
+  
   - Connects to any SQL DB which support JDBC client
 
 
@@ -99,7 +105,7 @@ Details to be provided
 <img src='https://github.com/QuorumEngineering/tessera/blob/Krish1979-patch-1/Tessera%20Privacy%20Flow.jpeg/'>
 
 
-## Running Tessera
+## Getting started
 
 `java -jar nexus-app/target/nexus-app-${version}-app.jar -configfile config.json`
 
