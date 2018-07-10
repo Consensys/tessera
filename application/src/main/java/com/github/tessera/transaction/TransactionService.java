@@ -2,7 +2,7 @@ package com.github.tessera.transaction;
 
 import com.github.tessera.enclave.model.MessageHash;
 import com.github.tessera.nacl.Key;
-import com.github.tessera.transaction.model.EncodedPayload;
+import com.github.tessera.transaction.exception.TransactionNotFoundException;
 import com.github.tessera.transaction.model.EncodedPayloadWithRecipients;
 
 import java.util.Collection;
@@ -33,22 +33,21 @@ public interface TransactionService {
     /**
      * Retrieves the message specified by the provided hash,
      * and checks the intended recipient is present in the recipient list
-     *
+     * <p>
      * If the given recipient is present, then modifies the returned payload to only include
      * that recipient in the sealed box list so that it can be sent to the other nodes
      *
-     * @param hash              The hash of the message to retrieve
-     * @param intendedRecipient The public key of a recipient to check is present
-     * @return The encrypted payload if the recipient is present
-     * @throws NullPointerException if the hash or intended recipient is null
-     * @throws RuntimeException     if the provided recipient is not on the message recipient list
+     * @param hash The hash of the message to retrieve
+     * @return The encrypted payload if found
+     * @throws NullPointerException         if the hash or intended recipient is null
+     * @throws TransactionNotFoundException if the transaction is not found
      */
-    EncodedPayload retrievePayload(MessageHash hash, Key intendedRecipient);
+    EncodedPayloadWithRecipients retrievePayload(MessageHash hash);
 
     /**
      * Retrieves the message specified by the provided hash,
      * and uses the provided key as the sender of the message
-     *
+     * <p>
      * Returns the unencrypted payload that is contained within so that
      * Quorum can process it
      *

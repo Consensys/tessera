@@ -1,7 +1,7 @@
 package com.github.tessera.transaction;
 
-import com.github.tessera.key.KeyManager;
 import com.github.tessera.enclave.model.MessageHash;
+import com.github.tessera.key.KeyManager;
 import com.github.tessera.nacl.Key;
 import com.github.tessera.nacl.NaclFacade;
 import com.github.tessera.nacl.Nonce;
@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -65,30 +64,12 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public EncodedPayload retrievePayload(final MessageHash hash, final Key intendedRecipient) {
-        final EncryptedTransaction encryptedTransaction = encryptedTransactionDAO
+    public EncodedPayloadWithRecipients retrievePayload(final MessageHash hash) {
+        return encryptedTransactionDAO
             .retrieveByHash(hash)
+            .map(EncryptedTransaction::getEncodedPayload)
+            .map(payloadEncoder::decodePayloadWithRecipients)
             .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
-
-        final EncodedPayloadWithRecipients payloadWithRecipients
-            = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
-        final EncodedPayload encodedPayload = payloadWithRecipients.getEncodedPayload();
-
-        if (!payloadWithRecipients.getRecipientKeys().contains(intendedRecipient)) {
-            throw new RuntimeException("Recipient " + intendedRecipient + " is not a recipient of transaction " + hash);
-        }
-
-        final int recipientIndex = payloadWithRecipients.getRecipientKeys().indexOf(intendedRecipient);
-        final byte[] recipientBox = encodedPayload.getRecipientBoxes().get(recipientIndex);
-
-        return new EncodedPayload(
-            encodedPayload.getSenderKey(),
-            encodedPayload.getCipherText(),
-            encodedPayload.getCipherTextNonce(),
-            Collections.singletonList(recipientBox),
-            encodedPayload.getRecipientNonce()
-        );
-
     }
 
     @Override
@@ -177,6 +158,7 @@ public class TransactionServiceImpl implements TransactionService {
             ),
             recipientPublicKeys
         );
+
     }
 
 }

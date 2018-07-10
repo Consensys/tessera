@@ -1,11 +1,12 @@
 package com.github.tessera.transaction;
 
-import com.github.tessera.key.KeyManager;
 import com.github.tessera.enclave.model.MessageHash;
+import com.github.tessera.key.KeyManager;
 import com.github.tessera.nacl.Key;
 import com.github.tessera.nacl.NaclException;
 import com.github.tessera.nacl.NaclFacade;
 import com.github.tessera.nacl.Nonce;
+import com.github.tessera.transaction.exception.TransactionNotFoundException;
 import com.github.tessera.transaction.model.EncodedPayload;
 import com.github.tessera.transaction.model.EncodedPayloadWithRecipients;
 import com.github.tessera.transaction.model.EncryptedTransaction;
@@ -17,7 +18,6 @@ import org.junit.Test;
 import java.util.Collection;
 import java.util.Optional;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -103,84 +103,6 @@ public class TransactionServiceTest {
 
         assertThat(encodedPayloadWithRecipients).hasSize(0);
         verify(dao).retrieveAllTransactions();
-    }
-
-    @Test
-    public void retrievePayloadThrowsExceptionIfMessageDoesntExist() {
-        final MessageHash nonexistantHash = new MessageHash(new byte[]{1});
-
-        doReturn(Optional.empty()).when(dao).retrieveByHash(nonexistantHash);
-
-        final Throwable throwable
-            = catchThrowable(() -> transactionService.retrievePayload(nonexistantHash, RECIPIENT_KEY));
-
-        assertThat(throwable)
-            .isInstanceOf(RuntimeException.class)
-            .hasMessage("Message with hash " + nonexistantHash + " was not found");
-
-        verify(dao).retrieveByHash(nonexistantHash);
-
-    }
-
-    @Test
-    public void exceptionThrownWhenRecipientNotPartyToTransaction() {
-
-        final MessageHash hash = new MessageHash(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9});
-        final Key unintendedRecipient = new Key(new byte[]{11, 12, 13, 14});
-
-        doReturn(Optional.of(encTx)).when(dao).retrieveByHash(hash);
-
-        final Throwable throwable = catchThrowable(() -> transactionService.retrievePayload(hash, unintendedRecipient));
-
-        assertThat(throwable)
-            .isInstanceOf(RuntimeException.class)
-            .hasMessage("Recipient " + unintendedRecipient + " is not a recipient of transaction " + hash);
-
-        verify(dao).retrieveByHash(hash);
-
-    }
-
-    @Test
-    public void encodedTransactionReturnedWhenTransactionFoundAndVerified() {
-
-        final MessageHash hash = new MessageHash(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9});
-
-        doReturn(Optional.of(encTx)).when(dao).retrieveByHash(hash);
-
-        final EncodedPayload encodedPayload = transactionService.retrievePayload(hash, RECIPIENT_KEY);
-
-        assertThat(encodedPayload).isEqualToComparingFieldByFieldRecursively(payload.getEncodedPayload());
-
-        verify(dao).retrieveByHash(hash);
-
-    }
-
-    @Test
-    public void encodedTransactionReturnedWhenTransactionFoundAndVerifiedWithOnlyIntendedRecipient() {
-
-        final Key secondRecipient = new Key(new byte[]{21, 22, 23, 24});
-        final byte[] secondSealedbox = new byte[]{1, 12, 23, 34, 45};
-
-        final EncodedPayloadWithRecipients payloadWithTwoRecs = new EncodedPayloadWithRecipients(
-            new EncodedPayload(SENDER_KEY, CIPHER_TEXT, NONCE, asList(RECIPIENT_BOX, secondSealedbox), RECIPIENT_NONCE),
-            asList(RECIPIENT_KEY, secondRecipient)
-        );
-
-        final EncryptedTransaction encTxTwoRecs = new EncryptedTransaction(
-            new MessageHash(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9}),
-            payloadEncoder.encode(payloadWithTwoRecs)
-        );
-
-        final MessageHash hash = new MessageHash(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9});
-
-        doReturn(Optional.of(encTxTwoRecs)).when(dao).retrieveByHash(hash);
-
-        final EncodedPayload encodedPayload = transactionService.retrievePayload(hash, RECIPIENT_KEY);
-
-        assertThat(encodedPayload).isEqualToComparingFieldByFieldRecursively(payload.getEncodedPayload());
-
-        verify(dao).retrieveByHash(hash);
-
     }
 
     @Test
@@ -347,6 +269,37 @@ public class TransactionServiceTest {
         verify(keyManager).getPrivateKeyForPublicKey(payload.getEncodedPayload().getSenderKey());
         verify(naclFacade).computeSharedKey(payload.getRecipientKeys().get(0), privateKey);
         verify(naclFacade).openAfterPrecomputation(any(), any(), any());
+    }
+
+    @Test
+    public void retrievingTransactionThatExistsSucceeds() {
+
+        final MessageHash hash = new MessageHash(new byte[0]);
+
+        doReturn(Optional.of(encTx)).when(dao).retrieveByHash(hash);
+
+        final EncodedPayloadWithRecipients result = transactionService.retrievePayload(hash);
+
+        assertThat(result).isEqualToComparingFieldByFieldRecursively(payload);
+
+        verify(dao).retrieveByHash(hash);
+    }
+
+    @Test
+    public void missingTransactionThrowsError() {
+
+        final MessageHash hash = new MessageHash(new byte[0]);
+
+        doReturn(Optional.empty()).when(dao).retrieveByHash(any(MessageHash.class));
+
+        final Throwable throwable = catchThrowable(() -> transactionService.retrievePayload(hash));
+
+        assertThat(throwable)
+            .isInstanceOf(TransactionNotFoundException.class)
+            .hasMessage("Message with hash " + hash + " was not found");
+
+        verify(dao).retrieveByHash(hash);
+
     }
 
 }
