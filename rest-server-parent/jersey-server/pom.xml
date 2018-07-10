@@ -20,7 +20,7 @@
 
         <dependency>
             <groupId>com.github.tessera</groupId>
-            <artifactId>rest-server</artifactId>
+            <artifactId>rest-server-api</artifactId>
         </dependency>
 
         <dependency>
