@@ -5,8 +5,9 @@ import com.github.tessera.node.model.Party;
 import com.github.tessera.node.model.PartyInfo;
 import com.github.tessera.node.model.Recipient;
 
-import java.util.Collections;
 import java.util.Set;
+
+import static java.util.Collections.emptySet;
 
 public class PartyInfoStore {
 
@@ -16,27 +17,22 @@ public class PartyInfoStore {
 
         final String advertisedUrl = configuration.getServerUri().toString();
 
-        this.partyInfo = new PartyInfo(advertisedUrl, Collections.emptySet(), Collections.emptySet());
+        this.partyInfo = new PartyInfo(advertisedUrl, emptySet(), emptySet());
     }
 
-    public void store(final PartyInfo partyInfoToUpdate) {
-        synchronized (partyInfo) {
-            final Set<Recipient> existingRecipients = this.partyInfo.getRecipients();
-            final Set<Recipient> newRecipients = partyInfoToUpdate.getRecipients();
+    public synchronized void store(final PartyInfo partyInfoToUpdate) {
+        final Set<Recipient> existingRecipients = this.partyInfo.getRecipients();
+        final Set<Recipient> newRecipients = partyInfoToUpdate.getRecipients();
 
-            existingRecipients.addAll(newRecipients);
+        existingRecipients.addAll(newRecipients);
 
-            final Set<Party> existingParties = this.partyInfo.getParties();
-            final Set<Party> newParties = partyInfoToUpdate.getParties();
-            existingParties.addAll(newParties);
-        }
+        final Set<Party> existingParties = this.partyInfo.getParties();
+        final Set<Party> newParties = partyInfoToUpdate.getParties();
+        existingParties.addAll(newParties);
     }
 
-    public PartyInfo getPartyInfo() {
-        synchronized (partyInfo) {
-            final PartyInfo partyInfoCopy = new PartyInfo(partyInfo);
-            return partyInfoCopy;
-        }
+    public synchronized PartyInfo getPartyInfo() {
+        return new PartyInfo(partyInfo);
     }
 
 }
