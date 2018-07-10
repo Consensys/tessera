@@ -54,35 +54,35 @@ The following endpoints are advertised on this interface:
 
 **version** - _Get Tessera version_
 
-Returns the version of Tessera that is running.
+- Returns the version of Tessera that is running.
 
 **upcheck** - _Check Tessera node is running_
 
-Returns the text "I'm up!"
+- Returns the text "I'm up!"
 
 **push** - _Push transactions between nodes_
 
-Persist encrypted payload received from another node.
+- Persist encrypted payload received from another node.
 
 **resend** - _Resend transaction_
 
-Resend all transactions for given key or given hash/recipient.
+- Resend all transactions for given key or given hash/recipient.
 
 **partyinfo** - _Retrieve details of known nodes_
 
-Request public keys/url of all known peer nodes.
+- Request public keys/url of all known peer nodes.
 
 **sendraw** - _Send transaction bytestring_
 
-Send transaction payload bytestring from Quorum to Tessera node. Tessera send transaction hash in the response back. 
+- Send transaction payload bytestring from Quorum to Tessera node. Tessera send transaction hash in the response back. 
 
 **receiveraw** - _Receive transaction bytestring_ 
 
-Receive decrypted bytestring of the transaction payload from Tessera to Quorum for transations it is party to.
+- Receive decrypted bytestring of the transaction payload from Tessera to Quorum for transations it is party to.
 
 **delete** - _Delete a transaction_ 
 
-Delete hashed encrypted payload stored in Tessera nodes.
+- Delete hashed encrypted payload stored in Tessera nodes.
 
 
 ## Getting started
