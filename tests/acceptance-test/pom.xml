@@ -157,7 +157,7 @@
                         </goals>
                         <configuration>
                             <properties>
-                                <jarfile>${com.github.tessera.tessera-app:jar:app}</jarfile>
+                                <jarfile>${com.github.tessera:tessera-app:jar:app}</jarfile>
                                 <configFile>${project.build.testOutputDirectory}/config3.json</configFile>
                                 <pidFile>${project.build.directory}/node3.pid</pidFile>
                                 <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml</logbackConfigFile>
