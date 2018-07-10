@@ -21,12 +21,11 @@ A stateless java implementation responsible for encryption and decryption of pri
 
 ## Interface Details
 
-##### HTTP (Public API)
+##### HTTP (Public API)<red>
 
 Tessera Nodes communicate with each other for:
 
 - Node/Network discovery
-
 - Sending/Receiving encrypted payload.
 
 The following endpoints are advertised on this interface:
