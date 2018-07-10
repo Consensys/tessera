@@ -1,7 +1,11 @@
-# Nexus
-A stateless java application responsible for encryption and decryption of private transaction data and for off-chain private messaging.It is also responsible for generating and managing private key locally in each node in Quorum Network.
+# Tessera
+A stateless java implementation responsible for encryption and decryption of private transaction data and for off-chain private messaging.It is also responsible for generating and managing private key locally in each node in Quorum Network.
 
-## Running Nexus
+## Quorum - Tessera Privacy Transaction Flow
+
+
+
+## Running Tessera
 
 `java -jar nexus-app/target/nexus-app-${version}-app.jar -configfile config.json`
 
