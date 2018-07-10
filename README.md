@@ -122,17 +122,17 @@ For further details, see below.
 Tessera has the following runtime dependencies which must be installed.
 
 #### junixsocket
+1. Get `junixsocket-1.3-bin.tar.bz2` from https://code.google.com/archive/p/junixsocket/downloads
+2. Unpack it
+3. `sudo mkdir -p /opt/newsclub/lib-native`
+4. `sudo cp junixsocket-1.3/lib-native/libjunixsocket-macosx-1.5-x86_64.dylib /opt/newsclub/lib-native/`
+
 junixsocket will unpack the required dependencies if they are not found.
 By default, they get unpacked to `/tmp`, but this can be
 changed by setting the system property `"org.newsclub.net.unix.library.path"`.
 
 Alternatively, you can install the dependency yourself and point the 
 above system property to the install location.
-
-1. Get `junixsocket-1.3-bin.tar.bz2` from https://code.google.com/archive/p/junixsocket/downloads
-2. Unpack it
-3. `sudo mkdir -p /opt/newsclub/lib-native`
-4. `sudo cp junixsocket-1.3/lib-native/libjunixsocket-macosx-1.5-x86_64.dylib /opt/newsclub/lib-native/`
 
 ### Selecting an NaCl Implementation 
 Tessera can be built with different NaCl cryptography implementations:
