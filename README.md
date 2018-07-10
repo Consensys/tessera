@@ -19,21 +19,27 @@ By default, Tessera uses an H2 database.  To use an alternative database, add th
 
 ## Configuration
 
-A configuration file must be provided using the `-configfile /path/to/config.json`
+#### Config File
+
+A config file must be provided using the `-configfile /path/to/config.json`
 command line property.  A sample configuration file can be found [here](/config/src/test/resources/sample_full.json).
 
-You can provide existing keys or generate new keys:
-* To provide existing keys
-Keys can be provided directly, as in the sample configuration file, 
+#### Cryptographic Keys
+Tessera uses cryptographic keys to provide transaction privacy.  You can provide an existing private/public key pair or use Tessera to generate a new key pair for you.
 
-Keys can be provided using direct values, as in the config file above,
-or by providing the format produced by previous versions. Just replace the
-`privateKey` field with the data in those files under a `config` key.
-
-Below is a sample snippet:
-
+##### Using existing keys
+Existing keys can be included in the config file in one of two ways:
+* __Directly__ (preferred): 
 ```
-
+    "keys": [
+        {
+            "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
+            "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+        }
+```                                                                    
+* __Indirectly__ (compatible with legacy implementations of Tessera):  
+The private key is provided indirectly through additional configuration, e.g.
+```
 {
     "config": {
         "data": {
@@ -43,7 +49,9 @@ Below is a sample snippet:
     },
     "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
 }
+```
 
+```
 {
     "config": {
         "data": {
@@ -62,30 +70,24 @@ Below is a sample snippet:
     },
     "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
 }
-
 ```
 
+##### Generating keys
 If the keys do not already exist they can be generated using the `-keygen` option. 
 
 ```
 nexus -configfile config.json -keygen /path/to/config1 /path/to/config2
 ```
 
-This will check the given paths for configuration of the private keys.
-The configuration for these is the same as what is produced for a key, e.g.
-
-Plaintext key:
-
-/path/to/config1
+Where `/path/to/config1` is a configuration file used in the creation of a private key.  Examples configurations include:
+* Plaintext key:
 ```
 {
     "type": "unlocked"
 }
 ```
 
-Password protected key:
-
-/path/to/config2
+* Password protected key:
 ```
 { 
     "data": {
@@ -222,7 +224,7 @@ Tessera can be built with different NaCl cryptography implementations:
  
 `mvn install -Pkalium`
 
-**Note:** To use the kalium implementation you must first install kalium as detailed on the [kalium project page](https://github.com/abstractj/kalium).
+__Note:__ To use the kalium implementation you must first install kalium as detailed on the [kalium project page](https://github.com/abstractj/kalium).
 
 
 
