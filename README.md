@@ -1,6 +1,91 @@
 # Tessera
 A stateless java implementation responsible for encryption and decryption of private transaction data and for off-chain private messaging.It is also responsible for generating and managing private key locally in each node in Quorum Network.
 
+
+## Interface Details
+
+Nexus has two interfaces which allow endpoints from the API to be called.
+
+##### HTTP (Public API)
+
+This is used for communication between Nexus instances.
+Nexus instances communicate with each other for:
+- Learning what nodes to connect to.
+- Sending and receiving public key information.
+- Sending private transactions to the other party(ies) in a transaction.
+
+The following endpoints are advertised on this interface:
+- version
+- upcheck
+- push
+- resend
+- partyinfo
+
+##### Unix Domain Socket (Private API)
+This is used for communication with Quorum.
+Quorum needs to be able to:
+- Check if the local Nexus node is running.
+- Send and receive details of private transactions.
+
+The following endpoints are advertised on this interface:
+- version
+- upcheck
+- send
+- sendraw
+- receive
+- receiveraw
+- delete
+
+## API Details
+
+**version** - _Get Nexus version_
+
+Returns the version of Nexus that is running.
+
+**upcheck** - _Check that Nexus is running_
+
+Returns the text "I'm up!"
+
+**push** - _Details to be provided_
+
+Details to be provided.
+
+**resend** - _Details to be provided_
+
+Details to be provided
+
+**partyinfo** - _Retrieve details of known nodes_
+
+Details to be provided
+
+**send** - _Send transaction_
+
+Allows you to send a bytestring to one or more public keys,
+returning a content-addressable identifier.
+This bytestring is encrypted transparently and efficiently (at symmetric encryption speeds)
+before being transmitted over the wire to the correct recipient nodes (and only those nodes).
+The identifier is a hash digest of the encrypted payload that every receipient node receives.
+Each recipient node also receives a small blob encrypted for their public key which contains
+the Master Key for the encrypted payload.
+
+**sendraw** - _Details to be provided_
+
+Details to be provided
+
+**receive** - _Receive a transaction_
+
+Allows you to receive a decrypted bytestring based on an identifier.
+Payloads which your node has sent or received can be decrypted and retrieved in this way.
+
+**receiveraw** - _Details to be provided_ 
+
+Details to be provided
+
+**delete** - _Delete a transaction_ 
+
+Details to be provided
+
+
 ## Quorum - Tessera Privacy Transaction Flow
 
 <img src='https://github.com/QuorumEngineering/tessera/blob/Krish1979-patch-1/Tessera%20Privacy%20Flow.jpeg/'>
@@ -105,89 +190,6 @@ Password protected key:
 }
 ```
 
-
-## Interface Details
-
-Nexus has two interfaces which allow endpoints from the API to be called.
-
-##### HTTP (Public API)
-
-This is used for communication between Nexus instances.
-Nexus instances communicate with each other for:
-- Learning what nodes to connect to.
-- Sending and receiving public key information.
-- Sending private transactions to the other party(ies) in a transaction.
-
-The following endpoints are advertised on this interface:
-- version
-- upcheck
-- push
-- resend
-- partyinfo
-
-##### Unix Domain Socket (Private API)
-This is used for communication with Quorum.
-Quorum needs to be able to:
-- Check if the local Nexus node is running.
-- Send and receive details of private transactions.
-
-The following endpoints are advertised on this interface:
-- version
-- upcheck
-- send
-- sendraw
-- receive
-- receiveraw
-- delete
-
-## API Details
-
-**version** - _Get Nexus version_
-
-Returns the version of Nexus that is running.
-
-**upcheck** - _Check that Nexus is running_
-
-Returns the text "I'm up!"
-
-**push** - _Details to be provided_
-
-Details to be provided.
-
-**resend** - _Details to be provided_
-
-Details to be provided
-
-**partyinfo** - _Retrieve details of known nodes_
-
-Details to be provided
-
-**send** - _Send transaction_
-
-Allows you to send a bytestring to one or more public keys,
-returning a content-addressable identifier.
-This bytestring is encrypted transparently and efficiently (at symmetric encryption speeds)
-before being transmitted over the wire to the correct recipient nodes (and only those nodes).
-The identifier is a hash digest of the encrypted payload that every receipient node receives.
-Each recipient node also receives a small blob encrypted for their public key which contains
-the Master Key for the encrypted payload.
-
-**sendraw** - _Details to be provided_
-
-Details to be provided
-
-**receive** - _Receive a transaction_
-
-Allows you to receive a decrypted bytestring based on an identifier.
-Payloads which your node has sent or received can be decrypted and retrieved in this way.
-
-**receiveraw** - _Details to be provided_ 
-
-Details to be provided
-
-**delete** - _Delete a transaction_ 
-
-Details to be provided
 
 ## Building Nexus
 
