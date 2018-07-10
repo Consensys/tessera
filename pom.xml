@@ -189,7 +189,7 @@
     </build>
 
     <modules>
-        <module>app</module>
+        <module>tessera-app</module>
         <module>argon2</module>
         <module>config</module>
         <module>config-cli</module>
