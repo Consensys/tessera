@@ -198,7 +198,7 @@
         <module>service-locator</module>
         <module>rest-server</module>
         <module>encryption</module>
-        <module>socket-parent</module>
+        <module>socket</module>
     </modules>
 
     <dependencyManagement>
@@ -230,7 +230,7 @@
             
             <dependency>
                 <groupId>com.github.tessera</groupId>
-                <artifactId>socket</artifactId>
+                <artifactId>unixsocket</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 

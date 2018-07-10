@@ -6,8 +6,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>junixsocket-adapter</artifactId>
-
-    <name>junixsocket-adapter</name>
     <packaging>jar</packaging>
 
     <parent>
@@ -44,7 +42,7 @@
 
         <dependency>
             <groupId>com.github.tessera</groupId>
-            <artifactId>socket</artifactId>
+            <artifactId>unixsocket</artifactId>
         </dependency>
 
     </dependencies>

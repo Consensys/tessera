@@ -5,9 +5,8 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>socket</artifactId>
+    <artifactId>unixsocket</artifactId>
     <packaging>jar</packaging>
-    <name>socket</name>
 
     <parent>
         <groupId>com.github.tessera</groupId>

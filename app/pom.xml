@@ -34,7 +34,7 @@
 
         <dependency>
             <groupId>com.github.tessera</groupId>
-            <artifactId>socket</artifactId>
+            <artifactId>unixsocket</artifactId>
             <scope>runtime</scope>
         </dependency>
 

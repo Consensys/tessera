@@ -5,9 +5,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>socket-parent</artifactId>
-
-    <name>socket-parent</name>
+    <artifactId>socket</artifactId>
     <packaging>pom</packaging>
 
     <parent>
@@ -17,7 +15,7 @@
     </parent>
 
     <modules>
-        <module>socket</module>
+        <module>unixsocket</module>
         <module>junixsocket-adapter</module>
     </modules>
 
