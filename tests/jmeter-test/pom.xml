@@ -16,7 +16,7 @@
 
         <dependency>
             <groupId>com.github.tessera</groupId>
-            <artifactId>app</artifactId>
+            <artifactId>tessera-app</artifactId>
             <classifier>app</classifier>
             <version>1.0-SNAPSHOT</version>
         </dependency>
