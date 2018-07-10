@@ -29,7 +29,7 @@
 
         <dependency>
             <groupId>com.github.tessera</groupId>
-            <artifactId>encryption</artifactId>
+            <artifactId>encryption-api</artifactId>
         </dependency>
 
         <dependency>

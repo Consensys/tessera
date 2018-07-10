@@ -206,7 +206,7 @@
             
             <dependency>
                 <groupId>com.github.tessera</groupId>
-                <artifactId>encryption</artifactId>
+                <artifactId>encryption-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
