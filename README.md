@@ -1,5 +1,12 @@
 # Tessera
-A stateless java implementation responsible for encryption and decryption of private transaction data and for off-chain private messaging.It is also responsible for generating and managing private key locally in each node in Quorum Network.
+A stateless java implementation responsible for encryption and decryption of private transaction data and for off-chain private messaging.Each Tessera node
+
+  - Generate and maintain a number of private/public key pairs
+  - Self managing and discovery of all nodes and their public keys in network using '/partyinfo' API 
+    by connecting to as little as one other node
+  - Provides Private and Public API interfacts for communication
+    - Private API - This is used for communication with Quorum
+    - Public API - Thisis used for communication between Tessera peer nodes
 
 
 ## Interface Details
