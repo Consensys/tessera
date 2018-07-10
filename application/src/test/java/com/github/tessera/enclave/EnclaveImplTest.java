@@ -9,6 +9,7 @@ import com.github.tessera.node.PostDelegate;
 import com.github.tessera.node.model.PartyInfo;
 import com.github.tessera.transaction.PayloadEncoder;
 import com.github.tessera.transaction.TransactionService;
+import com.github.tessera.transaction.exception.TransactionNotFoundException;
 import com.github.tessera.transaction.model.EncodedPayload;
 import com.github.tessera.transaction.model.EncodedPayloadWithRecipients;
 import org.junit.After;
@@ -20,12 +21,28 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class EnclaveImplTest {
+
+    private static final Key RECIPIENT_KEY = new Key(new byte[]{-1, -2, -3});
+    private static final Key SENDER_KEY = new Key(new byte[]{1, 2, 3});
+    private static final byte[] CIPHER_TEXT = new byte[]{4, 5, 6};
+    private static final Nonce NONCE = new Nonce(new byte[]{7, 8, 9});
+    private static final Nonce RECIPIENT_NONCE = new Nonce(new byte[]{10, 11, 12});
+    private static final byte[] RECIPIENT_BOX = new byte[]{4, 5, 6};
+
+    private final EncodedPayloadWithRecipients payload = new EncodedPayloadWithRecipients(
+        new EncodedPayload(SENDER_KEY, CIPHER_TEXT, NONCE, singletonList(RECIPIENT_BOX), RECIPIENT_NONCE),
+        singletonList(RECIPIENT_KEY)
+    );
+
 
     private TransactionService transactionService;
 
@@ -227,15 +244,66 @@ public class EnclaveImplTest {
     }
 
     @Test
-    public void retrievingEncodedPayloadDelegatesToTransactionService() {
+    public void retrievePayloadThrowsExceptionIfMessageDoesntExist() {
+        final MessageHash nonexistantHash = new MessageHash(new byte[]{1});
 
-        final MessageHash hash = new MessageHash(new byte[]{});
-        final Key key = new Key(new byte[]{});
+        final TransactionNotFoundException exception
+            = new TransactionNotFoundException("Message with hash " + nonexistantHash + " was not found");
 
-        enclave.fetchTransactionForRecipient(hash, key);
+        doThrow(exception).when(transactionService).retrievePayload(nonexistantHash);
 
-        verify(transactionService).retrievePayload(hash, key);
+        final Throwable throwable
+            = catchThrowable(() -> enclave.fetchTransactionForRecipient(nonexistantHash, RECIPIENT_KEY));
 
+        assertThat(throwable)
+            .isInstanceOf(TransactionNotFoundException.class)
+            .hasMessage("Message with hash " + nonexistantHash + " was not found");
+
+        verify(transactionService).retrievePayload(nonexistantHash);
 
     }
+
+    @Test
+    public void exceptionThrownWhenRecipientNotPartyToTransaction() {
+
+        final MessageHash hash = new MessageHash(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9});
+        final Key unintendedRecipient = new Key(new byte[]{11, 12, 13, 14});
+
+        doReturn(payload).when(transactionService).retrievePayload(hash);
+
+        final Throwable throwable
+            = catchThrowable(() -> enclave.fetchTransactionForRecipient(hash, unintendedRecipient));
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Recipient " + unintendedRecipient + " is not a recipient of transaction " + hash);
+
+        verify(transactionService).retrievePayload(hash);
+
+    }
+
+    @Test
+    public void encodedTransactionReturnedWhenTransactionFoundAndVerified() {
+
+        final Key secondRecipient = new Key(new byte[]{21, 22, 23, 24});
+        final byte[] secondSealedbox = new byte[]{1, 12, 23, 34, 45};
+
+        final EncodedPayloadWithRecipients payloadWithTwoRecs = new EncodedPayloadWithRecipients(
+            new EncodedPayload(SENDER_KEY, CIPHER_TEXT, NONCE, asList(RECIPIENT_BOX, secondSealedbox), RECIPIENT_NONCE),
+            asList(RECIPIENT_KEY, secondRecipient)
+        );
+
+        final MessageHash hash = new MessageHash(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9});
+
+        doReturn(payloadWithTwoRecs).when(transactionService).retrievePayload(hash);
+
+        final EncodedPayloadWithRecipients encodedPayload = enclave.fetchTransactionForRecipient(hash, RECIPIENT_KEY);
+
+        assertThat(encodedPayload.getEncodedPayload()).isEqualToComparingFieldByFieldRecursively(payload.getEncodedPayload());
+        assertThat(encodedPayload.getRecipientKeys()).isEmpty();
+
+        verify(transactionService).retrievePayload(hash);
+
+    }
+
 }

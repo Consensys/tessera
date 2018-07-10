@@ -134,9 +134,27 @@ public class EnclaveImpl implements Enclave {
 
     @Override
     public EncodedPayloadWithRecipients fetchTransactionForRecipient(final MessageHash hash, final Key recipient){
-        final EncodedPayload encodedPayload = transactionService.retrievePayload(hash, recipient);
+        final EncodedPayloadWithRecipients payloadWithRecipients = transactionService.retrievePayload(hash);
 
-        return new EncodedPayloadWithRecipients(encodedPayload, emptyList());
+        final EncodedPayload encodedPayload = payloadWithRecipients.getEncodedPayload();
+
+        if (!payloadWithRecipients.getRecipientKeys().contains(recipient)) {
+            throw new RuntimeException("Recipient " + recipient + " is not a recipient of transaction " + hash);
+        }
+
+        final int recipientIndex = payloadWithRecipients.getRecipientKeys().indexOf(recipient);
+        final byte[] recipientBox = encodedPayload.getRecipientBoxes().get(recipientIndex);
+
+        return new EncodedPayloadWithRecipients(
+            new EncodedPayload(
+                encodedPayload.getSenderKey(),
+                encodedPayload.getCipherText(),
+                encodedPayload.getCipherTextNonce(),
+                singletonList(recipientBox),
+                encodedPayload.getRecipientNonce()
+            ),
+            emptyList()
+        );
 
     }
 }
