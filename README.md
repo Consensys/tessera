@@ -21,19 +21,22 @@ A stateless java implementation responsible for encryption and decryption of pri
 
 ## Interface Details
 
-##### HTTP- REST (Public API)
+##### HTTP (Public API)
 
 Tessera Nodes communicate with each other for:
+
 - Node/Network discovery
+
 - Sending/Receiving encrypted payload.
 
-
 The following endpoints are advertised on this interface:
-- version
-- upcheck
-- push
-- resend
-- partyinfo
+
+- /version
+- /upcheck
+- /push
+- /resend
+- /partyinfo
+- /delete
 
 ##### Unix Domain Socket (Private API)
 This is used for communication with Quorum.
