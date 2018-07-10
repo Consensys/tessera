@@ -54,11 +54,11 @@ The following endpoints are advertised on this interface:
 
 ## API Details
 
-**version** - _Get Nexus version_
+**version** - _Get Tessera version_
 
-Returns the version of Nexus that is running.
+Returns the version of Tessera that is running.
 
-**upcheck** - _Check that Nexus is running_
+**upcheck** - _Check Tessera node is running_
 
 Returns the text "I'm up!"
 
@@ -100,11 +100,6 @@ Details to be provided
 **delete** - _Delete a transaction_ 
 
 Details to be provided
-
-
-## Quorum - Tessera Privacy Transaction Flow
-
-<img src='https://github.com/QuorumEngineering/tessera/blob/Krish1979-patch-1/Tessera%20Privacy%20Flow.jpeg/'>
 
 
 ## Getting started
@@ -244,3 +239,6 @@ This is only required if Nexus is built to use the Kalium implementation.
 * brew install libsodium
 
 
+## Quorum - Tessera Privacy Transaction Flow
+
+<img src='https://github.com/QuorumEngineering/tessera/blob/Krish1979-patch-1/Tessera%20Privacy%20Flow.jpeg/'>
