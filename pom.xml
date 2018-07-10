@@ -189,8 +189,8 @@
     </build>
 
     <modules>
+        <module>app</module>
         <module>argon2</module>
-        <module>application</module>
         <module>security</module>
         <module>config</module>
         <module>config-cli</module>
