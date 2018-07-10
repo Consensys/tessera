@@ -162,7 +162,7 @@ public class TransactionResource {
         return this.receive(request.getKey(), request.getTo());
     }
 
-    @ApiOperation(value = "Summit keys to retrieve payload and decrypt it", produces = "Unencypted payload")
+    @ApiOperation(value = "Submit keys to retrieve payload and decrypt it", produces = "Unencrypted payload")
     @ApiResponses({@ApiResponse(code = 200, message = "Raw payload", response = byte[].class)})
     @GET
     @Path("receiveraw")
@@ -190,7 +190,7 @@ public class TransactionResource {
     }
 
     @Deprecated
-    @ApiOperation("Delete key provided in request. Deprecated: Deletes will be done with DELETE http method")
+    @ApiOperation("Deprecated: Replaced by /transaction/{key} DELETE HTTP method")
     @ApiResponses({
         @ApiResponse(code = 200, message = "Status message", response = String.class),
         @ApiResponse(code = 404, message = "If the entity doesn't exist")
@@ -200,7 +200,7 @@ public class TransactionResource {
     @Consumes(APPLICATION_JSON)
     @Produces(TEXT_PLAIN)
     public Response delete(
-            @ApiParam(name = "deleteRequest", required = true)
+            @ApiParam(name = "deleteRequest", required = true, value = "Key data to be deleted")
             @Valid final DeleteRequest deleteRequest) {
 
         LOGGER.debug("Received deprecated delete request");

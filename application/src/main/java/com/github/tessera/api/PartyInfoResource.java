@@ -33,7 +33,7 @@ public class PartyInfoResource {
 
 
     @ApiResponses({
-        @ApiResponse(code = 200,message = "Endcoded PartyInfo Data",response = byte[].class)
+        @ApiResponse(code = 200,message = "Encoded PartyInfo Data",response = byte[].class)
     })
     @POST
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
