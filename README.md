@@ -2,24 +2,25 @@
 A stateless java implementation responsible for encryption and decryption of private transaction data and for off-chain private messaging.Each Tessera node
 
   - Generate and maintain a number of private/public key pairs
-  - Self managing and discovery of all nodes and their public keys in network using '/partyinfo' API 
+  - Self managing and discovery of all nodes(their public keys) in network using '/partyinfo' API 
     by connecting to as little as one other node
-  - Provides Private and Public API interfacts for communication
+  - Provides Private and Public API interfaces for communication
     - Private API - This is used for communication with Quorum
-    - Public API - Thisis used for communication between Tessera peer nodes
+    - Public API - This is used for communication between Tessera peer nodes
+  - Provides two way SSL using TLS certificate and various trust models like Trust on first use, whitelist, 
+    certificate authority etc
+  - Support IP whitelist
+  - Connects to any SQL DB which support JDBC client
 
 
 ## Interface Details
 
-Nexus has two interfaces which allow endpoints from the API to be called.
+##### HTTP- REST (Public API)
 
-##### HTTP (Public API)
+Tessera Nodes communicate with each other for:
+- Node/Network discovery
+- Sending/Receiving encrypted payload.
 
-This is used for communication between Nexus instances.
-Nexus instances communicate with each other for:
-- Learning what nodes to connect to.
-- Sending and receiving public key information.
-- Sending private transactions to the other party(ies) in a transaction.
 
 The following endpoints are advertised on this interface:
 - version
@@ -198,10 +199,10 @@ Password protected key:
 ```
 
 
-## Building Nexus
+## Building Tessera
 
-Checkout nexus from github and build using maven.
-Nexus can be built with different nacl implementations:
+Checkout Tessera from github and build using maven.
+Tessera can be built with different nacl implementations:
 
 #### jnacl
 
@@ -214,7 +215,7 @@ Nexus can be built with different nacl implementations:
 Note that the Kalium implementation requires that you have sodium installed at runtime (see runtime dependencies below).
 
 ## Runtime Dependencies
-Nexus has the folllowing runtime dependencies which must be installed.
+Tessera has the folllowing runtime dependencies which must be installed.
 
 #### junixsocket
 JUnixSocket will unpack required dependencies if they are not found
