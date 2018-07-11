@@ -246,7 +246,7 @@ over public API
 network synchronization.
 
 - When a node starts up, it will reach out to every other node to 
-share/receive the public keys hosted. The heartbeat is send every 
+share/receive the public keys hosted. The heartbeat is sent every 
 two seconds for resynchronization. Each node will maintain the same public key 
 registry after synchronization and can start sending messages to any known public key.
 
