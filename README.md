@@ -1,22 +1,171 @@
 # Tessera
 
-A stateless java implementation responsible for encryption and decryption of private transaction data and for off-chain private messaging. Each Tessera node
+A stateless Java implementation responsible for encryption and decryption of private transaction data and for off-chain private messaging. Each Tessera node:
 
-  - Generate and maintain a number of private/public key pairs
+  - Generates and maintains a number of private/public key pairs
   
-  - Self managing and discovery of all nodes(their public keys) in network using '/partyinfo' API 
-    by connecting to as little as one other node
-	
+  - Self manages and discovers all nodes (i.e. their public keys) in the network by connecting to as little as one other node
+    
   - Provides Private and Public API interfaces for communication
     - Private API - This is used for communication with Quorum
     - Public API - This is used for communication between Tessera peer nodes
-	
-  - Provides two way SSL using TLS certificate and various trust models like Trust on first use, whitelist, 
-    certificate authority etc
-	
-  - Support IP whitelist
+    
+  - Provides two way SSL using TLS certificates and various trust models like Trust On First Use (TOFU), whitelist, 
+    certificate authority, etc.
+    
+  - Supports IP whitelist
   
-  - Connects to any SQL DB which support JDBC client
+  - Connects to any SQL DB which supports the JDBC client
+
+
+## Building Tessera
+
+1. Install the required runtime dependencies
+2. Checkout the project from GitHub
+3. Build using Maven
+
+
+### Runtime Dependencies
+Tessera has the following runtime dependencies which must be installed.
+
+#### junixsocket
+1. Get `junixsocket-1.3-bin.tar.bz2` from https://code.google.com/archive/p/junixsocket/downloads
+2. Unpack it
+3. `sudo mkdir -p /opt/newsclub/lib-native`
+4. `sudo cp junixsocket-1.3/lib-native/libjunixsocket-macosx-1.5-x86_64.dylib /opt/newsclub/lib-native/`
+
+junixsocket will unpack the required dependencies if they are not found.
+By default, they get unpacked to `/tmp`, but this can be
+changed by setting the system property `"org.newsclub.net.unix.library.path"`.
+
+Alternatively, you can install the dependency yourself and point the 
+above system property to the install location.
+
+### Selecting an NaCl Implementation 
+Tessera can be built with different NaCl cryptography implementations:
+
+#### jnacl
+
+`mvn install`
+
+#### kalium
+ 
+ Install kalium as detailed on the [kalium project page](https://github.com/abstractj/kalium), then run
+ 
+`mvn install -Pkalium`
+
+
+## Running Tessera
+`java -jar tessera-app/target/tessera-app-${version}-app.jar -configfile config.json`
+
+Once Tessera has been configured and built, you may want to copy the .jar to another location, create an alias and add it to your PATH:
+
+`alias tessera="java -jar /somewhere/application-${version}-app.jar"`
+
+You will then be able to more concisely use the Tessera CLI commands, such as:
+
+```
+tessera -configfile /path/to/config.json
+```
+
+and
+
+```
+tessera help
+```
+
+By default, Tessera uses an H2 database.  To use an alternative database, add the necessary drivers to the classpath:
+
+`java -cp some-jdbc-driver.jar -jar /somewhere/tessera-app.jar`
+
+## Configuration
+
+### Config File
+
+A config file including database, server and network peer information must be provided using the `-configfile`
+command line property.  A sample configuration file can be found [here](/config/src/test/resources/sample_full.json).
+
+### Cryptographic Keys
+Tessera uses cryptographic keys to provide transaction privacy.  You can use an existing private/public key pair or have Tessera generate a new key pair for you.
+
+#### Using existing keys
+Existing keys can be included in `config.json` in one of two ways:
+- __Directly__ (preferred): 
+```
+    "keys": [
+        {
+            "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
+            "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+        }
+```                                                                    
+- __Indirectly__ (as used in legacy implementations of Tessera):  
+ The private key is provided indirectly through additional config, e.g.
+```
+{
+    "config": {
+        "data": {
+            "bytes": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM="
+        },
+        "type": "unlocked"
+    },
+    "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+}
+```
+
+```
+{
+    "config": {
+        "data": {
+            "aopts": {
+                "variant": "id",
+                "memory": 1048576,
+                "iterations": 10,
+                "parallelism": 4,
+            },
+            "password": "password",
+            "snonce": "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+            "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+            "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
+        },
+        "type": "argon2sbox"
+    },
+    "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+}
+```
+
+#### Generating keys
+If keys do not already exist they can be generated using the `-keygen` option. 
+
+```
+tessera -configfile config.json -keygen /path/to/config1 /path/to/config2
+```
+
+Where `/path/to/config*` are configuration files used in the creation of private keys.  Example configs include:
+- Plaintext key:
+```
+{
+    "type": "unlocked"
+}
+```
+
+- Password protected key:
+```
+{ 
+    "data": {
+        "aopts": {
+            "variant": "id",
+            "memory": 1048576,
+            "iterations": 10,
+            "parallelism": 4,
+
+        },
+        "password": "passwordToUse",
+    },
+    "type": "argon2sbox"
+}
+```
+
+
 
 
 ## Interface Details
@@ -39,7 +188,7 @@ The following endpoints are advertised on this interface:
 
 ##### Unix Domain Socket (Private API)
 
-Quorum needs to be able to:
+Quorum uses this API to:
 - Check if the local Tessera node is running.
 - Send and receive details of private transactions(hash).
 
@@ -48,7 +197,6 @@ The following endpoints are advertised on this interface:
 - /upcheck
 - /sendraw
 - /receiveraw
-
 
 ## API Details
 
@@ -84,144 +232,6 @@ The following endpoints are advertised on this interface:
 
 - Delete hashed encrypted payload stored in Tessera nodes.
 
-
-## Getting started
-
-`java -jar nexus-app/target/nexus-app-${version}-app.jar -configfile config.json`
-
-
-Probably best to copy the jar somewhere and create an alias
-
-`alias nexus="java -jar /somewhere/nexus-app.jar"`
-
-And add the nexus to your PATH.
-
-If you want to use an alternative database then you'll need to add the drivers to the classpath
-
-`java -cp some-jdbc-driver.jar -jar /somewhere/nexus-app.jar`
-
-
-## Configuration
-
-A configuration file must be specified using the `-configfile /path/to/config.json`
-command line property.
-
-A sample configuration can be found [here](/nexus-config/src/test/resources/sample_full.json)
-
-Keys can be provided using direct values, like in the example above,
-or by providing the format produced by previous versions. Just replace the
-`privateKey` field with the data in those files under a `config` key.
-
-Below is a sample snippet:
-
-```
-
-{
-    "config": {
-        "data": {
-            "bytes": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM="
-        },
-        "type": "unlocked"
-    },
-    "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-}
-
-{
-    "config": {
-        "data": {
-            "aopts": {
-                "variant": "id",
-                "memory": 1048576,
-                "iterations": 10,
-                "parallelism": 4,
-            },
-            "password": "password",
-            "snonce": "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-            "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-            "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
-        },
-        "type": "argon2sbox"
-    },
-    "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-}
-
-```
-
-If the keys dont already exist they can be generated using the -keygen option. 
-
-```
-nexus -configfile config.json -keygen /path/to/config1 /path/to/config2
-```
-
-This will check the given paths for configuration of the private keys.
-The configuration for these is the same as what is produced for a key, e.g.
-
-Plaintext key:
-
-/path/to/config1
-```
-{
-    "type": "unlocked"
-}
-```
-
-Password protected key:
-
-/path/to/config2
-```
-{ 
-    "data": {
-        "aopts": {
-            "variant": "id",
-            "memory": 1048576,
-            "iterations": 10,
-            "parallelism": 4,
-
-        },
-        "password": "passwordToUse",
-    },
-    "type": "argon2sbox"
-}
-```
-
-
-## Building Tessera
-
-Checkout Tessera from github and build using maven.
-Tessera can be built with different nacl implementations:
-
-#### jnacl
-
-`mvn install`
-
-##### kalium
-
-`mvn install -Pkalium`
-
-Note that the Kalium implementation requires that you have sodium installed at runtime (see runtime dependencies below).
-
-## Runtime Dependencies
-Tessera has the folllowing runtime dependencies which must be installed.
-
-#### junixsocket
-JUnixSocket will unpack required dependencies if they are not found
-By default, they get unpacked to /tmp, but this can be
-changed by setting the system property "org.newsclub.net.unix.library.path"
-
-Alternatively, you can install the dependency yourself, and point the 
-above system property to the install location.
-
-1. Get junixsocket-1.3-bin.tar.bz2 from https://code.google.com/archive/p/junixsocket/downloads
-2. Unpack it
-4. sudo mkdir -p /opt/newsclub/lib-native
-5. sudo cp junixsocket-1.3/lib-native/libjunixsocket-macosx-1.5-x86_64.dylib /opt/newsclub/lib-native/
-
-#### sodium
-
-This is only required if Nexus is built to use the Kalium implementation.
-* brew install libsodium
-
-
 ## Quorum - Tessera Privacy Transaction Flow
 
-<img src='https://github.com/QuorumEngineering/tessera/blob/Krish1979-patch-1/Tessera%20Privacy%20Flow.jpeg/'>
+![Tessera Privacy Flow](Tessera Privacy Flow.jpeg "Quorum - Tessera privacy transaction flow")
