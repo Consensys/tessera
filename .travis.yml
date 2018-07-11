@@ -11,4 +11,4 @@ cache:
   - "$HOME/.m2"
 
 script:
-- mvn install
+- mvn dependency:purge-local-repository -Dinclude=com.github.tessera -DresolutionFuzziness=groupId -Dverbose=true clean install
