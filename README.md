@@ -1,27 +1,84 @@
 # Tessera
-A stateless Java application responsible for encryption and decryption of private transaction data and for off-chain private messaging.  Tessera is also responsible for generating and managing private keys locally in each node in a Quorum network.
+
+A stateless Java implementation responsible for encryption and decryption of private transaction data and for off-chain private messaging. Each Tessera node:
+
+  - Generates and maintains a number of private/public key pairs
+  
+  - Self manages and discovers all nodes (i.e. their public keys) in the network by connecting to as little as one other node
+    
+  - Provides Private and Public API interfaces for communication
+    - Private API - This is used for communication with Quorum
+    - Public API - This is used for communication between Tessera peer nodes
+    
+  - Provides two way SSL using TLS certificates and various trust models like Trust On First Use (TOFU), whitelist, 
+    certificate authority, etc.
+    
+  - Supports IP whitelist
+  
+  - Connects to any SQL DB which supports the JDBC client
+
+
+## Building Tessera
+
+1. Install the required runtime dependencies
+2. Checkout the project from GitHub
+3. Build using Maven
+
+
+### Runtime Dependencies
+Tessera has the following runtime dependencies which must be installed.
+
+#### junixsocket
+1. Get `junixsocket-1.3-bin.tar.bz2` from https://code.google.com/archive/p/junixsocket/downloads
+2. Unpack it
+3. `sudo mkdir -p /opt/newsclub/lib-native`
+4. `sudo cp junixsocket-1.3/lib-native/libjunixsocket-macosx-1.5-x86_64.dylib /opt/newsclub/lib-native/`
+
+junixsocket will unpack the required dependencies if they are not found.
+By default, they get unpacked to `/tmp`, but this can be
+changed by setting the system property `"org.newsclub.net.unix.library.path"`.
+
+Alternatively, you can install the dependency yourself and point the 
+above system property to the install location.
+
+### Selecting an NaCl Implementation 
+Tessera can be built with different NaCl cryptography implementations:
+
+#### jnacl
+
+`mvn install`
+
+#### kalium
+ 
+ Install kalium as detailed on the [kalium project page](https://github.com/abstractj/kalium), then run
+ 
+`mvn install -Pkalium`
+
 
 ## Running Tessera
+`java -jar tessera-app/target/tessera-app-${version}-app.jar -configfile config.json`
 
 Once Tessera has been configured and built, you may want to copy the .jar to another location, create an alias and add it to your PATH:
 
 `alias tessera="java -jar /somewhere/application-${version}-app.jar"`
 
 You will then be able to more concisely use the Tessera CLI commands, such as:
+
 ```
-tessera help
+tessera -configfile /path/to/config.json
 ```
 
 and
+
 ```
-tessera -configfile /path/to/config.json
+tessera help
 ```
 
 By default, Tessera uses an H2 database.  To use an alternative database, add the necessary drivers to the classpath:
 
 `java -cp some-jdbc-driver.jar -jar /somewhere/tessera-app.jar`
 
-## Initial Configuration
+## Configuration
 
 ### Config File
 
@@ -33,7 +90,7 @@ Tessera uses cryptographic keys to provide transaction privacy.  You can use an 
 
 #### Using existing keys
 Existing keys can be included in `config.json` in one of two ways:
-* __Directly__ (preferred): 
+- __Directly__ (preferred): 
 ```
     "keys": [
         {
@@ -41,7 +98,7 @@ Existing keys can be included in `config.json` in one of two ways:
             "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
         }
 ```                                                                    
-* __Indirectly__ (as used in legacy implementations of Tessera):  
+- __Indirectly__ (as used in legacy implementations of Tessera):  
  The private key is provided indirectly through additional config, e.g.
 ```
 {
@@ -84,14 +141,14 @@ tessera -configfile config.json -keygen /path/to/config1 /path/to/config2
 ```
 
 Where `/path/to/config*` are configuration files used in the creation of private keys.  Example configs include:
-* Plaintext key:
+- Plaintext key:
 ```
 {
     "type": "unlocked"
 }
 ```
 
-* Password protected key:
+- Password protected key:
 ```
 { 
     "data": {
@@ -108,126 +165,73 @@ Where `/path/to/config*` are configuration files used in the creation of private
 }
 ```
 
-## Building
 
-To build and use Tessera: 
-1. Install the required runtime dependencies
-2. Checkout the project from GitHub
-3. Build using Maven
-4. Run the .jar
 
-For further details, see below.
-
-### Runtime Dependencies
-Tessera has the following runtime dependencies which must be installed.
-
-#### junixsocket
-1. Get `junixsocket-1.3-bin.tar.bz2` from https://code.google.com/archive/p/junixsocket/downloads
-2. Unpack it
-3. `sudo mkdir -p /opt/newsclub/lib-native`
-4. `sudo cp junixsocket-1.3/lib-native/libjunixsocket-macosx-1.5-x86_64.dylib /opt/newsclub/lib-native/`
-
-junixsocket will unpack the required dependencies if they are not found.
-By default, they get unpacked to `/tmp`, but this can be
-changed by setting the system property `"org.newsclub.net.unix.library.path"`.
-
-Alternatively, you can install the dependency yourself and point the 
-above system property to the install location.
-
-### Selecting an NaCl Implementation 
-Tessera can be built with different NaCl cryptography implementations:
-
-#### jnacl
-
-`mvn install`
-
-#### kalium
- 
- Install kalium as detailed on the [kalium project page](https://github.com/abstractj/kalium), then run
- 
-`mvn install -Pkalium`
 
 ## Interface Details
 
-Tessera has two interfaces which allow endpoints from the API to be called.
+##### HTTP (Public API)
 
-### HTTP (Public API)
+Tessera Nodes communicate with each other for:
 
-The Public API is used for communication between Tessera instances.
-Tessera instances communicate with each other using this API to:
-- Learn about other Tessera nodes in the network
-- Send and receive public key information
-- Send private transactions to the other party(ies) in a transaction
+- Node/Network discovery
+- Sending/Receiving encrypted payload.
 
 The following endpoints are advertised on this interface:
-- version
-- upcheck
-- push
-- resend
-- partyinfo
 
-### Unix Domain Socket (Private API)
-The Private API is used for communication with Quorum.
+- /version
+- /upcheck
+- /push
+- /resend
+- /partyinfo
+- /delete
+
+##### Unix Domain Socket (Private API)
+
 Quorum uses this API to:
-- Check if the local Tessera node is running
-- Send and receive details of private transactions
+- Check if the local Tessera node is running.
+- Send and receive details of private transactions(hash).
 
 The following endpoints are advertised on this interface:
-- version
-- upcheck
-- send
-- sendraw
-- receive
-- receiveraw
-- delete
+- /version
+- /upcheck
+- /sendraw
+- /receiveraw
 
 ## API Details
 
 **version** - _Get Tessera version_
 
-Returns the version of Tessera that is running.
+- Returns the version of Tessera that is running.
 
-**upcheck** - _Check that Tessera is running_
+**upcheck** - _Check Tessera node is running_
 
-Returns the text "I'm up!"
+- Returns the text "I'm up!"
 
-**push** - _Details to be provided_
+**push** - _Push transactions between nodes_
 
-Details to be provided.
+- Persist encrypted payload received from another node.
 
-**resend** - _Details to be provided_
+**resend** - _Resend transaction_
 
-Details to be provided
+- Resend all transactions for given key or given hash/recipient.
 
 **partyinfo** - _Retrieve details of known nodes_
 
-Details to be provided
+- Request public keys/url of all known peer nodes.
 
-**send** - _Send transaction_
+**sendraw** - _Send transaction bytestring_
 
-Allows you to send a bytestring to one or more public keys,
-returning a content-addressable identifier.
-This bytestring is encrypted transparently and efficiently (at symmetric encryption speeds)
-before being transmitted over the wire to the correct recipient nodes (and only those nodes).
-The identifier is a hash digest of the encrypted payload that every recipient node receives.
-Each recipient node also receives a small blob encrypted for their public key which contains
-the Master Key for the encrypted payload.
+- Send transaction payload bytestring from Quorum to Tessera node. Tessera send transaction hash in the response back. 
 
-**sendraw** - _Details to be provided_
+**receiveraw** - _Receive transaction bytestring_ 
 
-Details to be provided
-
-**receive** - _Receive a transaction_
-
-Allows you to receive a decrypted bytestring based on an identifier.
-Payloads which your node has sent or received can be decrypted and retrieved in this way.
-
-**receiveraw** - _Details to be provided_ 
-
-Details to be provided
+- Receive decrypted bytestring of the transaction payload from Tessera to Quorum for transations it is party to.
 
 **delete** - _Delete a transaction_ 
 
-Details to be provided
+- Delete hashed encrypted payload stored in Tessera nodes.
 
+## Quorum - Tessera Privacy Transaction Flow
 
+![Tessera Privacy Flow](Tessera Privacy Flow.jpeg "Quorum - Tessera privacy transaction flow")
