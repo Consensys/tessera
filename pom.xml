@@ -189,34 +189,24 @@
     </build>
 
     <modules>
+        <module>tessera-app</module>
         <module>argon2</module>
-        <module>application</module>
-        <module>security</module>
         <module>config</module>
         <module>config-cli</module>
-        <module>test</module>
-        <module>service-locator-parent</module>
-        <module>rest-server-parent</module>
-        <module>encryption-parent</module>
-        <module>test-util</module>
-        <module>socket-parent</module>
+        <module>tests</module>
+        <module>security</module>
+        <module>service-locator</module>
+        <module>rest-server</module>
+        <module>encryption</module>
+        <module>socket</module>
     </modules>
-
-    <profiles>
-        <profile>
-            <id>performance-test</id>
-            <modules>
-                <module>test-jmeter</module>
-            </modules>
-        </profile>
-    </profiles>
 
     <dependencyManagement>
         <dependencies>
             
             <dependency>
                 <groupId>com.github.tessera</groupId>
-                <artifactId>encryption</artifactId>
+                <artifactId>encryption-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
@@ -240,7 +230,7 @@
             
             <dependency>
                 <groupId>com.github.tessera</groupId>
-                <artifactId>socket</artifactId>
+                <artifactId>unixsocket</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
@@ -272,7 +262,7 @@
             
             <dependency>
                 <groupId>com.github.tessera</groupId>
-                <artifactId>service-locator</artifactId>
+                <artifactId>service-locator-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
@@ -284,7 +274,7 @@
 
             <dependency>
                 <groupId>com.github.tessera</groupId>
-                <artifactId>rest-server</artifactId>
+                <artifactId>rest-server-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             
