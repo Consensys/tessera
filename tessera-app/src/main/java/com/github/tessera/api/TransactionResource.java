@@ -116,7 +116,7 @@ public class TransactionResource {
                 .entity(encodedKey)
                 .build();
     }
-
+    @ApiOperation(value = "Returns decrypted payload back to Quorum")
     @ApiResponses({
         @ApiResponse(code = 200, response = ReceiveResponse.class, message = "Receive Response object")
     })
