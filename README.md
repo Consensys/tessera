@@ -246,30 +246,31 @@ over public API
 network synchronization.
 
 - When a node starts up, it will reach out to every other node to 
-share/receieve the public keys hosted. The heartbeat is restablished every 
-two minutes. Each node will maintain the same public key registry after
-synchronization and can start sending messages ot any known public key.
+share/receive the public keys hosted. The heartbeat is send every 
+two seconds for resynchronization. Each node will maintain the same public key 
+registry after synchronization and can start sending messages to any known public key.
 
 - When Quorum node starts up it connects to its local Tessera node using the
-/upcheck API and is ready to process private transactions.
+/upcheck API and is now ready to process private transactions.
 
 - When Quorum sends transaction to its local node using /sendraw API, 
 
     1. The local node first validates the sender's public key.
     
-    2. The local node checks the private key to the given publci key
-       and once validated begins to encrypts the payload by
+    2. The local node checks for private key and once validated begins to encrypts
+       the payload by
        
        - Generating a symmetric key and random nonce
        - Generate a recipient nonce 
        - Encrypt the payload using the symmetric key and random nonce
        - Hash this encrypted payload using SHA3 algorithm
-       - For each recipient, encrypt the symmetric key and recipient nonce 
-         with recipient public key 
+       - For each recipient, encrypt the symmetric key with recipient nonce 
+         and recipient public key 
     
     3. The local node stores the payload locally and transmits the encrypted 
-       payload, the hash and the encrypted symmetric key/recipeint nonce pair 
-       to each recipient using public API '/push'
+       payload and the encrypted symmetric key to each recipient using public 
+       API '/push'. Each recipient will regenerate the hash using same algorithm
+       for local storage.
 
     4. Once all nodes have confirmed receipt and storage of the payload,
        the local node returns the '/sendraw' API call successfully with the
