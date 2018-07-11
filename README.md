@@ -239,21 +239,21 @@ The following endpoints are advertised on this interface:
 <img src='https://github.com/QuorumEngineering/tessera/blob/master/Tessera%20Privacy%20Flow.jpeg'/>
 
 
-Each Tessera node hosts a number of key pairs and public keys are advertised 
+- Each Tessera node hosts a number of key pairs and public keys are advertised 
 over public API
 
-Nodes can be started with just one other node information to achieve
+- Nodes can be started with just one other node information to achieve
 network synchronization.
 
-When a node starts up, it will reach out to every other node to 
+- When a node starts up, it will reach out to every other node to 
 share/receieve the public keys hosted. The heartbeat is restablished every 
 two minutes. Each node will maintain the same public key registry after
 synchronization and can start sending messages ot any known public key.
 
-When Quorum node starts up it connects to its local Tessera node using the
-/upcheck API.
+- When Quorum node starts up it connects to its local Tessera node using the
+/upcheck API and is ready to process private transactions.
 
-When Quorum sends transaction to its local node using /send API, 
+- When Quorum sends transaction to its local node using /send API, 
 
     1. The local node first validates the sending's public key.
     
@@ -261,33 +261,13 @@ When Quorum sends transaction to its local node using /send API,
        encrypts the payload by
        
        - Generating a symmetric key and random nonce
-       - Generate a recipient nonce
+       - Generate a recipient nonce (for each recipient of the transaction)??
+       - Encrypt the payload using the symmetric key and random nonce
+       - Hash this encrypted payload using SHA3 algorithm
+       - For each recipient, encrypt the symmetric key and recipient nonce 
+         with recipient public key 
     
-validates the sender's public key.
 
-Once
-
-This is what happens when you use the `send` function of the Private
-API to send the bytestring `foo` to the public key
-`ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=`:
-
-  1. You send a POST API request to the Private API socket like:
-     `{"payload": "foo", "from": "mypublickey", to: "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc="}`
-
-  2. The local node generates using `/dev/urandom` (or similar):
-       - A random Master Key (MK) and nonce
-       - A random recipient nonce
-
-  3. The local node encrypts the payload using NaCl `secretbox` using
-     the random MK and nonce.
-
-  4. The local node generates an MK container for each recipient
-     public key; in this case, simply one container for `ROAZ...`,
-     using NaCl `box` and the recipient nonce.
-
-     NaCl `box` works by deriving a shared key based
-     on your private key and the recipient's public key. This is known
-     as elliptic curve key agreement.
 
      Note that the sender public key and recipient public key we
      specified above aren't enough to perform the
