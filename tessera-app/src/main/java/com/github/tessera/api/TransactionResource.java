@@ -39,7 +39,7 @@ public class TransactionResource {
         this.enclave = requireNonNull(enclave, "enclave must not be null");
         this.base64Decoder = requireNonNull(base64Decoder, "decoder must not be null");
     }
-
+    @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
     @ApiResponses({
         @ApiResponse(code = 200, response = SendResponse.class, message = "Send response"),
         @ApiResponse(code = 400, message = "For unknown and unknown keys")
@@ -80,7 +80,7 @@ public class TransactionResource {
                 .build();
 
     }
-
+    @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
     @ApiResponses({
         @ApiResponse(code = 200, message = "Encoded Key", response = String.class),
         @ApiResponse(code = 500, message = "Unknown server error")
@@ -212,7 +212,7 @@ public class TransactionResource {
                 .build();
 
     }
-
+    @ApiOperation("Delete single transaction from Tessera node")
     @ApiResponses({
         @ApiResponse(code = 204, message = "Successful deletion"),
         @ApiResponse(code = 404, message = "If the entity doesn't exist")
@@ -228,7 +228,7 @@ public class TransactionResource {
 
         return Response.noContent().build();
     }
-
+    @ApiOperation("Resend transactions for given key or message hash/recipient")
     @ApiResponses({
         @ApiResponse(code = 200, message = "Encoded payload when TYPE is INDIVIDUAL", response = String.class),
         @ApiResponse(code = 500, message = "General error")
@@ -263,7 +263,7 @@ public class TransactionResource {
 
         return Response.status(Response.Status.OK).build();
     }
-
+    @ApiOperation(value = "Transmit encrypted payload between Tessera Nodes")
     @ApiResponses({
         @ApiResponse(code = 201, message = "Key created status"),
         @ApiResponse(code = 500, message = "General error")

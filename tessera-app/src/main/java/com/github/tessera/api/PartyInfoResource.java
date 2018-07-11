@@ -6,6 +6,7 @@ import com.github.tessera.node.model.PartyInfo;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiOperation;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -31,7 +32,7 @@ public class PartyInfoResource {
         this.partyInfoParser = requireNonNull(partyInfoParser, "partyInfoParser must not be null");
     }
 
-
+    @ApiOperation(value = "Request public key/url of other nodes", produces = "public keylist/url")
     @ApiResponses({
         @ApiResponse(code = 200,message = "Encoded PartyInfo Data",response = byte[].class)
     })

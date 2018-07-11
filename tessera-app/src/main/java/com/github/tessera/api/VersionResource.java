@@ -2,6 +2,8 @@ package com.github.tessera.api;
 
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiOperation;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -22,6 +24,7 @@ public class VersionResource {
      *
      * @return String that will be returned as a text/plain response.
      */
+    @ApiOperation(value = "Request current version of Tessera", produces = "current version number")
     @ApiResponses({@ApiResponse(code = 200,message = "Current application version ",response = String.class)})
     @GET
     @Produces(MediaType.TEXT_PLAIN)

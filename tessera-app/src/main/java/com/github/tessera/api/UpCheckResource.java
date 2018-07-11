@@ -2,6 +2,7 @@ package com.github.tessera.api;
 
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiOperation;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -22,6 +23,7 @@ public class UpCheckResource {
      *
      * @return String that will be returned as a text/plain response.
      */
+    @ApiOperation(value = "Check if local Tessera Node is up", produces = "I'm up")
     @ApiResponses({@ApiResponse(code = 200,message = UPCHECK_RESPONSE)})
     @GET
     @Produces(MediaType.TEXT_PLAIN)
