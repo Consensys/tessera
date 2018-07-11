@@ -242,8 +242,8 @@ The following endpoints are advertised on this interface:
 - Each Tessera node hosts a number of key pairs and public keys are advertised 
 over public API
 
-- Nodes can be started with just one other node information to achieve
-network synchronization.
+- Nodes can be started with information from just one other node to achieve network 
+synchronization
 
 - When a node starts up, it will reach out to every other node to 
 share/receive the public keys hosted. The heartbeat is sent every 
