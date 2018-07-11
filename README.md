@@ -234,24 +234,38 @@ The following endpoints are advertised on this interface:
 
 ## How It Works
 
-### Quorum - Tessera Privacy Transaction Flow
+### Quorum - Tessera Data Privacy Flow Diagram
 
 <img src='https://github.com/QuorumEngineering/tessera/blob/master/Tessera%20Privacy%20Flow.jpeg'/>
 
 
-Each Constellation node hosts some number of key pairs, and advertises
-a publicly accessible FQDN/port for other hosts to connect to.
+Each Tessera node hosts a number of key pairs and public keys are advertised 
+over public API
 
-Nodes can be started with a reference to existing nodes on the network
-(with the `othernodes` configuration variable,) or without, in which
-case some other node must later be pointed to this node to achieve
-synchronization.
+Nodes can be started with just one other node information to achieve
+network synchronization.
 
-When a node starts up, it will reach out to each node in `othernodes`,
-and learn about the public keys they host, as well as other nodes in
-the network. In short order, the node's public key directory will be
-the same as that of all other nodes, and you can start addressing
-messages to any of the known public keys.
+When a node starts up, it will reach out to every other node to 
+share/receieve the public keys hosted. The heartbeat is restablished every 
+two minutes. Each node will maintain the same public key registry after
+synchronization and can start sending messages ot any known public key.
+
+When Quorum node starts up it connects to its local Tessera node using the
+/upcheck API.
+
+When Quorum sends transaction to its local node using /send API, 
+
+    1. The local node first validates the sending's public key.
+    
+    2. The local node checks its private key and once validated begins to 
+       encrypts the payload by
+       
+       - Generating a symmetric key and random nonce
+       - Generate a recipient nonce
+    
+validates the sender's public key.
+
+Once
 
 This is what happens when you use the `send` function of the Private
 API to send the bytestring `foo` to the public key
