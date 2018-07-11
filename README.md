@@ -253,82 +253,37 @@ synchronization and can start sending messages ot any known public key.
 - When Quorum node starts up it connects to its local Tessera node using the
 /upcheck API and is ready to process private transactions.
 
-- When Quorum sends transaction to its local node using /send API, 
+- When Quorum sends transaction to its local node using /sendraw API, 
 
-    1. The local node first validates the sending's public key.
+    1. The local node first validates the sender's public key.
     
-    2. The local node checks its private key and once validated begins to 
-       encrypts the payload by
+    2. The local node checks the private key to the given publci key
+       and once validated begins to encrypts the payload by
        
        - Generating a symmetric key and random nonce
-       - Generate a recipient nonce (for each recipient of the transaction)??
+       - Generate a recipient nonce 
        - Encrypt the payload using the symmetric key and random nonce
        - Hash this encrypted payload using SHA3 algorithm
        - For each recipient, encrypt the symmetric key and recipient nonce 
          with recipient public key 
     
+    3. The local node stores the payload locally and transmits the encrypted 
+       payload, the hash and the encrypted symmetric key/recipeint nonce pair 
+       to each recipient using public API '/push'
 
+    4. Once all nodes have confirmed receipt and storage of the payload,
+       the local node returns the '/sendraw' API call successfully with the
+       hash of encrypted payload to Quorum node.
 
-     Note that the sender public key and recipient public key we
-     specified above aren't enough to perform the
-     encryption. Therefore, the node will check to see that it is
-     actually hosting the private key that corresponds to the given
-     public key before generating an MK container for each recipient
-     based on SharedKey(yourprivatekey, recipientpublickey) and the
-     recipient nonce.
-
-     We now have:
-
-       - An encrypted payload which is `foo` encrypted with the random
-         MK and a random nonce. This is the same for all recipients.
-
-       - A random recipient nonce that also is the same for all
-         recipients.
-
-       - For each recipient, the MK encrypted with the
-         shared key of your private key and their public key. This
-         MK container is unique per recipient, and is only transmitted to
-         that recipient.
-
-  5. For each recipient, the local node looks up the recipient host,
-     and transmits to it:
-
-       - The sender's (your) public key
-
-       - The encrypted payload and nonce
-
-       - The MK container for that recipient and the recipient nonce
-
-  6. The recipient node returns a SHA3-512 hash digest of the
-     encrypted payload, which represents its storage address.
-
-     (Note that it is not possible for the sender to dictate the
-     storage address. Every node generates it independently by hashing
-     the encrypted payload.)
-
-  7. The local node stores the payload locally, generating the same
-     hash digest.
-
-  8. The API call returns successfully once all nodes have confirmed
-     receipt and storage of the payload, and returned a hash digest.
-
-Now, through some other mechanism, you'll inform the recipient that
-they have a payload waiting for them with the identifier `owqkrokwr`,
-and they will make a call to the `receive` method of their Private
-API:
-
-  1. Make a call to the Private API socket `receive` method:
-     `{"key": "qrqwrqwr"}`
-
-  2. The local node will look in its storage for the key `qrqwrqwr`,
-     and abort if it isn't found.
-
-  3. When found, the node will use the information about the sender as
-     well as its private key to derive SharedKey(senderpublickey,
-     yourprivatekey) and decrypt the MK container using NaCl `box`
-     with the recipient nonce.
-
-  4. Using the decrypted MK, the local node will decrypt the encrypted
-     payload using NaCl `secretbox` using the main nonce.
-
-  5. The API call returns the decrypted data.
+    5. Quorum then propogates the transaction hash to rest of the network
+    
+    6. The leader Quorum node then creates the block with this transaction 
+       which is distributed across the network as well and they all attempt 
+       to process it using '/receiveraw' API.
+       
+    7. Each local node will look for the hash and abort if not found. When 
+       found, the node will use information about sender and its private key
+       to decrypt the symmetric key and the decrypt the transaction payload
+       using the now decrypted symmetric key and return the '/receiveraw' API
+       successfully with the decrypted transaction data. which is then stored
+       in the private store DB.
