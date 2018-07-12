@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/google/leveldb.svg?branch=master)](https://travis-ci.com/QuorumEngineering/tessera)
-
 [![codecov](https://codecov.io/gh/QuorumEngineering/tessera/branch/master/graph/badge.svg?token=XMRVPC5FLQ)](https://codecov.io/gh/QuorumEngineering/tessera)
 
 
@@ -237,7 +236,7 @@ The following endpoints are advertised on this interface:
 
 - Delete hashed encrypted payload stored in Tessera nodes.
 
-For me interactions with the API - direct <a href="https://quorumengineering.github.io/tessera-swagger/index.html" target="_blank">here</a> for Swagger page
+For more interactions with the API - direct <a href="https://quorumengineering.github.io/tessera-swagger/index.html" target="_blank">here</a> for Swagger page.
 
 ## How It Works
 
