@@ -26,6 +26,7 @@
             <bean class="com.github.tessera.node.PartyInfoParser" factory-method="create"/>
         </constructor-arg>
     </bean>
+    <bean class="com.github.tessera.api.MetricsResource"></bean>
 
     <bean id="partyInfoStore" class="com.github.tessera.node.PartyInfoStore">
         <constructor-arg value="#{config.serverConfig}"/>
