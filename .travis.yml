@@ -1,5 +1,9 @@
 language: java
 
+env:
+  global:
+    - CODECOV_TOKEN=:uuid-repo-token
+
 sudo: enabled
 
 notifications:
@@ -9,6 +13,9 @@ notifications:
 cache:
   directories:
   - "$HOME/.m2"
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 
 script:
 - mvn dependency:purge-local-repository -Dinclude=com.github.tessera -DresolutionFuzziness=groupId -Dverbose=true clean install
