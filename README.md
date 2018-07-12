@@ -237,7 +237,7 @@ The following endpoints are advertised on this interface:
 
 - Delete hashed encrypted payload stored in Tessera nodes.
 
-For me interactions with the API - direct <a href="https://quorumengineering.github.io/tessera-swagger/index.html">here</a> for Swagger page
+For me interactions with the API - direct <a href="https://quorumengineering.github.io/tessera-swagger/index.html" target="_blank">here</a> for Swagger page
 
 ## How It Works
 
