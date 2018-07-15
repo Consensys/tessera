@@ -16,4 +16,11 @@ public class HostnameUtilTest {
         assertThat(hostName).isEqualTo(InetAddress.getLocalHost().getHostName());
     }
 
+    @Test
+    public void testGetHostIpAddress() throws UnknownHostException {
+        String ipAddress = HostnameUtil.create().getHostIpAddress();
+        assertThat(ipAddress).isNotEmpty();
+        assertThat(ipAddress).isEqualTo(InetAddress.getLocalHost().getHostAddress());
+    }
+
 }

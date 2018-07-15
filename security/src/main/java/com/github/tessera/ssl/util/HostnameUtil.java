@@ -9,6 +9,10 @@ public interface HostnameUtil {
         return InetAddress.getLocalHost().getHostName();
     }
 
+    default String getHostIpAddress() throws UnknownHostException {
+        return InetAddress.getLocalHost().getHostAddress();
+    }
+
     static HostnameUtil create(){
         return new HostnameUtil() {};
     }

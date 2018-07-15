@@ -1,6 +1,9 @@
 package com.github.tessera.ssl.util;
 
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -28,10 +31,12 @@ public interface TlsUtils {
     String COMMON_NAME_STRING = "CN=";
     String SIGNATURE_ALGORITHM = "SHA512WithRSAEncryption";
     String KEYSTORE_TYPE = "JKS";
-    String DEFAULT_HOSTNAME = "localhost";
+    String DEFAULT_COMMONNAME = "tessera";
+    String LOCALHOST = "localhost";
+    String LOCALHOST_IP = "127.0.0.1";
+    String LOCALHOST_IP_2 = "0.0.0.0";
 
     Provider provider = new BouncyCastleProvider();
-    HostnameUtil HOSTNAME_UTIL = HostnameUtil.create();
 
     default void generateKeyStoreWithSelfSignedCertificate(Path privateKeyFile, String password)
         throws NoSuchAlgorithmException, IOException, OperatorCreationException,
@@ -42,10 +47,10 @@ public interface TlsUtils {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ENCRYPTION);
         keyGen.initialize(2048, secureRandom);
         KeyPair keypair = keyGen.generateKeyPair();
-        PublicKey publicKey = keypair.getPublic();
-        PrivateKey privateKey = keypair.getPrivate();
+        final PublicKey publicKey = keypair.getPublic();
+        final PrivateKey privateKey = keypair.getPrivate();
 
-        final X500Name commonName = new X500Name(COMMON_NAME_STRING + DEFAULT_HOSTNAME);
+        final X500Name commonName = new X500Name(COMMON_NAME_STRING + DEFAULT_COMMONNAME);
         Date startDate = new Date(System.currentTimeMillis());
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
@@ -59,6 +64,19 @@ public interface TlsUtils {
             endDate,
             commonName,
             publicKey);
+
+        GeneralName[] subjectAlternativeNames = new GeneralName[] {
+            new GeneralName(GeneralName.dNSName, LOCALHOST),
+            new GeneralName(GeneralName.dNSName, HostnameUtil.create().getHostName()),
+            new GeneralName(GeneralName.iPAddress, LOCALHOST_IP),
+            new GeneralName(GeneralName.iPAddress, LOCALHOST_IP_2),
+            new GeneralName(GeneralName.iPAddress, HostnameUtil.create().getHostIpAddress())
+        };
+
+        builder.addExtension(
+            Extension.subjectAlternativeName,
+            false,
+            new GeneralNames(subjectAlternativeNames));
 
         ContentSigner contentSigner = new JcaContentSignerBuilder(SIGNATURE_ALGORITHM).build(privateKey);
         X509CertificateHolder certHolder = builder.build(contentSigner) ;
