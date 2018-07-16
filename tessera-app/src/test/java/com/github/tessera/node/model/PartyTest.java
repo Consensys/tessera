@@ -10,7 +10,9 @@ public class PartyTest {
 
     @Test
     public void differentClassesAreNotEqual() {
-        final boolean isEqual = Objects.equals(new Party("partyurl"), "test");
+
+        final Object other =  "test";
+        final boolean isEqual = Objects.equals(new Party("partyurl"), other);
 
         assertThat(isEqual).isFalse();
     }
@@ -29,7 +31,6 @@ public class PartyTest {
         assertThat(party.getUrl())
             .isEqualTo("partyurl")
             .isSameAs("partyurl");
-
     }
 
     @Test
@@ -37,9 +38,7 @@ public class PartyTest {
 
         final Party party = new Party("partyurl");
 
-        assertThat(party)
-            .hasSameHashCodeAs(new Party("partyurl"));
-
+        assertThat(party).hasSameHashCodeAs(new Party("partyurl"));
     }
 
 }

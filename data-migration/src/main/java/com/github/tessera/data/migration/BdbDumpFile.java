@@ -48,6 +48,7 @@ public class BdbDumpFile {
                 final String value = reader.readLine();
 
                 final String insertLine = String.format(SQL_TEMPLATE, key.trim(), value.trim());
+
                 writer.write(insertLine);
                 writer.newLine();
 
