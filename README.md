@@ -274,9 +274,9 @@ registry after synchronization and can start sending messages to any known publi
          and recipient public key 
     
     3. The local node stores the payload locally and transmits the encrypted 
-       payload and the encrypted symmetric key to each recipient using public 
-       API '/push'. Each recipient will regenerate the hash using same algorithm
-       for local storage.
+       payload, encrypted symmetric key and both random and recipient nonce to each 
+       recipient using public API '/push'. Each recipient will regenerate the hash 
+       using same algorithm for local storage.
 
     4. Once all nodes have confirmed receipt and storage of the payload,
        the local node returns the '/sendraw' API call successfully with the
@@ -285,8 +285,8 @@ registry after synchronization and can start sending messages to any known publi
     5. Quorum then propogates the transaction hash to rest of the network
     
     6. The leader Quorum node then creates the block with this transaction 
-       which is distributed across the network as well and they all attempt 
-       to process it using '/receiveraw' API.
+       which is distributed across the network through 'Raft transport layer. All  
+       nodes will attempt to process it using '/receiveraw' API.
        
     7. Each local node will look for the hash and abort if not found. When 
        found, the node will use information about sender and its private key
