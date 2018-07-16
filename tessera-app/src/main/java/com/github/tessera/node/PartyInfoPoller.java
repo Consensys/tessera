@@ -8,8 +8,11 @@ import org.slf4j.LoggerFactory;
 
 import java.net.ConnectException;
 import java.util.Objects;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class PartyInfoPoller implements Runnable {
 
@@ -37,7 +40,7 @@ public class PartyInfoPoller implements Runnable {
 
         final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
-        final Set<Party> partySet = partyInfo.getParties().stream().collect(Collectors.toSet());
+        final Set<Party> partySet = new HashSet<>(partyInfo.getParties());
 
         partySet.stream()
             .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))

@@ -15,7 +15,6 @@ public class ClientFactory {
     public ClientFactory(SSLContextFactory sslContextFactory) {
         this.sslContextFactory = Objects.requireNonNull(sslContextFactory);
     }
-
     
     public Client buildFrom(final ServerConfig config) {
         if (config.isSsl()) {
@@ -27,7 +26,5 @@ public class ClientFactory {
             return ClientBuilder.newClient();
         }
     }
-
-   
 
 }

@@ -169,14 +169,14 @@ public class TransactionResource {
     @Consumes(APPLICATION_OCTET_STREAM)
     @Produces(APPLICATION_OCTET_STREAM)
     public Response receiveRaw(
-            @ApiParam("Encoded Sender Public Key")
-            @NotNull @HeaderParam(value = "c11n-key") String senderKey,
+            @ApiParam("Encoded transaction hash")
+            @NotNull @HeaderParam(value = "c11n-key") String hash,
             @ApiParam("Encoded Recipient Public Key")
             @HeaderParam(value = "c11n-to") String recipientKey) {
 
         LOGGER.debug("Received receiveraw request");
 
-        final byte[] decodedKey = base64Decoder.decode(senderKey);
+        final byte[] decodedKey = base64Decoder.decode(hash);
 
         final Optional<byte[]> to = Optional
                 .ofNullable(recipientKey)
