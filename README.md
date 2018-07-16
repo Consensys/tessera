@@ -282,10 +282,11 @@ registry after synchronization and can start sending messages to any known publi
        the local node returns the '/sendraw' API call successfully with the
        hash of encrypted payload to Quorum node.
 
-    5. Quorum then propogates the transaction hash to rest of the network
+    5. Quorum then propogates the transaction hash to rest of the network using 
+       Ethereum P2P protocol.
     
     6. The leader Quorum node then creates the block with this transaction 
-       which is distributed across the network through 'Raft transport layer. 
+       which is distributed across the network through 'Raft transport layer'. 
        All nodes will attempt to process it using '/receiveraw' API.
        
     7. Each local node will look for the hash and abort if not found. When 
@@ -294,3 +295,22 @@ registry after synchronization and can start sending messages to any known publi
        using the now decrypted symmetric key and return the '/receiveraw' API
        successfully with the decrypted transaction data. which is then stored
        in the private store DB.
+      
+
+## What's next in Tessera
+
+We will continously improve Tessera performance and in the next release we are looking at 
+enhancing resiliency of Tessera nodes like
+
+  - Provide internal cluster of Tessera nodes for heightened recoverability
+  
+  - Continue with transaction processing even if recipient node is down
+  
+  - Automatically recover private transactions from peer nodes after data loss
+  
+  - Enhance windows support 
+  
+  - Healthcheck - Implement monitoring of nodes heartbeat, network availability, throughput
+                  peer connections etc.
+                  
+  - End to end Performance profiling.
