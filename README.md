@@ -242,7 +242,7 @@ For more interactions with the API - direct <a href="https://quorumengineering.g
 
 ### Quorum - Tessera Data Privacy Flow Diagram
 
-<img src='https://github.com/QuorumEngineering/tessera/blob/master/Tessera%20Privacy%20Flow.jpeg'/>
+<img src='https://github.com/QuorumEngineering/tessera/blob/Krish1979-patch-1/Tessera%20Privacy%20flow.jpeg'/>
 
 
 - Each Tessera node hosts a number of key pairs and public keys are advertised 
