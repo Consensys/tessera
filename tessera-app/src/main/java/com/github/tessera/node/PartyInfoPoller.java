@@ -7,9 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.ConnectException;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 public class PartyInfoPoller implements Runnable {
 
@@ -37,34 +35,36 @@ public class PartyInfoPoller implements Runnable {
 
         final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
-        final Set<Party> partySet = new HashSet<>(partyInfo.getParties());
-
-        partySet.stream()
+        partyInfo
+            .getParties()
+            .parallelStream()
             .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
             .map(Party::getUrl)
-            .forEach(url -> pollSingleParty(url, encodedPartyInfo));
+            .map(url -> pollSingleParty(url, encodedPartyInfo))
+            .filter(Objects::nonNull)
+            .map(partyInfoParser::from)
+            .forEach(partyInfoService::updatePartyInfo);
 
         LOGGER.debug("Polled {}. PartyInfo : {}", getClass().getSimpleName(), partyInfo);
     }
 
-    private void pollSingleParty(final String url, final byte[] encodedPartyInfo) {
+    private byte[] pollSingleParty(final String url, final byte[] encodedPartyInfo) {
         try {
-            byte[] response = postDelegate.doPost(url, ApiPath.PARTYINFO, encodedPartyInfo);
-            if (null != response) {
-                PartyInfo partyInfo = partyInfoParser.from(response);
-                partyInfoService.updatePartyInfo(partyInfo);
-            }
 
-        } catch (Throwable ex) {
+            return postDelegate.doPost(url, ApiPath.PARTYINFO, encodedPartyInfo);
+
+        } catch (final Exception ex) {
 
             if (ConnectException.class.isInstance(ex.getCause())) {
                 LOGGER.warn("Server error {} when connecting to {}", ex.getMessage(), url);
                 LOGGER.debug(null, ex);
+                return null;
             } else {
                 LOGGER.error("Error thrown while executing poller. ", ex);
                 throw ex;
             }
-        }
-    }
 
+        }
+
+    }
 }

@@ -1,6 +1,5 @@
 package com.github.tessera.node;
 
-
 import com.github.tessera.config.Config;
 import com.github.tessera.config.Peer;
 import com.github.tessera.config.ServerConfig;
@@ -9,53 +8,51 @@ import com.github.tessera.nacl.Key;
 import com.github.tessera.node.model.Party;
 import com.github.tessera.node.model.PartyInfo;
 import com.github.tessera.node.model.Recipient;
-import java.net.URI;
-import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
+import static java.util.Collections.*;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class PartyInfoServiceTest {
 
-    private PartyInfoStore partyInfoStore;
+    private static final String uri = "http://localhost:8080";
 
-    private Config configuration;
+    private PartyInfoStore partyInfoStore;
 
     private PartyInfoService partyInfoService;
 
-    private KeyManager keyManager;
-
-    private static final String uri = "http://localhost:8080";
-
     @Before
-    public void onSetUp() throws Exception {
-        this.partyInfoStore = mock(PartyInfoStore.class);
-        this.configuration = mock(Config.class);
-        ServerConfig serverConfig = mock(ServerConfig.class);
-        when(serverConfig.getServerUri()).thenReturn(new URI(uri));
-        when(configuration.getServerConfig()).thenReturn(serverConfig);
-        
-        Peer peer = mock(Peer.class);
-        when(peer.getUrl()).thenReturn("http://other-node.com:8080");
-        when(configuration.getPeers()).thenReturn(Arrays.asList(peer));
+    public void onSetUp() {
 
-        this.keyManager = mock(KeyManager.class);
+        this.partyInfoStore = mock(PartyInfoStore.class);
+        final Config configuration = mock(Config.class);
+        final KeyManager keyManager = mock(KeyManager.class);
+
+        final ServerConfig serverConfig = new ServerConfig("http://localhost", 8080, null);
+        doReturn(serverConfig).when(configuration).getServerConfig();
+
+        final Peer peer = new Peer("http://other-node.com:8080");
+        doReturn(singletonList(peer)).when(configuration).getPeers();
+
+        final Set<Key> ourKeys = new HashSet<>(
+            Arrays.asList(
+                new Key("some-key".getBytes()),
+                new Key("another-public-key".getBytes())
+            )
+        );
+        doReturn(ourKeys).when(keyManager).getPublicKeys();
+
         this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
     }
 
@@ -78,7 +75,7 @@ public class PartyInfoServiceTest {
         assertThat(initialRecipients).hasSize(0);
         assertThat(ourUrl).isEqualTo(uri);
 
-        verify(partyInfoStore, times(2)).store(any(PartyInfo.class));
+        verify(partyInfoStore).store(any(PartyInfo.class));
         verify(partyInfoStore, times(3)).getPartyInfo();
 
         //TODO: add a captor for verification
@@ -87,41 +84,23 @@ public class PartyInfoServiceTest {
     @Test
     public void registeringPublicKeysUsesOurUrl() {
 
-        final String ourUrl = this.configuration.getServerConfig().getServerUri().toString();
-
-        final Set<Key> ourPublicKeys2 = new HashSet<>();
-        ourPublicKeys2.add(new Key("some-key".getBytes()));
-        ourPublicKeys2.add(new Key("another-public-key".getBytes()));
-
-        final PartyInfo partyInfo = new PartyInfo(
-            uri,
-            Stream.of(
-                new Recipient(new Key("some-key".getBytes()), uri),
-                new Recipient(new Key("another-public-key".getBytes()), uri)
-            ).collect(toSet()),
-            emptySet()
-        );
-        doReturn(partyInfo).when(partyInfoStore).getPartyInfo();
-
-
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
-        partyInfoService.registerPublicKeys(ourUrl, ourPublicKeys2);
 
-        final String fetchedUrl = partyInfoService.getPartyInfo().getUrl();
-        assertThat(fetchedUrl).isEqualTo(ourUrl);
-        verify(partyInfoStore).getPartyInfo();
+        verify(partyInfoStore).store(captor.capture());
 
-        verify(partyInfoStore, times(3)).store(captor.capture());
-        final List<Recipient> allRegisteredKeys = captor.getAllValues()
+        final List<Recipient> allRegisteredKeys = captor
+            .getAllValues()
             .stream()
             .map(PartyInfo::getRecipients)
             .flatMap(Set::stream)
             .collect(toList());
 
-        assertThat(allRegisteredKeys).hasSize(2).containsExactlyInAnyOrder(
-            new Recipient(new Key("some-key".getBytes()), ourUrl),
-            new Recipient(new Key("another-public-key".getBytes()), ourUrl)
-        );
+        assertThat(allRegisteredKeys)
+            .hasSize(2)
+            .containsExactlyInAnyOrder(
+                new Recipient(new Key("some-key".getBytes()), uri),
+                new Recipient(new Key("another-public-key".getBytes()), uri)
+            );
     }
 
     @Test
@@ -138,33 +117,28 @@ public class PartyInfoServiceTest {
 
         verify(partyInfoStore).store(secondNodePartyInfo);
         verify(partyInfoStore).store(thirdNodePartyInfo);
-        verify(partyInfoStore, times(4)).store(any(PartyInfo.class));
-
+        verify(partyInfoStore, times(3)).store(any(PartyInfo.class));
         verify(partyInfoStore, times(2)).getPartyInfo();
-
     }
 
     @Test
-    public void getRecipientURLFromPartyInfoStore(){
-        verify(partyInfoStore, times(2)).store(any());
-        Recipient recipient = new Recipient(new Key("key".getBytes()),"someurl");
-        PartyInfo partyInfo = new PartyInfo(uri, Collections.singleton(recipient), emptySet());
-        when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
+    public void getRecipientURLFromPartyInfoStore() {
 
-        assertThat(partyInfoService.getURLFromRecipientKey(new Key("key".getBytes()))).isEqualTo("someurl");
+        final Recipient recipient = new Recipient(new Key("key".getBytes()), "someurl");
+        final PartyInfo partyInfo = new PartyInfo(uri, singleton(recipient), emptySet());
+        doReturn(partyInfo).when(partyInfoStore).getPartyInfo();
 
-        verify(partyInfoStore, times(1)).getPartyInfo();
+        final String result = partyInfoService.getURLFromRecipientKey(new Key("key".getBytes()));
+        assertThat(result).isEqualTo("someurl");
 
-        try {
-            partyInfoService.getURLFromRecipientKey(new Key("otherKey".getBytes()));
-            assertThatExceptionOfType(RuntimeException.class);
-        }
-        catch (Exception ex){
+        verify(partyInfoStore).store(any(PartyInfo.class));
+        verify(partyInfoStore).getPartyInfo();
 
-        }
+        final Key failingKey = new Key("otherKey".getBytes());
+        final Throwable throwable = catchThrowable(() -> partyInfoService.getURLFromRecipientKey(failingKey));
+        assertThat(throwable).isInstanceOf(RuntimeException.class);
 
         verify(partyInfoStore, times(2)).getPartyInfo();
-
     }
 
 }
