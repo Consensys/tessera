@@ -3,13 +3,11 @@ package com.github.tessera.node;
 import com.github.tessera.api.model.ApiPath;
 import com.github.tessera.node.model.Party;
 import com.github.tessera.node.model.PartyInfo;
-import java.net.ConnectException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.net.ConnectException;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,44 +20,22 @@ public class PartyInfoPollerTest {
 
     private PartyInfoParser partyInfoParser;
 
-    private ScheduledExecutorService scheduledExecutorService;
-
     private PartyInfoPoller partyInfoPoller;
-
-    private final long rateInSeconds = 2L;
 
     private PostDelegate postDelegate;
 
-    public PartyInfoPollerTest() {
-    }
-
     @Before
     public void setUp() {
-        postDelegate = mock(PostDelegate.class);
-        partyInfoService = mock(PartyInfoService.class);
-        partyInfoParser = mock(PartyInfoParser.class);
-        scheduledExecutorService = mock(ScheduledExecutorService.class);
-        partyInfoPoller = new PartyInfoPoller(partyInfoService, scheduledExecutorService,
-                partyInfoParser, postDelegate, rateInSeconds);
+        this.postDelegate = mock(PostDelegate.class);
+        this.partyInfoService = mock(PartyInfoService.class);
+        this.partyInfoParser = mock(PartyInfoParser.class);
+
+        this.partyInfoPoller = new PartyInfoPoller(partyInfoService, partyInfoParser, postDelegate);
     }
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(partyInfoService, partyInfoParser, scheduledExecutorService);
-    }
-
-    @Test
-    public void start() {
-        partyInfoPoller.start();
-        verify(scheduledExecutorService).scheduleAtFixedRate(partyInfoPoller, rateInSeconds, rateInSeconds, TimeUnit.SECONDS);
-        verify(scheduledExecutorService).scheduleAtFixedRate(partyInfoPoller, rateInSeconds, rateInSeconds, TimeUnit.SECONDS);
-
-    }
-
-    @Test
-    public void stop() {
-        partyInfoPoller.stop();
-        verify(scheduledExecutorService).shutdown();
+        verifyNoMoreInteractions(partyInfoService, partyInfoParser);
     }
 
     @Test

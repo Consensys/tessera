@@ -1,4 +1,4 @@
-package com.github.tessera.socket;
+package com.github.tessera.threading;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,41 +11,44 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-public class SocketExecutorTest {
+public class TesseraScheduledExecutorTest {
+
+    private static final long RATE = 2L;
 
     private ScheduledExecutorService executorService;
 
-    private SocketServer socketServer;
+    private Runnable action;
 
-    private SocketExecutor socketExecutor;
+    private TesseraScheduledExecutor tesseraScheduledExecutor;
 
     @Before
     public void init() {
         this.executorService = mock(ScheduledExecutorService.class);
-        this.socketServer = mock(SocketServer.class);
+        this.action = mock(Runnable.class);
 
-        this.socketExecutor = new SocketExecutor(executorService, socketServer);
+        this.tesseraScheduledExecutor = new TesseraScheduledExecutor(executorService, action, RATE);
     }
 
     @Test
     public void start() {
-        socketExecutor.start();
+        tesseraScheduledExecutor.start();
 
-        verify(executorService).scheduleWithFixedDelay(any(Runnable.class), eq(1L), eq(1L), eq(TimeUnit.MILLISECONDS));
+        verify(executorService).scheduleWithFixedDelay(any(Runnable.class), eq(RATE), eq(RATE), eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void executionThrowsError() throws InterruptedException {
         final CountDownLatch cdl = new CountDownLatch(1);
 
-        final Runnable run = new Runnable() {
+        final Runnable runnable = new Runnable() {
             private boolean hasRun = false;
 
             @Override
             public void run() {
-                if(hasRun) {
+                if (hasRun) {
                     cdl.countDown();
                 } else {
                     hasRun = true;
@@ -54,8 +57,10 @@ public class SocketExecutorTest {
             }
         };
 
-        final SocketExecutor socketExecutor = new SocketExecutor(Executors.newSingleThreadScheduledExecutor(), run);
-        socketExecutor.start();
+        final TesseraScheduledExecutor executor
+            = new TesseraScheduledExecutor(Executors.newSingleThreadScheduledExecutor(), runnable, 2);
+
+        executor.start();
 
         final boolean await = cdl.await(5, TimeUnit.SECONDS);
         assertThat(await).isTrue();
@@ -63,7 +68,7 @@ public class SocketExecutorTest {
 
     @Test
     public void stop() {
-        socketExecutor.stop();
+        tesseraScheduledExecutor.stop();
         verify(executorService).shutdown();
     }
 
