@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
@@ -24,7 +25,8 @@ public class TlsUtilsTest {
     Path privateKeyFile = Paths.get(FILE);
 
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
+        Files.deleteIfExists(privateKeyFile);
         assertThat(Files.exists(privateKeyFile)).isFalse();
     }
 
@@ -43,12 +45,17 @@ public class TlsUtilsTest {
         try (InputStream in = Files.newInputStream(privateKeyFile)) {
             keyStore.load(in, PASSWORD.toCharArray());
         }
+
+        assertThat(keyStore.containsAlias(ALIAS)).isTrue();
+
         Certificate certificate = keyStore.getCertificate(ALIAS);
 
         assertThat(certificate).isNotNull();
-        assertThat(certificate.getPublicKey()).isNotNull();
-
-        Files.deleteIfExists(privateKeyFile);
+        assertThat(certificate).isInstanceOf(X509Certificate.class);
+        assertThat(((X509Certificate) certificate))
+            .extracting("info").isNotNull()
+            .extracting("issuer").isNotNull()
+            .extracting("names").size().isEqualTo(1);
 
     }
 }
