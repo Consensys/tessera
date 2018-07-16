@@ -14,8 +14,11 @@ cache:
   directories:
   - "$HOME/.m2"
 
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
-
 script:
-- mvn dependency:purge-local-repository -Dinclude=com.github.tessera -DresolutionFuzziness=groupId -Dverbose=true clean install
+- mvn install
+
+before_cache:
+- mvn dependency:purge-local-repository -Dinclude=com.github.tessera -DresolutionFuzziness=groupId -Dverbose=true
+
+after_success:
+- bash <(curl -s https://codecov.io/bash)
