@@ -19,6 +19,8 @@ import java.util.stream.Stream;
  */
 public class BdbDumpFile {
 
+    protected static final String SQL_TEMPLATE = "INSERT INTO ENCRYPTED_TRANSACTION (ENC_TX_SEQ,HASH,ENCODED_PAYLOAD) VALUES (ENC_TX_SEQ.NEXTVAL,'%s','%s');";
+
     private final Path inputFile;
 
     public BdbDumpFile(Path inputFile) {
@@ -26,8 +28,6 @@ public class BdbDumpFile {
     }
 
     public void execute(OutputStream outputStream) throws IOException {
-
-        String sql = "INSERT INTO ENCRYPTED_TRANSACTION (ENC_TX_SEQ,HASH,ENCODED_PAYLOAD) VALUES (ENC_TX_SEQ.NEXTVAL,'%s','%s');";
 
         try (BufferedReader reader = Files.newBufferedReader(inputFile);
                 BufferedWriter writer = Stream.of(outputStream)
@@ -47,7 +47,7 @@ public class BdbDumpFile {
                 final String key = line;
                 final String value = reader.readLine();
 
-                final String insertLine = String.format(sql, key.trim(), value.trim());
+                final String insertLine = String.format(SQL_TEMPLATE, key.trim(), value.trim());
                 writer.write(insertLine);
                 writer.newLine();
 
