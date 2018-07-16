@@ -285,8 +285,8 @@ registry after synchronization and can start sending messages to any known publi
     5. Quorum then propogates the transaction hash to rest of the network
     
     6. The leader Quorum node then creates the block with this transaction 
-       which is distributed across the network through 'Raft transport layer. All  
-       nodes will attempt to process it using '/receiveraw' API.
+       which is distributed across the network through 'Raft transport layer. 
+       All nodes will attempt to process it using '/receiveraw' API.
        
     7. Each local node will look for the hash and abort if not found. When 
        found, the node will use information about sender and its private key
