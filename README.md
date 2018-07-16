@@ -313,4 +313,4 @@ enhancing resiliency of Tessera nodes like
   - Healthcheck - Implement monitoring of nodes heartbeat, network availability, throughput
                   peer connections etc.
                   
-  - End to end Performance profiling.
+  - End to End performance profiling.
