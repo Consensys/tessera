@@ -242,7 +242,7 @@ For more interactions with the API - direct <a href="https://quorumengineering.g
 
 ### Quorum - Tessera Data Privacy Flow Diagram
 
-<img src='https://github.com/QuorumEngineering/tessera/blob/master/Tessera%20Privacy%20Flow.jpeg'/>
+<img src='https://github.com/QuorumEngineering/tessera/blob/master/Tessera%20Privacy%20flow.jpeg'/>
 
 
 - Each Tessera node hosts a number of key pairs and public keys are advertised 
@@ -274,19 +274,20 @@ registry after synchronization and can start sending messages to any known publi
          and recipient public key 
     
     3. The local node stores the payload locally and transmits the encrypted 
-       payload and the encrypted symmetric key to each recipient using public 
-       API '/push'. Each recipient will regenerate the hash using same algorithm
-       for local storage.
+       payload, encrypted symmetric key and both random and recipient nonce to each 
+       recipient using public API '/push'. Each recipient will regenerate the hash 
+       using same algorithm for local storage.
 
     4. Once all nodes have confirmed receipt and storage of the payload,
        the local node returns the '/sendraw' API call successfully with the
        hash of encrypted payload to Quorum node.
 
-    5. Quorum then propogates the transaction hash to rest of the network
+    5. Quorum then propogates the transaction hash to rest of the network using 
+       Ethereum P2P protocol.
     
     6. The leader Quorum node then creates the block with this transaction 
-       which is distributed across the network as well and they all attempt 
-       to process it using '/receiveraw' API.
+       which is distributed across the network through 'Raft transport layer'. 
+       All nodes will attempt to process it using '/receiveraw' API.
        
     7. Each local node will look for the hash and abort if not found. When 
        found, the node will use information about sender and its private key
@@ -294,3 +295,22 @@ registry after synchronization and can start sending messages to any known publi
        using the now decrypted symmetric key and return the '/receiveraw' API
        successfully with the decrypted transaction data. which is then stored
        in the private store DB.
+      
+
+## What's next in Tessera
+
+We will continously improve Tessera performance and in the next release we are looking at 
+enhancing resiliency of Tessera nodes like
+
+  - Providing internal cluster of Tessera nodes for heightened recoverability
+  
+  - Continue with transaction processing even if recipient node is down
+  
+  - Automatically recover private transactions from peer nodes after data loss
+  
+  - Providing windows support 
+  
+  - Healthcheck - Implement monitoring of nodes heartbeat, network availability, throughput
+                  peer connections etc.
+                  
+  - End to End performance profiling.
