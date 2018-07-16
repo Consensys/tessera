@@ -302,13 +302,13 @@ registry after synchronization and can start sending messages to any known publi
 We will continously improve Tessera performance and in the next release we are looking at 
 enhancing resiliency of Tessera nodes like
 
-  - Provide internal cluster of Tessera nodes for heightened recoverability
+  - Providing internal cluster of Tessera nodes for heightened recoverability
   
   - Continue with transaction processing even if recipient node is down
   
   - Automatically recover private transactions from peer nodes after data loss
   
-  - Enhance windows support 
+  - Providing windows support 
   
   - Healthcheck - Implement monitoring of nodes heartbeat, network availability, throughput
                   peer connections etc.
