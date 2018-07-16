@@ -16,10 +16,6 @@ public class Party {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
         return (o instanceof Party) && Objects.equals(url, ((Party) o).url);
     }
 

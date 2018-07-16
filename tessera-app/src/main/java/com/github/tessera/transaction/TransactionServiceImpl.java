@@ -81,6 +81,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         final EncodedPayloadWithRecipients payloadWithRecipients
             = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
+
         final EncodedPayload encodedPayload = payloadWithRecipients.getEncodedPayload();
 
         final Key senderPubKey, recipientPubKey;
