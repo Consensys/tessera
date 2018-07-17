@@ -13,12 +13,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptySet;
-
 public class PartyInfoServiceImpl implements PartyInfoService {
 
     private final PartyInfoStore partyInfoStore;
-
 
     public PartyInfoServiceImpl(final PartyInfoStore partyInfoStore,
                                 final Config configuration,
@@ -26,31 +23,21 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
 
-        Objects.requireNonNull(keyManager);
-
         final String advertisedUrl = configuration.getServerConfig().getServerUri().toString();
 
-        final Set<Party> parties = configuration.getPeers()
+        final Set<Party> initialParties = configuration.getPeers()
             .stream()
             .map(Peer::getUrl)
             .map(Party::new)
             .collect(Collectors.toSet());
 
-        partyInfoStore.store(new PartyInfo(advertisedUrl, emptySet(), parties));
-
-        registerPublicKeys(advertisedUrl, keyManager.getPublicKeys());
-
-    }
-
-    @Override
-    public void registerPublicKeys(final String ourUrl, final Set<Key> publicKeys) {
-
-        final Set<Recipient> ourKeys = publicKeys.stream()
-            .map(key -> new Recipient(key, ourUrl))
+        final Set<Recipient> ourKeys = keyManager
+            .getPublicKeys()
+            .stream()
+            .map(key -> new Recipient(key, advertisedUrl))
             .collect(Collectors.toSet());
 
-        final PartyInfo selfPartyInfo = new PartyInfo(ourUrl, ourKeys, emptySet());
-        partyInfoStore.store(selfPartyInfo);
+        partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, initialParties));
     }
 
     @Override
@@ -67,12 +54,17 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     }
 
     @Override
-    public String getURLFromRecipientKey(Key key) {
-        Recipient retrievedRecipientFromStore = partyInfoStore.getPartyInfo().getRecipients()
+    public String getURLFromRecipientKey(final Key key) {
+
+        final Recipient retrievedRecipientFromStore = partyInfoStore
+            .getPartyInfo()
+            .getRecipients()
             .stream()
             .filter(recipient -> key.equals(recipient.getKey()))
             .findAny()
             .orElseThrow(() -> new KeyNotFoundException("Recipient not found"));
+
         return retrievedRecipientFromStore.getUrl();
     }
+
 }
