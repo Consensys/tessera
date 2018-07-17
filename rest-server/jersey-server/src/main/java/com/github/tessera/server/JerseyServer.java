@@ -70,7 +70,8 @@ public class JerseyServer implements RestServer {
         initParams.put("jersey.config.server.monitoring.statistics.mbeans.enabled", "true");
 
         final ResourceConfig config = ResourceConfig.forApplication(application);
-        config.addProperties(initParams);
+        config.addProperties(initParams)
+              .register(MetricsResource.class);
 
         if (secure) {
             server = GrizzlyHttpServerFactory.createHttpServer(
