@@ -1,6 +1,7 @@
 package com.github.tessera.node;
 
 import com.github.tessera.api.model.ApiPath;
+import com.github.tessera.api.model.ResendRequest;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,6 +12,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class PostDelegateTest {
@@ -22,40 +24,85 @@ public class PostDelegateTest {
     @Before
     public void onSetup() {
 
-        Client client = mock(Client.class);
-        WebTarget webTarget = mock(WebTarget.class);
-        builder = mock(Invocation.Builder.class);
-        when(webTarget.request()).thenReturn(builder);
+        final Client client = mock(Client.class);
+        final WebTarget webTarget = mock(WebTarget.class);
 
-        when(client.target(anyString())).thenReturn(webTarget);
-        when(webTarget.path(anyString())).thenReturn(webTarget);
-        delegate = new PostDelegate(client);
+        this.builder = mock(Invocation.Builder.class);
+        doReturn(builder).when(webTarget).request();
+
+        doReturn(webTarget).when(client).target(anyString());
+        doReturn(webTarget).when(webTarget).path(anyString());
+
+        this.delegate = new PostDelegate(client);
     }
 
     @Test
     public void doPost() {
 
-        byte[] responseData = "I LOVE SPARROWS!".getBytes();
-        Response response = mock(Response.class);
+        final byte[] responseData = "I LOVE SPARROWS!".getBytes();
+        final Response response = mock(Response.class);
+
         when(response.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
         when(response.readEntity(byte[].class)).thenReturn(responseData);
         when(builder.post(any(Entity.class))).thenReturn(response);
 
-        byte[] data = "BOGUS".getBytes();
-        byte[]  result = delegate.doPost("http://bogus.com",ApiPath.PARTYINFO,data);
+        final byte[] data = "BOGUS".getBytes();
+        final byte[] result = delegate.doPost("http://bogus.com", ApiPath.PARTYINFO, data);
         assertThat(result).isSameAs(responseData);
     }
 
     @Test
     public void doPostFailure() {
-        byte[] responseData = "Some Good Data".getBytes();
-        Response response = mock(Response.class);
+
+        final Response response = mock(Response.class);
         when(response.getStatus()).thenReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
         when(builder.post(any(Entity.class))).thenReturn(response);
 
-        byte[] data = "BOGUS".getBytes();
-        byte[]  result = delegate.doPost("http://bogus.com",ApiPath.PARTYINFO,data);
-        verify(response, times(0)).readEntity(byte[].class);
+        final byte[] data = "BOGUS".getBytes();
+        final byte[] result = delegate.doPost("http://bogus.com", ApiPath.PARTYINFO, data);
+        verify(response, never()).readEntity(byte[].class);
         assertThat(result).isNull();
     }
+
+    @Test
+    public void makeResendRequestSucceeds() {
+
+        final Response response = mock(Response.class);
+        doReturn(Response.Status.OK.getStatusCode()).when(response).getStatus();
+        doReturn(response).when(builder).post(any(Entity.class));
+
+        final ResendRequest request = new ResendRequest();
+
+        final boolean success = this.delegate.makeResendRequest("http://example.com", request);
+
+        assertThat(success).isTrue();
+    }
+
+    @Test
+    public void makeResendRequestFails() {
+
+        final Response response = mock(Response.class);
+        doReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).when(response).getStatus();
+        doReturn(response).when(builder).post(any(Entity.class));
+
+        final ResendRequest request = new ResendRequest();
+
+        final boolean success = this.delegate.makeResendRequest("http://example.com", request);
+
+        assertThat(success).isFalse();
+    }
+
+    @Test
+    public void exceptionBubblesUpOnFailure() {
+
+        doThrow(RuntimeException.class).when(builder).post(any(Entity.class));
+
+        final Throwable throwable = catchThrowable(
+            () ->delegate.makeResendRequest("randomUrl", new ResendRequest())
+        );
+
+        assertThat(throwable).isInstanceOf(RuntimeException.class);
+
+    }
+
 }

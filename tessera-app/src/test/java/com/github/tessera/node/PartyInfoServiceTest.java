@@ -31,11 +31,7 @@ public class PartyInfoServiceTest {
 
     private static final String URI = "http://localhost:8080";
 
-    private static final Set<Recipient> NEW_RECIPIENTS = Stream
-        .of(
-            new Recipient(new Key("url1".getBytes()), "url1"),
-            new Recipient(new Key("url2".getBytes()), "url2")
-        ).collect(toSet());
+    private static final Set<Party> NEW_PARTIES = Stream.of(new Party("url1"), new Party("url2")).collect(toSet());
 
     private PartyInfoStore partyInfoStore;
 
@@ -174,13 +170,13 @@ public class PartyInfoServiceTest {
 
         this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
 
-        final PartyInfo incomingInfo = new PartyInfo("", NEW_RECIPIENTS, emptySet());
+        final PartyInfo incomingInfo = new PartyInfo("", emptySet(), NEW_PARTIES);
 
-        final Set<Recipient> unsavedRecipients = this.partyInfoService.findUnsavedRecipients(incomingInfo);
+        final Set<Party> unsavedParties = this.partyInfoService.findUnsavedParties(incomingInfo);
 
-        assertThat(unsavedRecipients)
+        assertThat(unsavedParties)
             .hasSize(2)
-            .containsExactlyInAnyOrder(NEW_RECIPIENTS.toArray(new Recipient[0]));
+            .containsExactlyInAnyOrder(NEW_PARTIES.toArray(new Party[0]));
 
         verify(partyInfoStore).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
@@ -188,15 +184,15 @@ public class PartyInfoServiceTest {
 
     @Test
     public void diffPartyInfoReturnsEmptySetOnFullStore() {
-        doReturn(new PartyInfo("", NEW_RECIPIENTS, emptySet())).when(partyInfoStore).getPartyInfo();
+        doReturn(new PartyInfo("", emptySet(), NEW_PARTIES)).when(partyInfoStore).getPartyInfo();
 
         this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
 
-        final PartyInfo incomingInfo = new PartyInfo("", NEW_RECIPIENTS, emptySet());
+        final PartyInfo incomingInfo = new PartyInfo("", emptySet(), NEW_PARTIES);
 
-        final Set<Recipient> unsavedRecipients = this.partyInfoService.findUnsavedRecipients(incomingInfo);
+        final Set<Party> unsavedParties = this.partyInfoService.findUnsavedParties(incomingInfo);
 
-        assertThat(unsavedRecipients).isEmpty();
+        assertThat(unsavedParties).isEmpty();
 
         verify(partyInfoStore).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
@@ -204,23 +200,19 @@ public class PartyInfoServiceTest {
 
     @Test
     public void diffPartyInfoReturnsNodesNotInStore() {
-        doReturn(
-            new PartyInfo(
-                "",
-                singleton(new Recipient(new Key("url1".getBytes()), "url1")),
-                emptySet()
-            )
-        ).when(partyInfoStore).getPartyInfo();
+        doReturn(new PartyInfo("", emptySet(), singleton(new Party("url1"))))
+            .when(partyInfoStore)
+            .getPartyInfo();
 
         this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
 
-        final PartyInfo incomingInfo = new PartyInfo("", NEW_RECIPIENTS, emptySet());
+        final PartyInfo incomingInfo = new PartyInfo("", emptySet(), NEW_PARTIES);
 
-        final Set<Recipient> unsavedRecipients = this.partyInfoService.findUnsavedRecipients(incomingInfo);
+        final Set<Party> unsavedParties = this.partyInfoService.findUnsavedParties(incomingInfo);
 
-        assertThat(unsavedRecipients)
+        assertThat(unsavedParties)
             .hasSize(1)
-            .containsExactlyInAnyOrder(new Recipient(new Key("url2".getBytes()), "url2"));
+            .containsExactlyInAnyOrder(new Party("url2"));
 
         verify(partyInfoStore).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
