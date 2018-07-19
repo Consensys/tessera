@@ -1,5 +1,6 @@
 package com.github.tessera.server;
 
+import com.github.tessera.server.MetricsResource;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
@@ -33,22 +34,22 @@ public class MetricsResourceTest extends JerseyTest {
         assertThat(testResponse.getHeaderString("Content-Type")).isEqualTo(TEXT_PLAIN);
     }
 
-    @Test
-    public void validResponseReturnsMetrics() {
-        final Response testResponse = target("/metrics").request().get(Response.class);
-
-        HashMap<String, String> metrics = new HashMap<>();
-        metrics.put("GET->upCheck()#a10a4f8d_AverageTime[ms]_total", "100");
-        metrics.put("POST->resend(ResendRequest)#8ca0a760_RequestRate[requestsPerSeconds]_total", "1.3");
-
-        String formattedResponse = "tessera_GET_upCheck_AverageTime_ms 100" + "\n" +
-                                   "tessera_POST_resend_ResendRequest_RequestRate_requestsPerSeconds 1.3";
-
-        ResponseFormatter responseFormatter = mock(PrometheusResponseFormatter.class);
-        when(responseFormatter.createResponse(any(Map.class))).thenReturn(formattedResponse);
-
-
-    }
+//    @Test
+//    public void validResponseReturnsMetrics() {
+//        final Response testResponse = target("/metrics").request().get(Response.class);
+//
+//        HashMap<String, String> metrics = new HashMap<>();
+//        metrics.put("GET->upCheck()#a10a4f8d_AverageTime[ms]_total", "100");
+//        metrics.put("POST->resend(ResendRequest)#8ca0a760_RequestRate[requestsPerSeconds]_total", "1.3");
+//
+//        String formattedResponse = "tessera_GET_upCheck_AverageTime_ms 100" + "\n" +
+//                                   "tessera_POST_resend_ResendRequest_RequestRate_requestsPerSeconds 1.3";
+//
+//        ResponseFormatter responseFormatter = mock(PrometheusResponseFormatter.class);
+//        when(responseFormatter.createResponse(any(Map.class))).thenReturn(formattedResponse);
+//
+//
+//    }
 
 }
 

@@ -1,7 +1,7 @@
 package com.github.tessera.server;
 
-import java.util.Map;
+import java.util.List;
 
 public interface ResponseFormatter {
-    String createResponse(Map<String, String> metrics);
+    String createResponse(List<MBeanMetric> metrics);
 }

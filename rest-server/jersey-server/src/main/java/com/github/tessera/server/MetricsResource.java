@@ -7,10 +7,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import java.lang.management.ManagementFactory;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
@@ -26,56 +23,35 @@ public class MetricsResource {
     public Response getMetrics() {
         HashMap<String, String> metrics = new HashMap<>();
 
-        Set<ObjectName> mBeanNames = null;
+        MBeanServerEnquirer mbsEnquirer = new MBeanServerEnquirer(mbs);
 
+        Set<ObjectName> mBeanNames;
         try {
-            mBeanNames = mbs.queryNames(new ObjectName("org.glassfish.jersey:type=Tessera,subType=Resources,resource=com.github.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*"), null);
+            mBeanNames = mbsEnquirer.getTesseraResourceMBeanNames();
         } catch (MalformedObjectNameException e) {
             throw new RuntimeException(e);
         }
 
+        ArrayList<MBeanMetric> mBeanMetrics = new ArrayList<>();
+
         for(ObjectName mBeanName : mBeanNames) {
-            metrics.putAll(getMetricsForMBean(mBeanName));
-        }
-
-        return Response.status(Response.Status.OK)
-            .header("Content-Type", TEXT_PLAIN)
-            .entity(createPlainTextResponse(metrics))
-            .build();
-    }
-
-    private Map<String, String> getMetricsForMBean(ObjectName mBeanName) {
-        HashMap<String, String> mBeanMetrics = new HashMap<>();
-
-        try {
-            for(MBeanAttributeInfo mBeanAttributeInfo : mbs.getMBeanInfo(mBeanName).getAttributes()) {
-                mBeanMetrics.putAll(getMetricsForAttribute(mBeanName, mBeanAttributeInfo));
-            }
-        } catch (InstanceNotFoundException | IntrospectionException | ReflectionException e) {
-            throw new RuntimeException(e);
-        }
-
-        return Collections.unmodifiableMap(mBeanMetrics);
-    }
-
-    private Map<String, String> getMetricsForAttribute(ObjectName mBeanName, MBeanAttributeInfo mBeanAttributeInfo) {
-        HashMap<String, String> attributeMetrics =  new HashMap<>();
-
-        if(mBeanAttributeInfo.getName().endsWith("total")) {
             try {
-                String metricName = mBeanName.getKeyProperty("method") + "_" + mBeanAttributeInfo.getName();
-                String metricValue = mbs.getAttribute(mBeanName, mBeanAttributeInfo.getName()).toString();
-
-                attributeMetrics.put(metricName, metricValue);
-            } catch (MBeanException | AttributeNotFoundException | InstanceNotFoundException | ReflectionException e) {
+                List<MBeanMetric> temp = mbsEnquirer.getMetricsForMBean(mBeanName);
+                mBeanMetrics.addAll(temp);
+            } catch (AttributeNotFoundException | MBeanException | InstanceNotFoundException | ReflectionException | IntrospectionException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return Collections.unmodifiableMap(attributeMetrics);
+        String plainTextResponse = createPlainTextResponse(mBeanMetrics);
+
+        return Response.status(Response.Status.OK)
+            .header("Content-Type", TEXT_PLAIN)
+            .entity(plainTextResponse)
+            .build();
     }
 
-    private String createPlainTextResponse(HashMap<String,String> metrics) {
+    private String createPlainTextResponse(ArrayList<MBeanMetric> metrics) {
         this.responseFormatter = new PrometheusResponseFormatter();
 
         return this.responseFormatter.createResponse(metrics);
