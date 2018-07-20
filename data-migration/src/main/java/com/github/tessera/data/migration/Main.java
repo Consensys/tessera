@@ -53,8 +53,6 @@ public class Main {
 
         BdbDumpFile bdbDumpFile = new BdbDumpFile(inputFile);
 
-        bdbDumpFile.execute(output);
-
     }
 
 }

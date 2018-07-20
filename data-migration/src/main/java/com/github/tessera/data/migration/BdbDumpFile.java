@@ -1,14 +1,18 @@
 package com.github.tessera.data.migration;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Base64;
 import java.util.Objects;
-import java.util.stream.Stream;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Assumes that user has exported data from bdb using db_dump
@@ -19,38 +23,47 @@ import java.util.stream.Stream;
  */
 public class BdbDumpFile {
 
-    protected static final String SQL_TEMPLATE = "INSERT INTO ENCRYPTED_TRANSACTION (ENC_TX_SEQ,HASH,ENCODED_PAYLOAD) VALUES (ENC_TX_SEQ.NEXTVAL,'%s','%s');";
-
     private final Path inputFile;
 
     public BdbDumpFile(Path inputFile) {
         this.inputFile = inputFile;
     }
 
-    public void execute(OutputStream outputStream) throws IOException {
+    public void execute(Path outputFile) throws IOException, SQLException {
 
-        try (BufferedReader reader = Files.newBufferedReader(inputFile);
-                BufferedWriter writer = Stream.of(outputStream)
-                        .map(OutputStreamWriter::new)
-                        .map(BufferedWriter::new)
-                        .findAny().get()) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + outputFile.toString())) {
 
-            while (true) {
-                String line = reader.readLine();
-                if (Objects.isNull(line)) {
-                    break;
+            try (Statement createTableStatement = conn.createStatement()) {
+                createTableStatement.execute("CREATE TABLE IF NOT EXISTS ENCRYPTED_TRANSACTION (ID BIGINT,HASH BLOB,ENCODED_PAYLOAD BLOB)");
+                // createTableStatement.execute("CREATE IF NOT EXISTS  SEQUENCE ENC_TX_SEQ");
+            }
+
+            try (BufferedReader reader = Files.newBufferedReader(inputFile)) {
+
+                while (true) {
+                    String line = reader.readLine();
+                    if (Objects.isNull(line)) {
+                        break;
+                    }
+
+                    if (!line.startsWith(" ")) {
+                        continue;
+                    }
+
+                    final String key = line.trim();
+
+                    final String value = reader.readLine();
+
+                    AtomicInteger counter = new AtomicInteger(1);
+                    try (PreparedStatement insertStatement = conn.prepareStatement("INSERT INTO ENCRYPTED_TRANSACTION VALUES(?, ?,?)")) {
+                        insertStatement.setLong(1, counter.incrementAndGet());
+                        insertStatement.setBytes(2, Base64.getDecoder().decode(key));
+
+                        insertStatement.setBytes(3, value.getBytes(StandardCharsets.US_ASCII));
+                        insertStatement.execute();
+                    }
+
                 }
-
-                if (!line.startsWith(" ")) {
-                    continue;
-                }
-                final String key = line;
-                final String value = reader.readLine();
-
-                final String insertLine = String.format(SQL_TEMPLATE, key.trim(), value.trim());
-
-                writer.write(insertLine);
-                writer.newLine();
 
             }
         }

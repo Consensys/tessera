@@ -3,13 +3,13 @@ package com.github.tessera.transaction;
 import com.github.tessera.enclave.model.MessageHash;
 import com.github.tessera.key.KeyManager;
 import com.github.tessera.nacl.Key;
-import com.github.tessera.nacl.NaclException;
 import com.github.tessera.nacl.NaclFacade;
 import com.github.tessera.nacl.Nonce;
 import com.github.tessera.transaction.exception.TransactionNotFoundException;
 import com.github.tessera.transaction.model.EncodedPayload;
 import com.github.tessera.transaction.model.EncodedPayloadWithRecipients;
 import com.github.tessera.transaction.model.EncryptedTransaction;
+import java.util.Arrays;
 import org.bouncycastle.jcajce.provider.digest.SHA3;
 import org.junit.After;
 import org.junit.Before;
@@ -20,9 +20,9 @@ import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.ArgumentMatchers.any;
+import java.util.List;
+import java.util.UUID;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class TransactionServiceTest {
@@ -30,17 +30,14 @@ public class TransactionServiceTest {
     private static final Key RECIPIENT_KEY = new Key(new byte[]{-1, -2, -3});
 
     private static final Key SENDER_KEY = new Key(new byte[]{1, 2, 3});
+
     private static final byte[] CIPHER_TEXT = new byte[]{4, 5, 6};
+
     private static final Nonce NONCE = new Nonce(new byte[]{7, 8, 9});
+
     private static final Nonce RECIPIENT_NONCE = new Nonce(new byte[]{10, 11, 12});
-    private static final byte[] RECIPIENT_BOX = new byte[]{4, 5, 6};
 
-    private final EncodedPayloadWithRecipients payload = new EncodedPayloadWithRecipients(
-        new EncodedPayload(SENDER_KEY, CIPHER_TEXT, NONCE, singletonList(RECIPIENT_BOX), RECIPIENT_NONCE),
-        singletonList(RECIPIENT_KEY)
-    );
-
-    private EncryptedTransaction encTx;
+    private static final byte[] RECIPIENT_BOX = "RECIPIENT_BOX".getBytes();
 
     private EncryptedTransactionDAO dao;
 
@@ -55,21 +52,16 @@ public class TransactionServiceTest {
     @Before
     public void init() {
         this.dao = mock(EncryptedTransactionDAO.class);
-        this.payloadEncoder = new PayloadEncoderImpl();
+        this.payloadEncoder = mock(PayloadEncoder.class);
         this.keyManager = mock(KeyManager.class);
         this.naclFacade = mock(NaclFacade.class);
-
-        this.encTx = new EncryptedTransaction(
-            new MessageHash(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9}),
-            payloadEncoder.encode(payload)
-        );
 
         this.transactionService = new TransactionServiceImpl(dao, payloadEncoder, keyManager, naclFacade);
     }
 
     @After
     public void after() {
-        verifyNoMoreInteractions(dao, keyManager, naclFacade);
+        verifyNoMoreInteractions(dao, keyManager, naclFacade, payloadEncoder);
     }
 
     @Test
@@ -84,37 +76,51 @@ public class TransactionServiceTest {
     @Test
     public void retrieveAllReturnsEmptyIfKeyIsNull() {
 
-        doReturn(singletonList(encTx)).when(dao).retrieveAllTransactions();
+        byte[] keyData = UUID.randomUUID().toString().getBytes();
+
+        byte[] encodedPayload = UUID.randomUUID().toString().getBytes();
+
+        EncryptedTransaction encTx = mock(EncryptedTransaction.class);
+        when(encTx.getEncodedPayload()).thenReturn(encodedPayload);
+
+        EncodedPayloadWithRecipients encodedPayloadWithRecipientz = mock(EncodedPayloadWithRecipients.class);
+
+        Key key = new Key(keyData);
+        when(encodedPayloadWithRecipientz.getRecipientKeys()).thenReturn(Arrays.asList(key));
+
+        when(dao.retrieveAllTransactions()).thenReturn(singletonList(encTx));
+
+        when(payloadEncoder.decodePayloadWithRecipients(any())).thenReturn(encodedPayloadWithRecipientz);
 
         final Collection<EncodedPayloadWithRecipients> encodedPayloadWithRecipients
-            = transactionService.retrieveAllForRecipient(null);
+                = transactionService.retrieveAllForRecipient(null);
 
         assertThat(encodedPayloadWithRecipients).hasSize(0);
         verify(dao).retrieveAllTransactions();
+        verify(payloadEncoder).decodePayloadWithRecipients(encodedPayload);
     }
 
-    @Test
-    public void retrieveAllReturnsEmptyCollectionIfNoPayloadsExistForKey() {
-
-        doReturn(singletonList(encTx)).when(dao).retrieveAllTransactions();
-
-        final Collection<EncodedPayloadWithRecipients> encodedPayloadWithRecipients
-            = transactionService.retrieveAllForRecipient(new Key(new byte[]{99}));
-
-        assertThat(encodedPayloadWithRecipients).hasSize(0);
-        verify(dao).retrieveAllTransactions();
-    }
-
+    
     @Test
     public void storingPayloadCalculatesSha3512Hash() {
 
+        byte[] data = UUID.randomUUID().toString().getBytes();
+
+        EncodedPayloadWithRecipients payload
+                = mock(EncodedPayloadWithRecipients.class);
+
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        when(encodedPayload.getCipherText()).thenReturn(data);
+        when(payload.getEncodedPayload()).thenReturn(encodedPayload);
+
         final SHA3.DigestSHA3 digestSHA3 = new SHA3.Digest512();
-        final byte[] digest = digestSHA3.digest(payload.getEncodedPayload().getCipherText());
+        final byte[] expectedDigest = digestSHA3.digest(data);
 
         final MessageHash hash = transactionService.storeEncodedPayload(payload);
 
-        assertThat(hash).isEqualTo(new MessageHash(digest));
+        assertThat(hash.getHashBytes()).isEqualTo(expectedDigest);
         verify(dao).save(any(EncryptedTransaction.class));
+        verify(payloadEncoder).encode(payload);
 
     }
 
@@ -133,10 +139,10 @@ public class TransactionServiceTest {
         doReturn(sharedKey).when(naclFacade).computeSharedKey(RECIPIENT_KEY, privateKey);
 
         when(naclFacade.sealAfterPrecomputation(any(), any(), any()))
-            .thenReturn("CIPHER_MAIN".getBytes(), "CIPHER_MASTER".getBytes());
+                .thenReturn("CIPHER_MAIN".getBytes(), "CIPHER_MASTER".getBytes());
 
         final EncodedPayloadWithRecipients payloadWithRecipients
-            = transactionService.encryptPayload(message, SENDER_KEY, singletonList(RECIPIENT_KEY));
+                = transactionService.encryptPayload(message, SENDER_KEY, singletonList(RECIPIENT_KEY));
 
         assertThat(payloadWithRecipients.getRecipientKeys()).hasSize(1);
         assertThat(payloadWithRecipients.getRecipientKeys()).containsExactly(RECIPIENT_KEY);
@@ -169,8 +175,8 @@ public class TransactionServiceTest {
         final Throwable throwable = catchThrowable(() -> transactionService.retrieveUnencryptedTransaction(hash, key));
 
         assertThat(throwable)
-            .isInstanceOf(RuntimeException.class)
-            .hasMessage("Message with hash " + hash + " was not found");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Message with hash " + hash + " was not found");
 
         verify(dao).retrieveByHash(hash);
 
@@ -179,29 +185,48 @@ public class TransactionServiceTest {
     @Test
     public void unencryptMessageUsesKeyAsSenderKey() {
 
+        final Key senderKey = new Key("SENDER_KEY".getBytes());
+
+        final EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        when(encodedPayload.getRecipientBoxes()).thenReturn(singletonList(RECIPIENT_BOX));
+        when(encodedPayload.getRecipientNonce()).thenReturn(RECIPIENT_NONCE);
+        when(encodedPayload.getSenderKey()).thenReturn(senderKey);
+        when(encodedPayload.getCipherText()).thenReturn(CIPHER_TEXT);
+        when(encodedPayload.getCipherTextNonce()).thenReturn(NONCE);
+
         final MessageHash hash = new MessageHash(new byte[]{78, 87, 45, 54});
+
         final Key key = new Key(new byte[]{11, 12, 13, 14});
+
         final Key privateKey = new Key("PRIVATE_KEY".getBytes());
+
         final Key sharedKey = new Key(new byte[]{111, 12, 13, 14});
 
+        final byte[] txnData = UUID.randomUUID().toString().getBytes();
+
+        final EncryptedTransaction tx = new EncryptedTransaction(hash, txnData);
+
         final EncodedPayloadWithRecipients payloadWithRecipients = new EncodedPayloadWithRecipients(
-            payload.getEncodedPayload(),
-            emptyList()
+                encodedPayload,
+                emptyList()
         );
 
-        final EncryptedTransaction tx = new EncryptedTransaction(hash, payloadEncoder.encode(payloadWithRecipients));
+        when(payloadEncoder.decodePayloadWithRecipients(txnData))
+                .thenReturn(payloadWithRecipients);
 
-        doReturn(Optional.of(tx)).when(dao).retrieveByHash(hash);
+        when(dao.retrieveByHash(hash)).thenReturn(Optional.of(tx));
 
-        doReturn(privateKey).when(keyManager).getPrivateKeyForPublicKey(key);
-        doReturn(sharedKey).when(naclFacade).computeSharedKey(payload.getEncodedPayload().getSenderKey(), privateKey);
+        when(keyManager.getPrivateKeyForPublicKey(key)).thenReturn(privateKey);
 
-        doReturn("PLAINTEXT_KEY".getBytes())
-            .when(naclFacade)
-            .openAfterPrecomputation(RECIPIENT_BOX, RECIPIENT_NONCE, sharedKey);
-        doReturn("PLAINTEXT_MESSAGE".getBytes())
-            .when(naclFacade)
-            .openAfterPrecomputation(CIPHER_TEXT, NONCE, new Key("PLAINTEXT_KEY".getBytes()));
+        when(naclFacade.computeSharedKey(senderKey, privateKey)).thenReturn(sharedKey);
+
+        final byte[] masterKey = "MASTER_KEY".getBytes();
+
+        when(naclFacade.openAfterPrecomputation(RECIPIENT_BOX, RECIPIENT_NONCE, sharedKey))
+                .thenReturn(masterKey);
+
+        when(naclFacade.openAfterPrecomputation(CIPHER_TEXT, NONCE, new Key(masterKey)))
+                .thenReturn("PLAINTEXT_MESSAGE".getBytes());
 
         final byte[] message = transactionService.retrieveUnencryptedTransaction(hash, key);
 
@@ -209,82 +234,75 @@ public class TransactionServiceTest {
 
         verify(dao).retrieveByHash(hash);
         verify(keyManager).getPrivateKeyForPublicKey(key);
-        verify(naclFacade).computeSharedKey(payload.getEncodedPayload().getSenderKey(), privateKey);
+        verify(naclFacade).computeSharedKey(senderKey, privateKey);
         verify(naclFacade, times(2)).openAfterPrecomputation(any(), any(), any());
+        verify(payloadEncoder).decodePayloadWithRecipients(txnData);
 
     }
 
     @Test
     public void unencryptMessageUsesKeyAsRecipientKey() {
 
+        final Key senderKey = new Key("SENDER_KEY".getBytes());
+
+        final EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        when(encodedPayload.getRecipientBoxes()).thenReturn(singletonList(RECIPIENT_BOX));
+        when(encodedPayload.getRecipientNonce()).thenReturn(RECIPIENT_NONCE);
+        when(encodedPayload.getSenderKey()).thenReturn(senderKey);
+        when(encodedPayload.getCipherText()).thenReturn(CIPHER_TEXT);
+        when(encodedPayload.getCipherTextNonce()).thenReturn(NONCE);
+
         final MessageHash hash = new MessageHash(new byte[]{78, 87, 45, 54});
+
         final Key key = new Key(new byte[]{11, 12, 13, 14});
+
         final Key privateKey = new Key("PRIVATE_KEY".getBytes());
+
         final Key sharedKey = new Key(new byte[]{111, 12, 13, 14});
 
-        doReturn(Optional.of(encTx)).when(dao).retrieveByHash(hash);
+        final byte[] txnData = UUID.randomUUID().toString().getBytes();
 
-        doReturn(privateKey).when(keyManager).getPrivateKeyForPublicKey(payload.getEncodedPayload().getSenderKey());
-        doReturn(sharedKey).when(naclFacade).computeSharedKey(payload.getRecipientKeys().get(0), privateKey);
+        final EncryptedTransaction tx = new EncryptedTransaction(hash, txnData);
 
-        doReturn("PLAINTEXT_KEY".getBytes())
-            .when(naclFacade)
-            .openAfterPrecomputation(RECIPIENT_BOX, RECIPIENT_NONCE, sharedKey);
-        doReturn("PLAINTEXT_MESSAGE".getBytes())
-            .when(naclFacade)
-            .openAfterPrecomputation(CIPHER_TEXT, NONCE, new Key("PLAINTEXT_KEY".getBytes()));
+        Key recipientKey = new Key("RECIPIENT_KEY".getBytes());
+        List<Key> recipientKeys = Arrays.asList(recipientKey);
+
+        final EncodedPayloadWithRecipients payloadWithRecipients = new EncodedPayloadWithRecipients(
+                encodedPayload,
+                recipientKeys
+        );
+
+        when(payloadEncoder.decodePayloadWithRecipients(txnData))
+                .thenReturn(payloadWithRecipients);
+
+        when(dao.retrieveByHash(hash)).thenReturn(Optional.of(tx));
+
+        when(keyManager.getPrivateKeyForPublicKey(senderKey)).thenReturn(privateKey);
+
+        when(naclFacade.computeSharedKey(recipientKey, privateKey)).thenReturn(sharedKey);
+
+        final byte[] masterKey = "MASTER_KEY".getBytes();
+
+        when(naclFacade.openAfterPrecomputation(RECIPIENT_BOX, RECIPIENT_NONCE, sharedKey))
+                .thenReturn(masterKey);
+
+        when(naclFacade.openAfterPrecomputation(CIPHER_TEXT, NONCE, new Key(masterKey)))
+                .thenReturn("PLAINTEXT_MESSAGE".getBytes());
 
         final byte[] message = transactionService.retrieveUnencryptedTransaction(hash, key);
 
         assertThat(new String(message)).isEqualTo("PLAINTEXT_MESSAGE");
 
         verify(dao).retrieveByHash(hash);
-        verify(keyManager).getPrivateKeyForPublicKey(payload.getEncodedPayload().getSenderKey());
-        verify(naclFacade).computeSharedKey(payload.getRecipientKeys().get(0), privateKey);
+        verify(keyManager).getPrivateKeyForPublicKey(senderKey);
+        verify(naclFacade).computeSharedKey(recipientKey, privateKey);
         verify(naclFacade, times(2)).openAfterPrecomputation(any(), any(), any());
+        verify(payloadEncoder).decodePayloadWithRecipients(txnData);
 
     }
 
-    @Test
-    public void exceptionThrownIfDecryptionFails() {
-        final MessageHash hash = new MessageHash(new byte[]{78, 87, 45, 54});
-        final Key key = new Key(new byte[]{11, 12, 13, 14});
-        final Key privateKey = new Key("PRIVATE_KEY".getBytes());
-        final Key sharedKey = new Key(new byte[]{111, 12, 13, 14});
-
-        doReturn(Optional.of(encTx)).when(dao).retrieveByHash(hash);
-
-        doReturn(privateKey).when(keyManager).getPrivateKeyForPublicKey(payload.getEncodedPayload().getSenderKey());
-        doReturn(sharedKey).when(naclFacade).computeSharedKey(payload.getRecipientKeys().get(0), privateKey);
-
-        doThrow(NaclException.class)
-            .when(naclFacade)
-            .openAfterPrecomputation(RECIPIENT_BOX, RECIPIENT_NONCE, sharedKey);
-
-        final Throwable throwable = catchThrowable(() -> transactionService.retrieveUnencryptedTransaction(hash, key));
-
-        assertThat(throwable).isInstanceOf(NaclException.class);
-
-        verify(dao).retrieveByHash(hash);
-        verify(keyManager).getPrivateKeyForPublicKey(payload.getEncodedPayload().getSenderKey());
-        verify(naclFacade).computeSharedKey(payload.getRecipientKeys().get(0), privateKey);
-        verify(naclFacade).openAfterPrecomputation(any(), any(), any());
-    }
-
-    @Test
-    public void retrievingTransactionThatExistsSucceeds() {
-
-        final MessageHash hash = new MessageHash(new byte[0]);
-
-        doReturn(Optional.of(encTx)).when(dao).retrieveByHash(hash);
-
-        final EncodedPayloadWithRecipients result = transactionService.retrievePayload(hash);
-
-        assertThat(result).isEqualToComparingFieldByFieldRecursively(payload);
-
-        verify(dao).retrieveByHash(hash);
-    }
-
+    
+    //retrievePayload
     @Test
     public void missingTransactionThrowsError() {
 
@@ -295,11 +313,89 @@ public class TransactionServiceTest {
         final Throwable throwable = catchThrowable(() -> transactionService.retrievePayload(hash));
 
         assertThat(throwable)
-            .isInstanceOf(TransactionNotFoundException.class)
-            .hasMessage("Message with hash " + hash + " was not found");
+                .isInstanceOf(TransactionNotFoundException.class)
+                .hasMessage("Message with hash " + hash + " was not found");
 
         verify(dao).retrieveByHash(hash);
 
+    }
+    
+
+    @Test
+    public void retrievePayload() {
+        
+        final EncryptedTransaction txn = mock(EncryptedTransaction.class);
+        when(txn.getEncodedPayload()).thenReturn(new byte[0]);
+        
+        final MessageHash hash = new MessageHash(new byte[0]);
+
+        when(dao.retrieveByHash(hash)).thenReturn(Optional.of(txn));
+        
+        EncodedPayloadWithRecipients encodedPayloadWithRecipients = mock(EncodedPayloadWithRecipients.class);
+        
+        when(payloadEncoder.decodePayloadWithRecipients(any())).thenReturn(encodedPayloadWithRecipients);
+        
+        EncodedPayloadWithRecipients result = transactionService.retrievePayload(hash);
+        
+        assertThat(encodedPayloadWithRecipients).isSameAs(result);
+        
+        verify(dao).retrieveByHash(hash);
+        verify(payloadEncoder).decodePayloadWithRecipients(any());
+
+    }
+
+    @Test
+    public void retrieveUnencryptedTransactionThrowsException() {
+        when(naclFacade.openAfterPrecomputation(any(), any(), any()))
+                .thenThrow(new RuntimeException("BANG"));
+
+        final Key senderKey = new Key("SENDER_KEY".getBytes());
+
+        final EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        when(encodedPayload.getRecipientBoxes()).thenReturn(singletonList(RECIPIENT_BOX));
+        when(encodedPayload.getRecipientNonce()).thenReturn(RECIPIENT_NONCE);
+        when(encodedPayload.getSenderKey()).thenReturn(senderKey);
+        when(encodedPayload.getCipherText()).thenReturn(CIPHER_TEXT);
+        when(encodedPayload.getCipherTextNonce()).thenReturn(NONCE);
+
+        final MessageHash hash = new MessageHash(new byte[]{78, 87, 45, 54});
+
+        final Key key = new Key(new byte[]{11, 12, 13, 14});
+
+        final Key privateKey = new Key("PRIVATE_KEY".getBytes());
+
+        final Key sharedKey = new Key(new byte[]{111, 12, 13, 14});
+
+        final byte[] txnData = UUID.randomUUID().toString().getBytes();
+
+        final EncryptedTransaction tx = new EncryptedTransaction(hash, txnData);
+
+        final EncodedPayloadWithRecipients payloadWithRecipients = new EncodedPayloadWithRecipients(
+                encodedPayload,
+                emptyList()
+        );
+
+        when(payloadEncoder.decodePayloadWithRecipients(txnData))
+                .thenReturn(payloadWithRecipients);
+
+        when(dao.retrieveByHash(hash)).thenReturn(Optional.of(tx));
+
+        when(keyManager.getPrivateKeyForPublicKey(key)).thenReturn(privateKey);
+
+        when(naclFacade.computeSharedKey(senderKey, privateKey)).thenReturn(sharedKey);
+
+        try {
+            transactionService.retrieveUnencryptedTransaction(hash, key);
+            failBecauseExceptionWasNotThrown(RuntimeException.class);
+        } catch (RuntimeException ex) {
+            verify(dao).retrieveByHash(hash);
+            verify(keyManager).getPrivateKeyForPublicKey(key);
+            assertThat(ex).hasMessage("BANG");
+            
+            verify(naclFacade).computeSharedKey(senderKey, privateKey);
+            verify(naclFacade).openAfterPrecomputation(any(), any(), any());
+            verify(payloadEncoder).decodePayloadWithRecipients(txnData);
+        }
     }
 
 }
