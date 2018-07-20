@@ -22,11 +22,11 @@ public class PushIT {
 
     private static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
 
-    private static final String MSG_BASE64 = "AAAAAAAAAAIAAAAAAAAAwwAAAAAAAAAgyGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0AAAAAAAAAE8CbULKPZuEIm6N9a5Mlj46re6MAAAAAAAAAGEPsYS6j3eRGgZWbJAULVbXRi702/K8p0wAAAAAAAAABAAAAAAAAADAdTLvSlnbHxVmMe/0QlQ0HoFdmmqiiOCPQ4Qj238gQdTYl3lANeIuItWtcoTGSQkkAAAAAAAAAGHH4jjQvW2cluXrtd1P/CQyGpobmbsh0twAAAAAAAAAIAAAAAAAAAAA=";
+    private static final String MSG_BASE64 = "AAAAAAAAACDIZyOQXJmSVNNeufz5YiRjCJwDYQYGf3BkWRy0Bp3hfQAAAAAAAAATJ9Sb5lOtjzaZayBRFP9jOUDczAAAAAAAAAAYggoaH+1mIGV91rR0KkrM89Pizi0e6MYGAAAAAAAAAAEAAAAAAAAAMP+KGceAS1WXguC8E6lq4tvtBi2gJfMa0QZ6DAGBdBp3fDAdTq8tKOjstP1aNIFqvAAAAAAAAAAYM9xGQhx2/GYXetUmFZNMe9ED57Rh58MWAAAAAAAAAAA=";
 
     private static final String PUSH_PATH = "/push";
 
-    private static final String ENCODED_HASH = "pVbEuhnKtLhIigze6oxgWSROMeTk8uCX%2B0KkOyfTKn9PwW9UJjIYZa%2B4t8I6dn8apnl2C9Bc9gFfIYKxl2j4Sw%3D%3D";
+    private static final String ENCODED_HASH = "QrAgXFRrZ8V24or%2BBZueIdZ6JBl2WQrqZqmmyFh%2FatsXyVkr2aMNEvQh0AsJvzt12oDpNkKmIv0KSnzM2HZL1w%3D%3D";
 
     private final Client client = ClientBuilder.newClient();
 
