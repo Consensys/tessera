@@ -21,8 +21,6 @@ public class MetricsResource {
     @GET
     @Produces("text/plain")
     public Response getMetrics() {
-        HashMap<String, String> metrics = new HashMap<>();
-
         MBeanServerEnquirer mbsEnquirer = new MBeanServerEnquirer(mbs);
 
         Set<ObjectName> mBeanNames;
