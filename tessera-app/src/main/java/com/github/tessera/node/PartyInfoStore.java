@@ -5,34 +5,34 @@ import com.github.tessera.node.model.Party;
 import com.github.tessera.node.model.PartyInfo;
 import com.github.tessera.node.model.Recipient;
 
+import java.util.HashSet;
 import java.util.Set;
 
-import static java.util.Collections.emptySet;
+import static java.util.Collections.unmodifiableSet;
 
 public class PartyInfoStore {
 
-    private PartyInfo partyInfo;
+    private final String advertisedUrl;
+
+    private final Set<Recipient> recipients;
+
+    private final Set<Party> parties;
 
     public PartyInfoStore(final ServerConfig configuration) {
 
-        final String advertisedUrl = configuration.getServerUri().toString();
+        this.advertisedUrl = configuration.getServerUri().toString();
 
-        this.partyInfo = new PartyInfo(advertisedUrl, emptySet(), emptySet());
+        this.recipients = new HashSet<>();
+        this.parties = new HashSet<>();
     }
 
-    public synchronized void store(final PartyInfo partyInfoToUpdate) {
-        final Set<Recipient> existingRecipients = this.partyInfo.getRecipients();
-        final Set<Recipient> newRecipients = partyInfoToUpdate.getRecipients();
-
-        existingRecipients.addAll(newRecipients);
-
-        final Set<Party> existingParties = this.partyInfo.getParties();
-        final Set<Party> newParties = partyInfoToUpdate.getParties();
-        existingParties.addAll(newParties);
+    public synchronized void store(final PartyInfo newInfo) {
+        recipients.addAll(newInfo.getRecipients());
+        parties.addAll(newInfo.getParties());
     }
 
     public synchronized PartyInfo getPartyInfo() {
-        return new PartyInfo(partyInfo);
+        return new PartyInfo(advertisedUrl, unmodifiableSet(recipients), unmodifiableSet(parties));
     }
 
 }

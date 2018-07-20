@@ -68,21 +68,21 @@
             <constructor-arg ref="config"/>
         </bean>
 
-        <bean name="partyInfoPoller" class="com.github.tessera.node.PartyInfoPoller">
-            <constructor-arg ref="partyInfoService"/>
-            <constructor-arg>
-                <bean id="executorService" class="java.util.concurrent.Executors"
-                      factory-method="newScheduledThreadPool"
-                      destroy-method="shutdown">
-                    <constructor-arg type="int" value="1"/>
-                </bean>
-            </constructor-arg>
-            <constructor-arg>
-                <bean class="com.github.tessera.node.PartyInfoParser" factory-method="create"/>
-            </constructor-arg>
-            <constructor-arg ref="postDelegate"/>
-            <constructor-arg value="2"/>
-        </bean>
+    <bean class="com.github.tessera.threading.TesseraScheduledExecutor">
+        <constructor-arg>
+            <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor" />
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.github.tessera.node.PartyInfoPoller">
+                <constructor-arg ref="partyInfoService"/>
+                <constructor-arg>
+                    <bean class="com.github.tessera.node.PartyInfoParser" factory-method="create"/>
+                </constructor-arg>
+                <constructor-arg ref="postDelegate"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg value="2" />
+    </bean>
 
         <bean name="transactionService" class="com.github.tessera.transaction.TransactionServiceImpl">
             <constructor-arg ref="encryptedTransactionDAO"/>
@@ -170,11 +170,12 @@
                 <constructor-arg ref="config" />
             </bean>
 
-            <bean class="com.github.tessera.socket.SocketExecutor">
+            <bean class="com.github.tessera.threading.TesseraScheduledExecutor">
                 <constructor-arg>
                     <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor" />
                 </constructor-arg>
                 <constructor-arg ref="socketServer" />
+                <constructor-arg value="2" />
             </bean>
         </beans>
 
