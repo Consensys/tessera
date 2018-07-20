@@ -1,6 +1,7 @@
 package com.github.tessera.data.migration;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.Test;
