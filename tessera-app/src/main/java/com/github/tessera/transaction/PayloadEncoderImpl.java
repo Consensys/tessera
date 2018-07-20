@@ -80,7 +80,12 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
 
         final byte[] recipientBytes = encodeArray(keysAsBytes);
 
-        return encodeArray(new byte[][]{payloadBytes, recipientBytes});
+        final byte[] returnValue = new byte[payloadBytes.length + recipientBytes.length];
+
+        System.arraycopy(payloadBytes, 0, returnValue, 0, payloadBytes.length);
+        System.arraycopy(recipientBytes, 0, returnValue, payloadBytes.length, recipientBytes.length);
+
+        return returnValue;
     }
 
     @Override
