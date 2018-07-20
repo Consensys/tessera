@@ -15,7 +15,7 @@ public class DirectoryStoreFileTest {
         
         DirectoryStoreFile directoryStoreFile = new DirectoryStoreFile();
         
-        Map<String,byte[]> results = directoryStoreFile.load(directory);
+        Map<byte[],byte[]> results = directoryStoreFile.load(directory);
         
         assertThat(results).hasSize(22);
         

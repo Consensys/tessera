@@ -16,7 +16,7 @@ public class BdbDumpFileTest {
 
         Path inputFile = Paths.get(getClass().getResource("/bdb/bdb-sample.txt").toURI());
 
-        Map<String, byte[]> results = new BdbDumpFile().load(inputFile);
+        Map<byte[], byte[]> results = new BdbDumpFile().load(inputFile);
 
         assertThat(results).hasSize(12);
 
@@ -29,7 +29,7 @@ public class BdbDumpFileTest {
 
         Path inputFile = Paths.get(getClass().getResource("/bdb/single-entry.txt").toURI());
 
-        Map<String, byte[]> results = new BdbDumpFile().load(inputFile);
+        Map<byte[], byte[]> results = new BdbDumpFile().load(inputFile);
 
         assertThat(results).hasSize(1);
 

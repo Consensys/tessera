@@ -20,9 +20,9 @@ import org.bouncycastle.util.encoders.Hex;
 public class BdbDumpFile implements StoreLoader {
 
     @Override
-    public Map<String, byte[]> load(Path inputFile) throws IOException {
+    public Map<byte[], byte[]> load(Path inputFile) throws IOException {
 
-        Map<String, byte[]> results = new HashMap<>();
+        Map<byte[], byte[]> results = new HashMap<>();
 
         try (BufferedReader reader = Files.newBufferedReader(inputFile)) {
 
@@ -39,8 +39,9 @@ public class BdbDumpFile implements StoreLoader {
                 final String key = line.trim();
 
                 final String value = reader.readLine();
-
-                results.put(key, Hex.decode(value));
+                
+                
+                results.put(Hex.decode(key), Hex.decode(value));
             }
             return Collections.unmodifiableMap(results);
 

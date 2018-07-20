@@ -8,6 +8,6 @@ import java.util.Map;
 
 public interface StoreLoader {
     
-    Map<String,byte[]> load(Path input) throws IOException;
+    Map<byte[],byte[]> load(Path input) throws IOException;
     
 }
