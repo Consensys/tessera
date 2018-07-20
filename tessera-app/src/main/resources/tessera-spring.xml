@@ -159,6 +159,8 @@
 
                     <prop key="javax.persistence.schema-generation.database.action">create</prop>
                     <prop key="javax.persistence.schema-generation.scripts.action">none</prop>
+                    <!--<prop key="javax.persistence.schema-generation.scripts.action">create</prop>-->
+                    <!--<prop key="javax.persistence.schema-generation.scripts.create-target">tesseraDDL.sql</prop>-->
 
                 </props>
             </property>
