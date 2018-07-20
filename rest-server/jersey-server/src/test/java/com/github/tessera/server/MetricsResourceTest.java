@@ -1,55 +1,89 @@
 package com.github.tessera.server;
 
-import com.github.tessera.server.MetricsResource;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.junit.Test;
-
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-
-import static javax.ws.rs.core.Response.Status.OK;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import javax.management.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.Map;
+public class MetricsResourceTest {
 
-public class MetricsResourceTest extends JerseyTest {
+    @Mock
+    private MBeanServerEnquirerFactory mockEnquirerFactory;
 
-    @Override
-    protected Application configure() {
-        return new ResourceConfig(MetricsResource.class);
+    @Mock
+    private MBeanServerEnquirer mockEnquirer;
+
+    @Mock
+    private ResponseFormatterFactory mockFormatterFactory;
+
+    @Mock
+    private PrometheusResponseFormatter mockFormatter;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void responseHasCorrectHeaders() {
-        final Response testResponse = target("/metrics").request().get(Response.class);
+    public void metricsCreatedForOneMBean() throws MalformedObjectNameException, IntrospectionException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
 
-        assertThat(testResponse.getStatus()).isEqualTo(OK.getStatusCode());
-        assertThat(testResponse.getHeaderString("Content-Type")).isEqualTo(TEXT_PLAIN);
+        Set<ObjectName> mBeanNames = new HashSet<>();
+        ObjectName mBeanName = new ObjectName("domain:key=value");
+        mBeanNames.add(mBeanName);
+
+        List<MBeanMetric> metrics = new ArrayList<>();
+        metrics.add(new MBeanResourceMetric("method", "name", "value"));
+
+        when(mockEnquirerFactory.getMBeanServerEnquirer(any(MBeanServer.class))).thenReturn(mockEnquirer);
+        when(mockEnquirer.getTesseraResourceMBeanNames()).thenReturn(mBeanNames);
+        when(mockEnquirer.getMetricsForMBean(mBeanName)).thenReturn(metrics);
+
+        when(mockFormatterFactory.getResponseFormatter()) .thenReturn(mockFormatter);
+
+        MetricsResource metricsResource = new MetricsResource();
+        metricsResource.setMBeanServerEnquirerFactory(mockEnquirerFactory);
+        metricsResource.setResponseFormatterFactory(mockFormatterFactory);
+
+        metricsResource.getMetrics();
+        verify(mockFormatter).createResponse(metrics);
     }
 
-//    @Test
-//    public void validResponseReturnsMetrics() {
-//        final Response testResponse = target("/metrics").request().get(Response.class);
-//
-//        HashMap<String, String> metrics = new HashMap<>();
-//        metrics.put("GET->upCheck()#a10a4f8d_AverageTime[ms]_total", "100");
-//        metrics.put("POST->resend(ResendRequest)#8ca0a760_RequestRate[requestsPerSeconds]_total", "1.3");
-//
-//        String formattedResponse = "tessera_GET_upCheck_AverageTime_ms 100" + "\n" +
-//                                   "tessera_POST_resend_ResendRequest_RequestRate_requestsPerSeconds 1.3";
-//
-//        ResponseFormatter responseFormatter = mock(PrometheusResponseFormatter.class);
-//        when(responseFormatter.createResponse(any(Map.class))).thenReturn(formattedResponse);
-//
-//
-//    }
+    @Test
+    public void metricsCorrectlyAppendedForMoreThanOneMBean() throws MalformedObjectNameException, IntrospectionException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
+        Set<ObjectName> mBeanNames = new HashSet<>();
+        ObjectName mBeanNameOne = new ObjectName("domain1:key=value");
+        ObjectName mBeanNameTwo = new ObjectName("domain2:key=value");
+        mBeanNames.add(mBeanNameOne);
+        mBeanNames.add(mBeanNameTwo);
 
+        List<MBeanMetric> metricsOne = new ArrayList<>();
+        metricsOne.add(new MBeanResourceMetric("method1", "name", "value"));
+        List<MBeanMetric> metricsTwo = new ArrayList<>();
+        metricsTwo.add(new MBeanResourceMetric("method2", "name", "value"));
+
+        when(mockEnquirerFactory.getMBeanServerEnquirer(any(MBeanServer.class))).thenReturn(mockEnquirer);
+        when(mockEnquirer.getTesseraResourceMBeanNames()).thenReturn(mBeanNames);
+        when(mockEnquirer.getMetricsForMBean(mBeanNameOne)).thenReturn(metricsOne);
+        when(mockEnquirer.getMetricsForMBean(mBeanNameTwo)).thenReturn(metricsTwo);
+
+        when(mockFormatterFactory.getResponseFormatter()) .thenReturn(mockFormatter);
+
+        MetricsResource metricsResource = new MetricsResource();
+        metricsResource.setMBeanServerEnquirerFactory(mockEnquirerFactory);
+        metricsResource.setResponseFormatterFactory(mockFormatterFactory);
+
+        metricsResource.getMetrics();
+        List<MBeanMetric> combinedMetrics = metricsOne;
+        combinedMetrics.addAll(metricsTwo);
+        verify(mockFormatter).createResponse(combinedMetrics);
+    }
 }
 

@@ -1,16 +1,13 @@
 package com.github.tessera.server;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.theories.suppliers.TestedOn;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import static org.assertj.core.api.Assertions.assertThat;
-
-import javax.management.*;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import javax.management.*;
 
 public class MBeanServerEnquirerTest {
 
@@ -35,13 +32,12 @@ public class MBeanServerEnquirerTest {
     }
 
     @Test
-    public void mBeanNameQueryPatternIsCorrectlyFormatted() throws MalformedObjectNameException {
+    public void mBeanNameQueryPatternIsCorrectlyFormattedAndDoesNotThrowException() throws MalformedObjectNameException {
         enquirer.getTesseraResourceMBeanNames();
-        assertThat(true);
     }
 
     @Test
-    public void attributeNameNotEndingWithTotal_isNotRetrieved() throws IntrospectionException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
+    public void ifAttributeNameNotEndingWithTotalThenMetricsNotRetrieved() throws IntrospectionException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
         MBeanAttributeInfo[] mockMBeanAttributeInfo = {new MBeanAttributeInfo("name", "type", "description", true, false, false)};
         when(mockMBeanInfo.getAttributes()).thenReturn(mockMBeanAttributeInfo);
 
@@ -49,7 +45,7 @@ public class MBeanServerEnquirerTest {
     }
 
     @Test
-    public void attributeNameEndingWithTotal_isRetrieved() throws IntrospectionException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
+    public void ifAttributeNameEndingWithTotalThenMetricsRetrieved() throws IntrospectionException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
         MBeanAttributeInfo[] mockMBeanAttributeInfo = {new MBeanAttributeInfo("name_total", "type", "description", true, false, false)};
         when(mockMBeanInfo.getAttributes()).thenReturn(mockMBeanAttributeInfo);
 

@@ -24,10 +24,10 @@ public class MBeanServerEnquirer {
             String attributeName = mBeanAttribute.getName();
 
             if(attributeName.endsWith("total")) {
-                MBeanResourceMetric metric = new MBeanResourceMetric();
-                metric.setResourceMethod(mBeanName.getKeyProperty("method"));
-                metric.setName(attributeName);
-                metric.setValue(mBeanServer.getAttribute(mBeanName, attributeName));
+                String resourceMethod = mBeanName.getKeyProperty("method");
+                String value = mBeanServer.getAttribute(mBeanName, attributeName).toString();
+                MBeanResourceMetric metric = new MBeanResourceMetric(resourceMethod, attributeName, value);
+
                 mBeanMetrics.add(metric);
             }
         }

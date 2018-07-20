@@ -5,28 +5,21 @@ public class MBeanResourceMetric implements MBeanMetric {
     private String name;
     private String value;
 
-    public String getResourceMethod() {
-        return resourceMethod;
+    public MBeanResourceMetric(String resourceMethod, String name, String value) {
+        this.resourceMethod = resourceMethod;
+        this.name = name;
+        this.value = value;
     }
 
-    public void setResourceMethod(String resourceMethod) {
-        this.resourceMethod = resourceMethod;
+    public String getResourceMethod() {
+        return resourceMethod;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getValue() {
         return value;
     }
-
-    public void setValue(Object value) {
-        this.value = value.toString();
-    }
-
 }

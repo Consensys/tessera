@@ -14,31 +14,30 @@ import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 @Path("/metrics")
 public class MetricsResource {
 
-    private MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+    private MBeanServer mbs;
+    private MBeanServerEnquirerFactory mbsEnquirerFactory;
+    private ResponseFormatterFactory formatterFactory;
 
-    private ResponseFormatter responseFormatter;
+    public MetricsResource() {
+        mbs = ManagementFactory.getPlatformMBeanServer();
+        setMBeanServerEnquirerFactory(new MBeanServerEnquirerFactory());
+        setResponseFormatterFactory(new ResponseFormatterFactory());
+    }
 
     @GET
     @Produces("text/plain")
-    public Response getMetrics() {
-        MBeanServerEnquirer mbsEnquirer = new MBeanServerEnquirer(mbs);
+    public Response getMetrics() throws MalformedObjectNameException, IntrospectionException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
+        MBeanServerEnquirer mbsEnquirer = mbsEnquirerFactory.getMBeanServerEnquirer(mbs);
 
         Set<ObjectName> mBeanNames;
-        try {
-            mBeanNames = mbsEnquirer.getTesseraResourceMBeanNames();
-        } catch (MalformedObjectNameException e) {
-            throw new RuntimeException(e);
-        }
+
+        mBeanNames = mbsEnquirer.getTesseraResourceMBeanNames();
 
         ArrayList<MBeanMetric> mBeanMetrics = new ArrayList<>();
 
         for(ObjectName mBeanName : mBeanNames) {
-            try {
-                List<MBeanMetric> temp = mbsEnquirer.getMetricsForMBean(mBeanName);
-                mBeanMetrics.addAll(temp);
-            } catch (AttributeNotFoundException | MBeanException | InstanceNotFoundException | ReflectionException | IntrospectionException e) {
-                throw new RuntimeException(e);
-            }
+            List<MBeanMetric> temp = mbsEnquirer.getMetricsForMBean(mBeanName);
+            mBeanMetrics.addAll(temp);
         }
 
         String plainTextResponse = createPlainTextResponse(mBeanMetrics);
@@ -49,9 +48,17 @@ public class MetricsResource {
             .build();
     }
 
-    private String createPlainTextResponse(ArrayList<MBeanMetric> metrics) {
-        this.responseFormatter = new PrometheusResponseFormatter();
+    public void setResponseFormatterFactory(ResponseFormatterFactory factory) {
+        this.formatterFactory = factory;
+    }
 
-        return this.responseFormatter.createResponse(metrics);
+    public void setMBeanServerEnquirerFactory(MBeanServerEnquirerFactory factory) {
+        this.mbsEnquirerFactory = factory;
+    }
+
+    private String createPlainTextResponse(ArrayList<MBeanMetric> metrics) {
+        ResponseFormatter responseFormatter = this.formatterFactory.getResponseFormatter();
+
+        return responseFormatter.createResponse(metrics);
     }
 }
