@@ -35,8 +35,9 @@ public class TomlConfigFactory implements ConfigFactory {
 
         String socket = toml.getString("socket");
 
-        String tls = toml.getString("tls", "strict");
+        String tls = toml.getString("tls", "strict").toUpperCase();
 
+        //??
         String workdir = toml.getString("workdir", ".");
 
         List<String> othernodes = toml.getList("othernodes", Collections.EMPTY_LIST);
@@ -62,18 +63,24 @@ public class TomlConfigFactory implements ConfigFactory {
 
         String tlsservertrust = toml.getString("tlsservertrust", "tofu");
 
-        //TODO: Decide
         String tlsclienttrust = toml.getString("tlsclienttrust", "ca-or-tofu");
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
                 .serverUri(url)
                 .unixSocketFile(socket)
                 .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
-                .sslServerTrustMode(resolve(tlsservertrust))
-                .sslClientTrustMode(resolve(tlsclienttrust))
                 .sslServerKeyStorePath(tlsserverkey)
+                .sslServerTrustMode(resolve(tlsservertrust))
+                .sslServerTrustStorePath(tlsservertrust)
+                .sslServerCertificate(tlsservercert)
+                .sslClientTrustMode(resolve(tlsclienttrust))
+                .sslClientKeyStorePath("FIXME")
+                .sslClientKeyStorePassword("FIXME")
+                .sslClientTrustStorePath("FIXME")
+                 .knownClientsFile("FIXME")
+                .knownServersFile("FIXME")
                 
-                ;
+                .peers(othernodes);
 
         if (toml.contains("passwords")) {
             String privateKeyPasswordFile = toml.getString("passwords");
@@ -83,11 +90,17 @@ public class TomlConfigFactory implements ConfigFactory {
         return configBuilder.build();
     }
 
+    
+    
     static SslTrustMode resolve(String value) {
         return Stream.of(SslTrustMode.values())
-                .filter(s -> Objects.equals(s.name(), value.toUpperCase()))
-                .findAny()
-                .orElse(SslTrustMode.NONE);
+                .filter(s -> Objects.equals(s.name(), Objects.toString(value).toUpperCase()))
+                .findFirst()
+                .orElse(
+                        Stream.of(SslTrustMode.CA,SslTrustMode.TOFU)
+                        .filter(o -> Objects.equals("ca-or-tofu", value))
+                        .findAny()
+                        .orElse(SslTrustMode.NONE));
     }
 
 }

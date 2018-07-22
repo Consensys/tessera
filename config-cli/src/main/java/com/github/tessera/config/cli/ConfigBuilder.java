@@ -12,10 +12,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ConfigBuilder {
+
+    private String sslServerCertificate;
 
     private ConfigBuilder() {
     }
@@ -51,18 +54,15 @@ public class ConfigBuilder {
     private String sslClientKeyStorePath;
 
     private String sslClientKeyStorePassword;
-    
+
     private String sslClientTrustStorePath;
-    
+
     private SslTrustMode sslClientTrustMode;
 
-    private String clientTrustStorePassword;
-    
     private String knownClientsFile;
-    
+
     private String knownServersFile;
-    
-    
+
     public ConfigBuilder sslServerTrustMode(SslTrustMode sslServerTrustMode) {
         this.sslServerTrustMode = sslServerTrustMode;
         return this;
@@ -82,9 +82,14 @@ public class ConfigBuilder {
         this.sslServerTrustStorePath = sslServerTrustStorePath;
         return this;
     }
-    
+
     public ConfigBuilder unixSocketFile(String unixSocketFile) {
         this.unixSocketFile = unixSocketFile;
+        return this;
+    }
+
+    public ConfigBuilder sslServerCertificate(String sslServerCertificate) {
+        this.sslServerCertificate = sslServerCertificate;
         return this;
     }
 
@@ -117,21 +122,54 @@ public class ConfigBuilder {
         this.peers = peers;
         return this;
     }
+    
+    public ConfigBuilder knownClientsFile(String knownClientsFile) {
+        this.knownClientsFile = knownClientsFile;
+        return this;
+    }
+    
+    public ConfigBuilder knownServersFile(String knownServersFile) {
+        this.knownServersFile = knownServersFile;
+        return this;
+    }
 
     public ConfigBuilder sslAuthenticationMode(SslAuthenticationMode sslAuthenticationMode) {
         this.sslAuthenticationMode = sslAuthenticationMode;
         return this;
     }
 
+    public ConfigBuilder sslAuthenticationMode(String sslClientKeyStorePath) {
+        this.sslClientKeyStorePath = sslClientKeyStorePath;
+        return this;
+    }
+
+    public ConfigBuilder sslClientKeyStorePath(String sslClientKeyStorePath) {
+        this.sslClientKeyStorePath = sslClientKeyStorePath;
+        return this;
+    }
+    
+    public ConfigBuilder sslClientTrustStorePath(String sslClientTrustStorePath) {
+        this.sslClientTrustStorePath = sslClientTrustStorePath;
+        return this;
+    }
+    
+    public ConfigBuilder sslClientKeyStorePassword(String sslClientKeyStorePassword) {
+        this.sslClientKeyStorePassword = sslClientKeyStorePassword;
+        return this;
+    }
+    
+    
+    
     public Config build() {
 
         final JdbcConfig jdbcConfig = new JdbcConfig(jdbcUsername, jdbcPassword, jdbcUrl);
 
         boolean generateKeyStoreIfNotExisted = false;
 
-        String serverKeyStorepassword = null;
-        String serverTrustStorePassword = null;
-        
+        String serverKeyStorepassword = "FIXME";
+        String serverTrustStorePassword = "FIXME";
+        String sslClientTrustStorePassword = "FIXME";
+
         SslConfig sslConfig = new SslConfig(
                 sslAuthenticationMode,
                 generateKeyStoreIfNotExisted,
@@ -143,7 +181,7 @@ public class ConfigBuilder {
                 Paths.get(sslClientKeyStorePath),
                 sslClientKeyStorePassword,
                 Paths.get(sslClientTrustStorePath),
-                clientTrustStorePassword,
+                sslClientTrustStorePassword,
                 sslClientTrustMode,
                 Paths.get(knownClientsFile),
                 Paths.get(knownServersFile));
@@ -154,13 +192,13 @@ public class ConfigBuilder {
         } catch (URISyntaxException ex) {
             throw new ConfigBuilderException(ex);
         }
-        ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig);
+        ServerConfig serverConfig = new ServerConfig(serverURI.getHost(), serverURI.getPort(), sslConfig);
 
         List<Peer> peerList = peers.stream()
                 .map(Peer::new)
                 .collect(Collectors.toList());
 
-        List<KeyData> keys = null;
+        List<KeyData> keys = Collections.EMPTY_LIST;
 
         Path unixSocketFilePath = Paths.get(unixSocketFile);
 
@@ -169,5 +207,7 @@ public class ConfigBuilder {
 
         return new Config(jdbcConfig, serverConfig, peerList, keys, unixSocketFilePath, useWhitelist);
     }
+
+
 
 }
