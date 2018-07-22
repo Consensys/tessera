@@ -1,16 +1,15 @@
-package com.github.tessera.node;
+package com.github.tessera.sync;
 
 import com.github.tessera.api.model.ResendRequest;
-import com.github.tessera.api.model.ResendRequestType;
 import com.github.tessera.key.KeyManager;
 import com.github.tessera.nacl.Key;
+import com.github.tessera.node.PostDelegate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
@@ -48,55 +47,22 @@ public class TransactionRequesterTest {
     }
 
     @Test
-    public void noUrisPassedMakesNoCalls() {
-        doReturn(singleton(KEY_ONE)).when(keyManager).getPublicKeys();
-
-        this.transactionRequester.requestAllTransactionsFromNode(emptySet());
-
-        verifyZeroInteractions(postDelegate);
-        verify(keyManager).getPublicKeys();
-    }
-
-    @Test
     public void noPublicKeysMakesNoCalls() {
         doReturn(emptySet()).when(keyManager).getPublicKeys();
 
-        this.transactionRequester.requestAllTransactionsFromNode(singleton("fakeurl.com"));
+        this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
         verifyZeroInteractions(postDelegate);
         verify(keyManager).getPublicKeys();
     }
 
     @Test
-    public void singleKeyMultipleUrisMakesCorrectCalls() {
-        final List<String> otherNodeUrls = asList("fakeurl1.com", "fakeurl2.com");
-        doReturn(singleton(KEY_ONE)).when(keyManager).getPublicKeys();
-
-        this.transactionRequester.requestAllTransactionsFromNode(otherNodeUrls);
-
-        final ArgumentCaptor<ResendRequest> captor = ArgumentCaptor.forClass(ResendRequest.class);
-        verify(postDelegate).makeResendRequest(eq("fakeurl1.com"), captor.capture());
-        verify(postDelegate).makeResendRequest(eq("fakeurl2.com"), captor.capture());
-        verify(keyManager).getPublicKeys();
-
-        final ResendRequest expected = new ResendRequest();
-        expected.setType(ResendRequestType.ALL);
-        expected.setPublicKey(KEY_ONE.toString());
-
-        assertThat(captor.getAllValues()).hasSize(2);
-        captor.getAllValues().forEach(val -> {
-            assertThat(val.getPublicKey()).isEqualTo(KEY_ONE.toString());
-            assertThat(val.getType()).isEqualTo(ResendRequestType.ALL);
-        });
-    }
-
-    @Test
-    public void singleUriMultipleKeysMakesCorrectCalls() {
+    public void multipleKeysMakesCorrectCalls() {
         final Set<Key> allKeys = new HashSet<>(asList(KEY_ONE, KEY_TWO));
 
         doReturn(allKeys).when(keyManager).getPublicKeys();
 
-        this.transactionRequester.requestAllTransactionsFromNode(singleton("fakeurl1.com"));
+        this.transactionRequester.requestAllTransactionsFromNode("fakeurl1.com");
 
         final ArgumentCaptor<ResendRequest> captor = ArgumentCaptor.forClass(ResendRequest.class);
         verify(postDelegate, times(2)).makeResendRequest(eq("fakeurl1.com"), captor.capture());
@@ -109,44 +75,23 @@ public class TransactionRequesterTest {
     }
 
     @Test
-    public void multipleKeysMultipleUrisMakesCorrectCalls() {
-        final Set<Key> allKeys = new HashSet<>(asList(KEY_ONE, KEY_TWO));
-        final List<String> otherNodeUrls = asList("fakeurl1.com", "fakeurl2.com");
-
-        doReturn(allKeys).when(keyManager).getPublicKeys();
-
-        this.transactionRequester.requestAllTransactionsFromNode(otherNodeUrls);
-
-        final ArgumentCaptor<ResendRequest> captor = ArgumentCaptor.forClass(ResendRequest.class);
-        verify(postDelegate, times(2)).makeResendRequest(eq("fakeurl1.com"), captor.capture());
-        verify(postDelegate, times(2)).makeResendRequest(eq("fakeurl2.com"), captor.capture());
-        verify(keyManager).getPublicKeys();
-
-        assertThat(captor.getAllValues())
-            .hasSize(4)
-            .extracting("publicKey")
-            .containsExactlyInAnyOrder(KEY_ONE.toString(), KEY_TWO.toString(), KEY_ONE.toString(), KEY_TWO.toString());
-    }
-
-    @Test
     public void failedCallRetries() {
         doReturn(singleton(KEY_ONE)).when(keyManager).getPublicKeys();
         doReturn(false).when(postDelegate).makeResendRequest(anyString(), any(ResendRequest.class));
 
-        this.transactionRequester.requestAllTransactionsFromNode(singleton("fakeurl.com"));
+        this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
         verify(postDelegate, times(5)).makeResendRequest(eq("fakeurl.com"), any(ResendRequest.class));
         verify(keyManager).getPublicKeys();
 
     }
 
-
     @Test
     public void calltoPostDelegateThrowsException() {
         doReturn(singleton(KEY_ONE)).when(keyManager).getPublicKeys();
         doThrow(RuntimeException.class).when(postDelegate).makeResendRequest(anyString(), any(ResendRequest.class));
 
-        this.transactionRequester.requestAllTransactionsFromNode(singleton("fakeurl.com"));
+        this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
         verify(postDelegate, times(5)).makeResendRequest(eq("fakeurl.com"), any(ResendRequest.class));
         verify(keyManager).getPublicKeys();

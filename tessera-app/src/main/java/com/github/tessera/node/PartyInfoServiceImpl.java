@@ -1,7 +1,6 @@
 package com.github.tessera.node;
 
 import com.github.tessera.config.Config;
-import com.github.tessera.config.Peer;
 import com.github.tessera.key.KeyManager;
 import com.github.tessera.key.exception.KeyNotFoundException;
 import com.github.tessera.nacl.Key;
@@ -14,6 +13,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
 public class PartyInfoServiceImpl implements PartyInfoService {
@@ -27,20 +27,13 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         final String advertisedUrl = configuration.getServerConfig().getServerUri().toString();
 
-        final Set<Party> initialParties = configuration
-            .getPeers()
-            .stream()
-            .map(Peer::getUrl)
-            .map(Party::new)
-            .collect(toSet());
-
         final Set<Recipient> ourKeys = keyManager
             .getPublicKeys()
             .stream()
             .map(key -> new Recipient(key, advertisedUrl))
             .collect(toSet());
 
-        partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, initialParties));
+        partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, emptySet()));
     }
 
     @Override

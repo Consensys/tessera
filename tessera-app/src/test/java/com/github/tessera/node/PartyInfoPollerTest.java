@@ -3,6 +3,7 @@ package com.github.tessera.node;
 import com.github.tessera.api.model.ApiPath;
 import com.github.tessera.node.model.Party;
 import com.github.tessera.node.model.PartyInfo;
+import com.github.tessera.sync.ResendPartyStore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,27 +30,25 @@ public class PartyInfoPollerTest {
 
     private PartyInfoParser partyInfoParser;
 
-    private PartyInfoPoller partyInfoPoller;
-
-    private TransactionRequester transactionRequester;
+    private ResendPartyStore resendPartyStore;
 
     private PostDelegate postDelegate;
+
+    private PartyInfoPoller partyInfoPoller;
 
     @Before
     public void setUp() {
         this.postDelegate = mock(PostDelegate.class);
         this.partyInfoService = mock(PartyInfoService.class);
         this.partyInfoParser = mock(PartyInfoParser.class);
-        this.transactionRequester = mock(TransactionRequester.class);
+        this.resendPartyStore = mock(ResendPartyStore.class);
 
-        this.partyInfoPoller = new PartyInfoPoller(
-            partyInfoService, partyInfoParser, postDelegate, transactionRequester
-        );
+        this.partyInfoPoller = new PartyInfoPoller(partyInfoService, partyInfoParser, postDelegate, resendPartyStore);
     }
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(partyInfoService, partyInfoParser, transactionRequester);
+        verifyNoMoreInteractions(partyInfoService, partyInfoParser, resendPartyStore);
     }
 
     @Test
@@ -71,7 +70,7 @@ public class PartyInfoPollerTest {
 
         verify(partyInfoService).getPartyInfo();
         verify(partyInfoService).updatePartyInfo(updatedPartyInfo);
-        verify(partyInfoService).findUnsavedParties(updatedPartyInfo);
+        verify(partyInfoService).findUnsavedParties(any(PartyInfo.class));
 
         verify(partyInfoParser).from(RESPONSE);
         verify(partyInfoParser).to(partyInfo);
@@ -79,9 +78,9 @@ public class PartyInfoPollerTest {
         verify(postDelegate).doPost(TARGET_URL, ApiPath.PARTYINFO, RESPONSE);
 
         //all nodes were known about, so this is called with no new URLs
-        final ArgumentCaptor<Collection<String>> captor = ArgumentCaptor.forClass(Collection.class);
-        verify(transactionRequester).requestAllTransactionsFromNode(captor.capture());
-        assertThat(captor.getValue()).hasSize(1).containsExactlyInAnyOrder("http://bogus.com:9878");
+        final ArgumentCaptor<Collection<Party>> captor = ArgumentCaptor.forClass(Collection.class);
+        verify(resendPartyStore).addUnseenParties(captor.capture());
+        assertThat(captor.getValue()).hasSize(1).containsExactlyInAnyOrder(new Party("http://bogus.com:9878"));
     }
 
     @Test
@@ -153,7 +152,7 @@ public class PartyInfoPollerTest {
         doReturn(partyInfo).when(partyInfoService).getPartyInfo();
         doReturn(RESPONSE).when(partyInfoParser).to(partyInfo);
 
-        PartyInfo updatedPartyInfo = mock(PartyInfo.class);
+        final PartyInfo updatedPartyInfo = mock(PartyInfo.class);
         doReturn(updatedPartyInfo).when(partyInfoParser).from(RESPONSE);
 
         final RuntimeException connectionException = new RuntimeException(new ConnectException("OUCH"));

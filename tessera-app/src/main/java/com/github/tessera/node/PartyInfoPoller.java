@@ -3,13 +3,13 @@ package com.github.tessera.node;
 import com.github.tessera.api.model.ApiPath;
 import com.github.tessera.node.model.Party;
 import com.github.tessera.node.model.PartyInfo;
+import com.github.tessera.sync.ResendPartyStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.ConnectException;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class PartyInfoPoller implements Runnable {
 
@@ -21,21 +21,21 @@ public class PartyInfoPoller implements Runnable {
 
     private final PartyInfoParser partyInfoParser;
 
-    private final TransactionRequester transactionRequester;
+    private final ResendPartyStore resendPartyStore;
 
     public PartyInfoPoller(final PartyInfoService partyInfoService,
                            final PartyInfoParser partyInfoParser,
                            final PostDelegate postDelegate,
-                           final TransactionRequester transactionRequester) {
+                           final ResendPartyStore resendPartyStore) {
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
         this.partyInfoParser = Objects.requireNonNull(partyInfoParser);
         this.postDelegate = Objects.requireNonNull(postDelegate);
-        this.transactionRequester = Objects.requireNonNull(transactionRequester);
+        this.resendPartyStore = Objects.requireNonNull(resendPartyStore);
     }
 
     @Override
     public void run() {
-        LOGGER.debug("Polling {}", getClass().getSimpleName());
+        LOGGER.info("Polling {}", getClass().getSimpleName());
 
         final PartyInfo partyInfo = partyInfoService.getPartyInfo();
 
@@ -43,21 +43,27 @@ public class PartyInfoPoller implements Runnable {
 
         partyInfo
             .getParties()
-            .parallelStream()
+            .stream()
+            .peek(party -> System.err.println("ABC"+party.getUrl()))
             .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
+            .peek(party -> System.err.println("DEF"+party.getUrl()))
             .map(Party::getUrl)
             .map(url -> pollSingleParty(url, encodedPartyInfo))
             .filter(Objects::nonNull)
             .map(partyInfoParser::from)
-            .peek(this::resendForNewKeys)
-            .forEach(partyInfoService::updatePartyInfo);
+            .forEach(newPartyInfo -> {
+                System.err.println("HERE");
+                this.resendForNewKeys(newPartyInfo);
+                partyInfoService.updatePartyInfo(newPartyInfo);
+            });
 
         LOGGER.debug("Polled {}. PartyInfo : {}", getClass().getSimpleName(), partyInfo);
     }
 
     private byte[] pollSingleParty(final String url, final byte[] encodedPartyInfo) {
-        try {
+        LOGGER.info("Polling {}", url);
 
+        try {
             return postDelegate.doPost(url, ApiPath.PARTYINFO, encodedPartyInfo);
 
         } catch (final Exception ex) {
@@ -76,13 +82,8 @@ public class PartyInfoPoller implements Runnable {
     }
 
     private void resendForNewKeys(final PartyInfo receivedPartyInfo) {
-        final Set<String> newPartiesFound = partyInfoService
-            .findUnsavedParties(receivedPartyInfo)
-            .stream()
-            .map(Party::getUrl)
-            .collect(Collectors.toSet());
-
-        this.transactionRequester.requestAllTransactionsFromNode(newPartiesFound);
+        final Set<Party> newPartiesFound = this.partyInfoService.findUnsavedParties(receivedPartyInfo);
+        this.resendPartyStore.addUnseenParties(newPartiesFound);
     }
 
 }

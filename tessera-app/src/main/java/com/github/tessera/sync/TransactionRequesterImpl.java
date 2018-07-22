@@ -1,20 +1,18 @@
-package com.github.tessera.node;
+package com.github.tessera.sync;
 
 import com.github.tessera.api.model.ResendRequest;
 import com.github.tessera.api.model.ResendRequestType;
 import com.github.tessera.key.KeyManager;
 import com.github.tessera.nacl.Key;
+import com.github.tessera.node.PostDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
 import java.util.Objects;
 
 public class TransactionRequesterImpl implements TransactionRequester {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionRequesterImpl.class);
-
-    private static final int MAX_ATTEMPTS = 5;
 
     private final KeyManager keyManager;
 
@@ -27,21 +25,15 @@ public class TransactionRequesterImpl implements TransactionRequester {
     }
 
     @Override
-    public void requestAllTransactionsFromNode(final Collection<String> uris) {
+    public boolean requestAllTransactionsFromNode(final String uri) {
 
-        LOGGER.info("Requesting transactions get resent for {}", uris);
+        LOGGER.info("Requesting transactions get resent for {}", uri);
 
-        this.keyManager
+        return this.keyManager
             .getPublicKeys()
             .parallelStream()
-            .forEach(key -> {
-                    LOGGER.debug("Requesting a resend for key {}", key);
-
-                    uris
-                        .parallelStream()
-                        .forEach(uri -> this.makeRequest(uri, createRequestEntity(key)));
-                }
-            );
+            .map(this::createRequestAllEntity)
+            .allMatch(req -> this.makeRequest(uri, req));
 
     }
 
@@ -51,7 +43,8 @@ public class TransactionRequesterImpl implements TransactionRequester {
      * @param uri     the URI to call
      * @param request the request object to send
      */
-    private void makeRequest(final String uri, final ResendRequest request) {
+    private boolean makeRequest(final String uri, final ResendRequest request) {
+        LOGGER.debug("Requesting a resend for key {}", request.getPublicKey());
 
         boolean success;
         int numberOfTries = 0;
@@ -68,9 +61,11 @@ public class TransactionRequesterImpl implements TransactionRequester {
 
         } while (!success && (numberOfTries < MAX_ATTEMPTS));
 
+        return success;
+
     }
 
-    private ResendRequest createRequestEntity(final Key key) {
+    private ResendRequest createRequestAllEntity(final Key key) {
 
         final ResendRequest request = new ResendRequest();
         request.setPublicKey(key.toString());
