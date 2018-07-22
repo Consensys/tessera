@@ -19,7 +19,7 @@ public class TomlConfigFactoryTest {
     
     @Test
     public void createConfigFromSampleFile() throws IOException {
-        try (InputStream configData = Main.class.getResourceAsStream("/sample.conf")) {
+        try (InputStream configData = TomlConfigFactoryTest.class.getResourceAsStream("/sample.conf")) {
             Config result = tomlConfigFactory.create(configData);
             assertThat(result).isNotNull();
         }
