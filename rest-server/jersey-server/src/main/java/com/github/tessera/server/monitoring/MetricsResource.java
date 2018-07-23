@@ -4,9 +4,12 @@ import javax.management.*;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import java.lang.management.ManagementFactory;
+import java.net.URI;
 import java.util.*;
 
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
@@ -17,6 +20,9 @@ public class MetricsResource {
     private MBeanServer mbs;
     private MBeanServerEnquirerFactory mbsEnquirerFactory;
     private ResponseFormatterFactory formatterFactory;
+
+    @Context
+    private UriInfo uriInfo;
 
     public MetricsResource() {
         mbs = ManagementFactory.getPlatformMBeanServer();
@@ -46,6 +52,13 @@ public class MetricsResource {
             .header("Content-Type", TEXT_PLAIN)
             .entity(plainTextResponse)
             .build();
+    }
+
+    public void postMetrics() {
+        String uri = uriInfo.getBaseUri().getHost() + ":" + String.valueOf(uriInfo.getBaseUri().getPort());
+
+        InfluxProtocolFormatter influxProtocolFormatter = new InfluxProtocolFormatter();
+
     }
 
     public void setResponseFormatterFactory(ResponseFormatterFactory factory) {
