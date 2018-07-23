@@ -1,4 +1,3 @@
-
 package com.github.tessera.api.exception;
 
 import javax.persistence.EntityNotFoundException;

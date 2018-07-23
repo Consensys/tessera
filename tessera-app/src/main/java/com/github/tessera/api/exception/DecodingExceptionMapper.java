@@ -1,6 +1,5 @@
 package com.github.tessera.api.exception;
 
-
 import com.github.tessera.util.exception.DecodingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

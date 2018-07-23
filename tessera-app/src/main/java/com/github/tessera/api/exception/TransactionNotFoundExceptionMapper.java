@@ -23,4 +23,5 @@ public class TransactionNotFoundExceptionMapper implements ExceptionMapper<Trans
             .header("Content-Type", MediaType.TEXT_PLAIN)
             .build();
     }
+
 }
