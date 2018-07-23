@@ -1,5 +1,12 @@
 package com.github.tessera.nacl;
 
+/**
+ * The API provided to the application that all implementation of this API
+ * module should extend
+ *
+ * Provides all function relating to encrypting and decrypting messages
+ * using public/private and symmetric keys.
+ */
 public interface NaclFacade {
 
     /**
@@ -11,7 +18,7 @@ public interface NaclFacade {
      * were provided.
      * i.e. public1/private2 == private1/public2
      *
-     * @param publicKey  A public from the first keyset
+     * @param publicKey  A public key from the first keyset
      * @param privateKey A private key from the second keyset
      * @return The shared key for this key pair.
      */
