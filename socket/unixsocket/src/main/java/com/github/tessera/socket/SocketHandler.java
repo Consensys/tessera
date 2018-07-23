@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class SocketHandler implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SocketHandler.class);
@@ -25,12 +27,12 @@ public class SocketHandler implements Runnable {
 
         //Read the request from the socket and send it to the HTTP server
         final byte[] message = unixSocket.read();
-        LOGGER.info("Received message on socket: {}", message);
+        LOGGER.info("Received message on socket: {}", new String(message, UTF_8));
         httpProxy.sendRequest(message);
 
         //Return the HTTP response to the socket
         final byte[] response = httpProxy.getResponse();
-        LOGGER.info("Received http response: {}", response);
+        LOGGER.info("Received http response: {}", new String(response, UTF_8));
         unixSocket.write(response);
 
         httpProxy.disconnect();
