@@ -10,6 +10,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * The main application that is submitted to the HTTP server
+ * Contains all the service classes created by the service locator
+ */
 @Logged
 @GlobalFilter
 @ApplicationPath("/")
@@ -26,7 +30,8 @@ public class Tessera extends Application {
 
     @Override
     public Set<Object> getSingletons() {
-        String apiPackageName = getClass().getPackage().getName();
+        final String apiPackageName = getClass().getPackage().getName();
+
         return serviceLocator.getServices(contextName).stream()
             .filter(Objects::nonNull)
             .filter(o -> Objects.nonNull(o.getClass()))

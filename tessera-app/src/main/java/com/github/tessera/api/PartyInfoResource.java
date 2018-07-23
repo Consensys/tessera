@@ -19,6 +19,9 @@ import java.io.OutputStream;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Defines endpoints for requesting node discovery (partyinfo) information
+ */
 @Path("/partyinfo")
 public class PartyInfoResource {
 
@@ -32,24 +35,27 @@ public class PartyInfoResource {
         this.partyInfoParser = requireNonNull(partyInfoParser, "partyInfoParser must not be null");
     }
 
-    @ApiOperation(value = "Request public key/url of other nodes", produces = "public keylist/url")
-    @ApiResponses({
-        @ApiResponse(code = 200,message = "Encoded PartyInfo Data",response = byte[].class)
-    })
+    /**
+     * Allows node information to be retrieved in a specific encoded form
+     * including other node URLS and public key to URL mappings
+     *
+     * @param payload The encoded node information from the requester
+     * @return the merged node information from this node, which may contain new information
+     */
     @POST
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @ApiOperation(value = "Request public key/url of other nodes", produces = "public keylist/url")
+    @ApiResponses({@ApiResponse(code = 200, message = "Encoded PartyInfo Data", response = byte[].class)})
     public Response partyInfo(@ApiParam(required = true) final byte[] payload) {
 
         final PartyInfo partyInfo = partyInfoParser.from(payload);
 
         final PartyInfo updatedPartyInfo = partyInfoService.updatePartyInfo(partyInfo);
 
-        byte[] encoded = partyInfoParser.to(updatedPartyInfo);
+        final byte[] encoded = partyInfoParser.to(updatedPartyInfo);
 
-        StreamingOutput streamingOutput = (OutputStream out) -> {
-            out.write(encoded);
-        };
+        final StreamingOutput streamingOutput = out -> out.write(encoded);
 
         return Response.status(Response.Status.OK)
             .entity(streamingOutput)

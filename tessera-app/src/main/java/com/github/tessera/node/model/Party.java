@@ -2,6 +2,9 @@ package com.github.tessera.node.model;
 
 import java.util.Objects;
 
+/**
+ * Contains a URL of another known node on the network
+ */
 public class Party {
 
     private final String url;

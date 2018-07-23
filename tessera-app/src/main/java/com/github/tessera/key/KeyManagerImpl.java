@@ -19,12 +19,12 @@ public class KeyManagerImpl implements KeyManager {
     /**
      * A list of all pub/priv keys that are attached to this node
      */
-    private final Set<KeyPair> ourKeys;
+    private final Set<KeyPair> localKeys;
 
     private final KeyPair defaultKeys;
 
     public KeyManagerImpl(final Config configuration) {
-        this.ourKeys = configuration
+        this.localKeys = configuration
             .getKeys()
             .stream()
             .map(kd -> new KeyPair(
@@ -33,14 +33,14 @@ public class KeyManagerImpl implements KeyManager {
                 )
             ).collect(Collectors.toSet());
 
-        this.defaultKeys = ourKeys.iterator().next();
+        this.defaultKeys = localKeys.iterator().next();
     }
 
     @Override
     public Key getPublicKeyForPrivateKey(final Key privateKey) {
         LOGGER.debug("Attempting to find public key for the private key {}", privateKey);
 
-        final Key publicKey = ourKeys
+        final Key publicKey = localKeys
             .stream()
             .filter(keypair -> Objects.equals(keypair.getPrivateKey(), privateKey))
             .findFirst()
@@ -58,7 +58,7 @@ public class KeyManagerImpl implements KeyManager {
     public Key getPrivateKeyForPublicKey(final Key publicKey) {
         LOGGER.debug("Attempting to find private key for the public key {}", publicKey);
 
-        final Key privateKey = ourKeys
+        final Key privateKey = localKeys
             .stream()
             .filter(keypair -> Objects.equals(keypair.getPublicKey(), publicKey))
             .findFirst()
@@ -74,7 +74,7 @@ public class KeyManagerImpl implements KeyManager {
 
     @Override
     public Set<Key> getPublicKeys() {
-        return ourKeys
+        return localKeys
             .stream()
             .map(KeyPair::getPublicKey)
             .collect(Collectors.toSet());
