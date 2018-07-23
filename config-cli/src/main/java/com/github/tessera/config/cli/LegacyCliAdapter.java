@@ -1,6 +1,11 @@
-
 package com.github.tessera.config.cli;
 
+import com.github.tessera.config.ConfigFactory;
+import com.github.tessera.io.FilesDelegate;
+import java.nio.file.Paths;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Pattern;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -8,13 +13,55 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-
 public class LegacyCliAdapter implements CliAdapter {
+
+    private final FilesDelegate fileDelegate = FilesDelegate.create();
+    
+    private final ConfigFactory configFactory;
+
+    public LegacyCliAdapter() {
+        this(new TomlConfigFactory());
+    }
+
+    protected LegacyCliAdapter(ConfigFactory configFactory) {
+        this.configFactory = Objects.requireNonNull(configFactory);
+    }
 
     @Override
     public CliResult execute(String... args) throws Exception {
+
+        Options options = buildOptions();
+
+        CommandLineParser parser = new DefaultParser();
+
+        CommandLine line = parser.parse(options, args);
+
+        if (line.hasOption("help")) {
+            HelpFormatter formatter = new HelpFormatter();
+            //(If a configuration file is specified, any command line options will take precedence.)
+            formatter.printHelp("tessera [OPTION...] [config file containing options]", options);
+            return new CliResult(0, true, null);
+        }
+
+        final Pattern configFileSearch = Pattern.compile("^--.*=.$");
+
+        final String lastArg = line.getArgList().get(line.getArgList().size() - 1);
+
+        final ConfigBuilder configBuilder = Optional.of(lastArg)
+                .filter(configFileSearch.asPredicate().negate())
+                .map(v -> Paths.get(v))
+                .map(fileDelegate::newInputStream)
+                .map(configData -> configFactory.create(configData))
+                .map(ConfigBuilder::from)
+                .orElse(ConfigBuilder.create());
+
         
         
+        return new CliResult(1, false, null);
+    }
+
+    static Options buildOptions() {
+
         Options options = new Options();
         options.addOption(
                 Option.builder()
@@ -25,7 +72,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .numberOfArgs(1)
                         .argName("URL")
                         .build());
-        
+
         options.addOption(
                 Option.builder()
                         .longOpt("port")
@@ -36,7 +83,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .argName("NUM")
                         .valueSeparator('=')
                         .build());
-        
+
         options.addOption(
                 Option.builder()
                         .longOpt("workdir")
@@ -46,7 +93,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .numberOfArgs(1)
                         .argName("DIR")
                         .build());
-        
+
         options.addOption(
                 Option.builder()
                         .longOpt("socket")
@@ -56,7 +103,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .numberOfArgs(1)
                         .argName("FILE")
                         .build());
-        
+
         options.addOption(
                 Option.builder()
                         .longOpt("othernodes")
@@ -67,7 +114,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .argName("URL...")
                         .valueSeparator(',')
                         .build());
-        
+
         options.addOption(
                 Option.builder()
                         .longOpt("publickeys")
@@ -78,7 +125,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .valueSeparator(',')
                         .build()
         );
-        
+
         options.addOption(
                 Option.builder()
                         .longOpt("privatekeys")
@@ -89,7 +136,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .valueSeparator(',')
                         .build()
         );
-        
+
         options.addOption(
                 Option.builder()
                         .longOpt("alwayssendto")
@@ -100,7 +147,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .valueSeparator(',')
                         .build()
         );
-        
+
         options.addOption(
                 Option.builder()
                         .longOpt("passwords")
@@ -110,7 +157,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .hasArg()
                         .build()
         );
-        
+
         options.addOption(
                 Option.builder()
                         .longOpt("storage")
@@ -122,21 +169,21 @@ public class LegacyCliAdapter implements CliAdapter {
                         .longOpt("ipwhitelist")
                         .build()
         );
-        
+
         options.addOption(
                 Option.builder()
                         .longOpt("tls")
                         .desc("TLS status (strict, off)")
                         .build()
         );
-        
+
         options.addOption(
                 Option.builder()
                         .longOpt("tlsservercert")
                         .desc("TLS certificate file to use for the public API")
                         .build()
         );
-        
+
         options.addOption(
                 Option.builder()
                         .longOpt("tlsserverchain")
@@ -155,7 +202,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .desc("TLS key to use for the public API")
                         .build()
         );
-        
+
         options.addOption(
                 Option.builder()
                         .longOpt("tlsservertrust")
@@ -253,27 +300,13 @@ public class LegacyCliAdapter implements CliAdapter {
                         .argName("NAME...")
                         .build()
         );
-        
+
         options.addOption(
                 Option.builder()
                         .longOpt("help")
                         .build()
         );
 
-        //privatekeys
-        CommandLineParser parser = new DefaultParser();
-        
-        CommandLine line = parser.parse(options, args);
-        
-        if (line.hasOption("help")) {
-            HelpFormatter formatter = new HelpFormatter();
-            
-            //(If a configuration file is specified, any command line options will take precedence.)
-            formatter.printHelp("tessera [OPTION...] [config file containing options]", options);
-            return new CliResult(0, true, null);
-        }
-
-        return new CliResult(1,false,null);
+        return options;
     }
-    
 }

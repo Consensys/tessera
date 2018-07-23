@@ -9,16 +9,16 @@ import com.github.tessera.config.SslAuthenticationMode;
 import com.github.tessera.config.SslConfig;
 import com.github.tessera.config.SslTrustMode;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ConfigBuilder {
 
-    private String sslServerCertificate;
+    
 
     private ConfigBuilder() {
     }
@@ -26,6 +26,61 @@ public class ConfigBuilder {
     public static ConfigBuilder create() {
         return new ConfigBuilder();
     }
+
+    static String createUriString(URI uri) {
+
+        return String.format("%s://%s/%s:%d",
+                uri.getScheme(),
+                uri.getHost(),
+                uri.getPath(),
+                uri.getPort());
+    }
+
+    public static ConfigBuilder from(Config config) {
+
+        final ConfigBuilder configBuilder = ConfigBuilder.create();
+        configBuilder.unixSocketFile(Objects.toString(config.getUnixSocketFile()));
+        URI serverUri = config.getServerConfig().getServerUri();
+
+        configBuilder.jdbcUrl(config.getJdbcConfig().getUrl())
+                .jdbcUsername(config.getJdbcConfig().getUsername())
+                .jdbcPassword(config.getJdbcConfig().getPassword())
+                .peers(config.getPeers()
+                        .stream()
+                        .map(Peer::getUrl)
+                        .collect(Collectors.toList()))
+                .serverUri(createUriString(config.getServerConfig().getServerUri()))
+                .serverPort(config.getServerConfig().getPort());
+
+        final SslConfig sslConfig = config.getServerConfig().getSslConfig();
+        
+        if (Objects.nonNull(sslConfig)) {
+            configBuilder.sslAuthenticationMode(sslConfig.getTls())
+                    
+                    .sslClientTrustMode(sslConfig.getClientTrustMode())
+                    .sslClientKeyStorePath(Objects.toString(sslConfig.getClientKeyStore()))
+                    .sslClientKeyStorePassword(sslConfig.getClientKeyStorePassword())
+                    .sslClientTrustStorePath(Objects.toString(sslConfig.getClientTrustStore()))
+                    
+                    .sslServerTrustMode(sslConfig.getServerTrustMode())
+                    .sslServerKeyStorePath(Objects.toString(sslConfig.getServerKeyStore()))
+                    .sslServerKeyStorePassword(sslConfig.getServerKeyStorePassword())
+                    .sslServerTrustStorePath(Objects.toString(sslConfig.getServerTrustStore()))
+                    .sslServerTrustStorePassword(sslConfig.getServerTrustStorePassword())
+                    .knownClientsFile(Objects.toString(sslConfig.getKnownClientsFile()))
+                    .knownServersFile(Objects.toString(sslConfig.getKnownServersFile()))
+                    ;
+
+        }
+        
+
+        
+        
+        return configBuilder;
+
+    }
+
+    private String sslServerCertificate;
 
     private String serverUri;
 
@@ -48,12 +103,18 @@ public class ConfigBuilder {
     private SslTrustMode sslServerTrustMode;
 
     private String sslServerKeyStorePath;
+    
+    private String sslServerTrustStorePassword;
+    
+    private String sslServerKeyStorePassword;
 
     private String sslServerTrustStorePath;
 
     private String sslClientKeyStorePath;
 
     private String sslClientKeyStorePassword;
+
+    private String sslClientTrustStorePassword;
 
     private String sslClientTrustStorePath;
 
@@ -78,8 +139,23 @@ public class ConfigBuilder {
         return this;
     }
 
+    public ConfigBuilder sslServerTrustStorePassword(String sslServerTrustStorePassword) {
+        this.sslServerTrustStorePassword = sslServerTrustStorePassword;
+        return this;
+    } 
+    
+    public ConfigBuilder sslServerKeyStorePassword(String sslServerKeyStorePassword) {
+        this.sslServerKeyStorePassword = sslServerKeyStorePassword;
+        return this;
+    }
+
     public ConfigBuilder sslServerTrustStorePath(String sslServerTrustStorePath) {
         this.sslServerTrustStorePath = sslServerTrustStorePath;
+        return this;
+    }
+
+    public ConfigBuilder sslClientTrustStorePassword(String sslClientTrustStorePassword) {
+        this.sslClientTrustStorePassword = sslClientTrustStorePassword;
         return this;
     }
 
@@ -122,12 +198,12 @@ public class ConfigBuilder {
         this.peers = peers;
         return this;
     }
-    
+
     public ConfigBuilder knownClientsFile(String knownClientsFile) {
         this.knownClientsFile = knownClientsFile;
         return this;
     }
-    
+
     public ConfigBuilder knownServersFile(String knownServersFile) {
         this.knownServersFile = knownServersFile;
         return this;
@@ -138,41 +214,35 @@ public class ConfigBuilder {
         return this;
     }
 
-
     public ConfigBuilder sslClientKeyStorePath(String sslClientKeyStorePath) {
         this.sslClientKeyStorePath = sslClientKeyStorePath;
         return this;
     }
-    
+
     public ConfigBuilder sslClientTrustStorePath(String sslClientTrustStorePath) {
         this.sslClientTrustStorePath = sslClientTrustStorePath;
         return this;
     }
-    
+
     public ConfigBuilder sslClientKeyStorePassword(String sslClientKeyStorePassword) {
         this.sslClientKeyStorePassword = sslClientKeyStorePassword;
         return this;
     }
-    
-    
-    
+
     public Config build() {
 
         final JdbcConfig jdbcConfig = new JdbcConfig(jdbcUsername, jdbcPassword, jdbcUrl);
 
         boolean generateKeyStoreIfNotExisted = false;
 
-        String serverKeyStorepassword = "FIXME";
-        String serverTrustStorePassword = "FIXME";
-        String sslClientTrustStorePassword = "FIXME";
 
         SslConfig sslConfig = new SslConfig(
                 sslAuthenticationMode,
                 generateKeyStoreIfNotExisted,
                 Paths.get(sslServerKeyStorePath),
-                serverKeyStorepassword,
+                sslServerKeyStorePassword,
                 Paths.get(sslServerTrustStorePath),
-                serverTrustStorePassword,
+                sslServerTrustStorePassword,
                 sslServerTrustMode,
                 Paths.get(sslClientKeyStorePath),
                 sslClientKeyStorePassword,
@@ -182,19 +252,13 @@ public class ConfigBuilder {
                 Paths.get(knownClientsFile),
                 Paths.get(knownServersFile));
 
-        final URI serverURI;
-        try {
-            serverURI = new URI(serverUri);
-        } catch (URISyntaxException ex) {
-            throw new ConfigBuilderException(ex);
-        }
-        ServerConfig serverConfig = new ServerConfig(serverURI.getHost(), serverURI.getPort(), sslConfig);
+        final ServerConfig serverConfig = new ServerConfig(serverUri, serverPort, sslConfig);
 
-        List<Peer> peerList = peers.stream()
+        final List<Peer> peerList = peers.stream()
                 .map(Peer::new)
                 .collect(Collectors.toList());
 
-        List<KeyData> keys = Collections.EMPTY_LIST;
+        final List<KeyData> keys = Collections.EMPTY_LIST;
 
         Path unixSocketFilePath = Paths.get(unixSocketFile);
 
@@ -203,7 +267,5 @@ public class ConfigBuilder {
 
         return new Config(jdbcConfig, serverConfig, peerList, keys, unixSocketFilePath, useWhitelist);
     }
-
-
 
 }
