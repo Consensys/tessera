@@ -25,8 +25,7 @@ public class ClientFactory {
      * Creates a new client, which may or may not be SSL enabled depending on
      * the configuration
      *
-     * @param config the server configuration to specify if SSL should be used
-     * @return an HTTP client capable of making outbound requests
+     * @see Client
      */
     public Client buildFrom(final ServerConfig config) {
         if (config.isSsl()) {

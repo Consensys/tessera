@@ -60,8 +60,8 @@ public class PartyInfoPoller implements Runnable {
 
     /**
      * Sends a request for node information to a single target
-     * If it cannot connect to the target, it returns null, any other exception
-     * is bubbled up.
+     * If it cannot connect to the target, it returns null, otherwise throws
+     * any exception that can be thrown from {@link javax.ws.rs.client.Client}
      *
      * @param url              the target URL to call
      * @param encodedPartyInfo the encoded current party information
