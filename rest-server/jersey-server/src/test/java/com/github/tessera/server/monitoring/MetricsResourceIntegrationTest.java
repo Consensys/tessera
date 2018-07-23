@@ -1,5 +1,6 @@
-package com.github.tessera.server;
+package com.github.tessera.server.monitoring;
 
+import com.github.tessera.server.monitoring.MetricsResource;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;

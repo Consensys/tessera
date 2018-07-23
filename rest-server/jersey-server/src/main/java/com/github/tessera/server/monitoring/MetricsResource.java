@@ -1,4 +1,4 @@
-package com.github.tessera.server;
+package com.github.tessera.server.monitoring;
 
 import javax.management.*;
 import javax.ws.rs.GET;
@@ -57,8 +57,8 @@ public class MetricsResource {
     }
 
     private String createPlainTextResponse(ArrayList<MBeanMetric> metrics) {
-        ResponseFormatter responseFormatter = this.formatterFactory.getResponseFormatter();
+        ProtocolFormatter protocolFormatter = this.formatterFactory.getResponseFormatter();
 
-        return responseFormatter.createResponse(metrics);
+        return protocolFormatter.format(metrics);
     }
 }

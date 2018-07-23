@@ -1,11 +1,11 @@
-package com.github.tessera.server;
+package com.github.tessera.server.monitoring;
 
 import java.util.List;
 
-public class PrometheusResponseFormatter implements ResponseFormatter {
+public class PrometheusProtocolFormatter implements ProtocolFormatter {
 
     @Override
-    public String createResponse(List<MBeanMetric> metrics) {
+    public String format(List<MBeanMetric> metrics) {
         String response = "";
 
         //TODO https://www.javaworld.com/article/2461744/design-patterns/java-language-iterating-over-collections-in-java-8.html
@@ -19,7 +19,6 @@ public class PrometheusResponseFormatter implements ResponseFormatter {
                         " " +
                         resourceMetric.getValue() +
                         "\n";
-//            response += resourceMetric.getResourceMethod() + " " + resourceMetric.getName() + " " + resourceMetric.getValue() + "\n";
         }
         return response.trim();
     }

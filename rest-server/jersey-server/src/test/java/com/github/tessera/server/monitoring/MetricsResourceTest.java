@@ -1,8 +1,9 @@
-package com.github.tessera.server;
+package com.github.tessera.server.monitoring;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -25,7 +26,7 @@ public class MetricsResourceTest {
     private ResponseFormatterFactory mockFormatterFactory;
 
     @Mock
-    private PrometheusResponseFormatter mockFormatter;
+    private PrometheusProtocolFormatter mockFormatter;
 
     @Before
     public void setUp() {
@@ -53,7 +54,7 @@ public class MetricsResourceTest {
         metricsResource.setResponseFormatterFactory(mockFormatterFactory);
 
         metricsResource.getMetrics();
-        verify(mockFormatter).createResponse(metrics);
+        verify(mockFormatter).format(metrics);
     }
 
     @Test
@@ -83,7 +84,7 @@ public class MetricsResourceTest {
         metricsResource.getMetrics();
         List<MBeanMetric> combinedMetrics = metricsOne;
         combinedMetrics.addAll(metricsTwo);
-        verify(mockFormatter).createResponse(combinedMetrics);
+        verify(mockFormatter).format(combinedMetrics);
     }
 }
 

@@ -1,6 +1,7 @@
 package com.github.tessera.server;
 
 import com.github.tessera.config.ServerConfig;
+import com.github.tessera.server.monitoring.MetricsResource;
 import com.github.tessera.ssl.context.SSLContextFactory;
 import com.github.tessera.ssl.context.ServerSSLContextFactory;
 import org.glassfish.grizzly.http.server.HttpServer;

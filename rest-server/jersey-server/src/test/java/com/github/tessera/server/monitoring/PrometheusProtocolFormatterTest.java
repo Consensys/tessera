@@ -1,19 +1,20 @@
-package com.github.tessera.server;
+package com.github.tessera.server.monitoring;
 
 import java.util.ArrayList;
+
 import org.junit.Before;
 import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PrometheusResponseFormatterTest {
+public class PrometheusProtocolFormatterTest {
 
-    private ResponseFormatter responseFormatter;
+    private ProtocolFormatter protocolFormatter;
 
     private ArrayList<MBeanMetric> mockMetrics;
 
     @Before
     public void setUp() {
-        this.responseFormatter = new PrometheusResponseFormatter();
+        this.protocolFormatter = new PrometheusProtocolFormatter();
         this.mockMetrics = new ArrayList<>();
     }
 
@@ -23,7 +24,7 @@ public class PrometheusResponseFormatterTest {
 
         String expectedResponse = "tessera_GET_upCheck_AverageTime_ms 100";
 
-        assertThat(responseFormatter.createResponse(mockMetrics)).isEqualTo(expectedResponse);
+        assertThat(protocolFormatter.format(mockMetrics)).isEqualTo(expectedResponse);
     }
 
     @Test
@@ -32,7 +33,7 @@ public class PrometheusResponseFormatterTest {
 
         String expectedResponse = "tessera_POST_resend_ResendRequest_RequestRate_requestsPerSeconds 1.3";
 
-        assertThat(responseFormatter.createResponse(mockMetrics)).isEqualTo(expectedResponse);
+        assertThat(protocolFormatter.format(mockMetrics)).isEqualTo(expectedResponse);
     }
 
     @Test
@@ -41,7 +42,7 @@ public class PrometheusResponseFormatterTest {
 
         String expectedResponse = "tessera_POST_push_byte_MinTime_ms 3.4";
 
-        assertThat(responseFormatter.createResponse(mockMetrics)).isEqualTo(expectedResponse);
+        assertThat(protocolFormatter.format(mockMetrics)).isEqualTo(expectedResponse);
     }
 
     @Test
@@ -50,7 +51,7 @@ public class PrometheusResponseFormatterTest {
 
         String expectedResponse = "tessera_GET_receiveRaw_StringString_AverageTime_ms 5.2";
 
-        assertThat(responseFormatter.createResponse(mockMetrics)).isEqualTo(expectedResponse);
+        assertThat(protocolFormatter.format(mockMetrics)).isEqualTo(expectedResponse);
     }
 
     @Test
@@ -61,11 +62,11 @@ public class PrometheusResponseFormatterTest {
         String expectedResponse = "tessera_GET_upCheck_AverageTime_ms 100" + "\n" +
             "tessera_POST_resend_ResendRequest_RequestRate_requestsPerSeconds 1.3";
 
-        assertThat(responseFormatter.createResponse(mockMetrics)).isEqualTo(expectedResponse);
+        assertThat(protocolFormatter.format(mockMetrics)).isEqualTo(expectedResponse);
     }
 
     @Test
     public void noMetricsToFormatIsHandled() {
-        assertThat(responseFormatter.createResponse(mockMetrics)).isEmpty();
+        assertThat(protocolFormatter.format(mockMetrics)).isEmpty();
     }
 }

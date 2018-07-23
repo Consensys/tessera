@@ -1,8 +1,10 @@
-package com.github.tessera.server;
+package com.github.tessera.server.monitoring;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+
+import com.github.tessera.server.monitoring.MBeanServerEnquirer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

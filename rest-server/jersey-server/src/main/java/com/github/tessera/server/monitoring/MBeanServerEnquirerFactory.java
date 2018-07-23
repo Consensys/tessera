@@ -1,4 +1,4 @@
-package com.github.tessera.server;
+package com.github.tessera.server.monitoring;
 
 import javax.management.MBeanServer;
 
