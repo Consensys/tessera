@@ -7,6 +7,11 @@ import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * Handles a single request from the Unix Socket
+ * Run asynchronously to allow the socket server to listen for other connections
+ * whilst this request is being dealt with.
+ */
 public class SocketHandler implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SocketHandler.class);
@@ -20,6 +25,12 @@ public class SocketHandler implements Runnable {
         this.httpConnectionFactory = Objects.requireNonNull(httpConnectionFactory);
     }
 
+    /**
+     * Deals with a server request by reading all the bytes from the request,
+     * establishing an HTTP connection to the local server, and writing the bytes.
+     *
+     * Does the reverse for the response (read from HTTP, write to socket)
+     */
     @Override
     public void run() {
 
@@ -36,7 +47,6 @@ public class SocketHandler implements Runnable {
         unixSocket.write(response);
 
         httpProxy.disconnect();
-
     }
 
     /**
