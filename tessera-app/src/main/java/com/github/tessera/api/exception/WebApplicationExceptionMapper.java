@@ -33,4 +33,5 @@ public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplica
         }
 
     }
+
 }

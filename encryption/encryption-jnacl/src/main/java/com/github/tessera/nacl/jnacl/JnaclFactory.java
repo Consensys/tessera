@@ -2,6 +2,8 @@ package com.github.tessera.nacl.jnacl;
 
 import com.github.tessera.nacl.NaclFacade;
 import com.github.tessera.nacl.NaclFacadeFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
 
@@ -10,8 +12,12 @@ import java.security.SecureRandom;
  */
 public class JnaclFactory implements NaclFacadeFactory {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JnaclFactory.class);
+
     @Override
     public NaclFacade create() {
+        LOGGER.debug("Creating a JNaCL implementation of NaclFacadeFactory");
+
         final SecureRandom secureRandom = new SecureRandom();
         final JnaclSecretBox secretBox = new JnaclSecretBox();
 

@@ -20,5 +20,5 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
         return Response.status(Status.INTERNAL_SERVER_ERROR)
                 .entity(exception.getMessage())
                 .build();
-    } 
+    }
 }

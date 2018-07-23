@@ -6,6 +6,9 @@ import com.github.tessera.transaction.model.EncryptedTransaction;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * A data store for transactions that need to be retrieved later
+ */
 public interface EncryptedTransactionDAO {
 
     /**

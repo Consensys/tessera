@@ -38,14 +38,13 @@ public class JerseyServer implements RestServer {
 
     private final boolean secure;
 
-    private final SSLContextFactory sslContextFactory = ServerSSLContextFactory.create();
-
-    public JerseyServer(
-            URI uri, Application application, ServerConfig serverConfig) {
+    public JerseyServer(final URI uri, final Application application, final ServerConfig serverConfig) {
         this.uri = Objects.requireNonNull(uri);
         this.application = Objects.requireNonNull(application);
         this.secure = serverConfig.isSsl();
-        if (serverConfig.isSsl()) {
+
+        if (this.secure) {
+            final SSLContextFactory sslContextFactory = ServerSSLContextFactory.create();
             this.sslContext = sslContextFactory.from(serverConfig.getSslConfig());
         } else {
             this.sslContext = null;
@@ -72,40 +71,41 @@ public class JerseyServer implements RestServer {
         final ResourceConfig config = ResourceConfig.forApplication(application);
         config.addProperties(initParams);
 
-        if (secure) {
-            server = GrizzlyHttpServerFactory.createHttpServer(
-                    uri,
-                    new ResourceConfig(),
-                    secure,
-                    new SSLEngineConfigurator(sslContext).setClientMode(false).setNeedClientAuth(true),
-                    false);
+        if (this.secure) {
+            this.server = GrizzlyHttpServerFactory.createHttpServer(
+                uri,
+                new ResourceConfig(),
+                true,
+                new SSLEngineConfigurator(sslContext).setClientMode(false).setNeedClientAuth(true),
+                false
+            );
         } else {
-            server = GrizzlyHttpServerFactory.createHttpServer(uri,false);
+            this.server = GrizzlyHttpServerFactory.createHttpServer(uri, false);
         }
 
         final WebappContext ctx = new WebappContext("WebappContext");
         final ServletRegistration registration = ctx.addServlet("ServletContainer", new ServletContainer(config));
         registration.addMapping("/*");
 
-        ctx.deploy(server);
+        ctx.deploy(this.server);
 
         LOGGER.info("Starting {}", uri);
 
-        server.start();
+        this.server.start();
 
         LOGGER.info("Started {}", uri);
-
         LOGGER.info("WADL {}/application.wadl", uri);
     }
 
     @Override
     public void stop() {
+        LOGGER.info("Stopping Jersey server at {}", uri);
 
-        LOGGER.info("Stopping {}", uri);
-        if (Objects.nonNull(server)) {
-            server.shutdown();
+        if (Objects.nonNull(this.server)) {
+            this.server.shutdown();
         }
-        LOGGER.info("Stopped {}", uri);
+
+        LOGGER.info("Stopped Jersey server at {}", uri);
     }
 
 }
