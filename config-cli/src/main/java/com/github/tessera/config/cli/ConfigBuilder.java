@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
 
 public class ConfigBuilder {
 
-    
-
     private ConfigBuilder() {
     }
 
@@ -59,13 +57,10 @@ public class ConfigBuilder {
                     .sslServerTrustStorePath(Objects.toString(sslConfig.getServerTrustStore()))
                     .sslServerTrustStorePassword(sslConfig.getServerTrustStorePassword())
                     .knownClientsFile(Objects.toString(sslConfig.getKnownClientsFile()))
-                    .knownServersFile(Objects.toString(sslConfig.getKnownServersFile()))
-                    ;
+                    .knownServersFile(Objects.toString(sslConfig.getKnownServersFile()));
 
         }
-        
 
-        
         
         return configBuilder;
 
