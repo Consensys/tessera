@@ -54,11 +54,7 @@ public class TomlConfigFactoryTest {
                     .collect(Collectors.toList());
             
             lines.add(String.format("passwords = \"%s\"",passwordsFile.toString()));
-            
-            
-            String dataS = String.join(System.lineSeparator(), lines);
-            System.out.println(dataS);
-            
+
             final byte[] data = String.join(System.lineSeparator(), lines).getBytes();
             try (InputStream ammendedInput = new ByteArrayInputStream(data)) {
                 Config result = tomlConfigFactory.create(ammendedInput);
