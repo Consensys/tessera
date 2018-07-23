@@ -6,13 +6,21 @@ import com.github.tessera.ssl.context.SSLContextFactory;
 import com.github.tessera.ssl.context.ServerSSLContextFactory;
 import com.sun.net.httpserver.HttpServer;
 import org.jboss.resteasy.plugins.server.sun.http.HttpContextBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Application;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.util.Objects;
 
+/**
+ * A RestEasy and Sun HTTP server implementation
+ */
 public class RestEasyServer implements RestServer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestEasyServer.class);
 
     private HttpServer server;
 
@@ -24,36 +32,39 @@ public class RestEasyServer implements RestServer {
 
     private final boolean secure;
 
-    private final SSLContextFactory sslContextFactory = ServerSSLContextFactory.create();
-
-    public RestEasyServer(URI uri, Application application, ServerConfig serverConfig) {
+    public RestEasyServer(final URI uri, final Application application, final ServerConfig serverConfig) {
         this.uri = uri;
         this.application = application;
        
         this.secure = serverConfig.isSsl();
         if(this.secure) {
-             this.sslContext = sslContextFactory.from(serverConfig.getSslConfig());
+            final SSLContextFactory sslContextFactory = ServerSSLContextFactory.create();
+            this.sslContext = sslContextFactory.from(serverConfig.getSslConfig());
         } else {
             this.sslContext = null;
         }
     }
 
-
     @Override
     public void start() throws Exception {
+        this.server = HttpServer.create(new InetSocketAddress(this.uri.getPort()), 1);
 
-        server = HttpServer.create(new InetSocketAddress(uri.getPort()), 1);
-        HttpContextBuilder contextBuilder = new HttpContextBuilder();
-        contextBuilder.getDeployment().setApplication(application);
+        final HttpContextBuilder contextBuilder = new HttpContextBuilder();
+        contextBuilder.getDeployment().setApplication(this.application);
+        contextBuilder.bind(this.server);
 
-        contextBuilder.bind(server);
-        server.start();
-
+        this.server.start();
     }
 
     @Override
     public void stop() {
-        server.stop(0);
+        LOGGER.info("Stopping Jersey server at {}", uri);
+
+        if (Objects.nonNull(this.server)) {
+            this.server.stop(0);
+        }
+
+        LOGGER.info("Stopped Jersey server at {}", uri);
     }
 
 }

@@ -10,6 +10,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Path;
 
+/**
+ * Creates/binds Unix Sockets using the JUnixSocket implementation
+ */
 public class DefaultUnixSocketFactory implements UnixSocketFactory {
 
     @Override
