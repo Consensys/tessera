@@ -107,7 +107,12 @@ public class DefaultCliAdapter implements CliAdapter {
 
     private Config parseConfig(CommandLine commandLine) throws IOException {
 
-        final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        final Validator validator = Validation.byDefaultProvider()
+                                                        .configure()
+                                                        .ignoreXmlConfiguration()
+                                                        .buildValidatorFactory()
+                                                        .getValidator();
+        
         final ConfigFactory configFactory = ConfigFactory.create();
 
         final Path path = Paths.get(commandLine.getOptionValue("configfile"));
