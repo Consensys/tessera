@@ -8,7 +8,7 @@ public class CliAdapterTest {
 
     @After
     public void onTearDown() {
-        System.setProperty("tessera.config.legacy", null);
+        System.clearProperty("tessera.config.legacy");
     }
 
     @Test
