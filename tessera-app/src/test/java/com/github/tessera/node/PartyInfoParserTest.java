@@ -19,7 +19,6 @@ public class PartyInfoParserTest {
     private byte[] dataTwo;
 
     private final int[] sampleDataOne = new int[]{
-
         0, 0, 0, 0, 0, 0, 0, 21, //URL index
 
         104, 116, 116, 112, 58, 47, 47, 108, 111, 99, 97, 108, 104, 111, 115, 116, 58, 56, 48, 48, 48, //URL data 8-21
@@ -35,14 +34,17 @@ public class PartyInfoParserTest {
         0, 0, 0, 0, 0, 0, 0, 21, //recipient value length/ URL 
 
         104, 116, 116, 112, 58, 47, 47, 108, 111, 99, 97, 108, 104, 111, 115, 116, 58, 56, 48, 48, 49,
-
         0, 0, 0, 0, 0, 0, 0, 1, //Number of parties
 
         0, 0, 0, 0, 0, 0, 0, 21, //Length of party url
 
         104, 116, 116, 112, 58, 47, 47, 108, 111, 99, 97, 108, 104, 111, 115, 116, 58, 56, 48, 48, 49, //party URL data
 
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     private byte[] dataOne;
 
@@ -69,27 +71,27 @@ public class PartyInfoParserTest {
         final PartyInfo result = partyInfoParser.from(dataTwo);
 
         assertThat(result.getParties()).containsExactlyInAnyOrder(
-            new Party("https://127.0.0.5:9005/"),
-            new Party("https://127.0.0.3:9003/"),
-            new Party("https://127.0.0.1:9001/"),
-            new Party("https://127.0.0.7:9007/"),
-            new Party("https://127.0.0.6:9006/"),
-            new Party("https://127.0.0.4:9004/"),
-            new Party("https://127.0.0.2:9002/")
+                new Party("https://127.0.0.5:9005/"),
+                new Party("https://127.0.0.3:9003/"),
+                new Party("https://127.0.0.1:9001/"),
+                new Party("https://127.0.0.7:9007/"),
+                new Party("https://127.0.0.6:9006/"),
+                new Party("https://127.0.0.4:9004/"),
+                new Party("https://127.0.0.2:9002/")
         );
-        
+
         assertThat(result.getRecipients()).containsExactlyInAnyOrder(
-            new Recipient(toKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc="), "https://127.0.0.7:9007/"),
-            new Recipient(toKey("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo="), "https://127.0.0.1:9001/"),
-            new Recipient(toKey("QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc="), "https://127.0.0.2:9002/"),
-            new Recipient(toKey("1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg="), "https://127.0.0.3:9003/"),
-            new Recipient(toKey("UfNSeSGySeKg11DVNEnqrUtxYRVor4+CvluI8tVv62Y="), "https://127.0.0.6:9006/"),
-            new Recipient(toKey("oNspPPgszVUFw0qmGFfWwh1uxVUXgvBxleXORHj07g8="), "https://127.0.0.4:9004/"),
-            new Recipient(toKey("R56gy4dn24YOjwyesTczYa8m5xhP6hF2uTMCju/1xkY="), "https://127.0.0.5:9005/")
+                new Recipient(toKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc="), "https://127.0.0.7:9007/"),
+                new Recipient(toKey("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo="), "https://127.0.0.1:9001/"),
+                new Recipient(toKey("QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc="), "https://127.0.0.2:9002/"),
+                new Recipient(toKey("1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg="), "https://127.0.0.3:9003/"),
+                new Recipient(toKey("UfNSeSGySeKg11DVNEnqrUtxYRVor4+CvluI8tVv62Y="), "https://127.0.0.6:9006/"),
+                new Recipient(toKey("oNspPPgszVUFw0qmGFfWwh1uxVUXgvBxleXORHj07g8="), "https://127.0.0.4:9004/"),
+                new Recipient(toKey("R56gy4dn24YOjwyesTczYa8m5xhP6hF2uTMCju/1xkY="), "https://127.0.0.5:9005/")
         );
 
     }
-    
+
     private Key toKey(final String b64) {
         return new Key(Base64.getDecoder().decode(b64));
     }
@@ -112,7 +114,6 @@ public class PartyInfoParserTest {
         assertThat(result.getParties()).containsExactly(new Party("http://localhost:8001"));
 
     }
-
 
     @Test
     public void toUsingSameInfoFromFixture() {
@@ -144,8 +145,8 @@ public class PartyInfoParserTest {
         byteBuffer.get(keyData, 0, 32);
 
         assertThat(keyData)
-            .hasSize(32)
-            .isEqualTo(partyInfo.getRecipients().iterator().next().getKey().getKeyBytes());
+                .hasSize(32)
+                .isEqualTo(partyInfo.getRecipients().iterator().next().getKey().getKeyBytes());
 
         long recipientUrlLength = byteBuffer.getLong();
 
@@ -159,11 +160,9 @@ public class PartyInfoParserTest {
 
         assertThat(recipientUrl).isEqualTo(partyInfo.getRecipients().iterator().next().getUrl());
 
-
         long partyCount = byteBuffer.getLong();
 
         assertThat(partyCount).isEqualTo(1L);
-
 
         long partyUrlLength = byteBuffer.getLong();
         assertThat(partyUrlLength).isEqualTo(21L);
@@ -176,6 +175,5 @@ public class PartyInfoParserTest {
         assertThat(partyUrl).isEqualTo(partyInfo.getParties().iterator().next().getUrl());
 
     }
-
 
 }
