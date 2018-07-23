@@ -199,6 +199,7 @@
         <module>rest-server</module>
         <module>encryption</module>
         <module>socket</module>
+        <module>data-migration</module>
     </modules>
 
     <dependencyManagement>
