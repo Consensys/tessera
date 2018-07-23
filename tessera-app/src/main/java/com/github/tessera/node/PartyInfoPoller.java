@@ -44,15 +44,12 @@ public class PartyInfoPoller implements Runnable {
         partyInfo
             .getParties()
             .stream()
-            .peek(party -> System.err.println("ABC"+party.getUrl()))
             .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
-            .peek(party -> System.err.println("DEF"+party.getUrl()))
             .map(Party::getUrl)
             .map(url -> pollSingleParty(url, encodedPartyInfo))
             .filter(Objects::nonNull)
             .map(partyInfoParser::from)
             .forEach(newPartyInfo -> {
-                System.err.println("HERE");
                 this.resendForNewKeys(newPartyInfo);
                 partyInfoService.updatePartyInfo(newPartyInfo);
             });
