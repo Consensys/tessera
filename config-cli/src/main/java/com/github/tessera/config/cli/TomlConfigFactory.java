@@ -4,11 +4,15 @@ import com.github.tessera.config.Config;
 import com.github.tessera.config.ConfigFactory;
 import com.github.tessera.config.SslAuthenticationMode;
 import com.github.tessera.config.SslTrustMode;
+import com.github.tessera.io.FilesDelegate;
 import com.moandjiezana.toml.Toml;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +21,18 @@ public class TomlConfigFactory implements ConfigFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TomlConfigFactory.class);
 
+    private final FilesDelegate filesDelegate;
+
+    public TomlConfigFactory() {
+        this(FilesDelegate.create());
+    }    
+    
+    public TomlConfigFactory(FilesDelegate filesDelegate) {
+        this.filesDelegate = Objects.requireNonNull(filesDelegate);
+    }
+    
+    
+    
     @Override
     public Config create(InputStream configData, InputStream... keyConfigData) {
         if (keyConfigData.length != 0) {
@@ -46,11 +62,22 @@ public class TomlConfigFactory implements ConfigFactory {
 
         List<String> privateKeyList = toml.getList("privatekeys", Collections.EMPTY_LIST);
 
-        List<String> alwayssendtoList = toml.getList("alwayssendto", Collections.EMPTY_LIST);
-
+        //String privateKeyPasswordFile = toml.getString("passwords")
+        final List<String> privateKeyPasswords;
         if (toml.contains("passwords")) {
             String privateKeyPasswordFile = toml.getString("passwords");
+            
+            Path privateKeyPasswordFilePath = Paths.get(privateKeyPasswordFile);
+            privateKeyPasswords = filesDelegate
+                    .lines(privateKeyPasswordFilePath)
+                    .collect(Collectors.toList());
+
+        } else {
+            privateKeyPasswords = Collections.unmodifiableList(Collections.EMPTY_LIST);
         }
+       
+        
+        List<String> alwayssendtoList = toml.getList("alwayssendto", Collections.EMPTY_LIST);
 
         String tlsserverkey = toml.getString("tlsserverkey", "tls-server-key.pem");
 
@@ -77,30 +104,22 @@ public class TomlConfigFactory implements ConfigFactory {
                 .sslClientKeyStorePath("FIXME")
                 .sslClientKeyStorePassword("FIXME")
                 .sslClientTrustStorePath("FIXME")
-                 .knownClientsFile("FIXME")
+                .knownClientsFile("FIXME")
                 .knownServersFile("FIXME")
-                
                 .peers(othernodes);
-
-        if (toml.contains("passwords")) {
-            String privateKeyPasswordFile = toml.getString("passwords");
-            //TODO:
-        }
 
         return configBuilder.build();
     }
 
-    
-    
     static SslTrustMode resolve(String value) {
         return Stream.of(SslTrustMode.values())
                 .filter(s -> Objects.equals(s.name(), Objects.toString(value).toUpperCase()))
                 .findFirst()
                 .orElse(
-                        Stream.of(SslTrustMode.CA,SslTrustMode.TOFU)
-                        .filter(o -> Objects.equals("ca-or-tofu", value))
-                        .findAny()
-                        .orElse(SslTrustMode.NONE));
+                        Stream.of(SslTrustMode.CA, SslTrustMode.TOFU)
+                                .filter(o -> Objects.equals("ca-or-tofu", value))
+                                .findAny()
+                                .orElse(SslTrustMode.NONE));
     }
 
 }

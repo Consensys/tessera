@@ -3,16 +3,17 @@ package com.github.tessera.config.cli;
 import com.github.tessera.config.Config;
 import com.github.tessera.config.SslAuthenticationMode;
 import com.github.tessera.config.SslTrustMode;
+import java.net.URISyntaxException;
 import java.util.Collections;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import org.junit.Test;
 
 public class ConfigBuilderTest {
     
-    @Test
-    public void buildValid() {
-        Config result = ConfigBuilder.create()
+    private ConfigBuilder builderWithValidValues = ConfigBuilder.create()
                 .jdbcUrl("jdbc:bogus")
+                .jdbcUsername("jdbcPassword")
+                .jdbcPassword("jdbcPassword")
                 .peers(Collections.EMPTY_LIST)
                 .serverPort(892)
                 .sslAuthenticationMode(SslAuthenticationMode.STRICT)
@@ -27,10 +28,28 @@ public class ConfigBuilderTest {
                 .sslClientTrustStorePath("sslClientTrustStorePath")
                 .sslClientKeyStorePassword("sslClientKeyStorePassword")
                 .knownClientsFile("knownClientsFile")
-                .knownServersFile("knownServersFile")
-                .build();
+                .knownServersFile("knownServersFile");
+    
+    @Test
+    public void buildValid() {
+        Config result = builderWithValidValues.build();
         
         assertThat(result).isNotNull();
+    }
+    
+    @Test
+    public void buildWithInvalidServerUri() {
+        
+        try {
+            builderWithValidValues.serverUri(":&$53*@€!!\'").build();
+            failBecauseExceptionWasNotThrown(ConfigBuilderException.class);
+        } catch(ConfigBuilderException ex) {
+            assertThat(ex).hasCauseExactlyInstanceOf(URISyntaxException.class);
+        }
+            
+        
+        
+        
     }
     
 }

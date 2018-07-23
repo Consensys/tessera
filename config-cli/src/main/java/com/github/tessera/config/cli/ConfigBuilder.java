@@ -138,10 +138,6 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder sslAuthenticationMode(String sslClientKeyStorePath) {
-        this.sslClientKeyStorePath = sslClientKeyStorePath;
-        return this;
-    }
 
     public ConfigBuilder sslClientKeyStorePath(String sslClientKeyStorePath) {
         this.sslClientKeyStorePath = sslClientKeyStorePath;
