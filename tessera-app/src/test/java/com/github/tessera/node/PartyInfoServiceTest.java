@@ -65,7 +65,7 @@ public class PartyInfoServiceTest {
 
     @After
     public void after() {
-        verifyNoMoreInteractions(partyInfoStore);
+        verifyNoMoreInteractions(partyInfoStore, keyManager, configuration);
     }
 
     @Test
@@ -85,6 +85,9 @@ public class PartyInfoServiceTest {
 
         verify(partyInfoStore).store(any(PartyInfo.class));
         verify(partyInfoStore, times(3)).getPartyInfo();
+        verify(keyManager).getPublicKeys();
+        verify(configuration).getPeers();
+        verify(configuration).getServerConfig();
 
         //TODO: add a captor for verification
     }
@@ -97,6 +100,9 @@ public class PartyInfoServiceTest {
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
 
         verify(partyInfoStore).store(captor.capture());
+        verify(keyManager).getPublicKeys();
+        verify(configuration).getPeers();
+        verify(configuration).getServerConfig();
 
         final List<Recipient> allRegisteredKeys = captor
             .getAllValues()
@@ -131,6 +137,9 @@ public class PartyInfoServiceTest {
         verify(partyInfoStore).store(thirdNodePartyInfo);
         verify(partyInfoStore, times(3)).store(any(PartyInfo.class));
         verify(partyInfoStore, times(2)).getPartyInfo();
+        verify(keyManager).getPublicKeys();
+        verify(configuration).getPeers();
+        verify(configuration).getServerConfig();
     }
 
     @Test
@@ -147,6 +156,9 @@ public class PartyInfoServiceTest {
 
         verify(partyInfoStore).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
+        verify(keyManager).getPublicKeys();
+        verify(configuration).getPeers();
+        verify(configuration).getServerConfig();
     }
 
     @Test
@@ -162,6 +174,9 @@ public class PartyInfoServiceTest {
 
         verify(partyInfoStore).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
+        verify(keyManager).getPublicKeys();
+        verify(configuration).getPeers();
+        verify(configuration).getServerConfig();
     }
 
     @Test
@@ -180,6 +195,9 @@ public class PartyInfoServiceTest {
 
         verify(partyInfoStore).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
+        verify(keyManager).getPublicKeys();
+        verify(configuration).getPeers();
+        verify(configuration).getServerConfig();
     }
 
     @Test
@@ -196,6 +214,9 @@ public class PartyInfoServiceTest {
 
         verify(partyInfoStore).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
+        verify(keyManager).getPublicKeys();
+        verify(configuration).getPeers();
+        verify(configuration).getServerConfig();
     }
 
     @Test
@@ -216,6 +237,9 @@ public class PartyInfoServiceTest {
 
         verify(partyInfoStore).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
+        verify(keyManager).getPublicKeys();
+        verify(configuration).getPeers();
+        verify(configuration).getServerConfig();
     }
 
 }
