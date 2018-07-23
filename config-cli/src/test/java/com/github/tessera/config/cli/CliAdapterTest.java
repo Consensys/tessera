@@ -1,10 +1,12 @@
 package com.github.tessera.config.cli;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.After;
 import org.junit.Test;
 
 public class CliAdapterTest {
 
+    @After
     public void onTearDown() {
         System.setProperty("tessera.config.legacy", null);
     }
