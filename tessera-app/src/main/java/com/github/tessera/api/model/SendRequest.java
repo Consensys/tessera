@@ -2,8 +2,15 @@ package com.github.tessera.api.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import javax.validation.constraints.NotNull;
 
+import javax.validation.constraints.NotNull;
+import java.util.Arrays;
+
+/**
+ * Model representation of a JSON body on incoming HTTP requests
+ *
+ * Used when a new transaction is to be created where this node is the sender
+ */
 @ApiModel
 public class SendRequest {
 
@@ -18,7 +25,7 @@ public class SendRequest {
     private String[] to;
 
     public String getPayload() {
-        return payload;
+        return this.payload;
     }
 
     public void setPayload(final String payload) {
@@ -26,7 +33,7 @@ public class SendRequest {
     }
 
     public String getFrom() {
-        return from;
+        return this.from;
     }
 
     public void setFrom(final String from) {
@@ -34,10 +41,11 @@ public class SendRequest {
     }
 
     public String[] getTo() {
-        if (to == null) {
+        if (this.to == null) {
             return new String[]{};
         }
-        return to.clone();
+
+        return Arrays.copyOf(this.to, this.to.length);
     }
 
     public void setTo(final String[] to) {
