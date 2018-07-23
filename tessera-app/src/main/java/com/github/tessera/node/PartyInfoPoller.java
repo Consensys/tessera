@@ -35,7 +35,7 @@ public class PartyInfoPoller implements Runnable {
 
     @Override
     public void run() {
-        LOGGER.info("Polling {}", getClass().getSimpleName());
+        LOGGER.debug("Polling {}", getClass().getSimpleName());
 
         final PartyInfo partyInfo = partyInfoService.getPartyInfo();
 
@@ -43,7 +43,7 @@ public class PartyInfoPoller implements Runnable {
 
         partyInfo
             .getParties()
-            .stream()
+            .parallelStream()
             .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
             .map(Party::getUrl)
             .map(url -> pollSingleParty(url, encodedPartyInfo))
@@ -58,8 +58,6 @@ public class PartyInfoPoller implements Runnable {
     }
 
     private byte[] pollSingleParty(final String url, final byte[] encodedPartyInfo) {
-        LOGGER.info("Polling {}", url);
-
         try {
             return postDelegate.doPost(url, ApiPath.PARTYINFO, encodedPartyInfo);
 
