@@ -1,6 +1,5 @@
 package com.github.tessera.node;
 
-
 import com.github.tessera.nacl.Key;
 import com.github.tessera.node.model.Party;
 import com.github.tessera.node.model.PartyInfo;
@@ -16,9 +15,19 @@ import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * A parser for PartyInfo node discovery information
+ */
 public interface PartyInfoParser extends BinaryEncoder {
 
-    default PartyInfo from(byte[] encoded) {
+    /**
+     * Decodes a set of PartyInfo to the format that is shared between nodes
+     *
+     * @param encoded the encoded information that needs to be read
+     * @return the decoded {@link PartyInfo} which contains the other nodes
+     * information
+     */
+    default PartyInfo from(final byte[] encoded) {
 
         final ByteBuffer byteBuffer = ByteBuffer.wrap(encoded);
 
@@ -63,7 +72,17 @@ public interface PartyInfoParser extends BinaryEncoder {
         return new PartyInfo(url, recipients, new HashSet<>(Arrays.asList(parties)));
     }
 
-    default byte[] to(PartyInfo partyInfo) {
+    /**
+     * Encodes a {@link PartyInfo} object to the defined structure that is
+     * shared between nodes
+     *
+     * The result can be feed into {@link PartyInfoParser#from(byte[])} to
+     * produce the input to this function.
+     *
+     * @param partyInfo the information to encode
+     * @return the encoded result that should be shared with other nodes
+     */
+    default byte[] to(final PartyInfo partyInfo) {
 
         //prefix and url bytes
         final byte[] url = encodeField(partyInfo.getUrl().getBytes(UTF_8));
@@ -99,6 +118,11 @@ public interface PartyInfoParser extends BinaryEncoder {
 
     }
 
+    /**
+     * Creates a new parser with default settings
+     *
+     * @return a default parser
+     */
     static PartyInfoParser create() {
         return new PartyInfoParser() {
         };
