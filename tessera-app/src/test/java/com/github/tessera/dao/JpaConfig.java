@@ -6,8 +6,6 @@ import com.github.tessera.transaction.EncryptedTransactionDAOImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.EclipseLinkJpaDialect;
@@ -19,7 +17,7 @@ import java.util.HashMap;
 
 @Configuration
 @ComponentScan(basePackages = "com.github.tessera.dao")
-public class JpaConfig {
+public abstract class JpaConfig {
 
     @Bean
     public EncryptedTransactionDAO someDAO() {
@@ -31,13 +29,8 @@ public class JpaConfig {
         return new JpaTransactionManager(entityManagerFactory);
     }
 
-
     @Bean
-    public DataSource dataSource() {
-        return new EmbeddedDatabaseBuilder()
-            .setType(EmbeddedDatabaseType.H2)
-            .build();
-    }
+    public abstract DataSource dataSource();
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean(final DataSource dataSource) {
