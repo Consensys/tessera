@@ -27,17 +27,17 @@ public class LegacyCliAdapterTest {
         Path configFile = Files.createTempFile("noOptions", ".txt");
 
         Files.write(configFile, Files.readAllBytes(sampleFile));
-        
- 
+
         CliResult result = instance.execute(configFile.toString());
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(1);
 
-        
-        
         Files.deleteIfExists(configFile);
-        
+
     }
+    
+    
+
 }

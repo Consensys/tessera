@@ -8,7 +8,6 @@ import com.github.tessera.config.ServerConfig;
 import com.github.tessera.config.SslAuthenticationMode;
 import com.github.tessera.config.SslConfig;
 import com.github.tessera.config.SslTrustMode;
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -27,20 +26,11 @@ public class ConfigBuilder {
         return new ConfigBuilder();
     }
 
-    static String createUriString(URI uri) {
-
-        return String.format("%s://%s/%s:%d",
-                uri.getScheme(),
-                uri.getHost(),
-                uri.getPath(),
-                uri.getPort());
-    }
 
     public static ConfigBuilder from(Config config) {
 
         final ConfigBuilder configBuilder = ConfigBuilder.create();
         configBuilder.unixSocketFile(Objects.toString(config.getUnixSocketFile()));
-        URI serverUri = config.getServerConfig().getServerUri();
 
         configBuilder.jdbcUrl(config.getJdbcConfig().getUrl())
                 .jdbcUsername(config.getJdbcConfig().getUsername())
@@ -49,7 +39,7 @@ public class ConfigBuilder {
                         .stream()
                         .map(Peer::getUrl)
                         .collect(Collectors.toList()))
-                .serverUri(createUriString(config.getServerConfig().getServerUri()))
+                .serverHostname(config.getServerConfig().getHostName())
                 .serverPort(config.getServerConfig().getPort());
 
         final SslConfig sslConfig = config.getServerConfig().getSslConfig();
@@ -61,6 +51,7 @@ public class ConfigBuilder {
                     .sslClientKeyStorePath(Objects.toString(sslConfig.getClientKeyStore()))
                     .sslClientKeyStorePassword(sslConfig.getClientKeyStorePassword())
                     .sslClientTrustStorePath(Objects.toString(sslConfig.getClientTrustStore()))
+                    .sslClientTrustStorePassword(sslConfig.getClientTrustStorePassword())
                     
                     .sslServerTrustMode(sslConfig.getServerTrustMode())
                     .sslServerKeyStorePath(Objects.toString(sslConfig.getServerKeyStore()))
@@ -79,10 +70,6 @@ public class ConfigBuilder {
         return configBuilder;
 
     }
-
-    private String sslServerCertificate;
-
-    private String serverUri;
 
     private String serverHostname;
 
@@ -164,13 +151,8 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder sslServerCertificate(String sslServerCertificate) {
-        this.sslServerCertificate = sslServerCertificate;
-        return this;
-    }
-
-    public ConfigBuilder serverUri(String serverUri) {
-        this.serverUri = serverUri;
+    public ConfigBuilder serverHostname(String serverHostname) {
+        this.serverHostname = serverHostname;
         return this;
     }
 
@@ -252,7 +234,7 @@ public class ConfigBuilder {
                 Paths.get(knownClientsFile),
                 Paths.get(knownServersFile));
 
-        final ServerConfig serverConfig = new ServerConfig(serverUri, serverPort, sslConfig);
+        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig);
 
         final List<Peer> peerList = peers.stream()
                 .map(Peer::new)

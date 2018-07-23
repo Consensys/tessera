@@ -93,13 +93,13 @@ public class TomlConfigFactory implements ConfigFactory {
         String tlsclienttrust = toml.getString("tlsclienttrust", "ca-or-tofu");
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
-                .serverUri(url)
+                .serverHostname(url)
                 .unixSocketFile(socket)
                 .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
                 .sslServerKeyStorePath(tlsserverkey)
                 .sslServerTrustMode(resolve(tlsservertrust))
                 .sslServerTrustStorePath(tlsservertrust)
-                .sslServerCertificate(tlsservercert)
+
                 .sslClientTrustMode(resolve(tlsclienttrust))
                 .sslClientKeyStorePath("FIXME")
                 .sslClientKeyStorePassword("FIXME")
