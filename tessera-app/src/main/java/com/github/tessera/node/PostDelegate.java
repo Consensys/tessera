@@ -21,12 +21,13 @@ public class PostDelegate {
     }
 
     /**
+     * Makes a post request for a given set of parameters
+     * Sends the entity as an OCTET_STREAM and returns the response only if a 200 OK response received.
      *
-     *
-     * @param url
-     * @param path
-     * @param data
-     * @return
+     * @param url the target URL to call
+     * @param path the path of the URL to call
+     * @param data the data that should be sent as an OCTET STREAM
+     * @return the response as a series of bytes
      */
     public byte[] doPost(final String url, final String path, final byte[] data) {
 

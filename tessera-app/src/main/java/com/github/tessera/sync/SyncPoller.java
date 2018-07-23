@@ -6,6 +6,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
+/**
+ * A poller that will contact all outstanding parties that need to have
+ * transactions resent for a single round
+ */
 public class SyncPoller implements Runnable {
 
     private final ExecutorService executorService;
@@ -22,6 +26,11 @@ public class SyncPoller implements Runnable {
         this.transactionRequester = Objects.requireNonNull(transactionRequester);
     }
 
+    /**
+     * Retrieves all of the outstanding parties and makes an attempt to make the resend request
+     * asynchronously. If the request fails then the party is submitted back to the store for
+     * a later attempt.
+     */
     @Override
     public void run() {
 

@@ -9,6 +9,9 @@ import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 
+/**
+ * An in-memory store of outstanding parties to contact for transaction resending
+ */
 public class ResendPartyStoreImpl implements ResendPartyStore {
 
     private Queue<SyncableParty> outstandingParties;

@@ -65,6 +65,12 @@ public class TransactionRequesterImpl implements TransactionRequester {
 
     }
 
+    /**
+     * Creates the entity that should be sent to the target URL
+     *
+     * @param key the public key that transactions should be resent for
+     * @return the request to be sent
+     */
     private ResendRequest createRequestAllEntity(final Key key) {
 
         final ResendRequest request = new ResendRequest();
