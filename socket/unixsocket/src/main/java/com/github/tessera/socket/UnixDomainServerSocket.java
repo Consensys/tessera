@@ -10,8 +10,7 @@ import java.net.Socket;
 import java.util.Objects;
 
 /**
- * Provide support for servers over a Unix Domain Socket.
- * Uses junixsocket: https://github.com/kohlschutter/junixsocket
+ * Provides ability to read/write to the unix socket connection
  */
 public class UnixDomainServerSocket {
 
@@ -24,7 +23,10 @@ public class UnixDomainServerSocket {
     }
 
     /**
-     * Read HTTP request from the socket.
+     * Read HTTP request from the socket
+     *
+     * @return the request from the socket
+     * @throws TesseraSocketException if an IOException is thrown from the underlying stream
      */
     public byte[] read() {
         try {
@@ -36,7 +38,12 @@ public class UnixDomainServerSocket {
         }
     }
 
-
+    /**
+     * Writes a response payload to the socket
+     *
+     * @param payload the response to write
+     * @throws TesseraSocketException if an IOException is thrown from the underlying stream
+     */
     public void write(final byte[] payload) {
 
         try (final OutputStream os = socket.getOutputStream()) {

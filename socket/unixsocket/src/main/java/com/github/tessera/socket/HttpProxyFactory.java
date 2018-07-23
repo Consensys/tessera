@@ -8,6 +8,10 @@ import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
 import java.net.URI;
 
+/**
+ * Creates proxies to the local HTTP server, setting up connection
+ * configuration such as the target address and SSL settings.
+ */
 public class HttpProxyFactory {
 
     private final URI serverUri;
@@ -18,7 +22,8 @@ public class HttpProxyFactory {
         this.serverUri = serverConfig.getServerUri();
 
         if (serverConfig.isSsl()) {
-            SslConfig sslConfig = serverConfig.getSslConfig();
+
+            final SslConfig sslConfig = serverConfig.getSslConfig();
 
             final SSLContext sslContext = TrustMode.NONE.createSSLContext(
                 sslConfig.getClientKeyStore(),
@@ -35,12 +40,13 @@ public class HttpProxyFactory {
 
     }
 
+    /**
+     * Creates a new proxy to the server, whose connection hasn't yet been opened
+     *
+     * @return
+     */
     public HttpProxy create() {
         return new HttpProxy(serverUri, socketFactory);
     }
-
-    
-    
-    
 
 }

@@ -3,13 +3,19 @@ package com.github.tessera.api.model;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+/**
+ * Model representation of a JSON body on incoming HTTP requests
+ *
+ * A response to a {@link SendRequest} after the transaction has been
+ * distributed and saved
+ */
 @ApiModel
 public class SendResponse {
 
-    @ApiModelProperty("TODO: Define this key as something")
+    @ApiModelProperty("Base64 encoded transaction hash")
     private String key;
 
-    public SendResponse(String key) {
+    public SendResponse(final String key) {
         this.key = key;
     }
 
@@ -17,10 +23,11 @@ public class SendResponse {
     }
 
     public String getKey() {
-        return key;
+        return this.key;
     }
 
-    public void setKey(String key) {
+    public void setKey(final String key) {
         this.key = key;
     }
+
 }
