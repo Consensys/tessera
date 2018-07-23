@@ -3,10 +3,10 @@ package com.github.tessera.api;
 import com.github.tessera.node.PartyInfoParser;
 import com.github.tessera.node.PartyInfoService;
 import com.github.tessera.node.model.PartyInfo;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.ApiOperation;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -15,7 +15,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.OutputStream;
 
 import static java.util.Objects.requireNonNull;
 
