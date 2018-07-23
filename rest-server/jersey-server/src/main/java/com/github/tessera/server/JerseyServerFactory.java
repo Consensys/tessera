@@ -4,6 +4,9 @@ import com.github.tessera.config.ServerConfig;
 import javax.ws.rs.core.Application;
 import java.net.URI;
 
+/**
+ * Creates Grizzly and Jersey implementations of the {@link RestServer}
+ */
 public class JerseyServerFactory implements RestServerFactory{
 
     @Override

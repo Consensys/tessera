@@ -4,6 +4,9 @@ import java.util.Objects;
 
 /**
  * Container object for a public/private key pair
+ *
+ * The public and private key should be related to each other, not just an
+ * arbitrary pairing of two keys
  */
 public class KeyPair {
 
