@@ -1,9 +1,17 @@
 package com.github.tessera.node.model;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Contains all information that is transferred between two nodes on the
+ * network, including:
+ * - the external URL of this node
+ * - all known {@link Recipient} that contains public key to URL mappings
+ * - all known URLs on the network
+ */
 public class PartyInfo {
     
     private final String url;
@@ -14,8 +22,8 @@ public class PartyInfo {
 
     public PartyInfo(final String url, final Set<Recipient> recipients, final Set<Party> parties) {
         this.url = Objects.requireNonNull(url);
-        this.recipients = Collections.unmodifiableSet(recipients);
-        this.parties = Collections.unmodifiableSet(parties);
+        this.recipients = Collections.unmodifiableSet(new HashSet<>(recipients));
+        this.parties = Collections.unmodifiableSet(new HashSet<>(parties));
     }
 
     public String getUrl() {
@@ -29,6 +37,5 @@ public class PartyInfo {
     public Set<Party> getParties() {
         return parties;
     }
-
 
 }
