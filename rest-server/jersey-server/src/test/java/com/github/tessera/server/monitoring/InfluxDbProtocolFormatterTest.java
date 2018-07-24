@@ -9,8 +9,8 @@ import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class InfluxProtocolFormatterTest {
-    private InfluxProtocolFormatter protocolFormatter;
+public class InfluxDbProtocolFormatterTest {
+    private InfluxDbProtocolFormatter protocolFormatter;
 
     private ArrayList<MBeanMetric> mockMetrics;
 
@@ -18,7 +18,7 @@ public class InfluxProtocolFormatterTest {
 
     @Before
     public void setUp() throws URISyntaxException {
-        this.protocolFormatter = new InfluxProtocolFormatter();
+        this.protocolFormatter = new InfluxDbProtocolFormatter();
         this.mockMetrics = new ArrayList<>();
         this.mockUri = new URI("http://localhost:8080");
     }

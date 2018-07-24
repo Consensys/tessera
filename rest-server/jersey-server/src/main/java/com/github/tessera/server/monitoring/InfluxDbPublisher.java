@@ -5,19 +5,19 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.*;
 
-public class InfluxPublisher implements Runnable {
+public class InfluxDbPublisher implements Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InfluxPublisher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InfluxDbPublisher.class);
 
     private final InfluxDbClient client;
 
-    public InfluxPublisher(InfluxDbClient client) {
+    public InfluxDbPublisher(InfluxDbClient client) {
         this.client = client;
     }
 
     @Override
     public void run() {
-        LOGGER.info("InfluxPublisher executed...");
+        LOGGER.info("InfluxDbPublisher executed...");
         try {
             client.postMetrics();
         } catch (MalformedObjectNameException | IntrospectionException | MBeanException | AttributeNotFoundException | ReflectionException | InstanceNotFoundException e) {

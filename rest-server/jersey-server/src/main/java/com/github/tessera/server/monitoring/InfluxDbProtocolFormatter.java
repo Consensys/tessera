@@ -3,7 +3,7 @@ package com.github.tessera.server.monitoring;
 import java.net.URI;
 import java.util.List;
 
-public class InfluxProtocolFormatter {
+public class InfluxDbProtocolFormatter {
 
     public String format(List<MBeanMetric> metrics, URI uri) {
         String formattedMetrics = "";

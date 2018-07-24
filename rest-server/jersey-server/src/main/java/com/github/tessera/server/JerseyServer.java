@@ -2,7 +2,7 @@ package com.github.tessera.server;
 
 import com.github.tessera.config.ServerConfig;
 import com.github.tessera.server.monitoring.InfluxDbClient;
-import com.github.tessera.server.monitoring.InfluxPublisher;
+import com.github.tessera.server.monitoring.InfluxDbPublisher;
 import com.github.tessera.server.monitoring.MetricsResource;
 import com.github.tessera.ssl.context.SSLContextFactory;
 import com.github.tessera.ssl.context.ServerSSLContextFactory;
@@ -19,19 +19,12 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Application;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import com.github.tessera.config.util.JaxbUtil;
 
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
@@ -54,7 +47,7 @@ public class JerseyServer implements RestServer {
 
     private final ScheduledExecutorService executor;
 
-    private boolean useInfluxMonitoring;
+    private final boolean useInfluxMonitoring;
 
     public JerseyServer(final URI uri, final Application application, final ServerConfig serverConfig) {
         this.uri = Objects.requireNonNull(uri);
@@ -126,9 +119,9 @@ public class JerseyServer implements RestServer {
 
     private void startInfluxMonitoring() {
         InfluxDbClient influxDbClient = new InfluxDbClient(this.uri);
-        Runnable publisher = new InfluxPublisher(influxDbClient);
+        Runnable publisher = new InfluxDbPublisher(influxDbClient);
 
-        final Runnable exceptionSafeRunnable = () -> {
+        final Runnable exceptionSafePublisher = () -> {
             try {
                 publisher.run();
             } catch (final Throwable ex) {
@@ -138,7 +131,7 @@ public class JerseyServer implements RestServer {
         };
 
         final long delayInSecs = 5;
-        this.executor.scheduleWithFixedDelay(exceptionSafeRunnable, delayInSecs, delayInSecs, TimeUnit.SECONDS);
+        this.executor.scheduleWithFixedDelay(exceptionSafePublisher, delayInSecs, delayInSecs, TimeUnit.SECONDS);
     }
 
     @Override
