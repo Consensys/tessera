@@ -18,15 +18,18 @@ import java.util.List;
 
 import static javax.ws.rs.core.MediaType.*;
 
+/**
+ * Provides HTTP endpoints for accessing the OpenAPI schema
+ */
 @Path("/api")
-@Api("Provided access to openapi schema documentation.")
+@Api("Provides access to OpenAPI schema documentation.")
 public class ApiResource {
 
     private static final List<Variant> VARIANTS = Variant.mediaTypes(APPLICATION_JSON_TYPE, TEXT_HTML_TYPE).build();
 
     @GET
     @Produces({APPLICATION_JSON, TEXT_HTML})
-    @ApiResponses({@ApiResponse(code = 200, message = "Returns json or html openapi document")})
+    @ApiResponses({@ApiResponse(code = 200, message = "Returns JSON or HTML OpenAPI document")})
     public Response api(@Context final Request request) throws IOException {
 
         final Variant variant = request.selectVariant(VARIANTS);

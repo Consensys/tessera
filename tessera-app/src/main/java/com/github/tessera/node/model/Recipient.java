@@ -4,6 +4,9 @@ import com.github.tessera.nacl.Key;
 
 import java.util.Objects;
 
+/**
+ * Contains a mapping of a public key to URL that is on the same network
+ */
 public class Recipient {
 
     private final Key key;
@@ -25,10 +28,6 @@ public class Recipient {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
         if (!(o instanceof Recipient)) {
             return false;
         }

@@ -6,6 +6,12 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * The JPA entity that contains the transaction information
+ * A simple key/value pair
+ *
+ * The key is the transaction hash, and the value an a fully encoded {@link EncodedPayloadWithRecipients}
+ */
 @Entity
 @Table(name = "ENCRYPTED_TRANSACTION")
 public class EncryptedTransaction implements Serializable {
@@ -38,7 +44,7 @@ public class EncryptedTransaction implements Serializable {
     }
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(final Long id) {
@@ -46,7 +52,7 @@ public class EncryptedTransaction implements Serializable {
     }
 
     public MessageHash getHash() {
-        return hash;
+        return this.hash;
     }
 
     public void setHash(final MessageHash hash) {
@@ -54,7 +60,7 @@ public class EncryptedTransaction implements Serializable {
     }
 
     public byte[] getEncodedPayload() {
-        return encodedPayload;
+        return this.encodedPayload;
     }
 
     public void setEncodedPayload(final byte[] encodedPayload) {

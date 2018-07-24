@@ -81,10 +81,13 @@ public class TransactionServiceImpl implements TransactionService {
 
         final EncodedPayloadWithRecipients payloadWithRecipients
             = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
+
         final EncodedPayload encodedPayload = payloadWithRecipients.getEncodedPayload();
 
-        final Key senderPubKey, recipientPubKey;
-
+        final Key senderPubKey;
+       
+        final Key recipientPubKey;
+        
         if (payloadWithRecipients.getRecipientKeys().isEmpty()) {
             // This is a payload originally sent to us by another node
             recipientPubKey = encodedPayload.getSenderKey();
@@ -99,14 +102,17 @@ public class TransactionServiceImpl implements TransactionService {
         final Key sharedKey = nacl.computeSharedKey(recipientPubKey, senderPrivKey);
 
         try {
-            final byte[] masterKeyBytes = nacl.openAfterPrecomputation(
-                encodedPayload.getRecipientBoxes().get(0), encodedPayload.getRecipientNonce(), sharedKey
-            );
+            final byte[] recipientBox = encodedPayload.getRecipientBoxes().iterator().next();
+            final Nonce nonce =  encodedPayload.getRecipientNonce();
+            final byte[] masterKeyBytes = nacl.openAfterPrecomputation(recipientBox,nonce, sharedKey);
 
             final Key masterKey = new Key(masterKeyBytes);
 
+            final byte[] cipherText = encodedPayload.getCipherText();
+            final Nonce cipherTextNonce = encodedPayload.getCipherTextNonce();
+
             return nacl.openAfterPrecomputation(
-                encodedPayload.getCipherText(), encodedPayload.getCipherTextNonce(), masterKey
+                cipherText, cipherTextNonce, masterKey
             );
 
         } catch (final RuntimeException ex) {

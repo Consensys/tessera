@@ -4,11 +4,18 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotNull;
 
+/**
+ * Model representation of a JSON body on incoming HTTP requests
+ *
+ * Contains information for retrieving a decrypting payload
+ * such as the message hash and the public key to decrypt with
+ *
+ */
 @ApiModel
 public class ReceiveRequest {
 
     @NotNull
-    @ApiModelProperty("Encoded sender public key")
+    @ApiModelProperty("Encoded transaction hash")
     private String key;
 
     @NotNull
@@ -30,4 +37,5 @@ public class ReceiveRequest {
     public void setTo(final String to) {
         this.to = to;
     }
+
 }

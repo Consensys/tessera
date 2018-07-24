@@ -2,6 +2,9 @@ package com.github.tessera.node.model;
 
 import java.util.Objects;
 
+/**
+ * Contains a URL of another known node on the network
+ */
 public class Party {
 
     private final String url;
@@ -16,10 +19,6 @@ public class Party {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
         return (o instanceof Party) && Objects.equals(url, ((Party) o).url);
     }
 

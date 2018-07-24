@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/google/leveldb.svg?branch=master)](https://travis-ci.com/QuorumEngineering/tessera)
+[![codecov](https://codecov.io/gh/QuorumEngineering/tessera/branch/master/graph/badge.svg?token=XMRVPC5FLQ)](https://codecov.io/gh/QuorumEngineering/tessera)
+
+
 # Tessera
 
 A stateless Java implementation responsible for encryption and decryption of private transaction data and for off-chain private messaging. Each Tessera node:
@@ -232,6 +236,81 @@ The following endpoints are advertised on this interface:
 
 - Delete hashed encrypted payload stored in Tessera nodes.
 
-## Quorum - Tessera Privacy Transaction Flow
+For more interactions with the API - direct <a href="https://quorumengineering.github.io/tessera-swagger/index.html" target="_blank">here</a> for Swagger page.
 
-![Tessera Privacy Flow](Tessera Privacy Flow.jpeg "Quorum - Tessera privacy transaction flow")
+## How It Works
+
+### Quorum - Tessera Data Privacy Flow Diagram
+
+<img src='https://github.com/QuorumEngineering/tessera/blob/master/Tessera%20Privacy%20flow.jpeg'/>
+
+
+- Each Tessera node hosts a number of key pairs and public keys are advertised 
+over public API
+
+- Nodes can be started with information from just one other node to achieve network 
+synchronization
+
+- When a node starts up, it will reach out to every other node to 
+share/receive the public keys hosted. The heartbeat is sent every 
+two seconds for resynchronization. Each node will maintain the same public key 
+registry after synchronization and can start sending messages to any known public key.
+
+- When Quorum node starts up it connects to its local Tessera node using the
+/upcheck API and is now ready to process private transactions.
+
+- When Quorum sends transaction to its local node using /sendraw API, 
+
+    1. The local node first validates the sender's public key.
+    
+    2. The local node checks for private key and once validated begins to encrypts
+       the payload by
+       
+       - Generating a symmetric key and random nonce
+       - Generate a recipient nonce 
+       - Encrypt the payload using the symmetric key and random nonce
+       - Hash this encrypted payload using SHA3 algorithm
+       - For each recipient, encrypt the symmetric key with recipient nonce 
+         and recipient public key 
+    
+    3. The local node stores the payload locally and transmits the encrypted 
+       payload, encrypted symmetric key and both random and recipient nonce to each 
+       recipient using public API '/push'. Each recipient will regenerate the hash 
+       using same algorithm for local storage.
+
+    4. Once all nodes have confirmed receipt and storage of the payload,
+       the local node returns the '/sendraw' API call successfully with the
+       hash of encrypted payload to Quorum node.
+
+    5. Quorum then propogates the transaction hash to rest of the network using 
+       Ethereum P2P protocol.
+    
+    6. The leader Quorum node then creates the block with this transaction 
+       which is distributed across the network through 'Raft transport layer'. 
+       All nodes will attempt to process it using '/receiveraw' API.
+       
+    7. Each local node will look for the hash and abort if not found. When 
+       found, the node will use information about sender and its private key
+       to decrypt the symmetric key and the decrypt the transaction payload
+       using the now decrypted symmetric key and return the '/receiveraw' API
+       successfully with the decrypted transaction data. which is then stored
+       in the private store DB.
+      
+
+## What's next in Tessera
+
+We will continously improve Tessera performance and in the next release we are looking at 
+enhancing resiliency of Tessera nodes like
+
+  - Providing internal cluster of Tessera nodes for heightened recoverability
+  
+  - Continue with transaction processing even if recipient node is down
+  
+  - Automatically recover private transactions from peer nodes after data loss
+  
+  - Providing windows support 
+  
+  - Healthcheck - Implement monitoring of nodes heartbeat, network availability, throughput
+                  peer connections etc.
+                  
+  - End to End performance profiling.
