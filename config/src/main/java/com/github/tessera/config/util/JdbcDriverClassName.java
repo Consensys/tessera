@@ -1,5 +1,8 @@
 package com.github.tessera.config.util;
 
+/**
+ * Provides mapping from jdbc url input to the appropriate jdbc driver class name
+ */
 public enum JdbcDriverClassName {
 
     H2 {
