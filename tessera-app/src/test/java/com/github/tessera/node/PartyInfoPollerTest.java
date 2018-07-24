@@ -3,92 +3,97 @@ package com.github.tessera.node;
 import com.github.tessera.api.model.ApiPath;
 import com.github.tessera.node.model.Party;
 import com.github.tessera.node.model.PartyInfo;
+import com.github.tessera.sync.ResendPartyStore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.net.ConnectException;
+import java.util.Collection;
 
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class PartyInfoPollerTest {
+
+    private static final String OWN_URL = "http://own.com:8080";
+
+    private static final String TARGET_URL = "http://bogus.com:9878";
+
+    private static final byte[] RESPONSE = "BOGUS".getBytes();
 
     private PartyInfoService partyInfoService;
 
     private PartyInfoParser partyInfoParser;
 
-    private PartyInfoPoller partyInfoPoller;
+    private ResendPartyStore resendPartyStore;
 
     private PostDelegate postDelegate;
+
+    private PartyInfoPoller partyInfoPoller;
 
     @Before
     public void setUp() {
         this.postDelegate = mock(PostDelegate.class);
         this.partyInfoService = mock(PartyInfoService.class);
         this.partyInfoParser = mock(PartyInfoParser.class);
+        this.resendPartyStore = mock(ResendPartyStore.class);
 
-        this.partyInfoPoller = new PartyInfoPoller(partyInfoService, partyInfoParser, postDelegate);
+        this.partyInfoPoller = new PartyInfoPoller(partyInfoService, partyInfoParser, postDelegate, resendPartyStore);
     }
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(partyInfoService, partyInfoParser);
+        verifyNoMoreInteractions(partyInfoService, partyInfoParser, resendPartyStore);
     }
 
     @Test
     public void run() {
 
-        String url = "http://bogus.com:9878";
-        String ownURL = "http://own.com:8080";
-        byte[] response = "BOGUS".getBytes();
+        doReturn(RESPONSE).when(postDelegate).doPost(TARGET_URL, ApiPath.PARTYINFO, RESPONSE);
 
-        when(postDelegate.doPost(url, ApiPath.PARTYINFO, response)).thenReturn(response);
+        final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
+        doReturn(partyInfo).when(partyInfoService).getPartyInfo();
 
-        PartyInfo partyInfo = mock(PartyInfo.class);
-        Party party = mock(Party.class);
-        when(party.getUrl()).thenReturn(url);
-        when(partyInfo.getUrl()).thenReturn(ownURL);
-        when(partyInfo.getParties()).thenReturn(singleton(party));
+        doReturn(RESPONSE).when(partyInfoParser).to(partyInfo);
 
-        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        final PartyInfo updatedPartyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
+        doReturn(updatedPartyInfo).when(partyInfoParser).from(RESPONSE);
 
-        when(partyInfoParser.to(partyInfo)).thenReturn("BOGUS".getBytes());
-
-        PartyInfo updatedPartyInfo = mock(PartyInfo.class);
-        when(partyInfoParser.from(response)).thenReturn(updatedPartyInfo);
+        doReturn(singleton(new Party(TARGET_URL))).when(partyInfoService).findUnsavedParties(any(PartyInfo.class));
 
         partyInfoPoller.run();
 
         verify(partyInfoService).getPartyInfo();
         verify(partyInfoService).updatePartyInfo(updatedPartyInfo);
-        verify(partyInfoParser).from(response);
-        verify(partyInfoParser).to(partyInfo);
-        verify(postDelegate).doPost(url, ApiPath.PARTYINFO, response);
+        verify(partyInfoService).findUnsavedParties(any(PartyInfo.class));
 
+        verify(partyInfoParser).from(RESPONSE);
+        verify(partyInfoParser).to(partyInfo);
+
+        verify(postDelegate).doPost(TARGET_URL, ApiPath.PARTYINFO, RESPONSE);
+
+        //all nodes were known about, so this is called with no new URLs
+        final ArgumentCaptor<Collection<Party>> captor = ArgumentCaptor.forClass(Collection.class);
+        verify(resendPartyStore).addUnseenParties(captor.capture());
+        assertThat(captor.getValue()).hasSize(1).containsExactlyInAnyOrder(new Party("http://bogus.com:9878"));
     }
 
     @Test
     public void testWhenURLIsOwn() {
-        String ownURL = "http://own.com:8080";
-        byte[] response = "BOGUS".getBytes();
 
-        when(postDelegate.doPost(ownURL, ApiPath.PARTYINFO, response)).thenReturn(response);
+        doReturn(RESPONSE).when(postDelegate).doPost(OWN_URL, ApiPath.PARTYINFO, RESPONSE);
 
-        PartyInfo partyInfo = mock(PartyInfo.class);
-        Party party = mock(Party.class);
-        when(party.getUrl()).thenReturn(ownURL);
-        when(partyInfo.getUrl()).thenReturn(ownURL);
-        when(partyInfo.getParties()).thenReturn(singleton(party));
+        final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(OWN_URL)));
+        doReturn(partyInfo).when(partyInfoService).getPartyInfo();
+        doReturn(RESPONSE).when(partyInfoParser).to(partyInfo);
 
-        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
-
-        when(partyInfoParser.to(partyInfo)).thenReturn("BOGUS".getBytes());
-
-        PartyInfo updatedPartyInfo = mock(PartyInfo.class);
-        when(partyInfoParser.from(response)).thenReturn(updatedPartyInfo);
+        final PartyInfo updatedPartyInfo = mock(PartyInfo.class);
+        doReturn(updatedPartyInfo).when(partyInfoParser).from(RESPONSE);
 
         partyInfoPoller.run();
 
@@ -98,98 +103,67 @@ public class PartyInfoPollerTest {
 
     @Test
     public void testWhenPostFails() {
-        String url = "http://bogus.com:9878";
-        String ownURL = "http://own.com:8080";
-        byte[] response = "BOGUS".getBytes();
 
-        when(postDelegate.doPost(url, ApiPath.PARTYINFO, response)).thenReturn(null);
+        doReturn(null).when(postDelegate).doPost(TARGET_URL, ApiPath.PARTYINFO, RESPONSE);
 
-        PartyInfo partyInfo = mock(PartyInfo.class);
-        Party party = mock(Party.class);
-        when(party.getUrl()).thenReturn(url);
-        when(partyInfo.getUrl()).thenReturn(ownURL);
-        when(partyInfo.getParties()).thenReturn(singleton(party));
+        final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
 
-        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        doReturn(partyInfo).when(partyInfoService).getPartyInfo();
+        doReturn(RESPONSE).when(partyInfoParser).to(partyInfo);
 
-        when(partyInfoParser.to(partyInfo)).thenReturn("BOGUS".getBytes());
-
-        PartyInfo updatedPartyInfo = mock(PartyInfo.class);
-        when(partyInfoParser.from(response)).thenReturn(updatedPartyInfo);
+        final PartyInfo updatedPartyInfo = mock(PartyInfo.class);
+        doReturn(updatedPartyInfo).when(partyInfoParser).from(RESPONSE);
 
         partyInfoPoller.run();
 
-        verify(partyInfoParser, times(0)).from(response);
+        verify(partyInfoParser, never()).from(RESPONSE);
         verify(partyInfoParser).to(partyInfo);
         verify(partyInfoService).getPartyInfo();
-        verify(postDelegate).doPost(url, ApiPath.PARTYINFO, response);
-
+        verify(postDelegate).doPost(TARGET_URL, ApiPath.PARTYINFO, RESPONSE);
     }
 
     @Test
     public void runThrowsException() {
 
-        String url = "http://bogus.com:9878";
-        String ownURL = "http://own.com:8080";
-        byte[] response = "BOGUS".getBytes();
+        final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
 
-        PartyInfo partyInfo = mock(PartyInfo.class);
-        Party party = mock(Party.class);
-        when(party.getUrl()).thenReturn(url);
-        when(partyInfo.getUrl()).thenReturn(ownURL);
-        when(partyInfo.getParties()).thenReturn(singleton(party));
-
-        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
-
-        when(partyInfoParser.to(partyInfo)).thenReturn("BOGUS".getBytes());
+        doReturn(partyInfo).when(partyInfoService).getPartyInfo();
+        doReturn(RESPONSE).when(partyInfoParser).to(partyInfo);
 
         PartyInfo updatedPartyInfo = mock(PartyInfo.class);
-        when(partyInfoParser.from(response)).thenReturn(updatedPartyInfo);
+        doReturn(updatedPartyInfo).when(partyInfoParser).from(RESPONSE);
 
-        UnsupportedOperationException someException
-            = new UnsupportedOperationException("OUCH");
-        doThrow(someException).when(postDelegate).doPost(url, ApiPath.PARTYINFO, response);
+        doThrow(UnsupportedOperationException.class).when(postDelegate).doPost(TARGET_URL, ApiPath.PARTYINFO, RESPONSE);
 
-        try {
-            partyInfoPoller.run();
-            failBecauseExceptionWasNotThrown(UnsupportedOperationException.class);
-        } catch (UnsupportedOperationException ex) {
-            assertThat(ex).isSameAs(someException);
-        }
+        final Throwable throwable = catchThrowable(partyInfoPoller::run);
+        assertThat(throwable).isInstanceOf(UnsupportedOperationException.class);
 
         verify(partyInfoService).getPartyInfo();
-        verify(partyInfoService, times(0)).updatePartyInfo(updatedPartyInfo);
-        verify(partyInfoParser, times(0)).from(response);
+        verify(partyInfoService, never()).updatePartyInfo(updatedPartyInfo);
+        verify(partyInfoParser, never()).from(RESPONSE);
         verify(partyInfoParser).to(partyInfo);
     }
 
     @Test
     public void runThrowsConnectionExceptionAndDoesNotThrow() {
-        String url = "http://bogus.com:9878";
-        String ownURL = "http://own.com:8080";
-        byte[] response = "BOGUS".getBytes();
 
-        PartyInfo partyInfo = mock(PartyInfo.class);
-        Party party = mock(Party.class);
-        when(party.getUrl()).thenReturn(url);
-        when(partyInfo.getUrl()).thenReturn(ownURL);
-        when(partyInfo.getParties()).thenReturn(singleton(party));
+        final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
 
-        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        doReturn(partyInfo).when(partyInfoService).getPartyInfo();
+        doReturn(RESPONSE).when(partyInfoParser).to(partyInfo);
 
-        when(partyInfoParser.to(partyInfo)).thenReturn("BOGUS".getBytes());
+        final PartyInfo updatedPartyInfo = mock(PartyInfo.class);
+        doReturn(updatedPartyInfo).when(partyInfoParser).from(RESPONSE);
 
-        PartyInfo updatedPartyInfo = mock(PartyInfo.class);
-        when(partyInfoParser.from(response)).thenReturn(updatedPartyInfo);
-
-        Exception connectionException
-                = new RuntimeException(new ConnectException("OUCH"));
-        doThrow(connectionException).when(postDelegate).doPost(url, ApiPath.PARTYINFO, response);
+        final RuntimeException connectionException = new RuntimeException(new ConnectException("OUCH"));
+        doThrow(connectionException).when(postDelegate).doPost(TARGET_URL, ApiPath.PARTYINFO, RESPONSE);
 
         partyInfoPoller.run();
+
         verify(partyInfoService).getPartyInfo();
-        verify(partyInfoService, times(0)).updatePartyInfo(updatedPartyInfo);
-        verify(partyInfoParser, times(0)).from(response);
+        verify(partyInfoService, never()).updatePartyInfo(updatedPartyInfo);
+        verify(partyInfoParser, never()).from(RESPONSE);
         verify(partyInfoParser).to(partyInfo);
     }
+
 }

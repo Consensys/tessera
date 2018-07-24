@@ -71,10 +71,10 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     }
 
     @Override
-    public Set<Recipient> findUnsavedRecipients(final PartyInfo partyInfoWithUnsavedRecipients) {
-        final Set<Recipient> knownHosts = this.getPartyInfo().getRecipients();
+    public Set<Party> findUnsavedParties(final PartyInfo partyInfoWithUnsavedRecipients) {
+        final Set<Party> knownHosts = this.getPartyInfo().getParties();
 
-        final Set<Recipient> incomingRecipients = new HashSet<>(partyInfoWithUnsavedRecipients.getRecipients());
+        final Set<Party> incomingRecipients = new HashSet<>(partyInfoWithUnsavedRecipients.getParties());
         incomingRecipients.removeAll(knownHosts);
 
         return Collections.unmodifiableSet(incomingRecipients);

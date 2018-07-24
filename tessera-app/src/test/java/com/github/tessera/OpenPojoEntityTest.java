@@ -10,7 +10,7 @@ import org.junit.Test;
 public class OpenPojoEntityTest {
 
     @Test
-    public void executeOpenPojoValidations() {
+    public void executeOpenPojoValidationsWithSetter() {
 
         final Validator pojoValidator = ValidatorBuilder.create()
                 .with(new GetterMustExistRule())
@@ -22,8 +22,22 @@ public class OpenPojoEntityTest {
                 .with(new NoPublicFieldsExceptStaticFinalRule())
                 .build();
 
-        pojoValidator.validate(getClass().getPackage().getName());
-        pojoValidator.validate("com.github.tessera.enclave.model");
+        pojoValidator.validate("com.github.tessera.api.model");
+        pojoValidator.validateRecursively("com.github.tessera.enclave.model");
+
+    }
+
+    @Test
+    public void executeOpenPojoValidationsNoSetter() {
+
+        final Validator pojoValidator = ValidatorBuilder.create()
+            .with(new GetterMustExistRule())
+            .with(new GetterTester())
+            .with(new EqualsAndHashCodeMatchRule())
+            .with(new NoPublicFieldsExceptStaticFinalRule())
+            .build();
+
+        pojoValidator.validateRecursively("com.github.tessera.sync.model");
 
     }
 
