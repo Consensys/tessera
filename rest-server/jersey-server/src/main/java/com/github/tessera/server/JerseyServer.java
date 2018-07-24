@@ -1,6 +1,7 @@
 package com.github.tessera.server;
 
 import com.github.tessera.config.ServerConfig;
+import com.github.tessera.server.monitoring.InfluxScheduledExecutor;
 import com.github.tessera.server.monitoring.MetricsResource;
 import com.github.tessera.ssl.context.SSLContextFactory;
 import com.github.tessera.ssl.context.ServerSSLContextFactory;
@@ -39,6 +40,8 @@ public class JerseyServer implements RestServer {
 
     private final boolean secure;
 
+    private boolean influxMonitoring;
+
     public JerseyServer(final URI uri, final Application application, final ServerConfig serverConfig) {
         this.uri = Objects.requireNonNull(uri);
         this.application = Objects.requireNonNull(application);
@@ -50,6 +53,8 @@ public class JerseyServer implements RestServer {
         } else {
             this.sslContext = null;
         }
+
+        this.influxMonitoring = true;
     }
 
     @Override
@@ -97,6 +102,11 @@ public class JerseyServer implements RestServer {
 
         LOGGER.info("Started {}", uri);
         LOGGER.info("WADL {}/application.wadl", uri);
+
+        if(influxMonitoring) {
+            InfluxScheduledExecutor executor = new InfluxScheduledExecutor();
+            executor.start();
+        }
     }
 
     @Override
