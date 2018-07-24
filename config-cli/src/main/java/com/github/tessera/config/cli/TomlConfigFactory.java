@@ -2,6 +2,7 @@ package com.github.tessera.config.cli;
 
 import com.github.tessera.config.Config;
 import com.github.tessera.config.ConfigFactory;
+
 import com.github.tessera.config.KeyDataConfig;
 import com.github.tessera.config.SslAuthenticationMode;
 import com.github.tessera.config.SslTrustMode;
@@ -22,9 +23,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import javax.json.JsonObjectBuilder;
+
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
+
 import javax.json.JsonReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

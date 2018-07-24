@@ -58,6 +58,9 @@ public class ConfigBuilder {
 
         }
 
+         << << << < HEAD
+   == == ==
+                =  >>> >>> > origin / feature / legacy - config
         return configBuilder;
 
     }
