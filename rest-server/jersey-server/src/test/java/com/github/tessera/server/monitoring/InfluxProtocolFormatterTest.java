@@ -3,6 +3,8 @@ package com.github.tessera.server.monitoring;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,13 +14,13 @@ public class InfluxProtocolFormatterTest {
 
     private ArrayList<MBeanMetric> mockMetrics;
 
-    String mockUrl;
+    URI mockUri;
 
     @Before
-    public void setUp() {
+    public void setUp() throws URISyntaxException {
         this.protocolFormatter = new InfluxProtocolFormatter();
         this.mockMetrics = new ArrayList<>();
-        this.mockUrl = "localhost:8080";
+        this.mockUri = new URI("http://localhost:8080");
     }
 
 
@@ -28,7 +30,7 @@ public class InfluxProtocolFormatterTest {
 
         String expectedResponse = "tessera_GET_upCheck,instance=localhost:8080 AverageTime_ms=100";
 
-        assertThat(protocolFormatter.format(mockMetrics, this.mockUrl)).isEqualTo(expectedResponse);
+        assertThat(protocolFormatter.format(mockMetrics, this.mockUri)).isEqualTo(expectedResponse);
     }
 
     @Test
@@ -37,7 +39,7 @@ public class InfluxProtocolFormatterTest {
 
         String expectedResponse = "tessera_POST_resend_ResendRequest,instance=localhost:8080 RequestRate_requestsPerSeconds=1.3";
 
-        assertThat(protocolFormatter.format(mockMetrics, this.mockUrl)).isEqualTo(expectedResponse);
+        assertThat(protocolFormatter.format(mockMetrics, this.mockUri)).isEqualTo(expectedResponse);
     }
 
     @Test
@@ -46,7 +48,7 @@ public class InfluxProtocolFormatterTest {
 
         String expectedResponse = "tessera_POST_push_byte,instance=localhost:8080 MinTime_ms=3.4";
 
-        assertThat(protocolFormatter.format(mockMetrics, this.mockUrl)).isEqualTo(expectedResponse);
+        assertThat(protocolFormatter.format(mockMetrics, this.mockUri)).isEqualTo(expectedResponse);
     }
 
     @Test
@@ -55,7 +57,7 @@ public class InfluxProtocolFormatterTest {
 
         String expectedResponse = "tessera_GET_receiveRaw_StringString,instance=localhost:8080 AverageTime_ms=5.2";
 
-        assertThat(protocolFormatter.format(mockMetrics, this.mockUrl)).isEqualTo(expectedResponse);
+        assertThat(protocolFormatter.format(mockMetrics, this.mockUri)).isEqualTo(expectedResponse);
     }
 
     @Test
@@ -66,11 +68,11 @@ public class InfluxProtocolFormatterTest {
         String expectedResponse = "tessera_GET_upCheck,instance=localhost:8080 AverageTime_ms=100" + "\n" +
             "tessera_POST_resend_ResendRequest,instance=localhost:8080 RequestRate_requestsPerSeconds=1.3";
 
-        assertThat(protocolFormatter.format(mockMetrics, this.mockUrl)).isEqualTo(expectedResponse);
+        assertThat(protocolFormatter.format(mockMetrics, this.mockUri)).isEqualTo(expectedResponse);
     }
 
     @Test
     public void noMetricsToFormatIsHandled() {
-        assertThat(protocolFormatter.format(mockMetrics, this.mockUrl)).isEmpty();
+        assertThat(protocolFormatter.format(mockMetrics, this.mockUri)).isEmpty();
     }
 }

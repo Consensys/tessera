@@ -1,10 +1,11 @@
 package com.github.tessera.server.monitoring;
 
+import java.net.URI;
 import java.util.List;
 
 public class InfluxProtocolFormatter {
 
-    public String format(List<MBeanMetric> metrics, String uri) {
+    public String format(List<MBeanMetric> metrics, URI uri) {
         String formattedMetrics = "";
 
         for(MBeanMetric metric : metrics) {
@@ -13,7 +14,7 @@ public class InfluxProtocolFormatter {
             formattedMetrics += "tessera_" +
                                 sanitize(resourceMetric.getResourceMethod()) +
                                 "," +
-                                "instance=" + uri +
+                                "instance=" + uri.getHost() + ":" + uri.getPort() +
                                 " " +
                                 sanitize(resourceMetric.getName()) + "=" + resourceMetric.getValue() +
                                 "\n";
@@ -23,6 +24,6 @@ public class InfluxProtocolFormatter {
 
     private String sanitize(String input) {
         return input.replaceAll("(#.*)|(_total)|\\(\\)|\\)|\\[\\]|\\]|;", "")
-            .replaceAll("->|\\(|\\[", "_");
+                    .replaceAll("->|\\(|\\[", "_");
     }
 }

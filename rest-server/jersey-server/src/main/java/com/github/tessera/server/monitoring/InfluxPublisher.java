@@ -19,7 +19,7 @@ public class InfluxPublisher implements Runnable {
     public void run() {
         LOGGER.info("InfluxPublisher executed...");
         try {
-            client.addMetrics();
+            client.postMetrics();
         } catch (MalformedObjectNameException | IntrospectionException | MBeanException | AttributeNotFoundException | ReflectionException | InstanceNotFoundException e) {
             throw new RuntimeException(e);
         }

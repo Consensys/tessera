@@ -1,7 +1,8 @@
 package com.github.tessera.server;
 
 import com.github.tessera.config.ServerConfig;
-import com.github.tessera.server.monitoring.InfluxScheduledExecutor;
+import com.github.tessera.server.monitoring.InfluxDbClient;
+import com.github.tessera.server.monitoring.InfluxPublisher;
 import com.github.tessera.server.monitoring.MetricsResource;
 import com.github.tessera.ssl.context.SSLContextFactory;
 import com.github.tessera.ssl.context.ServerSSLContextFactory;
@@ -18,10 +19,21 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Application;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import com.github.tessera.config.util.JaxbUtil;
+
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 /**
  * Implementation of a RestServer using Jersey and Grizzly.
@@ -40,7 +52,9 @@ public class JerseyServer implements RestServer {
 
     private final boolean secure;
 
-    private boolean influxMonitoring;
+    private final ScheduledExecutorService executor;
+
+    private boolean useInfluxMonitoring;
 
     public JerseyServer(final URI uri, final Application application, final ServerConfig serverConfig) {
         this.uri = Objects.requireNonNull(uri);
@@ -54,7 +68,8 @@ public class JerseyServer implements RestServer {
             this.sslContext = null;
         }
 
-        this.influxMonitoring = true;
+        this.executor = newSingleThreadScheduledExecutor();
+        this.useInfluxMonitoring = true;
     }
 
     @Override
@@ -103,15 +118,36 @@ public class JerseyServer implements RestServer {
         LOGGER.info("Started {}", uri);
         LOGGER.info("WADL {}/application.wadl", uri);
 
-        if(influxMonitoring) {
-            InfluxScheduledExecutor executor = new InfluxScheduledExecutor();
-            executor.start();
+        if(useInfluxMonitoring) {
+            startInfluxMonitoring();
         }
+
+    }
+
+    private void startInfluxMonitoring() {
+        InfluxDbClient influxDbClient = new InfluxDbClient(this.uri);
+        Runnable publisher = new InfluxPublisher(influxDbClient);
+
+        final Runnable exceptionSafeRunnable = () -> {
+            try {
+                publisher.run();
+            } catch (final Throwable ex) {
+                LOGGER.error("Error when executing action {}", publisher.getClass().getSimpleName());
+                LOGGER.error("Error when executing action", ex);
+            }
+        };
+
+        final long delayInSecs = 5;
+        this.executor.scheduleWithFixedDelay(exceptionSafeRunnable, delayInSecs, delayInSecs, TimeUnit.SECONDS);
     }
 
     @Override
     public void stop() {
         LOGGER.info("Stopping Jersey server at {}", uri);
+
+        if(useInfluxMonitoring) {
+            this.executor.shutdown();
+        }
 
         if (Objects.nonNull(this.server)) {
             this.server.shutdown();
