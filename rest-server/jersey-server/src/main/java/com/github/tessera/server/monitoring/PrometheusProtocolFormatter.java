@@ -2,25 +2,25 @@ package com.github.tessera.server.monitoring;
 
 import java.util.List;
 
-public class PrometheusProtocolFormatter implements ProtocolFormatter {
+public class PrometheusProtocolFormatter {
 
-    @Override
     public String format(List<MBeanMetric> metrics) {
-        String response = "";
+        StringBuilder formattedMetrics = new StringBuilder();
 
         //TODO https://www.javaworld.com/article/2461744/design-patterns/java-language-iterating-over-collections-in-java-8.html
         for(MBeanMetric metric : metrics) {
             MBeanResourceMetric resourceMetric = (MBeanResourceMetric) metric;
 
-            response += "tessera_" +
-                        sanitize(resourceMetric.getResourceMethod()) +
-                        "_" +
-                        sanitize(resourceMetric.getName()) +
-                        " " +
-                        resourceMetric.getValue() +
-                        "\n";
+            formattedMetrics.append("tessera_")
+                            .append(sanitize(resourceMetric.getResourceMethod()))
+                            .append("_")
+                            .append(sanitize(resourceMetric.getName()))
+                            .append(" ")
+                            .append(resourceMetric.getValue())
+                            .append("\n");
         }
-        return response.trim();
+
+        return formattedMetrics.toString().trim();
     }
 
     private String sanitize(String input) {

@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PrometheusProtocolFormatterTest {
 
-    private ProtocolFormatter protocolFormatter;
+    private PrometheusProtocolFormatter protocolFormatter;
 
     private ArrayList<MBeanMetric> mockMetrics;
 

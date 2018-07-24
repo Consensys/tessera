@@ -18,10 +18,6 @@ public class InfluxDbPublisher implements Runnable {
     @Override
     public void run() {
         LOGGER.info("InfluxDbPublisher executed...");
-        try {
-            client.postMetrics();
-        } catch (MalformedObjectNameException | IntrospectionException | MBeanException | AttributeNotFoundException | ReflectionException | InstanceNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        client.postMetrics();
     }
 }

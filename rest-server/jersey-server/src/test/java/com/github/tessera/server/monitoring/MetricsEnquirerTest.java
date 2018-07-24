@@ -3,11 +3,9 @@ package com.github.tessera.server.monitoring;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import javax.management.*;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +32,7 @@ public class MetricsEnquirerTest {
     }
 
     @Test
-    public void MetricNameDoesNotEndWithTotalSoIsNotIncluded() throws MalformedObjectNameException, IntrospectionException, ReflectionException, AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+    public void metricNameDoesNotEndWithTotalSoIsNotIncluded() throws MalformedObjectNameException, IntrospectionException, ReflectionException, AttributeNotFoundException, MBeanException, InstanceNotFoundException {
         ObjectName mBeanName = new ObjectName("domain", "key", "value");
         names.add(mBeanName);
 

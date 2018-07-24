@@ -14,14 +14,25 @@ public class MetricsEnquirer {
         this.mBeanServer = mBeanServer;
     }
 
-    public List<MBeanMetric> getMBeanMetrics() throws MalformedObjectNameException, IntrospectionException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
+    public List<MBeanMetric> getMBeanMetrics() {
         ArrayList<MBeanMetric> mBeanMetrics = new ArrayList<>();
 
-        Set<ObjectName> mBeanNames = getTesseraResourceMBeanNames();
+        Set<ObjectName> mBeanNames;
+        try {
+            mBeanNames = getTesseraResourceMBeanNames();
 
-        for(ObjectName mBeanName : mBeanNames) {
-            List<MBeanMetric> temp = getMetricsForMBean(mBeanName);
-            mBeanMetrics.addAll(temp);
+            for(ObjectName mBeanName : mBeanNames) {
+                List<MBeanMetric> temp;
+                try {
+                    temp = getMetricsForMBean(mBeanName);
+                } catch (AttributeNotFoundException | MBeanException | InstanceNotFoundException | ReflectionException | IntrospectionException e) {
+                    throw new RuntimeException(e);
+                }
+                mBeanMetrics.addAll(temp);
+            }
+
+        } catch (MalformedObjectNameException e) {
+            e.printStackTrace();
         }
 
         return mBeanMetrics;

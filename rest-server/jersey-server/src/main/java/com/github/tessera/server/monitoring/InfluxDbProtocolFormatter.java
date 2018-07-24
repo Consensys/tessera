@@ -6,20 +6,26 @@ import java.util.List;
 public class InfluxDbProtocolFormatter {
 
     public String format(List<MBeanMetric> metrics, URI uri) {
-        String formattedMetrics = "";
+        StringBuilder formattedMetrics = new StringBuilder();
 
         for(MBeanMetric metric : metrics) {
             MBeanResourceMetric resourceMetric = (MBeanResourceMetric) metric;
 
-            formattedMetrics += "tessera_" +
-                                sanitize(resourceMetric.getResourceMethod()) +
-                                "," +
-                                "instance=" + uri.getHost() + ":" + uri.getPort() +
-                                " " +
-                                sanitize(resourceMetric.getName()) + "=" + resourceMetric.getValue() +
-                                "\n";
+            formattedMetrics.append("tessera_")
+                            .append(sanitize(resourceMetric.getResourceMethod()))
+                            .append(",")
+                            .append("instance=")
+                            .append(uri.getHost())
+                            .append(":")
+                            .append(uri.getPort())
+                            .append(" ")
+                            .append(sanitize(resourceMetric.getName()))
+                            .append("=")
+                            .append(resourceMetric.getValue())
+                            .append("\n");
         }
-        return formattedMetrics.trim();
+
+        return formattedMetrics.toString().trim();
     }
 
     private String sanitize(String input) {

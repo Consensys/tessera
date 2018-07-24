@@ -17,15 +17,19 @@ public class InfluxDbClient {
     private final String influxHost;
     private final int influxPort;
 
+    private final MBeanServer mbs;
+
     public InfluxDbClient(URI uri) {
         this.uri = uri;
         this.influxDbName = "tessera_demo";
         this.influxHost = "http://localhost";
         this.influxPort = 8086;
+
+        this.mbs = ManagementFactory.getPlatformMBeanServer();
     }
 
-    public Response postMetrics() throws MalformedObjectNameException, IntrospectionException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
-        MetricsEnquirer metricsEnquirer = new MetricsEnquirer(ManagementFactory.getPlatformMBeanServer());
+    public Response postMetrics() {
+        MetricsEnquirer metricsEnquirer = new MetricsEnquirer(mbs);
         List<MBeanMetric> metrics = metricsEnquirer.getMBeanMetrics();
 
         InfluxDbProtocolFormatter formatter = new InfluxDbProtocolFormatter();
@@ -36,10 +40,8 @@ public class InfluxDbClient {
                                        .path("write")
                                        .queryParam("db", influxDbName);
 
-        Response response = influxTarget.request(MediaType.TEXT_PLAIN)
+        return influxTarget.request(MediaType.TEXT_PLAIN)
                                         .accept(MediaType.TEXT_PLAIN)
                                         .post(Entity.text(formattedMetrics));
-
-        return response;
     }
 }
