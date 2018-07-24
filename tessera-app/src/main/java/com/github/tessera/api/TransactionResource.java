@@ -26,6 +26,14 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.core.MediaType.*;
 
+/**
+ * Provides endpoints for dealing with transactions, including:
+ *
+ * - creating new transactions and distributing them
+ * - deleting transactions
+ * - fetching transactions
+ * - resending old transactions
+ */
 @Path("/")
 public class TransactionResource {
 

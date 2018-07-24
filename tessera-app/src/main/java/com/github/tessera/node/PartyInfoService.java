@@ -1,8 +1,8 @@
 package com.github.tessera.node;
 
 import com.github.tessera.nacl.Key;
+import com.github.tessera.node.model.Party;
 import com.github.tessera.node.model.PartyInfo;
-import com.github.tessera.node.model.Recipient;
 
 import java.util.Set;
 
@@ -39,6 +39,6 @@ public interface PartyInfoService {
      * @param partyInfoWithUnsavedRecipients received party info that should be diffed
      * @return the list of all unknown recipients
      */
-    Set<Recipient> findUnsavedRecipients(PartyInfo partyInfoWithUnsavedRecipients);
+    Set<Party> findUnsavedParties(PartyInfo partyInfoWithUnsavedRecipients);
 
 }

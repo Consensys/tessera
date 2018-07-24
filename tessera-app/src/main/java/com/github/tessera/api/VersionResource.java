@@ -8,9 +8,13 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Provides endpoints to determine versioning information
+ */
 @Path("/version")
 public class VersionResource {
 
@@ -19,16 +23,16 @@ public class VersionResource {
     private static final String VERSION = "No version defined yet!";
 
     /**
-     * Method handling HTTP GET requests. The returned object will be sent
-     * to the client as "text/plain" media type.
+     * An endpoint describing the current version of the application
      *
-     * @return String that will be returned as a text/plain response.
+     * @return the version of the application
      */
-    @ApiOperation(value = "Request current version of Tessera", produces = "current version number")
-    @ApiResponses({@ApiResponse(code = 200,message = "Current application version ",response = String.class)})
     @GET
     @Produces(MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Request current version of Tessera", produces = "current version number")
+    @ApiResponses({@ApiResponse(code = 200, message = "Current application version ", response = String.class)})
     public String getVersion() {
+
         LOGGER.info("GET version");
 
         return VERSION;
