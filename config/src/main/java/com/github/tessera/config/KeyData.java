@@ -48,4 +48,37 @@ public class KeyData {
         return Objects.nonNull(privateKey) && Objects.nonNull(publicKey);
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 53 * hash + Objects.hashCode(this.config);
+        hash = 53 * hash + Objects.hashCode(this.privateKey);
+        hash = 53 * hash + Objects.hashCode(this.publicKey);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final KeyData other = (KeyData) obj;
+        if (!Objects.equals(this.privateKey, other.privateKey)) {
+            return false;
+        }
+        if (!Objects.equals(this.publicKey, other.publicKey)) {
+            return false;
+        }
+        if (!Objects.equals(this.config, other.config)) {
+            return false;
+        }
+        return true;
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.github.tessera.config;
 
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -68,6 +69,48 @@ public class PrivateKeyData {
 
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 53 * hash + Objects.hashCode(this.value);
+        hash = 53 * hash + Objects.hashCode(this.snonce);
+        hash = 53 * hash + Objects.hashCode(this.asalt);
+        hash = 53 * hash + Objects.hashCode(this.sbox);
+        hash = 53 * hash + Objects.hashCode(this.argonOptions);
+        hash = 53 * hash + Objects.hashCode(this.password);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PrivateKeyData other = (PrivateKeyData) obj;
+        if (!Objects.equals(this.value, other.value)) {
+            return false;
+        }
+        if (!Objects.equals(this.snonce, other.snonce)) {
+            return false;
+        }
+        if (!Objects.equals(this.asalt, other.asalt)) {
+            return false;
+        }
+        if (!Objects.equals(this.sbox, other.sbox)) {
+            return false;
+        }
+        if (!Objects.equals(this.password, other.password)) {
+            return false;
+        }
+        return Objects.equals(this.argonOptions, other.argonOptions);
     }
 
 }

@@ -8,16 +8,17 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
+import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
-public class SslConfig  {
+public class SslConfig {
 
     @NotNull
     @XmlElement(required = true)
     private final SslAuthenticationMode tls;
 
-    @XmlElement (defaultValue = "false")
+    @XmlElement(defaultValue = "false")
     private final boolean generateKeyStoreIfNotExisted;
 
     @XmlElement(type = String.class)
@@ -65,17 +66,17 @@ public class SslConfig  {
     public SslConfig(
             SslAuthenticationMode tls,
             boolean generateKeyStoreIfNotExisted,
-            Path serverKeyStore, 
-            String serverKeyStorePassword, 
-            Path serverTrustStore, 
-            String serverTrustStorePassword, 
-            SslTrustMode serverTrustMode, 
-            Path clientKeyStore, 
-            String clientKeyStorePassword, 
-            Path clientTrustStore, 
-            String clientTrustStorePassword, 
-            SslTrustMode clientTrustMode, 
-            Path knownClientsFile, 
+            Path serverKeyStore,
+            String serverKeyStorePassword,
+            Path serverTrustStore,
+            String serverTrustStorePassword,
+            SslTrustMode serverTrustMode,
+            Path clientKeyStore,
+            String clientKeyStorePassword,
+            Path clientTrustStore,
+            String clientTrustStorePassword,
+            SslTrustMode clientTrustMode,
+            Path knownClientsFile,
             Path knownServersFile) {
         this.tls = tls;
         this.generateKeyStoreIfNotExisted = generateKeyStoreIfNotExisted;
@@ -94,9 +95,9 @@ public class SslConfig  {
     }
 
     private SslConfig() {
-        this(null,false,null,null,null,null,null,null,null,null,null,null,null,null);
+        this(null, false, null, null, null, null, null, null, null, null, null, null, null, null);
     }
-    
+
     private static SslConfig create() {
         return new SslConfig();
     }
@@ -155,6 +156,83 @@ public class SslConfig  {
 
     public Path getKnownServersFile() {
         return knownServersFile;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 89 * hash + Objects.hashCode(this.tls);
+        hash = 89 * hash + Objects.hashCode(this.generateKeyStoreIfNotExisted);
+        hash = 89 * hash + Objects.hashCode(this.serverKeyStore);
+        hash = 89 * hash + Objects.hashCode(this.serverKeyStorePassword);
+        hash = 89 * hash + Objects.hashCode(this.serverTrustStore);
+        hash = 89 * hash + Objects.hashCode(this.serverTrustStorePassword);
+        hash = 89 * hash + Objects.hashCode(this.serverTrustMode);
+        hash = 89 * hash + Objects.hashCode(this.clientKeyStore);
+        hash = 89 * hash + Objects.hashCode(this.clientKeyStorePassword);
+        hash = 89 * hash + Objects.hashCode(this.clientTrustStore);
+        hash = 89 * hash + Objects.hashCode(this.clientTrustStorePassword);
+        hash = 89 * hash + Objects.hashCode(this.clientTrustMode);
+        hash = 89 * hash + Objects.hashCode(this.knownClientsFile);
+        hash = 89 * hash + Objects.hashCode(this.knownServersFile);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SslConfig other = (SslConfig) obj;
+        if (this.generateKeyStoreIfNotExisted != other.generateKeyStoreIfNotExisted) {
+            return false;
+        }
+        if (!Objects.equals(this.serverKeyStorePassword, other.serverKeyStorePassword)) {
+            return false;
+        }
+        if (!Objects.equals(this.serverTrustStorePassword, other.serverTrustStorePassword)) {
+            return false;
+        }
+        if (!Objects.equals(this.clientKeyStorePassword, other.clientKeyStorePassword)) {
+            return false;
+        }
+        if (!Objects.equals(this.clientTrustStorePassword, other.clientTrustStorePassword)) {
+            return false;
+        }
+        if (this.tls != other.tls) {
+            return false;
+        }
+        if (!Objects.equals(this.serverKeyStore, other.serverKeyStore)) {
+            return false;
+        }
+        if (!Objects.equals(this.serverTrustStore, other.serverTrustStore)) {
+            return false;
+        }
+        if (this.serverTrustMode != other.serverTrustMode) {
+            return false;
+        }
+        if (!Objects.equals(this.clientKeyStore, other.clientKeyStore)) {
+            return false;
+        }
+        if (!Objects.equals(this.clientTrustStore, other.clientTrustStore)) {
+            return false;
+        }
+        if (this.clientTrustMode != other.clientTrustMode) {
+            return false;
+        }
+        if (!Objects.equals(this.knownClientsFile, other.knownClientsFile)) {
+            return false;
+        }
+        if (!Objects.equals(this.knownServersFile, other.knownServersFile)) {
+            return false;
+        }
+        return true;
     }
 
 }

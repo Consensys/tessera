@@ -25,17 +25,14 @@ public class ConfigBuilderTest {
             .sslAuthenticationMode(SslAuthenticationMode.STRICT)
             .unixSocketFile("somepath.ipc")
             .serverHostname("http://bogus.com:928")
-            
             .sslServerKeyStorePath("sslServerKeyStorePath")
             .sslServerTrustMode(SslTrustMode.TOFU)
             .sslServerTrustStorePath("sslServerTrustStorePath")
-
             .sslServerTrustStorePath("sslServerKeyStorePath")
             .sslClientKeyStorePath("sslClientKeyStorePath")
             .sslClientTrustStorePath("sslClientTrustStorePath")
             .sslClientKeyStorePassword("sslClientKeyStorePassword")
             .sslClientTrustStorePassword("sslClientTrustStorePassword")
-            
             .knownClientsFile("knownClientsFile")
             .knownServersFile("knownServersFile");
 
@@ -49,30 +46,29 @@ public class ConfigBuilderTest {
     /*
     Create config from existing config and ensure all 
     properties are populated using marhsalled values
-    */
+     */
     @Test
     public void buildFromExisting() throws Exception {
         Config existing = builderWithValidValues.build();
 
         ConfigBuilder configBuilder = ConfigBuilder.from(existing);
-        
+
         Config result = configBuilder.build();
-        
+
         JAXBContext jaxbContext = JAXBContext.newInstance(Config.class);
-        
+
         Marshaller marshaller = jaxbContext.createMarshaller();
-        marshaller.setProperty("eclipselink.beanvalidation.mode",BeanValidationMode.NONE);
+        marshaller.setProperty("eclipselink.beanvalidation.mode", BeanValidationMode.NONE);
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        
-        
+
         final String expected;
-        try(Writer writer = new StringWriter()) {
+        try (Writer writer = new StringWriter()) {
             marshaller.marshal(existing, writer);
             expected = writer.toString();
         }
-        
+
         final String actual;
-        try(Writer writer = new StringWriter()) {
+        try (Writer writer = new StringWriter()) {
             marshaller.marshal(result, writer);
             actual = writer.toString();
         }
@@ -81,10 +77,9 @@ public class ConfigBuilderTest {
                 .withTest(actual)
                 .checkForSimilar()
                 .build();
-        
+
         assertThat(diff.getDifferences()).isEmpty();
 
-
     }
-    
+
 }

@@ -1,5 +1,6 @@
 package com.github.tessera.config;
 
+import java.util.Objects;
 import java.util.Optional;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -57,6 +58,43 @@ public class ArgonOptions {
 
     public Integer getParallelism() {
         return parallelism;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 83 * hash + Objects.hashCode(this.algorithm);
+        hash = 83 * hash + Objects.hashCode(this.iterations);
+        hash = 83 * hash + Objects.hashCode(this.memory);
+        hash = 83 * hash + Objects.hashCode(this.parallelism);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ArgonOptions other = (ArgonOptions) obj;
+        if (!Objects.equals(this.algorithm, other.algorithm)) {
+            return false;
+        }
+        if (!Objects.equals(this.iterations, other.iterations)) {
+            return false;
+        }
+        if (!Objects.equals(this.memory, other.memory)) {
+            return false;
+        }
+        if (!Objects.equals(this.parallelism, other.parallelism)) {
+            return false;
+        }
+        return true;
     }
 
 }

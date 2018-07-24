@@ -3,6 +3,7 @@ package com.github.tessera.config.cli;
 import com.github.tessera.config.ConfigFactory;
 import com.github.tessera.io.FilesDelegate;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -16,7 +17,7 @@ import org.apache.commons.cli.Options;
 public class LegacyCliAdapter implements CliAdapter {
 
     private final FilesDelegate fileDelegate = FilesDelegate.create();
-    
+
     private final ConfigFactory configFactory;
 
     public LegacyCliAdapter() {
@@ -55,9 +56,26 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(ConfigBuilder::from)
                 .orElse(ConfigBuilder.create());
 
-        
-        
-        return new CliResult(1, false, null);
+        return new CliResult(0, false, configBuilder.build());
+    }
+
+    static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder) {
+
+        Optional.ofNullable(line.getOptionValue("url"))
+                .ifPresent(configBuilder::serverHostname);
+
+        Optional.ofNullable(line.getOptionValue("port"))
+                .map(Integer::valueOf)
+                .ifPresent(configBuilder::serverPort);
+
+        Optional.ofNullable(line.getOptionValue("socket"))
+                .ifPresent(configBuilder::unixSocketFile);
+
+        Optional.ofNullable(line.getOptionValues("othernodes"))
+                .map(Arrays::asList)
+                .ifPresent(configBuilder::peers);
+
+        return configBuilder;
     }
 
     static Options buildOptions() {

@@ -22,6 +22,7 @@ public class OpenPojoTest {
         final PojoClassFilter[] filters = new PojoClassFilter[]{
             pc -> !pc.getClazz().isAssignableFrom(ObjectFactory.class),
             pc -> !pc.getClazz().isAssignableFrom(JaxbConfigFactory.class),
+            pc -> !pc.getClazz().isAssignableFrom(ConfigException.class),
             pc -> !pc.getClazz().getSimpleName().contains("Test")
         };
 
