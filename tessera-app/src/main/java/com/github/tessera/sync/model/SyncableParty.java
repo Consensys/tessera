@@ -2,6 +2,11 @@ package com.github.tessera.sync.model;
 
 import com.github.tessera.node.model.Party;
 
+/**
+ * A SyncableParty is a {@link Party} that is to be contacted for transaction
+ * synchronisation. The number of contact attempts is stored alongside the
+ * party.
+ */
 public class SyncableParty {
 
     private final Party party;
