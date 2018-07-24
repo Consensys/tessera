@@ -50,4 +50,12 @@ public interface KeyManager {
      */
     Key defaultPublicKey();
 
+    /**
+     * Returns a set of public keys that all transactions should be sent to in
+     * addition to the declared recipients
+     *
+     * @return the set of keys to forward to
+     */
+    Set<Key> getForwardingKeys();
+
 }

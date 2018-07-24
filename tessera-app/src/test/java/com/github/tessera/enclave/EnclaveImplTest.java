@@ -14,16 +14,15 @@ import com.github.tessera.transaction.model.EncodedPayload;
 import com.github.tessera.transaction.model.EncodedPayloadWithRecipients;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,11 +37,12 @@ public class EnclaveImplTest {
     private static final Nonce RECIPIENT_NONCE = new Nonce(new byte[]{10, 11, 12});
     private static final byte[] RECIPIENT_BOX = new byte[]{4, 5, 6};
 
+    private static final Key FORWARDING_KEY = new Key("forwarding".getBytes());
+
     private final EncodedPayloadWithRecipients payload = new EncodedPayloadWithRecipients(
         new EncodedPayload(SENDER_KEY, CIPHER_TEXT, NONCE, singletonList(RECIPIENT_BOX), RECIPIENT_NONCE),
         singletonList(RECIPIENT_KEY)
     );
-
 
     private TransactionService transactionService;
 
@@ -110,10 +110,9 @@ public class EnclaveImplTest {
         enclave.store(Optional.of(new byte[0]), new byte[0][0], new byte[0]);
 
         verify(transactionService).encryptPayload(any(), any(), any());
-
         verify(transactionService).storeEncodedPayload(payload);
-
-        verifyZeroInteractions(keyManager);
+        verify(keyManager).getForwardingKeys();
+        verify(keyManager, never()).defaultPublicKey();
     }
 
     @Test
@@ -122,14 +121,14 @@ public class EnclaveImplTest {
         EncodedPayloadWithRecipients payload = mock(EncodedPayloadWithRecipients.class);
         when(transactionService.encryptPayload(any(), any(), any())).thenReturn(payload);
 
-        doReturn(new Key(new byte[0])).when(keyManager).defaultPublicKey();
+        doReturn(SENDER_KEY).when(keyManager).defaultPublicKey();
 
         enclave.store(Optional.empty(), new byte[0][0], new byte[0]);
-
 
         verify(transactionService).encryptPayload(any(), any(), any());
         verify(transactionService).storeEncodedPayload(payload);
         verify(keyManager).defaultPublicKey();
+        verify(keyManager).getForwardingKeys();
     }
 
     @Test
@@ -141,24 +140,30 @@ public class EnclaveImplTest {
         verify(transactionService).storeEncodedPayload(any());
     }
 
-    @Ignore
-    public void testStoreWithRecipientStuff() {
+    //send in a transaction with 0 recipients, 1 should get added from the forward list
+    @Test
+    public void storeAddsForwardingList() {
 
-        EncodedPayloadWithRecipients payload = mock(EncodedPayloadWithRecipients.class);
-        when(transactionService.encryptPayload(any(), any(), any())).thenReturn(payload);
+        final EncodedPayloadWithRecipients payload = mock(EncodedPayloadWithRecipients.class);
+        doReturn(payload).when(transactionService).encryptPayload(any(), any(), any());
 
-        when(partyInfoService.getURLFromRecipientKey(any())).thenReturn("someurl.com");
-        PartyInfo partyInfo = new PartyInfo("ownurl.com", emptySet(), emptySet());
-        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        doReturn(singleton(FORWARDING_KEY)).when(keyManager).getForwardingKeys();
+        doReturn(SENDER_KEY).when(keyManager).defaultPublicKey();
+        doReturn("testurl.com").when(partyInfoService).getURLFromRecipientKey(any(Key.class));
+        doReturn(new PartyInfo("testurl.com", emptySet(), emptySet())).when(partyInfoService).getPartyInfo();
 
-        byte[][] recipients = new byte[1][1];
-        recipients[0] = new byte[]{'P'};
+        enclave.store(Optional.empty(), new byte[0][0], new byte[0]);
 
-        enclave.store(Optional.of(new byte[0]), recipients, new byte[0]);
+        final ArgumentCaptor<List<Key>> captor = ArgumentCaptor.forClass(List.class);
 
-        verify(transactionService).encryptPayload(any(), any(), any());
-
+        verify(transactionService).encryptPayload(any(), any(), captor.capture());
         verify(transactionService).storeEncodedPayload(payload);
+        verify(keyManager).defaultPublicKey();
+        verify(keyManager).getForwardingKeys();
+        verify(partyInfoService).getPartyInfo();
+        verify(partyInfoService).getURLFromRecipientKey(FORWARDING_KEY);
+
+        assertThat(captor.getValue()).hasSize(1).containsExactlyInAnyOrder(FORWARDING_KEY);
     }
 
     @Test
@@ -208,6 +213,8 @@ public class EnclaveImplTest {
         verify(partyInfoService).getURLFromRecipientKey(new Key("key2".getBytes()));
         verify(partyInfoService, times(3)).getPartyInfo();
         verify(partyInfoService, times(3)).getPartyInfo();
+
+        verify(keyManager).getForwardingKeys();
     }
 
     @Test

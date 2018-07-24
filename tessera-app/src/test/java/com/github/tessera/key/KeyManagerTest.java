@@ -1,6 +1,5 @@
 package com.github.tessera.key;
 
-import com.github.tessera.config.Config;
 import com.github.tessera.config.KeyData;
 import com.github.tessera.nacl.Key;
 import com.github.tessera.nacl.KeyPair;
@@ -15,46 +14,35 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class KeyManagerTest {
 
-    private static final String PRIVATE_KEY = "privateKey";
+    private static final Key PRIVATE_KEY = new Key("privateKey".getBytes(UTF_8));
 
-    private static final String PUBLIC_KEY = "publicKey";
+    private static final Key PUBLIC_KEY = new Key("publicKey".getBytes(UTF_8));
 
-    private KeyPair keyPair;
+    private static final Key FORWARDING_KEY = new Key("forwarding-key".getBytes());
+
+    private static final KeyPair KEYPAIR = new KeyPair(PUBLIC_KEY, PRIVATE_KEY);
 
     private KeyManager keyManager;
 
     @Before
     public void init() {
 
-        this.keyPair = new KeyPair(
-            new Key(PUBLIC_KEY.getBytes(UTF_8)),
-            new Key(PRIVATE_KEY.getBytes(UTF_8))
-        );
-
-        final Config configuration = mock(Config.class);
-
-        KeyData keyData = new KeyData(
+        final KeyData keyData = new KeyData(
             null,
-            keyPair.getPrivateKey().toString(),
-            keyPair.getPublicKey().toString()
+            KEYPAIR.getPrivateKey().toString(),
+            KEYPAIR.getPublicKey().toString()
         );
 
-        when(configuration.getKeys()).thenReturn(singletonList(keyData));
-
-        this.keyManager = new KeyManagerImpl(configuration);
+        this.keyManager = new KeyManagerImpl(singletonList(keyData), singletonList(FORWARDING_KEY));
     }
 
     @Test
     public void initialisedWithNoKeysThrowsError() {
         //throws error because there is no default key
-        final Config configuration = mock(Config.class);
-        when(configuration.getKeys()).thenReturn(emptyList());
-        final Throwable throwable = catchThrowable(() -> new KeyManagerImpl(configuration));
+        final Throwable throwable = catchThrowable(() -> new KeyManagerImpl(emptyList(), emptyList()));
 
         assertThat(throwable).isInstanceOf(NoSuchElementException.class);
     }
@@ -62,9 +50,9 @@ public class KeyManagerTest {
     @Test
     public void publicKeyFoundGivenPrivateKey() {
 
-        final Key publicKey = keyManager.getPublicKeyForPrivateKey(keyPair.getPrivateKey());
+        final Key publicKey = keyManager.getPublicKeyForPrivateKey(KEYPAIR.getPrivateKey());
 
-        assertThat(publicKey).isEqualTo(keyPair.getPublicKey());
+        assertThat(publicKey).isEqualTo(KEYPAIR.getPublicKey());
     }
 
     @Test
@@ -73,16 +61,18 @@ public class KeyManagerTest {
         final Key unknownKey = new Key("unknownKey".getBytes(UTF_8));
         final Throwable throwable = catchThrowable(() -> keyManager.getPublicKeyForPrivateKey(unknownKey));
 
-        assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("Private key dW5rbm93bktleQ== not found when searching for public key");
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Private key dW5rbm93bktleQ== not found when searching for public key");
 
     }
 
     @Test
     public void privateKeyFoundGivenPublicKey() {
 
-        final Key privateKey = keyManager.getPrivateKeyForPublicKey(keyPair.getPublicKey());
+        final Key privateKey = keyManager.getPrivateKeyForPublicKey(KEYPAIR.getPublicKey());
 
-        assertThat(privateKey).isEqualTo(keyPair.getPrivateKey());
+        assertThat(privateKey).isEqualTo(KEYPAIR.getPrivateKey());
     }
 
     @Test
@@ -91,7 +81,9 @@ public class KeyManagerTest {
         final Key unknownKey = new Key("unknownKey".getBytes(UTF_8));
         final Throwable throwable = catchThrowable(() -> keyManager.getPrivateKeyForPublicKey(unknownKey));
 
-        assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("Public key dW5rbm93bktleQ== not found when searching for private key");
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Public key dW5rbm93bktleQ== not found when searching for private key");
 
     }
 
@@ -99,15 +91,22 @@ public class KeyManagerTest {
     public void getPublicKeysReturnsAllKeys() {
         final Set<Key> publicKeys = keyManager.getPublicKeys();
 
-        assertThat(publicKeys).isNotEmpty();
-        assertThat(publicKeys.size()).isEqualTo(1);
-        assertThat(publicKeys.iterator().next().getKeyBytes()).isEqualTo(PUBLIC_KEY.getBytes());
+        assertThat(publicKeys).hasSize(1).containsExactlyInAnyOrder(PUBLIC_KEY);
     }
 
     @Test
     public void defaultKeyIsPopulated() {
-        //the key manager is already set up with a keypair, so just check that
-        assertThat(keyManager.defaultPublicKey()).isEqualTo(keyPair.getPublicKey());
+        //the key manager is already set up with a KEYPAIR, so just check that
+        assertThat(keyManager.defaultPublicKey()).isEqualTo(KEYPAIR.getPublicKey());
+    }
+
+    @Test
+    public void forwardingKeysReadFromConfigurationCorrectly() {
+
+        final Set<Key> forwardingKeys = this.keyManager.getForwardingKeys();
+
+        assertThat(forwardingKeys).hasSize(1).containsExactlyInAnyOrder(FORWARDING_KEY);
+
     }
 
 }

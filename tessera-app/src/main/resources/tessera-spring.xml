@@ -86,7 +86,9 @@
     <bean name="postDelegate" class="com.github.tessera.node.PostDelegate">
         <constructor-arg>
             <bean factory-bean="clientFactory" factory-method="buildFrom">
-                <constructor-arg value="#{config.serverConfig}"/>
+                <constructor-arg>
+                    <bean factory-bean="config" factory-method="getServerConfig"/>
+                </constructor-arg>
             </bean>
         </constructor-arg>
     </bean>
@@ -128,7 +130,13 @@
     </bean>
 
     <bean name="keyManager" class="com.github.tessera.key.KeyManagerImpl">
-        <constructor-arg ref="config"/>
+        <constructor-arg>
+            <bean factory-bean="config" factory-method="getKeys"/>
+        </constructor-arg>
+        <constructor-arg>
+            <list value-type="com.github.tessera.nacl.Key">
+            </list>
+        </constructor-arg>
     </bean>
 
     <bean id="cliDelegate" class="com.github.tessera.config.cli.CliDelegate" factory-method="instance"/>
