@@ -24,7 +24,6 @@ public class ConfigBuilder {
         return new ConfigBuilder();
     }
 
-
     public static ConfigBuilder from(Config config) {
 
         final ConfigBuilder configBuilder = ConfigBuilder.create();
@@ -41,16 +40,14 @@ public class ConfigBuilder {
                 .serverPort(config.getServerConfig().getPort());
 
         final SslConfig sslConfig = config.getServerConfig().getSslConfig();
-        
+
         if (Objects.nonNull(sslConfig)) {
             configBuilder.sslAuthenticationMode(sslConfig.getTls())
-                    
                     .sslClientTrustMode(sslConfig.getClientTrustMode())
                     .sslClientKeyStorePath(Objects.toString(sslConfig.getClientKeyStore()))
                     .sslClientKeyStorePassword(sslConfig.getClientKeyStorePassword())
                     .sslClientTrustStorePath(Objects.toString(sslConfig.getClientTrustStore()))
                     .sslClientTrustStorePassword(sslConfig.getClientTrustStorePassword())
-                    
                     .sslServerTrustMode(sslConfig.getServerTrustMode())
                     .sslServerKeyStorePath(Objects.toString(sslConfig.getServerKeyStore()))
                     .sslServerKeyStorePassword(sslConfig.getServerKeyStorePassword())
@@ -61,7 +58,6 @@ public class ConfigBuilder {
 
         }
 
-        
         return configBuilder;
 
     }
@@ -85,9 +81,9 @@ public class ConfigBuilder {
     private SslTrustMode sslServerTrustMode;
 
     private String sslServerKeyStorePath;
-    
+
     private String sslServerTrustStorePassword;
-    
+
     private String sslServerKeyStorePassword;
 
     private String sslServerTrustStorePath;
@@ -124,8 +120,8 @@ public class ConfigBuilder {
     public ConfigBuilder sslServerTrustStorePassword(String sslServerTrustStorePassword) {
         this.sslServerTrustStorePassword = sslServerTrustStorePassword;
         return this;
-    } 
-    
+    }
+
     public ConfigBuilder sslServerKeyStorePassword(String sslServerKeyStorePassword) {
         this.sslServerKeyStorePassword = sslServerKeyStorePassword;
         return this;
@@ -211,7 +207,6 @@ public class ConfigBuilder {
         final JdbcConfig jdbcConfig = new JdbcConfig(jdbcUsername, jdbcPassword, jdbcUrl);
 
         boolean generateKeyStoreIfNotExisted = false;
-
 
         SslConfig sslConfig = new SslConfig(
                 sslAuthenticationMode,

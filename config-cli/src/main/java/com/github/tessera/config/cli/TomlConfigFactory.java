@@ -2,7 +2,7 @@ package com.github.tessera.config.cli;
 
 import com.github.tessera.config.Config;
 import com.github.tessera.config.ConfigFactory;
-import com.github.tessera.config.PrivateKeyData;
+import com.github.tessera.config.KeyDataConfig;
 import com.github.tessera.config.SslAuthenticationMode;
 import com.github.tessera.config.SslTrustMode;
 import com.github.tessera.config.util.JaxbUtil;
@@ -16,13 +16,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,16 @@ import org.slf4j.LoggerFactory;
 public class TomlConfigFactory implements ConfigFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TomlConfigFactory.class);
+
+    private static final Map<String, SslTrustMode> TRUST_MODE_LOOKUP = new HashMap<String, SslTrustMode>() {
+        {
+            put("ca", SslTrustMode.CA);
+            put("tofu", SslTrustMode.TOFU);
+            put("ca-or-tofu", SslTrustMode.CA_OR_TOFU);
+            put("whitelist", SslTrustMode.WHITELIST);
+            put("none", SslTrustMode.NONE);
+        }
+    };
 
     private final FilesDelegate filesDelegate;
 
@@ -100,9 +112,9 @@ public class TomlConfigFactory implements ConfigFactory {
         final String tlsclienttrust = toml.getString("tlsclienttrust", "ca-or-tofu");
 
         final String tlsknownservers = toml.getString("tlsknownservers", "tls-known-servers");
-        
-        final String tlsknownclients = toml.getString("tlsknownclients","tls-known-clients");
-        
+
+        final String tlsknownclients = toml.getString("tlsknownclients", "tls-known-clients");
+
         ConfigBuilder configBuilder = ConfigBuilder.create()
                 .serverHostname(url)
                 .unixSocketFile(socket)
@@ -112,7 +124,7 @@ public class TomlConfigFactory implements ConfigFactory {
                 .sslServerTrustStorePath(tlsservertrust)
                 .sslClientTrustMode(resolve(tlsclienttrust))
                 .sslClientKeyStorePath(tlsserverkey)
-                .sslClientKeyStorePassword("FIXME")
+                .sslClientKeyStorePassword("")
                 .sslClientTrustStorePath(tlsservercert)
                 .knownClientsFile(tlsknownclients)
                 .knownServersFile(tlsknownservers)
@@ -121,11 +133,11 @@ public class TomlConfigFactory implements ConfigFactory {
         return configBuilder.build();
     }
 
-    static List<PrivateKeyData> createPrivateKeyData(List<String> privateKeys, List<String> privateKeyPasswords) {
+    static List<KeyDataConfig> createPrivateKeyData(List<String> privateKeys, List<String> privateKeyPasswords) {
 
         //Populate null values assume that they arent private
         List<String> passwordList = new ArrayList<>(privateKeyPasswords);
-        for(int i = privateKeyPasswords.size() - 1; i < privateKeys.size();i++) {
+        for (int i = privateKeyPasswords.size() - 1; i < privateKeys.size(); i++) {
             passwordList.add(null);
         }
 
@@ -134,31 +146,40 @@ public class TomlConfigFactory implements ConfigFactory {
                 .map(path -> IOCallback.execute(() -> Files.newInputStream(path)))
                 .map(is -> Json.createReader(is))
                 .map(JsonReader::readObject)
-                        .collect(Collectors.toList());
-        
-        
-        List<PrivateKeyData> privateKeyData = IntStream.range(0, priavteKeyJson.size())
+                .collect(Collectors.toList());
+
+        List<KeyDataConfig> privateKeyData = IntStream.range(0, priavteKeyJson.size())
                 //FIXME: Canyt set to null value.. need to use addNull("password")
-                .mapToObj(i -> Json.createObjectBuilder(priavteKeyJson.get(i)).add("password",privateKeyPasswords.get(i)).build())
+                .mapToObj(i -> {
+
+                    final String password = passwordList.get(i);
+                    final JsonObject keyDatC = Json.createObjectBuilder(priavteKeyJson.get(i)).build();
+
+                    boolean isLocked = Objects.equals(keyDatC.getString("type"), "argon2sbox");
+
+                    final JsonObject dataNode = keyDatC.getJsonObject("data");
+                    final JsonObjectBuilder ammendedDataNode = Json.createObjectBuilder(dataNode);
+
+                    if (isLocked) {
+                        ammendedDataNode.add("password", Objects.requireNonNull(password, "Password is required."));
+                    }
+
+                    return Json.createObjectBuilder(keyDatC)
+                            .remove("data")
+                            .add("data", ammendedDataNode)
+                            .build();
+                })
                 .map(JsonObject::toString)
                 .map(String::getBytes)
                 .map(ByteArrayInputStream::new)
-                .map(inputStream -> JaxbUtil.unmarshal(inputStream, PrivateKeyData.class))
+                .map(inputStream -> JaxbUtil.unmarshal(inputStream, KeyDataConfig.class))
                 .collect(Collectors.toList());
 
         return Collections.unmodifiableList(privateKeyData);
     }
 
-    //FIXME: CA-OR-TOFU 
     static SslTrustMode resolve(String value) {
-        return Stream.of(SslTrustMode.values())
-                .filter(s -> Objects.equals(s.name(), Objects.toString(value).toUpperCase()))
-                .findFirst()
-                .orElse(
-                        Stream.of(SslTrustMode.CA, SslTrustMode.TOFU)
-                                .filter(o -> Objects.equals("ca-or-tofu", value))
-                                .findAny()
-                                .orElse(SslTrustMode.NONE));
+        return TRUST_MODE_LOOKUP.getOrDefault(value, SslTrustMode.NONE);
     }
 
 }
