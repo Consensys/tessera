@@ -9,7 +9,7 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>com.github.tessera</groupId>
+        <groupId>com.quorum.tessera</groupId>
         <artifactId>tests</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
@@ -17,7 +17,7 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.github.tessera</groupId>
+            <groupId>com.quorum.tessera</groupId>
             <artifactId>tessera-app</artifactId>
             <classifier>app</classifier>
             <version>1.0-SNAPSHOT</version>
@@ -115,7 +115,7 @@
                                 </goals>
                                 <configuration>
                                     <properties>
-                                        <jarfile>${com.github.tessera:tessera-app:jar:app}</jarfile>
+                                        <jarfile>${com.quorum.tessera:tessera-app:jar:app}</jarfile>
                                         <configFile>${project.build.testOutputDirectory}/config4.json</configFile>
                                         <pidFile>${project.build.directory}/node4.pid</pidFile>
                                         <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
@@ -134,7 +134,7 @@
                                 </goals>
                                 <configuration>
                                     <properties>
-                                        <jarfile>${com.github.tessera:tessera-app:jar:app}</jarfile>
+                                        <jarfile>${com.quorum.tessera:tessera-app:jar:app}</jarfile>
                                         <configFile>${project.build.testOutputDirectory}/config1.json</configFile>
                                         <pidFile>${project.build.directory}/node1.pid</pidFile>
                                         <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
@@ -153,7 +153,7 @@
                                 </goals>
                                 <configuration>
                                     <properties>
-                                        <jarfile>${com.github.tessera:tessera-app:jar:app}</jarfile>
+                                        <jarfile>${com.quorum.tessera:tessera-app:jar:app}</jarfile>
                                         <configFile>${project.build.testOutputDirectory}/config2.json</configFile>
                                         <pidFile>${project.build.directory}/node2.pid</pidFile>
                                         <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
@@ -172,7 +172,7 @@
                                 </goals>
                                 <configuration>
                                     <properties>
-                                        <jarfile>${com.github.tessera:tessera-app:jar:app}</jarfile>
+                                        <jarfile>${com.quorum.tessera:tessera-app:jar:app}</jarfile>
                                         <configFile>${project.build.testOutputDirectory}/config3.json</configFile>
                                         <pidFile>${project.build.directory}/node3.pid</pidFile>
                                         <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
