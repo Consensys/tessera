@@ -39,11 +39,11 @@ public class TesseraScheduledExecutor {
      */
     @PostConstruct
     public void start() {
-        LOGGER.info("Starting {}", getClass().getSimpleName());
+        LOGGER.info("Starting {}", this.action.getClass().getSimpleName());
 
         final Runnable exceptionSafeRunnable = () -> {
             try {
-                action.run();
+                this.action.run();
             } catch (final Throwable ex) {
                 LOGGER.error("Error when executing action {}", action.getClass().getSimpleName());
                 LOGGER.error("Error when executing action", ex);
@@ -52,7 +52,7 @@ public class TesseraScheduledExecutor {
 
         this.executor.scheduleWithFixedDelay(exceptionSafeRunnable, rateInSeconds, rateInSeconds, TimeUnit.SECONDS);
 
-        LOGGER.info("Started {}", getClass().getSimpleName());
+        LOGGER.info("Started {}", this.action.getClass().getSimpleName());
     }
 
     /**
@@ -61,11 +61,11 @@ public class TesseraScheduledExecutor {
      */
     @PreDestroy
     public void stop() {
-        LOGGER.info("Stopping {}", getClass().getSimpleName());
+        LOGGER.info("Stopping {}", this.action.getClass().getSimpleName());
 
         this.executor.shutdown();
 
-        LOGGER.info("Stopped {}", getClass().getSimpleName());
+        LOGGER.info("Stopped {}", this.action.getClass().getSimpleName());
     }
 
 }
