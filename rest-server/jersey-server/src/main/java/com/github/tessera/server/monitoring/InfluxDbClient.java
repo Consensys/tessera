@@ -13,17 +13,17 @@ import java.util.List;
 
 public class InfluxDbClient {
     private final URI uri;
-    private final String influxDbName;
-    private final String influxHost;
-    private final int influxPort;
+    private final int port;
+    private final String dbName;
+    private final String hostName;
 
     private final MBeanServer mbs;
 
-    public InfluxDbClient(URI uri) {
+    public InfluxDbClient(URI uri, int port, String hostName, String dbName) {
         this.uri = uri;
-        this.influxDbName = "tessera_demo";
-        this.influxHost = "http://localhost";
-        this.influxPort = 8086;
+        this.port = port;
+        this.hostName = hostName;
+        this.dbName = dbName;
 
         this.mbs = ManagementFactory.getPlatformMBeanServer();
     }
@@ -36,9 +36,9 @@ public class InfluxDbClient {
         String formattedMetrics = formatter.format(metrics, uri);
 
         Client client = ClientBuilder.newClient();
-        WebTarget influxTarget = client.target(influxHost + ":" + influxPort)
+        WebTarget influxTarget = client.target(hostName + ":" + port)
                                        .path("write")
-                                       .queryParam("db", influxDbName);
+                                       .queryParam("db", dbName);
 
         return influxTarget.request(MediaType.TEXT_PLAIN)
                                         .accept(MediaType.TEXT_PLAIN)

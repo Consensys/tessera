@@ -1,5 +1,6 @@
 package com.github.tessera.server;
 
+import com.github.tessera.config.InfluxConfig;
 import com.github.tessera.config.ServerConfig;
 import com.github.tessera.server.monitoring.InfluxDbClient;
 import com.github.tessera.server.monitoring.InfluxDbPublisher;
@@ -47,7 +48,7 @@ public class JerseyServer implements RestServer {
 
     private final ScheduledExecutorService executor;
 
-    private final boolean useInfluxMonitoring;
+    private final InfluxConfig influxConfig;
 
     public JerseyServer(final URI uri, final Application application, final ServerConfig serverConfig) {
         this.uri = Objects.requireNonNull(uri);
@@ -62,7 +63,12 @@ public class JerseyServer implements RestServer {
         }
 
         this.executor = newSingleThreadScheduledExecutor();
-        this.useInfluxMonitoring = true;
+
+        if(serverConfig.getInfluxConfig() != null) {
+            this.influxConfig = serverConfig.getInfluxConfig();
+        } else {
+            this.influxConfig = null;
+        }
     }
 
     @Override
@@ -111,14 +117,14 @@ public class JerseyServer implements RestServer {
         LOGGER.info("Started {}", uri);
         LOGGER.info("WADL {}/application.wadl", uri);
 
-        if(useInfluxMonitoring) {
+        if(influxConfig != null) {
             startInfluxMonitoring();
         }
 
     }
 
     private void startInfluxMonitoring() {
-        InfluxDbClient influxDbClient = new InfluxDbClient(this.uri);
+        InfluxDbClient influxDbClient = new InfluxDbClient(this.uri, influxConfig.getPort(), influxConfig.getHostName(), influxConfig.getDbName());
         Runnable publisher = new InfluxDbPublisher(influxDbClient);
 
         final Runnable exceptionSafePublisher = () -> {
@@ -130,7 +136,7 @@ public class JerseyServer implements RestServer {
             }
         };
 
-        final long delayInSecs = 5;
+        final long delayInSecs = influxConfig.getPushIntervalInSecs();
         this.executor.scheduleWithFixedDelay(exceptionSafePublisher, delayInSecs, delayInSecs, TimeUnit.SECONDS);
     }
 
@@ -138,7 +144,7 @@ public class JerseyServer implements RestServer {
     public void stop() {
         LOGGER.info("Stopping Jersey server at {}", uri);
 
-        if(useInfluxMonitoring) {
+        if(influxConfig != null) {
             this.executor.shutdown();
         }
 

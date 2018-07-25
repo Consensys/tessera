@@ -30,14 +30,19 @@ public class ServerConfig {
     @ValidSsl
     private final SslConfig sslConfig;
 
-    public ServerConfig(String hostName, Integer port, SslConfig sslConfig) {
+    @Valid
+    @XmlElement(required = false)
+    private final InfluxConfig influxConfig;
+
+    public ServerConfig(String hostName, Integer port, SslConfig sslConfig, InfluxConfig influxConfig) {
         this.hostName = Optional.ofNullable(hostName).orElse("0.0.0.0");
         this.port = port;
         this.sslConfig = sslConfig;
+        this.influxConfig = influxConfig;
     }
 
     private static ServerConfig create() {
-        return new ServerConfig(null, null, null);
+        return new ServerConfig(null, null, null, null);
     }
 
     public String getHostName() {
@@ -50,6 +55,10 @@ public class ServerConfig {
 
     public SslConfig getSslConfig() {
         return sslConfig;
+    }
+
+    public InfluxConfig getInfluxConfig() {
+        return influxConfig;
     }
 
     public URI getServerUri() {
