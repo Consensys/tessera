@@ -10,6 +10,9 @@ import java.util.Set;
 
 import static java.util.Collections.unmodifiableSet;
 
+/**
+ * Stores a list of all discovered nodes and public keys
+ */
 public class PartyInfoStore {
 
     private final String advertisedUrl;
@@ -26,13 +29,27 @@ public class PartyInfoStore {
         this.parties = new HashSet<>();
     }
 
+    /**
+     * Merge an incoming {@link PartyInfo} into the current one, adding any
+     * new keys or parties to the current store
+     * @param newInfo the incoming information that may contain new nodes/keys
+     */
     public synchronized void store(final PartyInfo newInfo) {
         recipients.addAll(newInfo.getRecipients());
         parties.addAll(newInfo.getParties());
     }
 
+    /**
+     * Fetch a copy of all the currently discovered nodes/keys
+     *
+     * @return an immutable copy of the current state of the store
+     */
     public synchronized PartyInfo getPartyInfo() {
-        return new PartyInfo(advertisedUrl, unmodifiableSet(recipients), unmodifiableSet(parties));
+        return new PartyInfo(
+            advertisedUrl,
+            unmodifiableSet(new HashSet<>(recipients)),
+            unmodifiableSet(new HashSet<>(parties))
+        );
     }
 
 }
