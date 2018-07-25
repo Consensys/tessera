@@ -7,6 +7,7 @@ import com.github.tessera.config.ConfigFactory;
 import com.github.tessera.config.KeyDataConfig;
 import com.github.tessera.config.SslAuthenticationMode;
 import com.github.tessera.config.SslTrustMode;
+import com.github.tessera.config.builder.JdbcConfigFactory;
 import com.github.tessera.config.util.JaxbUtil;
 import com.github.tessera.io.FilesDelegate;
 import com.github.tessera.io.IOCallback;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -107,7 +109,7 @@ public class TomlConfigFactory implements ConfigFactory {
 
         List<String> tlsserverchain = toml.getList("tlsserverchain", Collections.EMPTY_LIST);
 
-        String storage = toml.getString("storage", "dir:storage");
+        String storage = toml.getString("storage");
 
         //verbosity
         final String tlsservercert = toml.getString("tlsservercert", "tls-server-cert.pem");
@@ -121,6 +123,7 @@ public class TomlConfigFactory implements ConfigFactory {
         final String tlsknownclients = toml.getString("tlsknownclients", "tls-known-clients");
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
+        
                 .serverHostname(url)
                 .unixSocketFile(socket)
                 .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
@@ -135,6 +138,9 @@ public class TomlConfigFactory implements ConfigFactory {
                 .knownServersFile(tlsknownservers)
                 .peers(othernodes);
 
+        Optional.ofNullable(storage)
+                .map(JdbcConfigFactory::fromLegacyStorageString).ifPresent(configBuilder::jdbcConfig);
+        
         return configBuilder.build();
     }
 

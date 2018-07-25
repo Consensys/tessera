@@ -2,6 +2,7 @@ package com.github.tessera.config.builder;
 
 
 import com.github.tessera.config.Config;
+import com.github.tessera.config.JdbcConfig;
 import com.github.tessera.config.SslAuthenticationMode;
 import com.github.tessera.config.SslTrustMode;
 import java.io.StringWriter;
@@ -18,9 +19,7 @@ import org.xmlunit.diff.Diff;
 public class ConfigBuilderTest {
 
     private final ConfigBuilder builderWithValidValues = ConfigBuilder.create()
-            .jdbcUrl("jdbc:bogus")
-            .jdbcUsername("jdbcUsername")
-            .jdbcPassword("jdbcPassword")
+            .jdbcConfig(new JdbcConfig("jdbcUsername", "jdbcPassword", "jdbc:bogus"))
             .peers(Collections.EMPTY_LIST)
             .serverPort(892)
             .sslAuthenticationMode(SslAuthenticationMode.STRICT)

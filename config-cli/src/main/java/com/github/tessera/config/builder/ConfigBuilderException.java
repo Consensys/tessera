@@ -1,5 +1,5 @@
 
-package com.github.tessera.config.cli;
+package com.github.tessera.config.builder;
 
 
 public class ConfigBuilderException extends RuntimeException {
