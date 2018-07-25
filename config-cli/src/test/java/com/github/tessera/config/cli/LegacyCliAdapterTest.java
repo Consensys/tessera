@@ -3,8 +3,6 @@ package com.github.tessera.config.cli;
 import com.github.tessera.config.builder.ConfigBuilder;
 import com.github.tessera.config.Config;
 import com.github.tessera.config.Peer;
-import com.github.tessera.config.SslAuthenticationMode;
-import com.github.tessera.config.SslTrustMode;
 import com.github.tessera.config.test.FixtureUtil;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,25 +18,7 @@ import static org.mockito.Mockito.when;
 
 public class LegacyCliAdapterTest {
 
-    private final ConfigBuilder builderWithValidValues = ConfigBuilder.create()
-            .jdbcUrl("jdbc:bogus")
-            .jdbcUsername("jdbcUsername")
-            .jdbcPassword("jdbcPassword")
-            .peers(Arrays.asList("http://one.com:8989/one", "http://two.com:9929/two"))
-            .serverPort(892)
-            .sslAuthenticationMode(SslAuthenticationMode.STRICT)
-            .unixSocketFile("somepath.ipc")
-            .serverHostname("http://bogus.com:928")
-            .sslServerKeyStorePath("sslServerKeyStorePath")
-            .sslServerTrustMode(SslTrustMode.TOFU)
-            .sslServerTrustStorePath("sslServerTrustStorePath")
-            .sslServerTrustStorePath("sslServerKeyStorePath")
-            .sslClientKeyStorePath("sslClientKeyStorePath")
-            .sslClientTrustStorePath("sslClientTrustStorePath")
-            .sslClientKeyStorePassword("sslClientKeyStorePassword")
-            .sslClientTrustStorePassword("sslClientTrustStorePassword")
-            .knownClientsFile("knownClientsFile")
-            .knownServersFile("knownServersFile");
+    private final ConfigBuilder builderWithValidValues = FixtureUtil.builderWithValidValues();
 
     private final LegacyCliAdapter instance = new LegacyCliAdapter();
 
@@ -92,9 +72,14 @@ public class LegacyCliAdapterTest {
                                 .toArray(new String[0])
                 );
 
+        
+        when(commandLine.getOptionValue("storage")).thenReturn("sqlite:somepath");
+        
         when(commandLine.getOptionValues("publickeys"))
                 .thenReturn(new String[]{"ONE", "TWO"});
 
+        
+        
         List<Path> privateKeyPaths = Arrays.asList(
                 Files.createTempFile("applyOverrides1", ".txt"),
                 Files.createTempFile("applyOverrides2", ".txt")
@@ -128,6 +113,8 @@ public class LegacyCliAdapterTest {
         assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get(unixSocketFileOverride));
         assertThat(result.getPeers()).containsExactly(overridePeers.toArray(new Peer[0]));
         assertThat(result.getKeys()).hasSize(2);
+        assertThat(result.getJdbcConfig()).isNotNull();
+        assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:sqlite:somepath");
         
         
         Files.deleteIfExists(privateKeyPasswordFile);
@@ -160,6 +147,8 @@ public class LegacyCliAdapterTest {
         assertThat(result.getPeers())
                 .containsOnlyElementsOf(expectedValues.getPeers());
 
+        assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:bogus");
+        
     }
 
 }

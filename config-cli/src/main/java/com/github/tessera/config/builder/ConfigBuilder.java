@@ -28,9 +28,7 @@ public class ConfigBuilder {
         final ConfigBuilder configBuilder = ConfigBuilder.create();
         configBuilder.unixSocketFile(Objects.toString(config.getUnixSocketFile()));
 
-        configBuilder.jdbcUrl(config.getJdbcConfig().getUrl())
-                .jdbcUsername(config.getJdbcConfig().getUsername())
-                .jdbcPassword(config.getJdbcConfig().getPassword())
+        configBuilder.jdbcConfig(config.getJdbcConfig())
                 .peers(config.getPeers()
                         .stream()
                         .map(Peer::getUrl)
@@ -64,6 +62,10 @@ public class ConfigBuilder {
     private String serverHostname;
 
     private Integer serverPort;
+
+    private String legacyStorage;
+
+    private JdbcConfig jdbcConfig;
 
     private String jdbcUsername;
 
@@ -153,20 +155,12 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder jdbcUsername(String jdbcUsername) {
-        this.jdbcUsername = jdbcUsername;
+    public ConfigBuilder jdbcConfig(JdbcConfig jdbcConfig) {
+        this.jdbcConfig = jdbcConfig;
         return this;
     }
 
-    public ConfigBuilder jdbcPassword(String jdbcPassword) {
-        this.jdbcPassword = jdbcPassword;
-        return this;
-    }
 
-    public ConfigBuilder jdbcUrl(String jdbcUrl) {
-        this.jdbcUrl = jdbcUrl;
-        return this;
-    }
 
     public ConfigBuilder peers(List<String> peers) {
         this.peers = peers;
@@ -210,8 +204,7 @@ public class ConfigBuilder {
 
     public Config build() {
 
-        final JdbcConfig jdbcConfig = new JdbcConfig(jdbcUsername, jdbcPassword, jdbcUrl);
-
+       
         boolean generateKeyStoreIfNotExisted = false;
 
         SslConfig sslConfig = new SslConfig(

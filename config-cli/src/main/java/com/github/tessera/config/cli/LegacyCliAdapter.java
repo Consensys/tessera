@@ -2,6 +2,7 @@ package com.github.tessera.config.cli;
 
 import com.github.tessera.config.builder.ConfigBuilder;
 import com.github.tessera.config.ConfigFactory;
+import com.github.tessera.config.builder.JdbcConfigFactory;
 import com.github.tessera.config.builder.KeyDataBuilder;
 import com.github.tessera.io.FilesDelegate;
 import java.nio.file.Paths;
@@ -58,7 +59,10 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(ConfigBuilder::from)
                 .orElse(ConfigBuilder.create());
 
-        return new CliResult(0, false, configBuilder.build());
+        
+        ConfigBuilder adustedConfig = applyOverrides(line,configBuilder);
+
+        return new CliResult(0, false, adustedConfig.build());
     }
 
     static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder) {
@@ -76,10 +80,9 @@ public class LegacyCliAdapter implements CliAdapter {
         Optional.ofNullable(line.getOptionValues("othernodes"))
                 .map(Arrays::asList)
                 .ifPresent(configBuilder::peers);
-        
-        
-       KeyDataBuilder keyDataBuilder = KeyDataBuilder.create();
-        
+
+        KeyDataBuilder keyDataBuilder = KeyDataBuilder.create();
+
         Optional.ofNullable(line.getOptionValues("publickeys"))
                 .map(Arrays::asList)
                 .ifPresent(keyDataBuilder::withPublicKeys);
@@ -91,10 +94,14 @@ public class LegacyCliAdapter implements CliAdapter {
         Optional.ofNullable(line.getOptionValue("passwords"))
                 .map(p -> Paths.get(p))
                 .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
+
+        
+       Optional.ofNullable(line.getOptionValue("storage"))
+               .map(JdbcConfigFactory::fromLegacyStorageString)
+               .ifPresent(configBuilder::jdbcConfig);
         
         configBuilder.keyData(keyDataBuilder.build());
-        
-        
+
         return configBuilder;
     }
 
@@ -177,6 +184,16 @@ public class LegacyCliAdapter implements CliAdapter {
 
         options.addOption(
                 Option.builder()
+                        .longOpt("passwords")
+                        .desc("A file containing the passwords for the specified --privatekeys, one per line, in the same order (if one key is not locked, add an empty line)")
+                        .optionalArg(false)
+                        .argName("FILE")
+                        .hasArg()
+                        .build()
+        );
+
+        options.addOption(
+                Option.builder()
                         .longOpt("alwayssendto")
                         .desc("Comma-separated list of paths to public keys that are always included as recipients (these must be advertised somewhere)")
                         .optionalArg(false)
@@ -188,23 +205,17 @@ public class LegacyCliAdapter implements CliAdapter {
 
         options.addOption(
                 Option.builder()
-                        .longOpt("passwords")
-                        .desc("A file containing the passwords for the specified --privatekeys, one per line, in the same order (if one key is not locked, add an empty line)")
+                        .longOpt("storage")
                         .optionalArg(false)
-                        .argName("FILE")
+                        .desc("Storage string specifying a storage engine and/or storage path")
                         .hasArg()
                         .build()
         );
 
         options.addOption(
                 Option.builder()
-                        .longOpt("storage")
-                        .build()
-        );
-
-        options.addOption(
-                Option.builder()
                         .longOpt("ipwhitelist")
+                        .desc("Comma-separated list of IPv4 and IPv6 addresses that may connect to this node's public API")
                         .build()
         );
 
@@ -219,6 +230,8 @@ public class LegacyCliAdapter implements CliAdapter {
                 Option.builder()
                         .longOpt("tlsservercert")
                         .desc("TLS certificate file to use for the public API")
+                        .argName("FILE")
+                        .numberOfArgs(1)
                         .build()
         );
 
@@ -226,14 +239,11 @@ public class LegacyCliAdapter implements CliAdapter {
                 Option.builder()
                         .longOpt("tlsserverchain")
                         .desc("Comma separated list of TLS chain certificates to use for the public API")
+                        .argName("IP...")
                         .hasArgs()
                         .build()
         );
 
-        /*
-                tlsservertrust
-         */
-        //tlsserverkey
         options.addOption(
                 Option.builder()
                         .longOpt("tlsserverkey")
