@@ -1,5 +1,5 @@
 
-package com.github.tessera.config.cli;
+package com.github.tessera.config.builder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
