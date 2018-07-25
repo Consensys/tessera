@@ -156,7 +156,7 @@
 
                         <configuration>
                             <excludes>
-                                <exclude>com/github/tessera/Launcher*</exclude>
+                                <exclude>com/quorum/tessera/Launcher*</exclude>
                             </excludes>
                             
                             <rules>
