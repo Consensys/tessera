@@ -1,5 +1,7 @@
 package com.github.tessera.config;
 
+import com.github.tessera.config.util.JdbcDriverClassName;
+
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -48,4 +50,8 @@ public class JdbcConfig extends ConfigItem {
         return url;
     }
 
+    public String getDriverClassName() {
+        return JdbcDriverClassName.fromUrl(this.url);
+    }
+  
 }
