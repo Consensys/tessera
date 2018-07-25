@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
-public class ServerConfig {
+public class ServerConfig extends ConfigItem {
 
     @NotNull
     @XmlElement(required = false, defaultValue = "0.0.0.0")

@@ -14,7 +14,7 @@ import java.util.List;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
-public class Config {
+public class Config extends ConfigItem {
 
     @NotNull
     @Valid

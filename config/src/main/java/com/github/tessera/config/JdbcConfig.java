@@ -10,16 +10,16 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
-public class JdbcConfig {
+public class JdbcConfig extends ConfigItem {
 
     @NotNull
     @XmlElement(required = true)
     private final String username;
-    
+
     @NotNull
     @XmlElement(required = true)
     private final String password;
-    
+
     @NotNull
     @XmlElement(required = true)
     private final String url;
@@ -29,13 +29,13 @@ public class JdbcConfig {
         this.password = password;
         this.url = url;
     }
-    
+
     private static JdbcConfig create() {
         return new JdbcConfig();
     }
-    
+
     private JdbcConfig() {
-        this(null,null,null);
+        this(null, null, null);
     }
 
     public String getUsername() {
@@ -53,6 +53,5 @@ public class JdbcConfig {
     public String getDriverClassName() {
         return JdbcDriverClassName.fromUrl(this.url);
     }
-
-
+  
 }

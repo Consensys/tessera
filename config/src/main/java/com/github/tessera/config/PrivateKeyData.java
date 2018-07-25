@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
-public class PrivateKeyData {
+public class PrivateKeyData extends ConfigItem {
 
     @XmlElement(name = "bytes")
     @XmlSchemaType(name = "anyURI")
