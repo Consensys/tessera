@@ -5,7 +5,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.tessera</groupId>
+    <groupId>com.quorum.tessera</groupId>
     <artifactId>tessera</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -206,93 +206,93 @@
         <dependencies>
             
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>encryption-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>argon2</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>config</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>config-cli</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>unixsocket</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>security</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
        
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>junixsocket-adapter</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>encryption-jnacl</artifactId>
                 <version>1.0-SNAPSHOT</version>
                 <scope>runtime</scope>
             </dependency>
                         
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>encryption-kalium</artifactId>
                 <version>1.0-SNAPSHOT</version>
                 <scope>runtime</scope>
             </dependency>
             
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>service-locator-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>service-locator-spring</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>rest-server-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>jersey-server</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>resteasy-server</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>test-util</artifactId>
                 <version>1.0-SNAPSHOT</version>
                 <scope>test</scope>

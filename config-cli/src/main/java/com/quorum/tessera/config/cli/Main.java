@@ -1,5 +1,5 @@
 //
-//package com.github.tessera.config.cli;
+//package com.quorum.tessera.config.cli;
 //
 //import Config;
 //

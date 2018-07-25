@@ -16,7 +16,7 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 
 @Configuration
-@ComponentScan(basePackages = "com.github.tessera.dao")
+@ComponentScan(basePackages = "com.quorum.tessera.dao")
 public abstract class JpaConfig {
 
     @Bean
