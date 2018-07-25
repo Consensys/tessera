@@ -26,7 +26,6 @@
             <bean class="com.github.tessera.node.PartyInfoParser" factory-method="create"/>
         </constructor-arg>
     </bean>
-    <bean class="com.github.tessera.api.MetricsResource"></bean>
 
     <!-- Node synchronization management-->
     <bean name="resendPartyStore" class="com.github.tessera.sync.ResendPartyStoreImpl">
@@ -87,7 +86,9 @@
     <bean name="postDelegate" class="com.github.tessera.node.PostDelegate">
         <constructor-arg>
             <bean factory-bean="clientFactory" factory-method="buildFrom">
-                <constructor-arg value="#{config.serverConfig}"/>
+                <constructor-arg>
+                    <bean factory-bean="config" factory-method="getServerConfig"/>
+                </constructor-arg>
             </bean>
         </constructor-arg>
     </bean>
