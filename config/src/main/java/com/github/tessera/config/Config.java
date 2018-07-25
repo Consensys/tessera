@@ -10,12 +10,11 @@ import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
-public class Config {
+public class Config extends ConfigItem {
 
     @NotNull
     @Valid
@@ -95,51 +94,6 @@ public class Config {
 
     public boolean isUseWhiteList() {
         return useWhiteList;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 47 * hash + Objects.hashCode(this.jdbcConfig);
-        hash = 47 * hash + Objects.hashCode(this.serverConfig);
-        hash = 47 * hash + Objects.hashCode(this.peers);
-        hash = 47 * hash + Objects.hashCode(this.keys);
-        hash = 47 * hash + Objects.hashCode(this.unixSocketFile);
-        hash = 47 * hash + Objects.hashCode(Boolean.valueOf(useWhiteList));
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Config other = (Config) obj;
-        if (this.useWhiteList != other.useWhiteList) {
-            return false;
-        }
-        if (!Objects.equals(this.jdbcConfig, other.jdbcConfig)) {
-            return false;
-        }
-        if (!Objects.equals(this.serverConfig, other.serverConfig)) {
-            return false;
-        }
-        if (!Objects.equals(this.peers, other.peers)) {
-            return false;
-        }
-        if (!Objects.equals(this.keys, other.keys)) {
-            return false;
-        }
-        if (!Objects.equals(this.unixSocketFile, other.unixSocketFile)) {
-            return false;
-        }
-        return true;
     }
 
 }

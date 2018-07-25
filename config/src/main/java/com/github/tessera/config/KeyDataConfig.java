@@ -1,7 +1,6 @@
 package com.github.tessera.config;
 
 import com.github.tessera.config.adapters.PrivateKeyTypeAdapter;
-import java.util.Objects;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -62,35 +61,6 @@ public class KeyDataConfig {
 
     public String getPassword() {
         return privateKeyData.getPassword();
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 23 * hash + Objects.hashCode(this.privateKeyData);
-        hash = 23 * hash + Objects.hashCode(this.type);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final KeyDataConfig other = (KeyDataConfig) obj;
-        if (!Objects.equals(this.privateKeyData, other.privateKeyData)) {
-            return false;
-        }
-        if (this.type != other.type) {
-            return false;
-        }
-        return true;
     }
 
 }
