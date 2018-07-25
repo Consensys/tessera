@@ -1,4 +1,4 @@
-package com.github.tessera.config.cli;
+package com.github.tessera.config.builder;
 
 import com.github.tessera.config.Config;
 import com.github.tessera.config.JdbcConfig;
@@ -10,7 +10,6 @@ import com.github.tessera.config.SslConfig;
 import com.github.tessera.config.SslTrustMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -75,6 +74,8 @@ public class ConfigBuilder {
     private String unixSocketFile;
 
     private List<String> peers;
+
+    private List<KeyData> keyData;
 
     private SslAuthenticationMode sslAuthenticationMode;
 
@@ -202,6 +203,11 @@ public class ConfigBuilder {
         return this;
     }
 
+    public ConfigBuilder keyData(List<KeyData> keyData) {
+        this.keyData = keyData;
+        return this;
+    }
+
     public Config build() {
 
         final JdbcConfig jdbcConfig = new JdbcConfig(jdbcUsername, jdbcPassword, jdbcUrl);
@@ -230,14 +236,12 @@ public class ConfigBuilder {
                 .map(Peer::new)
                 .collect(Collectors.toList());
 
-        final List<KeyData> keys = Collections.EMPTY_LIST;
-
         Path unixSocketFilePath = Paths.get(unixSocketFile);
 
         //TODO:
         final boolean useWhitelist = false;
 
-        return new Config(jdbcConfig, serverConfig, peerList, keys, unixSocketFilePath, useWhitelist);
+        return new Config(jdbcConfig, serverConfig, peerList, keyData, unixSocketFilePath, useWhitelist);
     }
 
 }

@@ -1,9 +1,11 @@
 package com.github.tessera.config.cli;
 
+import com.github.tessera.config.builder.ConfigBuilder;
 import com.github.tessera.config.Config;
 import com.github.tessera.config.Peer;
 import com.github.tessera.config.SslAuthenticationMode;
 import com.github.tessera.config.SslTrustMode;
+import com.github.tessera.config.test.FixtureUtil;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -69,7 +71,7 @@ public class LegacyCliAdapterTest {
     }
 
     @Test
-    public void applyOverrides() {
+    public void applyOverrides() throws Exception {
 
         String urlOverride = "http://junit.com:8989";
         int portOverride = 9999;
@@ -90,6 +92,34 @@ public class LegacyCliAdapterTest {
                                 .toArray(new String[0])
                 );
 
+        when(commandLine.getOptionValues("publickeys"))
+                .thenReturn(new String[]{"ONE", "TWO"});
+
+        List<Path> privateKeyPaths = Arrays.asList(
+                Files.createTempFile("applyOverrides1", ".txt"),
+                Files.createTempFile("applyOverrides2", ".txt")
+        );
+
+        final byte[] privateKeyData = FixtureUtil.createLockedPrivateKey().toString().getBytes();
+        for (Path p : privateKeyPaths) {
+            Files.write(p, privateKeyData);
+        }
+
+        final String[] privateKeyPathStrings = privateKeyPaths.stream()
+                .map(Path::toString)
+                .collect(Collectors.toList())
+                .toArray(new String[0]);
+        
+        when(commandLine.getOptionValues("privatekeys")).thenReturn(privateKeyPathStrings);
+        
+        final List<String> privateKeyPasswords = Arrays.asList("SECRET1", "SECRET2");
+        
+        final Path privateKeyPasswordFile = Files.createTempFile("applyOverridesPasswords",".txt");
+        Files.write(privateKeyPasswordFile, privateKeyPasswords);
+        
+        when(commandLine.getOptionValue("passwords"))
+                .thenReturn(privateKeyPasswordFile.toString());
+
         Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues).build();
 
         assertThat(result).isNotNull();
@@ -97,6 +127,14 @@ public class LegacyCliAdapterTest {
         assertThat(result.getServerConfig().getPort()).isEqualTo(portOverride);
         assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get(unixSocketFileOverride));
         assertThat(result.getPeers()).containsExactly(overridePeers.toArray(new Peer[0]));
+        assertThat(result.getKeys()).hasSize(2);
+        
+        
+        Files.deleteIfExists(privateKeyPasswordFile);
+        for(Path privateKeyPath : privateKeyPaths) {
+            Files.deleteIfExists(privateKeyPath);
+        }
+        
     }
 
     @Test
@@ -119,7 +157,9 @@ public class LegacyCliAdapterTest {
         assertThat(result.getUnixSocketFile())
                 .isEqualTo(expectedValues.getUnixSocketFile());
 
-        assertThat(result.getPeers()).containsOnlyElementsOf(expectedValues.getPeers());
+        assertThat(result.getPeers())
+                .containsOnlyElementsOf(expectedValues.getPeers());
+
     }
 
 }

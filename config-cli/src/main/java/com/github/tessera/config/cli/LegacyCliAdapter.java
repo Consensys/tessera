@@ -1,6 +1,8 @@
 package com.github.tessera.config.cli;
 
+import com.github.tessera.config.builder.ConfigBuilder;
 import com.github.tessera.config.ConfigFactory;
+import com.github.tessera.config.builder.KeyDataBuilder;
 import com.github.tessera.io.FilesDelegate;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -74,7 +76,25 @@ public class LegacyCliAdapter implements CliAdapter {
         Optional.ofNullable(line.getOptionValues("othernodes"))
                 .map(Arrays::asList)
                 .ifPresent(configBuilder::peers);
+        
+        
+       KeyDataBuilder keyDataBuilder = KeyDataBuilder.create();
+        
+        Optional.ofNullable(line.getOptionValues("publickeys"))
+                .map(Arrays::asList)
+                .ifPresent(keyDataBuilder::withPublicKeys);
 
+        Optional.ofNullable(line.getOptionValues("privatekeys"))
+                .map(Arrays::asList)
+                .ifPresent(keyDataBuilder::withPrivateKeys);
+
+        Optional.ofNullable(line.getOptionValue("passwords"))
+                .map(p -> Paths.get(p))
+                .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
+        
+        configBuilder.keyData(keyDataBuilder.build());
+        
+        
         return configBuilder;
     }
 
