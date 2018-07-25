@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
-public class KeyData {
+public class KeyData extends ConfigItem {
 
     @XmlElement
     private final KeyDataConfig config;

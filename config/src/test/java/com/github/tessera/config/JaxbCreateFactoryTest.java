@@ -19,6 +19,11 @@ public class JaxbCreateFactoryTest {
         this.type = type;
     }
 
+    private final OtherType otherType = new OtherType();
+
+    static class OtherType {
+    }
+
     @Parameterized.Parameters
     public static List<Class> params() {
         return Arrays.asList(
@@ -44,6 +49,27 @@ public class JaxbCreateFactoryTest {
         final Object instance = factoryMethod.invoke(null);
 
         assertThat(instance).isNotNull();
+
+        assertThat(instance).isEqualTo(instance);
+        assertThat(instance.hashCode()).isEqualTo(instance.hashCode());
+        assertThat(instance).isNotEqualTo(otherType);
+        assertThat(instance).isNotEqualTo(null);
+
+    }
+
+    @Test
+    public void ensureThatEqualsIncludesType() throws Exception {
+
+        final Method factoryMethod = ServerConfig.class.getDeclaredMethod("create");
+        factoryMethod.setAccessible(true);
+
+        Object firstObject = factoryMethod.invoke(null);
+
+        final Method anotherFactoryMethod = SslConfig.class.getDeclaredMethod("create");
+        anotherFactoryMethod.setAccessible(true);
+        Object secondObject = anotherFactoryMethod.invoke(null);
+
+        assertThat(firstObject).isNotEqualTo(secondObject);
 
     }
 

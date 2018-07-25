@@ -11,13 +11,13 @@ import java.nio.file.Path;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
-public class SslConfig  {
+public class SslConfig {
 
     @NotNull
     @XmlElement(required = true)
     private final SslAuthenticationMode tls;
 
-    @XmlElement (defaultValue = "false")
+    @XmlElement(defaultValue = "false")
     private final boolean generateKeyStoreIfNotExisted;
 
     @XmlElement(type = String.class)
@@ -65,17 +65,17 @@ public class SslConfig  {
     public SslConfig(
             SslAuthenticationMode tls,
             boolean generateKeyStoreIfNotExisted,
-            Path serverKeyStore, 
-            String serverKeyStorePassword, 
-            Path serverTrustStore, 
-            String serverTrustStorePassword, 
-            SslTrustMode serverTrustMode, 
-            Path clientKeyStore, 
-            String clientKeyStorePassword, 
-            Path clientTrustStore, 
-            String clientTrustStorePassword, 
-            SslTrustMode clientTrustMode, 
-            Path knownClientsFile, 
+            Path serverKeyStore,
+            String serverKeyStorePassword,
+            Path serverTrustStore,
+            String serverTrustStorePassword,
+            SslTrustMode serverTrustMode,
+            Path clientKeyStore,
+            String clientKeyStorePassword,
+            Path clientTrustStore,
+            String clientTrustStorePassword,
+            SslTrustMode clientTrustMode,
+            Path knownClientsFile,
             Path knownServersFile) {
         this.tls = tls;
         this.generateKeyStoreIfNotExisted = generateKeyStoreIfNotExisted;
@@ -94,9 +94,9 @@ public class SslConfig  {
     }
 
     private SslConfig() {
-        this(null,false,null,null,null,null,null,null,null,null,null,null,null,null);
+        this(null, false, null, null, null, null, null, null, null, null, null, null, null, null);
     }
-    
+
     private static SslConfig create() {
         return new SslConfig();
     }

@@ -11,6 +11,10 @@ import java.net.ConnectException;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Polls every so often to all known nodes for any new discoverable nodes
+ * This keeps all nodes up-to date and discoverable by other nodes
+ */
 public class PartyInfoPoller implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoPoller.class);
@@ -33,6 +37,12 @@ public class PartyInfoPoller implements Runnable {
         this.resendPartyStore = Objects.requireNonNull(resendPartyStore);
     }
 
+    /**
+     * Iterates over all known parties and contacts them for the current state
+     * of their known node discovery list
+     *
+     * It then updates this nodes list of data with any new information collected
+     */
     @Override
     public void run() {
         LOGGER.debug("Polling {}", getClass().getSimpleName());
@@ -57,7 +67,18 @@ public class PartyInfoPoller implements Runnable {
         LOGGER.debug("Polled {}. PartyInfo : {}", getClass().getSimpleName(), partyInfo);
     }
 
+    /**
+     * Sends a request for node information to a single target
+     * If it cannot connect to the target, it returns null, otherwise throws
+     * any exception that can be thrown from {@link javax.ws.rs.client.Client}
+     *
+     * @param url              the target URL to call
+     * @param encodedPartyInfo the encoded current party information
+     * @return the encoded partyinfo from the target node, or null is the node
+     * could not be reached
+     */
     private byte[] pollSingleParty(final String url, final byte[] encodedPartyInfo) {
+
         try {
             return postDelegate.doPost(url, ApiPath.PARTYINFO, encodedPartyInfo);
 

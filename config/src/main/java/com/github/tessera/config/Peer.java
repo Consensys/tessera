@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
-public class Peer {
+public class Peer extends ConfigItem {
 
     @NotNull
     @XmlElement(required = true)
@@ -25,11 +25,9 @@ public class Peer {
     private static Peer create() {
         return new Peer();
     }
-    
 
     public String getUrl() {
         return url;
     }
-
 
 }

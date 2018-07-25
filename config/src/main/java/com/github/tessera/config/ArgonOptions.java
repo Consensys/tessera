@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlType(factoryMethod = "create")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ArgonOptions {
+public class ArgonOptions extends ConfigItem {
 
     @Pattern(regexp = "^(id|i|d)$")
     @XmlAttribute(name = "variant")
