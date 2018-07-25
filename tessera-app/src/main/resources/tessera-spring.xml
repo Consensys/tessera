@@ -151,14 +151,12 @@
 
     <bean class="com.github.tessera.api.ApiResource"/>
 
-    <!-- Database -->
-
-    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
-        <property name="driverClassName" value="org.h2.Driver"/>
-        <property name="url" value="#{ config.getJdbcConfig().getUrl() }"/>
-        <property name="username" value="#{ config.getJdbcConfig().getUsername() }"/>
-        <property name="password" value="#{ config.getJdbcConfig().getPassword() }"/>
-    </bean>
+        <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+            <property name="url" value="#{ config.getJdbcConfig().getUrl() }" />
+            <property name="username" value="#{ config.getJdbcConfig().getUsername() }" />
+            <property name="password" value="#{ config.getJdbcConfig().getPassword() }" />
+            <property name="driverClassName" value="#{ config.getJdbcConfig().getDriverClassName() }"/>
+        </bean>
 
     <bean id="jpaTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
