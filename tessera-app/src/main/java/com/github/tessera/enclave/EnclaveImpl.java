@@ -49,7 +49,7 @@ public class EnclaveImpl implements Enclave {
     public void delete(final byte[] hashBytes) {
         final MessageHash messageHash = new MessageHash(hashBytes);
 
-        transactionService.delete(messageHash);
+        this.transactionService.delete(messageHash);
     }
 
     @Override
@@ -121,9 +121,11 @@ public class EnclaveImpl implements Enclave {
     }
 
     @Override
-    public void resendAll(byte[] recipientPublicKey) {
-        Key recipient = new Key(recipientPublicKey);
-        Collection<EncodedPayloadWithRecipients> payloads = transactionService.retrieveAllForRecipient(recipient);
+    public void resendAll(final byte[] recipientPublicKey) {
+        final Key recipient = new Key(recipientPublicKey);
+
+        final Collection<EncodedPayloadWithRecipients> payloads
+            = this.transactionService.retrieveAllForRecipient(recipient);
 
         payloads.forEach(payload -> {
             payload.getRecipientKeys().forEach(recipientKey -> {

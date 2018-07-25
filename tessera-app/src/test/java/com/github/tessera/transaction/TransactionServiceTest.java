@@ -9,19 +9,14 @@ import com.github.tessera.transaction.exception.TransactionNotFoundException;
 import com.github.tessera.transaction.model.EncodedPayload;
 import com.github.tessera.transaction.model.EncodedPayloadWithRecipients;
 import com.github.tessera.transaction.model.EncryptedTransaction;
-import java.util.Arrays;
 import org.bouncycastle.jcajce.provider.digest.SHA3;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import java.util.List;
-import java.util.UUID;
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -86,7 +81,7 @@ public class TransactionServiceTest {
         EncodedPayloadWithRecipients encodedPayloadWithRecipientz = mock(EncodedPayloadWithRecipients.class);
 
         Key key = new Key(keyData);
-        when(encodedPayloadWithRecipientz.getRecipientKeys()).thenReturn(Arrays.asList(key));
+        when(encodedPayloadWithRecipientz.getRecipientKeys()).thenReturn(singletonList(key));
 
         when(dao.retrieveAllTransactions()).thenReturn(singletonList(encTx));
 
@@ -100,7 +95,7 @@ public class TransactionServiceTest {
         verify(payloadEncoder).decodePayloadWithRecipients(encodedPayload);
     }
 
-    
+
     @Test
     public void storingPayloadCalculatesSha3512Hash() {
 
@@ -237,6 +232,7 @@ public class TransactionServiceTest {
         verify(naclFacade).computeSharedKey(senderKey, privateKey);
         verify(naclFacade, times(2)).openAfterPrecomputation(any(), any(), any());
         verify(payloadEncoder).decodePayloadWithRecipients(txnData);
+        verify(keyManager).getPublicKeys();
 
     }
 
@@ -265,11 +261,10 @@ public class TransactionServiceTest {
         final EncryptedTransaction tx = new EncryptedTransaction(hash, txnData);
 
         Key recipientKey = new Key("RECIPIENT_KEY".getBytes());
-        List<Key> recipientKeys = Arrays.asList(recipientKey);
 
         final EncodedPayloadWithRecipients payloadWithRecipients = new EncodedPayloadWithRecipients(
-                encodedPayload,
-                recipientKeys
+            encodedPayload,
+            singletonList(recipientKey)
         );
 
         when(payloadEncoder.decodePayloadWithRecipients(txnData))
@@ -280,6 +275,8 @@ public class TransactionServiceTest {
         when(keyManager.getPrivateKeyForPublicKey(senderKey)).thenReturn(privateKey);
 
         when(naclFacade.computeSharedKey(recipientKey, privateKey)).thenReturn(sharedKey);
+
+        doReturn(singleton(senderKey)).when(keyManager).getPublicKeys();
 
         final byte[] masterKey = "MASTER_KEY".getBytes();
 
@@ -298,10 +295,11 @@ public class TransactionServiceTest {
         verify(naclFacade).computeSharedKey(recipientKey, privateKey);
         verify(naclFacade, times(2)).openAfterPrecomputation(any(), any(), any());
         verify(payloadEncoder).decodePayloadWithRecipients(txnData);
+        verify(keyManager).getPublicKeys();
 
     }
 
-    
+
     //retrievePayload
     @Test
     public void missingTransactionThrowsError() {
@@ -319,26 +317,26 @@ public class TransactionServiceTest {
         verify(dao).retrieveByHash(hash);
 
     }
-    
+
 
     @Test
     public void retrievePayload() {
-        
+
         final EncryptedTransaction txn = mock(EncryptedTransaction.class);
         when(txn.getEncodedPayload()).thenReturn(new byte[0]);
-        
+
         final MessageHash hash = new MessageHash(new byte[0]);
 
         when(dao.retrieveByHash(hash)).thenReturn(Optional.of(txn));
-        
+
         EncodedPayloadWithRecipients encodedPayloadWithRecipients = mock(EncodedPayloadWithRecipients.class);
-        
+
         when(payloadEncoder.decodePayloadWithRecipients(any())).thenReturn(encodedPayloadWithRecipients);
-        
+
         EncodedPayloadWithRecipients result = transactionService.retrievePayload(hash);
-        
+
         assertThat(encodedPayloadWithRecipients).isSameAs(result);
-        
+
         verify(dao).retrieveByHash(hash);
         verify(payloadEncoder).decodePayloadWithRecipients(any());
 
@@ -370,10 +368,8 @@ public class TransactionServiceTest {
 
         final EncryptedTransaction tx = new EncryptedTransaction(hash, txnData);
 
-        final EncodedPayloadWithRecipients payloadWithRecipients = new EncodedPayloadWithRecipients(
-                encodedPayload,
-                emptyList()
-        );
+        final EncodedPayloadWithRecipients payloadWithRecipients
+            = new EncodedPayloadWithRecipients(encodedPayload, emptyList());
 
         when(payloadEncoder.decodePayloadWithRecipients(txnData))
                 .thenReturn(payloadWithRecipients);
@@ -384,18 +380,16 @@ public class TransactionServiceTest {
 
         when(naclFacade.computeSharedKey(senderKey, privateKey)).thenReturn(sharedKey);
 
-        try {
-            transactionService.retrieveUnencryptedTransaction(hash, key);
-            failBecauseExceptionWasNotThrown(RuntimeException.class);
-        } catch (RuntimeException ex) {
-            verify(dao).retrieveByHash(hash);
-            verify(keyManager).getPrivateKeyForPublicKey(key);
-            assertThat(ex).hasMessage("BANG");
-            
-            verify(naclFacade).computeSharedKey(senderKey, privateKey);
-            verify(naclFacade).openAfterPrecomputation(any(), any(), any());
-            verify(payloadEncoder).decodePayloadWithRecipients(txnData);
-        }
+        final Throwable throwable = catchThrowable(() -> transactionService.retrieveUnencryptedTransaction(hash, key));
+
+        assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("BANG");
+
+        verify(dao).retrieveByHash(hash);
+        verify(keyManager).getPrivateKeyForPublicKey(key);
+        verify(naclFacade).computeSharedKey(senderKey, privateKey);
+        verify(naclFacade).openAfterPrecomputation(any(), any(), any());
+        verify(payloadEncoder).decodePayloadWithRecipients(txnData);
+        verify(keyManager).getPublicKeys();
     }
 
 }

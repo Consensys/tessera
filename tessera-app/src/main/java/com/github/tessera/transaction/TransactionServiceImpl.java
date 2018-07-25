@@ -47,7 +47,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void delete(final MessageHash hash) {
         LOGGER.info("Received request to delete message with hash {}", hash);
-        encryptedTransactionDAO.delete(hash);
+        this.encryptedTransactionDAO.delete(hash);
     }
 
     @Override
@@ -87,8 +87,8 @@ public class TransactionServiceImpl implements TransactionService {
         final Key senderPubKey;
        
         final Key recipientPubKey;
-        
-        if (payloadWithRecipients.getRecipientKeys().isEmpty()) {
+
+        if (!keyManager.getPublicKeys().contains(encodedPayload.getSenderKey())) {
             // This is a payload originally sent to us by another node
             recipientPubKey = encodedPayload.getSenderKey();
             senderPubKey = providedKey;
@@ -111,9 +111,7 @@ public class TransactionServiceImpl implements TransactionService {
             final byte[] cipherText = encodedPayload.getCipherText();
             final Nonce cipherTextNonce = encodedPayload.getCipherTextNonce();
 
-            return nacl.openAfterPrecomputation(
-                cipherText, cipherTextNonce, masterKey
-            );
+            return nacl.openAfterPrecomputation(cipherText, cipherTextNonce, masterKey);
 
         } catch (final RuntimeException ex) {
             LOGGER.info("Couldn't decrypt message with hash {}. Our public key is: {}", hash, senderPubKey);
@@ -129,14 +127,18 @@ public class TransactionServiceImpl implements TransactionService {
         final SHA3.DigestSHA3 digestSHA3 = new SHA3.Digest512();
         final byte[] digest = digestSHA3.digest(payloadWithRecipients.getEncodedPayload().getCipherText());
 
+        final MessageHash transactionHash = new MessageHash(digest);
+
+        LOGGER.info("Generated transaction hash {}", transactionHash);
+
         final EncryptedTransaction newTransaction = new EncryptedTransaction(
-            new MessageHash(digest),
-            payloadEncoder.encode(payloadWithRecipients)
+            transactionHash,
+            this.payloadEncoder.encode(payloadWithRecipients)
         );
 
-        encryptedTransactionDAO.save(newTransaction);
+        this.encryptedTransactionDAO.save(newTransaction);
 
-        return new MessageHash(digest);
+        return transactionHash;
     }
 
     @Override
@@ -159,9 +161,7 @@ public class TransactionServiceImpl implements TransactionService {
             .collect(Collectors.toList());
 
         return new EncodedPayloadWithRecipients(
-            new EncodedPayload(
-                senderPublicKey, cipherText, nonce, encryptedMasterKeys, recipientNonce
-            ),
+            new EncodedPayload(senderPublicKey, cipherText, nonce, encryptedMasterKeys, recipientNonce),
             recipientPublicKeys
         );
 
