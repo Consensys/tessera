@@ -39,7 +39,7 @@ public class MetricsEnquirer {
     }
 
     private Set<ObjectName> getTesseraResourceMBeanNames() throws MalformedObjectNameException {
-        String pattern = "org.glassfish.jersey:type=Tessera,subType=Resources,resource=com.github.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*";
+        String pattern = "org.glassfish.jersey:type=Tessera,subType=Resources,resource=com.quorum.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*";
         return this.mBeanServer.queryNames(new ObjectName(pattern), null);
     }
 

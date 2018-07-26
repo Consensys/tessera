@@ -36,7 +36,7 @@ public class MetricsEnquirerTest {
         ObjectName mBeanName = new ObjectName("domain", "key", "value");
         names.add(mBeanName);
 
-        when(mBeanServer.queryNames(new ObjectName("org.glassfish.jersey:type=Tessera,subType=Resources,resource=com.github.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*"), null)).thenReturn(names);
+        when(mBeanServer.queryNames(new ObjectName("org.glassfish.jersey:type=Tessera,subType=Resources,resource=com.quorum.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*"), null)).thenReturn(names);
 
         String attributeName = "name";
         MBeanAttributeInfo[] mBeanAttributes = {new MBeanAttributeInfo(attributeName, "type", "desc", true, false, false)};
@@ -55,7 +55,7 @@ public class MetricsEnquirerTest {
         ObjectName mBeanName = new ObjectName("domain", "key", "value");
         names.add(mBeanName);
 
-        when(mBeanServer.queryNames(new ObjectName("org.glassfish.jersey:type=Tessera,subType=Resources,resource=com.github.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*"), null)).thenReturn(names);
+        when(mBeanServer.queryNames(new ObjectName("org.glassfish.jersey:type=Tessera,subType=Resources,resource=com.quorum.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*"), null)).thenReturn(names);
 
         String attributeName = "name_total";
         MBeanAttributeInfo[] mBeanAttributes = {new MBeanAttributeInfo(attributeName, "type", "desc", true, false, false)};
@@ -75,7 +75,7 @@ public class MetricsEnquirerTest {
         ObjectName mBeanName = new ObjectName("domain", "key", "value");
         names.add(mBeanName);
 
-        when(mBeanServer.queryNames(new ObjectName("org.glassfish.jersey:type=Tessera,subType=Resources,resource=com.github.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*"), null)).thenReturn(names);
+        when(mBeanServer.queryNames(new ObjectName("org.glassfish.jersey:type=Tessera,subType=Resources,resource=com.quorum.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*"), null)).thenReturn(names);
 
         String attributeName = "name_total";
         String attributeName2 = "name2";
@@ -104,7 +104,7 @@ public class MetricsEnquirerTest {
         names.add(mBeanName1);
         names.add(mBeanName2);
 
-        when(mBeanServer.queryNames(new ObjectName("org.glassfish.jersey:type=Tessera,subType=Resources,resource=com.github.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*"), null)).thenReturn(names);
+        when(mBeanServer.queryNames(new ObjectName("org.glassfish.jersey:type=Tessera,subType=Resources,resource=com.quorum.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*"), null)).thenReturn(names);
 
         String attributeName1 = "name_total";
         String attributeName2 = "name2_total";
@@ -138,7 +138,7 @@ public class MetricsEnquirerTest {
         names.add(mBeanName1);
         names.add(mBeanName2);
 
-        when(mBeanServer.queryNames(new ObjectName("org.glassfish.jersey:type=Tessera,subType=Resources,resource=com.github.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*"), null)).thenReturn(names);
+        when(mBeanServer.queryNames(new ObjectName("org.glassfish.jersey:type=Tessera,subType=Resources,resource=com.quorum.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*"), null)).thenReturn(names);
 
         String attributeName1 = "name_total";
         String attributeName2 = "name2";
