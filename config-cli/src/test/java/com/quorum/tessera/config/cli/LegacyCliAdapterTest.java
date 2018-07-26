@@ -288,4 +288,18 @@ public class LegacyCliAdapterTest {
         Files.deleteIfExists(path);
 
     }
+
+    @Test
+    public void resolveUnixFilePathFileDirNoFileName() throws Exception {
+
+        Path path = Files.createTempFile("somename", ".txt");
+
+        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(path, "dir", null);
+
+        assertThat(result).isPresent().get().isEqualTo(Paths.get("dir", path.toFile().getName()));
+
+        Files.deleteIfExists(path);
+
+    }
+
 }
