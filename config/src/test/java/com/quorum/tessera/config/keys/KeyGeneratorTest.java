@@ -4,16 +4,25 @@ import com.quorum.tessera.argon2.ArgonOptions;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
+import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
-import com.quorum.tessera.config.PrivateKeyType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.UUID;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class KeyGeneratorTest {
@@ -28,6 +37,8 @@ public class KeyGeneratorTest {
 
     private KeyEncryptor keyEncryptor;
 
+    private InputStream inputStream;
+
     private KeyGenerator generator;
 
     @Before
@@ -40,8 +51,9 @@ public class KeyGeneratorTest {
 
         this.nacl = mock(NaclFacade.class);
         this.keyEncryptor = mock(KeyEncryptor.class);
+        this.inputStream = new ByteArrayInputStream(System.lineSeparator().getBytes());
 
-        this.generator = new KeyGeneratorImpl(nacl, keyEncryptor);
+        this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, inputStream);
 
     }
 
@@ -118,6 +130,67 @@ public class KeyGeneratorTest {
 
         verify(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
         verify(nacl).generateNewKeys();
+    }
+
+    @Test
+    public void providingPathSavesToFile() throws IOException {
+        final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString());
+        final String keyFilesName = tempFolder.resolve("key").toString() + System.lineSeparator();
+
+
+        this.inputStream = new ByteArrayInputStream(keyFilesName.getBytes());
+
+        this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, inputStream);
+
+        doReturn(keyPair).when(nacl).generateNewKeys();
+
+        final KeyData generated = generator.generate(new KeyDataConfig(null, PrivateKeyType.UNLOCKED));
+
+        assertThat(Files.exists(tempFolder.resolve("key.pub"))).isTrue();
+        assertThat(Files.exists(tempFolder.resolve("key.key"))).isTrue();
+
+        verify(nacl).generateNewKeys();
+    }
+
+    @Test
+    public void providingPathThatExistsThrowsError() throws IOException {
+        final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString());
+        final String keyFilesName = tempFolder.resolve("key").toString() + System.lineSeparator();
+        tempFolder.toFile().setWritable(false);
+
+        doReturn(keyPair).when(nacl).generateNewKeys();
+
+        doReturn(
+            KeyConfig.Builder
+                .create()
+                .asalt(new byte[]{})
+                .sbox(new byte[]{})
+                .snonce(new byte[]{})
+                .asalt(new byte[]{})
+                .argonOptions(new ArgonOptions("", 1, 1, 1))
+                .build()
+        ).when(keyEncryptor)
+            .encryptPrivateKey(any(Key.class), anyString());
+
+        this.inputStream = new ByteArrayInputStream(keyFilesName.getBytes());
+        this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, inputStream);
+
+        final Throwable throwable = catchThrowable(
+            () -> generator.generate(
+                new KeyDataConfig(
+                    new PrivateKeyData(null, "", "", "", new com.quorum.tessera.config.ArgonOptions("", 1, 1, 1), ""),
+                    PrivateKeyType.LOCKED
+                )
+            )
+        );
+
+        assertThat(throwable).isInstanceOf(UncheckedIOException.class);
+
+        assertThat(Files.exists(tempFolder.resolve("key.pub"))).isFalse();
+        assertThat(Files.exists(tempFolder.resolve("key.key"))).isFalse();
+
+        verify(nacl).generateNewKeys();
+        verify(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
     }
 
 }
