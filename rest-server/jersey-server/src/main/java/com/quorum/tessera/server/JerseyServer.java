@@ -124,7 +124,7 @@ public class JerseyServer implements RestServer {
     }
 
     private void startInfluxMonitoring() {
-        InfluxDbClient influxDbClient = new InfluxDbClient(this.uri, influxConfig.getPort(), influxConfig.getHostName(), influxConfig.getDbName());
+        InfluxDbClient influxDbClient = new InfluxDbClient(this.uri, influxConfig);
         Runnable publisher = new InfluxDbPublisher(influxDbClient);
 
         final Runnable exceptionSafePublisher = () -> {

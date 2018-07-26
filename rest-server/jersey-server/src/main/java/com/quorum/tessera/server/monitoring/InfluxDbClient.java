@@ -1,5 +1,7 @@
 package com.quorum.tessera.server.monitoring;
 
+import com.quorum.tessera.config.InfluxConfig;
+
 import javax.management.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -19,11 +21,11 @@ public class InfluxDbClient {
 
     private final MBeanServer mbs;
 
-    public InfluxDbClient(URI uri, int port, String hostName, String dbName) {
+    public InfluxDbClient(URI uri, InfluxConfig influxConfig) {
         this.uri = uri;
-        this.port = port;
-        this.hostName = hostName;
-        this.dbName = dbName;
+        this.port = influxConfig.getPort();
+        this.hostName = influxConfig.getHostName();
+        this.dbName = influxConfig.getDbName();
 
         this.mbs = ManagementFactory.getPlatformMBeanServer();
     }
@@ -41,7 +43,7 @@ public class InfluxDbClient {
                                        .queryParam("db", dbName);
 
         return influxTarget.request(MediaType.TEXT_PLAIN)
-                                        .accept(MediaType.TEXT_PLAIN)
-                                        .post(Entity.text(formattedMetrics));
+                            .accept(MediaType.TEXT_PLAIN)
+                            .post(Entity.text(formattedMetrics));
     }
 }
