@@ -35,8 +35,14 @@ public class ConfigBuilderTest {
             .sslClientTrustStorePath("sslClientTrustStorePath")
             .sslClientKeyStorePassword("sslClientKeyStorePassword")
             .sslClientTrustStorePassword("sslClientTrustStorePassword")
+            .sslServerTlsKeyPath("sslServerTlsKeyPath")
+            .sslClientTlsKeyPath("sslClientTlsKeyPath")
             .knownClientsFile("knownClientsFile")
-            .knownServersFile("knownServersFile");
+            .knownServersFile("knownServersFile")
+            
+            .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
+            .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
+            ;
 
     @Test
     public void buildValid() {
@@ -44,6 +50,9 @@ public class ConfigBuilderTest {
 
         assertThat(result).isNotNull();
     }
+    
+    
+    
 
     /*
     Create config from existing config and ensure all 
@@ -52,17 +61,25 @@ public class ConfigBuilderTest {
     @Test
     public void buildFromExisting() throws Exception {
         Config existing = builderWithValidValues.build();
-
+        
+      
+        
         ConfigBuilder configBuilder = ConfigBuilder.from(existing);
 
         Config result = configBuilder.build();
 
+
+        
         JAXBContext jaxbContext = JAXBContext.newInstance(Config.class);
 
         Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.setProperty("eclipselink.beanvalidation.mode", BeanValidationMode.NONE);
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
+        
+//        marshaller.marshal(existing, System.out);
+//         marshaller.marshal(result, System.out);
+        
         final String expected;
         try (Writer writer = new StringWriter()) {
             marshaller.marshal(existing, writer);
