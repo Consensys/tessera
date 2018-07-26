@@ -26,6 +26,14 @@ public class SslConfig {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path serverKeyStore;
 
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private final Path serverTlsKeyPath;
+
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private final Path serverTlsCertificatePath;
+
     @XmlElement
     private final String serverKeyStorePassword;
 
@@ -49,6 +57,14 @@ public class SslConfig {
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path clientKeyStore;
+
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private final Path clientTlsKeyPath;
+
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private final Path clientTlsCertificatePath;
 
     @XmlElement
     private final String clientKeyStorePassword;
@@ -94,8 +110,13 @@ public class SslConfig {
             Path knownClientsFile,
             Path knownServersFile,
             List<Path> serverTrustCertificates,
-            List<Path> clientTrustCertificates) {
-        
+            List<Path> clientTrustCertificates,
+            Path serverTlsKeyPath,
+            Path serverTlsCertificatePath,
+            Path clientTlsKeyPath,
+            Path clientTlsCertificatePath
+    ) {
+
         this.tls = tls;
         this.generateKeyStoreIfNotExisted = generateKeyStoreIfNotExisted;
         this.serverKeyStore = serverKeyStore;
@@ -112,11 +133,15 @@ public class SslConfig {
         this.clientTrustMode = clientTrustMode;
         this.knownClientsFile = knownClientsFile;
         this.knownServersFile = knownServersFile;
+        this.serverTlsKeyPath = serverTlsKeyPath;
+        this.serverTlsCertificatePath = serverTlsCertificatePath;
+        this.clientTlsKeyPath = clientTlsKeyPath;
+        this.clientTlsCertificatePath = clientTlsCertificatePath;
 
     }
 
     private SslConfig() {
-        this(null, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        this(null, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null,null,null,null,null);
     }
 
     private static SslConfig create() {
@@ -185,6 +210,22 @@ public class SslConfig {
 
     public List<Path> getClientTrustCertificates() {
         return clientTrustCertificates;
+    }
+
+    public Path getServerTlsKeyPath() {
+        return serverTlsKeyPath;
+    }
+
+    public Path getServerTlsCertificatePath() {
+        return serverTlsCertificatePath;
+    }
+
+    public Path getClientTlsKeyPath() {
+        return clientTlsKeyPath;
+    }
+
+    public Path getClientTlsCertificatePath() {
+        return clientTlsCertificatePath;
     }
 
 }

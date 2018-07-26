@@ -25,7 +25,7 @@ public class ServerConfigTest {
     @Test
     public void sslNotNullButTlsFlagOff() {
         SslConfig sslConfig = new SslConfig(
-                SslAuthenticationMode.OFF, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null
+                SslAuthenticationMode.OFF, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null,null,null,null,null
         );
         ServerConfig serverConfig = new ServerConfig("somedomain", 8989, sslConfig, null);
         assertThat(serverConfig.isSsl()).isFalse();
@@ -34,7 +34,7 @@ public class ServerConfigTest {
     @Test
     public void tlsFlagOn() {
         SslConfig sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null
+                SslAuthenticationMode.STRICT, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null,null,null,null,null
         );
         ServerConfig serverConfig = new ServerConfig("somedomain", 8989, sslConfig, null);
         assertThat(serverConfig.isSsl()).isTrue();

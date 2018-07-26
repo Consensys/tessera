@@ -56,8 +56,7 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(ConfigBuilder::from)
                 .orElse(ConfigBuilder.create());
 
-        
-        ConfigBuilder adjustedConfig = applyOverrides(line,configBuilder);
+        ConfigBuilder adjustedConfig = applyOverrides(line, configBuilder);
 
         return new CliResult(0, false, adjustedConfig.build());
     }
@@ -92,34 +91,38 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(p -> Paths.get(p))
                 .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
 
-        
-       Optional.ofNullable(line.getOptionValue("storage"))
-               .map(JdbcConfigFactory::fromLegacyStorageString)
-               .ifPresent(configBuilder::jdbcConfig);
-        
-       Optional.ofNullable(line.getOptionValue("tlsservertrust"))
-               .map(SslTrustModeFactory::resolveByLegacyValue)
-               .ifPresent(configBuilder::sslServerTrustMode);
-       
-       
-       Optional.ofNullable(line.getOptionValue("tlsclienttrust"))
-               .map(SslTrustModeFactory::resolveByLegacyValue)
-               .ifPresent(configBuilder::sslClientTrustMode);
-       
-       Optional.ofNullable(line.getOptionValue("tlsservercert"))
-               .ifPresent(configBuilder::sslServerKeyStorePath);
-       
-       Optional.ofNullable(line.getOptionValue("tlsclientcert"))
-               .ifPresent(configBuilder::sslClientKeyStorePath); 
-       
-       Optional.ofNullable(line.getOptionValues("tlsserverchain"))
-               .map(Arrays::asList)
-               .ifPresent(configBuilder::sslServerTrustCertificates);
-       
-       Optional.ofNullable(line.getOptionValues("tlsclientchain"))
-               .map(Arrays::asList)
-               .ifPresent(configBuilder::sslClientTrustCertificates);
-       
+        Optional.ofNullable(line.getOptionValue("storage"))
+                .map(JdbcConfigFactory::fromLegacyStorageString)
+                .ifPresent(configBuilder::jdbcConfig);
+
+        Optional.ofNullable(line.getOptionValue("tlsservertrust"))
+                .map(SslTrustModeFactory::resolveByLegacyValue)
+                .ifPresent(configBuilder::sslServerTrustMode);
+
+        Optional.ofNullable(line.getOptionValue("tlsclienttrust"))
+                .map(SslTrustModeFactory::resolveByLegacyValue)
+                .ifPresent(configBuilder::sslClientTrustMode);
+
+        Optional.ofNullable(line.getOptionValue("tlsservercert"))
+                .ifPresent(configBuilder::sslServerTlsCertificatePath);
+
+        Optional.ofNullable(line.getOptionValue("tlsclientcert"))
+                .ifPresent(configBuilder::sslClientTlsCertificatePath);
+
+        Optional.ofNullable(line.getOptionValues("tlsserverchain"))
+                .map(Arrays::asList)
+                .ifPresent(configBuilder::sslServerTrustCertificates);
+
+        Optional.ofNullable(line.getOptionValues("tlsclientchain"))
+                .map(Arrays::asList)
+                .ifPresent(configBuilder::sslClientTrustCertificates);
+
+        Optional.ofNullable(line.getOptionValue("tlsserverkey"))
+                .ifPresent(configBuilder::sslServerKeyStorePath);
+
+        Optional.ofNullable(line.getOptionValue("tlsclientkey"))
+                .ifPresent(configBuilder::sslClientKeyStorePath);
+
         configBuilder.keyData(keyDataBuilder.build());
 
         return configBuilder;
@@ -231,8 +234,6 @@ public class LegacyCliAdapter implements CliAdapter {
                         .hasArg()
                         .build()
         );
-
-
 
         options.addOption(
                 Option.builder()
