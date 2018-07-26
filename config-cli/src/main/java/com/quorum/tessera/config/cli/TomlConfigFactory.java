@@ -63,13 +63,14 @@ public class TomlConfigFactory implements ConfigFactory {
         }
 
         String url = toml.getString("url");
-
+        
+        String workdir = toml.getString("workdir", "data");
         String socket = toml.getString("socket");
 
+        Path unixSocketFile = Paths.get(workdir, socket);
+        
+        
         String tls = toml.getString("tls", "strict").toUpperCase();
-
-        //??
-        String workdir = toml.getString("workdir", ".");
 
         final List<String> othernodes = toml.getList("othernodes", Collections.EMPTY_LIST);
 
@@ -113,7 +114,7 @@ public class TomlConfigFactory implements ConfigFactory {
         ConfigBuilder configBuilder = ConfigBuilder.create()
 
                 .serverHostname(url)
-                .unixSocketFile(socket)
+                .unixSocketFile(unixSocketFile)
                 .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
                 .sslServerKeyStorePath(tlsserverkey)
                 .sslServerTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsservertrust))
