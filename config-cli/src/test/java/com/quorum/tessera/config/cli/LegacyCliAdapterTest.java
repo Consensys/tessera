@@ -2,6 +2,7 @@ package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.test.FixtureUtil;
 import org.apache.commons.cli.CommandLine;
@@ -76,6 +77,12 @@ public class LegacyCliAdapterTest {
 
         
         when(commandLine.getOptionValue("storage")).thenReturn("sqlite:somepath");
+
+        when(commandLine.getOptionValue("tlsservertrust")).thenReturn("whitelist");
+        
+        when(commandLine.getOptionValue("tlsclienttrust")).thenReturn("ca");
+        
+        
         
         when(commandLine.getOptionValues("publickeys"))
                 .thenReturn(new String[]{"ONE", "TWO"});
@@ -118,6 +125,9 @@ public class LegacyCliAdapterTest {
         assertThat(result.getJdbcConfig()).isNotNull();
         assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:sqlite:somepath");
         
+        assertThat(result.getServerConfig().getSslConfig().getServerTrustMode()).isEqualTo(SslTrustMode.WHITELIST);
+        assertThat(result.getServerConfig().getSslConfig().getClientTrustMode()).isEqualTo(SslTrustMode.CA);
+        
         
         Files.deleteIfExists(privateKeyPasswordFile);
         for(Path privateKeyPath : privateKeyPaths) {
@@ -150,6 +160,10 @@ public class LegacyCliAdapterTest {
                 .containsOnlyElementsOf(expectedValues.getPeers());
 
         assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:bogus");
+        
+        
+        assertThat(result.getServerConfig().getSslConfig().getServerTrustMode()).isEqualTo(SslTrustMode.TOFU);
+        assertThat(result.getServerConfig().getSslConfig().getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
         
     }
 
