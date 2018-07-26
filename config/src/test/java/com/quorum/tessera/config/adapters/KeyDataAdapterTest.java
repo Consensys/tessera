@@ -7,6 +7,14 @@ import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 public class KeyDataAdapterTest {
@@ -16,20 +24,20 @@ public class KeyDataAdapterTest {
     @Test
     public void marshallUnlockedKey() {
 
-        final KeyData keyData = new KeyData(new KeyDataConfig(null, PrivateKeyType.UNLOCKED), "PRIV", "PUB");
+        final KeyData keyData = new KeyData(new KeyDataConfig(null, UNLOCKED), "PRIV", "PUB", null, null);
 
         final KeyData marshalledKey = adapter.marshal(keyData);
 
         assertThat(marshalledKey.getPrivateKey()).isEqualTo("PRIV");
         assertThat(marshalledKey.getPublicKey()).isEqualTo("PUB");
-        assertThat(marshalledKey.getConfig()).isEqualToComparingFieldByField(new KeyDataConfig(null, PrivateKeyType.UNLOCKED));
+        assertThat(marshalledKey.getConfig()).isEqualToComparingFieldByField(new KeyDataConfig(null, UNLOCKED));
 
     }
 
     @Test
     public void marshallLockedKeyNullifiesPrivateKey() {
 
-        final KeyData keyData = new KeyData(new KeyDataConfig(null, PrivateKeyType.LOCKED), "PRIV", "PUB");
+        final KeyData keyData = new KeyData(new KeyDataConfig(null, PrivateKeyType.LOCKED), "PRIV", "PUB", null, null);
 
         final KeyData marshalledKey = adapter.marshal(keyData);
 
@@ -42,7 +50,7 @@ public class KeyDataAdapterTest {
     @Test
     public void marshallKeysWithLiteralValues() {
 
-        final KeyData keyData = new KeyData(null, "PRIV", "PUB");
+        final KeyData keyData = new KeyData(null, "PRIV", "PUB", null, null);
 
         final KeyData marshalled = adapter.unmarshal(keyData);
 
@@ -54,9 +62,14 @@ public class KeyDataAdapterTest {
     public void marshallKeysWithUnlockedPrivateKey() {
 
         final KeyData keyData = new KeyData(
-            new KeyDataConfig(new PrivateKeyData("LITERAL_PRIVATE", null, null, null, null, null), PrivateKeyType.UNLOCKED),
+            new KeyDataConfig(
+                new PrivateKeyData("LITERAL_PRIVATE", null, null, null, null, null),
+                UNLOCKED
+            ),
             null,
-            "PUB"
+            "PUB",
+            null,
+            null
         );
 
         final KeyData marshalled = adapter.unmarshal(keyData);
@@ -81,12 +94,47 @@ public class KeyDataAdapterTest {
                 PrivateKeyType.LOCKED
             ),
             null,
-            "PUB"
+            "PUB", null, null
         );
 
         final KeyData marshalled = adapter.unmarshal(keyData);
 
         assertThat(marshalled.getPrivateKey()).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
+
+    }
+
+    @Test
+    public void fileUnmarshallingSucceeds() throws IOException {
+
+        final String publicKey = "publicKey";
+        final String privateKey = "{\"data\":{\"bytes\":\"Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=\"},\"type\":\"unlocked\"}";
+
+        final Path pub = Files.createTempFile("public", ".pub");
+        final Path priv = Files.createTempFile("private", ".key");
+
+        Files.write(pub, publicKey.getBytes(UTF_8));
+        Files.write(priv, privateKey.getBytes(UTF_8));
+
+        final KeyData keyData = new KeyData(null, null, null, priv, pub);
+
+        final KeyData resolved = this.adapter.unmarshal(keyData);
+
+        assertThat(resolved.getPublicKey()).isEqualTo(publicKey);
+        assertThat(resolved.getPrivateKey()).isEqualTo("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=");
+        assertThat(resolved.getConfig().getType()).isEqualTo(UNLOCKED);
+
+    }
+
+    @Test
+    public void bothPathsMustBeSetIfUsingKeyPaths() {
+
+        final KeyData badConfig = new KeyData(null, null, null, Paths.get("sample"), null);
+
+        final Throwable throwable = catchThrowable(() -> this.adapter.unmarshal(badConfig));
+
+        assertThat(throwable)
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("When providing key paths, must give both public and private");
 
     }
 

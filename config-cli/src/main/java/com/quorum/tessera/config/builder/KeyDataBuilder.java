@@ -104,7 +104,7 @@ public class KeyDataBuilder {
                 .collect(Collectors.toList());
 
         return IntStream.range(0, keyDataConfigs.size())
-                .mapToObj(i -> new KeyData(keyDataConfigs.get(i), privateKeys.get(i), publicKeys.get(i)))
+                .mapToObj(i -> new KeyData(keyDataConfigs.get(i), privateKeys.get(i), publicKeys.get(i), null, null))
                 .collect(Collectors.toList());
     }
 

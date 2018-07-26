@@ -1,13 +1,13 @@
 package com.quorum.tessera.config.keys;
 
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.util.IOCallback;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.nacl.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,8 +20,6 @@ import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class KeyGeneratorImpl implements KeyGenerator {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeyGeneratorImpl.class);
 
     private final NaclFacade nacl;
 
@@ -66,7 +64,9 @@ public class KeyGeneratorImpl implements KeyGenerator {
                     PrivateKeyType.LOCKED
                 ),
                 generated.getPrivateKey().toString(),
-                publicKeyBase64
+                publicKeyBase64,
+                null,
+                null
             );
 
         } else {
@@ -77,7 +77,9 @@ public class KeyGeneratorImpl implements KeyGenerator {
                     UNLOCKED
                 ),
                 generated.getPrivateKey().toString(),
-                publicKeyBase64
+                publicKeyBase64,
+                null,
+                null
             );
 
         }
@@ -131,27 +133,6 @@ public class KeyGeneratorImpl implements KeyGenerator {
         JaxbUtil.marshal(privateKey, outputStream);
 
         return new String(outputStream.toByteArray());
-
-    }
-
-    /**
-     * Callback and template function to uncheck IO exceptions
-     *
-     * @param <T> the function to execute that throws an {@link IOException}
-     */
-    @FunctionalInterface
-    interface IOCallback<T> {
-
-        T doExecute() throws IOException;
-
-        static <T> T execute(IOCallback<T> callback) {
-            try {
-                return callback.doExecute();
-            } catch (final IOException ex) {
-                LOGGER.debug(null, ex);
-                throw new UncheckedIOException(ex);
-            }
-        }
 
     }
 
