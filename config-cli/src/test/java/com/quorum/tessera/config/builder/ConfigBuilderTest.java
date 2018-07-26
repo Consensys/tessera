@@ -50,14 +50,10 @@ public class ConfigBuilderTest {
 
         assertThat(result).isNotNull();
     }
-    
-    
-    
 
     @Test
-    public void influxHostnameEmptyThenInfluxConfigIsNull() {
-        Config result = builderWithValidValues.influxHostName("")
-                                            .build();
+    public void influxHostNameEmptyThenInfluxConfigIsNull() {
+        Config result = builderWithValidValues.build();
 
         assertThat(result.getServerConfig().getInfluxConfig()).isNull();
     }

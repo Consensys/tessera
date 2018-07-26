@@ -1,6 +1,7 @@
 package com.quorum.tessera.server.monitoring;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -10,7 +11,7 @@ public class PrometheusProtocolFormatterTest {
 
     private PrometheusProtocolFormatter protocolFormatter;
 
-    private ArrayList<MBeanMetric> mockMetrics;
+    private List<MBeanMetric> mockMetrics;
 
     @Before
     public void setUp() {

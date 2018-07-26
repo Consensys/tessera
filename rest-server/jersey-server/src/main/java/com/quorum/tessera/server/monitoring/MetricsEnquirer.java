@@ -15,7 +15,7 @@ public class MetricsEnquirer {
     }
 
     public List<MBeanMetric> getMBeanMetrics() {
-        ArrayList<MBeanMetric> mBeanMetrics = new ArrayList<>();
+        List<MBeanMetric> mBeanMetrics = new ArrayList<>();
 
         Set<ObjectName> mBeanNames;
         try {
@@ -32,19 +32,19 @@ public class MetricsEnquirer {
             }
 
         } catch (MalformedObjectNameException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
-        return mBeanMetrics;
+        return Collections.unmodifiableList(mBeanMetrics);
     }
 
     private Set<ObjectName> getTesseraResourceMBeanNames() throws MalformedObjectNameException {
         String pattern = "org.glassfish.jersey:type=Tessera,subType=Resources,resource=com.quorum.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*";
-        return this.mBeanServer.queryNames(new ObjectName(pattern), null);
+        return Collections.unmodifiableSet(this.mBeanServer.queryNames(new ObjectName(pattern), null));
     }
 
     private List<MBeanMetric> getMetricsForMBean(ObjectName mBeanName) throws AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException, IntrospectionException {
-        ArrayList<MBeanMetric> mBeanMetrics = new ArrayList<>();
+        List<MBeanMetric> mBeanMetrics = new ArrayList<>();
 
         MBeanAttributeInfo[] mBeanAttributes = this.mBeanServer.getMBeanInfo(mBeanName).getAttributes();
 

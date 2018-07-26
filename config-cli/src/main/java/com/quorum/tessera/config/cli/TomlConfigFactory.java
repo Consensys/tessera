@@ -110,14 +110,6 @@ public class TomlConfigFactory implements ConfigFactory {
 
         final String tlsknownclients = toml.getString("tlsknownclients", "tls-known-clients");
 
-        final String influxHostName = toml.getString("influxhostname", "");
-
-        final int influxPort = toml.getLong("influxport", 0L).intValue();
-
-        final Long pushIntervalInSecs = toml.getLong("pushintervalinsecs", 60L);
-
-        final String influxDbName = toml.getString("influxdbname", "");
-
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
         
@@ -133,11 +125,7 @@ public class TomlConfigFactory implements ConfigFactory {
                 .sslClientTrustStorePath(tlsservercert)
                 .knownClientsFile(tlsknownclients)
                 .knownServersFile(tlsknownservers)
-                .peers(othernodes)
-                .influxHostName(influxHostName)
-                .influxPort(influxPort)
-                .pushIntervalInSecs(pushIntervalInSecs)
-                .influxDbName(influxDbName);
+                .peers(othernodes);
 
         Optional.ofNullable(storage)
                 .map(JdbcConfigFactory::fromLegacyStorageString).ifPresent(configBuilder::jdbcConfig);

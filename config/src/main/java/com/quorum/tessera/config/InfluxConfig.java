@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
-public class InfluxConfig {
+public class InfluxConfig extends ConfigItem {
 
     @NotNull
     @XmlElement(required = true)
@@ -18,6 +18,8 @@ public class InfluxConfig {
     @XmlElement(required = true)
     private final Integer port;
 
+    @NotNull
+    @XmlElement(required = true)
     private final Long pushIntervalInSecs;
 
     @NotNull
@@ -32,7 +34,7 @@ public class InfluxConfig {
     }
 
     private static InfluxConfig create() {
-        return new InfluxConfig(null, null, 60L, null);
+        return new InfluxConfig(null, null, null, null);
     }
 
     public String getHostName() {

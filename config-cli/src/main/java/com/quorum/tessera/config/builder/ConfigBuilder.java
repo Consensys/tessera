@@ -54,15 +54,6 @@ public class ConfigBuilder {
                     .sslServerTlsKeyPath(Objects.toString(sslConfig.getServerTlsKeyPath()));
         }
 
-        final InfluxConfig influxConfig = config.getServerConfig().getInfluxConfig();
-
-        if(Objects.nonNull(influxConfig)) {
-            configBuilder.influxHostName(influxConfig.getHostName())
-                .influxPort(influxConfig.getPort())
-                .pushIntervalInSecs(influxConfig.getPushIntervalInSecs())
-                .influxDbName(influxConfig.getDbName());
-        }
-
         return configBuilder;
 
     }
@@ -116,14 +107,6 @@ public class ConfigBuilder {
     private String sslClientTlsKeyPath;
 
     private String sslClientTlsCertificatePath;
-
-    private String influxHostName;
-
-    private int influxPort;
-
-    private Long pushIntervalInSecs;
-
-    private String influxDbName;
 
     public ConfigBuilder sslServerTrustMode(SslTrustMode sslServerTrustMode) {
         this.sslServerTrustMode = sslServerTrustMode;
@@ -250,26 +233,6 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder influxHostName(String influxHostName) {
-        this.influxHostName = influxHostName;
-        return this;
-    }
-
-    public ConfigBuilder influxPort(int influxPort) {
-        this.influxPort = influxPort;
-        return this;
-    }
-
-    public ConfigBuilder pushIntervalInSecs(Long pushIntervalInSecs) {
-        this.pushIntervalInSecs = pushIntervalInSecs;
-        return this;
-    }
-
-    public ConfigBuilder influxDbName(String influxDbName) {
-        this.influxDbName= influxDbName;
-        return this;
-    }
-
     private static Path toPath(String value) {
         return Optional.ofNullable(value)
             .map(v -> Paths.get(v))
@@ -309,19 +272,7 @@ public class ConfigBuilder {
                 toPath(sslClientTlsCertificatePath)
         );
 
-        InfluxConfig influxConfig;
-        if(!influxHostName.equals("")) {
-            influxConfig = new InfluxConfig(
-                influxHostName,
-                influxPort,
-                pushIntervalInSecs,
-                influxDbName
-            );
-        } else {
-            influxConfig = null;
-        }
-
-        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig, influxConfig);
+        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig, null);
 
         final List<Peer> peerList = peers.stream()
                 .map(Peer::new)

@@ -28,11 +28,6 @@ public class ConfigFactoryTest {
 
         assertThat(config.getJdbcConfig().getUsername()).isEqualTo("scott");
 
-        assertThat(config.getServerConfig().getInfluxConfig().getHostName()).isEqualTo("localhost");
-        assertThat(config.getServerConfig().getInfluxConfig().getPort()).isEqualTo(1111);
-        assertThat(config.getServerConfig().getInfluxConfig().getDbName()).isEqualTo("dummy");
-        assertThat(config.getServerConfig().getInfluxConfig().getPushIntervalInSecs()).isEqualTo(60L); //check default value is set
-
         assertThat(config.getPeers()).hasSize(2);
 
         assertThat(config.getKeys()).hasSize(1);
