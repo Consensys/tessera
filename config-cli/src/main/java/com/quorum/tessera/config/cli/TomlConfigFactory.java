@@ -6,12 +6,12 @@ import com.quorum.tessera.config.ConfigFactory;
 
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.SslAuthenticationMode;
-import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.io.IOCallback;
 import com.moandjiezana.toml.Toml;
+import com.quorum.tessera.config.builder.SslTrustModeFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -19,9 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,16 +37,6 @@ import org.slf4j.LoggerFactory;
 public class TomlConfigFactory implements ConfigFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TomlConfigFactory.class);
-
-    private static final Map<String, SslTrustMode> TRUST_MODE_LOOKUP = new HashMap<String, SslTrustMode>() {
-        {
-            put("ca", SslTrustMode.CA);
-            put("tofu", SslTrustMode.TOFU);
-            put("ca-or-tofu", SslTrustMode.CA_OR_TOFU);
-            put("whitelist", SslTrustMode.WHITELIST);
-            put("none", SslTrustMode.NONE);
-        }
-    };
 
     private final FilesDelegate filesDelegate;
 
@@ -137,9 +125,9 @@ public class TomlConfigFactory implements ConfigFactory {
                 .unixSocketFile(socket)
                 .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
                 .sslServerKeyStorePath(tlsserverkey)
-                .sslServerTrustMode(resolve(tlsservertrust))
+                .sslServerTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsservertrust))
                 .sslServerTrustStorePath(tlsservertrust)
-                .sslClientTrustMode(resolve(tlsclienttrust))
+                .sslClientTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsclienttrust))
                 .sslClientKeyStorePath(tlsserverkey)
                 .sslClientKeyStorePassword("")
                 .sslClientTrustStorePath(tlsservercert)
@@ -201,11 +189,5 @@ public class TomlConfigFactory implements ConfigFactory {
 
         return Collections.unmodifiableList(privateKeyData);
     }
-
-    static SslTrustMode resolve(String value) {
-        return TRUST_MODE_LOOKUP.getOrDefault(value, SslTrustMode.NONE);
-    }
-
-
 
 }

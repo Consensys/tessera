@@ -2,6 +2,7 @@ package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.test.FixtureUtil;
 import org.apache.commons.cli.CommandLine;
@@ -74,14 +75,26 @@ public class LegacyCliAdapterTest {
                                 .toArray(new String[0])
                 );
 
-        
         when(commandLine.getOptionValue("storage")).thenReturn("sqlite:somepath");
-        
+
+        when(commandLine.getOptionValue("tlsservertrust")).thenReturn("whitelist");
+
+        when(commandLine.getOptionValue("tlsclienttrust")).thenReturn("ca");
+
+        when(commandLine.getOptionValue("tlsservercert")).thenReturn("tlsservercert.cert");
+        when(commandLine.getOptionValue("tlsclientcert")).thenReturn("tlsclientcert.cert");
+
+        when(commandLine.getOptionValues("tlsserverchain")).thenReturn(new String[]{
+            "server1.crt", "server2.crt", "server3.crt"
+        });
+
+        when(commandLine.getOptionValues("tlsclientchain")).thenReturn(new String[]{
+            "client1.crt", "client2.crt", "client3.crt"
+        });
+
         when(commandLine.getOptionValues("publickeys"))
                 .thenReturn(new String[]{"ONE", "TWO"});
 
-        
-        
         List<Path> privateKeyPaths = Arrays.asList(
                 Files.createTempFile("applyOverrides1", ".txt"),
                 Files.createTempFile("applyOverrides2", ".txt")
@@ -96,14 +109,14 @@ public class LegacyCliAdapterTest {
                 .map(Path::toString)
                 .collect(Collectors.toList())
                 .toArray(new String[0]);
-        
+
         when(commandLine.getOptionValues("privatekeys")).thenReturn(privateKeyPathStrings);
-        
+
         final List<String> privateKeyPasswords = Arrays.asList("SECRET1", "SECRET2");
-        
-        final Path privateKeyPasswordFile = Files.createTempFile("applyOverridesPasswords",".txt");
+
+        final Path privateKeyPasswordFile = Files.createTempFile("applyOverridesPasswords", ".txt");
         Files.write(privateKeyPasswordFile, privateKeyPasswords);
-        
+
         when(commandLine.getOptionValue("passwords"))
                 .thenReturn(privateKeyPasswordFile.toString());
 
@@ -117,13 +130,25 @@ public class LegacyCliAdapterTest {
         assertThat(result.getKeys()).hasSize(2);
         assertThat(result.getJdbcConfig()).isNotNull();
         assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:sqlite:somepath");
-        
-        
+
+        assertThat(result.getServerConfig().getSslConfig().getServerTrustMode()).isEqualTo(SslTrustMode.WHITELIST);
+        assertThat(result.getServerConfig().getSslConfig().getClientTrustMode()).isEqualTo(SslTrustMode.CA);
+
+        assertThat(result.getServerConfig().getSslConfig().getClientKeyStore()).isEqualTo(Paths.get("tlsclientcert.cert"));
+
+        assertThat(result.getServerConfig().getSslConfig().getServerKeyStore()).isEqualTo(Paths.get("tlsservercert.cert"));
+
+        assertThat(result.getServerConfig().getSslConfig().getServerTrustCertificates())
+                .containsExactly(Paths.get("server1.crt"), Paths.get("server2.crt"), Paths.get("server3.crt"));
+
+        assertThat(result.getServerConfig().getSslConfig().getClientTrustCertificates())
+                .containsExactly(Paths.get("client1.crt"), Paths.get("client2.crt"), Paths.get("client3.crt"));
+
         Files.deleteIfExists(privateKeyPasswordFile);
-        for(Path privateKeyPath : privateKeyPaths) {
+        for (Path privateKeyPath : privateKeyPaths) {
             Files.deleteIfExists(privateKeyPath);
         }
-        
+
     }
 
     @Test
@@ -150,7 +175,17 @@ public class LegacyCliAdapterTest {
                 .containsOnlyElementsOf(expectedValues.getPeers());
 
         assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:bogus");
-        
+
+        assertThat(result.getServerConfig().getSslConfig().getServerTrustMode()).isEqualTo(SslTrustMode.TOFU);
+        assertThat(result.getServerConfig().getSslConfig().getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
+        assertThat(result.getServerConfig().getSslConfig().getClientKeyStore()).isEqualTo(Paths.get("sslClientKeyStorePath"));
+
+        assertThat(result.getServerConfig().getSslConfig().getServerKeyStore()).isEqualTo(Paths.get("sslServerKeyStorePath"));
+
+        assertThat(result.getServerConfig().getSslConfig().getServerTrustCertificates()).isEmpty();
+
+        assertThat(result.getServerConfig().getSslConfig().getClientTrustCertificates()).isEmpty();
+
     }
 
 }

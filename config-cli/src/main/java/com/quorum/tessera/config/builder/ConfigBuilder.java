@@ -4,6 +4,7 @@ import com.quorum.tessera.config.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -65,15 +66,7 @@ public class ConfigBuilder {
 
     private Integer serverPort;
 
-    private String legacyStorage;
-
     private JdbcConfig jdbcConfig;
-
-    private String jdbcUsername;
-
-    private String jdbcPassword;
-
-    private String jdbcUrl;
 
     private String unixSocketFile;
 
@@ -93,6 +86,8 @@ public class ConfigBuilder {
 
     private String sslServerTrustStorePath;
 
+    private List<String> sslServerTrustCertificates = Collections.emptyList();
+
     private String sslClientKeyStorePath;
 
     private String sslClientKeyStorePassword;
@@ -100,6 +95,8 @@ public class ConfigBuilder {
     private String sslClientTrustStorePassword;
 
     private String sslClientTrustStorePath;
+
+    private List<String> sslClientTrustCertificates = Collections.emptyList();
 
     private SslTrustMode sslClientTrustMode;
 
@@ -145,6 +142,11 @@ public class ConfigBuilder {
         return this;
     }
 
+    public ConfigBuilder sslServerTrustCertificates(List<String> sslServerTrustCertificates) {
+        this.sslServerTrustCertificates = sslServerTrustCertificates;
+        return this;
+    }
+
     public ConfigBuilder sslClientTrustStorePassword(String sslClientTrustStorePassword) {
         this.sslClientTrustStorePassword = sslClientTrustStorePassword;
         return this;
@@ -170,8 +172,6 @@ public class ConfigBuilder {
         return this;
     }
 
-
-
     public ConfigBuilder peers(List<String> peers) {
         this.peers = peers;
         return this;
@@ -194,6 +194,11 @@ public class ConfigBuilder {
 
     public ConfigBuilder sslClientKeyStorePath(String sslClientKeyStorePath) {
         this.sslClientKeyStorePath = sslClientKeyStorePath;
+        return this;
+    }
+
+    public ConfigBuilder sslClientTrustCertificates(List<String> sslClientTrustCertificates) {
+        this.sslClientTrustCertificates = sslClientTrustCertificates;
         return this;
     }
 
@@ -234,7 +239,6 @@ public class ConfigBuilder {
 
     public Config build() {
 
-       
         boolean generateKeyStoreIfNotExisted = false;
 
         SslConfig sslConfig = new SslConfig(
@@ -251,7 +255,13 @@ public class ConfigBuilder {
                 sslClientTrustStorePassword,
                 sslClientTrustMode,
                 Paths.get(knownClientsFile),
-                Paths.get(knownServersFile));
+                Paths.get(knownServersFile),
+                sslServerTrustCertificates.stream()
+                        .map(v -> Paths.get(v))
+                        .collect(Collectors.toList()),
+                sslClientTrustCertificates.stream()
+                        .map(v -> Paths.get(v))
+                        .collect(Collectors.toList()));
 
         InfluxConfig influxConfig;
         if(influxHostName != "") {

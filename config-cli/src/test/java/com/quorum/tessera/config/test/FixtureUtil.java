@@ -48,6 +48,7 @@ public class FixtureUtil {
                 .sslClientTrustStorePath("sslClientTrustStorePath")
                 .sslClientKeyStorePassword("sslClientKeyStorePassword")
                 .sslClientTrustStorePassword("sslClientTrustStorePassword")
+                .sslClientTrustMode(SslTrustMode.CA_OR_TOFU)
                 .knownClientsFile("knownClientsFile")
                 .knownServersFile("knownServersFile");
     }
