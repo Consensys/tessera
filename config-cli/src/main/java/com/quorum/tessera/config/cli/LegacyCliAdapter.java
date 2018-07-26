@@ -56,9 +56,9 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(ConfigBuilder::from)
                 .orElse(ConfigBuilder.create());
 
-        ConfigBuilder adustedConfig = applyOverrides(line, configBuilder);
+        ConfigBuilder adjustedConfig = applyOverrides(line, configBuilder);
 
-        return new CliResult(0, false, adustedConfig.build());
+        return new CliResult(0, false, adjustedConfig.build());
     }
 
     static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder) {
@@ -122,6 +122,13 @@ public class LegacyCliAdapter implements CliAdapter {
 
         Optional.ofNullable(line.getOptionValue("tlsclientkey"))
                 .ifPresent(configBuilder::sslClientKeyStorePath);
+
+        //tlsknownservers
+        Optional.ofNullable(line.getOptionValue("tlsknownservers"))
+                .ifPresent(configBuilder::sslKnownServersFile);
+
+        Optional.ofNullable(line.getOptionValue("tlsknownclients"))
+                .ifPresent(configBuilder::sslKnownClientsFile);
 
         configBuilder.keyData(keyDataBuilder.build());
 

@@ -82,7 +82,7 @@ public class LegacyCliAdapterTest {
         when(commandLine.getOptionValue("tlsclienttrust")).thenReturn("ca");
 
         when(commandLine.getOptionValue("tlsservercert")).thenReturn("tlsservercert.cert");
-        
+
         when(commandLine.getOptionValue("tlsclientcert")).thenReturn("tlsclientcert.cert");
 
         when(commandLine.getOptionValues("tlsserverchain")).thenReturn(new String[]{
@@ -106,6 +106,10 @@ public class LegacyCliAdapterTest {
                 Files.createTempFile("applyOverrides1", ".txt"),
                 Files.createTempFile("applyOverrides2", ".txt")
         );
+
+        when(commandLine.getOptionValue("tlsknownservers")).thenReturn("tlsknownservers.file");
+
+        when(commandLine.getOptionValue("tlsknownclients")).thenReturn("tlsknownclients.file");
 
         final byte[] privateKeyData = FixtureUtil.createLockedPrivateKey().toString().getBytes();
         for (Path p : privateKeyPaths) {
@@ -157,6 +161,12 @@ public class LegacyCliAdapterTest {
         assertThat(result.getServerConfig().getSslConfig().getClientKeyStore())
                 .isEqualTo(Paths.get("tlsclientkey.key"));
 
+        assertThat(result.getServerConfig().getSslConfig().getKnownServersFile())
+                .isEqualTo(Paths.get("tlsknownservers.file"));
+
+        assertThat(result.getServerConfig().getSslConfig().getKnownClientsFile())
+                .isEqualTo(Paths.get("tlsknownclients.file"));
+
         Files.deleteIfExists(privateKeyPasswordFile);
         for (Path privateKeyPath : privateKeyPaths) {
             Files.deleteIfExists(privateKeyPath);
@@ -199,7 +209,11 @@ public class LegacyCliAdapterTest {
 
         assertThat(result.getServerConfig().getSslConfig().getClientTrustCertificates()).isEmpty();
 
+        assertThat(result.getServerConfig().getSslConfig().getKnownServersFile())
+                .isEqualTo(Paths.get("knownServersFile"));
 
+        assertThat(result.getServerConfig().getSslConfig().getKnownClientsFile())
+                .isEqualTo(Paths.get("knownClientsFile"));
 
     }
 
