@@ -67,6 +67,11 @@ public class ConfigFactoryTest {
     @Test
     public void createFromKeyGenSample() throws Exception {
 
+        final InputStream tempSystemIn = new ByteArrayInputStream(System.lineSeparator().getBytes());
+
+        final InputStream oldSystemIn = System.in;
+        System.setIn(tempSystemIn);
+
         final ConfigFactory configFactory = ConfigFactory.create();
         assertThat(configFactory).isExactlyInstanceOf(JaxbConfigFactory.class);
 
@@ -93,6 +98,8 @@ public class ConfigFactoryTest {
         assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getIterations()).isEqualTo(10);
         assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getParallelism()).isEqualTo(4);
         assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getMemory()).isEqualTo(1048576);
+
+        System.setIn(oldSystemIn);
 
     }
 }
