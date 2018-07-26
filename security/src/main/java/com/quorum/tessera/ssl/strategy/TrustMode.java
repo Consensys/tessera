@@ -6,15 +6,14 @@ import org.bouncycastle.operator.OperatorCreationException;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.security.*;
-import java.security.cert.CertificateException;
+import java.security.GeneralSecurityException;
 import java.util.Optional;
 
 public enum TrustMode {
 
     NONE {
         @Override
-        public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws NoSuchAlgorithmException, KeyManagementException, CertificateException, UnrecoverableKeyException, OperatorCreationException, IOException, KeyStoreException, SignatureException, NoSuchProviderException, InvalidKeyException {
+        public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws GeneralSecurityException, OperatorCreationException, IOException {
             return SSLContextBuilder
                 .createBuilder(keyStore, keyStorePassword, trustStore, trustStorePassword)
                 .forAllCertificates()
@@ -24,7 +23,7 @@ public enum TrustMode {
 
     WHITELIST {
         @Override
-        public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+        public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws GeneralSecurityException, IOException, OperatorCreationException {
             return SSLContextBuilder
                 .createBuilder(keyStore, keyStorePassword, trustStore, trustStorePassword)
                 .forWhiteList(knownHosts)
@@ -34,7 +33,7 @@ public enum TrustMode {
 
     TOFU {
         @Override
-        public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+        public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws GeneralSecurityException, IOException, OperatorCreationException {
             return SSLContextBuilder
                 .createBuilder(keyStore, keyStorePassword, trustStore, trustStorePassword)
                 .forTrustOnFirstUse(knownHosts)
@@ -44,7 +43,7 @@ public enum TrustMode {
 
     CA {
         @Override
-        public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+        public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws GeneralSecurityException, IOException, OperatorCreationException {
             return SSLContextBuilder
                 .createBuilder(keyStore, keyStorePassword, trustStore, trustStorePassword)
                 .forCASignedCertificates()
@@ -56,7 +55,7 @@ public enum TrustMode {
                                                 String keyStorePassword,
                                                 Path trustStore,
                                                 String trustStorePassword,
-                                                Path knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException;
+                                                Path knownHosts) throws GeneralSecurityException, IOException, OperatorCreationException;
 
     public static Optional<TrustMode> getValueIfPresent(String value) {
         try {

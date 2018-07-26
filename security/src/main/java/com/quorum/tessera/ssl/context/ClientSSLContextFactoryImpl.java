@@ -8,8 +8,7 @@ import org.bouncycastle.operator.OperatorCreationException;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.security.*;
-import java.security.cert.CertificateException;
+import java.security.GeneralSecurityException;
 
 public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
 
@@ -20,16 +19,16 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
             .getValueIfPresent(sslConfig.getClientTrustMode().name())
             .orElse(TrustMode.NONE);
 
-        Path keyStore = sslConfig.getClientKeyStore();
-        String keyStorePassword = sslConfig.getClientKeyStorePassword();
-        Path trustStore = sslConfig.getClientTrustStore();
-        String trustStorePassword = sslConfig.getClientTrustStorePassword();
-        Path knownHostsFile = sslConfig.getKnownServersFile();
+        final Path keyStore = sslConfig.getClientKeyStore();
+        final String keyStorePassword = sslConfig.getClientKeyStorePassword();
+        final Path trustStore = sslConfig.getClientTrustStore();
+        final String trustStorePassword = sslConfig.getClientTrustStorePassword();
+        final Path knownHostsFile = sslConfig.getKnownServersFile();
 
         try {
             return trustMode
                 .createSSLContext(keyStore, keyStorePassword, trustStore, trustStorePassword, knownHostsFile);
-        } catch (NoSuchAlgorithmException | KeyManagementException | UnrecoverableKeyException | CertificateException | KeyStoreException | IOException | OperatorCreationException | NoSuchProviderException | InvalidKeyException | SignatureException ex) {
+        } catch (IOException | OperatorCreationException | GeneralSecurityException ex) {
             throw new TesseraSecurityException(ex);
         }
     }

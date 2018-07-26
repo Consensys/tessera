@@ -48,7 +48,7 @@ public class SSLContextBuilderTest {
     }
 
     @Test
-    public void testBuildForTrustOnFirstUse() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+    public void testBuildForTrustOnFirstUse() throws GeneralSecurityException, IOException, OperatorCreationException {
 
         final SSLContext sslContext = sslContextBuilder.forTrustOnFirstUse(knownHostFile).build();
 
@@ -61,7 +61,7 @@ public class SSLContextBuilderTest {
     }
 
     @Test
-    public void testBuildForWhiteList() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+    public void testBuildForWhiteList() throws GeneralSecurityException, IOException, OperatorCreationException {
 
         final SSLContext sslContext = sslContextBuilder.forWhiteList(knownHostFile).build();
 
@@ -75,7 +75,7 @@ public class SSLContextBuilderTest {
     }
 
     @Test
-    public void testBuildForCASignedCertificates() throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+    public void testBuildForCASignedCertificates() throws GeneralSecurityException, IOException, OperatorCreationException {
 
         final SSLContext sslContext = sslContextBuilder.forCASignedCertificates().build();
 
@@ -94,7 +94,7 @@ public class SSLContextBuilderTest {
     }
 
     @Test
-    public void testBuildForAllCertificates() throws KeyManagementException, IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, InvalidKeyException, SignatureException, OperatorCreationException, NoSuchProviderException {
+    public void testBuildForAllCertificates() throws GeneralSecurityException, IOException, OperatorCreationException {
 
         final SSLContext sslContext = sslContextBuilder.forAllCertificates().build();
 
@@ -106,7 +106,7 @@ public class SSLContextBuilderTest {
     }
 
     @Test
-    public void testKeyStoreNotExistedThenGenerated() throws NoSuchAlgorithmException, UnrecoverableKeyException, CertificateException, KeyManagementException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+    public void testKeyStoreNotExistedThenGenerated() throws GeneralSecurityException, IOException, OperatorCreationException {
 
         final Path nonExistedFile = Paths.get(tmpDir.getRoot().getPath(), "somefile");
 

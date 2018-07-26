@@ -9,8 +9,7 @@ import org.junit.rules.TemporaryFolder;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.*;
-import java.security.cert.CertificateException;
+import java.security.GeneralSecurityException;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
@@ -31,7 +30,7 @@ public class TrustModeTest {
 
 
     @Test
-    public void testNone() throws IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
+    public void testNone() throws IOException, GeneralSecurityException, OperatorCreationException {
 
         assertThat(
             TrustMode.NONE.createSSLContext(
@@ -46,7 +45,7 @@ public class TrustModeTest {
     }
 
     @Test
-    public void testWhiteList() throws IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
+    public void testWhiteList() throws IOException, GeneralSecurityException, OperatorCreationException {
         assertThat(
             TrustMode.getValueIfPresent("WHITELIST").get().createSSLContext(
                 tmpFile,
@@ -59,7 +58,7 @@ public class TrustModeTest {
     }
 
     @Test
-    public void testCA() throws IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
+    public void testCA() throws IOException, GeneralSecurityException, OperatorCreationException {
         assertThat(
             TrustMode.getValueIfPresent("CA").get().createSSLContext(
                 tmpFile,
@@ -72,7 +71,7 @@ public class TrustModeTest {
     }
 
     @Test
-    public void testTOFU() throws IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, InvalidKeyException, SignatureException, NoSuchProviderException, OperatorCreationException, KeyStoreException, KeyManagementException {
+    public void testTOFU() throws IOException, GeneralSecurityException, OperatorCreationException {
         assertThat(
             TrustMode.getValueIfPresent("TOFU").get().createSSLContext(
                 tmpFile,

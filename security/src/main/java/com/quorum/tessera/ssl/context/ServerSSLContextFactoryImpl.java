@@ -8,8 +8,7 @@ import org.bouncycastle.operator.OperatorCreationException;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.security.*;
-import java.security.cert.CertificateException;
+import java.security.GeneralSecurityException;
 
 public class ServerSSLContextFactoryImpl implements ServerSSLContextFactory {
 
@@ -29,7 +28,7 @@ public class ServerSSLContextFactoryImpl implements ServerSSLContextFactory {
         try {
             return trustMode
                     .createSSLContext(keyStore, keyStorePassword, trustStore, trustStorePassword, knownHostsFile);
-        } catch (NoSuchAlgorithmException | KeyManagementException | UnrecoverableKeyException | CertificateException | KeyStoreException | IOException | OperatorCreationException | NoSuchProviderException | InvalidKeyException | SignatureException ex) {
+        } catch (IOException | OperatorCreationException | GeneralSecurityException ex) {
             throw new TesseraSecurityException(ex);
         }
     }
