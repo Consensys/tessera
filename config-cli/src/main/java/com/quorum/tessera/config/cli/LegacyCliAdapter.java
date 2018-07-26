@@ -106,6 +106,13 @@ public class LegacyCliAdapter implements CliAdapter {
                .map(SslTrustModeFactory::resolveByLegacyValue)
                .ifPresent(configBuilder::sslClientTrustMode);
        
+       Optional.ofNullable(line.getOptionValue("tlsservercert"))
+               .ifPresent(configBuilder::sslServerKeyStorePath);
+       
+       Optional.ofNullable(line.getOptionValue("tlsclientcert"))
+               .ifPresent(configBuilder::sslClientKeyStorePath); 
+       
+       
        
        
         configBuilder.keyData(keyDataBuilder.build());

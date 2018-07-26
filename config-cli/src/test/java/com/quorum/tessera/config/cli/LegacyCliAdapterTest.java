@@ -75,20 +75,18 @@ public class LegacyCliAdapterTest {
                                 .toArray(new String[0])
                 );
 
-        
         when(commandLine.getOptionValue("storage")).thenReturn("sqlite:somepath");
 
         when(commandLine.getOptionValue("tlsservertrust")).thenReturn("whitelist");
-        
+
         when(commandLine.getOptionValue("tlsclienttrust")).thenReturn("ca");
-        
-        
-        
+
+        when(commandLine.getOptionValue("tlsservercert")).thenReturn("tlsservercert.cert");
+        when(commandLine.getOptionValue("tlsclientcert")).thenReturn("tlsclientcert.cert");
+
         when(commandLine.getOptionValues("publickeys"))
                 .thenReturn(new String[]{"ONE", "TWO"});
 
-        
-        
         List<Path> privateKeyPaths = Arrays.asList(
                 Files.createTempFile("applyOverrides1", ".txt"),
                 Files.createTempFile("applyOverrides2", ".txt")
@@ -103,14 +101,14 @@ public class LegacyCliAdapterTest {
                 .map(Path::toString)
                 .collect(Collectors.toList())
                 .toArray(new String[0]);
-        
+
         when(commandLine.getOptionValues("privatekeys")).thenReturn(privateKeyPathStrings);
-        
+
         final List<String> privateKeyPasswords = Arrays.asList("SECRET1", "SECRET2");
-        
-        final Path privateKeyPasswordFile = Files.createTempFile("applyOverridesPasswords",".txt");
+
+        final Path privateKeyPasswordFile = Files.createTempFile("applyOverridesPasswords", ".txt");
         Files.write(privateKeyPasswordFile, privateKeyPasswords);
-        
+
         when(commandLine.getOptionValue("passwords"))
                 .thenReturn(privateKeyPasswordFile.toString());
 
@@ -124,16 +122,19 @@ public class LegacyCliAdapterTest {
         assertThat(result.getKeys()).hasSize(2);
         assertThat(result.getJdbcConfig()).isNotNull();
         assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:sqlite:somepath");
-        
+
         assertThat(result.getServerConfig().getSslConfig().getServerTrustMode()).isEqualTo(SslTrustMode.WHITELIST);
         assertThat(result.getServerConfig().getSslConfig().getClientTrustMode()).isEqualTo(SslTrustMode.CA);
-        
-        
+
+        assertThat(result.getServerConfig().getSslConfig().getClientKeyStore()).isEqualTo(Paths.get("tlsclientcert.cert"));
+
+        assertThat(result.getServerConfig().getSslConfig().getServerKeyStore()).isEqualTo(Paths.get("tlsservercert.cert"));
+
         Files.deleteIfExists(privateKeyPasswordFile);
-        for(Path privateKeyPath : privateKeyPaths) {
+        for (Path privateKeyPath : privateKeyPaths) {
             Files.deleteIfExists(privateKeyPath);
         }
-        
+
     }
 
     @Test
@@ -160,11 +161,12 @@ public class LegacyCliAdapterTest {
                 .containsOnlyElementsOf(expectedValues.getPeers());
 
         assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:bogus");
-        
-        
+
         assertThat(result.getServerConfig().getSslConfig().getServerTrustMode()).isEqualTo(SslTrustMode.TOFU);
         assertThat(result.getServerConfig().getSslConfig().getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
-        
+        assertThat(result.getServerConfig().getSslConfig().getClientKeyStore()).isEqualTo(Paths.get("sslClientKeyStorePath"));
+
+        assertThat(result.getServerConfig().getSslConfig().getServerKeyStore()).isEqualTo(Paths.get("sslServerKeyStorePath"));
     }
 
 }
