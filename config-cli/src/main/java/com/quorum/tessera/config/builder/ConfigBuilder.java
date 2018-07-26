@@ -53,8 +53,8 @@ public class ConfigBuilder {
                     .sslServerKeyStorePassword(sslConfig.getServerKeyStorePassword())
                     .sslServerTrustStorePath(Objects.toString(sslConfig.getServerTrustStore()))
                     .sslServerTrustStorePassword(sslConfig.getServerTrustStorePassword())
-                    .knownClientsFile(Objects.toString(sslConfig.getKnownClientsFile()))
-                    .knownServersFile(Objects.toString(sslConfig.getKnownServersFile()))
+                    .sslKnownClientsFile(Objects.toString(sslConfig.getKnownClientsFile()))
+                    .sslKnownServersFile(Objects.toString(sslConfig.getKnownServersFile()))
                     
                     .sslClientTlsCertificatePath(Objects.toString(sslConfig.getClientTlsCertificatePath()))
                     .sslServerTlsCertificatePath(Objects.toString(sslConfig.getServerTlsCertificatePath()))
@@ -108,9 +108,9 @@ public class ConfigBuilder {
 
     private SslTrustMode sslClientTrustMode;
 
-    private String knownClientsFile;
+    private String sslKnownClientsFile;
 
-    private String knownServersFile;
+    private String sslKnownServersFile;
 
     private String sslServerTlsKeyPath;
 
@@ -185,13 +185,13 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder knownClientsFile(String knownClientsFile) {
-        this.knownClientsFile = knownClientsFile;
+    public ConfigBuilder sslKnownClientsFile(String knownClientsFile) {
+        this.sslKnownClientsFile = knownClientsFile;
         return this;
     }
 
-    public ConfigBuilder knownServersFile(String knownServersFile) {
-        this.knownServersFile = knownServersFile;
+    public ConfigBuilder sslKnownServersFile(String knownServersFile) {
+        this.sslKnownServersFile = knownServersFile;
         return this;
     }
 
@@ -268,8 +268,8 @@ public class ConfigBuilder {
                 toPath(sslClientTrustStorePath),
                 sslClientTrustStorePassword,
                 sslClientTrustMode,
-                toPath(knownClientsFile),
-                toPath(knownServersFile),
+                toPath(sslKnownClientsFile),
+                toPath(sslKnownServersFile),
                 sslServerTrustCertificates.stream()
                         .map(ConfigBuilder::toPath)
                         .filter(Objects::nonNull)

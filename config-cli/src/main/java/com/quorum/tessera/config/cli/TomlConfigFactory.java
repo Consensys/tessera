@@ -122,8 +122,8 @@ public class TomlConfigFactory implements ConfigFactory {
                 .sslClientKeyStorePath(tlsserverkey)
                 .sslClientKeyStorePassword("")
                 .sslClientTrustStorePath(tlsservercert)
-                .knownClientsFile(tlsknownclients)
-                .knownServersFile(tlsknownservers)
+                .sslKnownClientsFile(tlsknownclients)
+                .sslKnownServersFile(tlsknownservers)
                 .peers(othernodes);
 
         Optional.ofNullable(storage)

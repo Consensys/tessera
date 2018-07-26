@@ -37,8 +37,8 @@ public class ConfigBuilderTest {
             .sslClientTrustStorePassword("sslClientTrustStorePassword")
             .sslServerTlsKeyPath("sslServerTlsKeyPath")
             .sslClientTlsKeyPath("sslClientTlsKeyPath")
-            .knownClientsFile("knownClientsFile")
-            .knownServersFile("knownServersFile")
+            .sslKnownClientsFile("knownClientsFile")
+            .sslKnownServersFile("knownServersFile")
             
             .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
             .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
