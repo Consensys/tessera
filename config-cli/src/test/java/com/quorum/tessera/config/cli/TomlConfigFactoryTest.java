@@ -5,6 +5,7 @@ import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.SslTrustMode;
+import com.quorum.tessera.config.test.FixtureUtil;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -13,11 +14,9 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.json.Json;
 import javax.json.JsonObject;
 import static org.assertj.core.api.Assertions.*;
 
@@ -39,6 +38,9 @@ public class TomlConfigFactoryTest {
         try (InputStream configData = getClass().getResourceAsStream("/sample.conf")) {
             Config result = tomlConfigFactory.create(configData);
             assertThat(result).isNotNull();
+            
+            assertThat(result.getServerConfig().getSslConfig().getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
+            
         }
     }
 
@@ -80,54 +82,9 @@ public class TomlConfigFactoryTest {
     }
 
     @Test
-    public void resolveSslTrustModeForCaOrTofu() {
-        SslTrustMode result = TomlConfigFactory.resolve("ca-or-tofu");
-        assertThat(result).isEqualTo(SslTrustMode.CA_OR_TOFU);
-
-    }
-
-    @Test
-    public void resolveSslTrustMode() {
-
-        java.util.Map<SslTrustMode, String> fixtures = new EnumMap<>(SslTrustMode.class);
-
-        fixtures.put(SslTrustMode.CA, "ca");
-        fixtures.put(SslTrustMode.TOFU, "tofu");
-        fixtures.put(SslTrustMode.CA_OR_TOFU, "ca-or-tofu");
-        fixtures.put(SslTrustMode.NONE, "none");
-
-        for (SslTrustMode mode : fixtures.keySet()) {
-            SslTrustMode result = TomlConfigFactory.resolve(fixtures.get(mode));
-            assertThat(result).isEqualTo(mode);
-        }
-    }
-
-    @Test
-    public void resolveSslTrustModeNone() {
-
-        assertThat(TomlConfigFactory.resolve(null)).isEqualTo(SslTrustMode.NONE);
-        assertThat(TomlConfigFactory.resolve("BOGUS")).isEqualTo(SslTrustMode.NONE);
-    }
-
-    @Test
     public void createPrivateKeyData() throws Exception {
 
-        JsonObject privateKeyData = Json.createObjectBuilder()
-                .add("aopts",
-                        Json.createObjectBuilder()
-                                .add("variant", "id")
-                                .add("memory", 1048576)
-                                .add("iterations", 10)
-                                .add("parallelism", 4)
-                                .add("version", 1.3)
-                )
-                .add("snonce", "xx3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC")
-                .add("asalt", "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=")
-                .add("sbox", "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc").build();
-
-        JsonObject keyDataConfigJson = Json.createObjectBuilder()
-                .add("data", Json.createObjectBuilder(privateKeyData))
-                .add("type", "argon2sbox").build();
+        JsonObject keyDataConfigJson = FixtureUtil.createLockedPrivateKey();
 
         Path privateKeyPath = Files.createTempFile("createPrivateKeyData", ".txt");
         Files.write(privateKeyPath, keyDataConfigJson.toString().getBytes());
@@ -140,6 +97,8 @@ public class TomlConfigFactoryTest {
 
         assertThat(keyConfig.getType()).isEqualTo(PrivateKeyType.LOCKED);
 
+        JsonObject privateKeyData = keyDataConfigJson.getJsonObject("data");
+        
         PrivateKeyData key = keyConfig.getPrivateKeyData();
 
         assertThat(key.getPassword()).isEqualTo("Secret");

@@ -64,15 +64,7 @@ public class ConfigBuilder {
 
     private Integer serverPort;
 
-    private String legacyStorage;
-
     private JdbcConfig jdbcConfig;
-
-    private String jdbcUsername;
-
-    private String jdbcPassword;
-
-    private String jdbcUrl;
 
     private String unixSocketFile;
 
@@ -161,8 +153,6 @@ public class ConfigBuilder {
         return this;
     }
 
-
-
     public ConfigBuilder peers(List<String> peers) {
         this.peers = peers;
         return this;
@@ -205,7 +195,6 @@ public class ConfigBuilder {
 
     public Config build() {
 
-       
         boolean generateKeyStoreIfNotExisted = false;
 
         SslConfig sslConfig = new SslConfig(

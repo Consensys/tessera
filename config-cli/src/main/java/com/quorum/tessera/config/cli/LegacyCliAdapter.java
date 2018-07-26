@@ -4,6 +4,7 @@ import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
+import com.quorum.tessera.config.builder.SslTrustModeFactory;
 import com.quorum.tessera.io.FilesDelegate;
 import org.apache.commons.cli.*;
 
@@ -96,6 +97,17 @@ public class LegacyCliAdapter implements CliAdapter {
                .map(JdbcConfigFactory::fromLegacyStorageString)
                .ifPresent(configBuilder::jdbcConfig);
         
+       Optional.ofNullable(line.getOptionValue("tlsservertrust"))
+               .map(SslTrustModeFactory::resolveByLegacyValue)
+               .ifPresent(configBuilder::sslServerTrustMode);
+       
+       
+       Optional.ofNullable(line.getOptionValue("tlsclienttrust"))
+               .map(SslTrustModeFactory::resolveByLegacyValue)
+               .ifPresent(configBuilder::sslClientTrustMode);
+       
+       
+       
         configBuilder.keyData(keyDataBuilder.build());
 
         return configBuilder;
@@ -208,12 +220,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .build()
         );
 
-        options.addOption(
-                Option.builder()
-                        .longOpt("ipwhitelist")
-                        .desc("Comma-separated list of IPv4 and IPv6 addresses that may connect to this node's public API")
-                        .build()
-        );
+
 
         options.addOption(
                 Option.builder()
@@ -235,7 +242,7 @@ public class LegacyCliAdapter implements CliAdapter {
                 Option.builder()
                         .longOpt("tlsserverchain")
                         .desc("Comma separated list of TLS chain certificates to use for the public API")
-                        .argName("IP...")
+                        .argName("FILE...")
                         .hasArgs()
                         .build()
         );
@@ -244,12 +251,14 @@ public class LegacyCliAdapter implements CliAdapter {
                 Option.builder()
                         .longOpt("tlsserverkey")
                         .desc("TLS key to use for the public API")
+                        .optionalArg(false)
                         .build()
         );
 
         options.addOption(
                 Option.builder()
                         .longOpt("tlsservertrust")
+                        .optionalArg(false)
                         .desc("TLS server trust mode (whitelist, ca-or-tofu, ca, tofu, insecure-no-validation)")
                         .build()
         );
