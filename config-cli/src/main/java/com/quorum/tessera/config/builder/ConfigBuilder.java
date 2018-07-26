@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ConfigBuilder {
@@ -52,8 +53,16 @@ public class ConfigBuilder {
                     .sslServerKeyStorePassword(sslConfig.getServerKeyStorePassword())
                     .sslServerTrustStorePath(Objects.toString(sslConfig.getServerTrustStore()))
                     .sslServerTrustStorePassword(sslConfig.getServerTrustStorePassword())
-                    .knownClientsFile(Objects.toString(sslConfig.getKnownClientsFile()))
-                    .knownServersFile(Objects.toString(sslConfig.getKnownServersFile()));
+                    .sslKnownClientsFile(Objects.toString(sslConfig.getKnownClientsFile()))
+                    .sslKnownServersFile(Objects.toString(sslConfig.getKnownServersFile()))
+                    
+                    .sslClientTlsCertificatePath(Objects.toString(sslConfig.getClientTlsCertificatePath()))
+                    .sslServerTlsCertificatePath(Objects.toString(sslConfig.getServerTlsCertificatePath()))
+                    
+                    
+                    
+                    .sslClientTlsKeyPath(Objects.toString(sslConfig.getClientTlsKeyPath()))
+                    .sslServerTlsKeyPath(Objects.toString(sslConfig.getServerTlsKeyPath()));
 
         }
 
@@ -99,9 +108,17 @@ public class ConfigBuilder {
 
     private SslTrustMode sslClientTrustMode;
 
-    private String knownClientsFile;
+    private String sslKnownClientsFile;
 
-    private String knownServersFile;
+    private String sslKnownServersFile;
+
+    private String sslServerTlsKeyPath;
+
+    private String sslServerTlsCertificatePath;
+
+    private String sslClientTlsKeyPath;
+
+    private String sslClientTlsCertificatePath;
 
     public ConfigBuilder sslServerTrustMode(SslTrustMode sslServerTrustMode) {
         this.sslServerTrustMode = sslServerTrustMode;
@@ -168,13 +185,13 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder knownClientsFile(String knownClientsFile) {
-        this.knownClientsFile = knownClientsFile;
+    public ConfigBuilder sslKnownClientsFile(String knownClientsFile) {
+        this.sslKnownClientsFile = knownClientsFile;
         return this;
     }
 
-    public ConfigBuilder knownServersFile(String knownServersFile) {
-        this.knownServersFile = knownServersFile;
+    public ConfigBuilder sslKnownServersFile(String knownServersFile) {
+        this.sslKnownServersFile = knownServersFile;
         return this;
     }
 
@@ -203,9 +220,35 @@ public class ConfigBuilder {
         return this;
     }
 
+    public ConfigBuilder sslServerTlsKeyPath(String sslServerTlsKeyPath) {
+        this.sslServerTlsKeyPath = sslServerTlsKeyPath;
+        return this;
+    }
+
+    public ConfigBuilder sslServerTlsCertificatePath(String sslServerTlsCertificatePath) {
+        this.sslServerTlsCertificatePath = sslServerTlsCertificatePath;
+        return this;
+    }
+
+    public ConfigBuilder sslClientTlsKeyPath(String sslClientTlsKeyPath) {
+        this.sslClientTlsKeyPath = sslClientTlsKeyPath;
+        return this;
+    }
+
+    public ConfigBuilder sslClientTlsCertificatePath(String sslClientTlsCertificatePath) {
+        this.sslClientTlsCertificatePath = sslClientTlsCertificatePath;
+        return this;
+    }
+
     public ConfigBuilder keyData(List<KeyData> keyData) {
         this.keyData = keyData;
         return this;
+    }
+
+    private static Path toPath(String value) {
+        return Optional.ofNullable(value)
+                .map(v -> Paths.get(v))
+                .orElse(null);
     }
 
     public Config build() {
@@ -215,24 +258,31 @@ public class ConfigBuilder {
         SslConfig sslConfig = new SslConfig(
                 sslAuthenticationMode,
                 generateKeyStoreIfNotExisted,
-                Paths.get(sslServerKeyStorePath),
+                toPath(sslServerKeyStorePath),
                 sslServerKeyStorePassword,
-                Paths.get(sslServerTrustStorePath),
+                toPath(sslServerTrustStorePath),
                 sslServerTrustStorePassword,
                 sslServerTrustMode,
-                Paths.get(sslClientKeyStorePath),
+                toPath(sslClientKeyStorePath),
                 sslClientKeyStorePassword,
-                Paths.get(sslClientTrustStorePath),
+                toPath(sslClientTrustStorePath),
                 sslClientTrustStorePassword,
                 sslClientTrustMode,
-                Paths.get(knownClientsFile),
-                Paths.get(knownServersFile),
+                toPath(sslKnownClientsFile),
+                toPath(sslKnownServersFile),
                 sslServerTrustCertificates.stream()
-                        .map(v -> Paths.get(v))
+                        .map(ConfigBuilder::toPath)
+                        .filter(Objects::nonNull)
                         .collect(Collectors.toList()),
                 sslClientTrustCertificates.stream()
-                        .map(v -> Paths.get(v))
-                        .collect(Collectors.toList()));
+                        .map(ConfigBuilder::toPath)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList()),
+                toPath(sslServerTlsKeyPath),
+                toPath(sslServerTlsCertificatePath),
+                toPath(sslClientTlsKeyPath),
+                toPath(sslClientTlsCertificatePath)
+        );
 
         final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig);
 

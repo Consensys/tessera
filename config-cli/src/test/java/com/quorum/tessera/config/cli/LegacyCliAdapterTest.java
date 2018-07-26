@@ -82,6 +82,7 @@ public class LegacyCliAdapterTest {
         when(commandLine.getOptionValue("tlsclienttrust")).thenReturn("ca");
 
         when(commandLine.getOptionValue("tlsservercert")).thenReturn("tlsservercert.cert");
+
         when(commandLine.getOptionValue("tlsclientcert")).thenReturn("tlsclientcert.cert");
 
         when(commandLine.getOptionValues("tlsserverchain")).thenReturn(new String[]{
@@ -92,6 +93,12 @@ public class LegacyCliAdapterTest {
             "client1.crt", "client2.crt", "client3.crt"
         });
 
+        when(commandLine.getOptionValue("tlsserverkey"))
+                .thenReturn("tlsserverkey.key");
+
+        when(commandLine.getOptionValue("tlsclientkey"))
+                .thenReturn("tlsclientkey.key");
+
         when(commandLine.getOptionValues("publickeys"))
                 .thenReturn(new String[]{"ONE", "TWO"});
 
@@ -99,6 +106,10 @@ public class LegacyCliAdapterTest {
                 Files.createTempFile("applyOverrides1", ".txt"),
                 Files.createTempFile("applyOverrides2", ".txt")
         );
+
+        when(commandLine.getOptionValue("tlsknownservers")).thenReturn("tlsknownservers.file");
+
+        when(commandLine.getOptionValue("tlsknownclients")).thenReturn("tlsknownclients.file");
 
         final byte[] privateKeyData = FixtureUtil.createLockedPrivateKey().toString().getBytes();
         for (Path p : privateKeyPaths) {
@@ -134,15 +145,27 @@ public class LegacyCliAdapterTest {
         assertThat(result.getServerConfig().getSslConfig().getServerTrustMode()).isEqualTo(SslTrustMode.WHITELIST);
         assertThat(result.getServerConfig().getSslConfig().getClientTrustMode()).isEqualTo(SslTrustMode.CA);
 
-        assertThat(result.getServerConfig().getSslConfig().getClientKeyStore()).isEqualTo(Paths.get("tlsclientcert.cert"));
+        assertThat(result.getServerConfig().getSslConfig().getClientTlsCertificatePath()).isEqualTo(Paths.get("tlsclientcert.cert"));
 
-        assertThat(result.getServerConfig().getSslConfig().getServerKeyStore()).isEqualTo(Paths.get("tlsservercert.cert"));
+        assertThat(result.getServerConfig().getSslConfig().getServerTlsCertificatePath()).isEqualTo(Paths.get("tlsservercert.cert"));
 
         assertThat(result.getServerConfig().getSslConfig().getServerTrustCertificates())
                 .containsExactly(Paths.get("server1.crt"), Paths.get("server2.crt"), Paths.get("server3.crt"));
 
         assertThat(result.getServerConfig().getSslConfig().getClientTrustCertificates())
                 .containsExactly(Paths.get("client1.crt"), Paths.get("client2.crt"), Paths.get("client3.crt"));
+
+        assertThat(result.getServerConfig().getSslConfig().getServerKeyStore())
+                .isEqualTo(Paths.get("tlsserverkey.key"));
+
+        assertThat(result.getServerConfig().getSslConfig().getClientKeyStore())
+                .isEqualTo(Paths.get("tlsclientkey.key"));
+
+        assertThat(result.getServerConfig().getSslConfig().getKnownServersFile())
+                .isEqualTo(Paths.get("tlsknownservers.file"));
+
+        assertThat(result.getServerConfig().getSslConfig().getKnownClientsFile())
+                .isEqualTo(Paths.get("tlsknownclients.file"));
 
         Files.deleteIfExists(privateKeyPasswordFile);
         for (Path privateKeyPath : privateKeyPaths) {
@@ -185,6 +208,12 @@ public class LegacyCliAdapterTest {
         assertThat(result.getServerConfig().getSslConfig().getServerTrustCertificates()).isEmpty();
 
         assertThat(result.getServerConfig().getSslConfig().getClientTrustCertificates()).isEmpty();
+
+        assertThat(result.getServerConfig().getSslConfig().getKnownServersFile())
+                .isEqualTo(Paths.get("knownServersFile"));
+
+        assertThat(result.getServerConfig().getSslConfig().getKnownClientsFile())
+                .isEqualTo(Paths.get("knownClientsFile"));
 
     }
 
