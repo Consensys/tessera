@@ -6,12 +6,12 @@ import com.quorum.tessera.config.ConfigFactory;
 
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.SslAuthenticationMode;
-import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.io.IOCallback;
 import com.moandjiezana.toml.Toml;
+import com.quorum.tessera.config.builder.SslTrustModeFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -19,9 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,16 +37,6 @@ import org.slf4j.LoggerFactory;
 public class TomlConfigFactory implements ConfigFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TomlConfigFactory.class);
-
-    private static final Map<String, SslTrustMode> TRUST_MODE_LOOKUP = new HashMap<String, SslTrustMode>() {
-        {
-            put("ca", SslTrustMode.CA);
-            put("tofu", SslTrustMode.TOFU);
-            put("ca-or-tofu", SslTrustMode.CA_OR_TOFU);
-            put("whitelist", SslTrustMode.WHITELIST);
-            put("none", SslTrustMode.NONE);
-        }
-    };
 
     private final FilesDelegate filesDelegate;
 
@@ -75,13 +63,14 @@ public class TomlConfigFactory implements ConfigFactory {
         }
 
         String url = toml.getString("url");
-
+        
+        String workdir = toml.getString("workdir", "data");
         String socket = toml.getString("socket");
 
+        Path unixSocketFile = Paths.get(workdir, socket);
+        
+        
         String tls = toml.getString("tls", "strict").toUpperCase();
-
-        //??
-        String workdir = toml.getString("workdir", ".");
 
         final List<String> othernodes = toml.getList("othernodes", Collections.EMPTY_LIST);
 
@@ -122,25 +111,26 @@ public class TomlConfigFactory implements ConfigFactory {
 
         final String tlsknownclients = toml.getString("tlsknownclients", "tls-known-clients");
 
+
         ConfigBuilder configBuilder = ConfigBuilder.create()
-        
+
                 .serverHostname(url)
-                .unixSocketFile(socket)
+                .unixSocketFile(unixSocketFile)
                 .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
                 .sslServerKeyStorePath(tlsserverkey)
-                .sslServerTrustMode(resolve(tlsservertrust))
+                .sslServerTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsservertrust))
                 .sslServerTrustStorePath(tlsservertrust)
-                .sslClientTrustMode(resolve(tlsclienttrust))
+                .sslClientTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsclienttrust))
                 .sslClientKeyStorePath(tlsserverkey)
                 .sslClientKeyStorePassword("")
                 .sslClientTrustStorePath(tlsservercert)
-                .knownClientsFile(tlsknownclients)
-                .knownServersFile(tlsknownservers)
+                .sslKnownClientsFile(tlsknownclients)
+                .sslKnownServersFile(tlsknownservers)
                 .peers(othernodes);
 
         Optional.ofNullable(storage)
                 .map(JdbcConfigFactory::fromLegacyStorageString).ifPresent(configBuilder::jdbcConfig);
-        
+
         return configBuilder.build();
     }
 
@@ -152,25 +142,26 @@ public class TomlConfigFactory implements ConfigFactory {
             passwordList.add(null);
         }
 
-        List<JsonObject> priavteKeyJson = privateKeys.stream()
+        List<JsonObject> privateKeyJson = privateKeys
+                .stream()
                 .map(s -> Paths.get(s))
                 .map(path -> IOCallback.execute(() -> Files.newInputStream(path)))
-                .map(is -> Json.createReader(is))
+                .map(Json::createReader)
                 .map(JsonReader::readObject)
                 .collect(Collectors.toList());
 
-        List<KeyDataConfig> privateKeyData = IntStream.range(0, priavteKeyJson.size())
+        List<KeyDataConfig> privateKeyData = IntStream
+                .range(0, privateKeyJson.size())
                 //FIXME: Canyt set to null value.. need to use addNull("password")
                 .mapToObj(i -> {
 
                     final String password = passwordList.get(i);
-                    final JsonObject keyDatC = Json.createObjectBuilder(priavteKeyJson.get(i)).build();
-
-                    boolean isLocked = Objects.equals(keyDatC.getString("type"), "argon2sbox");
+                    final JsonObject keyDatC = Json.createObjectBuilder(privateKeyJson.get(i)).build();
 
                     final JsonObject dataNode = keyDatC.getJsonObject("data");
                     final JsonObjectBuilder ammendedDataNode = Json.createObjectBuilder(dataNode);
 
+                    boolean isLocked = Objects.equals(keyDatC.getString("type"), "argon2sbox");
                     if (isLocked) {
                         ammendedDataNode.add("password", Objects.requireNonNull(password, "Password is required."));
                     }
@@ -188,11 +179,5 @@ public class TomlConfigFactory implements ConfigFactory {
 
         return Collections.unmodifiableList(privateKeyData);
     }
-
-    static SslTrustMode resolve(String value) {
-        return TRUST_MODE_LOOKUP.getOrDefault(value, SslTrustMode.NONE);
-    }
-
-
 
 }

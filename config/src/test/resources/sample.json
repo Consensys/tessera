@@ -6,7 +6,12 @@
         "url": "foo:bar"
     },
     "server": {
-        "port": 99
+        "port": 99,
+        "influxConfig" : {
+            "port" : 1111,
+            "hostName" : "localhost",
+            "dbName" : "dummy"
+        }
     },
     "peer": [{
             "url": "http://bogus1.com"

@@ -14,6 +14,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.file.Paths;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,7 +26,7 @@ public class ConfigBuilderTest {
             .peers(Collections.EMPTY_LIST)
             .serverPort(892)
             .sslAuthenticationMode(SslAuthenticationMode.STRICT)
-            .unixSocketFile("somepath.ipc")
+            .unixSocketFile(Paths.get("somepath.ipc"))
             .serverHostname("http://bogus.com:928")
             .sslServerKeyStorePath("sslServerKeyStorePath")
             .sslServerTrustMode(SslTrustMode.TOFU)
@@ -35,14 +36,27 @@ public class ConfigBuilderTest {
             .sslClientTrustStorePath("sslClientTrustStorePath")
             .sslClientKeyStorePassword("sslClientKeyStorePassword")
             .sslClientTrustStorePassword("sslClientTrustStorePassword")
-            .knownClientsFile("knownClientsFile")
-            .knownServersFile("knownServersFile");
+            .sslServerTlsKeyPath("sslServerTlsKeyPath")
+            .sslClientTlsKeyPath("sslClientTlsKeyPath")
+            .sslKnownClientsFile("knownClientsFile")
+            .sslKnownServersFile("knownServersFile")
+            
+            .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
+            .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
+            ;
 
     @Test
     public void buildValid() {
         Config result = builderWithValidValues.build();
 
         assertThat(result).isNotNull();
+    }
+
+    @Test
+    public void influxHostNameEmptyThenInfluxConfigIsNull() {
+        Config result = builderWithValidValues.build();
+
+        assertThat(result.getServerConfig().getInfluxConfig()).isNull();
     }
 
     /*
@@ -52,17 +66,25 @@ public class ConfigBuilderTest {
     @Test
     public void buildFromExisting() throws Exception {
         Config existing = builderWithValidValues.build();
-
+        
+      
+        
         ConfigBuilder configBuilder = ConfigBuilder.from(existing);
 
         Config result = configBuilder.build();
 
+
+        
         JAXBContext jaxbContext = JAXBContext.newInstance(Config.class);
 
         Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.setProperty("eclipselink.beanvalidation.mode", BeanValidationMode.NONE);
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
+        
+//        marshaller.marshal(existing, System.out);
+//         marshaller.marshal(result, System.out);
+        
         final String expected;
         try (Writer writer = new StringWriter()) {
             marshaller.marshal(existing, writer);

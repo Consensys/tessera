@@ -1,10 +1,13 @@
 package com.quorum.tessera.config.cli;
 
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
+import com.quorum.tessera.config.builder.SslTrustModeFactory;
 import com.quorum.tessera.io.FilesDelegate;
+import java.nio.file.Path;
 import org.apache.commons.cli.*;
 
 import java.nio.file.Paths;
@@ -55,13 +58,35 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(ConfigBuilder::from)
                 .orElse(ConfigBuilder.create());
 
-        
-        ConfigBuilder adustedConfig = applyOverrides(line,configBuilder);
+        ConfigBuilder adjustedConfig = applyOverrides(line, configBuilder);
 
-        return new CliResult(0, false, adustedConfig.build());
+        return new CliResult(0, false, adjustedConfig.build());
     }
 
+    static Optional<Path> resolveUnixFilePath(Path initial,String workdir,String fileName) {
+        if(Objects.nonNull(workdir) && Objects.nonNull(fileName)) {
+            return Optional.of(Paths.get(workdir, fileName));
+        }
+        
+        if(Objects.nonNull(workdir) && Objects.isNull(fileName) && Objects.nonNull(initial)) {
+            return Optional.of(Paths.get(workdir, initial.toFile().getName()));
+        }
+        
+        if(Objects.isNull(workdir) && Objects.nonNull(fileName) && Objects.nonNull(initial) && initial.isAbsolute()) {
+            return Optional.of(initial.getParent().resolve(fileName));
+        }
+        
+        if(Objects.nonNull(fileName)) {
+            return Optional.of(Paths.get(fileName));
+        }
+        
+        return Optional.ofNullable(initial);
+        
+    }
+    
     static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder) {
+
+        Config initialConfig = configBuilder.build();
 
         Optional.ofNullable(line.getOptionValue("url"))
                 .ifPresent(configBuilder::serverHostname);
@@ -70,8 +95,9 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(Integer::valueOf)
                 .ifPresent(configBuilder::serverPort);
 
-        Optional.ofNullable(line.getOptionValue("socket"))
+        resolveUnixFilePath(initialConfig.getUnixSocketFile(),line.getOptionValue("workdir"),line.getOptionValue("socket"))
                 .ifPresent(configBuilder::unixSocketFile);
+        
 
         Optional.ofNullable(line.getOptionValues("othernodes"))
                 .map(Arrays::asList)
@@ -91,11 +117,44 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(p -> Paths.get(p))
                 .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
 
-        
-       Optional.ofNullable(line.getOptionValue("storage"))
-               .map(JdbcConfigFactory::fromLegacyStorageString)
-               .ifPresent(configBuilder::jdbcConfig);
-        
+        Optional.ofNullable(line.getOptionValue("storage"))
+                .map(JdbcConfigFactory::fromLegacyStorageString)
+                .ifPresent(configBuilder::jdbcConfig);
+
+        Optional.ofNullable(line.getOptionValue("tlsservertrust"))
+                .map(SslTrustModeFactory::resolveByLegacyValue)
+                .ifPresent(configBuilder::sslServerTrustMode);
+
+        Optional.ofNullable(line.getOptionValue("tlsclienttrust"))
+                .map(SslTrustModeFactory::resolveByLegacyValue)
+                .ifPresent(configBuilder::sslClientTrustMode);
+
+        Optional.ofNullable(line.getOptionValue("tlsservercert"))
+                .ifPresent(configBuilder::sslServerTlsCertificatePath);
+
+        Optional.ofNullable(line.getOptionValue("tlsclientcert"))
+                .ifPresent(configBuilder::sslClientTlsCertificatePath);
+
+        Optional.ofNullable(line.getOptionValues("tlsserverchain"))
+                .map(Arrays::asList)
+                .ifPresent(configBuilder::sslServerTrustCertificates);
+
+        Optional.ofNullable(line.getOptionValues("tlsclientchain"))
+                .map(Arrays::asList)
+                .ifPresent(configBuilder::sslClientTrustCertificates);
+
+        Optional.ofNullable(line.getOptionValue("tlsserverkey"))
+                .ifPresent(configBuilder::sslServerKeyStorePath);
+
+        Optional.ofNullable(line.getOptionValue("tlsclientkey"))
+                .ifPresent(configBuilder::sslClientKeyStorePath);
+
+        Optional.ofNullable(line.getOptionValue("tlsknownservers"))
+                .ifPresent(configBuilder::sslKnownServersFile);
+
+        Optional.ofNullable(line.getOptionValue("tlsknownclients"))
+                .ifPresent(configBuilder::sslKnownClientsFile);
+
         configBuilder.keyData(keyDataBuilder.build());
 
         return configBuilder;
@@ -210,13 +269,6 @@ public class LegacyCliAdapter implements CliAdapter {
 
         options.addOption(
                 Option.builder()
-                        .longOpt("ipwhitelist")
-                        .desc("Comma-separated list of IPv4 and IPv6 addresses that may connect to this node's public API")
-                        .build()
-        );
-
-        options.addOption(
-                Option.builder()
                         .longOpt("tls")
                         .desc("TLS status (strict, off)")
                         .build()
@@ -235,7 +287,7 @@ public class LegacyCliAdapter implements CliAdapter {
                 Option.builder()
                         .longOpt("tlsserverchain")
                         .desc("Comma separated list of TLS chain certificates to use for the public API")
-                        .argName("IP...")
+                        .argName("FILE...")
                         .hasArgs()
                         .build()
         );
@@ -244,12 +296,14 @@ public class LegacyCliAdapter implements CliAdapter {
                 Option.builder()
                         .longOpt("tlsserverkey")
                         .desc("TLS key to use for the public API")
+                        .optionalArg(false)
                         .build()
         );
 
         options.addOption(
                 Option.builder()
                         .longOpt("tlsservertrust")
+                        .optionalArg(false)
                         .desc("TLS server trust mode (whitelist, ca-or-tofu, ca, tofu, insecure-no-validation)")
                         .build()
         );

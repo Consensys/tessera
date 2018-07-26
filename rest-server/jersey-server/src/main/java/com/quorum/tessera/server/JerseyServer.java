@@ -1,6 +1,10 @@
 package com.quorum.tessera.server;
 
+import com.quorum.tessera.config.InfluxConfig;
 import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.server.monitoring.InfluxDbClient;
+import com.quorum.tessera.server.monitoring.InfluxDbPublisher;
+import com.quorum.tessera.server.monitoring.MetricsResource;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
 import com.quorum.tessera.ssl.context.ServerSSLContextFactory;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -20,6 +24,10 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 /**
  * Implementation of a RestServer using Jersey and Grizzly.
@@ -38,6 +46,10 @@ public class JerseyServer implements RestServer {
 
     private final boolean secure;
 
+    private final ScheduledExecutorService executor;
+
+    private final InfluxConfig influxConfig;
+
     public JerseyServer(final URI uri, final Application application, final ServerConfig serverConfig) {
         this.uri = Objects.requireNonNull(uri);
         this.application = Objects.requireNonNull(application);
@@ -48,6 +60,14 @@ public class JerseyServer implements RestServer {
             this.sslContext = sslContextFactory.from(serverConfig.getSslConfig());
         } else {
             this.sslContext = null;
+        }
+
+        this.executor = newSingleThreadScheduledExecutor();
+
+        if(serverConfig.getInfluxConfig() != null) {
+            this.influxConfig = serverConfig.getInfluxConfig();
+        } else {
+            this.influxConfig = null;
         }
     }
 
@@ -69,7 +89,8 @@ public class JerseyServer implements RestServer {
         initParams.put("jersey.config.server.monitoring.statistics.mbeans.enabled", "true");
 
         final ResourceConfig config = ResourceConfig.forApplication(application);
-        config.addProperties(initParams);
+        config.addProperties(initParams)
+              .register(MetricsResource.class);
 
         if (this.secure) {
             this.server = GrizzlyHttpServerFactory.createHttpServer(
@@ -95,11 +116,37 @@ public class JerseyServer implements RestServer {
 
         LOGGER.info("Started {}", uri);
         LOGGER.info("WADL {}/application.wadl", uri);
+
+        if(influxConfig != null) {
+            startInfluxMonitoring();
+        }
+
+    }
+
+    private void startInfluxMonitoring() {
+        InfluxDbClient influxDbClient = new InfluxDbClient(this.uri, influxConfig);
+        Runnable publisher = new InfluxDbPublisher(influxDbClient);
+
+        final Runnable exceptionSafePublisher = () -> {
+            try {
+                publisher.run();
+            } catch (final Throwable ex) {
+                LOGGER.error("Error when executing action {}", publisher.getClass().getSimpleName());
+                LOGGER.error("Error when executing action", ex);
+            }
+        };
+
+        final long delayInSecs = influxConfig.getPushIntervalInSecs();
+        this.executor.scheduleWithFixedDelay(exceptionSafePublisher, delayInSecs, delayInSecs, TimeUnit.SECONDS);
     }
 
     @Override
     public void stop() {
         LOGGER.info("Stopping Jersey server at {}", uri);
+
+        if(influxConfig != null) {
+            this.executor.shutdown();
+        }
 
         if (Objects.nonNull(this.server)) {
             this.server.shutdown();
