@@ -1,6 +1,7 @@
 
 package com.quorum.tessera.config.cli;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -82,6 +83,11 @@ public class DefaultCliAdapterTest {
     @Test
     public void keygen() throws Exception {
 
+        final InputStream tempSystemIn = new ByteArrayInputStream(System.lineSeparator().getBytes());
+
+        final InputStream oldSystemIn = System.in;
+        System.setIn(tempSystemIn);
+
         Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
 
         CliResult result = cliDelegate.execute(
@@ -95,12 +101,15 @@ public class DefaultCliAdapterTest {
         assertThat(result.getConfig()).isNotNull();
         assertThat(result.isHelpOn()).isFalse();
 
+        System.setIn(oldSystemIn);
+
     }
 
 
     @Test
     public void output() throws Exception {
-
+        final InputStream oldSystemIn = System.in;
+        System.setIn(new ByteArrayInputStream(System.lineSeparator().getBytes()));
 
         Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
         Path generatedKey = Paths.get("/tmp/generatedKey.json");
@@ -120,6 +129,8 @@ public class DefaultCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(Files.exists(generatedKey)).isTrue();
 
+        System.setIn(new ByteArrayInputStream(System.lineSeparator().getBytes()));
+
         try {
             CliResult anotherResult = cliDelegate.execute(
                 "-keygen",
@@ -135,9 +146,10 @@ public class DefaultCliAdapterTest {
             assertThat(ex).isInstanceOf(IOException.class);
         }
 
-
         Files.deleteIfExists(generatedKey);
         assertThat(Files.exists(generatedKey)).isFalse();
+
+        System.setIn(oldSystemIn);
     }
 
     @Test

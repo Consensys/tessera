@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,7 +83,7 @@ public class LegacyCliAdapterTest {
         when(commandLine.getOptionValue("tlsclienttrust")).thenReturn("ca");
 
         when(commandLine.getOptionValue("tlsservercert")).thenReturn("tlsservercert.cert");
-        
+
         when(commandLine.getOptionValue("tlsclientcert")).thenReturn("tlsclientcert.cert");
 
         when(commandLine.getOptionValues("tlsserverchain")).thenReturn(new String[]{
@@ -106,6 +107,10 @@ public class LegacyCliAdapterTest {
                 Files.createTempFile("applyOverrides1", ".txt"),
                 Files.createTempFile("applyOverrides2", ".txt")
         );
+
+        when(commandLine.getOptionValue("tlsknownservers")).thenReturn("tlsknownservers.file");
+
+        when(commandLine.getOptionValue("tlsknownclients")).thenReturn("tlsknownclients.file");
 
         final byte[] privateKeyData = FixtureUtil.createLockedPrivateKey().toString().getBytes();
         for (Path p : privateKeyPaths) {
@@ -157,6 +162,12 @@ public class LegacyCliAdapterTest {
         assertThat(result.getServerConfig().getSslConfig().getClientKeyStore())
                 .isEqualTo(Paths.get("tlsclientkey.key"));
 
+        assertThat(result.getServerConfig().getSslConfig().getKnownServersFile())
+                .isEqualTo(Paths.get("tlsknownservers.file"));
+
+        assertThat(result.getServerConfig().getSslConfig().getKnownClientsFile())
+                .isEqualTo(Paths.get("tlsknownclients.file"));
+
         Files.deleteIfExists(privateKeyPasswordFile);
         for (Path privateKeyPath : privateKeyPaths) {
             Files.deleteIfExists(privateKeyPath);
@@ -199,7 +210,95 @@ public class LegacyCliAdapterTest {
 
         assertThat(result.getServerConfig().getSslConfig().getClientTrustCertificates()).isEmpty();
 
+        assertThat(result.getServerConfig().getSslConfig().getKnownServersFile())
+                .isEqualTo(Paths.get("knownServersFile"));
 
+        assertThat(result.getServerConfig().getSslConfig().getKnownClientsFile())
+                .isEqualTo(Paths.get("knownClientsFile"));
+
+    }
+
+    @Test
+    public void resolveUnixFilePathInitalValueOnly() {
+        Path relativePath = Paths.get("someopath.ipc");
+
+        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(relativePath, null, null);
+
+        assertThat(result).isPresent().get().isEqualTo(relativePath);
+
+    }
+
+    @Test
+    public void resolveUnixFilePathAllNull() {
+
+        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(null, null, null);
+
+        assertThat(result).isNotPresent();
+
+    }
+
+    @Test
+    public void resolveUnixFilePathFileNameOnly() {
+
+        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(null, null, "filename.file");
+
+        assertThat(result).isPresent().get().isEqualTo(Paths.get("filename.file"));
+
+    }
+
+    @Test
+    public void resolveUnixFilePathWorkdirOnly() {
+
+        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(null, "dir", null);
+
+        assertThat(result).isNotPresent();
+
+    }
+
+    @Test
+    public void resolveUnixFilePathWorkdirAndFileName() {
+
+        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(null, "dir", "somefile.file");
+
+        assertThat(result).isPresent().get().isEqualTo(Paths.get("dir", "somefile.file"));
+
+    }
+
+    @Test
+    public void resolveUnixFilePathWorkdirAndInitial() {
+
+        Path path = Paths.get("someopath.ipc");
+
+        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(path, "dir", null);
+
+        assertThat(result).isPresent().get().isEqualTo(Paths.get("dir", "someopath.ipc"));
+
+    }
+
+    // if(Objects.isNull(workdir) && Objects.nonNull(fileName) && Objects.nonNull(initial) && initial.isAbsolute()) 
+    @Test
+    public void resolveUnixFilePathFileNameAndAbsoluteFilePath() throws Exception {
+
+        Path path = Files.createTempFile("somename", ".txt");
+
+        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(path, null, "someothername");
+
+        assertThat(result).isPresent().get().isEqualTo(path.getParent().resolve("someothername"));
+
+        Files.deleteIfExists(path);
+
+    }
+
+    @Test
+    public void resolveUnixFilePathFileDirNoFileName() throws Exception {
+
+        Path path = Files.createTempFile("somename", ".txt");
+
+        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(path, "dir", null);
+
+        assertThat(result).isPresent().get().isEqualTo(Paths.get("dir", path.toFile().getName()));
+
+        Files.deleteIfExists(path);
 
     }
 

@@ -4,6 +4,7 @@ import com.quorum.tessera.config.JdbcConfig;
 import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.builder.ConfigBuilder;
+import java.nio.file.Paths;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -38,7 +39,7 @@ public class FixtureUtil {
                 .peers(Arrays.asList("http://one.com:8989/one", "http://two.com:9929/two"))
                 .serverPort(892)
                 .sslAuthenticationMode(SslAuthenticationMode.STRICT)
-                .unixSocketFile("somepath.ipc")
+                .unixSocketFile(Paths.get("somepath.ipc"))
                 .serverHostname("http://bogus.com:928")
                 .sslServerKeyStorePath("sslServerKeyStorePath")
                 .sslServerTrustMode(SslTrustMode.TOFU)
@@ -49,8 +50,8 @@ public class FixtureUtil {
                 .sslClientKeyStorePassword("sslClientKeyStorePassword")
                 .sslClientTrustStorePassword("sslClientTrustStorePassword")
                 .sslClientTrustMode(SslTrustMode.CA_OR_TOFU)
-                .knownClientsFile("knownClientsFile")
-                .knownServersFile("knownServersFile");
+                .sslKnownClientsFile("knownClientsFile")
+                .sslKnownServersFile("knownServersFile");
     }
 
 }

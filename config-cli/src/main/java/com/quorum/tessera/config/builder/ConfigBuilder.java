@@ -1,6 +1,13 @@
 package com.quorum.tessera.config.builder;
 
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.JdbcConfig;
+import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.SslAuthenticationMode;
+import com.quorum.tessera.config.SslConfig;
+import com.quorum.tessera.config.SslTrustMode;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,7 +29,7 @@ public class ConfigBuilder {
     public static ConfigBuilder from(Config config) {
 
         final ConfigBuilder configBuilder = ConfigBuilder.create();
-        configBuilder.unixSocketFile(Objects.toString(config.getUnixSocketFile()));
+        configBuilder.unixSocketFile(config.getUnixSocketFile());
 
         configBuilder.jdbcConfig(config.getJdbcConfig())
                 .peers(config.getPeers()
@@ -46,12 +53,17 @@ public class ConfigBuilder {
                     .sslServerKeyStorePassword(sslConfig.getServerKeyStorePassword())
                     .sslServerTrustStorePath(Objects.toString(sslConfig.getServerTrustStore()))
                     .sslServerTrustStorePassword(sslConfig.getServerTrustStorePassword())
-                    .knownClientsFile(Objects.toString(sslConfig.getKnownClientsFile()))
-                    .knownServersFile(Objects.toString(sslConfig.getKnownServersFile()))
+                    .sslKnownClientsFile(Objects.toString(sslConfig.getKnownClientsFile()))
+                    .sslKnownServersFile(Objects.toString(sslConfig.getKnownServersFile()))
+                    
                     .sslClientTlsCertificatePath(Objects.toString(sslConfig.getClientTlsCertificatePath()))
                     .sslServerTlsCertificatePath(Objects.toString(sslConfig.getServerTlsCertificatePath()))
+                    
+                    
+                    
                     .sslClientTlsKeyPath(Objects.toString(sslConfig.getClientTlsKeyPath()))
                     .sslServerTlsKeyPath(Objects.toString(sslConfig.getServerTlsKeyPath()));
+
         }
 
         return configBuilder;
@@ -64,7 +76,7 @@ public class ConfigBuilder {
 
     private JdbcConfig jdbcConfig;
 
-    private String unixSocketFile;
+    private Path unixSocketFile;
 
     private List<String> peers;
 
@@ -96,9 +108,9 @@ public class ConfigBuilder {
 
     private SslTrustMode sslClientTrustMode;
 
-    private String knownClientsFile;
+    private String sslKnownClientsFile;
 
-    private String knownServersFile;
+    private String sslKnownServersFile;
 
     private String sslServerTlsKeyPath;
 
@@ -148,7 +160,7 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder unixSocketFile(String unixSocketFile) {
+    public ConfigBuilder unixSocketFile(Path unixSocketFile) {
         this.unixSocketFile = unixSocketFile;
         return this;
     }
@@ -173,13 +185,13 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder knownClientsFile(String knownClientsFile) {
-        this.knownClientsFile = knownClientsFile;
+    public ConfigBuilder sslKnownClientsFile(String knownClientsFile) {
+        this.sslKnownClientsFile = knownClientsFile;
         return this;
     }
 
-    public ConfigBuilder knownServersFile(String knownServersFile) {
-        this.knownServersFile = knownServersFile;
+    public ConfigBuilder sslKnownServersFile(String knownServersFile) {
+        this.sslKnownServersFile = knownServersFile;
         return this;
     }
 
@@ -235,8 +247,8 @@ public class ConfigBuilder {
 
     private static Path toPath(String value) {
         return Optional.ofNullable(value)
-            .map(v -> Paths.get(v))
-            .orElse(null);
+                .map(v -> Paths.get(v))
+                .orElse(null);
     }
 
     public Config build() {
@@ -256,8 +268,8 @@ public class ConfigBuilder {
                 toPath(sslClientTrustStorePath),
                 sslClientTrustStorePassword,
                 sslClientTrustMode,
-                toPath(knownClientsFile),
-                toPath(knownServersFile),
+                toPath(sslKnownClientsFile),
+                toPath(sslKnownServersFile),
                 sslServerTrustCertificates.stream()
                         .map(ConfigBuilder::toPath)
                         .filter(Objects::nonNull)
@@ -278,12 +290,10 @@ public class ConfigBuilder {
                 .map(Peer::new)
                 .collect(Collectors.toList());
 
-        Path unixSocketFilePath = Paths.get(unixSocketFile);
-
         //TODO:
         final boolean useWhitelist = false;
 
-        return new Config(jdbcConfig, serverConfig, peerList, keyData, unixSocketFilePath, useWhitelist);
+        return new Config(jdbcConfig, serverConfig, peerList, keyData, unixSocketFile, useWhitelist);
     }
 
 }

@@ -63,13 +63,14 @@ public class TomlConfigFactory implements ConfigFactory {
         }
 
         String url = toml.getString("url");
-
+        
+        String workdir = toml.getString("workdir", "data");
         String socket = toml.getString("socket");
 
+        Path unixSocketFile = Paths.get(workdir, socket);
+        
+        
         String tls = toml.getString("tls", "strict").toUpperCase();
-
-        //??
-        String workdir = toml.getString("workdir", ".");
 
         final List<String> othernodes = toml.getList("othernodes", Collections.EMPTY_LIST);
 
@@ -112,9 +113,9 @@ public class TomlConfigFactory implements ConfigFactory {
 
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
-        
+
                 .serverHostname(url)
-                .unixSocketFile(socket)
+                .unixSocketFile(unixSocketFile)
                 .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
                 .sslServerKeyStorePath(tlsserverkey)
                 .sslServerTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsservertrust))
@@ -123,13 +124,13 @@ public class TomlConfigFactory implements ConfigFactory {
                 .sslClientKeyStorePath(tlsserverkey)
                 .sslClientKeyStorePassword("")
                 .sslClientTrustStorePath(tlsservercert)
-                .knownClientsFile(tlsknownclients)
-                .knownServersFile(tlsknownservers)
+                .sslKnownClientsFile(tlsknownclients)
+                .sslKnownServersFile(tlsknownservers)
                 .peers(othernodes);
 
         Optional.ofNullable(storage)
                 .map(JdbcConfigFactory::fromLegacyStorageString).ifPresent(configBuilder::jdbcConfig);
-        
+
         return configBuilder.build();
     }
 
@@ -141,25 +142,26 @@ public class TomlConfigFactory implements ConfigFactory {
             passwordList.add(null);
         }
 
-        List<JsonObject> priavteKeyJson = privateKeys.stream()
+        List<JsonObject> privateKeyJson = privateKeys
+                .stream()
                 .map(s -> Paths.get(s))
                 .map(path -> IOCallback.execute(() -> Files.newInputStream(path)))
-                .map(is -> Json.createReader(is))
+                .map(Json::createReader)
                 .map(JsonReader::readObject)
                 .collect(Collectors.toList());
 
-        List<KeyDataConfig> privateKeyData = IntStream.range(0, priavteKeyJson.size())
+        List<KeyDataConfig> privateKeyData = IntStream
+                .range(0, privateKeyJson.size())
                 //FIXME: Canyt set to null value.. need to use addNull("password")
                 .mapToObj(i -> {
 
                     final String password = passwordList.get(i);
-                    final JsonObject keyDatC = Json.createObjectBuilder(priavteKeyJson.get(i)).build();
-
-                    boolean isLocked = Objects.equals(keyDatC.getString("type"), "argon2sbox");
+                    final JsonObject keyDatC = Json.createObjectBuilder(privateKeyJson.get(i)).build();
 
                     final JsonObject dataNode = keyDatC.getJsonObject("data");
                     final JsonObjectBuilder ammendedDataNode = Json.createObjectBuilder(dataNode);
 
+                    boolean isLocked = Objects.equals(keyDatC.getString("type"), "argon2sbox");
                     if (isLocked) {
                         ammendedDataNode.add("password", Objects.requireNonNull(password, "Password is required."));
                     }
