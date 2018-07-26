@@ -284,7 +284,7 @@ public class ConfigBuilder {
                 toPath(sslClientTlsCertificatePath)
         );
 
-        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig);
+        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig, null);
 
         final List<Peer> peerList = peers.stream()
                 .map(Peer::new)

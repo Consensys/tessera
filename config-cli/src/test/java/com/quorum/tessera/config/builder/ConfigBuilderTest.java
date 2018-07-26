@@ -51,9 +51,13 @@ public class ConfigBuilderTest {
 
         assertThat(result).isNotNull();
     }
-    
-    
-    
+
+    @Test
+    public void influxHostNameEmptyThenInfluxConfigIsNull() {
+        Config result = builderWithValidValues.build();
+
+        assertThat(result.getServerConfig().getInfluxConfig()).isNull();
+    }
 
     /*
     Create config from existing config and ensure all 
