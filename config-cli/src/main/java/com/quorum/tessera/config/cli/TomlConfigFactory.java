@@ -111,7 +111,7 @@ public class TomlConfigFactory implements ConfigFactory {
         final String tlsknownclients = toml.getString("tlsknownclients", "tls-known-clients");
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
-        
+
                 .serverHostname(url)
                 .unixSocketFile(socket)
                 .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
@@ -128,7 +128,7 @@ public class TomlConfigFactory implements ConfigFactory {
 
         Optional.ofNullable(storage)
                 .map(JdbcConfigFactory::fromLegacyStorageString).ifPresent(configBuilder::jdbcConfig);
-        
+
         return configBuilder.build();
     }
 
@@ -140,25 +140,26 @@ public class TomlConfigFactory implements ConfigFactory {
             passwordList.add(null);
         }
 
-        List<JsonObject> priavteKeyJson = privateKeys.stream()
+        List<JsonObject> priavteKeyJson = privateKeys
+                .stream()
                 .map(s -> Paths.get(s))
                 .map(path -> IOCallback.execute(() -> Files.newInputStream(path)))
-                .map(is -> Json.createReader(is))
+                .map(Json::createReader)
                 .map(JsonReader::readObject)
                 .collect(Collectors.toList());
 
-        List<KeyDataConfig> privateKeyData = IntStream.range(0, priavteKeyJson.size())
+        List<KeyDataConfig> privateKeyData = IntStream
+                .range(0, priavteKeyJson.size())
                 //FIXME: Canyt set to null value.. need to use addNull("password")
                 .mapToObj(i -> {
 
                     final String password = passwordList.get(i);
                     final JsonObject keyDatC = Json.createObjectBuilder(priavteKeyJson.get(i)).build();
 
-                    boolean isLocked = Objects.equals(keyDatC.getString("type"), "argon2sbox");
-
                     final JsonObject dataNode = keyDatC.getJsonObject("data");
                     final JsonObjectBuilder ammendedDataNode = Json.createObjectBuilder(dataNode);
 
+                    boolean isLocked = Objects.equals(keyDatC.getString("type"), "argon2sbox");
                     if (isLocked) {
                         ammendedDataNode.add("password", Objects.requireNonNull(password, "Password is required."));
                     }
