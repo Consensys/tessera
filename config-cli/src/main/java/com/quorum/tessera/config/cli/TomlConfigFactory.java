@@ -140,7 +140,7 @@ public class TomlConfigFactory implements ConfigFactory {
             passwordList.add(null);
         }
 
-        List<JsonObject> priavteKeyJson = privateKeys
+        List<JsonObject> privateKeyJson = privateKeys
                 .stream()
                 .map(s -> Paths.get(s))
                 .map(path -> IOCallback.execute(() -> Files.newInputStream(path)))
@@ -149,12 +149,12 @@ public class TomlConfigFactory implements ConfigFactory {
                 .collect(Collectors.toList());
 
         List<KeyDataConfig> privateKeyData = IntStream
-                .range(0, priavteKeyJson.size())
+                .range(0, privateKeyJson.size())
                 //FIXME: Canyt set to null value.. need to use addNull("password")
                 .mapToObj(i -> {
 
                     final String password = passwordList.get(i);
-                    final JsonObject keyDatC = Json.createObjectBuilder(priavteKeyJson.get(i)).build();
+                    final JsonObject keyDatC = Json.createObjectBuilder(privateKeyJson.get(i)).build();
 
                     final JsonObject dataNode = keyDatC.getJsonObject("data");
                     final JsonObjectBuilder ammendedDataNode = Json.createObjectBuilder(dataNode);
