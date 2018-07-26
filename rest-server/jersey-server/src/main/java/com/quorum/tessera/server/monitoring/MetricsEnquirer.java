@@ -1,4 +1,4 @@
-package com.github.tessera.server.monitoring;
+package com.quorum.tessera.server.monitoring;
 
 import javax.management.*;
 import java.util.ArrayList;

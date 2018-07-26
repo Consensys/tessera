@@ -1,21 +1,26 @@
-package com.github.tessera.server.monitoring;
+package com.quorum.tessera.server.monitoring;
 
+import java.net.URI;
 import java.util.List;
 
-public class PrometheusProtocolFormatter {
+public class InfluxDbProtocolFormatter {
 
-    public String format(List<MBeanMetric> metrics) {
+    public String format(List<MBeanMetric> metrics, URI uri) {
         StringBuilder formattedMetrics = new StringBuilder();
 
-        //TODO https://www.javaworld.com/article/2461744/design-patterns/java-language-iterating-over-collections-in-java-8.html
         for(MBeanMetric metric : metrics) {
             MBeanResourceMetric resourceMetric = (MBeanResourceMetric) metric;
 
             formattedMetrics.append("tessera_")
                             .append(sanitize(resourceMetric.getResourceMethod()))
-                            .append("_")
-                            .append(sanitize(resourceMetric.getName()))
+                            .append(",")
+                            .append("instance=")
+                            .append(uri.getHost())
+                            .append(":")
+                            .append(uri.getPort())
                             .append(" ")
+                            .append(sanitize(resourceMetric.getName()))
+                            .append("=")
                             .append(resourceMetric.getValue())
                             .append("\n");
         }
@@ -27,6 +32,4 @@ public class PrometheusProtocolFormatter {
         return input.replaceAll("(#.*)|(_total)|\\(\\)|\\)|\\[\\]|\\]|;", "")
                     .replaceAll("->|\\(|\\[", "_");
     }
-
-
 }

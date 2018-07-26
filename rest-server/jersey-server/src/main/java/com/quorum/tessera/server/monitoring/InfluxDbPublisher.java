@@ -1,9 +1,7 @@
-package com.github.tessera.server.monitoring;
+package com.quorum.tessera.server.monitoring;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.management.*;
 
 public class InfluxDbPublisher implements Runnable {
 

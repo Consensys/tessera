@@ -1,4 +1,4 @@
-package com.github.tessera.config;
+package com.quorum.tessera.config;
 
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;

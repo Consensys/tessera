@@ -1,4 +1,4 @@
-package com.github.tessera.server.monitoring;
+package com.quorum.tessera.server.monitoring;
 
 public class MBeanResourceMetric implements MBeanMetric {
     private String resourceMethod;
