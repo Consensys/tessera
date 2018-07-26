@@ -45,6 +45,14 @@ public class ConfigBuilderTest {
         assertThat(result).isNotNull();
     }
 
+    @Test
+    public void influxHostnameEmptyThenInfluxConfigIsNull() {
+        Config result = builderWithValidValues.influxHostName("")
+                                            .build();
+
+        assertThat(result.getServerConfig().getInfluxConfig()).isNull();
+    }
+
     /*
     Create config from existing config and ensure all 
     properties are populated using marhsalled values

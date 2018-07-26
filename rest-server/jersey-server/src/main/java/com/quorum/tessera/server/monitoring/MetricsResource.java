@@ -19,8 +19,6 @@ public class MetricsResource {
         mbs = ManagementFactory.getPlatformMBeanServer();
     }
 
-
-    //TODO Use Spring to inject MetricsEnquirer and PrometheusProtocolFormatter into constructor for testing?
     @GET
     @Produces("text/plain")
     public Response getMetrics() {

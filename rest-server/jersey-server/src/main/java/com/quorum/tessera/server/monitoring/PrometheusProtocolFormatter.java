@@ -7,7 +7,6 @@ public class PrometheusProtocolFormatter {
     public String format(List<MBeanMetric> metrics) {
         StringBuilder formattedMetrics = new StringBuilder();
 
-        //TODO https://www.javaworld.com/article/2461744/design-patterns/java-language-iterating-over-collections-in-java-8.html
         for(MBeanMetric metric : metrics) {
             MBeanResourceMetric resourceMetric = (MBeanResourceMetric) metric;
 

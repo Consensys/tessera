@@ -56,9 +56,9 @@ public class LegacyCliAdapter implements CliAdapter {
                 .orElse(ConfigBuilder.create());
 
         
-        ConfigBuilder adustedConfig = applyOverrides(line,configBuilder);
+        ConfigBuilder adjustedConfig = applyOverrides(line,configBuilder);
 
-        return new CliResult(0, false, adustedConfig.build());
+        return new CliResult(0, false, adjustedConfig.build());
     }
 
     static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder) {

@@ -1,13 +1,6 @@
 package com.quorum.tessera.config.builder;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.JdbcConfig;
-import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.SslAuthenticationMode;
-import com.quorum.tessera.config.SslConfig;
-import com.quorum.tessera.config.SslTrustMode;
+import com.quorum.tessera.config.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,7 +46,15 @@ public class ConfigBuilder {
                     .sslServerTrustStorePassword(sslConfig.getServerTrustStorePassword())
                     .knownClientsFile(Objects.toString(sslConfig.getKnownClientsFile()))
                     .knownServersFile(Objects.toString(sslConfig.getKnownServersFile()));
+        }
 
+        final InfluxConfig influxConfig = config.getServerConfig().getInfluxConfig();
+
+        if(Objects.nonNull(influxConfig)) {
+            configBuilder.influxHostName(influxConfig.getHostName())
+                        .influxPort(influxConfig.getPort())
+                        .pushIntervalInSecs(influxConfig.getPushIntervalInSecs())
+                        .influxDbName(influxConfig.getDbName());
         }
 
         return configBuilder;
@@ -105,6 +106,14 @@ public class ConfigBuilder {
     private String knownClientsFile;
 
     private String knownServersFile;
+
+    private String influxHostName;
+
+    private int influxPort;
+
+    private Long pushIntervalInSecs;
+
+    private String influxDbName;
 
     public ConfigBuilder sslServerTrustMode(SslTrustMode sslServerTrustMode) {
         this.sslServerTrustMode = sslServerTrustMode;
@@ -203,6 +212,26 @@ public class ConfigBuilder {
         return this;
     }
 
+    public ConfigBuilder influxHostName(String influxHostName) {
+        this.influxHostName = influxHostName;
+        return this;
+    }
+
+    public ConfigBuilder influxPort(int influxPort) {
+        this.influxPort = influxPort;
+        return this;
+    }
+
+    public ConfigBuilder pushIntervalInSecs(Long pushIntervalInSecs) {
+        this.pushIntervalInSecs = pushIntervalInSecs;
+        return this;
+    }
+
+    public ConfigBuilder influxDbName(String influxDbName) {
+        this.influxDbName= influxDbName;
+        return this;
+    }
+
     public Config build() {
 
        
@@ -224,7 +253,19 @@ public class ConfigBuilder {
                 Paths.get(knownClientsFile),
                 Paths.get(knownServersFile));
 
-        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig);
+        InfluxConfig influxConfig;
+        if(influxHostName != "") {
+            influxConfig = new InfluxConfig(
+                influxHostName,
+                influxPort,
+                pushIntervalInSecs,
+                influxDbName
+            );
+        } else {
+            influxConfig = null;
+        }
+
+        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig, influxConfig);
 
         final List<Peer> peerList = peers.stream()
                 .map(Peer::new)
