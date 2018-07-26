@@ -84,6 +84,14 @@ public class LegacyCliAdapterTest {
         when(commandLine.getOptionValue("tlsservercert")).thenReturn("tlsservercert.cert");
         when(commandLine.getOptionValue("tlsclientcert")).thenReturn("tlsclientcert.cert");
 
+        when(commandLine.getOptionValues("tlsserverchain")).thenReturn(new String[]{
+            "server1.crt", "server2.crt", "server3.crt"
+        });
+
+        when(commandLine.getOptionValues("tlsclientchain")).thenReturn(new String[]{
+            "client1.crt", "client2.crt", "client3.crt"
+        });
+
         when(commandLine.getOptionValues("publickeys"))
                 .thenReturn(new String[]{"ONE", "TWO"});
 
@@ -130,6 +138,12 @@ public class LegacyCliAdapterTest {
 
         assertThat(result.getServerConfig().getSslConfig().getServerKeyStore()).isEqualTo(Paths.get("tlsservercert.cert"));
 
+        assertThat(result.getServerConfig().getSslConfig().getServerTrustCertificates())
+                .containsExactly(Paths.get("server1.crt"), Paths.get("server2.crt"), Paths.get("server3.crt"));
+
+        assertThat(result.getServerConfig().getSslConfig().getClientTrustCertificates())
+                .containsExactly(Paths.get("client1.crt"), Paths.get("client2.crt"), Paths.get("client3.crt"));
+
         Files.deleteIfExists(privateKeyPasswordFile);
         for (Path privateKeyPath : privateKeyPaths) {
             Files.deleteIfExists(privateKeyPath);
@@ -167,6 +181,11 @@ public class LegacyCliAdapterTest {
         assertThat(result.getServerConfig().getSslConfig().getClientKeyStore()).isEqualTo(Paths.get("sslClientKeyStorePath"));
 
         assertThat(result.getServerConfig().getSslConfig().getServerKeyStore()).isEqualTo(Paths.get("sslServerKeyStorePath"));
+
+        assertThat(result.getServerConfig().getSslConfig().getServerTrustCertificates()).isEmpty();
+
+        assertThat(result.getServerConfig().getSslConfig().getClientTrustCertificates()).isEmpty();
+
     }
 
 }
