@@ -1,5 +1,6 @@
 package com.quorum.tessera.ssl.strategy;
 
+import com.quorum.tessera.ssl.context.model.SSLContextProperties;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,11 +35,16 @@ public class TrustModeTest {
 
         assertThat(
             TrustMode.NONE.createSSLContext(
-                tmpFile,
-                "quorum",
-                tmpFile,
-                "quorum",
-                tmpKnownHosts
+                new SSLContextProperties(
+                    tmpFile,
+                    "quorum",
+                    null,
+                    null,
+                    tmpFile,
+                    "quorum",
+                    null,
+                    tmpKnownHosts
+                )
             )
         ).isNotNull();
 
@@ -48,11 +54,16 @@ public class TrustModeTest {
     public void testWhiteList() throws IOException, GeneralSecurityException, OperatorCreationException {
         assertThat(
             TrustMode.getValueIfPresent("WHITELIST").get().createSSLContext(
-                tmpFile,
-                "quorum",
-                tmpFile,
-                "quorum",
-                tmpKnownHosts
+                new SSLContextProperties(
+                    tmpFile,
+                    "quorum",
+                    null,
+                    null,
+                    tmpFile,
+                    "quorum",
+                    null,
+                    tmpKnownHosts
+                )
             )
         ).isNotNull();
     }
@@ -61,11 +72,16 @@ public class TrustModeTest {
     public void testCA() throws IOException, GeneralSecurityException, OperatorCreationException {
         assertThat(
             TrustMode.getValueIfPresent("CA").get().createSSLContext(
-                tmpFile,
-                "quorum",
-                tmpFile,
-                "quorum",
-                tmpKnownHosts
+                new SSLContextProperties(
+                    tmpFile,
+                    "quorum",
+                    null,
+                    null,
+                    tmpFile,
+                    "quorum",
+                    null,
+                    tmpKnownHosts
+                )
             )
         ).isNotNull();
     }
@@ -74,11 +90,16 @@ public class TrustModeTest {
     public void testTOFU() throws IOException, GeneralSecurityException, OperatorCreationException {
         assertThat(
             TrustMode.getValueIfPresent("TOFU").get().createSSLContext(
-                tmpFile,
-                "quorum",
-                tmpFile,
-                "quorum",
-                tmpKnownHosts
+                new SSLContextProperties(
+                    tmpFile,
+                    "quorum",
+                    null,
+                    null,
+                    tmpFile,
+                    "quorum",
+                    null,
+                    tmpKnownHosts
+                )
             )
         ).isNotNull();
     }

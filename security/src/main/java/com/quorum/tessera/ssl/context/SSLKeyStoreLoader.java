@@ -40,6 +40,10 @@ public final class SSLKeyStoreLoader {
 
     private static final Base64.Decoder decoder = Base64.getMimeDecoder();
 
+    private SSLKeyStoreLoader(){
+
+    }
+
 
     public static KeyManager[] fromJksKeyStore(Path keyStoreFile, String keyStorePassword) throws NoSuchAlgorithmException, IOException, KeyStoreException, CertificateException, UnrecoverableKeyException {
 

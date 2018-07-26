@@ -34,18 +34,12 @@ public class SSLContextBuilder {
 
     private SSLContextBuilder(Path keyStore,
                               String keyStorePassword,
-                              Path key,
-                              Path certificate,
                               Path trustStore,
-                              String trustStorePassword,
-                              List<Path> trustedCertificates) throws NoSuchAlgorithmException {
+                              String trustStorePassword) throws NoSuchAlgorithmException {
         this.keyStore = keyStore;
         this.keyStorePassword = keyStorePassword;
-        this.key = key;
-        this.certificate = certificate;
         this.trustStore = trustStore;
         this.trustStorePassword = trustStorePassword;
-        this.trustedCertificates = trustedCertificates;
 
         this.sslContext = SSLContext.getInstance(PROTOCOL);
     }
@@ -55,22 +49,16 @@ public class SSLContextBuilder {
         return new SSLContextBuilder(
             keyStore,
             keyStorePassword,
-            null,
-            null,
             trustStore,
-            trustStorePassword,
-            null);
+            trustStorePassword);
     }
 
-    public static SSLContextBuilder createBuilder(Path key, Path certificate, List<Path> trustedCertificates) throws NoSuchAlgorithmException {
-        return new SSLContextBuilder(
-            null,
-            null,
-            key,
-            certificate,
-            null,
-            null,
-            trustedCertificates);
+    public SSLContextBuilder fromPemFiles(Path key, Path certificate, List<Path> trustedCertificates) {
+        this.key = key;
+        this.certificate = certificate;
+        this.trustedCertificates = trustedCertificates;
+
+        return this;
     }
 
     public SSLContext build() {
@@ -119,11 +107,10 @@ public class SSLContextBuilder {
 
     private KeyManager[] buildKeyManagers() throws GeneralSecurityException, IOException, OperatorCreationException {
 
-        if (Files.notExists(this.keyStore)) {
-            TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(this.keyStore, this.keyStorePassword);
-        }
-
         if (Objects.nonNull(this.keyStore)) {
+            if (Files.notExists(this.keyStore)) {
+                TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(this.keyStore, this.keyStorePassword);
+            }
             return SSLKeyStoreLoader.fromJksKeyStore(this.keyStore, this.keyStorePassword);
         } else {
             return SSLKeyStoreLoader.fromPemKeyFile(this.key, this.certificate);
