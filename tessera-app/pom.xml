@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>com.github.tessera</groupId>
+        <groupId>com.quorum.tessera</groupId>
         <artifactId>tessera</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
@@ -18,43 +18,43 @@
         <!-- Tessera modules -->
 
         <dependency>
-            <groupId>com.github.tessera</groupId>
+            <groupId>com.quorum.tessera</groupId>
             <artifactId>argon2</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.github.tessera</groupId>
+            <groupId>com.quorum.tessera</groupId>
             <artifactId>config-cli</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.github.tessera</groupId>
+            <groupId>com.quorum.tessera</groupId>
             <artifactId>encryption-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.github.tessera</groupId>
+            <groupId>com.quorum.tessera</groupId>
             <artifactId>unixsocket</artifactId>
             <scope>runtime</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.github.tessera</groupId>
+            <groupId>com.quorum.tessera</groupId>
             <artifactId>security</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.github.tessera</groupId>
+            <groupId>com.quorum.tessera</groupId>
             <artifactId>rest-server-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.github.tessera</groupId>
+            <groupId>com.quorum.tessera</groupId>
             <artifactId>service-locator-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.github.tessera</groupId>
+            <groupId>com.quorum.tessera</groupId>
             <artifactId>service-locator-spring</artifactId>
             <scope>runtime</scope>
         </dependency>
@@ -170,7 +170,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.tessera</groupId>
+            <groupId>com.quorum.tessera</groupId>
             <artifactId>junixsocket-adapter</artifactId>
             <scope>runtime</scope>
             <exclusions>
@@ -221,7 +221,7 @@
                     <transformers>
                         <transformer
                             implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>com.github.tessera.Launcher</mainClass>
+                            <mainClass>com.quorum.tessera.Launcher</mainClass>
                         </transformer>
 
                         <transformer
@@ -299,7 +299,7 @@
                             </info>
 
                             <locations>
-                                <location>com.github.tessera.api</location>
+                                <location>com.quorum.tessera.api</location>
                             </locations>
                             <templatePath>${basedir}/src/main/swagger/strapdown.html.hbs</templatePath>
                             <outputPath>${project.build.directory}/generated-resources/swagger/swagger.html</outputPath>
@@ -355,7 +355,7 @@
             </activation>
             <dependencies>       
                 <dependency>
-                    <groupId>com.github.tessera</groupId>
+                    <groupId>com.quorum.tessera</groupId>
                     <artifactId>encryption-jnacl</artifactId>
                 </dependency>
             </dependencies>
@@ -364,7 +364,7 @@
             <id>kalium</id>
             <dependencies>       
                 <dependency>
-                    <groupId>com.github.tessera</groupId>
+                    <groupId>com.quorum.tessera</groupId>
                     <artifactId>encryption-kalium</artifactId>
                 </dependency>
             </dependencies>
@@ -377,7 +377,7 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.github.tessera</groupId>
+                    <groupId>com.quorum.tessera</groupId>
                     <artifactId>jersey-server</artifactId>
                     <scope>runtime</scope>
                     <exclusions>
@@ -405,7 +405,7 @@
 
             <dependencies>
                 <dependency>
-                    <groupId>com.github.tessera</groupId>
+                    <groupId>com.quorum.tessera</groupId>
                     <artifactId>resteasy-server</artifactId>
                     <scope>runtime</scope>
                 </dependency>

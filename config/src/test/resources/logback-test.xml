@@ -11,7 +11,7 @@
     
 
     <logger name="com.openpojo" level="ERROR" />
-    <logger name="com.github.tessera.config.keys" level="ERROR" />
+    <logger name="com.quorum.tessera.config.keys" level="ERROR" />
     <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
