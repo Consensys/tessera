@@ -29,7 +29,7 @@ public class ConfigBuilder {
     public static ConfigBuilder from(Config config) {
 
         final ConfigBuilder configBuilder = ConfigBuilder.create();
-        configBuilder.unixSocketFile(Objects.toString(config.getUnixSocketFile()));
+        configBuilder.unixSocketFile(config.getUnixSocketFile());
 
         configBuilder.jdbcConfig(config.getJdbcConfig())
                 .peers(config.getPeers()
@@ -76,7 +76,7 @@ public class ConfigBuilder {
 
     private JdbcConfig jdbcConfig;
 
-    private String unixSocketFile;
+    private Path unixSocketFile;
 
     private List<String> peers;
 
@@ -160,7 +160,7 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder unixSocketFile(String unixSocketFile) {
+    public ConfigBuilder unixSocketFile(Path unixSocketFile) {
         this.unixSocketFile = unixSocketFile;
         return this;
     }
@@ -284,18 +284,16 @@ public class ConfigBuilder {
                 toPath(sslClientTlsCertificatePath)
         );
 
-        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig);
+        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig, null);
 
         final List<Peer> peerList = peers.stream()
                 .map(Peer::new)
                 .collect(Collectors.toList());
 
-        Path unixSocketFilePath = Paths.get(unixSocketFile);
-
         //TODO:
         final boolean useWhitelist = false;
 
-        return new Config(jdbcConfig, serverConfig, peerList, keyData, unixSocketFilePath, useWhitelist);
+        return new Config(jdbcConfig, serverConfig, peerList, keyData, unixSocketFile, useWhitelist);
     }
 
 }

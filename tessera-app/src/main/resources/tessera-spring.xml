@@ -86,7 +86,9 @@
     <bean name="postDelegate" class="com.quorum.tessera.node.PostDelegate">
         <constructor-arg>
             <bean factory-bean="clientFactory" factory-method="buildFrom">
-                <constructor-arg value="#{config.serverConfig}"/>
+                <constructor-arg>
+                    <bean factory-bean="config" factory-method="getServerConfig"/>
+                </constructor-arg>
             </bean>
         </constructor-arg>
     </bean>

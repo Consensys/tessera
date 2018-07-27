@@ -14,6 +14,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.file.Paths;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,7 +26,7 @@ public class ConfigBuilderTest {
             .peers(Collections.EMPTY_LIST)
             .serverPort(892)
             .sslAuthenticationMode(SslAuthenticationMode.STRICT)
-            .unixSocketFile("somepath.ipc")
+            .unixSocketFile(Paths.get("somepath.ipc"))
             .serverHostname("http://bogus.com:928")
             .sslServerKeyStorePath("sslServerKeyStorePath")
             .sslServerTrustMode(SslTrustMode.TOFU)
@@ -50,9 +51,13 @@ public class ConfigBuilderTest {
 
         assertThat(result).isNotNull();
     }
-    
-    
-    
+
+    @Test
+    public void influxHostNameEmptyThenInfluxConfigIsNull() {
+        Config result = builderWithValidValues.build();
+
+        assertThat(result.getServerConfig().getInfluxConfig()).isNull();
+    }
 
     /*
     Create config from existing config and ensure all 
