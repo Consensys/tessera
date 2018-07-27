@@ -25,7 +25,7 @@ public class InfluxDbPublisherTest {
     @Test
     public void runMethodIsCalled() {
         influxDbPublisher.run();
-        verify(influxDbClient, times(1));
+        verify(influxDbClient, times(1)).postMetrics();
     }
 
 }
