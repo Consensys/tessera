@@ -1,10 +1,10 @@
 package com.quorum.tessera.data.migration;
 
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -21,6 +21,7 @@ public class Main {
     public static void main(String... args) throws Exception {
 
         Options options = new Options();
+
         options.addOption(
                 Option.builder("storetype")
                         .desc("Store type i.e. bdb, dir")
@@ -41,7 +42,7 @@ public class Main {
                         .required()
                         .build());
 
-       options.addOption(
+        options.addOption(
                 Option.builder("exporttype")
                         .desc("Export DB type i.e. h2, sqlite")
                         .hasArg(true)
@@ -49,7 +50,7 @@ public class Main {
                         .numberOfArgs(1)
                         .argName("TYPE")
                         .build());
-        
+
         options.addOption(
                 Option.builder("outputfile")
                         .desc("Path to output file")
@@ -59,15 +60,17 @@ public class Main {
                         .argName("PATH")
                         .build());
 
+        if (Arrays.asList(args).contains("help")) {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("tessera-data-migration",options);
+
+            
+            System.exit(0);
+        }
+
         final CommandLineParser parser = new DefaultParser();
 
         final CommandLine line = parser.parse(options, args);
-
-        if (line.hasOption("help")) {
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("tessera-data-migration", options);
-            System.exit(0);
-        }
 
         final StoreType storeType = StoreType.valueOf(line.getOptionValue("storetype").toUpperCase());
 
@@ -76,12 +79,14 @@ public class Main {
         Path inputpath = Paths.get(line.getOptionValue("inputpath"));
 
         Map<byte[], byte[]> data = storeLoader.load(inputpath);
-        
-        ExportType exportType = ExportType.valueOf(line.getOptionValue("exporttype").toUpperCase());
-        Path outputFile = Paths.get(line.getOptionValue("outputfile"));
-        DataExporter dataExporter = DataExporter.create();
-        dataExporter.export(data);
 
+        ExportType exportType = ExportType.valueOf(line.getOptionValue("exporttype").toUpperCase());
+        Path outputFile = Paths.get(line.getOptionValue("outputfile")).toAbsolutePath();
+        DataExporter dataExporter = DataExporterFactory.create(exportType, outputFile);
+        dataExporter.export(data,outputFile);
+
+        System.out.printf("Exported data to %s",Objects.toString(outputFile));
+        System.exit(0);
     }
 
 }

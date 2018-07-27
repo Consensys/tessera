@@ -12,7 +12,7 @@ public class DefaultDataExporterTest {
     @Test
     public void doStuff() throws SQLException,IOException {
         DefaultDataExporter instance = new DefaultDataExporter();
-        instance.export(Collections.emptyMap());
+        instance.export(Collections.emptyMap(),null);
     }
     
     

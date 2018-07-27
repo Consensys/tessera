@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.data.migration;
 
 import java.io.File;
@@ -15,23 +14,29 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-
+import org.junit.rules.TestName;
 
 public class SqliteDataExporterTest {
-    
+
     private SqliteDataExporter exporter;
+
+    private Path outputPath;
+
+    @Rule
+    public TestName testName = new TestName();
 
     @Before
     public void onSetUp() throws IOException {
-
         exporter = new SqliteDataExporter();
+        outputPath = Files.createTempFile(testName.getMethodName(), ".db");
 
     }
 
     @After
     public void onTearDown() throws IOException {
-        Files.walk(exporter.calculateExportPath())
+        Files.walk(outputPath)
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
                 .peek(System.out::println)
@@ -44,9 +49,9 @@ public class SqliteDataExporterTest {
         Map<byte[], byte[]> singleLineData = new HashMap<>();
         singleLineData.put("HASH".getBytes(), "VALUE".getBytes());
 
-        exporter.export(singleLineData);
+        exporter.export(singleLineData, outputPath);
 
-        String connectionString = "jdbc:sqlite:" + exporter.calculateExportPath();
+        String connectionString = "jdbc:sqlite:" + outputPath;
 
         try (Connection conn = DriverManager.getConnection(connectionString)) {
             try (ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM ENCRYPTED_TRANSACTION")) {

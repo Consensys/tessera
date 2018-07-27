@@ -4,53 +4,53 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 public class H2DataExporterTest {
 
     private H2DataExporter exporter;
 
+    private Path outputPath;
+
+    @Rule
+    public TestName testName = new TestName();
+
     @Before
     public void onSetUp() throws IOException {
 
         exporter = new H2DataExporter();
-
+        outputPath = Files.createTempFile(testName.getMethodName(), ".db");
     }
 
     @After
     public void onTearDown() throws IOException {
-
-        String dbFilePath = exporter.calculateExportPath().toString() + ".mv.db";;
-
-        Files.walk(Paths.get(dbFilePath))
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .peek(System.out::println)
-                .forEach(File::delete);
+        Files.deleteIfExists(outputPath);
     }
+
 
     @Test
     public void exportSingleLine() throws SQLException, IOException {
 
+        Path outputpath = Files.createTempFile("exportSingleLine", ".db");
+
         Map<byte[], byte[]> singleLineData = new HashMap<>();
         singleLineData.put("HASH".getBytes(), "VALUE".getBytes());
 
-        exporter.export(singleLineData);
+        exporter.export(singleLineData, outputpath);
 
-        String connectionString = "jdbc:h2:" + exporter.calculateExportPath();
+        String connectionString = "jdbc:h2:" + outputpath;
 
         try (Connection conn = DriverManager.getConnection(connectionString)) {
             try (ResultSet rs = conn.prepareStatement("SELECT * FROM ENCRYPTED_TRANSACTION").executeQuery()) {

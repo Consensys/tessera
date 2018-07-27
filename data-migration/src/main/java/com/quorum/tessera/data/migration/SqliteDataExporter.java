@@ -2,6 +2,7 @@
 package com.quorum.tessera.data.migration;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -13,9 +14,9 @@ import java.util.Map;
 public class SqliteDataExporter implements DataExporter {
 
     @Override
-    public void export(Map<byte[], byte[]> data) throws SQLException, IOException {
+    public void export(Map<byte[], byte[]> data,Path output) throws SQLException, IOException {
 
-        final String connectionString = "jdbc:sqlite:"+ calculateExportPath();
+        final String connectionString = "jdbc:sqlite:"+ output.toString();
         
         try (Connection conn = DriverManager.getConnection(connectionString)) {
 
@@ -48,9 +49,6 @@ public class SqliteDataExporter implements DataExporter {
         }
     }
 
-    @Override
-    public String dbId() {
-        return "sqlite";
-    }
+
     
 }
