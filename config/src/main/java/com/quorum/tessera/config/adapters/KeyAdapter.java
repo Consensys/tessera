@@ -5,6 +5,7 @@ import com.quorum.tessera.config.util.IOCallback;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -25,8 +26,10 @@ public class KeyAdapter extends XmlAdapter<KeyConfiguration, KeyConfiguration> {
         final List<String> allPasswords;
         if (input.getPasswords() != null) {
             allPasswords = input.getPasswords();
-        } else {
+        } else if (input.getPasswordFile() != null) {
             allPasswords = IOCallback.execute(() -> Files.readAllLines(input.getPasswordFile(), UTF_8));
+        } else {
+            allPasswords = Collections.emptyList();
         }
 
 
@@ -48,7 +51,7 @@ public class KeyAdapter extends XmlAdapter<KeyConfiguration, KeyConfiguration> {
                                 kd.getConfig().getAsalt(),
                                 kd.getConfig().getSbox(),
                                 kd.getConfig().getArgonOptions(),
-                                input.getPasswords().get(i)
+                                allPasswords.get(i)
                             ),
                             kd.getConfig().getType()
                         ),

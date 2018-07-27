@@ -16,23 +16,26 @@
             "url": "http://bogus2.com"
         }
     ],
-    "keys": [
-        {
-            "privateKey": {
-                "data": {
-                    "value": "PRIVATEKEY",
-                    "password": "TOP_SECRET",
-                    "argonOptions": {
-                        "algorithm": "SHA",
-                        "iterations": 1,
-                        "memory": 256,
-                        "parallelism": 1
-                    }
+    "keys": {
+        "passwords": [],
+        "keyData": [
+            {
+                "privateKey": {
+                    "data": {
+                        "value": "PRIVATEKEY",
+                        "password": "TOP_SECRET",
+                        "argonOptions": {
+                            "algorithm": "SHA",
+                            "iterations": 1,
+                            "memory": 256,
+                            "parallelism": 1
+                        }
+                    },
+                    "type": "argon2sbox"
                 },
-                "type": "argon2sbox"
-            },
-            "publicKey": "PUBLICKEY"
-        }
-    ],
+                "publicKey": "PUBLICKEY"
+            }
+        ]
+    },
     "unixSocketFile": "/tmp/bogus.socket"
 }

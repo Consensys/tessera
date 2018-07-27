@@ -37,7 +37,10 @@ public class KeyDataAdapterTest {
     @Test
     public void marshallLockedKeyNullifiesPrivateKey() {
 
-        final KeyData keyData = new KeyData(new KeyDataConfig(null, PrivateKeyType.LOCKED), "PRIV", "PUB", null, null);
+        final KeyData keyData = new KeyData(
+            new KeyDataConfig(new PrivateKeyData(null, null, null, null, null, null), PrivateKeyType.LOCKED),
+            "PRIV", "PUB", null, null
+        );
 
         final KeyData marshalledKey = adapter.marshal(keyData);
 
