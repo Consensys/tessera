@@ -44,7 +44,7 @@ public class SSLKeyStoreLoaderTest {
         }
         catch (Exception ex) {
             assertThat(ex).isInstanceOf(KeyStoreException.class)
-                .hasMessageContaining("NO PRIVATE KEY IN FILE");
+                .hasMessageContaining("NO PRIVATE KEY FOUND IN FILE");
         }
     }
 
