@@ -31,6 +31,12 @@
             <artifactId>bcpkix-jdk15on</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.openpojo</groupId>
+            <artifactId>openpojo</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>
