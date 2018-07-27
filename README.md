@@ -102,6 +102,16 @@ For example
 tessera-data-migration -storetype bdb -inputpath exported.txt
 ```
 
+`tessera-data-migration help`
+
+```
+usage: tessera-data-migration
+-exporttype <TYPE>   Export DB type i.e. h2, sqlite
+-inputpath <PATH>    Path to input file or directory
+-outputfile <PATH>   Path to output file
+-storetype <TYPE>    Store type i.e. bdb, dir
+```
+
 For dir storage 
 ```
 tessera-data-migration -storetype dir -inputpath /pathtodir
@@ -273,8 +283,7 @@ For more interactions with the API - direct <a href="https://quorumengineering.g
 
 ### Quorum - Tessera Data Privacy Flow Diagram
 
-<img src='https://github.com/QuorumEngineering/tessera/blob/master/Tessera%20Privacy%20flow.jpeg'/>
-
+[1]( https://github.com/QuorumEngineering/tessera/blob/master/Tessera%20Privacy%20flow.jpeg "Tessera flow")
 
 - Each Tessera node hosts a number of key pairs and public keys are advertised 
 over public API
