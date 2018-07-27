@@ -7,9 +7,9 @@
    },
    "server" : {
         "port" : 8080,
-        "hostName":"http://localhost",
+        "hostName":"https://localhost",
         "sslConfig" : {
-            "tls" : "OFF",
+            "tls" : "STRICT",
             "generateKeyStoreIfNotExisted" : "true",
             "serverKeyStore" : "./target/server1-keystore",
             "serverKeyStorePassword" : "quorum",
@@ -26,7 +26,7 @@
         },
         "influxConfig" : {
             "port" : 8086,
-            "hostName" : "http://localhost",
+            "hostName" : "https://localhost",
             "dbName" : "tessera_demo",
             "pushIntervalInSecs" : 10
         }
