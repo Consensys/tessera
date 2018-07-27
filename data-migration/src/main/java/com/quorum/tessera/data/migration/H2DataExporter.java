@@ -20,12 +20,12 @@ public class H2DataExporter implements DataExporter {
 
             try (Statement stmt = conn.createStatement()) {
                 
-               boolean tableCreated =  stmt.execute("CREATE TABLE ENCRYPTED_TRANSACTION "
+               int tableCreated =  stmt.executeUpdate("CREATE TABLE ENCRYPTED_TRANSACTION "
                         + "(ID BIGINT NOT NULL, "
                         + "ENCODED_PAYLOAD LONGVARBINARY NOT NULL, "
                         + "HASH LONGVARBINARY NOT NULL UNIQUE, PRIMARY KEY (ID))");
 
-               if(!tableCreated) throw new IllegalStateException("UNABLE to Create table");
+               if(tableCreated != 0) throw new IllegalStateException("UNABLE to Create table");
                
                 stmt.execute("CREATE SEQUENCE ENC_TX_SEQ INCREMENT BY 50 START WITH 50");
             }
