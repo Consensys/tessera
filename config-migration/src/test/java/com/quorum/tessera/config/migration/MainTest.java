@@ -16,8 +16,10 @@ public class MainTest {
     }
 
     @Test
-    public void doStuffAndBreak() throws Exception {
+    public void doStuffAndFailValidation() throws Exception {
         expectedSystemExit.expectSystemExitWithStatus(1);
         Main.main();
     }
+
+
 }
