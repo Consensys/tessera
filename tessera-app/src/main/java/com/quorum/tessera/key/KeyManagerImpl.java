@@ -26,6 +26,7 @@ public class KeyManagerImpl implements KeyManager {
     public KeyManagerImpl(final Config configuration) {
         this.localKeys = configuration
             .getKeys()
+            .getKeyData()
             .stream()
             .map(kd -> new KeyPair(
                     new Key(Base64.getDecoder().decode(kd.getPublicKey())),

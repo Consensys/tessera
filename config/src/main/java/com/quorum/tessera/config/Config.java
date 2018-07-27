@@ -1,6 +1,6 @@
 package com.quorum.tessera.config;
 
-import com.quorum.tessera.config.adapters.KeyDataAdapter;
+import com.quorum.tessera.config.adapters.KeyAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
 
 import javax.validation.Valid;
@@ -33,13 +33,9 @@ public class Config extends ConfigItem {
 
     @Valid
     @NotNull
-    @Size(min = 1)
-    @XmlElements({
-        @XmlElement(type = KeyData.class)
-    })
     @XmlElement
-    @XmlJavaTypeAdapter(value = KeyDataAdapter.class)
-    private final List<KeyData> keys;
+    @XmlJavaTypeAdapter(KeyAdapter.class)
+    private final KeyConfiguration keys;
 
     @NotNull
     @XmlElement(required = true, type = String.class)
@@ -49,17 +45,16 @@ public class Config extends ConfigItem {
     @XmlAttribute
     private final boolean useWhiteList;
 
-    public Config(
-            JdbcConfig jdbcConfig,
-            ServerConfig serverConfig,
-            List<Peer> peers,
-            List<KeyData> keys,
-            Path unixSocketFile,
-            boolean useWhiteList) {
+    public Config(final JdbcConfig jdbcConfig,
+                  final ServerConfig serverConfig,
+                  final List<Peer> peers,
+                  final KeyConfiguration keyConfiguration,
+                  final Path unixSocketFile,
+                  final boolean useWhiteList) {
         this.jdbcConfig = jdbcConfig;
         this.serverConfig = serverConfig;
         this.peers = peers;
-        this.keys = keys;
+        this.keys = keyConfiguration;
         this.unixSocketFile = unixSocketFile;
         this.useWhiteList = useWhiteList;
     }
@@ -88,7 +83,7 @@ public class Config extends ConfigItem {
         return peers;
     }
 
-    public List<KeyData> getKeys() {
+    public KeyConfiguration getKeys() {
         return keys;
     }
 
