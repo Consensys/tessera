@@ -41,7 +41,7 @@ public class KeyManagerTest {
         KeyData keyData = new KeyData(
             null,
             keyPair.getPrivateKey().toString(),
-            keyPair.getPublicKey().toString()
+            keyPair.getPublicKey().toString(), null, null
         );
 
         when(configuration.getKeys()).thenReturn(singletonList(keyData));
