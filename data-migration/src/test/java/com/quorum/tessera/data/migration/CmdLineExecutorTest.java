@@ -17,7 +17,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-public class MainTest {
+public class CmdLineExecutorTest {
+
 
     @Rule
     public TestName testName = new TestName();
@@ -43,9 +44,11 @@ public class MainTest {
     public void help() throws Exception {
 
         String[] args = new String[]{"help"};
-        Main.main(args);
+        assertThat(CmdLineExecutor.execute(args)).isEqualTo(0);
 
     }
+
+
 
     @Test
     public void noOptions() throws Exception {
@@ -53,7 +56,7 @@ public class MainTest {
         String[] args = new String[]{};
 
         try {
-            Main.main(args);
+            CmdLineExecutor.execute(args);
             failBecauseExceptionWasNotThrown(MissingOptionException.class);
         } catch (MissingOptionException ex) {
             assertThat(ex.getMissingOptions()).containsExactly("storetype", "inputpath", "exporttype", "outputfile");
@@ -71,7 +74,7 @@ public class MainTest {
         };
 
         try {
-            Main.main(args);
+            CmdLineExecutor.execute(args);
             failBecauseExceptionWasNotThrown(MissingOptionException.class);
         } catch (MissingOptionException ex) {
             assertThat(ex.getMissingOptions()).hasSize(1);
@@ -90,7 +93,7 @@ public class MainTest {
         };
 
         try {
-            Main.main(args);
+            CmdLineExecutor.execute(args);
             failBecauseExceptionWasNotThrown(MissingOptionException.class);
         } catch (MissingOptionException ex) {
             assertThat(ex.getMissingOptions()).hasSize(1);
@@ -113,7 +116,7 @@ public class MainTest {
             "-outputfile", outputPath.toString()
         };
 
-        Main.main(args);
+        CmdLineExecutor.execute(args);
 
     }
 
@@ -130,7 +133,7 @@ public class MainTest {
             "-exporttype", "sqlite"
         };
 
-        Main.main(args);
+        CmdLineExecutor.execute(args);
 
         assertThat(outputPath).isNotNull();
 
@@ -139,7 +142,7 @@ public class MainTest {
     @Test
     public void cannotBeConstructed() throws Exception {
 
-        Constructor constructor = Main.class.getDeclaredConstructor();
+        Constructor constructor = CmdLineExecutor.class.getDeclaredConstructor();
         constructor.setAccessible(true);
         try {
             constructor.newInstance();
