@@ -157,6 +157,7 @@
                         <configuration>
                             <excludes>
                                 <exclude>com/quorum/tessera/Launcher*</exclude>
+                                <exclude>com/quorum/tessera/data/migration/Main*</exclude>
                             </excludes>
                             
                             <rules>
