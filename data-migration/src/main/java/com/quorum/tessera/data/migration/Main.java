@@ -49,6 +49,7 @@ public class Main {
                         .optionalArg(false)
                         .numberOfArgs(1)
                         .argName("TYPE")
+                        .required()
                         .build());
 
         options.addOption(
@@ -58,14 +59,13 @@ public class Main {
                         .optionalArg(false)
                         .numberOfArgs(1)
                         .argName("PATH")
+                        .required()
                         .build());
 
         if (Arrays.asList(args).contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("tessera-data-migration",options);
-
-            
-            System.exit(0);
+            return;
         }
 
         final CommandLineParser parser = new DefaultParser();
@@ -79,14 +79,16 @@ public class Main {
         Path inputpath = Paths.get(line.getOptionValue("inputpath"));
 
         Map<byte[], byte[]> data = storeLoader.load(inputpath);
-
-        ExportType exportType = ExportType.valueOf(line.getOptionValue("exporttype").toUpperCase());
+        
+        String exportTypeStr = line.getOptionValue("exporttype");
+        
+        ExportType exportType = ExportType.valueOf(exportTypeStr.toUpperCase());
         Path outputFile = Paths.get(line.getOptionValue("outputfile")).toAbsolutePath();
-        DataExporter dataExporter = DataExporterFactory.create(exportType, outputFile);
+        DataExporter dataExporter = DataExporterFactory.create(exportType);
         dataExporter.export(data,outputFile);
 
         System.out.printf("Exported data to %s",Objects.toString(outputFile));
-        System.exit(0);
+      
     }
 
 }

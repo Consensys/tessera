@@ -1,5 +1,6 @@
 package com.quorum.tessera.data.migration;
 
+import java.io.File;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +12,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +38,10 @@ public class H2DataExporterTest {
 
     @After
     public void onTearDown() throws IOException {
-        Files.deleteIfExists(outputPath);
+        Files.walk(outputPath)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
     }
 
 

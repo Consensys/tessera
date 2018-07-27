@@ -43,7 +43,6 @@ public class SqliteDataExporterTest {
         Files.walk(outputPath)
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
-                .peek(System.out::println)
                 .forEach(File::delete);
     }
 
