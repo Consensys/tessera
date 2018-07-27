@@ -1,34 +1,34 @@
-
 package com.quorum.tessera.data.migration;
 
+import java.io.IOException;
 import java.nio.file.Path;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 
-
+//FIXME: Need to address sequence generation config for sql bfeore going live with this
 public class SqliteDataExporter implements DataExporter {
 
     @Override
-    public void export(Map<byte[], byte[]> data,Path output) throws SQLException {
+    public void export(Map<byte[], byte[]> data, Path output) throws SQLException, IOException {
 
-        final String connectionString = "jdbc:sqlite:"+ output.toString();
-        
+        final String connectionString = "jdbc:sqlite:" + output.toString();
+
         try (Connection conn = DriverManager.getConnection(connectionString)) {
 
-
             try (Statement stmt = conn.createStatement()) {
-                
-               int tableCreated =  stmt.executeUpdate("CREATE TABLE ENCRYPTED_TRANSACTION "
-                       + "(ID NUMBER(19) NOT NULL, "
-                       + "ENCODED_PAYLOAD BLOB NOT NULL, "
-                       + "HASH BLOB NOT NULL UNIQUE, "
-                       + "PRIMARY KEY (ID))");
 
-               if(tableCreated != 0) throw new IllegalStateException("UNABLE to Create table");
-               
+                stmt.executeUpdate("CREATE TABLE ENCRYPTED_TRANSACTION "
+                        + "(ID NUMBER(19) NOT NULL, "
+                        + "ENCODED_PAYLOAD BLOB NOT NULL, "
+                        + "HASH BLOB NOT NULL UNIQUE, "
+                        + "PRIMARY KEY (ID))");
+
                 stmt.execute("CREATE TABLE SEQUENCE (SEQ_NAME VARCHAR(50) NOT NULL, SEQ_COUNT NUMBER(19), PRIMARY KEY (SEQ_NAME))");
                 stmt.execute("INSERT INTO SEQUENCE(SEQ_NAME, SEQ_COUNT) values ('ENC_TX_SEQ', 0)");
-                
 
             }
 
@@ -45,6 +45,4 @@ public class SqliteDataExporter implements DataExporter {
         }
     }
 
-
-    
 }
