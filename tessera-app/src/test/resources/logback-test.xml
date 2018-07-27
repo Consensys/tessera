@@ -10,7 +10,11 @@
   </appender>
     
     
-
+    <logger name="org.eclipse.persistence.level" level="DEBUG" />
+    <logger name="org.eclipse.persistence.logging.sql" level="DEBUG" />
+    <logger name="org.glassfish.jersey.logging.LoggingFeature" level="DEBUG" />
+    <logger name="org.eclipse.persistence.session.tessera.sql" level-="INFO" />
+    
 <!-- 
 org.eclipse.persistence.level=INFO
 org.eclipse.persistence.logging.sql=INFO
@@ -23,7 +27,7 @@ org.glassfish.jersey.internal.inject.Providers.level=SEVERE
 
     <logger name="org.glassfish.jersey.internal.inject.Providers" level="ERROR" />
 
-  <root level="INFO">
+  <root level="DEBUG">
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>
