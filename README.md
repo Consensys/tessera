@@ -78,6 +78,37 @@ and
 tessera help
 ```
 
+### Constellation migration
+For installations that use the constellation configuration the following deprecated options are available. When creating the alias to run tessera you can provide an additional system property 
+
+`alias tessera="java -Dtessera.config.legacy=true -jar /somewhere/application-${version}-app.jar"`
+
+Most of the constallation configation parameters are supported. [link](https://github.com/jpmorganchase/constellation,"Constellation docs") with the exception of the following: 
+
+* generatekeys - Generate keys is available using the non legacy config. 
+* storage - bdb and dir are no longer supported. While storage is still supported it now only handles sqliite, memory or any jdbc url of your choosing. As with Constellation the storage has no credentials. 
+
+#### Data migration instructions (dir or bdb stores)
+To Migrate legacy datastore to tessera there is a db migration tool, for this example we'll use tessera-data-migration as the command name.
+
+`alias tessera-data-migration="java -jar /somewhere/data-migration-${version}.jar"`
+
+To migrate from dbd databases to tessera you must first export your existing store using `db_dump`
+
+For example
+`db_dump -f exported.txt c1/cn§.db/payload.db`
+
+```
+tessera-data-migration -storetype bdb -inputpath exported.txt
+```
+
+For dir storage 
+```
+tessera-data-migration -storetype dir -inputpath /pathtodir
+```
+TODO: Add export options document. Add print out of tessera-data-migration -help
+
+
 By default, Tessera uses an H2 database.  To use an alternative database, add the necessary drivers to the classpath:
 
 `java -cp some-jdbc-driver.jar -jar /somewhere/tessera-app.jar`
