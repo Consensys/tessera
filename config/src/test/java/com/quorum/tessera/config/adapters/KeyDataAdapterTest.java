@@ -126,9 +126,22 @@ public class KeyDataAdapterTest {
     }
 
     @Test
-    public void bothPathsMustBeSetIfUsingKeyPaths() {
+    public void bothPathsMustBeSetIfUsingKeyPathsPub() {
 
         final KeyData badConfig = new KeyData(null, null, null, Paths.get("sample"), null);
+
+        final Throwable throwable = catchThrowable(() -> this.adapter.unmarshal(badConfig));
+
+        assertThat(throwable)
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("When providing key paths, must give both public and private");
+
+    }
+
+    @Test
+    public void bothPathsMustBeSetIfUsingKeyPathsPriv() {
+
+        final KeyData badConfig = new KeyData(null, null, null, null, Paths.get("sample"));
 
         final Throwable throwable = catchThrowable(() -> this.adapter.unmarshal(badConfig));
 
