@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -20,7 +21,7 @@ public class Main {
     public static void main(String... args) throws Exception {
 
         Options options = new Options();
-                options.addOption(
+        options.addOption(
                 Option.builder("storetype")
                         .desc("Store type i.e. bdb, dir")
                         .hasArg(true)
@@ -29,8 +30,7 @@ public class Main {
                         .argName("TYPE")
                         .required()
                         .build());
-        
-        
+
         options.addOption(
                 Option.builder("inputpath")
                         .desc("Path to input file or directory")
@@ -41,6 +41,15 @@ public class Main {
                         .required()
                         .build());
 
+       options.addOption(
+                Option.builder("exporttype")
+                        .desc("Export DB type i.e. h2, sqlite")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("TYPE")
+                        .build());
+        
         options.addOption(
                 Option.builder("outputfile")
                         .desc("Path to output file")
@@ -53,23 +62,23 @@ public class Main {
         final CommandLineParser parser = new DefaultParser();
 
         final CommandLine line = parser.parse(options, args);
-        
+
+        if (line.hasOption("help")) {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("tessera-data-migration", options);
+            System.exit(0);
+        }
+
         final StoreType storeType = StoreType.valueOf(line.getOptionValue("storetype").toUpperCase());
-        
+
         StoreLoader storeLoader = StoreLoader.create(storeType);
-        
+
         Path inputpath = Paths.get(line.getOptionValue("inputpath"));
 
-        final OutputStream output;
-        if (line.hasOption("outputfile")) {
-            Path outputFile = Paths.get(line.getOptionValue("outputfile"));
-            output = Files.newOutputStream(outputFile);
-        } else {
-            output = System.out;
-        }
+        Map<byte[], byte[]> data = storeLoader.load(inputpath);
         
-        Map<byte[],byte[]> data = storeLoader.load(inputpath);
-        
+        ExportType exportType = ExportType.valueOf(line.getOptionValue("exporttype").toUpperCase());
+        Path outputFile = Paths.get(line.getOptionValue("outputfile"));
         DataExporter dataExporter = DataExporter.create();
         dataExporter.export(data);
 
