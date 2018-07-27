@@ -79,7 +79,7 @@ tessera help
 ```
 
 ### Constellation migration
-For installations that use the constellation configuration the following deprecated options are avialable. When creating the alias to run tessura you can provide an additional system property 
+For installations that use the constellation configuration the following deprecated options are available. When creating the alias to run tessera you can provide an additional system property 
 
 `alias tessera="java -Dtessera.config.legacy=true -jar /somewhere/application-${version}-app.jar"`
 
