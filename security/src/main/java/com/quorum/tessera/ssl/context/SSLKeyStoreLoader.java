@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class SSLKeyStoreLoader {
+final class SSLKeyStoreLoader {
 
     private static final Pattern KEY_PATTERN = Pattern.compile(
         "-+BEGIN\\s+.*PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+" + // Header
@@ -36,6 +36,7 @@ public final class SSLKeyStoreLoader {
             "([a-z0-9+/=\\r\\n]+)" +                    // Base64 text
             "-+END\\s+.*CERTIFICATE[^-]*-+",            // Footer
         2);
+
     private static final String KEYSTORE_TYPE="JKS";
 
     private static final Base64.Decoder decoder = Base64.getMimeDecoder();
@@ -45,7 +46,7 @@ public final class SSLKeyStoreLoader {
     }
 
 
-    public static KeyManager[] fromJksKeyStore(Path keyStoreFile, String keyStorePassword) throws NoSuchAlgorithmException, IOException, KeyStoreException, CertificateException, UnrecoverableKeyException {
+    static KeyManager[] fromJksKeyStore(Path keyStoreFile, String keyStorePassword) throws NoSuchAlgorithmException, IOException, KeyStoreException, CertificateException, UnrecoverableKeyException {
 
         final KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
 
@@ -61,7 +62,7 @@ public final class SSLKeyStoreLoader {
 
     }
 
-    public static KeyManager[] fromPemKeyFile(Path key, Path certificate) throws IOException, GeneralSecurityException {
+    static KeyManager[] fromPemKeyFile(Path key, Path certificate) throws IOException, GeneralSecurityException {
 
         final PKCS8EncodedKeySpec encodedKeySpec = getEncodedKeySpec(key);
         final KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -84,7 +85,7 @@ public final class SSLKeyStoreLoader {
         return keyManagerFactory.getKeyManagers();
     }
 
-    public static TrustManager[] fromJksTrustStore(Path trustStoreFile, String trustStorePassword) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
+    static TrustManager[] fromJksTrustStore(Path trustStoreFile, String trustStorePassword) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
         final KeyStore trustStore = KeyStore.getInstance(KEYSTORE_TYPE);
 
         try (final InputStream in = Files.newInputStream(trustStoreFile)) {
@@ -98,7 +99,7 @@ public final class SSLKeyStoreLoader {
         return trustManagerFactory.getTrustManagers();
     }
 
-    public static TrustManager[] fromPemCertificatesFile(List<Path> trustedCertificates) throws GeneralSecurityException, IOException {
+    static TrustManager[] fromPemCertificatesFile(List<Path> trustedCertificates) throws GeneralSecurityException, IOException {
         final KeyStore trustStore = KeyStore.getInstance("JKS");
         trustStore.load(null, null);
 
@@ -121,7 +122,7 @@ public final class SSLKeyStoreLoader {
     }
 
     private static PKCS8EncodedKeySpec getEncodedKeySpec(Path keyFile) throws IOException, GeneralSecurityException {
-        String keyFileContent = readFile(keyFile);
+        String keyFileContent = readPemFile(keyFile);
         Matcher matcher = KEY_PATTERN.matcher(keyFileContent);
 
         if (!matcher.find()) {
@@ -134,7 +135,7 @@ public final class SSLKeyStoreLoader {
     }
 
     private static List<X509Certificate> getCertificate(Path certificateFile) throws IOException, GeneralSecurityException {
-        String contents = readFile(certificateFile);
+        String contents = readPemFile(certificateFile);
 
         Matcher matcher = CERT_PATTERN.matcher(contents);
         CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
@@ -150,7 +151,7 @@ public final class SSLKeyStoreLoader {
         return certificates;
     }
 
-    private static String readFile(Path file) throws IOException {
+    private static String readPemFile(Path file) throws IOException {
 
         try (BufferedReader reader = Files.newBufferedReader(file)) {
             StringBuilder stringBuilder = new StringBuilder();
