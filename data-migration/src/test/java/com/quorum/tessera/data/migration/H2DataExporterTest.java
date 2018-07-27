@@ -1,9 +1,14 @@
 package com.quorum.tessera.data.migration;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -11,10 +16,8 @@ import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 public class H2DataExporterTest {
 
@@ -29,8 +32,10 @@ public class H2DataExporterTest {
 
     @After
     public void onTearDown() throws IOException {
-        
-        Files.walk(exporter.calculateExportPath())
+
+        String dbFilePath = exporter.calculateExportPath().toString() + ".mv.db";;
+
+        Files.walk(Paths.get(dbFilePath))
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
                 .peek(System.out::println)
@@ -48,11 +53,11 @@ public class H2DataExporterTest {
         String connectionString = "jdbc:h2:" + exporter.calculateExportPath();
 
         try (Connection conn = DriverManager.getConnection(connectionString)) {
-            try (ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM ENCRYPTED_TRANSACTION")) {
-
-                assertThat(rs.getLong("ID")).isEqualTo(1);
-                assertThat(rs.getString("HASH")).isEqualTo("HASH");
-                assertThat(rs.getString("ENCODED_PAYLOAD")).isEqualTo("VALUE");
+            try (ResultSet rs = conn.prepareStatement("SELECT * FROM ENCRYPTED_TRANSACTION").executeQuery()) {
+                while (rs.next()) {
+                    assertThat(rs.getBytes("HASH")).isEqualTo("HASH".getBytes());
+                    assertThat(rs.getBytes("ENCODED_PAYLOAD")).isEqualTo("VALUE".getBytes());
+                }
 
             }
 
