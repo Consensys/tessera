@@ -16,12 +16,11 @@ public class KeyConfiguration {
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private Path passwordFile;
+    private final Path passwordFile;
 
-    @XmlElement(type = String.class)
-    private List<String> passwords;
+    private final List<String> passwords;
 
-    private List<KeyData> keyData;
+    private final List<KeyData> keyData;
 
     public KeyConfiguration(final Path passwordFile, final List<String> passwords, final List<KeyData> keyData) {
         this.passwordFile = passwordFile;
@@ -34,15 +33,15 @@ public class KeyConfiguration {
     }
 
     public Path getPasswordFile() {
-        return passwordFile;
+        return this.passwordFile;
     }
 
     public List<String> getPasswords() {
-        return passwords;
+        return this.passwords;
     }
 
     public List<KeyData> getKeyData() {
-        return keyData;
+        return this.keyData;
     }
 
 }
