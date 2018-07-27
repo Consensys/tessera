@@ -1,22 +1,29 @@
 package com.quorum.tessera.ssl.strategy;
 
 import com.quorum.tessera.ssl.context.SSLContextBuilder;
+import com.quorum.tessera.ssl.context.model.SSLContextProperties;
 import org.bouncycastle.operator.OperatorCreationException;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.security.*;
-import java.security.cert.CertificateException;
+import java.security.GeneralSecurityException;
 import java.util.Optional;
 
 public enum TrustMode {
 
     NONE {
         @Override
-        public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws NoSuchAlgorithmException, KeyManagementException, CertificateException, UnrecoverableKeyException, OperatorCreationException, IOException, KeyStoreException, SignatureException, NoSuchProviderException, InvalidKeyException {
+        public SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, OperatorCreationException, IOException {
             return SSLContextBuilder
-                .createBuilder(keyStore, keyStorePassword, trustStore, trustStorePassword)
+                .createBuilder(
+                    properties.getKeyStore(),
+                    properties.getKeyStorePassword(),
+                    properties.getTrustStore(),
+                    properties.getTrustStorePassword())
+                .fromPemFiles(
+                    properties.getKey(),
+                    properties.getCertificate(),
+                    properties.getTrustedCertificates())
                 .forAllCertificates()
                 .build();
         }
@@ -24,39 +31,59 @@ public enum TrustMode {
 
     WHITELIST {
         @Override
-        public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+        public SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, IOException, OperatorCreationException {
             return SSLContextBuilder
-                .createBuilder(keyStore, keyStorePassword, trustStore, trustStorePassword)
-                .forWhiteList(knownHosts)
+                .createBuilder(
+                    properties.getKeyStore(),
+                    properties.getKeyStorePassword(),
+                    properties.getTrustStore(),
+                    properties.getTrustStorePassword())
+                .fromPemFiles(
+                    properties.getKey(),
+                    properties.getCertificate(),
+                    properties.getTrustedCertificates())
+                .forWhiteList(properties.getKnownHosts())
                 .build();
         }
     },
 
     TOFU {
         @Override
-        public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+        public SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, IOException, OperatorCreationException {
             return SSLContextBuilder
-                .createBuilder(keyStore, keyStorePassword, trustStore, trustStorePassword)
-                .forTrustOnFirstUse(knownHosts)
+                .createBuilder(
+                    properties.getKeyStore(),
+                    properties.getKeyStorePassword(),
+                    properties.getTrustStore(),
+                    properties.getTrustStorePassword())
+                .fromPemFiles(
+                    properties.getKey(),
+                    properties.getCertificate(),
+                    properties.getTrustedCertificates())
+                .forTrustOnFirstUse(properties.getKnownHosts())
                 .build();
         }
     },
 
     CA {
         @Override
-        public SSLContext createSSLContext(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword, Path knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException {
+        public SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, IOException, OperatorCreationException {
             return SSLContextBuilder
-                .createBuilder(keyStore, keyStorePassword, trustStore, trustStorePassword)
+                .createBuilder(
+                    properties.getKeyStore(),
+                    properties.getKeyStorePassword(),
+                    properties.getTrustStore(),
+                    properties.getTrustStorePassword())
+                .fromPemFiles(
+                    properties.getKey(),
+                    properties.getCertificate(),
+                    properties.getTrustedCertificates())
                 .forCASignedCertificates()
                 .build();
         }
     };
 
-    public abstract SSLContext createSSLContext(Path keyStore,
-                                                String keyStorePassword,
-                                                Path trustStore,
-                                                String trustStorePassword,
-                                                Path knownHosts) throws NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, CertificateException, KeyStoreException, IOException, OperatorCreationException, NoSuchProviderException, InvalidKeyException, SignatureException;
+    public abstract SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, IOException, OperatorCreationException;
 
     public static Optional<TrustMode> getValueIfPresent(String value) {
         try {
