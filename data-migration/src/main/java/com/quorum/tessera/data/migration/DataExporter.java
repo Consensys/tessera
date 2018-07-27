@@ -1,14 +1,12 @@
 package com.quorum.tessera.data.migration;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.Map;
-import java.util.ServiceLoader;
 
 public interface DataExporter {
-    
-    void export(Map<byte[], byte[]> data);
 
-    static DataExporter create() {
-        return ServiceLoader.load(DataExporter.class).iterator().next();
-    }
-    
+    void export(Map<byte[], byte[]> data,Path output) throws SQLException,IOException;
+
 }

@@ -28,8 +28,9 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses(
-    {EncryptedTransactionDAOTest.H2Test.class,
-        EncryptedTransactionDAOTest.HsqlTest.class,
+    {
+        //EncryptedTransactionDAOTest.H2Test.class,
+        //EncryptedTransactionDAOTest.HsqlTest.class,
         EncryptedTransactionDAOTest.SqliteTest.class})
 public class EncryptedTransactionDAOTest {
 
