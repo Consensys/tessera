@@ -12,11 +12,14 @@ import org.junit.rules.TemporaryFolder;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,15 +32,27 @@ public class SSLContextBuilderTest {
 
     private Path knownHostFile;
 
+    private Path key;
+
+    private Path certificate;
+
+    private List<Path> trustedCertificates;
+
 
     private static final String PASSWORD = "quorum";
 
     private SSLContextBuilder sslContextBuilder;
 
+    public SSLContextBuilderTest() {
+    }
+
     @Before
-    public void setUp() throws NoSuchAlgorithmException, OperatorCreationException, InvalidKeyException, IOException, KeyStoreException, SignatureException, NoSuchProviderException, CertificateException {
+    public void setUp() throws NoSuchAlgorithmException, OperatorCreationException, InvalidKeyException, IOException, KeyStoreException, SignatureException, NoSuchProviderException, CertificateException, URISyntaxException {
         keyStoreFile = Paths.get(tmpDir.getRoot().getPath(), "keystore");
         knownHostFile = Paths.get(tmpDir.getRoot().getPath(), "knownHosts");
+        key = Paths.get(getClass().getResource("/key.pem").toURI());
+        certificate = Paths.get(getClass().getResource("/cert.pem").toURI());
+        trustedCertificates = Arrays.asList(certificate);
         sslContextBuilder = SSLContextBuilder.createBuilder(
             keyStoreFile,
             PASSWORD,
@@ -120,6 +135,28 @@ public class SSLContextBuilderTest {
         assertThat(Files.exists(nonExistedFile)).isTrue();
 
         Files.deleteIfExists(nonExistedFile);
+
+    }
+
+    @Test
+    public void testBuildUsingPemFiles() throws IOException, GeneralSecurityException, OperatorCreationException {
+
+        SSLContext context = SSLContextBuilder.createBuilder(null, null, null, null)
+            .fromPemFiles(key, certificate, trustedCertificates)
+            .forCASignedCertificates()
+            .build();
+
+        assertThat(context).isNotNull()
+            .extracting("contextSpi").isNotNull()
+            .extracting("trustManager").isNotNull()
+            .extracting("trustedCerts").isNotNull()
+            .hasSize(1);
+
+        assertThat(context)
+            .extracting("contextSpi")
+            .extracting("keyManager").isNotNull()
+            .extracting("credentialsMap").isNotNull()
+            .hasSize(1);
 
     }
 }
