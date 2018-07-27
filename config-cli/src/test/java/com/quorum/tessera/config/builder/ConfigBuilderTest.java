@@ -1,9 +1,14 @@
 package com.quorum.tessera.config.builder;
 
-
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.JdbcConfig;
+import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.PrivateKeyData;
+import com.quorum.tessera.config.PrivateKeyType;
+import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.SslAuthenticationMode;
+import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.config.SslTrustMode;
 import org.eclipse.persistence.jaxb.BeanValidationMode;
 import org.junit.Test;
@@ -15,9 +20,11 @@ import javax.xml.bind.Marshaller;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ConfigBuilderTest {
 
@@ -40,16 +47,47 @@ public class ConfigBuilderTest {
             .sslClientTlsKeyPath("sslClientTlsKeyPath")
             .sslKnownClientsFile("knownClientsFile")
             .sslKnownServersFile("knownServersFile")
-            
+            .sslServerTrustCertificates(Arrays.asList("sslServerTrustCertificates"))
+            .sslClientTrustCertificates(Arrays.asList("sslClientTrustCertificates"))
             .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
             .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
-            ;
+            .keyData(Arrays.asList(new KeyData(new KeyDataConfig(mock(PrivateKeyData.class), PrivateKeyType.LOCKED), null, null, null, null)));
 
     @Test
     public void buildValid() {
         Config result = builderWithValidValues.build();
 
         assertThat(result).isNotNull();
+        builderWithValidValues.sslClientTrustCertificates(Arrays.asList("sslServerTrustCertificates"));
+        assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("somepath.ipc"));
+
+        assertThat(result.getKeys()).hasSize(1);
+
+        KeyData keyData = result.getKeys().get(0);
+
+        assertThat(keyData).isNotNull();
+        assertThat(keyData.getConfig().getType()).isEqualTo(PrivateKeyType.LOCKED);
+
+        ServerConfig serverConfig = result.getServerConfig();
+        assertThat(serverConfig).isNotNull();
+
+        SslConfig sslConfig = serverConfig.getSslConfig();
+        assertThat(sslConfig).isNotNull();
+
+        assertThat(sslConfig.getClientKeyStorePassword()).isEqualTo("sslClientKeyStorePassword");
+        assertThat(sslConfig.getClientKeyStore()).isEqualTo(Paths.get("sslClientKeyStorePath"));
+        assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("sslClientTlsKeyPath"));
+
+        assertThat(sslConfig.getServerTrustCertificates())
+                .containsExactly(Paths.get("sslServerTrustCertificates"));
+        
+        assertThat(result.getJdbcConfig().getUsername()).isEqualTo("jdbcUsername");
+        assertThat(result.getJdbcConfig().getPassword()).isEqualTo("jdbcPassword");
+        assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:bogus");
+        
+        assertThat(result.getServerConfig().getPort()).isEqualTo(892);
+        
+        
     }
 
     @Test
@@ -66,25 +104,20 @@ public class ConfigBuilderTest {
     @Test
     public void buildFromExisting() throws Exception {
         Config existing = builderWithValidValues.build();
-        
-      
-        
+
         ConfigBuilder configBuilder = ConfigBuilder.from(existing);
 
         Config result = configBuilder.build();
 
-
-        
         JAXBContext jaxbContext = JAXBContext.newInstance(Config.class);
 
         Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.setProperty("eclipselink.beanvalidation.mode", BeanValidationMode.NONE);
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        
-//        marshaller.marshal(existing, System.out);
-//         marshaller.marshal(result, System.out);
-        
+       // marshaller.marshal(existing, System.out);
+       // marshaller.marshal(result, System.out);
+
         final String expected;
         try (Writer writer = new StringWriter()) {
             marshaller.marshal(existing, writer);

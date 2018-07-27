@@ -59,7 +59,7 @@ public class ConfigBuilder {
                     .sslClientTlsCertificatePath(Objects.toString(sslConfig.getClientTlsCertificatePath()))
                     .sslServerTlsCertificatePath(Objects.toString(sslConfig.getServerTlsCertificatePath()))
                     
-                    
+                    .keyData(config.getKeys())
                     
                     .sslClientTlsKeyPath(Objects.toString(sslConfig.getClientTlsKeyPath()))
                     .sslServerTlsKeyPath(Objects.toString(sslConfig.getServerTlsKeyPath()));

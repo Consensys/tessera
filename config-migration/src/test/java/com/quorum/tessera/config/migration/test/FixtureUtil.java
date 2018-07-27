@@ -1,4 +1,4 @@
-package com.quorum.tessera.config.cli.test;
+package com.quorum.tessera.config.migration.test;
 
 import com.quorum.tessera.config.JdbcConfig;
 import com.quorum.tessera.config.SslAuthenticationMode;

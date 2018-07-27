@@ -1,11 +1,11 @@
-package com.quorum.tessera.config.cli;
+package com.quorum.tessera.config.migration;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.SslTrustMode;
-import com.quorum.tessera.config.test.FixtureUtil;
+import com.quorum.tessera.config.migration.test.FixtureUtil;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -89,7 +89,8 @@ public class TomlConfigFactoryTest {
         Path privateKeyPath = Files.createTempFile("createPrivateKeyData", ".txt");
         Files.write(privateKeyPath, keyDataConfigJson.toString().getBytes());
 
-        List<KeyDataConfig> result = TomlConfigFactory.createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
+        List<KeyDataConfig> result = TomlConfigFactory
+                .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
 
         assertThat(result).hasSize(1);
 

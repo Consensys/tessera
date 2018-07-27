@@ -1,4 +1,4 @@
-package com.quorum.tessera.config.cli;
+package com.quorum.tessera.config.migration;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
@@ -6,6 +6,8 @@ import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
 import com.quorum.tessera.config.builder.SslTrustModeFactory;
+import com.quorum.tessera.config.cli.CliAdapter;
+import com.quorum.tessera.config.cli.CliResult;
 import com.quorum.tessera.io.FilesDelegate;
 import java.nio.file.Path;
 import org.apache.commons.cli.*;
@@ -23,7 +25,7 @@ public class LegacyCliAdapter implements CliAdapter {
     private final ConfigFactory configFactory;
 
     public LegacyCliAdapter() {
-        this(new com.quorum.tessera.config.cli.TomlConfigFactory());
+        this(new TomlConfigFactory());
     }
 
     protected LegacyCliAdapter(ConfigFactory configFactory) {
@@ -34,17 +36,17 @@ public class LegacyCliAdapter implements CliAdapter {
     public CliResult execute(String... args) throws Exception {
 
         Options options = buildOptions();
-
+        
+        if (Arrays.asList(args).contains("help")) {
+            HelpFormatter formatter = new HelpFormatter();
+            //(If a configuration file is specified, any command line options will take precedence.)
+            formatter.printHelp("tessera-config", options);
+            return new CliResult(0, true, null);
+        }
+        
         CommandLineParser parser = new DefaultParser();
 
         CommandLine line = parser.parse(options, args);
-
-        if (line.hasOption("help")) {
-            HelpFormatter formatter = new HelpFormatter();
-            //(If a configuration file is specified, any command line options will take precedence.)
-            formatter.printHelp("tessera [OPTION...] [config file containing options]", options);
-            return new CliResult(0, true, null);
-        }
 
         final Pattern configFileSearch = Pattern.compile("^--.*=.$");
 

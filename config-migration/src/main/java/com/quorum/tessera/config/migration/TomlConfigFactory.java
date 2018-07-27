@@ -1,4 +1,4 @@
-package com.quorum.tessera.config.cli;
+package com.quorum.tessera.config.migration;
 
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.Config;
