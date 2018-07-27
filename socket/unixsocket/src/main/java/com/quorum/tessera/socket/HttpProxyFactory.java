@@ -2,6 +2,7 @@ package com.quorum.tessera.socket;
 
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.SslConfig;
+import com.quorum.tessera.ssl.context.model.SSLContextProperties;
 import com.quorum.tessera.ssl.strategy.TrustMode;
 
 import javax.net.SocketFactory;
@@ -26,11 +27,16 @@ public class HttpProxyFactory {
             final SslConfig sslConfig = serverConfig.getSslConfig();
 
             final SSLContext sslContext = TrustMode.NONE.createSSLContext(
-                sslConfig.getClientKeyStore(),
-                sslConfig.getClientKeyStorePassword(),
-                sslConfig.getClientTrustStore(),
-                sslConfig.getClientTrustStorePassword(),
-                sslConfig.getKnownServersFile()
+                new SSLContextProperties(
+                    sslConfig.getClientKeyStore(),
+                    sslConfig.getClientKeyStorePassword(),
+                    sslConfig.getClientTlsKeyPath(),
+                    sslConfig.getClientTlsCertificatePath(),
+                    sslConfig.getClientTrustStore(),
+                    sslConfig.getClientTrustStorePassword(),
+                    sslConfig.getClientTrustCertificates(),
+                    sslConfig.getKnownServersFile()
+                )
             );
             
             this.socketFactory = sslContext.getSocketFactory();
