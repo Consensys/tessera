@@ -20,5 +20,6 @@
         "passwords": [],
         "keyData": []
     },
+    "alwaysSendTo": [],
     "unixSocketFile": "/tmp/bogus.socket"
 }

@@ -129,8 +129,15 @@
         <constructor-arg ref="nacl"/>
     </bean>
 
+    <bean id="keyConfig" factory-bean="config" factory-method="getKeys" />
+
     <bean name="keyManager" class="com.quorum.tessera.key.KeyManagerImpl">
-        <constructor-arg ref="config"/>
+        <constructor-arg>
+            <bean factory-bean="keyConfig" factory-method="getKeyData"/>
+        </constructor-arg>
+        <constructor-arg>
+            <bean factory-bean="config" factory-method="getFowardingList" />
+        </constructor-arg>
     </bean>
 
     <bean id="cliDelegate" class="com.quorum.tessera.config.cli.CliDelegate" factory-method="instance"/>

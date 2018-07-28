@@ -1,15 +1,13 @@
 package com.quorum.tessera.key;
 
-import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.key.exception.KeyNotFoundException;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.KeyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Base64;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class KeyManagerImpl implements KeyManager {
@@ -23,18 +21,21 @@ public class KeyManagerImpl implements KeyManager {
 
     private final KeyPair defaultKeys;
 
-    public KeyManagerImpl(final Config configuration) {
-        this.localKeys = configuration
-            .getKeys()
-            .getKeyData()
+    private final Set<Key> forwardingPublicKeys;
+
+    public KeyManagerImpl(final Collection<KeyData> keys, Collection<Key> forwardKeys) {
+        this.localKeys = keys
             .stream()
-            .map(kd -> new KeyPair(
+            .map(kd ->
+                new KeyPair(
                     new Key(Base64.getDecoder().decode(kd.getPublicKey())),
                     new Key(Base64.getDecoder().decode(kd.getPrivateKey()))
                 )
             ).collect(Collectors.toSet());
 
         this.defaultKeys = localKeys.iterator().next();
+
+        this.forwardingPublicKeys = Collections.unmodifiableSet(new HashSet<>(forwardKeys));
     }
 
     @Override
@@ -84,6 +85,11 @@ public class KeyManagerImpl implements KeyManager {
     @Override
     public Key defaultPublicKey() {
         return defaultKeys.getPublicKey();
+    }
+
+    @Override
+    public Set<Key> getForwardingKeys() {
+        return this.forwardingPublicKeys;
     }
 
 }

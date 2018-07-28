@@ -23,5 +23,6 @@
             }
         ]
     },
+    "alwaysSendTo": [],
     "unixSocketFile": "/tmp/tm1.ipc"
 }

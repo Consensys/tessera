@@ -47,5 +47,6 @@
             }
         ]
     },
+    "alwaysSendTo": [],
     "unixSocketFile": "/tmp/bogus.socket"
 }

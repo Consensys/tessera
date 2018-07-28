@@ -1,7 +1,5 @@
 package com.quorum.tessera.key;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.nacl.Key;
 import org.junit.Before;
@@ -11,11 +9,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class KeyManagerTest {
 
@@ -23,30 +19,22 @@ public class KeyManagerTest {
 
     private static final Key PUBLIC_KEY = new Key("publicKey".getBytes());
 
+    private static final Key FORWARDING_KEY = new Key("forwardingKey".getBytes());
+
     private KeyManager keyManager;
 
     @Before
     public void init() {
 
-        final Config configuration = mock(Config.class);
-
         final KeyData keyData = new KeyData(null, PRIVATE_KEY.toString(), PUBLIC_KEY.toString(), null, null);
 
-        final KeyConfiguration keyConfig = new KeyConfiguration(null, null, singletonList(keyData));
-
-        when(configuration.getKeys()).thenReturn(keyConfig);
-
-        this.keyManager = new KeyManagerImpl(configuration);
+        this.keyManager = new KeyManagerImpl(singleton(keyData), singleton(FORWARDING_KEY));
     }
 
     @Test
     public void initialisedWithNoKeysThrowsError() {
         //throws error because there is no default key
-        final Config configuration = mock(Config.class);
-        final KeyConfiguration keyConfig = new KeyConfiguration(null, null, emptyList());
-        when(configuration.getKeys()).thenReturn(keyConfig);
-
-        final Throwable throwable = catchThrowable(() -> new KeyManagerImpl(configuration));
+        final Throwable throwable = catchThrowable(() -> new KeyManagerImpl(emptyList(), emptyList()));
 
         assertThat(throwable).isInstanceOf(NoSuchElementException.class);
     }
@@ -98,6 +86,11 @@ public class KeyManagerTest {
     public void defaultKeyIsPopulated() {
         //the key manager is already set up with a keypair, so just check that
         assertThat(this.keyManager.defaultPublicKey()).isEqualTo(PUBLIC_KEY);
+    }
+
+    @Test
+    public void forwardingKeysContainsOnlyOneKey() {
+        assertThat(this.keyManager.getForwardingKeys()).hasSize(1).containsExactlyInAnyOrder(FORWARDING_KEY);
     }
 
 }
