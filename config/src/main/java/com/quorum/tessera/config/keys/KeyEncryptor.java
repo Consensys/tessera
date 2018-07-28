@@ -1,6 +1,6 @@
 package com.quorum.tessera.config.keys;
 
-import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.nacl.Key;
 
 /**
@@ -19,7 +19,7 @@ public interface KeyEncryptor {
      * @param password   the password to encrypt the key with
      * @return the configuration that can be used to decrypt the private key
      */
-    KeyDataConfig encryptPrivateKey(Key privateKey, String password);
+    PrivateKeyData encryptPrivateKey(Key privateKey, String password);
 
     /**
      * Decrypts a private key using the password and information provided by the given
@@ -28,6 +28,6 @@ public interface KeyEncryptor {
      * @param privateKeyConfig the configuration used to decrypt the private keyt
      * @return the decrypted private key
      */
-    Key decryptPrivateKey(KeyDataConfig privateKeyConfig);
+    Key decryptPrivateKey(PrivateKeyData privateKeyConfig);
 
 }

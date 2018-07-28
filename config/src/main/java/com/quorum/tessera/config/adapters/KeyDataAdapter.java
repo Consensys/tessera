@@ -64,11 +64,12 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         }
 
         final KeyEncryptor kg = KeyEncryptorFactory.create();
+        final PrivateKeyData encryptedKey = keyData.getConfig().getPrivateKeyData();
 
         //need to decrypt
         return new KeyData(
             keyData.getConfig(),
-            kg.decryptPrivateKey(keyData.getConfig()).toString(),
+            kg.decryptPrivateKey(encryptedKey).toString(),
             keyData.getPublicKey(),
             keyData.getPrivateKeyPath(),
             keyData.getPublicKeyPath()

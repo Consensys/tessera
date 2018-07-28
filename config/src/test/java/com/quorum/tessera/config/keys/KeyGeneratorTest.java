@@ -80,21 +80,16 @@ public class KeyGeneratorTest {
 
         final ArgonOptions argonOptions = new ArgonOptions("id", 1, 1, 1);
 
-        final KeyDataConfig encrypedPrivateKey = new KeyDataConfig(new PrivateKeyData(
-            null, null, null, null, argonOptions, null
-        ), PrivateKeyType.LOCKED);
+        final PrivateKeyData encryptedPrivateKey = new PrivateKeyData(null, null, null, null, argonOptions, null);
 
-        doReturn(encrypedPrivateKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
+        doReturn(encryptedPrivateKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
 
         final KeyDataConfig privateKeyConfig = new KeyDataConfig(
             new PrivateKeyData(null, null, null, null, argonOptions, "PASSWORD"),
             PrivateKeyType.LOCKED
         );
 
-        final KeyDataConfig encryptedKey = new KeyDataConfig(
-            new PrivateKeyData(null, "snonce", "salt", "sbox", argonOptions, "PASSWORD"),
-            PrivateKeyType.LOCKED
-        );
+        final PrivateKeyData encryptedKey = new PrivateKeyData(null, "snonce", "salt", "sbox", argonOptions, "PASSWORD");
 
         doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
 
@@ -139,12 +134,8 @@ public class KeyGeneratorTest {
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
-        doReturn(
-            new KeyDataConfig(
-                new PrivateKeyData("", "", "", "", new ArgonOptions("", 1, 1, 1), ""),
-                PrivateKeyType.LOCKED
-            )
-        ).when(keyEncryptor)
+        doReturn(new PrivateKeyData("", "", "", "", new ArgonOptions("", 1, 1, 1), ""))
+            .when(keyEncryptor)
             .encryptPrivateKey(any(Key.class), anyString());
 
         this.inputStream = new ByteArrayInputStream(keyFilesName.getBytes());

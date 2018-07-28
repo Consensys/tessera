@@ -44,7 +44,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
         if (keyData.getType() == PrivateKeyType.LOCKED) {
 
-            final KeyDataConfig encryptedPrivateKey = this.keyEncryptor.encryptPrivateKey(
+            final PrivateKeyData encryptedPrivateKey = this.keyEncryptor.encryptPrivateKey(
                 generated.getPrivateKey(), keyData.getPassword()
             );
 

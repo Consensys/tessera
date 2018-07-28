@@ -3,9 +3,7 @@ package com.quorum.tessera.config.keys;
 import com.quorum.tessera.argon2.Argon2;
 import com.quorum.tessera.argon2.ArgonResult;
 import com.quorum.tessera.config.ArgonOptions;
-import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
-import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.NaclFacade;
 import com.quorum.tessera.nacl.Nonce;
@@ -44,7 +42,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
     }
 
     @Override
-    public KeyDataConfig encryptPrivateKey(final Key privateKey, final String password) {
+    public PrivateKeyData encryptPrivateKey(final Key privateKey, final String password) {
 
         LOGGER.info("Encrypting a private key");
 
@@ -70,26 +68,23 @@ public class KeyEncryptorImpl implements KeyEncryptor {
         final String asalt = this.encoder.encodeToString(salt);
         final String sbox = this.encoder.encodeToString(encryptedKey);
 
-        return new KeyDataConfig(
-            new PrivateKeyData(
-                null,
-                snonce,
-                asalt,
-                sbox,
-                new ArgonOptions(
-                    argonResult.getOptions().getAlgorithm(),
-                    argonResult.getOptions().getIterations(),
-                    argonResult.getOptions().getMemory(),
-                    argonResult.getOptions().getParallelism()
-                ),
-                null
+        return new PrivateKeyData(
+            null,
+            snonce,
+            asalt,
+            sbox,
+            new ArgonOptions(
+                argonResult.getOptions().getAlgorithm(),
+                argonResult.getOptions().getIterations(),
+                argonResult.getOptions().getMemory(),
+                argonResult.getOptions().getParallelism()
             ),
-            PrivateKeyType.LOCKED
+            null
         );
     }
 
     @Override
-    public Key decryptPrivateKey(final KeyDataConfig privateKey) {
+    public Key decryptPrivateKey(final PrivateKeyData privateKey) {
 
         LOGGER.info("Decrypting private key");
         LOGGER.debug("Decrypting private key {} using password {}", privateKey.getValue(), privateKey.getPassword());
