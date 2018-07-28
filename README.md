@@ -137,46 +137,72 @@ Tessera uses cryptographic keys to provide transaction privacy.  You can use an 
 Existing keys can be included in `config.json` in one of two ways:
 - __Directly__ (preferred): 
 ```
-    "keys": [
-        {
-            "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
-            "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-        }
+    "keys": {
+        "keyData": [
+            {
+                "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
+                "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+            }
+        ]
+    }
 ```                                                                    
 - __Indirectly__ (as used in legacy implementations of Tessera):  
  The private key is provided indirectly through additional config, e.g.
 ```
-{
-    "config": {
-        "data": {
-            "bytes": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM="
-        },
-        "type": "unlocked"
-    },
-    "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-}
+    "keys": {
+        "keyData": [
+            {
+                "config": {
+                    "data": {
+                        "bytes": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM="
+                    },
+                    "type": "unlocked"
+                },
+                "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+            }
+        ]
+    }     
 ```
 
 ```
-{
-    "config": {
-        "data": {
-            "aopts": {
-                "variant": "id",
-                "memory": 1048576,
-                "iterations": 10,
-                "parallelism": 4,
-            },
-            "password": "password",
-            "snonce": "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-            "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-            "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
-        },
-        "type": "argon2sbox"
-    },
-    "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-}
+    "keys": {
+        "passwords": ["password"],
+        "keyData": [
+            {
+                "config": {
+                    "data": {
+                        "aopts": {
+                            "variant": "id",
+                            "memory": 1048576,
+                            "iterations": 10,
+                            "parallelism": 4,
+                        },
+                        "snonce": "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                        "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                        "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
+                    },
+                    "type": "argon2sbox"
+                },
+                "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+            }
+        ]
+    }
 ```
+
+- __Filesystem__:  
+ The keys are provided through file paths e.g.
+ ```
+     "keys": {
+         "passwordFile": "/path/to/passwords",
+         "keyData": [
+             {
+                 "privateKeyPath": "/path/to/privatekey",
+                 "publicKeyPath": "/path/to/publicKey"
+             }
+         ]
+     }
+ ```
+
 
 #### Generating keys
 If keys do not already exist they can be generated using the `-keygen` option. 

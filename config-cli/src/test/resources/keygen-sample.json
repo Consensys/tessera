@@ -21,5 +21,6 @@
         ],
         "keyData": []
     },
+    "alwaysSendTo": [],
     "unixSocketFile": "/tmp/bogus.socket"
 }

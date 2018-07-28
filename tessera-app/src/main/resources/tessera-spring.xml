@@ -136,8 +136,7 @@
             <bean factory-bean="keyConfig" factory-method="getKeyData"/>
         </constructor-arg>
         <constructor-arg>
-            <list value-type="com.quorum.tessera.nacl.Key">
-            </list>
+            <bean factory-bean="config" factory-method="getFowardingList" />
         </constructor-arg>
     </bean>
 
