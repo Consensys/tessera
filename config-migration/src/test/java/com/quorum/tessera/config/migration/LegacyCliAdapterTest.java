@@ -249,6 +249,16 @@ public class LegacyCliAdapterTest {
     }
 
     @Test
+    public void resolveUnixFileNameAndInitial() {
+        Path initial = Paths.get("/somepath/some.ipc");
+        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(initial, null, "other.ipc");
+
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(Paths.get("/somepath/other.ipc"));
+        
+    }
+    
+    @Test
     public void resolveUnixFilePathWorkdirOnly() {
 
         Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(null, "dir", null);
