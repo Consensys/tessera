@@ -5,7 +5,7 @@ import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.SslConfig;
-import com.quorum.tessera.config.test.FixtureUtil;
+import com.quorum.tessera.config.migration.test.FixtureUtil;
 import org.eclipse.persistence.jaxb.BeanValidationMode;
 import org.junit.Test;
 import org.xmlunit.builder.DiffBuilder;
@@ -85,8 +85,8 @@ public class ConfigBuilderTest {
         marshaller.setProperty("eclipselink.beanvalidation.mode", BeanValidationMode.NONE);
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        // marshaller.marshal(existing, System.out);
-        // marshaller.marshal(result, System.out);
+        marshaller.marshal(existing, System.out);
+        marshaller.marshal(result, System.out);
         final String expected;
         try (Writer writer = new StringWriter()) {
             marshaller.marshal(existing, writer);

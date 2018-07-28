@@ -2,8 +2,7 @@ package com.quorum.tessera.config.builder;
 
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.test.FixtureUtil;
-
+import com.quorum.tessera.config.migration.test.FixtureUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

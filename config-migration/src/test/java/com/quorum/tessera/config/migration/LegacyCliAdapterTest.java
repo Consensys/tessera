@@ -203,14 +203,16 @@ public class LegacyCliAdapterTest {
         assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:bogus");
 
         assertThat(result.getServerConfig().getSslConfig().getServerTrustMode()).isEqualTo(SslTrustMode.TOFU);
+        
         assertThat(result.getServerConfig().getSslConfig().getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
+        
         assertThat(result.getServerConfig().getSslConfig().getClientKeyStore()).isEqualTo(Paths.get("sslClientKeyStorePath"));
 
         assertThat(result.getServerConfig().getSslConfig().getServerKeyStore()).isEqualTo(Paths.get("sslServerKeyStorePath"));
 
-        assertThat(result.getServerConfig().getSslConfig().getServerTrustCertificates()).isEmpty();
+        assertThat(result.getServerConfig().getSslConfig().getServerTrustCertificates()).containsExactly(Paths.get("sslServerTrustCertificates"));
 
-        assertThat(result.getServerConfig().getSslConfig().getClientTrustCertificates()).isEmpty();
+        assertThat(result.getServerConfig().getSslConfig().getClientTrustCertificates()).containsExactly(Paths.get("sslClientTrustCertificates"));
 
         assertThat(result.getServerConfig().getSslConfig().getKnownServersFile())
                 .isEqualTo(Paths.get("knownServersFile"));
