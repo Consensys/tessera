@@ -36,7 +36,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
     @Override
     public KeyData generate(final KeyDataConfig keyData) {
 
-        final KeyPair generated = nacl.generateNewKeys();
+        final KeyPair generated = this.nacl.generateNewKeys();
 
         final String publicKeyBase64 = Base64.getEncoder().encodeToString(generated.getPublicKey().getKeyBytes());
 
@@ -44,15 +44,17 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
         if (keyData.getType() == PrivateKeyType.LOCKED) {
 
-            final KeyConfig encryptedPrivateKey = keyEncryptor.encryptPrivateKey(generated.getPrivateKey(), keyData.getPassword());
+            final PrivateKeyData encryptedPrivateKey = this.keyEncryptor.encryptPrivateKey(
+                generated.getPrivateKey(), keyData.getPassword()
+            );
 
             finalKeys = new KeyData(
                 new KeyDataConfig(
                     new PrivateKeyData(
                         generated.getPrivateKey().toString(),
-                        new String(encryptedPrivateKey.getSnonce(), UTF_8),
-                        new String(encryptedPrivateKey.getAsalt(), UTF_8),
-                        new String(encryptedPrivateKey.getSbox(), UTF_8),
+                        encryptedPrivateKey.getSnonce(),
+                        encryptedPrivateKey.getAsalt(),
+                        encryptedPrivateKey.getSbox(),
                         new ArgonOptions(
                             encryptedPrivateKey.getArgonOptions().getAlgorithm(),
                             encryptedPrivateKey.getArgonOptions().getIterations(),
