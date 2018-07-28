@@ -12,12 +12,10 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(factoryMethod = "create")
 public class JdbcConfig extends ConfigItem {
 
-    @NotNull
-    @XmlElement(required = true)
+    @XmlElement
     private final String username;
 
-    @NotNull
-    @XmlElement(required = true)
+    @XmlElement
     private final String password;
 
     @NotNull

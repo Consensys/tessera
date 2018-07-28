@@ -1,10 +1,12 @@
-package com.quorum.tessera.config.cli;
+package com.quorum.tessera.config.migration;
+
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.builder.ConfigBuilder;
-import com.quorum.tessera.config.test.FixtureUtil;
+import com.quorum.tessera.config.cli.CliResult;
+import com.quorum.tessera.config.migration.test.FixtureUtil;
 import org.apache.commons.cli.CommandLine;
 import org.junit.Test;
 
@@ -29,7 +31,7 @@ public class LegacyCliAdapterTest {
     @Test
     public void help() throws Exception {
 
-        CliResult result = instance.execute("--help");
+        CliResult result = instance.execute("help");
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(0);
@@ -246,6 +248,16 @@ public class LegacyCliAdapterTest {
 
     }
 
+    @Test
+    public void resolveUnixFileNameAndInitial() {
+        Path initial = Paths.get("/somepath/some.ipc");
+        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(initial, null, "other.ipc");
+
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(Paths.get("/somepath/other.ipc"));
+        
+    }
+    
     @Test
     public void resolveUnixFilePathWorkdirOnly() {
 
