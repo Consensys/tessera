@@ -1,12 +1,15 @@
 package com.quorum.tessera.config.builder;
 
+import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.test.FixtureUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +49,24 @@ public class KeyDataBuilderTest {
             .getKeyData();
 
         assertThat(result).hasSize(3);
+
+    }
+
+    @Test
+    public void differentAmountOfKeysThrowsError() {
+
+        final KeyDataBuilder keyDataBuilder = KeyDataBuilder.create()
+            .withPrivateKeys(Collections.emptyList())
+            .withPublicKeys(Collections.singletonList("keyfile.txt"))
+            .withPrivateKeyPasswordFile(Paths.get("pwfile.txt"));
+
+        final Throwable throwable = catchThrowable(keyDataBuilder::build);
+
+        assertThat(throwable)
+            .isInstanceOf(ConfigException.class)
+            .hasCauseExactlyInstanceOf(RuntimeException.class);
+
+        assertThat(throwable.getCause()).hasMessage("Different amount of public and private keys supplied");
 
     }
 
