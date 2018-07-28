@@ -119,5 +119,25 @@ public class TomlConfigFactoryTest {
         Files.deleteIfExists(privateKeyPath);
 
     }
+    @Test
+    public void createUnlockedPrivateKeyData() throws Exception {
 
+        JsonObject keyDataConfigJson = FixtureUtil.createUnlockedPrivateKey();
+
+        Path privateKeyPath = Files.createTempFile("createUnlockedPrivateKeyData", ".txt");
+        Files.write(privateKeyPath, keyDataConfigJson.toString().getBytes());
+
+        List<KeyDataConfig> result = TomlConfigFactory
+                .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
+
+        assertThat(result).hasSize(1);
+
+        KeyDataConfig keyConfig = result.get(0);
+
+        assertThat(keyConfig.getType()).isEqualTo(PrivateKeyType.UNLOCKED);
+
+
+        Files.deleteIfExists(privateKeyPath);
+
+    }
 }

@@ -54,4 +54,15 @@ public class FixtureUtil {
                 .sslKnownServersFile("knownServersFile");
     }
 
+    
+    public static JsonObject createUnlockedPrivateKey() {
+        return Json.createObjectBuilder()
+            .add("data", Json.createObjectBuilder()
+                    .add("snonce", "xx3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC")
+                    .add("asalt", "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=")
+                    .add("sbox", "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc").build())
+            .add("type", "unlocked")
+            .build();
+    }
+    
 }
