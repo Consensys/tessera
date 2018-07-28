@@ -1,16 +1,11 @@
 package com.quorum.tessera.config.builder;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.JdbcConfig;
-import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.KeyDataConfig;
-import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.SslConfig;
-import com.quorum.tessera.config.SslTrustMode;
+import com.quorum.tessera.config.test.FixtureUtil;
 import org.eclipse.persistence.jaxb.BeanValidationMode;
 import org.junit.Test;
 import org.xmlunit.builder.DiffBuilder;
@@ -22,38 +17,12 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class ConfigBuilderTest {
 
-    private final ConfigBuilder builderWithValidValues = ConfigBuilder.create()
-            .jdbcConfig(new JdbcConfig("jdbcUsername", "jdbcPassword", "jdbc:bogus"))
-            .peers(Collections.EMPTY_LIST)
-            .serverPort(892)
-            .sslAuthenticationMode(SslAuthenticationMode.STRICT)
-            .unixSocketFile(Paths.get("somepath.ipc"))
-            .serverHostname("http://bogus.com:928")
-            .sslServerKeyStorePath("sslServerKeyStorePath")
-            .sslServerTrustMode(SslTrustMode.TOFU)
-            .sslServerTrustStorePath("sslServerTrustStorePath")
-            .sslServerTrustStorePath("sslServerKeyStorePath")
-            .sslClientKeyStorePath("sslClientKeyStorePath")
-            .sslClientTrustStorePath("sslClientTrustStorePath")
-            .sslClientKeyStorePassword("sslClientKeyStorePassword")
-            .sslClientTrustStorePassword("sslClientTrustStorePassword")
-            .sslServerTlsKeyPath("sslServerTlsKeyPath")
-            .sslClientTlsKeyPath("sslClientTlsKeyPath")
-            .sslKnownClientsFile("knownClientsFile")
-            .sslKnownServersFile("knownServersFile")
-            .sslServerTrustCertificates(Arrays.asList("sslServerTrustCertificates"))
-            .sslClientTrustCertificates(Arrays.asList("sslClientTrustCertificates"))
-            .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
-            .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
-            .keyData(new KeyConfiguration(null, Collections.emptyList(),
-                    Arrays.asList(new KeyData(new KeyDataConfig(mock(PrivateKeyData.class), PrivateKeyType.LOCKED), null, null, null, null))));
+    private final ConfigBuilder builderWithValidValues = FixtureUtil.builderWithValidValues();
 
     @Test
     public void buildValid() {
