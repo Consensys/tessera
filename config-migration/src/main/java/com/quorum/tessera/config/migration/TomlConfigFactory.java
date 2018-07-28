@@ -126,7 +126,8 @@ public class TomlConfigFactory implements ConfigFactory {
                 .sslClientTrustStorePath(tlsservercert)
                 .sslKnownClientsFile(tlsknownclients)
                 .sslKnownServersFile(tlsknownservers)
-                .peers(othernodes);
+                .peers(othernodes)
+                .alwayssendto(alwayssendtoList);
 
         Optional.ofNullable(storage)
                 .map(JdbcConfigFactory::fromLegacyStorageString).ifPresent(configBuilder::jdbcConfig);

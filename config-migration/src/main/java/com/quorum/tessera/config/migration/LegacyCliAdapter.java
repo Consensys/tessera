@@ -114,6 +114,10 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(Arrays::asList)
                 .ifPresent(keyDataBuilder::withPrivateKeys);
 
+        Optional.ofNullable(line.getOptionValues("alwayssendto"))
+            .map(Arrays::asList)
+            .ifPresent(configBuilder::alwayssendto);
+
         Optional.ofNullable(line.getOptionValue("passwords"))
                 .map(p -> Paths.get(p))
                 .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
