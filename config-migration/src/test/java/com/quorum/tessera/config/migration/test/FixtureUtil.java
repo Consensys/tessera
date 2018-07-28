@@ -1,20 +1,13 @@
 package com.quorum.tessera.config.migration.test;
 
-import com.quorum.tessera.config.JdbcConfig;
-import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.KeyDataConfig;
-import com.quorum.tessera.config.PrivateKeyData;
-import com.quorum.tessera.config.PrivateKeyType;
-import com.quorum.tessera.config.SslAuthenticationMode;
-import com.quorum.tessera.config.SslTrustMode;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.builder.ConfigBuilder;
-import java.nio.file.Paths;
 
 import javax.json.Json;
 import javax.json.JsonObject;
-import java.util.Arrays;
+import java.nio.file.Paths;
 import java.util.Collections;
+
 import static org.mockito.Mockito.mock;
 
 public class FixtureUtil {
@@ -42,7 +35,8 @@ public class FixtureUtil {
     public static ConfigBuilder builderWithValidValues() {
 
         return ConfigBuilder.create().jdbcConfig(new JdbcConfig("jdbcUsername", "jdbcPassword", "jdbc:bogus"))
-            .peers(Collections.EMPTY_LIST)
+            .peers(Collections.emptyList())
+            .alwaysSendTo(Collections.emptyList())
             .serverPort(892)
             .sslAuthenticationMode(SslAuthenticationMode.STRICT)
             .unixSocketFile(Paths.get("somepath.ipc"))
@@ -60,12 +54,12 @@ public class FixtureUtil {
             .sslKnownClientsFile("knownClientsFile")
             .sslKnownServersFile("knownServersFile")
             .sslClientTrustMode(SslTrustMode.CA_OR_TOFU)
-            .sslServerTrustCertificates(Arrays.asList("sslServerTrustCertificates"))
-            .sslClientTrustCertificates(Arrays.asList("sslClientTrustCertificates"))
+            .sslServerTrustCertificates(Collections.singletonList("sslServerTrustCertificates"))
+            .sslClientTrustCertificates(Collections.singletonList("sslClientTrustCertificates"))
             .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
             .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
             .keyData(new KeyConfiguration(null, Collections.emptyList(),
-                    Arrays.asList(new KeyData(new KeyDataConfig(mock(PrivateKeyData.class), PrivateKeyType.LOCKED), null, null, null, null))));
+                Collections.singletonList(new KeyData(new KeyDataConfig(mock(PrivateKeyData.class), PrivateKeyType.LOCKED), null, null, null, null))));
     }
     
     public static JsonObject createUnlockedPrivateKey() {

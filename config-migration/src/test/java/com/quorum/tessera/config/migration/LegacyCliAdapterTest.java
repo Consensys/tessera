@@ -16,11 +16,9 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class LegacyCliAdapterTest {
 
@@ -72,10 +70,7 @@ public class LegacyCliAdapterTest {
         when(commandLine.getOptionValue("socket")).thenReturn(unixSocketFileOverride);
         when(commandLine.getOptionValues("othernodes"))
                 .thenReturn(
-                        overridePeers.stream()
-                                .map(Peer::getUrl)
-                                .collect(Collectors.toList())
-                                .toArray(new String[0])
+                    overridePeers.stream().map(Peer::getUrl).toArray(String[]::new)
                 );
 
         when(commandLine.getOptionValue("storage")).thenReturn("sqlite:somepath");
@@ -105,6 +100,8 @@ public class LegacyCliAdapterTest {
         when(commandLine.getOptionValues("publickeys"))
                 .thenReturn(new String[]{"ONE", "TWO"});
 
+        doReturn(new String[]{}).when(commandLine).getOptionValues("alwayssendto");
+
         List<Path> privateKeyPaths = Arrays.asList(
                 Files.createTempFile("applyOverrides1", ".txt"),
                 Files.createTempFile("applyOverrides2", ".txt")
@@ -119,10 +116,10 @@ public class LegacyCliAdapterTest {
             Files.write(p, privateKeyData);
         }
 
-        final String[] privateKeyPathStrings = privateKeyPaths.stream()
-                .map(Path::toString)
-                .collect(Collectors.toList())
-                .toArray(new String[0]);
+        final String[] privateKeyPathStrings = privateKeyPaths
+            .stream()
+            .map(Path::toString)
+            .toArray(String[]::new);
 
         when(commandLine.getOptionValues("privatekeys")).thenReturn(privateKeyPathStrings);
 

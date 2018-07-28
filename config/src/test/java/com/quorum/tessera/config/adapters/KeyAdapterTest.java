@@ -1,155 +1,37 @@
 package com.quorum.tessera.config.adapters;
 
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.nacl.Key;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Base64;
 
-import static com.quorum.tessera.config.PrivateKeyType.LOCKED;
-import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 
 public class KeyAdapterTest {
 
     private final KeyAdapter keyAdapter = new KeyAdapter();
 
     @Test
-    public void marshallingNullsPasswords() {
+    public void keyIsMarshalledToBase64() {
 
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(
-            null,
-            null,
-            singletonList(
-                new KeyData(
-                    new KeyDataConfig(
-                        new PrivateKeyData(null, null, null, null, new ArgonOptions("", 1, 1, 1), "PASSWORD"),
-                        LOCKED
-                    ), null, null, null, null
-                )
-            )
-        );
+        final byte[] keyBytes = new byte[]{1, 2, 3, 4, 5, 6};
 
-        final KeyConfiguration marshalled = keyAdapter.marshal(keyConfiguration);
+        final Key key = new Key(keyBytes);
 
-        assertThat(marshalled.getKeyData().get(0).getConfig().getPassword()).isNull();
+        final String marshalled = this.keyAdapter.marshal(key);
+
+        assertThat(marshalled).isEqualTo(Base64.getEncoder().encodeToString(keyBytes));
 
     }
 
     @Test
-    public void givingBothPasswordTypesThrowsError() {
+    public void unmarshalledToKey() {
 
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(Paths.get("testfile"), emptyList(), null);
+        final String base64Key = "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=";
 
-        final Throwable throwable = catchThrowable(() -> this.keyAdapter.unmarshal(keyConfiguration));
+        final Key unmarshalled = this.keyAdapter.unmarshal(base64Key);
 
-        assertThat(throwable)
-            .isInstanceOf(ConfigException.class)
-            .hasCauseExactlyInstanceOf(RuntimeException.class);
-
-        assertThat(throwable.getCause()).hasMessage("Must specify passwords in file or in config, not both");
-    }
-
-    @Test
-    public void emptyPasswordsReturnsSameKeys() {
-
-        final KeyData keyData = mock(KeyData.class);
-        final KeyDataConfig pkd = mock(KeyDataConfig.class);
-        doReturn(UNLOCKED).when(pkd).getType();
-        doReturn(pkd).when(keyData).getConfig();
-
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, emptyList(), singletonList(keyData));
-        final KeyConfiguration unmarshalled = this.keyAdapter.unmarshal(keyConfiguration);
-
-        assertThat(unmarshalled.getKeyData()).hasSize(1);
-        final KeyData kd = unmarshalled.getKeyData().get(0);
-
-        //unlocked was the only property set pre-unmarshalling
-        assertThat(kd.getConfig().getType()).isEqualTo(UNLOCKED);
-    }
-
-    @Test
-    public void noPasswordsReturnsSameKeys() {
-
-        final KeyData keyData = mock(KeyData.class);
-        final KeyDataConfig pkd = mock(KeyDataConfig.class);
-        doReturn(UNLOCKED).when(pkd).getType();
-        doReturn(pkd).when(keyData).getConfig();
-
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyData));
-        final KeyConfiguration unmarshalled = this.keyAdapter.unmarshal(keyConfiguration);
-
-        assertThat(unmarshalled.getKeyData()).hasSize(1);
-        final KeyData kd = unmarshalled.getKeyData().get(0);
-
-        //unlocked was the only property set pre-unmarshalling
-        assertThat(kd.getConfig().getType()).isEqualTo(UNLOCKED);
-    }
-
-    @Test
-    public void passwordsAssignedToKeys() {
-
-        final KeyData keyData = new KeyData(
-            new KeyDataConfig(
-                new PrivateKeyData(
-                    "",
-                    "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-                    "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-                    "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                    new ArgonOptions("id", 10, 1048576, 4),
-                    null
-                ), LOCKED
-            ),
-            null, null, null, null
-        );
-
-
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, singletonList("q"), singletonList(keyData));
-        final KeyConfiguration unmarshalled = this.keyAdapter.unmarshal(keyConfiguration);
-
-        assertThat(unmarshalled.getKeyData()).hasSize(1);
-        final KeyData kd = unmarshalled.getKeyData().get(0);
-
-        //unlocked was the only property set pre-unmarshalling
-        assertThat(kd.getConfig().getPassword()).isEqualTo("q");
-    }
-
-    @Test
-    public void filePasswordsReadCorrectly() throws IOException {
-
-        final Path passes = Files.createTempFile("passes", ".txt");
-        Files.write(passes, "q".getBytes());
-
-        final KeyData keyData = new KeyData(
-            new KeyDataConfig(
-                new PrivateKeyData(
-                    "",
-                    "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-                    "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-                    "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                    new ArgonOptions("id", 10, 1048576, 4),
-                    null
-                ), LOCKED
-            ),
-            null, null, null, null
-        );
-
-
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(passes, null, singletonList(keyData));
-        final KeyConfiguration unmarshalled = this.keyAdapter.unmarshal(keyConfiguration);
-
-        assertThat(unmarshalled.getKeyData()).hasSize(1);
-        final KeyData kd = unmarshalled.getKeyData().get(0);
-
-        //unlocked was the only property set pre-unmarshalling
-        assertThat(kd.getConfig().getPassword()).isEqualTo("q");
+        assertThat(unmarshalled.toString()).isEqualTo(base64Key);
 
     }
 
