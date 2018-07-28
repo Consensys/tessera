@@ -1,6 +1,11 @@
 package com.quorum.tessera.config.test;
 
 import com.quorum.tessera.config.JdbcConfig;
+import com.quorum.tessera.config.KeyConfiguration;
+import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.PrivateKeyData;
+import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.builder.ConfigBuilder;
@@ -9,6 +14,8 @@ import java.nio.file.Paths;
 import javax.json.Json;
 import javax.json.JsonObject;
 import java.util.Arrays;
+import java.util.Collections;
+import static org.mockito.Mockito.mock;
 
 public class FixtureUtil {
 
@@ -51,7 +58,9 @@ public class FixtureUtil {
                 .sslClientTrustStorePassword("sslClientTrustStorePassword")
                 .sslClientTrustMode(SslTrustMode.CA_OR_TOFU)
                 .sslKnownClientsFile("knownClientsFile")
-                .sslKnownServersFile("knownServersFile");
+                .sslKnownServersFile("knownServersFile")            
+                .keyData(new KeyConfiguration(null, Collections.emptyList(),
+                    Arrays.asList(new KeyData(new KeyDataConfig(mock(PrivateKeyData.class), PrivateKeyType.LOCKED), null, null, null, null))));
     }
 
 }
