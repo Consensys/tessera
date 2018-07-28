@@ -12,21 +12,23 @@ public class PrivateKeyTypeAdapter extends XmlAdapter<String, PrivateKeyType> {
         {
             put("unlocked", PrivateKeyType.UNLOCKED);
             put("argon2sbox", PrivateKeyType.LOCKED);
-
         }
     };
 
     @Override
-    public PrivateKeyType unmarshal(String v) {
+    public PrivateKeyType unmarshal(final String v) {
         return MAPPING.get(v);
     }
 
     @Override
-    public String marshal(PrivateKeyType v) {
-        return MAPPING.entrySet().stream()
-                .filter(e -> e.getValue() == v).map(e -> e.getKey())
-                .findAny()
-                .orElse(null);
+    public String marshal(final PrivateKeyType v) {
+        return MAPPING
+            .entrySet()
+            .stream()
+            .filter(e -> e.getValue() == v)
+            .map(Map.Entry::getKey)
+            .findAny()
+            .orElse(null);
     }
 
 }

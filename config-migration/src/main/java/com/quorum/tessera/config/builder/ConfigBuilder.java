@@ -1,13 +1,17 @@
 package com.quorum.tessera.config.builder;
 
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.nacl.Key;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyList;
 
 public class ConfigBuilder {
 
@@ -50,7 +54,8 @@ public class ConfigBuilder {
                 .sslServerTlsCertificatePath(Objects.toString(sslConfig.getServerTlsCertificatePath()))
                 .keyData(config.getKeys())
                 .sslClientTlsKeyPath(Objects.toString(sslConfig.getClientTlsKeyPath()))
-                .sslServerTlsKeyPath(Objects.toString(sslConfig.getServerTlsKeyPath()));
+                .sslServerTlsKeyPath(Objects.toString(sslConfig.getServerTlsKeyPath()))
+                .alwaysSendTo(config.getFowardingList().stream().map(Key::toString).collect(Collectors.toList()));
 
         return configBuilder;
 
@@ -66,6 +71,8 @@ public class ConfigBuilder {
 
     private List<String> peers;
 
+    private List<String> alwaysSendTo;
+
     private KeyConfiguration keyData;
 
     private SslAuthenticationMode sslAuthenticationMode;
@@ -80,7 +87,7 @@ public class ConfigBuilder {
 
     private String sslServerTrustStorePath;
 
-    private List<String> sslServerTrustCertificates = Collections.emptyList();
+    private List<String> sslServerTrustCertificates = emptyList();
 
     private String sslClientKeyStorePath;
 
@@ -90,7 +97,7 @@ public class ConfigBuilder {
 
     private String sslClientTrustStorePath;
 
-    private List<String> sslClientTrustCertificates = Collections.emptyList();
+    private List<String> sslClientTrustCertificates = emptyList();
 
     private SslTrustMode sslClientTrustMode;
 
@@ -168,6 +175,11 @@ public class ConfigBuilder {
 
     public ConfigBuilder peers(List<String> peers) {
         this.peers = peers;
+        return this;
+    }
+
+    public ConfigBuilder alwaysSendTo(List<String> alwaysSendTo) {
+        this.alwaysSendTo = alwaysSendTo;
         return this;
     }
 
@@ -272,14 +284,21 @@ public class ConfigBuilder {
 
         final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig, null);
 
-        final List<Peer> peerList = peers.stream()
+        final List<Peer> peerList = peers
+            .stream()
                 .map(Peer::new)
                 .collect(Collectors.toList());
+
+        final List<Key> forwardingKeys = alwaysSendTo
+            .stream()
+            .map(Base64.getDecoder()::decode)
+            .map(Key::new)
+            .collect(Collectors.toList());
 
         //TODO:
         final boolean useWhitelist = false;
 
-        return new Config(jdbcConfig, serverConfig, peerList, keyData, unixSocketFile, useWhitelist);
+        return new Config(jdbcConfig, serverConfig, peerList, keyData, forwardingKeys, unixSocketFile, useWhitelist);
     }
 
 }

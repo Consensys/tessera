@@ -92,7 +92,7 @@ public class TomlConfigFactory implements ConfigFactory {
             privateKeyPasswords = Collections.unmodifiableList(Collections.EMPTY_LIST);
         }
 
-        List<String> alwayssendtoList = toml.getList("alwayssendto", Collections.EMPTY_LIST);
+        List<String> alwaysSendToList = toml.getList("alwayssendto", Collections.EMPTY_LIST);
 
         String tlsserverkey = toml.getString("tlsserverkey", "tls-server-key.pem");
 
@@ -126,7 +126,8 @@ public class TomlConfigFactory implements ConfigFactory {
                 .sslClientTrustStorePath(tlsservercert)
                 .sslKnownClientsFile(tlsknownclients)
                 .sslKnownServersFile(tlsknownservers)
-                .peers(othernodes);
+                .peers(othernodes)
+                .alwaysSendTo(alwaysSendToList);
 
         Optional.ofNullable(storage)
                 .map(JdbcConfigFactory::fromLegacyStorageString).ifPresent(configBuilder::jdbcConfig);
