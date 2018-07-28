@@ -129,9 +129,11 @@
         <constructor-arg ref="nacl"/>
     </bean>
 
+    <bean id="keyConfig" factory-bean="config" factory-method="getKeys" />
+
     <bean name="keyManager" class="com.quorum.tessera.key.KeyManagerImpl">
         <constructor-arg>
-            <bean factory-bean="config" factory-method="getKeys"/>
+            <bean factory-bean="keyConfig" factory-method="getKeyData"/>
         </constructor-arg>
         <constructor-arg>
             <list value-type="com.quorum.tessera.nacl.Key">
