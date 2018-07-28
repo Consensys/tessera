@@ -1,7 +1,6 @@
 package com.quorum.tessera.config.builder;
 
 import com.quorum.tessera.config.*;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -34,30 +33,24 @@ public class ConfigBuilder {
 
         final SslConfig sslConfig = config.getServerConfig().getSslConfig();
 
-        if (Objects.nonNull(sslConfig)) {
-            configBuilder.sslAuthenticationMode(sslConfig.getTls())
-                    .sslClientTrustMode(sslConfig.getClientTrustMode())
-                    .sslClientKeyStorePath(Objects.toString(sslConfig.getClientKeyStore()))
-                    .sslClientKeyStorePassword(sslConfig.getClientKeyStorePassword())
-                    .sslClientTrustStorePath(Objects.toString(sslConfig.getClientTrustStore()))
-                    .sslClientTrustStorePassword(sslConfig.getClientTrustStorePassword())
-                    .sslServerTrustMode(sslConfig.getServerTrustMode())
-                    .sslServerKeyStorePath(Objects.toString(sslConfig.getServerKeyStore()))
-                    .sslServerKeyStorePassword(sslConfig.getServerKeyStorePassword())
-                    .sslServerTrustStorePath(Objects.toString(sslConfig.getServerTrustStore()))
-                    .sslServerTrustStorePassword(sslConfig.getServerTrustStorePassword())
-                    .sslKnownClientsFile(Objects.toString(sslConfig.getKnownClientsFile()))
-                    .sslKnownServersFile(Objects.toString(sslConfig.getKnownServersFile()))
-                    
-                    .sslClientTlsCertificatePath(Objects.toString(sslConfig.getClientTlsCertificatePath()))
-                    .sslServerTlsCertificatePath(Objects.toString(sslConfig.getServerTlsCertificatePath()))
-                    
-                    .keyData(config.getKeys())
-                    
-                    .sslClientTlsKeyPath(Objects.toString(sslConfig.getClientTlsKeyPath()))
-                    .sslServerTlsKeyPath(Objects.toString(sslConfig.getServerTlsKeyPath()));
-
-        }
+        configBuilder.sslAuthenticationMode(sslConfig.getTls())
+                .sslClientTrustMode(sslConfig.getClientTrustMode())
+                .sslClientKeyStorePath(Objects.toString(sslConfig.getClientKeyStore()))
+                .sslClientKeyStorePassword(sslConfig.getClientKeyStorePassword())
+                .sslClientTrustStorePath(Objects.toString(sslConfig.getClientTrustStore()))
+                .sslClientTrustStorePassword(sslConfig.getClientTrustStorePassword())
+                .sslServerTrustMode(sslConfig.getServerTrustMode())
+                .sslServerKeyStorePath(Objects.toString(sslConfig.getServerKeyStore()))
+                .sslServerKeyStorePassword(sslConfig.getServerKeyStorePassword())
+                .sslServerTrustStorePath(Objects.toString(sslConfig.getServerTrustStore()))
+                .sslServerTrustStorePassword(sslConfig.getServerTrustStorePassword())
+                .sslKnownClientsFile(Objects.toString(sslConfig.getKnownClientsFile()))
+                .sslKnownServersFile(Objects.toString(sslConfig.getKnownServersFile()))
+                .sslClientTlsCertificatePath(Objects.toString(sslConfig.getClientTlsCertificatePath()))
+                .sslServerTlsCertificatePath(Objects.toString(sslConfig.getServerTlsCertificatePath()))
+                .keyData(config.getKeys())
+                .sslClientTlsKeyPath(Objects.toString(sslConfig.getClientTlsKeyPath()))
+                .sslServerTlsKeyPath(Objects.toString(sslConfig.getServerTlsKeyPath()));
 
         return configBuilder;
 

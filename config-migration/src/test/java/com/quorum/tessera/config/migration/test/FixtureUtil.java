@@ -1,6 +1,11 @@
 package com.quorum.tessera.config.migration.test;
 
 import com.quorum.tessera.config.JdbcConfig;
+import com.quorum.tessera.config.KeyConfiguration;
+import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.PrivateKeyData;
+import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.builder.ConfigBuilder;
@@ -9,6 +14,8 @@ import java.nio.file.Paths;
 import javax.json.Json;
 import javax.json.JsonObject;
 import java.util.Arrays;
+import java.util.Collections;
+import static org.mockito.Mockito.mock;
 
 public class FixtureUtil {
 
@@ -34,26 +41,32 @@ public class FixtureUtil {
 
     public static ConfigBuilder builderWithValidValues() {
 
-        return ConfigBuilder.create()
-                .jdbcConfig(new JdbcConfig("jdbcUsername", "jdbcPassword", "jdbc:bogus"))
-                .peers(Arrays.asList("http://one.com:8989/one", "http://two.com:9929/two"))
-                .serverPort(892)
-                .sslAuthenticationMode(SslAuthenticationMode.STRICT)
-                .unixSocketFile(Paths.get("somepath.ipc"))
-                .serverHostname("http://bogus.com:928")
-                .sslServerKeyStorePath("sslServerKeyStorePath")
-                .sslServerTrustMode(SslTrustMode.TOFU)
-                .sslServerTrustStorePath("sslServerTrustStorePath")
-                .sslServerTrustStorePath("sslServerKeyStorePath")
-                .sslClientKeyStorePath("sslClientKeyStorePath")
-                .sslClientTrustStorePath("sslClientTrustStorePath")
-                .sslClientKeyStorePassword("sslClientKeyStorePassword")
-                .sslClientTrustStorePassword("sslClientTrustStorePassword")
-                .sslClientTrustMode(SslTrustMode.CA_OR_TOFU)
-                .sslKnownClientsFile("knownClientsFile")
-                .sslKnownServersFile("knownServersFile");
+        return ConfigBuilder.create().jdbcConfig(new JdbcConfig("jdbcUsername", "jdbcPassword", "jdbc:bogus"))
+            .peers(Collections.EMPTY_LIST)
+            .serverPort(892)
+            .sslAuthenticationMode(SslAuthenticationMode.STRICT)
+            .unixSocketFile(Paths.get("somepath.ipc"))
+            .serverHostname("http://bogus.com:928")
+            .sslServerKeyStorePath("sslServerKeyStorePath")
+            .sslServerTrustMode(SslTrustMode.TOFU)
+            .sslServerTrustStorePath("sslServerTrustStorePath")
+            .sslServerTrustStorePath("sslServerKeyStorePath")
+            .sslClientKeyStorePath("sslClientKeyStorePath")
+            .sslClientTrustStorePath("sslClientTrustStorePath")
+            .sslClientKeyStorePassword("sslClientKeyStorePassword")
+            .sslClientTrustStorePassword("sslClientTrustStorePassword")
+            .sslServerTlsKeyPath("sslServerTlsKeyPath")
+            .sslClientTlsKeyPath("sslClientTlsKeyPath")
+            .sslKnownClientsFile("knownClientsFile")
+            .sslKnownServersFile("knownServersFile")
+            .sslClientTrustMode(SslTrustMode.CA_OR_TOFU)
+            .sslServerTrustCertificates(Arrays.asList("sslServerTrustCertificates"))
+            .sslClientTrustCertificates(Arrays.asList("sslClientTrustCertificates"))
+            .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
+            .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
+            .keyData(new KeyConfiguration(null, Collections.emptyList(),
+                    Arrays.asList(new KeyData(new KeyDataConfig(mock(PrivateKeyData.class), PrivateKeyType.LOCKED), null, null, null, null))));
     }
-
     
     public static JsonObject createUnlockedPrivateKey() {
         return Json.createObjectBuilder()

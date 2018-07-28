@@ -39,7 +39,6 @@ public class LegacyCliAdapter implements CliAdapter {
         
         if (Arrays.asList(args).contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
-            //(If a configuration file is specified, any command line options will take precedence.)
             formatter.printHelp("tessera-config", options);
             return new CliResult(0, true, null);
         }
@@ -365,29 +364,6 @@ public class LegacyCliAdapter implements CliAdapter {
                         .desc("TLS client known servers file for the ca-or-tofu, tofu and whitelist trust modes")
                         .argName("FILE")
                         .hasArg()
-                        .build()
-        );
-
-        //  -v[NUM]  --verbosity[=NUM]           Print more detailed information (optionally specify a number or add v's to increase verbosity)
-        options.addOption(
-                Option.builder("v")
-                        .longOpt("verbosity")
-                        .desc("Print more detailed information (optionally specify a number or add v's to increase verbosity)")
-                        .argName("NUM")
-                        .hasArg()
-                        .build()
-        );
-
-        //  -V, -?   --version                   Output current version information, then exit
-        options.addOption(
-                Option.builder("V")
-                        .longOpt("version")
-                        .desc("Output current version information, then exit")
-                        .build()
-        );
-        options.addOption(
-                Option.builder("?")
-                        .desc("Output current version information, then exit")
                         .build()
         );
 
