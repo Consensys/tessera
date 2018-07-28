@@ -36,7 +36,7 @@ public class FixtureUtil {
 
         return ConfigBuilder.create().jdbcConfig(new JdbcConfig("jdbcUsername", "jdbcPassword", "jdbc:bogus"))
             .peers(Collections.emptyList())
-            .alwayssendto(Collections.emptyList())
+            .alwaysSendTo(Collections.emptyList())
             .serverPort(892)
             .sslAuthenticationMode(SslAuthenticationMode.STRICT)
             .unixSocketFile(Paths.get("somepath.ipc"))

@@ -39,7 +39,7 @@ public class Config extends ConfigItem {
     @XmlJavaTypeAdapter(KeyConfigurationAdapter.class)
     private final KeyConfiguration keys;
 
-    @XmlElement(name = "alwayssendto", required = true)
+    @XmlElement(name = "alwaysSendTo", required = true)
     @XmlJavaTypeAdapter(KeyAdapter.class)
     private final List<Key> fowardingList;
 

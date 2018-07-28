@@ -55,7 +55,7 @@ public class ConfigBuilder {
                 .keyData(config.getKeys())
                 .sslClientTlsKeyPath(Objects.toString(sslConfig.getClientTlsKeyPath()))
                 .sslServerTlsKeyPath(Objects.toString(sslConfig.getServerTlsKeyPath()))
-                .alwayssendto(config.getFowardingList().stream().map(Key::toString).collect(Collectors.toList()));
+                .alwaysSendTo(config.getFowardingList().stream().map(Key::toString).collect(Collectors.toList()));
 
         return configBuilder;
 
@@ -71,7 +71,7 @@ public class ConfigBuilder {
 
     private List<String> peers;
 
-    private List<String> alwayssendto;
+    private List<String> alwaysSendTo;
 
     private KeyConfiguration keyData;
 
@@ -178,8 +178,8 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder alwayssendto(List<String> forwardList) {
-        this.alwayssendto = forwardList;
+    public ConfigBuilder alwaysSendTo(List<String> alwaysSendTo) {
+        this.alwaysSendTo = alwaysSendTo;
         return this;
     }
 
@@ -289,7 +289,7 @@ public class ConfigBuilder {
                 .map(Peer::new)
                 .collect(Collectors.toList());
 
-        final List<Key> forwardingKeys = alwayssendto
+        final List<Key> forwardingKeys = alwaysSendTo
             .stream()
             .map(Base64.getDecoder()::decode)
             .map(Key::new)

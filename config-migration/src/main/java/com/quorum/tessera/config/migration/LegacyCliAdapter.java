@@ -116,7 +116,7 @@ public class LegacyCliAdapter implements CliAdapter {
 
         Optional.ofNullable(line.getOptionValues("alwayssendto"))
             .map(Arrays::asList)
-            .ifPresent(configBuilder::alwayssendto);
+            .ifPresent(configBuilder::alwaysSendTo);
 
         Optional.ofNullable(line.getOptionValue("passwords"))
                 .map(p -> Paths.get(p))
