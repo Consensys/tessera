@@ -5,7 +5,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.tessera</groupId>
+    <groupId>com.quorum.tessera</groupId>
     <artifactId>tessera</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -156,7 +156,9 @@
 
                         <configuration>
                             <excludes>
-                                <exclude>com/github/tessera/Launcher*</exclude>
+                                <exclude>com/quorum/tessera/Launcher*</exclude>
+                                <exclude>com/quorum/tessera/data/migration/Main*</exclude>
+                                <exclude>com/quorum/tessera/config/migration/Main*</exclude>
                             </excludes>
                             
                             <rules>
@@ -200,99 +202,100 @@
         <module>encryption</module>
         <module>socket</module>
         <module>data-migration</module>
+        <module>config-migration</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
             
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>encryption-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>argon2</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>config</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>config-cli</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>unixsocket</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>security</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
        
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>junixsocket-adapter</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>encryption-jnacl</artifactId>
                 <version>1.0-SNAPSHOT</version>
                 <scope>runtime</scope>
             </dependency>
                         
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>encryption-kalium</artifactId>
                 <version>1.0-SNAPSHOT</version>
                 <scope>runtime</scope>
             </dependency>
             
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>service-locator-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>service-locator-spring</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>rest-server-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>jersey-server</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>resteasy-server</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.github.tessera</groupId>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>test-util</artifactId>
                 <version>1.0-SNAPSHOT</version>
                 <scope>test</scope>
@@ -301,7 +304,7 @@
             <dependency>
                 <groupId>org.glassfish.jersey</groupId>
                 <artifactId>jersey-bom</artifactId>
-                <version>2.26</version>
+                <version>${jersey.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -397,13 +400,6 @@
                 <artifactId>hsqldb</artifactId>
                 <version>2.4.1</version>
                 <scope>runtime</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derby</artifactId>
-                <version>10.14.2.0</version>
-                <scope>test</scope>
             </dependency>
 
             <dependency>
@@ -568,6 +564,21 @@
                 <groupId>commons-cli</groupId>
                 <artifactId>commons-cli</artifactId>
                 <version>1.4</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.7</version>
+            </dependency>
+            
+            
+            <dependency>
+                <groupId>com.github.stefanbirkner</groupId>
+                <artifactId>system-rules</artifactId>
+                <version>1.18.0</version>
+                <scope>test</scope>
+                <type>jar</type>
             </dependency>
             
         </dependencies>

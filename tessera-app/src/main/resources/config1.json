@@ -23,6 +23,12 @@
             "clientTrustMode" : "TOFU",
             "knownClientsFile" : "./target/knownClients1",
             "knownServersFile" : "./target/knownServers1"
+        },
+        "influxConfig" : {
+            "port" : 8086,
+            "hostName" : "http://localhost",
+            "dbName" : "tessera_demo",
+            "pushIntervalInSecs" : 10
         }
    },
    "peer" : [ {

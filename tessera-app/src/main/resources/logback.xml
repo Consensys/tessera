@@ -10,15 +10,13 @@
   </appender>
     
     
-    <logger name="org.eclipse.persistence.level" level="DEBUG" />
-    <logger name="org.eclipse.persistence.logging.sql" level="DEBUG" />
-    <logger name="org.glassfish.jersey.logging.LoggingFeature" level="DEBUG" />
+
 <!-- 
 org.eclipse.persistence.level=INFO
 org.eclipse.persistence.logging.sql=INFO
 org.eclipse.persistence.LoggingSession.connection.level = CONFIG
 org.eclipse.persistence.session.tessera.sql=INFO
-com.github.tesserara.level=ALL
+com.quorum.tesserara.level=ALL
 org.glassfish.level=INFO
 org.glassfish.jersey.internal.inject.Providers.level=SEVERE 
 -->

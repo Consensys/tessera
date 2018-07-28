@@ -18,7 +18,7 @@ script:
 - mvn install
 
 before_cache:
-- mvn dependency:purge-local-repository -Dinclude=com.github.tessera -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
+- mvn dependency:purge-local-repository -Dinclude=com.quorum.tessera -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
