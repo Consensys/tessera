@@ -1,10 +1,6 @@
 package com.quorum.tessera.config.keys;
 
-import com.quorum.tessera.argon2.ArgonOptions;
-import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.KeyDataConfig;
-import com.quorum.tessera.config.PrivateKeyData;
-import com.quorum.tessera.config.PrivateKeyType;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
@@ -84,38 +80,21 @@ public class KeyGeneratorTest {
 
         final ArgonOptions argonOptions = new ArgonOptions("id", 1, 1, 1);
 
-        final KeyConfig encrypedPrivateKey = KeyConfig.Builder
-            .create()
-            .argonOptions(argonOptions)
-            .build();
+        final KeyDataConfig encrypedPrivateKey = new KeyDataConfig(new PrivateKeyData(
+            null, null, null, null, argonOptions, null
+        ), PrivateKeyType.LOCKED);
 
         doReturn(encrypedPrivateKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
 
         final KeyDataConfig privateKeyConfig = new KeyDataConfig(
-            new PrivateKeyData(
-                null,
-                null,
-                null,
-                null,
-                new com.quorum.tessera.config.ArgonOptions(
-                    argonOptions.getAlgorithm(),
-                    argonOptions.getIterations(),
-                    argonOptions.getMemory(),
-                    argonOptions.getParallelism()
-                ),
-                "PASSWORD"
-            ),
+            new PrivateKeyData(null, null, null, null, argonOptions, "PASSWORD"),
             PrivateKeyType.LOCKED
         );
 
-        final KeyConfig encryptedKey = KeyConfig.Builder
-            .create()
-            .snonce("snonce".getBytes())
-            .sbox("sbox".getBytes())
-            .argonOptions(argonOptions)
-            .asalt("salt".getBytes())
-            .password("PASSWORD")
-            .build();
+        final KeyDataConfig encryptedKey = new KeyDataConfig(
+            new PrivateKeyData(null, "snonce", "salt", "sbox", argonOptions, "PASSWORD"),
+            PrivateKeyType.LOCKED
+        );
 
         doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
 
@@ -161,14 +140,10 @@ public class KeyGeneratorTest {
         doReturn(keyPair).when(nacl).generateNewKeys();
 
         doReturn(
-            KeyConfig.Builder
-                .create()
-                .asalt(new byte[]{})
-                .sbox(new byte[]{})
-                .snonce(new byte[]{})
-                .asalt(new byte[]{})
-                .argonOptions(new ArgonOptions("", 1, 1, 1))
-                .build()
+            new KeyDataConfig(
+                new PrivateKeyData("", "", "", "", new ArgonOptions("", 1, 1, 1), ""),
+                PrivateKeyType.LOCKED
+            )
         ).when(keyEncryptor)
             .encryptPrivateKey(any(Key.class), anyString());
 

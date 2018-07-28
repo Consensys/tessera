@@ -1,11 +1,9 @@
 package com.quorum.tessera.config.adapters;
 
-import com.quorum.tessera.argon2.ArgonOptions;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
-import com.quorum.tessera.config.keys.KeyConfig;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.IOCallback;
@@ -70,22 +68,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         //need to decrypt
         return new KeyData(
             keyData.getConfig(),
-            kg.decryptPrivateKey(
-                KeyConfig.Builder.create()
-                    .password(keyData.getConfig().getPassword())
-                    .asalt(keyData.getConfig().getAsalt().getBytes(UTF_8))
-                    .sbox(keyData.getConfig().getSbox().getBytes(UTF_8))
-                    .snonce(keyData.getConfig().getSnonce().getBytes(UTF_8))
-                    .argonOptions(
-                        new ArgonOptions(
-                            keyData.getConfig().getArgonOptions().getAlgorithm(),
-                            keyData.getConfig().getArgonOptions().getIterations(),
-                            keyData.getConfig().getArgonOptions().getMemory(),
-                            keyData.getConfig().getArgonOptions().getParallelism()
-                        )
-                    )
-                    .build()
-            ).toString(),
+            kg.decryptPrivateKey(keyData.getConfig()).toString(),
             keyData.getPublicKey(),
             keyData.getPrivateKeyPath(),
             keyData.getPublicKeyPath()
