@@ -30,9 +30,9 @@ public class ConfigFactoryTest {
 
         assertThat(config.getPeers()).hasSize(2);
 
-        assertThat(config.getKeys()).hasSize(1);
+        assertThat(config.getKeys().getKeyData()).hasSize(1);
 
-        KeyData keyData = config.getKeys().get(0);
+        KeyData keyData = config.getKeys().getKeyData().get(0);
 
         assertThat(keyData.getConfig()).isNotNull();
 
@@ -82,9 +82,9 @@ public class ConfigFactoryTest {
         Config config = configFactory.create(Files.newInputStream(configFile), Files.newInputStream(keyFile));
 
         assertThat(config).isNotNull();
-        assertThat(config.getKeys()).hasSize(1);
+        assertThat(config.getKeys().getKeyData()).hasSize(1);
 
-        KeyDataConfig keyDataConfig = config.getKeys().get(0).getConfig();
+        KeyDataConfig keyDataConfig = config.getKeys().getKeyData().get(0).getConfig();
 
         assertThat(keyDataConfig.getType()).isEqualTo(PrivateKeyType.LOCKED);
         assertThat(keyDataConfig.getPrivateKeyData()).isNotNull();

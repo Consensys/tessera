@@ -13,11 +13,12 @@ public class OpenPojoTest {
     @Test
     public void executeOpenPojoValidations() {
 
-        final Validator pojoValidator = ValidatorBuilder.create()
-                .with(new GetterMustExistRule())
-                .with(new GetterTester())
-                .with(new DefaultValuesNullTester())
-                .build();
+        final Validator pojoValidator = ValidatorBuilder
+            .create()
+            .with(new GetterMustExistRule())
+            .with(new GetterTester())
+            .with(new DefaultValuesNullTester())
+            .build();
 
         final PojoClassFilter[] filters = new PojoClassFilter[]{
             pc -> !pc.getClazz().isAssignableFrom(ObjectFactory.class),
@@ -27,8 +28,7 @@ public class OpenPojoTest {
             pc -> !pc.getClazz().getSimpleName().contains("Test")
         };
 
-        pojoValidator.validate(
-                "com.quorum.tessera.config", filters);
+        pojoValidator.validate("com.quorum.tessera.config", filters);
 
     }
 

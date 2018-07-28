@@ -3,6 +3,7 @@ package com.quorum.tessera.config.adapters;
 import com.quorum.tessera.argon2.ArgonOptions;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keys.KeyConfig;
 import com.quorum.tessera.config.keys.KeyEncryptor;
@@ -95,7 +96,23 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
     public KeyData marshal(final KeyData keyData) {
 
         if (keyData.getConfig().getType() != PrivateKeyType.UNLOCKED) {
-            return new KeyData(keyData.getConfig(), null, keyData.getPublicKey(), null, null);
+            return new KeyData(
+                new KeyDataConfig(
+                    new PrivateKeyData(
+                        keyData.getConfig().getPrivateKeyData().getValue(),
+                        keyData.getConfig().getPrivateKeyData().getSnonce(),
+                        keyData.getConfig().getPrivateKeyData().getAsalt(),
+                        keyData.getConfig().getPrivateKeyData().getSbox(),
+                        keyData.getConfig().getPrivateKeyData().getArgonOptions(),
+                        null
+                    ),
+                    keyData.getConfig().getType()
+                ),
+                null,
+                keyData.getPublicKey(),
+                null,
+                null
+            );
         }
 
         return keyData;
