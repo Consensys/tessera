@@ -141,7 +141,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getServerConfig().getPort()).isEqualTo(portOverride);
         assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get(unixSocketFileOverride));
         assertThat(result.getPeers()).containsExactly(overridePeers.toArray(new Peer[0]));
-        assertThat(result.getKeys()).hasSize(2);
+        assertThat(result.getKeys().getKeyData()).hasSize(2);
         assertThat(result.getJdbcConfig()).isNotNull();
         assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:sqlite:somepath");
 

@@ -1,13 +1,6 @@
 package com.quorum.tessera.config.builder;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.JdbcConfig;
-import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.SslAuthenticationMode;
-import com.quorum.tessera.config.SslConfig;
-import com.quorum.tessera.config.SslTrustMode;
+import com.quorum.tessera.config.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -80,7 +73,7 @@ public class ConfigBuilder {
 
     private List<String> peers;
 
-    private List<KeyData> keyData;
+    private KeyConfiguration keyData;
 
     private SslAuthenticationMode sslAuthenticationMode;
 
@@ -240,7 +233,7 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder keyData(List<KeyData> keyData) {
+    public ConfigBuilder keyData(KeyConfiguration keyData) {
         this.keyData = keyData;
         return this;
     }

@@ -2,6 +2,7 @@ package com.quorum.tessera.config.builder;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.JdbcConfig;
+import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
@@ -51,7 +52,8 @@ public class ConfigBuilderTest {
             .sslClientTrustCertificates(Arrays.asList("sslClientTrustCertificates"))
             .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
             .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
-            .keyData(Arrays.asList(new KeyData(new KeyDataConfig(mock(PrivateKeyData.class), PrivateKeyType.LOCKED), null, null, null, null)));
+            .keyData(new KeyConfiguration(null, Collections.emptyList(),
+                    Arrays.asList(new KeyData(new KeyDataConfig(mock(PrivateKeyData.class), PrivateKeyType.LOCKED), null, null, null, null))));
 
     @Test
     public void buildValid() {
@@ -61,9 +63,9 @@ public class ConfigBuilderTest {
         builderWithValidValues.sslClientTrustCertificates(Arrays.asList("sslServerTrustCertificates"));
         assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("somepath.ipc"));
 
-        assertThat(result.getKeys()).hasSize(1);
+        assertThat(result.getKeys().getKeyData()).hasSize(1);
 
-        KeyData keyData = result.getKeys().get(0);
+        KeyData keyData = result.getKeys().getKeyData().get(0);
 
         assertThat(keyData).isNotNull();
         assertThat(keyData.getConfig().getType()).isEqualTo(PrivateKeyType.LOCKED);
@@ -80,14 +82,13 @@ public class ConfigBuilderTest {
 
         assertThat(sslConfig.getServerTrustCertificates())
                 .containsExactly(Paths.get("sslServerTrustCertificates"));
-        
+
         assertThat(result.getJdbcConfig().getUsername()).isEqualTo("jdbcUsername");
         assertThat(result.getJdbcConfig().getPassword()).isEqualTo("jdbcPassword");
         assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:bogus");
-        
+
         assertThat(result.getServerConfig().getPort()).isEqualTo(892);
-        
-        
+
     }
 
     @Test
@@ -115,9 +116,8 @@ public class ConfigBuilderTest {
         marshaller.setProperty("eclipselink.beanvalidation.mode", BeanValidationMode.NONE);
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-       // marshaller.marshal(existing, System.out);
-       // marshaller.marshal(result, System.out);
-
+        // marshaller.marshal(existing, System.out);
+        // marshaller.marshal(result, System.out);
         final String expected;
         try (Writer writer = new StringWriter()) {
             marshaller.marshal(existing, writer);
