@@ -251,7 +251,7 @@ public class ConfigBuilder {
 
     public Config build() {
 
-        boolean generateKeyStoreIfNotExisted = false;
+        boolean generateKeyStoreIfNotExisted = true;
 
         SslConfig sslConfig = new SslConfig(
                 sslAuthenticationMode,
