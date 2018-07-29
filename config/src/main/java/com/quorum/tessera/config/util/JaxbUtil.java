@@ -1,6 +1,7 @@
 package com.quorum.tessera.config.util;
 
 import com.quorum.tessera.config.*;
+import java.io.ByteArrayOutputStream;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -56,4 +57,42 @@ public interface JaxbUtil {
 
     }
 
+    static void marshalWithNoValidation(Object object, OutputStream outputStream) {
+        try {
+
+            JAXBContext jaxbContext = JAXBContext.newInstance(JAXB_CLASSES);
+            Marshaller marshaller = jaxbContext.createMarshaller();
+            marshaller.setProperty("eclipselink.media-type", "application/json");
+            //Workaround so not to require eclipselink comile time dependency.
+            //Resolve BeanValidationMode from default value and set to NONE
+            //org.eclipse.persistence.jaxb.BeanValidationMode
+            Enum enu = Enum.valueOf(Class.class.cast(marshaller
+                    .getProperty("eclipselink.beanvalidation.mode")
+                    .getClass()), "NONE");
+
+            marshaller.setProperty("eclipselink.beanvalidation.mode", enu);
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(object, outputStream);
+        } catch (JAXBException ex) {
+            throw new ConfigException(ex);
+        }
+    }
+
+    static String marshalToString(Object object) {
+        return IOCallback.execute(() -> {
+            try (OutputStream out = new ByteArrayOutputStream()) {
+                marshal(object, out);
+                return out.toString();
+            }
+        });
+    }
+
+    static String marshalToStringNoValidation(Object object) {
+        return IOCallback.execute(() -> {
+            try (OutputStream out = new ByteArrayOutputStream()) {
+                marshalWithNoValidation(object, out);
+                return out.toString();
+            }
+        });
+    }
 }
