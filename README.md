@@ -80,13 +80,13 @@ tessera help
 
 ### Constellation migration
 
-To migrate existing constelltion configurations and datastore two utilities have been provided. 
+To migrate existing Constellation configurations and datastore two utilities have been provided. 
 
-#### Configuratoon migration instructions
+#### Configuration migration instructions
 
 `alias tessera-config-migration="java -jar /somewhere/config-migration-${version}-cli.jar`
 
-Most of the constallation configuration command line parameters are supported. [link](https://github.com/jpmorganchase/constellation,"Constellation docs") ;
+Most of the Constellation configuration command line parameters are supported. [link](https://github.com/jpmorganchase/constellation,"Constellation docs") ;
 
 `tessera-config-migration help`
 
