@@ -74,7 +74,7 @@ public class LegacyCliAdapterTest {
         String urlOverride = "http://junit.com:8989";
         int portOverride = 9999;
         String unixSocketFileOverride = "unixSocketFileOverride.ipc";
-
+        String workdirOverride = "workdirOverride";
         List<Peer> overridePeers = Arrays.asList(new Peer("http://otherone.com:9188/other"), new Peer("http://yetanother.com:8829/other"));
 
         CommandLine commandLine = mock(CommandLine.class);
@@ -82,6 +82,8 @@ public class LegacyCliAdapterTest {
         when(commandLine.getOptionValue("url")).thenReturn(urlOverride);
         when(commandLine.getOptionValue("port")).thenReturn(String.valueOf(portOverride));
         when(commandLine.getOptionValue("socket")).thenReturn(unixSocketFileOverride);
+        when(commandLine.getOptionValue("workdir")).thenReturn(workdirOverride);
+        
         when(commandLine.getOptionValues("othernodes"))
                 .thenReturn(
                         overridePeers.stream().map(Peer::getUrl).toArray(String[]::new)
@@ -150,7 +152,7 @@ public class LegacyCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getServerConfig().getHostName()).isEqualTo(urlOverride);
         assertThat(result.getServerConfig().getPort()).isEqualTo(portOverride);
-        assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get(unixSocketFileOverride));
+        assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get(workdirOverride,unixSocketFileOverride));
         assertThat(result.getPeers()).containsExactly(overridePeers.toArray(new Peer[0]));
         assertThat(result.getKeys().getKeyData()).hasSize(2);
         assertThat(result.getJdbcConfig()).isNotNull();
@@ -252,24 +254,6 @@ public class LegacyCliAdapterTest {
 
     }
 
-    @Test
-    public void resolveUnixFilePathFileNameOnly() {
-
-        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(null, null, "filename.file");
-
-        assertThat(result).isPresent().get().isEqualTo(Paths.get("filename.file"));
-
-    }
-
-    @Test
-    public void resolveUnixFileNameAndInitial() {
-        Path initial = Paths.get("/somepath/some.ipc");
-        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(initial, null, "other.ipc");
-
-        assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(Paths.get("/somepath/other.ipc"));
-
-    }
 
     @Test
     public void resolveUnixFilePathWorkdirOnly() {
@@ -289,43 +273,7 @@ public class LegacyCliAdapterTest {
 
     }
 
-    @Test
-    public void resolveUnixFilePathWorkdirAndInitial() {
 
-        Path path = Paths.get("someopath.ipc");
-
-        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(path, "dir", null);
-
-        assertThat(result).isPresent().get().isEqualTo(Paths.get("dir", "someopath.ipc"));
-
-    }
-
-    // if(Objects.isNull(workdir) && Objects.nonNull(fileName) && Objects.nonNull(initial) && initial.isAbsolute()) 
-    @Test
-    public void resolveUnixFilePathFileNameAndAbsoluteFilePath() throws Exception {
-
-        Path path = Files.createTempFile("somename", ".txt");
-
-        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(path, null, "someothername");
-
-        assertThat(result).isPresent().get().isEqualTo(path.getParent().resolve("someothername"));
-
-        Files.deleteIfExists(path);
-
-    }
-
-    @Test
-    public void resolveUnixFilePathFileDirNoFileName() throws Exception {
-
-        Path path = Files.createTempFile("somename", ".txt");
-
-        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(path, "dir", null);
-
-        assertThat(result).isPresent().get().isEqualTo(Paths.get("dir", path.toFile().getName()));
-
-        Files.deleteIfExists(path);
-
-    }
 
     @Test
     public void writeToOutputFileValidationError() throws Exception {
@@ -340,5 +288,5 @@ public class LegacyCliAdapterTest {
         
         Files.deleteIfExists(outputPath);
     }
-
+ 
 }

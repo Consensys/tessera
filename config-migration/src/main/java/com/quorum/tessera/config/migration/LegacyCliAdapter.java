@@ -99,18 +99,6 @@ public class LegacyCliAdapter implements CliAdapter {
             return Optional.of(Paths.get(workdir, fileName));
         }
 
-        if (Objects.nonNull(workdir) && Objects.isNull(fileName) && Objects.nonNull(initial)) {
-            return Optional.of(Paths.get(workdir, initial.toFile().getName()));
-        }
-
-        if (Objects.isNull(workdir) && Objects.nonNull(fileName) && Objects.nonNull(initial) && initial.isAbsolute()) {
-            return Optional.of(initial.getParent().resolve(fileName));
-        }
-
-        if (Objects.nonNull(fileName)) {
-            return Optional.of(Paths.get(fileName));
-        }
-
         return Optional.ofNullable(initial);
 
     }
