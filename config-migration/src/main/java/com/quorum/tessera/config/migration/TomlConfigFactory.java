@@ -50,26 +50,26 @@ public class TomlConfigFactory implements ConfigFactory {
 
     @Override
     public Config create(InputStream configData, InputStream... keyConfigData) {
+        Objects.requireNonNull(configData, "No config data provided. ");
         if (keyConfigData.length != 0) {
             throw new UnsupportedOperationException("keyConfigData arg is not implemented for TomlConfigFactory");
         }
 
         Toml toml = new Toml().read(configData);
-
-        if (LOGGER.isDebugEnabled()) {
-            toml.toMap().entrySet().stream().forEach(entry -> {
-                LOGGER.debug("Found entry in toml file : {} {}", entry.getKey(), entry.getValue());
-            });
-        }
+        toml.toMap().entrySet().stream().forEach(entry -> {
+            LOGGER.debug("Found entry in toml file : {} {}", entry.getKey(), entry.getValue());
+        });
 
         String url = toml.getString("url");
-        
+
+        Integer port = Optional.ofNullable(toml.getLong("port"))
+                .map(Long::intValue).orElse(null);
+
         String workdir = toml.getString("workdir", "data");
         String socket = toml.getString("socket");
 
         Path unixSocketFile = Paths.get(workdir, socket);
-        
-        
+
         String tls = toml.getString("tls", "strict").toUpperCase();
 
         final List<String> othernodes = toml.getList("othernodes", Collections.EMPTY_LIST);
@@ -100,7 +100,8 @@ public class TomlConfigFactory implements ConfigFactory {
 
         String storage = toml.getString("storage");
 
-        //verbosity
+        final String tlsclientkey = toml.getString("tlsclientkey", "tls-client-key.pem");
+
         final String tlsservercert = toml.getString("tlsservercert", "tls-server-cert.pem");
 
         final String tlsservertrust = toml.getString("tlsservertrust", "tofu");
@@ -111,9 +112,8 @@ public class TomlConfigFactory implements ConfigFactory {
 
         final String tlsknownclients = toml.getString("tlsknownclients", "tls-known-clients");
 
-
         ConfigBuilder configBuilder = ConfigBuilder.create()
-
+                .serverPort(port)
                 .serverHostname(url)
                 .unixSocketFile(unixSocketFile)
                 .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
@@ -121,7 +121,7 @@ public class TomlConfigFactory implements ConfigFactory {
                 .sslServerTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsservertrust))
                 .sslServerTrustStorePath(tlsservertrust)
                 .sslClientTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsclienttrust))
-                .sslClientKeyStorePath(tlsserverkey)
+                .sslClientKeyStorePath(tlsclientkey)
                 .sslClientKeyStorePassword("")
                 .sslClientTrustStorePath(tlsservercert)
                 .sslKnownClientsFile(tlsknownclients)

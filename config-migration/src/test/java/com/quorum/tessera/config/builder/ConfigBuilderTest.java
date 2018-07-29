@@ -6,7 +6,6 @@ import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
-import org.eclipse.persistence.jaxb.BeanValidationMode;
 import org.junit.Test;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.Diff;
@@ -82,11 +81,13 @@ public class ConfigBuilderTest {
         JAXBContext jaxbContext = JAXBContext.newInstance(Config.class);
 
         Marshaller marshaller = jaxbContext.createMarshaller();
-        marshaller.setProperty("eclipselink.beanvalidation.mode", BeanValidationMode.NONE);
+        Enum enu = Enum.valueOf(Class.class.cast(marshaller
+                .getProperty("eclipselink.beanvalidation.mode").getClass()), "NONE");
+        marshaller.setProperty("eclipselink.beanvalidation.mode", enu);
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        marshaller.marshal(existing, System.out);
-        marshaller.marshal(result, System.out);
+        //marshaller.marshal(existing, System.out);
+        //marshaller.marshal(result, System.out);
         final String expected;
         try (Writer writer = new StringWriter()) {
             marshaller.marshal(existing, writer);
