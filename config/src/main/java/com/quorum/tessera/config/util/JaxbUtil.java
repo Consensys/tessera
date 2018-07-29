@@ -54,14 +54,12 @@ public interface JaxbUtil {
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
             marshaller.marshal(object, outputStream);
-        } catch (JAXBException ex) {
-            throw new ConfigException(ex);
-        } catch(Throwable ex) {
+        }  catch(Throwable ex) {
           Optional<ConstraintViolationException> validationException =   unwrapConstraintViolationException(ex);
           if(validationException.isPresent()) {
               throw validationException.get();
           }
-          throw ex;
+          throw new ConfigException(ex);
         }
 
     }

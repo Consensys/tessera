@@ -6,6 +6,7 @@ import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.Collections;
@@ -156,22 +157,42 @@ public class JaxbUtilTest {
                 .isInstanceOf(ConfigException.class)
                 .hasCauseExactlyInstanceOf(MarshalException.class);
     }
-    
-    
+
     @Test
     public void unwrapConstraintViolationException() {
-        
-        ConstraintViolationException validationException = 
-                new ConstraintViolationException(Collections.emptySet());
-        
+
+        ConstraintViolationException validationException
+                = new ConstraintViolationException(Collections.emptySet());
+
         Throwable exception = new Exception(validationException);
-        
-        Optional<ConstraintViolationException> result = 
-                JaxbUtil.unwrapConstraintViolationException(exception);
-        
+
+        Optional<ConstraintViolationException> result
+                = JaxbUtil.unwrapConstraintViolationException(exception);
+
         assertThat(result).isPresent();
         assertThat(result.get()).isSameAs(validationException);
+
+    }
+
+    @Test
+    public void marshallingProducesNonJaxbException() {
+        final KeyDataConfig input = new KeyDataConfig(
+                new PrivateKeyData("VAL", null, null, null, null, null),
+                PrivateKeyType.UNLOCKED
+        );
         
+        IOException exception = new IOException("What you talking about willis?");
+
+        OutputStream out = mock(OutputStream.class, (iom) -> {
+            throw exception;
+        });
+        final Throwable throwable = catchThrowable(() -> JaxbUtil.marshal(input, out));
+
+        assertThat(throwable)
+                .isInstanceOf(ConfigException.class)
+                .hasCauseExactlyInstanceOf(javax.xml.bind.MarshalException.class);
+        
+
     }
 
 }
