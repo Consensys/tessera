@@ -39,6 +39,16 @@ public class LegacyCliAdapterTest {
 
     }
 
+        @Test
+    public void noArgs() throws Exception {
+
+        CliResult result = instance.execute();
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isNotPresent();
+        assertThat(result.getStatus()).isEqualTo(1);
+
+    }
+    
     @Test
     public void noOptionsWithTomlFile() throws Exception {
 

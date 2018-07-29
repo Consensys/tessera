@@ -18,6 +18,7 @@ import org.apache.commons.cli.*;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -41,11 +42,12 @@ public class LegacyCliAdapter implements CliAdapter {
     public CliResult execute(String... args) throws Exception {
 
         Options options = buildOptions();
-
-        if (Arrays.asList(args).contains("help")) {
+        final List<String> argsList = Arrays.asList(args);
+        if (argsList.isEmpty() || argsList.contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("tessera-config", options);
-            return new CliResult(0, true, null);
+            formatter.printHelp("tessera-config-migration", options);
+            final int exitCode = argsList.isEmpty() ? 1 : 0;
+            return new CliResult(exitCode, true, null);
         }
 
         CommandLineParser parser = new DefaultParser();
@@ -391,7 +393,7 @@ public class LegacyCliAdapter implements CliAdapter {
         options.addOption(
                 Option.builder()
                         .longOpt("outputfile")
-                        .desc("File to write nw config")
+                        .desc("New configuration output file.")
                         .argName("FILE")
                         .hasArg()
                         .build()
