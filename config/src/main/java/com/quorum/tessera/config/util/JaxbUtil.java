@@ -10,6 +10,9 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
+import java.util.Optional;
+import javax.validation.ConstraintViolationException;
 
 public interface JaxbUtil {
 
@@ -53,6 +56,12 @@ public interface JaxbUtil {
             marshaller.marshal(object, outputStream);
         } catch (JAXBException ex) {
             throw new ConfigException(ex);
+        } catch(Throwable ex) {
+          Optional<ConstraintViolationException> validationException =   unwrapConstraintViolationException(ex);
+          if(validationException.isPresent()) {
+              throw validationException.get();
+          }
+          throw ex;
         }
 
     }
@@ -95,4 +104,13 @@ public interface JaxbUtil {
             }
         });
     }
+    
+    static Optional<ConstraintViolationException> unwrapConstraintViolationException(Throwable ex) {
+        return Optional.of(ex)
+                .map(Throwable::getCause)
+                .filter(Objects::nonNull)
+                .filter(c -> ConstraintViolationException.class.isInstance(c))
+                .map(ConstraintViolationException.class::cast);
+    }
+    
 }

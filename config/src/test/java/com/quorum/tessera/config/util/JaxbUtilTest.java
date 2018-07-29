@@ -8,6 +8,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.util.Collections;
+import java.util.Optional;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.validation.ConstraintViolationException;
@@ -16,7 +18,6 @@ import javax.xml.bind.MarshalException;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.*;
-import org.eclipse.persistence.exceptions.BeanValidationException;
 import static org.mockito.Mockito.mock;
 
 public class JaxbUtilTest {
@@ -100,9 +101,9 @@ public class JaxbUtilTest {
 
         try (OutputStream bout = new ByteArrayOutputStream()) {
             JaxbUtil.marshal(input, bout);
-            failBecauseExceptionWasNotThrown(BeanValidationException.class);
-        } catch (BeanValidationException ex) {
-            assertThat(ex.getCause())
+            failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
+        } catch (ConstraintViolationException ex) {
+            assertThat(ex)
                     .isInstanceOf(ConstraintViolationException.class);
         }
     }
@@ -154,6 +155,23 @@ public class JaxbUtilTest {
         assertThat(throwable)
                 .isInstanceOf(ConfigException.class)
                 .hasCauseExactlyInstanceOf(MarshalException.class);
+    }
+    
+    
+    @Test
+    public void unwrapConstraintViolationException() {
+        
+        ConstraintViolationException validationException = 
+                new ConstraintViolationException(Collections.emptySet());
+        
+        Throwable exception = new Exception(validationException);
+        
+        Optional<ConstraintViolationException> result = 
+                JaxbUtil.unwrapConstraintViolationException(exception);
+        
+        assertThat(result).isPresent();
+        assertThat(result.get()).isSameAs(validationException);
+        
     }
 
 }
