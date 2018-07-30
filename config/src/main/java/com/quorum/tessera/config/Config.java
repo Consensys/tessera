@@ -1,7 +1,9 @@
 package com.quorum.tessera.config;
 
-import com.quorum.tessera.config.adapters.KeyDataAdapter;
+import com.quorum.tessera.config.adapters.KeyAdapter;
+import com.quorum.tessera.config.adapters.KeyConfigurationAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
+import com.quorum.tessera.nacl.Key;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -33,13 +35,13 @@ public class Config extends ConfigItem {
 
     @Valid
     @NotNull
-    @Size(min = 1)
-    @XmlElements({
-        @XmlElement(type = KeyData.class)
-    })
     @XmlElement
-    @XmlJavaTypeAdapter(value = KeyDataAdapter.class)
-    private final List<KeyData> keys;
+    @XmlJavaTypeAdapter(KeyConfigurationAdapter.class)
+    private final KeyConfiguration keys;
+
+    @XmlElement(name = "alwaysSendTo", required = true)
+    @XmlJavaTypeAdapter(KeyAdapter.class)
+    private final List<Key> fowardingList;
 
     @NotNull
     @XmlElement(required = true, type = String.class)
@@ -49,17 +51,18 @@ public class Config extends ConfigItem {
     @XmlAttribute
     private final boolean useWhiteList;
 
-    public Config(
-            JdbcConfig jdbcConfig,
-            ServerConfig serverConfig,
-            List<Peer> peers,
-            List<KeyData> keys,
-            Path unixSocketFile,
-            boolean useWhiteList) {
+    public Config(final JdbcConfig jdbcConfig,
+                  final ServerConfig serverConfig,
+                  final List<Peer> peers,
+                  final KeyConfiguration keyConfiguration,
+                  final List<Key> fowardingList,
+                  final Path unixSocketFile,
+                  final boolean useWhiteList) {
         this.jdbcConfig = jdbcConfig;
         this.serverConfig = serverConfig;
         this.peers = peers;
-        this.keys = keys;
+        this.keys = keyConfiguration;
+        this.fowardingList = fowardingList;
         this.unixSocketFile = unixSocketFile;
         this.useWhiteList = useWhiteList;
     }
@@ -69,31 +72,35 @@ public class Config extends ConfigItem {
     }
 
     private Config() {
-        this(null, null, null, null, null, false);
+        this(null, null, null, null, null, null, false);
     }
 
     public JdbcConfig getJdbcConfig() {
-        return jdbcConfig;
+        return this.jdbcConfig;
     }
 
     public ServerConfig getServerConfig() {
-        return serverConfig;
+        return this.serverConfig;
     }
 
     public Path getUnixSocketFile() {
-        return unixSocketFile;
+        return this.unixSocketFile;
     }
 
     public List<Peer> getPeers() {
-        return peers;
+        return this.peers;
     }
 
-    public List<KeyData> getKeys() {
-        return keys;
+    public KeyConfiguration getKeys() {
+        return this.keys;
+    }
+
+    public List<Key> getFowardingList() {
+        return this.fowardingList;
     }
 
     public boolean isUseWhiteList() {
-        return useWhiteList;
+        return this.useWhiteList;
     }
 
 }

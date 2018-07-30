@@ -1,4 +1,4 @@
-package com.quorum.tessera.config.cli;
+package com.quorum.tessera.config.migration;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
@@ -6,15 +6,23 @@ import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
 import com.quorum.tessera.config.builder.SslTrustModeFactory;
+import com.quorum.tessera.config.cli.CliAdapter;
+import com.quorum.tessera.config.cli.CliResult;
+import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.io.FilesDelegate;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import org.apache.commons.cli.*;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import javax.validation.ConstraintViolationException;
 
 public class LegacyCliAdapter implements CliAdapter {
 
@@ -23,7 +31,7 @@ public class LegacyCliAdapter implements CliAdapter {
     private final ConfigFactory configFactory;
 
     public LegacyCliAdapter() {
-        this(new com.quorum.tessera.config.cli.TomlConfigFactory());
+        this(new TomlConfigFactory());
     }
 
     protected LegacyCliAdapter(ConfigFactory configFactory) {
@@ -34,17 +42,17 @@ public class LegacyCliAdapter implements CliAdapter {
     public CliResult execute(String... args) throws Exception {
 
         Options options = buildOptions();
+        final List<String> argsList = Arrays.asList(args);
+        if (argsList.isEmpty() || argsList.contains("help")) {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("tessera-config-migration", options);
+            final int exitCode = argsList.isEmpty() ? 1 : 0;
+            return new CliResult(exitCode, true, null);
+        }
 
         CommandLineParser parser = new DefaultParser();
 
         CommandLine line = parser.parse(options, args);
-
-        if (line.hasOption("help")) {
-            HelpFormatter formatter = new HelpFormatter();
-            //(If a configuration file is specified, any command line options will take precedence.)
-            formatter.printHelp("tessera [OPTION...] [config file containing options]", options);
-            return new CliResult(0, true, null);
-        }
 
         final Pattern configFileSearch = Pattern.compile("^--.*=.$");
 
@@ -60,30 +68,43 @@ public class LegacyCliAdapter implements CliAdapter {
 
         ConfigBuilder adjustedConfig = applyOverrides(line, configBuilder);
 
-        return new CliResult(0, false, adjustedConfig.build());
+        Config config = adjustedConfig.build();
+
+        String outputfilevalue = line.getOptionValue("outputfile", "tessera-config.json");
+
+        Path outputPath = Paths.get(outputfilevalue).toAbsolutePath();
+
+        return writeToOutputFile(config, outputPath);
     }
 
-    static Optional<Path> resolveUnixFilePath(Path initial,String workdir,String fileName) {
-        if(Objects.nonNull(workdir) && Objects.nonNull(fileName)) {
+    static CliResult writeToOutputFile(Config config, Path outputPath) throws IOException {
+
+        System.out.printf("Saving config to  %s", outputPath);
+        System.out.println();
+        System.out.println(JaxbUtil.marshalToStringNoValidation(config));
+        System.out.println();
+
+        try (OutputStream outputStream = Files.newOutputStream(outputPath)) {
+            JaxbUtil.marshal(config, outputStream);
+            System.out.printf("Saved config to  %s", outputPath);
+            System.out.println();
+            return new CliResult(0, false, config);
+        } catch (ConstraintViolationException validationException) {
+            validationException.getConstraintViolations().stream()
+                    .forEach(System.err::println);
+            return new CliResult(2, false, config);
+        }
+    }
+
+    static Optional<Path> resolveUnixFilePath(Path initial, String workdir, String fileName) {
+        if (Objects.nonNull(workdir) && Objects.nonNull(fileName)) {
             return Optional.of(Paths.get(workdir, fileName));
         }
-        
-        if(Objects.nonNull(workdir) && Objects.isNull(fileName) && Objects.nonNull(initial)) {
-            return Optional.of(Paths.get(workdir, initial.toFile().getName()));
-        }
-        
-        if(Objects.isNull(workdir) && Objects.nonNull(fileName) && Objects.nonNull(initial) && initial.isAbsolute()) {
-            return Optional.of(initial.getParent().resolve(fileName));
-        }
-        
-        if(Objects.nonNull(fileName)) {
-            return Optional.of(Paths.get(fileName));
-        }
-        
+
         return Optional.ofNullable(initial);
-        
+
     }
-    
+
     static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder) {
 
         Config initialConfig = configBuilder.build();
@@ -95,9 +116,8 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(Integer::valueOf)
                 .ifPresent(configBuilder::serverPort);
 
-        resolveUnixFilePath(initialConfig.getUnixSocketFile(),line.getOptionValue("workdir"),line.getOptionValue("socket"))
+        resolveUnixFilePath(initialConfig.getUnixSocketFile(), line.getOptionValue("workdir"), line.getOptionValue("socket"))
                 .ifPresent(configBuilder::unixSocketFile);
-        
 
         Optional.ofNullable(line.getOptionValues("othernodes"))
                 .map(Arrays::asList)
@@ -112,6 +132,10 @@ public class LegacyCliAdapter implements CliAdapter {
         Optional.ofNullable(line.getOptionValues("privatekeys"))
                 .map(Arrays::asList)
                 .ifPresent(keyDataBuilder::withPrivateKeys);
+
+        Optional.ofNullable(line.getOptionValues("alwayssendto"))
+                .map(Arrays::asList)
+                .ifPresent(configBuilder::alwaysSendTo);
 
         Optional.ofNullable(line.getOptionValue("passwords"))
                 .map(p -> Paths.get(p))
@@ -356,7 +380,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .build()
         );
 
-//           --tlsknownservers[=FILE]    TLS client known servers file for the ca-or-tofu, tofu and whitelist trust modes
+        //
         options.addOption(
                 Option.builder()
                         .longOpt("tlsknownservers")
@@ -366,36 +390,12 @@ public class LegacyCliAdapter implements CliAdapter {
                         .build()
         );
 
-        //  -v[NUM]  --verbosity[=NUM]           Print more detailed information (optionally specify a number or add v's to increase verbosity)
-        options.addOption(
-                Option.builder("v")
-                        .longOpt("verbosity")
-                        .desc("Print more detailed information (optionally specify a number or add v's to increase verbosity)")
-                        .argName("NUM")
-                        .hasArg()
-                        .build()
-        );
-
-        //  -V, -?   --version                   Output current version information, then exit
-        options.addOption(
-                Option.builder("V")
-                        .longOpt("version")
-                        .desc("Output current version information, then exit")
-                        .build()
-        );
-        options.addOption(
-                Option.builder("?")
-                        .desc("Output current version information, then exit")
-                        .build()
-        );
-
-//           --generatekeys[=NAME...]    Comma-separated list of key pair names to generate, then exit
         options.addOption(
                 Option.builder()
-                        .longOpt("generatekeys")
-                        .desc("Comma-separated list of key pair names to generate, then exit")
-                        .hasArgs()
-                        .argName("NAME...")
+                        .longOpt("outputfile")
+                        .desc("New configuration output file.")
+                        .argName("FILE")
+                        .hasArg()
                         .build()
         );
 

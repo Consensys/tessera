@@ -14,11 +14,15 @@
             "url": "http://localhost:8081"
         }
     ],
-    "keys": [
-        {
-            "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
-            "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-        }
-    ],
+    "keys": {
+        "passwords": [],
+        "keyData": [
+            {
+                "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
+                "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+            }
+        ]
+    },
+    "alwaysSendTo": [],
     "unixSocketFile": "/tmp/tm1.ipc"
 }

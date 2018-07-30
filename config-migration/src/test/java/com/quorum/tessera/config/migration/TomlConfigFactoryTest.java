@@ -1,11 +1,13 @@
-package com.quorum.tessera.config.cli;
+package com.quorum.tessera.config.migration;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
+import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.config.SslTrustMode;
-import com.quorum.tessera.config.test.FixtureUtil;
+import com.quorum.tessera.config.migration.test.FixtureUtil;
+import com.quorum.tessera.test.util.ElUtil;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -13,8 +15,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.json.JsonObject;
@@ -35,13 +40,32 @@ public class TomlConfigFactoryTest {
 
     @Test
     public void createConfigFromSampleFile() throws IOException {
-        try (InputStream configData = getClass().getResourceAsStream("/sample.conf")) {
+
+        Path passwordFile = Files.createTempFile("password", ".txt");
+        InputStream template = getClass().getResourceAsStream("/sample-all-values.conf");
+
+        Map<String, Object> params = new HashMap<String, Object>() {
+            {
+                put("passwordFile", passwordFile);
+                put("serverKeyStorePath", "serverKeyStorePath");
+            }
+        };
+
+        try (InputStream configData = ElUtil.process(template, params)) {
             Config result = tomlConfigFactory.create(configData);
             assertThat(result).isNotNull();
-            
-            assertThat(result.getServerConfig().getSslConfig().getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
-            
+            assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("data", "myipcfile.ipc"));
+            assertThat(result.getServerConfig()).isNotNull();
+            assertThat(result.getServerConfig().getSslConfig()).isNotNull();
+
+            SslConfig sslConfig = result.getServerConfig().getSslConfig();
+
+            assertThat(sslConfig.getClientKeyStore()).isEqualTo(Paths.get("tls-client-key.pem"));
+            assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
+
         }
+
+        Files.deleteIfExists(passwordFile);
     }
 
     @Test
@@ -67,6 +91,7 @@ public class TomlConfigFactoryTest {
             try (InputStream ammendedInput = new ByteArrayInputStream(data)) {
                 Config result = tomlConfigFactory.create(ammendedInput);
                 assertThat(result).isNotNull();
+
             }
         }
 
@@ -89,7 +114,8 @@ public class TomlConfigFactoryTest {
         Path privateKeyPath = Files.createTempFile("createPrivateKeyData", ".txt");
         Files.write(privateKeyPath, keyDataConfigJson.toString().getBytes());
 
-        List<KeyDataConfig> result = TomlConfigFactory.createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
+        List<KeyDataConfig> result = TomlConfigFactory
+                .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
 
         assertThat(result).hasSize(1);
 
@@ -98,7 +124,7 @@ public class TomlConfigFactoryTest {
         assertThat(keyConfig.getType()).isEqualTo(PrivateKeyType.LOCKED);
 
         JsonObject privateKeyData = keyDataConfigJson.getJsonObject("data");
-        
+
         PrivateKeyData key = keyConfig.getPrivateKeyData();
 
         assertThat(key.getPassword()).isEqualTo("Secret");
@@ -119,4 +145,36 @@ public class TomlConfigFactoryTest {
 
     }
 
+    @Test
+    public void createUnlockedPrivateKeyData() throws Exception {
+
+        JsonObject keyDataConfigJson = FixtureUtil.createUnlockedPrivateKey();
+
+        Path privateKeyPath = Files.createTempFile("createUnlockedPrivateKeyData", ".txt");
+        Files.write(privateKeyPath, keyDataConfigJson.toString().getBytes());
+
+        List<KeyDataConfig> result = TomlConfigFactory
+                .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
+
+        assertThat(result).hasSize(1);
+
+        KeyDataConfig keyConfig = result.get(0);
+
+        assertThat(keyConfig.getType()).isEqualTo(PrivateKeyType.UNLOCKED);
+
+        Files.deleteIfExists(privateKeyPath);
+
+    }
+
+    @Test
+    public void createConfigFromNoPasswordsFile() throws IOException {
+
+        try (InputStream configData = getClass().getResourceAsStream("/sample.conf")) {
+
+            Config result = tomlConfigFactory.create(configData);
+            assertThat(result).isNotNull();
+
+        }
+
+    }
 }

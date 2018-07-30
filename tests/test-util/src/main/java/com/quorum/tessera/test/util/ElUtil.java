@@ -20,7 +20,7 @@ public class ElUtil {
         String data = Stream.of(inputStream)
                 .map(InputStreamReader::new)
                 .map(BufferedReader::new)
-                .flatMap(BufferedReader::lines).collect(Collectors.joining());
+                .flatMap(BufferedReader::lines).collect(Collectors.joining(System.lineSeparator()));
         String result = process(data, parameters);
 
         return new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8));

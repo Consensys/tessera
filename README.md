@@ -79,19 +79,23 @@ tessera help
 ```
 
 ### Constellation migration
-For installations that use the constellation configuration the following deprecated options are available. When creating the alias to run tessera you can provide an additional system property 
 
-`alias tessera="java -Dtessera.config.legacy=true -jar /somewhere/application-${version}-app.jar"`
+To migrate existing Constellation configurations and datastore two utilities have been provided. 
 
-Most of the constallation configation parameters are supported. [link](https://github.com/jpmorganchase/constellation,"Constellation docs") with the exception of the following: 
+#### Configuration migration instructions
 
-* generatekeys - Generate keys is available using the non legacy config. 
-* storage - bdb and dir are no longer supported. While storage is still supported it now only handles sqliite, memory or any jdbc url of your choosing. As with Constellation the storage has no credentials. 
+`alias tessera-config-migration="java -jar /somewhere/config-migration-${version}-cli.jar`
+
+Most of the Constellation configuration command line parameters are supported. [link](https://github.com/jpmorganchase/constellation,"Constellation docs") ;
+
+`tessera-config-migration help`
+
+`tessera-config-migration /somepath/somename.toml`
 
 #### Data migration instructions (dir or bdb stores)
 To Migrate legacy datastore to tessera there is a db migration tool, for this example we'll use tessera-data-migration as the command name.
 
-`alias tessera-data-migration="java -jar /somewhere/data-migration-${version}.jar"`
+`alias tessera-data-migration="java -jar /somewhere/data-migration-${version}-cli.jar"`
 
 To migrate from dbd databases to tessera you must first export your existing store using `db_dump`
 
@@ -137,46 +141,72 @@ Tessera uses cryptographic keys to provide transaction privacy.  You can use an 
 Existing keys can be included in `config.json` in one of two ways:
 - __Directly__ (preferred): 
 ```
-    "keys": [
-        {
-            "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
-            "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-        }
+    "keys": {
+        "keyData": [
+            {
+                "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
+                "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+            }
+        ]
+    }
 ```                                                                    
 - __Indirectly__ (as used in legacy implementations of Tessera):  
  The private key is provided indirectly through additional config, e.g.
 ```
-{
-    "config": {
-        "data": {
-            "bytes": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM="
-        },
-        "type": "unlocked"
-    },
-    "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-}
+    "keys": {
+        "keyData": [
+            {
+                "config": {
+                    "data": {
+                        "bytes": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM="
+                    },
+                    "type": "unlocked"
+                },
+                "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+            }
+        ]
+    }     
 ```
 
 ```
-{
-    "config": {
-        "data": {
-            "aopts": {
-                "variant": "id",
-                "memory": 1048576,
-                "iterations": 10,
-                "parallelism": 4,
-            },
-            "password": "password",
-            "snonce": "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-            "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-            "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
-        },
-        "type": "argon2sbox"
-    },
-    "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-}
+    "keys": {
+        "passwords": ["password"],
+        "keyData": [
+            {
+                "config": {
+                    "data": {
+                        "aopts": {
+                            "variant": "id",
+                            "memory": 1048576,
+                            "iterations": 10,
+                            "parallelism": 4,
+                        },
+                        "snonce": "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                        "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                        "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
+                    },
+                    "type": "argon2sbox"
+                },
+                "publicKey": "+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+            }
+        ]
+    }
 ```
+
+- __Filesystem__:  
+ The keys are provided through file paths e.g.
+ ```
+     "keys": {
+         "passwordFile": "/path/to/passwords",
+         "keyData": [
+             {
+                 "privateKeyPath": "/path/to/privatekey",
+                 "publicKeyPath": "/path/to/publicKey"
+             }
+         ]
+     }
+ ```
+
 
 #### Generating keys
 If keys do not already exist they can be generated using the `-keygen` option. 

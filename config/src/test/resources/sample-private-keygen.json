@@ -16,7 +16,10 @@
             "url": "http://bogus2.com"
         }
     ],
-    "keys": [
-    ],
+    "keys": {
+        "passwords": [],
+        "keyData": []
+    },
+    "alwaysSendTo": [],
     "unixSocketFile": "/tmp/bogus.socket"
 }

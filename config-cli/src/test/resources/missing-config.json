@@ -1,28 +1,36 @@
 {
-   "useWhiteList" : false,
-
-   "server" : {
-      "port" : 99
-   },
-   "peer" : [ {
-      "url" : "http://bogus1.com"
-   }, {
-      "url" : "http://bogus2.com"
-   } ],
-   "keys" : [ {
-      "privateKey" : {
-         "value" : "PRIVATEKEY",
-         "password" : "TOP_SECRET",
-         "argonOptions" : {
-            "algorithm" : "SHA",
-            "iterations" : 1,
-            "memory" : 256,
-            "parallelism" : 1
-         }
-      },
-      "publicKey" : {
-         "path" : "/somepath"
-      }
-   } ],
-   "unixSocketFile" : "/tmp/bogus.socket"
+    "useWhiteList": false,
+    "server": {
+        "port": 99
+    },
+    "peer": [
+        {
+            "url": "http://bogus1.com"
+        },
+        {
+            "url": "http://bogus2.com"
+        }
+    ],
+    "keys": {
+        "passwords": [],
+        "keyData": [
+            {
+                "privateKey": {
+                    "value": "PRIVATEKEY",
+                    "password": "TOP_SECRET",
+                    "argonOptions": {
+                        "algorithm": "SHA",
+                        "iterations": 1,
+                        "memory": 256,
+                        "parallelism": 1
+                    }
+                },
+                "publicKey": {
+                    "path": "/somepath"
+                }
+            }
+        ]
+    },
+    "alwaysSendTo": [],
+    "unixSocketFile": "/tmp/bogus.socket"
 }

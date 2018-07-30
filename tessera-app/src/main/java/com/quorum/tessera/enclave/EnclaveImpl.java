@@ -72,6 +72,8 @@ public class EnclaveImpl implements Enclave {
             .map(Key::new)
             .collect(Collectors.toList());
 
+        recipientList.addAll(keyManager.getForwardingKeys());
+
         EncodedPayloadWithRecipients encryptedPayload =
             transactionService.encryptPayload(message, senderPublicKey, recipientList);
 
