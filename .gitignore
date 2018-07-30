@@ -9,3 +9,6 @@
 # IntelliJ project config
 *.iml
 /**/.idea/
+
+# Mac files
+.DS_Store
