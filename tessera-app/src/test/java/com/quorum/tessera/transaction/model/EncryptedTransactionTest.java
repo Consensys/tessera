@@ -17,9 +17,6 @@ public class EncryptedTransactionTest {
         final OtherClass other = new OtherClass();
         final EncryptedTransaction et = new EncryptedTransaction();
 
-        other.setId(1L);
-        et.setId(1L);
-
         final boolean equal = Objects.equals(et, other);
 
         assertThat(equal).isTrue();

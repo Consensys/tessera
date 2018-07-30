@@ -31,8 +31,8 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
     public EncryptedTransaction save(final EncryptedTransaction entity) {
         entityManager.persist(entity);
 
-        LOGGER.debug("Persisting entity with ID {}, hash {} and payload {}",
-            entity.getId(), entity.getHash(), Arrays.toString(entity.getEncodedPayload())
+        LOGGER.debug("Persisting entity with hash {} and payload {}",
+            entity.getHash(), Arrays.toString(entity.getEncodedPayload())
         );
 
         return entity;
