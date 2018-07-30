@@ -1,5 +1,12 @@
 package com.quorum.tessera.data.migration;
 
+import org.apache.commons.cli.MissingOptionException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -8,14 +15,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
-import org.apache.commons.cli.MissingOptionException;
-import static org.assertj.core.api.Assertions.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestName;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 public class CmdLineExecutorTest {
 
@@ -120,7 +122,6 @@ public class CmdLineExecutorTest {
 
     }
 
-    @Ignore
     @Test
     public void dirStoreType() throws Exception {
 

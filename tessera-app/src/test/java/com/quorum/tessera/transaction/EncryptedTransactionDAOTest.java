@@ -113,7 +113,7 @@ public class EncryptedTransactionDAOTest {
             encryptedTransactionDAO.save(encryptedTransaction);
 
             final EncryptedTransaction retrieved
-                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getId());
+                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
 
             assertThat(retrieved).isNotNull().isEqualToComparingFieldByField(encryptedTransaction);
 
@@ -148,7 +148,7 @@ public class EncryptedTransactionDAOTest {
 
             //check that it is actually in the database
             final EncryptedTransaction retrieved
-                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getId());
+                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
             assertThat(retrieved).isNotNull();
 
             //delete the transaction
@@ -156,7 +156,7 @@ public class EncryptedTransactionDAOTest {
 
             //check it is not longer in the database
             final EncryptedTransaction deleted
-                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getId());
+                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
             assertThat(deleted).isNull();
         }
 
@@ -271,7 +271,7 @@ public class EncryptedTransactionDAOTest {
             encryptedTransactionDAO.save(encryptedTransaction);
 
             final EncryptedTransaction retrieved
-                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getId());
+                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
 
             assertThat(retrieved).isNotNull().isEqualToComparingFieldByField(encryptedTransaction);
 
@@ -306,7 +306,7 @@ public class EncryptedTransactionDAOTest {
 
             //check that it is actually in the database
             final EncryptedTransaction retrieved
-                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getId());
+                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
             assertThat(retrieved).isNotNull();
 
             //delete the transaction
@@ -314,7 +314,7 @@ public class EncryptedTransactionDAOTest {
 
             //check it is not longer in the database
             final EncryptedTransaction deleted
-                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getId());
+                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
             assertThat(deleted).isNull();
         }
 
@@ -430,7 +430,7 @@ public class EncryptedTransactionDAOTest {
             encryptedTransactionDAO.save(encryptedTransaction);
 
             final EncryptedTransaction retrieved
-                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getId());
+                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
 
             assertThat(retrieved).isNotNull().isEqualToComparingFieldByField(encryptedTransaction);
 
@@ -465,7 +465,7 @@ public class EncryptedTransactionDAOTest {
 
             //check that it is actually in the database
             final EncryptedTransaction retrieved
-                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getId());
+                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
             assertThat(retrieved).isNotNull();
 
             //delete the transaction
@@ -473,7 +473,7 @@ public class EncryptedTransactionDAOTest {
 
             //check it is not longer in the database
             final EncryptedTransaction deleted
-                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getId());
+                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
             assertThat(deleted).isNull();
         }
 
