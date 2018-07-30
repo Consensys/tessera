@@ -22,14 +22,11 @@ public class H2DataExporter implements DataExporter {
             try (Statement stmt = conn.createStatement()) {
                 
                 stmt.executeUpdate("CREATE TABLE ENCRYPTED_TRANSACTION "
-                        + "(ID BIGINT NOT NULL, "
-                        + "ENCODED_PAYLOAD LONGVARBINARY NOT NULL, "
-                        + "HASH LONGVARBINARY NOT NULL UNIQUE, PRIMARY KEY (ID))");
+                        + "(ENCODED_PAYLOAD LONGVARBINARY NOT NULL, "
+                        + "HASH LONGVARBINARY NOT NULL UNIQUE, PRIMARY KEY (HASH))");
+                }
 
-                stmt.execute("CREATE SEQUENCE ENC_TX_SEQ INCREMENT BY 50 START WITH 50");
-            }
-
-            try (PreparedStatement insertStatement = conn.prepareStatement("INSERT INTO ENCRYPTED_TRANSACTION (ID,HASH,ENCODED_PAYLOAD) VALUES (ENC_TX_SEQ.NEXTVAL,?,?)")) {
+            try (PreparedStatement insertStatement = conn.prepareStatement("INSERT INTO ENCRYPTED_TRANSACTION (HASH,ENCODED_PAYLOAD) VALUES (?,?)")) {
                 for (Entry<byte[], byte[]> values : data.entrySet()) {
                     insertStatement.setBytes(1, values.getKey());
                     insertStatement.setBytes(2, values.getValue());

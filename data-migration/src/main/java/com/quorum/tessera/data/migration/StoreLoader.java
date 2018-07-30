@@ -16,6 +16,7 @@ public interface StoreLoader {
     Map<StoreType,StoreLoader> LOOKUP = new HashMap<StoreType,StoreLoader> () {{
         put(StoreType.BDB,new BdbDumpFile());
         put(StoreType.DIR,new DirectoryStoreFile());
+        put(StoreType.SQLITE,new SqliteLoader());
     }};
     
     static StoreLoader create(StoreType storeType) {
