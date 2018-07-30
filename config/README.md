@@ -147,7 +147,7 @@ Use the peers list as the the urls that the tessera node can connect.
 }
 ```
 
-Alternatively rather than providing a Path to the private key file, it can be nested directy into the configuration. 
+Alternatively rather than providing a Path to the private key file, it can be nested directly into the configuration. 
 
 ```
 "keyData": [
