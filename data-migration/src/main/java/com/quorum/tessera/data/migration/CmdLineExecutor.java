@@ -28,7 +28,7 @@ public class CmdLineExecutor {
         options.addOption(
                 Option.builder()
                         .longOpt("storetype")
-                        .desc("Store type i.e. bdb, dir")
+                        .desc("Store type i.e. bdb, dir, sqlite")
                         .hasArg(true)
                         .optionalArg(false)
                         .numberOfArgs(1)
