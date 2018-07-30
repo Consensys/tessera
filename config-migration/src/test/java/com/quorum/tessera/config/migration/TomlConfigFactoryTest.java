@@ -57,6 +57,7 @@ public class TomlConfigFactoryTest {
             assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("data", "myipcfile.ipc"));
             assertThat(result.getServerConfig()).isNotNull();
             assertThat(result.getServerConfig().getSslConfig()).isNotNull();
+            assertThat(result.getServerConfig().getSslConfig().getServerTlsKeyPath()).isNull();
 
             SslConfig sslConfig = result.getServerConfig().getSslConfig();
 
@@ -67,6 +68,33 @@ public class TomlConfigFactoryTest {
 
         Files.deleteIfExists(passwordFile);
     }
+
+    @Test
+    public void createConfigFromSampleFileOnly() throws IOException {
+
+        Path passwordFile = Files.createTempFile("password", ".txt");
+        InputStream template = getClass().getResourceAsStream("/sample.conf");
+
+
+
+        try (InputStream configData = template) {
+            Config result = tomlConfigFactory.create(configData);
+            assertThat(result).isNotNull();
+            assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("data", "constellation.ipc"));
+            assertThat(result.getServerConfig()).isNotNull();
+            assertThat(result.getServerConfig().getSslConfig()).isNotNull();
+            assertThat(result.getServerConfig().getSslConfig().getServerTlsKeyPath()).isNull();
+
+            SslConfig sslConfig = result.getServerConfig().getSslConfig();
+
+            assertThat(sslConfig.getClientKeyStore()).isEqualTo(Paths.get("tls-client-key.pem"));
+            assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
+
+        }
+
+        Files.deleteIfExists(passwordFile);
+    }
+
 
     @Test
     public void createConfigFromSampleFileAndAddedPasswordsFile() throws IOException {
