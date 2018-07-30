@@ -54,7 +54,7 @@ Below is a sample configuration json with its datatypes defined.
                 "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
                 "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
             },
-            "type": "argon2sbox"
+            "type": "Enum: argon2sbox or unlocked. If unlocked is defined in config data is required. "
             },
                 "privateKey": "PRIVATE_KEY",
                 "publicKey": "PUBLIC_KEY"
