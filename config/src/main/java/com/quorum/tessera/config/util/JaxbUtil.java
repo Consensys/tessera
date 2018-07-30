@@ -78,6 +78,7 @@ public interface JaxbUtil {
                     .getClass()), "NONE");
 
             marshaller.setProperty("eclipselink.beanvalidation.mode", enu);
+            marshaller.setProperty("eclipselink.json.include-root", false);
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(object, outputStream);
         } catch (JAXBException ex) {
