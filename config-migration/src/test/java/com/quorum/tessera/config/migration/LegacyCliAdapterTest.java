@@ -39,7 +39,7 @@ public class LegacyCliAdapterTest {
 
     }
 
-        @Test
+    @Test
     public void noArgs() throws Exception {
 
         CliResult result = instance.execute();
@@ -48,7 +48,41 @@ public class LegacyCliAdapterTest {
         assertThat(result.getStatus()).isEqualTo(1);
 
     }
-    
+
+    @Test
+    public void sampleTomlFileOnly() throws Exception {
+
+        Path serverKeyStorePath = Files.createTempFile("serverKeyStorePath", ".bog");
+        Path passwordFile = Files.createTempFile("passwords", ".txt");
+        Files.write(passwordFile, Arrays.asList("PASWORD1"));
+
+        Path sampleFile = Paths.get(getClass().getResource("/sample.conf").toURI());
+        Map<String, Object> params = new HashMap<>();
+        params.put("passwordFile", passwordFile);
+        params.put("serverKeyStorePath", serverKeyStorePath);
+
+        String data = Files.readAllLines(sampleFile)
+                .stream()
+                .collect(Collectors.joining(System.lineSeparator()));
+
+
+        Path configFile = Files.createTempFile("noOptions", ".txt");
+        Files.write(configFile, data.getBytes());
+
+        CliResult result = instance.execute("--tomlfile="+ configFile.toString());
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        //TODO assert that value of config is as expected from sample config
+
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsKeyPath()).isNull();
+        assertThat(result.getStatus()).isEqualTo(0);
+
+        Files.deleteIfExists(configFile);
+        Files.deleteIfExists(passwordFile);
+        Files.deleteIfExists(serverKeyStorePath);
+    }
+
     @Test
     public void noOptionsWithTomlFile() throws Exception {
 
@@ -60,17 +94,22 @@ public class LegacyCliAdapterTest {
         Map<String, Object> params = new HashMap<>();
         params.put("passwordFile", passwordFile);
         params.put("serverKeyStorePath", serverKeyStorePath);
+
         String data = ElUtil.process(Files.readAllLines(sampleFile)
-                .stream()
-                .collect(Collectors.joining(System.lineSeparator())), params);
+                                            .stream()
+                                            .collect(Collectors.joining(System.lineSeparator()))
+                                    , params);
 
         Path configFile = Files.createTempFile("noOptions", ".txt");
         Files.write(configFile, data.getBytes());
 
-        CliResult result = instance.execute(configFile.toString());
+        CliResult result = instance.execute("--tomlfile="+ configFile.toString());
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
+        //TODO assert that value of config is as expected from sample config
+
+
         assertThat(result.getStatus()).isEqualTo(0);
 
         Files.deleteIfExists(configFile);
@@ -89,15 +128,22 @@ public class LegacyCliAdapterTest {
 
         CommandLine commandLine = mock(CommandLine.class);
 
+        //TODO check all CLI options have assertions here
+
         when(commandLine.getOptionValue("url")).thenReturn(urlOverride);
         when(commandLine.getOptionValue("port")).thenReturn(String.valueOf(portOverride));
-        when(commandLine.getOptionValue("socket")).thenReturn(unixSocketFileOverride);
         when(commandLine.getOptionValue("workdir")).thenReturn(workdirOverride);
-        
+        when(commandLine.getOptionValue("socket")).thenReturn(unixSocketFileOverride);
+
         when(commandLine.getOptionValues("othernodes"))
                 .thenReturn(
                         overridePeers.stream().map(Peer::getUrl).toArray(String[]::new)
                 );
+
+        when(commandLine.getOptionValues("publickeys"))
+            .thenReturn(new String[]{"ONE", "TWO"});
+
+
 
         when(commandLine.getOptionValue("storage")).thenReturn("sqlite:somepath");
 
@@ -123,8 +169,7 @@ public class LegacyCliAdapterTest {
         when(commandLine.getOptionValue("tlsclientkey"))
                 .thenReturn("tlsclientkey.key");
 
-        when(commandLine.getOptionValues("publickeys"))
-                .thenReturn(new String[]{"ONE", "TWO"});
+
 
         doReturn(new String[]{}).when(commandLine).getOptionValues("alwayssendto");
 
@@ -246,8 +291,8 @@ public class LegacyCliAdapterTest {
     }
 
     @Test
-    public void resolveUnixFilePathInitalValueOnly() {
-        Path relativePath = Paths.get("someopath.ipc");
+    public void resolveUnixFilePathInitialValueOnly() {
+        Path relativePath = Paths.get("somepath.ipc");
 
         Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(relativePath, null, null);
 
@@ -275,6 +320,14 @@ public class LegacyCliAdapterTest {
     }
 
     @Test
+    public void resolveUnixFilePathFileNameOnly() {
+
+        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(null, null, "filename");
+
+        assertThat(result).isNotPresent();
+    }
+
+    @Test
     public void resolveUnixFilePathWorkdirAndFileName() {
 
         Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(null, "dir", "somefile.file");
@@ -282,8 +335,6 @@ public class LegacyCliAdapterTest {
         assertThat(result).isPresent().get().isEqualTo(Paths.get("dir", "somefile.file"));
 
     }
-
-
 
     @Test
     public void writeToOutputFileValidationError() throws Exception {

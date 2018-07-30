@@ -1,10 +1,6 @@
 package com.quorum.tessera.config.builder;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.PrivateKeyType;
-import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.SslConfig;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
 import org.junit.Test;
 import org.xmlunit.builder.DiffBuilder;
@@ -14,6 +10,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.Method;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
@@ -22,6 +19,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ConfigBuilderTest {
 
     private final ConfigBuilder builderWithValidValues = FixtureUtil.builderWithValidValues();
+
+    private final ConfigBuilder builderWithNullValues = FixtureUtil.builderWithNullValues();
+
+    @Test
+    public void nullIsNullAndNotAStringWithTheValueOfNull() {
+        assertThat(ConfigBuilder.toPath(null)).isNull();
+        assertThat(ConfigBuilder.toPath("test")).isNotNull();
+    }
 
     @Test
     public void buildValid() {
@@ -86,8 +91,8 @@ public class ConfigBuilderTest {
         marshaller.setProperty("eclipselink.beanvalidation.mode", enu);
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        //marshaller.marshal(existing, System.out);
-        //marshaller.marshal(result, System.out);
+        marshaller.marshal(existing, System.out);
+        marshaller.marshal(result, System.out);
         final String expected;
         try (Writer writer = new StringWriter()) {
             marshaller.marshal(existing, writer);
@@ -109,4 +114,53 @@ public class ConfigBuilderTest {
 
     }
 
+    @Test
+    public void buildFromExistingWithNulls() throws Exception {
+        Method createMethod = Config.class.getDeclaredMethod("create");
+        createMethod.setAccessible(true);
+        Config existing = new Config(new JdbcConfig(null,null,null),
+            new ServerConfig(null,null,
+                new SslConfig(null,true,null,null,
+                    null,null,null,
+                    null,null,null,
+                    null,null,null,null,null,
+                    null,null,null,
+                    null,null),
+                null
+            ), null,null, null, null, true);
+
+        ConfigBuilder configBuilder = ConfigBuilder.from(existing);
+
+        Config result = configBuilder.build();
+
+        JAXBContext jaxbContext = JAXBContext.newInstance(Config.class);
+
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        Enum enu = Enum.valueOf(Class.class.cast(marshaller
+            .getProperty("eclipselink.beanvalidation.mode").getClass()), "NONE");
+        marshaller.setProperty("eclipselink.beanvalidation.mode", enu);
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        marshaller.marshal(existing, System.out);
+        marshaller.marshal(result, System.out);
+        final String expected;
+        try (Writer writer = new StringWriter()) {
+            marshaller.marshal(existing, writer);
+            expected = writer.toString();
+        }
+
+        final String actual;
+        try (Writer writer = new StringWriter()) {
+            marshaller.marshal(result, writer);
+            actual = writer.toString();
+        }
+
+        Diff diff = DiffBuilder.compare(expected)
+            .withTest(actual)
+            .checkForSimilar()
+            .build();
+
+        assertThat(diff.getDifferences()).isEmpty();
+
+    }
 }

@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import javax.validation.ConstraintViolationException;
 
 public class LegacyCliAdapter implements CliAdapter {
@@ -44,8 +43,9 @@ public class LegacyCliAdapter implements CliAdapter {
         Options options = buildOptions();
         final List<String> argsList = Arrays.asList(args);
         if (argsList.isEmpty() || argsList.contains("help")) {
+            String header = "Generate Tessera JSON config file from a Constellation TOML config file";
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("tessera-config-migration", options);
+            formatter.printHelp("tessera-config-migration", header, options, null);
             final int exitCode = argsList.isEmpty() ? 1 : 0;
             return new CliResult(exitCode, true, null);
         }
@@ -54,17 +54,12 @@ public class LegacyCliAdapter implements CliAdapter {
 
         CommandLine line = parser.parse(options, args);
 
-        final Pattern configFileSearch = Pattern.compile("^--.*=.$");
-
-        final String lastArg = line.getArgList().get(line.getArgList().size() - 1);
-
-        final ConfigBuilder configBuilder = Optional.of(lastArg)
-                .filter(configFileSearch.asPredicate().negate())
-                .map(v -> Paths.get(v))
-                .map(fileDelegate::newInputStream)
-                .map(configData -> configFactory.create(configData))
-                .map(ConfigBuilder::from)
-                .orElse(ConfigBuilder.create());
+        final ConfigBuilder configBuilder = Optional.ofNullable(line.getOptionValue("tomlfile"))
+                                                .map(v -> Paths.get(v))
+                                                .map(fileDelegate::newInputStream)
+                                                .map(configData -> configFactory.create(configData))
+                                                .map(ConfigBuilder::from)
+                                                .orElse(ConfigBuilder.create());
 
         ConfigBuilder adjustedConfig = applyOverrides(line, configBuilder);
 
@@ -338,6 +333,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .longOpt("tlsknownclients")
                         .desc("TLS server known clients file for the ca-or-tofu, tofu and whitelist trust modes")
                         .argName("FILE")
+                        .hasArg()
                         .build()
         );
 
@@ -391,12 +387,21 @@ public class LegacyCliAdapter implements CliAdapter {
         );
 
         options.addOption(
-                Option.builder()
-                        .longOpt("outputfile")
-                        .desc("New configuration output file.")
-                        .argName("FILE")
-                        .hasArg()
-                        .build()
+            Option.builder()
+                .longOpt("tomlfile")
+                .desc("TOML configuration input file.")
+                .argName("FILE")
+                .hasArg()
+                .build()
+        );
+
+        options.addOption(
+            Option.builder()
+                .longOpt("outputfile")
+                .desc("New configuration output file.")
+                .argName("FILE")
+                .hasArg()
+                .build()
         );
 
         options.addOption(
