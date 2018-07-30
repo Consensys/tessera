@@ -192,5 +192,12 @@ The private key file is a json fragament containing the information required to 
 }
 ```
 
+### Unix socket file
+Path to the unix domain socket file used to commuicate between geth and tessera.
+
+```
+"unixSocketFile" : "/somepath/somename.ipc"
+```
+
 
 
