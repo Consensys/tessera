@@ -61,6 +61,36 @@ public class FixtureUtil {
             .keyData(new KeyConfiguration(null, Collections.emptyList(),
                 Collections.singletonList(new KeyData(new KeyDataConfig(mock(PrivateKeyData.class), PrivateKeyType.LOCKED), null, null, null, null))));
     }
+
+    public static ConfigBuilder builderWithNullValues() {
+
+        return ConfigBuilder.create().jdbcConfig(new JdbcConfig("jdbcUsername", "jdbcPassword", "jdbc:bogus"))
+            .peers(Collections.emptyList())
+            .alwaysSendTo(Collections.emptyList())
+            .serverPort(892)
+            .sslAuthenticationMode(SslAuthenticationMode.STRICT)
+            .unixSocketFile(Paths.get("somepath.ipc"))
+            .serverHostname("http://bogus.com:928")
+            .sslServerKeyStorePath(null)
+            .sslServerTrustMode(SslTrustMode.TOFU)
+            .sslServerTrustStorePath("sslServerTrustStorePath")
+            .sslServerTrustStorePath("sslServerKeyStorePath")
+            .sslClientKeyStorePath("sslClientKeyStorePath")
+            .sslClientTrustStorePath("sslClientTrustStorePath")
+            .sslClientKeyStorePassword("sslClientKeyStorePassword")
+            .sslClientTrustStorePassword("sslClientTrustStorePassword")
+            .sslServerTlsKeyPath("sslServerTlsKeyPath")
+            .sslClientTlsKeyPath("sslClientTlsKeyPath")
+            .sslKnownClientsFile("knownClientsFile")
+            .sslKnownServersFile(null)
+            .sslClientTrustMode(SslTrustMode.CA_OR_TOFU)
+            .sslServerTrustCertificates(Collections.singletonList("sslServerTrustCertificates"))
+            .sslClientTrustCertificates(Collections.singletonList("sslClientTrustCertificates"))
+            .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
+            .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
+            .keyData(new KeyConfiguration(null, Collections.emptyList(),
+                Collections.singletonList(new KeyData(new KeyDataConfig(mock(PrivateKeyData.class), PrivateKeyType.LOCKED), null, null, null, null))));
+    }
     
     public static JsonObject createUnlockedPrivateKey() {
         return Json.createObjectBuilder()

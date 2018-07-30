@@ -70,7 +70,7 @@ public interface JaxbUtil {
             JAXBContext jaxbContext = JAXBContext.newInstance(JAXB_CLASSES);
             Marshaller marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty("eclipselink.media-type", "application/json");
-            //Workaround so not to require eclipselink comile time dependency.
+            //Workaround so not to require eclipselink compile time dependency.
             //Resolve BeanValidationMode from default value and set to NONE
             //org.eclipse.persistence.jaxb.BeanValidationMode
             Enum enu = Enum.valueOf(Class.class.cast(marshaller
