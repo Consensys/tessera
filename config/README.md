@@ -93,7 +93,7 @@ Use the peers list as the the urls that the tessera node can connect.
 
 ```
     "server" : {
-    "hostName" : "[Hostname to bind to includes url schem and port e.g. http://myhost.com:9999]",
+    "hostName" : "[Hostname to bind to includes url scheme and port e.g. http://myhost.com:9999]",
     "port" : [Port that will use to expose tessera services (Same as port defined in hostName],
     "sslConfig" : {}
     ...
