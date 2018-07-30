@@ -1,5 +1,5 @@
 # Configuration
-Below is a sample configuration json with iyts' datatypes define. 
+Below is a sample configuration json with its datatypes defined. 
 
 ```
 {
@@ -33,11 +33,33 @@ Below is a sample configuration json with iyts' datatypes define.
         }
     },
     "peer" : [ {
-    "url" : "url e.g. http://127.0.0.1:9000/"
+        "url" : "url e.g. http://127.0.0.1:9000/"
     } ],
-    "keys" : {
-    "passwords" : [ ],
-    "keyData" : [ ]
+    "keys": {
+        "passwords": [
+            
+        ],
+        "keyData": [
+            {
+                "config": {
+                "data": {
+                    "aopts": {
+                    "variant": "Enum : id,d or i",
+                    "memory": int,
+                    "iterations": int,
+                    "parallelism": int,
+                    "version": "decimal string"
+                },
+                "snonce": "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
+            },
+            "type": "argon2sbox"
+            },
+                "privateKey": "PRIVATE_KEY",
+                "publicKey": "PUBLIC_KEY"
+            }
+        ]
     },
     "alwaysSendTo" : [ ],
     "unixSocketFile" : "Path"
@@ -104,4 +126,71 @@ Use the peers list as the the urls that the tessera node can connect.
     "knownServersFile" : "[TLS known servers file for the client. This contains the fingerprints of public keys of other nodes that this node has encountered.]"
 }
 ```
+
+
+### KeyData
+
+
+```
+"keys": {
+"passwords": [],
+"keyData": [
+    {
+    "privateKey": "[The direct value of the private key itself]",
+    "privateKeyPath": "[The path to the private key file that contains (see Private Key File). If privateKey is define this is ignored]",
+    "publicKey": "[The direct value of the public key itself]",
+    "publicKeyPath": "[Path to a file containing the public key value. If publicKey is define this is ignored]"
+    }
+]
+}
+```
+
+Alternatively rather than providing a Path to the private key file, it can be nested directy into the configuration. 
+
+```
+"keyData": [
+    {
+        "config": {
+            "data": {
+                "aopts": {
+                "variant": "id",
+                "memory": 1048576,
+                "iterations": 10,
+                "parallelism": 4,
+                "version": "1.3"
+                },
+                "snonce": "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
+            },
+            "type": "argon2sbox"
+            },
+            "privateKey": "PRIVATE_KEY",
+            "publicKey": "PUBLIC_KEY"
+    }
+]
+```
+
+#### Private Key File
+The private key file is a json fragament containing the information required to generate a private key value. 
+```
+{
+    "config": {
+        "data": {
+        "aopts": {
+        "variant": "id",
+        "memory": 1048576,
+        "iterations": 10,
+        "parallelism": 4,
+        "version": "1.3"
+        },
+        "snonce": "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+        "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+        "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
+        },
+        "type": "argon2sbox"
+}
+```
+
+
 
