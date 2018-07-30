@@ -195,7 +195,7 @@ The private key file is a json fragament containing the information required to 
 ```
 
 ### Peers
-A list of urls where tessera can commuicate with other nodes rolled out as part of the same cluster. Peer info is regsietered between nodes during runtime, but at least 1 url must be provided so the node being configured can take part in the dialogue. 
+A list of urls where tessera can communicate with other nodes rolled out as part of the same cluster. Peer info is registered between nodes during runtime, but at least 1 url must be provided so the node being configured can take part in the dialogue. 
 ```
 "peer" : [ 
 {
@@ -211,7 +211,7 @@ A list of urls where tessera can commuicate with other nodes rolled out as part 
 ```
 
 ### Unix socket file
-Path to the unix domain socket file used to commuicate between geth and tessera.
+Path to the unix domain socket file used to communicate between geth and tessera.
 
 ```
 "unixSocketFile" : "/somepath/somename.ipc"
