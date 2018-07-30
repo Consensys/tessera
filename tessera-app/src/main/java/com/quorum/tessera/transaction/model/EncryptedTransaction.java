@@ -16,13 +16,7 @@ import java.util.Objects;
 @Table(name = "ENCRYPTED_TRANSACTION")
 public class EncryptedTransaction implements Serializable {
 
-    @Id
-    @Column(name = "ID")
-    @SequenceGenerator(name = "ENC_TX_SEQ", sequenceName = "ENC_TX_SEQ")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ENC_TX_SEQ")
-    private Long id;
-
-    @Embedded
+    @EmbeddedId
     @AttributeOverrides({
         @AttributeOverride(
             name = "hashBytes",
@@ -43,14 +37,6 @@ public class EncryptedTransaction implements Serializable {
     public EncryptedTransaction() {
     }
 
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
-    }
-
     public MessageHash getHash() {
         return this.hash;
     }
@@ -69,14 +55,14 @@ public class EncryptedTransaction implements Serializable {
 
     @Override
     public int hashCode() {
-        return 47 * 3 + Objects.hashCode(this.id);
+        return 47 * 3 + Objects.hashCode(this.hash);
     }
 
     @Override
     public boolean equals(final Object obj) {
 
         return (obj instanceof EncryptedTransaction) &&
-            Objects.equals(this.id, ((EncryptedTransaction) obj).id);
+            Objects.equals(this.hash, ((EncryptedTransaction) obj).hash);
     }
 
 
