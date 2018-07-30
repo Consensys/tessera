@@ -3,7 +3,7 @@
     "jdbc": {
         "username": "sa",
         "password": "",
-        "url": "jdbc:h2:./target/h2/nexus2;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
+        "url": "jdbc:h2:./target/h2/tess2;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
     },
     "server": {
         "port": 8081,
@@ -14,19 +14,15 @@
             "url": "http://localhost:8080"
         }
     ],
-    "keys": [
-        {
-            "config": {
-                "data": {
-                    "bytes": "rmAhE3HxbQWG6TgjVYsLjQoHE06jZ60fXYsT5s7++rI="
-                },
-                "type": "unlocked"
-            },
-            "publicKey": {
-                "value": "1CjgEocueKJQuFHm6pKVoSKXiMQvbehY04NjqyMtrjM="
+    "keys": {
+        "passwords": [],
+        "keyData": [
+            {
+                "privateKey": "fF5UOlKKIwuaNrZ8+KU4WO+pxOYu8tNMQncyxbsSC6U=",
+                "publicKey": "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0="
             }
-        }
-    ],
+        ]
+    },
     "alwaysSendTo": [],
-    "unixSocketFile": "/tmp/tm2.ipc"
+    "unixSocketFile": "/tmp/tm1.ipc"
 }
