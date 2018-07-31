@@ -6,6 +6,6 @@ import javax.net.ssl.SSLContext;
 
 public interface SSLContextFactory {
 
-    SSLContext from(SslConfig sslConfig);
+    SSLContext from(String address, SslConfig sslConfig);
 
 }

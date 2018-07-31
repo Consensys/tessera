@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import javax.security.auth.x500.X500Principal;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,13 +37,15 @@ public class WhiteListTrustManagerTest {
     public void setUp() throws IOException, CertificateException {
         MockitoAnnotations.initMocks(this);
         when(certificate.getEncoded()).thenReturn("thumbprint".getBytes(UTF_8));
+        X500Principal cn = new X500Principal("CN=localhost");
+        when(certificate.getSubjectX500Principal()).thenReturn(cn);
         knownHosts = Files.createTempFile("test", "knownHosts");
 
         try (BufferedWriter writer = Files.newBufferedWriter(knownHosts, StandardOpenOption.APPEND))
         {
-            writer.write("somethumbprint");
+            writer.write("someaddress somethumbprint");
             writer.newLine();
-            writer.write(CertificateUtil.create().thumbPrint(certificate));
+            writer.write("localhost" + " " + CertificateUtil.create().thumbPrint(certificate));
             writer.newLine();
         }
 
@@ -62,6 +65,7 @@ public class WhiteListTrustManagerTest {
         trustManager.checkClientTrusted(new X509Certificate[]{certificate},"str");
 
         verify(certificate, times(3)).getEncoded();
+        verify(certificate, times(2)).getSubjectX500Principal();
 
     }
 
@@ -78,6 +82,7 @@ public class WhiteListTrustManagerTest {
                 .hasMessage("Connections not allowed");
         }
         verify(certificate, times(2)).getEncoded();
+        verify(certificate).getSubjectX500Principal();
     }
 
     @Test

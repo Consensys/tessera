@@ -28,6 +28,7 @@ public class HttpProxyFactory {
 
             final SSLContext sslContext = TrustMode.NONE.createSSLContext(
                 new SSLContextProperties(
+                    serverConfig.getServerUri().toString(),
                     sslConfig.getClientKeyStore(),
                     sslConfig.getClientKeyStorePassword(),
                     sslConfig.getClientTlsKeyPath(),

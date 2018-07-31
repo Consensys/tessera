@@ -571,6 +571,12 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>3.7</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.cryptacular</groupId>
+                <artifactId>cryptacular</artifactId>
+                <version>1.2.2</version>
+            </dependency>
             
             
             <dependency>
