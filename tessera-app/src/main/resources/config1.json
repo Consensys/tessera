@@ -7,9 +7,9 @@
     },
     "server": {
         "port": 8080,
-        "hostName": "https://localhost",
+        "hostName": "http://localhost",
         "sslConfig": {
-            "tls": "STRICT",
+            "tls": "OFF",
             "generateKeyStoreIfNotExisted": "true",
             "serverKeyStore": "./target/server1-keystore",
             "serverKeyStorePassword": "quorum",
