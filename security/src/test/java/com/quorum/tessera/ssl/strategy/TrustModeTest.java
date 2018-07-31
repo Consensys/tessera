@@ -36,7 +36,7 @@ public class TrustModeTest {
         assertThat(
             TrustMode.NONE.createSSLContext(
                 new SSLContextProperties(
-                    "FIXME",
+                    "http://localhost:8080",
                     tmpFile,
                     "quorum",
                     null,
@@ -56,7 +56,7 @@ public class TrustModeTest {
         assertThat(
             TrustMode.getValueIfPresent("WHITELIST").get().createSSLContext(
                 new SSLContextProperties(
-                    "FIXME",
+                    "http://localhost:8080",
                     tmpFile,
                     "quorum",
                     null,
@@ -75,7 +75,7 @@ public class TrustModeTest {
         assertThat(
             TrustMode.getValueIfPresent("CA").get().createSSLContext(
                 new SSLContextProperties(
-                    "FIXME",
+                    "http://localhost:8080",
                     tmpFile,
                     "quorum",
                     null,
@@ -94,7 +94,7 @@ public class TrustModeTest {
         assertThat(
             TrustMode.getValueIfPresent("TOFU").get().createSSLContext(
                 new SSLContextProperties(
-                    "FIXME",
+                    "http://localhost:8080",
                     tmpFile,
                     "quorum",
                     null,

@@ -39,7 +39,9 @@ public class RestEasyServer implements RestServer {
         this.secure = serverConfig.isSsl();
         if(this.secure) {
             final SSLContextFactory sslContextFactory = ServerSSLContextFactory.create();
-            this.sslContext = sslContextFactory.from(serverConfig.getSslConfig());
+            this.sslContext = sslContextFactory.from(
+                serverConfig.getServerUri().toString(),
+                serverConfig.getSslConfig());
         } else {
             this.sslContext = null;
         }
