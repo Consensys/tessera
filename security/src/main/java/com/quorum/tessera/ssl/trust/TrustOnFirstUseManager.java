@@ -1,6 +1,7 @@
 package com.quorum.tessera.ssl.trust;
 
 import com.quorum.tessera.ssl.util.CertificateUtil;
+import org.cryptacular.util.CertUtil;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -31,12 +32,17 @@ public class TrustOnFirstUseManager extends AbstractTrustManager {
     private void checkTrusted(X509Certificate[] x509Certificates) throws CertificateException {
         final X509Certificate certificate = x509Certificates[0];
         final String thumbPrint = CertificateUtil.create().thumbPrint(certificate);
+        final String address = CertUtil.subjectCN(certificate);
 
-        if (!certificateExistsInKnownHosts(thumbPrint)) {
+        if (!certificateExistsInKnownHosts(address)) {
             try {
-                addServerToKnownHostsList(thumbPrint);
+                addServerToKnownHostsList(address, thumbPrint);
             } catch (IOException ex) {
                 throw new CertificateException("Failed to save address and certificate fingerprint to whitelist. Cause by ", ex);
+            }
+        } else {
+            if (!certificateValidForKnownHost(address, thumbPrint)) {
+                throw new CertificateException("This address has been associated with a different certificate");
             }
         }
     }

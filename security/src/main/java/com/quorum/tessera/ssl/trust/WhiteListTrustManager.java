@@ -1,6 +1,7 @@
 package com.quorum.tessera.ssl.trust;
 
 import com.quorum.tessera.ssl.util.CertificateUtil;
+import org.cryptacular.util.CertUtil;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -31,7 +32,9 @@ public class WhiteListTrustManager extends AbstractTrustManager {
     private void checkTrusted(X509Certificate[] x509Certificates) throws CertificateException{
         final X509Certificate certificate = x509Certificates[0];
         final String thumbPrint = CertificateUtil.create().thumbPrint(certificate);
-        if (!certificateExistsInKnownHosts(thumbPrint)) {
+        final String address = CertUtil.subjectCN(certificate);
+
+        if (!certificateValidForKnownHost(address, thumbPrint)) {
             throw new CertificateException("Connections not allowed");
         }
     }
