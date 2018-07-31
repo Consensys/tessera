@@ -57,7 +57,7 @@ public class JerseyServer implements RestServer {
 
         if (this.secure) {
             final SSLContextFactory sslContextFactory = ServerSSLContextFactory.create();
-            this.sslContext = sslContextFactory.from(serverConfig.getSslConfig());
+            this.sslContext = sslContextFactory.from(uri.toString(), serverConfig.getSslConfig());
         } else {
             this.sslContext = null;
         }

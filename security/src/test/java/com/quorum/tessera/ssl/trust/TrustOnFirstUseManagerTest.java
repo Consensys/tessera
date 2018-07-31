@@ -8,6 +8,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,6 +54,8 @@ public class TrustOnFirstUseManagerTest {
         trustManager = new TrustOnFirstUseManager(knownHosts);
 
         when(certificate.getEncoded()).thenReturn("certificate".getBytes(UTF_8));
+        X500Principal cn = new X500Principal("CN=localhost");
+        when(certificate.getSubjectX500Principal()).thenReturn(cn);
 
         assertThat(Files.exists(knownHosts)).isFalse();
 
@@ -62,7 +65,7 @@ public class TrustOnFirstUseManagerTest {
 
         trustManager.checkClientTrusted(new X509Certificate[]{certificate}, "s");
         verify(certificate, times(2)).getEncoded();
-
+        verify(certificate, times(2)).getSubjectX500Principal();
     }
 
     @Test
@@ -73,6 +76,8 @@ public class TrustOnFirstUseManagerTest {
         trustManager = new TrustOnFirstUseManager(anotherFile);
 
         when(certificate.getEncoded()).thenReturn("certificate".getBytes(UTF_8));
+        X500Principal cn = new X500Principal("CN=localhost");
+        when(certificate.getSubjectX500Principal()).thenReturn(cn);
 
         try {
             trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "str");
@@ -84,6 +89,7 @@ public class TrustOnFirstUseManagerTest {
         }
 
         verify(certificate).getEncoded();
+        verify(certificate).getSubjectX500Principal();
         tmpDir.getRoot().setWritable(true);
     }
 
@@ -93,6 +99,8 @@ public class TrustOnFirstUseManagerTest {
         trustManager = new TrustOnFirstUseManager(anotherFile);
 
         when(certificate.getEncoded()).thenReturn("certificate".getBytes(UTF_8));
+        X500Principal cn = new X500Principal("CN=localhost");
+        when(certificate.getSubjectX500Principal()).thenReturn(cn);
 
         assertThat(Files.exists(anotherFile)).isFalse();
 
@@ -101,6 +109,7 @@ public class TrustOnFirstUseManagerTest {
         assertThat(Files.exists(anotherFile)).isTrue();
 
         verify(certificate).getEncoded();
+        verify(certificate).getSubjectX500Principal();
 
         Files.deleteIfExists(anotherFile);
 
@@ -120,6 +129,8 @@ public class TrustOnFirstUseManagerTest {
 
         X509Certificate certificate = mock(X509Certificate.class);
         when(certificate.getEncoded()).thenReturn("certificate".getBytes(UTF_8));
+        X500Principal cn = new X500Principal("CN=localhost");
+        when(certificate.getSubjectX500Principal()).thenReturn(cn);
 
         try {
             trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "s");
@@ -129,6 +140,29 @@ public class TrustOnFirstUseManagerTest {
         } catch (Exception ex) {
             assertThat(ex).isInstanceOf(CertificateException.class);
         }
+    }
+
+    @Test
+    public void testCertificateNotValidForRecognisedAddress() throws CertificateException, IOException {
+        testAddThumbPrintToKnownHostsList();
+
+        when(certificate.getEncoded()).thenReturn("ADifferentCertificate".getBytes(UTF_8));
+        X500Principal cn = new X500Principal("CN=localhost");
+        when(certificate.getSubjectX500Principal()).thenReturn(cn);
+
+        try {
+            trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "str");
+            failBecauseExceptionWasNotThrown(IOException.class);
+        } catch (Exception ex) {
+            assertThat(ex)
+                .isInstanceOf(CertificateException.class)
+                .hasMessageContaining("This address has been associated with a different certificate");
+        }
+
+        verify(certificate, times(3)).getEncoded();
+        verify(certificate, times(3)).getSubjectX500Principal();
+
+
     }
 
     @Test
