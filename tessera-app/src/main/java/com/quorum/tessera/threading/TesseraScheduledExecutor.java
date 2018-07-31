@@ -23,14 +23,14 @@ public class TesseraScheduledExecutor {
 
     private final Runnable action;
 
-    private final long rateInSeconds;
+    private final long rate;
 
     public TesseraScheduledExecutor(final ScheduledExecutorService executor,
                                     final Runnable action,
-                                    final long rateInSeconds) {
+                                    final long rate) {
         this.executor = Objects.requireNonNull(executor);
         this.action = Objects.requireNonNull(action);
-        this.rateInSeconds = rateInSeconds;
+        this.rate = rate;
     }
 
     /**
@@ -50,7 +50,7 @@ public class TesseraScheduledExecutor {
             }
         };
 
-        this.executor.scheduleWithFixedDelay(exceptionSafeRunnable, rateInSeconds, rateInSeconds, TimeUnit.MILLISECONDS);
+        this.executor.scheduleWithFixedDelay(exceptionSafeRunnable, rate, rate, TimeUnit.MILLISECONDS);
 
         LOGGER.info("Started {}", this.action.getClass().getSimpleName());
     }
