@@ -76,8 +76,7 @@ abstract class AbstractTrustManager implements X509TrustManager {
     }
 
     boolean certificateValidForKnownHost(String address, String thumbPrint) {
-        return certificateExistsInKnownHosts(address) &&
-        this.certificates.get(address).equals(thumbPrint);
+        return this.certificates.get(address).equals(thumbPrint);
     }
 
 }
