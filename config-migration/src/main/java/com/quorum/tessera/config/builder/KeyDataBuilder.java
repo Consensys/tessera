@@ -48,6 +48,8 @@ public class KeyDataBuilder {
             throw new ConfigException(new RuntimeException("Different amount of public and private keys supplied"));
         }
 
+        if(publicKeys.size() == 0) return null;
+
         final List<KeyData> keyData = IntStream
             .range(0, publicKeys.size())
             .mapToObj(i -> new KeyData(null, null, null, Paths.get(privateKeys.get(i)), Paths.get(publicKeys.get(i))))

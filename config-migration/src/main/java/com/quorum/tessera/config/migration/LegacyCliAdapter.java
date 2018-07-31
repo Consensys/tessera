@@ -174,7 +174,8 @@ public class LegacyCliAdapter implements CliAdapter {
         Optional.ofNullable(line.getOptionValue("tlsknownclients"))
                 .ifPresent(configBuilder::sslKnownClientsFile);
 
-        configBuilder.keyData(keyDataBuilder.build());
+        Optional.ofNullable(keyDataBuilder.build())
+                .ifPresent(configBuilder::keyData);
 
         return configBuilder;
     }

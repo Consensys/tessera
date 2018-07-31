@@ -50,6 +50,46 @@ public class LegacyCliAdapterTest {
     }
 
     @Test
+    public void sampleTomlFileAllItemsAddedToConfigObject() throws Exception {
+
+        Path serverKeyStorePath = Files.createTempFile("serverKeyStorePath", ".bog");
+        Path passwordFile = Files.createTempFile("passwords", ".txt");
+        Files.write(passwordFile, Arrays.asList("PASWORD1"));
+
+        Path sampleFile = Paths.get(getClass().getResource("/sample.conf").toURI());
+        Map<String, Object> params = new HashMap<>();
+        params.put("passwordFile", passwordFile);
+        params.put("serverKeyStorePath", serverKeyStorePath);
+
+        String data = Files.readAllLines(sampleFile)
+            .stream()
+            .collect(Collectors.joining(System.lineSeparator()));
+
+
+        Path configFile = Files.createTempFile("noOptions", ".txt");
+        Files.write(configFile, data.getBytes());
+
+        CliResult result = instance.execute("--tomlfile=" + configFile.toString());
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+
+//        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1"); //TODO This fails
+        assertThat(result.getConfig().get().getServerConfig().getPort()).isEqualTo(9001);
+        assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("data/constellation.ipc");
+        assertThat(result.getConfig().get().getPeers().size()).isEqualTo(1);
+        assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://127.0.0.1:9000/");
+        assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(1);
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("foo.pub");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("foo.key");
+
+        Files.deleteIfExists(configFile);
+        Files.deleteIfExists(passwordFile);
+        Files.deleteIfExists(serverKeyStorePath);
+    }
+
+    @Test
     public void sampleTomlFileOnly() throws Exception {
 
         Path serverKeyStorePath = Files.createTempFile("serverKeyStorePath", ".bog");

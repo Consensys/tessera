@@ -1,12 +1,10 @@
 package com.quorum.tessera.config.migration;
 
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.builder.ConfigBuilder;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigFactory;
 
-import com.quorum.tessera.config.KeyDataConfig;
-import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
+import com.quorum.tessera.config.builder.KeyDataBuilder;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.io.IOCallback;
@@ -92,6 +90,12 @@ public class TomlConfigFactory implements ConfigFactory {
             privateKeyPasswords = Collections.unmodifiableList(Collections.EMPTY_LIST);
         }
 
+        KeyConfiguration keyData = KeyDataBuilder.create()
+                                                .withPublicKeys(publicKeyList)
+                                                .withPrivateKeys(privateKeyList)
+                                                .build();
+
+
         List<String> alwaysSendToList = toml.getList("alwayssendto", Collections.EMPTY_LIST);
 
         String tlsserverkey = toml.getString("tlsserverkey", "tls-server-key.pem");
@@ -127,7 +131,8 @@ public class TomlConfigFactory implements ConfigFactory {
                 .sslKnownClientsFile(tlsknownclients)
                 .sslKnownServersFile(tlsknownservers)
                 .peers(othernodes)
-                .alwaysSendTo(alwaysSendToList);
+                .alwaysSendTo(alwaysSendToList)
+                .keyData(keyData);
 
         Optional.ofNullable(storage)
                 .map(JdbcConfigFactory::fromLegacyStorageString).ifPresent(configBuilder::jdbcConfig);
