@@ -1,15 +1,16 @@
 package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.InfluxConfig;
-import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.reflect.ReflectCallback;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,22 +23,12 @@ public interface OverrideUtil {
         return fields(null, Config.class);
     }
 
-    //FIXME: Need to change @XmlElement#name()
-    Map<Class, String> ELEMENT_NAME_ALIASES = new HashMap<Class, String>() {
-        {
-            put(SslConfig.class, "ssl");
-            put(InfluxConfig.class, "influx");
-        }
-    };
-
     static String resolveName(Field field) {
         if (!field.isAnnotationPresent(XmlElement.class)) {
             return field.getName();
         }
-        XmlElement xmlElement = field.getAnnotation(XmlElement.class);
-
-        String name = ELEMENT_NAME_ALIASES.getOrDefault(field.getType(), xmlElement.name());
-
+        final XmlElement xmlElement = field.getAnnotation(XmlElement.class);
+        String name = xmlElement.name();
         return Objects.equals("##default", name) ? field.getName() : name;
     }
 
@@ -81,15 +72,16 @@ public interface OverrideUtil {
     }
 
     static Map<String, Class> fields(String prefix, Class type) {
-        
+
         String amendedPrefix = Optional.ofNullable(prefix)
                 .map(s -> s.concat("."))
                 .orElse("");
-        
+
         Map<String, Class> list = new HashMap<>();
         for (Field field : type.getDeclaredFields()) {
 
             if (isSimple(field)) {
+
                 list.put(amendedPrefix + resolveName(field), field.getType());
                 continue;
             }
@@ -102,15 +94,92 @@ public interface OverrideUtil {
                 Class t = resolveCollectionParameter(field.getGenericType());
 
                 if (isSimple(t)) {
-                    list.put(amendedPrefix + resolveName(field) + "[]", t);
+                    if (t.equals(String.class)) {
+                        list.put(amendedPrefix + resolveName(field), String[].class);
+                    } else if(t.equals(Path.class)) {
+                        list.put(amendedPrefix + resolveName(field), Path[].class);
+                    } 
+                    
                 } else {
-                    list.putAll(fields(amendedPrefix + resolveName(field) + "[]", t));
+                    list.putAll(fields(amendedPrefix + resolveName(field), t));
                 }
             }
         }
 
         return list;
 
+    }
+
+    /*
+        Traverse though property path. 
+        Create any nested objects and populate with provided value
+     */
+    static void overrideExistingValue(Config config, String propertyPath, String... value) {
+
+        final String[] pathTokens = propertyPath.split("\\.");
+
+        Object obj = config;
+        for (int i = 0; i < pathTokens.length; i++) {
+            String fieldName = pathTokens[i];
+            obj = checkFieldIsInitialed(obj, fieldName, value).orElse(null);
+        }
+    }
+
+    /**
+     *
+     * @param <T>
+     * @param obj
+     * @param fieldName
+     * @param value
+     * @return object with fieldName initialised and populated if the target
+     * property
+     */
+    static <T> Optional<T> checkFieldIsInitialed(T obj, String fieldName, String[] value) {
+
+        ReflectCallback<Optional<T>> reflectCallback = () -> {
+            Class type = obj.getClass();
+            List<Field> fields = Arrays.asList(type.getDeclaredFields());
+
+            Field field = fields
+                    .stream()
+                    .filter(f -> f.isAnnotationPresent(XmlElement.class))
+                    .filter(f -> f.getAnnotation(XmlElement.class).name().equals(fieldName))
+                    .findAny()
+                    .orElseGet(() -> ReflectCallback.execute(() -> type.getDeclaredField(fieldName)));
+
+            field.setAccessible(true);
+
+            final Class fieldType = field.getType();
+
+            if (isSimple(fieldType)) {
+                if (fieldType.equals(String.class)) {
+                    field.set(obj, value[0]);
+                }
+                return Optional.of(obj);
+            }
+
+            if (Collection.class.isAssignableFrom(fieldType)) {
+                Class collectionParamType = resolveCollectionParameter(field.getGenericType());
+                if (isSimple(collectionParamType)) {
+
+                    if (String.class.equals(collectionParamType)) {
+                        field.set(obj, Arrays.asList(value));
+                    }
+
+                }
+
+            }
+
+            if (Objects.isNull(field.get(obj))) {
+                Method createMethod = field.getType().getDeclaredMethod("create");
+                createMethod.setAccessible(true);
+                Object nested = createMethod.invoke(null);
+                field.set(obj, nested);
+                return Optional.of((T) nested);
+            }
+            return Optional.empty();
+        };
+        return ReflectCallback.execute(reflectCallback);
     }
 
 }

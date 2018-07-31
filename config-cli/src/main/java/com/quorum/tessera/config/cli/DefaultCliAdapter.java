@@ -83,9 +83,9 @@ public class DefaultCliAdapter implements CliAdapter {
 
         overrideOptions.entrySet().forEach(entry -> {
 
-            String optionName = entry.getKey();
+            final String optionName = entry.getKey();
 
-            boolean isCollection = optionName.contains("[]");
+            final boolean isCollection = entry.getValue().isArray();
 
             Class optionType = entry.getValue();
 
@@ -110,14 +110,15 @@ public class DefaultCliAdapter implements CliAdapter {
             return new CliResult(0, true, null);
         }
 
-        CommandLineParser parser = new DefaultParser();
+        final CommandLineParser parser = new DefaultParser();
 
         try {
 
-            CommandLine line = parser.parse(options, args);
+            final CommandLine line = parser.parse(options, args);
+            
+            final Config config = parseConfig(line);
 
-            Config config = parseConfig(line);
-
+            
             if (line.hasOption("pidfile")) {
                 createPidFile(line);
             }
