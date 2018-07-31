@@ -16,6 +16,7 @@ public enum TrustMode {
         public SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, OperatorCreationException, IOException {
             return SSLContextBuilder
                 .createBuilder(
+                    properties.getAddress(),
                     properties.getKeyStore(),
                     properties.getKeyStorePassword(),
                     properties.getTrustStore(),
@@ -34,6 +35,7 @@ public enum TrustMode {
         public SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, IOException, OperatorCreationException {
             return SSLContextBuilder
                 .createBuilder(
+                    properties.getAddress(),
                     properties.getKeyStore(),
                     properties.getKeyStorePassword(),
                     properties.getTrustStore(),
@@ -52,6 +54,7 @@ public enum TrustMode {
         public SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, IOException, OperatorCreationException {
             return SSLContextBuilder
                 .createBuilder(
+                    properties.getAddress(),
                     properties.getKeyStore(),
                     properties.getKeyStorePassword(),
                     properties.getTrustStore(),
@@ -70,6 +73,7 @@ public enum TrustMode {
         public SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, IOException, OperatorCreationException {
             return SSLContextBuilder
                 .createBuilder(
+                    properties.getAddress(),
                     properties.getKeyStore(),
                     properties.getKeyStorePassword(),
                     properties.getTrustStore(),

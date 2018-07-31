@@ -41,6 +41,8 @@ public class SSLContextBuilderTest {
 
     private static final String PASSWORD = "quorum";
 
+    private static final String LOCALHOST = "localhost";
+
     private SSLContextBuilder sslContextBuilder;
 
     public SSLContextBuilderTest() {
@@ -54,12 +56,13 @@ public class SSLContextBuilderTest {
         certificate = Paths.get(getClass().getResource("/cert.pem").toURI());
         trustedCertificates = Arrays.asList(certificate);
         sslContextBuilder = SSLContextBuilder.createBuilder(
+            LOCALHOST,
             keyStoreFile,
             PASSWORD,
             keyStoreFile,
             PASSWORD
         );
-        TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(keyStoreFile, PASSWORD);
+        TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(LOCALHOST, keyStoreFile, PASSWORD);
     }
 
     @Test
@@ -127,7 +130,7 @@ public class SSLContextBuilderTest {
 
         assertThat(Files.exists(nonExistedFile)).isFalse();
 
-        SSLContextBuilder otherContextBuilder = SSLContextBuilder.createBuilder(
+        SSLContextBuilder otherContextBuilder = SSLContextBuilder.createBuilder(LOCALHOST,
             nonExistedFile, "password", keyStoreFile, PASSWORD);
 
         assertThat(otherContextBuilder.forCASignedCertificates().build()).isNotNull();
@@ -141,7 +144,7 @@ public class SSLContextBuilderTest {
     @Test
     public void testBuildUsingPemFiles() throws IOException, GeneralSecurityException, OperatorCreationException {
 
-        SSLContext context = SSLContextBuilder.createBuilder(null, null, null, null)
+        SSLContext context = SSLContextBuilder.createBuilder(LOCALHOST,null, null, null, null)
             .fromPemFiles(key, certificate, trustedCertificates)
             .forCASignedCertificates()
             .build();

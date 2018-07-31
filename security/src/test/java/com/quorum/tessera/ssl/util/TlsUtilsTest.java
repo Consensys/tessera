@@ -35,7 +35,7 @@ public class TlsUtilsTest {
 
         assertThat(Files.exists(privateKeyFile)).isFalse();
 
-        TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(privateKeyFile,PASSWORD);
+        TlsUtils.create().generateKeyStoreWithSelfSignedCertificate("FIXME", privateKeyFile,PASSWORD);
 
         assertThat(Files.exists(privateKeyFile)).isTrue();
 
