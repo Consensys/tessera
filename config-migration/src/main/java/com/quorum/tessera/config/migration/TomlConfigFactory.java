@@ -98,36 +98,39 @@ public class TomlConfigFactory implements ConfigFactory {
 
         List<String> alwaysSendToList = toml.getList("alwayssendto", Collections.EMPTY_LIST);
 
-        String tlsserverkey = toml.getString("tlsserverkey", "tls-server-key.pem");
+        Path tlsserverkey = Paths.get(workdir, toml.getString("tlsserverkey", "tls-server-key.pem"));
 
         List<String> tlsserverchain = toml.getList("tlsserverchain", Collections.EMPTY_LIST);
 
         String storage = toml.getString("storage");
 
-        final String tlsclientkey = toml.getString("tlsclientkey", "tls-client-key.pem");
+        final Path tlsclientkey = Paths.get(workdir, toml.getString("tlsclientkey", "tls-client-key.pem"));
 
-        final String tlsservercert = toml.getString("tlsservercert", "tls-server-cert.pem");
+        final Path tlsservercert = Paths.get(workdir, toml.getString("tlsservercert", "tls-server-cert.pem"));
+
+        final Path tlsclientcert = Paths.get(workdir, toml.getString("tlsclientcert", "tls-client-cert.pem"));
 
         final String tlsservertrust = toml.getString("tlsservertrust", "tofu");
 
         final String tlsclienttrust = toml.getString("tlsclienttrust", "ca-or-tofu");
 
-        final String tlsknownservers = toml.getString("tlsknownservers", "tls-known-servers");
+        final Path tlsknownservers = Paths.get(workdir, toml.getString("tlsknownservers", "tls-known-servers"));
 
-        final String tlsknownclients = toml.getString("tlsknownclients", "tls-known-clients");
+        final Path tlsknownclients = Paths.get(workdir, toml.getString("tlsknownclients", "tls-known-clients"));
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
                 .serverPort(port)
                 .serverHostname(url)
                 .unixSocketFile(unixSocketFile)
                 .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
-                .sslServerKeyStorePath(tlsserverkey)
+                .sslServerTlsKeyPath(tlsserverkey)
                 .sslServerTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsservertrust))
                 .sslServerTrustStorePath(tlsservertrust)
                 .sslClientTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsclienttrust))
-                .sslClientKeyStorePath(tlsclientkey)
+                .sslClientTlsKeyPath(tlsclientkey)
                 .sslClientKeyStorePassword("")
-                .sslClientTrustStorePath(tlsservercert)
+                .sslServerTlsCertificatePath(tlsservercert)
+                .sslClientTlsCertificatePath(tlsclientcert)
                 .sslKnownClientsFile(tlsknownclients)
                 .sslKnownServersFile(tlsknownservers)
                 .peers(othernodes)
