@@ -16,7 +16,7 @@ import static org.mockito.Mockito.verify;
 
 public class TesseraScheduledExecutorTest {
 
-    private static final long RATE = 2L;
+    private static final long RATE = 2000L;
 
     private ScheduledExecutorService executorService;
 
@@ -36,7 +36,7 @@ public class TesseraScheduledExecutorTest {
     public void start() {
         tesseraScheduledExecutor.start();
 
-        verify(executorService).scheduleWithFixedDelay(any(Runnable.class), eq(RATE), eq(RATE), eq(TimeUnit.SECONDS));
+        verify(executorService).scheduleWithFixedDelay(any(Runnable.class), eq(RATE), eq(RATE), eq(TimeUnit.MILLISECONDS));
     }
 
     @Test

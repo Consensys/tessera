@@ -50,7 +50,7 @@ public class TesseraScheduledExecutor {
             }
         };
 
-        this.executor.scheduleWithFixedDelay(exceptionSafeRunnable, rateInSeconds, rateInSeconds, TimeUnit.SECONDS);
+        this.executor.scheduleWithFixedDelay(exceptionSafeRunnable, rateInSeconds, rateInSeconds, TimeUnit.MILLISECONDS);
 
         LOGGER.info("Started {}", this.action.getClass().getSimpleName());
     }
