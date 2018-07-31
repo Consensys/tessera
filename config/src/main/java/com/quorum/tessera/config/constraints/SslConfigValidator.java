@@ -29,10 +29,6 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
                 return true;
             }
 
-            if (sslConfig.getTls() == SslAuthenticationMode.OFF) {
-                return true;
-            }
-
             if (sslConfig.getTls() == SslAuthenticationMode.STRICT) {
                 if (!sslConfig.isGenerateKeyStoreIfNotExisted()) {
                     if (Objects.isNull(sslConfig.getServerKeyStore()) ||

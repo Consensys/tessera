@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -70,6 +71,14 @@ public class SslConfigValidatorTest {
     public void testSslConfigNotNullButTlsOff() {
         SslConfig sslConfig = new SslConfig(
                 SslAuthenticationMode.OFF, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null,null,null,null,null
+        );
+        assertThat(validator.isValid(sslConfig, context)).isTrue();
+    }
+
+    @Test
+    public void testTlsAllowKeyStoreGeneration() {
+        SslConfig sslConfig = new SslConfig(
+            SslAuthenticationMode.STRICT, true, null, null, null, null, SslTrustMode.NONE, null, null, null, null, SslTrustMode.NONE, null, null, null, null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isTrue();
     }
@@ -192,17 +201,17 @@ public class SslConfigValidatorTest {
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", tmpFile, "p", SslTrustMode.NONE, tmpFile, "password", null, null, SslTrustMode.CA, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", tmpFile, "p", SslTrustMode.CA, tmpFile, "password", null, null, SslTrustMode.CA, null, null, null, null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", tmpFile, null, SslTrustMode.NONE, tmpFile, "password", tmpFile, null, SslTrustMode.CA, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", tmpFile, null, SslTrustMode.CA, tmpFile, "password", tmpFile, null, SslTrustMode.CA, null, null, null, null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", Paths.get("somefile"), "password", SslTrustMode.NONE, tmpFile, "password", Paths.get("somefile"), "p", SslTrustMode.CA, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", Paths.get("somefile"), "password", SslTrustMode.CA, tmpFile, "password", Paths.get("somefile"), "p", SslTrustMode.CA, null, null, null, null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
     }
@@ -210,7 +219,15 @@ public class SslConfigValidatorTest {
     @Test
     public void testNoKeyStoreFilesButPemFilesProvided() {
         SslConfig sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT, false, tmpFile, null, null, null, SslTrustMode.TOFU, null, null, null, null, SslTrustMode.TOFU, null, null, null, null, tmpFile,tmpFile,tmpFile,tmpFile
+            SslAuthenticationMode.STRICT, false, null, null, null, null, SslTrustMode.CA, null, null, null, null, SslTrustMode.CA, null, null, Arrays.asList(tmpFile), Arrays.asList(tmpFile), tmpFile,tmpFile,tmpFile,tmpFile
+        );
+        assertThat(validator.isValid(sslConfig, context)).isTrue();
+    }
+
+    @Test
+    public void testValidSsl() {
+        SslConfig sslConfig = new SslConfig(
+            SslAuthenticationMode.STRICT, false, tmpFile, "pw", tmpFile, "pw", SslTrustMode.CA, tmpFile, "pw", tmpFile, "pw", SslTrustMode.CA, tmpFile, tmpFile, Arrays.asList(tmpFile), Arrays.asList(tmpFile), tmpFile,tmpFile,tmpFile,tmpFile
         );
         assertThat(validator.isValid(sslConfig, context)).isTrue();
     }
