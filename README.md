@@ -2,7 +2,7 @@
 [![codecov](https://codecov.io/gh/QuorumEngineering/tessera/branch/master/graph/badge.svg?token=XMRVPC5FLQ)](https://codecov.io/gh/QuorumEngineering/tessera)
 
 
-# <img src="TesseraLogo.png" width="100" height="100"/>
+# <img src="TesseraLogo.png" width="150" height="150"/>
 
 A stateless Java implementation responsible for encryption and decryption of private transaction data and for off-chain private messaging. Each Tessera node:
 
