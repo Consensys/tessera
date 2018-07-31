@@ -29,27 +29,34 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
                 return true;
             }
 
-            if (sslConfig.getTls() == SslAuthenticationMode.OFF) {
-                return true;
-            }
-
             if (sslConfig.getTls() == SslAuthenticationMode.STRICT) {
                 if (!sslConfig.isGenerateKeyStoreIfNotExisted()) {
                     if (Objects.isNull(sslConfig.getServerKeyStore()) ||
                         Objects.isNull(sslConfig.getServerKeyStorePassword()) ||
                         Files.notExists(sslConfig.getServerKeyStore())) {
-                        setMessage("Server keystore configuration not valid. " +
-                            "Please ensure keystore file exists or keystore password not null, " +
-                            "otherwise please set keystore generation flag to true to have keystore created", context);
-                        return false;
+                        if (Objects.isNull(sslConfig.getServerTlsKeyPath()) ||
+                            Objects.isNull(sslConfig.getServerTlsCertificatePath()) ||
+                            Files.notExists(sslConfig.getServerTlsKeyPath()) ||
+                            Files.notExists(sslConfig.getServerTlsCertificatePath())) {
+                            setMessage("Server keystore configuration not valid. " +
+                                "Please ensure keystore file exists or keystore password not null, " +
+                                "otherwise please set keystore generation flag to true to have keystore created", context);
+                            return false;
+                        }
                     }
+
                     if (Objects.isNull(sslConfig.getClientKeyStore()) ||
                         Objects.isNull(sslConfig.getClientKeyStorePassword()) ||
                         Files.notExists(sslConfig.getClientKeyStore())) {
-                        setMessage("Client keystore configuration not valid. " +
-                            "Please ensure keystore file exists or keystore password not null, " +
-                            "otherwise please set keystore generation flag to true to have keystore created", context);
-                        return false;
+                        if (Objects.isNull(sslConfig.getClientTlsKeyPath()) ||
+                            Objects.isNull(sslConfig.getClientTlsCertificatePath()) ||
+                            Files.notExists(sslConfig.getClientTlsKeyPath()) ||
+                            Files.notExists(sslConfig.getClientTlsCertificatePath())) {
+                            setMessage("Client keystore configuration not valid. " +
+                                "Please ensure keystore file exists or keystore password not null, " +
+                                "otherwise please set keystore generation flag to true to have keystore created", context);
+                            return false;
+                        }
                     }
                 }
 
@@ -70,8 +77,10 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
                     if (Objects.isNull(sslConfig.getServerTrustStore()) ||
                         Objects.isNull(sslConfig.getServerTrustStorePassword()) ||
                         Files.notExists(sslConfig.getServerTrustStore())) {
-                        setMessage("Trust store config not valid. If server trust mode is CA, trust store must exist and not be null", context);
-                        return false;
+                        if (Objects.isNull(sslConfig.getServerTrustCertificates())) {
+                            setMessage("Trust store config not valid. If server trust mode is CA, trust store must exist and not be null", context);
+                            return false;
+                        }
                     }
                 }
 
@@ -87,8 +96,10 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
                     if (Objects.isNull(sslConfig.getClientTrustStore()) ||
                         Objects.isNull(sslConfig.getClientTrustStorePassword()) ||
                         Files.notExists(sslConfig.getClientTrustStore())) {
-                        setMessage("Trust store config not valid. If client trust mode is CA, trust store must exist and not be null", context);
-                        return false;
+                        if (Objects.isNull(sslConfig.getClientTrustCertificates())) {
+                            setMessage("Trust store config not valid. If client trust mode is CA, trust store must exist and not be null", context);
+                            return false;
+                        }
                     }
                 }
             }

@@ -30,7 +30,7 @@ public class ClientSSLContextFactoryTest {
         when(config.getClientTrustStorePassword()).thenReturn("password");
         when(config.getKnownServersFile()).thenReturn(knownServers);
 
-        SSLContext result = ClientSSLContextFactory.create().from(config);
+        SSLContext result = ClientSSLContextFactory.create().from("localhost",config);
 
         assertThat(result).isNotNull();
 
@@ -50,7 +50,7 @@ public class ClientSSLContextFactoryTest {
         when(config.getClientTrustStorePassword()).thenReturn("password");
         when(config.getKnownServersFile()).thenReturn(knownServers);
 
-        ClientSSLContextFactory.create().from(config);
+        ClientSSLContextFactory.create().from("localhost",config);
 
     }
 }

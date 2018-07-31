@@ -13,13 +13,14 @@ import java.security.GeneralSecurityException;
 public class ServerSSLContextFactoryImpl implements ServerSSLContextFactory {
 
     @Override
-    public SSLContext from(SslConfig sslConfig) {
+    public SSLContext from(String address, SslConfig sslConfig) {
 
         TrustMode trustMode = TrustMode
             .getValueIfPresent(sslConfig.getServerTrustMode().name())
             .orElse(TrustMode.NONE);
 
         final SSLContextProperties properties = new SSLContextProperties(
+            address,
             sslConfig.getServerKeyStore(),
             sslConfig.getServerKeyStorePassword(),
             sslConfig.getServerTlsKeyPath(),

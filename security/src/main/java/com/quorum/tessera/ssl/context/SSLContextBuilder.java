@@ -22,6 +22,7 @@ public class SSLContextBuilder {
 
     private static final String PROTOCOL = "TLS";
 
+    private String address;
     private Path keyStore;
     private String keyStorePassword;
     private Path key;
@@ -32,10 +33,12 @@ public class SSLContextBuilder {
 
     private SSLContext sslContext;
 
-    private SSLContextBuilder(Path keyStore,
+    private SSLContextBuilder(String address,
+                              Path keyStore,
                               String keyStorePassword,
                               Path trustStore,
                               String trustStorePassword) throws NoSuchAlgorithmException {
+        this.address = address;
         this.keyStore = keyStore;
         this.keyStorePassword = keyStorePassword;
         this.trustStore = trustStore;
@@ -45,8 +48,9 @@ public class SSLContextBuilder {
     }
 
 
-    public static SSLContextBuilder createBuilder(Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword) throws NoSuchAlgorithmException {
+    public static SSLContextBuilder createBuilder(String address, Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword) throws NoSuchAlgorithmException {
         return new SSLContextBuilder(
+            address,
             keyStore,
             keyStorePassword,
             trustStore,
@@ -109,7 +113,7 @@ public class SSLContextBuilder {
 
         if (Objects.nonNull(this.keyStore)) {
             if (Files.notExists(this.keyStore)) {
-                TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(this.keyStore, this.keyStorePassword);
+                TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(this.address, this.keyStore, this.keyStorePassword);
             }
             return SSLKeyStoreLoader.fromJksKeyStore(this.keyStore, this.keyStorePassword);
         } else {

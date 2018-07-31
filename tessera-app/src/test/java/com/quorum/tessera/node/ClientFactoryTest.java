@@ -10,6 +10,9 @@ import org.junit.Test;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -43,20 +46,21 @@ public class ClientFactoryTest {
     }
 
     @Test
-    public void testBuildSecureClientCAMode() {
+    public void testBuildSecureClientCAMode() throws URISyntaxException {
 
         ServerConfig serverConfig = mock(ServerConfig.class);
         SslConfig sslConfig = mock(SslConfig.class);
         when(serverConfig.isSsl()).thenReturn(true);
+        when(serverConfig.getServerUri()).thenReturn(new URI("https://localhost:8080"));
         when(serverConfig.getSslConfig()).thenReturn(sslConfig);
         
         SSLContext sslContext = mock(SSLContext.class);
-        when(sslContextFactory.from(sslConfig)).thenReturn(sslContext);
+        when(sslContextFactory.from(serverConfig.getServerUri().toString(),sslConfig)).thenReturn(sslContext);
         
         Client client = factory.buildFrom(serverConfig);
         assertThat(client).isNotNull();
 
-        verify(sslContextFactory).from(sslConfig);
+        verify(sslContextFactory).from(serverConfig.getServerUri().toString(),sslConfig);
     }
 
 }

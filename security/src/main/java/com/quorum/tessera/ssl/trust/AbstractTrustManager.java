@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 abstract class AbstractTrustManager implements X509TrustManager {
@@ -19,11 +19,11 @@ abstract class AbstractTrustManager implements X509TrustManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTrustManager.class);
 
     private Path knownHostsFile;
-    private List<String> certificates;
+    private Map<String, String> certificates;
 
     AbstractTrustManager(final Path knownHostsFile) throws IOException {
         this.knownHostsFile = knownHostsFile;
-        certificates = new ArrayList<>();
+        certificates = new HashMap<>();
         getWhiteListedCertificateForServerAddress();
     }
 
@@ -36,7 +36,8 @@ abstract class AbstractTrustManager implements X509TrustManager {
             try (BufferedReader reader = Files.newBufferedReader(knownHostsFile)) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    this.certificates.add(line);
+                    String[] items = line.split(" ");
+                    this.certificates.put(items[0], items[1]);
                 }
             }
         }
@@ -56,22 +57,26 @@ abstract class AbstractTrustManager implements X509TrustManager {
         }
     }
 
-    void addServerToKnownHostsList(String thumbPrint) throws IOException {
+    void addServerToKnownHostsList(String address, String thumbPrint) throws IOException {
         LOGGER.info("Add entry to known host file");
 
         generateWhiteListedFileIfNotExisted();
 
-        this.certificates.add(thumbPrint);
+        this.certificates.put(address, thumbPrint);
 
         try (BufferedWriter writer = Files.newBufferedWriter(knownHostsFile, StandardOpenOption.APPEND))
         {
-            writer.write(thumbPrint);
+            writer.write(address + " " + thumbPrint);
             writer.newLine();
         }
     }
 
-    boolean certificateExistsInKnownHosts(String thumbPrint) {
-        return this.certificates.stream().anyMatch(cert -> thumbPrint.equals(cert));
+    boolean certificateExistsInKnownHosts(String address) {
+        return this.certificates.containsKey(address);
+    }
+
+    boolean certificateValidForKnownHost(String address, String thumbPrint) {
+        return this.certificates.get(address).equals(thumbPrint);
     }
 
 }
