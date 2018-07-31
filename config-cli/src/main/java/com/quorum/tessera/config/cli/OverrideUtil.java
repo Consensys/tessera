@@ -1,20 +1,44 @@
 package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.InfluxConfig;
+import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.reflect.ReflectCallback;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
+import javax.xml.bind.annotation.XmlElement;
 
 public interface OverrideUtil {
 
-    static List<String> buildConfigOptions() {
-        return fields("config", Config.class);
+    static Map<String, Class> buildConfigOptions() {
+        return fields(null, Config.class);
+    }
+
+    //FIXME: Need to change @XmlElement#name()
+    Map<Class, String> ELEMENT_NAME_ALIASES = new HashMap<Class, String>() {
+        {
+            put(SslConfig.class, "ssl");
+            put(InfluxConfig.class, "influx");
+        }
+    };
+
+    static String resolveName(Field field) {
+        if (!field.isAnnotationPresent(XmlElement.class)) {
+            return field.getName();
+        }
+        XmlElement xmlElement = field.getAnnotation(XmlElement.class);
+
+        String name = ELEMENT_NAME_ALIASES.getOrDefault(field.getType(), xmlElement.name());
+
+        return Objects.equals("##default", name) ? field.getName() : name;
     }
 
     static Class resolveCollectionParameter(Type type) {
@@ -28,52 +52,65 @@ public interface OverrideUtil {
     }
 
     static boolean isSimple(Field field) {
-        
-        
-            if (field.getType().getPackage() == null) {
-               return true;
-            }
-
-            if (field.getType().equals(String.class)) {
-                return true;
-            }
-
-            if (field.getType().equals(Path.class)) {
-                return true;
-            }
-
-            if (field.getType().equals(Integer.class)) {
-                return true;
-            }
-
-            if (field.getType().isEnum()) {
-                return true;
-            }
-            return false;
+        return isSimple(field.getType());
     }
-    
-    static List<String> fields(String prefix, Class type) {
-        List<String> list = new ArrayList<>();
+
+    static boolean isSimple(Class type) {
+
+        if (type.getPackage() == null) {
+            return true;
+        }
+
+        if (type.equals(String.class)) {
+            return true;
+        }
+
+        if (type.equals(Path.class)) {
+            return true;
+        }
+
+        if (type.equals(Integer.class)) {
+            return true;
+        }
+
+        if (type.isEnum()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    static Map<String, Class> fields(String prefix, Class type) {
+        
+        String amendedPrefix = Optional.ofNullable(prefix)
+                .map(s -> s.concat("."))
+                .orElse("");
+        
+        Map<String, Class> list = new HashMap<>();
         for (Field field : type.getDeclaredFields()) {
 
             if (isSimple(field)) {
-                list.add(prefix + "." + field.getName());
+                list.put(amendedPrefix + resolveName(field), field.getType());
                 continue;
             }
 
             if (field.getType().getPackage().equals(Config.class.getPackage())) {
-                list.addAll(fields(prefix + "." + field.getName(), field.getType()));
-            } 
-            
-            if(Collection.class.isAssignableFrom(field.getType())) {
-              Class t =   resolveCollectionParameter(field.getGenericType());
-               list.addAll(fields(prefix + "." + field.getName() +"[]",t));
+                list.putAll(fields(amendedPrefix + resolveName(field), field.getType()));
+            }
+
+            if (Collection.class.isAssignableFrom(field.getType())) {
+                Class t = resolveCollectionParameter(field.getGenericType());
+
+                if (isSimple(t)) {
+                    list.put(amendedPrefix + resolveName(field) + "[]", t);
+                } else {
+                    list.putAll(fields(amendedPrefix + resolveName(field) + "[]", t));
+                }
             }
         }
 
         return list;
 
     }
-
 
 }

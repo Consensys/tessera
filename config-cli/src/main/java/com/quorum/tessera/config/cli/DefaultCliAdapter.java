@@ -19,6 +19,7 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -80,6 +81,37 @@ public class DefaultCliAdapter implements CliAdapter {
                         .argName("PATH")
                         .build());
 
+        
+   
+        Map<String,Class> overrideOptions = OverrideUtil.buildConfigOptions();
+        
+        overrideOptions.entrySet().forEach(entry -> {
+        
+            String optionName = entry.getKey();
+            
+            boolean isCollection = optionName.contains("[]");
+            
+            Class optionType = entry.getValue();
+            
+            Option.Builder optionBuilder = Option.builder()
+                    .longOpt(optionName)
+                    .desc(String.format("Override option for %s , type: %s", optionName,optionType.getSimpleName()));
+            
+            if(isCollection) {
+               optionBuilder.hasArgs();
+            } else {
+                optionBuilder.hasArg();
+            }
+            options.addOption(optionBuilder.build());
+
+        });
+        
+        
+        
+        
+        
+        
+        
         if (Arrays.asList(args).contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("tessera -configfile <PATH> [-keygen <PATH>] [-pidfile <PATH>]", options);

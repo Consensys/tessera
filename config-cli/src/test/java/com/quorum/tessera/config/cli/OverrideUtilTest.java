@@ -1,7 +1,9 @@
 package com.quorum.tessera.config.cli;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
@@ -12,63 +14,65 @@ public class OverrideUtilTest {
     public void buildOptions() throws Exception {
 
         List<String> expected = Arrays.asList(
-                "config.jdbcConfig.username",
-                "config.jdbcConfig.password",
-                "config.jdbcConfig.url",
-                "config.serverConfig.hostName",
-                "config.serverConfig.port",
-                "config.serverConfig.sslConfig.tls",
-                "config.serverConfig.sslConfig.generateKeyStoreIfNotExisted",
-                "config.serverConfig.sslConfig.serverKeyStore",
-                "config.serverConfig.sslConfig.serverTlsKeyPath",
-                "config.serverConfig.sslConfig.serverTlsCertificatePath",
-                "config.serverConfig.sslConfig.serverKeyStorePassword",
-                "config.serverConfig.sslConfig.serverTrustStore",
-                "config.serverConfig.sslConfig.serverTrustStorePassword",
-                "config.serverConfig.sslConfig.serverTrustMode",
-                "config.serverConfig.sslConfig.clientKeyStore",
-                "config.serverConfig.sslConfig.clientTlsKeyPath",
-                "config.serverConfig.sslConfig.clientTlsCertificatePath",
-                "config.serverConfig.sslConfig.clientKeyStorePassword",
-                "config.serverConfig.sslConfig.clientTrustStore",
-                "config.serverConfig.sslConfig.clientTrustStorePassword",
-                "config.serverConfig.sslConfig.clientTrustMode",
-                "config.serverConfig.sslConfig.knownClientsFile",
-                "config.serverConfig.sslConfig.knownServersFile",
-                "config.serverConfig.influxConfig.hostName",
-                "config.serverConfig.influxConfig.port",
-                "config.serverConfig.influxConfig.dbName",
-                "config.peers[].url",
-                "config.keys.passwordFile",
-                "config.keys.passwords[].value",
-                "config.keys.passwords[].hash",
-                "config.keys.passwords[].serialVersionUID",
-                "config.keys.passwords[].serialPersistentFields",
-                "config.keys.keyData[].config.privateKeyData.value",
-                "config.keys.keyData[].config.privateKeyData.snonce",
-                "config.keys.keyData[].config.privateKeyData.asalt",
-                "config.keys.keyData[].config.privateKeyData.sbox",
-                "config.keys.keyData[].config.privateKeyData.argonOptions.algorithm",
-                "config.keys.keyData[].config.privateKeyData.argonOptions.iterations",
-                "config.keys.keyData[].config.privateKeyData.argonOptions.memory",
-                "config.keys.keyData[].config.privateKeyData.argonOptions.parallelism",
-                "config.keys.keyData[].config.privateKeyData.password",
-                "config.keys.keyData[].config.type",
-                "config.keys.keyData[].privateKey",
-                "config.keys.keyData[].publicKey",
-                "config.keys.keyData[].privateKeyPath",
-                "config.keys.keyData[].publicKeyPath",
-                "config.fowardingList[].key",
-                "config.unixSocketFile",
-                "config.useWhiteList"
+                "jdbc.username",
+                "jdbc.password",
+                "jdbc.url",
+                "server.hostName",
+                "server.port",
+                "server.ssl.tls",
+                "server.ssl.generateKeyStoreIfNotExisted",
+                "server.ssl.serverKeyStore",
+                "server.ssl.serverTlsKeyPath",
+                "server.ssl.serverTlsCertificatePath",
+                "server.ssl.serverKeyStorePassword",
+                "server.ssl.serverTrustStore",
+                "server.ssl.serverTrustStorePassword",
+                "server.ssl.serverTrustMode",
+                "server.ssl.clientKeyStore",
+                "server.ssl.clientTlsKeyPath",
+                "server.ssl.clientTlsCertificatePath",
+                "server.ssl.clientKeyStorePassword",
+                "server.ssl.clientTrustStore",
+                "server.ssl.clientTrustStorePassword",
+                "server.ssl.clientTrustMode",
+                "server.ssl.knownClientsFile",
+                "server.ssl.knownServersFile",
+                "server.influx.hostName",
+                "server.influx.port",
+                "server.influx.dbName",
+                "peer[].url",
+                "keys.passwordFile",
+                "keys.passwords[]",
+                "keys.keyData[].config.data.bytes",
+                "keys.keyData[].config.data.snonce",
+                "keys.keyData[].config.data.asalt",
+                "keys.keyData[].config.data.sbox",
+                "keys.keyData[].config.data.aopts.algorithm",
+                "keys.keyData[].config.data.aopts.iterations",
+                "keys.keyData[].config.data.aopts.memory",
+                "keys.keyData[].config.data.aopts.parallelism",
+                "keys.keyData[].config.data.password",
+                "keys.keyData[].config.type",
+                "keys.keyData[].privateKey",
+                "keys.keyData[].publicKey",
+                "keys.keyData[].privateKeyPath",
+                "keys.keyData[].publicKeyPath",
+                "alwaysSendTo[].key",
+                "unixSocketFile",
+                "useWhiteList",
+                "server.ssl.clientTrustCertificates[]",
+                "server.ssl.serverTrustCertificates[]"
         );
 
-        List<String> results = OverrideUtil.buildConfigOptions();
+        Map<String,Class> results = OverrideUtil.buildConfigOptions();
 
-        assertThat(results)
+        assertThat(results.keySet())
                 .filteredOn(s -> !s.contains("$jacocoData"))
                 .containsExactlyInAnyOrderElementsOf(expected);
 
+                assertThat(results.get("server.ssl.knownClientsFile")).isEqualTo(Path.class);
+                assertThat(results.get("keys.passwords[]")).isEqualTo(String.class);
+        
     }
 
 }
