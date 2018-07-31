@@ -122,11 +122,11 @@ public class DefaultCliAdapter implements CliAdapter {
             throw new FileNotFoundException(String.format("%s not found.", path));
         }
 
-        final List<InputStream> keyGetConfigs = getKeyGenConfig(commandLine);
+        final List<InputStream> keyGenConfigs = getKeyGenConfig(commandLine);
 
         final Config config;
         try (InputStream in = Files.newInputStream(path)) {
-            config = configFactory.create(in, keyGetConfigs.toArray(new InputStream[0]));
+            config = configFactory.create(in, keyGenConfigs.toArray(new InputStream[0]));
         }
 
         Set<ConstraintViolation<Config>> violations = validator.validate(config);
@@ -135,7 +135,7 @@ public class DefaultCliAdapter implements CliAdapter {
             throw new ConstraintViolationException(violations);
         }
 
-        if (!keyGetConfigs.isEmpty()) {
+        if (!keyGenConfigs.isEmpty()) {
             //we have generated new keys, so we need to output the new configuration
             output(commandLine,config);
         }
