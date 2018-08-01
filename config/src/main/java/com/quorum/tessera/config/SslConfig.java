@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElements;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
@@ -41,9 +40,6 @@ public class SslConfig {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path serverTrustStore;
 
-    @XmlElements({
-        @XmlElement(type = Path.class)
-    })
     @XmlElement
     @XmlJavaTypeAdapter(value = PathAdapter.class)
     private final List<Path> serverTrustCertificates;
@@ -73,9 +69,6 @@ public class SslConfig {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path clientTrustStore;
 
-    @XmlElements({
-        @XmlElement(type = Path.class)
-    })
     @XmlElement
     @XmlJavaTypeAdapter(value = PathAdapter.class)
     private final List<Path> clientTrustCertificates;
