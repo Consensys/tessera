@@ -76,7 +76,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
 
-//        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1"); //TODO This fails
+        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1:9001/");
         assertThat(result.getConfig().get().getServerConfig().getPort()).isEqualTo(9001);
         assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("data/constellation.ipc");
         assertThat(result.getConfig().get().getPeers().size()).isEqualTo(1);
@@ -130,6 +130,7 @@ public class LegacyCliAdapterTest {
 
         String[] args = {
             "--tomlfile=" + configFile.toString(),
+            "--url=http://override",
             "--port=1111",
             "--workdir=override",
             "--socket=cli.ipc",
@@ -158,7 +159,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
 
-//        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://override"); //TODO This fails
+        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://override");
         assertThat(result.getConfig().get().getServerConfig().getPort()).isEqualTo(1111);
         assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("override/cli.ipc");
         assertThat(result.getConfig().get().getPeers().size()).isEqualTo(1);
