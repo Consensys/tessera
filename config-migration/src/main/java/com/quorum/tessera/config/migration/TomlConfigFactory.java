@@ -60,8 +60,8 @@ public class TomlConfigFactory implements ConfigFactory {
         Integer port = Optional.ofNullable(toml.getLong("port"))
                 .map(Long::intValue).orElse(null);
 
-        String workdir = toml.getString("workdir", ".");
-        String socket = toml.getString("socket");
+        String workdir = toml.getString("workdir", "");
+        String socket = toml.getString("socket", "temp-socket.ipc");
 
         Path unixSocketFile = Paths.get(workdir, socket);
 
@@ -87,18 +87,19 @@ public class TomlConfigFactory implements ConfigFactory {
             privateKeyPasswords = Collections.unmodifiableList(Collections.EMPTY_LIST);
         }
 
-        KeyConfiguration keyData = KeyDataBuilder.create()
-            .withPublicKeys(publicKeyList)
-            .withPrivateKeys(privateKeyList)
-            .build();
-
-        List<String> alwaysSendToList = toml.getList("alwayssendto", Collections.EMPTY_LIST);
+        KeyConfiguration keyData;
+        if(!publicKeyList.isEmpty() && !privateKeyList.isEmpty()) {
+            keyData = KeyDataBuilder.create()
+                .withPublicKeys(publicKeyList)
+                .withPrivateKeys(privateKeyList)
+                .build();
+        } else {
+            keyData = new KeyConfiguration(null, null, null);
+        }
 
         final List<String> alwaysSendToKeyPaths = toml.getList("alwayssendto", Collections.EMPTY_LIST);
 
-
-
-        String storage = toml.getString("storage");
+        String storage = toml.getString("storage", "memory");
 
         //Server side
         final String tlsservertrust = toml.getString("tlsservertrust", "tofu");

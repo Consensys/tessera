@@ -1,8 +1,6 @@
 package com.quorum.tessera.config.migration;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigFactory;
-import com.quorum.tessera.config.SslAuthenticationMode;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;

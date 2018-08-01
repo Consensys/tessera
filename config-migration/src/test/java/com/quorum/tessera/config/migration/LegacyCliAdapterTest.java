@@ -53,19 +53,21 @@ public class LegacyCliAdapterTest {
     @Test
     public void withoutCliArgsAllConfigIsSetFromTomlFile() throws Exception {
 
-        Path serverKeyStorePath = Files.createTempFile("serverKeyStorePath", ".bog");
-        Path passwordFile = Files.createTempFile("passwords", ".txt");
-        Files.write(passwordFile, Arrays.asList("PASWORD1"));
+        Path forwardFile1 = Files.createTempFile("forward1", ".txt");
+        Files.write(forwardFile1, "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=".getBytes());
 
-        Path sampleFile = Paths.get(getClass().getResource("/sample.conf").toURI());
+        Path forwardFile2 = Files.createTempFile("forward2", ".txt");
+        Files.write(forwardFile2, "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=".getBytes());
+
+        Path sampleFile = Paths.get(getClass().getResource("/sample-toml-no-nulls.conf").toURI());
         Map<String, Object> params = new HashMap<>();
-        params.put("passwordFile", passwordFile);
-        params.put("serverKeyStorePath", serverKeyStorePath);
+        params.put("alwaysSendToPath1", forwardFile1);
+        params.put("alwaysSendToPath2", forwardFile2);
 
-        String data = Files.readAllLines(sampleFile)
-            .stream()
-            .collect(Collectors.joining(System.lineSeparator()));
-
+        String data = ElUtil.process(Files.readAllLines(sampleFile)
+                                        .stream()
+                                        .collect(Collectors.joining(System.lineSeparator()))
+                                    , params);
 
         Path configFile = Files.createTempFile("noOptions", ".txt");
         Files.write(configFile, data.getBytes());
@@ -76,51 +78,48 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
 
-        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1:9001/");
+        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1:9000/");
         assertThat(result.getConfig().get().getServerConfig().getPort()).isEqualTo(9001);
         assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("data/constellation.ipc");
-        assertThat(result.getConfig().get().getPeers().size()).isEqualTo(1);
-        assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://127.0.0.1:9000/");
-        assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(1);
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("foo.pub");
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("foo.key");
-        assertThat(result.getConfig().get().getFowardingList()).isEmpty();
+        assertThat(result.getConfig().get().getPeers().size()).isEqualTo(2);
+        assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://127.0.0.1:9001/");
+        assertThat(result.getConfig().get().getPeers().get(1).getUrl()).isEqualTo("http://127.0.0.1:9002/");
+        assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(2);
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("foo1.pub");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("foo1.key");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(1).getPublicKeyPath().toString()).isEqualTo("foo2.pub");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(1).getPrivateKeyPath().toString()).isEqualTo("foo2.key");
+        assertThat(result.getConfig().get().getFowardingList().size()).isEqualTo(2);
+        assertThat(result.getConfig().get().getFowardingList().get(0).toString()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+        assertThat(result.getConfig().get().getFowardingList().get(1).toString()).isEqualTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=");
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
         assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.STRICT);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("data/tls-server-cert.pem");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates()).isEmpty();
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().size()).isEqualTo(2);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().get(0).toString()).isEqualTo("chain1");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().get(1).toString()).isEqualTo("chain2");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsKeyPath().toString()).isEqualTo("data/tls-server-key.pem");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownClientsFile().toString()).isEqualTo("data/tls-known-clients");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsCertificatePath().toString()).isEqualTo("data/tls-client-cert.pem");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates()).isEmpty();
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates().size()).isEqualTo(2);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("data/tls-client-key.pem");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.CA_OR_TOFU);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("data/tls-known-servers");
 
         Files.deleteIfExists(configFile);
-        Files.deleteIfExists(passwordFile);
-        Files.deleteIfExists(serverKeyStorePath);
     }
 
 
     @Test
     public void providingCliArgsOverridesTomlFileConfig() throws Exception {
 
-        Path serverKeyStorePath = Files.createTempFile("serverKeyStorePath", ".bog");
-        Path passwordFile = Files.createTempFile("passwords", ".txt");
-        Files.write(passwordFile, Arrays.asList("PASWORD1"));
-
         Path sampleFile = Paths.get(getClass().getResource("/sample.conf").toURI());
-        Map<String, Object> params = new HashMap<>();
-        params.put("passwordFile", passwordFile);
-        params.put("serverKeyStorePath", serverKeyStorePath);
 
         String data = Files.readAllLines(sampleFile)
             .stream()
             .collect(Collectors.joining(System.lineSeparator()));
-
 
         Path configFile = Files.createTempFile("noOptions", ".txt");
         Files.write(configFile, data.getBytes());
@@ -187,8 +186,44 @@ public class LegacyCliAdapterTest {
 
         Files.deleteIfExists(alwaysSendToFile);
         Files.deleteIfExists(configFile);
-        Files.deleteIfExists(passwordFile);
-        Files.deleteIfExists(serverKeyStorePath);
+    }
+
+    @Test
+    public void ifConfigParameterIsNotSetInTomlOrCliThenDefaultIsUsed() throws Exception {
+
+        Path configFile = Files.createTempFile("emptyConfig", ".txt");
+
+        String[] requiredParams = {
+            "--tomlfile=" + configFile.toString(),
+            "--url=http://127.0.0.1",
+            "--port=9001",
+            "--othernodes=localhost:1111"
+        };
+
+        CliResult result = instance.execute(requiredParams);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+
+        assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("temp-socket.ipc");
+//        assertThat(Optional.ofNullable(result.getConfig().get().getKeys().getKeyData()).isPresent()).isEqualTo(false);
+        assertThat(result.getConfig().get().getFowardingList().size()).isEqualTo(0);
+        assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
+        assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.STRICT);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("tls-server-cert.pem");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().size()).isEqualTo(0);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsKeyPath().toString()).isEqualTo("tls-server-key.pem");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownClientsFile().toString()).isEqualTo("tls-known-clients");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsCertificatePath().toString()).isEqualTo("tls-client-cert.pem");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates().size()).isEqualTo(0);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("tls-client-key.pem");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("tls-known-servers");
+
+        Files.deleteIfExists(configFile);
     }
 
 

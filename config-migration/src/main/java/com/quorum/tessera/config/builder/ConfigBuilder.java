@@ -62,26 +62,21 @@ public class ConfigBuilder {
                 .sslServerKeyStorePassword(sslConfig.getServerKeyStorePassword())
                 .sslServerTrustStorePath(Objects.toString(sslConfig.getServerTrustStore(), null))
                 .sslServerTrustStorePassword(sslConfig.getServerTrustStorePassword())
-            .sslServerTlsKeyPath(sslConfig.getServerTlsKeyPath())
-            .sslServerTlsCertificatePath(sslConfig.getServerTlsCertificatePath())
-            .sslServerTrustCertificates(Objects.isNull(sslConfig.getServerTrustCertificates()) ?
-                EMPTY_LIST :
-                sslConfig.getServerTrustCertificates()
-            )
-            .sslKnownClientsFile(sslConfig.getKnownClientsFile())
-            .sslKnownClientsFile(sslConfig.getKnownClientsFile())
+                .sslServerTlsKeyPath(sslConfig.getServerTlsKeyPath())
+                .sslServerTlsCertificatePath(sslConfig.getServerTlsCertificatePath())
+                .sslServerTrustCertificates(Objects.isNull(sslConfig.getServerTrustCertificates()) ?
+                    EMPTY_LIST :
+                    sslConfig.getServerTrustCertificates()
+                )
+                .sslKnownClientsFile(sslConfig.getKnownClientsFile())
+                .sslKnownClientsFile(sslConfig.getKnownClientsFile())
                 .sslKnownServersFile(sslConfig.getKnownServersFile())
                 .sslClientTlsCertificatePath(sslConfig.getClientTlsCertificatePath())
                 .sslServerTlsCertificatePath(sslConfig.getServerTlsCertificatePath())
                 .keyData(config.getKeys())
                 .sslClientTlsKeyPath(sslConfig.getClientTlsKeyPath())
                 .sslServerTlsKeyPath(sslConfig.getServerTlsKeyPath())
-                .alwaysSendTo(Stream.of(config)
-                    .filter(c -> c.getFowardingList() != null)
-                    .map(Config::getFowardingList)
-                    .flatMap(List::stream)
-                    .map(Key::toString)
-                    .collect(Collectors.toList()));
+                .alwaysSendToKeys(config.getFowardingList());
 
         return configBuilder;
 
@@ -98,6 +93,8 @@ public class ConfigBuilder {
     private List<String> peers;
 
     private List<String> alwaysSendTo;
+
+    private List<Key> alwaysSendToKeys;
 
     private KeyConfiguration keyData;
 
@@ -211,6 +208,11 @@ public class ConfigBuilder {
         return this;
     }
 
+    public ConfigBuilder alwaysSendToKeys(List<Key> alwaysSendToKeys) {
+        this.alwaysSendToKeys = alwaysSendToKeys;
+        return this;
+    }
+
     public ConfigBuilder sslKnownClientsFile(Path knownClientsFile) {
         this.sslKnownClientsFile = knownClientsFile;
         return this;
@@ -320,22 +322,26 @@ public class ConfigBuilder {
                 .map(Peer::new)
                 .collect(Collectors.toList());
 
-        List<String> alwaysSendToKeys = new ArrayList<>();
+        final List<Key> forwardingKeys;
+        if(alwaysSendTo != null) {
+            List<String> keyList = new ArrayList<>();
 
-        for(String keyPath : alwaysSendTo) {
-            try {
-                String key = new String(Files.readAllBytes(Paths.get(keyPath)));
-                alwaysSendToKeys.add(key);
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
+            for(String keyPath : alwaysSendTo) {
+                try {
+                    String key = new String(Files.readAllBytes(Paths.get(keyPath)));
+                    keyList.add(key);
+                } catch (IOException e) {
+                    System.err.println("Error reading alwayssendto file: " + e.getMessage());
+                }
             }
-        }
 
-        final List<Key> forwardingKeys = alwaysSendToKeys
-            .stream()
-            .map(Base64.getDecoder()::decode)
-            .map(Key::new)
-            .collect(Collectors.toList());
+            forwardingKeys = keyList.stream()
+                                    .map(Base64.getDecoder()::decode)
+                                    .map(Key::new)
+                                    .collect(Collectors.toList());
+        } else {
+            forwardingKeys = alwaysSendToKeys;
+        }
 
         final boolean useWhitelist = useWhiteList;
 
