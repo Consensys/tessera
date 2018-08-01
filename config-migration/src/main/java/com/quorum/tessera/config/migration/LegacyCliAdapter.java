@@ -297,6 +297,9 @@ public class LegacyCliAdapter implements CliAdapter {
                 Option.builder()
                         .longOpt("tls")
                         .desc("TLS status (strict, off)")
+                        .optionalArg(false)
+                        .argName("STATUS")
+                        .hasArg()
                         .build()
         );
 

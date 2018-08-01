@@ -139,7 +139,7 @@ public class LegacyCliAdapterTest {
             "--alwayssendto=" + alwaysSendToFile.toString(),
             "--storage=jdbc:test",
             "--socket=cli.ipc",
-//            "--tls=OFF",
+            "--tls=strict",
             "--tlsservercert=over-server-cert.pem",
             "--tlsserverchain=serverchain.file",
 //            "--tlsserverkey=over-server-key.pem",
