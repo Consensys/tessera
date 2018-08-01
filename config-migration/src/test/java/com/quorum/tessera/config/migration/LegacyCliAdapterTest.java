@@ -51,7 +51,7 @@ public class LegacyCliAdapterTest {
     }
 
     @Test
-    public void sampleTomlFileAllItemsAddedToConfigObject() throws Exception {
+    public void withoutCliArgsAllConfigIsSetFromTomlFile() throws Exception {
 
         Path serverKeyStorePath = Files.createTempFile("serverKeyStorePath", ".bog");
         Path passwordFile = Files.createTempFile("passwords", ".txt");
@@ -103,6 +103,90 @@ public class LegacyCliAdapterTest {
         Files.deleteIfExists(passwordFile);
         Files.deleteIfExists(serverKeyStorePath);
     }
+
+
+    @Test
+    public void providingCliArgsOverridesTomlFileConfig() throws Exception {
+
+        Path serverKeyStorePath = Files.createTempFile("serverKeyStorePath", ".bog");
+        Path passwordFile = Files.createTempFile("passwords", ".txt");
+        Files.write(passwordFile, Arrays.asList("PASWORD1"));
+
+        Path sampleFile = Paths.get(getClass().getResource("/sample.conf").toURI());
+        Map<String, Object> params = new HashMap<>();
+        params.put("passwordFile", passwordFile);
+        params.put("serverKeyStorePath", serverKeyStorePath);
+
+        String data = Files.readAllLines(sampleFile)
+            .stream()
+            .collect(Collectors.joining(System.lineSeparator()));
+
+
+        Path configFile = Files.createTempFile("noOptions", ".txt");
+        Files.write(configFile, data.getBytes());
+
+//        Path alwaysSendToFile = Files.createTempFile("alwaysSendTo", ".txt");
+//        Files.write(alwaysSendToFile, "overridepublickey".getBytes());
+
+        String[] args = {
+            "--tomlfile=" + configFile.toString(),
+            "--port=1111",
+            "--workdir=override",
+            "--socket=cli.ipc",
+            "--othernodes=http://others",
+            "--publickeys=new.pub",
+            "--privatekeys=new.key",
+//            "--alwayssendto=path/to/sendto.pub",
+            "--storage=jdbc:test",
+            "--socket=cli.ipc",
+//            "--tls=OFF",
+            "--tlsservercert=over-server-cert.pem",
+            "--tlsserverchain=serverchain.file",
+//            "--tlsserverkey=over-server-key.pem",
+//            "--tlsservertrust=whitelist",
+            "--tlsknownclients=over-known-clients",
+//            "--tlsclientcert=over-client-cert.pem",
+            "--tlsclientchain=clientchain.file",
+            "--tlsclientkey=over-client-key.pem",
+            "--tlsclienttrust=tofu",
+            "--tlsknownservers=over-known-servers"
+        };
+
+        CliResult result = instance.execute(args);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+
+//        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://override"); //TODO This fails
+        assertThat(result.getConfig().get().getServerConfig().getPort()).isEqualTo(1111);
+        assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("override/cli.ipc");
+        assertThat(result.getConfig().get().getPeers().size()).isEqualTo(1);
+        assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://others");
+        assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(1);
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("new.pub");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("new.key");
+        assertThat(result.getConfig().get().getFowardingList().size()).isEqualTo(1);
+        assertThat(result.getConfig().get().getFowardingList().get(0)).isEqualTo("overridepublickey");
+        assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:test");
+        assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
+//        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("override/over-server-cert.pem");
+//        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTlsServerChain()).isEmpty(); //TODO Does not exist, is this supported?
+//        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsKeyPath().toString()).isEqualTo("override/over-server-key.pem");
+//        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.WHITELIST);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownClientsFile().toString()).isEqualTo("override/over-known-clients");
+//        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsCertificatePath().toString()).isEqualTo("override/over-client-cert.pem");
+//        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTlsClientChain()).isEmpty(); //TODO Does not exist, is this supported?
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("override/over-client-key.pem");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("override/over-known-servers");
+
+        Files.deleteIfExists(configFile);
+        Files.deleteIfExists(passwordFile);
+        Files.deleteIfExists(serverKeyStorePath);
+    }
+
 
     @Test
     public void sampleTomlFileOnly() throws Exception {
