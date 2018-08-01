@@ -355,6 +355,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .longOpt("tlsserverkey")
                         .desc("TLS key to use for the public API")
                         .optionalArg(false)
+                        .hasArg()
                         .build()
         );
 
@@ -362,6 +363,7 @@ public class LegacyCliAdapter implements CliAdapter {
                 Option.builder()
                         .longOpt("tlsservertrust")
                         .optionalArg(false)
+                        .hasArg()
                         .desc("TLS server trust mode (whitelist, ca-or-tofu, ca, tofu, insecure-no-validation)")
                         .build()
         );
@@ -382,6 +384,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .longOpt("tlsclientcert")
                         .desc("TLS client certificate file to use for connections to other nodes")
                         .argName("FILE")
+                        .hasArg()
                         .build()
         );
 
