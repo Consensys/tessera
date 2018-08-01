@@ -12,7 +12,7 @@ import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
-public class KeyConfiguration {
+public class KeyConfiguration extends ConfigItem {
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
