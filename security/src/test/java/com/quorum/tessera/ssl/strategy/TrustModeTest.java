@@ -109,6 +109,25 @@ public class TrustModeTest {
     }
 
     @Test
+    public void testCAOrTOFU() throws IOException, GeneralSecurityException, OperatorCreationException {
+        assertThat(
+            TrustMode.getValueIfPresent("CA_OR_TOFU").get().createSSLContext(
+                new SSLContextProperties(
+                    "http://localhost:8080",
+                    tmpFile,
+                    "quorum",
+                    null,
+                    null,
+                    tmpFile,
+                    "quorum",
+                    null,
+                    tmpKnownHosts
+                )
+            )
+        ).isNotNull();
+    }
+
+    @Test
     public void testInvalidMode() {
         assertThat(TrustMode.getValueIfPresent("SOMETHING").isPresent()).isFalse();
     }

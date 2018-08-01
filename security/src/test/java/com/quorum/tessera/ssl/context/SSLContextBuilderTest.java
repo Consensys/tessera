@@ -1,5 +1,6 @@
 package com.quorum.tessera.ssl.context;
 
+import com.quorum.tessera.ssl.trust.CompositeTrustManager;
 import com.quorum.tessera.ssl.trust.TrustAllManager;
 import com.quorum.tessera.ssl.trust.TrustOnFirstUseManager;
 import com.quorum.tessera.ssl.trust.WhiteListTrustManager;
@@ -121,6 +122,18 @@ public class SSLContextBuilderTest {
             .extracting("trustManager").isNotNull()
             .extracting("tm").isNotNull()
             .hasAtLeastOneElementOfType(TrustAllManager.class);
+    }
+
+    @Test
+    public void testBuildForCAOrTOFU() throws GeneralSecurityException, IOException, OperatorCreationException {
+        final SSLContext sslContext = sslContextBuilder.forCAOrTOFU(knownHostFile).build();
+
+        assertThat(sslContext).isNotNull()
+            .extracting("contextSpi").isNotNull()
+            .extracting("trustManager").isNotNull()
+            .extracting("tm").isNotNull().first()
+            .isInstanceOf(CompositeTrustManager.class)
+            .extracting("trustManagers").isNotNull();
     }
 
     @Test

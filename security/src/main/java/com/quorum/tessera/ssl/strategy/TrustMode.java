@@ -85,6 +85,25 @@ public enum TrustMode {
                 .forCASignedCertificates()
                 .build();
         }
+    },
+
+    CA_OR_TOFU {
+        @Override
+        public SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, IOException, OperatorCreationException {
+            return SSLContextBuilder
+                .createBuilder(
+                    properties.getAddress(),
+                    properties.getKeyStore(),
+                    properties.getKeyStorePassword(),
+                    properties.getTrustStore(),
+                    properties.getTrustStorePassword())
+                .fromPemFiles(
+                    properties.getKey(),
+                    properties.getCertificate(),
+                    properties.getTrustedCertificates())
+                .forCAOrTOFU(properties.getKnownHosts())
+                .build();
+        }
     };
 
     public abstract SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, IOException, OperatorCreationException;

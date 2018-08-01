@@ -1,5 +1,6 @@
 package com.quorum.tessera.ssl.context;
 
+import com.quorum.tessera.ssl.trust.CompositeTrustManager;
 import com.quorum.tessera.ssl.trust.TrustAllManager;
 import com.quorum.tessera.ssl.trust.TrustOnFirstUseManager;
 import com.quorum.tessera.ssl.trust.WhiteListTrustManager;
@@ -15,6 +16,7 @@ import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -106,6 +108,24 @@ public class SSLContextBuilder {
             new TrustManager[]{new TrustOnFirstUseManager(knownHostsFile)}, null);
 
         return this;
+    }
+
+    public SSLContextBuilder forCAOrTOFU(Path knownHostsFile) throws GeneralSecurityException, IOException, OperatorCreationException {
+
+        final KeyManager[] keyManagers = buildKeyManagers();
+
+        final TrustManager[] trustManagersFromTrustStore = buildTrustManagers();
+
+        final int newLength = trustManagersFromTrustStore.length + 1;
+
+        final TrustManager[] trustManagers = Arrays.copyOf(trustManagersFromTrustStore, newLength);
+
+        trustManagers[newLength - 1] = new TrustOnFirstUseManager(knownHostsFile);
+
+        sslContext.init(keyManagers, new TrustManager[]{new CompositeTrustManager(trustManagers)}, new SecureRandom());
+
+        return this;
+
     }
 
 
