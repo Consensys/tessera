@@ -140,9 +140,12 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(Arrays::asList)
                 .ifPresent(configBuilder::alwaysSendTo);
 
-        Optional.ofNullable(line.getOptionValue("passwords"))
-                .map(p -> Paths.get(p))
-                .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
+        resolveUnixFilePath(initialConfig.getKeys().getPasswordFile(), line.getOptionValue("workdir"), line.getOptionValue("passwords"))
+            .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
+
+//        Optional.ofNullable(line.getOptionValue("passwords"))
+//                .map(p -> Paths.get(p))
+//                .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
 
         Optional.ofNullable(line.getOptionValue("storage"))
                 .map(JdbcConfigFactory::fromLegacyStorageString)
@@ -198,14 +201,8 @@ public class LegacyCliAdapter implements CliAdapter {
         resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getKnownServersFile(), line.getOptionValue("workdir"), line.getOptionValue("tlsknownservers"))
             .ifPresent(configBuilder::sslKnownServersFile);
 
-//        Optional.ofNullable(line.getOptionValue("tlsknownservers"))
-//                .ifPresent(configBuilder::sslKnownServersFile);
-
         resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getKnownClientsFile(), line.getOptionValue("workdir"), line.getOptionValue("tlsknownclients"))
             .ifPresent(configBuilder::sslKnownClientsFile);
-
-//        Optional.ofNullable(line.getOptionValue("tlsknownclients"))
-//                .ifPresent(configBuilder::sslKnownClientsFile);
 
         Optional.ofNullable(keyDataBuilder.build())
                 .ifPresent(configBuilder::keyData);

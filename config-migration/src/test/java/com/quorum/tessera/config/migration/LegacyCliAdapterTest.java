@@ -92,6 +92,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getFowardingList().size()).isEqualTo(2);
         assertThat(result.getConfig().get().getFowardingList().get(0).toString()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
         assertThat(result.getConfig().get().getFowardingList().get(1).toString()).isEqualTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=");
+        assertThat(result.getConfig().get().getKeys().getPasswordFile().toString()).isEqualTo("data/passwords");
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
         assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.STRICT);
@@ -137,6 +138,7 @@ public class LegacyCliAdapterTest {
             "--publickeys=new.pub",
             "--privatekeys=new.key",
             "--alwayssendto=" + alwaysSendToFile.toString(),
+            "--passwords=pw.txt",
             "--storage=jdbc:test",
             "--socket=cli.ipc",
             "--tls=off",
@@ -168,6 +170,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("new.key");
         assertThat(result.getConfig().get().getFowardingList().size()).isEqualTo(1);
         assertThat(result.getConfig().get().getFowardingList().get(0).toString()).isEqualTo("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+        assertThat(result.getConfig().get().getKeys().getPasswordFile().toString()).isEqualTo("override/pw.txt");
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:test");
         assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
@@ -207,8 +210,9 @@ public class LegacyCliAdapterTest {
         assertThat(result.getStatus()).isEqualTo(0);
 
         assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("temp-socket.ipc");
-//        assertThat(Optional.ofNullable(result.getConfig().get().getKeys().getKeyData()).isPresent()).isEqualTo(false);
+        assertThat(Optional.ofNullable(result.getConfig().get().getKeys().getKeyData()).isPresent()).isEqualTo(false);
         assertThat(result.getConfig().get().getFowardingList().size()).isEqualTo(0);
+        assertThat(result.getConfig().get().getKeys().getPasswordFile()).isNull();
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
         assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.STRICT);

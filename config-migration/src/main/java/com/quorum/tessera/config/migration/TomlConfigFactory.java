@@ -73,18 +73,12 @@ public class TomlConfigFactory implements ConfigFactory {
 
         final List<String> privateKeyList = toml.getList("privatekeys", Collections.EMPTY_LIST);
 
-        //String privateKeyPasswordFile = toml.getString("passwords")
-        final List<String> privateKeyPasswords;
-        if (toml.contains("passwords")) {
-            String privateKeyPasswordFile = toml.getString("passwords");
-
-            Path privateKeyPasswordFilePath = Paths.get(privateKeyPasswordFile);
-            privateKeyPasswords = filesDelegate
-                    .lines(privateKeyPasswordFilePath)
-                    .collect(Collectors.toList());
-
+        final Optional<String> privateKeyPasswordFile = Optional.ofNullable(toml.getString("passwords"));
+        final Path privateKeyPasswordPath;
+        if(privateKeyPasswordFile.isPresent()) {
+            privateKeyPasswordPath = Paths.get(workdir, privateKeyPasswordFile.get());
         } else {
-            privateKeyPasswords = Collections.unmodifiableList(Collections.EMPTY_LIST);
+            privateKeyPasswordPath = null;
         }
 
         KeyConfiguration keyData;
@@ -92,6 +86,7 @@ public class TomlConfigFactory implements ConfigFactory {
             keyData = KeyDataBuilder.create()
                 .withPublicKeys(publicKeyList)
                 .withPrivateKeys(privateKeyList)
+                .withPrivateKeyPasswordFile(privateKeyPasswordPath)
                 .build();
         } else {
             keyData = new KeyConfiguration(null, null, null);
