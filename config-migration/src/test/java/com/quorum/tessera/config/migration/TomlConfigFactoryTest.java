@@ -1,18 +1,13 @@
 package com.quorum.tessera.config.migration;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.KeyDataConfig;
-import com.quorum.tessera.config.PrivateKeyData;
-import com.quorum.tessera.config.PrivateKeyType;
-import com.quorum.tessera.config.SslConfig;
-import com.quorum.tessera.config.SslTrustMode;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
 import com.quorum.tessera.test.util.ElUtil;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.json.JsonObject;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,11 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.json.JsonObject;
-import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class TomlConfigFactoryTest {
@@ -57,11 +49,10 @@ public class TomlConfigFactoryTest {
             assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("data", "myipcfile.ipc"));
             assertThat(result.getServerConfig()).isNotNull();
             assertThat(result.getServerConfig().getSslConfig()).isNotNull();
-            assertThat(result.getServerConfig().getSslConfig().getServerTlsKeyPath()).isNull();
 
             SslConfig sslConfig = result.getServerConfig().getSslConfig();
 
-            assertThat(sslConfig.getClientKeyStore()).isEqualTo(Paths.get("tls-client-key.pem"));
+            assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
 
         }
@@ -83,11 +74,10 @@ public class TomlConfigFactoryTest {
             assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("data", "constellation.ipc"));
             assertThat(result.getServerConfig()).isNotNull();
             assertThat(result.getServerConfig().getSslConfig()).isNotNull();
-            assertThat(result.getServerConfig().getSslConfig().getServerTlsKeyPath()).isNull();
 
             SslConfig sslConfig = result.getServerConfig().getSslConfig();
 
-            assertThat(sslConfig.getClientKeyStore()).isEqualTo(Paths.get("tls-client-key.pem"));
+            assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
 
         }

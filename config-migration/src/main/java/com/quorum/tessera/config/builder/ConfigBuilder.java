@@ -5,10 +5,14 @@ import com.quorum.tessera.nacl.Key;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Collections.EMPTY_LIST;
 import static java.util.Collections.emptyList;
 
 public class ConfigBuilder {
@@ -47,20 +51,31 @@ public class ConfigBuilder {
                 .sslClientKeyStorePassword(sslConfig.getClientKeyStorePassword())
                 .sslClientTrustStorePath(Objects.toString(sslConfig.getClientTrustStore(), null))
                 .sslClientTrustStorePassword(sslConfig.getClientTrustStorePassword())
+                .sslClientTlsKeyPath(Objects.toString(sslConfig.getClientTlsKeyPath(),null))
+                .sslClientTlsCertificatePath(
+                    Objects.toString(sslConfig.getClientTlsCertificatePath(),null)
+                )
+                .sslClientTrustCertificates(Objects.isNull(sslConfig.getClientTrustCertificates()) ?
+                    EMPTY_LIST :
+                    sslConfig.getClientTrustCertificates().stream().map(Path::toString).collect(Collectors.toList()))
+                .sslKnownServersFile(Objects.toString(sslConfig.getKnownServersFile(), null))
+
+
                 .sslServerTrustMode(sslConfig.getServerTrustMode())
                 .sslServerKeyStorePath(Objects.toString(sslConfig.getServerKeyStore(), null))
                 .sslServerKeyStorePassword(sslConfig.getServerKeyStorePassword())
                 .sslServerTrustStorePath(Objects.toString(sslConfig.getServerTrustStore(), null))
                 .sslServerTrustStorePassword(sslConfig.getServerTrustStorePassword())
-                .sslKnownClientsFile(Objects.toString(sslConfig.getKnownClientsFile(), null))
-                .sslKnownServersFile(Objects.toString(sslConfig.getKnownServersFile(), null))
-                .sslClientTlsCertificatePath(
-                    Objects.toString(sslConfig.getClientTlsCertificatePath(),null)
-                )
-                .sslServerTlsCertificatePath(Objects.toString(sslConfig.getServerTlsCertificatePath(),null))
-                .keyData(config.getKeys())
-                .sslClientTlsKeyPath(Objects.toString(sslConfig.getClientTlsKeyPath(),null))
                 .sslServerTlsKeyPath(Objects.toString(sslConfig.getServerTlsKeyPath(),null))
+                .sslServerTlsCertificatePath(Objects.toString(sslConfig.getServerTlsCertificatePath(),null))
+                .sslServerTrustCertificates(Objects.isNull(sslConfig.getServerTrustCertificates()) ?
+                    EMPTY_LIST :
+                    sslConfig.getServerTrustCertificates().stream().map(Path::toString).collect(Collectors.toList())
+                )
+                .sslKnownClientsFile(Objects.toString(sslConfig.getKnownClientsFile(), null))
+
+                .keyData(config.getKeys())
+
                 .alwaysSendTo(Stream.of(config)
                     .filter(c -> c.getFowardingList() != null)
                     .map(Config::getFowardingList)

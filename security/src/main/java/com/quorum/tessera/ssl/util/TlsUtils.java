@@ -31,7 +31,9 @@ public interface TlsUtils {
     String COMMON_NAME_STRING = "CN=";
     String SIGNATURE_ALGORITHM = "SHA512WithRSAEncryption";
     String KEYSTORE_TYPE = "JKS";
-    String DEFAULT_COMMONNAME = "tessera";
+
+    // These localhost values are added in SAN names for dev. They can be removed for production
+    // if necessary
     String LOCALHOST = "localhost";
     String LOCALHOST_IP = "127.0.0.1";
     String LOCALHOST_IP_2 = "0.0.0.0";
