@@ -93,7 +93,7 @@ public class OverrideUtilTest {
 
         assertThat(config).isNotNull();
 
-        //  JaxbUtil.marshalWithNoValidation(config, System.out);
+          JaxbUtil.marshalWithNoValidation(config, System.out);
         OverrideUtil.overrideExistingValue(config, "useWhiteList", "true");
         OverrideUtil.overrideExistingValue(config, "jdbc.username", "someuser");
         OverrideUtil.overrideExistingValue(config, "jdbc.password", "somepassword");
@@ -113,8 +113,8 @@ public class OverrideUtilTest {
 
         OverrideUtil.overrideExistingValue(config, "server.influxConfig.pushIntervalInSecs", "987");
 
-        // OverrideUtil.overrideExistingValue(config, "peers.url", "PEER1","PEER2");
-        //   JaxbUtil.marshalWithNoValidation(config, System.out);
+         OverrideUtil.overrideExistingValue(config, "peers.url", "PEER1","PEER2");
+           JaxbUtil.marshalWithNoValidation(config, System.out);
         assertThat(config.getJdbcConfig()).isNotNull();
         assertThat(config.getJdbcConfig().getUsername()).isEqualTo("someuser");
         assertThat(config.getJdbcConfig().getPassword()).isEqualTo("somepassword");
@@ -122,7 +122,7 @@ public class OverrideUtilTest {
 
         assertThat(config.isUseWhiteList()).isTrue();
 
-        // assertThat(config.getPeers()).hasSize(2);
+       assertThat(config.getPeers()).hasSize(2);
         assertThat(config.getKeys().getPasswords())
                 .containsExactlyInAnyOrder("pw_one", "pw_two");
 

@@ -124,11 +124,65 @@ public interface OverrideUtil {
     static void overrideExistingValue(Config config, String propertyPath, String... value) {
 
         final String[] pathTokens = propertyPath.split("\\.");
-
+        List<String> values = Arrays.asList(value);
         Object obj = config;
-        for (String fieldName : pathTokens) {
-            obj = setProperty(obj, fieldName, Arrays.asList(value)).orElse(null);
+        for (int i = 0; i < pathTokens.length; i++) {
+
+            final String fieldName = pathTokens[i];
+            final Class type = obj.getClass();
+            final Field field = resolveField(type, fieldName);
+            field.setAccessible(true);
+
+            if (Collection.class.isAssignableFrom(field.getType())) {
+                final Class genericType = resolveCollectionParameter(field.getGenericType());
+                if (isSimple(genericType)) {
+                    if (String.class.equals(genericType)) {
+                        setValue(obj, field, values);
+                    }
+                    if (Path.class.equals(genericType)) {
+                        List<Path> paths = values.stream()
+                                .map(s -> Paths.get(s))
+                                .collect(Collectors.toList());
+
+                        setValue(obj, field, paths);
+                    }
+                } else {
+
+                    String nextFieldName = pathTokens[i + 1];
+                    Field targetField = resolveField(genericType, nextFieldName);
+                    targetField.setAccessible(true);
+
+                    List list = (List) getValue(obj, field);
+                    for (String v : values) {
+                        Object instance = createInstance(genericType);
+                        setValue(instance, targetField, v);
+                        list.add(instance);
+                    }
+                    setValue(obj, field, list);
+
+                    i++;
+
+                }
+
+                LOGGER.debug("{} is a List<{}>", fieldName, genericType.getSimpleName());
+            } else {
+                obj = setProperty(obj, field, values).orElse(null);
+            }
+
         }
+    }
+
+    static <T> T getValue(Object from, Field field) {
+        return ReflectCallback.execute(() -> {
+            return (T) field.get(from);
+        });
+    }
+
+    static void setValue(Object obj, Field field, Object value) {
+        ReflectCallback.execute(() -> {
+            field.set(obj, value);
+            return null;
+        });
     }
 
     static Field resolveField(Class type, String name) {
@@ -139,21 +193,13 @@ public interface OverrideUtil {
                 .orElseGet(() -> ReflectCallback.execute(() -> type.getDeclaredField(name)));
     }
 
-    static Optional<Object> setProperty(Object obj, String fieldName, List<String> values) {
-
+    static Optional<Object> setProperty(Object obj, Field field, List<String> values) {
+        LOGGER.debug("setProperty:  {} , {}", field, values);
         ReflectCallback<Optional<Object>> reflectCallback = () -> {
             final Class type = obj.getClass();
-
-            LOGGER.debug("Looking up field name {} in object: {}", fieldName, type);
-
-            final Field field = resolveField(type, fieldName);
-            field.setAccessible(true);
-
-            LOGGER.debug("Found field name {} from {} in object: {}", field.getName(), fieldName, type);
-
             final Class fieldType = field.getType();
 
-            LOGGER.debug("Resolved field name: {}#{}, type: {}", type, field.getName(), fieldType.getName());
+            LOGGER.debug("Resolved field name: {}#{}, type: {}", fieldType, field.getName(), fieldType.getName());
 
             if (isSimple(fieldType)) {
                 final String value = values.get(0);
@@ -184,62 +230,11 @@ public interface OverrideUtil {
             boolean isNestedConfigObject
                     = fieldType.getPackage().getName().startsWith("com.quorum.tessera");
 
-            if (Collection.class.isAssignableFrom(fieldType)) {
-                final Class genericType = resolveCollectionParameter(field.getGenericType());
-                if (isSimple(genericType)) {
-                    if (String.class.equals(genericType)) {
-                        field.set(obj, values);
-                    }
-                    if (Path.class.equals(genericType)) {
-                        List<Path> paths = values.stream()
-                                .map(s -> Paths.get(s))
-                                .collect(Collectors.toList());
-
-                        field.set(obj, paths);
-                    }
-                } else {
-
-                    
-                    //TODO: Handle collectiosn of nested objects
-                    Object nestedObject = createInstance(genericType);
-                    List<Object> nestedObjects = Arrays.asList(nestedObject);
-                    field.set(obj, nestedObject);
-                    //return 
-  
-                }
-                return Optional.of(obj);
-            }
-
             Object existingValue = field.get(obj);
-            boolean isInitialised = Objects.nonNull(existingValue) || isSimple(fieldType);
 
-            if (isInitialised && isNestedConfigObject) {
-                LOGGER.debug("Value {}#{} already initialised", type, field.getName());
-                return Optional.of(existingValue);
-            }
-
-//            if (isInitialised) {
-//                LOGGER.debug("Field {}#{} already populated. ", type, field.getName());
-//                return Optional.of(obj);
-//            }
-//
-//            LOGGER.debug("{} isisNestedConfigObject? {}", fieldType.toString(), isNestedConfigObject);
-//
-//            if (isNestedConfigObject) {
-//                LOGGER.debug("Looking up factory method for {}", fieldType);
-//                Method createMethod = field.getType().getDeclaredMethod("create");
-//                createMethod.setAccessible(true);
-//                LOGGER.debug("Looked up factory method for {}", fieldType);
-//
-//                LOGGER.debug("Creating instance of {}", fieldType);
-//                Object nested = createMethod.invoke(null);
-//
-//                LOGGER.debug("Created instance of {}", fieldType);
-//                field.set(obj, nested);
-//                return Optional.of(nested);
-//            }
-            return Optional.empty();
+            return Optional.ofNullable(existingValue);
         };
+
         return ReflectCallback.execute(reflectCallback);
     }
 
@@ -248,16 +243,14 @@ public interface OverrideUtil {
         return ReflectCallback.execute(() -> {
             Method factoryMethod = type.getDeclaredMethod("create");
             factoryMethod.setAccessible(true);
-            
+
             return (T) factoryMethod.invoke(null);
         });
 
-
     }
-    
-    
+
     static Class classForName(String classname) {
-     return ReflectCallback.execute(() -> Class.forName(classname));
+        return ReflectCallback.execute(() -> Class.forName(classname));
     }
 
 }
