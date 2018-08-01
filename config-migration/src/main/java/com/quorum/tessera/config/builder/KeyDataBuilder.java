@@ -42,17 +42,23 @@ public class KeyDataBuilder {
         return this;
     }
 
-    public KeyConfiguration build() {
-
+    public KeyConfiguration build(String workdir) {
         if(publicKeys.size() != privateKeys.size()) {
             throw new ConfigException(new RuntimeException("Different amount of public and private keys supplied"));
         }
 
         if(publicKeys.size() == 0) return null;
 
+        final String workingDirectory;
+        if(workdir == null) {
+            workingDirectory = "";
+        } else {
+            workingDirectory = workdir;
+        }
+
         final List<KeyData> keyData = IntStream
             .range(0, publicKeys.size())
-            .mapToObj(i -> new KeyData(null, null, null, Paths.get(privateKeys.get(i)), Paths.get(publicKeys.get(i))))
+            .mapToObj(i -> new KeyData(null, null, null, Paths.get(workingDirectory, privateKeys.get(i)), Paths.get(workingDirectory, publicKeys.get(i))))
             .collect(toList());
 
         return new KeyConfiguration(privateKeyPasswordFile, Collections.emptyList(), keyData);

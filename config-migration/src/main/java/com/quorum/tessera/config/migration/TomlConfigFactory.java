@@ -87,7 +87,7 @@ public class TomlConfigFactory implements ConfigFactory {
                 .withPublicKeys(publicKeyList)
                 .withPrivateKeys(privateKeyList)
                 .withPrivateKeyPasswordFile(privateKeyPasswordPath)
-                .build();
+                .build(workdir);
         } else {
             keyData = new KeyConfiguration(null, null, null);
         }
@@ -103,7 +103,7 @@ public class TomlConfigFactory implements ConfigFactory {
         final List<String> tlsserverchainnames = toml.getList("tlsserverchain", Collections.EMPTY_LIST);
         List<Path> tlsserverchain = new ArrayList<>();
         for(String name : tlsserverchainnames) {
-            tlsserverchain.add(Paths.get(name));
+            tlsserverchain.add(Paths.get(workdir, name));
         }
         final Path tlsknownclients = Paths.get(workdir, toml.getString("tlsknownclients", "tls-known-clients"));
 
@@ -114,7 +114,7 @@ public class TomlConfigFactory implements ConfigFactory {
         final List<String> tlsclientchainnames = toml.getList("tlsclientchain", Collections.EMPTY_LIST);
         List<Path> tlsclientchain = new ArrayList<>();
         for(String name : tlsclientchainnames) {
-            tlsclientchain.add(Paths.get(name));
+            tlsclientchain.add(Paths.get(workdir, name));
         }
         final Path tlsknownservers = Paths.get(workdir, toml.getString("tlsknownservers", "tls-known-servers"));
 
