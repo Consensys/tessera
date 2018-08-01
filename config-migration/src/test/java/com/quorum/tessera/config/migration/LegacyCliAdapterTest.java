@@ -73,9 +73,9 @@ public class LegacyCliAdapterTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
+
         //TODO assert that value of config is as expected from sample config
 
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsKeyPath()).isNull();
         assertThat(result.getStatus()).isEqualTo(0);
 
         Files.deleteIfExists(configFile);
