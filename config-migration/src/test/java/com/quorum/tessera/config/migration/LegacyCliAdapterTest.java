@@ -14,11 +14,7 @@ import org.junit.Test;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -518,6 +514,55 @@ public class LegacyCliAdapterTest {
 
         assertThat(result).isPresent().get().isEqualTo(Paths.get("dir", "somefile.file"));
 
+    }
+
+    @Test
+    public void resolveListOfUnixFilePathsInitialValueOnly() {
+        List<Path> paths = new ArrayList<>();
+        paths.add(Paths.get("path"));
+        Optional<List<Path>> result = LegacyCliAdapter.resolveListOfUnixFilePaths(paths, null, null);
+
+        assertThat(result).isPresent().get().isEqualToComparingFieldByField(paths);
+    }
+
+    @Test
+    public void resolveListOfUnixFilePathsAllNull(){
+        Optional<List<Path>> result = LegacyCliAdapter.resolveListOfUnixFilePaths(null, null, null);
+
+        assertThat(result).isNotPresent();
+    }
+
+    @Test
+    public void resolveListOfUnixFilePathsWorkdirOnly(){
+        Optional<List<Path>> result = LegacyCliAdapter.resolveListOfUnixFilePaths(null, "workdir", null);
+
+        assertThat(result).isNotPresent();
+    }
+
+    @Test
+    public void resolveListOfUnixFilePathsFilenameOnly(){
+        List<String> filepaths = new ArrayList<>();
+        filepaths.add("file1");
+        filepaths.add("file2");
+
+        Optional<List<Path>> result = LegacyCliAdapter.resolveListOfUnixFilePaths(null, null, filepaths);
+
+        assertThat(result).isNotPresent();
+    }
+
+    @Test
+    public void resolveListOfUnixFilePathsWorkdirAndFilename(){
+        List<String> filepaths = new ArrayList<>();
+        filepaths.add("file1");
+        filepaths.add("file2");
+
+        Optional<List<Path>> result = LegacyCliAdapter.resolveListOfUnixFilePaths(null, "workdir", filepaths);
+
+        List<Path> expected = new ArrayList<>();
+        expected.add(Paths.get("workdir/file1"));
+        expected.add(Paths.get("workdir/file2"));
+        assertThat(result.get().size()).isEqualTo(2);
+        assertThat(result).isPresent().get().isEqualToComparingFieldByField(expected);
     }
 
     @Test

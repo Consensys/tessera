@@ -201,7 +201,7 @@ public class LegacyCliAdapter implements CliAdapter {
             .ifPresent(configBuilder::sslKnownClientsFile);
 
         Optional.ofNullable(line.getOptionValue("workdir"))
-                .ifPresent( wd -> Optional.ofNullable(keyDataBuilder.build(wd))
+                .ifPresent(wd -> Optional.ofNullable(keyDataBuilder.build(wd))
                                         .ifPresent(configBuilder::keyData)
                 );
 

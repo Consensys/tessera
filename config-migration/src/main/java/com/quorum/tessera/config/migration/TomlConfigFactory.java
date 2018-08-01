@@ -55,17 +55,18 @@ public class TomlConfigFactory implements ConfigFactory {
             LOGGER.debug("Found entry in toml file : {} {}", entry.getKey(), entry.getValue());
         });
 
-        String url = toml.getString("url");
+        final String url = toml.getString("url");
 
-        Integer port = Optional.ofNullable(toml.getLong("port"))
-                .map(Long::intValue).orElse(null);
+        final Integer port = Optional.ofNullable(toml.getLong("port"))
+                                    .map(Long::intValue)
+                                    .orElse(null);
 
-        String workdir = toml.getString("workdir", "");
-        String socket = toml.getString("socket", "temp-socket.ipc");
+        final String workdir = toml.getString("workdir", "");
+        final String socket = toml.getString("socket", "temp-socket.ipc");
 
-        Path unixSocketFile = Paths.get(workdir, socket);
+        final Path unixSocketFile = Paths.get(workdir, socket);
 
-        String tls = toml.getString("tls", "strict").toUpperCase();
+        final String tls = toml.getString("tls", "strict").toUpperCase();
 
         final List<String> othernodes = toml.getList("othernodes", Collections.EMPTY_LIST);
 
