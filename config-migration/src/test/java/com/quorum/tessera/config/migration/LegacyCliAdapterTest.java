@@ -89,12 +89,12 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.STRICT);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("data/tls-server-cert.pem");
-//        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTlsServerChain()).isEmpty(); //TODO Does not exist, is this supported?
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates()).isEmpty();
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsKeyPath().toString()).isEqualTo("data/tls-server-key.pem");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownClientsFile().toString()).isEqualTo("data/tls-known-clients");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsCertificatePath().toString()).isEqualTo("data/tls-client-cert.pem");
-//        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTlsClientChain()).isEmpty(); //TODO Does not exist, is this supported?
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates()).isEmpty();
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("data/tls-client-key.pem");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.CA_OR_TOFU);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("data/tls-known-servers");
@@ -172,12 +172,14 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("override/over-server-cert.pem");
-//        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTlsServerChain()).isEmpty(); //TODO Does not exist, is this supported?
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().size()).isEqualTo(1);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().get(0).toString()).isEqualTo("override/serverchain.file");
 //        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsKeyPath().toString()).isEqualTo("override/over-server-key.pem");
 //        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.WHITELIST);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownClientsFile().toString()).isEqualTo("override/over-known-clients");
 //        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsCertificatePath().toString()).isEqualTo("override/over-client-cert.pem");
-//        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTlsClientChain()).isEmpty(); //TODO Does not exist, is this supported?
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates().size()).isEqualTo(1);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates().get(0).toString()).isEqualTo("override/clientchain.file");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("override/over-client-key.pem");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("override/over-known-servers");
@@ -361,10 +363,10 @@ public class LegacyCliAdapterTest {
         assertThat(result.getServerConfig().getSslConfig().getServerTlsCertificatePath()).isEqualTo(Paths.get("workdirOverride/tlsservercert.cert"));
 
         assertThat(result.getServerConfig().getSslConfig().getServerTrustCertificates())
-                .containsExactly(Paths.get("server1.crt"), Paths.get("server2.crt"), Paths.get("server3.crt"));
+                .containsExactly(Paths.get(workdirOverride, "server1.crt"), Paths.get(workdirOverride, "server2.crt"), Paths.get(workdirOverride, "server3.crt"));
 
         assertThat(result.getServerConfig().getSslConfig().getClientTrustCertificates())
-                .containsExactly(Paths.get("client1.crt"), Paths.get("client2.crt"), Paths.get("client3.crt"));
+                .containsExactly(Paths.get(workdirOverride, "client1.crt"), Paths.get(workdirOverride, "client2.crt"), Paths.get(workdirOverride, "client3.crt"));
 
 //        assertThat(result.getServerConfig().getSslConfig().getServerKeyStore())
 //                .isEqualTo(Paths.get("tlsserverkey.key"));

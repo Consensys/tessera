@@ -54,8 +54,8 @@ public class FixtureUtil {
             .sslKnownClientsFile(Paths.get("knownClientsFile"))
             .sslKnownServersFile(Paths.get("knownServersFile"))
             .sslClientTrustMode(SslTrustMode.CA_OR_TOFU)
-            .sslServerTrustCertificates(Collections.singletonList("sslServerTrustCertificates"))
-            .sslClientTrustCertificates(Collections.singletonList("sslClientTrustCertificates"))
+            .sslServerTrustCertificates(Collections.singletonList(Paths.get("sslServerTrustCertificates")))
+            .sslClientTrustCertificates(Collections.singletonList(Paths.get("sslClientTrustCertificates")))
             .sslClientTlsCertificatePath(Paths.get("sslClientTlsCertificatePath"))
             .sslServerTlsCertificatePath(Paths.get("sslServerTlsCertificatePath"))
             .keyData(new KeyConfiguration(null, Collections.emptyList(),
@@ -84,8 +84,8 @@ public class FixtureUtil {
             .sslKnownClientsFile(Paths.get("knownClientsFile"))
             .sslKnownServersFile(null)
             .sslClientTrustMode(SslTrustMode.CA_OR_TOFU)
-            .sslServerTrustCertificates(Collections.singletonList("sslServerTrustCertificates"))
-            .sslClientTrustCertificates(Collections.singletonList("sslClientTrustCertificates"))
+            .sslServerTrustCertificates(Collections.singletonList(Paths.get("sslServerTrustCertificates")))
+            .sslClientTrustCertificates(Collections.singletonList(Paths.get("sslClientTrustCertificates")))
             .sslClientTlsCertificatePath(Paths.get("sslClientTlsCertificatePath"))
             .sslServerTlsCertificatePath(Paths.get("sslServerTlsCertificatePath"))
             .keyData(new KeyConfiguration(null, Collections.emptyList(),

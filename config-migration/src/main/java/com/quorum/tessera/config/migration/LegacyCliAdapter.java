@@ -18,10 +18,7 @@ import java.nio.file.Path;
 import org.apache.commons.cli.*;
 
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import javax.validation.ConstraintViolationException;
 
 public class LegacyCliAdapter implements CliAdapter {
@@ -101,6 +98,18 @@ public class LegacyCliAdapter implements CliAdapter {
 
     }
 
+    static Optional<List<Path>> resolveListOfUnixFilePaths(List<Path> initial, String workdir, List<String> fileNames) {
+        if(Objects.nonNull(workdir) && Objects.nonNull(fileNames)) {
+            List<Path> paths = new ArrayList<>();
+            for(String fileName : fileNames) {
+                paths.add(Paths.get(workdir, fileName));
+            }
+            return Optional.of(paths);
+        }
+
+        return Optional.ofNullable(initial);
+    }
+
     static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder) {
 
         Config initialConfig = configBuilder.build();
@@ -162,11 +171,25 @@ public class LegacyCliAdapter implements CliAdapter {
 
         Optional.ofNullable(line.getOptionValues("tlsserverchain"))
                 .map(Arrays::asList)
-                .ifPresent(configBuilder::sslServerTrustCertificates);
+                .ifPresent(l -> {
+                    List<Path> sslServerTrustCertificates = resolveListOfUnixFilePaths(
+                        initialConfig.getServerConfig().getSslConfig().getServerTrustCertificates(),
+                        line.getOptionValue("workdir"),
+                        l
+                    ).get();
+                    configBuilder.sslServerTrustCertificates(sslServerTrustCertificates);
+                });
 
         Optional.ofNullable(line.getOptionValues("tlsclientchain"))
                 .map(Arrays::asList)
-                .ifPresent(configBuilder::sslClientTrustCertificates);
+                .ifPresent(l -> {
+                    List<Path> sslClientTrustCertificates = resolveListOfUnixFilePaths(
+                        initialConfig.getServerConfig().getSslConfig().getClientTrustCertificates(),
+                        line.getOptionValue("workdir"),
+                        l
+                    ).get();
+                    configBuilder.sslClientTrustCertificates(sslClientTrustCertificates);
+                });
 
         resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getServerTlsKeyPath(), line.getOptionValue("workdir"), line.getOptionValue("tlsserverkey"))
             .ifPresent(configBuilder::sslServerTlsKeyPath);

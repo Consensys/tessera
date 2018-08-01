@@ -52,7 +52,7 @@ public class TomlConfigFactoryTest {
 
             SslConfig sslConfig = result.getServerConfig().getSslConfig();
 
-            assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("tls-client-key.pem"));
+            assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
 
         }
@@ -77,7 +77,7 @@ public class TomlConfigFactoryTest {
 
             SslConfig sslConfig = result.getServerConfig().getSslConfig();
 
-            assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("tls-client-key.pem"));
+            assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
 
         }

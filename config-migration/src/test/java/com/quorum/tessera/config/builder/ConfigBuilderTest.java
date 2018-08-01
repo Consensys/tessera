@@ -33,7 +33,7 @@ public class ConfigBuilderTest {
         Config result = builderWithValidValues.build();
 
         assertThat(result).isNotNull();
-        builderWithValidValues.sslClientTrustCertificates(Arrays.asList("sslServerTrustCertificates"));
+        builderWithValidValues.sslClientTrustCertificates(Arrays.asList(Paths.get("sslServerTrustCertificates")));
         assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("somepath.ipc"));
 
         assertThat(result.getKeys().getKeyData()).hasSize(1);

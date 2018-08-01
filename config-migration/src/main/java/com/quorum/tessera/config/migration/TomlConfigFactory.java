@@ -1,10 +1,7 @@
 package com.quorum.tessera.config.migration;
 
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.builder.ConfigBuilder;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigFactory;
-import com.quorum.tessera.config.KeyDataConfig;
-import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -63,7 +60,7 @@ public class TomlConfigFactory implements ConfigFactory {
         Integer port = Optional.ofNullable(toml.getLong("port"))
                 .map(Long::intValue).orElse(null);
 
-        String workdir = toml.getString("workdir", "data");
+        String workdir = toml.getString("workdir", ".");
         String socket = toml.getString("socket");
 
         Path unixSocketFile = Paths.get(workdir, socket);
@@ -107,14 +104,22 @@ public class TomlConfigFactory implements ConfigFactory {
         final String tlsservertrust = toml.getString("tlsservertrust", "tofu");
         final Path tlsserverkey = Paths.get(workdir, toml.getString("tlsserverkey", "tls-server-key.pem"));
         final Path tlsservercert = Paths.get(workdir, toml.getString("tlsservercert", "tls-server-cert.pem"));
-        final List<String> tlsserverchain = toml.getList("tlsserverchain", Collections.EMPTY_LIST);
+        final List<String> tlsserverchainnames = toml.getList("tlsserverchain", Collections.EMPTY_LIST);
+        List<Path> tlsserverchain = new ArrayList<>();
+        for(String name : tlsserverchainnames) {
+            tlsserverchain.add(Paths.get(name));
+        }
         final Path tlsknownclients = Paths.get(workdir, toml.getString("tlsknownclients", "tls-known-clients"));
 
         //Client side
         final String tlsclienttrust = toml.getString("tlsclienttrust", "tofu");
         final Path tlsclientkey = Paths.get(workdir, toml.getString("tlsclientkey", "tls-client-key.pem"));
         final Path tlsclientcert = Paths.get(workdir, toml.getString("tlsclientcert", "tls-client-cert.pem"));
-        final List<String> tlsclientchain = toml.getList("tlsclientchain", Collections.EMPTY_LIST);
+        final List<String> tlsclientchainnames = toml.getList("tlsclientchain", Collections.EMPTY_LIST);
+        List<Path> tlsclientchain = new ArrayList<>();
+        for(String name : tlsclientchainnames) {
+            tlsclientchain.add(Paths.get(name));
+        }
         final Path tlsknownservers = Paths.get(workdir, toml.getString("tlsknownservers", "tls-known-servers"));
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
