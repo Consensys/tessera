@@ -120,7 +120,7 @@ public class SSLContextBuilder {
 
         final TrustManager[] trustManagers = Arrays.copyOf(trustManagersFromTrustStore, newLength);
 
-        trustManagers[newLength] = new TrustOnFirstUseManager(knownHostsFile);
+        trustManagers[newLength - 1] = new TrustOnFirstUseManager(knownHostsFile);
 
         sslContext.init(keyManagers, new TrustManager[]{new CompositeTrustManager(trustManagers)}, new SecureRandom());
 
