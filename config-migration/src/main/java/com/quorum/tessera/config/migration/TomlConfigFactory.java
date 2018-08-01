@@ -1,8 +1,10 @@
 package com.quorum.tessera.config.migration;
 
-import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.builder.ConfigBuilder;
-
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ConfigFactory;
+import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -10,6 +12,13 @@ import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.io.IOCallback;
 import com.moandjiezana.toml.Toml;
 import com.quorum.tessera.config.builder.SslTrustModeFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -22,15 +31,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import javax.json.JsonObjectBuilder;
-
-import javax.json.Json;
-import javax.json.JsonObject;
-
-import javax.json.JsonReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TomlConfigFactory implements ConfigFactory {
 
@@ -91,47 +91,46 @@ public class TomlConfigFactory implements ConfigFactory {
         }
 
         KeyConfiguration keyData = KeyDataBuilder.create()
-                                                .withPublicKeys(publicKeyList)
-                                                .withPrivateKeys(privateKeyList)
-                                                .build();
+            .withPublicKeys(publicKeyList)
+            .withPrivateKeys(privateKeyList)
+            .build();
 
+        List<String> alwaysSendToList = toml.getList("alwayssendto", Collections.EMPTY_LIST);
 
         final List<String> alwaysSendToKeyPaths = toml.getList("alwayssendto", Collections.EMPTY_LIST);
 
-        Path tlsserverkey = Paths.get(workdir, toml.getString("tlsserverkey", "tls-server-key.pem"));
 
-        List<String> tlsserverchain = toml.getList("tlsserverchain", Collections.EMPTY_LIST);
 
         String storage = toml.getString("storage");
 
-        final Path tlsclientkey = Paths.get(workdir, toml.getString("tlsclientkey", "tls-client-key.pem"));
-
-        final Path tlsservercert = Paths.get(workdir, toml.getString("tlsservercert", "tls-server-cert.pem"));
-
-        final Path tlsclientcert = Paths.get(workdir, toml.getString("tlsclientcert", "tls-client-cert.pem"));
-
+        //Server side
         final String tlsservertrust = toml.getString("tlsservertrust", "tofu");
-
-        final String tlsclienttrust = toml.getString("tlsclienttrust", "ca-or-tofu");
-
-        final Path tlsknownservers = Paths.get(workdir, toml.getString("tlsknownservers", "tls-known-servers"));
-
+        final Path tlsserverkey = Paths.get(workdir, toml.getString("tlsserverkey", "tls-server-key.pem"));
+        final Path tlsservercert = Paths.get(workdir, toml.getString("tlsservercert", "tls-server-cert.pem"));
+        final List<String> tlsserverchain = toml.getList("tlsserverchain", Collections.EMPTY_LIST);
         final Path tlsknownclients = Paths.get(workdir, toml.getString("tlsknownclients", "tls-known-clients"));
+
+        //Client side
+        final String tlsclienttrust = toml.getString("tlsclienttrust", "tofu");
+        final Path tlsclientkey = Paths.get(workdir, toml.getString("tlsclientkey", "tls-client-key.pem"));
+        final Path tlsclientcert = Paths.get(workdir, toml.getString("tlsclientcert", "tls-client-cert.pem"));
+        final List<String> tlsclientchain = toml.getList("tlsclientchain", Collections.EMPTY_LIST);
+        final Path tlsknownservers = Paths.get(workdir, toml.getString("tlsknownservers", "tls-known-servers"));
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
                 .serverPort(port)
                 .serverHostname(url)
                 .unixSocketFile(unixSocketFile)
                 .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
-                .sslServerTlsKeyPath(tlsserverkey)
                 .sslServerTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsservertrust))
-                .sslServerTrustStorePath(tlsservertrust)
+                .sslServerTlsKeyPath(tlsserverkey)
+                .sslServerTlsCertificatePath(tlsservercert)
+                .sslServerTrustCertificates(tlsserverchain)
+                .sslKnownClientsFile(tlsknownclients)
                 .sslClientTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsclienttrust))
                 .sslClientTlsKeyPath(tlsclientkey)
-                .sslClientKeyStorePassword("")
-                .sslServerTlsCertificatePath(tlsservercert)
                 .sslClientTlsCertificatePath(tlsclientcert)
-                .sslKnownClientsFile(tlsknownclients)
+                .sslClientTrustCertificates(tlsclientchain)
                 .sslKnownServersFile(tlsknownservers)
                 .peers(othernodes)
                 .alwaysSendTo(alwaysSendToKeyPaths)

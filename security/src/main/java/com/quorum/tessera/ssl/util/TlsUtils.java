@@ -31,14 +31,16 @@ public interface TlsUtils {
     String COMMON_NAME_STRING = "CN=";
     String SIGNATURE_ALGORITHM = "SHA512WithRSAEncryption";
     String KEYSTORE_TYPE = "JKS";
-    String DEFAULT_COMMONNAME = "tessera";
+
+    // These localhost values are added in SAN names for dev. They can be removed for production
+    // if necessary
     String LOCALHOST = "localhost";
     String LOCALHOST_IP = "127.0.0.1";
     String LOCALHOST_IP_2 = "0.0.0.0";
 
     Provider provider = new BouncyCastleProvider();
 
-    default void generateKeyStoreWithSelfSignedCertificate(Path privateKeyFile, String password)
+    default void generateKeyStoreWithSelfSignedCertificate(String address, Path privateKeyFile, String password)
         throws NoSuchAlgorithmException, IOException, OperatorCreationException,
         CertificateException, InvalidKeyException, NoSuchProviderException, SignatureException, KeyStoreException {
 
@@ -49,8 +51,8 @@ public interface TlsUtils {
         KeyPair keypair = keyGen.generateKeyPair();
         final PublicKey publicKey = keypair.getPublic();
         final PrivateKey privateKey = keypair.getPrivate();
-
-        final X500Name commonName = new X500Name(COMMON_NAME_STRING + DEFAULT_COMMONNAME);
+        final String cnString = address.replaceFirst("^(http[s]?://www\\.|http[s]?://|www\\.)","");
+        final X500Name commonName = new X500Name(COMMON_NAME_STRING + cnString);
         Date startDate = new Date(System.currentTimeMillis());
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);

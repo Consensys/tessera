@@ -29,7 +29,9 @@ public class ClientFactory {
      */
     public Client buildFrom(final ServerConfig config) {
         if (config.isSsl()) {
-            final SSLContext sslContext = sslContextFactory.from(config.getSslConfig());
+            final SSLContext sslContext = sslContextFactory.from(
+                config.getServerUri().toString(),
+                config.getSslConfig());
             return ClientBuilder.newBuilder()
                 .sslContext(sslContext)
                 .build();

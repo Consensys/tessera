@@ -26,6 +26,11 @@
             <artifactId>bcpkix-jdk15on</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.cryptacular</groupId>
+            <artifactId>cryptacular</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

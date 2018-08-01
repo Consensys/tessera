@@ -5,6 +5,7 @@ import java.util.List;
 
 public class SSLContextProperties {
 
+    private String address;
     private Path keyStore;
     private String keyStorePassword;
     private Path key;
@@ -14,7 +15,8 @@ public class SSLContextProperties {
     private List<Path> trustedCertificates;
     private Path knownHosts;
 
-    public SSLContextProperties(Path keyStore,
+    public SSLContextProperties(String address,
+                                Path keyStore,
                                 String keyStorePassword,
                                 Path key,
                                 Path certificate,
@@ -22,6 +24,7 @@ public class SSLContextProperties {
                                 String trustStorePassword,
                                 List<Path> trustedCertificates,
                                 Path knownHosts) {
+        this.address = address;
         this.keyStore = keyStore;
         this.keyStorePassword = keyStorePassword;
         this.key = key;
@@ -30,6 +33,10 @@ public class SSLContextProperties {
         this.trustStorePassword = trustStorePassword;
         this.trustedCertificates = trustedCertificates;
         this.knownHosts = knownHosts;
+    }
+
+    public String getAddress() {
+        return address;
     }
 
     public Path getKeyStore() {

@@ -29,7 +29,7 @@ public class ServerSSLContextFactoryTest {
         when(config.getServerTrustStorePassword()).thenReturn("password");
         when(config.getKnownClientsFile()).thenReturn(knownServers);
 
-        SSLContext result = ServerSSLContextFactory.create().from(config);
+        SSLContext result = ServerSSLContextFactory.create().from("localhost",config);
 
         assertThat(result).isNotNull();
 
@@ -49,7 +49,7 @@ public class ServerSSLContextFactoryTest {
         when(config.getServerTrustStorePassword()).thenReturn("password");
         when(config.getKnownClientsFile()).thenReturn(knownServers);
 
-        ServerSSLContextFactory.create().from(config);
+        ServerSSLContextFactory.create().from("localhost",config);
 
     }
 }
