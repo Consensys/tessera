@@ -2,6 +2,7 @@ package com.quorum.tessera.config.migration;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
+import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
@@ -139,6 +140,11 @@ public class LegacyCliAdapter implements CliAdapter {
         Optional.ofNullable(line.getOptionValue("storage"))
                 .map(JdbcConfigFactory::fromLegacyStorageString)
                 .ifPresent(configBuilder::jdbcConfig);
+
+        Optional.ofNullable(line.getOptionValue("tls"))
+                .map(String::toUpperCase)
+                .map(SslAuthenticationMode::valueOf)
+                .ifPresent(configBuilder::sslAuthenticationMode);
 
         Optional.ofNullable(line.getOptionValue("tlsservertrust"))
                 .map(SslTrustModeFactory::resolveByLegacyValue)

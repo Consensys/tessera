@@ -139,7 +139,7 @@ public class LegacyCliAdapterTest {
             "--alwayssendto=" + alwaysSendToFile.toString(),
             "--storage=jdbc:test",
             "--socket=cli.ipc",
-            "--tls=strict",
+            "--tls=off",
             "--tlsservercert=over-server-cert.pem",
             "--tlsserverchain=serverchain.file",
 //            "--tlsserverkey=over-server-key.pem",
@@ -170,7 +170,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getFowardingList().get(0).toString()).isEqualTo("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:test");
         assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
-//        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("override/over-server-cert.pem");
 //        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTlsServerChain()).isEmpty(); //TODO Does not exist, is this supported?
 //        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsKeyPath().toString()).isEqualTo("override/over-server-key.pem");
