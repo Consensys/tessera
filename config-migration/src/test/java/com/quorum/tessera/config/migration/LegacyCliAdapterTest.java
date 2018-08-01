@@ -125,8 +125,8 @@ public class LegacyCliAdapterTest {
         Path configFile = Files.createTempFile("noOptions", ".txt");
         Files.write(configFile, data.getBytes());
 
-//        Path alwaysSendToFile = Files.createTempFile("alwaysSendTo", ".txt");
-//        Files.write(alwaysSendToFile, "overridepublickey".getBytes());
+        Path alwaysSendToFile = Files.createTempFile("alwaysSendTo", ".txt");
+        Files.write(alwaysSendToFile, "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=".getBytes());
 
         String[] args = {
             "--tomlfile=" + configFile.toString(),
@@ -136,7 +136,7 @@ public class LegacyCliAdapterTest {
             "--othernodes=http://others",
             "--publickeys=new.pub",
             "--privatekeys=new.key",
-//            "--alwayssendto=path/to/sendto.pub",
+            "--alwayssendto=" + alwaysSendToFile.toString(),
             "--storage=jdbc:test",
             "--socket=cli.ipc",
 //            "--tls=OFF",
@@ -167,7 +167,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("new.pub");
         assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("new.key");
         assertThat(result.getConfig().get().getFowardingList().size()).isEqualTo(1);
-        assertThat(result.getConfig().get().getFowardingList().get(0)).isEqualTo("overridepublickey");
+        assertThat(result.getConfig().get().getFowardingList().get(0).toString()).isEqualTo("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:test");
         assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
 //        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
@@ -182,6 +182,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("override/over-known-servers");
 
+        Files.deleteIfExists(alwaysSendToFile);
         Files.deleteIfExists(configFile);
         Files.deleteIfExists(passwordFile);
         Files.deleteIfExists(serverKeyStorePath);

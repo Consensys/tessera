@@ -3,6 +3,8 @@ package com.quorum.tessera.config.builder;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.nacl.Key;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -305,7 +307,18 @@ public class ConfigBuilder {
                 .map(Peer::new)
                 .collect(Collectors.toList());
 
-        final List<Key> forwardingKeys = alwaysSendTo
+        List<String> alwaysSendToKeys = new ArrayList<>();
+
+        for(String keyPath : alwaysSendTo) {
+            try {
+                String key = new String(Files.readAllBytes(Paths.get(keyPath)));
+                alwaysSendToKeys.add(key);
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+            }
+        }
+
+        final List<Key> forwardingKeys = alwaysSendToKeys
             .stream()
             .map(Base64.getDecoder()::decode)
             .map(Key::new)

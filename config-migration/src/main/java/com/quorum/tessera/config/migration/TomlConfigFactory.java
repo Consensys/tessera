@@ -96,7 +96,7 @@ public class TomlConfigFactory implements ConfigFactory {
                                                 .build();
 
 
-        List<String> alwaysSendToList = toml.getList("alwayssendto", Collections.EMPTY_LIST);
+        final List<String> alwaysSendToKeyPaths = toml.getList("alwayssendto", Collections.EMPTY_LIST);
 
         Path tlsserverkey = Paths.get(workdir, toml.getString("tlsserverkey", "tls-server-key.pem"));
 
@@ -134,7 +134,7 @@ public class TomlConfigFactory implements ConfigFactory {
                 .sslKnownClientsFile(tlsknownclients)
                 .sslKnownServersFile(tlsknownservers)
                 .peers(othernodes)
-                .alwaysSendTo(alwaysSendToList)
+                .alwaysSendTo(alwaysSendToKeyPaths)
                 .keyData(keyData);
 
         Optional.ofNullable(storage)
