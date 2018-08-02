@@ -21,6 +21,8 @@ public class Kalium implements NaclFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Kalium.class);
 
+    private static final String REDACTED = "REDACTED";
+
     private final NaCl.Sodium sodium;
 
     public Kalium(final NaCl.Sodium sodium) {
@@ -35,21 +37,21 @@ public class Kalium implements NaclFacade {
     public Key computeSharedKey(final Key publicKey, final Key privateKey) {
         final byte[] output = new byte[CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BEFORENMBYTES];
 
-        LOGGER.info("Computing the shared key for public key {} and private key {}", publicKey, "REDACTED");
+        LOGGER.info("Computing the shared key for public key {} and private key {}", publicKey, REDACTED);
         LOGGER.debug("Computing the shared key for public key {} and private key {}", publicKey, privateKey);
         final int sodiumResult = this.sodium.crypto_box_curve25519xsalsa20poly1305_beforenm(
             output, publicKey.getKeyBytes(), privateKey.getKeyBytes()
         );
 
         if (sodiumResult == -1) {
-            LOGGER.warn("Could not compute the shared key for pub {} and priv {}", publicKey, "REDACTED");
+            LOGGER.warn("Could not compute the shared key for pub {} and priv {}", publicKey, REDACTED);
             LOGGER.debug("Could not compute the shared key for pub {} and priv {}", publicKey, privateKey);
             throw new NaclException("Kalium could not compute the shared key");
         }
 
         final Key sharedKey = new Key(output);
 
-        LOGGER.info("Computed shared key {} for pub {} and priv {}", sharedKey, publicKey, "REDACTED");
+        LOGGER.info("Computed shared key {} for pub {} and priv {}", sharedKey, publicKey, REDACTED);
         LOGGER.debug("Computed shared key {} for pub {} and priv {}", sharedKey, publicKey, privateKey);
 
         return sharedKey;
@@ -75,7 +77,7 @@ public class Kalium implements NaclFacade {
         );
 
         if (sodiumResult == -1) {
-            LOGGER.warn("Could not create sealed payload using public key {} and private key {}", publicKey, "REDACTED");
+            LOGGER.warn("Could not create sealed payload using public key {} and private key {}", publicKey, REDACTED);
             LOGGER.debug("Could not create sealed payload using public key {} and private key {}", publicKey, privateKey);
             throw new NaclException("Kalium could not seal the payload using the provided keys directly");
         }
@@ -113,7 +115,7 @@ public class Kalium implements NaclFacade {
         );
 
         if (sodiumResult == -1) {
-            LOGGER.warn("Could not open sealed payload using public key {} and private key {}", publicKey, "REDACTED");
+            LOGGER.warn("Could not open sealed payload using public key {} and private key {}", publicKey, REDACTED);
             LOGGER.debug("Could not opern sealed payload using public key {} and private key {}", publicKey, privateKey);
             throw new NaclException("Kalium could not open the payload using the provided keys directly");
         }
@@ -190,7 +192,7 @@ public class Kalium implements NaclFacade {
         LOGGER.info("Opened sealed payload for shared key {}", sharedKey);
         LOGGER.debug(
             "Opened payload {} using nonce {}, public key {} and private key {} to get result {}",
-            Arrays.toString(encryptedPayload), nonce, sharedKey, "REDACTED", Arrays.toString(paddedOutput)
+            Arrays.toString(encryptedPayload), nonce, sharedKey, REDACTED, Arrays.toString(paddedOutput)
         );
 
         return extract(paddedOutput, CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES);
@@ -227,7 +229,7 @@ public class Kalium implements NaclFacade {
         final Key pubKey = new Key(publicKey);
         final Key privKey = new Key(privateKey);
 
-        LOGGER.info("Generated public key {} and private key {}", pubKey, "REDACTED");
+        LOGGER.info("Generated public key {} and private key {}", pubKey, REDACTED);
         LOGGER.debug("Generated public key {} and private key {}", pubKey, privKey);
 
         return new KeyPair(pubKey, privKey);

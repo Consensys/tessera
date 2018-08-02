@@ -18,6 +18,8 @@ public class Jnacl implements NaclFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Jnacl.class);
 
+    private static final String REDACTED = "REDACTED";
+
     private final SecureRandom secureRandom;
 
     private final SecretBox secretBox;
@@ -31,21 +33,21 @@ public class Jnacl implements NaclFacade {
     public Key computeSharedKey(final Key publicKey, final Key privateKey) {
         final byte[] precomputed = new byte[crypto_secretbox_BEFORENMBYTES];
 
-        LOGGER.info("Computing the shared key for public key {} and private key {}", publicKey, "REDACTED");
+        LOGGER.info("Computing the shared key for public key {} and private key {}", publicKey, REDACTED);
         LOGGER.debug("Computing the shared key for public key {} and private key {}", publicKey, privateKey);
         final int jnaclResult = secretBox.cryptoBoxBeforenm(
             precomputed, publicKey.getKeyBytes(), privateKey.getKeyBytes()
         );
 
         if(jnaclResult == -1) {
-            LOGGER.warn("Could not compute the shared key for pub {} and priv {}", publicKey, "REDACTED");
+            LOGGER.warn("Could not compute the shared key for pub {} and priv {}", publicKey, REDACTED);
             LOGGER.debug("Could not compute the shared key for pub {} and priv {}", publicKey, privateKey);
             throw new NaclException("Kalium could not compute the shared key");
         }
 
         final Key sharedKey = new Key(precomputed);
 
-        LOGGER.info("Computed shared key {} for pub {} and priv {}", sharedKey, publicKey, "REDACTED");
+        LOGGER.info("Computed shared key {} for pub {} and priv {}", sharedKey, publicKey, REDACTED);
         LOGGER.debug("Computed shared key {} for pub {} and priv {}", sharedKey, publicKey, privateKey);
 
         return sharedKey;
@@ -165,7 +167,7 @@ public class Jnacl implements NaclFacade {
         LOGGER.info("Opened sealed payload for shared key {}", sharedKey);
         LOGGER.debug(
             "Opened payload {} using nonce {}, public key {} and private key {} to get result {}",
-            Arrays.toString(cipherText), nonce, sharedKey, "REDACTED", Arrays.toString(paddedOutput)
+            Arrays.toString(cipherText), nonce, sharedKey, REDACTED, Arrays.toString(paddedOutput)
         );
 
         return extract(paddedOutput, crypto_secretbox_ZEROBYTES);
@@ -201,7 +203,7 @@ public class Jnacl implements NaclFacade {
         final Key pubKey = new Key(publicKey);
         final Key privKey = new Key(privateKey);
 
-        LOGGER.info("Generated public key {} and private key {}", pubKey, "REDACTED");
+        LOGGER.info("Generated public key {} and private key {}", pubKey, REDACTED);
         LOGGER.debug("Generated public key {} and private key {}", pubKey, privKey);
 
         return new KeyPair(pubKey, privKey);
