@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.Socket;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,4 +85,26 @@ public class UnixDomainServerSocketTest {
 
         verify(socket).getOutputStream();
     }
+
+    @Test
+    public void socketClosureSuccessful() throws IOException {
+
+        unixDomainServerSocket.close();
+
+        verify(socket).close();
+
+    }
+
+    @Test
+    public void closingSocketThrowsErrorBubblesUp() throws IOException {
+
+        doThrow(IOException.class).when(socket).close();
+
+        final Throwable throwable = catchThrowable(unixDomainServerSocket::close);
+
+        assertThat(throwable).isInstanceOf(UncheckedIOException.class).hasCauseExactlyInstanceOf(IOException.class);
+
+        verify(socket).close();
+    }
+
 }
