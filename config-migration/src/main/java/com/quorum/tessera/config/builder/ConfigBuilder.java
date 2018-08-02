@@ -331,7 +331,7 @@ public class ConfigBuilder {
                     String key = new String(Files.readAllBytes(Paths.get(keyPath)));
                     keyList.add(key);
                 } catch (IOException e) {
-                    System.err.println("Error reading alwayssendto file: " + e.getMessage());
+                    System.err.println("Error reading alwayssendto file. Error: " + e.getMessage() + ".  File: " + keyPath);
                 }
             }
 
