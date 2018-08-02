@@ -91,6 +91,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getKeys().getPasswordFile().toString()).isEqualTo("data/passwords");
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
         assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
+        assertThat(result.getConfig().get().isUseWhiteList()).isTrue();
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.STRICT);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("data/tls-server-cert.pem");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().size()).isEqualTo(2);
@@ -138,6 +139,7 @@ public class LegacyCliAdapterTest {
             "--alwayssendto=" + alwaysSendToFile.toString(),
             "--passwords=pw.txt",
             "--storage=jdbc:test",
+            "--ipwhitelist=10.0.0.1",
             "--socket=cli.ipc",
             "--tls=off",
             "--tlsservercert=over-server-cert.pem",
@@ -171,6 +173,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getKeys().getPasswordFile().toString()).isEqualTo("override/pw.txt");
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:test");
         assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
+        assertThat(result.getConfig().get().isUseWhiteList()).isTrue();
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("override/over-server-cert.pem");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().size()).isEqualTo(1);
@@ -213,6 +216,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getKeys().getPasswordFile()).isNull();
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
         assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
+        assertThat(result.getConfig().get().isUseWhiteList()).isFalse();
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.STRICT);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("tls-server-cert.pem");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().size()).isEqualTo(0);
@@ -227,7 +231,6 @@ public class LegacyCliAdapterTest {
 
         Files.deleteIfExists(configFile);
     }
-
 
     @Test
     public void sampleTomlFileOnly() throws Exception {

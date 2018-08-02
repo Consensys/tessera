@@ -97,6 +97,9 @@ public class TomlConfigFactory implements ConfigFactory {
 
         String storage = toml.getString("storage", "memory");
 
+        final List<String> ipwhitelist = toml.getList("ipwhitelist", Collections.EMPTY_LIST);
+        final boolean useWhiteList = ipwhitelist.isEmpty() ? false : true;
+
         //Server side
         final String tlsservertrust = toml.getString("tlsservertrust", "tofu");
         final Path tlsserverkey = Paths.get(workdir, toml.getString("tlsserverkey", "tls-server-key.pem"));
@@ -136,6 +139,7 @@ public class TomlConfigFactory implements ConfigFactory {
                 .sslKnownServersFile(tlsknownservers)
                 .peers(othernodes)
                 .alwaysSendTo(alwaysSendToKeyPaths)
+                .useWhiteList(useWhiteList)
                 .keyData(keyData);
 
         Optional.ofNullable(storage)

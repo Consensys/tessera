@@ -203,6 +203,11 @@ public class ConfigBuilder {
         return this;
     }
 
+//    public ConfigBuilder ipwhitelist(List<String> ipwhitelist) {
+//        this.ipwhitelist = ipwhitelist;
+//        return this;
+//    }
+
     public ConfigBuilder alwaysSendTo(List<String> alwaysSendTo) {
         this.alwaysSendTo = alwaysSendTo;
         return this;
@@ -343,9 +348,12 @@ public class ConfigBuilder {
             forwardingKeys = alwaysSendToKeys;
         }
 
-        final boolean useWhitelist = useWhiteList;
+        if(useWhiteList) {
+            System.out.println("useWhiteList set to true: The generated config will use the peer list as the whitelist.  " +
+                "Check to make sure correct nodes are included in the peer list and add any that may not be.");
+        }
 
-        return new Config(jdbcConfig, serverConfig, peerList, keyData, forwardingKeys, unixSocketFile, useWhitelist);
+        return new Config(jdbcConfig, serverConfig, peerList, keyData, forwardingKeys, unixSocketFile, useWhiteList);
     }
 
 }
