@@ -28,17 +28,19 @@ public interface OverrideUtil {
 
     Logger LOGGER = LoggerFactory.getLogger(OverrideUtil.class);
 
-    Map<Class<?>, Class<?>> PRIMATIVE_LOOKUP = new HashMap<Class<?>, Class<?>>() {{
-        put(Boolean.TYPE, Boolean.class);
-        put(Byte.TYPE, Byte.class);
-        put(Character.TYPE, Character.class);
-        put(Short.TYPE, Short.class);
-        put(Integer.TYPE, Integer.class);
-        put(Long.TYPE, Long.class);
-        put(Double.TYPE, Double.class);
-        put(Float.TYPE, Float.class);
-        put(Void.TYPE, Void.TYPE);
-    }};
+    Map<Class<?>, Class<?>> PRIMATIVE_LOOKUP = new HashMap<Class<?>, Class<?>>() {
+        {
+            put(Boolean.TYPE, Boolean.class);
+            put(Byte.TYPE, Byte.class);
+            put(Character.TYPE, Character.class);
+            put(Short.TYPE, Short.class);
+            put(Integer.TYPE, Integer.class);
+            put(Long.TYPE, Long.class);
+            put(Double.TYPE, Double.class);
+            put(Float.TYPE, Float.class);
+            put(Void.TYPE, Void.TYPE);
+        }
+    };
 
     static Map<String, Class> buildConfigOptions() {
         return fields(null, Config.class);
@@ -130,13 +132,13 @@ public interface OverrideUtil {
     static <T> Class<T[]> toArrayType(Class<T> t) {
         return (Class<T[]>) Array.newInstance(t, 0).getClass();
     }
-    
+
     /**
-     * Directly set field values using relection. 
-     * 
+     * Directly set field values using relection.
+     *
      * @param root
      * @param path
-     * @param value 
+     * @param value
      */
     static void setValue(Object root, String path, String... value) {
 
@@ -172,14 +174,20 @@ public interface OverrideUtil {
                     pathTokens.forEachRemaining(builder::add);
                     String nestedPath = builder.stream().collect(Collectors.joining("."));
 
-                    for (String v : value) {
-
-                        Object nestedObject = createInstance(genericType);
-
+                    final Object[] newList = Arrays.copyOf(list.toArray(), value.length);
+ 
+                    for (int i = 0; i < value.length; i++) {
+                        final String v = value[i];
+                        
+                        final Object nestedObject  = Optional.ofNullable(newList[i])
+                                    .orElse(createInstance(genericType));
+                        
+                        initialiseNestedObjects(nestedObject);
+                        
                         setValue(nestedObject, nestedPath, v);
-                        list.add(nestedObject);
+                        newList[i] = nestedObject;
                     }
-                    setValue(root, field, list);
+                    setValue(root, field, Arrays.asList(newList));
 
                 }
 

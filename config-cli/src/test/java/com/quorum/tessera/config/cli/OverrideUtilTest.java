@@ -370,16 +370,18 @@ public class OverrideUtilTest {
             config = JaxbUtil.unmarshal(data, Config.class);
         }
 
+
         OverrideUtil.setValue(config, "jdbc.username", "someuser");
         OverrideUtil.setValue(config, "keys.keyData.config.privateKeyData.snonce", "snonce1", "snonce2");
 
         assertThat(config.getJdbcConfig().getUsername()).isEqualTo("someuser");
         assertThat(config.getJdbcConfig().getPassword()).isEqualTo("tiger");
-        
-        assertThat(config.getKeys().getKeyData().get(0).getConfig()).isNull();
-        assertThat(config.getKeys().getKeyData().get(1).getConfig().getSnonce()).isEqualTo("snonce1");
-        assertThat(config.getKeys().getKeyData().get(2).getConfig().getSnonce()).isEqualTo("snonce2");
-        
+
+        assertThat(config.getKeys().getKeyData().get(0).getConfig().getSnonce()).isEqualTo("snonce1");
+        assertThat(config.getKeys().getKeyData().get(0).getPublicKey()).isEqualTo("PUBLICKEY");
+
+        assertThat(config.getKeys().getKeyData().get(1).getConfig().getSnonce()).isEqualTo("snonce2");
+        assertThat(config.getKeys().getKeyData().get(1).getPublicKey()).isNull();
         assertThat(config.getUnixSocketFile()).isEqualTo(Paths.get("/tmp/bogus.socket"));
     }
 
