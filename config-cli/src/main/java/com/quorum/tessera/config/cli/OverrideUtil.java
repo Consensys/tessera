@@ -126,6 +126,7 @@ public interface OverrideUtil {
 
         final String[] pathTokens = propertyPath.split("\\.");
         List<String> values = Arrays.asList(value);
+     
         Object obj = config;
         for (int i = 0; i < pathTokens.length; i++) {
 
@@ -137,16 +138,14 @@ public interface OverrideUtil {
             if (Collection.class.isAssignableFrom(field.getType())) {
                 final Class genericType = resolveCollectionParameter(field.getGenericType());
                 if (isSimple(genericType)) {
-                    if (String.class.equals(genericType)) {
-                        setValue(obj, field, values);
-                    }
-                    if (Path.class.equals(genericType)) {
-                        List<Path> paths = values.stream()
-                                .map(s -> Paths.get(s))
-                                .collect(Collectors.toList());
+                    
+                    List convertedValues = (List) values.stream()
+                            .map(v -> convertTo(genericType, v))
+                            .collect(Collectors.toList());
+                    
+                    
+                    setValue(obj, field, convertedValues);
 
-                        setValue(obj, field, paths);
-                    }
                 } else {
 
                     String nextFieldName = pathTokens[i + 1];
@@ -184,6 +183,10 @@ public interface OverrideUtil {
         }
     }
 
+    
+
+    
+    
     static <T> T getValue(Object from, Field field) {
         return ReflectCallback.execute(() -> {
             return (T) field.get(from);

@@ -8,7 +8,6 @@ import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.util.JaxbUtil;
 import java.lang.reflect.Field;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -18,9 +17,13 @@ import javax.xml.bind.annotation.XmlElement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OverrideUtilTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OverrideUtilTest.class);
+    
     @Test
     public void buildOptions() throws Exception {
 
@@ -90,13 +93,14 @@ public class OverrideUtilTest {
     @Test
     public void initialiseConfigFromNoValues() throws Exception {
 
-        URL json = OverrideUtil.class.getResource("/init-values.json");
-
-        Config config = JaxbUtil.unmarshal(json.openStream(), Config.class);
+        Config config = OverrideUtil.createInstance(Config.class);
 
         assertThat(config).isNotNull();
 
-        JaxbUtil.marshalWithNoValidation(config, System.out);
+
+        LOGGER.debug(JaxbUtil.marshalToStringNoValidation(config));
+        
+        
         OverrideUtil.overrideExistingValue(config, "useWhiteList", "true");
         OverrideUtil.overrideExistingValue(config, "jdbc.username", "someuser");
         OverrideUtil.overrideExistingValue(config, "jdbc.password", "somepassword");
@@ -118,7 +122,8 @@ public class OverrideUtilTest {
 
         OverrideUtil.overrideExistingValue(config, "peers.url", "PEER1", "PEER2");
 
-        JaxbUtil.marshalWithNoValidation(config, System.out);
+        LOGGER.debug(JaxbUtil.marshalToStringNoValidation(config));
+        
         assertThat(config.getJdbcConfig()).isNotNull();
         assertThat(config.getJdbcConfig().getUsername()).isEqualTo("someuser");
         assertThat(config.getJdbcConfig().getPassword()).isEqualTo("somepassword");
@@ -159,9 +164,7 @@ public class OverrideUtilTest {
     @Test
     public void overrideExistingValueKeyDataWithPublicKey() throws Exception {
 
-        URL json = OverrideUtil.class.getResource("/init-values.json");
-
-        Config config = JaxbUtil.unmarshal(json.openStream(), Config.class);
+        Config config = OverrideUtil.createInstance(Config.class);
 
         final String publicKeyValue = "PUBLIC_KEY";
 
@@ -179,9 +182,7 @@ public class OverrideUtilTest {
     @Test
     public void overrideExistingValueKeyDataWithPrivateKeyType() throws Exception {
 
-        URL json = OverrideUtil.class.getResource("/init-values.json");
-
-        Config config = JaxbUtil.unmarshal(json.openStream(), Config.class);
+        Config config = OverrideUtil.createInstance(Config.class);
 
         final PrivateKeyType priavteKeyType = PrivateKeyType.UNLOCKED;
 
@@ -294,6 +295,8 @@ public class OverrideUtilTest {
 
         assertThat(OverrideUtil.convertTo(String.class, null)).isNull();
 
+        assertThat(OverrideUtil.convertTo(Peer.class, "SOMEVAL")).isInstanceOf(Peer.class);
+
     }
 
     @Test
@@ -303,7 +306,7 @@ public class OverrideUtilTest {
 
         OverrideUtil.initialiseNestedObjects(config);
 
-        JaxbUtil.marshalWithNoValidation(config, System.out);
+        LOGGER.debug(JaxbUtil.marshalToStringNoValidation(config));
 
         assertThat(config.getJdbcConfig()).isNotNull();
         assertThat(config.getServerConfig()).isNotNull();
@@ -318,13 +321,36 @@ public class OverrideUtilTest {
         Config config = OverrideUtil.createInstance(Config.class);
         assertThat(config).isNotNull();
 
-        JaxbUtil.marshalWithNoValidation(config, System.out);
+        LOGGER.debug(JaxbUtil.marshalToStringNoValidation(config));
+        
 
         assertThat(config.getJdbcConfig()).isNotNull();
         assertThat(config.getServerConfig()).isNotNull();
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getPeers()).isEmpty();
         assertThat(config.getFowardingList()).isEmpty();
+
+    }
+
+   // @Test
+    public void overrideExistingValueKeyDataWithPrivateKeyData() throws Exception {
+
+        Config config = OverrideUtil.createInstance(Config.class);
+
+        final String value = "NONCE";
+
+        OverrideUtil.overrideExistingValue(config, "keys.keyData.config.privateKeyData.nonce", value);
+
+        assertThat(config.getKeys()).isNotNull();
+
+        KeyConfiguration keyConfig = config.getKeys();
+
+        assertThat(keyConfig.getKeyData()).hasSize(1);
+
+        assertThat(keyConfig.getKeyData().get(0)
+                .getConfig()
+                .getPrivateKeyData()
+                .getSnonce()).isEqualTo(value);
 
     }
 
