@@ -19,8 +19,6 @@ public class DirectoryStoreFileTest {
         
         assertThat(results).hasSize(22);
         
-        
-        
     }
     
 }
