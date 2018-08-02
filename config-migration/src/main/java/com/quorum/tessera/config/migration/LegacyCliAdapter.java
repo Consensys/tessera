@@ -140,6 +140,9 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(Arrays::asList)
                 .ifPresent(configBuilder::alwaysSendTo);
 
+        Optional.ofNullable(line.getOptionValue("workdir"))
+                .ifPresent(keyDataBuilder::withWorkingDirectory);
+
         resolveUnixFilePath(initialConfig.getKeys().getPasswordFile(), line.getOptionValue("workdir"), line.getOptionValue("passwords"))
             .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
 
@@ -203,10 +206,8 @@ public class LegacyCliAdapter implements CliAdapter {
         resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getKnownClientsFile(), line.getOptionValue("workdir"), line.getOptionValue("tlsknownclients"))
             .ifPresent(configBuilder::sslKnownClientsFile);
 
-        Optional.ofNullable(line.getOptionValue("workdir"))
-                .ifPresent(wd -> Optional.ofNullable(keyDataBuilder.build(wd))
-                                        .ifPresent(configBuilder::keyData)
-                );
+        Optional.ofNullable(keyDataBuilder.build())
+                .ifPresent(configBuilder::keyData);
 
         return configBuilder;
     }

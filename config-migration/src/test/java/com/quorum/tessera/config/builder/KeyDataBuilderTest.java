@@ -46,7 +46,7 @@ public class KeyDataBuilderTest {
             .withPrivateKeys(privateKeys)
             .withPublicKeys(publicKeys)
             .withPrivateKeyPasswordFile(passwordFile)
-            .build(null)
+            .build()
             .getKeyData();
 
         assertThat(result).hasSize(3);
@@ -61,7 +61,7 @@ public class KeyDataBuilderTest {
             .withPublicKeys(Collections.singletonList("keyfile.txt"))
             .withPrivateKeyPasswordFile(Paths.get("pwfile.txt"));
 
-        final Throwable throwable = catchThrowable(() -> keyDataBuilder.build(null));
+        final Throwable throwable = catchThrowable(() -> keyDataBuilder.build());
 
         assertThat(throwable)
             .isInstanceOf(ConfigException.class)
@@ -98,7 +98,7 @@ public class KeyDataBuilderTest {
                 .withPrivateKeys(privateKeys)
                 .withPublicKeys(publicKeys)
                 .withPrivateKeyPasswordFile(passwordsFile)
-                .build(null).getKeyData();
+                .build().getKeyData();
 
         assertThat(result).hasSize(3);
 
@@ -119,7 +119,7 @@ public class KeyDataBuilderTest {
     @Test
     public void noKeysReturnsNull() {
         Optional<KeyConfiguration> keyConfiguration = Optional.ofNullable(KeyDataBuilder.create()
-                                                                                        .build(null));
+                                                                                        .build());
         assertThat(keyConfiguration).isNotPresent();
     }
 }

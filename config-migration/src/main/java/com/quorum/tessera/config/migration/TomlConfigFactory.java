@@ -58,8 +58,8 @@ public class TomlConfigFactory implements ConfigFactory {
         final String url = toml.getString("url");
 
         final Integer port = Optional.ofNullable(toml.getLong("port"))
-                                    .map(Long::intValue)
-                                    .orElse(null);
+                                                    .map(Long::intValue)
+                                                    .orElse(null);
 
         final String workdir = toml.getString("workdir", "");
         final String socket = toml.getString("socket", "temp-socket.ipc");
@@ -85,10 +85,11 @@ public class TomlConfigFactory implements ConfigFactory {
         KeyConfiguration keyData;
         if(!publicKeyList.isEmpty() && !privateKeyList.isEmpty()) {
             keyData = KeyDataBuilder.create()
-                .withPublicKeys(publicKeyList)
-                .withPrivateKeys(privateKeyList)
-                .withPrivateKeyPasswordFile(privateKeyPasswordPath)
-                .build(workdir);
+                                    .withPublicKeys(publicKeyList)
+                                    .withPrivateKeys(privateKeyList)
+                                    .withPrivateKeyPasswordFile(privateKeyPasswordPath)
+                                    .withWorkingDirectory(workdir)
+                                    .build();
         } else {
             keyData = new KeyConfiguration(null, null, null);
         }
