@@ -46,6 +46,7 @@ public class SocketHandler implements Runnable {
         LOGGER.info("Received http response: {}", new String(response, UTF_8));
         unixSocket.write(response);
 
+        unixSocket.close();
         httpProxy.disconnect();
     }
 
