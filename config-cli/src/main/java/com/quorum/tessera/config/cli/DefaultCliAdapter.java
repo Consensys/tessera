@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.config.Config;
@@ -19,6 +18,7 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -35,11 +35,10 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class DefaultCliAdapter implements CliAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCliAdapter.class);
-    
+
     @Override
     public CliResult execute(String... args) throws Exception {
 
@@ -80,20 +79,46 @@ public class DefaultCliAdapter implements CliAdapter {
                         .argName("PATH")
                         .build());
 
+        Map<String, Class> overrideOptions = OverrideUtil.buildConfigOptions();
+
+        overrideOptions.entrySet().forEach(entry -> {
+
+            final String optionName = entry.getKey();
+
+            final boolean isCollection = entry.getValue().isArray();
+
+            Class optionType = entry.getValue();
+
+            Option.Builder optionBuilder = Option.builder()
+                    .longOpt(optionName)
+                    .desc(String.format("Override option for %s , type: %s", optionName, optionType.getSimpleName()));
+
+            if (isCollection) {
+                optionBuilder.hasArgs()
+                        .argName(optionType.getSimpleName().toUpperCase() +"...");
+            } else {
+                optionBuilder.hasArg()
+                        .argName(optionType.getSimpleName().toUpperCase());
+            }
+            options.addOption(optionBuilder.build());
+
+        });
+
         if (Arrays.asList(args).contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("tessera -configfile <PATH> [-keygen <PATH>] [-pidfile <PATH>]", options);
             return new CliResult(0, true, null);
         }
 
-        CommandLineParser parser = new DefaultParser();
+        final CommandLineParser parser = new DefaultParser();
 
         try {
 
-            CommandLine line = parser.parse(options, args);
+            final CommandLine line = parser.parse(options, args);
+            
+            final Config config = parseConfig(line);
 
-            Config config = parseConfig(line);
-
+            
             if (line.hasOption("pidfile")) {
                 createPidFile(line);
             }
@@ -109,11 +134,11 @@ public class DefaultCliAdapter implements CliAdapter {
     private Config parseConfig(CommandLine commandLine) throws IOException {
 
         final Validator validator = Validation.byDefaultProvider()
-                                                        .configure()
-                                                        .ignoreXmlConfiguration()
-                                                        .buildValidatorFactory()
-                                                        .getValidator();
-        
+                .configure()
+                .ignoreXmlConfiguration()
+                .buildValidatorFactory()
+                .getValidator();
+
         final ConfigFactory configFactory = ConfigFactory.create();
 
         final Path path = Paths.get(commandLine.getOptionValue("configfile"));
@@ -137,7 +162,7 @@ public class DefaultCliAdapter implements CliAdapter {
 
         if (!keyGenConfigs.isEmpty()) {
             //we have generated new keys, so we need to output the new configuration
-            output(commandLine,config);
+            output(commandLine, config);
         }
         return config;
 
@@ -162,7 +187,7 @@ public class DefaultCliAdapter implements CliAdapter {
         return keyGenConfigs;
     }
 
-    private static void output(CommandLine commandLine,Config config) throws IOException {
+    private static void output(CommandLine commandLine, Config config) throws IOException {
 
         if (commandLine.hasOption("output")) {
             final Path outputConfigFile = Paths.get(commandLine.getOptionValue("output"));
@@ -192,6 +217,5 @@ public class DefaultCliAdapter implements CliAdapter {
             stream.write(pid.getBytes(StandardCharsets.UTF_8));
         }
     }
-    
-    
+
 }

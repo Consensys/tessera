@@ -1,0 +1,15 @@
+{
+    "useWhiteList": false,
+    "jdbc": {
+    },
+    "server": {
+        "sslConfig": {},
+        "influxConfig": {}
+    },
+    "peer": [],
+    "keys": {
+        "passwords": [],
+        "keyData": []
+    },
+    "alwaysSendTo": []
+}
