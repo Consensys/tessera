@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.net.Socket;
 import java.util.Objects;
 
@@ -55,5 +56,18 @@ public class UnixDomainServerSocket {
             LOGGER.error("Failed to read from Socket");
             throw new TesseraSocketException(ex);
         }
+    }
+
+    /**
+     * Closes the socket connection entirely
+     */
+    public void close() {
+
+        try {
+            this.socket.close();
+        } catch (final IOException ex){
+            throw new UncheckedIOException(ex);
+        }
+
     }
 }

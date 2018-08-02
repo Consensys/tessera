@@ -52,6 +52,7 @@ public class SocketHandlerTest {
         verify(httpProxy).sendRequest("IN".getBytes());
 
         verify(httpProxy).disconnect();
+        verify(unixSocket).close();
 
     }
 
@@ -77,6 +78,7 @@ public class SocketHandlerTest {
         verify(httpProxy).sendRequest("IN".getBytes());
 
         verify(httpProxy).disconnect();
+        verify(unixSocket).close();
 
     }
 
