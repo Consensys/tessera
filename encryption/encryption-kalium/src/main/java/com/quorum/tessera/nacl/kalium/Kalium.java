@@ -190,7 +190,7 @@ public class Kalium implements NaclFacade {
         LOGGER.info("Opened sealed payload for shared key {}", sharedKey);
         LOGGER.debug(
             "Opened payload {} using nonce {}, public key {} and private key {} to get result {}",
-            Arrays.toString(encryptedPayload), nonce, sharedKey, Arrays.toString(paddedOutput)
+            Arrays.toString(encryptedPayload), nonce, sharedKey, "REDACTED", Arrays.toString(paddedOutput)
         );
 
         return extract(paddedOutput, CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES);
