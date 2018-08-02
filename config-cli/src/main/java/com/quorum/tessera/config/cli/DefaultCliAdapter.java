@@ -117,7 +117,18 @@ public class DefaultCliAdapter implements CliAdapter {
             final CommandLine line = parser.parse(options, args);
             
             final Config config = parseConfig(line);
-
+            
+            overrideOptions.entrySet().forEach(dynEntry -> {
+                String optionName = dynEntry.getKey();
+                if(line.hasOption(optionName)) {
+                    String[] values = line.getOptionValues(optionName);
+                    LOGGER.debug("Setting : {} with value(s) {}",optionName,values);
+                    OverrideUtil.setValue(config, optionName, values);
+                    LOGGER.debug("Set : {} with value(s) {}",optionName,values);
+                }
+            });
+            
+            
             
             if (line.hasOption("pidfile")) {
                 createPidFile(line);

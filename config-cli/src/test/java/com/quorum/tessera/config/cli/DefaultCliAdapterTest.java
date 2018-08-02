@@ -196,4 +196,23 @@ public class DefaultCliAdapterTest {
         Files.deleteIfExists(anotherPidFile);
 
     }
+    
+        @Test
+    public void dynOption() throws Exception {
+ 
+        CliResult result = cliDelegate.execute(
+            "-configfile",
+            getClass().getResource("/keygen-sample.json").getFile(),
+            "-jdbc.username",
+            "somename"
+        );
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig().get().getJdbcConfig().getUsername()).isEqualTo("somename");
+        assertThat(result.getConfig().get().getJdbcConfig().getPassword()).isEqualTo("tiger");
+        
+
+
+    }
 }
