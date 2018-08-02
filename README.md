@@ -83,5 +83,5 @@ Tessera is the service used to provide Quorum with the ability to support privat
 
 ## Further reading
 * The [Tessera Wiki](https://github.com/QuorumEngineering/tessera/wiki/) provides additional information on how Tessera works, migrating from Constellation to Tessera, configuration details, and more.
-* [Quorum](https://github.com/QuorumEngineering/quorum-mirror) is an Ethereym-based distributed ledger protocol that uses Tessera to provide transaction privacy.
+* [Quorum](https://github.com/QuorumEngineering/quorum-mirror) is an Ethereum-based distributed ledger protocol that uses Tessera to provide transaction privacy.
 * Follow the [Quorum Examples](https://github.com/QuorumEngineering/quorum-ex) to see Tessera in action in a demo Quorum network.
