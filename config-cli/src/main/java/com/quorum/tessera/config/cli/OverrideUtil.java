@@ -9,6 +9,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -229,8 +230,9 @@ public interface OverrideUtil {
         return ReflectCallback.execute(() -> {
             Method factoryMethod = type.getDeclaredMethod("create");
             factoryMethod.setAccessible(true);
-
-            return (T) factoryMethod.invoke(null);
+            final Object instance = factoryMethod.invoke(null);
+            initialiseNestedObjects(instance);
+            return (T) instance;
         });
 
     }
@@ -239,6 +241,35 @@ public interface OverrideUtil {
         return ReflectCallback.execute(() -> Class.forName(classname));
     }
 
+    static void initialiseNestedObjects(Object obj) {
+        ReflectCallback.execute(() -> {
+            Class type = obj.getClass();
+            Field[] fields = type.getDeclaredFields();
+            
+            for(Field field : fields) {
+                field.setAccessible(true);
+                Class fieldType = field.getType();
+                if(isSimple(fieldType)) {
+                    continue;
+                }
+                
+                if(Collection.class.isAssignableFrom(fieldType)) {
+                    setValue(obj, field, new ArrayList<>());
+                    continue;
+                }
+                
+                Object nestedObject = createInstance(fieldType);
+                initialiseNestedObjects(nestedObject);
+                setValue(obj, field, nestedObject);
+            
+            }
+            return null;
+        });
+                
+        
+        
+    }
+    
     static <T> T convertTo(Class<T> type, String value) {
 
         if (Objects.isNull(value)) {

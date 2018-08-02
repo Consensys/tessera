@@ -259,6 +259,7 @@ public class OverrideUtilTest {
     public void createInstance() {
         Peer result = OverrideUtil.createInstance(Peer.class);
         assertThat(result).isNotNull();
+
     }
 
     @Test
@@ -285,11 +286,42 @@ public class OverrideUtilTest {
         assertThat(OverrideUtil.convertTo(Boolean.class, "true"))
                 .isTrue();
 
-        
         assertThat(OverrideUtil.convertTo(SslAuthenticationMode.class, "STRICT"))
                 .isEqualTo(SslAuthenticationMode.STRICT);
 
         assertThat(OverrideUtil.convertTo(String.class, null)).isNull();
+
+    }
+
+    @Test
+    public void initialiseNestedObjects() {
+
+        Config config = new Config(null, null, null, null, null, null, true);
+
+        OverrideUtil.initialiseNestedObjects(config);
+
+        JaxbUtil.marshalWithNoValidation(config, System.out);
+
+        assertThat(config.getJdbcConfig()).isNotNull();
+        assertThat(config.getServerConfig()).isNotNull();
+        assertThat(config.getKeys()).isNotNull();
+        assertThat(config.getPeers()).isEmpty();
+        assertThat(config.getFowardingList()).isEmpty();
+
+    }
+
+    @Test
+    public void createConfigInstance() {
+        Config config = OverrideUtil.createInstance(Config.class);
+        assertThat(config).isNotNull();
+
+        JaxbUtil.marshalWithNoValidation(config, System.out);
+
+        assertThat(config.getJdbcConfig()).isNotNull();
+        assertThat(config.getServerConfig()).isNotNull();
+        assertThat(config.getKeys()).isNotNull();
+        assertThat(config.getPeers()).isEmpty();
+        assertThat(config.getFowardingList()).isEmpty();
 
     }
 
