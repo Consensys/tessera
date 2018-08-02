@@ -7,6 +7,7 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DirectoryStoreFile implements StoreLoader {
 
@@ -18,10 +19,12 @@ public class DirectoryStoreFile implements StoreLoader {
         Optional.ofNullable(directory)
                 .filter(p -> Files.isDirectory(p))
                 .orElseThrow(IllegalArgumentException::new);
-        
-        return Files.list(directory)
-                .collect(Collectors.toMap(p -> Base64.getDecoder().decode(p.toFile().getName()), p -> fileDelegate.readAllBytes(p)));
 
+        try (Stream<Path> stream = Files.list(directory)) {
+            return stream.collect(Collectors.toMap(
+                    p -> Base64.getDecoder().decode(p.toFile().getName()),
+                    p -> fileDelegate.readAllBytes(p)));
+        }
     }
 
 }
