@@ -1,6 +1,8 @@
 package com.quorum.tessera.config.migration;
 
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ConfigFactory;
+import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
@@ -9,15 +11,15 @@ import com.quorum.tessera.config.cli.CliAdapter;
 import com.quorum.tessera.config.cli.CliResult;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.io.FilesDelegate;
+import org.apache.commons.cli.*;
+
+import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.apache.commons.cli.*;
-
 import java.nio.file.Paths;
 import java.util.*;
-import javax.validation.ConstraintViolationException;
 
 public class LegacyCliAdapter implements CliAdapter {
 
@@ -90,6 +92,8 @@ public class LegacyCliAdapter implements CliAdapter {
     static Optional<Path> resolveUnixFilePath(Path initial, String workdir, String fileName) {
         if (Objects.nonNull(workdir) && Objects.nonNull(fileName)) {
             return Optional.of(Paths.get(workdir, fileName));
+        } else if(Objects.nonNull(fileName)) {
+            return Optional.of(Paths.get(fileName));
         }
 
         return Optional.ofNullable(initial);

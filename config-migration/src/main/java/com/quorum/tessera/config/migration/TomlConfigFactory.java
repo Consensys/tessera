@@ -62,9 +62,14 @@ public class TomlConfigFactory implements ConfigFactory {
                                                     .orElse(null);
 
         final String workdir = toml.getString("workdir", "");
-        final String socket = toml.getString("socket", "temp-socket.ipc");
+        final String socket = toml.getString("socket");
 
-        final Path unixSocketFile = Paths.get(workdir, socket);
+        final Path unixSocketFile;
+        if(socket != null) {
+            unixSocketFile = Paths.get(workdir, socket);
+        } else {
+            unixSocketFile = null;
+        }
 
         final String tls = toml.getString("tls", "strict").toUpperCase();
 
@@ -83,7 +88,7 @@ public class TomlConfigFactory implements ConfigFactory {
         }
 
         KeyConfiguration keyData;
-        if(!publicKeyList.isEmpty() && !privateKeyList.isEmpty()) {
+        if(!publicKeyList.isEmpty() || !privateKeyList.isEmpty()) {
             keyData = KeyDataBuilder.create()
                                     .withPublicKeys(publicKeyList)
                                     .withPrivateKeys(privateKeyList)
@@ -99,7 +104,7 @@ public class TomlConfigFactory implements ConfigFactory {
         String storage = toml.getString("storage", "memory");
 
         final List<String> ipwhitelist = toml.getList("ipwhitelist", Collections.EMPTY_LIST);
-        final boolean useWhiteList = ipwhitelist.isEmpty() ? false : true;
+        final boolean useWhiteList = !ipwhitelist.isEmpty();
 
         //Server side
         final String tlsservertrust = toml.getString("tlsservertrust", "tofu");
@@ -110,7 +115,7 @@ public class TomlConfigFactory implements ConfigFactory {
         for(String name : tlsserverchainnames) {
             tlsserverchain.add(Paths.get(workdir, name));
         }
-        final Path tlsknownclients = Paths.get(workdir, toml.getString("tlsknownclients", "tls-known-clients"));
+        final Path tlsknownclients = Paths.get(workdir, toml.getString("tlsknownclients", "PATH/TO/TLS-KNOWN-CLIENTS"));
 
         //Client side
         final String tlsclienttrust = toml.getString("tlsclienttrust", "tofu");
@@ -121,7 +126,7 @@ public class TomlConfigFactory implements ConfigFactory {
         for(String name : tlsclientchainnames) {
             tlsclientchain.add(Paths.get(workdir, name));
         }
-        final Path tlsknownservers = Paths.get(workdir, toml.getString("tlsknownservers", "tls-known-servers"));
+        final Path tlsknownservers = Paths.get(workdir, toml.getString("tlsknownservers", "PATH/TO/TLS-KNOWN-SERVERS"));
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
                 .serverPort(port)

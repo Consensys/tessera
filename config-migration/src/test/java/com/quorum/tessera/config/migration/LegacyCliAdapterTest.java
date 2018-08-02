@@ -201,7 +201,8 @@ public class LegacyCliAdapterTest {
             "--tomlfile=" + configFile.toString(),
             "--url=http://127.0.0.1",
             "--port=9001",
-            "--othernodes=localhost:1111"
+            "--othernodes=localhost:1111",
+            "--socket=myipcfile.ipc"
         };
 
         CliResult result = instance.execute(requiredParams);
@@ -210,7 +211,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
 
-        assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("temp-socket.ipc");
+        assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("myipcfile.ipc");
         assertThat(Optional.ofNullable(result.getConfig().get().getKeys().getKeyData()).isPresent()).isEqualTo(false);
         assertThat(result.getConfig().get().getFowardingList().size()).isEqualTo(0);
         assertThat(result.getConfig().get().getKeys().getPasswordFile()).isNull();
@@ -222,15 +223,32 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().size()).isEqualTo(0);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsKeyPath().toString()).isEqualTo("tls-server-key.pem");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownClientsFile().toString()).isEqualTo("tls-known-clients");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownClientsFile().toString()).isEqualTo("PATH/TO/TLS-KNOWN-CLIENTS");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsCertificatePath().toString()).isEqualTo("tls-client-cert.pem");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates().size()).isEqualTo(0);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("tls-client-key.pem");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("tls-known-servers");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("PATH/TO/TLS-KNOWN-SERVERS");
 
         Files.deleteIfExists(configFile);
     }
+
+//    @Test
+//    public void ifRequiredFieldsAreNotProvidedInEitherTomlOrCliThenConstraintViolationsAreRaised() throws Exception {
+//        Path configFile = Files.createTempFile("emptyConfig", ".txt");
+//
+//        String[] requiredArgs = {"--tomlfile=" + configFile.toString()};
+//
+//        CliResult result = instance.execute(requiredArgs);
+//
+//        try {
+//            instance.execute(requiredArgs);;
+//            failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
+//        } catch (ConstraintViolationException ex) {
+//            assertThat(ex.getConstraintViolations()).hasSize(3);
+//        }
+//
+//    }
 
     @Test
     public void sampleTomlFileOnly() throws Exception {
@@ -507,7 +525,7 @@ public class LegacyCliAdapterTest {
 
         Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(null, null, "filename");
 
-        assertThat(result).isNotPresent();
+        assertThat(result).isPresent().get().isEqualTo(Paths.get("filename"));
     }
 
     @Test
