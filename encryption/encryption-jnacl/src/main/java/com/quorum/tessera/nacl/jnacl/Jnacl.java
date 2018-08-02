@@ -165,7 +165,7 @@ public class Jnacl implements NaclFacade {
         LOGGER.info("Opened sealed payload for shared key {}", sharedKey);
         LOGGER.debug(
             "Opened payload {} using nonce {}, public key {} and private key {} to get result {}",
-            Arrays.toString(cipherText), nonce, sharedKey, Arrays.toString(paddedOutput)
+            Arrays.toString(cipherText), nonce, sharedKey, "REDACTED", Arrays.toString(paddedOutput)
         );
 
         return extract(paddedOutput, crypto_secretbox_ZEROBYTES);
