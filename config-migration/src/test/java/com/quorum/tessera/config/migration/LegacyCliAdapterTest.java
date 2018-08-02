@@ -219,16 +219,16 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
         assertThat(result.getConfig().get().isUseWhiteList()).isFalse();
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.STRICT);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("tls-server-cert.pem");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath()).isNull();
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().size()).isEqualTo(0);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsKeyPath().toString()).isEqualTo("tls-server-key.pem");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsKeyPath()).isNull();
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownClientsFile().toString()).isEqualTo("PATH/TO/TLS-KNOWN-CLIENTS");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsCertificatePath().toString()).isEqualTo("tls-client-cert.pem");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownClientsFile()).isNull();
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsCertificatePath()).isNull();
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates().size()).isEqualTo(0);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("tls-client-key.pem");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsKeyPath()).isNull();
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("PATH/TO/TLS-KNOWN-SERVERS");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile()).isNull();
 
         Files.deleteIfExists(configFile);
     }

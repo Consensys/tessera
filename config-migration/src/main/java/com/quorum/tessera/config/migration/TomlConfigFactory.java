@@ -101,32 +101,46 @@ public class TomlConfigFactory implements ConfigFactory {
 
         final List<String> alwaysSendToKeyPaths = toml.getList("alwayssendto", Collections.EMPTY_LIST);
 
-        String storage = toml.getString("storage", "memory");
+        final String storage = toml.getString("storage", "memory");
 
         final List<String> ipwhitelist = toml.getList("ipwhitelist", Collections.EMPTY_LIST);
         final boolean useWhiteList = !ipwhitelist.isEmpty();
 
         //Server side
         final String tlsservertrust = toml.getString("tlsservertrust", "tofu");
-        final Path tlsserverkey = Paths.get(workdir, toml.getString("tlsserverkey", "tls-server-key.pem"));
-        final Path tlsservercert = Paths.get(workdir, toml.getString("tlsservercert", "tls-server-cert.pem"));
+
+        final Optional<String> tlsserverkeyStr = Optional.ofNullable(toml.getString("tlsserverkey"));
+        final Path tlsserverkey = tlsserverkeyStr.map(s -> Paths.get(workdir, s)).orElse(null);
+
+        final Optional<String> tlsservercertStr = Optional.ofNullable(toml.getString("tlsservercert"));
+        final Path tlsservercert = tlsservercertStr.map(s -> Paths.get(workdir, s)).orElse(null);
+
         final List<String> tlsserverchainnames = toml.getList("tlsserverchain", Collections.EMPTY_LIST);
         List<Path> tlsserverchain = new ArrayList<>();
         for(String name : tlsserverchainnames) {
             tlsserverchain.add(Paths.get(workdir, name));
         }
-        final Path tlsknownclients = Paths.get(workdir, toml.getString("tlsknownclients", "PATH/TO/TLS-KNOWN-CLIENTS"));
+
+        final Optional<String> tlsknownclientsStr = Optional.ofNullable(toml.getString("tlsknownclients"));
+        final Path tlsknownclients = tlsknownclientsStr.map(s -> Paths.get(workdir, s)).orElse(null);
 
         //Client side
         final String tlsclienttrust = toml.getString("tlsclienttrust", "tofu");
-        final Path tlsclientkey = Paths.get(workdir, toml.getString("tlsclientkey", "tls-client-key.pem"));
-        final Path tlsclientcert = Paths.get(workdir, toml.getString("tlsclientcert", "tls-client-cert.pem"));
+
+        final Optional<String> tlsclientkeyStr = Optional.ofNullable(toml.getString("tlsclientkey"));
+        final Path tlsclientkey = tlsclientkeyStr.map(s -> Paths.get(workdir, s)).orElse(null);
+
+        final Optional<String> tlsclientcertStr = Optional.ofNullable(toml.getString("tlsclientcert"));
+        final Path tlsclientcert = tlsclientcertStr.map(s -> Paths.get(workdir, s)).orElse(null);
+
         final List<String> tlsclientchainnames = toml.getList("tlsclientchain", Collections.EMPTY_LIST);
         List<Path> tlsclientchain = new ArrayList<>();
         for(String name : tlsclientchainnames) {
             tlsclientchain.add(Paths.get(workdir, name));
         }
-        final Path tlsknownservers = Paths.get(workdir, toml.getString("tlsknownservers", "PATH/TO/TLS-KNOWN-SERVERS"));
+
+        final Optional<String> tlsknownserversStr = Optional.ofNullable(toml.getString("tlsknownservers"));
+        final Path tlsknownservers = tlsknownserversStr.map(s -> Paths.get(workdir, s)).orElse(null);
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
                 .serverPort(port)
