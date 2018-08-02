@@ -156,12 +156,23 @@ public interface OverrideUtil {
                     List list = (List) getValue(obj, field);
                     for (String v : values) {
                         Object instance = createInstance(genericType);
-                        setValue(instance, targetField, v);
+                        
+                        Object convertedValue = convertTo(targetField.getType(), v);
+                        if(!isSimple(targetField)) {
+                            //TODO: 
+                            String nestedPropertyName = pathTokens[i + 2];
+                            Field nestedField = resolveField(targetField.getType(), nestedPropertyName);
+                            nestedField.setAccessible(true);
+                            Object convertedNestedValue = convertTo(nestedField.getType(), v);
+                            setValue(convertedValue, nestedField, convertedNestedValue);
+                        } 
+                        
+                        setValue(instance, targetField, convertedValue);
+
                         list.add(instance);
                     }
                     setValue(obj, field, list);
-
-                    i++;
+                    i = i + 2;
 
                 }
 
@@ -187,6 +198,8 @@ public interface OverrideUtil {
     }
 
     static Field resolveField(Class type, String name) {
+        LOGGER.debug("Resolving {}#{}",type,name);
+        
         return Stream.of(type.getDeclaredFields())
                 .filter(f -> f.isAnnotationPresent(XmlElement.class))
                 .filter(f -> f.getAnnotation(XmlElement.class).name().equals(name))
@@ -205,6 +218,7 @@ public interface OverrideUtil {
             if (isSimple(fieldType)) {
                 final String value = values.get(0);
                 final Object convertedValue;
+                //FIXME::
                 if (fieldType == boolean.class) {
                     convertedValue = convertTo(Boolean.class, value);
                 } else {
@@ -245,31 +259,29 @@ public interface OverrideUtil {
         ReflectCallback.execute(() -> {
             Class type = obj.getClass();
             Field[] fields = type.getDeclaredFields();
-            
-            for(Field field : fields) {
+
+            for (Field field : fields) {
                 field.setAccessible(true);
                 Class fieldType = field.getType();
-                if(isSimple(fieldType)) {
+                if (isSimple(fieldType)) {
                     continue;
                 }
-                
-                if(Collection.class.isAssignableFrom(fieldType)) {
+
+                if (Collection.class.isAssignableFrom(fieldType)) {
                     setValue(obj, field, new ArrayList<>());
                     continue;
                 }
-                
+
                 Object nestedObject = createInstance(fieldType);
                 initialiseNestedObjects(nestedObject);
                 setValue(obj, field, nestedObject);
-            
+
             }
             return null;
         });
-                
-        
-        
+
     }
-    
+
     static <T> T convertTo(Class<T> type, String value) {
 
         if (Objects.isNull(value)) {
@@ -288,6 +300,11 @@ public interface OverrideUtil {
             return (T) Enum.valueOf(type.asSubclass(Enum.class), value);
         }
 
+        if(type.getPackage().getName().startsWith("com.quorum.tessera")) {
+            return createInstance(type);
+        }
+        
+        
         return SIMPLE_TYPES.stream()
                 .filter(t -> t.equals(type))
                 .findFirst()

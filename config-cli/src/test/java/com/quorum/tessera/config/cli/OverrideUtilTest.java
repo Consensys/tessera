@@ -176,7 +176,7 @@ public class OverrideUtilTest {
         assertThat(keyConfig.getKeyData().get(0).getPublicKey()).isEqualTo(publicKeyValue);
     }
 
-    //@Test
+    @Test
     public void overrideExistingValueKeyDataWithPrivateKeyType() throws Exception {
 
         URL json = OverrideUtil.class.getResource("/init-values.json");
@@ -185,15 +185,18 @@ public class OverrideUtilTest {
 
         final PrivateKeyType priavteKeyType = PrivateKeyType.UNLOCKED;
 
-        OverrideUtil.overrideExistingValue(config, "keys.keyData.config.type", priavteKeyType.name());
+        OverrideUtil.overrideExistingValue(config, "keys.keyData.config.type", priavteKeyType.name(), priavteKeyType.name());
 
         assertThat(config.getKeys()).isNotNull();
 
         KeyConfiguration keyConfig = config.getKeys();
 
-        assertThat(keyConfig.getKeyData()).hasSize(1);
+        assertThat(keyConfig.getKeyData()).hasSize(2);
 
         assertThat(keyConfig.getKeyData().get(0)
+                .getConfig().getType()).isEqualTo(priavteKeyType);
+
+        assertThat(keyConfig.getKeyData().get(1)
                 .getConfig().getType()).isEqualTo(priavteKeyType);
 
     }
