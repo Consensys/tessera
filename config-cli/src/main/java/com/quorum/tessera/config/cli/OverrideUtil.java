@@ -203,27 +203,13 @@ public interface OverrideUtil {
 
             if (isSimple(fieldType)) {
                 final String value = values.get(0);
-                if (String.class.isAssignableFrom(fieldType)) {
-                    field.set(obj, value);
+                final Object convertedValue;
+                if (fieldType == boolean.class) {
+                    convertedValue = convertTo(Boolean.class, value);
+                } else {
+                    convertedValue = convertTo(fieldType, value);
                 }
-                if (Integer.class.isAssignableFrom(fieldType)) {
-                    field.set(obj, Integer.valueOf(value));
-                }
-                if (Long.class.isAssignableFrom(fieldType)) {
-                    field.set(obj, Long.valueOf(value));
-                }
-                if (boolean.class.isAssignableFrom(fieldType)) {
-                    field.set(obj, Boolean.valueOf(value));
-                }
-
-                if (Path.class.isAssignableFrom(fieldType)) {
-                    field.set(obj, Paths.get(value));
-                }
-
-                if (fieldType.isEnum()) {
-                    field.set(obj, Enum.valueOf(fieldType, value));
-                }
-
+                field.set(obj, convertedValue);
                 return Optional.of(obj);
             }
 
@@ -251,6 +237,34 @@ public interface OverrideUtil {
 
     static Class classForName(String classname) {
         return ReflectCallback.execute(() -> Class.forName(classname));
+    }
+
+    static <T> T convertTo(Class<T> type, String value) {
+
+        if (Objects.isNull(value)) {
+            return null;
+        }
+
+        if (String.class.equals(type)) {
+            return (T) value;
+        }
+
+        if (Path.class.equals(type)) {
+            return (T) Paths.get(value);
+        }
+
+        if (type.isEnum()) {
+            return (T) Enum.valueOf(type.asSubclass(Enum.class), value);
+        }
+
+        return SIMPLE_TYPES.stream()
+                .filter(t -> t.equals(type))
+                .findFirst()
+                .map(c -> ReflectCallback.execute(() -> c.getDeclaredMethod("valueOf", String.class)))
+                .map(m -> ReflectCallback.execute(() -> m.invoke(null, value)))
+                .map(type::cast)
+                .get();
+
     }
 
 }
