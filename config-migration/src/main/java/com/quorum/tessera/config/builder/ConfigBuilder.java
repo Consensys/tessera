@@ -203,11 +203,6 @@ public class ConfigBuilder {
         return this;
     }
 
-//    public ConfigBuilder ipwhitelist(List<String> ipwhitelist) {
-//        this.ipwhitelist = ipwhitelist;
-//        return this;
-//    }
-
     public ConfigBuilder alwaysSendTo(List<String> alwaysSendTo) {
         this.alwaysSendTo = alwaysSendTo;
         return this;

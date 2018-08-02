@@ -233,23 +233,6 @@ public class LegacyCliAdapterTest {
         Files.deleteIfExists(configFile);
     }
 
-//    @Test
-//    public void ifRequiredFieldsAreNotProvidedInEitherTomlOrCliThenConstraintViolationsAreRaised() throws Exception {
-//        Path configFile = Files.createTempFile("emptyConfig", ".txt");
-//
-//        String[] requiredArgs = {"--tomlfile=" + configFile.toString()};
-//
-//        CliResult result = instance.execute(requiredArgs);
-//
-//        try {
-//            instance.execute(requiredArgs);;
-//            failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
-//        } catch (ConstraintViolationException ex) {
-//            assertThat(ex.getConstraintViolations()).hasSize(3);
-//        }
-//
-//    }
-
     @Test
     public void sampleTomlFileOnly() throws Exception {
 
