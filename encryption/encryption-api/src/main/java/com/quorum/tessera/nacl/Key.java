@@ -4,11 +4,8 @@ import java.util.Arrays;
 import java.util.Base64;
 
 /**
- * Represents a Key, which is usually 32 bytes in length
- * The possible types of keys include:
- * - public
- * - private
- * - symmetric
+ * Represents a Key, which is usually 32 bytes in length The possible types of
+ * keys include: - public - private - symmetric
  */
 public class Key {
 
@@ -17,7 +14,8 @@ public class Key {
     public Key(final byte[] keyBytes) {
         this.key = Arrays.copyOf(keyBytes, keyBytes.length);
     }
-
+    
+    
     public byte[] getKeyBytes() {
         return Arrays.copyOf(this.key, this.key.length);
     }
@@ -35,5 +33,13 @@ public class Key {
     @Override
     public String toString() {
         return Base64.getEncoder().encodeToString(this.key);
+    }
+    /*
+    As this object is used as a config object 
+    we add the factory method so empty instances 
+    can be created 
+    */
+    private static Key create() {
+        return new Key(new byte[0]);
     }
 }
