@@ -17,12 +17,10 @@ import java.util.Objects;
 public class EncryptedTransaction implements Serializable {
 
     @EmbeddedId
-    @AttributeOverrides({
-        @AttributeOverride(
+    @AttributeOverride(
             name = "hashBytes",
             column = @Column(name = "HASH", nullable = false, unique = true, updatable = false)
-        )
-    })
+    )
     private MessageHash hash;
 
     @Lob
