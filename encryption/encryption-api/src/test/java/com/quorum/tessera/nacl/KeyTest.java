@@ -1,5 +1,6 @@
 package com.quorum.tessera.nacl;
 
+import java.lang.reflect.Method;
 import org.junit.Test;
 
 import java.util.Objects;
@@ -45,6 +46,17 @@ public class KeyTest {
         final Key key = new Key(data);
         
         assertThat(key.toString()).isNotBlank();
+    }
+    
+    @Test
+    public void createWithFactoryMethod() throws Exception {
+        Method method = Key.class.getDeclaredMethod("create");
+        method.setAccessible(true);
+        
+       Key  key = (Key) method.invoke(null);
+       
+       assertThat(key).isNotNull();
+        
     }
     
 }

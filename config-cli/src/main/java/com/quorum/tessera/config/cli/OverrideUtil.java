@@ -9,10 +9,12 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,6 +27,20 @@ import org.slf4j.LoggerFactory;
 public interface OverrideUtil {
 
     Logger LOGGER = LoggerFactory.getLogger(OverrideUtil.class);
+
+    Map<Class<?>, Class<?>> PRIMATIVE_LOOKUP = new HashMap<Class<?>, Class<?>>() {
+        {
+            put(Boolean.TYPE, Boolean.class);
+            put(Byte.TYPE, Byte.class);
+            put(Character.TYPE, Character.class);
+            put(Short.TYPE, Short.class);
+            put(Integer.TYPE, Integer.class);
+            put(Long.TYPE, Long.class);
+            put(Double.TYPE, Double.class);
+            put(Float.TYPE, Float.class);
+            put(Void.TYPE, Void.TYPE);
+        }
+    };
 
     static Map<String, Class> buildConfigOptions() {
         return fields(null, Config.class);
@@ -117,59 +133,88 @@ public interface OverrideUtil {
         return (Class<T[]>) Array.newInstance(t, 0).getClass();
     }
 
-    /*
-        Traverse though property path. 
-        Create any nested objects and populate with provided value
+    /**
+     * Directly set field values using relection.
+     *
+     * @param root
+     * @param path
+     * @param value
      */
-    static void overrideExistingValue(Config config, String propertyPath, String... value) {
+    static void setValue(Object root, String path, String... value) {
 
-        final String[] pathTokens = propertyPath.split("\\.");
-        List<String> values = Arrays.asList(value);
-        Object obj = config;
-        for (int i = 0; i < pathTokens.length; i++) {
+        final ListIterator<String> pathTokens = Arrays.asList(path.split("\\.")).listIterator();
 
-            final String fieldName = pathTokens[i];
-            final Class type = obj.getClass();
-            final Field field = resolveField(type, fieldName);
+        final Class rootType = root.getClass();
+
+        while (pathTokens.hasNext()) {
+
+            final String token = pathTokens.next();
+            final Field field = resolveField(rootType, token);
             field.setAccessible(true);
 
-            if (Collection.class.isAssignableFrom(field.getType())) {
-                final Class genericType = resolveCollectionParameter(field.getGenericType());
-                if (isSimple(genericType)) {
-                    if (String.class.equals(genericType)) {
-                        setValue(obj, field, values);
-                    }
-                    if (Path.class.equals(genericType)) {
-                        List<Path> paths = values.stream()
-                                .map(s -> Paths.get(s))
-                                .collect(Collectors.toList());
+            final Class fieldType = field.getType();
 
-                        setValue(obj, field, paths);
-                    }
+            if (Collection.class.isAssignableFrom(fieldType)) {
+
+                final Class genericType = resolveCollectionParameter(field.getGenericType());
+
+                List list = (List) Optional.ofNullable(getValue(root, field))
+                        .orElse(new ArrayList<>());
+                if (isSimple(genericType)) {
+
+                    List convertedValues = (List) Stream.of(value)
+                            .map(v -> convertTo(genericType, v))
+                            .collect(Collectors.toList());
+
+                    setValue(root, field, convertedValues);
+
                 } else {
 
-                    String nextFieldName = pathTokens[i + 1];
-                    Field targetField = resolveField(genericType, nextFieldName);
-                    targetField.setAccessible(true);
+                    List<String> builder = new ArrayList<>();
+                    pathTokens.forEachRemaining(builder::add);
+                    String nestedPath = builder.stream().collect(Collectors.joining("."));
 
-                    List list = (List) getValue(obj, field);
-                    for (String v : values) {
-                        Object instance = createInstance(genericType);
-                        setValue(instance, targetField, v);
-                        list.add(instance);
+                    final Object[] newList = Arrays.copyOf(list.toArray(), value.length);
+ 
+                    for (int i = 0; i < value.length; i++) {
+                        final String v = value[i];
+                        
+                        final Object nestedObject  = Optional.ofNullable(newList[i])
+                                    .orElse(createInstance(genericType));
+                        
+                        initialiseNestedObjects(nestedObject);
+                        
+                        setValue(nestedObject, nestedPath, v);
+                        newList[i] = nestedObject;
                     }
-                    setValue(obj, field, list);
-
-                    i++;
+                    setValue(root, field, Arrays.asList(newList));
 
                 }
 
-                LOGGER.debug("{} is a List<{}>", fieldName, genericType.getSimpleName());
+            } else if (isSimple(fieldType)) {
+                Class convertedType = PRIMATIVE_LOOKUP.getOrDefault(fieldType, fieldType);
+                Object convertedValue = convertTo(convertedType, value[0]);
+                setValue(root, field, convertedValue);
+
             } else {
-                obj = setProperty(obj, field, values).orElse(null);
+
+                Object nestedObject = getOrCreate(root, field);
+                List<String> builder = new ArrayList<>();
+                pathTokens.forEachRemaining(builder::add);
+                String nestedPath = builder.stream().collect(Collectors.joining("."));
+                setValue(nestedObject, nestedPath, value);
+
+                setValue(root, field, nestedObject);
             }
 
         }
+
+    }
+
+    static <T> T getOrCreate(Object from, Field field) {
+        T value = getValue(from, field);
+        return Optional.ofNullable(value)
+                .orElse((T) createInstance(from.getClass()));
     }
 
     static <T> T getValue(Object from, Field field) {
@@ -186,6 +231,8 @@ public interface OverrideUtil {
     }
 
     static Field resolveField(Class type, String name) {
+        LOGGER.debug("Resolving {}#{}", type, name);
+
         return Stream.of(type.getDeclaredFields())
                 .filter(f -> f.isAnnotationPresent(XmlElement.class))
                 .filter(f -> f.getAnnotation(XmlElement.class).name().equals(name))
@@ -193,64 +240,75 @@ public interface OverrideUtil {
                 .orElseGet(() -> ReflectCallback.execute(() -> type.getDeclaredField(name)));
     }
 
-    static Optional<Object> setProperty(Object obj, Field field, List<String> values) {
-        LOGGER.debug("setProperty:  {} , {}", field, values);
-        ReflectCallback<Optional<Object>> reflectCallback = () -> {
-            final Class type = obj.getClass();
-            final Class fieldType = field.getType();
-
-            LOGGER.debug("Resolved field name: {}#{}, type: {}", fieldType, field.getName(), fieldType.getName());
-
-            if (isSimple(fieldType)) {
-                final String value = values.get(0);
-                if (String.class.isAssignableFrom(fieldType)) {
-                    field.set(obj, value);
-                }
-                if (Integer.class.isAssignableFrom(fieldType)) {
-                    field.set(obj, Integer.valueOf(value));
-                }
-                if (Long.class.isAssignableFrom(fieldType)) {
-                    field.set(obj, Long.valueOf(value));
-                }
-                if (boolean.class.isAssignableFrom(fieldType)) {
-                    field.set(obj, Boolean.valueOf(value));
-                }
-
-                if (Path.class.isAssignableFrom(fieldType)) {
-                    field.set(obj, Paths.get(value));
-                }
-
-                if (fieldType.isEnum()) {
-                    field.set(obj, Enum.valueOf(fieldType, value));
-                }
-
-                return Optional.of(obj);
-            }
-
-            boolean isNestedConfigObject
-                    = fieldType.getPackage().getName().startsWith("com.quorum.tessera");
-
-            Object existingValue = field.get(obj);
-
-            return Optional.ofNullable(existingValue);
-        };
-
-        return ReflectCallback.execute(reflectCallback);
-    }
-
     static <T> T createInstance(Class<T> type) {
 
         return ReflectCallback.execute(() -> {
             Method factoryMethod = type.getDeclaredMethod("create");
             factoryMethod.setAccessible(true);
-
-            return (T) factoryMethod.invoke(null);
+            final Object instance = factoryMethod.invoke(null);
+            initialiseNestedObjects(instance);
+            return (T) instance;
         });
 
     }
 
     static Class classForName(String classname) {
         return ReflectCallback.execute(() -> Class.forName(classname));
+    }
+
+    static void initialiseNestedObjects(Object obj) {
+        ReflectCallback.execute(() -> {
+            Class type = obj.getClass();
+            Field[] fields = type.getDeclaredFields();
+
+            for (Field field : fields) {
+                field.setAccessible(true);
+                Class fieldType = field.getType();
+                if (isSimple(fieldType)) {
+                    continue;
+                }
+
+                if (Collection.class.isAssignableFrom(fieldType)) {
+                    setValue(obj, field, new ArrayList<>());
+                    continue;
+                }
+
+                Object nestedObject = createInstance(fieldType);
+                initialiseNestedObjects(nestedObject);
+                setValue(obj, field, nestedObject);
+
+            }
+            return null;
+        });
+
+    }
+
+    static <T> T convertTo(Class<T> type, String value) {
+
+        if (Objects.isNull(value)) {
+            return null;
+        }
+
+        if (String.class.equals(type)) {
+            return (T) value;
+        }
+
+        if (Path.class.equals(type)) {
+            return (T) Paths.get(value);
+        }
+
+        if (type.isEnum()) {
+            return (T) Enum.valueOf(type.asSubclass(Enum.class), value);
+        }
+
+        return SIMPLE_TYPES.stream()
+                .filter(t -> t.equals(type))
+                .findFirst()
+                .map(c -> ReflectCallback.execute(() -> c.getDeclaredMethod("valueOf", String.class)))
+                .map(m -> ReflectCallback.execute(() -> m.invoke(null, value)))
+                .map(type::cast)
+                .get();
+
     }
 
 }
