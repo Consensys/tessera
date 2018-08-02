@@ -198,7 +198,7 @@
         <module>tests</module>
         <module>security</module>
         <module>service-locator</module>
-        <module>rest-server</module>
+        <module>server</module>
         <module>encryption</module>
         <module>socket</module>
         <module>data-migration</module>
