@@ -348,11 +348,6 @@ public class ConfigBuilder {
             forwardingKeys = alwaysSendToKeys;
         }
 
-        if(useWhiteList) {
-            System.out.println("useWhiteList set to true: The generated config will use the peer list as the whitelist.  " +
-                "Check to make sure correct nodes are included in the peer list and add any that may not be.");
-        }
-
         return new Config(jdbcConfig, serverConfig, peerList, keyData, forwardingKeys, unixSocketFile, useWhiteList);
     }
 

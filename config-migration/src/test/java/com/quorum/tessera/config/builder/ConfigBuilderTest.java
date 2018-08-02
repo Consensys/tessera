@@ -189,21 +189,4 @@ public class ConfigBuilderTest {
 
     }
 
-    @Test
-    public void ifWhitelistProvidedThenMessagePrintedToTerminal() {
-        final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        final PrintStream originalOut = System.out;
-
-        System.setOut(new PrintStream(outContent));
-
-        final ConfigBuilder builder = builderWithValidValues.useWhiteList(true);
-        builder.build();
-
-        String expectedMessage = "useWhiteList set to true: The generated config will use the peer list as the whitelist.  " +
-            "Check to make sure correct nodes are included in the peer list and add any that may not be.\n";
-
-        assertThat(outContent.toString()).isEqualTo(expectedMessage);
-
-        System.setOut(originalOut);
-    }
 }
