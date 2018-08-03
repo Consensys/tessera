@@ -3,7 +3,7 @@
     "jdbc": {
         "username": "sa",
         "password": "",
-        "url": "jdbc:h2:./target/h2/nexus3;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
+        "url": "jdbc:h2:./target/h2/tessera3;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
     },
     "server": {
         "port": 8082,
