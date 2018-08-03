@@ -1,6 +1,7 @@
 package com.quorum.tessera.config.builder;
 
 import com.quorum.tessera.config.ConfigException;
+import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
@@ -59,7 +61,7 @@ public class KeyDataBuilderTest {
             .withPublicKeys(Collections.singletonList("keyfile.txt"))
             .withPrivateKeyPasswordFile(Paths.get("pwfile.txt"));
 
-        final Throwable throwable = catchThrowable(keyDataBuilder::build);
+        final Throwable throwable = catchThrowable(() -> keyDataBuilder.build());
 
         assertThat(throwable)
             .isInstanceOf(ConfigException.class)
@@ -112,5 +114,12 @@ public class KeyDataBuilderTest {
             Files.deleteIfExists(p);
         }
 
+    }
+
+    @Test
+    public void noKeysReturnsNull() {
+        Optional<KeyConfiguration> keyConfiguration = Optional.ofNullable(KeyDataBuilder.create()
+                                                                                        .build());
+        assertThat(keyConfiguration).isNotPresent();
     }
 }
