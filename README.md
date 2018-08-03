@@ -4,22 +4,24 @@
 
 # <img src="TesseraLogo.png" width="150" height="150"/>
 
-A stateless Java implementation responsible for encryption and decryption of private transaction data and for off-chain private messaging. Each Tessera node:
+Tessera is a stateless Java system that is used to provide the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/QuorumEngineering/quorum-mirror).
 
-  - Generates and maintains a number of private/public key pairs
-  
-  - Self manages and discovers all nodes (i.e. their public keys) in the network by connecting to as little as one other node
+Each Tessera node:
+
+* Generates and maintains a number of private/public key pairs
+
+* Self manages and discovers all nodes in the network (i.e. their public keys) by connecting to as few as one other node
     
-  - Provides Private and Public API interfaces for communication
-    - Private API - This is used for communication with Quorum
-    - Public API - This is used for communication between Tessera peer nodes
+* Provides Private and Public API interfaces for communication:
+    * Private API - This is used for communication with Quorum
+    * Public API - This is used for communication between Tessera peer nodes
     
-  - Provides two way SSL using TLS certificates and various trust models like Trust On First Use (TOFU), whitelist, 
+* Provides two way SSL using TLS certificates and various trust models like Trust On First Use (TOFU), whitelist, 
     certificate authority, etc.
     
-  - Supports IP whitelist
+* Supports IP whitelist
   
-  - Connects to any SQL DB which supports the JDBC client
+* Connects to any SQL DB which supports the JDBC client
 
 
 ## Building Tessera
@@ -47,7 +49,7 @@ Tessera can be built with different NaCl cryptography implementations:
 
 Once Tessera has been configured and built, you may want to copy the .jar to another location, create an alias and add it to your PATH:
 
-`alias tessera="java -jar /somewhere/application-${version}-app.jar"`
+`alias tessera="java -jar /path/to/application-${version}-app.jar"`
 
 You will then be able to more concisely use the Tessera CLI commands, such as:
 
@@ -72,7 +74,7 @@ java -cp some-jdbc-driver.jar -jar /path/to/tessera-app.jar
 ### Config File
 
 A configuration file detailing database, server and network peer information must be provided using the `-configfile`
-command line property.  A sample configuration file can be found [here](/config/src/test/resources/sample_full.json).
+command line property.  A sample configuration file can be found [here](https://github.com/QuorumEngineering/tessera/wiki/Sample-Configuration-File).
 
 Tessera uses cryptographic keys to provide transaction privacy.  An in-depth look at configuring the cryptographic keys can be found on the [Tessera Wiki](https://github.com/QuorumEngineering/tessera/wiki/Configuration), and includes:
 * How to configure an existing private/public key pair with Tessera
