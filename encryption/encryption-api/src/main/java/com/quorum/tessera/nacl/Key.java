@@ -9,30 +9,30 @@ import java.util.Base64;
  */
 public class Key {
 
-    private final byte[] key;
+    private final byte[] keyBytes;
 
     public Key(final byte[] keyBytes) {
-        this.key = Arrays.copyOf(keyBytes, keyBytes.length);
+        this.keyBytes = Arrays.copyOf(keyBytes, keyBytes.length);
     }
     
     
     public byte[] getKeyBytes() {
-        return Arrays.copyOf(this.key, this.key.length);
+        return Arrays.copyOf(this.keyBytes, this.keyBytes.length);
     }
 
     @Override
     public boolean equals(final Object o) {
-        return (o instanceof Key) && Arrays.equals(key, ((Key) o).key);
+        return (o instanceof Key) && Arrays.equals(keyBytes, ((Key) o).keyBytes);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(key);
+        return Arrays.hashCode(keyBytes);
     }
 
     @Override
     public String toString() {
-        return Base64.getEncoder().encodeToString(this.key);
+        return Base64.getEncoder().encodeToString(this.keyBytes);
     }
     /*
     As this object is used as a config object 

@@ -18,11 +18,11 @@ public class CompositeTrustManager extends AbstractTrustManager {
     }
 
     @Override
-    public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+    public void checkClientTrusted(X509Certificate[] clientCertificates, String authType) throws CertificateException {
         for (TrustManager trustManager : trustManagers) {
             try {
                 X509TrustManager x509TrustManager = (X509TrustManager) trustManager;
-                x509TrustManager.checkClientTrusted(x509Certificates, s);
+                x509TrustManager.checkClientTrusted(clientCertificates, authType);
                 return;
             }
             catch(CertificateException ex) {
@@ -33,11 +33,11 @@ public class CompositeTrustManager extends AbstractTrustManager {
     }
 
     @Override
-    public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+    public void checkServerTrusted(X509Certificate[] serverCertificates, String authType) throws CertificateException {
         for (TrustManager trustManager : trustManagers) {
             try {
                 final X509TrustManager x509TrustManager = (X509TrustManager) trustManager;
-                x509TrustManager.checkServerTrusted(x509Certificates, s);
+                x509TrustManager.checkServerTrusted(serverCertificates, authType);
                 return;
             }
             catch (CertificateException ex) {
