@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -28,7 +29,10 @@ public interface OverrideUtil {
 
     Logger LOGGER = LoggerFactory.getLogger(OverrideUtil.class);
 
-    Map<Class<?>, Class<?>> PRIMATIVE_LOOKUP = new HashMap<Class<?>, Class<?>>() {
+    List<Class> SIMPLE_TYPES = Collections.unmodifiableList(
+            Arrays.asList(String.class,Path.class, Integer.class, Boolean.class, Long.class));
+
+    Map<Class<?>, Class<?>> PRIMATIVE_LOOKUP = Collections.unmodifiableMap(new HashMap<Class<?>, Class<?>>() {
         {
             put(Boolean.TYPE, Boolean.class);
             put(Byte.TYPE, Byte.class);
@@ -40,7 +44,7 @@ public interface OverrideUtil {
             put(Float.TYPE, Float.class);
             put(Void.TYPE, Void.TYPE);
         }
-    };
+    });
 
     static Map<String, Class> buildConfigOptions() {
         return fields(null, Config.class);
@@ -68,9 +72,6 @@ public interface OverrideUtil {
     static boolean isSimple(Field field) {
         return isSimple(field.getType());
     }
-
-    List<Class> SIMPLE_TYPES = Arrays.asList(String.class,
-            Path.class, Integer.class, Boolean.class, Long.class);
 
     static boolean isSimple(Class type) {
 
@@ -175,15 +176,15 @@ public interface OverrideUtil {
                     String nestedPath = builder.stream().collect(Collectors.joining("."));
 
                     final Object[] newList = Arrays.copyOf(list.toArray(), value.length);
- 
+
                     for (int i = 0; i < value.length; i++) {
                         final String v = value[i];
-                        
-                        final Object nestedObject  = Optional.ofNullable(newList[i])
-                                    .orElse(createInstance(genericType));
-                        
+
+                        final Object nestedObject = Optional.ofNullable(newList[i])
+                                .orElse(createInstance(genericType));
+
                         initialiseNestedObjects(nestedObject);
-                        
+
                         setValue(nestedObject, nestedPath, v);
                         newList[i] = nestedObject;
                     }

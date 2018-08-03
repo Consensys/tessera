@@ -3,6 +3,7 @@ package com.quorum.tessera.junixsocket.adapter;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -17,7 +18,7 @@ public class DefaultUnixSocketFactoryTest {
 
         final Path serverPath = Files.createTempDirectory("tmp").resolve("sock.sock");
 
-        factory.createServerSocket(serverPath);
+       ServerSocket serverSocket =  factory.createServerSocket(serverPath);
 
         assertThat(Files.exists(serverPath)).isTrue();
 

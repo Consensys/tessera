@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.net.URI;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
@@ -36,7 +37,8 @@ public class Launcher {
                 System.exit(cliResult.getStatus());
             }
 
-            Config config = cliResult.getConfig().get();
+            Config config = cliResult.getConfig()
+                    .orElseThrow(() -> new NoSuchElementException("No Config found. "));
 
             final URI uri = new URI(config.getServerConfig().getHostName() + ":" + config.getServerConfig().getPort());
 
