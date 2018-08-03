@@ -3,7 +3,7 @@
     "jdbc": {
         "username": "sa",
         "password": "",
-        "url": "jdbc:h2:./target/h2/nexus1"
+        "url": "jdbc:h2:./target/h2/tessera1"
     },
     "server": {
         "port": 8080,
