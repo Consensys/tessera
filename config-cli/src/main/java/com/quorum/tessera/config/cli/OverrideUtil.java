@@ -28,19 +28,43 @@ public interface OverrideUtil {
 
     Logger LOGGER = LoggerFactory.getLogger(OverrideUtil.class);
 
-    Map<Class<?>, Class<?>> PRIMATIVE_LOOKUP = new HashMap<Class<?>, Class<?>>() {
-        {
-            put(Boolean.TYPE, Boolean.class);
-            put(Byte.TYPE, Byte.class);
-            put(Character.TYPE, Character.class);
-            put(Short.TYPE, Short.class);
-            put(Integer.TYPE, Integer.class);
-            put(Long.TYPE, Long.class);
-            put(Double.TYPE, Double.class);
-            put(Float.TYPE, Float.class);
-            put(Void.TYPE, Void.TYPE);
+    enum PrimitiveLookup {
+        BOOLEAN(Boolean.TYPE, Boolean.class),
+        BYTE(Byte.TYPE, Byte.class),
+        CHAR(Character.TYPE, Character.class),
+        SHORT(Short.TYPE, Short.class),
+        INTEGER(Integer.TYPE, Integer.class),
+        LONG(Long.TYPE, Long.class),
+        DOUBLE(Double.TYPE, Double.class),
+        FLOAT(Float.TYPE, Float.class),
+        VOID(Void.TYPE, Void.TYPE);
+
+        private static Class getOrDefault(Class type, Class defaultType) {
+            return Stream.of(values())
+                    .filter(tl -> Objects.equals(tl.getFrom(),type))
+                    .map(v -> v.getTo())
+                    .findAny() 
+                    .orElse(defaultType);
         }
-    };
+
+        private final Class from;
+
+        private final Class to;
+
+        PrimitiveLookup(Class from, Class to) {
+            this.from = from;
+            this.to = to;
+        }
+
+        public Class getFrom() {
+            return from;
+        }
+
+        public Class getTo() {
+            return to;
+        }
+
+    }
 
     static Map<String, Class> buildConfigOptions() {
         return fields(null, Config.class);
@@ -175,15 +199,15 @@ public interface OverrideUtil {
                     String nestedPath = builder.stream().collect(Collectors.joining("."));
 
                     final Object[] newList = Arrays.copyOf(list.toArray(), value.length);
- 
+
                     for (int i = 0; i < value.length; i++) {
                         final String v = value[i];
-                        
-                        final Object nestedObject  = Optional.ofNullable(newList[i])
-                                    .orElse(createInstance(genericType));
-                        
+
+                        final Object nestedObject = Optional.ofNullable(newList[i])
+                                .orElse(createInstance(genericType));
+
                         initialiseNestedObjects(nestedObject);
-                        
+
                         setValue(nestedObject, nestedPath, v);
                         newList[i] = nestedObject;
                     }
@@ -192,7 +216,7 @@ public interface OverrideUtil {
                 }
 
             } else if (isSimple(fieldType)) {
-                Class convertedType = PRIMATIVE_LOOKUP.getOrDefault(fieldType, fieldType);
+                Class convertedType = PrimitiveLookup.getOrDefault(fieldType, fieldType);
                 Object convertedValue = convertTo(convertedType, value[0]);
                 setValue(root, field, convertedValue);
 
