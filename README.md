@@ -4,7 +4,7 @@
 
 # <img src="TesseraLogo.png" width="150" height="150"/>
 
-Tessera is a stateless Java system that is used to provide the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/QuorumEngineering/quorum-mirror).
+Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/QuorumEngineering/quorum-mirror).
 
 Each Tessera node:
 
