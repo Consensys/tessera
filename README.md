@@ -74,7 +74,9 @@ java -cp some-jdbc-driver.jar -jar /path/to/tessera-app.jar
 ### Config File
 
 A configuration file detailing database, server and network peer information must be provided using the `-configfile`
-command line property.  A sample configuration file can be found [here](https://github.com/QuorumEngineering/tessera/wiki/Sample-Configuration-File).
+command line property.  
+
+A sample configuration file can be found [here](https://github.com/QuorumEngineering/tessera/wiki/Sample-Configuration-File).
 
 Tessera uses cryptographic keys to provide transaction privacy.  An in-depth look at configuring the cryptographic keys can be found on the [Tessera Wiki](https://github.com/QuorumEngineering/tessera/wiki/Configuration), and includes:
 * How to configure an existing private/public key pair with Tessera
