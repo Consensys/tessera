@@ -18,18 +18,16 @@ public class DefaultUnixSocketFactory implements UnixSocketFactory {
 
     @Override
     public ServerSocket createServerSocket(final Path socketFile) throws IOException {
-        try (final ServerSocket server = AFUNIXServerSocket.newInstance()) {
-            server.bind(new AFUNIXSocketAddress(socketFile.toFile()));
-            return server;
-        }
+        final ServerSocket server = AFUNIXServerSocket.newInstance();
+        server.bind(new AFUNIXSocketAddress(socketFile.toFile()));
+        return server;
     }
 
     @Override
     public Socket createSocket(final Path socketFile) throws IOException {
-        try (final Socket socket = AFUNIXSocket.newInstance()) {
-            socket.connect(new AFUNIXSocketAddress(socketFile.toFile()));
-            return socket;
-        }
+        final Socket socket = AFUNIXSocket.newInstance();
+        socket.connect(new AFUNIXSocketAddress(socketFile.toFile()));
+        return socket;
     }
 
 }
