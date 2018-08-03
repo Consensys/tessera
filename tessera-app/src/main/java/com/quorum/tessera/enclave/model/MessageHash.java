@@ -2,11 +2,12 @@ package com.quorum.tessera.enclave.model;
 
 import javax.persistence.Embeddable;
 import javax.persistence.Lob;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Base64;
 
 @Embeddable
-public class MessageHash {
+public class MessageHash implements Serializable {
 
     @Lob
     private byte[] hashBytes;
