@@ -26,7 +26,7 @@ public class OverrideUtilTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(OverrideUtilTest.class);
 
     @Test
-    public void buildOptions() throws Exception {
+    public void buildOptions() {
 
         List<String> expected = Arrays.asList(
                 "jdbc.username",
@@ -73,7 +73,7 @@ public class OverrideUtilTest {
                 "keys.keyData.publicKey",
                 "keys.keyData.privateKeyPath",
                 "keys.keyData.publicKeyPath",
-                "alwaysSendTo.key",
+                "alwaysSendTo.keyBytes",
                 "unixSocketFile",
                 "useWhiteList",
                 "server.sslConfig.clientTrustCertificates",

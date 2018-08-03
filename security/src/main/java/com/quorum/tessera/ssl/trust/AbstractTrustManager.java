@@ -32,7 +32,7 @@ abstract class AbstractTrustManager implements X509TrustManager {
 
     private void getWhiteListedCertificateForServerAddress() throws IOException {
 
-        if (Files.exists(knownHostsFile)){
+        if (knownHostsFile.toFile().exists()){
             try (BufferedReader reader = Files.newBufferedReader(knownHostsFile)) {
                 String line;
                 while ((line = reader.readLine()) != null) {
@@ -45,11 +45,11 @@ abstract class AbstractTrustManager implements X509TrustManager {
 
     private void generateWhiteListedFileIfNotExisted() throws IOException {
 
-        if (Files.notExists(knownHostsFile)) {
+        if (!knownHostsFile.toFile().exists()) {
 
             final Path parentDirectory = knownHostsFile.getParent();
 
-            if (Objects.nonNull(parentDirectory) && Files.notExists(parentDirectory)) {
+            if (Objects.nonNull(parentDirectory) && !parentDirectory.toFile().exists()) {
                 Files.createDirectory(parentDirectory);
             }
 

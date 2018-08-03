@@ -11,7 +11,6 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
@@ -132,7 +131,7 @@ public class SSLContextBuilder {
     private KeyManager[] buildKeyManagers() throws GeneralSecurityException, IOException, OperatorCreationException {
 
         if (Objects.nonNull(this.keyStore)) {
-            if (Files.notExists(this.keyStore)) {
+            if (!this.keyStore.toFile().exists()) {
                 TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(this.address, this.keyStore, this.keyStorePassword);
             }
             return SSLKeyStoreLoader.fromJksKeyStore(this.keyStore, this.keyStorePassword);
