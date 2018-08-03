@@ -16,9 +16,7 @@ public interface ReflectCallback<T> {
             NoSuchMethodException,
             InvocationTargetException;
 
-    ;
-    
-    
+
     static <T> T execute(ReflectCallback<T> callback) {
         try {
             return callback.doExecute();
