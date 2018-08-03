@@ -2,6 +2,7 @@ package com.quorum.tessera.config.migration;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
+import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
@@ -10,18 +11,15 @@ import com.quorum.tessera.config.cli.CliAdapter;
 import com.quorum.tessera.config.cli.CliResult;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.io.FilesDelegate;
+import org.apache.commons.cli.*;
+
+import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.apache.commons.cli.*;
-
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import javax.validation.ConstraintViolationException;
+import java.util.*;
 
 public class LegacyCliAdapter implements CliAdapter {
 
@@ -94,10 +92,24 @@ public class LegacyCliAdapter implements CliAdapter {
     static Optional<Path> resolveUnixFilePath(Path initial, String workdir, String fileName) {
         if (Objects.nonNull(workdir) && Objects.nonNull(fileName)) {
             return Optional.of(Paths.get(workdir, fileName));
+        } else if(Objects.nonNull(fileName)) {
+            return Optional.of(Paths.get(fileName));
         }
 
         return Optional.ofNullable(initial);
 
+    }
+
+    static Optional<List<Path>> resolveListOfUnixFilePaths(List<Path> initial, String workdir, List<String> fileNames) {
+        if(Objects.nonNull(workdir) && Objects.nonNull(fileNames)) {
+            List<Path> paths = new ArrayList<>();
+            for(String fileName : fileNames) {
+                paths.add(Paths.get(workdir, fileName));
+            }
+            return Optional.of(paths);
+        }
+
+        return Optional.ofNullable(initial);
     }
 
     static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder) {
@@ -132,13 +144,23 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(Arrays::asList)
                 .ifPresent(configBuilder::alwaysSendTo);
 
-        Optional.ofNullable(line.getOptionValue("passwords"))
-                .map(p -> Paths.get(p))
-                .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
+        Optional.ofNullable(line.getOptionValue("workdir"))
+                .ifPresent(keyDataBuilder::withWorkingDirectory);
+
+        resolveUnixFilePath(initialConfig.getKeys().getPasswordFile(), line.getOptionValue("workdir"), line.getOptionValue("passwords"))
+            .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
 
         Optional.ofNullable(line.getOptionValue("storage"))
                 .map(JdbcConfigFactory::fromLegacyStorageString)
                 .ifPresent(configBuilder::jdbcConfig);
+
+        Optional.ofNullable(line.getOptionValue("ipwhitelist"))
+                .ifPresent(v -> configBuilder.useWhiteList(true));
+
+        Optional.ofNullable(line.getOptionValue("tls"))
+                .map(String::toUpperCase)
+                .map(SslAuthenticationMode::valueOf)
+                .ifPresent(configBuilder::sslAuthenticationMode);
 
         Optional.ofNullable(line.getOptionValue("tlsservertrust"))
                 .map(SslTrustModeFactory::resolveByLegacyValue)
@@ -148,33 +170,48 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(SslTrustModeFactory::resolveByLegacyValue)
                 .ifPresent(configBuilder::sslClientTrustMode);
 
-        Optional.ofNullable(line.getOptionValue("tlsservercert"))
-                .ifPresent(configBuilder::sslServerTlsCertificatePath);
+        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getServerTlsCertificatePath(), line.getOptionValue("workdir"), line.getOptionValue("tlsservercert"))
+            .ifPresent(configBuilder::sslServerTlsCertificatePath);
 
-        Optional.ofNullable(line.getOptionValue("tlsclientcert"))
-                .ifPresent(configBuilder::sslClientTlsCertificatePath);
+        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getClientTlsCertificatePath(), line.getOptionValue("workdir"), line.getOptionValue("tlsclientcert"))
+            .ifPresent(configBuilder::sslClientTlsCertificatePath);
 
         Optional.ofNullable(line.getOptionValues("tlsserverchain"))
                 .map(Arrays::asList)
-                .ifPresent(configBuilder::sslServerTrustCertificates);
+                .ifPresent(l -> {
+                    List<Path> sslServerTrustCertificates = resolveListOfUnixFilePaths(
+                        initialConfig.getServerConfig().getSslConfig().getServerTrustCertificates(),
+                        line.getOptionValue("workdir"),
+                        l
+                    ).get();
+                    configBuilder.sslServerTrustCertificates(sslServerTrustCertificates);
+                });
 
         Optional.ofNullable(line.getOptionValues("tlsclientchain"))
                 .map(Arrays::asList)
-                .ifPresent(configBuilder::sslClientTrustCertificates);
+                .ifPresent(l -> {
+                    List<Path> sslClientTrustCertificates = resolveListOfUnixFilePaths(
+                        initialConfig.getServerConfig().getSslConfig().getClientTrustCertificates(),
+                        line.getOptionValue("workdir"),
+                        l
+                    ).get();
+                    configBuilder.sslClientTrustCertificates(sslClientTrustCertificates);
+                });
 
-        Optional.ofNullable(line.getOptionValue("tlsserverkey"))
-                .ifPresent(configBuilder::sslServerKeyStorePath);
+        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getServerTlsKeyPath(), line.getOptionValue("workdir"), line.getOptionValue("tlsserverkey"))
+            .ifPresent(configBuilder::sslServerTlsKeyPath);
 
-        Optional.ofNullable(line.getOptionValue("tlsclientkey"))
-                .ifPresent(configBuilder::sslClientKeyStorePath);
+        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getClientTlsKeyPath(), line.getOptionValue("workdir"), line.getOptionValue("tlsclientkey"))
+            .ifPresent(configBuilder::sslClientTlsKeyPath);
 
-        Optional.ofNullable(line.getOptionValue("tlsknownservers"))
-                .ifPresent(configBuilder::sslKnownServersFile);
+        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getKnownServersFile(), line.getOptionValue("workdir"), line.getOptionValue("tlsknownservers"))
+            .ifPresent(configBuilder::sslKnownServersFile);
 
-        Optional.ofNullable(line.getOptionValue("tlsknownclients"))
-                .ifPresent(configBuilder::sslKnownClientsFile);
+        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getKnownClientsFile(), line.getOptionValue("workdir"), line.getOptionValue("tlsknownclients"))
+            .ifPresent(configBuilder::sslKnownClientsFile);
 
-        configBuilder.keyData(keyDataBuilder.build());
+        Optional.ofNullable(keyDataBuilder.build())
+                .ifPresent(configBuilder::keyData);
 
         return configBuilder;
     }
@@ -185,7 +222,7 @@ public class LegacyCliAdapter implements CliAdapter {
         options.addOption(
                 Option.builder()
                         .longOpt("url")
-                        .desc("URL for this node (what's advertised to other nodes, e.g. https://constellation.mydomain.com/)")
+                        .desc("URL for this node (i.e. the address advertised to other nodes)")
                         .hasArg(true)
                         .optionalArg(false)
                         .numberOfArgs(1)
@@ -248,7 +285,7 @@ public class LegacyCliAdapter implements CliAdapter {
         options.addOption(
                 Option.builder()
                         .longOpt("privatekeys")
-                        .desc("Comma-separated list of paths to corresponding private keys (these must be given in the same order as --publickeys)")
+                        .desc("Comma-separated list of paths to private keys (these must be given in the same corresponding order as --publickeys)")
                         .optionalArg(false)
                         .argName("FILE...")
                         .hasArgs()
@@ -281,6 +318,7 @@ public class LegacyCliAdapter implements CliAdapter {
                 Option.builder()
                         .longOpt("storage")
                         .optionalArg(false)
+                        .argName("STRING")
                         .desc("Storage string specifying a storage engine and/or storage path")
                         .hasArg()
                         .build()
@@ -290,6 +328,9 @@ public class LegacyCliAdapter implements CliAdapter {
                 Option.builder()
                         .longOpt("tls")
                         .desc("TLS status (strict, off)")
+                        .optionalArg(false)
+                        .argName("STATUS")
+                        .hasArg()
                         .build()
         );
 
@@ -305,7 +346,7 @@ public class LegacyCliAdapter implements CliAdapter {
         options.addOption(
                 Option.builder()
                         .longOpt("tlsserverchain")
-                        .desc("Comma separated list of TLS chain certificates to use for the public API")
+                        .desc("Comma separated list of TLS chain certificate files to use for the public API")
                         .argName("FILE...")
                         .hasArgs()
                         .build()
@@ -314,8 +355,10 @@ public class LegacyCliAdapter implements CliAdapter {
         options.addOption(
                 Option.builder()
                         .longOpt("tlsserverkey")
-                        .desc("TLS key to use for the public API")
+                        .desc("TLS key file to use for the public API")
                         .optionalArg(false)
+                        .hasArg()
+                        .argName("FILE")
                         .build()
         );
 
@@ -323,6 +366,8 @@ public class LegacyCliAdapter implements CliAdapter {
                 Option.builder()
                         .longOpt("tlsservertrust")
                         .optionalArg(false)
+                        .hasArg()
+                        .argName("STRING")
                         .desc("TLS server trust mode (whitelist, ca-or-tofu, ca, tofu, insecure-no-validation)")
                         .build()
         );
@@ -343,6 +388,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .longOpt("tlsclientcert")
                         .desc("TLS client certificate file to use for connections to other nodes")
                         .argName("FILE")
+                        .hasArg()
                         .build()
         );
 
@@ -350,7 +396,7 @@ public class LegacyCliAdapter implements CliAdapter {
         options.addOption(
                 Option.builder()
                         .longOpt("tlsclientchain")
-                        .desc("Comma separated list of TLS chain certificates to use for connections to other nodes")
+                        .desc("Comma separated list of TLS chain certificate files to use for connections to other nodes")
                         .argName("FILE...")
                         .hasArgs()
                         .build()
@@ -360,7 +406,7 @@ public class LegacyCliAdapter implements CliAdapter {
         options.addOption(
                 Option.builder()
                         .longOpt("tlsclientkey")
-                        .desc("TLS key to use for connections to other nodes")
+                        .desc("TLS key file to use for connections to other nodes")
                         .argName("FILE")
                         .hasArg()
                         .build()
@@ -398,16 +444,19 @@ public class LegacyCliAdapter implements CliAdapter {
         options.addOption(
             Option.builder()
                 .longOpt("outputfile")
-                .desc("New configuration output file.")
+                .desc("Location to save generated Tessera configuration file.")
                 .argName("FILE")
                 .hasArg()
                 .build()
         );
 
         options.addOption(
-                Option.builder()
-                        .longOpt("help")
-                        .build()
+            Option.builder()
+                .longOpt("ipwhitelist")
+                .desc("If provided, Tessera will use the othernodes as a whitelist.  Make sure any addresses included here are also in othernodes.")
+                .hasArg()
+                .argName("STRING...")
+                .build()
         );
 
         return options;

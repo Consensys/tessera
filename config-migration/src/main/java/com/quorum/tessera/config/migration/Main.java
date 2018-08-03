@@ -4,7 +4,7 @@ import com.quorum.tessera.config.cli.CliResult;
 
 public class Main {
 
-    public static void main(String... args) throws Exception {
+    public static void main(String... args) {
         LegacyCliAdapter adapter = new LegacyCliAdapter();
         try {
             CliResult result = adapter.execute(args);
@@ -13,6 +13,5 @@ public class Main {
             System.err.println(ex.getMessage());
             System.exit(1);
         }
-
     }
 }

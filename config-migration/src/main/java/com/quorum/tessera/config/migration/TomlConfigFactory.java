@@ -1,16 +1,14 @@
 package com.quorum.tessera.config.migration;
 
-import com.moandjiezana.toml.Toml;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigFactory;
-import com.quorum.tessera.config.KeyDataConfig;
-import com.quorum.tessera.config.SslAuthenticationMode;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
-import com.quorum.tessera.config.builder.SslTrustModeFactory;
+import com.quorum.tessera.config.builder.KeyDataBuilder;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.io.IOCallback;
+import com.moandjiezana.toml.Toml;
+import com.quorum.tessera.config.builder.SslTrustModeFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +21,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -53,17 +55,23 @@ public class TomlConfigFactory implements ConfigFactory {
             LOGGER.debug("Found entry in toml file : {} {}", entry.getKey(), entry.getValue());
         });
 
-        String url = toml.getString("url");
+        final String url = toml.getString("url");
 
-        Integer port = Optional.ofNullable(toml.getLong("port"))
-                .map(Long::intValue).orElse(null);
+        final Integer port = Optional.ofNullable(toml.getLong("port"))
+                                                    .map(Long::intValue)
+                                                    .orElse(null);
 
-        String workdir = toml.getString("workdir", "data");
-        String socket = toml.getString("socket");
+        final String workdir = toml.getString("workdir", "");
+        final String socket = toml.getString("socket");
 
-        Path unixSocketFile = Paths.get(workdir, socket);
+        final Path unixSocketFile;
+        if(socket != null) {
+            unixSocketFile = Paths.get(workdir, socket);
+        } else {
+            unixSocketFile = null;
+        }
 
-        String tls = toml.getString("tls", "strict").toUpperCase();
+        final String tls = toml.getString("tls", "strict").toUpperCase();
 
         final List<String> othernodes = toml.getList("othernodes", Collections.EMPTY_LIST);
 
@@ -71,40 +79,68 @@ public class TomlConfigFactory implements ConfigFactory {
 
         final List<String> privateKeyList = toml.getList("privatekeys", Collections.EMPTY_LIST);
 
-        //String privateKeyPasswordFile = toml.getString("passwords")
-        final List<String> privateKeyPasswords;
-        if (toml.contains("passwords")) {
-            String privateKeyPasswordFile = toml.getString("passwords");
-
-            Path privateKeyPasswordFilePath = Paths.get(privateKeyPasswordFile);
-            privateKeyPasswords = filesDelegate
-                    .lines(privateKeyPasswordFilePath)
-                    .collect(Collectors.toList());
-
+        final Optional<String> privateKeyPasswordFile = Optional.ofNullable(toml.getString("passwords"));
+        final Path privateKeyPasswordPath;
+        if(privateKeyPasswordFile.isPresent()) {
+            privateKeyPasswordPath = Paths.get(workdir, privateKeyPasswordFile.get());
         } else {
-            privateKeyPasswords = Collections.unmodifiableList(Collections.EMPTY_LIST);
+            privateKeyPasswordPath = null;
         }
 
-        List<String> alwaysSendToList = toml.getList("alwayssendto", Collections.EMPTY_LIST);
+        KeyConfiguration keyData;
+        if(!publicKeyList.isEmpty() || !privateKeyList.isEmpty()) {
+            keyData = KeyDataBuilder.create()
+                                    .withPublicKeys(publicKeyList)
+                                    .withPrivateKeys(privateKeyList)
+                                    .withPrivateKeyPasswordFile(privateKeyPasswordPath)
+                                    .withWorkingDirectory(workdir)
+                                    .build();
+        } else {
+            keyData = new KeyConfiguration(null, null, null);
+        }
 
-        String storage = toml.getString("storage");
+        final List<String> alwaysSendToKeyPaths = toml.getList("alwayssendto", Collections.EMPTY_LIST);
 
+        final String storage = toml.getString("storage", "memory");
+
+        final List<String> ipwhitelist = toml.getList("ipwhitelist", Collections.EMPTY_LIST);
+        final boolean useWhiteList = !ipwhitelist.isEmpty();
 
         //Server side
         final String tlsservertrust = toml.getString("tlsservertrust", "tofu");
-        final String tlsserverkey = toml.getString("tlsserverkey", "tls-server-key.pem");
-        final String tlsservercert = toml.getString("tlsservercert", "tls-server-cert.pem");
-        final List<String> tlsserverchain = toml.getList("tlsserverchain", Collections.EMPTY_LIST);
-        final String tlsknownclients = toml.getString("tlsknownclients", "tls-known-clients");
 
+        final Optional<String> tlsserverkeyStr = Optional.ofNullable(toml.getString("tlsserverkey"));
+        final Path tlsserverkey = tlsserverkeyStr.map(s -> Paths.get(workdir, s)).orElse(null);
+
+        final Optional<String> tlsservercertStr = Optional.ofNullable(toml.getString("tlsservercert"));
+        final Path tlsservercert = tlsservercertStr.map(s -> Paths.get(workdir, s)).orElse(null);
+
+        final List<String> tlsserverchainnames = toml.getList("tlsserverchain", Collections.EMPTY_LIST);
+        List<Path> tlsserverchain = new ArrayList<>();
+        for(String name : tlsserverchainnames) {
+            tlsserverchain.add(Paths.get(workdir, name));
+        }
+
+        final Optional<String> tlsknownclientsStr = Optional.ofNullable(toml.getString("tlsknownclients"));
+        final Path tlsknownclients = tlsknownclientsStr.map(s -> Paths.get(workdir, s)).orElse(null);
 
         //Client side
         final String tlsclienttrust = toml.getString("tlsclienttrust", "tofu");
-        final String tlsclientkey = toml.getString("tlsclientkey", "tls-client-key.pem");
-        final String tlsclientcert = toml.getString("tlsclientcert", "tls-client-cert.pem");
-        final List<String> tlsclientchain = toml.getList("tlsclientchain", Collections.EMPTY_LIST);
-        final String tlsknownservers = toml.getString("tlsknownservers", "tls-known-servers");
 
+        final Optional<String> tlsclientkeyStr = Optional.ofNullable(toml.getString("tlsclientkey"));
+        final Path tlsclientkey = tlsclientkeyStr.map(s -> Paths.get(workdir, s)).orElse(null);
+
+        final Optional<String> tlsclientcertStr = Optional.ofNullable(toml.getString("tlsclientcert"));
+        final Path tlsclientcert = tlsclientcertStr.map(s -> Paths.get(workdir, s)).orElse(null);
+
+        final List<String> tlsclientchainnames = toml.getList("tlsclientchain", Collections.EMPTY_LIST);
+        List<Path> tlsclientchain = new ArrayList<>();
+        for(String name : tlsclientchainnames) {
+            tlsclientchain.add(Paths.get(workdir, name));
+        }
+
+        final Optional<String> tlsknownserversStr = Optional.ofNullable(toml.getString("tlsknownservers"));
+        final Path tlsknownservers = tlsknownserversStr.map(s -> Paths.get(workdir, s)).orElse(null);
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
                 .serverPort(port)
@@ -122,7 +158,9 @@ public class TomlConfigFactory implements ConfigFactory {
                 .sslClientTrustCertificates(tlsclientchain)
                 .sslKnownServersFile(tlsknownservers)
                 .peers(othernodes)
-                .alwaysSendTo(alwaysSendToList);
+                .alwaysSendTo(alwaysSendToKeyPaths)
+                .useWhiteList(useWhiteList)
+                .keyData(keyData);
 
         Optional.ofNullable(storage)
                 .map(JdbcConfigFactory::fromLegacyStorageString).ifPresent(configBuilder::jdbcConfig);

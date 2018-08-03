@@ -8,11 +8,15 @@ import org.xmlunit.diff.Diff;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Method;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +37,7 @@ public class ConfigBuilderTest {
         Config result = builderWithValidValues.build();
 
         assertThat(result).isNotNull();
-        builderWithValidValues.sslClientTrustCertificates(Arrays.asList("sslServerTrustCertificates"));
+        builderWithValidValues.sslClientTrustCertificates(Arrays.asList(Paths.get("sslServerTrustCertificates")));
         assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("somepath.ipc"));
 
         assertThat(result.getKeys().getKeyData()).hasSize(1);
@@ -163,4 +167,26 @@ public class ConfigBuilderTest {
         assertThat(diff.getDifferences()).isEmpty();
 
     }
+
+    @Test
+    public void alwaysSendToFileNotFoundPrintsErrorMessageToTerminal() {
+        List<String> alwaysSendTo = new ArrayList<>();
+        alwaysSendTo.add("doesntexist.txt");
+        alwaysSendTo.add("alsodoesntexist.txt");
+
+        final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+        final PrintStream originalErr = System.err;
+
+        System.setErr(new PrintStream(errContent));
+
+        final ConfigBuilder builder = builderWithValidValues.alwaysSendTo(alwaysSendTo);
+        builder.build();
+
+        assertThat(errContent.toString()).isEqualTo("Error reading alwayssendto file: doesntexist.txt\n" +
+                                                    "Error reading alwayssendto file: alsodoesntexist.txt\n");
+
+        System.setErr(originalErr);
+
+    }
+
 }
