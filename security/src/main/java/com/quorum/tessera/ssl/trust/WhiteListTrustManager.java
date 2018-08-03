@@ -15,13 +15,13 @@ public class WhiteListTrustManager extends AbstractTrustManager {
     }
 
     @Override
-    public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-        checkTrusted(x509Certificates);
+    public void checkClientTrusted(X509Certificate[] clientCertificates, String authType) throws CertificateException {
+        checkTrusted(clientCertificates);
     }
 
     @Override
-    public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-        checkTrusted(x509Certificates);
+    public void checkServerTrusted(X509Certificate[] serverCertificates, String authType) throws CertificateException {
+        checkTrusted(serverCertificates);
     }
 
     @Override
