@@ -3,12 +3,11 @@ package com.quorum.tessera.config.builder;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.nacl.Key;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,37 +50,33 @@ public class ConfigBuilder {
                 .sslClientKeyStorePassword(sslConfig.getClientKeyStorePassword())
                 .sslClientTrustStorePath(Objects.toString(sslConfig.getClientTrustStore(), null))
                 .sslClientTrustStorePassword(sslConfig.getClientTrustStorePassword())
-                .sslClientTlsKeyPath(Objects.toString(sslConfig.getClientTlsKeyPath(),null))
-                .sslClientTlsCertificatePath(
-                    Objects.toString(sslConfig.getClientTlsCertificatePath(),null)
-                )
+                .sslClientTlsKeyPath(sslConfig.getClientTlsKeyPath())
+                .sslClientTlsCertificatePath(sslConfig.getClientTlsCertificatePath())
                 .sslClientTrustCertificates(Objects.isNull(sslConfig.getClientTrustCertificates()) ?
                     EMPTY_LIST :
-                    sslConfig.getClientTrustCertificates().stream().map(Path::toString).collect(Collectors.toList()))
-                .sslKnownServersFile(Objects.toString(sslConfig.getKnownServersFile(), null))
-
-
+                    sslConfig.getClientTrustCertificates()
+                )
+                .sslKnownServersFile(sslConfig.getKnownServersFile())
                 .sslServerTrustMode(sslConfig.getServerTrustMode())
                 .sslServerKeyStorePath(Objects.toString(sslConfig.getServerKeyStore(), null))
                 .sslServerKeyStorePassword(sslConfig.getServerKeyStorePassword())
                 .sslServerTrustStorePath(Objects.toString(sslConfig.getServerTrustStore(), null))
                 .sslServerTrustStorePassword(sslConfig.getServerTrustStorePassword())
-                .sslServerTlsKeyPath(Objects.toString(sslConfig.getServerTlsKeyPath(),null))
-                .sslServerTlsCertificatePath(Objects.toString(sslConfig.getServerTlsCertificatePath(),null))
+                .sslServerTlsKeyPath(sslConfig.getServerTlsKeyPath())
+                .sslServerTlsCertificatePath(sslConfig.getServerTlsCertificatePath())
                 .sslServerTrustCertificates(Objects.isNull(sslConfig.getServerTrustCertificates()) ?
                     EMPTY_LIST :
-                    sslConfig.getServerTrustCertificates().stream().map(Path::toString).collect(Collectors.toList())
+                    sslConfig.getServerTrustCertificates()
                 )
-                .sslKnownClientsFile(Objects.toString(sslConfig.getKnownClientsFile(), null))
-
+                .sslKnownClientsFile(sslConfig.getKnownClientsFile())
+                .sslKnownClientsFile(sslConfig.getKnownClientsFile())
+                .sslKnownServersFile(sslConfig.getKnownServersFile())
+                .sslClientTlsCertificatePath(sslConfig.getClientTlsCertificatePath())
+                .sslServerTlsCertificatePath(sslConfig.getServerTlsCertificatePath())
                 .keyData(config.getKeys())
-
-                .alwaysSendTo(Stream.of(config)
-                    .filter(c -> c.getFowardingList() != null)
-                    .map(Config::getFowardingList)
-                    .flatMap(List::stream)
-                    .map(Key::toString)
-                    .collect(Collectors.toList()));
+                .sslClientTlsKeyPath(sslConfig.getClientTlsKeyPath())
+                .sslServerTlsKeyPath(sslConfig.getServerTlsKeyPath())
+                .alwaysSendToKeys(config.getFowardingList());
 
         return configBuilder;
 
@@ -99,6 +94,8 @@ public class ConfigBuilder {
 
     private List<String> alwaysSendTo;
 
+    private List<Key> alwaysSendToKeys;
+
     private KeyConfiguration keyData;
 
     private SslAuthenticationMode sslAuthenticationMode;
@@ -113,7 +110,7 @@ public class ConfigBuilder {
 
     private String sslServerTrustStorePath;
 
-    private List<String> sslServerTrustCertificates = emptyList();
+    private List<Path> sslServerTrustCertificates = emptyList();
 
     private String sslClientKeyStorePath;
 
@@ -123,21 +120,21 @@ public class ConfigBuilder {
 
     private String sslClientTrustStorePath;
 
-    private List<String> sslClientTrustCertificates = emptyList();
+    private List<Path> sslClientTrustCertificates = emptyList();
 
     private SslTrustMode sslClientTrustMode;
 
-    private String sslKnownClientsFile;
+    private Path sslKnownClientsFile;
 
-    private String sslKnownServersFile;
+    private Path sslKnownServersFile;
 
-    private String sslServerTlsKeyPath;
+    private Path sslServerTlsKeyPath;
 
-    private String sslServerTlsCertificatePath;
+    private Path sslServerTlsCertificatePath;
 
-    private String sslClientTlsKeyPath;
+    private Path sslClientTlsKeyPath;
 
-    private String sslClientTlsCertificatePath;
+    private Path sslClientTlsCertificatePath;
 
     private boolean useWhiteList;
 
@@ -171,7 +168,7 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder sslServerTrustCertificates(List<String> sslServerTrustCertificates) {
+    public ConfigBuilder sslServerTrustCertificates(List<Path> sslServerTrustCertificates) {
         this.sslServerTrustCertificates = sslServerTrustCertificates;
         return this;
     }
@@ -211,12 +208,17 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder sslKnownClientsFile(String knownClientsFile) {
+    public ConfigBuilder alwaysSendToKeys(List<Key> alwaysSendToKeys) {
+        this.alwaysSendToKeys = alwaysSendToKeys;
+        return this;
+    }
+
+    public ConfigBuilder sslKnownClientsFile(Path knownClientsFile) {
         this.sslKnownClientsFile = knownClientsFile;
         return this;
     }
 
-    public ConfigBuilder sslKnownServersFile(String knownServersFile) {
+    public ConfigBuilder sslKnownServersFile(Path knownServersFile) {
         this.sslKnownServersFile = knownServersFile;
         return this;
     }
@@ -231,7 +233,7 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder sslClientTrustCertificates(List<String> sslClientTrustCertificates) {
+    public ConfigBuilder sslClientTrustCertificates(List<Path> sslClientTrustCertificates) {
         this.sslClientTrustCertificates = sslClientTrustCertificates;
         return this;
     }
@@ -246,22 +248,22 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder sslServerTlsKeyPath(String sslServerTlsKeyPath) {
+    public ConfigBuilder sslServerTlsKeyPath(Path sslServerTlsKeyPath) {
         this.sslServerTlsKeyPath = sslServerTlsKeyPath;
         return this;
     }
 
-    public ConfigBuilder sslServerTlsCertificatePath(String sslServerTlsCertificatePath) {
+    public ConfigBuilder sslServerTlsCertificatePath(Path sslServerTlsCertificatePath) {
         this.sslServerTlsCertificatePath = sslServerTlsCertificatePath;
         return this;
     }
 
-    public ConfigBuilder sslClientTlsKeyPath(String sslClientTlsKeyPath) {
+    public ConfigBuilder sslClientTlsKeyPath(Path sslClientTlsKeyPath) {
         this.sslClientTlsKeyPath = sslClientTlsKeyPath;
         return this;
     }
 
-    public ConfigBuilder sslClientTlsCertificatePath(String sslClientTlsCertificatePath) {
+    public ConfigBuilder sslClientTlsCertificatePath(Path sslClientTlsCertificatePath) {
         this.sslClientTlsCertificatePath = sslClientTlsCertificatePath;
         return this;
     }
@@ -299,20 +301,18 @@ public class ConfigBuilder {
                 toPath(sslClientTrustStorePath),
                 sslClientTrustStorePassword,
                 sslClientTrustMode,
-                toPath(sslKnownClientsFile),
-                toPath(sslKnownServersFile),
+                sslKnownClientsFile,
+                sslKnownServersFile,
                 sslServerTrustCertificates.stream()
-                        .map(ConfigBuilder::toPath)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList()),
                 sslClientTrustCertificates.stream()
-                        .map(ConfigBuilder::toPath)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList()),
-                toPath(sslServerTlsKeyPath),
-                toPath(sslServerTlsCertificatePath),
-                toPath(sslClientTlsKeyPath),
-                toPath(sslClientTlsCertificatePath)
+                sslServerTlsKeyPath,
+                sslServerTlsCertificatePath,
+                sslClientTlsKeyPath,
+                sslClientTlsCertificatePath
         );
 
         final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig, null);
@@ -322,15 +322,28 @@ public class ConfigBuilder {
                 .map(Peer::new)
                 .collect(Collectors.toList());
 
-        final List<Key> forwardingKeys = alwaysSendTo
-            .stream()
-            .map(Base64.getDecoder()::decode)
-            .map(Key::new)
-            .collect(Collectors.toList());
+        final List<Key> forwardingKeys;
+        if(alwaysSendTo != null) {
+            List<String> keyList = new ArrayList<>();
 
-        final boolean useWhitelist = useWhiteList;
+            for(String keyPath : alwaysSendTo) {
+                try {
+                    String key = new String(Files.readAllBytes(Paths.get(keyPath)));
+                    keyList.add(key);
+                } catch (IOException e) {
+                    System.err.println("Error reading alwayssendto file: " + e.getMessage());
+                }
+            }
 
-        return new Config(jdbcConfig, serverConfig, peerList, keyData, forwardingKeys, unixSocketFile, useWhitelist);
+            forwardingKeys = keyList.stream()
+                                    .map(Base64.getDecoder()::decode)
+                                    .map(Key::new)
+                                    .collect(Collectors.toList());
+        } else {
+            forwardingKeys = alwaysSendToKeys;
+        }
+
+        return new Config(jdbcConfig, serverConfig, peerList, keyData, forwardingKeys, unixSocketFile, useWhiteList);
     }
 
 }

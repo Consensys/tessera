@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.mock;
 
 public class TomlConfigFactoryTest {
@@ -52,7 +53,7 @@ public class TomlConfigFactoryTest {
 
             SslConfig sslConfig = result.getServerConfig().getSslConfig();
 
-            assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("tls-client-key.pem"));
+            assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
 
         }
@@ -77,7 +78,7 @@ public class TomlConfigFactoryTest {
 
             SslConfig sslConfig = result.getServerConfig().getSslConfig();
 
-            assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("tls-client-key.pem"));
+            assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
 
         }
@@ -194,5 +195,48 @@ public class TomlConfigFactoryTest {
 
         }
 
+    }
+
+    @Test
+    public void ifPublicAndPrivateKeyListAreEmptyThenKeyConfigurationIsAllNulls() throws IOException {
+        try (InputStream configData = getClass().getResourceAsStream("/sample-no-keys.conf")) {
+
+            Config result = tomlConfigFactory.create(configData);
+            assertThat(result).isNotNull();
+
+            KeyConfiguration expected = new KeyConfiguration(null, null, null);
+            assertThat(result.getKeys()).isEqualTo(expected);
+
+        }
+    }
+
+    @Test
+    public void ifPublicKeyListIsEmptyThenKeyConfigurationIsAllNulls() throws IOException {
+        try (InputStream configData = getClass().getResourceAsStream("/sample-with-only-private-keys.conf")) {
+
+            final Throwable throwable = catchThrowable(() -> tomlConfigFactory.create(configData));
+
+            assertThat(throwable)
+                .isInstanceOf(ConfigException.class)
+                .hasCauseExactlyInstanceOf(RuntimeException.class);
+
+            assertThat(throwable.getCause()).hasMessage("Different amount of public and private keys supplied");
+
+        }
+    }
+
+    @Test
+    public void ifPrivateKeyListIsEmptyThenKeyConfigurationIsAllNulls() throws IOException {
+        try (InputStream configData = getClass().getResourceAsStream("/sample-with-only-public-keys.conf")) {
+
+            final Throwable throwable = catchThrowable(() -> tomlConfigFactory.create(configData));
+
+            assertThat(throwable)
+                .isInstanceOf(ConfigException.class)
+                .hasCauseExactlyInstanceOf(RuntimeException.class);
+
+            assertThat(throwable.getCause()).hasMessage("Different amount of public and private keys supplied");
+
+        }
     }
 }
