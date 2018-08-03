@@ -69,6 +69,8 @@ By default, Tessera uses an H2 database.  To use an alternative database, add th
 java -cp some-jdbc-driver.jar -jar /path/to/tessera-app.jar
 ```
 
+[DDLs](https://github.com/QuorumEngineering/tessera/tree/master/ddls) have been provided to help with defining these databases.
+
 ## Configuration
 
 ### Config File
