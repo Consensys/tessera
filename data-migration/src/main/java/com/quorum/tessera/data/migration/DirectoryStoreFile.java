@@ -17,7 +17,7 @@ public class DirectoryStoreFile implements StoreLoader {
     public Map<byte[], byte[]> load(Path directory) throws IOException {
 
         Optional.ofNullable(directory)
-                .filter(p -> Files.isDirectory(p))
+                .filter(p -> p.toFile().isDirectory())
                 .orElseThrow(IllegalArgumentException::new);
 
         try (Stream<Path> stream = Files.list(directory)) {
