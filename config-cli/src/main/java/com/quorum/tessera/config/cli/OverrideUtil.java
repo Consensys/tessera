@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -28,7 +29,7 @@ public interface OverrideUtil {
 
     Logger LOGGER = LoggerFactory.getLogger(OverrideUtil.class);
 
-    Map<Class<?>, Class<?>> PRIMATIVE_LOOKUP = new HashMap<Class<?>, Class<?>>() {
+    Map<Class<?>, Class<?>> PRIMATIVE_LOOKUP = Collections.unmodifiableMap(new HashMap<Class<?>, Class<?>>() {
         {
             put(Boolean.TYPE, Boolean.class);
             put(Byte.TYPE, Byte.class);
@@ -40,7 +41,7 @@ public interface OverrideUtil {
             put(Float.TYPE, Float.class);
             put(Void.TYPE, Void.TYPE);
         }
-    };
+    });
 
     static Map<String, Class> buildConfigOptions() {
         return fields(null, Config.class);
