@@ -54,7 +54,7 @@ public class KeyDataBuilder {
             throw new ConfigException(new RuntimeException("Different amount of public and private keys supplied"));
         }
 
-        if(publicKeys.size() == 0) {
+        if(publicKeys.isEmpty()) {
             return null;
         }
 
