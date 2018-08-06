@@ -3,11 +3,11 @@ package com.quorum.tessera.data.migration;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.codec.binary.Base32;
 
 public class DirectoryStoreFile implements StoreLoader {
 
@@ -22,7 +22,7 @@ public class DirectoryStoreFile implements StoreLoader {
 
         try (Stream<Path> stream = Files.list(directory)) {
             return stream.collect(Collectors.toMap(
-                    p -> Base64.getDecoder().decode(p.toFile().getName()),
+                    p -> new Base32().decode(p.toFile().getName()),
                     p -> fileDelegate.readAllBytes(p)));
         }
     }
