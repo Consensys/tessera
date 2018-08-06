@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CliAdapterTest {
 
     @Test
-    public void createDefault() throws Exception {
+    public void createDefault() {
 
         CliAdapter result = CliAdapter.create();
 
