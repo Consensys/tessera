@@ -4,6 +4,7 @@ import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyGenerator;
 import com.quorum.tessera.config.keys.KeyGeneratorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,9 +14,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,39 +49,39 @@ public class DefaultCliAdapter implements CliAdapter {
 
         Options options = new Options();
         options.addOption(
-                Option.builder("configfile")
-                        .desc("Path to node configuration file")
-                        .hasArg(true)
-                        .optionalArg(false)
-                        .numberOfArgs(1)
-                        .argName("PATH")
-                        .build());
+            Option.builder("configfile")
+                .desc("Path to node configuration file")
+                .hasArg(true)
+                .optionalArg(false)
+                .numberOfArgs(1)
+                .argName("PATH")
+                .build());
 
         //If keygen then we require the path to the private key config path
         options.addOption(
-                Option.builder("keygen")
-                        .desc("Path to private key config for generation of missing key files")
-                        .hasArg(true)
-                        .optionalArg(false)
-                        .numberOfArgs(1)
-                        .argName("PATH")
-                        .build());
+            Option.builder("keygen")
+                .desc("Path to private key config for generation of missing key files")
+                .hasArg(true)
+                .optionalArg(false)
+                .numberOfArgs(1)
+                .argName("PATH")
+                .build());
 
         options.addOption(
-                Option.builder("output")
-                        .desc("Generate updated config file with generated keys")
-                        .hasArg(true)
-                        .numberOfArgs(1)
-                        .build());
+            Option.builder("output")
+                .desc("Generate updated config file with generated keys")
+                .hasArg(true)
+                .numberOfArgs(1)
+                .build());
 
         options.addOption(
-                Option.builder("pidfile")
-                        .desc("Path to pid file")
-                        .hasArg(true)
-                        .optionalArg(false)
-                        .numberOfArgs(1)
-                        .argName("PATH")
-                        .build());
+            Option.builder("pidfile")
+                .desc("Path to pid file")
+                .hasArg(true)
+                .optionalArg(false)
+                .numberOfArgs(1)
+                .argName("PATH")
+                .build());
 
         Map<String, Class> overrideOptions = OverrideUtil.buildConfigOptions();
 
@@ -91,15 +94,15 @@ public class DefaultCliAdapter implements CliAdapter {
             Class optionType = entry.getValue();
 
             Option.Builder optionBuilder = Option.builder()
-                    .longOpt(optionName)
-                    .desc(String.format("Override option for %s , type: %s", optionName, optionType.getSimpleName()));
+                .longOpt(optionName)
+                .desc(String.format("Override option for %s , type: %s", optionName, optionType.getSimpleName()));
 
             if (isCollection) {
                 optionBuilder.hasArgs()
-                        .argName(optionType.getSimpleName().toUpperCase() +"...");
+                    .argName(optionType.getSimpleName().toUpperCase() + "...");
             } else {
                 optionBuilder.hasArg()
-                        .argName(optionType.getSimpleName().toUpperCase());
+                    .argName(optionType.getSimpleName().toUpperCase());
             }
             options.addOption(optionBuilder.build());
 
@@ -113,43 +116,37 @@ public class DefaultCliAdapter implements CliAdapter {
 
         final CommandLineParser parser = new DefaultParser();
 
-        try {
 
-            final CommandLine line = parser.parse(options, args);
-            
-            final Config config = parseConfig(line);
-            
-            overrideOptions.entrySet().forEach(dynEntry -> {
-                String optionName = dynEntry.getKey();
-                if(line.hasOption(optionName)) {
-                    String[] values = line.getOptionValues(optionName);
-                    LOGGER.debug("Setting : {} with value(s) {}",optionName,values);
-                    OverrideUtil.setValue(config, optionName, values);
-                    LOGGER.debug("Set : {} with value(s) {}",optionName,values);
-                }
-            });
-            
-            
-            
-            if (line.hasOption("pidfile")) {
-                createPidFile(line);
+        final CommandLine line = parser.parse(options, args);
+
+        final Config config = parseConfig(line);
+
+        overrideOptions.entrySet().forEach(dynEntry -> {
+            String optionName = dynEntry.getKey();
+            if (line.hasOption(optionName)) {
+                String[] values = line.getOptionValues(optionName);
+                LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
+                OverrideUtil.setValue(config, optionName, values);
+                LOGGER.debug("Set : {} with value(s) {}", optionName, values);
             }
+        });
 
-            return new CliResult(0, false, config);
 
-        } catch (ParseException exp) {
-            throw new CliException(exp.getMessage());
+        if (line.hasOption("pidfile")) {
+            createPidFile(line);
         }
+
+        return new CliResult(0, false, config);
 
     }
 
     private Config parseConfig(CommandLine commandLine) throws IOException {
 
         final Validator validator = Validation.byDefaultProvider()
-                .configure()
-                .ignoreXmlConfiguration()
-                .buildValidatorFactory()
-                .getValidator();
+            .configure()
+            .ignoreXmlConfiguration()
+            .buildValidatorFactory()
+            .getValidator();
 
         final ConfigFactory configFactory = ConfigFactory.create();
 
@@ -178,8 +175,7 @@ public class DefaultCliAdapter implements CliAdapter {
                 //we have generated new keys, so we need to output the new configuration
                 output(commandLine, config);
             }
-        }
-        else {
+        } else {
             final KeyGenerator generator = KeyGeneratorFactory.create();
             keyGenConfigs.stream()
                 .map(kcd -> JaxbUtil.unmarshal(kcd, KeyDataConfig.class))
@@ -199,9 +195,9 @@ public class DefaultCliAdapter implements CliAdapter {
 
             for (final String pathStr : keyGenConfigFiles) {
                 keyGenConfigs.add(
-                        Files.newInputStream(
-                                Paths.get(pathStr)
-                        )
+                    Files.newInputStream(
+                        Paths.get(pathStr)
+                    )
                 );
             }
         }
