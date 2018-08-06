@@ -53,9 +53,9 @@ public class LegacyCliAdapter implements CliAdapter {
         CommandLine line = parser.parse(options, args);
 
         final ConfigBuilder configBuilder = Optional.ofNullable(line.getOptionValue("tomlfile"))
-                                                .map(v -> Paths.get(v))
+                                                .map(Paths::get)
                                                 .map(fileDelegate::newInputStream)
-                                                .map(configData -> configFactory.create(configData))
+                                                .map(configFactory::create)
                                                 .map(ConfigBuilder::from)
                                                 .orElse(ConfigBuilder.create());
 
