@@ -23,6 +23,10 @@ Each Tessera node:
   
 * Connects to any SQL DB which supports the JDBC client
 
+##Prerequisites
+- [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)
+- [maven](https://maven.apache.org) (if installing from source)
+- [libsodium](https://download.libsodium.org/doc/installation/) (if using Kalium as the NaCL implementation)
 
 ## Building Tessera
 To build and install Tessera:
@@ -33,13 +37,13 @@ To build and install Tessera:
 ### Selecting an NaCl Implementation 
 Tessera can be built with different NaCl cryptography implementations:
 
-#### jnacl
+#### JNaCL
 
 `mvn install`
 
-#### kalium
+#### Kalium
  
- Install kalium as detailed on the [kalium project page](https://github.com/abstractj/kalium), then run
+Install libsodium as detailed on the [Kalium project page](https://github.com/abstractj/kalium), then run
  
 `mvn install -Pkalium`
 
