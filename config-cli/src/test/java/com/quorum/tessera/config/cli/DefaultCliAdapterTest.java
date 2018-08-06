@@ -108,8 +108,6 @@ public class DefaultCliAdapterTest {
     @Test
     public void keygenThenExit() throws Exception {
 
-        exit.expectSystemExitWithStatus(0);
-
         final InputStream tempSystemIn = new ByteArrayInputStream(System.lineSeparator().getBytes());
 
         final InputStream oldSystemIn = System.in;
@@ -120,6 +118,8 @@ public class DefaultCliAdapterTest {
         CliResult result = cliDelegate.execute(
             "-keygen",
             keyConfigPath.toString());
+
+        assertThat(result).isNotNull();
 
     }
 

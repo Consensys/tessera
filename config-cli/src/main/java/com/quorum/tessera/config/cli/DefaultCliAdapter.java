@@ -180,7 +180,6 @@ public class DefaultCliAdapter implements CliAdapter {
                 .map(kcd -> JaxbUtil.unmarshal(kcd, KeyDataConfig.class))
                 .map(generator::generate)
                 .collect(Collectors.toList());
-            System.exit(0);
         }
         return config;
     }
