@@ -1,7 +1,8 @@
 package com.quorum.tessera.config.cli;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigFactory;
+import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.keys.KeyGenerator;
+import com.quorum.tessera.config.keys.KeyGeneratorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
@@ -50,7 +53,6 @@ public class DefaultCliAdapter implements CliAdapter {
                         .optionalArg(false)
                         .numberOfArgs(1)
                         .argName("PATH")
-                        .required()
                         .build());
 
         //If keygen then we require the path to the private key config path
@@ -152,31 +154,41 @@ public class DefaultCliAdapter implements CliAdapter {
 
         final ConfigFactory configFactory = ConfigFactory.create();
 
-        final Path path = Paths.get(commandLine.getOptionValue("configfile"));
-
-        if (!Files.exists(path)) {
-            throw new FileNotFoundException(String.format("%s not found.", path));
-        }
-
         final List<InputStream> keyGenConfigs = getKeyGenConfig(commandLine);
 
-        final Config config;
-        try (InputStream in = Files.newInputStream(path)) {
-            config = configFactory.create(in, keyGenConfigs.toArray(new InputStream[0]));
+        Config config = null;
+
+        if (commandLine.hasOption("configfile")) {
+            final Path path = Paths.get(commandLine.getOptionValue("configfile"));
+
+            if (!Files.exists(path)) {
+                throw new FileNotFoundException(String.format("%s not found.", path));
+            }
+
+            try (InputStream in = Files.newInputStream(path)) {
+                config = configFactory.create(in, keyGenConfigs.toArray(new InputStream[0]));
+            }
+
+            Set<ConstraintViolation<Config>> violations = validator.validate(config);
+
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
+
+            if (!keyGenConfigs.isEmpty()) {
+                //we have generated new keys, so we need to output the new configuration
+                output(commandLine, config);
+            }
         }
-
-        Set<ConstraintViolation<Config>> violations = validator.validate(config);
-
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-
-        if (!keyGenConfigs.isEmpty()) {
-            //we have generated new keys, so we need to output the new configuration
-            output(commandLine, config);
+        else {
+            final KeyGenerator generator = KeyGeneratorFactory.create();
+            keyGenConfigs.stream()
+                .map(kcd -> JaxbUtil.unmarshal(kcd, KeyDataConfig.class))
+                .map(generator::generate)
+                .collect(Collectors.toList());
+            System.exit(0);
         }
         return config;
-
     }
 
     private List<InputStream> getKeyGenConfig(CommandLine commandLine) throws IOException {
