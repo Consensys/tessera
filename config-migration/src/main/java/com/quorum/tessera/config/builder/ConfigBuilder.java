@@ -280,7 +280,7 @@ public class ConfigBuilder {
 
     static Path toPath(String value) {
         return Optional.ofNullable(value)
-                .map(v -> Paths.get(v))
+                .map(Paths::get)
                 .orElse(null);
     }
 

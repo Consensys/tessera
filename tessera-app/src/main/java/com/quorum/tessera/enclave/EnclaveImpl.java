@@ -129,11 +129,11 @@ public class EnclaveImpl implements Enclave {
         final Collection<EncodedPayloadWithRecipients> payloads
             = this.transactionService.retrieveAllForRecipient(recipient);
 
-        payloads.forEach(payload -> {
-            payload.getRecipientKeys().forEach(recipientKey -> {
-                publishPayload(payload, recipientKey);
-            });
-        });
+        payloads.forEach(payload ->
+            payload.getRecipientKeys().forEach(recipientKey ->
+                publishPayload(payload, recipientKey)
+            )
+        );
     }
 
     @Override

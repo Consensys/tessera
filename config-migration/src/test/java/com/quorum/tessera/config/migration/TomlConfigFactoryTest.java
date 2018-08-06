@@ -27,7 +27,7 @@ public class TomlConfigFactoryTest {
     private TomlConfigFactory tomlConfigFactory;
 
     @Before
-    public void onSetup() throws Exception {
+    public void onSetup() {
         tomlConfigFactory = new TomlConfigFactory();
     }
 
@@ -118,7 +118,7 @@ public class TomlConfigFactoryTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void createWithKeysNotSupported() throws IOException {
+    public void createWithKeysNotSupported() {
         InputStream configData = mock(InputStream.class);
         InputStream keyConfigData = mock(InputStream.class);
 

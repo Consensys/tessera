@@ -10,7 +10,7 @@ import static org.mockito.Mockito.mock;
 public class IOCallbackTest {
 
     @Test
-    public void executeHappyCase() throws Exception {
+    public void executeHappyCase() {
         IOCallback<Boolean> callback = () -> true;
 
         boolean result = IOCallback.execute(callback);

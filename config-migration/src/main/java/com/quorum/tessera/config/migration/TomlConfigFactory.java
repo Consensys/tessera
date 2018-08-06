@@ -73,11 +73,11 @@ public class TomlConfigFactory implements ConfigFactory {
 
         final String tls = toml.getString("tls", "strict").toUpperCase();
 
-        final List<String> othernodes = toml.getList("othernodes", Collections.EMPTY_LIST);
+        final List<String> othernodes = toml.getList("othernodes", Collections.emptyList());
 
-        final List<String> publicKeyList = toml.getList("publickeys", Collections.EMPTY_LIST);
+        final List<String> publicKeyList = toml.getList("publickeys", Collections.emptyList());
 
-        final List<String> privateKeyList = toml.getList("privatekeys", Collections.EMPTY_LIST);
+        final List<String> privateKeyList = toml.getList("privatekeys", Collections.emptyList());
 
         final Optional<String> privateKeyPasswordFile = Optional.ofNullable(toml.getString("passwords"));
         final Path privateKeyPasswordPath;
@@ -99,7 +99,7 @@ public class TomlConfigFactory implements ConfigFactory {
             keyData = new KeyConfiguration(null, null, null);
         }
 
-        final List<String> alwaysSendToKeyPaths = toml.getList("alwayssendto", Collections.EMPTY_LIST);
+        final List<String> alwaysSendToKeyPaths = toml.getList("alwayssendto", Collections.emptyList());
 
         final String storage = toml.getString("storage", "memory");
 
@@ -115,7 +115,7 @@ public class TomlConfigFactory implements ConfigFactory {
         final Optional<String> tlsservercertStr = Optional.ofNullable(toml.getString("tlsservercert"));
         final Path tlsservercert = tlsservercertStr.map(s -> Paths.get(workdir, s)).orElse(null);
 
-        final List<String> tlsserverchainnames = toml.getList("tlsserverchain", Collections.EMPTY_LIST);
+        final List<String> tlsserverchainnames = toml.getList("tlsserverchain", Collections.emptyList());
         List<Path> tlsserverchain = new ArrayList<>();
         for(String name : tlsserverchainnames) {
             tlsserverchain.add(Paths.get(workdir, name));
@@ -133,7 +133,7 @@ public class TomlConfigFactory implements ConfigFactory {
         final Optional<String> tlsclientcertStr = Optional.ofNullable(toml.getString("tlsclientcert"));
         final Path tlsclientcert = tlsclientcertStr.map(s -> Paths.get(workdir, s)).orElse(null);
 
-        final List<String> tlsclientchainnames = toml.getList("tlsclientchain", Collections.EMPTY_LIST);
+        final List<String> tlsclientchainnames = toml.getList("tlsclientchain", Collections.emptyList());
         List<Path> tlsclientchain = new ArrayList<>();
         for(String name : tlsclientchainnames) {
             tlsclientchain.add(Paths.get(workdir, name));
@@ -178,7 +178,7 @@ public class TomlConfigFactory implements ConfigFactory {
 
         List<JsonObject> privateKeyJson = privateKeys
                 .stream()
-                .map(s -> Paths.get(s))
+                .map(Paths::get)
                 .map(path -> IOCallback.execute(() -> Files.newInputStream(path)))
                 .map(Json::createReader)
                 .map(JsonReader::readObject)
