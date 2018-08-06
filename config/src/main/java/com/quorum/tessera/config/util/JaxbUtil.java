@@ -108,7 +108,7 @@ public interface JaxbUtil {
         return Optional.of(ex)
                 .map(Throwable::getCause)
                 .filter(Objects::nonNull)
-                .filter(c -> ConstraintViolationException.class.isInstance(c))
+                .filter(ConstraintViolationException.class::isInstance)
                 .map(ConstraintViolationException.class::cast);
     }
     
