@@ -45,6 +45,7 @@ public class DefaultCliAdapterTest {
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(0);
         assertThat(result.isHelpOn()).isTrue();
+        assertThat(result.isKeyGenOn()).isFalse();
 
     }
 
@@ -64,6 +65,11 @@ public class DefaultCliAdapterTest {
     @Test(expected = FileNotFoundException.class)
     public void callApiVersionWithConfigFileDoesnotExist() throws Exception {
         cliDelegate.execute("-configfile", "bogus.json");
+    }
+
+    @Test(expected = CliException.class)
+    public void processArgsMissing() throws Exception {
+        cliDelegate.execute("-keygen");
     }
 
     @Test
@@ -120,6 +126,7 @@ public class DefaultCliAdapterTest {
             keyConfigPath.toString());
 
         assertThat(result).isNotNull();
+        assertThat(result.isKeyGenOn()).isTrue();
 
     }
 

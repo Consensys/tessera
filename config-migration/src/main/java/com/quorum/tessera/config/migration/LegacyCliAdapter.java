@@ -45,7 +45,7 @@ public class LegacyCliAdapter implements CliAdapter {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("tessera-config-migration", header, options, null);
             final int exitCode = argsList.isEmpty() ? 1 : 0;
-            return new CliResult(exitCode, true, null);
+            return new CliResult(exitCode, true, false, null);
         }
 
         CommandLineParser parser = new DefaultParser();
@@ -81,11 +81,11 @@ public class LegacyCliAdapter implements CliAdapter {
             JaxbUtil.marshal(config, outputStream);
             System.out.printf("Saved config to  %s", outputPath);
             System.out.println();
-            return new CliResult(0, false, config);
+            return new CliResult(0, false, false, config);
         } catch (ConstraintViolationException validationException) {
             validationException.getConstraintViolations().stream()
                     .forEach(System.err::println);
-            return new CliResult(2, false, config);
+            return new CliResult(2, false, false, config);
         }
     }
 
