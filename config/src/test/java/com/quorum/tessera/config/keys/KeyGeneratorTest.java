@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -63,7 +64,7 @@ public class KeyGeneratorTest {
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
-        final KeyData generated = generator.generate(new KeyDataConfig(null, PrivateKeyType.UNLOCKED));
+        final KeyData generated = generator.generate(UUID.randomUUID().toString());
 
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
         assertThat(generated.getPrivateKey()).isEqualTo("cHJpdmF0ZUtleQ==");
@@ -74,7 +75,16 @@ public class KeyGeneratorTest {
     }
 
     @Test
-    public void generateFromKeyDataLockedPrivateKey() {
+    public void generateFromKeyDataLockedPrivateKey() throws IOException {
+
+        this.generator = new KeyGeneratorImpl(
+            nacl,
+            keyEncryptor,
+            new ByteArrayInputStream(("PASSWORD" + System.lineSeparator()).getBytes())
+        );
+
+        final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString());
+        final String keyFilesName = tempFolder.resolve(UUID.randomUUID().toString()).toString();
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
@@ -84,16 +94,11 @@ public class KeyGeneratorTest {
 
         doReturn(encryptedPrivateKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
 
-        final KeyDataConfig privateKeyConfig = new KeyDataConfig(
-            new PrivateKeyData(null, null, null, null, argonOptions, "PASSWORD"),
-            PrivateKeyType.LOCKED
-        );
-
         final PrivateKeyData encryptedKey = new PrivateKeyData(null, "snonce", "salt", "sbox", argonOptions, "PASSWORD");
 
         doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
 
-        final KeyData generated = generator.generate(privateKeyConfig);
+        final KeyData generated = generator.generate(keyFilesName);
 
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
         assertThat(generated.getConfig().getPassword()).isEqualTo("PASSWORD");
@@ -109,27 +114,48 @@ public class KeyGeneratorTest {
     @Test
     public void providingPathSavesToFile() throws IOException {
         final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString());
-        final String keyFilesName = tempFolder.resolve("key").toString() + System.lineSeparator();
+        final String keyFilesName = tempFolder.resolve("providingPathSavesToFile").toString();
 
-
-        this.inputStream = new ByteArrayInputStream(keyFilesName.getBytes());
+        this.inputStream = new ByteArrayInputStream(System.lineSeparator().getBytes());
 
         this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, inputStream);
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
-        final KeyData generated = generator.generate(new KeyDataConfig(null, PrivateKeyType.UNLOCKED));
+        final KeyData generated = generator.generate(keyFilesName);
 
-        assertThat(Files.exists(tempFolder.resolve("key.pub"))).isTrue();
-        assertThat(Files.exists(tempFolder.resolve("key.key"))).isTrue();
+        assertThat(Files.exists(tempFolder.resolve("providingPathSavesToFile.pub"))).isTrue();
+        assertThat(Files.exists(tempFolder.resolve("providingPathSavesToFile.key"))).isTrue();
 
         verify(nacl).generateNewKeys();
     }
 
     @Test
+    public void providingNoPathSavesToFileInSameDirectory() throws IOException {
+        Files.deleteIfExists(Paths.get(".pub"));
+        Files.deleteIfExists(Paths.get(".key"));
+
+        this.inputStream = new ByteArrayInputStream(System.lineSeparator().getBytes());
+
+        this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, inputStream);
+
+        doReturn(keyPair).when(nacl).generateNewKeys();
+
+        final KeyData generated = generator.generate("");
+
+        assertThat(Files.exists(Paths.get(".pub"))).isTrue();
+        assertThat(Files.exists(Paths.get(".key"))).isTrue();
+
+        verify(nacl).generateNewKeys();
+
+        Files.deleteIfExists(Paths.get(".pub"));
+        Files.deleteIfExists(Paths.get(".key"));
+    }
+
+    @Test
     public void providingPathThatExistsThrowsError() throws IOException {
         final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString());
-        final String keyFilesName = tempFolder.resolve("key").toString() + System.lineSeparator();
+        final String keyFilesName = tempFolder.resolve("key").toString();
         tempFolder.toFile().setWritable(false);
 
         doReturn(keyPair).when(nacl).generateNewKeys();
@@ -141,14 +167,7 @@ public class KeyGeneratorTest {
         this.inputStream = new ByteArrayInputStream(keyFilesName.getBytes());
         this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, inputStream);
 
-        final Throwable throwable = catchThrowable(
-            () -> generator.generate(
-                new KeyDataConfig(
-                    new PrivateKeyData(null, "", "", "", new com.quorum.tessera.config.ArgonOptions("", 1, 1, 1), ""),
-                    PrivateKeyType.LOCKED
-                )
-            )
-        );
+        final Throwable throwable = catchThrowable(() -> generator.generate(keyFilesName));
 
         assertThat(throwable).isInstanceOf(UncheckedIOException.class);
 

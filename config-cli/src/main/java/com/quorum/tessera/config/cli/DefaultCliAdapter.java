@@ -1,10 +1,18 @@
 package com.quorum.tessera.config.cli;
 
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.config.keys.KeyGenerator;
 import com.quorum.tessera.config.keys.KeyGeneratorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
+import org.apache.commons.cli.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,32 +22,19 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
-import javax.validation.Validator;
+import java.util.stream.Stream;
 
-import org.apache.commons.cli.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.nio.file.StandardOpenOption.*;
+import static java.util.Collections.singletonList;
 
 public class DefaultCliAdapter implements CliAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCliAdapter.class);
-    
+
     private KeyGeneratorFactory keyGeneratorFactory = KeyGeneratorFactory.newFactory();
-    
+
     @Override
     public CliResult execute(String... args) throws Exception {
 
@@ -58,8 +53,15 @@ public class DefaultCliAdapter implements CliAdapter {
             Option.builder("keygen")
                 .desc("Path to private key config for generation of missing key files")
                 .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
+                .optionalArg(true)
+                .argName("PATH")
+                .build());
+
+        options.addOption(
+            Option.builder("filename")
+                .desc("Path to private key config for generation of missing key files")
+                .hasArg(true)
+                .optionalArg(true)
                 .argName("PATH")
                 .build());
 
@@ -104,7 +106,7 @@ public class DefaultCliAdapter implements CliAdapter {
 
         });
 
-        
+
         final List<String> argsList = Arrays.asList(args);
         if (argsList.contains("help") || argsList.isEmpty()) {
             HelpFormatter formatter = new HelpFormatter();
@@ -153,7 +155,7 @@ public class DefaultCliAdapter implements CliAdapter {
 
         final ConfigFactory configFactory = ConfigFactory.create();
 
-        final List<InputStream> keyGenConfigs = getKeyGenConfig(commandLine);
+        final List<String> keyGenConfigs = getKeyGenConfig(commandLine);
 
         Config config = null;
 
@@ -165,7 +167,7 @@ public class DefaultCliAdapter implements CliAdapter {
             }
 
             try (InputStream in = Files.newInputStream(path)) {
-                config = configFactory.create(in, keyGenConfigs.toArray(new InputStream[0]));
+                config = configFactory.create(in, keyGenConfigs.toArray(new String[0]));
             }
 
             Set<ConstraintViolation<Config>> violations = validator.validate(config);
@@ -178,33 +180,34 @@ public class DefaultCliAdapter implements CliAdapter {
                 //we have generated new keys, so we need to output the new configuration
                 output(commandLine, config);
             }
+
         } else {
             final KeyGenerator generator = keyGeneratorFactory.create();
             keyGenConfigs.stream()
-                .map(kcd -> JaxbUtil.unmarshal(kcd, KeyDataConfig.class))
                 .map(generator::generate)
                 .collect(Collectors.toList());
         }
+
         return config;
     }
 
-    private List<InputStream> getKeyGenConfig(CommandLine commandLine) throws IOException {
+    private List<String> getKeyGenConfig(CommandLine commandLine) {
 
-        List<InputStream> keyGenConfigs = new ArrayList<>();
+        if(commandLine.hasOption("keygen")) {
 
-        if (commandLine.hasOption("keygen")) {
-            String[] keyGenConfigFiles = commandLine.getOptionValues("keygen");
+            if(commandLine.hasOption("filename")) {
 
-            for (final String pathStr : keyGenConfigFiles) {
-                keyGenConfigs.add(
-                    Files.newInputStream(
-                        Paths.get(pathStr)
-                    )
-                );
+                final String keyNames = commandLine.getOptionValue("filename");
+                if(keyNames != null) {
+                    return Stream.of(keyNames.split(",")).collect(Collectors.toList());
+                }
+
             }
+
+            return singletonList("");
         }
 
-        return keyGenConfigs;
+        return new ArrayList<>();
     }
 
     private static void output(CommandLine commandLine, Config config) throws IOException {
