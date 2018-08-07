@@ -39,16 +39,15 @@ public class KeyGeneratorImpl implements KeyGenerator {
     @Override
     public KeyData generate(final String filename) {
 
+        System.out.println("Enter a password if you want to lock the private key or leave blank");
+
+        String password = new Scanner(passwordStream).nextLine();
+
         final KeyPair generated = this.nacl.generateNewKeys();
 
         final String publicKeyBase64 = Base64.getEncoder().encodeToString(generated.getPublicKey().getKeyBytes());
 
         final KeyData finalKeys;
-
-        System.out.println("Enter a password if you want to lock the private key");
-        System.out.println("or leave blank to not save to separate file:");
-
-        String password = new Scanner(passwordStream).nextLine();
 
         if (!password.isEmpty()) {
 
