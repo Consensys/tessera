@@ -132,7 +132,7 @@ public class KeyGeneratorTest {
     @Test
     public void providingPathThatExistsThrowsError() throws IOException {
         final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString());
-        final String keyFilesName = tempFolder.resolve("key").toString() + System.lineSeparator();
+        final String keyFilesName = tempFolder.resolve("key").toString();
         tempFolder.toFile().setWritable(false);
 
         doReturn(keyPair).when(nacl).generateNewKeys();
