@@ -22,6 +22,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class KeyGeneratorImpl implements KeyGenerator {
 
+    private static final String EMPTY_FILENAME = "";
+
     private final NaclFacade nacl;
 
     private final KeyEncryptor keyEncryptor;
@@ -94,15 +96,21 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
         final String privateKeyJson = this.privateKeyToJson(finalKeys);
 
+
         final Path resolvedPath = Paths.get(filename).toAbsolutePath();
-        final Path parentPath = resolvedPath.getParent();
+        final Path parentPath;
+
+        if(EMPTY_FILENAME.equals(filename)) {
+            parentPath = resolvedPath;
+        } else {
+            parentPath = resolvedPath.getParent();
+        }
 
         final Path publicKeyPath = parentPath.resolve(filename + ".pub");
         final Path privateKeyPath = parentPath.resolve(filename + ".key");
 
         IOCallback.execute(() -> Files.write(publicKeyPath, publicKeyBase64.getBytes(UTF_8), StandardOpenOption.CREATE_NEW));
         IOCallback.execute(() -> Files.write(privateKeyPath, privateKeyJson.getBytes(UTF_8), StandardOpenOption.CREATE_NEW));
-
 
         return finalKeys;
     }
