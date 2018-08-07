@@ -88,28 +88,25 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
         System.out.println("Enter a relative or absolute path (without extension) to save the keys to");
         System.out.println("or leave blank to not save to separate file:");
-        final String path = new Scanner(filenameStream).nextLine();
+
+        String path = new Scanner(filenameStream).nextLine();
+
+        if (path.trim().isEmpty()) {
+            path = "keys";
+        }
 
         final String privateKeyJson = this.privateKeyToJson(finalKeys);
 
-        if (!path.trim().isEmpty()) {
+        final Path resolvedPath = Paths.get(path).toAbsolutePath();
+        final Path parentPath = resolvedPath.getParent();
+        final String filename = resolvedPath.getFileName().toString();
 
-            final Path resolvedPath = Paths.get(path).toAbsolutePath();
-            final Path parentPath = resolvedPath.getParent();
-            final String filename = resolvedPath.getFileName().toString();
+        final Path publicKeyPath = parentPath.resolve(filename + ".pub");
+        final Path privateKeyPath = parentPath.resolve(filename + ".key");
 
-            final Path publicKeyPath = parentPath.resolve(filename + ".pub");
-            final Path privateKeyPath = parentPath.resolve(filename + ".key");
+        IOCallback.execute(() -> Files.write(publicKeyPath, publicKeyBase64.getBytes(UTF_8)));
+        IOCallback.execute(() -> Files.write(privateKeyPath, privateKeyJson.getBytes(UTF_8)));
 
-            IOCallback.execute(() -> Files.write(publicKeyPath, publicKeyBase64.getBytes(UTF_8)));
-            IOCallback.execute(() -> Files.write(privateKeyPath, privateKeyJson.getBytes(UTF_8)));
-        }
-         else {
-            System.out.println("-----PUBLIC KEY-----");
-            System.out.println(publicKeyBase64);
-            System.out.println("-----PRIVATE KEY-----");
-            System.out.println(privateKeyJson);
-        }
 
         return finalKeys;
     }
