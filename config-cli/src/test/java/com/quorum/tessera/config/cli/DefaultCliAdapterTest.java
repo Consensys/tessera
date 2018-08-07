@@ -1,7 +1,10 @@
 
 package com.quorum.tessera.config.cli;
 
-import java.io.ByteArrayInputStream;
+import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.keys.KeyGenerator;
+import com.quorum.tessera.config.keys.MockKeyGeneratorFactory;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,22 +12,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.validation.ConstraintViolationException;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Assertions.*;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.ExpectedSystemExit;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 
 
 public class DefaultCliAdapterTest {
     
     private CliAdapter cliDelegate;
 
-    @Rule
-    public final ExpectedSystemExit exit = ExpectedSystemExit.none();
-    
     
     @Before
     public void setUp() {
@@ -89,13 +92,18 @@ public class DefaultCliAdapterTest {
     @Test
     public void keygen() throws Exception {
 
-        final InputStream tempSystemIn = new ByteArrayInputStream(System.lineSeparator().getBytes());
+        
+       KeyGenerator keyGenerator =  MockKeyGeneratorFactory.getMockKeyGenerator();
 
-        final InputStream oldSystemIn = System.in;
-        System.setIn(tempSystemIn);
+       KeyData keyData = mock(KeyData.class);
+       KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
+       when(keyData.getConfig()).thenReturn(keyDataConfig);
+       
+       when(keyGenerator.generate(any(KeyDataConfig.class))).thenReturn(keyData);
+       
 
         Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
-
+    
         CliResult result = cliDelegate.execute(
                 "-keygen",
                 keyConfigPath.toString(),
@@ -107,17 +115,15 @@ public class DefaultCliAdapterTest {
         assertThat(result.getConfig()).isNotNull();
         assertThat(result.isHelpOn()).isFalse();
 
-        System.setIn(oldSystemIn);
 
+        verify(keyGenerator).generate(any(KeyDataConfig.class));
+        verifyNoMoreInteractions(keyGenerator);
+        
     }
 
     @Test
     public void keygenThenExit() throws Exception {
 
-        final InputStream tempSystemIn = new ByteArrayInputStream(System.lineSeparator().getBytes());
-
-        final InputStream oldSystemIn = System.in;
-        System.setIn(tempSystemIn);
 
         Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
 
@@ -133,8 +139,6 @@ public class DefaultCliAdapterTest {
 
     @Test
     public void output() throws Exception {
-        final InputStream oldSystemIn = System.in;
-        System.setIn(new ByteArrayInputStream(System.lineSeparator().getBytes()));
 
         Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
         Path generatedKey = Paths.get("/tmp/generatedKey.json");
@@ -154,8 +158,6 @@ public class DefaultCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(Files.exists(generatedKey)).isTrue();
 
-        System.setIn(new ByteArrayInputStream(System.lineSeparator().getBytes()));
-
         try {
             CliResult anotherResult = cliDelegate.execute(
                 "-keygen",
@@ -174,7 +176,6 @@ public class DefaultCliAdapterTest {
         Files.deleteIfExists(generatedKey);
         assertThat(Files.exists(generatedKey)).isFalse();
 
-        System.setIn(oldSystemIn);
     }
 
     @Test

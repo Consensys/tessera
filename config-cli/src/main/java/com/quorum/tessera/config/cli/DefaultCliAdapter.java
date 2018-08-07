@@ -37,7 +37,9 @@ import org.slf4j.LoggerFactory;
 public class DefaultCliAdapter implements CliAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCliAdapter.class);
-
+    
+    private KeyGeneratorFactory keyGeneratorFactory = KeyGeneratorFactory.newFactory();
+    
     @Override
     public CliResult execute(String... args) throws Exception {
 
@@ -174,7 +176,7 @@ public class DefaultCliAdapter implements CliAdapter {
                 output(commandLine, config);
             }
         } else {
-            final KeyGenerator generator = KeyGeneratorFactory.newFactory().create();
+            final KeyGenerator generator = keyGeneratorFactory.create();
             keyGenConfigs.stream()
                 .map(kcd -> JaxbUtil.unmarshal(kcd, KeyDataConfig.class))
                 .map(generator::generate)
