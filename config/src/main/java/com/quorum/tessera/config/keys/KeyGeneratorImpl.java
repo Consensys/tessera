@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.Scanner;
@@ -21,20 +22,22 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class KeyGeneratorImpl implements KeyGenerator {
 
+    private static final String EMPTY_FILENAME = "";
+
     private final NaclFacade nacl;
 
     private final KeyEncryptor keyEncryptor;
 
-    private final InputStream filenameStream;
+    private final InputStream passwordStream;
 
-    public KeyGeneratorImpl(final NaclFacade nacl, final KeyEncryptor keyEncryptor, final InputStream filenameStream) {
+    public KeyGeneratorImpl(final NaclFacade nacl, final KeyEncryptor keyEncryptor, final InputStream passwordStream) {
         this.nacl = Objects.requireNonNull(nacl);
         this.keyEncryptor = Objects.requireNonNull(keyEncryptor);
-        this.filenameStream = Objects.requireNonNull(filenameStream);
+        this.passwordStream = Objects.requireNonNull(passwordStream);
     }
 
     @Override
-    public KeyData generate(final KeyDataConfig keyData) {
+    public KeyData generate(final String filename) {
 
         final KeyPair generated = this.nacl.generateNewKeys();
 
@@ -42,10 +45,15 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
         final KeyData finalKeys;
 
-        if (keyData.getType() == PrivateKeyType.LOCKED) {
+        System.out.println("Enter a password if you want to lock the private key");
+        System.out.println("or leave blank to not save to separate file:");
+
+        String password = new Scanner(passwordStream).nextLine();
+
+        if (!password.isEmpty()) {
 
             final PrivateKeyData encryptedPrivateKey = this.keyEncryptor.encryptPrivateKey(
-                generated.getPrivateKey(), keyData.getPassword()
+                generated.getPrivateKey(), password
             );
 
             finalKeys = new KeyData(
@@ -61,7 +69,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
                             encryptedPrivateKey.getArgonOptions().getMemory(),
                             encryptedPrivateKey.getArgonOptions().getParallelism()
                         ),
-                        keyData.getPassword()
+                        password
                     ),
                     PrivateKeyType.LOCKED
                 ),
@@ -86,27 +94,23 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
         }
 
-        System.out.println("Enter a relative or absolute path (without extension) to save the keys to");
-        System.out.println("or leave blank to not save to separate file:");
-
-        String path = new Scanner(filenameStream).nextLine();
-
-        if (path.trim().isEmpty()) {
-            path = "keys";
-        }
-
         final String privateKeyJson = this.privateKeyToJson(finalKeys);
 
-        final Path resolvedPath = Paths.get(path).toAbsolutePath();
-        final Path parentPath = resolvedPath.getParent();
-        final String filename = resolvedPath.getFileName().toString();
+
+        final Path resolvedPath = Paths.get(filename).toAbsolutePath();
+        final Path parentPath;
+
+        if(EMPTY_FILENAME.equals(filename)) {
+            parentPath = resolvedPath;
+        } else {
+            parentPath = resolvedPath.getParent();
+        }
 
         final Path publicKeyPath = parentPath.resolve(filename + ".pub");
         final Path privateKeyPath = parentPath.resolve(filename + ".key");
 
-        IOCallback.execute(() -> Files.write(publicKeyPath, publicKeyBase64.getBytes(UTF_8)));
-        IOCallback.execute(() -> Files.write(privateKeyPath, privateKeyJson.getBytes(UTF_8)));
-
+        IOCallback.execute(() -> Files.write(publicKeyPath, publicKeyBase64.getBytes(UTF_8), StandardOpenOption.CREATE_NEW));
+        IOCallback.execute(() -> Files.write(privateKeyPath, privateKeyJson.getBytes(UTF_8), StandardOpenOption.CREATE_NEW));
 
         return finalKeys;
     }

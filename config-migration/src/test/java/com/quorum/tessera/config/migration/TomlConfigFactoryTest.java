@@ -120,9 +120,8 @@ public class TomlConfigFactoryTest {
     @Test(expected = UnsupportedOperationException.class)
     public void createWithKeysNotSupported() {
         InputStream configData = mock(InputStream.class);
-        InputStream keyConfigData = mock(InputStream.class);
 
-        tomlConfigFactory.create(configData, keyConfigData);
+        tomlConfigFactory.create(configData, "testKey");
     }
 
     @Test
