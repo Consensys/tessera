@@ -38,7 +38,7 @@ public class Launcher {
             }
 
             Config config = cliResult.getConfig()
-                    .orElseThrow(() -> new NoSuchElementException("No Config found. "));
+                    .orElseThrow(() -> new NoSuchElementException("No Config found. Tessera will not run"));
 
             final URI uri = new URI(config.getServerConfig().getHostName() + ":" + config.getServerConfig().getPort());
 
@@ -52,6 +52,9 @@ public class Launcher {
             for(ConstraintViolation<?> violation : violations) {
                 System.out.println("Config validation issue: " + violation.getPropertyPath() + " " + violation.getMessage());
             }
+            System.exit(1);
+        }
+        catch(NoSuchElementException ex) {
             System.exit(1);
         }
     }
