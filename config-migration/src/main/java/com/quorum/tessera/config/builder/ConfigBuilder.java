@@ -328,8 +328,8 @@ public class ConfigBuilder {
 
             for(String keyPath : alwaysSendTo) {
                 try {
-                    String key = new String(Files.readAllBytes(Paths.get(keyPath)));
-                    keyList.add(key);
+                    List<String> keysFromFile = Files.readAllLines(Paths.get(keyPath));
+                    keyList.addAll(keysFromFile);
                 } catch (IOException e) {
                     System.err.println("Error reading alwayssendto file: " + e.getMessage());
                 }
