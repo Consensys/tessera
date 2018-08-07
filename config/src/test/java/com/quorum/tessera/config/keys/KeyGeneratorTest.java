@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -127,6 +128,28 @@ public class KeyGeneratorTest {
         assertThat(Files.exists(tempFolder.resolve("providingPathSavesToFile.key"))).isTrue();
 
         verify(nacl).generateNewKeys();
+    }
+
+    @Test
+    public void providingNoPathSavesToFileInSameDirectory() throws IOException {
+        Files.deleteIfExists(Paths.get(".pub"));
+        Files.deleteIfExists(Paths.get(".key"));
+
+        this.inputStream = new ByteArrayInputStream(System.lineSeparator().getBytes());
+
+        this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, inputStream);
+
+        doReturn(keyPair).when(nacl).generateNewKeys();
+
+        final KeyData generated = generator.generate("");
+
+        assertThat(Files.exists(Paths.get(".pub"))).isTrue();
+        assertThat(Files.exists(Paths.get(".key"))).isTrue();
+
+        verify(nacl).generateNewKeys();
+
+        Files.deleteIfExists(Paths.get(".pub"));
+        Files.deleteIfExists(Paths.get(".key"));
     }
 
     @Test

@@ -1,10 +1,18 @@
 package com.quorum.tessera.config.cli;
 
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.config.keys.KeyGenerator;
 import com.quorum.tessera.config.keys.KeyGeneratorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
+import org.apache.commons.cli.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,27 +22,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static java.util.Collections.singletonList;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
-import javax.validation.Validator;
 
-import org.apache.commons.cli.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.nio.file.StandardOpenOption.*;
+import static java.util.Collections.singletonList;
 
 public class DefaultCliAdapter implements CliAdapter {
 
@@ -200,12 +193,18 @@ public class DefaultCliAdapter implements CliAdapter {
 
     private List<String> getKeyGenConfig(CommandLine commandLine) {
 
-        if (commandLine.hasOption("filename") && commandLine.hasOption("keygen")) {
-            final String keyNames = commandLine.getOptionValue("filename");
-            if(keyNames==null) {
-                return singletonList("");
+        if(commandLine.hasOption("keygen")) {
+
+            if(commandLine.hasOption("filename")) {
+
+                final String keyNames = commandLine.getOptionValue("filename");
+                if(keyNames != null) {
+                    return Stream.of(keyNames.split(",")).collect(Collectors.toList());
+                }
+
             }
-            return Stream.of(keyNames.split(",")).collect(Collectors.toList());
+
+            return singletonList("");
         }
 
         return new ArrayList<>();
