@@ -14,11 +14,10 @@ public class JaxbConfigFactory implements ConfigFactory {
     private final KeyGenerator generator = KeyGeneratorFactory.create();
 
     @Override
-    public Config create(final InputStream configData, final InputStream... keyConfigData) {
+    public Config create(final InputStream configData, final String... filenames) {
 
         final List<KeyData> newKeys = Stream
-            .of(keyConfigData)
-            .map(kcd -> JaxbUtil.unmarshal(kcd, KeyDataConfig.class))
+            .of(filenames)
             .map(generator::generate)
             .map(kd -> new KeyData(
                     new KeyDataConfig(

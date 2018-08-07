@@ -1,13 +1,11 @@
 
 package com.quorum.tessera.config.cli;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 import javax.validation.ConstraintViolationException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
@@ -69,7 +67,7 @@ public class DefaultCliAdapterTest {
 
     @Test(expected = CliException.class)
     public void processArgsMissing() throws Exception {
-        cliDelegate.execute("-keygen");
+        cliDelegate.execute("-configfile");
     }
 
     @Test
@@ -98,9 +96,49 @@ public class DefaultCliAdapterTest {
 
         CliResult result = cliDelegate.execute(
                 "-keygen",
-                keyConfigPath.toString(),
+                "-filename",
+                UUID.randomUUID().toString(),
                 "-configfile",
                 getClass().getResource("/keygen-sample.json").getFile());
+
+        assertThat(result).isNotNull();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.getConfig()).isNotNull();
+        assertThat(result.isHelpOn()).isFalse();
+
+        System.setIn(oldSystemIn);
+
+    }
+
+    @Test
+    public void keygenWithNoName() throws Exception {
+
+        if(Files.exists(Paths.get("../.pub"))) {
+            Files.delete(Paths.get("../.pub"));
+        }
+        if(Files.exists(Paths.get(".pub"))) {
+            Files.delete(Paths.get("../.pub"));
+        }
+        if(Files.exists(Paths.get("../.key"))) {
+            Files.delete(Paths.get("../.key"));
+        }
+        if(Files.exists(Paths.get(".key"))) {
+            Files.delete(Paths.get(".key"));
+        }
+
+
+        final InputStream tempSystemIn = new ByteArrayInputStream(System.lineSeparator().getBytes());
+
+        final InputStream oldSystemIn = System.in;
+        System.setIn(tempSystemIn);
+
+        final CliResult result = cliDelegate.execute(
+            "-keygen",
+            "-filename"
+        );
+
+        assertThat(Files.exists(Paths.get("../.pub")) || Files.exists(Paths.get(".pub"))).isTrue();
+        assertThat(Files.exists(Paths.get("../.key")) || Files.exists(Paths.get(".key"))).isTrue();
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
@@ -123,7 +161,8 @@ public class DefaultCliAdapterTest {
 
         CliResult result = cliDelegate.execute(
             "-keygen",
-            keyConfigPath.toString());
+            keyConfigPath.toString()
+        );
 
         assertThat(result).isNotNull();
         assertThat(result.isKeyGenOn()).isTrue();
@@ -137,7 +176,8 @@ public class DefaultCliAdapterTest {
         System.setIn(new ByteArrayInputStream(System.lineSeparator().getBytes()));
 
         Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
-        Path generatedKey = Paths.get("/tmp/generatedKey.json");
+        Path generatedKey = Paths.get("/tmp/" + UUID.randomUUID().toString());
+        Path tempKeyFile = Files.createTempFile(UUID.randomUUID().toString(), "");
 
         Files.deleteIfExists(generatedKey);
         assertThat(Files.exists(generatedKey)).isFalse();
@@ -145,6 +185,8 @@ public class DefaultCliAdapterTest {
         CliResult result = cliDelegate.execute(
             "-keygen",
             keyConfigPath.toString(),
+            "-filename",
+            tempKeyFile.toAbsolutePath().toString(),
             "-output",
             generatedKey.toFile().getPath(),
             "-configfile",
@@ -160,6 +202,8 @@ public class DefaultCliAdapterTest {
             CliResult anotherResult = cliDelegate.execute(
                 "-keygen",
                 keyConfigPath.toString(),
+                "-filename",
+                "/tmp/generatedKey",
                 "-output",
                 generatedKey.toFile().getPath(),
                 "-configfile",
@@ -168,7 +212,7 @@ public class DefaultCliAdapterTest {
             failBecauseExceptionWasNotThrown(Exception.class);
         }
         catch (Exception ex) {
-            assertThat(ex).isInstanceOf(IOException.class);
+            assertThat(ex).isInstanceOf(UncheckedIOException.class);
         }
 
         Files.deleteIfExists(generatedKey);
