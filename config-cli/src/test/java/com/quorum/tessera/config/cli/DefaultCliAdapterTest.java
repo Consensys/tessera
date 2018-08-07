@@ -167,6 +167,19 @@ public class DefaultCliAdapterTest {
 
     }
 
+
+    @Test
+    public void fileNameWithoutKeygenArgThenExit() throws Exception {
+
+        CliResult result = cliDelegate.execute(
+            "-filename"
+        );
+
+        assertThat(result).isNotNull();
+        assertThat(result.isKeyGenOn()).isFalse();
+
+    }
+
     @Test
     public void output() throws Exception {
 
