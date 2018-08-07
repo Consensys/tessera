@@ -30,12 +30,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,32 +105,36 @@ public class DefaultCliAdapter implements CliAdapter {
         if (Arrays.asList(args).contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("tessera -configfile <PATH> [-keygen <PATH>] [-pidfile <PATH>]", options);
-            return new CliResult(0, true, null);
+            return new CliResult(0, true, false, null);
         }
 
         final CommandLineParser parser = new DefaultParser();
 
+        try {
 
-        final CommandLine line = parser.parse(options, args);
+            final CommandLine line = parser.parse(options, args);
 
-        final Config config = parseConfig(line);
+            final Config config = parseConfig(line);
 
-        overrideOptions.entrySet().forEach(dynEntry -> {
-            String optionName = dynEntry.getKey();
-            if (line.hasOption(optionName)) {
-                String[] values = line.getOptionValues(optionName);
-                LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
-                OverrideUtil.setValue(config, optionName, values);
-                LOGGER.debug("Set : {} with value(s) {}", optionName, values);
+            overrideOptions.entrySet().forEach(dynEntry -> {
+                String optionName = dynEntry.getKey();
+                if (line.hasOption(optionName)) {
+                    String[] values = line.getOptionValues(optionName);
+                    LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
+                    OverrideUtil.setValue(config, optionName, values);
+                    LOGGER.debug("Set : {} with value(s) {}", optionName, values);
+                }
+            });
+
+            if (line.hasOption("pidfile")) {
+                createPidFile(line);
             }
-        });
 
+            return new CliResult(0, false, line.hasOption("keygen") ,config);
 
-        if (line.hasOption("pidfile")) {
-            createPidFile(line);
+        } catch (ParseException exp) {
+            throw new CliException(exp.getMessage());
         }
-
-        return new CliResult(0, false, config);
 
     }
 
