@@ -50,7 +50,8 @@ public class LegacyCliAdapterTest {
     public void withoutCliArgsAllConfigIsSetFromTomlFile() throws Exception {
 
         Path forwardFile1 = Files.createTempFile("forward1", ".txt");
-        Files.write(forwardFile1, "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=".getBytes());
+        Files.write(forwardFile1, ("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=\n" +
+                                    "jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=").getBytes());
 
         Path forwardFile2 = Files.createTempFile("forward2", ".txt");
         Files.write(forwardFile2, "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=".getBytes());
@@ -85,9 +86,10 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("data/foo1.key");
         assertThat(result.getConfig().get().getKeys().getKeyData().get(1).getPublicKeyPath().toString()).isEqualTo("data/foo2.pub");
         assertThat(result.getConfig().get().getKeys().getKeyData().get(1).getPrivateKeyPath().toString()).isEqualTo("data/foo2.key");
-        assertThat(result.getConfig().get().getFowardingList().size()).isEqualTo(2);
+        assertThat(result.getConfig().get().getFowardingList().size()).isEqualTo(3);
         assertThat(result.getConfig().get().getFowardingList().get(0).toString()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
-        assertThat(result.getConfig().get().getFowardingList().get(1).toString()).isEqualTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=");
+        assertThat(result.getConfig().get().getFowardingList().get(1).toString()).isEqualTo("jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
+        assertThat(result.getConfig().get().getFowardingList().get(2).toString()).isEqualTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=");
         assertThat(result.getConfig().get().getKeys().getPasswordFile().toString()).isEqualTo("data/passwords");
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
         assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
@@ -125,7 +127,8 @@ public class LegacyCliAdapterTest {
         Files.write(configFile, data.getBytes());
 
         Path alwaysSendToFile = Files.createTempFile("alwaysSendTo", ".txt");
-        Files.write(alwaysSendToFile, "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=".getBytes());
+        Files.write(alwaysSendToFile, ("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=\n" +
+                                        "jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=").getBytes());
 
         String[] args = {
             "--tomlfile=" + configFile.toString(),
@@ -168,8 +171,9 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(1);
         assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("override/new.pub");
         assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("override/new.key");
-        assertThat(result.getConfig().get().getFowardingList().size()).isEqualTo(1);
+        assertThat(result.getConfig().get().getFowardingList().size()).isEqualTo(2);
         assertThat(result.getConfig().get().getFowardingList().get(0).toString()).isEqualTo("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+        assertThat(result.getConfig().get().getFowardingList().get(1).toString()).isEqualTo("jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
         assertThat(result.getConfig().get().getKeys().getPasswordFile().toString()).isEqualTo("override/pw.txt");
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:test");
         assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
