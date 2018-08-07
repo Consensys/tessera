@@ -6,7 +6,6 @@ import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.nacl.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
 
-import javax.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -91,7 +90,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
         System.out.println("or leave blank to not save to separate file:");
         final String path = new Scanner(filenameStream).nextLine();
 
-        String privateKeyJson = this.privateKeyToJson(finalKeys);
+        final String privateKeyJson = this.privateKeyToJson(finalKeys);
 
         if (!path.trim().isEmpty()) {
 
