@@ -87,11 +87,7 @@ public interface OverrideUtil {
             return true;
         }
 
-        if (type.isEnum()) {
-            return true;
-        }
-
-        return false;
+        return type.isEnum();
     }
 
     static Map<String, Class> fields(String prefix, Class type) {

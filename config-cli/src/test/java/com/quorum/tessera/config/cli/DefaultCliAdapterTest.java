@@ -13,12 +13,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.ExpectedSystemExit;
 
 
 public class DefaultCliAdapterTest {
     
     private CliAdapter cliDelegate;
+
+    @Rule
+    public final ExpectedSystemExit exit = ExpectedSystemExit.none();
     
     
     @Before
@@ -61,11 +66,6 @@ public class DefaultCliAdapterTest {
         cliDelegate.execute("-configfile", "bogus.json");
     }
 
-    @Test(expected = CliException.class)
-    public void processArgsMissing() throws Exception {
-        cliDelegate.execute();
-    }
-
     @Test
     public void withConstraintViolations() throws Exception {
 
@@ -102,6 +102,24 @@ public class DefaultCliAdapterTest {
         assertThat(result.isHelpOn()).isFalse();
 
         System.setIn(oldSystemIn);
+
+    }
+
+    @Test
+    public void keygenThenExit() throws Exception {
+
+        final InputStream tempSystemIn = new ByteArrayInputStream(System.lineSeparator().getBytes());
+
+        final InputStream oldSystemIn = System.in;
+        System.setIn(tempSystemIn);
+
+        Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
+
+        CliResult result = cliDelegate.execute(
+            "-keygen",
+            keyConfigPath.toString());
+
+        assertThat(result).isNotNull();
 
     }
 
