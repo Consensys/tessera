@@ -104,8 +104,11 @@ public class DefaultCliAdapter implements CliAdapter {
 
         });
 
-        if (Arrays.asList(args).contains("help")) {
+        
+        final List<String> argsList = Arrays.asList(args);
+        if (argsList.contains("help") || argsList.isEmpty()) {
             HelpFormatter formatter = new HelpFormatter();
+            formatter.setWidth(200);
             formatter.printHelp("tessera -configfile <PATH> [-keygen <PATH>] [-pidfile <PATH>]", options);
             return new CliResult(0, true, false, null);
         }

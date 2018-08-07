@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.config.KeyData;
@@ -22,13 +21,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-
-
 public class DefaultCliAdapterTest {
-    
+
     private CliAdapter cliDelegate;
 
-    
     @Before
     public void setUp() {
         cliDelegate = CliAdapter.create();
@@ -53,11 +49,23 @@ public class DefaultCliAdapterTest {
     }
 
     @Test
+    public void noArgsPrintsHelp() throws Exception {
+
+        CliResult result = cliDelegate.execute();
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isNotPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.isHelpOn()).isTrue();
+        assertThat(result.isKeyGenOn()).isFalse();
+
+    }
+
+    @Test
     public void withValidConfig() throws Exception {
 
         CliResult result = cliDelegate.execute(
-            "-configfile",
-            getClass().getResource("/sample-config.json").getFile());
+                "-configfile",
+                getClass().getResource("/sample-config.json").getFile());
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
@@ -80,8 +88,8 @@ public class DefaultCliAdapterTest {
 
         try {
             cliDelegate.execute(
-                "-configfile",
-                getClass().getResource("/missing-config.json").getFile());
+                    "-configfile",
+                    getClass().getResource("/missing-config.json").getFile());
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
             assertThat(ex.getConstraintViolations()).hasSize(1);
@@ -92,18 +100,16 @@ public class DefaultCliAdapterTest {
     @Test
     public void keygen() throws Exception {
 
-        
-       KeyGenerator keyGenerator =  MockKeyGeneratorFactory.getMockKeyGenerator();
+        KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
 
-       KeyData keyData = mock(KeyData.class);
-       KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
-       when(keyData.getConfig()).thenReturn(keyDataConfig);
-       
-       when(keyGenerator.generate(any(KeyDataConfig.class))).thenReturn(keyData);
-       
+        KeyData keyData = mock(KeyData.class);
+        KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
+        when(keyData.getConfig()).thenReturn(keyDataConfig);
+
+        when(keyGenerator.generate(any(KeyDataConfig.class))).thenReturn(keyData);
 
         Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
-    
+
         CliResult result = cliDelegate.execute(
                 "-keygen",
                 keyConfigPath.toString(),
@@ -115,27 +121,24 @@ public class DefaultCliAdapterTest {
         assertThat(result.getConfig()).isNotNull();
         assertThat(result.isHelpOn()).isFalse();
 
-
         verify(keyGenerator).generate(any(KeyDataConfig.class));
         verifyNoMoreInteractions(keyGenerator);
-        
+
     }
 
     @Test
     public void keygenThenExit() throws Exception {
 
-
         Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
 
         CliResult result = cliDelegate.execute(
-            "-keygen",
-            keyConfigPath.toString());
+                "-keygen",
+                keyConfigPath.toString());
 
         assertThat(result).isNotNull();
         assertThat(result.isKeyGenOn()).isTrue();
 
     }
-
 
     @Test
     public void output() throws Exception {
@@ -147,12 +150,12 @@ public class DefaultCliAdapterTest {
         assertThat(Files.exists(generatedKey)).isFalse();
 
         CliResult result = cliDelegate.execute(
-            "-keygen",
-            keyConfigPath.toString(),
-            "-output",
-            generatedKey.toFile().getPath(),
-            "-configfile",
-            getClass().getResource("/keygen-sample.json").getFile()
+                "-keygen",
+                keyConfigPath.toString(),
+                "-output",
+                generatedKey.toFile().getPath(),
+                "-configfile",
+                getClass().getResource("/keygen-sample.json").getFile()
         );
 
         assertThat(result).isNotNull();
@@ -160,16 +163,15 @@ public class DefaultCliAdapterTest {
 
         try {
             CliResult anotherResult = cliDelegate.execute(
-                "-keygen",
-                keyConfigPath.toString(),
-                "-output",
-                generatedKey.toFile().getPath(),
-                "-configfile",
-                getClass().getResource("/keygen-sample.json").getFile()
+                    "-keygen",
+                    keyConfigPath.toString(),
+                    "-output",
+                    generatedKey.toFile().getPath(),
+                    "-configfile",
+                    getClass().getResource("/keygen-sample.json").getFile()
             );
             failBecauseExceptionWasNotThrown(Exception.class);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             assertThat(ex).isInstanceOf(IOException.class);
         }
 
@@ -184,10 +186,10 @@ public class DefaultCliAdapterTest {
         Path pidFile = Paths.get(getClass().getResource("/pid").getFile());
 
         CliResult result = cliDelegate.execute(
-            "-pidfile",
-            pidFile.toFile().getPath(),
-            "-configfile",
-            getClass().getResource("/keygen-sample.json").getFile()
+                "-pidfile",
+                pidFile.toFile().getPath(),
+                "-configfile",
+                getClass().getResource("/keygen-sample.json").getFile()
         );
 
         assertThat(result).isNotNull();
@@ -206,10 +208,10 @@ public class DefaultCliAdapterTest {
         assertThat(Files.notExists(anotherPidFile)).isTrue();
 
         CliResult result = cliDelegate.execute(
-            "-pidfile",
-            anotherPidFile.toFile().getPath(),
-            "-configfile",
-            getClass().getResource("/keygen-sample.json").getFile()
+                "-pidfile",
+                anotherPidFile.toFile().getPath(),
+                "-configfile",
+                getClass().getResource("/keygen-sample.json").getFile()
         );
 
         assertThat(result).isNotNull();
@@ -222,23 +224,21 @@ public class DefaultCliAdapterTest {
         Files.deleteIfExists(anotherPidFile);
 
     }
-    
-        @Test
+
+    @Test
     public void dynOption() throws Exception {
- 
+
         CliResult result = cliDelegate.execute(
-            "-configfile",
-            getClass().getResource("/keygen-sample.json").getFile(),
-            "-jdbc.username",
-            "somename"
+                "-configfile",
+                getClass().getResource("/keygen-sample.json").getFile(),
+                "-jdbc.username",
+                "somename"
         );
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig().get().getJdbcConfig().getUsername()).isEqualTo("somename");
         assertThat(result.getConfig().get().getJdbcConfig().getPassword()).isEqualTo("tiger");
-        
-
 
     }
 }
