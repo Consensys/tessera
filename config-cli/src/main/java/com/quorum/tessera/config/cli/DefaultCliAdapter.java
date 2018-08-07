@@ -174,7 +174,7 @@ public class DefaultCliAdapter implements CliAdapter {
                 output(commandLine, config);
             }
         } else {
-            final KeyGenerator generator = KeyGeneratorFactory.create();
+            final KeyGenerator generator = KeyGeneratorFactory.newFactory().create();
             keyGenConfigs.stream()
                 .map(kcd -> JaxbUtil.unmarshal(kcd, KeyDataConfig.class))
                 .map(generator::generate)
