@@ -1,5 +1,6 @@
 package com.quorum.tessera.api;
 
+import com.quorum.tessera.api.filter.PrivateApi;
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.model.MessageHash;
@@ -47,12 +48,14 @@ public class TransactionResource {
         this.enclave = requireNonNull(enclave, "enclave must not be null");
         this.base64Decoder = requireNonNull(base64Decoder, "decoder must not be null");
     }
+
     @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
     @ApiResponses({
         @ApiResponse(code = 200, response = SendResponse.class, message = "Send response"),
         @ApiResponse(code = 400, message = "For unknown and unknown keys")
     })
     @POST
+    @PrivateApi
     @Path("send")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
@@ -88,12 +91,14 @@ public class TransactionResource {
                 .build();
 
     }
+
     @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
     @ApiResponses({
         @ApiResponse(code = 200, message = "Encoded Key", response = String.class),
         @ApiResponse(code = 500, message = "Unknown server error")
     })
     @POST
+    @PrivateApi
     @Path("sendraw")
     @Consumes(APPLICATION_OCTET_STREAM)
     @Produces(TEXT_PLAIN)
@@ -129,6 +134,7 @@ public class TransactionResource {
         @ApiResponse(code = 200, response = ReceiveResponse.class, message = "Receive Response object")
     })
     @GET
+    @PrivateApi
     @Path("/transaction/{hash}")
     @Produces(APPLICATION_JSON)
     public Response receive(
@@ -160,6 +166,7 @@ public class TransactionResource {
 
     @GET
     @Deprecated
+    @PrivateApi
     @Path("/receive")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
