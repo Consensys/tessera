@@ -144,7 +144,7 @@ public class KeyGeneratorTest {
         this.inputStream = new ByteArrayInputStream(keyFilesName.getBytes());
         this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, inputStream);
 
-        final Throwable throwable = catchThrowable(() -> generator.generate("key"));
+        final Throwable throwable = catchThrowable(() -> generator.generate(keyFilesName));
 
         assertThat(throwable).isInstanceOf(UncheckedIOException.class);
 
