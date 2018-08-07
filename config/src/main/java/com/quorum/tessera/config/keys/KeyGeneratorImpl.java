@@ -90,6 +90,8 @@ public class KeyGeneratorImpl implements KeyGenerator {
         System.out.println("or leave blank to not save to separate file:");
         final String path = new Scanner(filenameStream).nextLine();
 
+        final String privateKeyJson = this.privateKeyToJson(finalKeys);
+
         if (!path.trim().isEmpty()) {
 
             final Path resolvedPath = Paths.get(path).toAbsolutePath();
@@ -99,10 +101,14 @@ public class KeyGeneratorImpl implements KeyGenerator {
             final Path publicKeyPath = parentPath.resolve(filename + ".pub");
             final Path privateKeyPath = parentPath.resolve(filename + ".key");
 
-            final String privateKeyJson = this.privateKeyToJson(finalKeys);
-
             IOCallback.execute(() -> Files.write(publicKeyPath, publicKeyBase64.getBytes(UTF_8)));
             IOCallback.execute(() -> Files.write(privateKeyPath, privateKeyJson.getBytes(UTF_8)));
+        }
+         else {
+            System.out.println("-----PUBLIC KEY-----");
+            System.out.println(publicKeyBase64);
+            System.out.println("-----PRIVATE KEY-----");
+            System.out.println(privateKeyJson);
         }
 
         return finalKeys;
