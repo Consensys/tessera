@@ -11,8 +11,9 @@ import java.util.stream.Stream;
 
 public class JaxbConfigFactory implements ConfigFactory {
 
-    private final KeyGenerator generator = KeyGeneratorFactory.create();
 
+    private final KeyGenerator generator = KeyGeneratorFactory.newFactory().create();
+    
     @Override
     public Config create(final InputStream configData, final String... filenames) {
 

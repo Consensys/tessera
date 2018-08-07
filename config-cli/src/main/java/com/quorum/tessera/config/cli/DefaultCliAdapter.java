@@ -40,6 +40,8 @@ public class DefaultCliAdapter implements CliAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCliAdapter.class);
 
+    private KeyGeneratorFactory keyGeneratorFactory = KeyGeneratorFactory.newFactory();
+
     @Override
     public CliResult execute(String... args) throws Exception {
 
@@ -111,8 +113,11 @@ public class DefaultCliAdapter implements CliAdapter {
 
         });
 
-        if (Arrays.asList(args).contains("help")) {
+
+        final List<String> argsList = Arrays.asList(args);
+        if (argsList.contains("help") || argsList.isEmpty()) {
             HelpFormatter formatter = new HelpFormatter();
+            formatter.setWidth(200);
             formatter.printHelp("tessera -configfile <PATH> [-keygen <PATH>] [-pidfile <PATH>]", options);
             return new CliResult(0, true, false, null);
         }
@@ -184,9 +189,8 @@ public class DefaultCliAdapter implements CliAdapter {
             }
 
         } else {
-            final KeyGenerator generator = KeyGeneratorFactory.create();
-            keyGenConfigs
-                .stream()
+            final KeyGenerator generator = keyGeneratorFactory.create();
+            keyGenConfigs.stream()
                 .map(generator::generate)
                 .collect(Collectors.toList());
         }

@@ -9,7 +9,7 @@ public class KeyGeneratorFactoryTest {
     @Test
     public void keyGeneratorIsntNull() {
 
-        final KeyGenerator keyGenerator = KeyGeneratorFactory.create();
+        final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create();
 
         assertThat(keyGenerator).isNotNull();
 
