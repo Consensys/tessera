@@ -3,18 +3,17 @@ package com.quorum.tessera.config.keys;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.IOCallback;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.nacl.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import java.util.Objects;
-import java.util.Scanner;
 
 import static com.quorum.tessera.config.PrivateKeyType.LOCKED;
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
@@ -28,12 +27,12 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
     private final KeyEncryptor keyEncryptor;
 
-    private final InputStream passwordStream;
+    private final PasswordReader passwordReader;
 
-    public KeyGeneratorImpl(final NaclFacade nacl, final KeyEncryptor keyEncryptor, final InputStream passwordStream) {
+    public KeyGeneratorImpl(final NaclFacade nacl, final KeyEncryptor keyEncryptor, final PasswordReader passwordReader) {
         this.nacl = Objects.requireNonNull(nacl);
         this.keyEncryptor = Objects.requireNonNull(keyEncryptor);
-        this.passwordStream = Objects.requireNonNull(passwordStream);
+        this.passwordReader = Objects.requireNonNull(passwordReader);
     }
 
     @Override
@@ -41,7 +40,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
         System.out.println("Enter a password if you want to lock the private key or leave blank");
 
-        String password = new Scanner(passwordStream).nextLine();
+        final String password = this.passwordReader.readPassword();
 
         final KeyPair generated = this.nacl.generateNewKeys();
 

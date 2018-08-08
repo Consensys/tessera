@@ -1,3 +1,4 @@
 ignore:
   - "**/Main.java"
   - "**/Launcher.java"
+  - "**/PasswordReader.java"
