@@ -116,6 +116,9 @@ public class KeyGeneratorImpl implements KeyGenerator {
         IOCallback.execute(() -> Files.write(publicKeyPath, publicKeyBase64.getBytes(UTF_8), StandardOpenOption.CREATE_NEW));
         IOCallback.execute(() -> Files.write(privateKeyPath, privateKeyJson.getBytes(UTF_8), StandardOpenOption.CREATE_NEW));
 
+        LOGGER.info("Saved public key to {}", publicKeyPath.toAbsolutePath().toString());
+        LOGGER.info("Saved private key to {}", privateKeyPath.toAbsolutePath().toString());
+
         return finalKeys;
     }
 
