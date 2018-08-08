@@ -15,14 +15,14 @@ import org.apache.commons.cli.Options;
 
 
 public class CmdLineExecutor {
-        
+
     private CmdLineExecutor() {
         throw new UnsupportedOperationException("");
     }
 
-    
+
         protected static int execute(String... args) throws Exception {
-       
+
         Options options = new Options();
 
         options.addOption(
@@ -69,33 +69,56 @@ public class CmdLineExecutor {
                         .required()
                         .build());
 
+        options.addOption(
+                Option.builder()
+                    .longOpt("dbuser")
+                    .desc("Database username to use")
+                    .hasArg(true)
+                    .optionalArg(true)
+                    .numberOfArgs(1)
+                    .argName("PATH")
+                    .required()
+                    .build());
+
+        options.addOption(
+                Option.builder()
+                    .longOpt("dbpass")
+                    .desc("Database password to use")
+                    .hasArg(true)
+                    .optionalArg(true)
+                    .numberOfArgs(1)
+                    .argName("PATH")
+                    .required()
+                    .build());
+
         if (Arrays.asList(args).contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("tessera-data-migration",options);
+            formatter.printHelp("tessera-data-migration", options);
             return 0;
         }
 
         final CommandLineParser parser = new DefaultParser();
-
         final CommandLine line = parser.parse(options, args);
 
         final StoreType storeType = StoreType.valueOf(line.getOptionValue("storetype").toUpperCase());
+        final StoreLoader storeLoader = StoreLoader.create(storeType);
 
-        StoreLoader storeLoader = StoreLoader.create(storeType);
+        final Path inputpath = Paths.get(line.getOptionValue("inputpath"));
+        final Map<byte[], byte[]> data = storeLoader.load(inputpath);
 
-        Path inputpath = Paths.get(line.getOptionValue("inputpath"));
+        final String username = line.getOptionValue("dbuser");
+        final String password = line.getOptionValue("dbpass");
 
-        Map<byte[], byte[]> data = storeLoader.load(inputpath);
-        
-        String exportTypeStr = line.getOptionValue("exporttype");
-        
-        ExportType exportType = ExportType.valueOf(exportTypeStr.toUpperCase());
-        Path outputFile = Paths.get(line.getOptionValue("outputfile")).toAbsolutePath();
-        DataExporter dataExporter = DataExporterFactory.create(exportType);
-        dataExporter.export(data,outputFile);
+        final String exportTypeStr = line.getOptionValue("exporttype");
+        final ExportType exportType = ExportType.valueOf(exportTypeStr.toUpperCase());
 
-        System.out.printf("Exported data to %s",Objects.toString(outputFile));
+        final Path outputFile = Paths.get(line.getOptionValue("outputfile")).toAbsolutePath();
+        final DataExporter dataExporter = DataExporterFactory.create(exportType);
+        dataExporter.export(data, outputFile, username, password);
+
+        System.out.printf("Exported data to %s", Objects.toString(outputFile));
         System.out.println();
+
         return 0;
     }
 }
