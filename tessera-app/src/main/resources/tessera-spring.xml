@@ -113,6 +113,12 @@
         <constructor-arg ref="config"/>
     </bean>
 
+    <bean class="com.quorum.tessera.api.filter.PrivateApiFilter">
+        <constructor-arg>
+            <bean factory-bean="config" factory-method="getServerConfig"/>
+        </constructor-arg>
+    </bean>
+
     <bean name="payloadEncoder" class="com.quorum.tessera.transaction.PayloadEncoderImpl"/>
 
     <bean name="transactionService" class="com.quorum.tessera.transaction.TransactionServiceImpl">
