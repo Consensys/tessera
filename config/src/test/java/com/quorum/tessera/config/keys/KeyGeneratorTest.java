@@ -1,6 +1,10 @@
 package com.quorum.tessera.config.keys;
 
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.ArgonOptions;
+import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.PrivateKeyData;
+import com.quorum.tessera.config.PrivateKeyType;
+import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
@@ -8,9 +12,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +36,7 @@ public class KeyGeneratorTest {
 
     private KeyEncryptor keyEncryptor;
 
-    private InputStream inputStream;
+    private PasswordReader passwordReader;
 
     private KeyGenerator generator;
 
@@ -48,9 +50,11 @@ public class KeyGeneratorTest {
 
         this.nacl = mock(NaclFacade.class);
         this.keyEncryptor = mock(KeyEncryptor.class);
-        this.inputStream = new ByteArrayInputStream(System.lineSeparator().getBytes());
+        this.passwordReader = mock(PasswordReader.class);
 
-        this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, inputStream);
+        when(passwordReader.readPassword()).thenReturn("");
+
+        this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, passwordReader);
 
     }
 
@@ -77,11 +81,7 @@ public class KeyGeneratorTest {
     @Test
     public void generateFromKeyDataLockedPrivateKey() throws IOException {
 
-        this.generator = new KeyGeneratorImpl(
-            nacl,
-            keyEncryptor,
-            new ByteArrayInputStream(("PASSWORD" + System.lineSeparator()).getBytes())
-        );
+        when(passwordReader.readPassword()).thenReturn("PASSWORD");
 
         final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString());
         final String keyFilesName = tempFolder.resolve(UUID.randomUUID().toString()).toString();
@@ -116,10 +116,6 @@ public class KeyGeneratorTest {
         final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString());
         final String keyFilesName = tempFolder.resolve("providingPathSavesToFile").toString();
 
-        this.inputStream = new ByteArrayInputStream(System.lineSeparator().getBytes());
-
-        this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, inputStream);
-
         doReturn(keyPair).when(nacl).generateNewKeys();
 
         final KeyData generated = generator.generate(keyFilesName);
@@ -134,10 +130,6 @@ public class KeyGeneratorTest {
     public void providingNoPathSavesToFileInSameDirectory() throws IOException {
         Files.deleteIfExists(Paths.get(".pub"));
         Files.deleteIfExists(Paths.get(".key"));
-
-        this.inputStream = new ByteArrayInputStream(System.lineSeparator().getBytes());
-
-        this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, inputStream);
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
@@ -164,9 +156,6 @@ public class KeyGeneratorTest {
             .when(keyEncryptor)
             .encryptPrivateKey(any(Key.class), anyString());
 
-        this.inputStream = new ByteArrayInputStream(keyFilesName.getBytes());
-        this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, inputStream);
-
         final Throwable throwable = catchThrowable(() -> generator.generate(keyFilesName));
 
         assertThat(throwable).isInstanceOf(UncheckedIOException.class);
@@ -175,7 +164,6 @@ public class KeyGeneratorTest {
         assertThat(Files.exists(tempFolder.resolve("key.key"))).isFalse();
 
         verify(nacl).generateNewKeys();
-        verify(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
     }
 
 }
