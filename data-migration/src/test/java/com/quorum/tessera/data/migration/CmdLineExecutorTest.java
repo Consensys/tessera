@@ -17,10 +17,10 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 public class CmdLineExecutorTest {
-
 
     @Rule
     public TestName testName = new TestName();
@@ -29,40 +29,38 @@ public class CmdLineExecutorTest {
 
     @Before
     public void onSetup() throws Exception {
-        outputPath = Files.createTempFile(testName.getMethodName(), ".db");
+        this.outputPath = Files.createTempFile(testName.getMethodName(), ".db");
     }
 
     @After
     public void onTearDown() throws IOException {
         if (Files.exists(outputPath)) {
             Files.walk(outputPath)
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
         }
     }
 
     @Test
     public void help() throws Exception {
 
-        String[] args = new String[]{"help"};
+        final String[] args = new String[]{"help"};
+
         assertThat(CmdLineExecutor.execute(args)).isEqualTo(0);
 
     }
 
-
-
     @Test
-    public void noOptions() throws Exception {
+    public void noOptions() {
 
-        String[] args = new String[]{};
+        final String[] args = new String[]{};
 
-        try {
-            CmdLineExecutor.execute(args);
-            failBecauseExceptionWasNotThrown(MissingOptionException.class);
-        } catch (MissingOptionException ex) {
-            assertThat(ex.getMissingOptions()).containsExactly("storetype", "inputpath", "exporttype", "outputfile");
-        }
+        final Throwable throwable = catchThrowable(() -> CmdLineExecutor.execute(args));
+
+        assertThat(throwable).isInstanceOf(MissingOptionException.class);
+        assertThat(((MissingOptionException) throwable).getMissingOptions())
+            .containsExactlyInAnyOrder("storetype", "inputpath", "exporttype", "outputfile", "dbpass", "dbuser");
 
     }
 
@@ -72,7 +70,8 @@ public class CmdLineExecutorTest {
         String[] args = new String[]{
             "-inputpath", "somefile.txt",
             "-exporttype", "h2",
-            "-outputfile", outputPath.toString()
+            "-outputfile", outputPath.toString(),
+            "-dbpass", "-dbuser"
         };
 
         try {
@@ -91,7 +90,8 @@ public class CmdLineExecutorTest {
         String[] args = new String[]{
             "-storetype", "bdb",
             "-exporttype", "h2",
-            "-outputfile", outputPath.toString()
+            "-outputfile", outputPath.toString(),
+            "-dbpass", "-dbuser"
         };
 
         try {
@@ -115,7 +115,8 @@ public class CmdLineExecutorTest {
             "-storetype", "bdb",
             "-inputpath", inputFile.toString(),
             "-exporttype", "h2",
-            "-outputfile", outputPath.toString()
+            "-outputfile", outputPath.toString(),
+            "-dbpass", "-dbuser"
         };
 
         CmdLineExecutor.execute(args);
@@ -125,13 +126,14 @@ public class CmdLineExecutorTest {
     @Test
     public void dirStoreType() throws Exception {
 
-        Path inputFile = Paths.get(getClass().getResource("/dir/").toURI());
+        final Path inputFile = Paths.get(getClass().getResource("/dir/").toURI());
 
-        String[] args = new String[]{
+        final String[] args = new String[]{
             "-storetype", "dir",
             "-inputpath", inputFile.toString(),
             "-outputfile", outputPath.toString(),
-            "-exporttype", "sqlite"
+            "-exporttype", "sqlite",
+            "-dbpass", "-dbuser"
         };
 
         CmdLineExecutor.execute(args);
@@ -143,15 +145,13 @@ public class CmdLineExecutorTest {
     @Test
     public void cannotBeConstructed() throws Exception {
 
-        Constructor constructor = CmdLineExecutor.class.getDeclaredConstructor();
+        final Constructor constructor = CmdLineExecutor.class.getDeclaredConstructor();
         constructor.setAccessible(true);
-        try {
-            constructor.newInstance();
-            failBecauseExceptionWasNotThrown(InvocationTargetException.class);
-        } catch (InvocationTargetException ex) {
-            assertThat(ex).hasCauseExactlyInstanceOf(UnsupportedOperationException.class);
-        }
 
+        final Throwable throwable = catchThrowable(constructor::newInstance);
+        assertThat(throwable)
+            .isInstanceOf(InvocationTargetException.class)
+            .hasCauseExactlyInstanceOf(UnsupportedOperationException.class);
     }
 
 }

@@ -52,7 +52,7 @@ public class SqliteDataExporterTest {
         Map<byte[], byte[]> singleLineData = new HashMap<>();
         singleLineData.put("HASH".getBytes(), "VALUE".getBytes());
 
-        exporter.export(singleLineData, outputPath);
+        exporter.export(singleLineData, outputPath, null, null);
 
         String connectionString = "jdbc:sqlite:" + outputPath;
 
@@ -68,4 +68,31 @@ public class SqliteDataExporterTest {
         }
 
     }
+
+    @Test
+    public void exportSingleLineWithUsernameAndPassword() throws SQLException {
+
+        final String username = "sa";
+        final String password = "pass";
+
+        final  Map<byte[], byte[]> singleLineData = new HashMap<>();
+        singleLineData.put("HASH".getBytes(), "VALUE".getBytes());
+
+        exporter.export(singleLineData, outputPath, username, password);
+
+        String connectionString = "jdbc:sqlite:" + outputPath;
+
+        try (Connection conn = DriverManager.getConnection(connectionString, username, password)) {
+            try (ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM ENCRYPTED_TRANSACTION")) {
+                while (rs.next()) {
+                    assertThat(rs.getString("HASH")).isEqualTo("HASH");
+                    assertThat(rs.getString("ENCODED_PAYLOAD")).isEqualTo("VALUE");
+                }
+
+            }
+
+        }
+
+    }
+
 }
