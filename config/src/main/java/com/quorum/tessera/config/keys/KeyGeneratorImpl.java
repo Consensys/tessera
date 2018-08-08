@@ -42,9 +42,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
     @Override
     public KeyData generate(final String filename) {
 
-        System.out.println("Enter a password if you want to lock the private key or leave blank");
-
-        final String password = this.passwordReader.readPassword();
+        final String password = this.getPassword();
 
         final KeyPair generated = this.nacl.generateNewKeys();
 
@@ -149,6 +147,26 @@ public class KeyGeneratorImpl implements KeyGenerator {
         JaxbUtil.marshal(privateKey, outputStream);
 
         return new String(outputStream.toByteArray());
+
+    }
+
+    private String getPassword() {
+
+        for(;;) {
+
+            System.out.println("Enter a password if you want to lock the private key or leave blank");
+            final String password = this.passwordReader.readPassword();
+
+            System.out.println("Please re-enter the password (or lack of) to confirm");
+            final String passwordCheck = this.passwordReader.readPassword();
+
+            if(Objects.equals(password, passwordCheck)) {
+                return password;
+            } else {
+                System.out.println("Passwords did not match, try again...");
+            }
+
+        }
 
     }
 
