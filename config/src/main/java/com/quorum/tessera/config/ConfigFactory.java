@@ -5,12 +5,10 @@ import java.util.ServiceLoader;
 
 public interface ConfigFactory {
 
-    Config create(InputStream configData, InputStream... keyConfigData);
+    Config create(InputStream configData, String... filenames);
 
     static ConfigFactory create() {
-        return ServiceLoader.load(ConfigFactory.class)
-                .iterator().next();
-
+        return ServiceLoader.load(ConfigFactory.class).iterator().next();
     }
 
 }

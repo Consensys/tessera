@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,7 +68,7 @@ public class ConfigFactoryTest {
     @Test
     public void createFromKeyGenSample() throws Exception {
 
-        final InputStream tempSystemIn = new ByteArrayInputStream(System.lineSeparator().getBytes());
+        final InputStream tempSystemIn = new ByteArrayInputStream((UUID.randomUUID().toString() + System.lineSeparator()).getBytes());
 
         final InputStream oldSystemIn = System.in;
         System.setIn(tempSystemIn);
@@ -79,7 +80,7 @@ public class ConfigFactoryTest {
 
         final Path configFile = Paths.get(getClass().getResource("/sample-private-keygen.json").toURI());
 
-        Config config = configFactory.create(Files.newInputStream(configFile), Files.newInputStream(keyFile));
+        Config config = configFactory.create(Files.newInputStream(configFile), UUID.randomUUID().toString());
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys().getKeyData()).hasSize(1);
