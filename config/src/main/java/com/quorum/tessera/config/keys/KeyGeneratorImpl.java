@@ -6,6 +6,8 @@ import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.nacl.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
@@ -20,6 +22,8 @@ import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class KeyGeneratorImpl implements KeyGenerator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(KeyGeneratorImpl.class);
 
     private static final String EMPTY_FILENAME = "";
 
@@ -77,6 +81,8 @@ public class KeyGeneratorImpl implements KeyGenerator {
                 null
             );
 
+            LOGGER.info("Newly generated private key has been encrypted");
+
         } else {
 
             finalKeys = new KeyData(
@@ -109,6 +115,9 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
         IOCallback.execute(() -> Files.write(publicKeyPath, publicKeyBase64.getBytes(UTF_8), StandardOpenOption.CREATE_NEW));
         IOCallback.execute(() -> Files.write(privateKeyPath, privateKeyJson.getBytes(UTF_8), StandardOpenOption.CREATE_NEW));
+
+        LOGGER.info("Saved public key to {}", publicKeyPath.toAbsolutePath().toString());
+        LOGGER.info("Saved private key to {}", privateKeyPath.toAbsolutePath().toString());
 
         return finalKeys;
     }
