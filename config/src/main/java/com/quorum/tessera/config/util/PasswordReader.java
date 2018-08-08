@@ -12,11 +12,11 @@ public class PasswordReader {
 
     private final Console console;
 
-    private final InputStream systemIn;
+    private final Scanner systemIn;
 
     public PasswordReader(final Console console, final InputStream systemIn) {
         this.console = console;
-        this.systemIn = systemIn;
+        this.systemIn = new Scanner(systemIn);
     }
 
     /**
@@ -25,7 +25,7 @@ public class PasswordReader {
      */
     public String readPassword() {
         if(this.console == null) {
-            return new Scanner(this.systemIn).nextLine();
+            return this.systemIn.nextLine();
         }
 
         final char[] consolePassword = this.console.readPassword();

@@ -166,4 +166,31 @@ public class KeyGeneratorTest {
         verify(nacl).generateNewKeys();
     }
 
+    @Test
+    public void passwordsNotMatchingCausesRetry() throws IOException {
+        when(passwordReader.readPassword()).thenReturn("val1", "val2", "val3");
+
+        final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString());
+        final String keyFilesName = tempFolder.resolve(UUID.randomUUID().toString()).toString();
+
+        doReturn(keyPair).when(nacl).generateNewKeys();
+
+        final ArgonOptions argonOptions = new ArgonOptions("id", 1, 1, 1);
+
+        final PrivateKeyData encryptedPrivateKey = new PrivateKeyData(null, null, null, null, argonOptions, null);
+
+        doReturn(encryptedPrivateKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
+
+        final PrivateKeyData encryptedKey = new PrivateKeyData(null, "snonce", "salt", "sbox", argonOptions, "PASSWORD");
+
+        doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
+
+        final KeyData generated = generator.generate(keyFilesName);
+
+        verify(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
+        verify(nacl).generateNewKeys();
+        verify(passwordReader, times(4)).readPassword();
+
+    }
+
 }
