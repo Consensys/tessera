@@ -71,6 +71,22 @@ public class PrivateApiFilterTest {
     }
 
     @Test
+    public void hostThatIsLocalHostnameGetsAccepted() {
+        final HttpServletRequest request = mock(HttpServletRequest.class);
+        doReturn("localhost").when(request).getRemoteHost();
+        doReturn("wrongvalue").when(request).getRemoteAddr();
+
+        filter.setHttpServletRequest(request);
+
+        filter.filter(ctx);
+
+        verify(request).getRemoteHost();
+        verify(request).getRemoteAddr();
+        verifyZeroInteractions(ctx);
+
+    }
+
+    @Test
     public void noServletAllowsRequest() {
 
         filter.setHttpServletRequest(null);
