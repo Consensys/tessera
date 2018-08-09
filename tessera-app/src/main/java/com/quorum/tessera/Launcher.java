@@ -15,6 +15,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.net.URI;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
@@ -57,9 +58,14 @@ public class Launcher {
                 System.out.println("Config validation issue: " + violation.getPropertyPath() + " " + violation.getMessage());
             }
             System.exit(1);
+        } catch(Throwable ex) {
+            Optional.ofNullable(ex.getMessage()).ifPresent(System.err::println);
+            System.exit(2);
         }
     }
 
+    
+    
     private static void runWebServer(final URI serverUri, ServerConfig serverConfig) throws Exception {
 
         final Tessera tessera = new Tessera(ServiceLocator.create(), "tessera-spring.xml");
