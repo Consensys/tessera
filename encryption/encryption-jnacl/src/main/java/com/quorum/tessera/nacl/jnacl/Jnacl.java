@@ -33,7 +33,6 @@ public class Jnacl implements NaclFacade {
     public Key computeSharedKey(final Key publicKey, final Key privateKey) {
         final byte[] precomputed = new byte[crypto_secretbox_BEFORENMBYTES];
 
-        LOGGER.info("Computing the shared key for public key {} and private key {}", publicKey, REDACTED);
         LOGGER.debug("Computing the shared key for public key {} and private key {}", publicKey, privateKey);
         final int jnaclResult = secretBox.cryptoBoxBeforenm(
             precomputed, publicKey.getKeyBytes(), privateKey.getKeyBytes()
@@ -47,7 +46,6 @@ public class Jnacl implements NaclFacade {
 
         final Key sharedKey = new Key(precomputed);
 
-        LOGGER.info("Computed shared key {} for pub {} and priv {}", sharedKey, publicKey, REDACTED);
         LOGGER.debug("Computed shared key {} for pub {} and priv {}", sharedKey, publicKey, privateKey);
 
         return sharedKey;
@@ -57,7 +55,7 @@ public class Jnacl implements NaclFacade {
     @Override
     public byte[] seal(final byte[] message, final Nonce nonce, final Key publicKey, final Key privateKey) {
 
-        LOGGER.info("Sealing message using public key {}", publicKey);
+        LOGGER.debug("Sealing message using public key {}", publicKey);
         LOGGER.debug(
             "Sealing message {} using nonce {}, public key {} and private key {}",
             Arrays.toString(message), nonce, publicKey, privateKey
@@ -69,7 +67,7 @@ public class Jnacl implements NaclFacade {
 
             final byte[] cipherText = nacl.encrypt(message, nonce.getNonceBytes());
 
-            LOGGER.info("Created sealed payload for public key {}", publicKey);
+            LOGGER.debug("Created sealed payload for public key {}", publicKey);
             LOGGER.debug(
                 "Created sealed payload {} using nonce {}, public key {} and private key {}",
                 Arrays.toString(cipherText), nonce, publicKey, privateKey
@@ -85,7 +83,7 @@ public class Jnacl implements NaclFacade {
 
     @Override
     public byte[] open(final byte[] cipherText, final Nonce nonce, final Key publicKey, final Key privateKey) {
-        LOGGER.info("Opening message using public key {}", publicKey);
+        LOGGER.debug("Opening message using public key {}", publicKey);
         LOGGER.debug(
             "Opening message {} using nonce {}, public key {} and private key {}",
             Arrays.toString(cipherText), nonce, publicKey, privateKey
@@ -99,7 +97,7 @@ public class Jnacl implements NaclFacade {
 
             final byte[] plaintext = nacl.decrypt(paddedInput, nonce.getNonceBytes());
 
-            LOGGER.info("Created sealed payload for public key {}", publicKey);
+            LOGGER.debug("Created sealed payload for public key {}", publicKey);
             LOGGER.debug(
                 "Created sealed payload {} using nonce {}, public key {} and private key {}",
                 Arrays.toString(cipherText), nonce, publicKey, privateKey
@@ -117,7 +115,7 @@ public class Jnacl implements NaclFacade {
         final byte[] paddedMessage = new byte[message.length + crypto_secretbox_ZEROBYTES];
         final byte[] output = new byte[message.length + crypto_secretbox_ZEROBYTES];
 
-        LOGGER.info("Sealing message using public key {}", sharedKey);
+        LOGGER.debug("Sealing message using public key {}", sharedKey);
         LOGGER.debug(
             "Sealing message {} using nonce {} and shared key {}",
             Arrays.toString(message), nonce, sharedKey
@@ -134,7 +132,7 @@ public class Jnacl implements NaclFacade {
             throw new NaclException("Kalium could not seal the payload using the shared key");
         }
 
-        LOGGER.info("Created sealed payload for shared key {}", sharedKey);
+        LOGGER.debug("Created sealed payload for shared key {}", sharedKey);
         LOGGER.debug(
             "Created sealed payload {} using nonce {} and shared key {}",
             Arrays.toString(output), nonce, sharedKey
@@ -145,7 +143,7 @@ public class Jnacl implements NaclFacade {
 
     @Override
     public byte[] openAfterPrecomputation(final byte[] cipherText, final Nonce nonce, final Key sharedKey) {
-        LOGGER.info("Opening message using shared key {}", sharedKey);
+        LOGGER.debug("Opening message using shared key {}", sharedKey);
         LOGGER.debug(
             "Opening message {} using nonce {} and shared key {}",
             Arrays.toString(cipherText), nonce, sharedKey
@@ -164,7 +162,7 @@ public class Jnacl implements NaclFacade {
             throw new NaclException("Kalium could not open the payload using the shared key");
         }
 
-        LOGGER.info("Opened sealed payload for shared key {}", sharedKey);
+        LOGGER.debug("Opened sealed payload for shared key {}", sharedKey);
         LOGGER.debug(
             "Opened payload {} using nonce {}, public key {} and private key {} to get result {}",
             Arrays.toString(cipherText), nonce, sharedKey, REDACTED, Arrays.toString(paddedOutput)
