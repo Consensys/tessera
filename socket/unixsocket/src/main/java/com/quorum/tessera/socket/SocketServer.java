@@ -58,7 +58,7 @@ public class SocketServer implements Runnable {
     @Override
     public void run() {
 
-        LOGGER.info("Waiting for client connection on unix domain socket...");
+        LOGGER.debug("Waiting for client connection on unix domain socket...");
 
         try {
 
@@ -66,7 +66,7 @@ public class SocketServer implements Runnable {
 
             final UnixDomainServerSocket udss = new UnixDomainServerSocket(accept);
 
-            LOGGER.info("Client connection received");
+            LOGGER.debug("Client connection received");
 
             final SocketHandler handler = new SocketHandler(udss, httpProxyFactory);
 
