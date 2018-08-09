@@ -55,10 +55,10 @@ public class PartyInfoServiceTest {
         doReturn(singletonList(peer)).when(configuration).getPeers();
 
         final Set<Key> ourKeys = new HashSet<>(
-            Arrays.asList(
-                new Key("some-key".getBytes()),
-                new Key("another-public-key".getBytes())
-            )
+                Arrays.asList(
+                        new Key("some-key".getBytes()),
+                        new Key("another-public-key".getBytes())
+                )
         );
         doReturn(ourKeys).when(keyManager).getPublicKeys();
     }
@@ -105,18 +105,18 @@ public class PartyInfoServiceTest {
         verify(configuration).getServerConfig();
 
         final List<Recipient> allRegisteredKeys = captor
-            .getAllValues()
-            .stream()
-            .map(PartyInfo::getRecipients)
-            .flatMap(Set::stream)
-            .collect(toList());
+                .getAllValues()
+                .stream()
+                .map(PartyInfo::getRecipients)
+                .flatMap(Set::stream)
+                .collect(toList());
 
         assertThat(allRegisteredKeys)
-            .hasSize(2)
-            .containsExactlyInAnyOrder(
-                new Recipient(new Key("some-key".getBytes()), URI),
-                new Recipient(new Key("another-public-key".getBytes()), URI)
-            );
+                .hasSize(2)
+                .containsExactlyInAnyOrder(
+                        new Recipient(new Key("some-key".getBytes()), URI),
+                        new Recipient(new Key("another-public-key".getBytes()), URI)
+                );
     }
 
     @Test
@@ -140,6 +140,7 @@ public class PartyInfoServiceTest {
         verify(keyManager).getPublicKeys();
         verify(configuration).getPeers();
         verify(configuration).getServerConfig();
+        verify(configuration, times(2)).isDisablePeerDiscovery();
     }
 
     @Test
@@ -159,6 +160,7 @@ public class PartyInfoServiceTest {
         verify(keyManager).getPublicKeys();
         verify(configuration).getPeers();
         verify(configuration).getServerConfig();
+
     }
 
     @Test
@@ -177,6 +179,7 @@ public class PartyInfoServiceTest {
         verify(keyManager).getPublicKeys();
         verify(configuration).getPeers();
         verify(configuration).getServerConfig();
+
     }
 
     @Test
@@ -190,8 +193,8 @@ public class PartyInfoServiceTest {
         final Set<Party> unsavedParties = this.partyInfoService.findUnsavedParties(incomingInfo);
 
         assertThat(unsavedParties)
-            .hasSize(2)
-            .containsExactlyInAnyOrder(NEW_PARTIES.toArray(new Party[0]));
+                .hasSize(2)
+                .containsExactlyInAnyOrder(NEW_PARTIES.toArray(new Party[0]));
 
         verify(partyInfoStore).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
@@ -222,8 +225,8 @@ public class PartyInfoServiceTest {
     @Test
     public void diffPartyInfoReturnsNodesNotInStore() {
         doReturn(new PartyInfo("", emptySet(), singleton(new Party("url1"))))
-            .when(partyInfoStore)
-            .getPartyInfo();
+                .when(partyInfoStore)
+                .getPartyInfo();
 
         this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
 
@@ -232,8 +235,8 @@ public class PartyInfoServiceTest {
         final Set<Party> unsavedParties = this.partyInfoService.findUnsavedParties(incomingInfo);
 
         assertThat(unsavedParties)
-            .hasSize(1)
-            .containsExactlyInAnyOrder(new Party("url2"));
+                .hasSize(1)
+                .containsExactlyInAnyOrder(new Party("url2"));
 
         verify(partyInfoStore).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
@@ -242,4 +245,68 @@ public class PartyInfoServiceTest {
         verify(configuration).getServerConfig();
     }
 
+    @Test
+    public void whenDisablePeerDiscoveryThenNoUpatesToPeerList() {
+
+        List<Peer> initialPeerList = Arrays.asList(
+                new Peer("PEER1"), new Peer(("PEER2"))
+        );
+
+        when(configuration.isDisablePeerDiscovery()).thenReturn(Boolean.TRUE);
+
+        when(configuration.getPeers()).thenReturn(initialPeerList);
+
+        PartyInfo partyInfo = mock(PartyInfo.class);
+
+        when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
+
+        partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
+
+        verify(keyManager).getPublicKeys();
+        verify(configuration).getPeers();
+        verify(configuration).getServerConfig();
+        verify(partyInfoStore).store(any(PartyInfo.class));
+
+         verifyNoMoreInteractions(partyInfoStore, keyManager, configuration);
+        
+        partyInfoService.updatePartyInfo(partyInfo);
+
+        verify(partyInfoStore).getPartyInfo();
+        verify(configuration).isDisablePeerDiscovery();
+        
+        verifyNoMoreInteractions(partyInfoStore, keyManager, configuration);
+    }
+
+    @Test
+    public void whenNotDisablePeerDiscoveryThenAllowUpatesToPeerList() {
+
+        List<Peer> initialPeerList = Arrays.asList(
+                new Peer("PEER1"), new Peer(("PEER2"))
+        );
+
+        when(configuration.isDisablePeerDiscovery()).thenReturn(Boolean.FALSE);
+
+        when(configuration.getPeers()).thenReturn(initialPeerList);
+
+        PartyInfo partyInfo = mock(PartyInfo.class);
+
+        when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
+
+        partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
+
+        verify(keyManager).getPublicKeys();
+        verify(configuration).getPeers();
+        verify(configuration).getServerConfig();
+        verify(partyInfoStore).store(any(PartyInfo.class));
+
+         verifyNoMoreInteractions(partyInfoStore, keyManager, configuration);
+        
+        partyInfoService.updatePartyInfo(partyInfo);
+
+        verify(partyInfoStore).store(partyInfo);
+        verify(partyInfoStore).getPartyInfo();
+        verify(configuration).isDisablePeerDiscovery();
+        
+        verifyNoMoreInteractions(partyInfoStore, keyManager, configuration);
+    }
 }
