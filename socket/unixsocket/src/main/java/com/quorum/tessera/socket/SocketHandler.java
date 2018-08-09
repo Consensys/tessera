@@ -38,12 +38,12 @@ public class SocketHandler implements Runnable {
 
         //Read the request from the socket and send it to the HTTP server
         final byte[] message = unixSocket.read();
-        LOGGER.info("Received message on socket: {}", new String(message, UTF_8));
+        LOGGER.debug("Received message on socket: {}", new String(message, UTF_8));
         httpProxy.sendRequest(message);
 
         //Return the HTTP response to the socket
         final byte[] response = httpProxy.getResponse();
-        LOGGER.info("Received http response: {}", new String(response, UTF_8));
+        LOGGER.debug("Received http response: {}", new String(response, UTF_8));
         unixSocket.write(response);
 
         unixSocket.close();
@@ -62,11 +62,11 @@ public class SocketHandler implements Runnable {
         // TODO: add configurable number of attempts, instead of looping forever
         boolean connected = false;
         while (!connected) {
-            LOGGER.info("Attempting connection to HTTP server...");
+            LOGGER.debug("Attempting connection to HTTP server...");
             connected = httpProxy.connect();
         }
 
-        LOGGER.info("Connected to HTTP server");
+        LOGGER.debug("Connected to HTTP server");
 
         return httpProxy;
     }

@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class ConfigFactoryTest {
 
@@ -22,18 +23,15 @@ public class ConfigFactoryTest {
 
         InputStream inputStream = getClass().getResourceAsStream("/sample.json");
 
-        Config config = configFactory.create(inputStream);
+        Config config = configFactory.create(inputStream, null);
+
         assertThat(config).isNotNull();
-
         assertThat(config.isUseWhiteList()).isFalse();
-
         assertThat(config.getJdbcConfig().getUsername()).isEqualTo("scott");
-
         assertThat(config.getPeers()).hasSize(2);
-
         assertThat(config.getKeys().getKeyData()).hasSize(1);
 
-        KeyData keyData = config.getKeys().getKeyData().get(0);
+        final KeyData keyData = config.getKeys().getKeyData().get(0);
 
         assertThat(keyData.getConfig()).isNotNull();
 
@@ -52,23 +50,28 @@ public class ConfigFactoryTest {
 
     }
 
-    @Test(expected = ConfigException.class)
+    @Test
     public void createFromSampleJaxbException() {
 
-        ConfigFactory configFactory = ConfigFactory.create();
-
+        final ConfigFactory configFactory = ConfigFactory.create();
         assertThat(configFactory).isExactlyInstanceOf(JaxbConfigFactory.class);
 
-        InputStream inputStream = new ByteArrayInputStream("BANG".getBytes());
+        final InputStream inputStream = new ByteArrayInputStream("BANG".getBytes());
 
-        configFactory.create(inputStream);
-
+        final Throwable throwable = catchThrowable(() -> configFactory.create(inputStream, null));
+        assertThat(throwable).isInstanceOf(ConfigException.class);
     }
 
     @Test
     public void createFromKeyGenSample() throws Exception {
 
-        final InputStream tempSystemIn = new ByteArrayInputStream((UUID.randomUUID().toString() + System.lineSeparator()).getBytes());
+        final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString()).toAbsolutePath();
+
+        final String password = UUID.randomUUID().toString();
+
+        final InputStream tempSystemIn = new ByteArrayInputStream(
+            (password + System.lineSeparator() + password + System.lineSeparator()).getBytes()
+        );
 
         final InputStream oldSystemIn = System.in;
         System.setIn(tempSystemIn);
@@ -76,11 +79,9 @@ public class ConfigFactoryTest {
         final ConfigFactory configFactory = ConfigFactory.create();
         assertThat(configFactory).isExactlyInstanceOf(JaxbConfigFactory.class);
 
-        final Path keyFile = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
-
         final Path configFile = Paths.get(getClass().getResource("/sample-private-keygen.json").toURI());
 
-        Config config = configFactory.create(Files.newInputStream(configFile), UUID.randomUUID().toString());
+        Config config = configFactory.create(Files.newInputStream(configFile), null, tempFolder.toString());
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys().getKeyData()).hasSize(1);

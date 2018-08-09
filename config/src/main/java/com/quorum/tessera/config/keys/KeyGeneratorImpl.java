@@ -6,6 +6,8 @@ import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.nacl.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
@@ -20,6 +22,8 @@ import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class KeyGeneratorImpl implements KeyGenerator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(KeyGeneratorImpl.class);
 
     private static final String EMPTY_FILENAME = "";
 
@@ -36,11 +40,9 @@ public class KeyGeneratorImpl implements KeyGenerator {
     }
 
     @Override
-    public KeyData generate(final String filename) {
+    public KeyData generate(final String filename, final ArgonOptions encryptionOptions) {
 
-        System.out.println("Enter a password if you want to lock the private key or leave blank");
-
-        final String password = this.passwordReader.readPassword();
+        final String password = this.getPassword();
 
         final KeyPair generated = this.nacl.generateNewKeys();
 
@@ -51,7 +53,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
         if (!password.isEmpty()) {
 
             final PrivateKeyData encryptedPrivateKey = this.keyEncryptor.encryptPrivateKey(
-                generated.getPrivateKey(), password
+                generated.getPrivateKey(), password, encryptionOptions
             );
 
             finalKeys = new KeyData(
@@ -76,6 +78,8 @@ public class KeyGeneratorImpl implements KeyGenerator {
                 null,
                 null
             );
+
+            LOGGER.info("Newly generated private key has been encrypted");
 
         } else {
 
@@ -110,6 +114,9 @@ public class KeyGeneratorImpl implements KeyGenerator {
         IOCallback.execute(() -> Files.write(publicKeyPath, publicKeyBase64.getBytes(UTF_8), StandardOpenOption.CREATE_NEW));
         IOCallback.execute(() -> Files.write(privateKeyPath, privateKeyJson.getBytes(UTF_8), StandardOpenOption.CREATE_NEW));
 
+        LOGGER.info("Saved public key to {}", publicKeyPath.toAbsolutePath().toString());
+        LOGGER.info("Saved private key to {}", privateKeyPath.toAbsolutePath().toString());
+
         return finalKeys;
     }
 
@@ -140,6 +147,26 @@ public class KeyGeneratorImpl implements KeyGenerator {
         JaxbUtil.marshal(privateKey, outputStream);
 
         return new String(outputStream.toByteArray());
+
+    }
+
+    private String getPassword() {
+
+        for(;;) {
+
+            System.out.println("Enter a password if you want to lock the private key or leave blank");
+            final String password = this.passwordReader.readPassword();
+
+            System.out.println("Please re-enter the password (or lack of) to confirm");
+            final String passwordCheck = this.passwordReader.readPassword();
+
+            if(Objects.equals(password, passwordCheck)) {
+                return password;
+            } else {
+                System.out.println("Passwords did not match, try again...");
+            }
+
+        }
 
     }
 

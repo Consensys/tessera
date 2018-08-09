@@ -68,7 +68,8 @@ public class HttpProxy {
      * Write data to the http connection.
      */
     public void sendRequest(final byte[] data) {
-        LOGGER.info("Sending HTTP request: {}", data);
+
+        LOGGER.debug("Sending HTTP request: {}", data);
 
         try {
             final OutputStream os = socket.getOutputStream();
