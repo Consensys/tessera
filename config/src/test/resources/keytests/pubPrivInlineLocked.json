@@ -1,0 +1,46 @@
+{
+    "useWhiteList": false,
+    "jdbc": {
+        "username": "sa",
+        "password": "",
+        "url": "jdbc:h2:./qdata/c1/db1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
+    },
+    "server": {
+        "port": 9001,
+        "hostName": "http://localhost",
+        "sslConfig": {
+            "tls": "OFF"
+        }
+    },
+    "peer": [
+        {
+            "url": "http://localhost:9001/"
+        }
+    ],
+    "keys": {
+        "passwords": [
+            "q"
+        ],
+        "keyData": [
+            {
+                "config": {
+                    "data": {
+                        "aopts": {
+                            "variant": "id",
+                            "memory": 1048576,
+                            "iterations": 10,
+                            "parallelism": 4
+                        },
+                        "snonce": "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                        "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                        "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
+                    },
+                    "type": "argon2sbox"
+                },
+                "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+            }
+        ]
+    },
+    "alwaysSendTo": [],
+    "unixSocketFile": "/Users/peter/IdeaProjects/quorum-ex/examples/7nodes/qdata/c1/tm.ipc"
+}
