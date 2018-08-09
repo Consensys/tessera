@@ -44,7 +44,7 @@ public class TomlConfigFactory implements ConfigFactory {
     }
 
     @Override
-    public Config create(InputStream configData, String... filenames) {
+    public Config create(InputStream configData, ArgonOptions options, String... filenames) {
         Objects.requireNonNull(configData, "No config data provided. ");
         if (filenames.length != 0) {
             throw new UnsupportedOperationException("keyConfigData arg is not implemented for TomlConfigFactory");

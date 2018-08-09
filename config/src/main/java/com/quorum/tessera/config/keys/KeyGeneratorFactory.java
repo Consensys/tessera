@@ -8,8 +8,7 @@ public interface KeyGeneratorFactory {
     KeyGenerator create();
     
     static KeyGeneratorFactory newFactory() {
-        return ServiceLoaderUtil.load(KeyGeneratorFactory.class)
-                .orElse(new DefaultKeyGeneratorFactory());
+        return ServiceLoaderUtil.load(KeyGeneratorFactory.class).orElse(new DefaultKeyGeneratorFactory());
     }
 
 }
