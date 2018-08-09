@@ -42,7 +42,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
     }
 
     @Override
-    public PrivateKeyData encryptPrivateKey(final Key privateKey, final String password) {
+    public PrivateKeyData encryptPrivateKey(final Key privateKey, final String password, final ArgonOptions argonOptions) {
 
         LOGGER.info("Encrypting a private key");
 
@@ -53,7 +53,22 @@ public class KeyEncryptorImpl implements KeyEncryptor {
 
         LOGGER.debug("Generated the random salt {}", Arrays.toString(salt));
 
-        final ArgonResult argonResult = this.argon2.hash(password, salt);
+        final ArgonResult argonResult;
+
+        if(argonOptions == null) {
+            argonResult = this.argon2.hash(password, salt);
+        } else {
+            argonResult = this.argon2.hash(
+                new com.quorum.tessera.argon2.ArgonOptions(
+                    argonOptions.getAlgorithm(),
+                    argonOptions.getIterations(),
+                    argonOptions.getMemory(),
+                    argonOptions.getParallelism()
+                ),
+                password,
+                salt
+            );
+        }
 
         final Nonce nonce = this.nacl.randomNonce();
         LOGGER.debug("Generated the random nonce {}", nonce);
