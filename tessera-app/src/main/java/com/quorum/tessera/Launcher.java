@@ -50,12 +50,14 @@ public class Launcher {
 
             System.exit(0);
 
-        } catch(ConstraintViolationException ex) {
+        } catch(final ConstraintViolationException ex) {
             Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
 
             for(ConstraintViolation<?> violation : violations) {
                 System.out.println("Config validation issue: " + violation.getPropertyPath() + " " + violation.getMessage());
             }
+            System.exit(1);
+        } catch (final Exception ex) {
             System.exit(1);
         }
     }

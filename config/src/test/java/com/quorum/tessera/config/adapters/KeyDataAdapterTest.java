@@ -154,4 +154,50 @@ public class KeyDataAdapterTest {
 
     }
 
+    @Test
+    public void decryptingPrivateKeyWithWrongPasswordErrors() {
+        final KeyData keyData = new KeyData(
+            new KeyDataConfig(
+                new PrivateKeyData(
+                    null,
+                    "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                    "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                    "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
+                    new ArgonOptions("id", 10, 1048576, 4),
+                    "badpassword"
+                ),
+                PrivateKeyType.LOCKED
+            ),
+            null,
+            "PUB", null, null
+        );
+
+        final Throwable throwable = catchThrowable(() ->adapter.unmarshal(keyData));
+
+        assertThat(throwable).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void unmarshallingLockedWithNoPasswordFails() {
+        final KeyData keyData = new KeyData(
+            new KeyDataConfig(
+                new PrivateKeyData(
+                    null,
+                    "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                    "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                    "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
+                    new ArgonOptions("id", 10, 1048576, 4),
+                    null
+                ),
+                PrivateKeyType.LOCKED
+            ),
+            null,
+            "PUB", null, null
+        );
+
+        final Throwable throwable = catchThrowable(() ->adapter.unmarshal(keyData));
+
+        assertThat(throwable).isInstanceOf(IllegalArgumentException.class).hasMessage("Password missing");
+    }
+
 }

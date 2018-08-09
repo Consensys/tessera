@@ -153,4 +153,23 @@ public class KeyConfigurationAdapterTest {
 
     }
 
+    @Test
+    public void fileKeysReadCorrectly() throws IOException {
+
+        final Path pubKey = Files.createTempFile("pub", ".pub");
+        final Path privKey = Files.createTempFile("priv", ".key");
+        Files.write(privKey, "{\"data\":{\"bytes\":\"nDFwJNHSiT1gNzKBy9WJvMhmYRkW3TzFUmPsNzR6oFk=\"},\"type\":\"unlocked\"}".getBytes());
+        Files.write(pubKey, "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=".getBytes());
+
+        final KeyData keyData = new KeyData(null, null, null, privKey, pubKey);
+
+        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, singletonList("a"), singletonList(keyData));
+        final KeyConfiguration unmarshalled = this.keyConfigurationAdapter.unmarshal(keyConfiguration);
+
+        assertThat(unmarshalled.getKeyData()).hasSize(1);
+
+        assertThat(unmarshalled.getKeyData().get(0).getPublicKey()).isEqualTo("QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=");
+        assertThat(unmarshalled.getKeyData().get(0).getPrivateKey()).isEqualTo("nDFwJNHSiT1gNzKBy9WJvMhmYRkW3TzFUmPsNzR6oFk=");
+    }
+
 }
