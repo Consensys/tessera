@@ -209,7 +209,7 @@ public class Jnacl implements NaclFacade {
 
     @Override
     public Key createSingleKey() {
-        LOGGER.info("Generating random key");
+        LOGGER.debug("Generating random key");
 
         final byte[] keyBytes = new byte[crypto_secretbox_PUBLICKEYBYTES];
 
@@ -217,7 +217,7 @@ public class Jnacl implements NaclFacade {
 
         final Key key = new Key(keyBytes);
 
-        LOGGER.info("Random key generated");
+        LOGGER.debug("Random key generated");
         LOGGER.debug("Generated key with value {}", key);
 
         return key;
