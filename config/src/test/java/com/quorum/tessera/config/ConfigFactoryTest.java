@@ -2,6 +2,7 @@ package com.quorum.tessera.config;
 
 import org.junit.Test;
 
+import javax.validation.ConstraintViolationException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -60,6 +61,20 @@ public class ConfigFactoryTest {
 
         final Throwable throwable = catchThrowable(() -> configFactory.create(inputStream, null));
         assertThat(throwable).isInstanceOf(ConfigException.class);
+    }
+
+    @Test
+    public void createFromSampleThatFailedValidations() {
+
+        ConfigFactory configFactory = ConfigFactory.create();
+
+        assertThat(configFactory).isExactlyInstanceOf(JaxbConfigFactory.class);
+
+        InputStream inputStream = getClass().getResourceAsStream("/sample_bad.json");
+
+        final Throwable throwable = catchThrowable(() -> configFactory.create(inputStream, null));
+        assertThat(throwable).isInstanceOf(ConstraintViolationException.class);
+
     }
 
     @Test

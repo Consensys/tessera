@@ -76,7 +76,7 @@ public class ConfigBuilder {
                 .keyData(config.getKeys())
                 .sslClientTlsKeyPath(sslConfig.getClientTlsKeyPath())
                 .sslServerTlsKeyPath(sslConfig.getServerTlsKeyPath())
-                .alwaysSendToKeys(config.getFowardingList());
+                .alwaysSendToKeys(config.getAlwaysSendTo());
 
         return configBuilder;
 

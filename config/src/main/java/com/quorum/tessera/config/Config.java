@@ -30,18 +30,20 @@ public class Config extends ConfigItem {
 
     @NotNull
     @Size(min = 1)
+    @Valid
     @XmlElement(name = "peer", required = true)
     private final List<Peer> peers;
 
     @Valid
     @NotNull
-    @XmlElement
+    @XmlElement(required = true)
     @XmlJavaTypeAdapter(KeyConfigurationAdapter.class)
     private final KeyConfiguration keys;
 
+    @NotNull
     @XmlElement(name = "alwaysSendTo", required = true)
     @XmlJavaTypeAdapter(KeyAdapter.class)
-    private final List<Key> fowardingList;
+    private final List<Key> alwaysSendTo;
 
     @NotNull
     @XmlElement(required = true, type = String.class)
@@ -55,14 +57,14 @@ public class Config extends ConfigItem {
                   final ServerConfig serverConfig,
                   final List<Peer> peers,
                   final KeyConfiguration keyConfiguration,
-                  final List<Key> fowardingList,
+                  final List<Key> alwaysSendTo,
                   final Path unixSocketFile,
                   final boolean useWhiteList) {
         this.jdbcConfig = jdbcConfig;
         this.serverConfig = serverConfig;
         this.peers = peers;
         this.keys = keyConfiguration;
-        this.fowardingList = fowardingList;
+        this.alwaysSendTo = alwaysSendTo;
         this.unixSocketFile = unixSocketFile;
         this.useWhiteList = useWhiteList;
     }
@@ -95,8 +97,8 @@ public class Config extends ConfigItem {
         return this.keys;
     }
 
-    public List<Key> getFowardingList() {
-        return this.fowardingList;
+    public List<Key> getAlwaysSendTo() {
+        return this.alwaysSendTo;
     }
 
     public boolean isUseWhiteList() {

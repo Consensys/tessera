@@ -10,10 +10,6 @@ import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -156,12 +152,6 @@ public class DefaultCliAdapter implements CliAdapter {
 
     private Config parseConfig(CommandLine commandLine) throws IOException {
 
-        final Validator validator = Validation.byDefaultProvider()
-            .configure()
-            .ignoreXmlConfiguration()
-            .buildValidatorFactory()
-            .getValidator();
-
         final ConfigFactory configFactory = ConfigFactory.create();
 
         final List<String> keyGenConfigs = this.getKeyGenConfig(commandLine);
@@ -178,12 +168,6 @@ public class DefaultCliAdapter implements CliAdapter {
 
             try (InputStream in = Files.newInputStream(path)) {
                 config = configFactory.create(in, options, keyGenConfigs.toArray(new String[0]));
-            }
-
-            Set<ConstraintViolation<Config>> violations = validator.validate(config);
-
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException(violations);
             }
 
             if (!keyGenConfigs.isEmpty()) {

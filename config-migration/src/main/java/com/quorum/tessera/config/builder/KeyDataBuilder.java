@@ -55,7 +55,7 @@ public class KeyDataBuilder {
         }
 
         if(publicKeys.isEmpty()) {
-            return null;
+            return new KeyConfiguration(null, null, Collections.emptyList());
         }
 
         final List<KeyData> keyData = IntStream

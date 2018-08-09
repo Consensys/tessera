@@ -2,23 +2,22 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.constraints.ValidSsl;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Objects;
-import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
 public class ServerConfig extends ConfigItem {
 
     @NotNull
-    @XmlElement(required = false, defaultValue = "0.0.0.0")
+    @XmlElement(required = true)
     private final String hostName;
 
     @NotNull
@@ -35,7 +34,7 @@ public class ServerConfig extends ConfigItem {
     private final InfluxConfig influxConfig;
 
     public ServerConfig(String hostName, Integer port, SslConfig sslConfig, InfluxConfig influxConfig) {
-        this.hostName = Optional.ofNullable(hostName).orElse("0.0.0.0");
+        this.hostName = hostName;
         this.port = port;
         this.sslConfig = sslConfig;
         this.influxConfig = influxConfig;

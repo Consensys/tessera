@@ -309,7 +309,7 @@ public class OverrideUtilTest {
         assertThat(config.getServerConfig()).isNotNull();
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getPeers()).isEmpty();
-        assertThat(config.getFowardingList()).isEmpty();
+        assertThat(config.getAlwaysSendTo()).isEmpty();
 
     }
 
@@ -324,7 +324,7 @@ public class OverrideUtilTest {
         assertThat(config.getServerConfig()).isNotNull();
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getPeers()).isEmpty();
-        assertThat(config.getFowardingList()).isEmpty();
+        assertThat(config.getAlwaysSendTo()).isEmpty();
 
     }
 

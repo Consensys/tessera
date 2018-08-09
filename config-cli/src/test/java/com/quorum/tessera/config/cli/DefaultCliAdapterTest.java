@@ -98,7 +98,7 @@ public class DefaultCliAdapterTest {
                     getClass().getResource("/missing-config.json").getFile());
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
-            assertThat(ex.getConstraintViolations()).hasSize(1);
+            assertThat(ex.getConstraintViolations()).hasSize(2);
         }
 
     }

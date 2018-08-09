@@ -66,7 +66,7 @@ public class JnaclTest {
 
         final Throwable kaclEx = catchThrowable(() -> this.jnacl.computeSharedKey(publicKey, privateKey));
 
-        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("Kalium could not compute the shared key");
+        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("JNacl could not compute the shared key");
 
         verify(this.secretBox).cryptoBoxBeforenm(any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes()));
     }
