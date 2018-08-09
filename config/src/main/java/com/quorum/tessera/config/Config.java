@@ -51,13 +51,17 @@ public class Config extends ConfigItem {
     @XmlAttribute
     private final boolean useWhiteList;
 
+    @XmlAttribute
+    private final boolean disablePeerDiscovery;
+    
     public Config(final JdbcConfig jdbcConfig,
                   final ServerConfig serverConfig,
                   final List<Peer> peers,
                   final KeyConfiguration keyConfiguration,
                   final List<Key> fowardingList,
                   final Path unixSocketFile,
-                  final boolean useWhiteList) {
+                  final boolean useWhiteList,
+                  final boolean disablePeerDiscovery) {
         this.jdbcConfig = jdbcConfig;
         this.serverConfig = serverConfig;
         this.peers = peers;
@@ -65,6 +69,7 @@ public class Config extends ConfigItem {
         this.fowardingList = fowardingList;
         this.unixSocketFile = unixSocketFile;
         this.useWhiteList = useWhiteList;
+        this.disablePeerDiscovery = disablePeerDiscovery;
     }
 
     private static Config create() {
@@ -72,7 +77,7 @@ public class Config extends ConfigItem {
     }
 
     private Config() {
-        this(null, null, null, null, null, null, false);
+        this(null, null, null, null, null, null, false,false);
     }
 
     public JdbcConfig getJdbcConfig() {
@@ -101,6 +106,10 @@ public class Config extends ConfigItem {
 
     public boolean isUseWhiteList() {
         return this.useWhiteList;
+    }
+
+    public boolean isDisablePeerDiscovery() {
+        return disablePeerDiscovery;
     }
 
 }
