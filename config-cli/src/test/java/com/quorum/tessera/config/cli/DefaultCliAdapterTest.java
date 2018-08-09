@@ -295,4 +295,34 @@ public class DefaultCliAdapterTest {
         assertThat(result.getConfig().get().getJdbcConfig().getPassword()).isEqualTo("tiger");
 
     }
+    
+    @Test
+    public void disablePeerDiscovery() throws Exception {
+        
+        CliResult result = cliDelegate.execute(
+                "-configfile",
+                getClass().getResource("/keygen-sample.json").getFile(),
+                "-disablePeerDiscovery",
+                "true"
+        );
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig().get().isDisablePeerDiscovery()).isTrue();
+    }
+    
+        @Test
+    public void withAnArray() throws Exception {
+        
+        CliResult result = cliDelegate.execute(
+                "-configfile",
+                getClass().getResource("/keygen-sample.json").getFile(),
+                "-disablePeerDiscovery",
+                "true"
+        );
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig().get().isDisablePeerDiscovery()).isTrue();
+    }
 }

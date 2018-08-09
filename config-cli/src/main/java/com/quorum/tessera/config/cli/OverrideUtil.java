@@ -46,6 +46,23 @@ public interface OverrideUtil {
         }
     });
 
+    
+    Map<String, String> DESCRIPTION_LOOKUP = Collections.unmodifiableMap(new HashMap<String,String>() {{
+        put("disablePeerDiscovery","Disable auto discovery of new peers. ");
+    }});
+    
+    Map<String,String> SHORTNAME_LOOKUP = Collections.unmodifiableMap(new HashMap<String,String>() {{
+        put("disablePeerDiscovery","disablePeerDiscovery");
+    }});
+    
+    static Optional<String> lookupAliasForOptionName(String optionName) {
+        return Optional.ofNullable(SHORTNAME_LOOKUP.get(optionName));
+    } 
+    
+    static Optional<String> lookupDescriptionForOptionName(String optionName) {
+        return Optional.ofNullable(DESCRIPTION_LOOKUP.get(optionName));
+    } 
+    
     static Map<String, Class> buildConfigOptions() {
         return fields(null, Config.class);
     }
