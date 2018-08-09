@@ -82,11 +82,13 @@ java -cp some-jdbc-driver.jar -jar /path/to/tessera-app.jar
 A configuration file detailing database, server and network peer information must be provided using the `-configfile`
 command line property.  
 
-A sample configuration file can be found [here](https://github.com/QuorumEngineering/tessera/wiki/Sample-Configuration-File).
-
-Tessera uses cryptographic keys to provide transaction privacy.  An in-depth look at configuring the cryptographic keys can be found on the [Tessera Wiki](https://github.com/QuorumEngineering/tessera/wiki/Configuration), and includes:
-* How to configure an existing private/public key pair with Tessera
-* How to use Tessera to generate a new key pair 
+An in-depth look at configuring Tessera can be found on the [Tessera Wiki](https://github.com/QuorumEngineering/tessera/wiki/Configuration) and includes details on all aspects of configuration including:
+* Cryptographic key config:
+    * Using existing private/public key pairs with Tessera
+    * How to use Tessera to generate new key pairs 
+* TLS config
+    * How to enable TLS
+    * Choosing a trust mode
  
 ### Migrating from Constellation to Tessera
 Tessera is the service used to provide Quorum with the ability to support private transactions, replacing Constellation.  If you have previously been using Constellation, utilities are provided within Tessera to enable the migration of Constellation configuration and datastores to Tessera compatible formats.  Details on how to use these utilities can be found in the [Tessera Wiki](https://github.com/QuorumEngineering/tessera/wiki/Migrating-from-Constellation-to-Tessera).

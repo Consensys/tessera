@@ -1,12 +1,15 @@
 package com.quorum.tessera.config.cli;
 
+import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.keys.KeyGenerator;
+import com.quorum.tessera.config.keys.KeyGeneratorFactory;
 import com.quorum.tessera.config.keys.MockKeyGeneratorFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.validation.ConstraintViolationException;
 import java.io.ByteArrayInputStream;
@@ -109,7 +112,7 @@ public class DefaultCliAdapterTest {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         when(keyData.getConfig()).thenReturn(keyDataConfig);
 
-        when(keyGenerator.generate(anyString())).thenReturn(keyData);
+        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keyData);
 
         Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
 
@@ -125,7 +128,7 @@ public class DefaultCliAdapterTest {
         assertThat(result.getConfig()).isNotNull();
         assertThat(result.isHelpOn()).isFalse();
 
-        verify(keyGenerator).generate(anyString());
+        verify(keyGenerator).generate(anyString(), eq(null));
         verifyNoMoreInteractions(keyGenerator);
 
     }
@@ -189,7 +192,7 @@ public class DefaultCliAdapterTest {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         when(keyData.getConfig()).thenReturn(keyDataConfig);
 
-        when(keyGenerator.generate(anyString())).thenReturn(keyData);
+        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keyData);
 
         Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
         Path generatedKey = Paths.get("/tmp/" + UUID.randomUUID().toString());
@@ -295,34 +298,55 @@ public class DefaultCliAdapterTest {
         assertThat(result.getConfig().get().getJdbcConfig().getPassword()).isEqualTo("tiger");
 
     }
-    
+
     @Test
-    public void disablePeerDiscovery() throws Exception {
-        
-        CliResult result = cliDelegate.execute(
-                "-configfile",
-                getClass().getResource("/keygen-sample.json").getFile(),
-                "-disablePeerDiscovery",
-                "true"
+    public void providingArgonOptionsGetSentCorrectly() throws Exception {
+        final String options = "{\"variant\": \"id\",\"memory\": 100,\"iterations\": 7,\"parallelism\": 22}";
+        final Path argonOptions = Files.createTempFile(UUID.randomUUID().toString(), "");
+        Files.write(argonOptions, options.getBytes());
+
+        final Path keyLocation = Files.createTempFile(UUID.randomUUID().toString(), "");
+
+        final CliResult result = cliDelegate.execute(
+            "-keygen",
+            "-keygenconfig", argonOptions.toString(),
+            "-filename", keyLocation.toString()
         );
 
         assertThat(result).isNotNull();
-        assertThat(result.getConfig()).isPresent();
-        assertThat(result.getConfig().get().isDisablePeerDiscovery()).isTrue();
+        assertThat(result.isKeyGenOn()).isTrue();
+
+        final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create();
+
+        final ArgumentCaptor<ArgonOptions> captor = ArgumentCaptor.forClass(ArgonOptions.class);
+        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture());
+
+        assertThat(captor.getAllValues()).hasSize(1);
+        assertThat(captor.getValue().getAlgorithm()).isEqualTo("id");
+        assertThat(captor.getValue().getIterations()).isEqualTo(7);
+        assertThat(captor.getValue().getMemory()).isEqualTo(100);
+        assertThat(captor.getValue().getParallelism()).isEqualTo(22);
     }
-    
-        @Test
-    public void withAnArray() throws Exception {
-        
-        CliResult result = cliDelegate.execute(
-                "-configfile",
-                getClass().getResource("/keygen-sample.json").getFile(),
-                "-disablePeerDiscovery",
-                "true"
+
+    @Test
+    public void notProvidingArgonOptionsGivesNull() throws Exception {
+        final Path keyLocation = Files.createTempFile(UUID.randomUUID().toString(), "");
+
+        final CliResult result = cliDelegate.execute(
+            "-keygen",
+            "-filename", keyLocation.toString()
         );
 
         assertThat(result).isNotNull();
-        assertThat(result.getConfig()).isPresent();
-        assertThat(result.getConfig().get().isDisablePeerDiscovery()).isTrue();
+        assertThat(result.isKeyGenOn()).isTrue();
+
+        final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create();
+
+        final ArgumentCaptor<ArgonOptions> captor = ArgumentCaptor.forClass(ArgonOptions.class);
+        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture());
+
+        assertThat(captor.getAllValues()).hasSize(1);
+        assertThat(captor.getValue()).isNull();
     }
+
 }

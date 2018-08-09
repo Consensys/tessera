@@ -44,8 +44,8 @@ public class KeyGeneratorTest {
     public void init() {
 
         this.keyPair = new KeyPair(
-            new Key(PUBLIC_KEY.getBytes(UTF_8)),
-            new Key(PRIVATE_KEY.getBytes(UTF_8))
+                new Key(PUBLIC_KEY.getBytes(UTF_8)),
+                new Key(PRIVATE_KEY.getBytes(UTF_8))
         );
 
         this.nacl = mock(NaclFacade.class);
@@ -70,7 +70,7 @@ public class KeyGeneratorTest {
 
        final  String filename = UUID.randomUUID().toString();
 
-        final KeyData generated = generator.generate(filename);
+        final KeyData generated = generator.generate(filename,null);
 
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
         assertThat(generated.getPrivateKey()).isEqualTo("cHJpdmF0ZUtleQ==");
@@ -79,7 +79,7 @@ public class KeyGeneratorTest {
         verify(nacl).generateNewKeys();
 
         Files.deleteIfExists(Paths.get(filename));
-        
+
     }
 
     @Test
@@ -96,13 +96,13 @@ public class KeyGeneratorTest {
 
         final PrivateKeyData encryptedPrivateKey = new PrivateKeyData(null, null, null, null, argonOptions, null);
 
-        doReturn(encryptedPrivateKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
+        doReturn(encryptedPrivateKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString(), eq(null));
 
         final PrivateKeyData encryptedKey = new PrivateKeyData(null, "snonce", "salt", "sbox", argonOptions, "PASSWORD");
 
-        doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
+        doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString(), eq(null));
 
-        final KeyData generated = generator.generate(keyFilesName);
+        final KeyData generated = generator.generate(keyFilesName, null);
 
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
         assertThat(generated.getConfig().getPassword()).isEqualTo("PASSWORD");
@@ -111,7 +111,7 @@ public class KeyGeneratorTest {
         assertThat(generated.getConfig().getAsalt()).isEqualTo("salt");
         assertThat(generated.getConfig().getType()).isEqualTo(PrivateKeyType.LOCKED);
 
-        verify(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
+        verify(keyEncryptor).encryptPrivateKey(any(Key.class), anyString(), eq(null));
         verify(nacl).generateNewKeys();
     }
 
@@ -122,7 +122,7 @@ public class KeyGeneratorTest {
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
-        final KeyData generated = generator.generate(keyFilesName);
+        final KeyData generated = generator.generate(keyFilesName, null);
 
         assertThat(Files.exists(tempFolder.resolve("providingPathSavesToFile.pub"))).isTrue();
         assertThat(Files.exists(tempFolder.resolve("providingPathSavesToFile.key"))).isTrue();
@@ -137,7 +137,7 @@ public class KeyGeneratorTest {
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
-        final KeyData generated = generator.generate("");
+        final KeyData generated = generator.generate("", null);
 
         assertThat(Files.exists(Paths.get(".pub"))).isTrue();
         assertThat(Files.exists(Paths.get(".key"))).isTrue();
@@ -157,10 +157,10 @@ public class KeyGeneratorTest {
         doReturn(keyPair).when(nacl).generateNewKeys();
 
         doReturn(new PrivateKeyData("", "", "", "", new ArgonOptions("", 1, 1, 1), ""))
-            .when(keyEncryptor)
-            .encryptPrivateKey(any(Key.class), anyString());
+                .when(keyEncryptor)
+                .encryptPrivateKey(any(Key.class), anyString(), eq(null));
 
-        final Throwable throwable = catchThrowable(() -> generator.generate(keyFilesName));
+        final Throwable throwable = catchThrowable(() -> generator.generate(keyFilesName, null));
 
         assertThat(throwable).isInstanceOf(UncheckedIOException.class);
 
@@ -183,15 +183,15 @@ public class KeyGeneratorTest {
 
         final PrivateKeyData encryptedPrivateKey = new PrivateKeyData(null, null, null, null, argonOptions, null);
 
-        doReturn(encryptedPrivateKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
+        doReturn(encryptedPrivateKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString(), eq(null));
 
         final PrivateKeyData encryptedKey = new PrivateKeyData(null, "snonce", "salt", "sbox", argonOptions, "PASSWORD");
 
-        doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
+        doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString(), eq(null));
 
-        final KeyData generated = generator.generate(keyFilesName);
+        final KeyData generated = generator.generate(keyFilesName, null);
 
-        verify(keyEncryptor).encryptPrivateKey(any(Key.class), anyString());
+        verify(keyEncryptor).encryptPrivateKey(any(Key.class), anyString(), eq(null));
         verify(nacl).generateNewKeys();
         verify(passwordReader, times(4)).readPassword();
 

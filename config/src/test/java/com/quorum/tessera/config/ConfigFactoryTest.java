@@ -23,7 +23,7 @@ public class ConfigFactoryTest {
 
         InputStream inputStream = getClass().getResourceAsStream("/sample.json");
 
-        Config config = configFactory.create(inputStream);
+        Config config = configFactory.create(inputStream, null);
 
         assertThat(config).isNotNull();
         assertThat(config.isUseWhiteList()).isFalse();
@@ -58,7 +58,7 @@ public class ConfigFactoryTest {
 
         final InputStream inputStream = new ByteArrayInputStream("BANG".getBytes());
 
-        final Throwable throwable = catchThrowable(() -> configFactory.create(inputStream));
+        final Throwable throwable = catchThrowable(() -> configFactory.create(inputStream, null));
         assertThat(throwable).isInstanceOf(ConfigException.class);
     }
 
@@ -81,7 +81,7 @@ public class ConfigFactoryTest {
 
         final Path configFile = Paths.get(getClass().getResource("/sample-private-keygen.json").toURI());
 
-        Config config = configFactory.create(Files.newInputStream(configFile), tempFolder.toString());
+        Config config = configFactory.create(Files.newInputStream(configFile), null, tempFolder.toString());
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys().getKeyData()).hasSize(1);

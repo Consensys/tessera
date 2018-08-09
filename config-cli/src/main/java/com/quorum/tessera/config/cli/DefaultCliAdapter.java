@@ -1,5 +1,6 @@
 package com.quorum.tessera.config.cli;
 
+import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.config.keys.KeyGenerator;
@@ -58,12 +59,20 @@ public class DefaultCliAdapter implements CliAdapter {
                         .build());
 
         options.addOption(
-                Option.builder("filename")
-                        .desc("Path to private key config for generation of missing key files")
-                        .hasArg(true)
-                        .optionalArg(true)
-                        .argName("PATH")
-                        .build());
+            Option.builder("filename")
+                .desc("Path to private key config for generation of missing key files")
+                .hasArg(true)
+                .optionalArg(true)
+                .argName("PATH")
+                .build());
+
+        options.addOption(
+            Option.builder("keygenconfig")
+                .desc("Path to private key config for generation of missing key files")
+                .hasArg(true)
+                .optionalArg(true)
+                .argName("PATH")
+                .build());
 
         options.addOption(
                 Option.builder("output")
@@ -159,7 +168,8 @@ public class DefaultCliAdapter implements CliAdapter {
 
         final ConfigFactory configFactory = ConfigFactory.create();
 
-        final List<String> keyGenConfigs = getKeyGenConfig(commandLine);
+        final List<String> keyGenConfigs = this.getKeyGenConfig(commandLine);
+        final ArgonOptions options = this.keygenConfiguration(commandLine);
 
         Config config = null;
 
@@ -171,7 +181,7 @@ public class DefaultCliAdapter implements CliAdapter {
             }
 
             try (InputStream in = Files.newInputStream(path)) {
-                config = configFactory.create(in, keyGenConfigs.toArray(new String[0]));
+                config = configFactory.create(in, options, keyGenConfigs.toArray(new String[0]));
             }
 
             Set<ConstraintViolation<Config>> violations = validator.validate(config);
@@ -187,9 +197,10 @@ public class DefaultCliAdapter implements CliAdapter {
 
         } else {
             final KeyGenerator generator = keyGeneratorFactory.create();
-            keyGenConfigs.stream()
-                    .map(generator::generate)
-                    .collect(Collectors.toList());
+            keyGenConfigs
+                .stream()
+                .map(name -> generator.generate(name, options))
+                .collect(Collectors.toList());
         }
 
         return config;
@@ -212,6 +223,17 @@ public class DefaultCliAdapter implements CliAdapter {
         }
 
         return new ArrayList<>();
+    }
+
+    private ArgonOptions keygenConfiguration(final CommandLine commandLine) throws IOException {
+        if(commandLine.hasOption("keygenconfig")) {
+            final String pathName = commandLine.getOptionValue("keygenconfig");
+            final InputStream configStream = Files.newInputStream(Paths.get(pathName));
+
+            return JaxbUtil.unmarshal(configStream, ArgonOptions.class);
+        } else {
+            return null;
+        }
     }
 
     private static void output(CommandLine commandLine, Config config) throws IOException {
