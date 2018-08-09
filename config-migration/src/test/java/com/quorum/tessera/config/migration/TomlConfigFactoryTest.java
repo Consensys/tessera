@@ -45,7 +45,7 @@ public class TomlConfigFactoryTest {
         };
 
         try (InputStream configData = ElUtil.process(template, params)) {
-            Config result = tomlConfigFactory.create(configData);
+            Config result = tomlConfigFactory.create(configData, null);
             assertThat(result).isNotNull();
             assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("data", "myipcfile.ipc"));
             assertThat(result.getServerConfig()).isNotNull();
@@ -70,7 +70,7 @@ public class TomlConfigFactoryTest {
 
 
         try (InputStream configData = template) {
-            Config result = tomlConfigFactory.create(configData);
+            Config result = tomlConfigFactory.create(configData, null);
             assertThat(result).isNotNull();
             assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("data", "constellation.ipc"));
             assertThat(result.getServerConfig()).isNotNull();
@@ -108,7 +108,7 @@ public class TomlConfigFactoryTest {
 
             final byte[] data = String.join(System.lineSeparator(), lines).getBytes();
             try (InputStream ammendedInput = new ByteArrayInputStream(data)) {
-                Config result = tomlConfigFactory.create(ammendedInput);
+                Config result = tomlConfigFactory.create(ammendedInput, null);
                 assertThat(result).isNotNull();
 
             }
@@ -121,7 +121,7 @@ public class TomlConfigFactoryTest {
     public void createWithKeysNotSupported() {
         InputStream configData = mock(InputStream.class);
 
-        tomlConfigFactory.create(configData, "testKey");
+        tomlConfigFactory.create(configData, null, "testKey");
     }
 
     @Test
@@ -189,7 +189,7 @@ public class TomlConfigFactoryTest {
 
         try (InputStream configData = getClass().getResourceAsStream("/sample.conf")) {
 
-            Config result = tomlConfigFactory.create(configData);
+            Config result = tomlConfigFactory.create(configData, null);
             assertThat(result).isNotNull();
 
         }
@@ -200,7 +200,7 @@ public class TomlConfigFactoryTest {
     public void ifPublicAndPrivateKeyListAreEmptyThenKeyConfigurationIsAllNulls() throws IOException {
         try (InputStream configData = getClass().getResourceAsStream("/sample-no-keys.conf")) {
 
-            Config result = tomlConfigFactory.create(configData);
+            Config result = tomlConfigFactory.create(configData, null);
             assertThat(result).isNotNull();
 
             KeyConfiguration expected = new KeyConfiguration(null, null, null);
@@ -213,7 +213,7 @@ public class TomlConfigFactoryTest {
     public void ifPublicKeyListIsEmptyThenKeyConfigurationIsAllNulls() throws IOException {
         try (InputStream configData = getClass().getResourceAsStream("/sample-with-only-private-keys.conf")) {
 
-            final Throwable throwable = catchThrowable(() -> tomlConfigFactory.create(configData));
+            final Throwable throwable = catchThrowable(() -> tomlConfigFactory.create(configData, null));
 
             assertThat(throwable)
                 .isInstanceOf(ConfigException.class)
@@ -228,7 +228,7 @@ public class TomlConfigFactoryTest {
     public void ifPrivateKeyListIsEmptyThenKeyConfigurationIsAllNulls() throws IOException {
         try (InputStream configData = getClass().getResourceAsStream("/sample-with-only-public-keys.conf")) {
 
-            final Throwable throwable = catchThrowable(() -> tomlConfigFactory.create(configData));
+            final Throwable throwable = catchThrowable(() -> tomlConfigFactory.create(configData, null));
 
             assertThat(throwable)
                 .isInstanceOf(ConfigException.class)

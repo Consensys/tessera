@@ -5,7 +5,7 @@ import java.util.ServiceLoader;
 
 public interface ConfigFactory {
 
-    Config create(InputStream configData, String... filenames);
+    Config create(InputStream configData, ArgonOptions keygenOptions, String... filenames);
 
     static ConfigFactory create() {
         return ServiceLoader.load(ConfigFactory.class).iterator().next();
