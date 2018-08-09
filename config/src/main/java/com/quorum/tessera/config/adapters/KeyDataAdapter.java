@@ -38,15 +38,15 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         }
 
         if (keyData.getPublicKeyPath() == null || keyData.getPrivateKeyPath() == null) {
-            LOGGER.error("When providing key paths, must give both as paths, not just one");
+            System.err.println("When providing key paths, must give both as paths, not just one");
             throw new IllegalArgumentException("When providing key paths, must give both public and private");
         }
 
         //case 3, the keys are provided inside a file
         return unmarshalFile(
-            keyData.getPublicKeyPath(),
-            keyData.getPrivateKeyPath(),
-            Optional.ofNullable(keyData.getConfig()).map(KeyDataConfig::getPassword).orElse(null)
+                keyData.getPublicKeyPath(),
+                keyData.getPrivateKeyPath(),
+                Optional.ofNullable(keyData.getConfig()).map(KeyDataConfig::getPassword).orElse(null)
         );
     }
 
@@ -58,26 +58,26 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         final String privateKeyString = new String(privateKey, UTF_8);
 
         final KeyDataConfig unmarshal
-            = JaxbUtil.unmarshal(new ByteArrayInputStream(privateKeyString.getBytes(UTF_8)), KeyDataConfig.class);
+                = JaxbUtil.unmarshal(new ByteArrayInputStream(privateKeyString.getBytes(UTF_8)), KeyDataConfig.class);
 
         return this.unmarshalInline(
-            new KeyData(
-                new KeyDataConfig(
-                    new PrivateKeyData(
-                        unmarshal.getValue(),
-                        unmarshal.getSnonce(),
-                        unmarshal.getAsalt(),
-                        unmarshal.getSbox(),
-                        unmarshal.getArgonOptions(),
-                        password
-                    ),
-                    unmarshal.getType()
-                ),
-                null,
-                publicKeyString,
-                privateKeyPath,
-                publicKeyPath
-            )
+                new KeyData(
+                        new KeyDataConfig(
+                                new PrivateKeyData(
+                                        unmarshal.getValue(),
+                                        unmarshal.getSnonce(),
+                                        unmarshal.getAsalt(),
+                                        unmarshal.getSbox(),
+                                        unmarshal.getArgonOptions(),
+                                        password
+                                ),
+                                unmarshal.getType()
+                        ),
+                        null,
+                        publicKeyString,
+                        privateKeyPath,
+                        publicKeyPath
+                )
         );
 
     }
@@ -87,10 +87,12 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
             return new KeyData(keyData.getConfig(), keyData.getConfig().getValue(), keyData.getPublicKey(), null, null);
         }
 
-        if(keyData.getConfig().getPassword() == null) {
-            LOGGER.error("A locked key was provided without a password");
-            LOGGER.error("Please ensure the same number of passwords are provided as there are keys");
-            LOGGER.error("and remember to include empty passwords for unlocked keys");
+        if (keyData.getConfig().getPassword() == null) {
+
+            System.err.println("A locked key was provided without a password. ");
+            System.err.println("Please ensure the same number of passwords are provided as there are keys ");
+            System.err.print("and remember to include empty passwords for unlocked keys");
+            System.err.println();
             throw new IllegalArgumentException("Password missing");
         }
 
@@ -100,14 +102,14 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         try {
             //need to decrypt
             return new KeyData(
-                keyData.getConfig(),
-                kg.decryptPrivateKey(encryptedKey).toString(),
-                keyData.getPublicKey(),
-                keyData.getPrivateKeyPath(),
-                keyData.getPublicKeyPath()
+                    keyData.getConfig(),
+                    kg.decryptPrivateKey(encryptedKey).toString(),
+                    keyData.getPublicKey(),
+                    keyData.getPrivateKeyPath(),
+                    keyData.getPublicKeyPath()
             );
         } catch (final NaclException ex) {
-            LOGGER.error("Could not decrypt the private key with the provided password, please double check the passwords provided");
+            System.err.println("Could not decrypt the private key with the provided password, please double check the passwords provided");
             throw new IllegalArgumentException();
         }
 
@@ -118,21 +120,21 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
 
         if (keyData.getConfig().getType() != PrivateKeyType.UNLOCKED) {
             return new KeyData(
-                new KeyDataConfig(
-                    new PrivateKeyData(
-                        keyData.getConfig().getPrivateKeyData().getValue(),
-                        keyData.getConfig().getPrivateKeyData().getSnonce(),
-                        keyData.getConfig().getPrivateKeyData().getAsalt(),
-                        keyData.getConfig().getPrivateKeyData().getSbox(),
-                        keyData.getConfig().getPrivateKeyData().getArgonOptions(),
-                        null
+                    new KeyDataConfig(
+                            new PrivateKeyData(
+                                    keyData.getConfig().getPrivateKeyData().getValue(),
+                                    keyData.getConfig().getPrivateKeyData().getSnonce(),
+                                    keyData.getConfig().getPrivateKeyData().getAsalt(),
+                                    keyData.getConfig().getPrivateKeyData().getSbox(),
+                                    keyData.getConfig().getPrivateKeyData().getArgonOptions(),
+                                    null
+                            ),
+                            keyData.getConfig().getType()
                     ),
-                    keyData.getConfig().getType()
-                ),
-                null,
-                keyData.getPublicKey(),
-                null,
-                null
+                    null,
+                    keyData.getPublicKey(),
+                    null,
+                    null
             );
         }
 
