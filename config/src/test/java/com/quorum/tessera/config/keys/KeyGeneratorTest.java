@@ -64,11 +64,13 @@ public class KeyGeneratorTest {
     }
 
     @Test
-    public void generateFromKeyDataUnlockedPrivateKey() {
+    public void generateFromKeyDataUnlockedPrivateKey() throws IOException {
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
-        final KeyData generated = generator.generate(UUID.randomUUID().toString());
+       final  String filename = UUID.randomUUID().toString();
+
+        final KeyData generated = generator.generate(filename);
 
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
         assertThat(generated.getPrivateKey()).isEqualTo("cHJpdmF0ZUtleQ==");
@@ -76,6 +78,8 @@ public class KeyGeneratorTest {
 
         verify(nacl).generateNewKeys();
 
+        Files.deleteIfExists(Paths.get(filename));
+        
     }
 
     @Test
