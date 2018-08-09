@@ -20,11 +20,13 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     private final PartyInfoStore partyInfoStore;
 
+    private final Config config;
+    
     public PartyInfoServiceImpl(final PartyInfoStore partyInfoStore,
                                 final Config configuration,
                                 final KeyManager keyManager) {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
-
+        this.config = Objects.requireNonNull(configuration);
         final String advertisedUrl = configuration.getServerConfig().getServerUri().toString();
 
         final Set<Party> initialParties = configuration
@@ -50,9 +52,9 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     @Override
     public PartyInfo updatePartyInfo(final PartyInfo partyInfo) {
-
-        partyInfoStore.store(partyInfo);
-
+        if(!config.isDisablePeerDiscovery()) {
+            partyInfoStore.store(partyInfo);
+        }
         return this.getPartyInfo();
     }
 

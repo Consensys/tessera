@@ -19,8 +19,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigBuilderTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigBuilderTest.class);
 
     private final ConfigBuilder builderWithValidValues = FixtureUtil.builderWithValidValues();
 
@@ -95,8 +99,6 @@ public class ConfigBuilderTest {
         marshaller.setProperty("eclipselink.beanvalidation.mode", enu);
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        marshaller.marshal(existing, System.out);
-        marshaller.marshal(result, System.out);
         final String expected;
         try (Writer writer = new StringWriter()) {
             marshaller.marshal(existing, writer);
@@ -108,6 +110,9 @@ public class ConfigBuilderTest {
             marshaller.marshal(result, writer);
             actual = writer.toString();
         }
+
+        LOGGER.info("expected: {}", expected);
+        LOGGER.info("actual: {}", actual);
 
         Diff diff = DiffBuilder.compare(expected)
                 .withTest(actual)
@@ -122,16 +127,16 @@ public class ConfigBuilderTest {
     public void buildFromExistingWithNulls() throws Exception {
         Method createMethod = Config.class.getDeclaredMethod("create");
         createMethod.setAccessible(true);
-        Config existing = new Config(new JdbcConfig(null,null,null),
-            new ServerConfig(null,null,
-                new SslConfig(null,true,null,null,
-                    null,null,null,
-                    null,null,null,
-                    null,null,null,null,null,
-                    null,null,null,
-                    null,null),
-                null
-            ), null,null, null, null, true);
+        Config existing = new Config(new JdbcConfig(null, null, null),
+                new ServerConfig(null, null,
+                        new SslConfig(null, true, null, null,
+                                null, null, null,
+                                null, null, null,
+                                null, null, null, null, null,
+                                null, null, null,
+                                null, null),
+                        null
+                ), null, null, null, null, true, false);
 
         ConfigBuilder configBuilder = ConfigBuilder.from(existing);
 
@@ -141,12 +146,11 @@ public class ConfigBuilderTest {
 
         Marshaller marshaller = jaxbContext.createMarshaller();
         Enum enu = Enum.valueOf(Class.class.cast(marshaller
-            .getProperty("eclipselink.beanvalidation.mode").getClass()), "NONE");
+                .getProperty("eclipselink.beanvalidation.mode").getClass()), "NONE");
         marshaller.setProperty("eclipselink.beanvalidation.mode", enu);
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        marshaller.marshal(existing, System.out);
-        marshaller.marshal(result, System.out);
+
         final String expected;
         try (Writer writer = new StringWriter()) {
             marshaller.marshal(existing, writer);
@@ -158,11 +162,14 @@ public class ConfigBuilderTest {
             marshaller.marshal(result, writer);
             actual = writer.toString();
         }
-
+        
+        LOGGER.info("expected: {}", expected);
+        LOGGER.info("actual: {}", actual);
+        
         Diff diff = DiffBuilder.compare(expected)
-            .withTest(actual)
-            .checkForSimilar()
-            .build();
+                .withTest(actual)
+                .checkForSimilar()
+                .build();
 
         assertThat(diff.getDifferences()).isEmpty();
 
@@ -182,8 +189,8 @@ public class ConfigBuilderTest {
         final ConfigBuilder builder = builderWithValidValues.alwaysSendTo(alwaysSendTo);
         builder.build();
 
-        assertThat(errContent.toString()).isEqualTo("Error reading alwayssendto file: doesntexist.txt\n" +
-                                                    "Error reading alwayssendto file: alsodoesntexist.txt\n");
+        assertThat(errContent.toString()).isEqualTo("Error reading alwayssendto file: doesntexist.txt\n"
+                + "Error reading alwayssendto file: alsodoesntexist.txt\n");
 
         System.setErr(originalErr);
 

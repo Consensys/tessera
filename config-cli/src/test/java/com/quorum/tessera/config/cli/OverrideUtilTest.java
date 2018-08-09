@@ -76,6 +76,7 @@ public class OverrideUtilTest {
                 "alwaysSendTo.keyBytes",
                 "unixSocketFile",
                 "useWhiteList",
+                "disablePeerDiscovery",
                 "server.sslConfig.clientTrustCertificates",
                 "server.sslConfig.serverTrustCertificates"
         );
@@ -299,7 +300,7 @@ public class OverrideUtilTest {
     @Test
     public void initialiseNestedObjects() {
 
-        Config config = new Config(null, null, null, null, null, null, true);
+        Config config = new Config(null, null, null, null, null, null, true,true);
 
         OverrideUtil.initialiseNestedObjects(config);
 

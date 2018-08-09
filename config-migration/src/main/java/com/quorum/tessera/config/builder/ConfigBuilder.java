@@ -343,7 +343,7 @@ public class ConfigBuilder {
             forwardingKeys = alwaysSendToKeys;
         }
 
-        return new Config(jdbcConfig, serverConfig, peerList, keyData, forwardingKeys, unixSocketFile, useWhiteList);
+        return new Config(jdbcConfig, serverConfig, peerList, keyData, forwardingKeys, unixSocketFile, useWhiteList,false);
     }
 
 }
