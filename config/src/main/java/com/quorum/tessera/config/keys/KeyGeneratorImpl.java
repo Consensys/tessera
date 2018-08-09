@@ -40,7 +40,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
     }
 
     @Override
-    public KeyData generate(final String filename) {
+    public KeyData generate(final String filename, final ArgonOptions encryptionOptions) {
 
         final String password = this.getPassword();
 
@@ -53,7 +53,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
         if (!password.isEmpty()) {
 
             final PrivateKeyData encryptedPrivateKey = this.keyEncryptor.encryptPrivateKey(
-                generated.getPrivateKey(), password
+                generated.getPrivateKey(), password, encryptionOptions
             );
 
             finalKeys = new KeyData(

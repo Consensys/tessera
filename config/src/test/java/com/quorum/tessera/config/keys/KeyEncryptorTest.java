@@ -49,7 +49,7 @@ public class KeyEncryptorTest {
         doReturn(new Nonce(new byte[]{})).when(nacl).randomNonce();
         doReturn(new byte[]{}).when(nacl).sealAfterPrecomputation(any(byte[].class), any(Nonce.class), any(Key.class));
 
-        final PrivateKeyData privateKey = this.keyEncryptor.encryptPrivateKey(key, password);
+        final PrivateKeyData privateKey = this.keyEncryptor.encryptPrivateKey(key, password, null);
 
         final ArgonOptions aopts = privateKey.getArgonOptions();
 
@@ -70,9 +70,45 @@ public class KeyEncryptorTest {
     }
 
     @Test
+    public void providingArgonOptionsEncryptsKey() {
+
+        final Key key = new Key(new byte[]{1, 2, 3, 4, 5});
+        final String password = "pass";
+        final ArgonResult result = new ArgonResult(
+            new com.quorum.tessera.argon2.ArgonOptions("i", 5, 6, 7),
+            new byte[]{},
+            new byte[]{}
+        );
+
+        doReturn(result).when(argon2).hash(any(com.quorum.tessera.argon2.ArgonOptions.class), eq(password), any(byte[].class));
+        doReturn(new Nonce(new byte[]{})).when(nacl).randomNonce();
+        doReturn(new byte[]{}).when(nacl).sealAfterPrecomputation(any(byte[].class), any(Nonce.class), any(Key.class));
+
+        final PrivateKeyData privateKey
+            = this.keyEncryptor.encryptPrivateKey(key, password, new ArgonOptions("i", 5, 6, 7));
+
+        final ArgonOptions aopts = privateKey.getArgonOptions();
+
+        assertThat(privateKey.getSbox()).isNotNull();
+        assertThat(privateKey.getAsalt()).isNotNull();
+        assertThat(privateKey.getSnonce()).isNotNull();
+
+        assertThat(aopts).isNotNull();
+        assertThat(aopts.getIterations()).isNotNull().isEqualTo(5);
+        assertThat(aopts.getMemory()).isNotNull().isEqualTo(6);
+        assertThat(aopts.getParallelism()).isNotNull().isEqualTo(7);
+        assertThat(aopts.getAlgorithm()).isNotNull();
+
+        verify(argon2).hash(any(com.quorum.tessera.argon2.ArgonOptions.class), eq(password), any(byte[].class));
+        verify(nacl).randomNonce();
+        verify(nacl).sealAfterPrecomputation(any(byte[].class), any(Nonce.class), any(Key.class));
+
+    }
+
+    @Test
     public void nullKeyGivesError() {
 
-        final Throwable throwable = catchThrowable(() -> keyEncryptor.encryptPrivateKey(null, ""));
+        final Throwable throwable = catchThrowable(() -> keyEncryptor.encryptPrivateKey(null, "", null));
 
         assertThat(throwable).isInstanceOf(NullPointerException.class);
 
