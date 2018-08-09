@@ -41,7 +41,7 @@ public class Jnacl implements NaclFacade {
         if(jnaclResult == -1) {
             LOGGER.warn("Could not compute the shared key for pub {} and priv {}", publicKey, REDACTED);
             LOGGER.debug("Could not compute the shared key for pub {} and priv {}", publicKey, privateKey);
-            throw new NaclException("Kalium could not compute the shared key");
+            throw new NaclException("JNACL could not compute the shared key");
         }
 
         final Key sharedKey = new Key(precomputed);
