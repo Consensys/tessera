@@ -57,8 +57,6 @@ public class Launcher {
                 System.out.println("Config validation issue: " + violation.getPropertyPath() + " " + violation.getMessage());
             }
             System.exit(1);
-        } catch (final Exception ex) {
-            System.exit(1);
         }
     }
 
