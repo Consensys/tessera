@@ -23,7 +23,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import javax.validation.ConstraintViolation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
@@ -377,8 +379,31 @@ public class DefaultCliAdapterTest {
     
 
     
+    @Test
+    public void withInvalidPath() throws Exception {
+        //unixSocketPath
+        Map<String,Object> params = new HashMap<>();
+        params.put("unixSocketPath","BOGUS.bogus");
 
-    
+        Path configFile = ElUtil.createTempFileFromTemplate(
+                getClass().getResource("/sample-config.json"), params);
+        
+        try {
+            cliDelegate.execute(
+                    "-configfile",
+                    configFile.toString());
+            failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
+        } catch (ConstraintViolationException ex) {
+            assertThat(ex.getConstraintViolations()).hasSize(1);
+           
+            assertThat(ex.getConstraintViolations().stream()
+                    .map(ConstraintViolation::getPropertyPath)
+                    .map(Objects::toString).findFirst().get()).isEqualTo("unixSocketFile");
+            
+  
+        }
+
+    }
 
 
     
