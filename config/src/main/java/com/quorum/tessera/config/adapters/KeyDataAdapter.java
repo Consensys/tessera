@@ -119,6 +119,10 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
     @Override
     public KeyData marshal(final KeyData keyData) {
 
+        if(keyData.getConfig() == null) {
+            return keyData;
+        }
+
         if (keyData.getConfig().getType() != PrivateKeyType.UNLOCKED) {
             return new KeyData(
                     new KeyDataConfig(
