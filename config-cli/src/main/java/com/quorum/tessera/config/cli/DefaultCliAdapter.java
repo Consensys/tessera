@@ -28,6 +28,7 @@ import static java.nio.file.StandardOpenOption.*;
 import static java.util.Collections.singletonList;
 import javax.validation.Validator;
 import javax.validation.*;
+import javax.validation.groups.Default;
 
 public class DefaultCliAdapter implements CliAdapter {
 
@@ -147,7 +148,7 @@ public class DefaultCliAdapter implements CliAdapter {
             });
 
             if (Objects.nonNull(config)) {
-                Set<ConstraintViolation<Config>> violations = validator.validate(config, PathCheck.class);
+                Set<ConstraintViolation<Config>> violations = validator.validate(config, Default.class, PathCheck.class);
                 if (!violations.isEmpty()) {
                     throw new ConstraintViolationException(violations);
                 }

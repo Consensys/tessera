@@ -383,10 +383,11 @@ public class DefaultCliAdapterTest {
     public void withInvalidPath() throws Exception {
         //unixSocketPath
         Map<String,Object> params = new HashMap<>();
-        params.put("unixSocketPath","BOGUS.bogus");
+        params.put("publicKeyPath","BOGUS.bogus");
+        params.put("privateKeyPath","BOGUS.bogus");
 
         Path configFile = ElUtil.createTempFileFromTemplate(
-                getClass().getResource("/sample-config.json"), params);
+                getClass().getResource("/sample-config-invalidpath.json"), params);
         
         try {
             cliDelegate.execute(
@@ -398,7 +399,7 @@ public class DefaultCliAdapterTest {
            
             assertThat(ex.getConstraintViolations().stream()
                     .map(ConstraintViolation::getPropertyPath)
-                    .map(Objects::toString).findFirst().get()).isEqualTo("unixSocketFile");
+                    .map(Objects::toString).findFirst().get()).isEqualTo("keys");
             
   
         }

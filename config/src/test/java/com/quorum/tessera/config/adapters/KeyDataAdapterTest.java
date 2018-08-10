@@ -137,7 +137,7 @@ public class KeyDataAdapterTest {
 
         assertThat(throwable)
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("When providing key paths, must give both public and private");
+            .hasMessage("When providing key paths, must give both public and private, and both files must exist");
 
     }
 
@@ -150,7 +150,7 @@ public class KeyDataAdapterTest {
 
         assertThat(throwable)
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("When providing key paths, must give both public and private");
+            .hasMessage("When providing key paths, must give both public and private, and both files must exist");
 
     }
 
