@@ -20,7 +20,7 @@ public @interface ValidPath {
 
     String message() default "{ValidPath.message}";
 
-    Class<?>[] groups() default {PathCheck.class};
+    Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
     
