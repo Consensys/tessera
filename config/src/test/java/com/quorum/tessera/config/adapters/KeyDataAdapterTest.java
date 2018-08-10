@@ -14,8 +14,8 @@ import java.nio.file.Paths;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.Java6Assertions.assertThat;
 
 public class KeyDataAdapterTest {
 
@@ -32,6 +32,19 @@ public class KeyDataAdapterTest {
         assertThat(marshalledKey.getPublicKey()).isEqualTo("PUB");
         assertThat(marshalledKey.getConfig()).isEqualToComparingFieldByField(new KeyDataConfig(null, UNLOCKED));
 
+    }
+
+    @Test
+    public void marshallKeyWithoutConfiguration() {
+        final KeyData keyData = new KeyData(null, "PRIV", "PUB", null, null);
+
+        final KeyData marshalledKey = adapter.marshal(keyData);
+
+        assertThat(marshalledKey.getPrivateKey()).isEqualTo("PRIV");
+        assertThat(marshalledKey.getPublicKey()).isEqualTo("PUB");
+        assertThat(marshalledKey.getConfig()).isNull();
+        assertThat(marshalledKey.getPrivateKeyPath()).isNull();
+        assertThat(marshalledKey.getPublicKeyPath()).isNull();
     }
 
     @Test
