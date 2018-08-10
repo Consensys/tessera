@@ -1,6 +1,5 @@
 package com.quorum.tessera.config.constraints;
 
-import com.quorum.tessera.config.constraints.checks.PathCheck;
 import java.lang.annotation.Documented;
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
