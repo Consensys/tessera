@@ -68,11 +68,13 @@ public class Launcher {
             } else {
                 System.err.println(Objects.toString(cause));
             }
-
             System.exit(3);
+        } catch (com.quorum.tessera.config.cli.CliException ex) {
+            System.err.println(ex.getMessage());
+            System.exit(4);
         } catch (Throwable ex) {
-           
-             Optional.ofNullable(ex.getMessage()).ifPresent(System.err::println);
+
+            Optional.ofNullable(ex.getMessage()).ifPresent(System.err::println);
             System.exit(2);
         }
     }
