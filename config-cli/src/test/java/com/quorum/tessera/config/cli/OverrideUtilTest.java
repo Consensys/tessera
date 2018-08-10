@@ -382,7 +382,7 @@ public class OverrideUtilTest {
 
         assertThat(config.getKeys().getKeyData().get(1).getConfig().getSnonce()).isEqualTo("snonce2");
         assertThat(config.getKeys().getKeyData().get(1).getPublicKey()).isNull();
-        assertThat(config.getUnixSocketFile()).isEqualTo(Paths.get("/tmp/bogus.socket"));
+        assertThat(config.getUnixSocketFile()).isEqualTo(Paths.get("${unixSocketPath}"));
     }
 
 }

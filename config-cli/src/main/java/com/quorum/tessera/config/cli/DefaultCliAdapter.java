@@ -155,7 +155,7 @@ public class DefaultCliAdapter implements CliAdapter {
         final ConfigFactory configFactory = ConfigFactory.create();
 
         final List<String> keyGenConfigs = this.getKeyGenConfig(commandLine);
-        final ArgonOptions options = this.keygenConfiguration(commandLine);
+        final ArgonOptions options = this.keygenConfiguration(commandLine).orElse(null);
 
         Config config = null;
 
@@ -205,15 +205,15 @@ public class DefaultCliAdapter implements CliAdapter {
         return new ArrayList<>();
     }
 
-    private ArgonOptions keygenConfiguration(final CommandLine commandLine) throws IOException {
+    private static Optional<ArgonOptions> keygenConfiguration(final CommandLine commandLine) throws IOException {
         if(commandLine.hasOption("keygenconfig")) {
             final String pathName = commandLine.getOptionValue("keygenconfig");
             final InputStream configStream = Files.newInputStream(Paths.get(pathName));
 
-            return JaxbUtil.unmarshal(configStream, ArgonOptions.class);
-        } else {
-            return null;
-        }
+            ArgonOptions argonOptions =  JaxbUtil.unmarshal(configStream, ArgonOptions.class);
+            return Optional.of(argonOptions);
+        } 
+        return Optional.empty();
     }
 
     private static void output(CommandLine commandLine, Config config) throws IOException {

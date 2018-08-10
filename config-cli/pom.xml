@@ -41,7 +41,11 @@
             <groupId>com.github.stefanbirkner</groupId>
             <artifactId>system-rules</artifactId>
         </dependency>
-
+        
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+              <artifactId>test-util</artifactId>
+        </dependency>
 
     </dependencies>
 

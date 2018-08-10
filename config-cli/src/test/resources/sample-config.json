@@ -41,5 +41,5 @@
     "alwaysSendTo": [
         "somePublicKey"
     ],
-    "unixSocketFile": "/tmp/bogus.socket"
+    "unixSocketFile": "${unixSocketPath}"
 }
