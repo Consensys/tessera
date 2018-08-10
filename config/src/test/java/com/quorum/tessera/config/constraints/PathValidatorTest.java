@@ -145,5 +145,62 @@ public class PathValidatorTest {
        
 
     }
+    
+    @Test
+    public void checkCannotCreateFileExistingFile() throws IOException {
 
+        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+        
+        when(context.buildConstraintViolationWithTemplate(anyString()))
+                .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
+                
+        ValidPath validPath = mock(ValidPath.class);
+        when(validPath.checkCanCreate()).thenReturn(true);
+        when(validPath.checkExists()).thenReturn(Boolean.FALSE);
+        PathValidator pathValidator = new PathValidator();
+        pathValidator.initialize(validPath);
+
+        Path path = mock(Path.class);
+
+        FilesDelegate filesDelegate = mock(FilesDelegate.class);
+        
+        when(filesDelegate.notExists(path)).thenReturn(Boolean.FALSE);
+        
+        pathValidator.setFilesDelegate(filesDelegate);
+        
+        assertThat(pathValidator.isValid(path, context)).isTrue();
+
+        verifyNoMoreInteractions(context);
+       
+
+    }
+    
+        @Test
+    public void checkCannotCreateFileDontCheck() throws IOException {
+
+        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+        
+        when(context.buildConstraintViolationWithTemplate(anyString()))
+                .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
+                
+        ValidPath validPath = mock(ValidPath.class);
+        when(validPath.checkCanCreate()).thenReturn(false);
+        when(validPath.checkExists()).thenReturn(false);
+        PathValidator pathValidator = new PathValidator();
+        pathValidator.initialize(validPath);
+
+        Path path = mock(Path.class);
+
+        FilesDelegate filesDelegate = mock(FilesDelegate.class);
+        
+        when(filesDelegate.notExists(path)).thenReturn(Boolean.TRUE);
+        
+        pathValidator.setFilesDelegate(filesDelegate);
+        
+        assertThat(pathValidator.isValid(path, context)).isTrue();
+
+        verifyNoMoreInteractions(context);
+       
+
+    }
 }
