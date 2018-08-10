@@ -4,6 +4,7 @@ import com.quorum.tessera.config.constraints.ValidPath;
 import com.quorum.tessera.config.adapters.KeyAdapter;
 import com.quorum.tessera.config.adapters.KeyConfigurationAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
+import com.quorum.tessera.config.constraints.checks.PathCheck;
 import com.quorum.tessera.nacl.Key;
 
 import javax.validation.Valid;
