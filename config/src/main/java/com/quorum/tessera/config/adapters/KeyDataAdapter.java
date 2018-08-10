@@ -37,9 +37,10 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
             return unmarshalInline(keyData);
         }
 
-        if (keyData.getPublicKeyPath() == null || keyData.getPrivateKeyPath() == null) {
-            System.err.println("When providing key paths, must give both as paths, not just one");
-            throw new IllegalArgumentException("When providing key paths, must give both public and private");
+        if (keyData.getPublicKeyPath() == null || keyData.getPrivateKeyPath() == null
+            || Files.notExists(keyData.getPublicKeyPath()) || Files.notExists(keyData.getPrivateKeyPath())) {
+            System.err.println("When providing key paths, must give both as paths, not just one, and both files must exist");
+            throw new IllegalArgumentException("When providing key paths, must give both public and private, and both files must exist");
         }
 
         //case 3, the keys are provided inside a file

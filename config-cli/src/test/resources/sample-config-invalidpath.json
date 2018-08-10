@@ -1,0 +1,33 @@
+{
+    "useWhiteList": false,
+    "jdbc": {
+        "username": "scott",
+        "password": "tiger",
+        "url": "foo:bar"
+    },
+    "server": {
+        "hostName": "http://localhost",
+        "port": 99
+    },
+    "peer": [
+        {
+            "url": "http://bogus1.com"
+        },
+        {
+            "url": "http://bogus2.com"
+        }
+    ],
+    "keys": {
+        "passwords": [],
+        "keyData": [
+            {
+                "publicKeyPath" : "${publicKeyPath}",
+                "privateKeyPath" : "${privateKeyPath}"
+            }
+        ]
+    },
+    "alwaysSendTo": [
+        "somePublicKey"
+    ],
+    "unixSocketFile": "tm.ipc"
+}

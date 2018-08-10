@@ -1,10 +1,8 @@
 package com.quorum.tessera.config;
 
-import com.quorum.tessera.config.constraints.ValidPath;
 import com.quorum.tessera.config.adapters.KeyAdapter;
 import com.quorum.tessera.config.adapters.KeyConfigurationAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
-import com.quorum.tessera.config.constraints.checks.PathCheck;
 import com.quorum.tessera.nacl.Key;
 
 import javax.validation.Valid;
@@ -47,7 +45,6 @@ public class Config extends ConfigItem {
     @XmlJavaTypeAdapter(KeyAdapter.class)
     private final List<Key> alwaysSendTo;
 
-    @ValidPath(checkExists = true,groups = PathCheck.class)
     @NotNull
     @XmlElement(required = true, type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
