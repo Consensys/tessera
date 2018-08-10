@@ -159,7 +159,7 @@ public class DefaultCliAdapter implements CliAdapter {
 
             return new CliResult(0, false, line.hasOption("keygen"), config);
 
-        } catch (NullPointerException | ParseException exp) {
+        } catch (ParseException exp) {
             throw new CliException(exp.getMessage());
         }
 
