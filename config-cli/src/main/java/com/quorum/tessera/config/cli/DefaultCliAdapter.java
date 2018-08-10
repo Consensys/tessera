@@ -10,10 +10,6 @@ import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,66 +25,76 @@ import java.util.stream.Stream;
 
 import static java.nio.file.StandardOpenOption.*;
 import static java.util.Collections.singletonList;
+import javax.validation.Validator;
+import javax.validation.*;
 
 public class DefaultCliAdapter implements CliAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCliAdapter.class);
 
-    private KeyGeneratorFactory keyGeneratorFactory = KeyGeneratorFactory.newFactory();
+    private final KeyGeneratorFactory keyGeneratorFactory = KeyGeneratorFactory.newFactory();
+
+    private final Validator validator = Validation.byDefaultProvider()
+            .configure()
+            .ignoreXmlConfiguration()
+            .buildValidatorFactory()
+            .getValidator();
 
     @Override
     public CliResult execute(String... args) throws Exception {
 
         Options options = new Options();
+        
+
         options.addOption(
-            Option.builder("configfile")
-                .desc("Path to node configuration file")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("PATH")
-                .build());
+                Option.builder("configfile")
+                        .desc("Path to node configuration file")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("PATH")
+                        .build());
 
         //If keygen then we require the path to the private key config path
         options.addOption(
-            Option.builder("keygen")
-                .desc("Path to private key config for generation of missing key files")
-                .hasArg(true)
-                .optionalArg(true)
-                .argName("PATH")
-                .build());
+                Option.builder("keygen")
+                        .desc("Path to private key config for generation of missing key files")
+                        .hasArg(true)
+                        .optionalArg(true)
+                        .argName("PATH")
+                        .build());
 
         options.addOption(
-            Option.builder("filename")
-                .desc("Path to private key config for generation of missing key files")
-                .hasArg(true)
-                .optionalArg(true)
-                .argName("PATH")
-                .build());
+                Option.builder("filename")
+                        .desc("Path to private key config for generation of missing key files")
+                        .hasArg(true)
+                        .optionalArg(true)
+                        .argName("PATH")
+                        .build());
 
         options.addOption(
-            Option.builder("keygenconfig")
-                .desc("Path to private key config for generation of missing key files")
-                .hasArg(true)
-                .optionalArg(true)
-                .argName("PATH")
-                .build());
+                Option.builder("keygenconfig")
+                        .desc("Path to private key config for generation of missing key files")
+                        .hasArg(true)
+                        .optionalArg(true)
+                        .argName("PATH")
+                        .build());
 
         options.addOption(
-            Option.builder("output")
-                .desc("Generate updated config file with generated keys")
-                .hasArg(true)
-                .numberOfArgs(1)
-                .build());
+                Option.builder("output")
+                        .desc("Generate updated config file with generated keys")
+                        .hasArg(true)
+                        .numberOfArgs(1)
+                        .build());
 
         options.addOption(
-            Option.builder("pidfile")
-                .desc("Path to pid file")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("PATH")
-                .build());
+                Option.builder("pidfile")
+                        .desc("Path to pid file")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("PATH")
+                        .build());
 
         Map<String, Class> overrideOptions = OverrideUtil.buildConfigOptions();
 
@@ -101,20 +107,19 @@ public class DefaultCliAdapter implements CliAdapter {
             Class optionType = entry.getValue();
 
             Option.Builder optionBuilder = Option.builder()
-                .longOpt(optionName)
-                .desc(String.format("Override option for %s , type: %s", optionName, optionType.getSimpleName()));
+                    .longOpt(optionName)
+                    .desc(String.format("Override option for %s , type: %s", optionName, optionType.getSimpleName()));
 
             if (isCollection) {
                 optionBuilder.hasArgs()
-                    .argName(optionType.getSimpleName().toUpperCase() + "...");
+                        .argName(optionType.getSimpleName().toUpperCase() + "...");
             } else {
                 optionBuilder.hasArg()
-                    .argName(optionType.getSimpleName().toUpperCase());
+                        .argName(optionType.getSimpleName().toUpperCase());
             }
             options.addOption(optionBuilder.build());
 
         });
-
 
         final List<String> argsList = Arrays.asList(args);
         if (argsList.contains("help") || argsList.isEmpty()) {
@@ -142,11 +147,19 @@ public class DefaultCliAdapter implements CliAdapter {
                 }
             });
 
+            if (Objects.nonNull(config)) {
+
+                Set<ConstraintViolation<Config>> violations = validator.validate(config);
+                if (!violations.isEmpty()) {
+                    throw new ConstraintViolationException(violations);
+                }
+            }
+
             if (line.hasOption("pidfile")) {
                 createPidFile(line);
             }
 
-            return new CliResult(0, false, line.hasOption("keygen") ,config);
+            return new CliResult(0, false, line.hasOption("keygen"), config);
 
         } catch (ParseException exp) {
             throw new CliException(exp.getMessage());
@@ -156,16 +169,10 @@ public class DefaultCliAdapter implements CliAdapter {
 
     private Config parseConfig(CommandLine commandLine) throws IOException {
 
-        final Validator validator = Validation.byDefaultProvider()
-            .configure()
-            .ignoreXmlConfiguration()
-            .buildValidatorFactory()
-            .getValidator();
-
         final ConfigFactory configFactory = ConfigFactory.create();
 
         final List<String> keyGenConfigs = this.getKeyGenConfig(commandLine);
-        final ArgonOptions options = this.keygenConfiguration(commandLine);
+        final ArgonOptions options = this.keygenConfiguration(commandLine).orElse(null);
 
         Config config = null;
 
@@ -180,23 +187,19 @@ public class DefaultCliAdapter implements CliAdapter {
                 config = configFactory.create(in, options, keyGenConfigs.toArray(new String[0]));
             }
 
-            Set<ConstraintViolation<Config>> violations = validator.validate(config);
-
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException(violations);
-            }
-
             if (!keyGenConfigs.isEmpty()) {
                 //we have generated new keys, so we need to output the new configuration
                 output(commandLine, config);
             }
 
-        } else {
+        } else if(commandLine.hasOption("keygen")) {
             final KeyGenerator generator = keyGeneratorFactory.create();
             keyGenConfigs
-                .stream()
-                .map(name -> generator.generate(name, options))
-                .collect(Collectors.toList());
+                    .stream()
+                    .map(name -> generator.generate(name, options))
+                    .collect(Collectors.toList());
+        } else {
+            throw new CliException("One or both: -configfile <PATH> or -keygen options are required.");
         }
 
         return config;
@@ -204,12 +207,12 @@ public class DefaultCliAdapter implements CliAdapter {
 
     private List<String> getKeyGenConfig(CommandLine commandLine) {
 
-        if(commandLine.hasOption("keygen")) {
+        if (commandLine.hasOption("keygen")) {
 
-            if(commandLine.hasOption("filename")) {
+            if (commandLine.hasOption("filename")) {
 
                 final String keyNames = commandLine.getOptionValue("filename");
-                if(keyNames != null) {
+                if (keyNames != null) {
                     return Stream.of(keyNames.split(",")).collect(Collectors.toList());
                 }
 
@@ -221,15 +224,15 @@ public class DefaultCliAdapter implements CliAdapter {
         return new ArrayList<>();
     }
 
-    private ArgonOptions keygenConfiguration(final CommandLine commandLine) throws IOException {
-        if(commandLine.hasOption("keygenconfig")) {
+    private static Optional<ArgonOptions> keygenConfiguration(final CommandLine commandLine) throws IOException {
+        if (commandLine.hasOption("keygenconfig")) {
             final String pathName = commandLine.getOptionValue("keygenconfig");
             final InputStream configStream = Files.newInputStream(Paths.get(pathName));
 
-            return JaxbUtil.unmarshal(configStream, ArgonOptions.class);
-        } else {
-            return null;
+            ArgonOptions argonOptions = JaxbUtil.unmarshal(configStream, ArgonOptions.class);
+            return Optional.of(argonOptions);
         }
+        return Optional.empty();
     }
 
     private static void output(CommandLine commandLine, Config config) throws IOException {

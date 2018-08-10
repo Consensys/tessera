@@ -6,6 +6,7 @@ import com.quorum.tessera.config.keys.KeyGeneratorFactory;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,9 +41,13 @@ public class JaxbConfigFactory implements ConfigFactory {
             )
             .collect(Collectors.toList());
 
+
+
         final Config config = JaxbUtil.unmarshal(configData, Config.class);
 
-        config.getKeys().getKeyData().addAll(newKeys);
+        if (Objects.nonNull(config.getKeys())) {
+            config.getKeys().getKeyData().addAll(newKeys);
+        }
 
         return config;
     }

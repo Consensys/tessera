@@ -4,6 +4,7 @@ import com.quorum.tessera.config.adapters.PathAdapter;
 
 import java.nio.file.Path;
 import java.util.Objects;
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -18,10 +19,12 @@ public class KeyData extends ConfigItem {
     @XmlElement
     private final KeyDataConfig config;
 
+    @NotNull
     @XmlElement
     @XmlSchemaType(name = "anyURI")
     private final String privateKey;
 
+    @NotNull
     @XmlElement
     @XmlSchemaType(name = "anyURI")
     private final String publicKey;

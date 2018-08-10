@@ -2,6 +2,7 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.PathAdapter;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -20,6 +21,7 @@ public class KeyConfiguration extends ConfigItem {
 
     private final List<String> passwords;
 
+    @NotNull
     private final List<KeyData> keyData;
 
     public KeyConfiguration(final Path passwordFile, final List<String> passwords, final List<KeyData> keyData) {

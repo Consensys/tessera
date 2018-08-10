@@ -142,7 +142,7 @@
             <bean factory-bean="keyConfig" factory-method="getKeyData"/>
         </constructor-arg>
         <constructor-arg>
-            <bean factory-bean="config" factory-method="getFowardingList" />
+            <bean factory-bean="config" factory-method="getAlwaysSendTo" />
         </constructor-arg>
     </bean>
 

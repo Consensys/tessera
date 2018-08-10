@@ -14,8 +14,8 @@ import java.nio.file.Paths;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.Java6Assertions.assertThat;
 
 public class KeyDataAdapterTest {
 
@@ -32,6 +32,19 @@ public class KeyDataAdapterTest {
         assertThat(marshalledKey.getPublicKey()).isEqualTo("PUB");
         assertThat(marshalledKey.getConfig()).isEqualToComparingFieldByField(new KeyDataConfig(null, UNLOCKED));
 
+    }
+
+    @Test
+    public void marshallKeyWithoutConfiguration() {
+        final KeyData keyData = new KeyData(null, "PRIV", "PUB", null, null);
+
+        final KeyData marshalledKey = adapter.marshal(keyData);
+
+        assertThat(marshalledKey.getPrivateKey()).isEqualTo("PRIV");
+        assertThat(marshalledKey.getPublicKey()).isEqualTo("PUB");
+        assertThat(marshalledKey.getConfig()).isNull();
+        assertThat(marshalledKey.getPrivateKeyPath()).isNull();
+        assertThat(marshalledKey.getPublicKeyPath()).isNull();
     }
 
     @Test
@@ -137,7 +150,7 @@ public class KeyDataAdapterTest {
 
         assertThat(throwable)
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("When providing key paths, must give both public and private");
+            .hasMessage("When providing key paths, must give both public and private, and both files must exist");
 
     }
 
@@ -150,8 +163,54 @@ public class KeyDataAdapterTest {
 
         assertThat(throwable)
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("When providing key paths, must give both public and private");
+            .hasMessage("When providing key paths, must give both public and private, and both files must exist");
 
+    }
+
+    @Test
+    public void decryptingPrivateKeyWithWrongPasswordErrors() {
+        final KeyData keyData = new KeyData(
+            new KeyDataConfig(
+                new PrivateKeyData(
+                    null,
+                    "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                    "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                    "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
+                    new ArgonOptions("id", 10, 1048576, 4),
+                    "badpassword"
+                ),
+                PrivateKeyType.LOCKED
+            ),
+            null,
+            "PUB", null, null
+        );
+
+        final Throwable throwable = catchThrowable(() ->adapter.unmarshal(keyData));
+
+        assertThat(throwable).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void unmarshallingLockedWithNoPasswordFails() {
+        final KeyData keyData = new KeyData(
+            new KeyDataConfig(
+                new PrivateKeyData(
+                    null,
+                    "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                    "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                    "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
+                    new ArgonOptions("id", 10, 1048576, 4),
+                    null
+                ),
+                PrivateKeyType.LOCKED
+            ),
+            null,
+            "PUB", null, null
+        );
+
+        final Throwable throwable = catchThrowable(() ->adapter.unmarshal(keyData));
+
+        assertThat(throwable).isInstanceOf(IllegalArgumentException.class).hasMessage("Password missing");
     }
 
 }

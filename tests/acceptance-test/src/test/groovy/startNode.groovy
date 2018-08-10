@@ -1,7 +1,10 @@
+import com.quorum.tessera.test.util.ElUtil as EL
 
 def jarfile = properties['jarfile']
 
-def configFile = properties['configFile']
+def configFileTemplate = properties['configFile']
+
+def configFile = EL.createAndPopulatePaths(new File(configFileTemplate).toPath())
 
 def pidFile = properties['pidFile']
 
