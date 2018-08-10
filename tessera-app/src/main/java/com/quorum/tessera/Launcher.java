@@ -15,9 +15,11 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.net.URI;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import javax.json.JsonException;
 
 /**
  * The main entry point for the application. This just starts up the application
@@ -32,9 +34,9 @@ public class Launcher {
         try {
             final CliResult cliResult = CliDelegate.instance().execute(args);
 
-            if(cliResult.isHelpOn()) {
+            if (cliResult.isHelpOn()) {
                 System.exit(0);
-            } else if(cliResult.getStatus() != 0) {
+            } else if (cliResult.getStatus() != 0) {
                 System.exit(cliResult.getStatus());
             }
 
@@ -43,7 +45,7 @@ public class Launcher {
             }
 
             final Config config = cliResult.getConfig()
-                .orElseThrow(() -> new NoSuchElementException("No Config found. Tessera will not run"));
+                    .orElseThrow(() -> new NoSuchElementException("No Config found. Tessera will not run"));
 
             final URI uri = new URI(config.getServerConfig().getHostName() + ":" + config.getServerConfig().getPort());
 
@@ -51,21 +53,37 @@ public class Launcher {
 
             System.exit(0);
 
-        } catch(final ConstraintViolationException ex) {
+        } catch (final ConstraintViolationException ex) {
             Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
 
-            for(ConstraintViolation<?> violation : violations) {
+            for (ConstraintViolation<?> violation : violations) {
                 System.out.println("Config validation issue: " + violation.getPropertyPath() + " " + violation.getMessage());
             }
             System.exit(1);
-        } catch(Throwable ex) {
-            Optional.ofNullable(ex.getMessage()).ifPresent(System.err::println);
+        } catch (com.quorum.tessera.config.ConfigException ex) {
+            Throwable cause = resolveRooCause(ex);
+
+            if (JsonException.class.isInstance(cause)) {
+                System.err.println("Invalid json error is " + cause.getMessage());
+            } else {
+                System.err.println(Objects.toString(cause));
+            }
+
+            System.exit(3);
+        } catch (Throwable ex) {
+           
+             Optional.ofNullable(ex.getMessage()).ifPresent(System.err::println);
             System.exit(2);
         }
     }
 
-    
-    
+    static Throwable resolveRooCause(Throwable ex) {
+        if (Objects.nonNull(ex.getCause())) {
+            return resolveRooCause(ex.getCause());
+        }
+        return ex;
+    }
+
     private static void runWebServer(final URI serverUri, ServerConfig serverConfig) throws Exception {
 
         final Tessera tessera = new Tessera(ServiceLocator.create(), "tessera-spring.xml");
