@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/DECORATION/1.8.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/DECORATION/1.8.0 http://maven.apache.org/xsd/decoration-1.8.0.xsd">
+
+   <skin>
+      <groupId>com.bernardomg.maven.skins</groupId>
+      <artifactId>docs-maven-skin</artifactId>
+      <version>1.3.2</version>
+   </skin>
+
+   <custom>
+      <skinConfig>
+         <keywords>Maven Site, fix, HTML5</keywords>
+         <descriptionUrl>Check the documentation for the Docs Maven Skin</descriptionUrl>
+         <twitterSite>@bmg</twitterSite>
+         <topNav>
+            <menu>Documentation</menu>
+            <menu>Info and reports</menu>
+         </topNav>
+         <bottomNav>
+            <menu>General Info</menu>
+            <menu>Code</menu>
+            <menu>Releases</menu>
+         </bottomNav>
+         <iconNav>
+            <menu>Icons</menu>
+         </iconNav>
+      </skinConfig>
+   </custom>
+
+<!--   <body>
+      <menu name="General Info" inherit="top">
+         <item name="Acquire" href="./acquire.html" />
+         <item name="Usage" href="./usage.html" />
+         <item name="Changes Log" href="./changes-report.html" />
+      </menu>
+      <menu name="Documentation" inherit="bottom">
+         <item name="Acquire" href="./acquire.html" />
+         <item name="Usage" href="./usage.html" />
+         <item name="Tests" href="./tests.html" />
+      </menu>
+      <menu name="Info and reports" inherit="bottom">
+         <item name="Info" href="./info.html" />
+         <item name="Reports" href="./reports.html" />
+         <item name="JavaDocs" href="./apidocs/" />
+      </menu>
+      <menu name="Code" inherit="bottom">
+         <item name="SCM" href="https://github.com/Bernardo-MG/docs-maven-skin">
+            <description>GitHub</description>
+         </item>
+         <item name="CI" href="https://travis-ci.org/Bernardo-MG/docs-maven-skin">
+            <description>Travis CI</description>
+         </item>
+         <item name="Issues" href="https://www.github.com/bernardo-mg/docs-maven-skin/issues">
+            <description>GitHub</description>
+         </item>
+      </menu>
+      <menu name="Releases" inherit="bottom">
+         <item name="Bintray" href="https://bintray.com/bernardo-mg/maven/docs-maven-skin/view" />
+         <item name="Maven Central" href="http://mvnrepository.com/artifact/com.bernardomg.maven.skins/docs-maven-skin" />
+      </menu>
+      <menu name="Icons" inherit="bottom">
+         <item name="Github" img="github" href="https://github.com/Bernardo-MG/docs-maven-skin" />
+      </menu>
+   </body>-->
+</project>

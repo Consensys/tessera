@@ -11,7 +11,12 @@
 
     <name>tessera</name>
     <packaging>pom</packaging>
-
+   
+    <url>https://github.com/QuorumEngineering/QuorumEngineering.github.io</url>
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/QuorumEngineering/tessera/issues</url>
+    </issueManagement>
     <properties>
         <jersey.version>2.27</jersey.version>
         <jetty.version>9.4.10.v20180503</jetty.version>
@@ -60,6 +65,21 @@
                     <version>2.22.0</version>
                     <configuration>
                         <failIfNoTests>true</failIfNoTests>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.7.1</version>
+                    <configuration>
+                        <skipDeploy>true</skipDeploy>
                     </configuration>
                 </plugin>
 
@@ -192,6 +212,30 @@
 
                     </execution>
 
+                </executions>
+            </plugin>
+            
+
+            
+            <plugin>
+     
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+                <version>0.12</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                        <phase>site-deploy</phase>
+                        <configuration>
+                            <server>github</server>
+                            <message>Publish docs</message>
+                            <path>docs</path>
+                            <merge>true</merge>
+                            
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
        
@@ -660,5 +704,12 @@
         </dependency>
 
     </dependencies>
-
+    
+    
+    <!--    <distributionManagement>
+        <site>
+            <id>github</id>
+            <url>https://github.com/QuorumEngineering/docs</url>
+        </site>
+    </distributionManagement>-->
 </project>
