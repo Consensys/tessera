@@ -3,7 +3,6 @@ package com.quorum.tessera.config.cli;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
-import com.quorum.tessera.config.constraints.checks.PathCheck;
 import com.quorum.tessera.config.keys.KeyGenerator;
 import com.quorum.tessera.config.keys.KeyGeneratorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -28,7 +27,6 @@ import static java.nio.file.StandardOpenOption.*;
 import static java.util.Collections.singletonList;
 import javax.validation.Validator;
 import javax.validation.*;
-import javax.validation.groups.Default;
 
 public class DefaultCliAdapter implements CliAdapter {
 
@@ -46,6 +44,8 @@ public class DefaultCliAdapter implements CliAdapter {
     public CliResult execute(String... args) throws Exception {
 
         Options options = new Options();
+        
+
         options.addOption(
                 Option.builder("configfile")
                         .desc("Path to node configuration file")
@@ -148,7 +148,8 @@ public class DefaultCliAdapter implements CliAdapter {
             });
 
             if (Objects.nonNull(config)) {
-                Set<ConstraintViolation<Config>> violations = validator.validate(config, Default.class, PathCheck.class);
+
+                Set<ConstraintViolation<Config>> violations = validator.validate(config);
                 if (!violations.isEmpty()) {
                     throw new ConstraintViolationException(violations);
                 }
@@ -191,12 +192,14 @@ public class DefaultCliAdapter implements CliAdapter {
                 output(commandLine, config);
             }
 
-        } else {
+        } else if(commandLine.hasOption("keygen")) {
             final KeyGenerator generator = keyGeneratorFactory.create();
             keyGenConfigs
                     .stream()
                     .map(name -> generator.generate(name, options))
                     .collect(Collectors.toList());
+        } else {
+            throw new CliException("One or both: -configfile <PATH> or -keygen options are required.");
         }
 
         return config;
