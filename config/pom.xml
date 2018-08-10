@@ -13,7 +13,7 @@
     <parent>
         <groupId>com.quorum.tessera</groupId>
         <artifactId>tessera</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.5.1-SNAPSHOT</version>
     </parent>
 
     <dependencies>
