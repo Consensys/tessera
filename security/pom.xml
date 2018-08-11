@@ -12,10 +12,6 @@
     <artifactId>security</artifactId>
 
     <name>security</name>
-    
-    <properties>
-        <github.site.path>${project.version}/${project.artifactId}</github.site.path>
-    </properties>
 
     <dependencies>
 

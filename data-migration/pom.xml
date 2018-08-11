@@ -9,10 +9,7 @@
     <artifactId>data-migration</artifactId>
     <packaging>jar</packaging>
     
-    <properties>
-        <github.site.path>${project.version}/${project.artifactId}</github.site.path>
-    </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>commons-cli</groupId>

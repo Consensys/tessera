@@ -12,10 +12,6 @@
     <artifactId>tests</artifactId>
     <packaging>pom</packaging>
 
-    <properties>
-        <github.site.path>${project.version}/${project.artifactId}</github.site.path>
-    </properties>
-    
     <modules>
         <module>acceptance-test</module>
         <module>test-util</module>
@@ -36,14 +32,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            
-            <plugin>
-                <groupId>com.github.github</groupId>
-                <artifactId>site-maven-plugin</artifactId>
                 <configuration>
                     <skip>true</skip>
                 </configuration>

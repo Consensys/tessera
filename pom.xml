@@ -34,11 +34,17 @@
         <slf4j.version>1.7.5</slf4j.version>
         <eclipselink.version>2.7.1</eclipselink.version>
         
-        <github.site.path>${project.version}</github.site.path>
     </properties>
 
     <build>
-
+        <extensions>
+            <extension>
+                <groupId>ar.com.synergian</groupId>
+                <artifactId>wagon-git</artifactId>
+                <version>0.2.5</version>
+            </extension>
+        </extensions>
+        
         <pluginManagement>
 
             <plugins>
@@ -72,22 +78,24 @@
                     <artifactId>maven-site-plugin</artifactId>
                     <version>3.7.1</version>
                     <configuration>
-                        <skipDeploy>true</skipDeploy>
                     </configuration>
-                    
+                    <!--                    <dependencies>
+                        <dependency>
+                            <groupId>net.trajano.wagon</groupId>
+                            <artifactId>wagon-git</artifactId>
+                            <version>2.0.4</version>
+                        </dependency>
+                    </dependencies>-->
                 </plugin>
 
 
-                <plugin>
-                    <groupId>com.github.github</groupId>
-                    <artifactId>site-maven-plugin</artifactId>
-                    <version>0.12</version>
-                </plugin>
 
             </plugins>
 
         </pluginManagement>
 
+
+ 
         <plugins>
 
 
@@ -231,26 +239,7 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>com.github.github</groupId>
-                <artifactId>site-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>site</goal>
-                        </goals>
-                        <phase>site-deploy</phase>
-                        <configuration>
-                            <server>github</server>
-                            <message>Creating site for ${project.artifactId}, ${project.version}</message>
-                            <repositoryOwner>melowe</repositoryOwner>
-                            <merge>true</merge>
-                            <path>${github.site.path}</path>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-       
+
         </plugins>
 
 
@@ -881,11 +870,12 @@
     </profiles>
     
     <distributionManagement>
-        <!--        <site>
-            <id>github-pages-site</id>
-            <name>Deployment through GitHub's site deployment plugin</name>
-            <url>${project.version}</url>
-        </site>-->
+        <site>
+            <id>github</id>
+            <name>GitHub Pages</name>
+            <url>git:gh-pages://git@github.com:quorumengineering/tessera.git</url>
+
+        </site>
         <snapshotRepository>
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -896,4 +886,11 @@
         </repository>
     </distributionManagement>
     
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <id>synergian-repo</id>
+            <url>https://raw.github.com/synergian/wagon-git/releases</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>

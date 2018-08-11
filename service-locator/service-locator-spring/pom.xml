@@ -16,9 +16,6 @@
         <version>0.5.1-SNAPSHOT</version>
     </parent>
 
-    <properties>
-        <github.site.path>${project.version}/${project.parent.artifactId}/${project.artifactId}</github.site.path>
-    </properties>
 
     <dependencies>
 

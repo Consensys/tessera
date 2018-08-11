@@ -18,7 +18,6 @@
 
     <properties>
         <maven.test.skip>true</maven.test.skip>
-        <github.site.path>${project.version}/${project.parent.artifactId}/${project.artifactId}</github.site.path>
     </properties>
 
     <dependencyManagement>
