@@ -240,9 +240,10 @@
                         
                         <configuration>
                             <server>github</server>
-                            <message>Publish docs</message>
-                            <path>docs</path>
+                            <message>Creating site for ${project.version}</message>
+                            <repositoryOwner>melowe</repositoryOwner>
                             <merge>true</merge>
+                            <!--                            <repositoryName>QuorumEngineering.github.io</repositoryName>-->
                             
                         </configuration>
                     </execution>
@@ -833,11 +834,11 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.3</version>
+                        <version>3.0.1</version>
                         <configuration>
                             <links>
-                                <link>http://docs.oracle.com/javase/8/docs/api/</link>
                                 <link>https://jax-rs.github.io/apidocs/2.0/</link>
+                                <link>https://docs.oracle.com/javaee/7/api/</link>
                             </links>
                             <linksource>true</linksource>
                             <show>protected</show>
@@ -873,6 +874,7 @@
     </profiles>
     
     <distributionManagement>
+        
         <snapshotRepository>
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
