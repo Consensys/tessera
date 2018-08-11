@@ -47,27 +47,6 @@
                     <version>0.8.1</version>
                 </plugin>
 
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.0.1</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>javax</groupId>
-                            <artifactId>javaee-api</artifactId>
-                            <version>7.0</version>
-                        </dependency>
-                    </dependencies>
-                    <configuration>
-                        <links>
-                            <link>http://docs.oracle.com/javase/8/docs/api/</link>
-                            <link>https://jax-rs.github.io/apidocs/2.0/</link>
-                        </links>
-                        <linksource>true</linksource>
-                        <show>protected</show>
-                        <source>1.8</source>
-                    </configuration>
-                </plugin>
 
                 <plugin>
                     <groupId>org.pitest</groupId>
@@ -84,20 +63,16 @@
                     </configuration>
                 </plugin>
 
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.0.0</version>
-                </plugin>
+
                 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
                     <version>3.7.1</version>
                     <configuration>
-                        
-                        <skipDeploy>true</skipDeploy>
+                        <skipDeploy>true</skipDeploy>                        
                     </configuration>
+
                 </plugin>
 
 
@@ -108,6 +83,8 @@
 
         <plugins>
 
+
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -262,7 +239,6 @@
                         <phase>site-deploy</phase>
                         
                         <configuration>
-                            <oauth2Token>ff4710eefbfd3ec8479c62d9fab07f6a48537b1c</oauth2Token>
                             <server>github</server>
                             <message>Publish docs</message>
                             <path>docs</path>
@@ -739,31 +715,91 @@
 
     </dependencies>
     
-    
     <reporting>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <reportSets>
+                        <reportSet>
+                            <reports>
+                                <report>dependencies</report>
+                                <report>scm</report>
+                                <report>changelog</report>
+                                <report>javadoc</report>
+                                <report>surefire</report>
+                            </reports>
+                        </reportSet>
+                    </reportSets>  
+                </configuration>
+
+            </plugin>
+            
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>2.22.0</version>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.0.0</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>checkstyle</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+                <configuration>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <logViolationsToConsole>true</logViolationsToConsole>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
+                    <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
+                </configuration>
+            </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.0.1</version>
                 <configuration>
                     <links>
-                        <link>http://docs.oracle.com/javase/8/docs/api/</link>
                         <link>https://jax-rs.github.io/apidocs/2.0/</link>
+                        <link>https://docs.oracle.com/javaee/7/api/</link>
                     </links>
+                    <linksource>false</linksource>
                     <show>public</show>
                     <source>1.8</source>
-                    <reportSets>
-                        <reportSet>
-                            <reports>
-                                <report>javadoc</report>
-                            </reports>
-                        </reportSet>
-                    </reportSets>
+                    
                 </configuration>
-                
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
             </plugin>
             
+            
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.1</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
         </plugins>
     </reporting>
     
