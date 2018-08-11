@@ -9,6 +9,10 @@
     <artifactId>test-util</artifactId>
     <packaging>jar</packaging>
     
+    <properties>
+        <github.site.path>${project.version}/${project.parent.artifactId}/${project.artifactId}</github.site.path>
+    </properties>
+    
     <dependencies>
         <dependency>
             <groupId>org.glassfish</groupId>

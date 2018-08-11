@@ -33,6 +33,8 @@
         <spring.version>5.0.6.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
         <eclipselink.version>2.7.1</eclipselink.version>
+        
+        <github.site.path>${project.version}</github.site.path>
     </properties>
 
     <build>
@@ -70,12 +72,17 @@
                     <artifactId>maven-site-plugin</artifactId>
                     <version>3.7.1</version>
                     <configuration>
-                        <skipDeploy>true</skipDeploy>                        
+                        <skipDeploy>true</skipDeploy>
                     </configuration>
-
+                    
                 </plugin>
 
 
+                <plugin>
+                    <groupId>com.github.github</groupId>
+                    <artifactId>site-maven-plugin</artifactId>
+                    <version>0.12</version>
+                </plugin>
 
             </plugins>
 
@@ -223,28 +230,22 @@
 
                 </executions>
             </plugin>
-            
 
-            
             <plugin>
-     
                 <groupId>com.github.github</groupId>
                 <artifactId>site-maven-plugin</artifactId>
-                <version>0.12</version>
                 <executions>
                     <execution>
                         <goals>
                             <goal>site</goal>
                         </goals>
                         <phase>site-deploy</phase>
-                        
                         <configuration>
                             <server>github</server>
-                            <message>Creating site for ${project.version}</message>
+                            <message>Creating site for ${project.artifactId}, ${project.version}</message>
                             <repositoryOwner>melowe</repositoryOwner>
                             <merge>true</merge>
-                            <!--                            <repositoryName>QuorumEngineering.github.io</repositoryName>-->
-                            
+                            <path>${github.site.path}</path>
                         </configuration>
                     </execution>
                 </executions>
@@ -723,6 +724,7 @@
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>3.0.0</version>
                 <configuration>
+                    
                     <reportSets>
                         <reportSet>
                             <reports>
@@ -731,6 +733,8 @@
                                 <report>changelog</report>
                                 <report>javadoc</report>
                                 <report>surefire</report>
+                                <report>modules</report>                       	
+
                             </reports>
                         </reportSet>
                     </reportSets>  
@@ -771,7 +775,7 @@
                 <version>3.0.1</version>
                 <configuration>
                     <links>
-                        <link>https://jax-rs.github.io/apidocs/2.0/</link>
+                        <link>https://docs.oracle.com/javase/8/docs/api/</link>
                         <link>https://docs.oracle.com/javaee/7/api/</link>
                     </links>
                     <linksource>false</linksource>
@@ -874,7 +878,11 @@
     </profiles>
     
     <distributionManagement>
-        
+        <!--        <site>
+            <id>github-pages-site</id>
+            <name>Deployment through GitHub's site deployment plugin</name>
+            <url>${project.version}</url>
+        </site>-->
         <snapshotRepository>
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>

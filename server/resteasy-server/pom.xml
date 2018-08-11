@@ -11,8 +11,11 @@
     <properties>
         <resteasy.version>3.0.8.Final</resteasy.version>
         <httpcomponents.version>4.3.5</httpcomponents.version>
+        <github.site.path>${project.version}/${project.parent.artifactId}/${project.artifactId}</github.site.path>
 
     </properties>
+    
+
     <dependencies>
         <dependency>
             <groupId>com.quorum.tessera</groupId>
