@@ -12,11 +12,18 @@
     <name>tessera</name>
     <packaging>pom</packaging>
    
-    <url>https://github.com/QuorumEngineering/QuorumEngineering.github.io</url>
+    <url>https://github.com/QuorumEngineering/tessera</url>
     <issueManagement>
         <system>github</system>
         <url>https://github.com/QuorumEngineering/tessera/issues</url>
     </issueManagement>
+    <scm>
+        <url>https://github.com/QuorumEngineering/tessera</url>
+        <connection>scm:git:git://github.com/QuorumEngineering/tessera.git</connection>
+        <developerConnection>scm:git:git@github.com:QuorumEngineering/tessera.git</developerConnection>
+        <tag>master</tag>
+    </scm>
+    
     <properties>
         <jersey.version>2.27</jersey.version>
         <jetty.version>9.4.10.v20180503</jetty.version>
@@ -43,7 +50,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.9.1</version>
+                    <version>3.0.1</version>
                     <dependencies>
                         <dependency>
                             <groupId>javax</groupId>
@@ -51,6 +58,15 @@
                             <version>7.0</version>
                         </dependency>
                     </dependencies>
+                    <configuration>
+                        <links>
+                            <link>http://docs.oracle.com/javase/8/docs/api/</link>
+                            <link>https://jax-rs.github.io/apidocs/2.0/</link>
+                        </links>
+                        <linksource>true</linksource>
+                        <show>protected</show>
+                        <source>1.8</source>
+                    </configuration>
                 </plugin>
 
                 <plugin>
@@ -79,9 +95,12 @@
                     <artifactId>maven-site-plugin</artifactId>
                     <version>3.7.1</version>
                     <configuration>
+                        
                         <skipDeploy>true</skipDeploy>
                     </configuration>
                 </plugin>
+
+
 
             </plugins>
 
@@ -89,6 +108,19 @@
 
         <plugins>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy</goals>
+                </configuration>
+            </plugin>
+            
+            
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
@@ -228,7 +260,9 @@
                             <goal>site</goal>
                         </goals>
                         <phase>site-deploy</phase>
+                        
                         <configuration>
+                            <oauth2Token>ff4710eefbfd3ec8479c62d9fab07f6a48537b1c</oauth2Token>
                             <server>github</server>
                             <message>Publish docs</message>
                             <path>docs</path>
@@ -706,10 +740,111 @@
     </dependencies>
     
     
-    <!--    <distributionManagement>
-        <site>
-            <id>github</id>
-            <url>https://github.com/QuorumEngineering/docs</url>
-        </site>
-    </distributionManagement>-->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <links>
+                        <link>http://docs.oracle.com/javase/8/docs/api/</link>
+                        <link>https://jax-rs.github.io/apidocs/2.0/</link>
+                    </links>
+                    <show>public</show>
+                    <source>1.8</source>
+                    <reportSets>
+                        <reportSet>
+                            <reports>
+                                <report>javadoc</report>
+                            </reports>
+                        </reportSet>
+                    </reportSets>
+                </configuration>
+                
+            </plugin>
+            
+        </plugins>
+    </reporting>
+    
+    <profiles>
+        <profile>
+            <id>release</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                    
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.3</version>
+                        <configuration>
+                            <links>
+                                <link>http://docs.oracle.com/javase/8/docs/api/</link>
+                                <link>https://jax-rs.github.io/apidocs/2.0/</link>
+                            </links>
+                            <linksource>true</linksource>
+                            <show>protected</show>
+                            <source>1.8</source>
+                        </configuration>
+                
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+            
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.4</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+    
 </project>
