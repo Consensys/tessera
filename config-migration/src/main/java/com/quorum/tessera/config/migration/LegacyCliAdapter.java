@@ -115,7 +115,8 @@ public class LegacyCliAdapter implements CliAdapter {
 
     static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder) {
 
-        Config initialConfig = configBuilder.build();
+        Config initialConfig = Optional.ofNullable(configBuilder).get()
+                                        .build();
 
         Optional.ofNullable(line.getOptionValue("url"))
                 .ifPresent(configBuilder::serverHostname);
@@ -148,8 +149,10 @@ public class LegacyCliAdapter implements CliAdapter {
         Optional.ofNullable(line.getOptionValue("workdir"))
                 .ifPresent(keyDataBuilder::withWorkingDirectory);
 
-        resolveUnixFilePath(initialConfig.getKeys().getPasswordFile(), line.getOptionValue("workdir"), line.getOptionValue("passwords"))
-            .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
+        if(initialConfig.getKeys() != null){
+            resolveUnixFilePath(initialConfig.getKeys().getPasswordFile(), line.getOptionValue("workdir"), line.getOptionValue("passwords"))
+                .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
+        }
 
         Optional.ofNullable(line.getOptionValue("storage"))
                 .map(JdbcConfigFactory::fromLegacyStorageString)

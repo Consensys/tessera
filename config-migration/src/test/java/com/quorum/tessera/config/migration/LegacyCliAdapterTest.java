@@ -126,6 +126,12 @@ public class LegacyCliAdapterTest {
         Path configFile = Files.createTempFile("noOptions", ".txt");
         Files.write(configFile, data.getBytes());
 
+        Path publicKeyFile = Files.createTempFile("temp", ".pub");
+        Files.write(publicKeyFile, "cWO8kshb29rIZyhCsitxrW5boyd2UTjO5Ec2Sy3YMiU=".getBytes());
+
+        Path privateKeyFile= Files.createTempFile("temp", ".key");
+        Files.write(privateKeyFile, "N4MzpQodx+/+GvDfpeHy6eSj62i78iaznYN3t4JjNek=".getBytes());
+
         Path alwaysSendToFile = Files.createTempFile("alwaysSendTo", ".txt");
         Files.write(alwaysSendToFile, ("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=\n" +
                                         "jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=").getBytes());
@@ -137,8 +143,8 @@ public class LegacyCliAdapterTest {
             "--workdir=override",
             "--socket=cli.ipc",
             "--othernodes=http://others",
-            "--publickeys=new.pub",
-            "--privatekeys=new.key",
+            "--publickeys=" + publicKeyFile.toString(),
+            "--privatekeys=" + privateKeyFile.toString(),
             "--alwayssendto=" + alwaysSendToFile.toString(),
             "--passwords=pw.txt",
             "--storage=jdbc:test",
@@ -169,8 +175,10 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getPeers().size()).isEqualTo(1);
         assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://others");
         assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(1);
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("override/new.pub");
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("override/new.key");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("override/foo1.pub");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("override/foo1.key");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKey()).isEqualTo("cWO8kshb29rIZyhCsitxrW5boyd2UTjO5Ec2Sy3YMiU=");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKey()).isEqualTo("N4MzpQodx+/+GvDfpeHy6eSj62i78iaznYN3t4JjNek=");
         assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(2);
         assertThat(result.getConfig().get().getAlwaysSendTo().get(0).toString()).isEqualTo("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
         assertThat(result.getConfig().get().getAlwaysSendTo().get(1).toString()).isEqualTo("jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");

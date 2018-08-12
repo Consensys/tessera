@@ -317,10 +317,15 @@ public class ConfigBuilder {
 
         final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig, null);
 
-        final List<Peer> peerList = peers
-            .stream()
-                .map(Peer::new)
-                .collect(Collectors.toList());
+        final List<Peer> peerList;
+        if(peers != null) {
+            peerList = peers.stream()
+                            .map(Peer::new)
+                            .collect(Collectors.toList());
+        } else {
+            peerList = null;
+        }
+
 
         final List<Key> forwardingKeys;
         if(alwaysSendTo != null) {
