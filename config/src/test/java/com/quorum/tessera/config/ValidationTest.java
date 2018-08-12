@@ -54,7 +54,12 @@ public class ValidationTest {
         KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
         KeyData keyData = new KeyData(keyDataConfig, "privateKey", "publicKey", null, null);
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
-        assertThat(violations).isEmpty();
+        assertThat(violations).hasSize(1);
+                
+        ConstraintViolation<KeyData> violation = violations.iterator().next();
+
+        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyDataConfig.message}");
+        assertThat(violation.getPropertyPath().toString()).isEqualTo("config");
     }
 
 }
