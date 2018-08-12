@@ -189,4 +189,13 @@ public class ConfigBuilderTest {
 
     }
 
+    @Test
+    public void buildWithNoValuesSetDoesNotThrowException() {
+        final ConfigBuilder builder = ConfigBuilder.create();
+
+        Config config = builder.build();
+
+        assertThat(config).isNotNull();
+    }
+
 }

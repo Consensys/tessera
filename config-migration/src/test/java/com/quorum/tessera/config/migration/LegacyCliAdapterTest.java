@@ -175,10 +175,8 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getPeers().size()).isEqualTo(1);
         assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://others");
         assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(1);
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("override/foo1.pub");
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("override/foo1.key");
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKey()).isEqualTo("cWO8kshb29rIZyhCsitxrW5boyd2UTjO5Ec2Sy3YMiU=");
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKey()).isEqualTo("N4MzpQodx+/+GvDfpeHy6eSj62i78iaznYN3t4JjNek=");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("override" + publicKeyFile.toString());
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("override" + privateKeyFile.toString());
         assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(2);
         assertThat(result.getConfig().get().getAlwaysSendTo().get(0).toString()).isEqualTo("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
         assertThat(result.getConfig().get().getAlwaysSendTo().get(1).toString()).isEqualTo("jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
@@ -201,6 +199,8 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("override/over-known-servers");
 
         Files.deleteIfExists(alwaysSendToFile);
+        Files.deleteIfExists(publicKeyFile);
+        Files.deleteIfExists(privateKeyFile);
         Files.deleteIfExists(configFile);
     }
 

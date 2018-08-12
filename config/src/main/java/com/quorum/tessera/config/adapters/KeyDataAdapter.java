@@ -121,9 +121,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
 
         if(keyData.getConfig() == null) {
             return keyData;
-        }
-
-        if (keyData.getConfig().getType() != PrivateKeyType.UNLOCKED) {
+        } else if (keyData.getConfig().getType() != PrivateKeyType.UNLOCKED) {
             return new KeyData(
                     new KeyDataConfig(
                             new PrivateKeyData(
@@ -141,9 +139,9 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
                     null,
                     null
             );
+        } else {
+            return keyData;
         }
-
-        return keyData;
     }
 
 }
