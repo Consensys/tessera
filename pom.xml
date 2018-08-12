@@ -811,7 +811,7 @@
             </activation>
             <build>
                 <plugins>
-<!--                    <plugin>
+                    <!--                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>1.6</version>
@@ -893,12 +893,27 @@
         
         
         <repository>
-            <id>github-release-repo</id>
+            <id>quorum-release-repo</id>
             <url>git:releases://git@github.com:quorumengineering/tessera.git</url>
+            
         </repository>
 
     </distributionManagement>
     
+    
+    <repositories>
+        <repository>
+            <id>quorum-repo</id>
+            <url>https://raw.github.com/quorumengineering/tessera/releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+
+    </repositories>
     
     <pluginRepositories>
         <pluginRepository>
