@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
 import java.util.List;
+import javax.validation.Valid;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
@@ -22,6 +23,7 @@ public class KeyConfiguration extends ConfigItem {
 
     private final List<String> passwords;
 
+    @Valid
     @ValidKeyData
     @NotNull
     private final List<KeyData> keyData;

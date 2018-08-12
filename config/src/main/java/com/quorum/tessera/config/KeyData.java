@@ -5,6 +5,7 @@ import com.quorum.tessera.config.constraints.ValidKeyDataConfig;
 
 import java.nio.file.Path;
 import java.util.Objects;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -17,12 +18,14 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlType(factoryMethod = "create")
 public class KeyData extends ConfigItem {
 
-    @ValidKeyDataConfig(message = "A locked key was provided without a password.\n" +
-                     "Please ensure the same number of passwords are provided as there are keys and remember to include empty passwords for unlocked keys")
+//    @ValidKeyDataConfig(message = "A locked key was provided without a password.\n" +
+//                     "Please ensure the same number of passwords are provided as there are keys and remember to include empty passwords for unlocked keys")
+    
+    @Valid
+    @ValidKeyDataConfig
     @XmlElement
     private final KeyDataConfig config;
 
-    @NotNull
     @XmlElement
     @XmlSchemaType(name = "anyURI")
     private final String privateKey;

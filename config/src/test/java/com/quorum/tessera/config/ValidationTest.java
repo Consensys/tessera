@@ -6,6 +6,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
+import static org.mockito.Mockito.mock;
 
 public class ValidationTest {
 
@@ -44,6 +45,16 @@ public class ValidationTest {
         assertThat(violations).hasSize(3);
         assertThat(options.getAlgorithm()).isEqualTo("id");
 
+    }
+    
+    
+    @Test
+    public void keyDataConfigMissingPassword() {
+        PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), null);
+        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
+        KeyData keyData = new KeyData(keyDataConfig, "privateKey", "publicKey", null, null);
+        Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
+        assertThat(violations).isEmpty();
     }
 
 }
