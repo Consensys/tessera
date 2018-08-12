@@ -64,7 +64,7 @@ public class Launcher {
             Throwable cause = resolveRooCause(ex);
 
             if (JsonException.class.isInstance(cause)) {
-                System.err.println("Invalid json error is " + cause.getMessage());
+                System.err.println("Invalid json, error is " + cause.getMessage());
             } else {
                 System.err.println(Objects.toString(cause));
             }

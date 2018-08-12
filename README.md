@@ -25,7 +25,7 @@ Each Tessera node:
 
 ## Prerequisites
 - [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)
-- [maven](https://maven.apache.org) (if installing from source)
+- [Maven](https://maven.apache.org) (if installing from source)
 - [libsodium](https://download.libsodium.org/doc/installation/) (if using kalium as the NaCl implementation)
 
 ## Building Tessera
