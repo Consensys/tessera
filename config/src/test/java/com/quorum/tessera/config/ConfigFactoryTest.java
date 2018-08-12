@@ -1,12 +1,14 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.test.util.ElUtil;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,15 +17,21 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 public class ConfigFactoryTest {
 
     @Test
-    public void createFromSample() {
+    public void createFromSample() throws Exception {
 
         ConfigFactory configFactory = ConfigFactory.create();
 
         assertThat(configFactory).isExactlyInstanceOf(JaxbConfigFactory.class);
 
-        InputStream inputStream = getClass().getResourceAsStream("/sample.json");
+        Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
 
-        Config config = configFactory.create(inputStream, null);
+        Map<String, Object> params = new HashMap<>();
+        params.put("unixSocketPath", unixSocketPath.toString());
+
+        InputStream configInputStream = ElUtil.process(getClass()
+                .getResourceAsStream("/sample.json"), params);
+
+        Config config = configFactory.create(configInputStream, null);
 
         assertThat(config).isNotNull();
         assertThat(config.isUseWhiteList()).isFalse();
@@ -47,7 +55,9 @@ public class ConfigFactoryTest {
         assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions().getIterations()).isEqualTo(10);
         assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions().getParallelism()).isEqualTo(4);
         assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions().getMemory()).isEqualTo(1048576);
-
+        
+        
+        Files.deleteIfExists(unixSocketPath);
     }
 
     @Test
@@ -70,7 +80,7 @@ public class ConfigFactoryTest {
         final String password = UUID.randomUUID().toString();
 
         final InputStream tempSystemIn = new ByteArrayInputStream(
-            (password + System.lineSeparator() + password + System.lineSeparator()).getBytes()
+                (password + System.lineSeparator() + password + System.lineSeparator()).getBytes()
         );
 
         final InputStream oldSystemIn = System.in;
@@ -79,9 +89,15 @@ public class ConfigFactoryTest {
         final ConfigFactory configFactory = ConfigFactory.create();
         assertThat(configFactory).isExactlyInstanceOf(JaxbConfigFactory.class);
 
-        final Path configFile = Paths.get(getClass().getResource("/sample-private-keygen.json").toURI());
+        Path unixSocketPath = Files.createTempFile(tempFolder, UUID.randomUUID().toString(), ".ipc");
 
-        Config config = configFactory.create(Files.newInputStream(configFile), null, tempFolder.toString());
+        Map<String, Object> params = new HashMap<>();
+        params.put("unixSocketPath", unixSocketPath.toString());
+
+        InputStream configInputStream = ElUtil.process(getClass()
+                .getResourceAsStream("/sample-private-keygen.json"), params);
+
+        Config config = configFactory.create(configInputStream, null, tempFolder.toString());
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys().getKeyData()).hasSize(1);
@@ -102,6 +118,8 @@ public class ConfigFactoryTest {
         assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getMemory()).isEqualTo(1048576);
 
         System.setIn(oldSystemIn);
+
+        Files.deleteIfExists(unixSocketPath);
 
     }
 }

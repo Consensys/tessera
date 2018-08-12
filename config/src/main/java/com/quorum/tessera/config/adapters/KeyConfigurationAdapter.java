@@ -2,8 +2,10 @@ package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.IOCallback;
+import com.quorum.tessera.config.util.JaxbUtil;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
@@ -43,17 +45,26 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
 
                     final KeyData kd = input.getKeyData().get(i);
 
+                    final KeyDataConfig keyData;
+
+                    if(kd.getConfig()==null) {
+                        final InputStream is = IOCallback.execute(() -> Files.newInputStream(kd.getPrivateKeyPath()));
+                        keyData = JaxbUtil.unmarshal(is, KeyDataConfig.class);
+                    } else {
+                        keyData = kd.getConfig();
+                    }
+
                     return new KeyData(
                         new KeyDataConfig(
                             new PrivateKeyData(
-                                kd.getConfig().getValue(),
-                                kd.getConfig().getSnonce(),
-                                kd.getConfig().getAsalt(),
-                                kd.getConfig().getSbox(),
-                                kd.getConfig().getArgonOptions(),
+                                keyData.getValue(),
+                                keyData.getSnonce(),
+                                keyData.getAsalt(),
+                                keyData.getSbox(),
+                                keyData.getArgonOptions(),
                                 allPasswords.get(i)
                             ),
-                            kd.getConfig().getType()
+                            kd.getConfig()==null ? keyData.getType() : kd.getConfig().getType()
                         ),
                         kd.getPrivateKey(),
                         kd.getPublicKey(),

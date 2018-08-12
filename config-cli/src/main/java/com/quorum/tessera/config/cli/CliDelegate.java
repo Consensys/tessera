@@ -21,7 +21,7 @@ public enum CliDelegate {
         
         CliAdapter cliAdapter = CliAdapter.create();
 
-        CliResult result =  cliAdapter.execute(args);
+        CliResult result = cliAdapter.execute(args);
         this.config = result.getConfig().orElse(null);
         return result;
     }

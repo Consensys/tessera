@@ -1,5 +1,7 @@
 package com.quorum.tessera.config.cli;
 
+import com.quorum.tessera.test.util.ElUtil;
+import java.nio.file.Path;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
@@ -16,10 +18,12 @@ public class CliDelegateTest {
 
      @Test
     public void withValidConfig() throws Exception {
-
+        
+        Path configFile = ElUtil.createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        
         CliResult result = instance.execute(
             "-configfile",
-            getClass().getResource("/sample-config.json").getFile());
+            configFile.toString());
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();

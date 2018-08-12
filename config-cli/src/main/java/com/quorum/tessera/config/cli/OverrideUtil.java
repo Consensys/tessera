@@ -211,7 +211,7 @@ public interface OverrideUtil {
     static <T> T getOrCreate(Object from, Field field) {
         T value = getValue(from, field);
         return Optional.ofNullable(value)
-                .orElse((T) createInstance(from.getClass()));
+                .orElse((T) createInstance(field.getType()));
     }
 
     static <T> T getValue(Object from, Field field) {

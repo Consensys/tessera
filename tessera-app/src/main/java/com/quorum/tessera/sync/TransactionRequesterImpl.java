@@ -27,7 +27,7 @@ public class TransactionRequesterImpl implements TransactionRequester {
     @Override
     public boolean requestAllTransactionsFromNode(final String uri) {
 
-        LOGGER.info("Requesting transactions get resent for {}", uri);
+        LOGGER.debug("Requesting transactions get resent for {}", uri);
 
         return this.keyManager
             .getPublicKeys()
@@ -54,7 +54,7 @@ public class TransactionRequesterImpl implements TransactionRequester {
                 success = this.client.makeResendRequest(uri, request);
             } catch (final Exception ex) {
                 success = false;
-                LOGGER.error("Failed to make resend request to node {} for key {}", uri, request.getPublicKey());
+                LOGGER.debug("Failed to make resend request to node {} for key {}", uri, request.getPublicKey());
             }
 
             numberOfTries++;

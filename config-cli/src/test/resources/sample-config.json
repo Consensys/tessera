@@ -6,6 +6,7 @@
         "url": "foo:bar"
     },
     "server": {
+        "hostName": "http://localhost",
         "port": 99
     },
     "peer": [
@@ -40,5 +41,5 @@
     "alwaysSendTo": [
         "somePublicKey"
     ],
-    "unixSocketFile": "/tmp/bogus.socket"
+    "unixSocketFile": "${unixSocketPath}"
 }

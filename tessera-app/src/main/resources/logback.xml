@@ -22,6 +22,8 @@ org.glassfish.jersey.internal.inject.Providers.level=SEVERE
 -->
 
     <logger name="org.glassfish.jersey.internal.inject.Providers" level="ERROR" />
+    <logger name="org.hibernate.validator.internal.util.Version" level="ERROR" />
+    <logger name="org.hibernate.validator.internal.engine.ConfigurationImpl" level="ERROR" />
 
   <root level="INFO">
     <appender-ref ref="STDOUT" />

@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
@@ -117,9 +116,8 @@ public class KeyDataBuilderTest {
     }
 
     @Test
-    public void noKeysReturnsNull() {
-        Optional<KeyConfiguration> keyConfiguration = Optional.ofNullable(KeyDataBuilder.create()
-                                                                                        .build());
-        assertThat(keyConfiguration).isNotPresent();
+    public void noKeysReturnsEmptyList() {
+        KeyConfiguration keyConfiguration = KeyDataBuilder.create().build();
+        assertThat(keyConfiguration.getKeyData()).isEmpty();
     }
 }

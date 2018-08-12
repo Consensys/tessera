@@ -2,6 +2,7 @@ package com.quorum.tessera.config.migration;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
+import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
@@ -210,8 +211,11 @@ public class LegacyCliAdapter implements CliAdapter {
         resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getKnownClientsFile(), line.getOptionValue("workdir"), line.getOptionValue("tlsknownclients"))
             .ifPresent(configBuilder::sslKnownClientsFile);
 
-        Optional.ofNullable(keyDataBuilder.build())
-                .ifPresent(configBuilder::keyData);
+        final KeyConfiguration keyConfiguration = keyDataBuilder.build();
+
+        if (!keyConfiguration.getKeyData().isEmpty()) {
+            configBuilder.keyData(keyConfiguration);
+        }
 
         return configBuilder;
     }

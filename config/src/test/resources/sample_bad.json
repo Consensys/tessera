@@ -1,12 +1,7 @@
 {
     "useWhiteList": false,
-    "jdbc": {
-        "username": "scott",
-        "password": "tiger",
-        "url": "foo:bar"
-    },
+
     "server": {
-        "hostName" : "http://bogus.com",
         "port": 99,
         "influxConfig": {
             "port": 1111,
@@ -50,5 +45,5 @@
         ]
     },
     "alwaysSendTo": [],
-    "unixSocketFile": "${unixSocketPath}"
+    "unixSocketFile": "/tmp/bogus.socket"
 }
