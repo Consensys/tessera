@@ -37,10 +37,8 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
             return unmarshalInline(keyData);
         }
 
-        if (keyData.getPublicKeyPath() == null || keyData.getPrivateKeyPath() == null
-            || Files.notExists(keyData.getPublicKeyPath()) || Files.notExists(keyData.getPrivateKeyPath())) {
-            System.err.println("When providing key paths, must give both as paths, not just one, and both files must exist");
-            throw new IllegalArgumentException("When providing key paths, must give both public and private, and both files must exist");
+        if (keyData.getPublicKeyPath() == null || keyData.getPrivateKeyPath() == null) {
+            return keyData;
         }
 
         //case 3, the keys are provided inside a file
@@ -89,12 +87,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         }
 
         if (keyData.getConfig().getPassword() == null) {
-
-            System.err.println("A locked key was provided without a password. ");
-            System.err.println("Please ensure the same number of passwords are provided as there are keys ");
-            System.err.print("and remember to include empty passwords for unlocked keys");
-            System.err.println();
-            throw new IllegalArgumentException("Password missing");
+            return keyData;
         }
 
         final KeyEncryptor kg = KeyEncryptorFactory.create();
@@ -111,7 +104,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
             );
         } catch (final NaclException ex) {
             System.err.println("Could not decrypt the private key with the provided password, please double check the passwords provided");
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(ex);
         }
 
     }

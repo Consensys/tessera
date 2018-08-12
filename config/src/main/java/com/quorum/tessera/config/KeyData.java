@@ -1,6 +1,7 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.PathAdapter;
+import com.quorum.tessera.config.constraints.ValidKeyDataConfig;
 
 import java.nio.file.Path;
 import java.util.Objects;
@@ -16,6 +17,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlType(factoryMethod = "create")
 public class KeyData extends ConfigItem {
 
+    @ValidKeyDataConfig(message = "A locked key was provided without a password.\n" +
+                     "Please ensure the same number of passwords are provided as there are keys and remember to include empty passwords for unlocked keys")
     @XmlElement
     private final KeyDataConfig config;
 

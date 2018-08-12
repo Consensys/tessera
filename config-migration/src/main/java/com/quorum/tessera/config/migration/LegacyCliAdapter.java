@@ -124,7 +124,8 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(Integer::valueOf)
                 .ifPresent(configBuilder::serverPort);
 
-        resolveUnixFilePath(initialConfig.getUnixSocketFile(), line.getOptionValue("workdir"), line.getOptionValue("socket"))
+        final String workDirValue = line.getOptionValue("workdir",".");
+        resolveUnixFilePath(initialConfig.getUnixSocketFile(),workDirValue, line.getOptionValue("socket"))
                 .ifPresent(configBuilder::unixSocketFile);
 
         Optional.ofNullable(line.getOptionValues("othernodes"))
@@ -145,10 +146,10 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(Arrays::asList)
                 .ifPresent(configBuilder::alwaysSendTo);
 
-        Optional.ofNullable(line.getOptionValue("workdir"))
+        Optional.ofNullable(workDirValue)
                 .ifPresent(keyDataBuilder::withWorkingDirectory);
 
-        resolveUnixFilePath(initialConfig.getKeys().getPasswordFile(), line.getOptionValue("workdir"), line.getOptionValue("passwords"))
+        resolveUnixFilePath(initialConfig.getKeys().getPasswordFile(),workDirValue, line.getOptionValue("passwords"))
             .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
 
         Optional.ofNullable(line.getOptionValue("storage"))
@@ -171,10 +172,10 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(SslTrustModeFactory::resolveByLegacyValue)
                 .ifPresent(configBuilder::sslClientTrustMode);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getServerTlsCertificatePath(), line.getOptionValue("workdir"), line.getOptionValue("tlsservercert"))
+        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getServerTlsCertificatePath(),workDirValue, line.getOptionValue("tlsservercert"))
             .ifPresent(configBuilder::sslServerTlsCertificatePath);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getClientTlsCertificatePath(), line.getOptionValue("workdir"), line.getOptionValue("tlsclientcert"))
+        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getClientTlsCertificatePath(),workDirValue, line.getOptionValue("tlsclientcert"))
             .ifPresent(configBuilder::sslClientTlsCertificatePath);
 
         Optional.ofNullable(line.getOptionValues("tlsserverchain"))
@@ -182,7 +183,7 @@ public class LegacyCliAdapter implements CliAdapter {
                 .ifPresent(l -> {
                     List<Path> sslServerTrustCertificates = resolveListOfUnixFilePaths(
                         initialConfig.getServerConfig().getSslConfig().getServerTrustCertificates(),
-                        line.getOptionValue("workdir"),
+                        workDirValue,
                         l
                     ).get();
                     configBuilder.sslServerTrustCertificates(sslServerTrustCertificates);
@@ -193,22 +194,22 @@ public class LegacyCliAdapter implements CliAdapter {
                 .ifPresent(l -> {
                     List<Path> sslClientTrustCertificates = resolveListOfUnixFilePaths(
                         initialConfig.getServerConfig().getSslConfig().getClientTrustCertificates(),
-                        line.getOptionValue("workdir"),
+                        workDirValue,
                         l
                     ).get();
                     configBuilder.sslClientTrustCertificates(sslClientTrustCertificates);
                 });
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getServerTlsKeyPath(), line.getOptionValue("workdir"), line.getOptionValue("tlsserverkey"))
+        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getServerTlsKeyPath(), workDirValue, line.getOptionValue("tlsserverkey"))
             .ifPresent(configBuilder::sslServerTlsKeyPath);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getClientTlsKeyPath(), line.getOptionValue("workdir"), line.getOptionValue("tlsclientkey"))
+        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getClientTlsKeyPath(),workDirValue, line.getOptionValue("tlsclientkey"))
             .ifPresent(configBuilder::sslClientTlsKeyPath);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getKnownServersFile(), line.getOptionValue("workdir"), line.getOptionValue("tlsknownservers"))
+        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getKnownServersFile(),workDirValue, line.getOptionValue("tlsknownservers"))
             .ifPresent(configBuilder::sslKnownServersFile);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getKnownClientsFile(), line.getOptionValue("workdir"), line.getOptionValue("tlsknownclients"))
+        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getKnownClientsFile(),workDirValue, line.getOptionValue("tlsknownclients"))
             .ifPresent(configBuilder::sslKnownClientsFile);
 
         final KeyConfiguration keyConfiguration = keyDataBuilder.build();

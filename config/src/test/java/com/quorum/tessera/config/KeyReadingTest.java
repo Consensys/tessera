@@ -84,16 +84,6 @@ public class KeyReadingTest {
 
     }
 
-    @Test
-    public void notEnoughPasswordsProvided() throws IOException {
-
-        final Config config = JaxbUtil.unmarshal(
-            getClass().getResource("/keytests/passwordsMissing.json").openStream(), Config.class
-        );
-
-        //a null response indicates an error occured
-        assertThat(config.getKeys()).isNull();
-    }
 
     @Test
     public void wrongPasswordsProvided() throws IOException {
