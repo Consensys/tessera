@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.Objects;
 
 public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
 
@@ -93,26 +94,29 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         final KeyEncryptor kg = KeyEncryptorFactory.create();
         final PrivateKeyData encryptedKey = keyData.getConfig().getPrivateKeyData();
 
+        String decyptedPrivateKey;
         try {
-            //need to decrypt
-            return new KeyData(
-                    keyData.getConfig(),
-                    kg.decryptPrivateKey(encryptedKey).toString(),
-                    keyData.getPublicKey(),
-                    keyData.getPrivateKeyPath(),
-                    keyData.getPublicKeyPath()
-            );
+            decyptedPrivateKey = Objects.toString(kg.decryptPrivateKey(encryptedKey));
         } catch (final NaclException ex) {
-            System.err.println("Could not decrypt the private key with the provided password, please double check the passwords provided");
-            throw new IllegalArgumentException(ex);
+            LOGGER.debug("Unable to decypt private key : {}",ex.getMessage());
+            decyptedPrivateKey = "NACL_FAILURE: "+ ex.getMessage();
         }
+
+        //need to decrypt
+        return new KeyData(
+                keyData.getConfig(),
+                decyptedPrivateKey,
+                keyData.getPublicKey(),
+                keyData.getPrivateKeyPath(),
+                keyData.getPublicKeyPath()
+        );
 
     }
 
     @Override
     public KeyData marshal(final KeyData keyData) {
 
-        if(keyData.getConfig() == null) {
+        if (keyData.getConfig() == null) {
             return keyData;
         }
 

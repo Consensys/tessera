@@ -12,6 +12,8 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import javax.validation.constraints.Pattern;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
 public class KeyData extends ConfigItem {
@@ -21,6 +23,8 @@ public class KeyData extends ConfigItem {
     @XmlElement
     private final KeyDataConfig config;
 
+    @Pattern(regexp = "^((?!NACL_FAILURE).)*$",
+            message = "Could not decrypt the private key with the provided password, please double check the passwords provided")
     @XmlElement
     @XmlSchemaType(name = "anyURI")
     private final String privateKey;

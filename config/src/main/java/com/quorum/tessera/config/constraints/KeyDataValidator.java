@@ -51,6 +51,8 @@ public class KeyDataValidator implements ConstraintValidator<ValidKeyData, List<
                         positionAsString, keyData.getPrivateKeyPath()));
                 continue;
             }
+            
+            
         }
 
         if (!errors.isEmpty()) {

@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
-import com.quorum.tessera.nacl.NaclException;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.*;
 
@@ -178,14 +177,9 @@ public class KeyDataAdapterTest {
                 null,
                 "PUB", null, null
         );
-
-        try {
-            this.adapter.unmarshal(keyData);
-            failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-        } catch (IllegalArgumentException ex) {
-            assertThat(ex).hasCauseExactlyInstanceOf(NaclException.class);
-
-        }
+        
+      KeyData result =   this.adapter.unmarshal(keyData);
+      assertThat(result.getPrivateKey()).startsWith("NACL_FAILURE");
 
     }
 
