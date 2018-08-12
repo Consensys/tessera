@@ -23,6 +23,9 @@
         <developerConnection>scm:git:git@github.com:QuorumEngineering/tessera.git</developerConnection>
         <tag>master</tag>
     </scm>
+    <ciManagement>
+        <url>https://travis-ci.com/QuorumEngineering/tessera</url>
+    </ciManagement>
     
     <properties>
         <jersey.version>2.27</jersey.version>
