@@ -330,7 +330,7 @@ public class LegacyCliAdapterTest {
 
         ConfigBuilder configBuilder = ConfigBuilder.create();
 
-        LegacyCliAdapter.applyOverrides(line, configBuilder);
+        LegacyCliAdapter.applyOverrides(line, configBuilder, null);
 
         assertThat(errContent.toString()).isEqualTo("Info: Public/Private key data not provided in overrides.  Overriden password file has not been added to config.\n");
 
@@ -348,11 +348,85 @@ public class LegacyCliAdapterTest {
 
         ConfigBuilder configBuilder = ConfigBuilder.create();
 
-        LegacyCliAdapter.applyOverrides(line, configBuilder);
+        LegacyCliAdapter.applyOverrides(line, configBuilder, null);
 
         assertThat(errContent.toString()).isEqualTo("");
 
         System.setErr(originalErr);
+    }
+
+    @Test
+    public void ifTomlWorkDirProvidedWithoutOverrideWorkDirThenTomlWorkDirUsedOnOverridenValues() {
+        CommandLine line = mock(CommandLine.class);
+        when(line.getOptionValue("workdir")).thenReturn(null);
+        String socketFilepath = "path/to/socket.ipc";
+        when(line.getOptionValue("socket")).thenReturn(socketFilepath);
+
+        ConfigBuilder configBuilder = ConfigBuilder.create();
+
+        String tomlWorkDir = "toml";
+
+        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, tomlWorkDir);
+
+        Path expected = Paths.get(tomlWorkDir, socketFilepath);
+
+        assertThat(result.build().getUnixSocketFile()).isEqualByComparingTo(expected);
+    }
+
+    @Test
+    public void ifTomlWorkDirProvidedWithOverrideWorkDirThenOverrideWorkDirUsedOnOverridenValues() {
+        CommandLine line = mock(CommandLine.class);
+        String overrideWorkDir = "override";
+        when(line.getOptionValue("workdir")).thenReturn(overrideWorkDir);
+        String socketFilepath = "path/to/socket.ipc";
+        when(line.getOptionValue("socket")).thenReturn(socketFilepath);
+
+        ConfigBuilder configBuilder = ConfigBuilder.create();
+
+        String tomlWorkDir = "toml";
+
+        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, tomlWorkDir);
+
+        Path expected = Paths.get(overrideWorkDir, socketFilepath);
+
+        assertThat(result.build().getUnixSocketFile()).isEqualByComparingTo(expected);
+    }
+
+    @Test
+    public void ifTomlWorkDirNotProvidedWithoutOverrideWorkDirThenDefaultWorkDirUsedOnOverridenValues() {
+        CommandLine line = mock(CommandLine.class);
+        when(line.getOptionValue("workdir")).thenReturn(null);
+        String socketFilepath = "path/to/socket.ipc";
+        when(line.getOptionValue("socket")).thenReturn(socketFilepath);
+
+        ConfigBuilder configBuilder = ConfigBuilder.create();
+
+        String tomlWorkDir = null;
+
+        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, tomlWorkDir);
+
+        Path expected = Paths.get(socketFilepath);
+
+        assertThat(result.build().getUnixSocketFile()).isEqualByComparingTo(expected);
+    }
+
+    @Test
+    public void ifTomlWorkDirNotProvidedWithOverrideWorkDirThenOverrideWorkDirUsedOnOverridenValues() {
+        CommandLine line = mock(CommandLine.class);
+        String overrideWorkDir = "override";
+        when(line.getOptionValue("workdir")).thenReturn(overrideWorkDir);
+        String socketFilepath = "path/to/socket.ipc";
+        when(line.getOptionValue("socket")).thenReturn(socketFilepath);
+
+        ConfigBuilder configBuilder = ConfigBuilder.create();
+
+        String tomlWorkDir = null;
+
+        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, tomlWorkDir);
+
+        Path expected = Paths.get(overrideWorkDir, socketFilepath);
+
+        assertThat(result.build().getUnixSocketFile()).isEqualByComparingTo(expected);
     }
 
     @Test
@@ -438,7 +512,7 @@ public class LegacyCliAdapterTest {
         when(commandLine.getOptionValue("passwords"))
                 .thenReturn(privateKeyPasswordFile.toString());
 
-        Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues).build();
+        Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues, null).build();
 
         assertThat(result).isNotNull();
         assertThat(result.getServerConfig().getHostName()).isEqualTo(urlOverride);
@@ -488,7 +562,7 @@ public class LegacyCliAdapterTest {
 
         CommandLine commandLine = mock(CommandLine.class);
 
-        Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues).build();
+        Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues, null).build();
 
         assertThat(result).isNotNull();
 
