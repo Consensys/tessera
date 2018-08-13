@@ -64,42 +64,22 @@ public class TomlConfigFactoryTest {
     }
 
     @Test
-    public void urlPortNotSetInConfig() throws IOException {
+    public void urlPortNotSetInConfig() {
 
-        Path passwordFile = Files.createTempFile("password", ".txt");
         InputStream template = getClass().getResourceAsStream("/sample-all-values-urlport-not-present.conf");
 
-        Map<String, Object> params = new HashMap<String, Object>() {
-            {
-                put("passwordFile", passwordFile);
-                put("serverKeyStorePath", "serverKeyStorePath");
-            }
-        };
+        Config result = tomlConfigFactory.create(template, null);
 
-        try (InputStream configData = ElUtil.process(template, params)) {
-            Config result = tomlConfigFactory.create(configData, null);
+        assertThat(result.getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
 
-            assertThat(result.getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
 
-        }
-
-        Files.deleteIfExists(passwordFile);
     }
 
     @Test
     public void badUrlSetInConfig() throws IOException {
 
-        InputStream template = getClass().getResourceAsStream("/sample-all-values-bad-url.conf");
-
-        Map<String, Object> params = new HashMap<String, Object>() {
-            {
-                put("passwordFile", "sample-file");
-                put("serverKeyStorePath", "serverKeyStorePath");
-            }
-        };
-
-        try (InputStream configData = ElUtil.process(template, params)) {
-            tomlConfigFactory.create(configData, null);
+        try (InputStream template = getClass().getResourceAsStream("/sample-all-values-bad-url.conf")) {
+            tomlConfigFactory.create(template, null);
         } catch (RuntimeException ex) {
             assertThat(ex).hasMessage("Bad server url given: unknown protocol: ht");
         }
@@ -111,7 +91,6 @@ public class TomlConfigFactoryTest {
 
         Path passwordFile = Files.createTempFile("password", ".txt");
         InputStream template = getClass().getResourceAsStream("/sample.conf");
-
 
 
         try (InputStream configData = template) {
@@ -144,10 +123,10 @@ public class TomlConfigFactoryTest {
         try (InputStream configData = getClass().getResourceAsStream("/sample.conf")) {
 
             List<String> lines = Stream.of(configData)
-                    .map(InputStreamReader::new)
-                    .map(BufferedReader::new)
-                    .flatMap(BufferedReader::lines)
-                    .collect(Collectors.toList());
+                .map(InputStreamReader::new)
+                .map(BufferedReader::new)
+                .flatMap(BufferedReader::lines)
+                .collect(Collectors.toList());
 
             lines.add(String.format("passwords = \"%s\"", passwordsFile.toString()));
 
@@ -178,7 +157,7 @@ public class TomlConfigFactoryTest {
         Files.write(privateKeyPath, keyDataConfigJson.toString().getBytes());
 
         List<KeyDataConfig> result = TomlConfigFactory
-                .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
+            .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
 
         assertThat(result).hasSize(1);
 
@@ -217,7 +196,7 @@ public class TomlConfigFactoryTest {
         Files.write(privateKeyPath, keyDataConfigJson.toString().getBytes());
 
         List<KeyDataConfig> result = TomlConfigFactory
-                .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
+            .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
 
         assertThat(result).hasSize(1);
 
