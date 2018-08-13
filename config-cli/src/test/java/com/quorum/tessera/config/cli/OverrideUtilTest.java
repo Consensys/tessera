@@ -7,6 +7,9 @@ import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.nacl.Key;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
@@ -370,7 +373,6 @@ public class OverrideUtilTest {
             config = JaxbUtil.unmarshal(data, Config.class);
         }
 
-
         OverrideUtil.setValue(config, "jdbc.username", "someuser");
         OverrideUtil.setValue(config, "keys.keyData.config.privateKeyData.snonce", "snonce1", "snonce2");
 
@@ -383,6 +385,51 @@ public class OverrideUtilTest {
         assertThat(config.getKeys().getKeyData().get(1).getConfig().getSnonce()).isEqualTo("snonce2");
         assertThat(config.getKeys().getKeyData().get(1).getPublicKey()).isNull();
         assertThat(config.getUnixSocketFile()).isEqualTo(Paths.get("${unixSocketPath}"));
+    }
+
+    @Test
+    public void definePrivateAndPublicKeyWithOverridesOnly() throws Exception {
+
+        Config config = OverrideUtil.createInstance(Config.class);
+
+        JaxbUtil.marshalWithNoValidation(config, System.out);
+
+        OverrideUtil.setValue(config, "keys.keyData.publicKey", "PUBLICKEY");
+        OverrideUtil.setValue(config, "keys.keyData.privateKey", "PRIVATEKEY");
+
+        try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+            JaxbUtil.marshalWithNoValidation(config, bout);
+            Config result = JaxbUtil.unmarshal(new ByteArrayInputStream(bout.toByteArray()), Config.class);
+            assertThat(result.getKeys()).isNotNull();
+
+            KeyConfiguration keyConfig = result.getKeys();
+
+            assertThat(keyConfig.getKeyData()).hasSize(1);
+
+            assertThat(keyConfig.getKeyData().get(0).getPrivateKey()).isEqualTo("PRIVATEKEY");
+
+            assertThat(keyConfig.getKeyData().get(0).getPublicKey()).isEqualTo("PUBLICKEY");
+        }
+    }
+
+    @Test
+    public void defineAlwaysSendToWithOverridesOnly() throws Exception {
+
+        Config config = OverrideUtil.createInstance(Config.class);
+
+        JaxbUtil.marshalWithNoValidation(config, System.out);
+
+        OverrideUtil.setValue(config, "alwaysSendTo.keyBytes", "ONE", "TWO");
+
+        try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+            JaxbUtil.marshalWithNoValidation(config, bout);
+
+            Config result = JaxbUtil.unmarshal(new ByteArrayInputStream(bout.toByteArray()), Config.class);
+
+            assertThat(result.getAlwaysSendTo()).hasSize(2);
+
+            assertThat(result.getAlwaysSendTo()).containsOnly(new Key("ONE".getBytes()), new Key("TWO".getBytes()));
+        }
     }
 
 }
