@@ -1,9 +1,6 @@
 package com.quorum.tessera.config.migration;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigFactory;
-import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.SslAuthenticationMode;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
@@ -218,6 +215,8 @@ public class LegacyCliAdapter implements CliAdapter {
 
         if (!keyConfiguration.getKeyData().isEmpty()) {
             configBuilder.keyData(keyConfiguration);
+        } else if (keyConfiguration.getKeyData().isEmpty() && Objects.nonNull(keyConfiguration.getPasswordFile())) {
+            System.err.println("Info: Public/Private key data not provided in overrides.  Overriden password file has not been added to config.");
         }
 
         return configBuilder;
