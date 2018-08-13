@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -298,6 +299,10 @@ public interface OverrideUtil {
             return (T) Enum.valueOf(type.asSubclass(Enum.class), value);
         }
 
+        if(byte[].class.isAssignableFrom(type)) {
+            return (T) value.getBytes(StandardCharsets.UTF_8);
+        }
+        
         return SIMPLE_TYPES.stream()
                 .filter(t -> t.equals(type))
                 .findFirst()
