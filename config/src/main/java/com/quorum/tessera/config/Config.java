@@ -30,7 +30,7 @@ public class Config extends ConfigItem {
     private final ServerConfig serverConfig;
 
     @NotNull
-    @Size(min = 1)
+    @Size(min = 1, message = "At least 1 peer must be provided")
     @Valid
     @XmlElement(name = "peer", required = true)
     private final List<Peer> peers;

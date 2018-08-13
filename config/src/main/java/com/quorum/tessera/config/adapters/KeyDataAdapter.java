@@ -140,10 +140,10 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
                             ),
                             keyData.getConfig().getType()
                     ),
-                    null,
+                    null,//TODO: 
                     keyData.getPublicKey(),
-                    null,
-                    null
+                    keyData.getPrivateKeyPath(),
+                    keyData.getPublicKeyPath()
             );
         }
 
