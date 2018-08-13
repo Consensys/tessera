@@ -103,10 +103,11 @@ public class LegacyCliAdapter implements CliAdapter {
 
     static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder, KeyDataBuilder keyDataBuilder, String tomlWorkDir) {
 
-        final String workDirValue = line.getOptionValue("workdir",".");
+        Optional.ofNullable(line.getOptionValue("workdir"))
+            .ifPresent(configBuilder::workdir);
 
-        configBuilder.workdir(workDirValue);
-        keyDataBuilder.withWorkingDirectory(workDirValue);
+        Optional.ofNullable(line.getOptionValue("workdir"))
+            .ifPresent(keyDataBuilder::withWorkingDirectory);
 
         Optional.ofNullable(line.getOptionValue("url"))
                 .map(url -> {

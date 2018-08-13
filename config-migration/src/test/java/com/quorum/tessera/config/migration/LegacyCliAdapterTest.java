@@ -116,8 +116,8 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://127.0.0.1:9001/");
         assertThat(result.getConfig().get().getPeers().get(1).getUrl()).isEqualTo("http://127.0.0.1:9002/");
         assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(2);
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("data/foo2.pub");
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("data/foo2.key");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("data/foo.pub");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("data/foo.key");
         assertThat(result.getConfig().get().getKeys().getKeyData().get(1).getPublicKeyPath().toString()).isEqualTo("data/foo2.pub");
         assertThat(result.getConfig().get().getKeys().getKeyData().get(1).getPrivateKeyPath().toString()).isEqualTo("data/foo2.key");
 //        assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(3);
@@ -161,12 +161,6 @@ public class LegacyCliAdapterTest {
         Path configFile = Files.createTempFile("noOptions", ".txt");
         Files.write(configFile, data.getBytes());
 
-        Path publicKeyFile = Files.createTempFile("temp", ".pub");
-        Files.write(publicKeyFile, "cWO8kshb29rIZyhCsitxrW5boyd2UTjO5Ec2Sy3YMiU=".getBytes());
-
-        Path privateKeyFile= Files.createTempFile("temp", ".key");
-        Files.write(privateKeyFile, "N4MzpQodx+/+GvDfpeHy6eSj62i78iaznYN3t4JjNek=".getBytes());
-
 //        Path alwaysSendToFile = Files.createTempFile("alwaysSendTo", ".txt");
 //        Files.write(alwaysSendToFile, ("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=\n" +
 //                                        "jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=").getBytes());
@@ -190,8 +184,8 @@ public class LegacyCliAdapterTest {
             "--workdir=override",
             "--socket=cli.ipc",
             "--othernodes=http://others",
-            "--publickeys=" + publicKeyFile.toString(),
-            "--privatekeys=" + privateKeyFile.toString(),
+            "--publickeys=new.pub",
+            "--privatekeys=new.key",
 //            "--alwayssendto=" + alwaysSendToFile.toString(),
             "--passwords=pw.txt",
             "--storage=jdbc:test",
@@ -222,8 +216,8 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getPeers().size()).isEqualTo(1);
         assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://others");
         assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(1);
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("override" + publicKeyFile.toString());
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("override" + privateKeyFile.toString());
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("override/new.pub");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("override/new.key");
 //        assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(2);
 //        assertThat(result.getConfig().get().getAlwaysSendTo().get(0).toString()).isEqualTo("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
 //        assertThat(result.getConfig().get().getAlwaysSendTo().get(1).toString()).isEqualTo("jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
@@ -246,8 +240,6 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("override/over-known-servers");
 
 //        Files.deleteIfExists(alwaysSendToFile);
-        Files.deleteIfExists(publicKeyFile);
-        Files.deleteIfExists(privateKeyFile);
         Files.deleteIfExists(configFile);
 
         Files.walk(workdir)
@@ -280,7 +272,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
 
-        assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("./myipcfile.ipc");
+        assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("myipcfile.ipc");
         //Empty List
         assertThat(Optional.ofNullable(result.getConfig().get().getKeys().getKeyData()).isPresent()).isEqualTo(true);
         assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(0);
@@ -307,7 +299,7 @@ public class LegacyCliAdapterTest {
     @Test
     public void ifWorkDirCliOverrideIsProvidedThenItIsAppliedToBothTomlAndCliSetParameters() throws Exception {
 //        String overrideWorkDir = "/Users/chrishounsom/tessera/config-migration/src/test/resources/override";
-        String overrideWorkDir = ".";
+        String overrideWorkDir = "data";
 
 //        Path forwardFile1 = Files.createTempFile(Paths.get(overrideWorkDir), "forward1", ".txt");
 //        Files.write(forwardFile1, ("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=\n" +
@@ -316,7 +308,7 @@ public class LegacyCliAdapterTest {
 //        Path forwardFile2 = Files.createTempFile(Paths.get(overrideWorkDir), "forward2", ".txt");
 //        Files.write(forwardFile2, "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=".getBytes());
 //
-        Path sampleFile = Paths.get(getClass().getResource("/sample-toml-no-nulls.conf").toURI());
+        Path sampleFile = Paths.get(getClass().getResource("/sample-toml-no-nulls-tls-off.conf").toURI());
 //        Map<String, Object> params = new HashMap<>();
 //        params.put("alwaysSendToPath1", "forward1.txt");
 //        params.put("alwaysSendToPath2", "forward2.txt");
@@ -344,15 +336,15 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
 
-        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1:9000/");
+        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
         assertThat(result.getConfig().get().getServerConfig().getPort()).isEqualTo(9001);
         assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo(overrideWorkDir + "/constellation.ipc");
         assertThat(result.getConfig().get().getPeers().size()).isEqualTo(2);
         assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://127.0.0.1:9001/");
         assertThat(result.getConfig().get().getPeers().get(1).getUrl()).isEqualTo("http://127.0.0.1:9002/");
         assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(2);
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo(overrideWorkDir + "/foo2.pub");
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo(overrideWorkDir + "/foo2.key");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo(overrideWorkDir + "/foo.pub");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo(overrideWorkDir + "/foo.key");
         assertThat(result.getConfig().get().getKeys().getKeyData().get(1).getPublicKeyPath().toString()).isEqualTo(overrideWorkDir + "/foo2.pub");
         assertThat(result.getConfig().get().getKeys().getKeyData().get(1).getPrivateKeyPath().toString()).isEqualTo(overrideWorkDir + "/foo2.key");
 //        assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(3);
@@ -363,7 +355,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
         assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
         assertThat(result.getConfig().get().isUseWhiteList()).isTrue();
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.STRICT);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo(overrideWorkDir + "/tls-server-cert.pem");
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().size()).isEqualTo(2);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().get(0).toString()).isEqualTo(overrideWorkDir + "/chain1");
@@ -567,6 +559,7 @@ public class LegacyCliAdapterTest {
         CommandLine line = mock(CommandLine.class);
         String overrideWorkDir = "override";
         when(line.getOptionValue("workdir")).thenReturn(overrideWorkDir);
+        when(line.getOptionValue("workdir", ".")).thenReturn(overrideWorkDir);
         String socketFilepath = "path/to/socket.ipc";
         when(line.getOptionValue("socket")).thenReturn(socketFilepath);
 
@@ -600,10 +593,11 @@ public class LegacyCliAdapterTest {
     }
 
     @Test
-    public void ifTomlWorkDirNotProvidedWithOverrideWorkDirThenOverrideWorkDirUsedOnOverridenValues() {
+    public void ifTomlWorkDirNotProvidedButOverrideWorkDirIsThenOverrideWorkDirUsedOnOverridenValues() {
         CommandLine line = mock(CommandLine.class);
         String overrideWorkDir = "override";
         when(line.getOptionValue("workdir")).thenReturn(overrideWorkDir);
+        when(line.getOptionValue("workdir", ".")).thenReturn(overrideWorkDir);
         String socketFilepath = "path/to/socket.ipc";
         when(line.getOptionValue("socket")).thenReturn(socketFilepath);
 
@@ -632,7 +626,7 @@ public class LegacyCliAdapterTest {
         //TODO check all CLI options have assertions here
         when(commandLine.getOptionValue("url")).thenReturn(urlOverride);
         when(commandLine.getOptionValue("port")).thenReturn(String.valueOf(portOverride));
-        when(commandLine.getOptionValue("workdir",".")).thenReturn(workdirOverride);
+        when(commandLine.getOptionValue("workdir")).thenReturn(workdirOverride);
         when(commandLine.getOptionValue("socket")).thenReturn(unixSocketFileOverride);
 
         when(commandLine.getOptionValues("othernodes"))

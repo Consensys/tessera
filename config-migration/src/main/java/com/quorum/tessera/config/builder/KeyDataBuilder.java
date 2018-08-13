@@ -57,7 +57,7 @@ public class KeyDataBuilder {
 
         final List<KeyData> keyData = IntStream
             .range(0, publicKeys.size())
-            .mapToObj(i -> new KeyData(null, null, null, Paths.get(workdir, privateKeys.get(i)), Paths.get(workdir, publicKeys.get(i))))
+            .mapToObj(i -> new KeyData(null, null, null, ConfigBuilder.toPath(workdir, privateKeys.get(i)), ConfigBuilder.toPath(workdir, publicKeys.get(i))))
             .collect(toList());
 
         final Path privateKeyPasswordFilePath;
