@@ -43,9 +43,7 @@ public class LegacyCliAdapterTest {
 
         Files.createFile(dataDirectory.resolve("foo.pub"));
         Files.createFile(dataDirectory.resolve("foo.key"));
-        Files.createFile(dataDirectory.resolve("foo1.pub"));
         Files.createFile(dataDirectory.resolve("foo2.pub"));
-        Files.createFile(dataDirectory.resolve("foo1.key"));
         Files.createFile(dataDirectory.resolve("foo2.key"));
 
     }
@@ -118,8 +116,8 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://127.0.0.1:9001/");
         assertThat(result.getConfig().get().getPeers().get(1).getUrl()).isEqualTo("http://127.0.0.1:9002/");
         assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(2);
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("data/foo1.pub");
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("data/foo1.key");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("data/foo2.pub");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("data/foo2.key");
         assertThat(result.getConfig().get().getKeys().getKeyData().get(1).getPublicKeyPath().toString()).isEqualTo("data/foo2.pub");
         assertThat(result.getConfig().get().getKeys().getKeyData().get(1).getPrivateKeyPath().toString()).isEqualTo("data/foo2.key");
 //        assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(3);
@@ -309,7 +307,7 @@ public class LegacyCliAdapterTest {
     @Test
     public void ifWorkDirCliOverrideIsProvidedThenItIsAppliedToBothTomlAndCliSetParameters() throws Exception {
 //        String overrideWorkDir = "/Users/chrishounsom/tessera/config-migration/src/test/resources/override";
-        String overrideWorkDir = "src/test/resources/override";
+        String overrideWorkDir = ".";
 
 //        Path forwardFile1 = Files.createTempFile(Paths.get(overrideWorkDir), "forward1", ".txt");
 //        Files.write(forwardFile1, ("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=\n" +
@@ -353,8 +351,8 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://127.0.0.1:9001/");
         assertThat(result.getConfig().get().getPeers().get(1).getUrl()).isEqualTo("http://127.0.0.1:9002/");
         assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(2);
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo(overrideWorkDir + "/foo1.pub");
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo(overrideWorkDir + "/foo1.key");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo(overrideWorkDir + "/foo2.pub");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo(overrideWorkDir + "/foo2.key");
         assertThat(result.getConfig().get().getKeys().getKeyData().get(1).getPublicKeyPath().toString()).isEqualTo(overrideWorkDir + "/foo2.pub");
         assertThat(result.getConfig().get().getKeys().getKeyData().get(1).getPrivateKeyPath().toString()).isEqualTo(overrideWorkDir + "/foo2.key");
 //        assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(3);

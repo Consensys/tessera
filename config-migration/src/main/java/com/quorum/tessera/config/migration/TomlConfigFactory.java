@@ -32,7 +32,6 @@ public class TomlConfigFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TomlConfigFactory.class);
 
-    @Override
     public ConfigBuilder create(InputStream configData, ArgonOptions options, String... filenames) {
         Objects.requireNonNull(configData, "No config data provided. ");
         if (filenames.length != 0) {

@@ -65,7 +65,7 @@ public class TomlConfigFactoryTest {
 
         InputStream template = getClass().getResourceAsStream("/sample-all-values-urlport-not-present.conf");
 
-        Config result = tomlConfigFactory.create(template, null);
+        Config result = tomlConfigFactory.create(template, null).build();
 
         assertThat(result.getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
 
