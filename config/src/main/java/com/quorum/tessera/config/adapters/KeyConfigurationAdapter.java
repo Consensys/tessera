@@ -1,6 +1,7 @@
 package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.util.FilesDelegate;
 import com.quorum.tessera.config.util.IOCallback;
 import com.quorum.tessera.config.util.JaxbUtil;
 
@@ -14,10 +15,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.Objects;
 
 public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyConfiguration> {
 
     private final KeyDataAdapter keyDataAdapter = new KeyDataAdapter();
+
+    private FilesDelegate filesDelegate = FilesDelegate.create();
 
     @Override
     public KeyConfiguration unmarshal(final KeyConfiguration input) {
@@ -49,26 +53,30 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
 
                     final KeyData kd = input.getKeyData().get(i);
 
-                    final KeyDataConfig keyData;
+                    final KeyDataConfig keyDataConfig;
 
-                    if(kd.getConfig()==null) {
-                        final InputStream is = IOCallback.execute(() -> Files.newInputStream(kd.getPrivateKeyPath()));
-                        keyData = JaxbUtil.unmarshal(is, KeyDataConfig.class);
+                    if(kd.getConfig() == null && filesDelegate.exists(kd.getPrivateKeyPath())) {
+                        final InputStream is = filesDelegate.newInputStream(kd.getPrivateKeyPath());
+                        keyDataConfig = JaxbUtil.unmarshal(is, KeyDataConfig.class);
                     } else {
-                        keyData = kd.getConfig();
+                        keyDataConfig = kd.getConfig();
+                    }
+
+                    if(Objects.isNull(keyDataConfig)) {
+                        return kd;
                     }
 
                     return new KeyData(
                         new KeyDataConfig(
                             new PrivateKeyData(
-                                keyData.getValue(),
-                                keyData.getSnonce(),
-                                keyData.getAsalt(),
-                                keyData.getSbox(),
-                                keyData.getArgonOptions(),
+                                keyDataConfig.getValue(),
+                                keyDataConfig.getSnonce(),
+                                keyDataConfig.getAsalt(),
+                                keyDataConfig.getSbox(),
+                                keyDataConfig.getArgonOptions(),
                                 allPasswords.get(i)
                             ),
-                            kd.getConfig()==null ? keyData.getType() : kd.getConfig().getType()
+                            kd.getConfig()==null ? keyDataConfig.getType() : kd.getConfig().getType()
                         ),
                         kd.getPrivateKey(),
                         kd.getPublicKey(),
@@ -100,5 +108,11 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
                 .collect(Collectors.toList())
         );
     }
+
+    protected void setFilesDelegate(FilesDelegate filesDelegate) {
+        this.filesDelegate = filesDelegate;
+    }
+
+
 
 }
