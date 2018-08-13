@@ -3,6 +3,7 @@ package com.quorum.tessera.config;
 import com.quorum.tessera.config.adapters.KeyAdapter;
 import com.quorum.tessera.config.adapters.KeyConfigurationAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
+import com.quorum.tessera.config.constraints.ValidKeyConfiguration;
 import com.quorum.tessera.config.constraints.ValidPath;
 import com.quorum.tessera.nacl.Key;
 
@@ -38,6 +39,7 @@ public class Config extends ConfigItem {
     @Valid
     @NotNull
     @XmlElement(required = true)
+    @ValidKeyConfiguration
     @XmlJavaTypeAdapter(KeyConfigurationAdapter.class)
     private final KeyConfiguration keys;
 
