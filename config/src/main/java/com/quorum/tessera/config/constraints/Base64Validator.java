@@ -19,7 +19,7 @@ public class Base64Validator implements ConstraintValidator<ValidBase64, String>
             return true;
         }
 
-        if(value.startsWith(NACL_FAILURE_TOKEN) || NACL_FAILURE_TOKEN.equals(value)) {
+        if(value.startsWith(NACL_FAILURE_TOKEN)) {
             return true;
         }
         
