@@ -42,7 +42,7 @@ public class TomlConfigFactory implements ConfigFactory {
             LOGGER.debug("Found entry in toml file : {} {}", entry.getKey(), entry.getValue());
         });
 
-        final String urlWithoutPost = Optional
+        final String urlWithoutPort = Optional
             .ofNullable(toml.getString("url"))
             .map(url -> {
                 try {
@@ -140,7 +140,7 @@ public class TomlConfigFactory implements ConfigFactory {
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
                 .serverPort(port)
-                .serverHostname(urlWithoutPost)
+                .serverHostname(urlWithoutPort)
                 .unixSocketFile(unixSocketFile)
                 .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
                 .sslServerTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsservertrust))
