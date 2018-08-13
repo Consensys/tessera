@@ -5,21 +5,27 @@ import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
+import org.junit.Before;
 import org.junit.Test;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
+import com.quorum.tessera.config.util.FilesDelegate;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class KeyDataAdapterTest {
 
     private KeyDataAdapter adapter = new KeyDataAdapter();
+
+    @Before
+    public void onSetup() {
+        adapter = new KeyDataAdapter();
+    }
 
     @Test
     public void marshallUnlockedKey() {
@@ -51,8 +57,8 @@ public class KeyDataAdapterTest {
     public void marshallLockedKeyNullifiesPrivateKey() {
 
         final KeyData keyData = new KeyData(
-            new KeyDataConfig(new PrivateKeyData(null, null, null, null, null, null), PrivateKeyType.LOCKED),
-            "PRIV", "PUB", null, null
+                new KeyDataConfig(new PrivateKeyData(null, null, null, null, null, null), PrivateKeyType.LOCKED),
+                "PRIV", "PUB", null, null
         );
 
         final KeyData marshalledKey = adapter.marshal(keyData);
@@ -78,14 +84,14 @@ public class KeyDataAdapterTest {
     public void marshallKeysWithUnlockedPrivateKey() {
 
         final KeyData keyData = new KeyData(
-            new KeyDataConfig(
-                new PrivateKeyData("LITERAL_PRIVATE", null, null, null, null, null),
-                UNLOCKED
-            ),
-            null,
-            "PUB",
-            null,
-            null
+                new KeyDataConfig(
+                        new PrivateKeyData("LITERAL_PRIVATE", null, null, null, null, null),
+                        UNLOCKED
+                ),
+                null,
+                "PUB",
+                null,
+                null
         );
 
         final KeyData marshalled = adapter.unmarshal(keyData);
@@ -98,19 +104,19 @@ public class KeyDataAdapterTest {
     public void marshallKeysWithLockedPrivateKey() {
 
         final KeyData keyData = new KeyData(
-            new KeyDataConfig(
-                new PrivateKeyData(
-                    null,
-                    "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-                    "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-                    "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                    new ArgonOptions("id", 10, 1048576, 4),
-                    "q"
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                null,
+                                "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                                "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                                "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
+                                new ArgonOptions("id", 10, 1048576, 4),
+                                "q"
+                        ),
+                        PrivateKeyType.LOCKED
                 ),
-                PrivateKeyType.LOCKED
-            ),
-            null,
-            "PUB", null, null
+                null,
+                "PUB", null, null
         );
 
         final KeyData marshalled = adapter.unmarshal(keyData);
@@ -142,75 +148,132 @@ public class KeyDataAdapterTest {
     }
 
     @Test
-    public void bothPathsMustBeSetIfUsingKeyPathsPub() {
+    public void bothPathsMustBeSetIfUsingKeyPathsPubReturnsAndDoesNotThrowError() {
 
         final KeyData badConfig = new KeyData(null, null, null, Paths.get("sample"), null);
 
-        final Throwable throwable = catchThrowable(() -> this.adapter.unmarshal(badConfig));
-
-        assertThat(throwable)
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("When providing key paths, must give both public and private, and both files must exist");
+        KeyData result = this.adapter.unmarshal(badConfig);
+        assertThat(result).isSameAs(badConfig);
 
     }
 
     @Test
-    public void bothPathsMustBeSetIfUsingKeyPathsPriv() {
+    public void bothPathsMustBeSetIfUsingKeyPathsPrivReturnsAndDoesNotThrowError() {
 
         final KeyData badConfig = new KeyData(null, null, null, null, Paths.get("sample"));
 
-        final Throwable throwable = catchThrowable(() -> this.adapter.unmarshal(badConfig));
-
-        assertThat(throwable)
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("When providing key paths, must give both public and private, and both files must exist");
+        KeyData result = this.adapter.unmarshal(badConfig);
+        assertThat(result).isSameAs(badConfig);
 
     }
 
     @Test
-    public void decryptingPrivateKeyWithWrongPasswordErrors() {
+    public void decryptingPrivateKeyWithWrongPasswordErrorsReturnsAndDoesNotThrowError() {
         final KeyData keyData = new KeyData(
-            new KeyDataConfig(
-                new PrivateKeyData(
-                    null,
-                    "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-                    "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-                    "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                    new ArgonOptions("id", 10, 1048576, 4),
-                    "badpassword"
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                null,
+                                "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                                "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                                "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
+                                new ArgonOptions("id", 10, 1048576, 4),
+                                "badpassword"
+                        ),
+                        PrivateKeyType.LOCKED
                 ),
-                PrivateKeyType.LOCKED
-            ),
-            null,
-            "PUB", null, null
+                null,
+                "PUB", null, null
         );
 
-        final Throwable throwable = catchThrowable(() ->adapter.unmarshal(keyData));
+        KeyData result = this.adapter.unmarshal(keyData);
+        assertThat(result.getPrivateKey()).startsWith("NACL_FAILURE");
 
-        assertThat(throwable).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void unmarshallingLockedWithNoPasswordFails() {
+    public void unmarshallingLockedWithNoPasswordFailsReturnsAndDoesNotThrowError() {
         final KeyData keyData = new KeyData(
-            new KeyDataConfig(
-                new PrivateKeyData(
-                    null,
-                    "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-                    "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-                    "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                    new ArgonOptions("id", 10, 1048576, 4),
-                    null
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                null,
+                                "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                                "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                                "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
+                                new ArgonOptions("id", 10, 1048576, 4),
+                                null
+                        ),
+                        PrivateKeyType.LOCKED
                 ),
-                PrivateKeyType.LOCKED
-            ),
-            null,
-            "PUB", null, null
+                null,
+                "PUB", null, null
         );
 
-        final Throwable throwable = catchThrowable(() ->adapter.unmarshal(keyData));
-
-        assertThat(throwable).isInstanceOf(IllegalArgumentException.class).hasMessage("Password missing");
+        KeyData result = this.adapter.unmarshal(keyData);
+        assertThat(result).isSameAs(keyData);
     }
 
+    @Test
+    public void unmarshallingLockedWithNonExistentPublicKeyFileFailsReturnsAndDoesNotThrowError() {
+
+        FilesDelegate filesDelegate = mock(FilesDelegate.class);
+        adapter.setFilesDelegate(filesDelegate);
+
+        Path privateKeyPath = mock(Path.class);
+        Path publicKeyPath = mock(Path.class);
+        when(filesDelegate.notExists(publicKeyPath)).thenReturn(true);
+        when(filesDelegate.notExists(privateKeyPath)).thenReturn(false);
+
+        final KeyData keyData = new KeyData(
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                null,
+                                "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                                "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                                "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
+                                new ArgonOptions("id", 10, 1048576, 4),
+                                null
+                        ),
+                        PrivateKeyType.LOCKED
+                ),
+                null,
+                "PUB", privateKeyPath, publicKeyPath
+        );
+
+        KeyData result = this.adapter.unmarshal(keyData);
+        assertThat(result).isSameAs(keyData);
+
+    }
+
+    @Test
+    public void unmarshallingLockedWithNonExistentPrivateKeyFileFailsReturnsAndDoesNotThrowError() {
+
+        FilesDelegate filesDelegate = mock(FilesDelegate.class);
+        adapter.setFilesDelegate(filesDelegate);
+
+        Path privateKeyPath = mock(Path.class);
+        Path publicKeyPath = mock(Path.class);
+        when(filesDelegate.notExists(publicKeyPath)).thenReturn(false);
+        when(filesDelegate.notExists(privateKeyPath)).thenReturn(true);
+
+        final KeyData keyData = new KeyData(
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                null,
+                                "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                                "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                                "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
+                                new ArgonOptions("id", 10, 1048576, 4),
+                                null
+                        ),
+                        PrivateKeyType.LOCKED
+                ),
+                null,
+                "PUB", privateKeyPath, publicKeyPath
+        );
+
+        KeyData result = this.adapter.unmarshal(keyData);
+        assertThat(result).isSameAs(keyData);
+
+
+    }
 }
