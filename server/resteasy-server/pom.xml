@@ -4,15 +4,16 @@
     <parent>
         <groupId>com.quorum.tessera</groupId>
         <artifactId>rest-server</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.5.2-SNAPSHOT</version>
     </parent>
     <artifactId>resteasy-server</artifactId>
     <packaging>jar</packaging>
     <properties>
         <resteasy.version>3.0.8.Final</resteasy.version>
         <httpcomponents.version>4.3.5</httpcomponents.version>
-
     </properties>
+    
+
     <dependencies>
         <dependency>
             <groupId>com.quorum.tessera</groupId>

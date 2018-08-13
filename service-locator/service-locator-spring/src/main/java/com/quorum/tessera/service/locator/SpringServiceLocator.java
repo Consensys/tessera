@@ -19,7 +19,7 @@ public class SpringServiceLocator implements ServiceLocator {
      * If the Spring context is already established, then returns the
      * previously generated set of beans
      *
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Set<Object> getServices(final String filename) {
