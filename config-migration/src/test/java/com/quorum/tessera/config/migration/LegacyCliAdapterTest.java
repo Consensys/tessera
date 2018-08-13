@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class LegacyCliAdapterTest {
@@ -43,7 +44,7 @@ public class LegacyCliAdapterTest {
         Files.createFile(dataDirectory.resolve("foo2.pub"));
         Files.createFile(dataDirectory.resolve("foo1.key"));
         Files.createFile(dataDirectory.resolve("foo2.key"));
-        
+
     }
 
     @After
@@ -104,7 +105,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
 
-        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1:9000/");
+        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
         assertThat(result.getConfig().get().getServerConfig().getPort()).isEqualTo(9001);
         assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("data/constellation.ipc");
         assertThat(result.getConfig().get().getPeers().size()).isEqualTo(2);
@@ -248,7 +249,7 @@ public class LegacyCliAdapterTest {
         Path keysFile = Paths.get("abcxyz");
         Files.deleteIfExists(keysFile);
         Files.createFile(Paths.get("abcxyz"));
-        
+
         String[] requiredParams = {
             "--tomlfile=" + configFile.toString(),
             "--url=http://127.0.0.1",
@@ -287,6 +288,64 @@ public class LegacyCliAdapterTest {
 
         Files.deleteIfExists(configFile);
         Files.deleteIfExists(keysFile);
+    }
+
+    @Test
+    public void urlNotSetGivesNullHostname() throws Exception {
+
+        Path configFile = Files.createTempFile("emptyConfig", ".txt");
+
+        String[] requiredParams = {
+            "--tomlfile=" + configFile.toString(),
+            "--port=9001",
+            "--othernodes=localhost:1111",
+        };
+
+        CliResult result = instance.execute(requiredParams);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+
+        assertThat(result.getConfig().get().getServerConfig().getHostName()).isNull();
+
+        Files.deleteIfExists(configFile);
+    }
+
+    @Test
+    public void urlWithPortSet() throws Exception {
+
+        Path configFile = Files.createTempFile("emptyConfig", ".txt");
+
+        String[] requiredParams = {
+            "--tomlfile=" + configFile.toString(),
+            "--url=http://127.0.0.1:9001",
+            "--port=9001",
+        };
+
+        CliResult result = instance.execute(requiredParams);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+
+        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
+    }
+
+    @Test
+    public void invalidUrlProvided() throws Exception {
+
+        Path configFile = Files.createTempFile("emptyConfig", ".txt");
+
+        String[] requiredParams = {
+            "--tomlfile=" + configFile.toString(),
+            "--url=htt://invalidHost",
+            "--port=9001",
+        };
+
+        final Throwable throwable = catchThrowable(() -> instance.execute(requiredParams));
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Bad server url given: unknown protocol: htt");
     }
 
     @Test
@@ -437,7 +496,7 @@ public class LegacyCliAdapterTest {
         Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues).build();
 
         assertThat(result).isNotNull();
-        assertThat(result.getServerConfig().getHostName()).isEqualTo(urlOverride);
+        assertThat(result.getServerConfig().getHostName()).isEqualTo("http://junit.com");
         assertThat(result.getServerConfig().getPort()).isEqualTo(portOverride);
         assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get(workdirOverride, unixSocketFileOverride));
         assertThat(result.getPeers()).containsExactly(overridePeers.toArray(new Peer[0]));
