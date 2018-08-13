@@ -11,6 +11,8 @@ import com.quorum.tessera.test.util.ElUtil;
 import org.apache.commons.cli.CommandLine;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -317,6 +319,43 @@ public class LegacyCliAdapterTest {
     }
 
     @Test
+    public void passwordOverrideProvidedButNoKeyDataOverrideProvidedThenPrintMessageToConsole() {
+        final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+        final PrintStream originalErr = System.err;
+
+        System.setErr(new PrintStream(errContent));
+
+        CommandLine line = mock(CommandLine.class);
+        when(line.getOptionValue("passwords")).thenReturn("override/path");
+
+        ConfigBuilder configBuilder = ConfigBuilder.create();
+
+        LegacyCliAdapter.applyOverrides(line, configBuilder);
+
+        assertThat(errContent.toString()).isEqualTo("Info: Public/Private key data not provided in overrides.  Overriden password file has not been added to config.\n");
+
+        System.setErr(originalErr);
+    }
+
+    @Test
+    public void noPasswordOrKeyDataOverrideProvidedThenNoMessagePrintedToConsole() {
+        final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+        final PrintStream originalErr = System.err;
+
+        System.setErr(new PrintStream(errContent));
+
+        CommandLine line = mock(CommandLine.class);
+
+        ConfigBuilder configBuilder = ConfigBuilder.create();
+
+        LegacyCliAdapter.applyOverrides(line, configBuilder);
+
+        assertThat(errContent.toString()).isEqualTo("");
+
+        System.setErr(originalErr);
+    }
+
+    @Test
     public void applyOverrides() throws Exception {
 
         String urlOverride = "http://junit.com:8989";
@@ -326,8 +365,6 @@ public class LegacyCliAdapterTest {
         List<Peer> overridePeers = Arrays.asList(new Peer("http://otherone.com:9188/other"), new Peer("http://yetanother.com:8829/other"));
 
         CommandLine commandLine = mock(CommandLine.class);
-
-        //TODO check all CLI options have assertions here
 
         when(commandLine.getOptionValue("url")).thenReturn(urlOverride);
         when(commandLine.getOptionValue("port")).thenReturn(String.valueOf(portOverride));
