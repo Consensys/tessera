@@ -127,11 +127,17 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
             return keyData;
         }
 
+        if(keyData.getPrivateKeyPath()!=null || keyData.getPublicKeyPath()!=null) {
+            return new KeyData(
+                null, null, null, keyData.getPrivateKeyPath(), keyData.getPublicKeyPath()
+            );
+        }
+
         if (keyData.getConfig().getType() != PrivateKeyType.UNLOCKED) {
             return new KeyData(
                     new KeyDataConfig(
                             new PrivateKeyData(
-                                    keyData.getConfig().getPrivateKeyData().getValue(),
+                                    null,
                                     keyData.getConfig().getPrivateKeyData().getSnonce(),
                                     keyData.getConfig().getPrivateKeyData().getAsalt(),
                                     keyData.getConfig().getPrivateKeyData().getSbox(),
