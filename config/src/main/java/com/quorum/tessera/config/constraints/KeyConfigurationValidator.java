@@ -17,7 +17,7 @@ public class KeyConfigurationValidator implements ConstraintValidator<ValidKeyCo
     @Override
     public boolean isValid(KeyConfiguration keyConfiguration, ConstraintValidatorContext cvc) {
 
-        return !(keyConfiguration.getPasswordFile()!=null && keyConfiguration.getPasswords()!=null);
+        return keyConfiguration==null || !(keyConfiguration.getPasswordFile()!=null && keyConfiguration.getPasswords()!=null);
 
     }
 

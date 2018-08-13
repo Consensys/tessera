@@ -56,4 +56,9 @@ public class KeyConfigurationValidatorTest {
 
     }
 
+    @Test
+    public void nullConfigIsValid() {
+        assertThat(validator.isValid(null, mock(ConstraintValidatorContext.class))).isTrue();
+    }
+
 }
