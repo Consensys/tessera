@@ -508,7 +508,7 @@ public class LegacyCliAdapterTest {
 
         ConfigBuilder configBuilder = ConfigBuilder.create();
 
-        LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create(), null);
+        LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
 
         assertThat(errContent.toString()).isEqualTo("Info: Public/Private key data not provided in overrides.  Overriden password file has not been added to config.\n");
 
@@ -526,7 +526,7 @@ public class LegacyCliAdapterTest {
 
         ConfigBuilder configBuilder = ConfigBuilder.create();
 
-        LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create(), null);
+        LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
 
         assertThat(errContent.toString()).isEqualTo("");
 
@@ -544,7 +544,7 @@ public class LegacyCliAdapterTest {
         ConfigBuilder configBuilder = ConfigBuilder.create()
                                                 .workdir(tomlWorkDir);
 
-        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create(), tomlWorkDir);
+        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
 
         Path expected = Paths.get(tomlWorkDir, socketFilepath);
 
@@ -562,9 +562,7 @@ public class LegacyCliAdapterTest {
 
         ConfigBuilder configBuilder = ConfigBuilder.create();
 
-        String tomlWorkDir = "toml";
-
-        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create(), tomlWorkDir);
+        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
 
         Path expected = Paths.get(overrideWorkDir, socketFilepath);
 
@@ -582,7 +580,7 @@ public class LegacyCliAdapterTest {
 
         String tomlWorkDir = null;
 
-        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create(), tomlWorkDir);
+        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
 
         Path expected = Paths.get(socketFilepath);
 
@@ -602,7 +600,7 @@ public class LegacyCliAdapterTest {
 
         String tomlWorkDir = null;
 
-        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create(), tomlWorkDir);
+        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
 
         Path expected = Paths.get(overrideWorkDir, socketFilepath);
 
@@ -689,7 +687,7 @@ public class LegacyCliAdapterTest {
         when(commandLine.getOptionValue("passwords"))
                 .thenReturn(privateKeyPasswordFile.toString());
 
-        Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues, KeyDataBuilder.create(), null).build();
+        Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues, KeyDataBuilder.create()).build();
 
         assertThat(result).isNotNull();
         assertThat(result.getServerConfig().getHostName()).isEqualTo("http://junit.com");
@@ -736,7 +734,7 @@ public class LegacyCliAdapterTest {
 
         CommandLine commandLine = mock(CommandLine.class);
 
-        Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues, KeyDataBuilder.create(), null).build();
+        Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues, KeyDataBuilder.create()).build();
 
         assertThat(result).isNotNull();
 

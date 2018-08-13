@@ -74,19 +74,18 @@ public class TomlConfigFactory {
 
         //Server side
         final String tlsservertrust = toml.getString("tlsservertrust", "tofu");
-        final Optional<String> tlsserverkeyStr = Optional.ofNullable(toml.getString("tlsserverkey"));
-        final Optional<String> tlsservercertStr = Optional.ofNullable(toml.getString("tlsservercert"));
+        final Optional<String> tlsserverkey = Optional.ofNullable(toml.getString("tlsserverkey"));
+        final Optional<String> tlsservercert = Optional.ofNullable(toml.getString("tlsservercert"));
         final Optional<List<String>> tlsserverchainnames = Optional.ofNullable(toml.getList("tlsserverchain", Collections.emptyList()));
-        final Optional<String> tlsknownclientsStr = Optional.ofNullable(toml.getString("tlsknownclients"));
+        final Optional<String> tlsknownclients = Optional.ofNullable(toml.getString("tlsknownclients"));
 
         //Client side
         final String tlsclienttrust = toml.getString("tlsclienttrust", "tofu");
-        final Optional<String> tlsclientkeyStr = Optional.ofNullable(toml.getString("tlsclientkey"));
-        final Optional<String> tlsclientcertStr = Optional.ofNullable(toml.getString("tlsclientcert"));
+        final Optional<String> tlsclientkey = Optional.ofNullable(toml.getString("tlsclientkey"));
+        final Optional<String> tlsclientcert = Optional.ofNullable(toml.getString("tlsclientcert"));
         final Optional<List<String>> tlsclientchainnames = Optional.ofNullable(toml.getList("tlsclientchain", Collections.emptyList()));
-        final Optional<String> tlsknownserversStr = Optional.ofNullable(toml.getString("tlsknownservers"));
+        final Optional<String> tlsknownservers = Optional.ofNullable(toml.getString("tlsknownservers"));
 
-        //TODO Double check which of these should be Optionals and clean up names (i.e. remove Str etc.)
         ConfigBuilder configBuilder = ConfigBuilder.create()
                 .serverPort(port)
                 .serverHostname(urlWithoutPort)
@@ -99,14 +98,14 @@ public class TomlConfigFactory {
                 .useWhiteList(useWhiteList)
                 .workdir(workdir);
 
-        tlsserverkeyStr.ifPresent(configBuilder::sslServerTlsKeyPath);
-        tlsservercertStr.ifPresent(configBuilder::sslServerTlsCertificatePath);
+        tlsserverkey.ifPresent(configBuilder::sslServerTlsKeyPath);
+        tlsservercert.ifPresent(configBuilder::sslServerTlsCertificatePath);
         tlsserverchainnames.ifPresent(configBuilder::sslServerTrustCertificates);
-        tlsknownclientsStr.ifPresent(configBuilder::sslKnownClientsFile);
-        tlsclientkeyStr.ifPresent(configBuilder::sslClientTlsKeyPath);
-        tlsclientcertStr.ifPresent(configBuilder::sslClientTlsCertificatePath);
+        tlsknownclients.ifPresent(configBuilder::sslKnownClientsFile);
+        tlsclientkey.ifPresent(configBuilder::sslClientTlsKeyPath);
+        tlsclientcert.ifPresent(configBuilder::sslClientTlsCertificatePath);
         tlsclientchainnames.ifPresent(configBuilder::sslClientTrustCertificates);
-        tlsknownserversStr.ifPresent(configBuilder::sslKnownServersFile);
+        tlsknownservers.ifPresent(configBuilder::sslKnownServersFile);
 
         Optional.ofNullable(storage)
                 .map(JdbcConfigFactory::fromLegacyStorageString).ifPresent(configBuilder::jdbcConfig);

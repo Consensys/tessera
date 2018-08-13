@@ -1,7 +1,8 @@
 package com.quorum.tessera.config.migration;
 
-import com.moandjiezana.toml.Toml;
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.KeyConfiguration;
+import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
@@ -20,7 +21,9 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 public class LegacyCliAdapter implements CliAdapter {
 
@@ -31,10 +34,6 @@ public class LegacyCliAdapter implements CliAdapter {
     public LegacyCliAdapter() {
         this.configFactory = new TomlConfigFactory();
     }
-
-//    protected LegacyCliAdapter(TomlConfigFactory configFactory) {
-//        this.configFactory = Objects.requireNonNull(configFactory);
-//    }
 
     @Override
     public CliResult execute(String... args) throws Exception {
@@ -53,12 +52,6 @@ public class LegacyCliAdapter implements CliAdapter {
 
         CommandLine line = parser.parse(options, args);
 
-        final String tomlWorkDir = Optional.ofNullable(line.getOptionValue("tomlfile"))
-                                            .map(Paths::get)
-                                            .map(fileDelegate::newInputStream)
-                                            .map(stream -> new Toml().read(stream).getString("workdir", ""))
-                                            .get();
-
         final ConfigBuilder configBuilder = Optional.ofNullable(line.getOptionValue("tomlfile"))
                                                 .map(Paths::get)
                                                 .map(fileDelegate::newInputStream)
@@ -71,7 +64,7 @@ public class LegacyCliAdapter implements CliAdapter {
                                                     .map(configFactory::createKeyDataBuilder)
                                                     .orElse(KeyDataBuilder.create());
 
-        ConfigBuilder adjustedConfig = applyOverrides(line, configBuilder, keyDataBuilder, tomlWorkDir);
+        ConfigBuilder adjustedConfig = applyOverrides(line, configBuilder, keyDataBuilder);
 
         Config config = adjustedConfig.build();
 
@@ -101,7 +94,7 @@ public class LegacyCliAdapter implements CliAdapter {
         }
     }
 
-    static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder, KeyDataBuilder keyDataBuilder, String tomlWorkDir) {
+    static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder, KeyDataBuilder keyDataBuilder) {
 
         Optional.ofNullable(line.getOptionValue("workdir"))
             .ifPresent(configBuilder::workdir);

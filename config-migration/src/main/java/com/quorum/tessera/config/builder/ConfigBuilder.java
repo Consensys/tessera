@@ -217,7 +217,6 @@ public class ConfigBuilder {
         return this;
     }
 
-    //TODO Test case where workDir is null (is this even possible or is default set before this point?)
     static Path toPath(String workDir, String value) {
         final Path path;
 
