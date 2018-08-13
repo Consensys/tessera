@@ -1,0 +1,43 @@
+{
+    "useWhiteList": false,
+    "jdbc": {
+        "username": "sa",
+        "password": "",
+        "url": "jdbc:h2:./target/h2/tessera1"
+    },
+    "server": {
+        "port": 8080,
+        "hostName": "http://localhost",
+        "sslConfig": {
+            "tls": "OFF",
+            "generateKeyStoreIfNotExisted": "false",
+            "serverKeyStore": "./ssl/server1-keystore",
+            "serverKeyStorePassword": "quorum",
+            "serverTrustStore": "./ssl/server-truststore",
+            "serverTrustStorePassword": "quorum",
+            "serverTrustMode": "CA",
+            "clientKeyStore": "./ssl/client1-keystore",
+            "clientKeyStorePassword": "quorum",
+            "clientTrustStore": "./ssl/client-truststore",
+            "clientTrustStorePassword": "quorum",
+            "clientTrustMode": "CA",
+            "knownClientsFile": "./ssl/knownClients1",
+            "knownServersFile": "./ssl/knownServers1"
+        }
+    },
+    "peer": [
+        {
+            "url": "http://localhost:8081"
+        }
+    ],
+    "keys": {
+        "keyData": [
+            {
+                "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
+                "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+            }
+        ]
+    },
+    "alwaysSendTo": [],
+    "unixSocketFile": "/tmp/tm1.ipc"
+}
