@@ -6,6 +6,7 @@ import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
+import com.quorum.tessera.config.util.FilesDelegate;
 import com.quorum.tessera.config.util.IOCallback;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.nacl.NaclException;
@@ -22,7 +23,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.util.Objects;
 
 public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
-
+    
+    private FilesDelegate filesDelegate = FilesDelegate.create();
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyDataAdapter.class);
 
     @Override
@@ -38,7 +41,9 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
             return unmarshalInline(keyData);
         }
 
-        if (keyData.getPublicKeyPath() == null || keyData.getPrivateKeyPath() == null) {
+
+        if (keyData.getPublicKeyPath() == null || keyData.getPrivateKeyPath() == null 
+                || filesDelegate.notExists(keyData.getPublicKeyPath()) || filesDelegate.notExists(keyData.getPrivateKeyPath())) {
             return keyData;
         }
 
@@ -98,8 +103,8 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         try {
             decyptedPrivateKey = Objects.toString(kg.decryptPrivateKey(encryptedKey));
         } catch (final NaclException ex) {
-            LOGGER.debug("Unable to decypt private key : {}",ex.getMessage());
-            decyptedPrivateKey = "NACL_FAILURE: "+ ex.getMessage();
+            LOGGER.debug("Unable to decypt private key : {}", ex.getMessage());
+            decyptedPrivateKey = "NACL_FAILURE: " + ex.getMessage();
         }
 
         //need to decrypt
