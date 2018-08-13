@@ -24,15 +24,15 @@ public class LegacyCliAdapter implements CliAdapter {
 
     private final FilesDelegate fileDelegate = FilesDelegate.create();
 
-    private final ConfigFactory configFactory;
+    private final TomlConfigFactory configFactory;
 
     public LegacyCliAdapter() {
-        this(new TomlConfigFactory());
+        this.configFactory = new TomlConfigFactory();
     }
 
-    protected LegacyCliAdapter(ConfigFactory configFactory) {
-        this.configFactory = Objects.requireNonNull(configFactory);
-    }
+//    protected LegacyCliAdapter(TomlConfigFactory configFactory) {
+//        this.configFactory = Objects.requireNonNull(configFactory);
+//    }
 
     @Override
     public CliResult execute(String... args) throws Exception {
@@ -51,20 +51,25 @@ public class LegacyCliAdapter implements CliAdapter {
 
         CommandLine line = parser.parse(options, args);
 
+        final String tomlWorkDir = Optional.ofNullable(line.getOptionValue("tomlfile"))
+                                            .map(Paths::get)
+                                            .map(fileDelegate::newInputStream)
+                                            .map(stream -> new Toml().read(stream).getString("workdir", ""))
+                                            .get();
+
         final ConfigBuilder configBuilder = Optional.ofNullable(line.getOptionValue("tomlfile"))
                                                 .map(Paths::get)
                                                 .map(fileDelegate::newInputStream)
                                                 .map(stream -> this.configFactory.create(stream, null))
-                                                .map(ConfigBuilder::from)
                                                 .orElse(ConfigBuilder.create());
 
-        final String tomlWorkDir = Optional.ofNullable(line.getOptionValue("tomlfile"))
-                                            .map(Paths::get)
-                                            .map(fileDelegate::newInputStream)
-                                            .map(stream -> new Toml().read(stream).getString("workdir"))
-                                            .orElse("");
+        final KeyDataBuilder keyDataBuilder = Optional.ofNullable(line.getOptionValue("tomlfile"))
+                                                    .map(Paths::get)
+                                                    .map(fileDelegate::newInputStream)
+                                                    .map(configFactory::createKeyDataBuilder)
+                                                    .orElse(KeyDataBuilder.create());
 
-        ConfigBuilder adjustedConfig = applyOverrides(line, configBuilder, tomlWorkDir);
+        ConfigBuilder adjustedConfig = applyOverrides(line, configBuilder, keyDataBuilder, tomlWorkDir);
 
         Config config = adjustedConfig.build();
 
@@ -94,41 +99,13 @@ public class LegacyCliAdapter implements CliAdapter {
         }
     }
 
-    static Optional<Path> resolveUnixFilePath(Path initial, String workdir, String fileName) {
-        if (Objects.nonNull(workdir) && Objects.nonNull(fileName)) {
-            return Optional.of(Paths.get(workdir, fileName));
-        } else if(Objects.nonNull(fileName)) {
-            return Optional.of(Paths.get(fileName));
-        }
+    static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder, KeyDataBuilder keyDataBuilder, String tomlWorkDir) {
 
-        return Optional.ofNullable(initial);
+        Optional.ofNullable(line.getOptionValue("workdir"))
+                .ifPresent(configBuilder::workdir);
 
-    }
-
-    static Optional<List<Path>> resolveListOfUnixFilePaths(List<Path> initial, String workdir, List<String> fileNames) {
-        if(Objects.nonNull(workdir) && Objects.nonNull(fileNames)) {
-            List<Path> paths = new ArrayList<>();
-            for(String fileName : fileNames) {
-                paths.add(Paths.get(workdir, fileName));
-            }
-            return Optional.of(paths);
-        }
-
-        return Optional.ofNullable(initial);
-    }
-
-    static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder, String tomlWorkDir) {
-
-        final String workDir;
-
-        if(Optional.ofNullable(line.getOptionValue("workdir")).isPresent()) {
-            workDir = line.getOptionValue("workdir");
-        } else {
-            workDir = tomlWorkDir;
-        }
-
-        Config initialConfig = Optional.ofNullable(configBuilder).get()
-                                        .build();
+        Optional.ofNullable(line.getOptionValue("workdir"))
+                .ifPresent(keyDataBuilder::withWorkingDirectory);
 
         Optional.ofNullable(line.getOptionValue("url"))
                 .ifPresent(configBuilder::serverHostname);
@@ -137,14 +114,12 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(Integer::valueOf)
                 .ifPresent(configBuilder::serverPort);
 
-        resolveUnixFilePath(initialConfig.getUnixSocketFile(), workDir, line.getOptionValue("socket"))
+        Optional.ofNullable(line.getOptionValue("socket"))
                 .ifPresent(configBuilder::unixSocketFile);
 
         Optional.ofNullable(line.getOptionValues("othernodes"))
                 .map(Arrays::asList)
                 .ifPresent(configBuilder::peers);
-
-        KeyDataBuilder keyDataBuilder = KeyDataBuilder.create();
 
         Optional.ofNullable(line.getOptionValues("publickeys"))
                 .map(Arrays::asList)
@@ -158,13 +133,8 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(Arrays::asList)
                 .ifPresent(configBuilder::alwaysSendTo);
 
-        Optional.ofNullable(workDir)
-                .ifPresent(keyDataBuilder::withWorkingDirectory);
-
-        if(initialConfig.getKeys() != null){
-            resolveUnixFilePath(initialConfig.getKeys().getPasswordFile(), workDir, line.getOptionValue("passwords"))
+        Optional.ofNullable(line.getOptionValue("passwords"))
                 .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
-        }
 
         Optional.ofNullable(line.getOptionValue("storage"))
                 .map(JdbcConfigFactory::fromLegacyStorageString)
@@ -186,44 +156,30 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(SslTrustModeFactory::resolveByLegacyValue)
                 .ifPresent(configBuilder::sslClientTrustMode);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getServerTlsCertificatePath(), workDir, line.getOptionValue("tlsservercert"))
-            .ifPresent(configBuilder::sslServerTlsCertificatePath);
+        Optional.ofNullable(line.getOptionValue("tlsservercert"))
+                .ifPresent(configBuilder::sslServerTlsCertificatePath);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getClientTlsCertificatePath(), workDir, line.getOptionValue("tlsclientcert"))
-            .ifPresent(configBuilder::sslClientTlsCertificatePath);
+        Optional.ofNullable(line.getOptionValue("tlsclientcert"))
+                .ifPresent(configBuilder::sslClientTlsCertificatePath);
 
         Optional.ofNullable(line.getOptionValues("tlsserverchain"))
                 .map(Arrays::asList)
-                .ifPresent(l -> {
-                    List<Path> sslServerTrustCertificates = resolveListOfUnixFilePaths(
-                        initialConfig.getServerConfig().getSslConfig().getServerTrustCertificates(),
-                        workDir,
-                        l
-                    ).get();
-                    configBuilder.sslServerTrustCertificates(sslServerTrustCertificates);
-                });
+                .ifPresent(configBuilder::sslServerTrustCertificates);
 
         Optional.ofNullable(line.getOptionValues("tlsclientchain"))
                 .map(Arrays::asList)
-                .ifPresent(l -> {
-                    List<Path> sslClientTrustCertificates = resolveListOfUnixFilePaths(
-                        initialConfig.getServerConfig().getSslConfig().getClientTrustCertificates(),
-                        workDir,
-                        l
-                    ).get();
-                    configBuilder.sslClientTrustCertificates(sslClientTrustCertificates);
-                });
+                .ifPresent(configBuilder::sslClientTrustCertificates);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getServerTlsKeyPath(), workDir, line.getOptionValue("tlsserverkey"))
+        Optional.ofNullable(line.getOptionValue("tlsserverkey"))
             .ifPresent(configBuilder::sslServerTlsKeyPath);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getClientTlsKeyPath(), workDir, line.getOptionValue("tlsclientkey"))
+        Optional.ofNullable(line.getOptionValue("tlsclientkey"))
             .ifPresent(configBuilder::sslClientTlsKeyPath);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getKnownServersFile(), workDir, line.getOptionValue("tlsknownservers"))
+        Optional.ofNullable(line.getOptionValue("tlsknownservers"))
             .ifPresent(configBuilder::sslKnownServersFile);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getKnownClientsFile(), workDir, line.getOptionValue("tlsknownclients"))
+        Optional.ofNullable(line.getOptionValue("tlsknownclients"))
             .ifPresent(configBuilder::sslKnownClientsFile);
 
         final KeyConfiguration keyConfiguration = keyDataBuilder.build();

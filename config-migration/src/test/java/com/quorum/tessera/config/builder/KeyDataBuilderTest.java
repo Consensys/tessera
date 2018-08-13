@@ -4,18 +4,18 @@ import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.*;
-
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class KeyDataBuilderTest {
 
@@ -44,7 +44,7 @@ public class KeyDataBuilderTest {
         List<KeyData> result = KeyDataBuilder.create()
             .withPrivateKeys(privateKeys)
             .withPublicKeys(publicKeys)
-            .withPrivateKeyPasswordFile(passwordFile)
+            .withPrivateKeyPasswordFile(passwordFile.toString())
             .build()
             .getKeyData();
 
@@ -58,7 +58,7 @@ public class KeyDataBuilderTest {
         final KeyDataBuilder keyDataBuilder = KeyDataBuilder.create()
             .withPrivateKeys(Collections.emptyList())
             .withPublicKeys(Collections.singletonList("keyfile.txt"))
-            .withPrivateKeyPasswordFile(Paths.get("pwfile.txt"));
+            .withPrivateKeyPasswordFile("pwfile.txt");
 
         final Throwable throwable = catchThrowable(() -> keyDataBuilder.build());
 
@@ -96,7 +96,7 @@ public class KeyDataBuilderTest {
         List<KeyData> result = KeyDataBuilder.create()
                 .withPrivateKeys(privateKeys)
                 .withPublicKeys(publicKeys)
-                .withPrivateKeyPasswordFile(passwordsFile)
+                .withPrivateKeyPasswordFile(passwordsFile.toString())
                 .build().getKeyData();
 
         assertThat(result).hasSize(3);

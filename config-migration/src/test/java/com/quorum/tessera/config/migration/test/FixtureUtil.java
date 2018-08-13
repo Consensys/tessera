@@ -5,7 +5,6 @@ import com.quorum.tessera.config.builder.ConfigBuilder;
 
 import javax.json.Json;
 import javax.json.JsonObject;
-import java.nio.file.Paths;
 import java.util.Collections;
 
 import static org.mockito.Mockito.mock;
@@ -39,7 +38,7 @@ public class FixtureUtil {
             .alwaysSendTo(Collections.emptyList())
             .serverPort(892)
             .sslAuthenticationMode(SslAuthenticationMode.STRICT)
-            .unixSocketFile(Paths.get("somepath.ipc"))
+            .unixSocketFile("somepath.ipc")
             .serverHostname("http://bogus.com:928")
             .sslServerKeyStorePath("sslServerKeyStorePath")
             .sslServerTrustMode(SslTrustMode.TOFU)
@@ -49,15 +48,15 @@ public class FixtureUtil {
             .sslClientTrustStorePath("sslClientTrustStorePath")
             .sslClientKeyStorePassword("sslClientKeyStorePassword")
             .sslClientTrustStorePassword("sslClientTrustStorePassword")
-            .sslServerTlsKeyPath(Paths.get("sslServerTlsKeyPath"))
-            .sslClientTlsKeyPath(Paths.get("sslClientTlsKeyPath"))
-            .sslKnownClientsFile(Paths.get("knownClientsFile"))
-            .sslKnownServersFile(Paths.get("knownServersFile"))
+            .sslServerTlsKeyPath("sslServerTlsKeyPath")
+            .sslClientTlsKeyPath("sslClientTlsKeyPath")
+            .sslKnownClientsFile("knownClientsFile")
+            .sslKnownServersFile("knownServersFile")
             .sslClientTrustMode(SslTrustMode.CA_OR_TOFU)
-            .sslServerTrustCertificates(Collections.singletonList(Paths.get("sslServerTrustCertificates")))
-            .sslClientTrustCertificates(Collections.singletonList(Paths.get("sslClientTrustCertificates")))
-            .sslClientTlsCertificatePath(Paths.get("sslClientTlsCertificatePath"))
-            .sslServerTlsCertificatePath(Paths.get("sslServerTlsCertificatePath"))
+            .sslServerTrustCertificates(Collections.singletonList("sslServerTrustCertificates"))
+            .sslClientTrustCertificates(Collections.singletonList("sslClientTrustCertificates"))
+            .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
+            .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
             .keyData(new KeyConfiguration(null, Collections.emptyList(),
                 Collections.singletonList(new KeyData(new KeyDataConfig(mock(PrivateKeyData.class), PrivateKeyType.LOCKED), null, null, null, null))));
     }
@@ -69,7 +68,7 @@ public class FixtureUtil {
             .alwaysSendTo(Collections.emptyList())
             .serverPort(892)
             .sslAuthenticationMode(SslAuthenticationMode.STRICT)
-            .unixSocketFile(Paths.get("somepath.ipc"))
+            .unixSocketFile("somepath.ipc")
             .serverHostname("http://bogus.com:928")
             .sslServerKeyStorePath(null)
             .sslServerTrustMode(SslTrustMode.TOFU)
@@ -79,15 +78,15 @@ public class FixtureUtil {
             .sslClientTrustStorePath("sslClientTrustStorePath")
             .sslClientKeyStorePassword("sslClientKeyStorePassword")
             .sslClientTrustStorePassword("sslClientTrustStorePassword")
-            .sslServerTlsKeyPath(Paths.get("sslServerTlsKeyPath"))
-            .sslClientTlsKeyPath(Paths.get("sslClientTlsKeyPath"))
-            .sslKnownClientsFile(Paths.get("knownClientsFile"))
+            .sslServerTlsKeyPath("sslServerTlsKeyPath")
+            .sslClientTlsKeyPath("sslClientTlsKeyPath")
+            .sslKnownClientsFile("knownClientsFile")
             .sslKnownServersFile(null)
             .sslClientTrustMode(SslTrustMode.CA_OR_TOFU)
-            .sslServerTrustCertificates(Collections.singletonList(Paths.get("sslServerTrustCertificates")))
-            .sslClientTrustCertificates(Collections.singletonList(Paths.get("sslClientTrustCertificates")))
-            .sslClientTlsCertificatePath(Paths.get("sslClientTlsCertificatePath"))
-            .sslServerTlsCertificatePath(Paths.get("sslServerTlsCertificatePath"))
+            .sslServerTrustCertificates(Collections.singletonList("sslServerTrustCertificates"))
+            .sslClientTrustCertificates(Collections.singletonList("sslClientTrustCertificates"))
+            .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
+            .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
             .keyData(new KeyConfiguration(null, Collections.emptyList(),
                 Collections.singletonList(new KeyData(new KeyDataConfig(mock(PrivateKeyData.class), PrivateKeyType.LOCKED), null, null, null, null))));
     }
