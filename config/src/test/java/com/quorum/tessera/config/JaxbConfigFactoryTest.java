@@ -174,4 +174,17 @@ public class JaxbConfigFactoryTest {
         assertThat(config.getKeys().getPasswordFile()).isNull();
     }
 
+    @Test
+    public void nullKeysDoesntCreatePasswords() {
+        final InputStream tempSystemIn = new ByteArrayInputStream((lineSeparator() + lineSeparator()).getBytes());
+        System.setIn(tempSystemIn);
+        this.factory = new JaxbConfigFactory();
+
+        final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/nullKeys.json");
+
+        final Config config = factory.create(inputStream, null);
+
+        assertThat(config.getKeys()).isNull();
+    }
+
 }
