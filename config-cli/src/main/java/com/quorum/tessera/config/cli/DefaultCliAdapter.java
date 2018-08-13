@@ -58,17 +58,15 @@ public class DefaultCliAdapter implements CliAdapter {
         //If keygen then we require the path to the private key config path
         options.addOption(
                 Option.builder("keygen")
-                        .desc("Path to private key config for generation of missing key files")
-                        .hasArg(true)
-                        .optionalArg(true)
-                        .argName("PATH")
+                        .desc("Use this option to generate public/private keypair")
+                        .hasArg(false)
                         .build());
 
         options.addOption(
                 Option.builder("filename")
                         .desc("Path to private key config for generation of missing key files")
                         .hasArg(true)
-                        .optionalArg(true)
+                        .optionalArg(false)
                         .argName("PATH")
                         .build());
 
@@ -76,7 +74,7 @@ public class DefaultCliAdapter implements CliAdapter {
                 Option.builder("keygenconfig")
                         .desc("Path to private key config for generation of missing key files")
                         .hasArg(true)
-                        .optionalArg(true)
+                        .optionalArg(false)
                         .argName("PATH")
                         .build());
 
@@ -102,6 +100,8 @@ public class DefaultCliAdapter implements CliAdapter {
 
             final String optionName = entry.getKey();
 
+
+
             final boolean isCollection = entry.getValue().isArray();
 
             Class optionType = entry.getValue();
@@ -117,7 +117,10 @@ public class DefaultCliAdapter implements CliAdapter {
                 optionBuilder.hasArg()
                         .argName(optionType.getSimpleName().toUpperCase());
             }
-            options.addOption(optionBuilder.build());
+
+            if(!optionName.startsWith("keys") && !optionName.startsWith("alwaysSendTo")) {
+                options.addOption(optionBuilder.build());
+            }
 
         });
 
