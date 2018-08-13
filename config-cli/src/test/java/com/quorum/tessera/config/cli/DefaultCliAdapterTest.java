@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -31,6 +32,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import java.util.stream.Collectors;
+
 
 public class DefaultCliAdapterTest {
     
@@ -266,7 +269,7 @@ public class DefaultCliAdapterTest {
         
         Path pidFile = Paths.get(getClass().getResource("/pid").getFile());
         
-        Path configFile = createAndPopulatePaths(getClass().getResource("/keygen-sample.json"));
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         
         CliResult result = cliDelegate.execute(
                 "-pidfile",
@@ -290,7 +293,7 @@ public class DefaultCliAdapterTest {
         
         assertThat(Files.notExists(anotherPidFile)).isTrue();
         
-        Path configFile = createAndPopulatePaths(getClass().getResource("/keygen-sample.json"));
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         
         CliResult result = cliDelegate.execute(
                 "-pidfile",
@@ -313,7 +316,7 @@ public class DefaultCliAdapterTest {
     @Test
     public void dynOption() throws Exception {
         
-        Path configFile = createAndPopulatePaths(getClass().getResource("/keygen-sample.json"));
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         
         CliResult result = cliDelegate.execute(
                 "-configfile",
@@ -395,11 +398,20 @@ public class DefaultCliAdapterTest {
                     configFile.toString());
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
-            assertThat(ex.getConstraintViolations()).hasSize(1);
+            assertThat(ex.getConstraintViolations()).hasSize(2);
+          
+            ex.getConstraintViolations().forEach(System.out::println);
             
-            assertThat(ex.getConstraintViolations().stream()
+            List<String> invalidPaths = ex.getConstraintViolations().stream()
                     .map(ConstraintViolation::getPropertyPath)
-                    .map(Objects::toString).findFirst().get()).isEqualTo("keys");
+                    .map(Objects::toString)
+                    .collect(Collectors.toList());
+            
+            assertThat(invalidPaths).containsExactlyInAnyOrder(
+                    "keys.keyData","keys.keyData"
+            );
+            
+
             
         }
         

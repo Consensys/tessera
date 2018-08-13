@@ -4,11 +4,12 @@
     <parent>
         <groupId>com.quorum.tessera</groupId>
         <artifactId>tessera</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.5.2-SNAPSHOT</version>
     </parent>
     <artifactId>data-migration</artifactId>
     <packaging>jar</packaging>
     
+
     <dependencies>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -66,13 +67,11 @@
                     <shadedClassifierName>cli</shadedClassifierName>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <transformers>
-                        <transformer
-                            implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                             <mainClass>com.quorum.tessera.data.migration.Main</mainClass>
                         </transformer>
 
-                        <transformer
-                            implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
 
                         <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                             <resource>META-INF/spring.handlers</resource>

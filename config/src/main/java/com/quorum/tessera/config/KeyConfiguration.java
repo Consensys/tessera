@@ -1,8 +1,10 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.PathAdapter;
+import com.quorum.tessera.config.constraints.ValidKeyData;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -10,6 +12,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
 import java.util.List;
+import javax.validation.Valid;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
@@ -21,7 +24,10 @@ public class KeyConfiguration extends ConfigItem {
 
     private final List<String> passwords;
 
+    @Valid
+    @ValidKeyData
     @NotNull
+    @Size(min = 1, message = "At least 1 public/private key pair must be provided")
     private final List<KeyData> keyData;
 
     public KeyConfiguration(final Path passwordFile, final List<String> passwords, final List<KeyData> keyData) {

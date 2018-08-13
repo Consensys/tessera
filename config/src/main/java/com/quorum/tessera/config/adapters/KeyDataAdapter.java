@@ -6,6 +6,7 @@ import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
+import com.quorum.tessera.config.util.FilesDelegate;
 import com.quorum.tessera.config.util.IOCallback;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.nacl.NaclException;
@@ -19,9 +20,12 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.Objects;
 
 public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
-
+    
+    private FilesDelegate filesDelegate = FilesDelegate.create();
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyDataAdapter.class);
 
     @Override
@@ -37,10 +41,10 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
             return unmarshalInline(keyData);
         }
 
-        if (keyData.getPublicKeyPath() == null || keyData.getPrivateKeyPath() == null
-            || Files.notExists(keyData.getPublicKeyPath()) || Files.notExists(keyData.getPrivateKeyPath())) {
-            System.err.println("When providing key paths, must give both as paths, not just one, and both files must exist");
-            throw new IllegalArgumentException("When providing key paths, must give both public and private, and both files must exist");
+
+        if (keyData.getPublicKeyPath() == null || keyData.getPrivateKeyPath() == null 
+                || filesDelegate.notExists(keyData.getPublicKeyPath()) || filesDelegate.notExists(keyData.getPrivateKeyPath())) {
+            return keyData;
         }
 
         //case 3, the keys are provided inside a file
@@ -89,37 +93,35 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         }
 
         if (keyData.getConfig().getPassword() == null) {
-
-            System.err.println("A locked key was provided without a password. ");
-            System.err.println("Please ensure the same number of passwords are provided as there are keys ");
-            System.err.print("and remember to include empty passwords for unlocked keys");
-            System.err.println();
-            throw new IllegalArgumentException("Password missing");
+            return keyData;
         }
 
         final KeyEncryptor kg = KeyEncryptorFactory.create();
         final PrivateKeyData encryptedKey = keyData.getConfig().getPrivateKeyData();
 
+        String decyptedPrivateKey;
         try {
-            //need to decrypt
-            return new KeyData(
-                    keyData.getConfig(),
-                    kg.decryptPrivateKey(encryptedKey).toString(),
-                    keyData.getPublicKey(),
-                    keyData.getPrivateKeyPath(),
-                    keyData.getPublicKeyPath()
-            );
+            decyptedPrivateKey = Objects.toString(kg.decryptPrivateKey(encryptedKey));
         } catch (final NaclException ex) {
-            System.err.println("Could not decrypt the private key with the provided password, please double check the passwords provided");
-            throw new IllegalArgumentException();
+            LOGGER.debug("Unable to decypt private key : {}", ex.getMessage());
+            decyptedPrivateKey = "NACL_FAILURE: " + ex.getMessage();
         }
+
+        //need to decrypt
+        return new KeyData(
+                keyData.getConfig(),
+                decyptedPrivateKey,
+                keyData.getPublicKey(),
+                keyData.getPrivateKeyPath(),
+                keyData.getPublicKeyPath()
+        );
 
     }
 
     @Override
     public KeyData marshal(final KeyData keyData) {
 
-        if(keyData.getConfig() == null) {
+        if (keyData.getConfig() == null) {
             return keyData;
         } else if (keyData.getConfig().getType() != PrivateKeyType.UNLOCKED) {
             return new KeyData(
@@ -142,6 +144,10 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         } else {
             return keyData;
         }
+    }
+
+    protected void setFilesDelegate(FilesDelegate filesDelegate) {
+        this.filesDelegate = filesDelegate;
     }
 
 }

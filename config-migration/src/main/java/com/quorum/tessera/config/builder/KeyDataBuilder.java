@@ -55,10 +55,6 @@ public class KeyDataBuilder {
             throw new ConfigException(new RuntimeException("Different amount of public and private keys supplied"));
         }
 
-        if(publicKeys.isEmpty()) {
-            return new KeyConfiguration(null, null, Collections.emptyList());
-        }
-
         final List<KeyData> keyData = IntStream
             .range(0, publicKeys.size())
             .mapToObj(i -> new KeyData(null, null, null, Paths.get(workdir, privateKeys.get(i)), Paths.get(workdir, publicKeys.get(i))))
@@ -73,7 +69,7 @@ public class KeyDataBuilder {
             privateKeyPasswordFilePath = null;
         }
 
-        return new KeyConfiguration(privateKeyPasswordFilePath, Collections.emptyList(), keyData);
+        return new KeyConfiguration(privateKeyPasswordFilePath, null, keyData);
     }
 
 }
