@@ -2,6 +2,7 @@ package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.util.FilesDelegate;
+import java.util.ArrayList;
 import java.util.List;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -19,42 +20,49 @@ public class KeyDataValidator implements ConstraintValidator<ValidKeyData, List<
 
     @Override
     public boolean isValid(List<KeyData> keyDataList, ConstraintValidatorContext context) {
-        if(keyDataList == null) {
+        if (keyDataList == null) {
             return true;
         }
-        
-        for (KeyData keyData : keyDataList) {
+
+        List<String> errors = new ArrayList<>();
+
+        for (int i = 0; i < keyDataList.size(); i++) {
+            final String positionAsString = String.valueOf(i + 1);
+            final KeyData keyData = keyDataList.get(i);
             //Assume that test values have been provided. 
             if (keyData.getPublicKeyPath() == null && keyData.getPrivateKeyPath() == null) {
-                return true;
+                continue;
             }
 
             if (keyData.getPublicKeyPath() == null || keyData.getPrivateKeyPath() == null) {
-
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("When providing key paths, must give both as paths, not just one, and both files must exist")
-                        .addConstraintViolation();
-
-                return false;
+                errors.add(String.format("KeyData %s : When providing key paths, must give both as paths, not just one, and both files must exist",
+                        positionAsString));
+                continue;
             }
 
             if (filesDelegate.notExists(keyData.getPublicKeyPath())) {
+                errors.add(String.format("KeyData %s : Public key path %s does not exist",
+                        positionAsString, keyData.getPublicKeyPath()));
 
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("Public key path " + keyData.getPublicKeyPath() + "Does not exist")
-                        .addConstraintViolation();
-
-                return false;
             }
 
             if (filesDelegate.notExists(keyData.getPrivateKeyPath())) {
+                errors.add(String.format("KeyData %s : Private key path %s does not exist",
+                        positionAsString, keyData.getPrivateKeyPath()));
+            }
+            
+            
+        }
 
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("Private key path " + keyData.getPrivateKeyPath() + "Does not exist")
+        if (!errors.isEmpty()) {
+            context.disableDefaultConstraintViolation();
+            errors.forEach(error -> {
+                context.buildConstraintViolationWithTemplate(error)
                         .addConstraintViolation();
 
-                return false;
-            }
+            });
+            return false;
+
         }
 
         return true;

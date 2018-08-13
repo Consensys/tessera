@@ -5,7 +5,7 @@
     <parent>
         <artifactId>tessera</artifactId>
         <groupId>com.quorum.tessera</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.5.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
