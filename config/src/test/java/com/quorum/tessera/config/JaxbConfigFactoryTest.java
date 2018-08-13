@@ -157,4 +157,21 @@ public class JaxbConfigFactoryTest {
         Files.deleteIfExists(config.getKeys().getPasswordFile());
     }
 
+    @Test
+    public void noNewKeyDoesntTriggerPasswords() {
+
+        final InputStream tempSystemIn = new ByteArrayInputStream((lineSeparator() + lineSeparator()).getBytes());
+        System.setIn(tempSystemIn);
+        this.factory = new JaxbConfigFactory();
+
+        final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
+
+        final Config config = factory.create(inputStream, null);
+
+        assertThat(config.getKeys()).isNotNull();
+        assertThat(config.getKeys().getKeyData()).isEmpty();
+        assertThat(config.getKeys().getPasswords()).isNull();
+        assertThat(config.getKeys().getPasswordFile()).isNull();
+    }
+
 }
