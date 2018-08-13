@@ -124,7 +124,7 @@ public class ConfigBuilderTest {
         createMethod.setAccessible(true);
         Config existing = new Config(new JdbcConfig(null,null,null),
             new ServerConfig(null,null,
-                new SslConfig(null,true,null,null,
+                new SslConfig(null,false,null,null,
                     null,null,null,
                     null,null,null,
                     null,null,null,null,null,

@@ -67,7 +67,7 @@ public class TomlConfigFactory implements ConfigFactory {
             unixSocketFile = null;
         }
 
-        final String tls = toml.getString("tls", "strict").toUpperCase();
+        final String tls = toml.getString("tls", "off").toUpperCase();
 
         final List<String> othernodes = toml.getList("othernodes", Collections.emptyList());
 

@@ -269,7 +269,7 @@ public class DefaultCliAdapterTest {
         
         Path pidFile = Paths.get(getClass().getResource("/pid").getFile());
         
-        Path configFile = createAndPopulatePaths(getClass().getResource("/keygen-sample.json"));
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         
         CliResult result = cliDelegate.execute(
                 "-pidfile",
@@ -293,7 +293,7 @@ public class DefaultCliAdapterTest {
         
         assertThat(Files.notExists(anotherPidFile)).isTrue();
         
-        Path configFile = createAndPopulatePaths(getClass().getResource("/keygen-sample.json"));
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         
         CliResult result = cliDelegate.execute(
                 "-pidfile",
@@ -316,7 +316,7 @@ public class DefaultCliAdapterTest {
     @Test
     public void dynOption() throws Exception {
         
-        Path configFile = createAndPopulatePaths(getClass().getResource("/keygen-sample.json"));
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         
         CliResult result = cliDelegate.execute(
                 "-configfile",
