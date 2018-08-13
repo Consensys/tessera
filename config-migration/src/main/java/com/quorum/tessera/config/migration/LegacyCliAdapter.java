@@ -17,6 +17,8 @@ import org.apache.commons.cli.*;
 import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -118,6 +120,13 @@ public class LegacyCliAdapter implements CliAdapter {
         Config initialConfig = configBuilder.build();
 
         Optional.ofNullable(line.getOptionValue("url"))
+                .map(url -> {
+                    try {
+                        return new URL(url);
+                    } catch (MalformedURLException e) {
+                        throw new RuntimeException("Bad server url given: " + e.getMessage());
+                    }
+                }).map(uri -> uri.getProtocol() + "://" + uri.getHost())
                 .ifPresent(configBuilder::serverHostname);
 
         Optional.ofNullable(line.getOptionValue("port"))

@@ -53,12 +53,57 @@ public class TomlConfigFactoryTest {
 
             SslConfig sslConfig = result.getServerConfig().getSslConfig();
 
+            assertThat(result.getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
+
             assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
 
         }
 
         Files.deleteIfExists(passwordFile);
+    }
+
+    @Test
+    public void urlPortNotSetInConfig() throws IOException {
+
+        Path passwordFile = Files.createTempFile("password", ".txt");
+        InputStream template = getClass().getResourceAsStream("/sample-all-values-urlport-not-present.conf");
+
+        Map<String, Object> params = new HashMap<String, Object>() {
+            {
+                put("passwordFile", passwordFile);
+                put("serverKeyStorePath", "serverKeyStorePath");
+            }
+        };
+
+        try (InputStream configData = ElUtil.process(template, params)) {
+            Config result = tomlConfigFactory.create(configData, null);
+
+            assertThat(result.getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
+
+        }
+
+        Files.deleteIfExists(passwordFile);
+    }
+
+    @Test
+    public void badUrlSetInConfig() throws IOException {
+
+        InputStream template = getClass().getResourceAsStream("/sample-all-values-bad-url.conf");
+
+        Map<String, Object> params = new HashMap<String, Object>() {
+            {
+                put("passwordFile", "sample-file");
+                put("serverKeyStorePath", "serverKeyStorePath");
+            }
+        };
+
+        try (InputStream configData = ElUtil.process(template, params)) {
+            tomlConfigFactory.create(configData, null);
+        } catch (RuntimeException ex) {
+            assertThat(ex).hasMessage("Bad server url given: unknown protocol: ht");
+        }
+
     }
 
     @Test
