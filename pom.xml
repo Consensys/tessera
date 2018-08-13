@@ -1,17 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.quorum.tessera</groupId>
     <artifactId>tessera</artifactId>
-    <version>0.5.1-SNAPSHOT</version>
+    <version>0.5.2-SNAPSHOT</version>
 
     <name>tessera</name>
     <packaging>pom</packaging>
-
+   
+    <url>https://github.com/QuorumEngineering/tessera</url>
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/QuorumEngineering/tessera/issues</url>
+    </issueManagement>
+    <scm>
+        <url>https://github.com/QuorumEngineering/tessera</url>
+        <connection>scm:git:git://github.com/QuorumEngineering/tessera.git</connection>
+        <developerConnection>scm:git:git@github.com:QuorumEngineering/tessera.git</developerConnection>
+        <tag>master</tag>
+    </scm>
+    <ciManagement>
+        <url>https://travis-ci.com/QuorumEngineering/tessera</url>
+    </ciManagement>
+    
     <properties>
         <jersey.version>2.27</jersey.version>
         <jetty.version>9.4.10.v20180503</jetty.version>
@@ -21,10 +34,18 @@
         <spring.version>5.0.6.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
         <eclipselink.version>2.7.1</eclipselink.version>
+        
     </properties>
 
     <build>
-
+        <extensions>
+            <extension>
+                <groupId>ar.com.synergian</groupId>
+                <artifactId>wagon-git</artifactId>
+                <version>0.2.5</version>
+            </extension>
+        </extensions>
+        
         <pluginManagement>
 
             <plugins>
@@ -35,18 +56,6 @@
                     <version>0.8.1</version>
                 </plugin>
 
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.9.1</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>javax</groupId>
-                            <artifactId>javaee-api</artifactId>
-                            <version>7.0</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
 
                 <plugin>
                     <groupId>org.pitest</groupId>
@@ -63,12 +72,32 @@
                     </configuration>
                 </plugin>
 
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.7.1</version>
+                    <configuration>
+                        <outputDirectory>${project.reporting.outputDirectory}/${project.version}</outputDirectory>
+                    </configuration>
+                </plugin>
+
             </plugins>
 
         </pluginManagement>
 
+
         <plugins>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <goals>deploy site-deploy</goals>
+                </configuration>
+            </plugin>
+            
+            
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
@@ -194,7 +223,8 @@
 
                 </executions>
             </plugin>
-       
+
+
         </plugins>
 
 
@@ -221,93 +251,93 @@
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>encryption-api</artifactId>
-                <version>0.5.1-SNAPSHOT</version>
+                <version>0.5.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>argon2</artifactId>
-                <version>0.5.1-SNAPSHOT</version>
+                <version>0.5.2-SNAPSHOT</version>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>config</artifactId>
-                <version>0.5.1-SNAPSHOT</version>
+                <version>0.5.2-SNAPSHOT</version>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>config-cli</artifactId>
-                <version>0.5.1-SNAPSHOT</version>
+                <version>0.5.2-SNAPSHOT</version>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>unixsocket</artifactId>
-                <version>0.5.1-SNAPSHOT</version>
+                <version>0.5.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>security</artifactId>
-                <version>0.5.1-SNAPSHOT</version>
+                <version>0.5.2-SNAPSHOT</version>
             </dependency>
        
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>junixsocket-adapter</artifactId>
-                <version>0.5.1-SNAPSHOT</version>
+                <version>0.5.2-SNAPSHOT</version>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>encryption-jnacl</artifactId>
-                <version>0.5.1-SNAPSHOT</version>
+                <version>0.5.2-SNAPSHOT</version>
                 <scope>runtime</scope>
             </dependency>
                         
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>encryption-kalium</artifactId>
-                <version>0.5.1-SNAPSHOT</version>
+                <version>0.5.2-SNAPSHOT</version>
                 <scope>runtime</scope>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>service-locator-api</artifactId>
-                <version>0.5.1-SNAPSHOT</version>
+                <version>0.5.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>service-locator-spring</artifactId>
-                <version>0.5.1-SNAPSHOT</version>
+                <version>0.5.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>rest-server-api</artifactId>
-                <version>0.5.1-SNAPSHOT</version>
+                <version>0.5.2-SNAPSHOT</version>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>jersey-server</artifactId>
-                <version>0.5.1-SNAPSHOT</version>
+                <version>0.5.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>resteasy-server</artifactId>
-                <version>0.5.1-SNAPSHOT</version>
+                <version>0.5.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>test-util</artifactId>
-                <version>0.5.1-SNAPSHOT</version>
+                <version>0.5.2-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
 
@@ -660,5 +690,235 @@
         </dependency>
 
     </dependencies>
+    
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    
+                    <reportSets>
+                        <reportSet>
+                            <reports>
+                                <report>dependencies</report>
+                                <report>scm</report>
+                                <report>javadoc</report>
+                                <report>surefire</report>
+                                <report>modules</report>                       	
+                            </reports>
+                        </reportSet>
+                    </reportSets>  
+                </configuration>
 
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changelog-plugin</artifactId>
+                <version>2.3</version>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>2.22.0</version>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.0.0</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>checkstyle</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+                <configuration>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <logViolationsToConsole>true</logViolationsToConsole>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
+                    <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <links>
+                        <link>https://docs.oracle.com/javase/8/docs/api/</link>
+                        <link>https://docs.oracle.com/javaee/7/api/</link>
+                    </links>
+                    
+                    <linksource>true</linksource>
+                    <show>public</show>
+                    <source>1.8</source>
+                    
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            
+            
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.1</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>3.0.5</version>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.10.0</version>
+            </plugin>
+            
+        </plugins>
+    </reporting>
+    
+    <profiles>
+        <profile>
+            <id>release</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <!--                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>-->
+                    
+                    
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.0.1</version>
+                        <configuration>
+                            <links>
+                                <link>https://jax-rs.github.io/apidocs/2.0/</link>
+                                <link>https://docs.oracle.com/javaee/7/api/</link>
+                            </links>
+                            <linksource>true</linksource>
+                            <show>protected</show>
+                            <source>1.8</source>
+                        </configuration>
+                
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+            
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.4</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    
+    <distributionManagement>
+        
+        <site>
+            <id>github</id>
+            <name>GitHub Pages</name>
+            <url>git:gh-pages://git@github.com:quorumengineering/tessera.git</url>
+
+        </site>
+        <!--        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+        -->
+        <snapshotRepository>
+            <id>github-snapshot-repo</id>
+            <url>git:snapshots://git@github.com:quorumengineering/tessera.git</url>
+        </snapshotRepository>
+        
+        
+        <repository>
+            <id>quorum-release-repo</id>
+            <url>git:releases://git@github.com:quorumengineering/tessera.git</url>
+            
+        </repository>
+
+    </distributionManagement>
+    
+    
+    <repositories>
+        <repository>
+            <id>quorum-repo</id>
+            <url>https://raw.github.com/quorumengineering/tessera/releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+
+    </repositories>
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <id>synergian-repo</id>
+            <url>https://raw.github.com/synergian/wagon-git/releases</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>
