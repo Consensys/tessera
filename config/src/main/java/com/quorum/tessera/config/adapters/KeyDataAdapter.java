@@ -148,4 +148,8 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         return keyData;
     }
 
+    protected void setFilesDelegate(FilesDelegate filesDelegate) {
+        this.filesDelegate = filesDelegate;
+    }
+
 }
