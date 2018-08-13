@@ -172,4 +172,36 @@ public class KeyConfigurationAdapterTest {
         assertThat(unmarshalled.getKeyData().get(0).getPrivateKey()).isEqualTo("nDFwJNHSiT1gNzKBy9WJvMhmYRkW3TzFUmPsNzR6oFk=");
     }
 
+    @Test
+    public void unreadablePasswordFileGivesNoPasswords() throws IOException {
+
+        final Path passes = Files.createTempFile("passes", ".txt");
+        passes.toFile().setReadable(false);
+
+        final KeyData keyData = new KeyData(
+            new KeyDataConfig(
+                new PrivateKeyData(
+                    "",
+                    "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                    "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                    "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
+                    new ArgonOptions("id", 10, 1048576, 4),
+                    null
+                ), LOCKED
+            ),
+            null, null, null, null
+        );
+
+
+        final KeyConfiguration keyConfiguration = new KeyConfiguration(passes, null, singletonList(keyData));
+        final KeyConfiguration unmarshalled = this.keyConfigurationAdapter.unmarshal(keyConfiguration);
+
+        assertThat(unmarshalled.getKeyData()).hasSize(1);
+        final KeyData kd = unmarshalled.getKeyData().get(0);
+
+        //unlocked was the only property set pre-unmarshalling
+        assertThat(kd.getConfig().getPassword()).isNull();
+
+    }
+
 }

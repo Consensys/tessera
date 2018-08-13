@@ -5,9 +5,10 @@ import com.quorum.tessera.config.util.IOCallback;
 import com.quorum.tessera.config.util.JaxbUtil;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -25,15 +26,18 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
             throw new ConfigException(new RuntimeException("Must specify passwords in file or in config, not both"));
         }
 
-        final List<String> allPasswords;
+        final List<String> allPasswords = new ArrayList<>();
         if (input.getPasswords() != null) {
-            allPasswords = input.getPasswords();
+            allPasswords.addAll(input.getPasswords());
         } else if (input.getPasswordFile() != null) {
-            allPasswords = IOCallback.execute(() -> Files.readAllLines(input.getPasswordFile(), UTF_8));
-        } else {
-            allPasswords = Collections.emptyList();
+            try {
+                allPasswords.addAll(Files.readAllLines(input.getPasswordFile(), UTF_8));
+            } catch (final IOException ex) {
+                //dont do anything, if any keys are locked validation will complain that
+                //locked keys were provided without passwords
+                System.err.println("Could not read the password file");
+            }
         }
-
 
         final List<KeyData> keyDataWithPasswords;
         if (allPasswords.isEmpty()) {
