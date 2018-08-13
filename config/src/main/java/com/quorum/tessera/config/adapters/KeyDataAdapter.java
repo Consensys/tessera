@@ -28,6 +28,8 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyDataAdapter.class);
 
+    public static final String NACL_FAILURE_TOKEN = "NACL_FAILURE";
+    
     @Override
     public KeyData unmarshal(final KeyData keyData) {
 
@@ -104,7 +106,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
             decyptedPrivateKey = Objects.toString(kg.decryptPrivateKey(encryptedKey));
         } catch (final NaclException ex) {
             LOGGER.debug("Unable to decypt private key : {}", ex.getMessage());
-            decyptedPrivateKey = "NACL_FAILURE: " + ex.getMessage();
+            decyptedPrivateKey = NACL_FAILURE_TOKEN +": " + ex.getMessage();
         }
 
         //need to decrypt
