@@ -53,6 +53,8 @@ public class TomlConfigFactoryTest {
 
             SslConfig sslConfig = result.getServerConfig().getSslConfig();
 
+            assertThat(result.getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
+
             assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
 
@@ -62,11 +64,33 @@ public class TomlConfigFactoryTest {
     }
 
     @Test
+    public void urlPortNotSetInConfig() {
+
+        InputStream template = getClass().getResourceAsStream("/sample-all-values-urlport-not-present.conf");
+
+        Config result = tomlConfigFactory.create(template, null);
+
+        assertThat(result.getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
+
+
+    }
+
+    @Test
+    public void badUrlSetInConfig() throws IOException {
+
+        try (InputStream template = getClass().getResourceAsStream("/sample-all-values-bad-url.conf")) {
+            tomlConfigFactory.create(template, null);
+        } catch (RuntimeException ex) {
+            assertThat(ex).hasMessage("Bad server url given: unknown protocol: ht");
+        }
+
+    }
+
+    @Test
     public void createConfigFromSampleFileOnly() throws IOException {
 
         Path passwordFile = Files.createTempFile("password", ".txt");
         InputStream template = getClass().getResourceAsStream("/sample.conf");
-
 
 
         try (InputStream configData = template) {
@@ -99,10 +123,10 @@ public class TomlConfigFactoryTest {
         try (InputStream configData = getClass().getResourceAsStream("/sample.conf")) {
 
             List<String> lines = Stream.of(configData)
-                    .map(InputStreamReader::new)
-                    .map(BufferedReader::new)
-                    .flatMap(BufferedReader::lines)
-                    .collect(Collectors.toList());
+                .map(InputStreamReader::new)
+                .map(BufferedReader::new)
+                .flatMap(BufferedReader::lines)
+                .collect(Collectors.toList());
 
             lines.add(String.format("passwords = \"%s\"", passwordsFile.toString()));
 
@@ -133,7 +157,7 @@ public class TomlConfigFactoryTest {
         Files.write(privateKeyPath, keyDataConfigJson.toString().getBytes());
 
         List<KeyDataConfig> result = TomlConfigFactory
-                .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
+            .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
 
         assertThat(result).hasSize(1);
 
@@ -172,7 +196,7 @@ public class TomlConfigFactoryTest {
         Files.write(privateKeyPath, keyDataConfigJson.toString().getBytes());
 
         List<KeyDataConfig> result = TomlConfigFactory
-                .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
+            .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
 
         assertThat(result).hasSize(1);
 

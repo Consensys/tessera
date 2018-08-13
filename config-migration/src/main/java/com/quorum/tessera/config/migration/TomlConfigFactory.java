@@ -1,14 +1,13 @@
 package com.quorum.tessera.config.migration;
 
+import com.moandjiezana.toml.Toml;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
-import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.io.FilesDelegate;
-import com.quorum.tessera.io.IOCallback;
-import com.moandjiezana.toml.Toml;
 import com.quorum.tessera.config.builder.SslTrustModeFactory;
+import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.io.IOCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,30 +17,18 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TomlConfigFactory implements ConfigFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TomlConfigFactory.class);
-
-    private final FilesDelegate filesDelegate;
-
-    public TomlConfigFactory() {
-        this(FilesDelegate.create());
-    }
-
-    public TomlConfigFactory(FilesDelegate filesDelegate) {
-        this.filesDelegate = Objects.requireNonNull(filesDelegate);
-    }
 
     @Override
     public Config create(InputStream configData, ArgonOptions options, String... filenames) {
@@ -55,7 +42,16 @@ public class TomlConfigFactory implements ConfigFactory {
             LOGGER.debug("Found entry in toml file : {} {}", entry.getKey(), entry.getValue());
         });
 
-        final String url = toml.getString("url");
+        final String urlWithoutPort = Optional
+            .ofNullable(toml.getString("url"))
+            .map(url -> {
+                try {
+                    return new URL(url);
+                } catch (final MalformedURLException e) {
+                    throw new RuntimeException("Bad server url given: " + e.getMessage());
+                }
+            }).map(uri -> uri.getProtocol() + "://" + uri.getHost())
+            .orElse(null);
 
         final Integer port = Optional.ofNullable(toml.getLong("port"))
                                                     .map(Long::intValue)
@@ -144,7 +140,7 @@ public class TomlConfigFactory implements ConfigFactory {
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
                 .serverPort(port)
-                .serverHostname(url)
+                .serverHostname(urlWithoutPort)
                 .unixSocketFile(unixSocketFile)
                 .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
                 .sslServerTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsservertrust))
