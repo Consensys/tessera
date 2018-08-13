@@ -5,20 +5,27 @@ import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
+import org.junit.Before;
 import org.junit.Test;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
+import com.quorum.tessera.config.util.FilesDelegate;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class KeyDataAdapterTest {
 
     private KeyDataAdapter adapter = new KeyDataAdapter();
+
+    @Before
+    public void onSetup() {
+        adapter = new KeyDataAdapter();
+    }
 
     @Test
     public void marshallUnlockedKey() {
@@ -177,9 +184,9 @@ public class KeyDataAdapterTest {
                 null,
                 "PUB", null, null
         );
-        
-      KeyData result =   this.adapter.unmarshal(keyData);
-      assertThat(result.getPrivateKey()).startsWith("NACL_FAILURE");
+
+        KeyData result = this.adapter.unmarshal(keyData);
+        assertThat(result.getPrivateKey()).startsWith("NACL_FAILURE");
 
     }
 
@@ -205,4 +212,68 @@ public class KeyDataAdapterTest {
         assertThat(result).isSameAs(keyData);
     }
 
+    @Test
+    public void unmarshallingLockedWithNonExistentPublicKeyFileFailsReturnsAndDoesNotThrowError() {
+
+        FilesDelegate filesDelegate = mock(FilesDelegate.class);
+        adapter.setFilesDelegate(filesDelegate);
+
+        Path privateKeyPath = mock(Path.class);
+        Path publicKeyPath = mock(Path.class);
+        when(filesDelegate.notExists(publicKeyPath)).thenReturn(true);
+        when(filesDelegate.notExists(privateKeyPath)).thenReturn(false);
+
+        final KeyData keyData = new KeyData(
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                null,
+                                "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                                "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                                "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
+                                new ArgonOptions("id", 10, 1048576, 4),
+                                null
+                        ),
+                        PrivateKeyType.LOCKED
+                ),
+                null,
+                "PUB", privateKeyPath, publicKeyPath
+        );
+
+        KeyData result = this.adapter.unmarshal(keyData);
+        assertThat(result).isSameAs(keyData);
+
+    }
+
+    @Test
+    public void unmarshallingLockedWithNonExistentPrivateKeyFileFailsReturnsAndDoesNotThrowError() {
+
+        FilesDelegate filesDelegate = mock(FilesDelegate.class);
+        adapter.setFilesDelegate(filesDelegate);
+
+        Path privateKeyPath = mock(Path.class);
+        Path publicKeyPath = mock(Path.class);
+        when(filesDelegate.notExists(publicKeyPath)).thenReturn(false);
+        when(filesDelegate.notExists(privateKeyPath)).thenReturn(true);
+
+        final KeyData keyData = new KeyData(
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                null,
+                                "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                                "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                                "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
+                                new ArgonOptions("id", 10, 1048576, 4),
+                                null
+                        ),
+                        PrivateKeyType.LOCKED
+                ),
+                null,
+                "PUB", privateKeyPath, publicKeyPath
+        );
+
+        KeyData result = this.adapter.unmarshal(keyData);
+        assertThat(result).isSameAs(keyData);
+
+
+    }
 }
