@@ -43,13 +43,12 @@ public class KeyDataValidator implements ConstraintValidator<ValidKeyData, List<
             if (filesDelegate.notExists(keyData.getPublicKeyPath())) {
                 errors.add(String.format("KeyData %s : Public key path %s does not exist",
                         positionAsString, keyData.getPublicKeyPath()));
-                continue;
+
             }
 
             if (filesDelegate.notExists(keyData.getPrivateKeyPath())) {
                 errors.add(String.format("KeyData %s : Private key path %s does not exist",
                         positionAsString, keyData.getPrivateKeyPath()));
-                continue;
             }
             
             
