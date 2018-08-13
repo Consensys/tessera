@@ -25,10 +25,6 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
     @Override
     public KeyConfiguration unmarshal(final KeyConfiguration input) {
 
-        if ((input.getPasswordFile() != null) && (input.getPasswords() != null)) {
-            throw new ConfigException(new RuntimeException("Must specify passwords in file or in config, not both"));
-        }
-
         final List<String> allPasswords = new ArrayList<>();
         if (input.getPasswords() != null) {
             allPasswords.addAll(input.getPasswords());

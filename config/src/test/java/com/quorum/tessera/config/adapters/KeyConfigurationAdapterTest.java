@@ -8,7 +8,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 import static com.quorum.tessera.config.PrivateKeyType.LOCKED;
@@ -16,7 +15,6 @@ import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class KeyConfigurationAdapterTest {
@@ -48,20 +46,6 @@ public class KeyConfigurationAdapterTest {
 
         assertThat(marshalled.getKeyData().get(0).getConfig().getPassword()).isNull();
 
-    }
-
-    @Test
-    public void givingBothPasswordTypesThrowsError() {
-
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(Paths.get("testfile"), emptyList(), null);
-
-        final Throwable throwable = catchThrowable(() -> this.keyConfigurationAdapter.unmarshal(keyConfiguration));
-
-        assertThat(throwable)
-                .isInstanceOf(ConfigException.class)
-                .hasCauseExactlyInstanceOf(RuntimeException.class);
-
-        assertThat(throwable.getCause()).hasMessage("Must specify passwords in file or in config, not both");
     }
 
     @Test
