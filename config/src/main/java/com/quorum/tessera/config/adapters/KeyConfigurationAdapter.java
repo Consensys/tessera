@@ -2,7 +2,6 @@ package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.FilesDelegate;
-import com.quorum.tessera.config.util.IOCallback;
 import com.quorum.tessera.config.util.JaxbUtil;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -11,11 +10,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import java.util.Objects;
 
 public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyConfiguration> {
 

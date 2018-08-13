@@ -1,20 +1,22 @@
 package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.util.FilesDelegate;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import static com.quorum.tessera.config.PrivateKeyType.LOCKED;
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
-import com.quorum.tessera.config.util.FilesDelegate;
-import java.util.Arrays;
-import static java.util.Collections.*;
-import static org.assertj.core.api.Assertions.*;
-import org.junit.Before;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class KeyConfigurationAdapterTest {
