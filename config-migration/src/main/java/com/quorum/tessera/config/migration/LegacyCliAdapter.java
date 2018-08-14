@@ -88,8 +88,14 @@ public class LegacyCliAdapter implements CliAdapter {
             System.out.println();
             return new CliResult(0, false, false, config);
         } catch (ConstraintViolationException validationException) {
-            validationException.getConstraintViolations().stream()
-                    .forEach(System.err::println);
+            validationException.getConstraintViolations()
+                .stream()
+                .map(cv -> "Error: " + cv.getMessage() + " on property " + cv.getPropertyPath())
+                .forEach(System.err::println);
+
+            Files.write(outputPath, JaxbUtil.marshalToStringNoValidation(config).getBytes());
+            System.out.printf("Saved config to  %s", outputPath);
+            System.out.println();
             return new CliResult(2, false, false, config);
         }
     }
@@ -331,6 +337,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .desc("Comma separated list of TLS chain certificate files to use for the public API")
                         .argName("FILE...")
                         .hasArgs()
+                        .valueSeparator(',')
                         .build()
         );
 
@@ -381,6 +388,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .desc("Comma separated list of TLS chain certificate files to use for connections to other nodes")
                         .argName("FILE...")
                         .hasArgs()
+                        .valueSeparator(',')
                         .build()
         );
 
