@@ -92,16 +92,6 @@ public class ConfigBuilder {
         return this;
     }
 
-//    public ConfigBuilder sslServerTrustStorePassword(String sslServerTrustStorePassword) {
-//        this.sslServerTrustStorePassword = sslServerTrustStorePassword;
-//        return this;
-//    }
-//
-//    public ConfigBuilder sslServerKeyStorePassword(String sslServerKeyStorePassword) {
-//        this.sslServerKeyStorePassword = sslServerKeyStorePassword;
-//        return this;
-//    }
-
     public ConfigBuilder sslServerTrustStorePath(String sslServerTrustStorePath) {
         this.sslServerTrustStorePath = sslServerTrustStorePath;
         return this;

@@ -534,6 +534,61 @@ public class LegacyCliAdapterTest {
     }
 
     @Test
+    public void keyDataProvidedButNoPasswordProvidedThenNoMessagePrintedToConsole() {
+        final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+        final PrintStream originalErr = System.err;
+
+        System.setErr(new PrintStream(errContent));
+
+        CommandLine line = mock(CommandLine.class);
+        when(line.getOptionValue("passwords")).thenReturn("override/path");
+
+        ConfigBuilder configBuilder = ConfigBuilder.create();
+
+        List<String> publicKeys = new ArrayList<>();
+        publicKeys.add("pub");
+        List<String> privateKeys = new ArrayList<>();
+        privateKeys.add("priv");
+
+        KeyDataBuilder keyDataBuilder = KeyDataBuilder.create()
+                                        .withPublicKeys(publicKeys)
+                                        .withPrivateKeys(privateKeys);
+
+        LegacyCliAdapter.applyOverrides(line, configBuilder, keyDataBuilder);
+
+        assertThat(errContent.toString()).isEqualTo("");
+
+        System.setErr(originalErr);
+    }
+
+    @Test
+    public void passwordAndKeyDataProvidedAsOverrideThenNoMessagePrintedToConsole() {
+        final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+        final PrintStream originalErr = System.err;
+
+        System.setErr(new PrintStream(errContent));
+
+        CommandLine line = mock(CommandLine.class);
+
+        ConfigBuilder configBuilder = ConfigBuilder.create();
+
+        List<String> publicKeys = new ArrayList<>();
+        publicKeys.add("pub");
+        List<String> privateKeys = new ArrayList<>();
+        privateKeys.add("priv");
+
+        KeyDataBuilder keyDataBuilder = KeyDataBuilder.create()
+            .withPublicKeys(publicKeys)
+            .withPrivateKeys(privateKeys);
+
+        LegacyCliAdapter.applyOverrides(line, configBuilder, keyDataBuilder);
+
+        assertThat(errContent.toString()).isEqualTo("");
+
+        System.setErr(originalErr);
+    }
+
+    @Test
     public void ifTomlWorkDirProvidedWithoutOverrideWorkDirThenTomlWorkDirUsedOnOverridenValues() {
         CommandLine line = mock(CommandLine.class);
         when(line.getOptionValue("workdir")).thenReturn(null);
