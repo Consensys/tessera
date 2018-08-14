@@ -90,7 +90,7 @@ public class LegacyCliAdapter implements CliAdapter {
         } catch (ConstraintViolationException validationException) {
             validationException.getConstraintViolations()
                 .stream()
-                .map(cv -> "Error: " + cv.getMessage() + " on property " + cv.getPropertyPath())
+                .map(cv -> "Warning: " + cv.getMessage() + " on property " + cv.getPropertyPath())
                 .forEach(System.err::println);
 
             Files.write(outputPath, JaxbUtil.marshalToStringNoValidation(config).getBytes());

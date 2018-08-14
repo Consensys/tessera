@@ -104,7 +104,6 @@ public class LegacyCliAdapterTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
-//        assertThat(result.getStatus()).isEqualTo(0);
 
         assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
         assertThat(result.getConfig().get().getServerConfig().getPort()).isEqualTo(9001);
@@ -202,7 +201,6 @@ public class LegacyCliAdapterTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
-        assertThat(result.getStatus()).isEqualTo(0);
 
         assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://override");
         assertThat(result.getConfig().get().getServerConfig().getPort()).isEqualTo(1111);
@@ -233,7 +231,6 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("override/over-known-servers");
 
-//        Files.deleteIfExists(alwaysSendToFile);
         Files.deleteIfExists(configFile);
 
         Files.walk(workdir)
@@ -332,7 +329,6 @@ public class LegacyCliAdapterTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
-        assertThat(result.getStatus()).isEqualTo(0);
 
         assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
         assertThat(result.getConfig().get().getServerConfig().getPort()).isEqualTo(9001);
@@ -369,8 +365,6 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("override/tls-known-servers");
 
         Files.deleteIfExists(configFile);
-//        Files.deleteIfExists(forwardFile1);
-//        Files.deleteIfExists(forwardFile2);
     }
 
     @Test
@@ -487,9 +481,6 @@ public class LegacyCliAdapterTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
-
-        //TODO assert that value of config is as expected from sample config
-//        assertThat(result.getStatus()).isEqualTo(0);
 
         Files.deleteIfExists(configFile);
         Files.deleteIfExists(passwordFile);
