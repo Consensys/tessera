@@ -1,6 +1,7 @@
 package com.quorum.tessera.config.util;
 
 import com.quorum.tessera.config.*;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import javax.xml.bind.JAXBContext;
@@ -31,6 +32,15 @@ public interface JaxbUtil {
         SslTrustMode.class
     };
 
+    static <T> T unmarshal(byte[] data, Class<T> type) {
+        return IOCallback.execute(() -> {
+            try (InputStream inputStream = new ByteArrayInputStream(data)) {
+                return unmarshal(inputStream, type);
+            }
+        });
+
+    }
+
     static <T> T unmarshal(InputStream inputStream, Class<T> type) {
 
         try {
@@ -54,12 +64,12 @@ public interface JaxbUtil {
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
             marshaller.marshal(object, outputStream);
-        }  catch(Throwable ex) {
-          Optional<ConstraintViolationException> validationException =   unwrapConstraintViolationException(ex);
-          if(validationException.isPresent()) {
-              throw validationException.get();
-          }
-          throw new ConfigException(ex);
+        } catch (Throwable ex) {
+            Optional<ConstraintViolationException> validationException = unwrapConstraintViolationException(ex);
+            if (validationException.isPresent()) {
+                throw validationException.get();
+            }
+            throw new ConfigException(ex);
         }
 
     }
@@ -103,7 +113,7 @@ public interface JaxbUtil {
             }
         });
     }
-    
+
     static Optional<ConstraintViolationException> unwrapConstraintViolationException(Throwable ex) {
         return Optional.of(ex)
                 .map(Throwable::getCause)
@@ -111,5 +121,5 @@ public interface JaxbUtil {
                 .filter(ConstraintViolationException.class::isInstance)
                 .map(ConstraintViolationException.class::cast);
     }
-    
+
 }

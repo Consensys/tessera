@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -65,7 +64,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         final String privateKeyString = new String(privateKey, UTF_8);
 
         final KeyDataConfig unmarshal
-                = JaxbUtil.unmarshal(new ByteArrayInputStream(privateKeyString.getBytes(UTF_8)), KeyDataConfig.class);
+                = JaxbUtil.unmarshal(privateKeyString.getBytes(UTF_8), KeyDataConfig.class);
 
         return this.unmarshalInline(
                 new KeyData(
