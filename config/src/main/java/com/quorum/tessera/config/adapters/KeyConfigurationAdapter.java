@@ -1,14 +1,16 @@
 package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.util.IOCallback;
+import com.quorum.tessera.config.util.FilesDelegate;
 import com.quorum.tessera.config.util.JaxbUtil;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -18,22 +20,23 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
 
     private final KeyDataAdapter keyDataAdapter = new KeyDataAdapter();
 
+    private FilesDelegate filesDelegate = FilesDelegate.create();
+
     @Override
     public KeyConfiguration unmarshal(final KeyConfiguration input) {
 
-        if ((input.getPasswordFile() != null) && (input.getPasswords() != null)) {
-            throw new ConfigException(new RuntimeException("Must specify passwords in file or in config, not both"));
-        }
-
-        final List<String> allPasswords;
+        final List<String> allPasswords = new ArrayList<>();
         if (input.getPasswords() != null) {
-            allPasswords = input.getPasswords();
+            allPasswords.addAll(input.getPasswords());
         } else if (input.getPasswordFile() != null) {
-            allPasswords = IOCallback.execute(() -> Files.readAllLines(input.getPasswordFile(), UTF_8));
-        } else {
-            allPasswords = Collections.emptyList();
+            try {
+                allPasswords.addAll(Files.readAllLines(input.getPasswordFile(), UTF_8));
+            } catch (final IOException ex) {
+                //dont do anything, if any keys are locked validation will complain that
+                //locked keys were provided without passwords
+                System.err.println("Could not read the password file");
+            }
         }
-
 
         final List<KeyData> keyDataWithPasswords;
         if (allPasswords.isEmpty()) {
@@ -45,26 +48,30 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
 
                     final KeyData kd = input.getKeyData().get(i);
 
-                    final KeyDataConfig keyData;
+                    final KeyDataConfig keyDataConfig;
 
-                    if(kd.getConfig()==null) {
-                        final InputStream is = IOCallback.execute(() -> Files.newInputStream(kd.getPrivateKeyPath()));
-                        keyData = JaxbUtil.unmarshal(is, KeyDataConfig.class);
+                    if(kd.getConfig() == null && filesDelegate.exists(kd.getPrivateKeyPath())) {
+                        final InputStream is = filesDelegate.newInputStream(kd.getPrivateKeyPath());
+                        keyDataConfig = JaxbUtil.unmarshal(is, KeyDataConfig.class);
                     } else {
-                        keyData = kd.getConfig();
+                        keyDataConfig = kd.getConfig();
+                    }
+
+                    if(Objects.isNull(keyDataConfig)) {
+                        return kd;
                     }
 
                     return new KeyData(
                         new KeyDataConfig(
                             new PrivateKeyData(
-                                keyData.getValue(),
-                                keyData.getSnonce(),
-                                keyData.getAsalt(),
-                                keyData.getSbox(),
-                                keyData.getArgonOptions(),
+                                keyDataConfig.getValue(),
+                                keyDataConfig.getSnonce(),
+                                keyDataConfig.getAsalt(),
+                                keyDataConfig.getSbox(),
+                                keyDataConfig.getArgonOptions(),
                                 allPasswords.get(i)
                             ),
-                            kd.getConfig()==null ? keyData.getType() : kd.getConfig().getType()
+                            kd.getConfig()==null ? keyDataConfig.getType() : kd.getConfig().getType()
                         ),
                         kd.getPrivateKey(),
                         kd.getPublicKey(),
@@ -96,5 +103,11 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
                 .collect(Collectors.toList())
         );
     }
+
+    protected void setFilesDelegate(FilesDelegate filesDelegate) {
+        this.filesDelegate = filesDelegate;
+    }
+
+
 
 }
