@@ -26,27 +26,6 @@ public class KeyConfigurationAdapterTest {
         this.keyConfigurationAdapter = new KeyConfigurationAdapter();
     }
 
-    @Test
-    public void marshallingNullsPasswords() {
-
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(
-                null,
-                null,
-                singletonList(
-                        new KeyData(
-                                new KeyDataConfig(
-                                        new PrivateKeyData(null, null, null, null, new ArgonOptions("", 1, 1, 1), "PASSWORD"),
-                                        LOCKED
-                                ), null, null, null, null
-                        )
-                )
-        );
-
-        final KeyConfiguration marshalled = keyConfigurationAdapter.marshal(keyConfiguration);
-
-        assertThat(marshalled.getKeyData().get(0).getConfig().getPassword()).isNull();
-
-    }
 
     @Test
     public void emptyPasswordsReturnsSameKeys() {
