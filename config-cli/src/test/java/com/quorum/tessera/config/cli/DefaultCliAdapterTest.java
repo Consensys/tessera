@@ -161,8 +161,7 @@ public class DefaultCliAdapterTest {
         System.setIn(tempSystemIn);
         
         final CliResult result = cliDelegate.execute(
-                "-keygen",
-                "-filename"
+                "-keygen"
         );
         
         assertThat(result).isNotNull();
@@ -198,10 +197,21 @@ public class DefaultCliAdapterTest {
             );
             failBecauseExceptionWasNotThrown(CliException.class);
         } catch (CliException ex) {
+            assertThat(ex).hasMessage("Missing argument for option: filename");
+        }
+    }
+
+    @Test
+    public void outputWithoutKeygenOrConfig() throws Exception {
+
+        try {
+            cliDelegate.execute(
+                "-output","bogus"
+            );
+            failBecauseExceptionWasNotThrown(CliException.class);
+        } catch (CliException ex) {
             assertThat(ex).hasMessage("One or both: -configfile <PATH> or -keygen options are required.");
         }
-
-        
     }
     
     @Test

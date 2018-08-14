@@ -3,6 +3,7 @@ package com.quorum.tessera.config;
 import com.quorum.tessera.config.adapters.KeyAdapter;
 import com.quorum.tessera.config.adapters.KeyConfigurationAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
+import com.quorum.tessera.config.constraints.ValidKeyConfiguration;
 import com.quorum.tessera.config.constraints.ValidPath;
 import com.quorum.tessera.nacl.Key;
 
@@ -30,7 +31,7 @@ public class Config extends ConfigItem {
     private final ServerConfig serverConfig;
 
     @NotNull
-    @Size(min = 1)
+    @Size(min = 1, message = "At least 1 peer must be provided")
     @Valid
     @XmlElement(name = "peer", required = true)
     private final List<Peer> peers;
@@ -38,6 +39,7 @@ public class Config extends ConfigItem {
     @Valid
     @NotNull
     @XmlElement(required = true)
+    @ValidKeyConfiguration
     @XmlJavaTypeAdapter(KeyConfigurationAdapter.class)
     private final KeyConfiguration keys;
 

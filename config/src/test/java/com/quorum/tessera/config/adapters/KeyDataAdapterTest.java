@@ -276,4 +276,59 @@ public class KeyDataAdapterTest {
 
 
     }
+
+    @Test
+    public void pathsSetDoesntReturnWholeConfig() {
+        final KeyData keyData = new KeyData(
+            new KeyDataConfig(
+                new PrivateKeyData(
+                    null,
+                    "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                    "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                    "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
+                    new ArgonOptions("id", 10, 1048576, 4),
+                    null
+                ),
+                PrivateKeyType.LOCKED
+            ),
+            null,
+            "PUB", Paths.get("priv"), Paths.get("pub")
+        );
+
+        final KeyData result = this.adapter.marshal(keyData);
+
+        assertThat(result.getPrivateKeyPath()).isEqualTo(Paths.get("priv"));
+        assertThat(result.getPublicKeyPath()).isEqualTo(Paths.get("pub"));
+        assertThat(result.getPrivateKey()).isNull();
+        assertThat(result.getPublicKey()).isNull();
+        assertThat(result.getConfig()).isNull();
+    }
+
+    @Test
+    public void pathsSetDoesntReturnWholeConfigPublicOnly() {
+        final KeyData keyData = new KeyData(
+            new KeyDataConfig(
+                new PrivateKeyData(
+                    null,
+                    "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                    "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                    "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
+                    new ArgonOptions("id", 10, 1048576, 4),
+                    null
+                ),
+                PrivateKeyType.LOCKED
+            ),
+            null,
+            "PUB", null, Paths.get("pub")
+        );
+
+        final KeyData result = this.adapter.marshal(keyData);
+
+        assertThat(result.getPrivateKeyPath()).isNull();
+        assertThat(result.getPublicKeyPath()).isEqualTo(Paths.get("pub"));
+        assertThat(result.getPrivateKey()).isNull();
+        assertThat(result.getPublicKey()).isNull();
+        assertThat(result.getConfig()).isNull();
+    }
+
 }
