@@ -183,7 +183,7 @@ public class LegacyCliAdapterTest {
             "--alwayssendto=alwayssendto",
             "--passwords=pw.txt",
             "--storage=jdbc:test",
-            "--ipwhitelist=10.0.0.1",
+            "--ipwhitelist",
             "--socket=cli.ipc",
             "--tls=off",
             "--tlsservercert=over-server-cert.pem",

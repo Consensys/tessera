@@ -142,8 +142,9 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(JdbcConfigFactory::fromLegacyStorageString)
                 .ifPresent(configBuilder::jdbcConfig);
 
-        Optional.ofNullable(line.getOptionValue("ipwhitelist"))
-                .ifPresent(v -> configBuilder.useWhiteList(true));
+        if(line.hasOption("ipwhitelist")) {
+            configBuilder.useWhiteList(true);
+        }
 
         Optional.ofNullable(line.getOptionValue("tls"))
                 .map(String::toUpperCase)
@@ -434,9 +435,8 @@ public class LegacyCliAdapter implements CliAdapter {
         options.addOption(
             Option.builder()
                 .longOpt("ipwhitelist")
-                .desc("If provided, Tessera will use the othernodes as a whitelist.  Make sure any addresses included here are also in othernodes.")
-                .hasArg()
-                .argName("STRING...")
+                .desc("If provided, Tessera will use the othernodes as a whitelist.")
+                .hasArg(false)
                 .build()
         );
 
