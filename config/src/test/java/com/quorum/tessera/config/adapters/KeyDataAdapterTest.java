@@ -53,21 +53,6 @@ public class KeyDataAdapterTest {
         assertThat(marshalledKey.getPublicKeyPath()).isNull();
     }
 
-    @Test
-    public void marshallLockedKeyNullifiesPrivateKey() {
-
-        final KeyData keyData = new KeyData(
-                new KeyDataConfig(new PrivateKeyData(null, null, null, null, null, null), PrivateKeyType.LOCKED),
-                "PRIV", "PUB", null, null
-        );
-
-        final KeyData marshalledKey = adapter.marshal(keyData);
-
-        assertThat(marshalledKey.getConfig()).isEqualToComparingFieldByField(keyData.getConfig());
-        assertThat(marshalledKey.getPublicKey()).isEqualTo("PUB");
-        assertThat(marshalledKey.getPrivateKey()).isNull();
-
-    }
 
     @Test
     public void marshallKeysWithLiteralValues() {

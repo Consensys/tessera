@@ -11,7 +11,7 @@ public class MaskedValueAdpater  extends XmlAdapter<String, String> {
 
     @Override
     public String unmarshal(String value) throws Exception {
-        return value;
+        return Objects.toString(value, null);
     }
 
     @Override

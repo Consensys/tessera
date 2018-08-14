@@ -1,5 +1,6 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.adapters.MaskedValueAdpater;
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.ValidBase64;
 import com.quorum.tessera.config.constraints.ValidKeyDataConfig;
@@ -23,6 +24,7 @@ public class KeyData extends ConfigItem {
     @XmlElement
     private final KeyDataConfig config;
 
+    @XmlJavaTypeAdapter(MaskedValueAdpater.class)
     @ValidBase64
     @Pattern(regexp = "^((?!NACL_FAILURE).)*$",
             message = "Could not decrypt the private key with the provided password, please double check the passwords provided")
