@@ -5,7 +5,7 @@ import org.junit.Test;
 
 public class MaskedValueAdpaterTest {
 
-    private MaskedValueAdpater maskedValueAdpater = new MaskedValueAdpater();
+    private MaskedValueAdapter maskedValueAdpater = new MaskedValueAdapter();
 
     @Test
     public void unmarshalDoesNothin() throws Exception {

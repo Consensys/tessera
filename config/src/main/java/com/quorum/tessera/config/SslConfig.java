@@ -1,6 +1,6 @@
 package com.quorum.tessera.config;
 
-import com.quorum.tessera.config.adapters.MaskedValueAdpater;
+import com.quorum.tessera.config.adapters.MaskedValueAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -34,7 +34,7 @@ public class SslConfig {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path serverTlsCertificatePath;
 
-    @XmlJavaTypeAdapter(MaskedValueAdpater.class)
+    @XmlJavaTypeAdapter(MaskedValueAdapter.class)
     @XmlElement
     private final String serverKeyStorePassword;
 
@@ -46,7 +46,7 @@ public class SslConfig {
     @XmlJavaTypeAdapter(value = PathAdapter.class)
     private final List<Path> serverTrustCertificates;
 
-    @XmlJavaTypeAdapter(MaskedValueAdpater.class)
+    @XmlJavaTypeAdapter(MaskedValueAdapter.class)
     @XmlElement
     private final String serverTrustStorePassword;
 
@@ -65,7 +65,7 @@ public class SslConfig {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path clientTlsCertificatePath;
 
-    @XmlJavaTypeAdapter(MaskedValueAdpater.class)
+    @XmlJavaTypeAdapter(MaskedValueAdapter.class)
     @XmlElement
     private final String clientKeyStorePassword;
 
@@ -77,7 +77,7 @@ public class SslConfig {
     @XmlJavaTypeAdapter(value = PathAdapter.class)
     private final List<Path> clientTrustCertificates;
 
-    @XmlJavaTypeAdapter(MaskedValueAdpater.class)
+    @XmlJavaTypeAdapter(MaskedValueAdapter.class)
     @XmlElement
     private final String clientTrustStorePassword;
 

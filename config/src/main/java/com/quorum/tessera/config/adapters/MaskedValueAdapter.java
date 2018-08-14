@@ -7,7 +7,7 @@ import java.util.stream.IntStream;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 
-public class MaskedValueAdpater  extends XmlAdapter<String, String> {
+public class MaskedValueAdapter  extends XmlAdapter<String, String> {
 
     @Override
     public String unmarshal(String value) throws Exception {

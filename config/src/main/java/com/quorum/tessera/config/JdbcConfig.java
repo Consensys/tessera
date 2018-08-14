@@ -1,6 +1,6 @@
 package com.quorum.tessera.config;
 
-import com.quorum.tessera.config.adapters.MaskedValueAdpater;
+import com.quorum.tessera.config.adapters.MaskedValueAdapter;
 import com.quorum.tessera.config.util.JdbcDriverClassName;
 
 import javax.validation.constraints.NotNull;
@@ -17,7 +17,7 @@ public class JdbcConfig extends ConfigItem {
     @XmlElement
     private final String username;
 
-    @XmlJavaTypeAdapter(MaskedValueAdpater.class)
+    @XmlJavaTypeAdapter(MaskedValueAdapter.class)
     @XmlElement
     private final String password;
 

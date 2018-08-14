@@ -1,6 +1,6 @@
 package com.quorum.tessera.config;
 
-import com.quorum.tessera.config.adapters.MaskedValueAdpater;
+import com.quorum.tessera.config.adapters.MaskedValueAdapter;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -31,7 +31,7 @@ public class PrivateKeyData extends ConfigItem {
     @XmlElement(name = "aopts")
     private final ArgonOptions argonOptions;
 
-    @XmlJavaTypeAdapter(MaskedValueAdpater.class)
+    @XmlJavaTypeAdapter(MaskedValueAdapter.class)
     @XmlElement
     @XmlSchemaType(name = "anyURI")
     private final String password;
