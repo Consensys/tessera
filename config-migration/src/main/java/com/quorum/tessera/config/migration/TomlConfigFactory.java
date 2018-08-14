@@ -1,6 +1,9 @@
 package com.quorum.tessera.config.migration;
 
 import com.moandjiezana.toml.Toml;
+import com.quorum.tessera.config.ArgonOptions;
+import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
@@ -20,18 +23,16 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class TomlConfigFactory implements ConfigFactory {
+public class TomlConfigFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TomlConfigFactory.class);
 
-    @Override
-    public Config create(InputStream configData, ArgonOptions options, String... filenames) {
+    public ConfigBuilder create(InputStream configData, ArgonOptions options, String... filenames) {
         Objects.requireNonNull(configData, "No config data provided. ");
         if (filenames.length != 0) {
             throw new UnsupportedOperationException("keyConfigData arg is not implemented for TomlConfigFactory");
@@ -60,40 +61,9 @@ public class TomlConfigFactory implements ConfigFactory {
         final String workdir = toml.getString("workdir", "");
         final String socket = toml.getString("socket");
 
-        final Path unixSocketFile;
-        if(socket != null) {
-            unixSocketFile = Paths.get(workdir, socket);
-        } else {
-            unixSocketFile = null;
-        }
-
         final String tls = toml.getString("tls", "off").toUpperCase();
 
         final List<String> othernodes = toml.getList("othernodes", Collections.emptyList());
-
-        final List<String> publicKeyList = toml.getList("publickeys", Collections.emptyList());
-
-        final List<String> privateKeyList = toml.getList("privatekeys", Collections.emptyList());
-
-        final Optional<String> privateKeyPasswordFile = Optional.ofNullable(toml.getString("passwords"));
-        final Path privateKeyPasswordPath;
-        if(privateKeyPasswordFile.isPresent()) {
-            privateKeyPasswordPath = Paths.get(workdir, privateKeyPasswordFile.get());
-        } else {
-            privateKeyPasswordPath = null;
-        }
-
-        KeyConfiguration keyData;
-        if(!publicKeyList.isEmpty() || !privateKeyList.isEmpty()) {
-            keyData = KeyDataBuilder.create()
-                                    .withPublicKeys(publicKeyList)
-                                    .withPrivateKeys(privateKeyList)
-                                    .withPrivateKeyPasswordFile(privateKeyPasswordPath)
-                                    .withWorkingDirectory(workdir)
-                                    .build();
-        } else {
-            keyData = new KeyConfiguration(null, null, null);
-        }
 
         final List<String> alwaysSendToKeyPaths = toml.getList("alwayssendto", Collections.emptyList());
 
@@ -104,64 +74,65 @@ public class TomlConfigFactory implements ConfigFactory {
 
         //Server side
         final String tlsservertrust = toml.getString("tlsservertrust", "tofu");
-
-        final Optional<String> tlsserverkeyStr = Optional.ofNullable(toml.getString("tlsserverkey"));
-        final Path tlsserverkey = tlsserverkeyStr.map(s -> Paths.get(workdir, s)).orElse(null);
-
-        final Optional<String> tlsservercertStr = Optional.ofNullable(toml.getString("tlsservercert"));
-        final Path tlsservercert = tlsservercertStr.map(s -> Paths.get(workdir, s)).orElse(null);
-
-        final List<String> tlsserverchainnames = toml.getList("tlsserverchain", Collections.emptyList());
-        List<Path> tlsserverchain = new ArrayList<>();
-        for(String name : tlsserverchainnames) {
-            tlsserverchain.add(Paths.get(workdir, name));
-        }
-
-        final Optional<String> tlsknownclientsStr = Optional.ofNullable(toml.getString("tlsknownclients"));
-        final Path tlsknownclients = tlsknownclientsStr.map(s -> Paths.get(workdir, s)).orElse(null);
+        final Optional<String> tlsserverkey = Optional.ofNullable(toml.getString("tlsserverkey"));
+        final Optional<String> tlsservercert = Optional.ofNullable(toml.getString("tlsservercert"));
+        final Optional<List<String>> tlsserverchainnames = Optional.ofNullable(toml.getList("tlsserverchain", Collections.emptyList()));
+        final Optional<String> tlsknownclients = Optional.ofNullable(toml.getString("tlsknownclients"));
 
         //Client side
         final String tlsclienttrust = toml.getString("tlsclienttrust", "tofu");
-
-        final Optional<String> tlsclientkeyStr = Optional.ofNullable(toml.getString("tlsclientkey"));
-        final Path tlsclientkey = tlsclientkeyStr.map(s -> Paths.get(workdir, s)).orElse(null);
-
-        final Optional<String> tlsclientcertStr = Optional.ofNullable(toml.getString("tlsclientcert"));
-        final Path tlsclientcert = tlsclientcertStr.map(s -> Paths.get(workdir, s)).orElse(null);
-
-        final List<String> tlsclientchainnames = toml.getList("tlsclientchain", Collections.emptyList());
-        List<Path> tlsclientchain = new ArrayList<>();
-        for(String name : tlsclientchainnames) {
-            tlsclientchain.add(Paths.get(workdir, name));
-        }
-
-        final Optional<String> tlsknownserversStr = Optional.ofNullable(toml.getString("tlsknownservers"));
-        final Path tlsknownservers = tlsknownserversStr.map(s -> Paths.get(workdir, s)).orElse(null);
+        final Optional<String> tlsclientkey = Optional.ofNullable(toml.getString("tlsclientkey"));
+        final Optional<String> tlsclientcert = Optional.ofNullable(toml.getString("tlsclientcert"));
+        final Optional<List<String>> tlsclientchainnames = Optional.ofNullable(toml.getList("tlsclientchain", Collections.emptyList()));
+        final Optional<String> tlsknownservers = Optional.ofNullable(toml.getString("tlsknownservers"));
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
                 .serverPort(port)
                 .serverHostname(urlWithoutPort)
-                .unixSocketFile(unixSocketFile)
+                .unixSocketFile(socket)
                 .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
                 .sslServerTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsservertrust))
-                .sslServerTlsKeyPath(tlsserverkey)
-                .sslServerTlsCertificatePath(tlsservercert)
-                .sslServerTrustCertificates(tlsserverchain)
-                .sslKnownClientsFile(tlsknownclients)
                 .sslClientTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsclienttrust))
-                .sslClientTlsKeyPath(tlsclientkey)
-                .sslClientTlsCertificatePath(tlsclientcert)
-                .sslClientTrustCertificates(tlsclientchain)
-                .sslKnownServersFile(tlsknownservers)
                 .peers(othernodes)
                 .alwaysSendTo(alwaysSendToKeyPaths)
                 .useWhiteList(useWhiteList)
-                .keyData(keyData);
+                .workdir(workdir);
+
+        tlsserverkey.ifPresent(configBuilder::sslServerTlsKeyPath);
+        tlsservercert.ifPresent(configBuilder::sslServerTlsCertificatePath);
+        tlsserverchainnames.ifPresent(configBuilder::sslServerTrustCertificates);
+        tlsknownclients.ifPresent(configBuilder::sslKnownClientsFile);
+        tlsclientkey.ifPresent(configBuilder::sslClientTlsKeyPath);
+        tlsclientcert.ifPresent(configBuilder::sslClientTlsCertificatePath);
+        tlsclientchainnames.ifPresent(configBuilder::sslClientTrustCertificates);
+        tlsknownservers.ifPresent(configBuilder::sslKnownServersFile);
 
         Optional.ofNullable(storage)
                 .map(JdbcConfigFactory::fromLegacyStorageString).ifPresent(configBuilder::jdbcConfig);
 
-        return configBuilder.build();
+        return configBuilder;
+    }
+
+    public KeyDataBuilder createKeyDataBuilder(InputStream configData) {
+        Toml toml = new Toml().read(configData);
+
+        final List<String> publicKeyList = toml.getList("publickeys", Collections.emptyList());
+
+        final List<String> privateKeyList = toml.getList("privatekeys", Collections.emptyList());
+
+        final String pwd = toml.getString("passwords");
+
+        final String workdir = toml.getString("workdir");
+
+        KeyDataBuilder keyDataBuilder = KeyDataBuilder.create();
+        if(!publicKeyList.isEmpty() || !privateKeyList.isEmpty()) {
+            keyDataBuilder.withPublicKeys(publicKeyList)
+                          .withPrivateKeys(privateKeyList)
+                          .withPrivateKeyPasswordFile(pwd)
+                          .withWorkingDirectory(workdir);
+        }
+
+        return keyDataBuilder;
     }
 
     static List<KeyDataConfig> createPrivateKeyData(List<String> privateKeys, List<String> privateKeyPasswords) {

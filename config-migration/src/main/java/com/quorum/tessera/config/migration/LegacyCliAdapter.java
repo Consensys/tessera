@@ -1,7 +1,6 @@
 package com.quorum.tessera.config.migration;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.builder.ConfigBuilder;
@@ -22,20 +21,18 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 public class LegacyCliAdapter implements CliAdapter {
 
     private final FilesDelegate fileDelegate = FilesDelegate.create();
 
-    private final ConfigFactory configFactory;
+    private final TomlConfigFactory configFactory;
 
     public LegacyCliAdapter() {
-        this(new TomlConfigFactory());
-    }
-
-    protected LegacyCliAdapter(ConfigFactory configFactory) {
-        this.configFactory = Objects.requireNonNull(configFactory);
+        this.configFactory = new TomlConfigFactory();
     }
 
     @Override
@@ -59,10 +56,15 @@ public class LegacyCliAdapter implements CliAdapter {
                                                 .map(Paths::get)
                                                 .map(fileDelegate::newInputStream)
                                                 .map(stream -> this.configFactory.create(stream, null))
-                                                .map(ConfigBuilder::from)
                                                 .orElse(ConfigBuilder.create());
 
-        ConfigBuilder adjustedConfig = applyOverrides(line, configBuilder);
+        final KeyDataBuilder keyDataBuilder = Optional.ofNullable(line.getOptionValue("tomlfile"))
+                                                    .map(Paths::get)
+                                                    .map(fileDelegate::newInputStream)
+                                                    .map(configFactory::createKeyDataBuilder)
+                                                    .orElse(KeyDataBuilder.create());
+
+        ConfigBuilder adjustedConfig = applyOverrides(line, configBuilder, keyDataBuilder);
 
         Config config = adjustedConfig.build();
 
@@ -86,38 +88,25 @@ public class LegacyCliAdapter implements CliAdapter {
             System.out.println();
             return new CliResult(0, false, false, config);
         } catch (ConstraintViolationException validationException) {
-            validationException.getConstraintViolations().stream()
-                    .forEach(System.err::println);
+            validationException.getConstraintViolations()
+                .stream()
+                .map(cv -> "Warning: " + cv.getMessage() + " on property " + cv.getPropertyPath())
+                .forEach(System.err::println);
+
+            Files.write(outputPath, JaxbUtil.marshalToStringNoValidation(config).getBytes());
+            System.out.printf("Saved config to  %s", outputPath);
+            System.out.println();
             return new CliResult(2, false, false, config);
         }
     }
 
-    static Optional<Path> resolveUnixFilePath(Path initial, String workdir, String fileName) {
-        if (Objects.nonNull(workdir) && Objects.nonNull(fileName)) {
-            return Optional.of(Paths.get(workdir, fileName));
-        } else if(Objects.nonNull(fileName)) {
-            return Optional.of(Paths.get(fileName));
-        }
+    static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder, KeyDataBuilder keyDataBuilder) {
 
-        return Optional.ofNullable(initial);
+        Optional.ofNullable(line.getOptionValue("workdir"))
+            .ifPresent(configBuilder::workdir);
 
-    }
-
-    static Optional<List<Path>> resolveListOfUnixFilePaths(List<Path> initial, String workdir, List<String> fileNames) {
-        if(Objects.nonNull(workdir) && Objects.nonNull(fileNames)) {
-            List<Path> paths = new ArrayList<>();
-            for(String fileName : fileNames) {
-                paths.add(Paths.get(workdir, fileName));
-            }
-            return Optional.of(paths);
-        }
-
-        return Optional.ofNullable(initial);
-    }
-
-    static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder) {
-
-        Config initialConfig = configBuilder.build();
+        Optional.ofNullable(line.getOptionValue("workdir"))
+            .ifPresent(keyDataBuilder::withWorkingDirectory);
 
         Optional.ofNullable(line.getOptionValue("url"))
                 .map(url -> {
@@ -133,15 +122,12 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(Integer::valueOf)
                 .ifPresent(configBuilder::serverPort);
 
-        final String workDirValue = line.getOptionValue("workdir",".");
-        resolveUnixFilePath(initialConfig.getUnixSocketFile(),workDirValue, line.getOptionValue("socket"))
+        Optional.ofNullable(line.getOptionValue("socket"))
                 .ifPresent(configBuilder::unixSocketFile);
 
         Optional.ofNullable(line.getOptionValues("othernodes"))
                 .map(Arrays::asList)
                 .ifPresent(configBuilder::peers);
-
-        KeyDataBuilder keyDataBuilder = KeyDataBuilder.create();
 
         Optional.ofNullable(line.getOptionValues("publickeys"))
                 .map(Arrays::asList)
@@ -155,18 +141,16 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(Arrays::asList)
                 .ifPresent(configBuilder::alwaysSendTo);
 
-        Optional.ofNullable(workDirValue)
-                .ifPresent(keyDataBuilder::withWorkingDirectory);
-
-        resolveUnixFilePath(initialConfig.getKeys().getPasswordFile(),workDirValue, line.getOptionValue("passwords"))
-            .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
+        Optional.ofNullable(line.getOptionValue("passwords"))
+                .ifPresent(keyDataBuilder::withPrivateKeyPasswordFile);
 
         Optional.ofNullable(line.getOptionValue("storage"))
                 .map(JdbcConfigFactory::fromLegacyStorageString)
                 .ifPresent(configBuilder::jdbcConfig);
 
-        Optional.ofNullable(line.getOptionValue("ipwhitelist"))
-                .ifPresent(v -> configBuilder.useWhiteList(true));
+        if(line.hasOption("ipwhitelist")) {
+            configBuilder.useWhiteList(true);
+        }
 
         Optional.ofNullable(line.getOptionValue("tls"))
                 .map(String::toUpperCase)
@@ -181,50 +165,40 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(SslTrustModeFactory::resolveByLegacyValue)
                 .ifPresent(configBuilder::sslClientTrustMode);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getServerTlsCertificatePath(),workDirValue, line.getOptionValue("tlsservercert"))
-            .ifPresent(configBuilder::sslServerTlsCertificatePath);
+        Optional.ofNullable(line.getOptionValue("tlsservercert"))
+                .ifPresent(configBuilder::sslServerTlsCertificatePath);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getClientTlsCertificatePath(),workDirValue, line.getOptionValue("tlsclientcert"))
-            .ifPresent(configBuilder::sslClientTlsCertificatePath);
+        Optional.ofNullable(line.getOptionValue("tlsclientcert"))
+                .ifPresent(configBuilder::sslClientTlsCertificatePath);
 
         Optional.ofNullable(line.getOptionValues("tlsserverchain"))
                 .map(Arrays::asList)
-                .ifPresent(l -> {
-                    List<Path> sslServerTrustCertificates = resolveListOfUnixFilePaths(
-                        initialConfig.getServerConfig().getSslConfig().getServerTrustCertificates(),
-                        workDirValue,
-                        l
-                    ).get();
-                    configBuilder.sslServerTrustCertificates(sslServerTrustCertificates);
-                });
+                .ifPresent(configBuilder::sslServerTrustCertificates);
 
         Optional.ofNullable(line.getOptionValues("tlsclientchain"))
                 .map(Arrays::asList)
-                .ifPresent(l -> {
-                    List<Path> sslClientTrustCertificates = resolveListOfUnixFilePaths(
-                        initialConfig.getServerConfig().getSslConfig().getClientTrustCertificates(),
-                        workDirValue,
-                        l
-                    ).get();
-                    configBuilder.sslClientTrustCertificates(sslClientTrustCertificates);
-                });
+                .ifPresent(configBuilder::sslClientTrustCertificates);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getServerTlsKeyPath(), workDirValue, line.getOptionValue("tlsserverkey"))
+        Optional.ofNullable(line.getOptionValue("tlsserverkey"))
             .ifPresent(configBuilder::sslServerTlsKeyPath);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getClientTlsKeyPath(),workDirValue, line.getOptionValue("tlsclientkey"))
+        Optional.ofNullable(line.getOptionValue("tlsclientkey"))
             .ifPresent(configBuilder::sslClientTlsKeyPath);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getKnownServersFile(),workDirValue, line.getOptionValue("tlsknownservers"))
+        Optional.ofNullable(line.getOptionValue("tlsknownservers"))
             .ifPresent(configBuilder::sslKnownServersFile);
 
-        resolveUnixFilePath(initialConfig.getServerConfig().getSslConfig().getKnownClientsFile(),workDirValue, line.getOptionValue("tlsknownclients"))
+        Optional.ofNullable(line.getOptionValue("tlsknownclients"))
             .ifPresent(configBuilder::sslKnownClientsFile);
 
         final KeyConfiguration keyConfiguration = keyDataBuilder.build();
 
         if (!keyConfiguration.getKeyData().isEmpty()) {
             configBuilder.keyData(keyConfiguration);
+        } else {
+            if(Optional.ofNullable(line.getOptionValue("passwords")).isPresent()) {
+                System.err.println("Info: Public/Private key data not provided in overrides.  Overriden password file has not been added to config.");
+            }
         }
 
         return configBuilder;
@@ -363,6 +337,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .desc("Comma separated list of TLS chain certificate files to use for the public API")
                         .argName("FILE...")
                         .hasArgs()
+                        .valueSeparator(',')
                         .build()
         );
 
@@ -413,6 +388,7 @@ public class LegacyCliAdapter implements CliAdapter {
                         .desc("Comma separated list of TLS chain certificate files to use for connections to other nodes")
                         .argName("FILE...")
                         .hasArgs()
+                        .valueSeparator(',')
                         .build()
         );
 
@@ -467,9 +443,8 @@ public class LegacyCliAdapter implements CliAdapter {
         options.addOption(
             Option.builder()
                 .longOpt("ipwhitelist")
-                .desc("If provided, Tessera will use the othernodes as a whitelist.  Make sure any addresses included here are also in othernodes.")
-                .hasArg()
-                .argName("STRING...")
+                .desc("If provided, Tessera will use the othernodes as a whitelist.")
+                .hasArg(false)
                 .build()
         );
 

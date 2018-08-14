@@ -10,7 +10,7 @@ public class Main {
             CliResult result = adapter.execute(args);
             System.exit(result.getStatus());
         } catch (final Exception ex) {
-            System.err.println(ex.getMessage());
+            System.err.println(ex.toString());
             System.exit(1);
         }
     }

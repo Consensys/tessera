@@ -1,6 +1,9 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.PathAdapter;
+import com.quorum.tessera.config.constraints.ValidPath;
+
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -40,9 +43,10 @@ public class SslConfig {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path serverTrustStore;
 
+    @Valid
     @XmlElement
     @XmlJavaTypeAdapter(value = PathAdapter.class)
-    private final List<Path> serverTrustCertificates;
+    private final List<@ValidPath(checkExists = true, message = "Server Trust Cert does not exist")Path> serverTrustCertificates;
 
     @XmlElement
     private final String serverTrustStorePassword;
@@ -69,9 +73,10 @@ public class SslConfig {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path clientTrustStore;
 
+    @Valid
     @XmlElement
     @XmlJavaTypeAdapter(value = PathAdapter.class)
-    private final List<Path> clientTrustCertificates;
+    private final List<@ValidPath(checkExists = true, message = "Client Trust Cert does not exist") Path> clientTrustCertificates;
 
     @XmlElement
     private final String clientTrustStorePassword;
@@ -79,10 +84,12 @@ public class SslConfig {
     @XmlElement
     private final SslTrustMode clientTrustMode;
 
+    @ValidPath(checkExists = true, message = "Known Clients file doesn't exist")
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path knownClientsFile;
 
+    @ValidPath(checkExists = true, message = "Known Server file doesn't exist")
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path knownServersFile;
