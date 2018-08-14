@@ -188,8 +188,10 @@ public class LegacyCliAdapter implements CliAdapter {
 
         if (!keyConfiguration.getKeyData().isEmpty()) {
             configBuilder.keyData(keyConfiguration);
-        } else if (keyConfiguration.getKeyData().isEmpty() && Optional.ofNullable(line.getOptionValue("passwords")).isPresent()) {
-            System.err.println("Info: Public/Private key data not provided in overrides.  Overriden password file has not been added to config.");
+        } else {
+            if(Optional.ofNullable(line.getOptionValue("passwords")).isPresent()) {
+                System.err.println("Info: Public/Private key data not provided in overrides.  Overriden password file has not been added to config.");
+            }
         }
 
         return configBuilder;
