@@ -123,11 +123,19 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
 
         if (keyData.getConfig() == null) {
             return keyData;
-        } else if (keyData.getConfig().getType() != PrivateKeyType.UNLOCKED) {
+        }
+
+        if(keyData.getPrivateKeyPath()!=null || keyData.getPublicKeyPath()!=null) {
+            return new KeyData(
+                null, null, null, keyData.getPrivateKeyPath(), keyData.getPublicKeyPath()
+            );
+        }
+
+        if (keyData.getConfig().getType() != PrivateKeyType.UNLOCKED) {
             return new KeyData(
                     new KeyDataConfig(
                             new PrivateKeyData(
-                                    keyData.getConfig().getPrivateKeyData().getValue(),
+                                    null,
                                     keyData.getConfig().getPrivateKeyData().getSnonce(),
                                     keyData.getConfig().getPrivateKeyData().getAsalt(),
                                     keyData.getConfig().getPrivateKeyData().getSbox(),
@@ -136,14 +144,14 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
                             ),
                             keyData.getConfig().getType()
                     ),
-                    null,
+                    null,//TODO: 
                     keyData.getPublicKey(),
-                    null,
-                    null
+                    keyData.getPrivateKeyPath(),
+                    keyData.getPublicKeyPath()
             );
-        } else {
-            return keyData;
         }
+
+        return keyData;
     }
 
     protected void setFilesDelegate(FilesDelegate filesDelegate) {
