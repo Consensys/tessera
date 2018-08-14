@@ -2,8 +2,7 @@ package com.quorum.tessera.api.filter;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.Peer;
-import java.util.Arrays;
-import java.util.Collections;
+import com.quorum.tessera.config.ServerConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -11,8 +10,13 @@ import org.mockito.ArgumentCaptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
-import static org.assertj.core.api.Assertions.assertThat;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class IPWhitelistFilterTest {
@@ -22,29 +26,39 @@ public class IPWhitelistFilterTest {
     private IPWhitelistFilter filter;
 
     @Before
-    public void init() {
+    public void init() throws URISyntaxException {
 
         this.ctx = mock(ContainerRequestContext.class);
 
         final Config configuration = mock(Config.class);
-        Peer peer = mock(Peer.class);
-        when(peer.getUrl()).thenReturn("whitelistedHost");
-        when(configuration.getPeers())
-                .thenReturn(Arrays.asList(peer));
+
+        Peer peer = new Peer("http://whitelistedHost:8080");
+        when(configuration.getPeers()).thenReturn(Collections.singletonList(peer));
         when(configuration.isUseWhiteList()).thenReturn(true);
+
+        final ServerConfig serverConfig = mock(ServerConfig.class);
+        when(serverConfig.getServerUri()).thenReturn(new URI("http://localhost:8080"));
+        when(configuration.getServerConfig()).thenReturn(serverConfig);
+
         this.filter = new IPWhitelistFilter(configuration);
 
     }
 
     @Test
-    public void noAddressesInWhitelistDisablesFilter() {
-          final Config configuration = mock(Config.class);
-          when(configuration.getPeers()).thenReturn(Collections.EMPTY_LIST);
-          when(configuration.isUseWhiteList()).thenReturn(false);
-          
+    public void disabledFilterAllowsAllRequests() throws URISyntaxException {
+        final Config configuration = mock(Config.class);
+        when(configuration.getPeers()).thenReturn(Collections.emptyList());
+        when(configuration.isUseWhiteList()).thenReturn(false);
+
+        final ServerConfig serverConfig = mock(ServerConfig.class);
+        when(serverConfig.getServerUri()).thenReturn(new URI("http://localhost:8080"));
+        when(configuration.getServerConfig()).thenReturn(serverConfig);
+
         final IPWhitelistFilter filter = new IPWhitelistFilter(configuration);
 
         final HttpServletRequest request = mock(HttpServletRequest.class);
+        doReturn("someotherhost").when(request).getRemoteAddr();
+        doReturn("someotherhost").when(request).getRemoteHost();
 
         filter.setHttpServletRequest(request);
         filter.filter(ctx);
@@ -119,6 +133,39 @@ public class IPWhitelistFilterTest {
         verifyZeroInteractions(ctx);
     }
 
+    @Test
+    public void selfIsWhitelisted() {
+        final HttpServletRequest request = mock(HttpServletRequest.class);
+        doReturn("localhost").when(request).getRemoteHost();
 
+        filter.setHttpServletRequest(request);
+
+        filter.filter(ctx);
+
+        verify(request).getRemoteHost();
+        verify(request).getRemoteAddr();
+        verifyZeroInteractions(ctx);
+    }
+
+    @Test
+    public void invalidPeerCantBeWhitelisted() throws URISyntaxException {
+        final Config configuration = mock(Config.class);
+
+        Peer peer = new Peer("ht:whitelistedHost:8080");
+        when(configuration.getPeers()).thenReturn(Collections.singletonList(peer));
+        when(configuration.isUseWhiteList()).thenReturn(true);
+
+        final ServerConfig serverConfig = mock(ServerConfig.class);
+        when(serverConfig.getServerUri()).thenReturn(new URI("http://localhost:8080"));
+        when(configuration.getServerConfig()).thenReturn(serverConfig);
+
+        final Throwable throwable = catchThrowable(() -> new IPWhitelistFilter(configuration));
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException.class)
+            .hasCauseExactlyInstanceOf(MalformedURLException.class);
+
+        assertThat(throwable.getCause()).hasMessage("unknown protocol: ht");
+    }
 
 }
