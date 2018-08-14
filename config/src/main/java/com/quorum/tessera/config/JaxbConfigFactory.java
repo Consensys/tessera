@@ -1,17 +1,29 @@
 package com.quorum.tessera.config;
 
-import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.keys.KeyGenerator;
 import com.quorum.tessera.config.keys.KeyGeneratorFactory;
+import com.quorum.tessera.config.util.JaxbUtil;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.nio.file.StandardOpenOption.APPEND;
+
 public class JaxbConfigFactory implements ConfigFactory {
 
+    private static final Set<PosixFilePermission> NEW_PASSWORD_FILE_PERMS = Stream
+        .of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE)
+        .collect(Collectors.toSet());
 
     private final KeyGenerator generator = KeyGeneratorFactory.newFactory().create();
     
@@ -21,35 +33,72 @@ public class JaxbConfigFactory implements ConfigFactory {
         final List<KeyData> newKeys = Stream
             .of(filenames)
             .map(name -> generator.generate(name, keygenConfig))
-            .map(kd -> new KeyData(
-                    new KeyDataConfig(
-                        new PrivateKeyData(
-                            kd.getConfig().getValue(),
-                            kd.getConfig().getSnonce(),
-                            kd.getConfig().getAsalt(),
-                            kd.getConfig().getSbox(),
-                            kd.getConfig().getArgonOptions(),
-                            null
-                        ),
-                        kd.getConfig().getType()
-                    ),
-                    kd.getPrivateKey(),
-                    kd.getPublicKey(),
-                    kd.getPrivateKeyPath(),
-                    kd.getPublicKeyPath()
-                )
-            )
             .collect(Collectors.toList());
-
-
 
         final Config config = JaxbUtil.unmarshal(configData, Config.class);
 
-        if (Objects.nonNull(config.getKeys())) {
+        boolean createdNewPasswordFile = false;
+
+        if (Objects.nonNull(config.getKeys()) && !newKeys.isEmpty()) {
+            try {
+                final List<String> newPasswords = newKeys
+                    .stream()
+                    .map(KeyData::getConfig)
+                    .map(KeyDataConfig::getPassword)
+                    .map(Optional::ofNullable)
+                    .map(pass -> pass.orElse(""))
+                    .collect(Collectors.toList());
+
+                if (config.getKeys().getPasswords() != null) {
+                    config.getKeys().getPasswords().addAll(newPasswords);
+                } else if (config.getKeys().getPasswordFile() != null) {
+                    this.createFile(config.getKeys().getPasswordFile());
+                    Files.write(config.getKeys().getPasswordFile(), newPasswords, APPEND);
+                } else if (!newPasswords.stream().allMatch(""::equals)) {
+                    final List<String> existingPasswords = config
+                        .getKeys()
+                        .getKeyData()
+                        .stream()
+                        .map(k -> "")
+                        .collect(Collectors.toList());
+                    existingPasswords.addAll(newPasswords);
+
+                    this.createFile(Paths.get("passwords.txt"));
+                    Files.write(Paths.get("passwords.txt"), existingPasswords, APPEND);
+                    createdNewPasswordFile = true;
+                }
+            } catch (final IOException ex) {
+                throw new RuntimeException("Could not store new passwords: " + ex.getMessage());
+            }
+
             config.getKeys().getKeyData().addAll(newKeys);
+
         }
 
-        return config;
+        if(createdNewPasswordFile) {
+            //return a new object with the password file set
+            return new Config(
+                config.getJdbcConfig(),
+                config.getServerConfig(),
+                config.getPeers(),
+                new KeyConfiguration(Paths.get("passwords.txt"), null, config.getKeys().getKeyData()),
+                config.getAlwaysSendTo(),
+                config.getUnixSocketFile(),
+                config.isUseWhiteList()
+            );
+        } else {
+            //leave config untouched since it wasn't needed to make a new one
+            return config;
+        }
+    }
+
+    //create a file if it doesn't exist and set the permissions to be only
+    // read/write for the creator
+    private void createFile(final Path fileToMake) throws IOException {
+        if(Files.notExists(fileToMake)) {
+            Files.createFile(fileToMake);
+            Files.setPosixFilePermissions(fileToMake, NEW_PASSWORD_FILE_PERMS);
+        }
     }
 
 }

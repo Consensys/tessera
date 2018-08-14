@@ -135,7 +135,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
                     keyData.getConfig().getAsalt(),
                     keyData.getConfig().getSbox(),
                     keyData.getConfig().getArgonOptions(),
-                    null
+                    keyData.getConfig().getPassword()
                 ),
                 LOCKED
             );

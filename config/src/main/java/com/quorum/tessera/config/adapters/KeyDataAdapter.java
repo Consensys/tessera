@@ -28,6 +28,8 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyDataAdapter.class);
 
+    public static final String NACL_FAILURE_TOKEN = "NACL_FAILURE";
+    
     @Override
     public KeyData unmarshal(final KeyData keyData) {
 
@@ -104,7 +106,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
             decyptedPrivateKey = Objects.toString(kg.decryptPrivateKey(encryptedKey));
         } catch (final NaclException ex) {
             LOGGER.debug("Unable to decypt private key : {}", ex.getMessage());
-            decyptedPrivateKey = "NACL_FAILURE: " + ex.getMessage();
+            decyptedPrivateKey = NACL_FAILURE_TOKEN +": " + ex.getMessage();
         }
 
         //need to decrypt
@@ -125,11 +127,17 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
             return keyData;
         }
 
+        if(keyData.getPrivateKeyPath()!=null || keyData.getPublicKeyPath()!=null) {
+            return new KeyData(
+                null, null, null, keyData.getPrivateKeyPath(), keyData.getPublicKeyPath()
+            );
+        }
+
         if (keyData.getConfig().getType() != PrivateKeyType.UNLOCKED) {
             return new KeyData(
                     new KeyDataConfig(
                             new PrivateKeyData(
-                                    keyData.getConfig().getPrivateKeyData().getValue(),
+                                    null,
                                     keyData.getConfig().getPrivateKeyData().getSnonce(),
                                     keyData.getConfig().getPrivateKeyData().getAsalt(),
                                     keyData.getConfig().getPrivateKeyData().getSbox(),
@@ -138,10 +146,10 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
                             ),
                             keyData.getConfig().getType()
                     ),
-                    null,
+                    null,//TODO: 
                     keyData.getPublicKey(),
-                    null,
-                    null
+                    keyData.getPrivateKeyPath(),
+                    keyData.getPublicKeyPath()
             );
         }
 
