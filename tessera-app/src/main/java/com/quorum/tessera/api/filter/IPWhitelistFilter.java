@@ -2,11 +2,14 @@ package com.quorum.tessera.api.filter;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.Peer;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,8 +31,23 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
     private HttpServletRequest httpServletRequest;
 
     public IPWhitelistFilter(final Config configuration) {
-        this.whitelisted = configuration.getPeers().stream()
-                .map(Peer::getUrl).collect(Collectors.toSet());
+
+        this.whitelisted = configuration
+            .getPeers()
+            .stream()
+            .map(Peer::getUrl)
+            .map(s -> {
+                try {
+                    return new URL(s);
+                } catch (final MalformedURLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }).map(URL::getHost)
+            .collect(Collectors.toSet());
+
+        //add ourself to the whitelist to let the unix socket in
+        this.whitelisted.add(configuration.getServerConfig().getServerUri().getHost());
+
         this.disabled = !configuration.isUseWhiteList();
     }
 
