@@ -122,37 +122,6 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
 
     @Override
     public KeyData marshal(final KeyData keyData) {
-
-        if (keyData.getConfig() == null) {
-            return keyData;
-        }
-
-        if(keyData.getPrivateKeyPath()!=null || keyData.getPublicKeyPath()!=null) {
-            return new KeyData(
-                null, null, null, keyData.getPrivateKeyPath(), keyData.getPublicKeyPath()
-            );
-        }
-
-        if (keyData.getConfig().getType() != PrivateKeyType.UNLOCKED) {
-            return new KeyData(
-                    new KeyDataConfig(
-                            new PrivateKeyData(
-                                    null,
-                                    keyData.getConfig().getPrivateKeyData().getSnonce(),
-                                    keyData.getConfig().getPrivateKeyData().getAsalt(),
-                                    keyData.getConfig().getPrivateKeyData().getSbox(),
-                                    keyData.getConfig().getPrivateKeyData().getArgonOptions(),
-                                    null
-                            ),
-                            keyData.getConfig().getType()
-                    ),
-                    null,//TODO: 
-                    keyData.getPublicKey(),
-                    keyData.getPrivateKeyPath(),
-                    keyData.getPublicKeyPath()
-            );
-        }
-
         return keyData;
     }
 
