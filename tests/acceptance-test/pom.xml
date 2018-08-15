@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.quorum.tessera</groupId>
         <artifactId>tests</artifactId>
-        <version>0.5.2-SNAPSHOT</version>
+        <version>0.5.3-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -18,7 +18,7 @@
             <groupId>com.quorum.tessera</groupId>
             <artifactId>tessera-app</artifactId>
             <classifier>app</classifier>
-            <version>0.5.2-SNAPSHOT</version>
+            <version>0.5.3-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -105,7 +105,7 @@
                             <dependency>
                                 <groupId>com.quorum.tessera</groupId>
                                 <artifactId>test-util</artifactId>
-                                <version>0.5.2-SNAPSHOT</version>
+                                <version>0.5.3-SNAPSHOT</version>
                             </dependency>
                             
                             <dependency>

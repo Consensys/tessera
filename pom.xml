@@ -5,7 +5,7 @@
 
     <groupId>com.quorum.tessera</groupId>
     <artifactId>tessera</artifactId>
-    <version>0.5.2-SNAPSHOT</version>
+    <version>0.5.3-SNAPSHOT</version>
 
     <name>tessera</name>
     <packaging>pom</packaging>
@@ -244,93 +244,93 @@
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>encryption-api</artifactId>
-                <version>0.5.2-SNAPSHOT</version>
+                <version>0.5.3-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>argon2</artifactId>
-                <version>0.5.2-SNAPSHOT</version>
+                <version>0.5.3-SNAPSHOT</version>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>config</artifactId>
-                <version>0.5.2-SNAPSHOT</version>
+                <version>0.5.3-SNAPSHOT</version>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>config-cli</artifactId>
-                <version>0.5.2-SNAPSHOT</version>
+                <version>0.5.3-SNAPSHOT</version>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>unixsocket</artifactId>
-                <version>0.5.2-SNAPSHOT</version>
+                <version>0.5.3-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>security</artifactId>
-                <version>0.5.2-SNAPSHOT</version>
+                <version>0.5.3-SNAPSHOT</version>
             </dependency>
        
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>junixsocket-adapter</artifactId>
-                <version>0.5.2-SNAPSHOT</version>
+                <version>0.5.3-SNAPSHOT</version>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>encryption-jnacl</artifactId>
-                <version>0.5.2-SNAPSHOT</version>
+                <version>0.5.3-SNAPSHOT</version>
                 <scope>runtime</scope>
             </dependency>
                         
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>encryption-kalium</artifactId>
-                <version>0.5.2-SNAPSHOT</version>
+                <version>0.5.3-SNAPSHOT</version>
                 <scope>runtime</scope>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>service-locator-api</artifactId>
-                <version>0.5.2-SNAPSHOT</version>
+                <version>0.5.3-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>service-locator-spring</artifactId>
-                <version>0.5.2-SNAPSHOT</version>
+                <version>0.5.3-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>rest-server-api</artifactId>
-                <version>0.5.2-SNAPSHOT</version>
+                <version>0.5.3-SNAPSHOT</version>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>jersey-server</artifactId>
-                <version>0.5.2-SNAPSHOT</version>
+                <version>0.5.3-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>resteasy-server</artifactId>
-                <version>0.5.2-SNAPSHOT</version>
+                <version>0.5.3-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>test-util</artifactId>
-                <version>0.5.2-SNAPSHOT</version>
+                <version>0.5.3-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
 
