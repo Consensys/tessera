@@ -5,6 +5,7 @@ import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.builder.ConfigBuilder;
+import com.quorum.tessera.config.builder.KeyDataBuilder;
 import com.quorum.tessera.config.cli.CliResult;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
 import com.quorum.tessera.test.util.ElUtil;
@@ -13,6 +14,8 @@ import java.io.IOException;
 import org.apache.commons.cli.CommandLine;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,9 +43,7 @@ public class LegacyCliAdapterTest {
 
         Files.createFile(dataDirectory.resolve("foo.pub"));
         Files.createFile(dataDirectory.resolve("foo.key"));
-        Files.createFile(dataDirectory.resolve("foo1.pub"));
         Files.createFile(dataDirectory.resolve("foo2.pub"));
-        Files.createFile(dataDirectory.resolve("foo1.key"));
         Files.createFile(dataDirectory.resolve("foo2.key"));
 
     }
@@ -79,17 +80,17 @@ public class LegacyCliAdapterTest {
     @Test
     public void withoutCliArgsAllConfigIsSetFromTomlFile() throws Exception {
 
-        Path forwardFile1 = Files.createTempFile("forward1", ".txt");
-        Files.write(forwardFile1, ("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=\n"
-                + "jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=").getBytes());
+        Path alwaysSendTo1 = Files.createFile(dataDirectory.resolve("alwayssendto1"));
+        Files.write(alwaysSendTo1, ("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=\n"
+                                    + "jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=").getBytes());
 
-        Path forwardFile2 = Files.createTempFile("forward2", ".txt");
-        Files.write(forwardFile2, "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=".getBytes());
+        Path alwaysSendTo2 = Files.createFile(dataDirectory.resolve("alwayssendto2"));
+        Files.write(alwaysSendTo2, "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=".getBytes());
 
         Path sampleFile = Paths.get(getClass().getResource("/sample-toml-no-nulls.conf").toURI());
         Map<String, Object> params = new HashMap<>();
-        params.put("alwaysSendToPath1", forwardFile1);
-        params.put("alwaysSendToPath2", forwardFile2);
+        params.put("alwaysSendToPath1", "alwayssendto1");
+        params.put("alwaysSendToPath2", "alwayssendto2");
 
         String data = ElUtil.process(Files.readAllLines(sampleFile)
                 .stream()
@@ -103,7 +104,6 @@ public class LegacyCliAdapterTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
-//        assertThat(result.getStatus()).isEqualTo(0);
 
         assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
         assertThat(result.getConfig().get().getServerConfig().getPort()).isEqualTo(9001);
@@ -112,8 +112,8 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://127.0.0.1:9001/");
         assertThat(result.getConfig().get().getPeers().get(1).getUrl()).isEqualTo("http://127.0.0.1:9002/");
         assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(2);
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("data/foo1.pub");
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("data/foo1.key");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("data/foo.pub");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("data/foo.key");
         assertThat(result.getConfig().get().getKeys().getKeyData().get(1).getPublicKeyPath().toString()).isEqualTo("data/foo2.pub");
         assertThat(result.getConfig().get().getKeys().getKeyData().get(1).getPrivateKeyPath().toString()).isEqualTo("data/foo2.key");
         assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(3);
@@ -149,27 +149,26 @@ public class LegacyCliAdapterTest {
         Path sampleFile = Paths.get(getClass().getResource("/sample.conf").toURI());
 
         String data = Files.readAllLines(sampleFile)
-                .stream()
-                .collect(Collectors.joining(System.lineSeparator()));
+            .stream()
+            .collect(Collectors.joining(System.lineSeparator()));
 
         Path configFile = Files.createTempFile("noOptions", ".txt");
         Files.write(configFile, data.getBytes());
-
-        Path alwaysSendToFile = Files.createTempFile("alwaysSendTo", ".txt");
-        Files.write(alwaysSendToFile, ("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=\n"
-                + "jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=").getBytes());
 
         Path workdir = Paths.get("override");
 
         if(Files.exists(workdir)) {
             Files.walk(workdir)
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
         }
         Files.createDirectory(workdir);
         Files.createFile(workdir.resolve("new.pub"));
         Files.createFile(workdir.resolve("new.key"));
+        Path alwaysSendToFile = Files.createFile(workdir.resolve("alwayssendto"));
+        Files.write(alwaysSendToFile, ("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=\n"
+            + "jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=").getBytes());
 
         String[] args = {
             "--tomlfile=" + configFile.toString(),
@@ -180,10 +179,10 @@ public class LegacyCliAdapterTest {
             "--othernodes=http://others",
             "--publickeys=new.pub",
             "--privatekeys=new.key",
-            "--alwayssendto=" + alwaysSendToFile.toString(),
+            "--alwayssendto=alwayssendto",
             "--passwords=pw.txt",
             "--storage=jdbc:test",
-            "--ipwhitelist=10.0.0.1",
+            "--ipwhitelist",
             "--socket=cli.ipc",
             "--tls=off",
             "--tlsservercert=over-server-cert.pem",
@@ -202,7 +201,6 @@ public class LegacyCliAdapterTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
-        assertThat(result.getStatus()).isEqualTo(0);
 
         assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://override");
         assertThat(result.getConfig().get().getServerConfig().getPort()).isEqualTo(1111);
@@ -213,7 +211,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("override/new.pub");
         assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("override/new.key");
         assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(2);
-        assertThat(result.getConfig().get().getAlwaysSendTo().get(0).toString()).isEqualTo("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+        assertThat(result.getConfig().get().getAlwaysSendTo().get(0).toString()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
         assertThat(result.getConfig().get().getAlwaysSendTo().get(1).toString()).isEqualTo("jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
         assertThat(result.getConfig().get().getKeys().getPasswordFile().toString()).isEqualTo("override/pw.txt");
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:test");
@@ -233,7 +231,6 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("override/over-known-servers");
 
-        Files.deleteIfExists(alwaysSendToFile);
         Files.deleteIfExists(configFile);
 
         Files.walk(workdir)
@@ -266,7 +263,7 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
 
-        assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("./myipcfile.ipc");
+        assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("myipcfile.ipc");
         //Empty List
         assertThat(Optional.ofNullable(result.getConfig().get().getKeys().getKeyData()).isPresent()).isEqualTo(true);
         assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(0);
@@ -288,6 +285,86 @@ public class LegacyCliAdapterTest {
 
         Files.deleteIfExists(configFile);
         Files.deleteIfExists(keysFile);
+    }
+
+    @Test
+    public void ifWorkDirCliOverrideIsProvidedThenItIsAppliedToBothTomlAndCliSetParameters() throws Exception {
+
+        Path workdir = Paths.get("override");
+
+        if(Files.exists(workdir)) {
+            Files.walk(workdir)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
+        }
+        Files.createDirectory(workdir);
+        Files.createFile(workdir.resolve("new.pub"));
+        Files.createFile(workdir.resolve("new.key"));
+        Path alwaysSendToFile = Files.createFile(workdir.resolve("alwayssendto"));
+        Files.write(alwaysSendToFile, ("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=\n"
+            + "jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=").getBytes());
+
+        Path sampleFile = Paths.get(getClass().getResource("/sample-toml-no-nulls-tls-off.conf").toURI());
+        Map<String, Object> params = new HashMap<>();
+        params.put("alwaysSendToPath1", "alwayssendto");
+        params.put("alwaysSendToPath2", "alwayssendto");
+
+        String data = ElUtil.process(Files.readAllLines(sampleFile)
+                .stream()
+                .collect(Collectors.joining(System.lineSeparator()))
+            , params);
+
+        Path configFile = Files.createTempFile("workdiroverride", ".txt");
+        Files.write(configFile, data.getBytes());
+
+        String[] args = {
+            "--tomlfile=" + configFile.toString(),
+            "--workdir=override",
+            "--publickeys=" + "new.pub",
+            "--privatekeys=" + "new.key"
+        };
+
+        CliResult result = instance.execute(args);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+
+        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
+        assertThat(result.getConfig().get().getServerConfig().getPort()).isEqualTo(9001);
+        assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("override/constellation.ipc");
+        assertThat(result.getConfig().get().getPeers().size()).isEqualTo(2);
+        assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://127.0.0.1:9001/");
+        assertThat(result.getConfig().get().getPeers().get(1).getUrl()).isEqualTo("http://127.0.0.1:9002/");
+        assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(1);
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPublicKeyPath().toString()).isEqualTo("override/new.pub");
+        assertThat(result.getConfig().get().getKeys().getKeyData().get(0).getPrivateKeyPath().toString()).isEqualTo("override/new.key");
+        assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(4);
+        assertThat(result.getConfig().get().getAlwaysSendTo().get(0).toString()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+        assertThat(result.getConfig().get().getAlwaysSendTo().get(1).toString()).isEqualTo("jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
+        assertThat(result.getConfig().get().getAlwaysSendTo().get(2).toString()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+        assertThat(result.getConfig().get().getAlwaysSendTo().get(3).toString()).isEqualTo("jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
+        assertThat(result.getConfig().get().getKeys().getPasswordFile().toString()).isEqualTo("override/passwords");
+        assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
+        assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
+        assertThat(result.getConfig().get().isUseWhiteList()).isTrue();
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("override/tls-server-cert.pem");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().size()).isEqualTo(2);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().get(0).toString()).isEqualTo("override/chain1");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().get(1).toString()).isEqualTo("override/chain2");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsKeyPath().toString()).isEqualTo("override/tls-server-key.pem");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownClientsFile().toString()).isEqualTo("override/tls-known-clients");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsCertificatePath().toString()).isEqualTo("override/tls-client-cert.pem");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates().size()).isEqualTo(2);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates().get(0).toString()).isEqualTo("override/clientchain1");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates().get(1).toString()).isEqualTo("override/clientchain2");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("override/tls-client-key.pem");
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.CA_OR_TOFU);
+        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("override/tls-known-servers");
+
+        Files.deleteIfExists(configFile);
     }
 
     @Test
@@ -405,12 +482,175 @@ public class LegacyCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
 
-        //TODO assert that value of config is as expected from sample config
-//        assertThat(result.getStatus()).isEqualTo(0);
-
         Files.deleteIfExists(configFile);
         Files.deleteIfExists(passwordFile);
         Files.deleteIfExists(serverKeyStorePath);
+    }
+
+    @Test
+    public void passwordOverrideProvidedButNoKeyDataOverrideProvidedThenPrintMessageToConsole() {
+        final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+        final PrintStream originalErr = System.err;
+
+        System.setErr(new PrintStream(errContent));
+
+        CommandLine line = mock(CommandLine.class);
+        when(line.getOptionValue("passwords")).thenReturn("override/path");
+
+        ConfigBuilder configBuilder = ConfigBuilder.create();
+
+        LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
+
+        assertThat(errContent.toString()).isEqualTo("Info: Public/Private key data not provided in overrides.  Overriden password file has not been added to config.\n");
+
+        System.setErr(originalErr);
+    }
+
+    @Test
+    public void noPasswordOrKeyDataOverrideProvidedThenNoMessagePrintedToConsole() {
+        final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+        final PrintStream originalErr = System.err;
+
+        System.setErr(new PrintStream(errContent));
+
+        CommandLine line = mock(CommandLine.class);
+
+        ConfigBuilder configBuilder = ConfigBuilder.create();
+
+        LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
+
+        assertThat(errContent.toString()).isEqualTo("");
+
+        System.setErr(originalErr);
+    }
+
+    @Test
+    public void keyDataProvidedButNoPasswordProvidedThenNoMessagePrintedToConsole() {
+        final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+        final PrintStream originalErr = System.err;
+
+        System.setErr(new PrintStream(errContent));
+
+        CommandLine line = mock(CommandLine.class);
+        when(line.getOptionValue("passwords")).thenReturn("override/path");
+
+        ConfigBuilder configBuilder = ConfigBuilder.create();
+
+        List<String> publicKeys = new ArrayList<>();
+        publicKeys.add("pub");
+        List<String> privateKeys = new ArrayList<>();
+        privateKeys.add("priv");
+
+        KeyDataBuilder keyDataBuilder = KeyDataBuilder.create()
+                                        .withPublicKeys(publicKeys)
+                                        .withPrivateKeys(privateKeys);
+
+        LegacyCliAdapter.applyOverrides(line, configBuilder, keyDataBuilder);
+
+        assertThat(errContent.toString()).isEqualTo("");
+
+        System.setErr(originalErr);
+    }
+
+    @Test
+    public void passwordAndKeyDataProvidedAsOverrideThenNoMessagePrintedToConsole() {
+        final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+        final PrintStream originalErr = System.err;
+
+        System.setErr(new PrintStream(errContent));
+
+        CommandLine line = mock(CommandLine.class);
+
+        ConfigBuilder configBuilder = ConfigBuilder.create();
+
+        List<String> publicKeys = new ArrayList<>();
+        publicKeys.add("pub");
+        List<String> privateKeys = new ArrayList<>();
+        privateKeys.add("priv");
+
+        KeyDataBuilder keyDataBuilder = KeyDataBuilder.create()
+            .withPublicKeys(publicKeys)
+            .withPrivateKeys(privateKeys);
+
+        LegacyCliAdapter.applyOverrides(line, configBuilder, keyDataBuilder);
+
+        assertThat(errContent.toString()).isEqualTo("");
+
+        System.setErr(originalErr);
+    }
+
+    @Test
+    public void ifTomlWorkDirProvidedWithoutOverrideWorkDirThenTomlWorkDirUsedOnOverridenValues() {
+        CommandLine line = mock(CommandLine.class);
+        when(line.getOptionValue("workdir")).thenReturn(null);
+        String socketFilepath = "path/to/socket.ipc";
+        when(line.getOptionValue("socket")).thenReturn(socketFilepath);
+
+        String tomlWorkDir = "toml";
+        ConfigBuilder configBuilder = ConfigBuilder.create()
+                                                .workdir(tomlWorkDir);
+
+        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
+
+        Path expected = Paths.get(tomlWorkDir, socketFilepath);
+
+        assertThat(result.build().getUnixSocketFile()).isEqualByComparingTo(expected);
+    }
+
+    @Test
+    public void ifTomlWorkDirProvidedWithOverrideWorkDirThenOverrideWorkDirUsedOnOverridenValues() {
+        CommandLine line = mock(CommandLine.class);
+        String overrideWorkDir = "override";
+        when(line.getOptionValue("workdir")).thenReturn(overrideWorkDir);
+        when(line.getOptionValue("workdir", ".")).thenReturn(overrideWorkDir);
+        String socketFilepath = "path/to/socket.ipc";
+        when(line.getOptionValue("socket")).thenReturn(socketFilepath);
+
+        ConfigBuilder configBuilder = ConfigBuilder.create();
+
+        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
+
+        Path expected = Paths.get(overrideWorkDir, socketFilepath);
+
+        assertThat(result.build().getUnixSocketFile()).isEqualByComparingTo(expected);
+    }
+
+    @Test
+    public void ifTomlWorkDirNotProvidedWithoutOverrideWorkDirThenDefaultWorkDirUsedOnOverridenValues() {
+        CommandLine line = mock(CommandLine.class);
+        when(line.getOptionValue("workdir")).thenReturn(null);
+        String socketFilepath = "path/to/socket.ipc";
+        when(line.getOptionValue("socket")).thenReturn(socketFilepath);
+
+        ConfigBuilder configBuilder = ConfigBuilder.create();
+
+        String tomlWorkDir = null;
+
+        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
+
+        Path expected = Paths.get(socketFilepath);
+
+        assertThat(result.build().getUnixSocketFile()).isEqualByComparingTo(expected);
+    }
+
+    @Test
+    public void ifTomlWorkDirNotProvidedButOverrideWorkDirIsThenOverrideWorkDirUsedOnOverridenValues() {
+        CommandLine line = mock(CommandLine.class);
+        String overrideWorkDir = "override";
+        when(line.getOptionValue("workdir")).thenReturn(overrideWorkDir);
+        when(line.getOptionValue("workdir", ".")).thenReturn(overrideWorkDir);
+        String socketFilepath = "path/to/socket.ipc";
+        when(line.getOptionValue("socket")).thenReturn(socketFilepath);
+
+        ConfigBuilder configBuilder = ConfigBuilder.create();
+
+        String tomlWorkDir = null;
+
+        ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
+
+        Path expected = Paths.get(overrideWorkDir, socketFilepath);
+
+        assertThat(result.build().getUnixSocketFile()).isEqualByComparingTo(expected);
     }
 
     @Test
@@ -427,7 +667,7 @@ public class LegacyCliAdapterTest {
         //TODO check all CLI options have assertions here
         when(commandLine.getOptionValue("url")).thenReturn(urlOverride);
         when(commandLine.getOptionValue("port")).thenReturn(String.valueOf(portOverride));
-        when(commandLine.getOptionValue("workdir",".")).thenReturn(workdirOverride);
+        when(commandLine.getOptionValue("workdir")).thenReturn(workdirOverride);
         when(commandLine.getOptionValue("socket")).thenReturn(unixSocketFileOverride);
 
         when(commandLine.getOptionValues("othernodes"))
@@ -493,7 +733,7 @@ public class LegacyCliAdapterTest {
         when(commandLine.getOptionValue("passwords"))
                 .thenReturn(privateKeyPasswordFile.toString());
 
-        Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues).build();
+        Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues, KeyDataBuilder.create()).build();
 
         assertThat(result).isNotNull();
         assertThat(result.getServerConfig().getHostName()).isEqualTo("http://junit.com");
@@ -540,7 +780,7 @@ public class LegacyCliAdapterTest {
 
         CommandLine commandLine = mock(CommandLine.class);
 
-        Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues).build();
+        Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues, KeyDataBuilder.create()).build();
 
         assertThat(result).isNotNull();
 
@@ -576,100 +816,6 @@ public class LegacyCliAdapterTest {
         assertThat(result.getServerConfig().getSslConfig().getKnownClientsFile())
                 .isEqualTo(Paths.get("knownClientsFile"));
 
-    }
-
-    @Test
-    public void resolveUnixFilePathInitialValueOnly() {
-        Path relativePath = Paths.get("somepath.ipc");
-
-        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(relativePath, null, null);
-
-        assertThat(result).isPresent().get().isEqualTo(relativePath);
-
-    }
-
-    @Test
-    public void resolveUnixFilePathAllNull() {
-
-        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(null, null, null);
-
-        assertThat(result).isNotPresent();
-
-    }
-
-    @Test
-    public void resolveUnixFilePathWorkdirOnly() {
-
-        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(null, "dir", null);
-
-        assertThat(result).isNotPresent();
-
-    }
-
-    @Test
-    public void resolveUnixFilePathFileNameOnly() {
-
-        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(null, null, "filename");
-
-        assertThat(result).isPresent().get().isEqualTo(Paths.get("filename"));
-    }
-
-    @Test
-    public void resolveUnixFilePathWorkdirAndFileName() {
-
-        Optional<Path> result = LegacyCliAdapter.resolveUnixFilePath(null, "dir", "somefile.file");
-
-        assertThat(result).isPresent().get().isEqualTo(Paths.get("dir", "somefile.file"));
-
-    }
-
-    @Test
-    public void resolveListOfUnixFilePathsInitialValueOnly() {
-        List<Path> paths = new ArrayList<>();
-        paths.add(Paths.get("path"));
-        Optional<List<Path>> result = LegacyCliAdapter.resolveListOfUnixFilePaths(paths, null, null);
-
-        assertThat(result).isPresent().get().isEqualToComparingFieldByField(paths);
-    }
-
-    @Test
-    public void resolveListOfUnixFilePathsAllNull() {
-        Optional<List<Path>> result = LegacyCliAdapter.resolveListOfUnixFilePaths(null, null, null);
-
-        assertThat(result).isNotPresent();
-    }
-
-    @Test
-    public void resolveListOfUnixFilePathsWorkdirOnly() {
-        Optional<List<Path>> result = LegacyCliAdapter.resolveListOfUnixFilePaths(null, "workdir", null);
-
-        assertThat(result).isNotPresent();
-    }
-
-    @Test
-    public void resolveListOfUnixFilePathsFilenameOnly() {
-        List<String> filepaths = new ArrayList<>();
-        filepaths.add("file1");
-        filepaths.add("file2");
-
-        Optional<List<Path>> result = LegacyCliAdapter.resolveListOfUnixFilePaths(null, null, filepaths);
-
-        assertThat(result).isNotPresent();
-    }
-
-    @Test
-    public void resolveListOfUnixFilePathsWorkdirAndFilename() {
-        List<String> filepaths = new ArrayList<>();
-        filepaths.add("file1");
-        filepaths.add("file2");
-
-        Optional<List<Path>> result = LegacyCliAdapter.resolveListOfUnixFilePaths(null, "workdir", filepaths);
-
-        List<Path> expected = new ArrayList<>();
-        expected.add(Paths.get("workdir/file1"));
-        expected.add(Paths.get("workdir/file2"));
-        assertThat(result.get().size()).isEqualTo(2);
-        assertThat(result).isPresent().get().isEqualToComparingFieldByField(expected);
     }
 
     @Test

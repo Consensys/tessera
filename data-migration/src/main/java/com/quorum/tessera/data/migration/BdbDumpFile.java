@@ -4,10 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+
 import org.bouncycastle.util.encoders.Hex;
 
 /**
@@ -41,7 +39,7 @@ public class BdbDumpFile implements StoreLoader {
                 final String value = reader.readLine();
                 
                 
-                results.put(Hex.decode(key), Hex.decode(value));
+                results.put(Base64.getDecoder().decode(Hex.decode(key)), Hex.decode(value));
             }
             return Collections.unmodifiableMap(results);
 

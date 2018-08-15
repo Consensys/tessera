@@ -2,6 +2,7 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.ValidKeyData;
+import com.quorum.tessera.config.constraints.ValidPath;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -18,6 +19,7 @@ import javax.validation.Valid;
 @XmlType(factoryMethod = "create")
 public class KeyConfiguration extends ConfigItem {
 
+    @ValidPath(checkExists = true, message = "Password file does not exist")
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path passwordFile;

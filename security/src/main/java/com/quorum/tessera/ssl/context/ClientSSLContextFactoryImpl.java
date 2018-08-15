@@ -8,9 +8,14 @@ import org.bouncycastle.operator.OperatorCreationException;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
+import java.util.Optional;
 
 public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
+
+    private static final String DEFAULT_KNOWN_SERVER_FILEPATH = "knownServers";
 
     @Override
     public SSLContext from(String address, SslConfig sslConfig) {
@@ -18,6 +23,9 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
         TrustMode trustMode = TrustMode
             .getValueIfPresent(sslConfig.getClientTrustMode().name())
             .orElse(TrustMode.NONE);
+
+        final Path knownServersFile = Optional.ofNullable(sslConfig.getKnownServersFile())
+            .orElse(Paths.get(DEFAULT_KNOWN_SERVER_FILEPATH));
 
         final SSLContextProperties properties = new SSLContextProperties(
             address,
@@ -28,7 +36,7 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
             sslConfig.getClientTrustStore(),
             sslConfig.getClientTrustStorePassword(),
             sslConfig.getClientTrustCertificates(),
-            sslConfig.getKnownServersFile()
+            knownServersFile
         );
 
         try {

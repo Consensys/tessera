@@ -77,5 +77,17 @@ public class ValidationTest {
         assertThat(violation.getPropertyPath().toString()).isEqualTo("privateKey");
     }
     
+    @Test
+    public void keyDataConfigInvalidBase64() {
+        PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
+        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
+        KeyData keyData = new KeyData(keyDataConfig, "INAVLID_BASE", "publicKey", null, null);
+        Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
+        assertThat(violations).hasSize(1);
+                
+        ConstraintViolation<KeyData> violation = violations.iterator().next();
 
+        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidBase64.message}");
+        assertThat(violation.getPropertyPath().toString()).isEqualTo("privateKey");
+    }
 }
