@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
@@ -25,7 +26,7 @@ public class KeyDataBuilder {
 
     private List<String> privateKeys = Collections.emptyList();
 
-    private Path privateKeyPasswordFile;
+    private String privateKeyPasswordFile;
 
     private String workdir;
 
@@ -39,7 +40,7 @@ public class KeyDataBuilder {
         return this;
     }
 
-    public KeyDataBuilder withPrivateKeyPasswordFile(final Path privateKeyPasswordFile) {
+    public KeyDataBuilder withPrivateKeyPasswordFile(final String privateKeyPasswordFile) {
         this.privateKeyPasswordFile = privateKeyPasswordFile;
         return this;
     }
@@ -56,10 +57,19 @@ public class KeyDataBuilder {
 
         final List<KeyData> keyData = IntStream
             .range(0, publicKeys.size())
-            .mapToObj(i -> new KeyData(null, null, null, Paths.get(workdir, privateKeys.get(i)), Paths.get(workdir, publicKeys.get(i))))
+            .mapToObj(i -> new KeyData(null, null, null, ConfigBuilder.toPath(workdir, privateKeys.get(i)), ConfigBuilder.toPath(workdir, publicKeys.get(i))))
             .collect(toList());
 
-        return new KeyConfiguration(privateKeyPasswordFile, null, keyData);
+        final Path privateKeyPasswordFilePath;
+        if(!Objects.isNull(workdir) && !Objects.isNull(privateKeyPasswordFile)) {
+            privateKeyPasswordFilePath = Paths.get(workdir, privateKeyPasswordFile);
+        } else if(!Objects.isNull(privateKeyPasswordFile)) {
+            privateKeyPasswordFilePath = Paths.get(privateKeyPasswordFile);
+        } else {
+            privateKeyPasswordFilePath = null;
+        }
+
+        return new KeyConfiguration(privateKeyPasswordFilePath, null, keyData);
     }
 
 }
