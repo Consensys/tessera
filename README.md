@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/google/leveldb.svg?branch=master)](https://travis-ci.com/QuorumEngineering/tessera)
-[![codecov](https://codecov.io/gh/QuorumEngineering/tessera/branch/master/graph/badge.svg?token=XMRVPC5FLQ)](https://codecov.io/gh/QuorumEngineering/tessera)
+[![Build Status](https://travis-ci.org/google/leveldb.svg?branch=master)](https://travis-ci.com/jpmorganchase/tessera)
+[![codecov](https://codecov.io/gh/jpmorganchase/tessera/branch/master/graph/badge.svg?token=XMRVPC5FLQ)](https://codecov.io/gh/jpmorganchase/tessera)
 
 
 # <img src="TesseraLogo.png" width="150" height="150"/>
