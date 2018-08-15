@@ -1,10 +1,10 @@
-[![Build Status](https://travis-ci.org/google/leveldb.svg?branch=master)](https://travis-ci.com/QuorumEngineering/tessera)
-[![codecov](https://codecov.io/gh/QuorumEngineering/tessera/branch/master/graph/badge.svg?token=XMRVPC5FLQ)](https://codecov.io/gh/QuorumEngineering/tessera)
+[![Build Status](https://travis-ci.org/google/leveldb.svg?branch=master)](https://travis-ci.org/jpmorganchase/tessera)
+[![codecov](https://codecov.io/gh/jpmorganchase/tessera/branch/master/graph/badge.svg?token=XMRVPC5FLQ)](https://codecov.io/gh/jpmorganchase/tessera)
 
 
 # <img src="TesseraLogo.png" width="150" height="150"/>
 
-Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/QuorumEngineering/quorum-mirror).
+Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/jpmorganchase/quorum/).
 
 Each Tessera node:
 
@@ -73,16 +73,16 @@ By default, Tessera uses an H2 database.  To use an alternative database, add th
 java -cp some-jdbc-driver.jar -jar /path/to/tessera-app.jar
 ```
 
-[DDLs](https://github.com/QuorumEngineering/tessera/tree/master/ddls) have been provided to help with defining these databases.
+[DDLs](ddls) have been provided to help with defining these databases.
 
 ## Configuration
 
 ### Config File
 
 A configuration file detailing database, server and network peer information must be provided using the `-configfile`
-command line property.  
+command line property.
 
-An in-depth look at configuring Tessera can be found on the [Tessera Wiki](https://github.com/QuorumEngineering/tessera/wiki/Configuration) and includes details on all aspects of configuration including:
+An in-depth look at configuring Tessera can be found on the [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/Configuration) and includes details on all aspects of configuration including:
 * Cryptographic key config:
     * Using existing private/public key pairs with Tessera
     * How to use Tessera to generate new key pairs 
@@ -91,9 +91,9 @@ An in-depth look at configuring Tessera can be found on the [Tessera Wiki](https
     * Choosing a trust mode
  
 ### Migrating from Constellation to Tessera
-Tessera is the service used to provide Quorum with the ability to support private transactions, replacing Constellation.  If you have previously been using Constellation, utilities are provided within Tessera to enable the migration of Constellation configuration and datastores to Tessera compatible formats.  Details on how to use these utilities can be found in the [Tessera Wiki](https://github.com/QuorumEngineering/tessera/wiki/Migrating-from-Constellation-to-Tessera).
+Tessera is the service used to provide Quorum with the ability to support private transactions, replacing Constellation.  If you have previously been using Constellation, utilities are provided within Tessera to enable the migration of Constellation configuration and datastores to Tessera compatible formats.  Details on how to use these utilities can be found in the [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/Migrating-from-Constellation-to-Tessera).
 
 ## Further reading
-* The [Tessera Wiki](https://github.com/QuorumEngineering/tessera/wiki/) provides additional information on how Tessera works, migrating from Constellation to Tessera, configuration details, and more.
-* [Quorum](https://github.com/QuorumEngineering/quorum-mirror) is an Ethereum-based distributed ledger protocol that uses Tessera to provide transaction privacy.
-* Follow the [Quorum Examples](https://github.com/QuorumEngineering/quorum-ex) to see Tessera in action in a demo Quorum network.
+* The [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/) provides additional information on how Tessera works, migrating from Constellation to Tessera, configuration details, and more.
+* [Quorum](https://github.com/jpmorganchase/quorum/) is an Ethereum-based distributed ledger protocol that uses Tessera to provide transaction privacy.
+* Follow the [Quorum Examples](https://github.com/jpmorganchase/quorum-examples) to see Tessera in action in a demo Quorum network.
