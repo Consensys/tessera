@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.quorum.tessera</groupId>
         <artifactId>socket</artifactId>
-        <version>0.6-SNAPSHOT</version>
+        <version>0.6</version>
     </parent>
 
     <dependencies>
