@@ -236,6 +236,7 @@
         <module>socket</module>
         <module>data-migration</module>
         <module>config-migration</module>
+        <module>shared</module>
     </modules>
 
     <dependencyManagement>
@@ -332,6 +333,12 @@
                 <artifactId>test-util</artifactId>
                 <version>0.7-SNAPSHOT</version>
                 <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>shared</artifactId>
+                <version>0.7-SNAPSHOT</version>
             </dependency>
 
             <dependency>
