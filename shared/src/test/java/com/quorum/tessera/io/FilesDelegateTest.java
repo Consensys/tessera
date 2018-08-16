@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -102,5 +103,19 @@ public class FilesDelegateTest {
 
         List<String> results = filesDelegate.lines(somefile).collect(Collectors.toList());
         assertThat(results).containsExactly("ONE", "", "THREE");
+    }
+    
+    @Test
+    public void write() throws Exception {
+        Path somefile = Paths.get("writeBytesTest");
+        somefile.toFile().deleteOnExit();
+        byte[] somebytes = UUID.randomUUID().toString().getBytes();
+        
+        
+        Path result =   filesDelegate.write(somefile, somebytes,StandardOpenOption.CREATE_NEW);
+        assertThat(result).exists();
+        assertThat(Files.readAllBytes(result)).isEqualTo(somebytes);
+        
+        
     }
 }
