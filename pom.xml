@@ -10,21 +10,21 @@
     <name>tessera</name>
     <packaging>pom</packaging>
    
-    <url>https://github.com/QuorumEngineering/tessera</url>
+    <url>https://github.com/jpmorganchase/tessera</url>
     <issueManagement>
         <system>github</system>
-        <url>https://github.com/QuorumEngineering/tessera/issues</url>
+        <url>https://github.com/jpmorganchase/tessera/issues</url>
     </issueManagement>
 
     <scm>
-        <url>https://github.com/QuorumEngineering/tessera</url>
-        <connection>scm:git:git://github.com/QuorumEngineering/tessera.git</connection>
-        <developerConnection>scm:git:git@github.com:QuorumEngineering/tessera.git</developerConnection>
+        <url>https://github.com/jpmorganchase/tessera</url>
+        <connection>scm:git:git://github.com/jpmorganchase/tessera.git</connection>
+        <developerConnection>scm:git:git@github.com:jpmorganchase/tessera.git</developerConnection>
         <tag>master</tag>
     </scm>
 
     <ciManagement>
-        <url>https://travis-ci.com/QuorumEngineering/tessera</url>
+        <url>https://travis-ci.com/jpmorganchase/tessera</url>
     </ciManagement>
     
     <properties>
@@ -856,17 +856,17 @@
         <site>
             <id>tessera-github-pages</id>
             <name>Quorum GitHub Pages</name>
-            <url>git:gh-pages://git@github.com:quorumengineering/tessera.git</url>
+            <url>git:gh-pages://git@github.com:jpmorganchase/tessera.git</url>
         </site>
 
         <snapshotRepository>
             <id>tessera-snapshot-repo</id>
-            <url>git:snapshots://git@github.com:quorumengineering/tessera.git</url>
+            <url>git:snapshots://git@github.com:jpmorganchase/tessera.git</url>
         </snapshotRepository>
 
         <repository>
             <id>tessera-release-repo</id>
-            <url>git:releases://git@github.com:quorumengineering/tessera.git</url>
+            <url>git:releases://git@github.com:jpmorganchase/tessera.git</url>
         </repository>
 
     </distributionManagement>
@@ -874,7 +874,7 @@
     <repositories>
         <repository>
             <id>tessera-repo</id>
-            <url>https://raw.github.com/quorumengineering/tessera/releases</url>
+            <url>https://raw.github.com/jpmorganchase/tessera/releases</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
