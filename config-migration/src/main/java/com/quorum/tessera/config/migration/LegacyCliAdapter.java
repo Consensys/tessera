@@ -79,7 +79,7 @@ public class LegacyCliAdapter implements CliAdapter {
 
         System.out.printf("Saving config to  %s", outputPath);
         System.out.println();
-        System.out.println(JaxbUtil.marshalToStringNoValidation(config));
+        JaxbUtil.marshalMasked(config, System.out);
         System.out.println();
 
         try (OutputStream outputStream = Files.newOutputStream(outputPath)) {

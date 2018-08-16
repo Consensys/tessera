@@ -247,7 +247,7 @@ public class DefaultCliAdapter implements CliAdapter {
                 JaxbUtil.marshal(config, out);
             }
         } else {
-            JaxbUtil.marshal(config, System.out);
+            JaxbUtil.marshalMasked(config, System.out);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.quorum.tessera.config.util;
 
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
@@ -7,14 +8,18 @@ import com.quorum.tessera.config.PrivateKeyType;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.Optional;
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonString;
 import javax.validation.ConstraintViolationException;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.MarshalException;
+import javax.xml.transform.TransformerException;
 
 import org.junit.Test;
 
@@ -180,7 +185,7 @@ public class JaxbUtilTest {
                 new PrivateKeyData("VAL", null, null, null, null, null),
                 PrivateKeyType.UNLOCKED
         );
-        
+
         IOException exception = new IOException("What you talking about willis?");
 
         OutputStream out = mock(OutputStream.class, (iom) -> {
@@ -191,7 +196,74 @@ public class JaxbUtilTest {
         assertThat(throwable)
                 .isInstanceOf(ConfigException.class)
                 .hasCauseExactlyInstanceOf(javax.xml.bind.MarshalException.class);
-        
+
+    }
+
+    @Test
+    public void marshalMaskedConfig() throws Exception {
+
+        final String expectedMaskValue = "*********";
+        try (InputStream inputStream = getClass().getResourceAsStream("/mask-fixture.json")) {
+            final Config config = JaxbUtil.unmarshal(inputStream, Config.class);
+
+            try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+                JaxbUtil.marshalMasked(config, bout);
+
+                try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bout.toByteArray())) {
+                    JsonObject result = Json.createReader(byteArrayInputStream).readObject();
+
+                    assertThat(result.getJsonObject("jdbc").getString("password")).isEqualTo(expectedMaskValue);
+
+                    JsonObject sslConfig = result.getJsonObject("server")
+                            .getJsonObject("sslConfig");
+
+                    sslConfig.entrySet().stream()
+                            .filter(entry -> entry.getKey().toLowerCase().contains("password"))
+                            .forEach(entry -> {
+
+                                JsonString v = (JsonString) entry.getValue();
+                                assertThat(v.getString()).isEqualTo(expectedMaskValue);
+
+                            });
+
+                    assertThat(result.getJsonObject("keys").getJsonArray("keyData")
+                            .getJsonObject(0).getString("privateKey"))
+                            .isEqualTo(expectedMaskValue);
+
+                }
+
+            }
+        }
+
+    }
+
+    @Test(expected = ConfigException.class)
+    public void marshalMaskedConfigThrowsJAXBException() throws Exception {
+        Config config = mock(Config.class);
+        OutputStream outputStream = mock(OutputStream.class, (iom) -> {
+            throw new JAXBException("");
+        });
+        JaxbUtil.marshalMasked(config, outputStream);
+
+    }
+
+    @Test(expected = ConfigException.class)
+    public void marshalMaskedConfigThrowsIOException() throws Exception {
+        Config config = mock(Config.class);
+        OutputStream outputStream = mock(OutputStream.class, (iom) -> {
+            throw new IOException("");
+        });
+        JaxbUtil.marshalMasked(config, outputStream);
+
+    }
+
+    @Test(expected = ConfigException.class)
+    public void marshalMaskedConfigThrowsTransformerException() throws Exception {
+        Config config = mock(Config.class);
+        OutputStream outputStream = mock(OutputStream.class, (iom) -> {
+            throw new TransformerException("");
+        });
+        JaxbUtil.marshalMasked(config, outputStream);
 
     }
 
