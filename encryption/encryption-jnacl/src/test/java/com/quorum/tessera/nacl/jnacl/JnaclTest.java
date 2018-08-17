@@ -106,7 +106,7 @@ public class JnaclTest {
 
         final Throwable kaclEx = catchThrowable(() -> this.jnacl.sealAfterPrecomputation(message, nonce, sharedKey));
 
-        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("Kalium could not seal the payload using the shared key");
+        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("jnacl could not seal the payload using the shared key");
 
         verify(this.secretBox).cryptoBoxAfternm(
             any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
@@ -123,7 +123,7 @@ public class JnaclTest {
 
         final Throwable kaclEx = catchThrowable(() -> this.jnacl.openAfterPrecomputation(message, nonce, sharedKey));
 
-        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("Kalium could not open the payload using the shared key");
+        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("jnacl could not open the payload using the shared key");
 
         verify(this.secretBox).cryptoBoxOpenAfternm(
             any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
@@ -145,7 +145,7 @@ public class JnaclTest {
 
         final Throwable kaclEx = catchThrowable(() -> this.jnacl.generateNewKeys());
 
-        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("JNaCL could not generate a new public/private keypair");
+        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("jnacl could not generate a new public/private keypair");
 
         verify(this.secretBox).cryptoBoxKeypair(any(byte[].class), any(byte[].class));
     }
