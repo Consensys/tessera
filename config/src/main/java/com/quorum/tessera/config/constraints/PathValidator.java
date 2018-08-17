@@ -1,6 +1,6 @@
 package com.quorum.tessera.config.constraints;
 
-import com.quorum.tessera.config.util.FilesDelegate;
+import com.quorum.tessera.io.FilesDelegate;
 import java.io.UncheckedIOException;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

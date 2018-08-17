@@ -1,4 +1,4 @@
-package com.quorum.tessera.config;
+package com.quorum.tessera;
 
 import java.util.Iterator;
 import java.util.Optional;
