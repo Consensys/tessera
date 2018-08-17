@@ -12,3 +12,5 @@
 
 # Mac files
 .DS_Store
+/config/*.key
+/config/*.pub

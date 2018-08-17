@@ -13,7 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
-import com.quorum.tessera.config.util.FilesDelegate;
+import com.quorum.tessera.io.FilesDelegate;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
