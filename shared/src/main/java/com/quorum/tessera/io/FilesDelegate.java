@@ -68,7 +68,15 @@ public interface FilesDelegate {
         return IOCallback.execute(() -> Files.lines(path));
     }
     
-    
+    /**
+     *
+     * @see java.nio.file.Files#write(java.nio.file.Path, byte..., java.nio.file.OpenOption...) 
+     */
+    default Path write(Path path, byte[] bytes, OpenOption... options) {
+        return IOCallback.execute(() -> Files.write(path, bytes, options));
+    }
+
+        
     static FilesDelegate create() {
         return ServiceLoaderUtil.load(FilesDelegate.class).orElse(new FilesDelegate() {
         });
