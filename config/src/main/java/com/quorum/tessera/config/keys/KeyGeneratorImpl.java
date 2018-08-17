@@ -1,7 +1,7 @@
 package com.quorum.tessera.config.keys;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.util.IOCallback;
+import com.quorum.tessera.io.IOCallback;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.nacl.KeyPair;
