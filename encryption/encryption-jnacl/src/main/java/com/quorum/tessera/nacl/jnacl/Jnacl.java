@@ -12,7 +12,7 @@ import java.util.Objects;
 import static com.neilalexander.jnacl.crypto.curve25519xsalsa20poly1305.*;
 
 /**
- * Uses JNaCL, which is a pure Java implementation of the NaCL standard
+ * Uses jnacl, which is a pure Java implementation of the NaCl standard
  */
 public class Jnacl implements NaclFacade {
 
@@ -129,7 +129,7 @@ public class Jnacl implements NaclFacade {
         if(jnaclResult == -1) {
             LOGGER.warn("Could not create sealed payload using shared key {}", sharedKey);
             LOGGER.debug("Could not create sealed payload using shared key {}", sharedKey);
-            throw new NaclException("Kalium could not seal the payload using the shared key");
+            throw new NaclException("jnacl could not seal the payload using the shared key");
         }
 
         LOGGER.debug("Created sealed payload for shared key {}", sharedKey);
@@ -159,7 +159,7 @@ public class Jnacl implements NaclFacade {
         if(jnaclResult == -1) {
             LOGGER.warn("Could not open sealed payload using shared key {}", sharedKey);
             LOGGER.debug("Could not open sealed payload using shared key {}", sharedKey);
-            throw new NaclException("Kalium could not open the payload using the shared key");
+            throw new NaclException("jnacl could not open the payload using the shared key");
         }
 
         LOGGER.debug("Opened sealed payload for shared key {}", sharedKey);
@@ -195,7 +195,7 @@ public class Jnacl implements NaclFacade {
 
         if(jnaclResult == -1) {
             LOGGER.warn("Unable to generate a new keypair!");
-            throw new NaclException("JNaCL could not generate a new public/private keypair");
+            throw new NaclException("jnacl could not generate a new public/private keypair");
         }
 
         final Key pubKey = new Key(publicKey);
