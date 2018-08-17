@@ -237,6 +237,50 @@ public class JaxbUtilTest {
 
     }
 
+    
+        @Test
+    public void marshalMaskedConfigDontDiplayPrivateKeyIfFileIsPresent() throws Exception {
+
+
+       
+        final String expectedMaskValue = "*********";
+        try (InputStream inputStream = getClass().getResourceAsStream("/mask-fixture-with-private-key-path.json")) {
+            
+            
+            
+            final Config config = JaxbUtil.unmarshal(inputStream, Config.class);
+
+            try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+                JaxbUtil.marshalMasked(config, bout);
+
+                try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bout.toByteArray())) {
+                    JsonObject result = Json.createReader(byteArrayInputStream).readObject();
+
+                    assertThat(result.getJsonObject("jdbc").getString("password")).isEqualTo(expectedMaskValue);
+
+                    JsonObject sslConfig = result.getJsonObject("server")
+                            .getJsonObject("sslConfig");
+
+                    sslConfig.entrySet().stream()
+                            .filter(entry -> entry.getKey().toLowerCase().contains("password"))
+                            .forEach(entry -> {
+
+                                JsonString v = (JsonString) entry.getValue();
+                                assertThat(v.getString()).isEqualTo(expectedMaskValue);
+
+                            });
+
+                    assertThat(result.getJsonObject("keys").getJsonArray("keyData")
+                            .getJsonObject(0).containsKey("privateKey"))
+                            .isFalse();
+
+                }
+
+            }
+        }
+
+    }
+    
     @Test(expected = ConfigException.class)
     public void marshalMaskedConfigThrowsJAXBException() throws Exception {
         Config config = mock(Config.class);

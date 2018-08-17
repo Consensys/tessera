@@ -25,9 +25,13 @@
 
 
     <xsl:template match="*[local-name() = 'privateKey']">
-        <xsl:element name="{local-name()}">
-            <xsl:text>*********</xsl:text>
-        </xsl:element>
+        
+        <xsl:if test="not(../*[local-name() = 'privateKeyPath'])">
+            <xsl:element name="{local-name()}">
+                <xsl:text>*********</xsl:text>
+            </xsl:element>
+        </xsl:if>
+        
     </xsl:template>
 
 </xsl:stylesheet>
