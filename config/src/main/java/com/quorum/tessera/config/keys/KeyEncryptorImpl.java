@@ -123,7 +123,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
             new Key(argonResult.getHash())
         );
 
-        LOGGER.info("Decrypting private key");
+        LOGGER.info("Decrypted private key");
         LOGGER.debug("Decrypted private key {}", new Key(originalKey));
 
         return new Key(originalKey);
