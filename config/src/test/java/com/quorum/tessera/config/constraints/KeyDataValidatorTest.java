@@ -1,7 +1,7 @@
 package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.util.FilesDelegate;
+import com.quorum.tessera.io.FilesDelegate;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
