@@ -53,6 +53,9 @@
                 <configuration>
                     <skip>false</skip>
                     <rerunFailingTestsCount>0</rerunFailingTestsCount>
+                    <systemPropertyVariables>
+                        <application.jar>${com.quorum.tessera:tessera-app:jar:app}</application.jar>
+                    </systemPropertyVariables>
                 </configuration>
                 <executions>
                     <execution>
