@@ -36,6 +36,7 @@ public class OverrideUtilTest {
                 "jdbc.username",
                 "jdbc.password",
                 "jdbc.url",
+                "jdbc.driverClassPath",
                 "server.hostName",
                 "server.port",
                 "server.sslConfig.tls",

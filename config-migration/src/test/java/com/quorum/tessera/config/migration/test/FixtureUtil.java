@@ -33,7 +33,7 @@ public class FixtureUtil {
 
     public static ConfigBuilder builderWithValidValues() {
 
-        return ConfigBuilder.create().jdbcConfig(new JdbcConfig("jdbcUsername", "jdbcPassword", "jdbc:bogus"))
+        return ConfigBuilder.create().jdbcConfig(new JdbcConfig("jdbcUsername", "jdbcPassword", "jdbc:bogus", null))
             .peers(Collections.emptyList())
             .alwaysSendTo(Collections.emptyList())
             .serverPort(892)
@@ -63,7 +63,7 @@ public class FixtureUtil {
 
     public static ConfigBuilder builderWithNullValues() {
 
-        return ConfigBuilder.create().jdbcConfig(new JdbcConfig("jdbcUsername", "jdbcPassword", "jdbc:bogus"))
+        return ConfigBuilder.create().jdbcConfig(new JdbcConfig("jdbcUsername", "jdbcPassword", "jdbc:bogus", null))
             .peers(Collections.emptyList())
             .alwaysSendTo(Collections.emptyList())
             .serverPort(892)

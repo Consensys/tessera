@@ -13,15 +13,15 @@ public interface JdbcConfigFactory {
                 .orElseThrow(IllegalArgumentException::new);
         
         if(storage.startsWith("jdbc")) {
-            return new JdbcConfig(null, null, storage);
+            return new JdbcConfig(null, null, storage, null);
         }
 
         if(storage.startsWith("sqlite")) {
-            return new JdbcConfig(null, null, String.format("jdbc:%s", storage));
+            return new JdbcConfig(null, null, String.format("jdbc:%s", storage), null);
         }
         
         if(storage.startsWith("memory")) {
-            return new JdbcConfig(null, null, "jdbc:h2:mem:tessera");
+            return new JdbcConfig(null, null, "jdbc:h2:mem:tessera", null);
         }
 
         throw new UnsupportedOperationException(String.format("%s is not a supported storage option.", storage));
