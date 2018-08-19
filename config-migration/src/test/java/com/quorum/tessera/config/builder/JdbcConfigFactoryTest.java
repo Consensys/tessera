@@ -16,6 +16,7 @@ public class JdbcConfigFactoryTest {
                 .isEqualTo("jdbc:sqlite:somepath");
         assertThat(jdbcConfig.getUsername()).isNull();
         assertThat(jdbcConfig.getPassword()).isNull();
+        assertThat(jdbcConfig.getDriverClassPath()).isEqualTo("org.h2.Driver");
 
     }
 
@@ -28,6 +29,7 @@ public class JdbcConfigFactoryTest {
                 .isEqualTo("jdbc:h2:mem:tessera");
         assertThat(jdbcConfig.getUsername()).isNull();
         assertThat(jdbcConfig.getPassword()).isNull();
+        assertThat(jdbcConfig.getDriverClassPath()).isEqualTo("org.h2.Driver");
 
     }
 
@@ -44,6 +46,7 @@ public class JdbcConfigFactoryTest {
         assertThat(jdbcConfig.getUrl()).isEqualTo("jdbc:somedb:somepath");
         assertThat(jdbcConfig.getUsername()).isNull();
         assertThat(jdbcConfig.getPassword()).isNull();
+        assertThat(jdbcConfig.getDriverClassPath()).isEqualTo("org.h2.Driver");
     }
     
     @Test(expected = UnsupportedOperationException.class)

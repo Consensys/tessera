@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
@@ -22,10 +23,14 @@ public class JdbcConfig extends ConfigItem {
     @XmlElement(required = true)
     private final String url;
 
-    public JdbcConfig(String username, String password, String url) {
+    @XmlElement
+    private final String driverClassPath;
+
+    public JdbcConfig(String username, String password, String url, String driverClassPath) {
         this.username = username;
         this.password = password;
         this.url = url;
+        this.driverClassPath = driverClassPath;
     }
 
     private static JdbcConfig create() {
@@ -33,7 +38,7 @@ public class JdbcConfig extends ConfigItem {
     }
 
     private JdbcConfig() {
-        this(null, null, null);
+        this(null, null, null, null);
     }
 
     public String getUsername() {
@@ -48,8 +53,11 @@ public class JdbcConfig extends ConfigItem {
         return url;
     }
 
-    public String getDriverClassName() {
-        return JdbcDriverClassName.fromUrl(this.url);
+    public String getDriverClassPath() {
+        if (Objects.isNull(driverClassPath) || driverClassPath.isEmpty()) {
+            return JdbcDriverClassName.H2.toString();
+        } else {
+            return driverClassPath;
+        }
     }
-  
 }

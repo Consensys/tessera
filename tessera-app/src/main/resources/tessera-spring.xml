@@ -170,7 +170,7 @@
             <property name="url" value="#{ config.getJdbcConfig().getUrl() }" />
             <property name="username" value="#{ config.getJdbcConfig().getUsername() }" />
             <property name="password" value="#{ config.getJdbcConfig().getPassword() }" />
-            <property name="driverClassName" value="#{ config.getJdbcConfig().getDriverClassName() }"/>
+            <property name="driverClassName" value="#{ config.getJdbcConfig().getDriverClassPath() }"/>
         </bean>
 
     <bean id="jpaTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
