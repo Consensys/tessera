@@ -4,7 +4,6 @@ import com.moandjiezana.toml.Toml;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.SslAuthenticationMode;
-import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
@@ -153,7 +152,6 @@ public class TomlConfigFactory {
 
         List<KeyDataConfig> privateKeyData = IntStream
                 .range(0, privateKeyJson.size())
-                //FIXME: Canyt set to null value.. need to use addNull("password")
                 .mapToObj(i -> {
 
                     final String password = passwordList.get(i);

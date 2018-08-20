@@ -1,7 +1,7 @@
 package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.util.FilesDelegate;
+import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.config.util.JaxbUtil;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;

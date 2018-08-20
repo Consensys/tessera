@@ -1,5 +1,6 @@
 package com.quorum.tessera.config.util;
 
+import com.quorum.tessera.io.IOCallback;
 import com.quorum.tessera.config.*;
 import java.io.ByteArrayOutputStream;
 
