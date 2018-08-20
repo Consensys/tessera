@@ -1,5 +1,6 @@
 package com.quorum.tessera.config.util;
 
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
@@ -7,14 +8,18 @@ import com.quorum.tessera.config.PrivateKeyType;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.Optional;
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonString;
 import javax.validation.ConstraintViolationException;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.MarshalException;
+import javax.xml.transform.TransformerException;
 
 import org.junit.Test;
 
@@ -180,7 +185,7 @@ public class JaxbUtilTest {
                 new PrivateKeyData("VAL", null, null, null, null, null),
                 PrivateKeyType.UNLOCKED
         );
-        
+
         IOException exception = new IOException("What you talking about willis?");
 
         OutputStream out = mock(OutputStream.class, (iom) -> {
