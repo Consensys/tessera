@@ -118,7 +118,7 @@ public class DefaultCliAdapter implements CliAdapter {
                         .argName(optionType.getSimpleName().toUpperCase());
             }
 
-            if(!optionName.startsWith("keys") && !optionName.startsWith("alwaysSendTo")) {
+            if(!optionName.startsWith("keys")) {
                 options.addOption(optionBuilder.build());
             }
 
@@ -175,7 +175,7 @@ public class DefaultCliAdapter implements CliAdapter {
         final ConfigFactory configFactory = ConfigFactory.create();
 
         final List<String> keyGenConfigs = this.getKeyGenConfig(commandLine);
-        final ArgonOptions options = this.keygenConfiguration(commandLine).orElse(null);
+        final ArgonOptions options = keygenConfiguration(commandLine).orElse(null);
 
         Config config = null;
 

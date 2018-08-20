@@ -1,7 +1,6 @@
 package com.quorum.tessera.config.builder;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.nacl.Key;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -266,7 +265,7 @@ public class ConfigBuilder {
         }
 
 
-        final List<Key> forwardingKeys;
+        final List<String> forwardingKeys;
         if(alwaysSendTo != null) {
             List<String> keyList = new ArrayList<>();
 
@@ -280,8 +279,6 @@ public class ConfigBuilder {
             }
 
             forwardingKeys = keyList.stream()
-                                    .map(Base64.getDecoder()::decode)
-                                    .map(Key::new)
                                     .collect(Collectors.toList());
         } else {
             forwardingKeys = Collections.emptyList();

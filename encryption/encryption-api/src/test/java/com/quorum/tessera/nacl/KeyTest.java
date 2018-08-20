@@ -31,7 +31,7 @@ public class KeyTest {
 
         assertThat(key.getKeyBytes()).isEqualTo(data).isNotSameAs(data);
     }
-    
+
     @Test
     public void hashCodeTest() {
         final byte[] data = "bogus".getBytes();
@@ -39,24 +39,32 @@ public class KeyTest {
 
         assertThat(key).hasSameHashCodeAs(new Key(data));
     }
-    
+
+    @Test
+    public void getKeyAsString() {
+        final byte[] data = "bogus".getBytes();
+        final Key key = new Key(data);
+
+        assertThat(key.getKeyAsString()).isNotBlank();
+    }
+
     @Test
     public void toStringTest() {
         final byte[] data = "bogus".getBytes();
         final Key key = new Key(data);
-        
+
         assertThat(key.toString()).isNotBlank();
     }
-    
+
     @Test
     public void createWithFactoryMethod() throws Exception {
         Method method = Key.class.getDeclaredMethod("create");
         method.setAccessible(true);
-        
-       Key  key = (Key) method.invoke(null);
-       
-       assertThat(key).isNotNull();
-        
+
+        Key key = (Key) method.invoke(null);
+
+        assertThat(key).isNotNull();
+
     }
-    
+
 }

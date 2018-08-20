@@ -426,5 +426,27 @@ public class DefaultCliAdapterTest {
         }
         
     }
-    
+
+    @Test
+    public void overrideAlwaysSendTo() throws Exception {
+
+        String alwaysSendToKey = "giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=";
+        
+        System.out.println(alwaysSendToKey);
+        
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        
+        CliResult result = cliDelegate.execute(
+                "-configfile",
+                configFile.toString(),
+                "-alwaysSendTo",
+                alwaysSendToKey
+        );
+        
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig().get().getAlwaysSendTo()).hasSize(2);
+        assertThat(result.getConfig().get().getAlwaysSendTo()).containsExactly("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",alwaysSendToKey);
+        
+    }
 }

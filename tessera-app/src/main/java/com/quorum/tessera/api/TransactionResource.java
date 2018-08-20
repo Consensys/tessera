@@ -66,6 +66,7 @@ public class TransactionResource {
         LOGGER.debug("Received send request");
 
         final String sender = sendRequest.getFrom();
+        LOGGER.debug("Received send request from {}",sender);
         final Optional<byte[]> from = Optional.ofNullable(sender)
                 .map(base64Decoder::decode);
 
