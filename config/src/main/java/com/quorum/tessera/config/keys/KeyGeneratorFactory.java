@@ -1,6 +1,6 @@
 package com.quorum.tessera.config.keys;
 
-import com.quorum.tessera.config.ServiceLoaderUtil;
+import com.quorum.tessera.ServiceLoaderUtil;
 
 
 public interface KeyGeneratorFactory {

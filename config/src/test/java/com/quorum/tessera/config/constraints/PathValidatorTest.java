@@ -1,6 +1,6 @@
 package com.quorum.tessera.config.constraints;
 
-import com.quorum.tessera.config.util.FilesDelegate;
+import com.quorum.tessera.io.FilesDelegate;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;

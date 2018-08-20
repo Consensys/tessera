@@ -43,7 +43,12 @@
             <artifactId>test-util</artifactId>
             <scope>test</scope>
         </dependency>
-
+        
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>shared</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>argon2</artifactId>
