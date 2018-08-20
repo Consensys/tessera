@@ -122,7 +122,6 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getAlwaysSendTo().get(2).toString()).isEqualTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=");
         assertThat(result.getConfig().get().getKeys().getPasswordFile().toString()).isEqualTo("data/passwords");
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
-        assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
         assertThat(result.getConfig().get().isUseWhiteList()).isTrue();
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.STRICT);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("data/tls-server-cert.pem");
@@ -215,7 +214,6 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getAlwaysSendTo().get(1).toString()).isEqualTo("jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
         assertThat(result.getConfig().get().getKeys().getPasswordFile().toString()).isEqualTo("override/pw.txt");
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:test");
-        assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
         assertThat(result.getConfig().get().isUseWhiteList()).isTrue();
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("override/over-server-cert.pem");
@@ -269,7 +267,6 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(0);
         assertThat(result.getConfig().get().getKeys().getPasswordFile()).isNull();
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
-        assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
         assertThat(result.getConfig().get().isUseWhiteList()).isFalse();
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath()).isNull();
@@ -346,7 +343,6 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getAlwaysSendTo().get(3)).isEqualTo("jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
         assertThat(result.getConfig().get().getKeys().getPasswordFile().toString()).isEqualTo("override/passwords");
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
-        assertThat(result.getConfig().get().getJdbcConfig().getDriverClassName()).isEqualTo("org.h2.Driver");
         assertThat(result.getConfig().get().isUseWhiteList()).isTrue();
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
         assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("override/tls-server-cert.pem");
