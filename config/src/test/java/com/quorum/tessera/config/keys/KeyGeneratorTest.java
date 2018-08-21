@@ -8,6 +8,7 @@ import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
+import java.io.File;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +21,8 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
@@ -44,8 +47,8 @@ public class KeyGeneratorTest {
     public void init() {
 
         this.keyPair = new KeyPair(
-            new Key(PUBLIC_KEY.getBytes(UTF_8)),
-            new Key(PRIVATE_KEY.getBytes(UTF_8))
+                new Key(PUBLIC_KEY.getBytes(UTF_8)),
+                new Key(PRIVATE_KEY.getBytes(UTF_8))
         );
 
         this.nacl = mock(NaclFacade.class);
@@ -64,11 +67,13 @@ public class KeyGeneratorTest {
     }
 
     @Test
-    public void generateFromKeyDataUnlockedPrivateKey() {
+    public void generateFromKeyDataUnlockedPrivateKey() throws IOException {
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
-        final KeyData generated = generator.generate(UUID.randomUUID().toString(), null);
+        String filename = UUID.randomUUID().toString();
+
+        final KeyData generated = generator.generate(filename, null);
 
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
         assertThat(generated.getPrivateKey()).isEqualTo("cHJpdmF0ZUtleQ==");
@@ -76,6 +81,14 @@ public class KeyGeneratorTest {
 
         verify(nacl).generateNewKeys();
 
+        Files.list(Paths.get(""))
+                .filter(f -> f.toString().contains(filename))
+                .forEach(f -> {
+                    try {
+                        Files.deleteIfExists(f);
+                    } catch (IOException ex) {
+                    }
+                });
     }
 
     @Test
@@ -153,8 +166,8 @@ public class KeyGeneratorTest {
         doReturn(keyPair).when(nacl).generateNewKeys();
 
         doReturn(new PrivateKeyData("", "", "", "", new ArgonOptions("", 1, 1, 1), ""))
-            .when(keyEncryptor)
-            .encryptPrivateKey(any(Key.class), anyString(), eq(null));
+                .when(keyEncryptor)
+                .encryptPrivateKey(any(Key.class), anyString(), eq(null));
 
         final Throwable throwable = catchThrowable(() -> generator.generate(keyFilesName, null));
 
