@@ -79,22 +79,21 @@ public class KeyDataValidatorTest {
         validator.setFilesDelegate(filesDelegate);
 
         ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
-        ConstraintViolationBuilder constraintViolationBuilder  =   mock(ConstraintViolationBuilder.class);
-        
+        ConstraintViolationBuilder constraintViolationBuilder = mock(ConstraintViolationBuilder.class);
+
         when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(constraintViolationBuilder);
         NodeBuilderDefinedContext nodeBuilderDefinedContext = mock(NodeBuilderDefinedContext.class);
         when(constraintViolationBuilder.addNode(anyString())).thenReturn(nodeBuilderDefinedContext);
 
-        
         assertThat(validator.isValid(keyData, context)).isFalse();
 
         verify(context).disableDefaultConstraintViolation();
         verify(context).buildConstraintViolationWithTemplate(anyString());
-        
+
         verify(constraintViolationBuilder).addNode(anyString());
         verify(nodeBuilderDefinedContext).addConstraintViolation();
-        
-        verifyNoMoreInteractions(context,constraintViolationBuilder,nodeBuilderDefinedContext);
+
+        verifyNoMoreInteractions(context, constraintViolationBuilder, nodeBuilderDefinedContext);
     }
 
     @Test
@@ -126,8 +125,7 @@ public class KeyDataValidatorTest {
 
         NodeBuilderDefinedContext nodeBuilderDefinedContext = mock(NodeBuilderDefinedContext.class);
         when(constraintViolationBuilder.addNode(anyString())).thenReturn(nodeBuilderDefinedContext);
-        
-  
+
         when(context.buildConstraintViolationWithTemplate(anyString()))
                 .thenReturn(constraintViolationBuilder);
 
@@ -137,7 +135,7 @@ public class KeyDataValidatorTest {
         verify(context).buildConstraintViolationWithTemplate(anyString());
         verify(constraintViolationBuilder).addNode(anyString());
         verify(nodeBuilderDefinedContext).addConstraintViolation();
-        
+
         verifyNoMoreInteractions(context);
     }
 
@@ -182,6 +180,30 @@ public class KeyDataValidatorTest {
 
         assertThat(validator.isValid(null, context)).isTrue();
 
+        verifyNoMoreInteractions(context);
+    }
+
+    @Test
+    public void invalidPublicKeyIsNullButPrivateIsPresent() {
+
+        ValidKeyData validKeyData = mock(ValidKeyData.class);
+
+        KeyDataValidator validator = new KeyDataValidator();
+        validator.initialize(validKeyData);
+
+        KeyData keyData = mock(KeyData.class);
+
+        Path privateKeyPath = mock(Path.class);
+        when(keyData.getPrivateKeyPath()).thenReturn(privateKeyPath);
+
+        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+        when(context.buildConstraintViolationWithTemplate(anyString()))
+                .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
+
+        assertThat(validator.isValid(keyData, context)).isFalse();
+
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        verify(context).disableDefaultConstraintViolation();
         verifyNoMoreInteractions(context);
     }
 }
