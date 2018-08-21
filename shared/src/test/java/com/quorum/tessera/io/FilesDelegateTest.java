@@ -1,14 +1,18 @@
 package com.quorum.tessera.io;
 
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +54,6 @@ public class FilesDelegateTest {
         Path result = filesDelegate.createFile(toBeCreated);
         result.toFile().deleteOnExit();
         assertThat(toBeCreated).exists().isEqualTo(result);
-        
 
     }
 
@@ -104,18 +107,30 @@ public class FilesDelegateTest {
         List<String> results = filesDelegate.lines(somefile).collect(Collectors.toList());
         assertThat(results).containsExactly("ONE", "", "THREE");
     }
-    
+
     @Test
     public void write() throws Exception {
         Path somefile = Paths.get("writeBytesTest");
         somefile.toFile().deleteOnExit();
         byte[] somebytes = UUID.randomUUID().toString().getBytes();
-        
-        
-        Path result =   filesDelegate.write(somefile, somebytes,StandardOpenOption.CREATE_NEW);
+
+        Path result = filesDelegate.write(somefile, somebytes, StandardOpenOption.CREATE_NEW);
         assertThat(result).exists();
         assertThat(Files.readAllBytes(result)).isEqualTo(somebytes);
-        
-        
+
     }
+
+    @Test
+    public void setPosixFilePermissions() throws IOException {
+        Path somefile = Files.createTempFile("setPosixFilePermissions", ".txt");
+        somefile.toFile().deleteOnExit();
+        Set<PosixFilePermission> perms = Stream.of(PosixFilePermission.values())
+                .collect(Collectors.toSet());
+
+        Path result = filesDelegate.setPosixFilePermissions(somefile, perms);
+        assertThat(Files.getPosixFilePermissions(result)).containsAll(perms);
+        
+
+    }
+
 }
