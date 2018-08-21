@@ -7,7 +7,6 @@ import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.nacl.Key;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -77,7 +76,7 @@ public class OverrideUtilTest {
                 "keys.keyData.publicKey",
                 "keys.keyData.privateKeyPath",
                 "keys.keyData.publicKeyPath",
-                "alwaysSendTo.keyBytes",
+                "alwaysSendTo",
                 "unixSocketFile",
                 "useWhiteList",
                 "server.sslConfig.clientTrustCertificates",
@@ -422,7 +421,7 @@ public class OverrideUtilTest {
 
         JaxbUtil.marshalWithNoValidation(config, System.out);
 
-        OverrideUtil.setValue(config, "alwaysSendTo.keyBytes", "ONE", "TWO");
+        OverrideUtil.setValue(config, "alwaysSendTo", "ONE", "TWO");
 
         try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
             JaxbUtil.marshalWithNoValidation(config, bout);
@@ -431,8 +430,14 @@ public class OverrideUtilTest {
 
             assertThat(result.getAlwaysSendTo()).hasSize(2);
 
-            assertThat(result.getAlwaysSendTo()).containsOnly(new Key("ONE".getBytes()), new Key("TWO".getBytes()));
+            assertThat(result.getAlwaysSendTo()).containsOnly("ONE", "TWO");
         }
+    }
+
+    @Test
+    public void convertToByteArray() {
+        byte[] ressult = OverrideUtil.convertTo(byte[].class, "HELLOW");
+        assertThat(ressult).isEqualTo("HELLOW".getBytes());
     }
 
 }

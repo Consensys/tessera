@@ -30,10 +30,16 @@ public class Key {
         return Arrays.hashCode(keyBytes);
     }
 
+    //FIXME: use getKeyAsString. toString should not be used as an accessor like this.
     @Override
     public String toString() {
+        return getKeyAsString();
+    }
+    
+    public String getKeyAsString() {
         return Base64.getEncoder().encodeToString(this.keyBytes);
     }
+    
     /*
     As this object is used as a config object 
     we add the factory method so empty instances 

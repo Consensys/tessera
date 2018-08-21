@@ -1,11 +1,10 @@
 package com.quorum.tessera.config;
 
-import com.quorum.tessera.config.adapters.KeyAdapter;
 import com.quorum.tessera.config.adapters.KeyConfigurationAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
+import com.quorum.tessera.config.constraints.ValidBase64;
 import com.quorum.tessera.config.constraints.ValidKeyConfiguration;
 import com.quorum.tessera.config.constraints.ValidPath;
-import com.quorum.tessera.nacl.Key;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -42,11 +41,11 @@ public class Config extends ConfigItem {
     @ValidKeyConfiguration
     @XmlJavaTypeAdapter(KeyConfigurationAdapter.class)
     private final KeyConfiguration keys;
-
+    
+    
     @NotNull
     @XmlElement(name = "alwaysSendTo", required = true)
-    @XmlJavaTypeAdapter(KeyAdapter.class)
-    private final List<Key> alwaysSendTo;
+    private final List<@ValidBase64 String> alwaysSendTo;
 
     @ValidPath(checkCanCreate = true)
     @NotNull
@@ -61,7 +60,7 @@ public class Config extends ConfigItem {
                   final ServerConfig serverConfig,
                   final List<Peer> peers,
                   final KeyConfiguration keyConfiguration,
-                  final List<Key> alwaysSendTo,
+                  final List<String> alwaysSendTo,
                   final Path unixSocketFile,
                   final boolean useWhiteList) {
         this.jdbcConfig = jdbcConfig;
@@ -101,7 +100,7 @@ public class Config extends ConfigItem {
         return this.keys;
     }
 
-    public List<Key> getAlwaysSendTo() {
+    public List<String> getAlwaysSendTo() {
         return this.alwaysSendTo;
     }
 

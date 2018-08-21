@@ -27,7 +27,7 @@
         ]
     },
     "alwaysSendTo": [
-        "somePublicKey"
+        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
     ],
     "unixSocketFile": "tm.ipc"
 }

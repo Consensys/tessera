@@ -163,8 +163,11 @@ public interface OverrideUtil {
                     List convertedValues = (List) Stream.of(value)
                             .map(v -> convertTo(genericType, v))
                             .collect(Collectors.toList());
-
-                    setValue(root, field, convertedValues);
+                    
+                    List merged = new ArrayList(list);
+                    merged.addAll(convertedValues);
+                    
+                    setValue(root, field, merged);
 
                 } else {
 
