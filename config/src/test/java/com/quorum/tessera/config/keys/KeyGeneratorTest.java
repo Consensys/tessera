@@ -8,7 +8,6 @@ import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
-import java.io.File;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,8 +20,6 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
