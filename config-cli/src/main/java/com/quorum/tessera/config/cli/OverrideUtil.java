@@ -20,6 +20,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.bind.annotation.XmlElement;
@@ -28,10 +29,12 @@ import org.slf4j.LoggerFactory;
 
 public interface OverrideUtil {
 
+    Set<String> ADDITIVE_COLLECTION_FIELDS = Stream.of("peers").collect(Collectors.toSet());
+
     Logger LOGGER = LoggerFactory.getLogger(OverrideUtil.class);
 
     List<Class> SIMPLE_TYPES = Collections.unmodifiableList(
-            Arrays.asList(String.class,Path.class, Integer.class, Boolean.class, Long.class));
+            Arrays.asList(String.class, Path.class, Integer.class, Boolean.class, Long.class));
 
     Map<Class<?>, Class<?>> PRIMATIVE_LOOKUP = Collections.unmodifiableMap(new HashMap<Class<?>, Class<?>>() {
         {
@@ -163,10 +166,10 @@ public interface OverrideUtil {
                     List convertedValues = (List) Stream.of(value)
                             .map(v -> convertTo(genericType, v))
                             .collect(Collectors.toList());
-                    
+
                     List merged = new ArrayList(list);
                     merged.addAll(convertedValues);
-                    
+
                     setValue(root, field, merged);
 
                 } else {
@@ -174,8 +177,13 @@ public interface OverrideUtil {
                     List<String> builder = new ArrayList<>();
                     pathTokens.forEachRemaining(builder::add);
                     String nestedPath = builder.stream().collect(Collectors.joining("."));
-
-                    final Object[] newList = Arrays.copyOf(list.toArray(), value.length);
+                    
+                    final Object[] newList;
+                    if(ADDITIVE_COLLECTION_FIELDS.contains(field.getName())) {
+                        newList = new Object[value.length];
+                    } else {
+                        newList = Arrays.copyOf(list.toArray(), value.length);
+                    }
 
                     for (int i = 0; i < value.length; i++) {
                         final String v = value[i];
@@ -188,7 +196,12 @@ public interface OverrideUtil {
                         setValue(nestedObject, nestedPath, v);
                         newList[i] = nestedObject;
                     }
-                    setValue(root, field, Arrays.asList(newList));
+                    List merged = new ArrayList();
+                    if(ADDITIVE_COLLECTION_FIELDS.contains(field.getName())) {
+                        merged.addAll(list);
+                    }
+                    merged.addAll(Arrays.asList(newList));
+                    setValue(root, field, merged);
 
                 }
 
@@ -302,10 +315,10 @@ public interface OverrideUtil {
             return (T) Enum.valueOf(type.asSubclass(Enum.class), value);
         }
 
-        if(byte[].class.isAssignableFrom(type)) {
+        if (byte[].class.isAssignableFrom(type)) {
             return (T) value.getBytes(StandardCharsets.UTF_8);
         }
-        
+
         return SIMPLE_TYPES.stream()
                 .filter(t -> t.equals(type))
                 .findFirst()

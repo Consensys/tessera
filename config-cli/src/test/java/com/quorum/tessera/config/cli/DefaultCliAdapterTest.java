@@ -3,6 +3,7 @@ package com.quorum.tessera.config.cli;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.keys.KeyGenerator;
 import com.quorum.tessera.config.keys.KeyGeneratorFactory;
 import com.quorum.tessera.config.keys.MockKeyGeneratorFactory;
@@ -420,8 +421,6 @@ public class DefaultCliAdapterTest {
 
         String alwaysSendToKey = "giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=";
         
-        System.out.println(alwaysSendToKey);
-        
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         
         CliResult result = cliDelegate.execute(
@@ -437,4 +436,29 @@ public class DefaultCliAdapterTest {
         assertThat(result.getConfig().get().getAlwaysSendTo()).containsExactly("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",alwaysSendToKey);
         
     }
+    
+    @Test
+    public void overridePeers() throws Exception{
+    
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        
+        CliResult result = cliDelegate.execute(
+                "-configfile",
+                configFile.toString(),
+                "-peer.url",
+                "anotherpeer",
+                "-peer.url",
+                "yetanotherpeer"
+        );
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig().get().getPeers()).hasSize(4);
+        assertThat(result.getConfig().get().getPeers().stream()
+                .map(Peer::getUrl))
+                .containsExactlyInAnyOrder("anotherpeer","yetanotherpeer","http://bogus1.com","http://bogus2.com");
+        
+    }
+    
+    
 }
