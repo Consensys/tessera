@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 /**
  * Model representation of a JSON body on incoming HTTP requests
  *
- * Contrains information that is used to delete a transaction
+ * Contains information that is used to delete a transaction
  */
 @ApiModel
 public class DeleteRequest {

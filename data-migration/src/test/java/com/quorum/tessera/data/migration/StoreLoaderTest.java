@@ -18,7 +18,7 @@ public class StoreLoaderTest {
     }
 
     @Test
-    public void sqliteoader() {
+    public void sqliteLoader() {
         StoreLoader storeLoader = StoreLoader.create(StoreType.SQLITE);
         assertThat(storeLoader).isExactlyInstanceOf(SqliteLoader.class);
     }

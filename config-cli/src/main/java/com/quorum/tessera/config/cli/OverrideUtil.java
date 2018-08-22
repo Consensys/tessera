@@ -135,7 +135,7 @@ public interface OverrideUtil {
     }
 
     /**
-     * Directly set field values using relection.
+     * Directly set field values using reflection.
      *
      * @param root
      * @param path

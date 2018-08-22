@@ -53,7 +53,7 @@ public class PathValidator implements ConstraintValidator<ValidPath, Path> {
     }
 
     /*
-    TEsting only needs factory
+    Testing only needs factory
     */
     protected void setFilesDelegate(FilesDelegate filesDelegate) {
         this.filesDelegate = filesDelegate;

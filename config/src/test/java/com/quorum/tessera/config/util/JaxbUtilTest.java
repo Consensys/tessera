@@ -238,8 +238,8 @@ public class JaxbUtilTest {
     }
 
     
-        @Test
-    public void marshalMaskedConfigDontDiplayPrivateKeyIfFileIsPresent() throws Exception {
+    @Test
+    public void marshalMaskedConfigDontDisplayPrivateKeyIfFileIsPresent() throws Exception {
 
 
        

@@ -26,7 +26,7 @@ public interface KeyEncryptor {
      * Decrypts a private key using the password and information provided by the given
      * JSON object. What information the object contains is up to the implementor.
      *
-     * @param privateKeyConfig the configuration used to decrypt the private keyt
+     * @param privateKeyConfig the configuration used to decrypt the private key
      * @return the decrypted private key
      */
     Key decryptPrivateKey(PrivateKeyData privateKeyConfig);
