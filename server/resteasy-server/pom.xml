@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.quorum.tessera</groupId>
-        <artifactId>rest-server</artifactId>
+        <artifactId>server</artifactId>
         <version>0.7-SNAPSHOT</version>
     </parent>
     <artifactId>resteasy-server</artifactId>
