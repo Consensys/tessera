@@ -44,8 +44,8 @@ public class KeyGeneratorTest {
     public void init() {
 
         this.keyPair = new KeyPair(
-            new Key(PUBLIC_KEY.getBytes(UTF_8)),
-            new Key(PRIVATE_KEY.getBytes(UTF_8))
+                new Key(PUBLIC_KEY.getBytes(UTF_8)),
+                new Key(PRIVATE_KEY.getBytes(UTF_8))
         );
 
         this.nacl = mock(NaclFacade.class);
@@ -64,11 +64,13 @@ public class KeyGeneratorTest {
     }
 
     @Test
-    public void generateFromKeyDataUnlockedPrivateKey() {
+    public void generateFromKeyDataUnlockedPrivateKey() throws IOException {
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
-        final KeyData generated = generator.generate(UUID.randomUUID().toString(), null);
+        String filename = UUID.randomUUID().toString();
+
+        final KeyData generated = generator.generate(filename, null);
 
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
         assertThat(generated.getPrivateKey()).isEqualTo("cHJpdmF0ZUtleQ==");
@@ -76,6 +78,14 @@ public class KeyGeneratorTest {
 
         verify(nacl).generateNewKeys();
 
+        Files.list(Paths.get(""))
+                .filter(f -> f.toString().contains(filename))
+                .forEach(f -> {
+                    try {
+                        Files.deleteIfExists(f);
+                    } catch (IOException ex) {
+                    }
+                });
     }
 
     @Test
@@ -153,8 +163,8 @@ public class KeyGeneratorTest {
         doReturn(keyPair).when(nacl).generateNewKeys();
 
         doReturn(new PrivateKeyData("", "", "", "", new ArgonOptions("", 1, 1, 1), ""))
-            .when(keyEncryptor)
-            .encryptPrivateKey(any(Key.class), anyString(), eq(null));
+                .when(keyEncryptor)
+                .encryptPrivateKey(any(Key.class), anyString(), eq(null));
 
         final Throwable throwable = catchThrowable(() -> generator.generate(keyFilesName, null));
 

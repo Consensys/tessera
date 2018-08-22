@@ -7,6 +7,8 @@ import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public interface FilesDelegate {
@@ -53,30 +55,39 @@ public interface FilesDelegate {
     }
 
     /**
-     * 
-     * @see java.nio.file.Files#readAllBytes(java.nio.file.Path) 
+     *
+     * @see java.nio.file.Files#readAllBytes(java.nio.file.Path)
      */
     default byte[] readAllBytes(Path path) {
         return IOCallback.execute(() -> Files.readAllBytes(path));
     }
 
-        /**
-     * 
+    /**
+     *
      * @see java.nio.file.Files#lines
      */
     default Stream<String> lines(Path path) {
         return IOCallback.execute(() -> Files.lines(path));
     }
-    
 
     /**
      *
-     * @see java.nio.file.Files#write(java.nio.file.Path, byte..., java.nio.file.OpenOption...) 
+     * @see java.nio.file.Files#write(java.nio.file.Path, byte...,
+     * java.nio.file.OpenOption...)
      */
     default Path write(Path path, byte[] bytes, OpenOption... options) {
         return IOCallback.execute(() -> Files.write(path, bytes, options));
     }
 
+    /**
+     *
+     * @see java.nio.file.Files#setPosixFilePermissions(java.nio.file.Path path,
+            Set<PosixFilePermission> perms)
+     */
+    default Path setPosixFilePermissions(Path path,
+            Set<PosixFilePermission> perms) {
+        return IOCallback.execute(() -> Files.setPosixFilePermissions(path, perms));
+    }
 
     static FilesDelegate create() {
         return ServiceLoaderUtil.load(FilesDelegate.class).orElse(new FilesDelegate() {

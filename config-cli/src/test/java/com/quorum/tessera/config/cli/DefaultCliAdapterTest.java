@@ -3,6 +3,7 @@ package com.quorum.tessera.config.cli;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.keys.KeyGenerator;
 import com.quorum.tessera.config.keys.KeyGeneratorFactory;
 import com.quorum.tessera.config.keys.MockKeyGeneratorFactory;
@@ -22,9 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import javax.validation.ConstraintViolation;
 
@@ -32,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import java.util.stream.Collectors;
 
 
 public class DefaultCliAdapterTest {
@@ -408,20 +406,11 @@ public class DefaultCliAdapterTest {
                     configFile.toString());
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
-            assertThat(ex.getConstraintViolations()).hasSize(2);
-          
-            ex.getConstraintViolations().forEach(System.out::println);
+            assertThat(ex.getConstraintViolations()).hasSize(1);
             
-            List<String> invalidPaths = ex.getConstraintViolations().stream()
-                    .map(ConstraintViolation::getPropertyPath)
-                    .map(Objects::toString)
-                    .collect(Collectors.toList());
+            ConstraintViolation violation = ex.getConstraintViolations().iterator().next();
             
-            assertThat(invalidPaths).containsExactlyInAnyOrder(
-                    "keys.keyData","keys.keyData"
-            );
-            
-
+            assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyData.publicKeyPath.notExists}");
             
         }
         
@@ -431,8 +420,6 @@ public class DefaultCliAdapterTest {
     public void overrideAlwaysSendTo() throws Exception {
 
         String alwaysSendToKey = "giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=";
-        
-        System.out.println(alwaysSendToKey);
         
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         
@@ -449,4 +436,29 @@ public class DefaultCliAdapterTest {
         assertThat(result.getConfig().get().getAlwaysSendTo()).containsExactly("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",alwaysSendToKey);
         
     }
+    
+    @Test
+    public void overridePeers() throws Exception{
+    
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        
+        CliResult result = cliDelegate.execute(
+                "-configfile",
+                configFile.toString(),
+                "-peer.url",
+                "anotherpeer",
+                "-peer.url",
+                "yetanotherpeer"
+        );
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig().get().getPeers()).hasSize(4);
+        assertThat(result.getConfig().get().getPeers().stream()
+                .map(Peer::getUrl))
+                .containsExactlyInAnyOrder("anotherpeer","yetanotherpeer","http://bogus1.com","http://bogus2.com");
+        
+    }
+    
+    
 }

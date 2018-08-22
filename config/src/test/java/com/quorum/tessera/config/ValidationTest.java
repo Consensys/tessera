@@ -1,9 +1,13 @@
 package com.quorum.tessera.config;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -124,4 +128,47 @@ public class ValidationTest {
 
 
     }
+    
+        
+    @Test
+    public void keyDataPublicKeyValidation() {
+
+        Path publicKeyPath = Paths.get(UUID.randomUUID().toString());
+
+        Path privateKeyPath = Paths.get(UUID.randomUUID().toString());
+        
+        KeyData keyData = new KeyData(null, null, null, privateKeyPath, publicKeyPath);
+        
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null,null,Arrays.asList(keyData));
+        
+        Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
+
+        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyData.publicKeyPath.notExists}");
+        assertThat(violation.getPropertyPath().toString()).endsWith("publicKeyPath");
+    }
+    
+        @Test
+    public void keyDataPrivateKeyValidation() throws Exception {
+
+        Path publicKeyPath = Files.createTempFile("keyDataPrivateKeyValidation", ".txt");
+        publicKeyPath.toFile().deleteOnExit();
+
+        Path privateKeyPath = Paths.get(UUID.randomUUID().toString());
+        
+        KeyData keyData = new KeyData(null, null, null, privateKeyPath, publicKeyPath);
+        
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null,null,Arrays.asList(keyData));
+        
+        Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
+
+        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyData.privateKeyPath.notExists}");
+        assertThat(violation.getPropertyPath().toString()).endsWith("privateKeyPath");
+    }
+    
 }

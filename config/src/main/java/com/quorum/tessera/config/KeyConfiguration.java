@@ -27,10 +27,9 @@ public class KeyConfiguration extends ConfigItem {
     private final List<String> passwords;
 
     @Valid
-    @ValidKeyData
     @NotNull
     @Size(min = 1, message = "At least 1 public/private key pair must be provided")
-    private final List<KeyData> keyData;
+    private final List<@ValidKeyData KeyData> keyData;
 
     public KeyConfiguration(final Path passwordFile, final List<String> passwords, final List<KeyData> keyData) {
         this.passwordFile = passwordFile;
