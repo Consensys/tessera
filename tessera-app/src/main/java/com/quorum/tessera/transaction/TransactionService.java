@@ -15,7 +15,7 @@ public interface TransactionService {
      * Returns whether the desired state was achieved
      * i.e. {@code true} if the message no longer exists, {@code false} if the message still exists
      * <p>
-     * Note that the method will return true if trying to delete a non-existant message,
+     * Note that the method will return true if trying to delete a non-existent message,
      * since the desired state of the message no longer existing is satisfied
      *
      * @param hash The hash of the payload that should be deleted

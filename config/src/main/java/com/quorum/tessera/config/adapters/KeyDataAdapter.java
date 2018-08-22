@@ -101,18 +101,18 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         final KeyEncryptor kg = KeyEncryptorFactory.create();
         final PrivateKeyData encryptedKey = keyData.getConfig().getPrivateKeyData();
 
-        String decyptedPrivateKey;
+        String decryptedPrivateKey;
         try {
-            decyptedPrivateKey = Objects.toString(kg.decryptPrivateKey(encryptedKey));
+            decryptedPrivateKey = Objects.toString(kg.decryptPrivateKey(encryptedKey));
         } catch (final NaclException ex) {
-            LOGGER.debug("Unable to decypt private key : {}", ex.getMessage());
-            decyptedPrivateKey = NACL_FAILURE_TOKEN +": " + ex.getMessage();
+            LOGGER.debug("Unable to decrypt private key : {}", ex.getMessage());
+            decryptedPrivateKey = NACL_FAILURE_TOKEN +": " + ex.getMessage();
         }
 
         //need to decrypt
         return new KeyData(
                 keyData.getConfig(),
-                decyptedPrivateKey,
+                decryptedPrivateKey,
                 keyData.getPublicKey(),
                 keyData.getPrivateKeyPath(),
                 keyData.getPublicKeyPath()
