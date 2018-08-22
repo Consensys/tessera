@@ -36,6 +36,7 @@
         <spring.version>5.0.6.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
         <eclipselink.version>2.7.1</eclipselink.version>
+        <grpc.version>1.14.0</grpc.version>
     </properties>
 
     <build>
@@ -237,6 +238,7 @@
         <module>data-migration</module>
         <module>config-migration</module>
         <module>shared</module>
+        <module>grpc</module>
     </modules>
 
     <dependencyManagement>
@@ -325,6 +327,12 @@
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>resteasy-server</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>grpc</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
 
@@ -625,6 +633,23 @@
                 <version>1.18.0</version>
                 <scope>test</scope>
                 <type>jar</type>
+            </dependency>
+
+            <!--  GRPC-->
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-netty</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-protobuf</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-stub</artifactId>
+                <version>${grpc.version}</version>
             </dependency>
             
         </dependencies>

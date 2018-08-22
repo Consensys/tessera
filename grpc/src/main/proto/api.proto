@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+import "messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.quorum.tessera.api.grpc";
+
+service Transaction {
+
+    rpc Send (SendRequest) returns (SendResponse) { }
+
+    rpc SendStream  (stream SendRequest) returns (stream SendResponse) { }
+
+    rpc Receive (ReceiveRequest) returns (ReceiveResponse) { }
+
+    rpc ReceiveStream (stream ReceiveRequest) returns (stream ReceiveResponse) { }
+
+}
