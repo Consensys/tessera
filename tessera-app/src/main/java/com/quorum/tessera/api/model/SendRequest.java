@@ -15,7 +15,7 @@ import java.util.Arrays;
 public class SendRequest {
 
     @NotNull
-    @ApiModelProperty("Encyrpted payload to send to other parties.")
+    @ApiModelProperty("Encrypted payload to send to other parties.")
     private String payload;
 
     @ApiModelProperty("Sender public key")

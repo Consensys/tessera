@@ -31,7 +31,7 @@ public class KeyDataTest {
     }
 
     @Test
-    public void hasKeysNullPiublicKey() {
+    public void hasKeysNullPublicKey() {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         KeyData keyData = new KeyData(keyDataConfig, "privateKey", null, null, null);
 

@@ -100,7 +100,7 @@ public class Argon2Test {
     }
 
     @Test
-    public void argon2dAlorithmSelectedIfSetInOptions() {
+    public void argon2dAlgorithmSelectedIfSetInOptions() {
 
         final byte[] saltOne = new byte[Argon2Constants.DEFAULT_SALT_LENGTH];
         secureRandom.nextBytes(saltOne);

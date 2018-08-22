@@ -64,7 +64,7 @@ public class Base64ValidatorTest {
     }
 
     @Test
-    public void naclFAilureValueIsIgnoredAndReturns() {
+    public void naclFailureValueIsIgnoredAndReturns() {
 
         assertThat(validator.isValid("NACL_FAILURE: It's broken son!!", constraintValidatorContext))
                 .isTrue();

@@ -61,7 +61,7 @@ public class Launcher {
             }
             System.exit(1);
         } catch (com.quorum.tessera.config.ConfigException ex) {
-            Throwable cause = resolveRooCause(ex);
+            Throwable cause = resolveRootCause(ex);
 
             if (JsonException.class.isInstance(cause)) {
                 System.err.println("Invalid json, error is " + cause.getMessage());
@@ -79,9 +79,9 @@ public class Launcher {
         }
     }
 
-    static Throwable resolveRooCause(Throwable ex) {
+    private static Throwable resolveRootCause(Throwable ex) {
         if (Objects.nonNull(ex.getCause())) {
-            return resolveRooCause(ex.getCause());
+            return resolveRootCause(ex.getCause());
         }
         return ex;
     }
