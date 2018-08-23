@@ -49,6 +49,11 @@
 
         <dependency>
             <groupId>com.quorum.tessera</groupId>
+            <artifactId>grpc-server</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
             <artifactId>rest-server-api</artifactId>
         </dependency>
 

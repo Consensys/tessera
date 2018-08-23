@@ -13,9 +13,10 @@
     </parent>
 
     <modules>
-        <module>resteasy-server</module>
         <module>rest-server-api</module>
+        <module>resteasy-server</module>
         <module>jersey-server</module>
+        <module>grpc-server</module>
     </modules>
     <build>
         <plugins>

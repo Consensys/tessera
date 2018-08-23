@@ -5,21 +5,22 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.cli.CliDelegate;
 import com.quorum.tessera.config.cli.CliResult;
+import com.quorum.tessera.grpc.server.GrpcServer;
 import com.quorum.tessera.server.RestServer;
 import com.quorum.tessera.server.RestServerFactory;
 import com.quorum.tessera.service.locator.ServiceLocator;
+import io.grpc.BindableService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.net.URI;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 import javax.json.JsonException;
+import javax.ws.rs.core.UriBuilder;
 
 /**
  * The main entry point for the application. This just starts up the application
@@ -92,11 +93,21 @@ public class Launcher {
 
         final RestServer restServer = RestServerFactory.create().createServer(serverUri, tessera, serverConfig);
 
+        final List<BindableService> grpcServices =
+            tessera.getSingletons().stream()
+                .filter(o -> o.getClass().getPackage().getName().startsWith("com.quorum.tessera.api.grpc"))
+                .map(o -> (BindableService) o)
+                .collect(Collectors.toList());
+
+        final URI grpcServerUri = UriBuilder.fromUri(serverUri).port(50000).build();
+        final GrpcServer grpcServer = new GrpcServer(grpcServerUri, grpcServices);
+
         CountDownLatch countDown = new CountDownLatch(1);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 restServer.stop();
+                grpcServer.stop();
             } catch (Exception ex) {
                 LOGGER.error(null, ex);
             } finally {
@@ -105,6 +116,7 @@ public class Launcher {
         }));
 
         restServer.start();
+        grpcServer.start();
 
         countDown.await();
     }
