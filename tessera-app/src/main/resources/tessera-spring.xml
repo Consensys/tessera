@@ -27,6 +27,16 @@
         </constructor-arg>
     </bean>
 
+
+    <!-- gRPC Services -->
+    <bean name="grpcTransactionService" class="com.quorum.tessera.api.grpc.GrpcTransactionService">
+        <constructor-arg ref="enclave"/>
+        <constructor-arg>
+            <bean class="com.quorum.tessera.util.Base64Decoder" factory-method="create"/>
+        </constructor-arg>
+    </bean>
+
+
     <!-- Node synchronization management-->
     <bean name="resendPartyStore" class="com.quorum.tessera.sync.ResendPartyStoreImpl">
         <constructor-arg ref="config" />
