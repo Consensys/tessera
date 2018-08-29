@@ -3,6 +3,7 @@ package com.quorum.tessera.enclave;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.nacl.Nonce;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.PostDelegate;
@@ -29,6 +30,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class EnclaveImplTest {
+
+    private static final Key EMPTY_KEY = new Key(new byte[0]);
 
     private static final Key RECIPIENT_KEY = new Key(new byte[]{-1, -2, -3});
     private static final Key SENDER_KEY = new Key(new byte[]{1, 2, 3});
@@ -74,30 +77,49 @@ public class EnclaveImplTest {
 
     @Test
     public void testDelete() {
-   
+
         enclave.delete(new byte[0]);
         verify(transactionService).delete(any(MessageHash.class));
     }
 
     @Test
     public void receiveWhenKeyProvided() {
-        final byte[] hash = new byte[]{};
-        final byte[] key = new byte[]{};
+        final byte[] hash = new byte[0];
 
         enclave.receive(hash, Optional.of(new byte[0]));
 
-        verify(transactionService).retrieveUnencryptedTransaction(eq(new MessageHash(hash)), eq(new Key(key)));
+        verify(transactionService).retrieveUnencryptedTransaction(eq(new MessageHash(hash)), eq(EMPTY_KEY));
     }
 
     @Test
-    public void receiveWhenNoKeyProvided() {
-        final byte[] hash = new byte[]{};
+    public void receiveWhenNoKeyProvidedAndOneMatch() {
+        final byte[] hash = new byte[0];
 
-        doReturn(new Key(new byte[]{})).when(keyManager).defaultPublicKey();
+        when(keyManager.getPublicKeys()).thenReturn(singleton(EMPTY_KEY));
+        when(transactionService.retrieveUnencryptedTransaction(any(MessageHash.class), any(Key.class)))
+            .thenReturn(new byte[]{1, 2, 3});
 
-        enclave.receive(hash, Optional.empty());
+        final byte[] received = enclave.receive(hash, Optional.empty());
 
-        verify(keyManager).defaultPublicKey();
+        assertThat(received).containsExactly(1, 2, 3);
+
+        verify(keyManager).getPublicKeys();
+        verify(transactionService).retrieveUnencryptedTransaction(eq(new MessageHash(hash)), any(Key.class));
+    }
+
+    @Test
+    public void receiveWhenNoKeyProvidedAndNoneMatch() {
+        final byte[] hash = new byte[0];
+
+        when(keyManager.getPublicKeys()).thenReturn(singleton(EMPTY_KEY));
+        when(transactionService.retrieveUnencryptedTransaction(any(MessageHash.class), any(Key.class))).thenThrow(NaclException.class);
+
+        final Throwable throwable = catchThrowable(() -> enclave.receive(hash, Optional.empty()));
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("No key found that could decrypt the requested payload: ");
+
+        verify(keyManager).getPublicKeys();
         verify(transactionService).retrieveUnencryptedTransaction(eq(new MessageHash(hash)), any(Key.class));
     }
 
@@ -170,7 +192,7 @@ public class EnclaveImplTest {
     public void testStoreWithRecipientAndPublish() {
 
         final EncodedPayload encodedPayload = new EncodedPayload(
-            new Key(new byte[0]),
+            EMPTY_KEY,
             new byte[0],
             new Nonce(new byte[0]),
             Arrays.asList("box1".getBytes(), "box2".getBytes()),
@@ -220,7 +242,7 @@ public class EnclaveImplTest {
     @Test
     public void testResendAll() {
         EncodedPayload encodedPayload =
-            new EncodedPayload(new Key(new byte[0]),
+            new EncodedPayload(EMPTY_KEY,
                 new byte[0],
                 new Nonce(new byte[0]),
                 Arrays.asList("box1".getBytes(), "box2".getBytes()),

@@ -4,12 +4,15 @@ import com.quorum.tessera.api.model.ApiPath;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.PostDelegate;
 import com.quorum.tessera.transaction.PayloadEncoder;
 import com.quorum.tessera.transaction.TransactionService;
 import com.quorum.tessera.transaction.model.EncodedPayload;
 import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,6 +25,8 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 public class EnclaveImpl implements Enclave {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveImpl.class);
 
     private final TransactionService transactionService;
 
@@ -53,11 +58,22 @@ public class EnclaveImpl implements Enclave {
     }
 
     @Override
-    public byte[] receive(final byte[] key, final Optional<byte[]> to) {
-        return transactionService.retrieveUnencryptedTransaction(
-            new MessageHash(key),
-            to.map(Key::new).orElseGet(keyManager::defaultPublicKey)
-        );
+    public byte[] receive(final byte[] hashBytes, final Optional<byte[]> to) {
+        final MessageHash hash = new MessageHash(hashBytes);
+
+        if (to.isPresent()) {
+            return transactionService.retrieveUnencryptedTransaction(hash, new Key(to.get()));
+        } else {
+            for (final Key potentialMatchingKey : this.keyManager.getPublicKeys()) {
+                try {
+                    return transactionService.retrieveUnencryptedTransaction(hash, potentialMatchingKey);
+                } catch (final NaclException ex) {
+                    LOGGER.debug("Attempted payload decryption using wrong key, discarding.");
+                }
+            }
+
+            throw new RuntimeException("No key found that could decrypt the requested payload: " + hash.toString());
+        }
     }
 
     @Override
@@ -137,7 +153,7 @@ public class EnclaveImpl implements Enclave {
     }
 
     @Override
-    public EncodedPayloadWithRecipients fetchTransactionForRecipient(final MessageHash hash, final Key recipient){
+    public EncodedPayloadWithRecipients fetchTransactionForRecipient(final MessageHash hash, final Key recipient) {
         final EncodedPayloadWithRecipients payloadWithRecipients = transactionService.retrievePayload(hash);
 
         final EncodedPayload encodedPayload = payloadWithRecipients.getEncodedPayload();
