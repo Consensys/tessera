@@ -87,7 +87,8 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
             keyDataWithPasswords
                 .stream()
                 .map(keyDataAdapter::unmarshal)
-                .collect(Collectors.toList())
+                .collect(Collectors.toList()),
+            input.getKeyVaultConfig()
         );
 
     }
@@ -100,7 +101,8 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
             input.getKeyData()
                 .stream()
                 .map(keyDataAdapter::marshal)
-                .collect(Collectors.toList())
+                .collect(Collectors.toList()),
+            input.getKeyVaultConfig()
         );
     }
 

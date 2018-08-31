@@ -139,7 +139,7 @@ public class ValidationTest {
         
         KeyData keyData = new KeyData(null, null, null, privateKeyPath, publicKeyPath);
         
-        KeyConfiguration keyConfiguration = new KeyConfiguration(null,null,Arrays.asList(keyData));
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null,null,Arrays.asList(keyData), null);
         
         Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
         assertThat(violations).hasSize(1);
@@ -160,7 +160,7 @@ public class ValidationTest {
         
         KeyData keyData = new KeyData(null, null, null, privateKeyPath, publicKeyPath);
         
-        KeyConfiguration keyConfiguration = new KeyConfiguration(null,null,Arrays.asList(keyData));
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null,null,Arrays.asList(keyData), null);
         
         Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
         assertThat(violations).hasSize(1);

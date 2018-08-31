@@ -39,7 +39,8 @@ public class KeyConfigurationAdapterTest {
                                         LOCKED
                                 ), null, null, null, null
                         )
-                )
+                ),
+            null
         );
 
         final KeyConfiguration marshalled = keyConfigurationAdapter.marshal(keyConfiguration);
@@ -56,7 +57,7 @@ public class KeyConfigurationAdapterTest {
         doReturn(UNLOCKED).when(pkd).getType();
         doReturn(pkd).when(keyData).getConfig();
 
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, emptyList(), singletonList(keyData));
+        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, emptyList(), singletonList(keyData), null);
         final KeyConfiguration unmarshalled = this.keyConfigurationAdapter.unmarshal(keyConfiguration);
 
         assertThat(unmarshalled.getKeyData()).hasSize(1);
@@ -74,7 +75,7 @@ public class KeyConfigurationAdapterTest {
         doReturn(UNLOCKED).when(pkd).getType();
         doReturn(pkd).when(keyData).getConfig();
 
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyData));
+        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyData), null);
         final KeyConfiguration unmarshalled = this.keyConfigurationAdapter.unmarshal(keyConfiguration);
 
         assertThat(unmarshalled.getKeyData()).hasSize(1);
@@ -101,7 +102,7 @@ public class KeyConfigurationAdapterTest {
                 null, null, null, null
         );
 
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, singletonList("q"), singletonList(keyData));
+        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, singletonList("q"), singletonList(keyData), null);
         final KeyConfiguration unmarshalled = this.keyConfigurationAdapter.unmarshal(keyConfiguration);
 
         assertThat(unmarshalled.getKeyData()).hasSize(1);
@@ -131,7 +132,7 @@ public class KeyConfigurationAdapterTest {
                 null, null, null, null
         );
 
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(passes, null, singletonList(keyData));
+        final KeyConfiguration keyConfiguration = new KeyConfiguration(passes, null, singletonList(keyData), null);
         final KeyConfiguration unmarshalled = this.keyConfigurationAdapter.unmarshal(keyConfiguration);
 
         assertThat(unmarshalled.getKeyData()).hasSize(1);
@@ -152,7 +153,7 @@ public class KeyConfigurationAdapterTest {
 
         final KeyData keyData = new KeyData(null, null, null, privKey, pubKey);
 
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, singletonList("a"), singletonList(keyData));
+        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, singletonList("a"), singletonList(keyData), null);
         final KeyConfiguration unmarshalled = this.keyConfigurationAdapter.unmarshal(keyConfiguration);
 
         assertThat(unmarshalled.getKeyData()).hasSize(1);
@@ -177,7 +178,8 @@ public class KeyConfigurationAdapterTest {
                         new KeyData(
                                 null, null, null, privateKeyPath, null
                         )
-                )
+                ),
+            null
         );
 
         KeyConfiguration result = keyConfigurationAdapter.unmarshal(keyConfiguration);
@@ -209,7 +211,7 @@ public class KeyConfigurationAdapterTest {
         );
 
 
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(passes, null, singletonList(keyData));
+        final KeyConfiguration keyConfiguration = new KeyConfiguration(passes, null, singletonList(keyData), null);
         final KeyConfiguration unmarshalled = this.keyConfigurationAdapter.unmarshal(keyConfiguration);
 
         assertThat(unmarshalled.getKeyData()).hasSize(1);
