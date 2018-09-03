@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "messages.proto";
+import "google/api/annotations.proto";
 
 option java_multiple_files = true;
 option java_package = "com.quorum.tessera.api.grpc";
@@ -9,10 +10,38 @@ service Transaction {
 
     rpc Send (SendRequest) returns (SendResponse) { }
 
-    rpc SendStream  (stream SendRequest) returns (stream SendResponse) { }
-
     rpc Receive (ReceiveRequest) returns (ReceiveResponse) { }
 
-    rpc ReceiveStream (stream ReceiveRequest) returns (stream ReceiveResponse) { }
+    rpc Delete(DeleteRequest) returns (DeleteRequest) { }
+
+    rpc Resend(ResendRequest) returns (ResendResponse) { }
+
+    rpc Push(PushRequest) returns (PushRequest) { }
+
+}
+
+service PartyInfo {
+
+    rpc GetPartyInfo (PartyInfoMessage) returns (PartyInfoMessage) { }
+
+    rpc GetPartyInfoStream (stream PartyInfoMessage) returns (stream PartyInfoMessage) { }
+
+}
+
+service Tessera {
+
+    rpc GetVersion (VersionMessage) returns (VersionMessage) {
+        option (google.api.http) = {
+            get: "/version"
+            body: "*"
+        };
+    }
+
+    rpc GetUpCheck (UpCheckMessage) returns (UpCheckMessage) {
+        option (google.api.http) = {
+            get: "/upcheck"
+            body: "*"
+        };
+    }
 
 }

@@ -37,3 +37,22 @@ message ResendRequest {
     string key = 3;
 }
 
+message ResendResponse {
+    bytes data = 1;
+}
+
+message VersionMessage {
+    string version = 1;
+}
+
+message UpCheckMessage {
+    string upCheck = 1;
+}
+
+message PartyInfoMessage {
+    bytes partyInfo = 1;
+}
+
+message PushRequest {
+    bytes data = 1;
+}
