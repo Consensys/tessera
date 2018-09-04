@@ -57,6 +57,6 @@ public class KeyConfiguration extends ConfigItem {
     }
 
     public KeyVaultConfig getKeyVaultConfig() {
-         return this.keyVaultConfig;
+        return this.keyVaultConfig;
     }
 }

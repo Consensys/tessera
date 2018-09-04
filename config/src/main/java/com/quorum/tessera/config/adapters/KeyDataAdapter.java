@@ -43,7 +43,6 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
             return unmarshalInline(keyData);
         }
 
-
         if (keyData.getPublicKeyPath() == null || keyData.getPrivateKeyPath() == null 
                 || filesDelegate.notExists(keyData.getPublicKeyPath()) || filesDelegate.notExists(keyData.getPrivateKeyPath())) {
             return keyData;
@@ -146,7 +145,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
                             ),
                             keyData.getConfig().getType()
                     ),
-                    null,//TODO: 
+                    null,
                     keyData.getPublicKey(),
                     keyData.getPrivateKeyPath(),
                     keyData.getPublicKeyPath()

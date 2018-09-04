@@ -1,12 +1,16 @@
 package com.quorum.tessera.config;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
-public class KeyVaultConfig {
+public class KeyVaultConfig extends ConfigItem {
+    @NotNull
+    @XmlAttribute
     private final String url;
 
     public KeyVaultConfig(String url) {
@@ -20,5 +24,4 @@ public class KeyVaultConfig {
     public String getUrl() {
         return this.url;
     }
-
 }

@@ -112,12 +112,12 @@ public class ValidationTest {
         assertThat(violation.getMessageTemplate()).isEqualTo("{ValidBase64.message}");
 
     }
-    
+
     @Test
     public void validAlwaysSendTo() {
 
         String value = Base64.getEncoder().encodeToString("HELLOW".getBytes());
-        
+
         List<String> alwaysSendTo = Arrays.asList(value);
 
         Config config = new Config(null, null, null, null, alwaysSendTo, null, false);
@@ -128,19 +128,19 @@ public class ValidationTest {
 
 
     }
-    
-        
+
+
     @Test
     public void keyDataPublicKeyValidation() {
 
         Path publicKeyPath = Paths.get(UUID.randomUUID().toString());
 
         Path privateKeyPath = Paths.get(UUID.randomUUID().toString());
-        
+
         KeyData keyData = new KeyData(null, null, null, privateKeyPath, publicKeyPath);
-        
+
         KeyConfiguration keyConfiguration = new KeyConfiguration(null,null,Arrays.asList(keyData), null);
-        
+
         Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
         assertThat(violations).hasSize(1);
 
@@ -149,7 +149,7 @@ public class ValidationTest {
         assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyData.publicKeyPath.notExists}");
         assertThat(violation.getPropertyPath().toString()).endsWith("publicKeyPath");
     }
-    
+
         @Test
     public void keyDataPrivateKeyValidation() throws Exception {
 
@@ -157,11 +157,11 @@ public class ValidationTest {
         publicKeyPath.toFile().deleteOnExit();
 
         Path privateKeyPath = Paths.get(UUID.randomUUID().toString());
-        
+
         KeyData keyData = new KeyData(null, null, null, privateKeyPath, publicKeyPath);
-        
+
         KeyConfiguration keyConfiguration = new KeyConfiguration(null,null,Arrays.asList(keyData), null);
-        
+
         Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
         assertThat(violations).hasSize(1);
 
@@ -170,5 +170,5 @@ public class ValidationTest {
         assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyData.privateKeyPath.notExists}");
         assertThat(violation.getPropertyPath().toString()).endsWith("privateKeyPath");
     }
-    
+
 }
