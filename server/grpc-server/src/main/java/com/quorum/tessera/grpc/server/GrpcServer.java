@@ -1,46 +1,39 @@
 package com.quorum.tessera.grpc.server;
 
-import io.grpc.BindableService;
 import io.grpc.Server;
-import io.grpc.ServerBuilder;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
-import java.util.logging.Logger;
 
 public class GrpcServer {
 
-    private static final Logger LOGGER = Logger.getLogger(GrpcServer.class.getName());
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GrpcServer.class);
 
-    private Server server;
+    private final URI uri;
 
-    private URI uri;
+    private final Server server;
 
-    private List<BindableService> services;
-
-    public GrpcServer(URI uri, List<BindableService> services) {
+    public GrpcServer(URI uri, Server server) {
         this.uri = uri;
-        this.services = services;
-        ServerBuilder serverBuilder = ServerBuilder.forPort(uri.getPort());
-        services.stream().forEach(serverBuilder::addService);
-        this.server = serverBuilder.build();
+        this.server = server;
     }
 
-    public void start() throws IOException {
-
-        server.start();
-
-        LOGGER.info("Server started, listening on " + uri.getPort());
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                // Use stderr here since the logger may have been reset by its JVM shutdown hook.
-                System.err.println("*** shutting down gRPC server since JVM is shutting down");
-                GrpcServer.this.stop();
-                System.err.println("*** server shut down");
-            }
-        });
+    public void start() {
+        try {
+            server.start();
+            LOGGER.info("gRPC server started, listening on " + uri.getPort());
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    LOGGER.info("*** Shutting down gRPC server");
+                    GrpcServer.this.stop();
+                    LOGGER.info("*** gRPC server shut down");
+                }
+            });
+        } catch (IOException ex) {
+            LOGGER.error("Cannot start gRPC server. See cause ", ex);
+        }
     }
 
     public void stop() {
@@ -50,7 +43,7 @@ public class GrpcServer {
     }
 
     /**
-     * Await termination on the main thread since the grpc library uses daemon threads.
+     * Await termination on the main thread since the gRPC library uses daemon threads.
      */
     public void blockUntilShutdown() throws InterruptedException {
         if (server != null) {
