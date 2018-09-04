@@ -6,10 +6,10 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.cli.CliDelegate;
 import com.quorum.tessera.config.cli.CliResult;
 import com.quorum.tessera.grpc.server.GrpcServer;
+import com.quorum.tessera.grpc.server.GrpcServerFactory;
 import com.quorum.tessera.server.RestServer;
 import com.quorum.tessera.server.RestServerFactory;
 import com.quorum.tessera.service.locator.ServiceLocator;
-import io.grpc.BindableService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,6 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import javax.json.JsonException;
-import javax.ws.rs.core.UriBuilder;
 
 /**
  * The main entry point for the application. This just starts up the application
@@ -93,21 +92,29 @@ public class Launcher {
 
         final RestServer restServer = RestServerFactory.create().createServer(serverUri, tessera, serverConfig);
 
-        final List<BindableService> grpcServices =
-            tessera.getSingletons().stream()
-                .filter(o -> o.getClass().getPackage().getName().startsWith("com.quorum.tessera.api.grpc"))
-                .map(o -> (BindableService) o)
-                .collect(Collectors.toList());
+        final Optional<GrpcServer> gRPCServer;
 
-        final URI grpcServerUri = UriBuilder.fromUri(serverUri).port(50000).build();
-        final GrpcServer grpcServer = new GrpcServer(grpcServerUri, grpcServices);
+        if (Objects.nonNull(serverConfig.getgRPCPort())) {
+            final Set<Object> gRPCBeans =
+                tessera.getSingletons()
+                    .stream()
+                    .filter(o -> o.getClass()
+                        .getPackage()
+                        .getName()
+                        .startsWith("com.quorum.tessera.api.grpc"))
+                    .collect(Collectors.toSet());
+            gRPCServer = Optional.of(
+                GrpcServerFactory.create().createGRPCServer(serverUri, serverConfig.getgRPCPort(), gRPCBeans));
+        } else {
+            gRPCServer = Optional.empty();
+        }
 
         CountDownLatch countDown = new CountDownLatch(1);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 restServer.stop();
-                grpcServer.stop();
+                gRPCServer.ifPresent(GrpcServer::stop);
             } catch (Exception ex) {
                 LOGGER.error(null, ex);
             } finally {
@@ -116,7 +123,7 @@ public class Launcher {
         }));
 
         restServer.start();
-        grpcServer.start();
+        gRPCServer.ifPresent(GrpcServer::start);
 
         countDown.await();
     }
