@@ -657,6 +657,11 @@
                 <artifactId>grpc-stub</artifactId>
                 <version>${grpc.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.api.grpc</groupId>
+                <artifactId>googleapis-common-protos</artifactId>
+                <version>0.0.3</version>
+            </dependency>
             
         </dependencies>
     </dependencyManagement>
