@@ -169,4 +169,25 @@ public class ValidationTest {
         assertThat(violation.getPropertyPath().toString()).endsWith("privateKeyPath");
     }
 
+    @Test
+    public void keyVaultIdAllowedCharacterSetIsAlphanumericAndDash() {
+        String keyVaultId = "0123456789-abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        KeyData keyData = new KeyData(null, null, null, null, null, keyVaultId);
+
+        Set<ConstraintViolation<KeyData>> violations = validator.validateProperty(keyData, "keyVaultId");
+        assertThat(violations).hasSize(0);
+    }
+
+    @Test
+    public void keyVaultIdDisallowedCharactersCreateViolation() {
+        String keyVaultId = "invalid_@!£$%^~^&_id";
+        KeyData keyData = new KeyData(null, null, null, null, null, keyVaultId);
+
+        Set<ConstraintViolation<KeyData>> violations = validator.validateProperty(keyData, "keyVaultId");
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<KeyData> violation = violations.iterator().next();
+        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.Pattern.message}");
+    }
+
 }

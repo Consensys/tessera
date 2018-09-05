@@ -33,26 +33,47 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
     @Override
     public KeyData unmarshal(final KeyData keyData) {
 
-        //case 1, the keys are provided inline
-        if (keyData.hasKeys()) {
+        //case1: public and private keys provided inline
+        if(keyData.hasKeys()) {
             return keyData;
         }
 
-        //case 2, the config is provided inline
-        if (keyData.getPublicKeyPath() == null && keyData.getPrivateKeyPath() == null) {
+        //case2: public key and private key config provided inline
+        if(Objects.nonNull(keyData.getConfig()) && Objects.nonNull(keyData.getPublicKey())) {
             return unmarshalInline(keyData);
         }
 
-        if (keyData.getPublicKeyPath() == null || keyData.getPrivateKeyPath() == null 
-                || filesDelegate.notExists(keyData.getPublicKeyPath()) || filesDelegate.notExists(keyData.getPrivateKeyPath())) {
-            return keyData;
-        }
-
-        //case 3, the keys are provided inside a file
-        return unmarshalFile(
+        //case3: public and private keys provided in files
+        if(Objects.nonNull(keyData.getPrivateKeyPath()) && Objects.nonNull(keyData.getPublicKeyPath()) &&
+            filesDelegate.exists(keyData.getPublicKeyPath()) && filesDelegate.exists(keyData.getPrivateKeyPath())) {
+            return unmarshalFile(
                 keyData.getPublicKeyPath(),
                 keyData.getPrivateKeyPath(),
                 Optional.ofNullable(keyData.getConfig()).map(KeyDataConfig::getPassword).orElse(null)
+            );
+        }
+
+        //case4: public key path and private key vault id provided
+        if(Objects.nonNull(keyData.getPublicKeyPath()) && Objects.nonNull(keyData.getKeyVaultId())) {
+            return unmarshalFilePublicKeyOnly(keyData);
+        }
+
+        //case5: public key and private key vault id provided
+        //(plus all invalid cases which are picked up later by constraint validation)
+        return keyData;
+    }
+
+    private KeyData unmarshalFilePublicKeyOnly(KeyData keyData) {
+        final byte[] publicKey = IOCallback.execute(() -> Files.readAllBytes(keyData.getPublicKeyPath()));
+        final String publicKeyString = new String(publicKey, UTF_8);
+
+        return new KeyData(
+            null,
+            null,
+            publicKeyString,
+            null,
+            keyData.getPublicKeyPath(),
+            keyData.getKeyVaultId()
         );
     }
 
