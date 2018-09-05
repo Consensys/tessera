@@ -1,22 +1,20 @@
 package com.quorum.tessera.config.adapters;
 
-import com.quorum.tessera.config.ArgonOptions;
-import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.KeyDataConfig;
-import com.quorum.tessera.config.PrivateKeyData;
-import com.quorum.tessera.config.PrivateKeyType;
+import com.quorum.tessera.config.*;
+import com.quorum.tessera.io.FilesDelegate;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
-import com.quorum.tessera.io.FilesDelegate;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class KeyDataAdapterTest {
 
@@ -30,7 +28,7 @@ public class KeyDataAdapterTest {
     @Test
     public void marshallUnlockedKey() {
 
-        final KeyData keyData = new KeyData(new KeyDataConfig(null, UNLOCKED), "PRIV", "PUB", null, null);
+        final KeyData keyData = new KeyData(new KeyDataConfig(null, UNLOCKED), "PRIV", "PUB", null, null, null);
 
         final KeyData marshalledKey = adapter.marshal(keyData);
 
@@ -42,7 +40,7 @@ public class KeyDataAdapterTest {
 
     @Test
     public void marshallKeyWithoutConfiguration() {
-        final KeyData keyData = new KeyData(null, "PRIV", "PUB", null, null);
+        final KeyData keyData = new KeyData(null, "PRIV", "PUB", null, null, null);
 
         final KeyData marshalledKey = adapter.marshal(keyData);
 
@@ -58,7 +56,7 @@ public class KeyDataAdapterTest {
 
         final KeyData keyData = new KeyData(
                 new KeyDataConfig(new PrivateKeyData(null, null, null, null, null, null), PrivateKeyType.LOCKED),
-                "PRIV", "PUB", null, null
+                "PRIV", "PUB", null, null, null
         );
 
         final KeyData marshalledKey = adapter.marshal(keyData);
@@ -91,6 +89,7 @@ public class KeyDataAdapterTest {
                 null,
                 "PUB",
                 null,
+                null,
                 null
         );
 
@@ -116,7 +115,7 @@ public class KeyDataAdapterTest {
                         PrivateKeyType.LOCKED
                 ),
                 null,
-                "PUB", null, null
+                "PUB", null, null, null
         );
 
         final KeyData marshalled = adapter.unmarshal(keyData);
@@ -137,7 +136,7 @@ public class KeyDataAdapterTest {
         Files.write(pub, publicKey.getBytes(UTF_8));
         Files.write(priv, privateKey.getBytes(UTF_8));
 
-        final KeyData keyData = new KeyData(null, null, null, priv, pub);
+        final KeyData keyData = new KeyData(null, null, null, priv, pub, null);
 
         final KeyData resolved = this.adapter.unmarshal(keyData);
 
@@ -148,23 +147,23 @@ public class KeyDataAdapterTest {
     }
 
     @Test
-    public void bothPathsMustBeSetIfUsingKeyPathsPubReturnsAndDoesNotThrowError() {
+    public void bothPathsMustBeSetIfUsingKeyPathsPrivReturnsAndDoesNotThrowError() throws Exception {
+        final Path priv = Files.createTempFile("private", ".key");
 
-        final KeyData badConfig = new KeyData(null, null, null, Paths.get("sample"), null);
+        final KeyData badConfig = new KeyData(null, null, null, priv, null, null);
 
         KeyData result = this.adapter.unmarshal(badConfig);
         assertThat(result).isSameAs(badConfig);
-
     }
 
     @Test
-    public void bothPathsMustBeSetIfUsingKeyPathsPrivReturnsAndDoesNotThrowError() {
+    public void bothPathsMustBeSetIfUsingKeyPathsPubReturnsAndDoesNotThrowError() throws Exception {
+        final Path pub = Files.createTempFile("public", ".pub");
 
-        final KeyData badConfig = new KeyData(null, null, null, null, Paths.get("sample"));
+        final KeyData badConfig = new KeyData(null, null, null, null, pub, null);
 
         KeyData result = this.adapter.unmarshal(badConfig);
         assertThat(result).isSameAs(badConfig);
-
     }
 
     @Test
@@ -182,7 +181,7 @@ public class KeyDataAdapterTest {
                         PrivateKeyType.LOCKED
                 ),
                 null,
-                "PUB", null, null
+                "PUB", null, null, null
         );
 
         KeyData result = this.adapter.unmarshal(keyData);
@@ -205,7 +204,7 @@ public class KeyDataAdapterTest {
                         PrivateKeyType.LOCKED
                 ),
                 null,
-                "PUB", null, null
+                "PUB", null, null, null
         );
 
         KeyData result = this.adapter.unmarshal(keyData);
@@ -236,7 +235,8 @@ public class KeyDataAdapterTest {
                         PrivateKeyType.LOCKED
                 ),
                 null,
-                "PUB", privateKeyPath, publicKeyPath
+                "PUB", privateKeyPath, publicKeyPath.toAbsolutePath(),
+            null
         );
 
         KeyData result = this.adapter.unmarshal(keyData);
@@ -268,7 +268,8 @@ public class KeyDataAdapterTest {
                         PrivateKeyType.LOCKED
                 ),
                 null,
-                "PUB", privateKeyPath, publicKeyPath
+                "PUB", privateKeyPath, publicKeyPath,
+            null
         );
 
         KeyData result = this.adapter.unmarshal(keyData);
@@ -292,7 +293,8 @@ public class KeyDataAdapterTest {
                 PrivateKeyType.LOCKED
             ),
             null,
-            "PUB", Paths.get("priv"), Paths.get("pub")
+            "PUB", Paths.get("priv"), Paths.get("pub"),
+            null
         );
 
         final KeyData result = this.adapter.marshal(keyData);
@@ -319,7 +321,8 @@ public class KeyDataAdapterTest {
                 PrivateKeyType.LOCKED
             ),
             null,
-            "PUB", null, Paths.get("pub")
+            "PUB", null, Paths.get("pub"),
+            null
         );
 
         final KeyData result = this.adapter.marshal(keyData);

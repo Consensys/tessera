@@ -1,18 +1,16 @@
 package com.quorum.tessera.config;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import org.junit.Test;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
 import static org.mockito.Mockito.mock;
 
 public class ValidationTest {
@@ -58,7 +56,7 @@ public class ValidationTest {
     public void keyDataConfigMissingPassword() {
         PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), null);
         KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-        KeyData keyData = new KeyData(keyDataConfig, "privateKey", "publicKey", null, null);
+        KeyData keyData = new KeyData(keyDataConfig, "privateKey", "publicKey", null, null, null);
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
         assertThat(violations).hasSize(1);
 
@@ -72,7 +70,7 @@ public class ValidationTest {
     public void keyDataConfigNaclFailure() {
         PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
         KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-        KeyData keyData = new KeyData(keyDataConfig, "NACL_FAILURE", "publicKey", null, null);
+        KeyData keyData = new KeyData(keyDataConfig, "NACL_FAILURE", "publicKey", null, null, null);
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
         assertThat(violations).hasSize(1);
 
@@ -86,7 +84,7 @@ public class ValidationTest {
     public void keyDataConfigInvalidBase64() {
         PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
         KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-        KeyData keyData = new KeyData(keyDataConfig, "INAVLID_BASE", "publicKey", null, null);
+        KeyData keyData = new KeyData(keyDataConfig, "INAVLID_BASE", "publicKey", null, null, null);
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
         assertThat(violations).hasSize(1);
 
@@ -137,7 +135,7 @@ public class ValidationTest {
 
         Path privateKeyPath = Paths.get(UUID.randomUUID().toString());
 
-        KeyData keyData = new KeyData(null, null, null, privateKeyPath, publicKeyPath);
+        KeyData keyData = new KeyData(null, null, null, privateKeyPath, publicKeyPath, null);
 
         KeyConfiguration keyConfiguration = new KeyConfiguration(null,null,Arrays.asList(keyData), null);
 
@@ -150,7 +148,7 @@ public class ValidationTest {
         assertThat(violation.getPropertyPath().toString()).endsWith("publicKeyPath");
     }
 
-        @Test
+    @Test
     public void keyDataPrivateKeyValidation() throws Exception {
 
         Path publicKeyPath = Files.createTempFile("keyDataPrivateKeyValidation", ".txt");
@@ -158,7 +156,7 @@ public class ValidationTest {
 
         Path privateKeyPath = Paths.get(UUID.randomUUID().toString());
 
-        KeyData keyData = new KeyData(null, null, null, privateKeyPath, publicKeyPath);
+        KeyData keyData = new KeyData(null, null, null, privateKeyPath, publicKeyPath, null);
 
         KeyConfiguration keyConfiguration = new KeyConfiguration(null,null,Arrays.asList(keyData), null);
 

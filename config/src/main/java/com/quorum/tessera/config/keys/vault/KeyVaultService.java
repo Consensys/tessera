@@ -2,12 +2,17 @@ package com.quorum.tessera.config.keys.vault;
 
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.azure.keyvault.models.SecretBundle;
+import com.quorum.tessera.config.KeyConfiguration;
+
+import java.util.Objects;
 
 public class KeyVaultService {
     private String vaultUrl;
 
-    public KeyVaultService(String vaultUrl) {
-        this.vaultUrl = vaultUrl;
+    public KeyVaultService(KeyConfiguration keyConfig) {
+        if(Objects.nonNull(keyConfig.getKeyVaultConfig())) {
+            this.vaultUrl = keyConfig.getKeyVaultConfig().getUrl();
+        }
     }
 
     public String getSecret(String secretName) {
@@ -18,7 +23,7 @@ public class KeyVaultService {
         return secretBundle.value();
     }
 
-    public static KeyVaultService create(String url) {
-        return new KeyVaultService(url);
+    public static KeyVaultService create(KeyConfiguration keyConfig) {
+        return new KeyVaultService(keyConfig);
     }
 }

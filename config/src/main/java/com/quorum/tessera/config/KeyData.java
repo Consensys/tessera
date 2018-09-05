@@ -42,20 +42,26 @@ public class KeyData extends ConfigItem {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path publicKeyPath;
 
+    @XmlElement
+    @Pattern(regexp = "^[0-9a-zA-Z\\-]*$")
+    private final String keyVaultId;
+
     public KeyData(final KeyDataConfig keyDataConfig,
                    final String privateKey,
                    final String publicKey,
                    final Path privKeyPath,
-                   final Path pubKeyPath) {
+                   final Path pubKeyPath,
+                   final String keyVaultId) {
         this.privateKey = privateKey;
         this.publicKey = publicKey;
         this.config = keyDataConfig;
         this.privateKeyPath = privKeyPath;
         this.publicKeyPath = pubKeyPath;
+        this.keyVaultId = keyVaultId;
     }
 
     private static KeyData create() {
-        return new KeyData(null, null, null, null, null);
+        return new KeyData(null, null, null, null, null, null);
     }
 
     public String getPrivateKey() {
@@ -76,6 +82,10 @@ public class KeyData extends ConfigItem {
 
     public Path getPublicKeyPath() {
         return publicKeyPath;
+    }
+
+    public String getKeyVaultId() {
+        return keyVaultId;
     }
 
     public boolean hasKeys() {

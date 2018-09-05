@@ -76,6 +76,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
                 generated.getPrivateKey().toString(),
                 publicKeyBase64,
                 null,
+                null,
                 null
             );
 
@@ -90,6 +91,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
                 ),
                 generated.getPrivateKey().toString(),
                 publicKeyBase64,
+                null,
                 null,
                 null
             );
