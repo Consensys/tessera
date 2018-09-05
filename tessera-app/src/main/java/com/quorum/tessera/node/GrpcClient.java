@@ -19,12 +19,18 @@ public final class GrpcClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GrpcClient.class);
 
-    private ManagedChannel channel;
+    private final ManagedChannel channel;
+
+    private final PartyInfoGrpc.PartyInfoBlockingStub partyInfoBlockingStub;
+
+    private final TransactionGrpc.TransactionBlockingStub transactionBlockingStub;
 
     private static final ConcurrentHashMap<String, GrpcClient> clients = new ConcurrentHashMap<>();
 
     private GrpcClient(final ManagedChannel channel) {
         this.channel = channel;
+        this.partyInfoBlockingStub = PartyInfoGrpc.newBlockingStub(channel);
+        this.transactionBlockingStub = TransactionGrpc.newBlockingStub(channel);
     }
 
     private GrpcClient(final String targetUrl) {
@@ -48,12 +54,11 @@ public final class GrpcClient {
     }
 
     public byte[] getPartyInfo(final byte[] data) {
-        final PartyInfoGrpc.PartyInfoBlockingStub stub = PartyInfoGrpc.newBlockingStub(channel);
         final PartyInfoMessage request = PartyInfoMessage.newBuilder()
             .setPartyInfo(ByteString.copyFrom(data))
             .build();
         try {
-            final PartyInfoMessage response = stub.getPartyInfo(request);
+            final PartyInfoMessage response = partyInfoBlockingStub.getPartyInfo(request);
             return response.getPartyInfo().toByteArray();
         } catch (StatusRuntimeException ex) {
             LOGGER.error("RPC failed: {0}", ex.getStatus().getCode());
@@ -63,12 +68,11 @@ public final class GrpcClient {
     }
 
     public byte[] push(final byte[] data) {
-        final TransactionGrpc.TransactionBlockingStub stub = TransactionGrpc.newBlockingStub(channel);
         final PushRequest request = PushRequest.newBuilder()
             .setData(ByteString.copyFrom(data))
             .build();
         try {
-            final PushRequest response = stub.push(request);
+            final PushRequest response = transactionBlockingStub.push(request);
             return response.getData().toByteArray();
         } catch (StatusRuntimeException ex) {
             LOGGER.error("RPC failed: {0}", ex.getStatus().getCode());
