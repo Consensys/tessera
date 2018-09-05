@@ -1,10 +1,12 @@
 package com.quorum.tessera.api;
 
+import com.quorum.tessera.EnclaveDelegate;
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.transaction.PayloadEncoder;
 import com.quorum.tessera.transaction.model.EncodedPayload;
 import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
 import com.quorum.tessera.util.Base64Decoder;
@@ -31,15 +33,20 @@ public class TransactionResourceTest {
 
     private TransactionResource transactionResource;
 
+    private PayloadEncoder payloadEncoder;
+    
+    
+    
     @Before
     public void onSetup() {
         this.enclave = mock(Enclave.class);
-        transactionResource = new TransactionResource(enclave, base64Decoder);
+        this.payloadEncoder = mock(PayloadEncoder.class);
+        transactionResource = new TransactionResource(new EnclaveDelegate(enclave, base64Decoder,payloadEncoder));
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(enclave);
+        verifyNoMoreInteractions(enclave,payloadEncoder);
     }
 
     @Test
@@ -241,10 +248,13 @@ public class TransactionResourceTest {
 
         when(enclave.fetchTransactionForRecipient(any(), any())).thenReturn(epwr);
 
+        when(payloadEncoder.encode(epwr)).thenReturn("ENCODED".getBytes());
+        
         Response response = transactionResource.resend(resendRequest);
 
         verify(enclave).fetchTransactionForRecipient(any(), any());
-
+        verify(payloadEncoder).encode(epwr);
+        
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
     }

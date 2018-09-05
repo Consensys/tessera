@@ -25,7 +25,7 @@ public class ServerConfig extends ConfigItem {
     private final Integer port;
 
     @XmlElement
-    private final Integer gRPCPort;
+    private final Integer grpcPort;
 
     @Valid
     @XmlElement
@@ -36,10 +36,10 @@ public class ServerConfig extends ConfigItem {
     @XmlElement
     private final InfluxConfig influxConfig;
 
-    public ServerConfig(String hostName, Integer port, Integer gRPCPort, SslConfig sslConfig, InfluxConfig influxConfig) {
+    public ServerConfig(String hostName, Integer port, Integer grpcPort, SslConfig sslConfig, InfluxConfig influxConfig) {
         this.hostName = hostName;
         this.port = port;
-        this.gRPCPort = gRPCPort;
+        this.grpcPort = grpcPort;
         this.sslConfig = sslConfig;
         this.influxConfig = influxConfig;
     }
@@ -56,8 +56,8 @@ public class ServerConfig extends ConfigItem {
         return port;
     }
 
-    public Integer getgRPCPort() {
-        return gRPCPort;
+    public Integer getGrpcPort() {
+        return grpcPort;
     }
 
     public SslConfig getSslConfig() {

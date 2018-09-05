@@ -16,7 +16,7 @@ public class PartyInfoGrpcService extends PartyInfoGrpc.PartyInfoImplBase {
     private final PartyInfoService partyInfoService;
 
     public PartyInfoGrpcService(final PartyInfoService partyInfoService,
-                             final PartyInfoParser partyInfoParser) {
+            final PartyInfoParser partyInfoParser) {
         this.partyInfoService = requireNonNull(partyInfoService, "partyInfoService must not be null");
         this.partyInfoParser = requireNonNull(partyInfoParser, "partyInfoParser must not be null");
     }
@@ -29,6 +29,7 @@ public class PartyInfoGrpcService extends PartyInfoGrpc.PartyInfoImplBase {
 
     /**
      * Experiment
+     *
      * @param request
      * @param responseObserver
      */
@@ -52,18 +53,16 @@ public class PartyInfoGrpcService extends PartyInfoGrpc.PartyInfoImplBase {
 //            }
 //        };
 //    }
-
     private void doGetPartyInfo(PartyInfoMessage request, StreamObserver<PartyInfoMessage> responseObserver) {
 
         final PartyInfo partyInfo = partyInfoParser.from(request.getPartyInfo().toByteArray());
 
         final PartyInfo updatedPartyInfo = partyInfoService.updatePartyInfo(partyInfo);
 
-        final byte[] encoded = partyInfoParser.to(updatedPartyInfo);
-
         final PartyInfoMessage response = PartyInfoMessage.newBuilder()
-            .setPartyInfo(ByteString.copyFrom(encoded))
-            .build();
+                .setPartyInfo(ByteString.copyFrom(partyInfoParser.to(updatedPartyInfo)))
+                .build();
+
         responseObserver.onNext(response);
     }
 }
