@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/google/leveldb.svg?branch=master)](https://travis-ci.org/jpmorganchase/tessera)
+[![Build Status](https://travis-ci.org/jpmorganchase/tessera.svg?branch=master)](https://travis-ci.org/jpmorganchase/tessera)
 [![codecov](https://codecov.io/gh/jpmorganchase/tessera/branch/master/graph/badge.svg?token=XMRVPC5FLQ)](https://codecov.io/gh/jpmorganchase/tessera)
 
 
