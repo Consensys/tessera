@@ -18,7 +18,7 @@ public class KeyPairFactory {
 
     public KeyPair getKeyPair(KeyData keyData) {
         final String privateKey;
-        final String publicKey = keyData.getPublicKey();;
+        final String publicKey = keyData.getPublicKey();
 
         if(Objects.isNull(keyData.getPrivateKey())) {
             privateKey = keyVaultService.getSecret(keyData.getKeyVaultId());
