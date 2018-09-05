@@ -8,11 +8,11 @@ import org.mockito.ArgumentCaptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class PrivateApiFilterTest {
@@ -25,7 +25,7 @@ public class PrivateApiFilterTest {
     public void init() throws URISyntaxException {
         final ServerConfig serverConfig = mock(ServerConfig.class);
         final URI testUri = new URI("http://localhost:8080");
-        when(serverConfig.getServerUri()).thenReturn(testUri);
+        when(serverConfig.getBindingAddress()).thenReturn(testUri.toString());
 
         this.filter = new PrivateApiFilter(serverConfig);
 
@@ -95,6 +95,16 @@ public class PrivateApiFilterTest {
 
         verifyZeroInteractions(ctx);
 
+    }
+
+    @Test
+    public void invalidHostThrowsError() {
+        final ServerConfig serverConfig = new ServerConfig(null, null, null, null, "&@€~:*&2:-1");
+
+        final Throwable throwable = catchThrowable(() -> new PrivateApiFilter(serverConfig));
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException.class)
+            .hasCauseExactlyInstanceOf(URISyntaxException.class);
     }
 
 }

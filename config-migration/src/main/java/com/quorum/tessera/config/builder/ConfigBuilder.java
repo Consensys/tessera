@@ -253,35 +253,29 @@ public class ConfigBuilder {
                 toPath(workDir, sslClientTlsCertificatePath)
         );
 
-        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig, null);
+        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig, null, null);
 
-        final List<Peer> peerList;
+        final List<Peer> peerList ;
         if(peers != null) {
-            peerList = peers.stream()
-                            .map(Peer::new)
-                            .collect(Collectors.toList());
+            peerList = peers
+                .stream()
+                .map(Peer::new)
+                .collect(Collectors.toList());
         } else {
             peerList = null;
         }
 
 
-        final List<String> forwardingKeys;
+        final List<String> forwardingKeys = new ArrayList<>();
         if(alwaysSendTo != null) {
-            List<String> keyList = new ArrayList<>();
-
             for(String keyPath : alwaysSendTo) {
                 try {
                     List<String> keysFromFile = Files.readAllLines(toPath(workDir, keyPath));
-                    keyList.addAll(keysFromFile);
-                } catch (IOException e) {
+                    forwardingKeys.addAll(keysFromFile);
+                } catch (final IOException e) {
                     System.err.println("Error reading alwayssendto file: " + e.getMessage());
                 }
             }
-
-            forwardingKeys = keyList.stream()
-                                    .collect(Collectors.toList());
-        } else {
-            forwardingKeys = Collections.emptyList();
         }
 
         return new Config(jdbcConfig, serverConfig, peerList, keyData, forwardingKeys, toPath(workDir, unixSocketFile), useWhiteList);

@@ -37,7 +37,7 @@ public class IPWhitelistFilterTest {
         when(configuration.isUseWhiteList()).thenReturn(true);
 
         final ServerConfig serverConfig = mock(ServerConfig.class);
-        when(serverConfig.getServerUri()).thenReturn(new URI("http://localhost:8080"));
+        when(serverConfig.getBindingAddress()).thenReturn(new URI("http://localhost:8080").toString());
         when(configuration.getServerConfig()).thenReturn(serverConfig);
 
         this.filter = new IPWhitelistFilter(configuration);
@@ -51,7 +51,7 @@ public class IPWhitelistFilterTest {
         when(configuration.isUseWhiteList()).thenReturn(false);
 
         final ServerConfig serverConfig = mock(ServerConfig.class);
-        when(serverConfig.getServerUri()).thenReturn(new URI("http://localhost:8080"));
+        when(serverConfig.getBindingAddress()).thenReturn(new URI("http://localhost:8080").toString());
         when(configuration.getServerConfig()).thenReturn(serverConfig);
 
         final IPWhitelistFilter filter = new IPWhitelistFilter(configuration);
@@ -166,6 +166,17 @@ public class IPWhitelistFilterTest {
             .hasCauseExactlyInstanceOf(MalformedURLException.class);
 
         assertThat(throwable.getCause()).hasMessage("unknown protocol: ht");
+    }
+
+    @Test
+    public void invalidHostThrowsError() {
+        final ServerConfig serverConfig = new ServerConfig(null, null, null, null, "&@€~:*&2:-1");
+        final Config config = new Config(null, serverConfig, Collections.emptyList(), null, null, null, false);
+
+        final Throwable throwable = catchThrowable(() -> new IPWhitelistFilter(config));
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException.class)
+            .hasCauseExactlyInstanceOf(MalformedURLException.class);
     }
 
 }
