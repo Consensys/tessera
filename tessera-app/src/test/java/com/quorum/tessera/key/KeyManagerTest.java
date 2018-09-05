@@ -26,15 +26,15 @@ public class KeyManagerTest {
     @Before
     public void init() {
 
-        final KeyData keyData = new KeyData(null, PRIVATE_KEY.toString(), PUBLIC_KEY.toString(), null, null);
+        final KeyData keyData = new KeyData(null, PRIVATE_KEY.toString(), PUBLIC_KEY.toString(), null, null, null);
 
-        this.keyManager = new KeyManagerImpl(singleton(keyData), singleton(FORWARDING_KEY));
+        this.keyManager = new KeyManagerImpl(singleton(keyData), singleton(FORWARDING_KEY), null);
     }
 
     @Test
     public void initialisedWithNoKeysThrowsError() {
         //throws error because there is no default key
-        final Throwable throwable = catchThrowable(() -> new KeyManagerImpl(emptyList(), emptyList()));
+        final Throwable throwable = catchThrowable(() -> new KeyManagerImpl(emptyList(), emptyList(), null));
 
         assertThat(throwable).isInstanceOf(NoSuchElementException.class);
     }

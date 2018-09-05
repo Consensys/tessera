@@ -137,8 +137,9 @@
 
     <bean id="keyConfig" factory-bean="config" factory-method="getKeys" />
 
-    
-        
+    <bean id="keyVaultService" class="com.quorum.tessera.config.keys.vault.KeyVaultService">
+        <constructor-arg ref="keyConfig"/>
+    </bean>
 
     <bean name="keyManager" class="com.quorum.tessera.key.KeyManagerImpl">
         <constructor-arg>
@@ -150,6 +151,11 @@
                     <bean factory-bean="config" factory-method="getAlwaysSendTo" />
                </constructor-arg>
            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.quorum.tessera.key.KeyPairFactory">
+                <constructor-arg ref="keyVaultService"/>
+            </bean>
         </constructor-arg>
     </bean>
 
