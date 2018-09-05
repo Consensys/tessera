@@ -137,8 +137,15 @@
 
     <bean id="keyConfig" factory-bean="config" factory-method="getKeys" />
 
+    <bean id="keyVaultClient" class="com.quorum.tessera.config.keys.vault.KeyVaultAuthenticator" factory-method="getAuthenticatedClient"/>
+
     <bean id="keyVaultService" class="com.quorum.tessera.config.keys.vault.KeyVaultService">
         <constructor-arg ref="keyConfig"/>
+        <constructor-arg>
+            <bean id="keyVaultClientDelegate" class="com.quorum.tessera.config.keys.vault.KeyVaultClientDelegate">
+                <constructor-arg ref="keyVaultClient"/>
+            </bean>
+        </constructor-arg>
     </bean>
 
     <bean name="keyManager" class="com.quorum.tessera.key.KeyManagerImpl">

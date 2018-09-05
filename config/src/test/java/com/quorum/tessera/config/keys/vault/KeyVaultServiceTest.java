@@ -1,0 +1,33 @@
+package com.quorum.tessera.config.keys.vault;
+
+import com.microsoft.azure.keyvault.models.SecretBundle;
+import com.quorum.tessera.config.KeyConfiguration;
+import com.quorum.tessera.config.KeyVaultConfig;
+import org.junit.Test;
+
+import static org.mockito.Mockito.*;
+
+public class KeyVaultServiceTest {
+    @Test
+    public void getSecretUsingUrlInConfig() {
+        String url = "url";
+        String secretId = "id";
+
+        KeyConfiguration keyConfig = new KeyConfiguration(
+            null,
+            null,
+            null,
+            new KeyVaultConfig(
+                url
+            )
+        );
+
+        KeyVaultClientDelegate keyVaultClientDelegate = mock(KeyVaultClientDelegate.class);
+        when(keyVaultClientDelegate.getSecret(url, secretId)).thenReturn(new SecretBundle());
+
+        KeyVaultService keyVaultService = new KeyVaultService(keyConfig, keyVaultClientDelegate);
+        keyVaultService.getSecret(secretId);
+
+        verify(keyVaultClientDelegate).getSecret(url, secretId);
+    }
+}

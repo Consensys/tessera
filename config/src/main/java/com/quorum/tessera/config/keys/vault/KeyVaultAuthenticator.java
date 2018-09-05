@@ -17,7 +17,6 @@ import java.util.concurrent.Future;
 /**
  * Authenticates to Azure Key Vault by providing a callback to authenticate
  * using adal.
- *
  */
 public class KeyVaultAuthenticator {
 
@@ -43,8 +42,6 @@ public class KeyVaultAuthenticator {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-                return null;
             }
         };
     }
@@ -82,7 +79,9 @@ public class KeyVaultAuthenticator {
 
             result = future.get();
         } finally {
-            service.shutdown();
+            if(service != null) {
+                service.shutdown();
+            }
         }
 
         if(result == null) {
