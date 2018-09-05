@@ -48,7 +48,7 @@ public class PartyInfoServiceTest {
         this.configuration = mock(Config.class);
         this.keyManager = mock(KeyManager.class);
 
-        final ServerConfig serverConfig = new ServerConfig("http://localhost", 8080, null, null);
+        final ServerConfig serverConfig = new ServerConfig("http://localhost", 8080, null, null,null);
         doReturn(serverConfig).when(configuration).getServerConfig();
 
         final Peer peer = new Peer("http://other-node.com:8080");

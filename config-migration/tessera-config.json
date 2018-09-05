@@ -1,0 +1,22 @@
+{
+   "type" : "config",
+   "useWhiteList" : false,
+   "jdbc" : {
+      "url" : "jdbc:h2:mem:tessera"
+   },
+   "server" : {
+      "port" : 9001,
+      "sslConfig" : {
+         "tls" : "OFF",
+         "generateKeyStoreIfNotExisted" : false,
+         "serverTrustCertificates" : [ ],
+         "serverTrustMode" : "TOFU",
+         "clientTrustCertificates" : [ ],
+         "clientTrustMode" : "TOFU"
+      }
+   },
+   "peer" : [ {
+      "url" : "localhost:1111"
+   } ],
+   "alwaysSendTo" : [ ]
+}

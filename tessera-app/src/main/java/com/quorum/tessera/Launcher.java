@@ -94,7 +94,7 @@ public class Launcher {
 
         final Optional<GrpcServer> gRPCServer;
 
-        if (Objects.nonNull(serverConfig.getgRPCPort())) {
+        if (Objects.nonNull(serverConfig.getGrpcPort())) {
             final Set<Object> gRPCBeans =
                 tessera.getSingletons()
                     .stream()
@@ -104,7 +104,7 @@ public class Launcher {
                         .startsWith("com.quorum.tessera.api.grpc"))
                     .collect(Collectors.toSet());
             gRPCServer = Optional.of(
-                GrpcServerFactory.create().createGRPCServer(serverUri, serverConfig.getgRPCPort(), gRPCBeans));
+                GrpcServerFactory.create().createGRPCServer(serverUri, serverConfig.getGrpcPort(), gRPCBeans));
         } else {
             gRPCServer = Optional.empty();
         }

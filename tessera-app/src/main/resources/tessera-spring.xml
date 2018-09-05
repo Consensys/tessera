@@ -11,15 +11,23 @@
 
     <context:component-scan base-package="com.quorum.tessera"/>
 
-    <!-- Resources -->
-    <bean class="com.quorum.tessera.api.VersionResource"/>
-    <bean class="com.quorum.tessera.api.UpCheckResource"/>
-    <bean class="com.quorum.tessera.api.TransactionResource">
+
+    <bean id="enclaveDelegate" class="com.quorum.tessera.EnclaveDelegate">
         <constructor-arg ref="enclave"/>
         <constructor-arg>
             <bean class="com.quorum.tessera.util.Base64Decoder" factory-method="create"/>
         </constructor-arg>
+        <constructor-arg ref="payloadEncoder" />
     </bean>
+    
+    <!-- Resources -->
+    <bean class="com.quorum.tessera.api.VersionResource"/>
+    <bean class="com.quorum.tessera.api.UpCheckResource"/>
+    
+    <bean class="com.quorum.tessera.api.TransactionResource">
+        <constructor-arg ref="enclaveDelegate"/>
+    </bean>
+    
     <bean class="com.quorum.tessera.api.PartyInfoResource">
         <constructor-arg ref="partyInfoService"/>
         <constructor-arg>
@@ -31,10 +39,7 @@
     <!-- gRPC Services -->
     <bean name="tesseraGrpcService" class="com.quorum.tessera.api.grpc.TesseraGrpcService"/>
     <bean name="transactionGrpcService" class="com.quorum.tessera.api.grpc.TransactionGrpcService">
-        <constructor-arg ref="enclave"/>
-        <constructor-arg>
-            <bean class="com.quorum.tessera.util.Base64Decoder" factory-method="create"/>
-        </constructor-arg>
+        <constructor-arg ref="enclaveDelegate"/>
     </bean>
     <bean name="partyInfoGrpcService" class="com.quorum.tessera.api.grpc.PartyInfoGrpcService">
         <constructor-arg ref="partyInfoService"/>
