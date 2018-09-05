@@ -25,7 +25,7 @@ public class ServerConfig extends ConfigItem {
     private final Integer port;
 
     @XmlElement
-    private final Integer grpcPort;
+    private final CommunicationType communicationType;
 
     @Valid
     @XmlElement
@@ -36,16 +36,16 @@ public class ServerConfig extends ConfigItem {
     @XmlElement
     private final InfluxConfig influxConfig;
 
-    public ServerConfig(String hostName, Integer port, Integer grpcPort, SslConfig sslConfig, InfluxConfig influxConfig) {
+    public ServerConfig(String hostName, Integer port, CommunicationType communicationType, SslConfig sslConfig, InfluxConfig influxConfig) {
         this.hostName = hostName;
         this.port = port;
-        this.grpcPort = grpcPort;
+        this.communicationType = communicationType;
         this.sslConfig = sslConfig;
         this.influxConfig = influxConfig;
     }
 
     private static ServerConfig create() {
-        return new ServerConfig(null, null, null, null, null);
+        return new ServerConfig(null, null, CommunicationType.REST, null, null);
     }
 
     public String getHostName() {
@@ -56,8 +56,8 @@ public class ServerConfig extends ConfigItem {
         return port;
     }
 
-    public Integer getGrpcPort() {
-        return grpcPort;
+    public CommunicationType getCommunicationType() {
+        return communicationType;
     }
 
     public SslConfig getSslConfig() {
