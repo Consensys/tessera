@@ -22,8 +22,4 @@ public class KeyVaultService {
 
         return secretBundle.value();
     }
-
-    public static KeyVaultService create(KeyConfiguration keyConfig, KeyVaultClientDelegate keyVaultClientDelegate) {
-        return new KeyVaultService(keyConfig, keyVaultClientDelegate);
-    }
 }

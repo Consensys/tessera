@@ -1,5 +1,6 @@
 package com.quorum.tessera.key.vault;
 
+import com.quorum.tessera.util.KeyVaultAuthenticator;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

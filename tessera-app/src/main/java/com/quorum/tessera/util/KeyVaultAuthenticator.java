@@ -1,4 +1,4 @@
-package com.quorum.tessera.key.vault;
+package com.quorum.tessera.util;
 
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
@@ -18,7 +18,7 @@ import java.util.concurrent.Future;
  * Authenticates to Azure Key Vault by providing a callback to authenticate
  * using adal.
  */
-public class KeyVaultAuthenticator {
+public abstract class KeyVaultAuthenticator {
 
     public static KeyVaultClient getAuthenticatedClient() {
         return new KeyVaultClient(createCredentials());
@@ -67,7 +67,7 @@ public class KeyVaultAuthenticator {
         ExecutorService service = null;
         try {
             service = Executors.newFixedThreadPool(1);
-            AuthenticationContext context = new AuthenticationContext(authorization, false, service);
+            AuthenticationContext context = getAuthenticationContext(authorization, false, service);
 
             Future<AuthenticationResult> future = null;
 
@@ -75,6 +75,8 @@ public class KeyVaultAuthenticator {
             if(clientId != null && clientSecret != null) {
                 ClientCredential credential = new ClientCredential(clientId, clientSecret);
                 future = context.acquireToken(resource, credential, null);
+            } else {
+                throw new RuntimeException("Error reading AZURE_CLIENT_ID and AZURE_CLIENT_SECRET environment variables");
             }
 
             result = future.get();
@@ -89,5 +91,9 @@ public class KeyVaultAuthenticator {
         }
 
         return result;
+    }
+
+    protected static AuthenticationContext getAuthenticationContext(String authority, boolean validateAuthority, ExecutorService service) throws MalformedURLException {
+        return new AuthenticationContext(authority, validateAuthority, service);
     }
 }
