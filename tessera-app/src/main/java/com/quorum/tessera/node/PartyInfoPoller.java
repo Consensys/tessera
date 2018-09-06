@@ -1,6 +1,9 @@
 package com.quorum.tessera.node;
 
 import com.quorum.tessera.api.model.ApiPath;
+import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.node.grpc.GrpcClient;
+import com.quorum.tessera.node.grpc.GrpcClientFactory;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.sync.ResendPartyStore;
@@ -27,14 +30,18 @@ public class PartyInfoPoller implements Runnable {
 
     private final ResendPartyStore resendPartyStore;
 
+    private final CommunicationType communicationType;
+
     public PartyInfoPoller(final PartyInfoService partyInfoService,
                            final PartyInfoParser partyInfoParser,
                            final PostDelegate postDelegate,
-                           final ResendPartyStore resendPartyStore) {
+                           final ResendPartyStore resendPartyStore,
+                           final CommunicationType communicationType) {
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
         this.partyInfoParser = Objects.requireNonNull(partyInfoParser);
         this.postDelegate = Objects.requireNonNull(postDelegate);
         this.resendPartyStore = Objects.requireNonNull(resendPartyStore);
+        this.communicationType = Objects.requireNonNull(communicationType);
     }
 
     /**
@@ -80,8 +87,11 @@ public class PartyInfoPoller implements Runnable {
     private byte[] pollSingleParty(final String url, final byte[] encodedPartyInfo) {
 
         try {
-            return postDelegate.doPost(url, ApiPath.PARTYINFO, encodedPartyInfo);
-
+            if (communicationType == CommunicationType.REST) {
+                return postDelegate.doPost(url, ApiPath.PARTYINFO, encodedPartyInfo);
+            } else {
+                return GrpcClientFactory.getClient(url).getPartyInfo(encodedPartyInfo);
+            }
         } catch (final Exception ex) {
 
             if (ConnectException.class.isInstance(ex.getCause())) {

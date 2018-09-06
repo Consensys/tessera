@@ -2,10 +2,11 @@ package com.quorum.tessera.node.grpc;
 
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public final class GrpcClientFactory {
 
-    private static final ConcurrentHashMap<String, GrpcClient> CLIENTS = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, GrpcClient> CLIENTS = new ConcurrentHashMap<>();
 
     private GrpcClientFactory() {
 

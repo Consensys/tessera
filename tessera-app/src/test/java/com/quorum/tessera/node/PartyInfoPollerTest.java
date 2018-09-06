@@ -1,6 +1,7 @@
 package com.quorum.tessera.node;
 
 import com.quorum.tessera.api.model.ApiPath;
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.sync.ResendPartyStore;
@@ -43,7 +44,7 @@ public class PartyInfoPollerTest {
         this.partyInfoParser = mock(PartyInfoParser.class);
         this.resendPartyStore = mock(ResendPartyStore.class);
 
-        this.partyInfoPoller = new PartyInfoPoller(partyInfoService, partyInfoParser, postDelegate, resendPartyStore);
+        this.partyInfoPoller = new PartyInfoPoller(partyInfoService, partyInfoParser, postDelegate, resendPartyStore, CommunicationType.REST);
     }
 
     @After

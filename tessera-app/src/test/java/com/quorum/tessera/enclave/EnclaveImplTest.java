@@ -1,5 +1,6 @@
 package com.quorum.tessera.enclave;
 
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.nacl.Key;
@@ -67,7 +68,7 @@ public class EnclaveImplTest {
         this.postDelegate = mock(PostDelegate.class);
         this.keyManager = mock(KeyManager.class);
 
-        enclave = new EnclaveImpl(transactionService, partyInfoService, encoder, postDelegate, keyManager);
+        enclave = new EnclaveImpl(transactionService, partyInfoService, encoder, postDelegate, keyManager, CommunicationType.REST);
     }
 
     @After

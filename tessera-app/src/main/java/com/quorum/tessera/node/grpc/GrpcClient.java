@@ -12,6 +12,8 @@ import io.grpc.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.TimeUnit;
+
 public final class GrpcClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GrpcClient.class);
@@ -32,6 +34,7 @@ public final class GrpcClient {
         this(ManagedChannelBuilder
             .forTarget(targetUrl.replaceFirst("^(http[s]?://www\\.|http[s]?://|www\\.)",""))
             .usePlaintext()
+            .keepAliveWithoutCalls(true)
             .build()
         );
     }
@@ -44,8 +47,8 @@ public final class GrpcClient {
             final PartyInfoMessage response = partyInfoBlockingStub.getPartyInfo(request);
             return response.getPartyInfo().toByteArray();
         } catch (StatusRuntimeException ex) {
-            LOGGER.error("RPC failed: {0}", ex.getStatus().getCode());
-            LOGGER.debug("RPC failed: {0}", ex.getStatus());
+            LOGGER.error("RPC failed: {}", ex.getStatus().getCode());
+            LOGGER.debug("RPC failed: {}", ex.getStatus());
         }
         return null;
     }
@@ -58,8 +61,8 @@ public final class GrpcClient {
             final PushRequest response = transactionBlockingStub.push(request);
             return response.getData().toByteArray();
         } catch (StatusRuntimeException ex) {
-            LOGGER.error("RPC failed: {0}", ex.getStatus().getCode());
-            LOGGER.debug("RPC failed: {0}", ex.getStatus());
+            LOGGER.error("RPC failed: {}", ex.getStatus().getCode());
+            LOGGER.debug("RPC failed: {}", ex.getStatus());
         }
         return null;
     }
@@ -71,10 +74,15 @@ public final class GrpcClient {
             return true;
         }
         catch (StatusRuntimeException ex) {
-            LOGGER.error("RPC failed: {0}", ex.getStatus().getCode());
-            LOGGER.debug("RPC failed: {0}", ex.getStatus());
+            LOGGER.error("RPC failed: {}", ex.getStatus().getCode());
+            LOGGER.debug("RPC failed: {}", ex.getStatus());
         }
         return false;
+    }
+
+    boolean shutdown() throws InterruptedException {
+        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        return true;
     }
 
 }

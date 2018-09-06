@@ -1,6 +1,7 @@
 package com.quorum.tessera.sync;
 
 import com.quorum.tessera.api.model.ResendRequest;
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.node.PostDelegate;
@@ -38,7 +39,7 @@ public class TransactionRequesterTest {
 
         doReturn(true).when(postDelegate).makeResendRequest(anyString(), any(ResendRequest.class));
 
-        this.transactionRequester = new TransactionRequesterImpl(keyManager, postDelegate);
+        this.transactionRequester = new TransactionRequesterImpl(keyManager, postDelegate, CommunicationType.REST);
     }
 
     @After

@@ -57,6 +57,7 @@
     <bean name="transactionRequester" class="com.quorum.tessera.sync.TransactionRequesterImpl">
         <constructor-arg ref="keyManager" />
         <constructor-arg ref="postDelegate" />
+        <constructor-arg value="#{config.serverConfig.communicationType}"/>
     </bean>
 
     <bean name="syncPoller" class="com.quorum.tessera.sync.SyncPoller">
@@ -93,6 +94,7 @@
         </constructor-arg>
         <constructor-arg ref="postDelegate"/>
         <constructor-arg ref="resendPartyStore" />
+        <constructor-arg value="#{config.serverConfig.communicationType}"/>
     </bean>
 
     <bean name="partyInfoPollExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">
@@ -121,6 +123,7 @@
         <constructor-arg ref="payloadEncoder"/>
         <constructor-arg ref="postDelegate"/>
         <constructor-arg ref="keyManager"/>
+        <constructor-arg value="#{config.serverConfig.communicationType}"/>
     </bean>
 
     <bean name="clientFactory" class="com.quorum.tessera.node.ClientFactory">
