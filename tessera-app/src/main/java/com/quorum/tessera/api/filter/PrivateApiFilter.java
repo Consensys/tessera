@@ -1,7 +1,6 @@
 package com.quorum.tessera.api.filter;
 
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.ssl.util.HostnameUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
