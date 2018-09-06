@@ -1,6 +1,7 @@
 package com.quorum.tessera.api.filter;
 
 import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.ssl.util.HostnameUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +12,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 
 @PrivateApi
 public class PrivateApiFilter implements ContainerRequestFilter {
@@ -19,14 +21,11 @@ public class PrivateApiFilter implements ContainerRequestFilter {
 
     private HttpServletRequest httpServletRequest;
 
-    private final String bindingAddress;
-
-    private final String advertisedAddress;
+    private final String hostname;
 
     public PrivateApiFilter(final ServerConfig serverConfig) {
         try {
-            this.bindingAddress = new URI(serverConfig.getBindingAddress()).getHost();
-            this.advertisedAddress = new URI(serverConfig.getHostName()).getHost();
+            this.hostname = new URI(serverConfig.getBindingAddress()).getHost();
         } catch (final URISyntaxException ex) {
             throw new RuntimeException(ex);
         }
@@ -41,18 +40,28 @@ public class PrivateApiFilter implements ContainerRequestFilter {
      * @param requestContext the context of the current request
      */
     @Override
-    public void filter(final ContainerRequestContext requestContext) {
+    public void filter(final ContainerRequestContext requestContext) throws UnknownHostException {
 
         if(this.httpServletRequest == null) {
             LOGGER.debug("No servlet available, could not determine request origin. Allowing...");
             return;
         }
 
-        final String serverName = httpServletRequest.getServerName();
+        final String remoteAddress = httpServletRequest.getRemoteAddr();
+        final String remoteHost = httpServletRequest.getRemoteHost();
 
-        LOGGER.info("Connecting host: {}, BindingAddress: {}, AdvertisedAddress: {}", serverName, bindingAddress, advertisedAddress);
+//        LOGGER.info("Allowed host: {}, RemoteAddr: {}, RemoteHost: {}", hostname, remoteAddress, remoteHost);
+        LOGGER.info("Allowed host: {}", hostname);
+        LOGGER.info("This host: {}", HostnameUtil.create().getHostName());
+        LOGGER.info("This IP: {}", HostnameUtil.create().getHostIpAddress());
+        LOGGER.info("Remote host : {}", remoteAddress);
+        LOGGER.info("Remote host : {}", remoteHost);
+        LOGGER.info("Request uri : {}", httpServletRequest.getRequestURI());
 
-        final boolean allowed = serverName.equals(bindingAddress) || serverName.equals(advertisedAddress);
+
+
+
+        final boolean allowed = hostname.equals(remoteAddress) || hostname.equals(remoteHost);
 
         if (!allowed) {
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
