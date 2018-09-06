@@ -1,6 +1,7 @@
 package com.quorum.tessera;
 
 import com.quorum.tessera.api.Tessera;
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.cli.CliDelegate;
@@ -45,7 +46,7 @@ public class Launcher {
             }
 
             final Config config = cliResult.getConfig()
-                    .orElseThrow(() -> new NoSuchElementException("No Config found. Tessera will not run"));
+                .orElseThrow(() -> new NoSuchElementException("No Config found. Tessera will not run"));
 
             final URI uri = new URI(config.getServerConfig().getHostName() + ":" + config.getServerConfig().getPort());
 
@@ -92,29 +93,26 @@ public class Launcher {
 
         final RestServer restServer = RestServerFactory.create().createServer(serverUri, tessera, serverConfig);
 
-        final Optional<GrpcServer> gRPCServer;
-
-        if (Objects.nonNull(serverConfig.getGrpcPort())) {
-            final Set<Object> gRPCBeans =
-                tessera.getSingletons()
-                    .stream()
-                    .filter(o -> o.getClass()
-                        .getPackage()
-                        .getName()
-                        .startsWith("com.quorum.tessera.api.grpc"))
-                    .collect(Collectors.toSet());
-            gRPCServer = Optional.of(
-                GrpcServerFactory.create().createGRPCServer(serverUri, serverConfig.getGrpcPort(), gRPCBeans));
-        } else {
-            gRPCServer = Optional.empty();
-        }
+        final Set<Object> gRPCBeans =
+            tessera.getSingletons()
+                .stream()
+                .filter(o -> o.getClass()
+                    .getPackage()
+                    .getName()
+                    .startsWith("com.quorum.tessera.api.grpc"))
+                .collect(Collectors.toSet());
+        final GrpcServer gRPCServer = GrpcServerFactory.create()
+            .createGRPCServer(serverUri, serverConfig.getPort(), gRPCBeans);
 
         CountDownLatch countDown = new CountDownLatch(1);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                restServer.stop();
-                gRPCServer.ifPresent(GrpcServer::stop);
+                if (serverConfig.getCommunicationType() == CommunicationType.GRPC) {
+                    gRPCServer.stop();
+                } else {
+                    restServer.stop();
+                }
             } catch (Exception ex) {
                 LOGGER.error(null, ex);
             } finally {
@@ -122,8 +120,11 @@ public class Launcher {
             }
         }));
 
-        restServer.start();
-        gRPCServer.ifPresent(GrpcServer::start);
+        if (serverConfig.getCommunicationType() == CommunicationType.GRPC) {
+            gRPCServer.start();
+        } else {
+            restServer.start();
+        }
 
         countDown.await();
     }
