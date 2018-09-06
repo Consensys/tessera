@@ -1,4 +1,4 @@
-package com.quorum.tessera.test;
+package com.quorum.tessera.test.rest;
 
 import org.junit.Test;
 
@@ -51,7 +51,7 @@ public class DeleteIT {
     }
 
     @Test
-    public void deleteTransactionThatDoesntExist() {
+    public void deleteTransactionThatDoesntExist() throws Exception {
 
         final String madeupHash = Base64.getUrlEncoder().encodeToString("madeup".getBytes());
 

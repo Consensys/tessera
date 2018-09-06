@@ -1,4 +1,4 @@
-package com.quorum.tessera.test;
+package com.quorum.tessera.test.rest;
 
 import org.junit.Before;
 import org.junit.Test;
