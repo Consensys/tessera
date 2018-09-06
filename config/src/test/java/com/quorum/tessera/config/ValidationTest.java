@@ -190,4 +190,17 @@ public class ValidationTest {
         assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.Pattern.message}");
     }
 
+    @Test
+    public void keyVaultIdProvidedWithoutKeyVaultConfigCreatesViolation() {
+        KeyData keyData = new KeyData(null, null, "public", null, null, "vaultId");
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, Arrays.asList(keyData), null);
+        Config config = new Config(null, null, null, keyConfiguration, null, null, false);
+
+        Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<Config> violation = violations.iterator().next();
+        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyVaultConfiguration.message}");
+    }
+
 }
