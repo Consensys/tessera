@@ -48,6 +48,8 @@ public class PrivateApiFilter implements ContainerRequestFilter {
         final String remoteAddress = httpServletRequest.getRemoteAddr();
         final String remoteHost = httpServletRequest.getRemoteHost();
 
+        LOGGER.info("Allowed host: {}, RemoteAddr: {}, RemoteHost: {}", hostname, remoteAddress, remoteAddress);
+
         final boolean allowed = hostname.equals(remoteAddress) || hostname.equals(remoteHost);
 
         if (!allowed) {
