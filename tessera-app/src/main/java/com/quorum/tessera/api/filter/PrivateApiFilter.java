@@ -1,6 +1,7 @@
 package com.quorum.tessera.api.filter;
 
 import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.ssl.util.HostnameUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +12,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 
 @PrivateApi
 public class PrivateApiFilter implements ContainerRequestFilter {
@@ -21,11 +23,12 @@ public class PrivateApiFilter implements ContainerRequestFilter {
 
     private final String hostname;
 
-    public PrivateApiFilter(final ServerConfig serverConfig) {
+    public PrivateApiFilter(final ServerConfig serverConfig) throws UnknownHostException {
         try {
-            this.hostname = new URI(serverConfig.getBindingAddress()).getHost();
-        } catch (final URISyntaxException ex) {
-            throw new RuntimeException(ex);
+            this.hostname = HostnameUtil.create().getHostIpAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 
