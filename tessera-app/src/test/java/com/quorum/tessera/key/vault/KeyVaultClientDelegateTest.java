@@ -1,4 +1,4 @@
-package com.quorum.tessera.config.keys.vault;
+package com.quorum.tessera.key.vault;
 
 import org.junit.Test;
 

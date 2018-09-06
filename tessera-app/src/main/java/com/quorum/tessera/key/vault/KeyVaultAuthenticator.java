@@ -1,4 +1,4 @@
-package com.quorum.tessera.config.keys.vault;
+package com.quorum.tessera.key.vault;
 
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
@@ -40,7 +40,7 @@ public class KeyVaultAuthenticator {
 
                     return authResult.getAccessToken();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             }
         };
