@@ -1,4 +1,4 @@
-package com.quorum.tessera.node;
+package com.quorum.tessera.node.grpc;
 
 import com.google.protobuf.ByteString;
 import com.quorum.tessera.api.grpc.PartyInfoGrpc;
@@ -12,9 +12,6 @@ import io.grpc.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-
 public final class GrpcClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GrpcClient.class);
@@ -25,32 +22,18 @@ public final class GrpcClient {
 
     private final TransactionGrpc.TransactionBlockingStub transactionBlockingStub;
 
-    private static final ConcurrentHashMap<String, GrpcClient> clients = new ConcurrentHashMap<>();
-
     private GrpcClient(final ManagedChannel channel) {
         this.channel = channel;
         this.partyInfoBlockingStub = PartyInfoGrpc.newBlockingStub(channel);
         this.transactionBlockingStub = TransactionGrpc.newBlockingStub(channel);
     }
 
-    private GrpcClient(final String targetUrl) {
+    GrpcClient(final String targetUrl) {
         this(ManagedChannelBuilder
             .forTarget(targetUrl.replaceFirst("^(http[s]?://www\\.|http[s]?://|www\\.)",""))
             .usePlaintext()
             .build()
         );
-    }
-
-    private static GrpcClient newClient(final String targetUrl) {
-        final GrpcClient client = new GrpcClient(targetUrl);
-        clients.put(targetUrl, client);
-        return client;
-    }
-
-    public static GrpcClient getClient(final String targetUrl) {
-        final GrpcClient client = Optional.ofNullable(clients.get(targetUrl))
-            .orElse(newClient(targetUrl));
-        return client;
     }
 
     public byte[] getPartyInfo(final byte[] data) {
