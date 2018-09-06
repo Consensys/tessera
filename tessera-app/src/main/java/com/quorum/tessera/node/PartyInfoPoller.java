@@ -2,7 +2,6 @@ package com.quorum.tessera.node;
 
 import com.quorum.tessera.api.model.ApiPath;
 import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.node.grpc.GrpcClient;
 import com.quorum.tessera.node.grpc.GrpcClientFactory;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;

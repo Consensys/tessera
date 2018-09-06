@@ -56,10 +56,11 @@
                     <systemPropertyVariables>
                         <application.jar>${com.quorum.tessera:tessera-app:jar:app}</application.jar>
                     </systemPropertyVariables>
+                    <includes>com/quorum/tessera/test/rest</includes>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>integration-test</id>
+                        <id>integration-test</id> 
                         <phase>integration-test</phase>
                         <goals>
                             <goal>integration-test</goal>

@@ -6,7 +6,6 @@ import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.NaclException;
-import com.quorum.tessera.node.grpc.GrpcClient;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.PostDelegate;
 import com.quorum.tessera.node.grpc.GrpcClientFactory;

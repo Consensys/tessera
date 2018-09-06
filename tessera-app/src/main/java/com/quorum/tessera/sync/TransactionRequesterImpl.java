@@ -5,7 +5,6 @@ import com.quorum.tessera.api.model.ResendRequestType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.nacl.Key;
-import com.quorum.tessera.node.grpc.GrpcClient;
 import com.quorum.tessera.node.PostDelegate;
 import com.quorum.tessera.node.grpc.GrpcClientFactory;
 import org.slf4j.Logger;
