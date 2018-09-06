@@ -56,7 +56,7 @@
                     <systemPropertyVariables>
                         <application.jar>${com.quorum.tessera:tessera-app:jar:app}</application.jar>
                     </systemPropertyVariables>
-                    <includes>com/quorum/tessera/test/rest</includes>
+                    <includes>${failsafe.includes}</includes>
                 </configuration>
                 <executions>
                     <execution>
@@ -88,6 +88,23 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>tessera-grpc</id>
+            <properties>
+                <tessera.communicationType>GRPC</tessera.communicationType>
+                <failsafe.includes>com/quorum/tessera/test/grpc</failsafe.includes>
+            </properties>
+        </profile>
+        <profile>
+            <id>tessera-rest</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <tessera.communicationType>REST</tessera.communicationType>
+                <failsafe.includes>com/quorum/tessera/test/rest</failsafe.includes>
+            </properties>
+        </profile> 
         <profile>
             <id>acceptance-test</id>
             <activation>
@@ -136,6 +153,7 @@
                                         <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
                                         </logbackConfigFile>
                                         <nodeNumber>4</nodeNumber>
+                                        <communicationType>${tessera.communicationType}</communicationType>
                                     </properties>
                                     <source>${basedir}/src/test/groovy/startNode.groovy</source>
                                 </configuration>
@@ -155,6 +173,7 @@
                                         <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
                                         </logbackConfigFile>
                                         <nodeNumber>1</nodeNumber>
+                                        <communicationType>${tessera.communicationType}</communicationType>
                                     </properties>
                                     <source>${basedir}/src/test/groovy/startNode.groovy</source>
                                 </configuration>
@@ -174,6 +193,7 @@
                                         <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
                                         </logbackConfigFile>
                                         <nodeNumber>2</nodeNumber>
+                                        <communicationType>${tessera.communicationType}</communicationType>
                                     </properties>
                                     <source>${basedir}/src/test/groovy/startNode.groovy</source>
                                 </configuration>
@@ -193,6 +213,7 @@
                                         <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
                                         </logbackConfigFile>
                                         <nodeNumber>3</nodeNumber>
+                                        <communicationType>${tessera.communicationType}</communicationType>
                                     </properties>
                                     <source>${basedir}/src/test/groovy/startNode.groovy</source>
                                 </configuration>

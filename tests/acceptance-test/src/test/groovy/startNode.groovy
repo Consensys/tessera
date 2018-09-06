@@ -12,9 +12,11 @@ def logbackConfigFile = properties['logbackConfigFile']
 
 def nodeNumber = properties['nodeNumber']
 
+def communicationType = properties['communicationType']
+
 log.info "$jarfile"
 // -Dspring.profiles.active=disable-unixsocket
-def processDesc = "java -Dspring.profiles.active=disable-unixsocket -Dnode.number=$nodeNumber -Dlogback.configurationFile=$logbackConfigFile -jar $jarfile -configfile $configFile -pidfile $pidFile "
+def processDesc = "java -Dspring.profiles.active=disable-unixsocket -Dnode.number=$nodeNumber -Dlogback.configurationFile=$logbackConfigFile -jar $jarfile -configfile $configFile -pidfile $pidFile -server.communicationType $communicationType"
 
 log.info "$processDesc"
 

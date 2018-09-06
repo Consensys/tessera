@@ -8,10 +8,8 @@ import io.grpc.ManagedChannelBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
 public class SendGrpcIT {
 
     private ManagedChannel channel;
