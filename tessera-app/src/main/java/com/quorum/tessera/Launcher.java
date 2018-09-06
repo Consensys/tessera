@@ -47,7 +47,7 @@ public class Launcher {
             final Config config = cliResult.getConfig()
                     .orElseThrow(() -> new NoSuchElementException("No Config found. Tessera will not run"));
 
-            final URI uri = config.getServerConfig().getServerUri();
+            final URI uri = new URI(config.getServerConfig().getBindingAddress());
 
             runWebServer(uri, config.getServerConfig());
 
