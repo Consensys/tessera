@@ -1,7 +1,6 @@
 package com.quorum.tessera.api.filter;
 
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.ssl.util.HostnameUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +9,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.net.UnknownHostException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @PrivateApi
 public class PrivateApiFilter implements ContainerRequestFilter {
@@ -21,12 +21,11 @@ public class PrivateApiFilter implements ContainerRequestFilter {
 
     private final String hostname;
 
-    public PrivateApiFilter(final ServerConfig serverConfig) throws UnknownHostException {
+    public PrivateApiFilter(final ServerConfig serverConfig) {
         try {
-            this.hostname = HostnameUtil.create().getHostIpAddress();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            throw e;
+            this.hostname = new URI(serverConfig.getBindingAddress()).getHost();
+        } catch (final URISyntaxException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
@@ -49,7 +48,7 @@ public class PrivateApiFilter implements ContainerRequestFilter {
         final String remoteAddress = httpServletRequest.getRemoteAddr();
         final String remoteHost = httpServletRequest.getRemoteHost();
 
-        LOGGER.info("Allowed host: {}, RemoteAddr: {}, RemoteHost: {}", hostname, remoteAddress, remoteAddress);
+        LOGGER.info("Allowed host: {}, RemoteAddr: {}, RemoteHost: {}", hostname, remoteAddress, remoteHost);
 
         final boolean allowed = hostname.equals(remoteAddress) || hostname.equals(remoteHost);
 
