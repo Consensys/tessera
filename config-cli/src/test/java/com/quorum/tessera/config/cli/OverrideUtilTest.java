@@ -37,7 +37,7 @@ public class OverrideUtilTest {
                 "jdbc.url",
                 "server.hostName",
                 "server.port",
-                "server.grpcPort",
+                "server.communicationType",
                 "server.sslConfig.tls",
                 "server.sslConfig.generateKeyStoreIfNotExisted",
                 "server.sslConfig.serverKeyStore",
