@@ -20,12 +20,6 @@
             <classifier>app</classifier>
             <version>0.7-SNAPSHOT</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>2.4.5</version>
-        </dependency>
         
         <dependency>
             <groupId>com.quorum.tessera</groupId>
