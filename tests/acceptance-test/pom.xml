@@ -26,7 +26,11 @@
             <artifactId>groovy-all</artifactId>
             <version>2.4.5</version>
         </dependency>
-
+        
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>test-util</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -56,7 +60,10 @@
                     <systemPropertyVariables>
                         <application.jar>${com.quorum.tessera:tessera-app:jar:app}</application.jar>
                     </systemPropertyVariables>
-                    <includes>${failsafe.includes}</includes>
+                    <includes>
+                        <include>RestSuite</include>
+                        <include>GrpcSuite</include>
+                    </includes>
                 </configuration>
                 <executions>
                     <execution>
@@ -89,196 +96,11 @@
 
     <profiles>
         <profile>
-            <id>tessera-grpc</id>
-            <properties>
-                <tessera.communicationType>GRPC</tessera.communicationType>
-                <failsafe.includes>com/quorum/tessera/test/grpc</failsafe.includes>
-            </properties>
-        </profile>
-        <profile>
-            <id>tessera-rest</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <tessera.communicationType>REST</tessera.communicationType>
-                <failsafe.includes>com/quorum/tessera/test/rest</failsafe.includes>
-            </properties>
-        </profile> 
-        <profile>
             <id>acceptance-test</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.gmaven</groupId>
-                        <artifactId>groovy-maven-plugin</artifactId>
-                        <version>2.0</version>
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.codehaus.groovy</groupId>
-                                <artifactId>groovy-all</artifactId>
-                                <version>2.0.6</version>
-                            </dependency>
-                            
-                            <dependency>
-                                <groupId>com.quorum.tessera</groupId>
-                                <artifactId>test-util</artifactId>
-                                <version>0.7-SNAPSHOT</version>
-                            </dependency>
-                            
-                            <dependency>
-                                <groupId>org.glassfish</groupId>
-                                <artifactId>javax.el</artifactId>
-                                <version>3.0.1-b10</version>
-                            </dependency>
-                            
-                        </dependencies>
 
-                        <executions>
-
-                            <execution>
-                                <id>start-node4</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                                <configuration>
-                                    <properties>
-                                        <jarfile>${com.quorum.tessera:tessera-app:jar:app}</jarfile>
-                                        <configFile>${project.build.testOutputDirectory}/config4.json</configFile>
-                                        <pidFile>${project.build.directory}/node4.pid</pidFile>
-                                        <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
-                                        </logbackConfigFile>
-                                        <nodeNumber>4</nodeNumber>
-                                        <communicationType>${tessera.communicationType}</communicationType>
-                                    </properties>
-                                    <source>${basedir}/src/test/groovy/startNode.groovy</source>
-                                </configuration>
-                            </execution>
-
-                            <execution>
-                                <id>start-node</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                                <configuration>
-                                    <properties>
-                                        <jarfile>${com.quorum.tessera:tessera-app:jar:app}</jarfile>
-                                        <configFile>${project.build.testOutputDirectory}/config1.json</configFile>
-                                        <pidFile>${project.build.directory}/node1.pid</pidFile>
-                                        <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
-                                        </logbackConfigFile>
-                                        <nodeNumber>1</nodeNumber>
-                                        <communicationType>${tessera.communicationType}</communicationType>
-                                    </properties>
-                                    <source>${basedir}/src/test/groovy/startNode.groovy</source>
-                                </configuration>
-                            </execution>
-
-                            <execution>
-                                <id>start-node2</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                                <configuration>
-                                    <properties>
-                                        <jarfile>${com.quorum.tessera:tessera-app:jar:app}</jarfile>
-                                        <configFile>${project.build.testOutputDirectory}/config2.json</configFile>
-                                        <pidFile>${project.build.directory}/node2.pid</pidFile>
-                                        <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
-                                        </logbackConfigFile>
-                                        <nodeNumber>2</nodeNumber>
-                                        <communicationType>${tessera.communicationType}</communicationType>
-                                    </properties>
-                                    <source>${basedir}/src/test/groovy/startNode.groovy</source>
-                                </configuration>
-                            </execution>
-
-                            <execution>
-                                <id>start-node3</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                                <configuration>
-                                    <properties>
-                                        <jarfile>${com.quorum.tessera:tessera-app:jar:app}</jarfile>
-                                        <configFile>${project.build.testOutputDirectory}/config3.json</configFile>
-                                        <pidFile>${project.build.directory}/node3.pid</pidFile>
-                                        <logbackConfigFile>${project.build.testOutputDirectory}/logback-node.xml
-                                        </logbackConfigFile>
-                                        <nodeNumber>3</nodeNumber>
-                                        <communicationType>${tessera.communicationType}</communicationType>
-                                    </properties>
-                                    <source>${basedir}/src/test/groovy/startNode.groovy</source>
-                                </configuration>
-                            </execution>
-
-                            <execution>
-                                <id>kill-node4</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                                <configuration>
-                                    <properties>
-                                        <pidFile>${project.build.directory}/node4.pid</pidFile>
-                                    </properties>
-                                    <source>${basedir}/src/test/groovy/killNode.groovy</source>
-                                </configuration>
-                            </execution>
-
-                            <execution>
-                                <id>kill-node1</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                                <configuration>
-                                    <properties>
-                                        <pidFile>${project.build.directory}/node1.pid</pidFile>
-                                    </properties>
-                                    <source>${basedir}/src/test/groovy/killNode.groovy</source>
-                                </configuration>
-                            </execution>
-
-                            <execution>
-                                <id>kill-node2</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                                <configuration>
-                                    <properties>
-                                        <pidFile>${project.build.directory}/node2.pid</pidFile>
-                                    </properties>
-                                    <source>${basedir}/src/test/groovy/killNode.groovy</source>
-                                </configuration>
-                            </execution>
-
-                            <execution>
-                                <id>kill-node3</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                                <configuration>
-                                    <properties>
-                                        <pidFile>${project.build.directory}/node3.pid</pidFile>
-                                    </properties>
-                                    <source>${basedir}/src/test/groovy/killNode.groovy</source>
-                                </configuration>
-                            </execution>
-
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
         <profile>
             <id>disable-acceptance-test</id>
