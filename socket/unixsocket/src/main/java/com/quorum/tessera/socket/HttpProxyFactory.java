@@ -4,6 +4,7 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.ssl.context.model.SSLContextProperties;
 import com.quorum.tessera.ssl.strategy.TrustMode;
+import com.quorum.tessera.ssl.util.HostnameUtil;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
@@ -22,7 +23,7 @@ public class HttpProxyFactory {
     private static final String LOCALHOST = "127.0.0.1:";
 
     public HttpProxyFactory(final ServerConfig serverConfig) throws Exception {
-        this.serverUri = new URI(serverConfig.getServerUri().getScheme() + "://" + LOCALHOST + serverConfig.getPort());
+        this.serverUri = new URI(serverConfig.getServerUri().getScheme() + "://" + HostnameUtil.create().getHostIpAddress() + serverConfig.getPort());
 
         if (serverConfig.isSsl()) {
 
