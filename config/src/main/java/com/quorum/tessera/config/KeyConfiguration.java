@@ -31,6 +31,7 @@ public class KeyConfiguration extends ConfigItem {
     @Size(min = 1, message = "At least 1 public/private key pair must be provided")
     private final List<@ValidKeyData KeyData> keyData;
 
+    @Valid
     private final KeyVaultConfig keyVaultConfig;
 
     public KeyConfiguration(final Path passwordFile, final List<String> passwords, final List<KeyData> keyData, final KeyVaultConfig keyVaultConfig) {

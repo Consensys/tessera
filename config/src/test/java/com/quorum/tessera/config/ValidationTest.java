@@ -203,6 +203,17 @@ public class ValidationTest {
     }
 
     @Test
+    public void keyVaultConfigProvidedWithoutKeyVaultIdDoesNotCreateViolation() {
+        KeyData keyData = new KeyData(null, null, "public", null, null, null);
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, Arrays.asList(keyData), new KeyVaultConfig("url"));
+        Config config = new Config(null, null, null, keyConfiguration, null, null, false);
+
+        Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
+        assertThat(violations).hasSize(0);
+    }
+
+
+    @Test
     public void keyConfigurationIsNullCreatesNotNullViolation() {
         Config config = new Config(null, null, null, null, null, null, false);
 
@@ -214,4 +225,60 @@ public class ValidationTest {
         assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
     }
 
+    @Test
+    public void keyConfigurationPublicKeyOnlyCreatesViolation() {
+        KeyData keyData = new KeyData(null, null, "public", null, null, null);
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, Arrays.asList(keyData), null);
+
+        Set<ConstraintViolation<KeyConfiguration>> violations = validator.validateProperty(keyConfiguration, "keyData");
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
+        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyData.bothPrivateAndPublicRequired.message}");
+    }
+
+    @Test
+    public void keyConfigurationPublicKeyWithKeyVaultIdAndKeyVaultConfigDoesNotCreateViolation() {
+        KeyData keyData = new KeyData(null, null, "public", null, null, "vaultId");
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, Arrays.asList(keyData), new KeyVaultConfig("url"));
+        Config config = new Config(null, null, null, keyConfiguration, null, null, false);
+
+        Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
+        assertThat(violations).hasSize(0);
+    }
+
+    @Test
+    public void publicAndPrivateInlineWithKeyVaultIdButNoKeyVaultConfigDoesNotCreateViolation() {
+        KeyData keyData = new KeyData(null, "private", "public", null, null, "vaultId");
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, Arrays.asList(keyData),null);
+        Config config = new Config(null, null, null, keyConfiguration, null, null, false);
+
+        Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
+        assertThat(violations).hasSize(0);
+    }
+
+    @Test
+    public void keyVaultConfigWithNoUrlThrowsNullViolation() {
+        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null);
+
+        Set<ConstraintViolation<KeyVaultConfig>> violations = validator.validate(keyVaultConfig);
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<KeyVaultConfig> violation = violations.iterator().next();
+        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
+    }
+
+    @Test
+    public void publicAndVaultIdProvidedButKeyVaultConfigHasNullUrlThrowsNullViolation() {
+        KeyData keyData = new KeyData(null, null, "public", null, null, "vaultId");
+        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null);
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, Arrays.asList(keyData), keyVaultConfig);
+
+        Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
+        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
+        assertThat(violation.getPropertyPath().toString()).isEqualTo("keyVaultConfig.url");
+    }
 }

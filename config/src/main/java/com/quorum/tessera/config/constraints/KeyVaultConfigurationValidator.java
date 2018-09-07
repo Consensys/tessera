@@ -23,16 +23,16 @@ public class KeyVaultConfigurationValidator implements ConstraintValidator<Valid
             return true;
         }
 
-        boolean hasVaultKeys = false;
+        boolean isUsingVaultKeys = false;
 
         for(KeyData keyData : keyConfiguration.getKeyData()) {
-            if(keyData.getKeyVaultId() != null) {
-                hasVaultKeys = true;
+            if(keyData.getKeyVaultId() != null && keyData.getPublicKey() != null && keyData.getPrivateKey() == null) {
+                isUsingVaultKeys = true;
                 break;
             }
         }
 
-        if(hasVaultKeys && keyConfiguration.getKeyVaultConfig() == null) {
+        if(isUsingVaultKeys && keyConfiguration.getKeyVaultConfig() == null) {
             return false;
         }
 

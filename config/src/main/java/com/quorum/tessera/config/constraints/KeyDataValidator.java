@@ -22,6 +22,13 @@ public class KeyDataValidator implements ConstraintValidator<ValidKeyData, KeyDa
             return true;
         }
 
+        if(keyData.getPublicKey() != null && keyData.getPrivateKey() == null && keyData.getKeyVaultId() == null) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{ValidKeyData.bothPrivateAndPublicRequired.message}")
+                .addConstraintViolation();
+            return false;
+        }
+
         //Assume that test values have been provided. 
         if (keyData.getPublicKeyPath() == null && keyData.getPrivateKeyPath() == null) {
             return true;
@@ -30,7 +37,7 @@ public class KeyDataValidator implements ConstraintValidator<ValidKeyData, KeyDa
         if (keyData.getPublicKeyPath() == null || keyData.getPrivateKeyPath() == null) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{ValidKeyData.bothOrNoPathsRequired}")
-                    .addConstraintViolation();
+                .addConstraintViolation();
             return false;
         }
 
