@@ -1,14 +1,11 @@
 package com.quorum.tessera.enclave;
 
-import com.quorum.tessera.api.model.ApiPath;
-import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.node.PartyInfoService;
-import com.quorum.tessera.node.PostDelegate;
-import com.quorum.tessera.node.grpc.GrpcClientFactory;
 import com.quorum.tessera.transaction.PayloadEncoder;
 import com.quorum.tessera.transaction.TransactionService;
 import com.quorum.tessera.transaction.model.EncodedPayload;
@@ -36,24 +33,20 @@ public class EnclaveImpl implements Enclave {
 
     private final PayloadEncoder payloadEncoder;
 
-    private final PostDelegate postDelegate;
-
     private final KeyManager keyManager;
 
-    private final CommunicationType communicationType;
-
+    private final P2pClient p2pClient;
+    
     public EnclaveImpl(final TransactionService transactionService,
                        final PartyInfoService partyInfoService,
                        final PayloadEncoder payloadEncoder,
-                       final PostDelegate postDelegate,
                        final KeyManager keyManager,
-                       final CommunicationType communicationType) {
+                       final P2pClient p2pClient) {
         this.transactionService = requireNonNull(transactionService, "transactionService cannot be null");
         this.partyInfoService = requireNonNull(partyInfoService, "partyInfoService cannot be null");
         this.payloadEncoder = requireNonNull(payloadEncoder, "encoder cannot be null");
-        this.postDelegate = requireNonNull(postDelegate, "postDelegate cannot be null");
         this.keyManager = requireNonNull(keyManager, "keyManager cannot be null");
-        this.communicationType = communicationType;
+        this.p2pClient = requireNonNull(p2pClient);
     }
 
     @Override
@@ -139,12 +132,7 @@ public class EnclaveImpl implements Enclave {
                 );
 
             final byte[] encoded = payloadEncoder.encode(encodedPayloadWithOneRecipient);
-
-            if (communicationType == CommunicationType.GRPC) {
-                GrpcClientFactory.getClient(targetUrl).push(encoded);
-            } else {
-                postDelegate.doPost(targetUrl, ApiPath.PUSH, encoded);
-            }
+            p2pClient.push(targetUrl, encoded);
         }
     }
 

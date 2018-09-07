@@ -6,6 +6,7 @@
    },
    "server" : {
       "port" : 9001,
+      "communicationType" : "REST",
       "sslConfig" : {
          "tls" : "OFF",
          "generateKeyStoreIfNotExisted" : false,

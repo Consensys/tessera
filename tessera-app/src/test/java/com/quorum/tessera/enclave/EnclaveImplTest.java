@@ -1,13 +1,12 @@
 package com.quorum.tessera.enclave;
 
-import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.nacl.Nonce;
 import com.quorum.tessera.node.PartyInfoService;
-import com.quorum.tessera.node.PostDelegate;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.transaction.PayloadEncoder;
 import com.quorum.tessera.transaction.TransactionService;
@@ -54,7 +53,7 @@ public class EnclaveImplTest {
 
     private PayloadEncoder encoder;
 
-    private PostDelegate postDelegate;
+    private P2pClient p2pClient;
 
     private KeyManager keyManager;
 
@@ -65,15 +64,15 @@ public class EnclaveImplTest {
         this.transactionService = mock(TransactionService.class);
         this.partyInfoService = mock(PartyInfoService.class);
         this.encoder = mock(PayloadEncoder.class);
-        this.postDelegate = mock(PostDelegate.class);
+        this.p2pClient = mock(P2pClient.class);
         this.keyManager = mock(KeyManager.class);
 
-        enclave = new EnclaveImpl(transactionService, partyInfoService, encoder, postDelegate, keyManager, CommunicationType.REST);
+        enclave = new EnclaveImpl(transactionService, partyInfoService, encoder, keyManager, p2pClient);
     }
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(transactionService, partyInfoService, encoder, postDelegate, keyManager);
+        verifyNoMoreInteractions(transactionService, partyInfoService, encoder, p2pClient, keyManager);
     }
 
     @Test
@@ -88,7 +87,7 @@ public class EnclaveImplTest {
         final byte[] hash = new byte[0];
 
         enclave.receive(hash, Optional.of(new byte[0]));
-
+        
         verify(transactionService).retrieveUnencryptedTransaction(eq(new MessageHash(hash)), eq(EMPTY_KEY));
     }
 
@@ -230,7 +229,7 @@ public class EnclaveImplTest {
 
         verify(encoder, times(3)).encode(any(EncodedPayloadWithRecipients.class));
 
-        verify(postDelegate, times(3)).doPost(any(), any(), any());
+        verify(p2pClient, times(3)).push(any(), any());
 
         verify(partyInfoService, times(2)).getURLFromRecipientKey(recipientKey);
         verify(partyInfoService).getURLFromRecipientKey(new Key("key2".getBytes()));
@@ -266,7 +265,7 @@ public class EnclaveImplTest {
 
         verify(encoder).encode(any(EncodedPayloadWithRecipients.class));
 
-        verify(postDelegate).doPost(any(), any(), any());
+        verify(p2pClient).push(any(), any());
 
         verify(partyInfoService, times(2)).getURLFromRecipientKey(any());
         verify(partyInfoService, times(2)).getPartyInfo();

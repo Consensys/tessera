@@ -4,11 +4,11 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public final class GrpcClientFactory {
+public class GrpcClientFactory {
 
     private static final ConcurrentMap<String, GrpcClient> CLIENTS = new ConcurrentHashMap<>();
 
-    private GrpcClientFactory() {
+    public GrpcClientFactory() {
 
     }
 
@@ -18,7 +18,7 @@ public final class GrpcClientFactory {
         return client;
     }
 
-    public static GrpcClient getClient(final String targetUrl) {
+    public GrpcClient getClient(final String targetUrl) {
         final GrpcClient client = Optional.ofNullable(CLIENTS.get(targetUrl))
             .orElse(newClient(targetUrl));
         return client;
