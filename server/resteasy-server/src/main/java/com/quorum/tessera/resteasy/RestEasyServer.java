@@ -1,7 +1,7 @@
 package com.quorum.tessera.resteasy;
 
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.server.RestServer;
+import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
 import com.quorum.tessera.ssl.context.ServerSSLContextFactory;
 import com.sun.net.httpserver.HttpServer;
@@ -18,7 +18,7 @@ import java.util.Objects;
 /**
  * A RestEasy and Sun HTTP server implementation
  */
-public class RestEasyServer implements RestServer {
+public class RestEasyServer implements TesseraServer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestEasyServer.class);
 
@@ -32,8 +32,8 @@ public class RestEasyServer implements RestServer {
 
     private final boolean secure;
 
-    public RestEasyServer(final URI uri, final Application application, final ServerConfig serverConfig) {
-        this.uri = uri;
+    public RestEasyServer(final Application application, final ServerConfig serverConfig) {
+        this.uri = serverConfig.getServerUri();
         this.application = application;
        
         this.secure = serverConfig.isSsl();
@@ -68,5 +68,6 @@ public class RestEasyServer implements RestServer {
 
         LOGGER.info("Stopped Jersey server at {}", uri);
     }
+
 
 }

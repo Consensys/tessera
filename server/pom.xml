@@ -13,10 +13,10 @@
     </parent>
 
     <modules>
-        <module>rest-server-api</module>
         <module>resteasy-server</module>
         <module>jersey-server</module>
         <module>grpc-server</module>
+        <module>server-api</module>
     </modules>
     <build>
         <plugins>
