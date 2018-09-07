@@ -6,10 +6,8 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.cli.CliDelegate;
 import com.quorum.tessera.config.cli.CliResult;
-import com.quorum.tessera.grpc.server.GrpcServer;
-import com.quorum.tessera.grpc.server.GrpcServerFactory;
-import com.quorum.tessera.server.RestServer;
-import com.quorum.tessera.server.RestServerFactory;
+import com.quorum.tessera.server.TesseraServer;
+import com.quorum.tessera.server.TesseraServerFactory;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +44,7 @@ public class Launcher {
             }
 
             final Config config = cliResult.getConfig()
-                .orElseThrow(() -> new NoSuchElementException("No Config found. Tessera will not run"));
+                    .orElseThrow(() -> new NoSuchElementException("No Config found. Tessera will not run"));
 
             final URI uri = new URI(config.getServerConfig().getHostName() + ":" + config.getServerConfig().getPort());
 
@@ -91,28 +89,29 @@ public class Launcher {
 
         final Tessera tessera = new Tessera(ServiceLocator.create(), "tessera-spring.xml");
 
-        final RestServer restServer = RestServerFactory.create().createServer(serverUri, tessera, serverConfig);
+        TesseraServerFactory tesseraServerFactory = TesseraServerFactory.create(serverConfig.getCommunicationType());
+        final TesseraServer tesseraServer;
+        if (serverConfig.getCommunicationType() == CommunicationType.GRPC) {
+            final Set<Object> gRPCBeans
+                    = tessera.getSingletons()
+                            .stream()
+                            .filter(o -> o.getClass()
+                            .getPackage()
+                            .getName()
+                            .startsWith("com.quorum.tessera.api.grpc"))
+                            .collect(Collectors.toSet());
+            
+            tesseraServer = tesseraServerFactory.createServer(serverConfig, gRPCBeans);
+        } else {
+            tesseraServer = tesseraServerFactory.createServer(serverConfig, tessera);
+        }
 
-        final Set<Object> gRPCBeans =
-            tessera.getSingletons()
-                .stream()
-                .filter(o -> o.getClass()
-                    .getPackage()
-                    .getName()
-                    .startsWith("com.quorum.tessera.api.grpc"))
-                .collect(Collectors.toSet());
-        final GrpcServer gRPCServer = GrpcServerFactory.create()
-            .createGRPCServer(serverUri, serverConfig.getPort(), gRPCBeans);
 
         CountDownLatch countDown = new CountDownLatch(1);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                if (serverConfig.getCommunicationType() == CommunicationType.GRPC) {
-                    gRPCServer.stop();
-                } else {
-                    restServer.stop();
-                }
+                tesseraServer.stop();
             } catch (Exception ex) {
                 LOGGER.error(null, ex);
             } finally {
@@ -120,11 +119,9 @@ public class Launcher {
             }
         }));
 
-        if (serverConfig.getCommunicationType() == CommunicationType.GRPC) {
-            gRPCServer.start();
-        } else {
-            restServer.start();
-        }
+        
+        tesseraServer.start();
+
 
         countDown.await();
     }

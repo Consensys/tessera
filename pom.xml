@@ -314,7 +314,7 @@
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
-                <artifactId>rest-server-api</artifactId>
+                <artifactId>server-api</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
             

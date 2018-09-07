@@ -3,7 +3,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>rest-server-api</artifactId>
+    <artifactId>server-api</artifactId>
     <packaging>jar</packaging>
 
     <parent>
@@ -20,5 +20,5 @@
         </dependency>
         
     </dependencies>
-
+    <name>server-api</name>
 </project>

@@ -1,12 +1,13 @@
 package com.quorum.tessera.grpc.server;
 
+import com.quorum.tessera.server.TesseraServer;
 import io.grpc.Server;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
 
-public class GrpcServer {
+public class GrpcServer implements TesseraServer {
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GrpcServer.class);
 
@@ -19,6 +20,7 @@ public class GrpcServer {
         this.server = server;
     }
 
+    @Override
     public void start() throws IOException {
         try {
             server.start();
@@ -37,6 +39,7 @@ public class GrpcServer {
         }
     }
 
+    @Override
     public void stop() {
         if (server != null) {
             server.shutdown();
