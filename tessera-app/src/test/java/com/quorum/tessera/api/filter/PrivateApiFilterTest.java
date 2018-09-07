@@ -10,6 +10,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -33,7 +34,7 @@ public class PrivateApiFilterTest {
     }
 
     @Test
-    public void hostNotALocalAddressGetsRejected() {
+    public void hostNotALocalAddressGetsRejected() throws UnknownHostException {
 
         final Response expectedResponse = Response.status(Response.Status.UNAUTHORIZED).build();
 
@@ -56,7 +57,7 @@ public class PrivateApiFilterTest {
     }
 
     @Test
-    public void hostThatIsLocalAddressGetsAccepted() {
+    public void hostThatIsLocalAddressGetsAccepted() throws UnknownHostException {
         final HttpServletRequest request = mock(HttpServletRequest.class);
         doReturn("localhost").when(request).getRemoteAddr();
 
@@ -71,7 +72,7 @@ public class PrivateApiFilterTest {
     }
 
     @Test
-    public void hostThatIsLocalHostnameGetsAccepted() {
+    public void hostThatIsLocalHostnameGetsAccepted() throws UnknownHostException {
         final HttpServletRequest request = mock(HttpServletRequest.class);
         doReturn("localhost").when(request).getRemoteHost();
         doReturn("wrongvalue").when(request).getRemoteAddr();
@@ -87,7 +88,7 @@ public class PrivateApiFilterTest {
     }
 
     @Test
-    public void noServletAllowsRequest() {
+    public void noServletAllowsRequest() throws UnknownHostException {
 
         filter.setHttpServletRequest(null);
 

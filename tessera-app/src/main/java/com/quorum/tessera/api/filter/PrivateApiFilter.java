@@ -61,7 +61,7 @@ public class PrivateApiFilter implements ContainerRequestFilter {
 
 
 
-        final boolean allowed = hostname.equals(remoteAddress) || hostname.equals(remoteHost);
+        final boolean allowed = "127.0.0.1".equals(remoteAddress) || "127.0.0.1".equals(remoteHost);
 
         if (!allowed) {
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
