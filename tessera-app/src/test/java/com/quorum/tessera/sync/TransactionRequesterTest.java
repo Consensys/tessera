@@ -1,10 +1,9 @@
 package com.quorum.tessera.sync;
 
 import com.quorum.tessera.api.model.ResendRequest;
-import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.nacl.Key;
-import com.quorum.tessera.node.PostDelegate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +26,7 @@ public class TransactionRequesterTest {
 
     private KeyManager keyManager;
 
-    private PostDelegate postDelegate;
+    private P2pClient p2pClient;
 
     private TransactionRequester transactionRequester;
 
@@ -35,16 +34,16 @@ public class TransactionRequesterTest {
     public void init() {
 
         this.keyManager = mock(KeyManager.class);
-        this.postDelegate = mock(PostDelegate.class);
+        this.p2pClient = mock(P2pClient.class);
 
-        doReturn(true).when(postDelegate).makeResendRequest(anyString(), any(ResendRequest.class));
+        doReturn(true).when(p2pClient).makeResendRequest(anyString(), any(ResendRequest.class));
 
-        this.transactionRequester = new TransactionRequesterImpl(keyManager, postDelegate, CommunicationType.REST);
+        this.transactionRequester = new TransactionRequesterImpl(keyManager, p2pClient);
     }
 
     @After
     public void after() {
-        verifyNoMoreInteractions(keyManager, postDelegate);
+        verifyNoMoreInteractions(keyManager, p2pClient);
     }
 
     @Test
@@ -53,7 +52,7 @@ public class TransactionRequesterTest {
 
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
-        verifyZeroInteractions(postDelegate);
+        verifyZeroInteractions(p2pClient);
         verify(keyManager).getPublicKeys();
     }
 
@@ -66,7 +65,7 @@ public class TransactionRequesterTest {
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl1.com");
 
         final ArgumentCaptor<ResendRequest> captor = ArgumentCaptor.forClass(ResendRequest.class);
-        verify(postDelegate, times(2)).makeResendRequest(eq("fakeurl1.com"), captor.capture());
+        verify(p2pClient, times(2)).makeResendRequest(eq("fakeurl1.com"), captor.capture());
         verify(keyManager).getPublicKeys();
 
         assertThat(captor.getAllValues())
@@ -78,11 +77,11 @@ public class TransactionRequesterTest {
     @Test
     public void failedCallRetries() {
         doReturn(singleton(KEY_ONE)).when(keyManager).getPublicKeys();
-        doReturn(false).when(postDelegate).makeResendRequest(anyString(), any(ResendRequest.class));
+        doReturn(false).when(p2pClient).makeResendRequest(anyString(), any(ResendRequest.class));
 
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
-        verify(postDelegate, times(5)).makeResendRequest(eq("fakeurl.com"), any(ResendRequest.class));
+        verify(p2pClient, times(5)).makeResendRequest(eq("fakeurl.com"), any(ResendRequest.class));
         verify(keyManager).getPublicKeys();
 
     }
@@ -90,11 +89,11 @@ public class TransactionRequesterTest {
     @Test
     public void calltoPostDelegateThrowsException() {
         doReturn(singleton(KEY_ONE)).when(keyManager).getPublicKeys();
-        doThrow(RuntimeException.class).when(postDelegate).makeResendRequest(anyString(), any(ResendRequest.class));
+        doThrow(RuntimeException.class).when(p2pClient).makeResendRequest(anyString(), any(ResendRequest.class));
 
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
-        verify(postDelegate, times(5)).makeResendRequest(eq("fakeurl.com"), any(ResendRequest.class));
+        verify(p2pClient, times(5)).makeResendRequest(eq("fakeurl.com"), any(ResendRequest.class));
         verify(keyManager).getPublicKeys();
 
     }

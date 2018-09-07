@@ -19,11 +19,11 @@ public class ConvertorTest {
         try {
             c.newInstance();
             failBecauseExceptionWasNotThrown(InvocationTargetException.class);
-        } catch(InvocationTargetException invocationTargetException) {
+        } catch (InvocationTargetException invocationTargetException) {
             assertThat(invocationTargetException).hasCauseExactlyInstanceOf(UnsupportedOperationException.class);
         }
     }
-    
+
     @Test
     public void toGrpcReceiveRequest() {
 
@@ -93,60 +93,57 @@ public class ConvertorTest {
         assertThat(result.getToList()).containsExactly("TO1");
 
     }
-    
+
     @Test
     public void toModelResendRequest() {
-        
+
         ResendRequest resendRequest = ResendRequest.newBuilder()
                 .setKey("KEY")
                 .setPublicKey("PUBLICKEY")
                 .setType(ResendRequestType.ALL)
                 .build();
-        
+
         com.quorum.tessera.api.model.ResendRequest result = Convertor.toModel(resendRequest);
-        
+
         assertThat(result.getKey()).isEqualTo("KEY");
         assertThat(result.getPublicKey()).isEqualTo("PUBLICKEY");
         assertThat(result.getType()).isEqualTo(com.quorum.tessera.api.model.ResendRequestType.ALL);
-                
-        
+
     }
-    
-        
+
     @Test
     public void toModelResendRequestNoTypeDefinedType() {
-        
+
         ResendRequest resendRequest = ResendRequest.newBuilder()
                 .setKey("KEY")
                 .setPublicKey("PUBLICKEY")
                 .build();
-        
+
         com.quorum.tessera.api.model.ResendRequest result = Convertor.toModel(resendRequest);
-        
+
         assertThat(result.getKey()).isEqualTo("KEY");
         assertThat(result.getPublicKey()).isEqualTo("PUBLICKEY");
         assertThat(result.getType()).isEqualTo(com.quorum.tessera.api.model.ResendRequestType.ALL);
-                
-        
+
     }
+
     @Test
     public void toModelResendRequestTypeDefinedType() {
-        
+
         ResendRequest resendRequest = ResendRequest.newBuilder()
                 .setKey("KEY")
                 .setType(ResendRequestType.INDIVIDUAL)
                 .setPublicKey("PUBLICKEY")
                 .build();
-        
+
         com.quorum.tessera.api.model.ResendRequest result = Convertor.toModel(resendRequest);
-        
+
         assertThat(result.getKey()).isEqualTo("KEY");
         assertThat(result.getPublicKey()).isEqualTo("PUBLICKEY");
         assertThat(result.getType()).isEqualTo(com.quorum.tessera.api.model.ResendRequestType.INDIVIDUAL);
-                
-        
+
     }
-    
+
     @Test
     public void toModelSendRequest() {
         SendRequest grpcSendRequest = SendRequest.newBuilder()
@@ -155,15 +152,60 @@ public class ConvertorTest {
                 .addTo("TO1")
                 .addTo("TO2")
                 .build();
-        
-        
+
         com.quorum.tessera.api.model.SendRequest result = Convertor.toModel(grpcSendRequest);
         assertThat(result).isNotNull();
-        assertThat(result.getTo()).containsExactly("TO1","TO2");
+        assertThat(result.getTo()).containsExactly("TO1", "TO2");
         assertThat(result.getFrom()).isEqualTo("FROM");
         assertThat(result.getPayload()).isEqualTo("PAYLOAD");
-        
-        
+
+    }
+
+    @Test
+    public void toGrpcResendRequestAll() throws Exception {
+
+        com.quorum.tessera.api.model.ResendRequest request = new com.quorum.tessera.api.model.ResendRequest();
+        request.setKey("KEY");
+        request.setPublicKey("PUBLIC_KEY");
+        request.setType(com.quorum.tessera.api.model.ResendRequestType.ALL);
+
+        ResendRequest result = Convertor.toGrpc(request);
+        assertThat(result).isNotNull();
+        assertThat(result.getKey()).isEqualTo("KEY");
+        assertThat(result.getPublicKey()).isEqualTo("PUBLIC_KEY");
+        assertThat(result.getType()).isEqualTo(ResendRequestType.ALL);
+
+    }
+
+    @Test
+    public void toGrpcResendRequestNoType() throws Exception {
+
+        com.quorum.tessera.api.model.ResendRequest request = new com.quorum.tessera.api.model.ResendRequest();
+        request.setKey("KEY");
+        request.setPublicKey("PUBLIC_KEY");
+
+        ResendRequest result = Convertor.toGrpc(request);
+        assertThat(result).isNotNull();
+        assertThat(result.getKey()).isEqualTo("KEY");
+        assertThat(result.getPublicKey()).isEqualTo("PUBLIC_KEY");
+        assertThat(result.getType()).isEqualTo(ResendRequestType.INDIVIDUAL);
+
+    }
+
+    @Test
+    public void toGrpcResendRequestIndividualType() throws Exception {
+
+        com.quorum.tessera.api.model.ResendRequest request = new com.quorum.tessera.api.model.ResendRequest();
+        request.setKey("KEY");
+        request.setPublicKey("PUBLIC_KEY");
+        request.setType(com.quorum.tessera.api.model.ResendRequestType.INDIVIDUAL);
+
+        ResendRequest result = Convertor.toGrpc(request);
+        assertThat(result).isNotNull();
+        assertThat(result.getKey()).isEqualTo("KEY");
+        assertThat(result.getPublicKey()).isEqualTo("PUBLIC_KEY");
+        assertThat(result.getType()).isEqualTo(ResendRequestType.INDIVIDUAL);
+
     }
 
 }

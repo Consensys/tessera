@@ -2,11 +2,9 @@ package com.quorum.tessera.sync;
 
 import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendRequestType;
-import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.nacl.Key;
-import com.quorum.tessera.node.PostDelegate;
-import com.quorum.tessera.node.grpc.GrpcClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,16 +16,12 @@ public class TransactionRequesterImpl implements TransactionRequester {
 
     private final KeyManager keyManager;
 
-    private final PostDelegate client;
-
-    private final CommunicationType communicationType;
+    private final P2pClient client;
 
     public TransactionRequesterImpl(final KeyManager keyManager,
-                                    final PostDelegate client,
-                                    final CommunicationType communicationType) {
+                                    final P2pClient client) {
         this.keyManager = Objects.requireNonNull(keyManager);
         this.client = Objects.requireNonNull(client);
-        this.communicationType = communicationType;
     }
 
     @Override
@@ -56,22 +50,9 @@ public class TransactionRequesterImpl implements TransactionRequester {
         int numberOfTries = 0;
 
         do {
+            
             try {
-                if (communicationType == CommunicationType.GRPC) {
-                    com.quorum.tessera.api.grpc.model.ResendRequest gRPCRequest =
-                        com.quorum.tessera.api.grpc.model.ResendRequest.newBuilder()
-                            .setType(
-                                request.getType() == ResendRequestType.ALL ?
-                                    com.quorum.tessera.api.grpc.model.ResendRequestType.ALL :
-                                    com.quorum.tessera.api.grpc.model.ResendRequestType.INDIVIDUAL
-                            )
-                            .setKey(request.getKey())
-                            .setPublicKey(request.getPublicKey())
-                            .build();
-                    success = GrpcClientFactory.getClient(uri).makeResendRequest(gRPCRequest);
-                } else {
-                    success = this.client.makeResendRequest(uri, request);
-                }
+                success = client.makeResendRequest(uri, request);
             } catch (final Exception ex) {
                 success = false;
                 LOGGER.debug("Failed to make resend request to node {} for key {}", uri, request.getPublicKey());
