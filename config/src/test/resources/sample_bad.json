@@ -1,12 +1,13 @@
 {
     "useWhiteList": false,
+
     "server": {
         "port": 99,
         "influxConfig": {
             "port": 1111,
             "hostName": "localhost",
             "dbName": "dummy",
-            "pushIntervalInSecs": "10"
+            "pushIntervalInSecs" : "10"
         }
     },
     "peer": [
