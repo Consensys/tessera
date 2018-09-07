@@ -10,8 +10,6 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 
 @PrivateApi
@@ -23,12 +21,8 @@ public class PrivateApiFilter implements ContainerRequestFilter {
 
     private final String hostname;
 
-    public PrivateApiFilter(final ServerConfig serverConfig) {
-        try {
-            this.hostname = new URI(serverConfig.getBindingAddress()).getHost();
-        } catch (final URISyntaxException ex) {
-            throw new RuntimeException(ex);
-        }
+    public PrivateApiFilter(final ServerConfig serverConfig) throws UnknownHostException {
+        this.hostname = HostnameUtil.create().getHostIpAddress();
     }
 
     /**
@@ -48,20 +42,8 @@ public class PrivateApiFilter implements ContainerRequestFilter {
         }
 
         final String remoteAddress = httpServletRequest.getRemoteAddr();
-        final String remoteHost = httpServletRequest.getRemoteHost();
 
-//        LOGGER.info("Allowed host: {}, RemoteAddr: {}, RemoteHost: {}", hostname, remoteAddress, remoteHost);
-        LOGGER.info("Allowed host: {}", hostname);
-        LOGGER.info("This host: {}", HostnameUtil.create().getHostName());
-        LOGGER.info("This IP: {}", HostnameUtil.create().getHostIpAddress());
-        LOGGER.info("Remote host : {}", remoteAddress);
-        LOGGER.info("Remote host : {}", remoteHost);
-        LOGGER.info("Request uri : {}", httpServletRequest.getRequestURI());
-
-
-
-
-        final boolean allowed = "127.0.0.1".equals(remoteAddress) || "127.0.0.1".equals(remoteHost);
+        final boolean allowed = hostname.equals(remoteAddress);
 
         if (!allowed) {
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
