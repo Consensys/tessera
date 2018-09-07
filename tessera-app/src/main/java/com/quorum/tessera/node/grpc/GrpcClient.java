@@ -1,5 +1,6 @@
 package com.quorum.tessera.node.grpc;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.ByteString;
 import com.quorum.tessera.api.grpc.PartyInfoGrpc;
 import com.quorum.tessera.api.grpc.TransactionGrpc;
@@ -24,7 +25,8 @@ public final class GrpcClient {
 
     private final TransactionGrpc.TransactionBlockingStub transactionBlockingStub;
 
-    private GrpcClient(final ManagedChannel channel) {
+    @VisibleForTesting
+    GrpcClient(final ManagedChannel channel) {
         this.channel = channel;
         this.partyInfoBlockingStub = PartyInfoGrpc.newBlockingStub(channel);
         this.transactionBlockingStub = TransactionGrpc.newBlockingStub(channel);
@@ -68,9 +70,8 @@ public final class GrpcClient {
     }
 
     public boolean makeResendRequest(final ResendRequest request) {
-        final TransactionGrpc.TransactionBlockingStub stub = TransactionGrpc.newBlockingStub(channel);
         try {
-            stub.resend(request);
+            transactionBlockingStub.resend(request);
             return true;
         }
         catch (StatusRuntimeException ex) {
@@ -80,9 +81,8 @@ public final class GrpcClient {
         return false;
     }
 
-    boolean shutdown() throws InterruptedException {
+    void shutdown() throws InterruptedException {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-        return true;
     }
 
 }

@@ -1,4 +1,4 @@
-package com.quorum.tessera.node;
+package com.quorum.tessera.node.grpc;
 
 import com.quorum.tessera.node.grpc.GrpcClient;
 import com.quorum.tessera.node.grpc.GrpcClientFactory;
