@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +27,7 @@ public class IPWhitelistFilterTest {
     private IPWhitelistFilter filter;
 
     @Before
-    public void init() throws URISyntaxException {
+    public void init() throws URISyntaxException, UnknownHostException {
 
         this.ctx = mock(ContainerRequestContext.class);
 
@@ -45,7 +46,7 @@ public class IPWhitelistFilterTest {
     }
 
     @Test
-    public void disabledFilterAllowsAllRequests() throws URISyntaxException {
+    public void disabledFilterAllowsAllRequests() throws URISyntaxException, UnknownHostException {
         final Config configuration = mock(Config.class);
         when(configuration.getPeers()).thenReturn(Collections.emptyList());
         when(configuration.isUseWhiteList()).thenReturn(false);
@@ -136,7 +137,7 @@ public class IPWhitelistFilterTest {
     @Test
     public void selfIsWhitelisted() {
         final HttpServletRequest request = mock(HttpServletRequest.class);
-        doReturn("localhost").when(request).getRemoteHost();
+        doReturn("127.0.0.1").when(request).getRemoteAddr();
 
         filter.setHttpServletRequest(request);
 
@@ -166,17 +167,6 @@ public class IPWhitelistFilterTest {
             .hasCauseExactlyInstanceOf(MalformedURLException.class);
 
         assertThat(throwable.getCause()).hasMessage("unknown protocol: ht");
-    }
-
-    @Test
-    public void invalidHostThrowsError() {
-        final ServerConfig serverConfig = new ServerConfig(null, null, null, null, "&@€~:*&2:-1");
-        final Config config = new Config(null, serverConfig, Collections.emptyList(), null, null, null, false);
-
-        final Throwable throwable = catchThrowable(() -> new IPWhitelistFilter(config));
-        assertThat(throwable)
-            .isInstanceOf(RuntimeException.class)
-            .hasCauseExactlyInstanceOf(MalformedURLException.class);
     }
 
 }

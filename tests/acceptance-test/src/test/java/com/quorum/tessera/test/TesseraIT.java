@@ -19,11 +19,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TesseraIT {
 
-    public static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
+    public static final URI SERVER_URI = TesseraIT.serverUri().port(8080).build();
 
     private final Client client = ClientBuilder.newClient();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TesseraIT.class);
+
+    public static UriBuilder serverUri() {
+        try {
+            return UriBuilder.fromUri("http://127.0.0.1");
+        } catch (final Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
     @Rule
     public TestName testName = new TestName();

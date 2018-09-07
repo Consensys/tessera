@@ -21,10 +21,8 @@ public class PrivateApiFilterTest {
 
     @Before
     public void init() throws UnknownHostException {
-        final HostnameUtil hostnameUtil = mock(HostnameUtil.class);
-        when(hostnameUtil.getHostIpAddress()).thenReturn("127.0.0.1");
 
-        this.filter = new PrivateApiFilter(hostnameUtil);
+        this.filter = new PrivateApiFilter();
 
         this.ctx = mock(ContainerRequestContext.class);
     }
@@ -51,9 +49,9 @@ public class PrivateApiFilterTest {
     }
 
     @Test
-    public void hostThatIsLocalAddressGetsAccepted() {
+    public void hostThatIsLocalAddressGetsAccepted() throws UnknownHostException {
         final HttpServletRequest request = mock(HttpServletRequest.class);
-        doReturn("127.0.0.1").when(request).getRemoteAddr();
+        doReturn(HostnameUtil.create().getHostIpAddress()).when(request).getRemoteAddr();
 
         filter.setHttpServletRequest(request);
 

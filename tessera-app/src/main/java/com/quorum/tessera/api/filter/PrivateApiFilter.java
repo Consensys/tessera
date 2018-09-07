@@ -16,12 +16,14 @@ public class PrivateApiFilter implements ContainerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PrivateApiFilter.class);
 
+    private static final String LOCALHOST = "127.0.0.1";
+
     private HttpServletRequest httpServletRequest;
 
     private final String hostname;
 
-    public PrivateApiFilter(final HostnameUtil hostnameUtil) throws UnknownHostException {
-        this.hostname = hostnameUtil.getHostIpAddress();
+    public PrivateApiFilter() throws UnknownHostException {
+        this.hostname = HostnameUtil.create().getHostIpAddress();
     }
 
     /**
@@ -42,7 +44,7 @@ public class PrivateApiFilter implements ContainerRequestFilter {
 
         final String remoteAddress = httpServletRequest.getRemoteAddr();
 
-        final boolean allowed = hostname.equals(remoteAddress);
+        final boolean allowed = hostname.equals(remoteAddress) || LOCALHOST.equals(remoteAddress);
 
         if (!allowed) {
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());

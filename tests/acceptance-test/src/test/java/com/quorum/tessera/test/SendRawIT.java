@@ -7,14 +7,13 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SendRawIT {
 
-    private static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
+    private static final URI SERVER_URI = TesseraIT.serverUri().port(8080).build();
 
     private static final String SEND_PATH = "/sendraw";
 

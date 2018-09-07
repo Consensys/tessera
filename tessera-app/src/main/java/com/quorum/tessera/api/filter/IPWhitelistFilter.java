@@ -47,11 +47,7 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
 
         //add ourself to the whitelist to let the unix socket in
         //don't use the advertised address, as we only want to talk to ourselves
-        try {
-            this.whitelisted.add(new URL(configuration.getServerConfig().getBindingAddress()).getHost());
-        } catch (final MalformedURLException ex) {
-            throw new RuntimeException(ex);
-        }
+        this.whitelisted.add("127.0.0.1");
 
         this.disabled = !configuration.isUseWhiteList();
     }

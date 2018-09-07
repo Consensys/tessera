@@ -11,7 +11,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
@@ -35,7 +34,7 @@ public class SendIT {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SendIT.class);
 
-    public static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
+    public static final URI SERVER_URI = TesseraIT.serverUri().port(8080).build();
 
     private static final String SEND_PATH = "/send";
 

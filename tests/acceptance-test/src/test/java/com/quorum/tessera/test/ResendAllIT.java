@@ -9,7 +9,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -19,9 +18,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResendAllIT {
 
-    private static final URI PRIMARY_SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
+    private static final URI PRIMARY_SERVER_URI = TesseraIT.serverUri().port(8080).build();
 
-    private static final URI SECONDARY_SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8081).build();
+    private static final URI SECONDARY_SERVER_URI = TesseraIT.serverUri().port(8081).build();
 
     private static final Client client = ClientBuilder.newClient();
 
