@@ -239,6 +239,8 @@
         <module>config-migration</module>
         <module>shared</module>
         <module>grpc</module>
+        <module>grpc-service</module>
+        <module>tessera-model</module>
     </modules>
 
     <dependencyManagement>
@@ -355,6 +357,18 @@
                 <version>0.7-SNAPSHOT</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>tessera-model</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>grpc-service</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+            
             <dependency>
                 <groupId>org.glassfish.jersey</groupId>
                 <artifactId>jersey-bom</artifactId>
@@ -731,6 +745,7 @@
             <artifactId>slf4j-api</artifactId>
             <scope>compile</scope>
         </dependency>
+
 
     </dependencies>
     

@@ -44,12 +44,14 @@
 
         <dependency>
             <groupId>com.quorum.tessera</groupId>
-            <artifactId>grpc</artifactId>
+            <artifactId>grpc-service</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>grpc-server</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -60,6 +62,11 @@
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>service-locator-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>tessera-model</artifactId>
         </dependency>
 
         <dependency>

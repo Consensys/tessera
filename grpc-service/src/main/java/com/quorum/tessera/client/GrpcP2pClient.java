@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.client;
 
 import com.quorum.tessera.api.grpc.Convertor;
@@ -11,10 +10,14 @@ public class GrpcP2pClient implements P2pClient {
     
     private final GrpcClientFactory grpcClientFactory;
 
-    public GrpcP2pClient(GrpcClientFactory grpcClientFactory) {
+    GrpcP2pClient(GrpcClientFactory grpcClientFactory) {
         this.grpcClientFactory = Objects.requireNonNull(grpcClientFactory);
     }
-    
+
+    public GrpcP2pClient() {
+        this(new GrpcClientFactory());
+    }
+
     @Override
     public byte[] push(String targetUrl, byte[] data) {
         return grpcClientFactory.getClient(targetUrl).push(data);

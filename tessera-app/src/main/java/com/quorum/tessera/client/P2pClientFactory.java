@@ -2,8 +2,8 @@ package com.quorum.tessera.client;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.node.PostDelegate;
-import com.quorum.tessera.node.grpc.GrpcClientFactory;
 import java.util.Objects;
+import java.util.ServiceLoader;
 
 
 public class P2pClientFactory {
@@ -19,11 +19,12 @@ public class P2pClientFactory {
     }
     
     public P2pClient create() {
-        if(communicationType == CommunicationType.GRPC) {
-            return new GrpcP2pClient(new GrpcClientFactory());
-        } else {
+        if(communicationType == CommunicationType.REST) {
             return new RestP2pClient(postDelegate);
-        }
+        } 
+        
+        return  ServiceLoader.load(P2pClient.class).iterator().next();
+
     }
     
     
