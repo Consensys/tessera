@@ -20,8 +20,6 @@ public class HttpProxyFactory {
 
     private final SocketFactory socketFactory;
 
-    private static final String LOCALHOST = "127.0.0.1:";
-
     public HttpProxyFactory(final ServerConfig serverConfig) throws Exception {
         this.serverUri = new URI(serverConfig.getServerUri().getScheme() + "://" + HostnameUtil.create().getHostIpAddress() + serverConfig.getPort());
 
@@ -31,7 +29,7 @@ public class HttpProxyFactory {
 
             final SSLContext sslContext = TrustMode.NONE.createSSLContext(
                 new SSLContextProperties(
-                    LOCALHOST + serverConfig.getPort(),
+                    HostnameUtil.create().getHostIpAddress() + ":" + serverConfig.getPort(),
                     sslConfig.getClientKeyStore(),
                     sslConfig.getClientKeyStorePassword(),
                     sslConfig.getClientTlsKeyPath(),
