@@ -41,7 +41,7 @@ public class GrpcClientTest {
         mock(TransactionGrpc.TransactionImplBase.class,
             delegatesTo(new TransactionGrpcServiceDelegate() { }));
 
-    private GrpcClient client;
+    private GrpcClientImpl client;
 
     @Before
     public void setUp() throws Exception {
@@ -58,7 +58,7 @@ public class GrpcClientTest {
         final ManagedChannel channel = grpcCleanup.register(
             InProcessChannelBuilder.forName(serverName).directExecutor().usePlaintext().build());
 
-        client = new GrpcClient(channel);
+        client = new GrpcClientImpl(channel);
     }
 
     @Test
