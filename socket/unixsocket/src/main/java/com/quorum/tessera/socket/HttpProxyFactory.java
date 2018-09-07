@@ -21,7 +21,7 @@ public class HttpProxyFactory {
     private final SocketFactory socketFactory;
 
     public HttpProxyFactory(final ServerConfig serverConfig) throws Exception {
-        this.serverUri = new URI(serverConfig.getServerUri().getScheme() + "://" + HostnameUtil.create().getHostIpAddress() + serverConfig.getPort());
+        this.serverUri = new URI(serverConfig.getServerUri().getScheme() + "://" + HostnameUtil.create().getHostIpAddress() + ":" + serverConfig.getPort());
 
         if (serverConfig.isSsl()) {
 
