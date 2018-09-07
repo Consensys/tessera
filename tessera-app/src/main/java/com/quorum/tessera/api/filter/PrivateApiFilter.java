@@ -1,6 +1,5 @@
 package com.quorum.tessera.api.filter;
 
-import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.ssl.util.HostnameUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +20,8 @@ public class PrivateApiFilter implements ContainerRequestFilter {
 
     private final String hostname;
 
-    public PrivateApiFilter(final ServerConfig serverConfig) throws UnknownHostException {
-        this.hostname = HostnameUtil.create().getHostIpAddress();
+    public PrivateApiFilter(final HostnameUtil hostnameUtil) throws UnknownHostException {
+        this.hostname = hostnameUtil.getHostIpAddress();
     }
 
     /**
@@ -34,7 +33,7 @@ public class PrivateApiFilter implements ContainerRequestFilter {
      * @param requestContext the context of the current request
      */
     @Override
-    public void filter(final ContainerRequestContext requestContext) throws UnknownHostException {
+    public void filter(final ContainerRequestContext requestContext) {
 
         if(this.httpServletRequest == null) {
             LOGGER.debug("No servlet available, could not determine request origin. Allowing...");
