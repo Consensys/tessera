@@ -22,9 +22,9 @@ public class HttpProxyFactory {
     private static final String LOCALHOST = "127.0.0.1:";
 
     public HttpProxyFactory(final ServerConfig serverConfig) throws Exception {
+        this.serverUri = new URI(serverConfig.getServerUri().getScheme() + "://" + LOCALHOST + serverConfig.getPort());
 
         if (serverConfig.isSsl()) {
-            this.serverUri = new URI("https://" + LOCALHOST + serverConfig.getPort());
 
             final SslConfig sslConfig = serverConfig.getSslConfig();
 
@@ -44,7 +44,6 @@ public class HttpProxyFactory {
             
             this.socketFactory = sslContext.getSocketFactory();
         } else {
-            this.serverUri = new URI("http://" + LOCALHOST + serverConfig.getPort());
             this.socketFactory = SocketFactory.getDefault();
         }
 
