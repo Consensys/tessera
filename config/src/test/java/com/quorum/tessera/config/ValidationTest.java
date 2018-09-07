@@ -127,7 +127,6 @@ public class ValidationTest {
 
     }
 
-
     @Test
     public void keyDataPublicKeyValidation() {
 
@@ -201,6 +200,18 @@ public class ValidationTest {
 
         ConstraintViolation<Config> violation = violations.iterator().next();
         assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyVaultConfiguration.message}");
+    }
+
+    @Test
+    public void keyConfigurationIsNullCreatesNotNullViolation() {
+        Config config = new Config(null, null, null, null, null, null, false);
+
+        Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
+
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<Config> violation = violations.iterator().next();
+        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
     }
 
 }

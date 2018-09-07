@@ -50,7 +50,6 @@ public class KeyDataValidator implements ConstraintValidator<ValidKeyData, KeyDa
                     .addNode("privateKeyPath")
                     .addConstraintViolation();
             return false;
-
         }
 
         return true;

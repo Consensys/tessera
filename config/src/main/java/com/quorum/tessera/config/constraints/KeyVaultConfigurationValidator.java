@@ -18,8 +18,9 @@ public class KeyVaultConfigurationValidator implements ConstraintValidator<Valid
     @Override
     public boolean isValid(KeyConfiguration keyConfiguration, ConstraintValidatorContext cvc) {
 
+        //return true so that only NotNull annotation creates violation
         if(keyConfiguration == null) {
-            return false;
+            return true;
         }
 
         boolean hasVaultKeys = false;
