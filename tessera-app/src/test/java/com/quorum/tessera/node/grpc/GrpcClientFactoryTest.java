@@ -1,7 +1,5 @@
 package com.quorum.tessera.node.grpc;
 
-import com.quorum.tessera.node.grpc.GrpcClient;
-import com.quorum.tessera.node.grpc.GrpcClientFactory;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

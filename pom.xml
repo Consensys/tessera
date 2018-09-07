@@ -662,6 +662,13 @@
                 <artifactId>googleapis-common-protos</artifactId>
                 <version>0.0.3</version>
             </dependency>
+
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-testing</artifactId>
+                <version>${grpc.version}</version>
+                <scope>test</scope>
+            </dependency>
             
         </dependencies>
     </dependencyManagement>

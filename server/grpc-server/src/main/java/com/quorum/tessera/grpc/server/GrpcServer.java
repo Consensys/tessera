@@ -19,7 +19,7 @@ public class GrpcServer {
         this.server = server;
     }
 
-    public void start() {
+    public void start() throws IOException {
         try {
             server.start();
             LOGGER.info("gRPC server started, listening on " + uri.getPort());
@@ -33,6 +33,7 @@ public class GrpcServer {
             });
         } catch (IOException ex) {
             LOGGER.error("Cannot start gRPC server. See cause ", ex);
+            throw ex;
         }
     }
 
