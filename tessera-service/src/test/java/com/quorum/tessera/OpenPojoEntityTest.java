@@ -24,7 +24,6 @@ public class OpenPojoEntityTest {
 
         pojoValidator.validate("com.quorum.tessera.api.model");
         pojoValidator.validateRecursively("com.quorum.tessera.enclave.model");
-
     }
 
 

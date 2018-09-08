@@ -6,7 +6,7 @@
         <artifactId>tessera</artifactId>
         <version>0.7-SNAPSHOT</version>
     </parent>
-    <artifactId>tessera-model</artifactId>
+    <artifactId>tessera-service</artifactId>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
@@ -29,4 +29,5 @@
             <artifactId>javax.persistence-api</artifactId>
         </dependency>
     </dependencies>
+    <name>tessera-service</name>
 </project>

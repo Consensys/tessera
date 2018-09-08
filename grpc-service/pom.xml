@@ -17,7 +17,7 @@
         
         <dependency>
             <groupId>com.quorum.tessera</groupId>
-            <artifactId>tessera-model</artifactId>
+            <artifactId>tessera-service</artifactId>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>

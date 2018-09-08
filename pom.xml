@@ -240,7 +240,7 @@
         <module>shared</module>
         <module>grpc</module>
         <module>grpc-service</module>
-        <module>tessera-model</module>
+        <module>tessera-service</module>
     </modules>
 
     <dependencyManagement>
@@ -359,7 +359,7 @@
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
-                <artifactId>tessera-model</artifactId>
+                <artifactId>tessera-service</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
 
