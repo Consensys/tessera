@@ -21,6 +21,12 @@ public class ClientFactory {
         this.sslContextFactory = Objects.requireNonNull(sslContextFactory);
     }
 
+    public ClientFactory() {
+        this(com.quorum.tessera.ssl.context.ClientSSLContextFactory.create());
+    }
+    
+    
+
     /**
      * Creates a new client, which may or may not be SSL enabled depending on
      * the configuration

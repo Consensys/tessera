@@ -88,7 +88,6 @@ public class Launcher {
     private static void runWebServer(final URI serverUri, ServerConfig serverConfig) throws Exception {
 
         final Tessera tessera = new Tessera(ServiceLocator.create(), "tessera-spring.xml");
-
         TesseraServerFactory tesseraServerFactory = TesseraServerFactory.create(serverConfig.getCommunicationType());
         final TesseraServer tesseraServer;
         if (serverConfig.getCommunicationType() == CommunicationType.GRPC) {

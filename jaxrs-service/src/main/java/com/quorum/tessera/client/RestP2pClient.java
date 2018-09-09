@@ -6,7 +6,6 @@ import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.node.PostDelegate;
 import java.util.Objects;
 
-
 public class RestP2pClient implements P2pClient {
     
     private final PostDelegate postDelegate;

@@ -241,6 +241,7 @@
         <module>grpc</module>
         <module>grpc-service</module>
         <module>tessera-service</module>
+        <module>jaxrs-service</module>
     </modules>
 
     <dependencyManagement>
@@ -690,7 +691,7 @@
     <dependencies>
 
         <!-- Needed for JavaDoc plugin -->
-        <dependency>
+<!--        <dependency>
             <groupId>javax.interceptor</groupId>
             <artifactId>javax.interceptor-api</artifactId>
         </dependency>
@@ -698,7 +699,7 @@
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
-        </dependency>
+        </dependency>-->
 
         <!-- Testing -->
 

@@ -14,12 +14,13 @@ import java.util.Objects;
  */
 public class PostDelegate {
 
-    private Client client;
+    private final Client client;
 
     public PostDelegate(final Client client){
         this.client = Objects.requireNonNull(client);
     }
-
+    
+    
     /**
      * Makes a post request for a given set of parameters
      * Sends the entity as an OCTET_STREAM and returns the response only if a 200 OK response received.

@@ -19,11 +19,16 @@
             <groupId>com.quorum.tessera</groupId>
             <artifactId>tessera-service</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-testing</artifactId>
-            <version>1.14.0</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>service-locator-api</artifactId>
+            <version>0.7-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
     </dependencies>
