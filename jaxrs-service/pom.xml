@@ -20,7 +20,7 @@
         </dependency>
         <dependency>
             <groupId>com.quorum.tessera</groupId>
-            <artifactId>tessera-service</artifactId>
+            <artifactId>tessera-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.quorum.tessera</groupId>

@@ -1,6 +1,5 @@
 package com.quorum.tessera;
 
-import com.quorum.tessera.api.Tessera;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;

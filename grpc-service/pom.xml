@@ -17,7 +17,7 @@
         
         <dependency>
             <groupId>com.quorum.tessera</groupId>
-            <artifactId>tessera-service</artifactId>
+            <artifactId>tessera-core</artifactId>
         </dependency>
         
         <dependency>
@@ -28,7 +28,6 @@
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>service-locator-api</artifactId>
-            <version>0.7-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
     </dependencies>

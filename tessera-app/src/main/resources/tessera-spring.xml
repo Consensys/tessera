@@ -132,6 +132,7 @@
 
     </bean>
 
+
     <bean name="clientFactory" class="com.quorum.tessera.node.ClientFactory">
         <constructor-arg>
             <bean class="com.quorum.tessera.ssl.context.ClientSSLContextFactory" factory-method="create"/>
