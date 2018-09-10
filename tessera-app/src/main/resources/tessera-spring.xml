@@ -75,12 +75,13 @@
         <constructor-arg value="60"/>
     </bean>
     
-    <bean id="p2pClientFactory" class="com.quorum.tessera.client.P2pClientFactory">
-        <constructor-arg ref="postDelegate" />
-        <constructor-arg value="#{config.serverConfig.communicationType}" />
+    <bean id="p2pClientFactory" class="com.quorum.tessera.client.P2pClientFactory" factory-method="newFactory">
+        <constructor-arg ref="config" />
     </bean>
     
-    <bean id="p2pClient" factory-bean="p2pClientFactory" factory-method="create" />
+    <bean id="p2pClient" factory-bean="p2pClientFactory" factory-method="create">
+        <constructor-arg ref="config"/>
+    </bean>
 
 
     <!-- Party Info management -->
@@ -123,6 +124,13 @@
         </constructor-arg>
     </bean>
 
+<!-- 
+final TransactionService transactionService,
+                       final PartyInfoService partyInfoService,
+                       final PayloadEncoder payloadEncoder,
+                       final KeyManager keyManager,
+                       final P2pClient p2pClient) {
+-->
     <bean name="enclave" class="com.quorum.tessera.enclave.EnclaveImpl">
         <constructor-arg ref="transactionService"/>
         <constructor-arg ref="partyInfoService"/>
