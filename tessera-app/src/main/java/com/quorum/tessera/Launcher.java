@@ -88,7 +88,7 @@ public class Launcher {
 
         Set<Object> services = serviceLocator.getServices("tessera-spring.xml");
         TesseraServerFactory tesseraServerFactory = TesseraServerFactory.create(serverConfig.getCommunicationType());
-
+        
         TesseraServer tesseraServer = tesseraServerFactory.createServer(serverConfig, services);
 
         CountDownLatch countDown = new CountDownLatch(1);

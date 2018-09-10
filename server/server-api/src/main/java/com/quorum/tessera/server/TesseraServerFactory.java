@@ -9,7 +9,7 @@ import java.util.Set;
 
 public interface TesseraServerFactory {
 
-    TesseraServer createServer(ServerConfig serverConfig,Set<Object> setrvices);
+    TesseraServer createServer(ServerConfig serverConfig,Set<Object> services);
 
     static TesseraServerFactory create(CommunicationType communicationType) {
         List<TesseraServerFactory> all = new ArrayList<>();
