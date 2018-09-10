@@ -1,27 +1,25 @@
-package com.quorum.tessera.node.grpc;
+package com.quorum.tessera.client;
 
-import java.util.Optional;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class GrpcClientFactory {
+class GrpcClientFactory {
 
     private static final ConcurrentMap<String, GrpcClient> CLIENTS = new ConcurrentHashMap<>();
 
-    public GrpcClientFactory() {
-
-    }
-
     private static GrpcClient newClient(final String targetUrl) {
         final GrpcClient client = new GrpcClientImpl(targetUrl);
-        CLIENTS.put(targetUrl, client);
+        CLIENTS.putIfAbsent(targetUrl, client);
         return client;
     }
 
     public GrpcClient getClient(final String targetUrl) {
-        final GrpcClient client = Optional.ofNullable(CLIENTS.get(targetUrl))
-            .orElse(newClient(targetUrl));
-        return client;
+        final GrpcClient client = CLIENTS.get(targetUrl);
+        if (Objects.nonNull(client)) {
+            return client;
+        }
+        return newClient(targetUrl);
     }
 
 }

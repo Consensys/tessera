@@ -1,6 +1,7 @@
-package com.quorum.tessera.api.grpc;
+package com.quorum.tessera.client;
 
 import com.google.protobuf.Empty;
+import com.quorum.tessera.api.grpc.TesseraGrpcService;
 import com.quorum.tessera.api.grpc.model.UpCheckMessage;
 import com.quorum.tessera.api.grpc.model.VersionMessage;
 import io.grpc.stub.StreamObserver;

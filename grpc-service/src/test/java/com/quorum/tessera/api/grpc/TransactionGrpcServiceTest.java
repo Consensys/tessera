@@ -1,7 +1,7 @@
 package com.quorum.tessera.api.grpc;
 
 import com.google.protobuf.ByteString;
-import com.quorum.tessera.EnclaveDelegate;
+import com.quorum.tessera.enclave.EnclaveMediator;
 import com.quorum.tessera.api.grpc.model.*;
 import io.grpc.stub.StreamObserver;
 import java.util.Base64;
@@ -35,14 +35,14 @@ public class TransactionGrpcServiceTest {
     private StreamObserver<ResendResponse> resendResponseObserver;
 
     @Mock
-    private EnclaveDelegate enclaveDelegate;
+    private EnclaveMediator enclaveMediator;
 
     private TransactionGrpcService service;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        service = new TransactionGrpcService(enclaveDelegate);
+        service = new TransactionGrpcService(enclaveMediator);
     }
 
     @After
@@ -66,11 +66,11 @@ public class TransactionGrpcServiceTest {
         
         
         com.quorum.tessera.api.model.SendResponse r = new com.quorum.tessera.api.model.SendResponse("KEY");
-        when(enclaveDelegate.send(any())).thenReturn(r);
+        when(enclaveMediator.send(any())).thenReturn(r);
 
         service.send(sendRequest,sendResponseObserver);
 
-        verify(enclaveDelegate).send(any());
+        verify(enclaveMediator).send(any());
 
         verify(sendResponseObserver).onNext(any());
 
@@ -85,12 +85,12 @@ public class TransactionGrpcServiceTest {
                 .build();
 
         com.quorum.tessera.api.model.SendResponse r = new com.quorum.tessera.api.model.SendResponse("KEY");
-        when(enclaveDelegate.send(any())).thenReturn(r);
+        when(enclaveMediator.send(any())).thenReturn(r);
 
         service.send(sendRequest, sendResponseObserver);
 
 
-        verify(enclaveDelegate).send(any());
+        verify(enclaveMediator).send(any());
 
         verify(sendResponseObserver).onNext(any());
 
@@ -100,7 +100,7 @@ public class TransactionGrpcServiceTest {
     @Test
     public void testReceive() {
         
-        when(enclaveDelegate.receiveAndEncode(any())).thenReturn("SOME DATA");
+        when(enclaveMediator.receiveAndEncode(any())).thenReturn("SOME DATA");
 
         ReceiveRequest request = ReceiveRequest.newBuilder()
                 .setTo("cmVjaXBpZW50MQ==")
@@ -109,7 +109,7 @@ public class TransactionGrpcServiceTest {
 
         service.receive(request, receiveResponseObserver);
 
-        verify(enclaveDelegate).receiveAndEncode(any());
+        verify(enclaveMediator).receiveAndEncode(any());
 
         ArgumentCaptor<ReceiveResponse> receiveResponseCaptor = ArgumentCaptor.forClass(ReceiveResponse.class);
         verify(receiveResponseObserver).onNext(receiveResponseCaptor.capture());
@@ -127,11 +127,11 @@ public class TransactionGrpcServiceTest {
                 .setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=")
                 .build();
         
-        when(enclaveDelegate.receiveAndEncode(any())).thenReturn("ENCODEDPAYLOAD");
+        when(enclaveMediator.receiveAndEncode(any())).thenReturn("ENCODEDPAYLOAD");
         
         service.receive(request, receiveResponseObserver);
 
-        verify(enclaveDelegate).receiveAndEncode(any());
+        verify(enclaveMediator).receiveAndEncode(any());
 
         ArgumentCaptor<ReceiveResponse> receiveResponseCaptor = ArgumentCaptor.forClass(ReceiveResponse.class);
         verify(receiveResponseObserver).onNext(receiveResponseCaptor.capture());
@@ -151,7 +151,7 @@ public class TransactionGrpcServiceTest {
 
         service.delete(request, deleteResponseObserver);
 
-        verify(enclaveDelegate, times(1)).delete(any());
+        verify(enclaveMediator, times(1)).delete(any());
 
         ArgumentCaptor<DeleteRequest> responseCaptor = ArgumentCaptor.forClass(DeleteRequest.class);
         verify(deleteResponseObserver).onNext(responseCaptor.capture());
@@ -169,7 +169,7 @@ public class TransactionGrpcServiceTest {
         PushRequest request = PushRequest.newBuilder().setData(ByteString.copyFrom("SOMEDATA".getBytes())).build();
         service.push(request, pushResponseObserver);
 
-        verify(enclaveDelegate).storePayload(any());
+        verify(enclaveMediator).storePayload(any());
 
         ArgumentCaptor<PushRequest> responseCaptor = ArgumentCaptor.forClass(PushRequest.class);
         verify(pushResponseObserver).onNext(responseCaptor.capture());
@@ -190,11 +190,11 @@ public class TransactionGrpcServiceTest {
                 .setKey("mykey")
                 .build();
 
-        when(enclaveDelegate.resendAndEncode(any())).thenReturn(Optional.empty());
+        when(enclaveMediator.resendAndEncode(any())).thenReturn(Optional.empty());
         
         service.resend(request, resendResponseObserver);
 
-        verify(enclaveDelegate).resendAndEncode(any());
+        verify(enclaveMediator).resendAndEncode(any());
 
         verify(resendResponseObserver).onNext(any());
         verify(resendResponseObserver).onCompleted();

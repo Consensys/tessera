@@ -2,7 +2,7 @@ package com.quorum.tessera.client;
 
 import com.quorum.tessera.api.grpc.Convertor;
 import com.quorum.tessera.api.model.ResendRequest;
-import com.quorum.tessera.node.grpc.GrpcClientFactory;
+
 import java.util.Objects;
 
 

@@ -2,8 +2,7 @@ package com.quorum.tessera.client;
 
 import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendRequestType;
-import com.quorum.tessera.node.grpc.GrpcClient;
-import com.quorum.tessera.node.grpc.GrpcClientFactory;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
