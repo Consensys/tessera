@@ -20,7 +20,7 @@ public class HttpProxyFactory {
     private final SocketFactory socketFactory;
 
     public HttpProxyFactory(final ServerConfig serverConfig) throws Exception {
-        this.serverUri = serverConfig.getServerUri();
+        this.serverUri = new URI(serverConfig.getServerUri().getScheme() + "://127.0.0.1:" + serverConfig.getPort());
 
         if (serverConfig.isSsl()) {
 
@@ -28,7 +28,7 @@ public class HttpProxyFactory {
 
             final SSLContext sslContext = TrustMode.NONE.createSSLContext(
                 new SSLContextProperties(
-                    serverConfig.getServerUri().toString(),
+                    serverConfig.getBindingAddress(),
                     sslConfig.getClientKeyStore(),
                     sslConfig.getClientKeyStorePassword(),
                     sslConfig.getClientTlsKeyPath(),
