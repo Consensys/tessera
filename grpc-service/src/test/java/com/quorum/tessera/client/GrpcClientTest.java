@@ -1,4 +1,4 @@
-package com.quorum.tessera.node.grpc;
+package com.quorum.tessera.client;
 
 import com.google.protobuf.ByteString;
 import com.quorum.tessera.api.grpc.PartyInfoGrpc;
@@ -7,6 +7,7 @@ import com.quorum.tessera.api.grpc.model.PartyInfoMessage;
 import com.quorum.tessera.api.grpc.model.PushRequest;
 import com.quorum.tessera.api.grpc.model.ResendRequest;
 import com.quorum.tessera.api.grpc.model.ResendResponse;
+import com.quorum.tessera.client.GrpcClientImpl;
 import io.grpc.ManagedChannel;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;

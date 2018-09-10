@@ -1,7 +1,7 @@
 package com.quorum.tessera.api.grpc;
 
 import com.google.protobuf.ByteString;
-import com.quorum.tessera.EnclaveDelegate;
+import com.quorum.tessera.enclave.EnclaveMediator;
 import com.quorum.tessera.api.grpc.model.*;
 import io.grpc.stub.StreamObserver;
 import java.util.Objects;
@@ -16,17 +16,17 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionGrpcService.class);
 
 
-    private final EnclaveDelegate tesseraDelegate;
+    private final EnclaveMediator enclaveMediator;
 
-    public TransactionGrpcService(EnclaveDelegate tesseraDelegate) {
-        this.tesseraDelegate = Objects.requireNonNull(tesseraDelegate);
+    public TransactionGrpcService(EnclaveMediator enclaveMediator) {
+        this.enclaveMediator = Objects.requireNonNull(enclaveMediator);
     }
 
     @Override
     public void send(SendRequest grpcSendRequest, StreamObserver<SendResponse> responseObserver) {
 
         com.quorum.tessera.api.model.SendRequest sendRequest = Convertor.toModel(grpcSendRequest);
-        com.quorum.tessera.api.model.SendResponse response = tesseraDelegate.send(sendRequest);
+        com.quorum.tessera.api.model.SendResponse response = enclaveMediator.send(sendRequest);
 
         final SendResponse grpcResponse = Convertor.toGrpc(response);
 
@@ -39,7 +39,7 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
 
         com.quorum.tessera.api.model.ReceiveRequest request = Convertor.toModel(grpcRequest);
 
-        String encodedPayload = tesseraDelegate.receiveAndEncode(request);
+        String encodedPayload = enclaveMediator.receiveAndEncode(request);
 
         final ReceiveResponse response = ReceiveResponse
                 .newBuilder()
@@ -56,8 +56,8 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
         LOGGER.debug("Received delete key request");
 
         com.quorum.tessera.api.model.DeleteRequest request = Convertor.toModel(grpcRequest);
-        
-        tesseraDelegate.delete(request);
+
+        enclaveMediator.delete(request);
         
         responseObserver.onNext(grpcRequest);
         responseObserver.onCompleted();
@@ -68,7 +68,7 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
         LOGGER.debug("Received resend request");
         
         com.quorum.tessera.api.model.ResendRequest request = Convertor.toModel(grpcRequest);
-        Optional<byte[]> result = tesseraDelegate.resendAndEncode(request);
+        Optional<byte[]> result = enclaveMediator.resendAndEncode(request);
         ResendResponse.Builder builder = ResendResponse.newBuilder();
         result.map(ByteString::copyFrom).ifPresent(builder::setData);
         
@@ -81,7 +81,7 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
     public void push(PushRequest request, StreamObserver<PushRequest> responseObserver) {
         LOGGER.debug("Received push request");
 
-        tesseraDelegate.storePayload(request.toByteArray());
+        enclaveMediator.storePayload(request.toByteArray());
         
 
         responseObserver.onNext(request);

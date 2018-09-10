@@ -1,5 +1,5 @@
 
-package com.quorum.tessera.node.grpc;
+package com.quorum.tessera.client;
 
 import com.quorum.tessera.api.grpc.model.ResendRequest;
 

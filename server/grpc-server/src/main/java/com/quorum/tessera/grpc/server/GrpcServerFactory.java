@@ -8,7 +8,6 @@ import io.grpc.BindableService;
 import io.grpc.ServerBuilder;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,26 +18,15 @@ public class GrpcServerFactory implements TesseraServerFactory {
     @Override
     public TesseraServer createServer(ServerConfig serverConfig, Set<Object> services) {
 
-
-        Integer port = serverConfig.getPort(); 
-
-        
-        URI uri = serverConfig.getServerUri();
-        
         final List<BindableService> bindableServices = services
                 .stream()
                 .filter(BindableService.class::isInstance)
                 .map(o -> (BindableService) o)
                 .collect(Collectors.toList());
 
-        final URI serverUri;
-        try {
-            serverUri = new URI(uri.toString() +":"+ port);
-        } catch (URISyntaxException ex) {
-            throw new RuntimeException(ex);
-        }
+        final URI serverUri = serverConfig.getServerUri();
 
-        ServerBuilder serverBuilder = ServerBuilder.forPort(port);
+        ServerBuilder serverBuilder = ServerBuilder.forPort(serverUri.getPort());
 
         bindableServices.stream().forEach(serverBuilder::addService);
 

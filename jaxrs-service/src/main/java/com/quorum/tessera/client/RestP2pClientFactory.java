@@ -2,8 +2,6 @@ package com.quorum.tessera.client;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.node.ClientFactory;
-import com.quorum.tessera.node.PostDelegate;
 import com.quorum.tessera.ssl.context.ClientSSLContextFactory;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
 import javax.ws.rs.client.Client;

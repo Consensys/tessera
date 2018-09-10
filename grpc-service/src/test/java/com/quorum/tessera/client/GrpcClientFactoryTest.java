@@ -1,4 +1,4 @@
-package com.quorum.tessera.node.grpc;
+package com.quorum.tessera.client;
 
 import org.junit.Test;
 
