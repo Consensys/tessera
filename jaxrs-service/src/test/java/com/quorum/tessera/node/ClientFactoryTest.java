@@ -1,5 +1,6 @@
 package com.quorum.tessera.node;
 
+import com.quorum.tessera.client.ClientFactory;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
