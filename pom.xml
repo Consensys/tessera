@@ -239,6 +239,9 @@
         <module>config-migration</module>
         <module>shared</module>
         <module>grpc</module>
+        <module>grpc-service</module>
+        <module>jaxrs-service</module>
+        <module>tessera-core</module>
     </modules>
 
     <dependencyManagement>
@@ -355,6 +358,25 @@
                 <version>0.7-SNAPSHOT</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>tessera-core</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>grpc-service</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+            
+            
+             <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>jaxrs-service</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+        
             <dependency>
                 <groupId>org.glassfish.jersey</groupId>
                 <artifactId>jersey-bom</artifactId>
@@ -676,7 +698,7 @@
     <dependencies>
 
         <!-- Needed for JavaDoc plugin -->
-        <dependency>
+<!--        <dependency>
             <groupId>javax.interceptor</groupId>
             <artifactId>javax.interceptor-api</artifactId>
         </dependency>
@@ -684,7 +706,7 @@
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
-        </dependency>
+        </dependency>-->
 
         <!-- Testing -->
 
@@ -731,6 +753,7 @@
             <artifactId>slf4j-api</artifactId>
             <scope>compile</scope>
         </dependency>
+
 
     </dependencies>
     

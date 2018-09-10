@@ -41,15 +41,23 @@
             <groupId>com.quorum.tessera</groupId>
             <artifactId>security</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>com.quorum.tessera</groupId>
-            <artifactId>grpc</artifactId>
+            <artifactId>jaxrs-service</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>grpc-service</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>grpc-server</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -60,6 +68,11 @@
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>service-locator-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>tessera-core</artifactId>
         </dependency>
 
         <dependency>
@@ -89,11 +102,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-testing</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.hsqldb</groupId>
@@ -201,12 +209,9 @@
             <artifactId>javax.el</artifactId>
             <scope>runtime</scope>
         </dependency>
+        
 
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-server</artifactId>
-        </dependency>
-
+        
     </dependencies>
 
     <build>

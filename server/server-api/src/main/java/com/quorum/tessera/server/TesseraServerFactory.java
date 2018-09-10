@@ -5,10 +5,11 @@ import com.quorum.tessera.config.ServerConfig;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 public interface TesseraServerFactory {
 
-    TesseraServer createServer(ServerConfig serverConfig,Object... args);
+    TesseraServer createServer(ServerConfig serverConfig,Set<Object> services);
 
     static TesseraServerFactory create(CommunicationType communicationType) {
         List<TesseraServerFactory> all = new ArrayList<>();
