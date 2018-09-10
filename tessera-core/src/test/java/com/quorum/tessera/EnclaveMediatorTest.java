@@ -2,6 +2,7 @@ package com.quorum.tessera;
 
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EnclaveMediator;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.transaction.PayloadEncoder;
 import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
@@ -18,7 +19,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import org.mockito.stubbing.Answer;
 
-public class EnclaveDelegateTest {
+public class EnclaveMediatorTest {
     
     private Enclave enclave;
     
@@ -26,13 +27,13 @@ public class EnclaveDelegateTest {
     
     private Base64Decoder base64Decoder = Base64Decoder.create();
     
-    private EnclaveDelegate enclaveDelegate;
+    private EnclaveMediator enclaveMediator;
     
     @Before
     public void onSetup() {
         this.enclave = mock(Enclave.class);
         payloadEncoder = mock(PayloadEncoder.class);
-        enclaveDelegate = new EnclaveDelegate(enclave, base64Decoder, payloadEncoder);
+        enclaveMediator = new EnclaveMediator(enclave, base64Decoder, payloadEncoder);
     }
     
     @After
@@ -50,7 +51,7 @@ public class EnclaveDelegateTest {
         
         when(enclave.store(any(), any(), any())).thenReturn(new MessageHash("SOMEKEY".getBytes()));
         
-        SendResponse sendResponse = enclaveDelegate.send(sendRequest);
+        SendResponse sendResponse = enclaveMediator.send(sendRequest);
         
         verify(enclave, times(1)).store(any(), any(), any());
         
@@ -68,7 +69,7 @@ public class EnclaveDelegateTest {
         
         when(enclave.store(any(), any(), any())).thenReturn(new MessageHash("SOMEKEY".getBytes()));
         
-        SendResponse sendResponse = enclaveDelegate.send(sendRequest);
+        SendResponse sendResponse = enclaveMediator.send(sendRequest);
         
         verify(enclave, times(1)).store(any(), any(), any());
         
@@ -84,7 +85,7 @@ public class EnclaveDelegateTest {
         request.setTo("cmVjaXBpZW50MQ==");
         request.setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
         
-        ReceiveResponse response = enclaveDelegate.receive(request);
+        ReceiveResponse response = enclaveMediator.receive(request);
         
         verify(enclave).receive(any(), any());
         
@@ -101,7 +102,7 @@ public class EnclaveDelegateTest {
         ReceiveRequest request = new ReceiveRequest();
         request.setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
         
-        ReceiveResponse response = enclaveDelegate.receive(request);
+        ReceiveResponse response = enclaveMediator.receive(request);
         
         verify(enclave).receive(any(), any());
         
@@ -124,7 +125,7 @@ public class EnclaveDelegateTest {
             return null;
         }).when(enclave).delete(any(byte[].class));
         
-        enclaveDelegate.delete(request);
+        enclaveMediator.delete(request);
         
         verify(enclave, times(1)).delete(any(byte[].class));
         
@@ -141,7 +142,7 @@ public class EnclaveDelegateTest {
         request.setPublicKey("mypublickey");
         request.setKey("mykey");
         
-        Optional<byte[]> result = enclaveDelegate.resendAndEncode(request);
+        Optional<byte[]> result = enclaveMediator.resendAndEncode(request);
         
         assertThat(result).isNotPresent();
         
@@ -168,7 +169,7 @@ public class EnclaveDelegateTest {
         
         when(enclave.fetchTransactionForRecipient(any(), any())).thenReturn(encodedPayloadWithRecipients);
         
-        Optional<byte[]> result = enclaveDelegate.resendAndEncode(request);
+        Optional<byte[]> result = enclaveMediator.resendAndEncode(request);
         
         assertThat(result).isPresent();
         assertThat(result.get()).isEqualTo(encodedPayload);
@@ -192,7 +193,7 @@ public class EnclaveDelegateTest {
         
         when(enclave.receive(any(), any())).thenReturn(enclaveResponse);
         
-        String result = enclaveDelegate.receiveAndEncode(receiveRequest);
+        String result = enclaveMediator.receiveAndEncode(receiveRequest);
         
         assertThat(result).isNotNull();
         
@@ -213,7 +214,7 @@ public class EnclaveDelegateTest {
         
         when(enclave.receive(any(), any())).thenReturn(enclaveResponse);
         
-        String result = enclaveDelegate.receiveAndEncode(receiveRequest);
+        String result = enclaveMediator.receiveAndEncode(receiveRequest);
         
         assertThat(result).isNotNull();
         
@@ -235,7 +236,7 @@ public class EnclaveDelegateTest {
         
         when(enclave.store(any(), any(), any())).thenReturn(messageHash);
         
-        enclaveDelegate.storeAndEncodeKey(sender, recipientKeys, payload);
+        enclaveMediator.storeAndEncodeKey(sender, recipientKeys, payload);
         
         verify(enclave).store(any(), any(), any());
         
@@ -254,7 +255,7 @@ public class EnclaveDelegateTest {
         
         when(enclave.store(any(), any(), any())).thenReturn(messageHash);
         
-        enclaveDelegate.storeAndEncodeKey(sender, recipientKeys, payload);
+        enclaveMediator.storeAndEncodeKey(sender, recipientKeys, payload);
         
         verify(enclave).store(any(), any(), any());
         
@@ -270,7 +271,7 @@ public class EnclaveDelegateTest {
         
         when(enclave.storePayload(payload)).thenReturn(messageHash);
         
-        enclaveDelegate.storePayload(payload);
+        enclaveMediator.storePayload(payload);
         
         verify(enclave).storePayload(payload);
         
@@ -281,7 +282,7 @@ public class EnclaveDelegateTest {
         
         String key = Base64.getEncoder().encodeToString("KEY".getBytes());
         
-        enclaveDelegate.deleteKey(key);
+        enclaveMediator.deleteKey(key);
         
         verify(enclave).delete("KEY".getBytes());
         
@@ -294,7 +295,7 @@ public class EnclaveDelegateTest {
         String recipientKey = Base64.getEncoder().encodeToString("recipientKey".getBytes());
                 
         
-        enclaveDelegate.receiveRaw(hash, recipientKey);
+        enclaveMediator.receiveRaw(hash, recipientKey);
         
         verify(enclave).receive(any(),any());
         
@@ -310,7 +311,7 @@ public class EnclaveDelegateTest {
         
         when(enclave.receive(any(), any())).thenReturn("RESULT".getBytes());
         
-        ReceiveResponse result = enclaveDelegate.receive(hash, null);
+        ReceiveResponse result = enclaveMediator.receive(hash, null);
         
         assertThat(result.getPayload())
                 .isEqualTo(Base64.getEncoder().encodeToString("RESULT".getBytes()));
@@ -327,7 +328,7 @@ public class EnclaveDelegateTest {
         
         when(enclave.receive(any(), any())).thenReturn("RESULT".getBytes());
         
-        ReceiveResponse result = enclaveDelegate.receive(hash, "");
+        ReceiveResponse result = enclaveMediator.receive(hash, "");
         
         assertThat(result.getPayload())
                 .isEqualTo(Base64.getEncoder().encodeToString("RESULT".getBytes()));
