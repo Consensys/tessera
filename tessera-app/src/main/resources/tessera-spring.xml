@@ -22,7 +22,7 @@
          <constructor-arg value="tessera-spring.xml" />
     </bean>
     
-    <bean id="enclaveDelegate" class="com.quorum.tessera.EnclaveDelegate">
+    <bean id="enclaveDelegate" class="com.quorum.tessera.enclave.EnclaveMediator">
         <constructor-arg ref="enclave"/>
         <constructor-arg>
             <bean class="com.quorum.tessera.util.Base64Decoder" factory-method="create"/>
@@ -124,7 +124,7 @@
 
     <!-- -->
 
-    <bean name="postDelegate" class="com.quorum.tessera.node.PostDelegate">
+    <bean name="postDelegate" class="com.quorum.tessera.client.PostDelegate">
         <constructor-arg>
             <bean factory-bean="clientFactory" factory-method="buildFrom">
                 <constructor-arg>
@@ -151,7 +151,7 @@ final TransactionService transactionService,
     </bean>
 
 
-    <bean name="clientFactory" class="com.quorum.tessera.node.ClientFactory">
+    <bean name="clientFactory" class="com.quorum.tessera.client.ClientFactory">
         <constructor-arg>
             <bean class="com.quorum.tessera.ssl.context.ClientSSLContextFactory" factory-method="create"/>
         </constructor-arg>
