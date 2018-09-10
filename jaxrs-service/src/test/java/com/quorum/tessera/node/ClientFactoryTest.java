@@ -62,5 +62,11 @@ public class ClientFactoryTest {
 
         verify(sslContextFactory).from(serverConfig.getServerUri().toString(),sslConfig);
     }
+    
+     @Test
+    public void createDefaultInstance() {
+        ClientFactory clientFactory = new ClientFactory();
+        assertThat(clientFactory).isNotNull();
+    }
 
 }

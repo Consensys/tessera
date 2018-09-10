@@ -4,9 +4,9 @@ import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
+import java.util.Set;
 
 import javax.ws.rs.core.Application;
-import java.util.stream.Stream;
 
 /**
  * Creates RestEasy and Sun HTTP server implementations of the {@link RestServer}
@@ -14,8 +14,10 @@ import java.util.stream.Stream;
 public class RestEasyServerFactory implements TesseraServerFactory {
 
     @Override
-    public TesseraServer createServer(ServerConfig serverConfig,Object... args) {
-        Application application = Stream.of(args).findFirst()
+    public TesseraServer createServer(ServerConfig serverConfig,Set<Object> services) {
+        Application application = services.stream()
+                .filter(Application.class::isInstance)
+                .findFirst()
                 .map(Application.class::cast)
                 .get();
         

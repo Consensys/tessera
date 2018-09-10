@@ -31,8 +31,6 @@
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>config</artifactId>
-            <version>0.7-SNAPSHOT</version>
-            <type>jar</type>
         </dependency>
     </dependencies>
     <name>tessera-core</name>

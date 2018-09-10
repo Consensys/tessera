@@ -1,6 +1,5 @@
 package com.quorum.tessera;
 
-import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.cli.CliDelegate;
@@ -16,7 +15,6 @@ import javax.validation.ConstraintViolationException;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
 import javax.json.JsonException;
 
 /**
@@ -86,24 +84,12 @@ public class Launcher {
 
     private static void runWebServer(final URI serverUri, ServerConfig serverConfig) throws Exception {
 
-        final Tessera tessera = new Tessera(ServiceLocator.create(), "tessera-spring.xml");
-        TesseraServerFactory tesseraServerFactory = TesseraServerFactory.create(serverConfig.getCommunicationType());
-        final TesseraServer tesseraServer;
-        if (serverConfig.getCommunicationType() == CommunicationType.GRPC) {
-            final Set<Object> gRPCBeans
-                    = tessera.getSingletons()
-                            .stream()
-                            .filter(o -> o.getClass()
-                            .getPackage()
-                            .getName()
-                            .startsWith("com.quorum.tessera.api.grpc"))
-                            .collect(Collectors.toSet());
-            
-            tesseraServer = tesseraServerFactory.createServer(serverConfig, gRPCBeans);
-        } else {
-            tesseraServer = tesseraServerFactory.createServer(serverConfig, tessera);
-        }
+        ServiceLocator serviceLocator = ServiceLocator.create();
 
+        Set<Object> services = serviceLocator.getServices("tessera-spring.xml");
+        TesseraServerFactory tesseraServerFactory = TesseraServerFactory.create(serverConfig.getCommunicationType());
+
+        TesseraServer tesseraServer = tesseraServerFactory.createServer(serverConfig, services);
 
         CountDownLatch countDown = new CountDownLatch(1);
 
@@ -117,9 +103,7 @@ public class Launcher {
             }
         }));
 
-        
         tesseraServer.start();
-
 
         countDown.await();
     }

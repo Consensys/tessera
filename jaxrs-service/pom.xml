@@ -42,5 +42,12 @@
             <groupId>com.quorum.tessera</groupId>
             <artifactId>security</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>jersey-server</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
 </project>

@@ -17,17 +17,17 @@ public class GrpcServerFactory implements TesseraServerFactory {
 
 
     @Override
-    public TesseraServer createServer(ServerConfig serverConfig, Object... args) {
+    public TesseraServer createServer(ServerConfig serverConfig, Set<Object> services) {
 
-         Set<Object> servicesBeans = (Set<Object>) args[0];
-        
+
         Integer port = serverConfig.getPort(); 
 
         
         URI uri = serverConfig.getServerUri();
         
-        final List<BindableService> services = servicesBeans
+        final List<BindableService> bindableServices = services
                 .stream()
+                .filter(BindableService.class::isInstance)
                 .map(o -> (BindableService) o)
                 .collect(Collectors.toList());
 
@@ -40,7 +40,7 @@ public class GrpcServerFactory implements TesseraServerFactory {
 
         ServerBuilder serverBuilder = ServerBuilder.forPort(port);
 
-        services.stream().forEach(serverBuilder::addService);
+        bindableServices.stream().forEach(serverBuilder::addService);
 
         return new GrpcServer(serverUri, serverBuilder.build());
 
