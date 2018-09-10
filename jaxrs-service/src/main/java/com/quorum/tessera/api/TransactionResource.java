@@ -1,6 +1,6 @@
 package com.quorum.tessera.api;
 
-import com.quorum.tessera.EnclaveDelegate;
+import com.quorum.tessera.enclave.EnclaveMediator;
 import com.quorum.tessera.api.filter.PrivateApi;
 import com.quorum.tessera.api.model.*;
 import io.swagger.annotations.ApiOperation;
@@ -31,9 +31,9 @@ public class TransactionResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionResource.class);
 
-    private final EnclaveDelegate delegate;
+    private final EnclaveMediator delegate;
 
-    public TransactionResource(EnclaveDelegate delegate) {
+    public TransactionResource(EnclaveMediator delegate) {
         this.delegate = Objects.requireNonNull(delegate);
     }
 
