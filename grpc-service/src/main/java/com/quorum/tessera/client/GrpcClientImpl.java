@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-public final class GrpcClientImpl implements GrpcClient {
+final class GrpcClientImpl implements GrpcClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GrpcClientImpl.class);
 

@@ -6,7 +6,7 @@ import com.quorum.tessera.api.model.ResendRequest;
 import java.util.Objects;
 
 
-public class GrpcP2pClient implements P2pClient {
+class GrpcP2pClient implements P2pClient {
     
     private final GrpcClientFactory grpcClientFactory;
 
