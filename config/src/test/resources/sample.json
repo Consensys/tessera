@@ -8,6 +8,7 @@
     "server": {
         "hostName" : "http://bogus.com",
         "port": 99,
+        "bindingAddress": "http://localhost:9001",
         "influxConfig": {
             "port": 1111,
             "hostName": "localhost",

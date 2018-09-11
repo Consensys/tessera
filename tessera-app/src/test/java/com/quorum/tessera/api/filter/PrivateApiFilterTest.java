@@ -1,6 +1,6 @@
 package com.quorum.tessera.api.filter;
 
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.ssl.util.HostnameUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -8,9 +8,7 @@ import org.mockito.ArgumentCaptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
-
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -22,12 +20,9 @@ public class PrivateApiFilterTest {
     private PrivateApiFilter filter;
 
     @Before
-    public void init() throws URISyntaxException {
-        final ServerConfig serverConfig = mock(ServerConfig.class);
-        final URI testUri = new URI("http://localhost:8080");
-        when(serverConfig.getServerUri()).thenReturn(testUri);
+    public void init() throws UnknownHostException {
 
-        this.filter = new PrivateApiFilter(serverConfig);
+        this.filter = new PrivateApiFilter();
 
         this.ctx = mock(ContainerRequestContext.class);
     }
@@ -38,14 +33,12 @@ public class PrivateApiFilterTest {
         final Response expectedResponse = Response.status(Response.Status.UNAUTHORIZED).build();
 
         final HttpServletRequest request = mock(HttpServletRequest.class);
-        doReturn("someotherhost").when(request).getRemoteAddr();
-        doReturn("someotherhost").when(request).getRemoteHost();
+        doReturn("127.0.0.2").when(request).getRemoteAddr();
 
         filter.setHttpServletRequest(request);
 
         filter.filter(ctx);
 
-        verify(request).getRemoteHost();
         verify(request).getRemoteAddr();
 
         final ArgumentCaptor<Response> captor = ArgumentCaptor.forClass(Response.class);
@@ -56,31 +49,14 @@ public class PrivateApiFilterTest {
     }
 
     @Test
-    public void hostThatIsLocalAddressGetsAccepted() {
+    public void hostThatIsLocalAddressGetsAccepted() throws UnknownHostException {
         final HttpServletRequest request = mock(HttpServletRequest.class);
-        doReturn("localhost").when(request).getRemoteAddr();
+        doReturn(HostnameUtil.create().getHostIpAddress()).when(request).getRemoteAddr();
 
         filter.setHttpServletRequest(request);
 
         filter.filter(ctx);
 
-        verify(request).getRemoteHost();
-        verify(request).getRemoteAddr();
-        verifyZeroInteractions(ctx);
-
-    }
-
-    @Test
-    public void hostThatIsLocalHostnameGetsAccepted() {
-        final HttpServletRequest request = mock(HttpServletRequest.class);
-        doReturn("localhost").when(request).getRemoteHost();
-        doReturn("wrongvalue").when(request).getRemoteAddr();
-
-        filter.setHttpServletRequest(request);
-
-        filter.filter(ctx);
-
-        verify(request).getRemoteHost();
         verify(request).getRemoteAddr();
         verifyZeroInteractions(ctx);
 

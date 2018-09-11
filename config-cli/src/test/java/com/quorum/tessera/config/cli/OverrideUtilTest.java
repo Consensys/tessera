@@ -1,12 +1,13 @@
 package com.quorum.tessera.config.cli;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.PrivateKeyType;
-import com.quorum.tessera.config.SslAuthenticationMode;
-import com.quorum.tessera.config.SslTrustMode;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.xml.bind.annotation.XmlElement;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -16,13 +17,8 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import javax.xml.bind.annotation.XmlElement;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class OverrideUtilTest {
 
@@ -31,12 +27,13 @@ public class OverrideUtilTest {
     @Test
     public void buildOptions() {
 
-        List<String> expected = Arrays.asList(
+        final List<String> expected = Arrays.asList(
                 "jdbc.username",
                 "jdbc.password",
                 "jdbc.url",
                 "server.hostName",
                 "server.port",
+                "server.bindingAddress",
                 "server.sslConfig.tls",
                 "server.sslConfig.generateKeyStoreIfNotExisted",
                 "server.sslConfig.serverKeyStore",
@@ -85,11 +82,11 @@ public class OverrideUtilTest {
                 "server.sslConfig.serverTrustCertificates"
         );
 
-        Map<String, Class> results = OverrideUtil.buildConfigOptions();
+        final Map<String, Class> results = OverrideUtil.buildConfigOptions();
 
         assertThat(results.keySet())
-                .filteredOn(s -> !s.contains("$jacocoData"))
-                .containsExactlyInAnyOrderElementsOf(expected);
+            .filteredOn(s -> !s.contains("$jacocoData"))
+            .containsExactlyInAnyOrderElementsOf(expected);
 
         assertThat(results.get("server.sslConfig.knownClientsFile")).isEqualTo(Path.class);
         assertThat(results.get("keys.passwords")).isEqualTo(String[].class);
@@ -97,7 +94,7 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void initialiseConfigFromNoValues() throws Exception {
+    public void initialiseConfigFromNoValues() {
 
         Config config = OverrideUtil.createInstance(Config.class);
 
@@ -111,6 +108,7 @@ public class OverrideUtilTest {
         OverrideUtil.setValue(config, "jdbc.url", "someurl");
         OverrideUtil.setValue(config, "server.hostName", "somehost");
         OverrideUtil.setValue(config, "server.port", "999");
+        OverrideUtil.setValue(config, "server.bindingAddress", "http://binding:9999");
         OverrideUtil.setValue(config, "keys.passwords", "pw_one", "pw_two");
 
         OverrideUtil.setValue(config, "server.sslConfig.clientKeyStorePassword", "SomeClientKeyStorePassword");
@@ -118,7 +116,7 @@ public class OverrideUtilTest {
         OverrideUtil.setValue(config, "server.sslConfig.clientTrustStore", "ClientTrustStore");
 
         OverrideUtil.setValue(config, "server.sslConfig.clientTrustCertificates",
-                "ClientTrustCertificates_1", "ClientTrustCertificates_2");
+            "ClientTrustCertificates_1", "ClientTrustCertificates_2");
 
         OverrideUtil.setValue(config, "server.sslConfig.clientTrustMode", "CA_OR_TOFU");
 
@@ -136,37 +134,32 @@ public class OverrideUtilTest {
         assertThat(config.isUseWhiteList()).isTrue();
 
         assertThat(config.getPeers()).hasSize(2);
-        assertThat(config.getKeys().getPasswords())
-                .containsExactlyInAnyOrder("pw_one", "pw_two");
-
-        assertThat(config.getServerConfig()).isNotNull();
-        assertThat(config.getServerConfig().getHostName()).isEqualTo("somehost");
-        assertThat(config.getServerConfig().getPort()).isEqualTo(999);
-
-        assertThat(config.getServerConfig().getSslConfig().getClientKeyStorePassword())
-                .isEqualTo("SomeClientKeyStorePassword");
-
-        assertThat(config.getServerConfig().getSslConfig().getClientTrustStore())
-                .isEqualTo(Paths.get("ClientTrustStore"));
-
-        assertThat(config.getServerConfig().getSslConfig().getClientTrustMode())
-                .isEqualTo(SslTrustMode.CA_OR_TOFU);
-
-        assertThat(config.getServerConfig().getSslConfig().getClientTrustCertificates())
-                .containsExactly(Paths.get("ClientTrustCertificates_1"), Paths.get("ClientTrustCertificates_2"));
-
-        assertThat(config.getServerConfig().getInfluxConfig().getPushIntervalInSecs()).isEqualTo(987L);
 
         assertThat(config.getKeys()).isNotNull();
+        assertThat(config.getKeys().getPasswords()).containsExactlyInAnyOrder("pw_one", "pw_two");
+        assertThat(config.getKeys().getKeyData()).isEmpty();
 
-        KeyConfiguration keyConfig = config.getKeys();
+        final ServerConfig serverConfig = config.getServerConfig();
+        assertThat(serverConfig).isNotNull();
+        assertThat(serverConfig.getHostName()).isEqualTo("somehost");
+        assertThat(serverConfig.getPort()).isEqualTo(999);
+        assertThat(serverConfig.getBindingAddress()).isEqualTo("http://binding:9999");
 
-        assertThat(keyConfig.getKeyData()).isEmpty();
+        assertThat(serverConfig.getSslConfig().getClientKeyStorePassword()).isEqualTo("SomeClientKeyStorePassword");
+
+        assertThat(serverConfig.getSslConfig().getClientTrustStore()).isEqualTo(Paths.get("ClientTrustStore"));
+
+        assertThat(serverConfig.getSslConfig().getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
+
+        assertThat(serverConfig.getSslConfig().getClientTrustCertificates())
+            .containsExactly(Paths.get("ClientTrustCertificates_1"), Paths.get("ClientTrustCertificates_2"));
+
+        assertThat(serverConfig.getInfluxConfig().getPushIntervalInSecs()).isEqualTo(987L);
 
     }
 
     @Test
-    public void overrideExistingValueKeyDataWithPublicKey() throws Exception {
+    public void overrideExistingValueKeyDataWithPublicKey() {
 
         Config config = OverrideUtil.createInstance(Config.class);
 
@@ -184,7 +177,7 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void overrideExistingValueKeyDataWithPrivateKeyType() throws Exception {
+    public void overrideExistingValueKeyDataWithPrivateKeyType() {
 
         Config config = OverrideUtil.createInstance(Config.class);
 
@@ -199,10 +192,10 @@ public class OverrideUtilTest {
         assertThat(keyConfig.getKeyData()).hasSize(2);
 
         assertThat(keyConfig.getKeyData().get(0)
-                .getConfig().getType()).isEqualTo(priavteKeyType);
+            .getConfig().getType()).isEqualTo(priavteKeyType);
 
         assertThat(keyConfig.getKeyData().get(1)
-                .getConfig().getType()).isEqualTo(priavteKeyType);
+            .getConfig().getType()).isEqualTo(priavteKeyType);
 
     }
 
@@ -258,9 +251,9 @@ public class OverrideUtilTest {
     @Test
     public void toArrayType() {
         assertThat(OverrideUtil.toArrayType(String.class))
-                .isEqualTo(String[].class);
+            .isEqualTo(String[].class);
         assertThat(OverrideUtil.toArrayType(Path.class))
-                .isEqualTo(Path[].class);
+            .isEqualTo(Path[].class);
     }
 
     @Test
@@ -279,23 +272,18 @@ public class OverrideUtilTest {
     @Test
     public void convertTo() {
 
-        assertThat(OverrideUtil.convertTo(Path.class, "SOMEFILE"))
-                .isEqualTo(Paths.get("SOMEFILE"));
+        assertThat(OverrideUtil.convertTo(Path.class, "SOMEFILE")).isEqualTo(Paths.get("SOMEFILE"));
 
-        assertThat(OverrideUtil.convertTo(String.class, "SOMESTR"))
-                .isEqualTo("SOMESTR");
+        assertThat(OverrideUtil.convertTo(String.class, "SOMESTR")).isEqualTo("SOMESTR");
 
-        assertThat(OverrideUtil.convertTo(Integer.class, "999"))
-                .isEqualTo(999);
+        assertThat(OverrideUtil.convertTo(Integer.class, "999")).isEqualTo(999);
 
-        assertThat(OverrideUtil.convertTo(Long.class, "999"))
-                .isEqualTo(999L);
+        assertThat(OverrideUtil.convertTo(Long.class, "999")).isEqualTo(999L);
 
-        assertThat(OverrideUtil.convertTo(Boolean.class, "true"))
-                .isTrue();
+        assertThat(OverrideUtil.convertTo(Boolean.class, "true")).isTrue();
 
         assertThat(OverrideUtil.convertTo(SslAuthenticationMode.class, "STRICT"))
-                .isEqualTo(SslAuthenticationMode.STRICT);
+            .isEqualTo(SslAuthenticationMode.STRICT);
 
         assertThat(OverrideUtil.convertTo(String.class, null)).isNull();
 
@@ -334,7 +322,7 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void overrideExistingValueKeyDataWithPrivateKeyData() throws Exception {
+    public void overrideExistingValueKeyDataWithPrivateKeyData() {
 
         Config config = OverrideUtil.createInstance(Config.class);
 
@@ -349,9 +337,9 @@ public class OverrideUtilTest {
         assertThat(keyConfig.getKeyData()).hasSize(1);
 
         assertThat(keyConfig.getKeyData().get(0)
-                .getConfig()
-                .getPrivateKeyData()
-                .getSnonce()).isEqualTo(value);
+            .getConfig()
+            .getPrivateKeyData()
+            .getSnonce()).isEqualTo(value);
 
     }
 
@@ -438,8 +426,8 @@ public class OverrideUtilTest {
 
     @Test
     public void convertToByteArray() {
-        byte[] ressult = OverrideUtil.convertTo(byte[].class, "HELLOW");
-        assertThat(ressult).isEqualTo("HELLOW".getBytes());
+        final byte[] result = OverrideUtil.convertTo(byte[].class, "HELLOW");
+        assertThat(result).isEqualTo("HELLOW".getBytes());
     }
 
 }

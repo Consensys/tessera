@@ -1,6 +1,6 @@
 package com.quorum.tessera.api.filter;
 
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.ssl.util.HostnameUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,18 +9,21 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.net.UnknownHostException;
 
 @PrivateApi
 public class PrivateApiFilter implements ContainerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PrivateApiFilter.class);
 
+    private static final String LOCALHOST = "127.0.0.1";
+
     private HttpServletRequest httpServletRequest;
 
     private final String hostname;
 
-    public PrivateApiFilter(final ServerConfig serverConfig) {
-        this.hostname = serverConfig.getServerUri().getHost();
+    public PrivateApiFilter() throws UnknownHostException {
+        this.hostname = HostnameUtil.create().getHostIpAddress();
     }
 
     /**
@@ -40,9 +43,8 @@ public class PrivateApiFilter implements ContainerRequestFilter {
         }
 
         final String remoteAddress = httpServletRequest.getRemoteAddr();
-        final String remoteHost = httpServletRequest.getRemoteHost();
 
-        final boolean allowed = hostname.equals(remoteAddress) || hostname.equals(remoteHost);
+        final boolean allowed = hostname.equals(remoteAddress) || LOCALHOST.equals(remoteAddress);
 
         if (!allowed) {
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());

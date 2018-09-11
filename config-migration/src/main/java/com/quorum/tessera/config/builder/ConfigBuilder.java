@@ -253,7 +253,7 @@ public class ConfigBuilder {
                 toPath(workDir, sslClientTlsCertificatePath)
         );
 
-        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig, null);
+        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig, null, null);
 
         final List<Peer> peerList;
         if(peers != null) {
@@ -279,7 +279,7 @@ public class ConfigBuilder {
             }
 
             forwardingKeys = keyList.stream()
-                                    .collect(Collectors.toList());
+                .collect(Collectors.toList());
         } else {
             forwardingKeys = Collections.emptyList();
         }

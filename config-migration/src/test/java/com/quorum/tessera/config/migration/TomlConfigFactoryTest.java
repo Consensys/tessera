@@ -51,6 +51,8 @@ public class TomlConfigFactoryTest {
             SslConfig sslConfig = result.getServerConfig().getSslConfig();
 
             assertThat(result.getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
+            assertThat(result.getServerConfig().getPort()).isEqualTo(9001);
+            assertThat(result.getServerConfig().getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
 
             assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);

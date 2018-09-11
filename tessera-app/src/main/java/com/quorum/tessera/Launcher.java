@@ -11,6 +11,7 @@ import com.quorum.tessera.service.locator.ServiceLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.json.JsonException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.net.URI;
@@ -19,7 +20,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import javax.json.JsonException;
 
 /**
  * The main entry point for the application. This just starts up the application
@@ -47,7 +47,7 @@ public class Launcher {
             final Config config = cliResult.getConfig()
                     .orElseThrow(() -> new NoSuchElementException("No Config found. Tessera will not run"));
 
-            final URI uri = new URI(config.getServerConfig().getHostName() + ":" + config.getServerConfig().getPort());
+            final URI uri = new URI(config.getServerConfig().getBindingAddress());
 
             runWebServer(uri, config.getServerConfig());
 
