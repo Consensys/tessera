@@ -8,6 +8,7 @@
     "server": {
         "port": 8080,
         "hostName": "http://localhost",
+        "communicationType" : "GRPC",
         "sslConfig": {
             "tls": "OFF",
             "generateKeyStoreIfNotExisted": "true",

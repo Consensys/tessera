@@ -279,7 +279,7 @@ public class ConfigBuilder {
             }
 
             forwardingKeys = keyList.stream()
-                                    .collect(Collectors.toList());
+                .collect(Collectors.toList());
         } else {
             forwardingKeys = Collections.emptyList();
         }

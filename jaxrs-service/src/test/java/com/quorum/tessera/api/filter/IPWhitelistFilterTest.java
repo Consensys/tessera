@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +27,7 @@ public class IPWhitelistFilterTest {
     private IPWhitelistFilter filter;
 
     @Before
-    public void init() throws URISyntaxException {
+    public void init() throws URISyntaxException, UnknownHostException {
 
         this.ctx = mock(ContainerRequestContext.class);
 
@@ -37,7 +38,7 @@ public class IPWhitelistFilterTest {
         when(configuration.isUseWhiteList()).thenReturn(true);
 
         final ServerConfig serverConfig = mock(ServerConfig.class);
-        when(serverConfig.getServerUri()).thenReturn(new URI("http://localhost:8080"));
+        when(serverConfig.getBindingAddress()).thenReturn(new URI("http://localhost:8080").toString());
         when(configuration.getServerConfig()).thenReturn(serverConfig);
 
         this.filter = new IPWhitelistFilter(configuration);
@@ -45,13 +46,13 @@ public class IPWhitelistFilterTest {
     }
 
     @Test
-    public void disabledFilterAllowsAllRequests() throws URISyntaxException {
+    public void disabledFilterAllowsAllRequests() throws URISyntaxException, UnknownHostException {
         final Config configuration = mock(Config.class);
         when(configuration.getPeers()).thenReturn(Collections.emptyList());
         when(configuration.isUseWhiteList()).thenReturn(false);
 
         final ServerConfig serverConfig = mock(ServerConfig.class);
-        when(serverConfig.getServerUri()).thenReturn(new URI("http://localhost:8080"));
+        when(serverConfig.getBindingAddress()).thenReturn(new URI("http://localhost:8080").toString());
         when(configuration.getServerConfig()).thenReturn(serverConfig);
 
         final IPWhitelistFilter filter = new IPWhitelistFilter(configuration);
@@ -136,7 +137,7 @@ public class IPWhitelistFilterTest {
     @Test
     public void selfIsWhitelisted() {
         final HttpServletRequest request = mock(HttpServletRequest.class);
-        doReturn("localhost").when(request).getRemoteHost();
+        doReturn("127.0.0.1").when(request).getRemoteAddr();
 
         filter.setHttpServletRequest(request);
 

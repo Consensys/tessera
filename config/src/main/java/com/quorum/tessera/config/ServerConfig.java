@@ -36,16 +36,25 @@ public class ServerConfig extends ConfigItem {
     @XmlElement
     private final InfluxConfig influxConfig;
 
-    public ServerConfig(String hostName, Integer port, CommunicationType communicationType, SslConfig sslConfig, InfluxConfig influxConfig) {
+    @XmlElement
+    private final String bindingAddress;
+
+    public ServerConfig(final String hostName,
+                        final Integer port,
+                        final CommunicationType communicationType,
+                        final SslConfig sslConfig,
+                        final InfluxConfig influxConfig,
+                        final String bindingAddress) {
         this.hostName = hostName;
         this.port = port;
         this.communicationType = communicationType;
         this.sslConfig = sslConfig;
         this.influxConfig = influxConfig;
+        this.bindingAddress = bindingAddress;
     }
 
     private static ServerConfig create() {
-        return new ServerConfig(null, null, CommunicationType.REST, null, null);
+        return new ServerConfig(null, null, CommunicationType.REST, null, null, null);
     }
 
     public String getHostName() {
@@ -78,6 +87,10 @@ public class ServerConfig extends ConfigItem {
 
     public boolean isSsl() {
         return Objects.nonNull(sslConfig) && sslConfig.getTls() == SslAuthenticationMode.STRICT;
+    }
+
+    public String getBindingAddress() {
+        return this.bindingAddress==null ? this.getServerUri().toString() : this.bindingAddress;
     }
 
 }
