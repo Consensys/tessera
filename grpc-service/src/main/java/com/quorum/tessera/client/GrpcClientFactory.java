@@ -10,7 +10,7 @@ class GrpcClientFactory {
 
     private static GrpcClient newClient(final String targetUrl) {
         final GrpcClient client = new GrpcClientImpl(targetUrl);
-        CLIENTS.putIfAbsent(targetUrl, client);
+        CLIENTS.put(targetUrl, client);
         return client;
     }
 
