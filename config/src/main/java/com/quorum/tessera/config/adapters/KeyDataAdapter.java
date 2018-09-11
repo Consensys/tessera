@@ -39,12 +39,12 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         }
 
         //case2: public key and private key config provided inline
-        if(Objects.nonNull(keyData.getConfig()) && Objects.nonNull(keyData.getPublicKey())) {
+        if(keyData.getConfig() != null && keyData.getPublicKey() != null) {
             return unmarshalInline(keyData);
         }
 
         //case3: public and private keys provided in files
-        if(Objects.nonNull(keyData.getPrivateKeyPath()) && Objects.nonNull(keyData.getPublicKeyPath()) &&
+        if(keyData.getPrivateKeyPath() != null && keyData.getPublicKeyPath() != null &&
             filesDelegate.exists(keyData.getPublicKeyPath()) && filesDelegate.exists(keyData.getPrivateKeyPath())) {
             return unmarshalFile(
                 keyData.getPublicKeyPath(),
@@ -53,28 +53,9 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
             );
         }
 
-        //case4: public key path and private key vault id provided
-        if(Objects.nonNull(keyData.getPublicKeyPath()) && Objects.nonNull(keyData.getKeyVaultId())) {
-            return unmarshalFilePublicKeyOnly(keyData);
-        }
-
-        //case5: public key and private key vault id provided
+        //case4: public key and private key vault id provided
         //(plus all invalid cases which are picked up later by constraint validation)
         return keyData;
-    }
-
-    private KeyData unmarshalFilePublicKeyOnly(KeyData keyData) {
-        final byte[] publicKey = IOCallback.execute(() -> Files.readAllBytes(keyData.getPublicKeyPath()));
-        final String publicKeyString = new String(publicKey, UTF_8);
-
-        return new KeyData(
-            null,
-            null,
-            publicKeyString,
-            null,
-            keyData.getPublicKeyPath(),
-            keyData.getKeyVaultId()
-        );
     }
 
     private KeyData unmarshalFile(final Path publicKeyPath, final Path privateKeyPath, final String password) {
@@ -104,7 +85,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
                         publicKeyString,
                         privateKeyPath,
                         publicKeyPath,
-                    null
+              null
                 )
         );
 
@@ -172,7 +153,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
                     keyData.getPublicKey(),
                     keyData.getPrivateKeyPath(),
                     keyData.getPublicKeyPath(),
-                null
+                    keyData.getKeyVaultId()
             );
         }
 

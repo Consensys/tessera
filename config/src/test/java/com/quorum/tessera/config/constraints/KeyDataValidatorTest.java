@@ -2,17 +2,16 @@ package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.io.FilesDelegate;
-import java.nio.file.Path;
+import org.junit.Test;
+
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.ConstraintValidatorContext.ConstraintViolationBuilder;
 import javax.validation.ConstraintValidatorContext.ConstraintViolationBuilder.NodeBuilderDefinedContext;
+import java.nio.file.Path;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class KeyDataValidatorTest {
 

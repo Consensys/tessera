@@ -68,7 +68,7 @@ public class KeyDataAdapterTest {
     }
 
     @Test
-    public void marshallKeysWithUnlockedPrivateKey() {
+    public void unmarshallKeysWithUnlockedPrivateKey() {
 
         final KeyData keyData = new KeyData(
                 new KeyDataConfig(
@@ -82,14 +82,14 @@ public class KeyDataAdapterTest {
                 null
         );
 
-        final KeyData marshalled = adapter.unmarshal(keyData);
+        final KeyData unmarshalled = adapter.unmarshal(keyData);
 
-        assertThat(marshalled.getPrivateKey()).isEqualTo("LITERAL_PRIVATE");
+        assertThat(unmarshalled.getPrivateKey()).isEqualTo("LITERAL_PRIVATE");
 
     }
 
     @Test
-    public void marshallKeysWithLockedPrivateKey() {
+    public void unmarshallKeysWithLockedPrivateKey() {
 
         final KeyData keyData = new KeyData(
                 new KeyDataConfig(
@@ -107,9 +107,9 @@ public class KeyDataAdapterTest {
                 "PUB", null, null, null
         );
 
-        final KeyData marshalled = adapter.unmarshal(keyData);
+        final KeyData unmarshalled = adapter.unmarshal(keyData);
 
-        assertThat(marshalled.getPrivateKey()).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
+        assertThat(unmarshalled.getPrivateKey()).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
 
     }
 
@@ -324,6 +324,15 @@ public class KeyDataAdapterTest {
     }
 
     @Test
+    public void unmarshallingEmptyKeyDataDoesNothing() {
+        final KeyData initial = new KeyData(null, null, null, null, null, null);
+
+        final KeyData result = this.adapter.unmarshal(initial);
+
+        assertThat(result).isEqualTo(initial);
+    }
+
+    @Test
     public void unmarshallingPublicOnlyDoesNothing() {
         final KeyData initial = new KeyData(null, null, "publicKey", null, null, null);
 
@@ -423,6 +432,21 @@ public class KeyDataAdapterTest {
         );
 
         final KeyData initial = new KeyData(privateKeyConfig, null, null, null, pub, null);
+
+        final KeyData result = this.adapter.unmarshal(initial);
+
+        assertThat(result).isEqualTo(initial);
+    }
+
+    @Test
+    public void unmarshallingPublicPathAndVaultIdDoesNothing() throws Exception {
+        final String publicKey = "publicKey";
+
+        final Path pub = Files.createTempFile("public", ".pub");
+
+        Files.write(pub, publicKey.getBytes(UTF_8));
+
+        final KeyData initial = new KeyData(null, null, null, null, pub, "vaultId");
 
         final KeyData result = this.adapter.unmarshal(initial);
 
@@ -542,22 +566,6 @@ public class KeyDataAdapterTest {
 
         assertThat(result.getPublicKey()).isEqualTo(publicKey);
         assertThat(result.getPrivateKey()).isEqualTo("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=");
-    }
-
-    @Test
-    public void unmarshallingPublicPathAndVaultIdGetsKeyFromFile() throws Exception {
-        final String publicKey = "publicKey";
-
-        final Path pub = Files.createTempFile("public", ".pub");
-
-        Files.write(pub, publicKey.getBytes(UTF_8));
-
-        final KeyData initial = new KeyData(null, null, null, null, pub, "vaultId");
-
-        final KeyData result = this.adapter.unmarshal(initial);
-
-        assertThat(result.getKeyVaultId()).isEqualTo("vaultId");
-        assertThat(result.getPublicKey()).isEqualTo(publicKey);
     }
 
     @Test

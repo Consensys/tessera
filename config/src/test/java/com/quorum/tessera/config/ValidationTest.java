@@ -258,7 +258,7 @@ public class ValidationTest {
     }
 
     @Test
-    public void keyVaultConfigWithNoUrlThrowsNullViolation() {
+    public void keyVaultConfigWithNoUrlCreatesNullViolation() {
         KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null);
 
         Set<ConstraintViolation<KeyVaultConfig>> violations = validator.validate(keyVaultConfig);
@@ -269,7 +269,7 @@ public class ValidationTest {
     }
 
     @Test
-    public void publicAndVaultIdProvidedButKeyVaultConfigHasNullUrlThrowsNullViolation() {
+    public void publicAndVaultIdProvidedButKeyVaultConfigHasNullUrlCreatesNullViolation() {
         KeyData keyData = new KeyData(null, null, "public", null, null, "vaultId");
         KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null);
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, Arrays.asList(keyData), keyVaultConfig);
