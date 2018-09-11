@@ -14,7 +14,7 @@ class GrpcP2pClient implements P2pClient {
         this.grpcClientFactory = Objects.requireNonNull(grpcClientFactory);
     }
 
-    public GrpcP2pClient() {
+    GrpcP2pClient() {
         this(new GrpcClientFactory());
     }
 
