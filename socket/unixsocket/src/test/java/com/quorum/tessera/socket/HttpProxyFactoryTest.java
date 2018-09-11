@@ -29,6 +29,7 @@ public class HttpProxyFactoryTest {
         final File tmpFile = new File(tmpDir.getRoot(), "keystores");
 
         final ServerConfig configuration = mock(ServerConfig.class);
+        when(configuration.getBindingAddress()).thenReturn(uri.toString());
         when(configuration.getServerUri()).thenReturn(uri);
         when(configuration.isSsl()).thenReturn(true);
         SslConfig sslConfig = mock(SslConfig.class);
@@ -40,8 +41,7 @@ public class HttpProxyFactoryTest {
         when(sslConfig.getClientTrustStore()).thenReturn(tmpFile.toPath());
         when(sslConfig.getClientTrustStorePassword()).thenReturn("somepwd");
 
-        when(sslConfig.getKnownServersFile())
-                .thenReturn(tmpFile.toPath());
+        when(sslConfig.getKnownServersFile()).thenReturn(tmpFile.toPath());
         
         when(configuration.getSslConfig()).thenReturn(sslConfig);
 

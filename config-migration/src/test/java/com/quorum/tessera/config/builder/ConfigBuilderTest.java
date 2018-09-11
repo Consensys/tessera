@@ -8,7 +8,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,8 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ConfigBuilderTest {
 
     private final ConfigBuilder builderWithValidValues = FixtureUtil.builderWithValidValues();
-
-    private final ConfigBuilder builderWithNullValues = FixtureUtil.builderWithNullValues();
 
     @Test
     public void nullIsNullAndNotAStringWithTheValueOfNull() {
@@ -27,43 +24,40 @@ public class ConfigBuilderTest {
 
     @Test
     public void buildValid() {
-        Config result = builderWithValidValues.build();
+        final Config result = this.builderWithValidValues.build();
 
         assertThat(result).isNotNull();
-        builderWithValidValues.sslClientTrustCertificates(Arrays.asList("sslServerTrustCertificates"));
+
         assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("somepath.ipc"));
 
         assertThat(result.getKeys().getKeyData()).hasSize(1);
-
-        KeyData keyData = result.getKeys().getKeyData().get(0);
-
+        final KeyData keyData = result.getKeys().getKeyData().get(0);
         assertThat(keyData).isNotNull();
         assertThat(keyData.getConfig().getType()).isEqualTo(PrivateKeyType.LOCKED);
 
-        ServerConfig serverConfig = result.getServerConfig();
+        final ServerConfig serverConfig = result.getServerConfig();
         assertThat(serverConfig).isNotNull();
+        assertThat(serverConfig.getPort()).isEqualTo(892);
+        assertThat(serverConfig.getHostName()).isEqualTo("http://bogus.com");
+        assertThat(serverConfig.getBindingAddress()).isEqualTo("http://bogus.com:892");
 
-        SslConfig sslConfig = serverConfig.getSslConfig();
+        final SslConfig sslConfig = serverConfig.getSslConfig();
         assertThat(sslConfig).isNotNull();
 
         assertThat(sslConfig.getClientKeyStorePassword()).isEqualTo("sslClientKeyStorePassword");
         assertThat(sslConfig.getClientKeyStore()).isEqualTo(Paths.get("sslClientKeyStorePath"));
         assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("sslClientTlsKeyPath"));
-
-        assertThat(sslConfig.getServerTrustCertificates())
-                .containsExactly(Paths.get("sslServerTrustCertificates"));
+        assertThat(sslConfig.getServerTrustCertificates()).containsExactly(Paths.get("sslServerTrustCertificates"));
 
         assertThat(result.getJdbcConfig().getUsername()).isEqualTo("jdbcUsername");
         assertThat(result.getJdbcConfig().getPassword()).isEqualTo("jdbcPassword");
         assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:bogus");
 
-        assertThat(result.getServerConfig().getPort()).isEqualTo(892);
-
     }
 
     @Test
     public void influxHostNameEmptyThenInfluxConfigIsNull() {
-        Config result = builderWithValidValues.build();
+        final Config result = builderWithValidValues.build();
 
         assertThat(result.getServerConfig().getInfluxConfig()).isNull();
     }
@@ -83,8 +77,9 @@ public class ConfigBuilderTest {
         final ConfigBuilder builder = builderWithValidValues.alwaysSendTo(alwaysSendTo);
         builder.build();
 
-        assertThat(errContent.toString()).isEqualTo("Error reading alwayssendto file: doesntexist.txt\n" +
-                                                    "Error reading alwayssendto file: alsodoesntexist.txt\n");
+        assertThat(errContent.toString()).isEqualTo(
+            "Error reading alwayssendto file: doesntexist.txt\nError reading alwayssendto file: alsodoesntexist.txt\n"
+        );
 
         System.setErr(originalErr);
 
@@ -93,8 +88,7 @@ public class ConfigBuilderTest {
     @Test
     public void buildWithNoValuesSetDoesNotThrowException() {
         final ConfigBuilder builder = ConfigBuilder.create();
-
-        Config config = builder.build();
+        final Config config = builder.build();
 
         assertThat(config).isNotNull();
     }

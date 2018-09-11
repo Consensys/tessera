@@ -8,6 +8,7 @@ import com.quorum.tessera.server.monitoring.MetricsResource;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
 import com.quorum.tessera.ssl.context.ServerSSLContextFactory;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
 import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
@@ -102,6 +103,11 @@ public class JerseyServer implements TesseraServer {
             );
         } else {
             this.server = GrizzlyHttpServerFactory.createHttpServer(uri, false);
+        }
+
+        //check if loopback was specified as binding address, if not add it
+        if(!uri.getHost().matches("^localhost$|^127(?:\\.[0-9]+){0,2}\\.[0-9]+$|^(?:0*:)*?:?0*1$")) {
+            this.server.addListener(new NetworkListener("localhost", "127.0.0.1", uri.getPort()));
         }
 
         final WebappContext ctx = new WebappContext("WebappContext");
