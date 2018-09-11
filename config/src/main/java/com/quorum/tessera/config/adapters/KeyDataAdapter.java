@@ -131,7 +131,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
 
         if(keyData.getPrivateKeyPath()!=null || keyData.getPublicKeyPath()!=null) {
             return new KeyData(
-                null, null, null, keyData.getPrivateKeyPath(), keyData.getPublicKeyPath(), null
+                null, null, null, keyData.getPrivateKeyPath(), keyData.getPublicKeyPath(), keyData.getKeyVaultId()
             );
         }
 

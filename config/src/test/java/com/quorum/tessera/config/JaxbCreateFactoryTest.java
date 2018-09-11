@@ -35,7 +35,8 @@ public class JaxbCreateFactoryTest {
                 SslConfig.class,
                 JdbcConfig.class,
                 KeyDataConfig.class,
-                PrivateKeyData.class
+                PrivateKeyData.class,
+                KeyVaultConfig.class
         );
 
     }
