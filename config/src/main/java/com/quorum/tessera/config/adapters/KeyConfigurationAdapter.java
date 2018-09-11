@@ -77,7 +77,7 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
                         kd.getPublicKey(),
                         kd.getPrivateKeyPath(),
                         kd.getPublicKeyPath(),
-                        null
+                        kd.getKeyVaultId()
                     );
                 }).collect(Collectors.toList());
         }

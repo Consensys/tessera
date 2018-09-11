@@ -46,19 +46,19 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         //case3: public and private keys provided in files
         if(keyData.getPrivateKeyPath() != null && keyData.getPublicKeyPath() != null &&
             filesDelegate.exists(keyData.getPublicKeyPath()) && filesDelegate.exists(keyData.getPrivateKeyPath())) {
-            return unmarshalFile(
-                keyData.getPublicKeyPath(),
-                keyData.getPrivateKeyPath(),
-                Optional.ofNullable(keyData.getConfig()).map(KeyDataConfig::getPassword).orElse(null)
-            );
+            return unmarshalFile(keyData);
         }
 
         //case4: public key and private key vault id provided
-        //(plus all invalid cases which are picked up later by constraint validation)
+        //(plus alkel invalid cases which are picked up later by constraint validation)
         return keyData;
     }
 
-    private KeyData unmarshalFile(final Path publicKeyPath, final Path privateKeyPath, final String password) {
+    private KeyData unmarshalFile(final KeyData keyData) {
+        final Path publicKeyPath = keyData.getPublicKeyPath();
+        final Path privateKeyPath = keyData.getPrivateKeyPath();
+        final String password = Optional.ofNullable(keyData.getConfig()).map(KeyDataConfig::getPassword).orElse(null);
+
         final byte[] publicKey = IOCallback.execute(() -> Files.readAllBytes(publicKeyPath));
         final String publicKeyString = new String(publicKey, UTF_8);
 
@@ -85,7 +85,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
                         publicKeyString,
                         privateKeyPath,
                         publicKeyPath,
-              null
+                        keyData.getKeyVaultId()
                 )
         );
 
@@ -118,9 +118,8 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
                 keyData.getPublicKey(),
                 keyData.getPrivateKeyPath(),
                 keyData.getPublicKeyPath(),
-            null
+                keyData.getKeyVaultId()
         );
-
     }
 
     @Override
