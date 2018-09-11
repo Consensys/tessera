@@ -4,7 +4,7 @@ package com.quorum.tessera.client;
 import com.quorum.tessera.api.grpc.model.ResendRequest;
 
 
-public interface GrpcClient {
+interface GrpcClient {
 
     byte[] getPartyInfo(byte[] data);
 
