@@ -75,5 +75,13 @@ public class ServerConfigTest {
         final ServerConfig serverConfig = new ServerConfig("somedomain", 8989, 50521,null, null, null, null);
         assertThat(serverConfig.getBindingAddress()).isEqualTo("somedomain:8989");
     }
-
+    
+    
+    @Test(expected = ConfigException.class)
+    public void invalidGrpcUri() {
+        final ServerConfig serverConfig = new ServerConfig("^$1%&@*(@)", 8989, 50521,null, null, null, null);
+        serverConfig.getGrpcUri();
+        
+        
+    }
 }
