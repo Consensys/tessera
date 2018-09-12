@@ -89,8 +89,12 @@ public class ServerConfig extends ConfigItem {
         return Objects.nonNull(sslConfig) && sslConfig.getTls() == SslAuthenticationMode.STRICT;
     }
 
-    public String getBindingAddress() {
-        return this.bindingAddress==null ? this.getServerUri().toString() : this.bindingAddress;
+    public URI getBindingAddress() {
+        try {
+            return this.bindingAddress==null ? this.getServerUri() : new URI(this.bindingAddress);
+        } catch (URISyntaxException ex) {
+            throw new ConfigException(ex);
+        }
     }
 
 }
