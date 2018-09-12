@@ -68,9 +68,9 @@ public class SendGrpcIT {
 
     }
 
-    //@Test
+    @Test
     public void missingPayloadFails() throws Exception {
-        
+
         SendRequest request = SendRequest.newBuilder()
                 .setFrom("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
                 .addTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
@@ -78,11 +78,11 @@ public class SendGrpcIT {
         try {
             SendResponse result = blockingStub.send(request);
             failBecauseExceptionWasNotThrown(StatusRuntimeException.class);
-        } catch(StatusRuntimeException ex) {
+        } catch (StatusRuntimeException ex) {
             assertThat(ex.getStatus()).isEqualTo(Status.INVALID_ARGUMENT);
         }
 
-        
     }
 
+   
 }

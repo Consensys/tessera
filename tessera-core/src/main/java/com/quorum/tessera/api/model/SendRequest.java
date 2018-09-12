@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
+import javax.validation.constraints.Size;
 
 /**
  * Model representation of a JSON body on incoming HTTP requests
@@ -14,6 +15,7 @@ import java.util.Arrays;
 @ApiModel
 public class SendRequest {
 
+    @Size(min = 1)
     @NotNull
     @ApiModelProperty("Encrypted payload to send to other parties.")
     private String payload;
