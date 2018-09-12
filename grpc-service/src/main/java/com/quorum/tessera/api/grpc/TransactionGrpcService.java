@@ -101,13 +101,13 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
         LOGGER.debug("Received resend request");
 
         com.quorum.tessera.api.model.ResendRequest request = Convertor.toModel(grpcRequest);
-        Set<ConstraintViolation<com.quorum.tessera.api.model.ResendRequest>> violations = validator.validate(request);
-        if (!violations.isEmpty()) {
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                    .withCause(new ConstraintViolationException(violations))
-                    .asRuntimeException());
-            return;
-        }
+//        Set<ConstraintViolation<com.quorum.tessera.api.model.ResendRequest>> violations = validator.validate(request);
+//        if (!violations.isEmpty()) {
+//            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+//                    .withCause(new ConstraintViolationException(violations))
+//                    .asRuntimeException());
+//            return;
+//        }
 
         Optional<byte[]> result = enclaveMediator.resendAndEncode(request);
         ResendResponse.Builder builder = ResendResponse.newBuilder();

@@ -57,18 +57,16 @@ public class TransactionGrpcServiceTest {
 
     @Test
     public void testSend() {
-        
+
         SendRequest sendRequest = SendRequest.newBuilder()
                 .setFrom("bXlwdWJsaWNrZXk=")
                 .addTo("cmVjaXBpZW50MQ==")
                 .setPayload("Zm9v").build();
-        
-        
-        
+
         com.quorum.tessera.api.model.SendResponse r = new com.quorum.tessera.api.model.SendResponse("KEY");
         when(enclaveMediator.send(any())).thenReturn(r);
 
-        service.send(sendRequest,sendResponseObserver);
+        service.send(sendRequest, sendResponseObserver);
 
         verify(enclaveMediator).send(any());
 
@@ -89,7 +87,6 @@ public class TransactionGrpcServiceTest {
 
         service.send(sendRequest, sendResponseObserver);
 
-
         verify(enclaveMediator).send(any());
 
         verify(sendResponseObserver).onNext(any());
@@ -99,7 +96,7 @@ public class TransactionGrpcServiceTest {
 
     @Test
     public void testReceive() {
-        
+
         when(enclaveMediator.receiveAndEncode(any())).thenReturn("SOME DATA");
 
         ReceiveRequest request = ReceiveRequest.newBuilder()
@@ -126,20 +123,12 @@ public class TransactionGrpcServiceTest {
         ReceiveRequest request = ReceiveRequest.newBuilder()
                 .setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=")
                 .build();
-        
-        when(enclaveMediator.receiveAndEncode(any())).thenReturn("ENCODEDPAYLOAD");
-        
+
+
         service.receive(request, receiveResponseObserver);
+        
 
-        verify(enclaveMediator).receiveAndEncode(any());
-
-        ArgumentCaptor<ReceiveResponse> receiveResponseCaptor = ArgumentCaptor.forClass(ReceiveResponse.class);
-        verify(receiveResponseObserver).onNext(receiveResponseCaptor.capture());
-        ReceiveResponse response = receiveResponseCaptor.getValue();
-
-        assertThat(response).isNotNull();
-        assertThat(response.getPayload()).isEqualTo("ENCODEDPAYLOAD");
-        verify(receiveResponseObserver).onCompleted();
+        verify(receiveResponseObserver).onError(any());
     }
 
     @Test
@@ -191,7 +180,7 @@ public class TransactionGrpcServiceTest {
                 .build();
 
         when(enclaveMediator.resendAndEncode(any())).thenReturn(Optional.empty());
-        
+
         service.resend(request, resendResponseObserver);
 
         verify(enclaveMediator).resendAndEncode(any());
@@ -199,37 +188,45 @@ public class TransactionGrpcServiceTest {
         verify(resendResponseObserver).onNext(any());
         verify(resendResponseObserver).onCompleted();
     }
-//
-//    @Test
-//    public void testResendIndividual() {
-//
-//        final Key sender = new Key(new byte[]{});
-//        final Nonce nonce = new Nonce(new byte[]{});
-//
-//        final EncodedPayloadWithRecipients epwr = new EncodedPayloadWithRecipients(
-//                new EncodedPayload(sender, new byte[]{}, nonce, emptyList(), nonce),
-//                emptyList()
-//        );
-//
-//        ResendRequest request = ResendRequest.newBuilder()
-//                .setType(ResendRequestType.INDIVIDUAL)
-//                .setPublicKey("mypublickey")
-//                .setKey(Base64.getEncoder().encodeToString("mykey".getBytes()))
-//                .build();
-//
-//        when(enclave.fetchTransactionForRecipient(any(), any())).thenReturn(epwr);
-//
-//        service.resend(request, resendResponseObserver);
-//
-//        verify(enclave).fetchTransactionForRecipient(any(), any());
-//
-//        ArgumentCaptor<ResendResponse> responseCaptor = ArgumentCaptor.forClass(ResendResponse.class);
-//        verify(resendResponseObserver).onNext(responseCaptor.capture());
-//        ResendResponse response = responseCaptor.getValue();
-//
-//        assertThat(response).isNotNull();
-//        assertThat(response.getData().toByteArray()).isEqualTo(new PayloadEncoderImpl().encode(epwr));
-//
-//        verify(resendResponseObserver).onCompleted();
-//    }
+
+
+    @Test
+    public void invalidSendRequest() {
+
+        SendRequest sendRequest = SendRequest.newBuilder()
+                .setFrom("bXlwdWJsaWNrZXk=")
+                .addTo("cmVjaXBpZW50MQ==").build();
+
+        service.send(sendRequest, sendResponseObserver);
+
+        verify(sendResponseObserver).onError(any());
+
+    }
+
+    @Test
+    public void invalidReceiveRequest() {
+
+        ReceiveRequest request = ReceiveRequest.newBuilder()
+                .build();
+
+        service.receive(request, receiveResponseObserver);
+
+        verify(receiveResponseObserver).onError(any());
+
+    }
+
+    @Test
+    public void invalidDelete() {
+
+        DeleteRequest request = DeleteRequest.newBuilder()
+                .build();
+
+        service.delete(request, deleteResponseObserver);
+
+        verify(deleteResponseObserver).onError(any());
+
+    }
+
+
+
 }
