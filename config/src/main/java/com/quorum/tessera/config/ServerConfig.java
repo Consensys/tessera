@@ -77,6 +77,10 @@ public class ServerConfig extends ConfigItem {
         return influxConfig;
     }
 
+    public String getBindingAddress() {
+        return this.bindingAddress == null ? this.getServerUri().toString() : this.bindingAddress;
+    }
+
     public URI getServerUri() {
         try {
             return new URI(hostName + ":" + port);
@@ -89,9 +93,9 @@ public class ServerConfig extends ConfigItem {
         return Objects.nonNull(sslConfig) && sslConfig.getTls() == SslAuthenticationMode.STRICT;
     }
 
-    public URI getBindingAddress() {
+    public URI getBindingUri() {
         try {
-            return this.bindingAddress==null ? this.getServerUri() : new URI(this.bindingAddress);
+            return new URI(this.getBindingAddress());
         } catch (URISyntaxException ex) {
             throw new ConfigException(ex);
         }

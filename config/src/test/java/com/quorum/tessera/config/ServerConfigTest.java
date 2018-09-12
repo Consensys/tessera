@@ -17,9 +17,22 @@ public class ServerConfigTest {
         assertThat(config.isSsl()).isFalse();
     }
 
+    @Test
+    public void bindingUri() throws URISyntaxException {
+        ServerConfig config = new ServerConfig("somedomain", 8989, null, null, null, "http://somedomain:9000");
+
+        assertThat(config.getBindingUri()).isEqualTo(new URI("http://somedomain:9000"));
+        assertThat(config.isSsl()).isFalse();
+    }
+
     @Test(expected = ConfigException.class)
     public void serverUriInvalidUri() {
         new ServerConfig("&@€~:*&2", -1, null,null, null, null).getServerUri();
+    }
+
+    @Test(expected = ConfigException.class)
+    public void bindingUriInvalidUri() {
+        new ServerConfig("&@€~:*&2", -1, null,null, null, "&@€~:*&2").getBindingUri();
     }
 
     @Test

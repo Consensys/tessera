@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import javax.json.JsonException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
@@ -85,6 +84,7 @@ public class Launcher {
         ServiceLocator serviceLocator = ServiceLocator.create();
 
         Set<Object> services = serviceLocator.getServices("tessera-spring.xml");
+
         TesseraServerFactory tesseraServerFactory = TesseraServerFactory.create(serverConfig.getCommunicationType());
         
         TesseraServer tesseraServer = tesseraServerFactory.createServer(serverConfig, services);
