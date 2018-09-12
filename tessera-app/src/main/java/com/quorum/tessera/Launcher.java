@@ -92,14 +92,17 @@ public class Launcher {
         
         TesseraServer restServer = restServerFactory.createServer(serverConfig, services);
 
-        TesseraServer grpcServer = grpcServerFactory.createServer(serverConfig, services);
+        Optional<TesseraServer> grpcServer =
+            Optional.ofNullable(grpcServerFactory.createServer(serverConfig, services));
 
         CountDownLatch countDown = new CountDownLatch(1);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 restServer.stop();
-                grpcServer.stop();
+                if (grpcServer.isPresent()) {
+                    grpcServer.get().stop();
+                }
             } catch (Exception ex) {
                 LOGGER.error(null, ex);
             } finally {
@@ -108,7 +111,9 @@ public class Launcher {
         }));
 
         restServer.start();
-        grpcServer.start();
+        if (grpcServer.isPresent()) {
+            grpcServer.get().start();
+        }
 
         countDown.await();
     }

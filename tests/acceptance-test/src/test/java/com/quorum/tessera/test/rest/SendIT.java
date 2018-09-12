@@ -253,7 +253,7 @@ public class SendIT {
     /**
      * Quorum sends transaction with unknown public key
      */
-    @Test
+   // @Test
     public void sendToDeadNode() {
 
         final String sendRequest = Json.createObjectBuilder()
