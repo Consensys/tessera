@@ -79,7 +79,7 @@ public class OverrideUtilTest {
                 "unixSocketFile",
                 "useWhiteList",
                 "server.sslConfig.clientTrustCertificates",
-                "server.sslConfig.serverTrustCertificates","server.grpcPort"
+                "server.sslConfig.serverTrustCertificates"
         );
 
         final Map<String, Class> results = OverrideUtil.buildConfigOptions();

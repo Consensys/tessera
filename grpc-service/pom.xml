@@ -30,5 +30,10 @@
             <artifactId>service-locator-api</artifactId>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 </project>
