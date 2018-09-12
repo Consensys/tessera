@@ -24,7 +24,7 @@ public class GrpcServerFactory implements TesseraServerFactory {
                 .map(o -> (BindableService) o)
                 .collect(Collectors.toList());
 
-        final URI serverUri = serverConfig.getServerUri();
+        final URI serverUri = serverConfig.getGrpcUri();
 
         ServerBuilder serverBuilder = ServerBuilder.forPort(serverUri.getPort());
 
