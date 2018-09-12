@@ -20,7 +20,6 @@ public class ServerConfigTest {
     @Test
     public void bindingUri() throws URISyntaxException {
         ServerConfig config = new ServerConfig("somedomain", 8989, 50521,  null, null, null, "http://somedomain:9000");
-
         assertThat(config.getBindingUri()).isEqualTo(new URI("http://somedomain:9000"));
         assertThat(config.isSsl()).isFalse();
     }
@@ -43,7 +42,7 @@ public class ServerConfigTest {
 
     @Test(expected = ConfigException.class)
     public void grpcUriInvalidUri() {
-        new ServerConfig("&@€~:*&2", -1, 50521, null,null, null, "&@€~:*&2").getBindingUri();
+        new ServerConfig("&@€~:*&2", -1, 50521, null,null, null, "&@€~:*&2").getGrpcUri();
     }
 
     @Test

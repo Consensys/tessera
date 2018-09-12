@@ -3,15 +3,16 @@
     "jdbc": {
         "username": "sa",
         "password": "",
-        "url": "jdbc:h2:./target/h2/tessera2;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
+        "url": "jdbc:h2:./target/h2/grpc2;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
     },
     "server": {
         "port": 8081,
+        "grpcPort" : 50521,
         "hostName": "http://localhost"
     },
     "peer": [
         {
-            "url": "http://localhost:8080"
+            "url": "http://localhost:50520"
         }
     ],
     "keys": {

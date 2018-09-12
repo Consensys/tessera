@@ -27,7 +27,7 @@ public class TesseraGrpcIT {
 
     @Before
     public void onSetUp() {
-        channel = ManagedChannelBuilder.forAddress("127.0.0.1", 8080)
+        channel = ManagedChannelBuilder.forAddress("127.0.0.1", 50520)
                 .usePlaintext()
                 .build();
 

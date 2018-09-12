@@ -21,7 +21,7 @@ public class SendGrpcIT {
 
     @Before
     public void onSetUp() {
-        channel = ManagedChannelBuilder.forAddress("127.0.0.1", 8080)
+        channel = ManagedChannelBuilder.forAddress("127.0.0.1", 50520)
                 .usePlaintext()
                 .build();
 
@@ -35,7 +35,7 @@ public class SendGrpcIT {
     }
 
     @Test
-    public void sendToSingleRecipient() throws Exception {
+    public void sendToSingleRecipient() {
 
         SendRequest request = SendRequest.newBuilder()
                 .setFrom("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
