@@ -1,19 +1,24 @@
 package com.quorum.tessera.key.vault;
 
-import com.quorum.tessera.util.KeyVaultAuthenticator;
+import com.microsoft.azure.keyvault.KeyVaultClient;
+import com.microsoft.rest.credentials.ServiceClientCredentials;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.Mockito.mock;
 
 public class KeyVaultClientDelegateTest {
-    @Test
+    @Test(expected = RuntimeException.class)
     public void getSecretCallsClient() {
 
-        KeyVaultClientDelegate keyVaultClientDelegate = new KeyVaultClientDelegate(KeyVaultAuthenticator.getAuthenticatedClient());
+        ServiceClientCredentials serviceClientCredentials = mock(ServiceClientCredentials.class);
+        KeyVaultClient keyVaultClient = new KeyVaultClient(serviceClientCredentials);
 
-        final Throwable vaultEx = catchThrowable(() -> keyVaultClientDelegate.getSecret("url", "secret"));
+        KeyVaultClientDelegate keyVaultClientDelegate = new KeyVaultClientDelegate(keyVaultClient);
 
-        assertThat(vaultEx).isInstanceOf(RuntimeException.class);
+        keyVaultClientDelegate.getSecret("bogus","secret");
+
     }
+
+
+
 }

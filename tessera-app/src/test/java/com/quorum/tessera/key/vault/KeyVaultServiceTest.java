@@ -30,4 +30,17 @@ public class KeyVaultServiceTest {
 
         verify(keyVaultClientDelegate).getSecret(url, secretId);
     }
+
+    @Test
+    public void vaultUrlIsNotSetIfKeyVaultConfigNotDefined() {
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, null, null);
+        KeyVaultClientDelegate keyVaultClientDelegate = mock(KeyVaultClientDelegate.class);
+        when(keyVaultClientDelegate.getSecret(any(), any())).thenReturn(new SecretBundle());
+
+        KeyVaultService keyVaultService = new KeyVaultService(keyConfiguration, keyVaultClientDelegate);
+
+        keyVaultService.getSecret("secret");
+
+        verify(keyVaultClientDelegate).getSecret(null, "secret");
+    }
 }
