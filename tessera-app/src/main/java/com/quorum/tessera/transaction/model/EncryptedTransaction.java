@@ -27,12 +27,20 @@ public class EncryptedTransaction implements Serializable {
     @Column(name = "ENCODED_PAYLOAD", nullable = false)
     private byte[] encodedPayload;
 
+    @Column(name="TIMESTAMP", nullable = false, updatable = false)
+    private long timestamp;
+
     public EncryptedTransaction(final MessageHash hash, final byte[] encodedPayload) {
         this.hash = hash;
         this.encodedPayload = encodedPayload;
     }
 
     public EncryptedTransaction() {
+    }
+
+    @PrePersist
+    public void onPersist() {
+        this.timestamp = System.currentTimeMillis();
     }
 
     public MessageHash getHash() {
@@ -49,6 +57,10 @@ public class EncryptedTransaction implements Serializable {
 
     public void setEncodedPayload(final byte[] encodedPayload) {
         this.encodedPayload = encodedPayload;
+    }
+
+    public long getTimestamp() {
+        return this.timestamp;
     }
 
     @Override
