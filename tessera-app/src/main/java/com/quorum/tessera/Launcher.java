@@ -43,9 +43,7 @@ public class Launcher {
             final Config config = cliResult.getConfig()
                     .orElseThrow(() -> new NoSuchElementException("No Config found. Tessera will not run"));
 
-            final URI uri = new URI(config.getServerConfig().getBindingAddress());
-
-            runWebServer(uri, config.getServerConfig());
+            runWebServer(config.getServerConfig());
 
             System.exit(0);
 
@@ -82,7 +80,7 @@ public class Launcher {
         return ex;
     }
 
-    private static void runWebServer(final URI serverUri, ServerConfig serverConfig) throws Exception {
+    private static void runWebServer(final ServerConfig serverConfig) throws Exception {
 
         ServiceLocator serviceLocator = ServiceLocator.create();
 

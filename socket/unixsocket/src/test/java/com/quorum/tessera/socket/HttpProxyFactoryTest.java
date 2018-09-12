@@ -29,7 +29,7 @@ public class HttpProxyFactoryTest {
         final File tmpFile = new File(tmpDir.getRoot(), "keystores");
 
         final ServerConfig configuration = mock(ServerConfig.class);
-        when(configuration.getBindingAddress()).thenReturn(uri.toString());
+        when(configuration.getBindingAddress()).thenReturn(uri);
         when(configuration.getServerUri()).thenReturn(uri);
         when(configuration.isSsl()).thenReturn(true);
         SslConfig sslConfig = mock(SslConfig.class);

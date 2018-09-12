@@ -38,7 +38,7 @@ public class IPWhitelistFilterTest {
         when(configuration.isUseWhiteList()).thenReturn(true);
 
         final ServerConfig serverConfig = mock(ServerConfig.class);
-        when(serverConfig.getBindingAddress()).thenReturn(new URI("http://localhost:8080").toString());
+        when(serverConfig.getBindingAddress()).thenReturn(new URI("http://localhost:8080"));
         when(configuration.getServerConfig()).thenReturn(serverConfig);
 
         this.filter = new IPWhitelistFilter(configuration);
@@ -52,7 +52,7 @@ public class IPWhitelistFilterTest {
         when(configuration.isUseWhiteList()).thenReturn(false);
 
         final ServerConfig serverConfig = mock(ServerConfig.class);
-        when(serverConfig.getBindingAddress()).thenReturn(new URI("http://localhost:8080").toString());
+        when(serverConfig.getBindingAddress()).thenReturn(new URI("http://localhost:8080"));
         when(configuration.getServerConfig()).thenReturn(serverConfig);
 
         final IPWhitelistFilter filter = new IPWhitelistFilter(configuration);
