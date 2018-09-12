@@ -59,7 +59,7 @@ public class ServerConfig extends ConfigItem {
     }
 
     private static ServerConfig create() {
-        return new ServerConfig(null, null, 50521, CommunicationType.REST, null, null, null);
+        return new ServerConfig(null, null, null, CommunicationType.REST, null, null, null);
     }
 
     public String getHostName() {
