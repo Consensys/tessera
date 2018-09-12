@@ -11,15 +11,39 @@ public class ServerConfigTest {
 
     @Test
     public void serverUri() throws URISyntaxException {
-        ServerConfig config = new ServerConfig("somedomain", 8989, null, null, null, null);
+        ServerConfig config = new ServerConfig("somedomain", 8989, 50521, null, null, null, null);
 
         assertThat(config.getServerUri()).isEqualTo(new URI("somedomain:8989"));
         assertThat(config.isSsl()).isFalse();
     }
 
+    @Test
+    public void bindingUri() throws URISyntaxException {
+        ServerConfig config = new ServerConfig("somedomain", 8989, 50521,  null, null, null, "http://somedomain:9000");
+
+        assertThat(config.getBindingUri()).isEqualTo(new URI("http://somedomain:9000"));
+        assertThat(config.isSsl()).isFalse();
+    }
+
+    @Test
+    public void grpcUri() throws URISyntaxException {
+        ServerConfig config = new ServerConfig("somedomain", 8989, 50521,  null, null, null, "http://somedomain:9000");
+        assertThat(config.getGrpcUri()).isEqualTo(new URI("somedomain:50521"));
+    }
+
     @Test(expected = ConfigException.class)
     public void serverUriInvalidUri() {
-        new ServerConfig("&@€~:*&2", -1, null,null, null, null).getServerUri();
+        new ServerConfig("&@€~:*&2", -1, 50521, null,null, null, null).getServerUri();
+    }
+
+    @Test(expected = ConfigException.class)
+    public void bindingUriInvalidUri() {
+        new ServerConfig("&@€~:*&2", -1, 50521, null,null, null, "&@€~:*&2").getBindingUri();
+    }
+
+    @Test(expected = ConfigException.class)
+    public void grpcUriInvalidUri() {
+        new ServerConfig("&@€~:*&2", -1, 50521, null,null, null, "&@€~:*&2").getBindingUri();
     }
 
     @Test
@@ -27,7 +51,7 @@ public class ServerConfigTest {
         final SslConfig sslConfig = new SslConfig(
             SslAuthenticationMode.OFF, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null
         );
-        ServerConfig serverConfig = new ServerConfig("somedomain", 8989, null, sslConfig, null, null);
+        ServerConfig serverConfig = new ServerConfig("somedomain", 8989, 50521, null, sslConfig, null, null);
         assertThat(serverConfig.isSsl()).isFalse();
     }
 
@@ -36,19 +60,19 @@ public class ServerConfigTest {
         final SslConfig sslConfig = new SslConfig(
             SslAuthenticationMode.STRICT, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null
         );
-        ServerConfig serverConfig = new ServerConfig("somedomain", 8989, null, sslConfig, null, null);
+        ServerConfig serverConfig = new ServerConfig("somedomain", 8989, 50521, null, sslConfig, null, null);
         assertThat(serverConfig.isSsl()).isTrue();
     }
 
     @Test
     public void advertisedUrlIsDifferentToBindAddress() {
-        final ServerConfig serverConfig = new ServerConfig("somedomain", 8989, null, null, null, "http://bindingUrl:9999");
+        final ServerConfig serverConfig = new ServerConfig("somedomain", 8989, 50521, null, null, null, "http://bindingUrl:9999");
         assertThat(serverConfig.getBindingAddress()).isEqualTo("http://bindingUrl:9999");
     }
 
     @Test
     public void nullAdvertisedUrlIsSameAsBindAddress() {
-        final ServerConfig serverConfig = new ServerConfig("somedomain", 8989, null, null, null, null);
+        final ServerConfig serverConfig = new ServerConfig("somedomain", 8989, 50521,null, null, null, null);
         assertThat(serverConfig.getBindingAddress()).isEqualTo("somedomain:8989");
     }
 

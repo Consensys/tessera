@@ -52,7 +52,7 @@ public class JerseyServer implements TesseraServer {
     private final InfluxConfig influxConfig;
 
     public JerseyServer(final ServerConfig serverConfig,final Application application) {
-        this.uri = serverConfig.getBindingAddress();
+        this.uri = serverConfig.getBindingUri();
         this.application = Objects.requireNonNull(application);
         this.secure = serverConfig.isSsl();
 

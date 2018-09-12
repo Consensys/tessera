@@ -25,6 +25,9 @@ public class ServerConfig extends ConfigItem {
     private final Integer port;
 
     @XmlElement
+    private final Integer grpcPort;
+
+    @XmlElement
     private final CommunicationType communicationType;
 
     @Valid
@@ -41,12 +44,14 @@ public class ServerConfig extends ConfigItem {
 
     public ServerConfig(final String hostName,
                         final Integer port,
+                        final Integer grpcPort,
                         final CommunicationType communicationType,
                         final SslConfig sslConfig,
                         final InfluxConfig influxConfig,
                         final String bindingAddress) {
         this.hostName = hostName;
         this.port = port;
+        this.grpcPort = grpcPort;
         this.communicationType = communicationType;
         this.sslConfig = sslConfig;
         this.influxConfig = influxConfig;
@@ -54,7 +59,7 @@ public class ServerConfig extends ConfigItem {
     }
 
     private static ServerConfig create() {
-        return new ServerConfig(null, null, CommunicationType.REST, null, null, null);
+        return new ServerConfig(null, null, 50521, CommunicationType.REST, null, null, null);
     }
 
     public String getHostName() {
@@ -63,6 +68,10 @@ public class ServerConfig extends ConfigItem {
 
     public Integer getPort() {
         return port;
+    }
+
+    public Integer getGrpcPort() {
+        return grpcPort;
     }
 
     public CommunicationType getCommunicationType() {
@@ -77,6 +86,10 @@ public class ServerConfig extends ConfigItem {
         return influxConfig;
     }
 
+    public String getBindingAddress() {
+        return this.bindingAddress == null ? this.getServerUri().toString() : this.bindingAddress;
+    }
+
     public URI getServerUri() {
         try {
             return new URI(hostName + ":" + port);
@@ -89,9 +102,17 @@ public class ServerConfig extends ConfigItem {
         return Objects.nonNull(sslConfig) && sslConfig.getTls() == SslAuthenticationMode.STRICT;
     }
 
-    public URI getBindingAddress() {
+    public URI getBindingUri() {
         try {
-            return this.bindingAddress==null ? this.getServerUri() : new URI(this.bindingAddress);
+            return new URI(this.getBindingAddress());
+        } catch (URISyntaxException ex) {
+            throw new ConfigException(ex);
+        }
+    }
+
+    public URI getGrpcUri() {
+        try {
+            return new URI(hostName + ":" + grpcPort);
         } catch (URISyntaxException ex) {
             throw new ConfigException(ex);
         }

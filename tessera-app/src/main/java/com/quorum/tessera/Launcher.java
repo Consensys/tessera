@@ -1,5 +1,6 @@
 package com.quorum.tessera;
 
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.cli.CliDelegate;
@@ -13,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import javax.json.JsonException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
@@ -85,15 +85,21 @@ public class Launcher {
         ServiceLocator serviceLocator = ServiceLocator.create();
 
         Set<Object> services = serviceLocator.getServices("tessera-spring.xml");
-        TesseraServerFactory tesseraServerFactory = TesseraServerFactory.create(serverConfig.getCommunicationType());
+
+        TesseraServerFactory restServerFactory = TesseraServerFactory.create(CommunicationType.REST);
+
+        TesseraServerFactory grpcServerFactory = TesseraServerFactory.create(CommunicationType.GRPC);
         
-        TesseraServer tesseraServer = tesseraServerFactory.createServer(serverConfig, services);
+        TesseraServer restServer = restServerFactory.createServer(serverConfig, services);
+
+        TesseraServer grpcServer = grpcServerFactory.createServer(serverConfig, services);
 
         CountDownLatch countDown = new CountDownLatch(1);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                tesseraServer.stop();
+                restServer.stop();
+                grpcServer.stop();
             } catch (Exception ex) {
                 LOGGER.error(null, ex);
             } finally {
@@ -101,7 +107,8 @@ public class Launcher {
             }
         }));
 
-        tesseraServer.start();
+        restServer.start();
+        grpcServer.start();
 
         countDown.await();
     }
