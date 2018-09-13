@@ -1,15 +1,19 @@
-package com.quorum.tessera.util;
+package com.quorum.tessera.key.vault;
 
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.ClientCredential;
 import com.microsoft.azure.keyvault.authentication.KeyVaultCredentials;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
-public class MyServiceClientCredentials extends KeyVaultCredentials {
+public class KeyVaultClientCredentials extends KeyVaultCredentials {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(KeyVaultClientCredentials.class);
 
     private final String clientId;
 
@@ -19,7 +23,7 @@ public class MyServiceClientCredentials extends KeyVaultCredentials {
 
     private final ExecutorService service;
 
-    public MyServiceClientCredentials(String clientId, String clientSecret, ExecutorService service) {
+    public KeyVaultClientCredentials(String clientId, String clientSecret, ExecutorService service) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.service = service;
@@ -38,10 +42,11 @@ public class MyServiceClientCredentials extends KeyVaultCredentials {
             ClientCredential credential = new ClientCredential(clientId,clientSecret);
 
             return authenticationContext.acquireToken(resource, credential, null).get().getAccessToken();
+
         } catch (ExecutionException  | MalformedURLException ex) {
             throw new RuntimeException(ex);
         } catch(InterruptedException ex) {
-            //TODO: Log warning
+            LOGGER.warn("Key vault executor service interrupted");
             throw new RuntimeException(ex);
         }
     }

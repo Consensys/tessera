@@ -191,7 +191,7 @@
                                 <exclude>com/quorum/tessera/data/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/config/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/config/util/PasswordReader*</exclude>
-                                <exclude>com/quorum/tessera/util/KeyVaultAuthenticator*</exclude>
+                                <exclude>com/quorum/tessera/key/vault/KeyVaultClientDelegate*</exclude>
                             </excludes>
                             
                             <rules>
