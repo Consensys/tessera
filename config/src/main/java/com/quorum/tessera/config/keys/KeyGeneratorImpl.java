@@ -1,15 +1,14 @@
 package com.quorum.tessera.config.keys;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.io.IOCallback;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
+import com.quorum.tessera.io.IOCallback;
 import com.quorum.tessera.nacl.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,7 +41,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
     @Override
     public KeyData generate(final String filename, final ArgonOptions encryptionOptions) {
 
-        final String password = this.getPassword();
+        final String password = this.passwordReader.requestUserPassword();
 
         final KeyPair generated = this.nacl.generateNewKeys();
 
@@ -122,8 +121,6 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
     private String privateKeyToJson(final KeyData keyData) {
 
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
         final KeyDataConfig privateKey;
 
         if (LOCKED.equals(keyData.getConfig().getType())) {
@@ -144,29 +141,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
             privateKey = keyData.getConfig();
         }
 
-        JaxbUtil.marshal(privateKey, outputStream);
-
-        return new String(outputStream.toByteArray());
-
-    }
-
-    private String getPassword() {
-
-        for(;;) {
-
-            System.out.println("Enter a password if you want to lock the private key or leave blank");
-            final String password = this.passwordReader.readPassword();
-
-            System.out.println("Please re-enter the password (or lack of) to confirm");
-            final String passwordCheck = this.passwordReader.readPassword();
-
-            if(Objects.equals(password, passwordCheck)) {
-                return password;
-            } else {
-                System.out.println("Passwords did not match, try again...");
-            }
-
-        }
+        return JaxbUtil.marshalToString(privateKey);
 
     }
 
