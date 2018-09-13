@@ -253,7 +253,7 @@ public class ConfigBuilder {
                 toPath(workDir, sslClientTlsCertificatePath)
         );
 
-        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, sslConfig, null, null);
+        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, 50521, CommunicationType.REST, sslConfig, null, null);
 
         final List<Peer> peerList;
         if(peers != null) {

@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>com.quorum.tessera</groupId>
-            <artifactId>rest-server-api</artifactId>
+            <artifactId>server-api</artifactId>
         </dependency>
         
         <dependency>

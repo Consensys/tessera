@@ -1,12 +1,12 @@
 package com.quorum.tessera;
 
-import com.quorum.tessera.api.Tessera;
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.cli.CliDelegate;
 import com.quorum.tessera.config.cli.CliResult;
-import com.quorum.tessera.server.RestServer;
-import com.quorum.tessera.server.RestServerFactory;
+import com.quorum.tessera.server.TesseraServer;
+import com.quorum.tessera.server.TesseraServerFactory;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,11 +14,7 @@ import org.slf4j.LoggerFactory;
 import javax.json.JsonException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.net.URI;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -47,9 +43,7 @@ public class Launcher {
             final Config config = cliResult.getConfig()
                     .orElseThrow(() -> new NoSuchElementException("No Config found. Tessera will not run"));
 
-            final URI uri = new URI(config.getServerConfig().getBindingAddress());
-
-            runWebServer(uri, config.getServerConfig());
+            runWebServer(config.getServerConfig());
 
             System.exit(0);
 
@@ -86,17 +80,29 @@ public class Launcher {
         return ex;
     }
 
-    private static void runWebServer(final URI serverUri, ServerConfig serverConfig) throws Exception {
+    private static void runWebServer(final ServerConfig serverConfig) throws Exception {
 
-        final Tessera tessera = new Tessera(ServiceLocator.create(), "tessera-spring.xml");
+        ServiceLocator serviceLocator = ServiceLocator.create();
 
-        final RestServer restServer = RestServerFactory.create().createServer(serverUri, tessera, serverConfig);
+        Set<Object> services = serviceLocator.getServices("tessera-spring.xml");
+
+        TesseraServerFactory restServerFactory = TesseraServerFactory.create(CommunicationType.REST);
+
+        TesseraServerFactory grpcServerFactory = TesseraServerFactory.create(CommunicationType.GRPC);
+        
+        TesseraServer restServer = restServerFactory.createServer(serverConfig, services);
+
+        Optional<TesseraServer> grpcServer =
+            Optional.ofNullable(grpcServerFactory.createServer(serverConfig, services));
 
         CountDownLatch countDown = new CountDownLatch(1);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 restServer.stop();
+                if (grpcServer.isPresent()) {
+                    grpcServer.get().stop();
+                }
             } catch (Exception ex) {
                 LOGGER.error(null, ex);
             } finally {
@@ -105,6 +111,9 @@ public class Launcher {
         }));
 
         restServer.start();
+        if (grpcServer.isPresent()) {
+            grpcServer.get().start();
+        }
 
         countDown.await();
     }

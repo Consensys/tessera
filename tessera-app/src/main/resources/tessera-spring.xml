@@ -10,22 +10,54 @@
     <tx:annotation-driven transaction-manager="jpaTransactionManager"/>
 
     <context:component-scan base-package="com.quorum.tessera"/>
+    
+    
+   
 
-    <!-- Resources -->
-    <bean class="com.quorum.tessera.api.VersionResource"/>
-    <bean class="com.quorum.tessera.api.UpCheckResource"/>
-    <bean class="com.quorum.tessera.api.TransactionResource">
+    <bean id="tesseraJaxrsApplication" class="com.quorum.tessera.api.Tessera">
+        <constructor-arg>
+             <bean class="com.quorum.tessera.service.locator.ServiceLocator" factory-method="create" />
+             
+        </constructor-arg>
+         <constructor-arg value="tessera-spring.xml" />
+    </bean>
+    
+    <bean id="enclaveDelegate" class="com.quorum.tessera.enclave.EnclaveMediator">
         <constructor-arg ref="enclave"/>
         <constructor-arg>
             <bean class="com.quorum.tessera.util.Base64Decoder" factory-method="create"/>
         </constructor-arg>
+        <constructor-arg ref="payloadEncoder" />
     </bean>
+    
+    <!-- Resources -->
+    <bean class="com.quorum.tessera.api.VersionResource"/>
+    <bean class="com.quorum.tessera.api.UpCheckResource"/>
+    
+    <bean class="com.quorum.tessera.api.TransactionResource">
+        <constructor-arg ref="enclaveDelegate"/>
+    </bean>
+    
     <bean class="com.quorum.tessera.api.PartyInfoResource">
         <constructor-arg ref="partyInfoService"/>
         <constructor-arg>
             <bean class="com.quorum.tessera.node.PartyInfoParser" factory-method="create"/>
         </constructor-arg>
     </bean>
+
+
+    <!-- gRPC Services -->
+    <bean name="tesseraGrpcService" class="com.quorum.tessera.api.grpc.TesseraGrpcService"/>
+    <bean name="transactionGrpcService" class="com.quorum.tessera.api.grpc.TransactionGrpcService">
+        <constructor-arg ref="enclaveDelegate"/>
+    </bean>
+    <bean name="partyInfoGrpcService" class="com.quorum.tessera.api.grpc.PartyInfoGrpcService">
+        <constructor-arg ref="partyInfoService"/>
+        <constructor-arg>
+            <bean class="com.quorum.tessera.node.PartyInfoParser" factory-method="create"/>
+        </constructor-arg>
+    </bean>
+
 
     <!-- Node synchronization management-->
     <bean name="resendPartyStore" class="com.quorum.tessera.sync.ResendPartyStoreImpl">
@@ -34,7 +66,7 @@
 
     <bean name="transactionRequester" class="com.quorum.tessera.sync.TransactionRequesterImpl">
         <constructor-arg ref="keyManager" />
-        <constructor-arg ref="postDelegate" />
+        <constructor-arg ref="p2pClient" />
     </bean>
 
     <bean name="syncPoller" class="com.quorum.tessera.sync.SyncPoller">
@@ -52,6 +84,15 @@
         <constructor-arg ref="syncPoller"/>
         <constructor-arg value="60"/>
     </bean>
+    
+    <bean id="p2pClientFactory" class="com.quorum.tessera.client.P2pClientFactory" factory-method="newFactory">
+        <constructor-arg ref="config" />
+    </bean>
+    
+    <bean id="p2pClient" factory-bean="p2pClientFactory" factory-method="create">
+        <constructor-arg ref="config"/>
+    </bean>
+
 
     <!-- Party Info management -->
     <bean id="partyInfoStore" class="com.quorum.tessera.node.PartyInfoStore">
@@ -69,8 +110,8 @@
         <constructor-arg>
             <bean class="com.quorum.tessera.node.PartyInfoParser" factory-method="create"/>
         </constructor-arg>
-        <constructor-arg ref="postDelegate"/>
         <constructor-arg ref="resendPartyStore" />
+        <constructor-arg ref="p2pClient"/>
     </bean>
 
     <bean name="partyInfoPollExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">
@@ -83,7 +124,7 @@
 
     <!-- -->
 
-    <bean name="postDelegate" class="com.quorum.tessera.node.PostDelegate">
+    <bean name="postDelegate" class="com.quorum.tessera.client.PostDelegate">
         <constructor-arg>
             <bean factory-bean="clientFactory" factory-method="buildFrom">
                 <constructor-arg>
@@ -93,15 +134,24 @@
         </constructor-arg>
     </bean>
 
+<!-- 
+final TransactionService transactionService,
+                       final PartyInfoService partyInfoService,
+                       final PayloadEncoder payloadEncoder,
+                       final KeyManager keyManager,
+                       final P2pClient p2pClient) {
+-->
     <bean name="enclave" class="com.quorum.tessera.enclave.EnclaveImpl">
         <constructor-arg ref="transactionService"/>
         <constructor-arg ref="partyInfoService"/>
         <constructor-arg ref="payloadEncoder"/>
-        <constructor-arg ref="postDelegate"/>
         <constructor-arg ref="keyManager"/>
+        <constructor-arg ref="p2pClient"/>
+
     </bean>
 
-    <bean name="clientFactory" class="com.quorum.tessera.node.ClientFactory">
+
+    <bean name="clientFactory" class="com.quorum.tessera.client.ClientFactory">
         <constructor-arg>
             <bean class="com.quorum.tessera.ssl.context.ClientSSLContextFactory" factory-method="create"/>
         </constructor-arg>
@@ -141,11 +191,11 @@
             <bean factory-bean="keyConfig" factory-method="getKeyData"/>
         </constructor-arg>
         <constructor-arg>
-           <bean class="com.quorum.tessera.config.keys.KeysConverter" factory-method="convert">
-               <constructor-arg>
+            <bean class="com.quorum.tessera.config.keys.KeysConverter" factory-method="convert">
+                <constructor-arg>
                     <bean factory-bean="config" factory-method="getAlwaysSendTo" />
-               </constructor-arg>
-           </bean>
+                </constructor-arg>
+            </bean>
         </constructor-arg>
     </bean>
 
@@ -169,11 +219,11 @@
 
     <bean class="com.quorum.tessera.api.ApiResource"/>
 
-        <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
-            <property name="url" value="#{ config.getJdbcConfig().getUrl() }" />
-            <property name="username" value="#{ config.getJdbcConfig().getUsername() }" />
-            <property name="password" value="#{ config.getJdbcConfig().getPassword() }" />
-        </bean>
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="url" value="#{ config.getJdbcConfig().getUrl() }" />
+        <property name="username" value="#{ config.getJdbcConfig().getUsername() }" />
+        <property name="password" value="#{ config.getJdbcConfig().getPassword() }" />
+    </bean>
 
     <bean id="jpaTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
         <property name="entityManagerFactory" ref="entityManagerFactory"/>

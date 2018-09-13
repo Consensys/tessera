@@ -1,6 +1,6 @@
 package com.quorum.tessera.node;
 
-import com.quorum.tessera.api.model.ApiPath;
+import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.sync.ResendPartyStore;
@@ -32,29 +32,28 @@ public class PartyInfoPollerTest {
 
     private ResendPartyStore resendPartyStore;
 
-    private PostDelegate postDelegate;
-
     private PartyInfoPoller partyInfoPoller;
+
+    private P2pClient p2pClient;
 
     @Before
     public void setUp() {
-        this.postDelegate = mock(PostDelegate.class);
         this.partyInfoService = mock(PartyInfoService.class);
         this.partyInfoParser = mock(PartyInfoParser.class);
         this.resendPartyStore = mock(ResendPartyStore.class);
-
-        this.partyInfoPoller = new PartyInfoPoller(partyInfoService, partyInfoParser, postDelegate, resendPartyStore);
+        this.p2pClient = mock(P2pClient.class);
+        this.partyInfoPoller = new PartyInfoPoller(partyInfoService, partyInfoParser, resendPartyStore, p2pClient);
     }
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(partyInfoService, partyInfoParser, resendPartyStore);
+        verifyNoMoreInteractions(partyInfoService, partyInfoParser, resendPartyStore, p2pClient);
     }
 
     @Test
     public void run() {
 
-        doReturn(RESPONSE).when(postDelegate).doPost(TARGET_URL, ApiPath.PARTYINFO, RESPONSE);
+        doReturn(RESPONSE).when(p2pClient).getPartyInfo(TARGET_URL, RESPONSE);
 
         final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
         doReturn(partyInfo).when(partyInfoService).getPartyInfo();
@@ -75,7 +74,7 @@ public class PartyInfoPollerTest {
         verify(partyInfoParser).from(RESPONSE);
         verify(partyInfoParser).to(partyInfo);
 
-        verify(postDelegate).doPost(TARGET_URL, ApiPath.PARTYINFO, RESPONSE);
+        verify(p2pClient).getPartyInfo(TARGET_URL, RESPONSE);
 
         //all nodes were known about, so this is called with no new URLs
         final ArgumentCaptor<Collection<Party>> captor = ArgumentCaptor.forClass(Collection.class);
@@ -86,7 +85,7 @@ public class PartyInfoPollerTest {
     @Test
     public void testWhenURLIsOwn() {
 
-        doReturn(RESPONSE).when(postDelegate).doPost(OWN_URL, ApiPath.PARTYINFO, RESPONSE);
+        doReturn(RESPONSE).when(p2pClient).getPartyInfo(OWN_URL, RESPONSE);
 
         final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(OWN_URL)));
         doReturn(partyInfo).when(partyInfoService).getPartyInfo();
@@ -104,7 +103,7 @@ public class PartyInfoPollerTest {
     @Test
     public void testWhenPostFails() {
 
-        doReturn(null).when(postDelegate).doPost(TARGET_URL, ApiPath.PARTYINFO, RESPONSE);
+        doReturn(null).when(p2pClient).getPartyInfo(TARGET_URL, RESPONSE);
 
         final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
 
@@ -119,7 +118,7 @@ public class PartyInfoPollerTest {
         verify(partyInfoParser, never()).from(RESPONSE);
         verify(partyInfoParser).to(partyInfo);
         verify(partyInfoService).getPartyInfo();
-        verify(postDelegate).doPost(TARGET_URL, ApiPath.PARTYINFO, RESPONSE);
+        verify(p2pClient).getPartyInfo(TARGET_URL, RESPONSE);
     }
 
     @Test
@@ -133,10 +132,12 @@ public class PartyInfoPollerTest {
         PartyInfo updatedPartyInfo = mock(PartyInfo.class);
         doReturn(updatedPartyInfo).when(partyInfoParser).from(RESPONSE);
 
-        doThrow(UnsupportedOperationException.class).when(postDelegate).doPost(TARGET_URL, ApiPath.PARTYINFO, RESPONSE);
+        doThrow(UnsupportedOperationException.class).when(p2pClient).getPartyInfo(TARGET_URL, RESPONSE);
 
         final Throwable throwable = catchThrowable(partyInfoPoller::run);
         assertThat(throwable).isInstanceOf(UnsupportedOperationException.class);
+
+        verify(p2pClient).getPartyInfo(TARGET_URL, RESPONSE);
 
         verify(partyInfoService).getPartyInfo();
         verify(partyInfoService, never()).updatePartyInfo(updatedPartyInfo);
@@ -156,9 +157,11 @@ public class PartyInfoPollerTest {
         doReturn(updatedPartyInfo).when(partyInfoParser).from(RESPONSE);
 
         final RuntimeException connectionException = new RuntimeException(new ConnectException("OUCH"));
-        doThrow(connectionException).when(postDelegate).doPost(TARGET_URL, ApiPath.PARTYINFO, RESPONSE);
+        doThrow(connectionException).when(p2pClient).getPartyInfo(TARGET_URL, RESPONSE);
 
         partyInfoPoller.run();
+
+        verify(p2pClient).getPartyInfo(TARGET_URL, RESPONSE);
 
         verify(partyInfoService).getPartyInfo();
         verify(partyInfoService, never()).updatePartyInfo(updatedPartyInfo);
