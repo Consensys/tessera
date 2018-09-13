@@ -32,6 +32,7 @@ public class KeyConfiguration extends ConfigItem {
     private final List<@ValidKeyData KeyData> keyData;
 
     @Valid
+    @XmlElement(name = "azureKeyVaultConfig")
     private final KeyVaultConfig keyVaultConfig;
 
     public KeyConfiguration(final Path passwordFile, final List<String> passwords, final List<KeyData> keyData, final KeyVaultConfig keyVaultConfig) {

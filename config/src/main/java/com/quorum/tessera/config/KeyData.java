@@ -42,7 +42,7 @@ public class KeyData extends ConfigItem {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path publicKeyPath;
 
-    @XmlElement
+    @XmlElement(name = "azureKeyVaultId")
     @Pattern(regexp = "^[0-9a-zA-Z\\-]*$")
     private final String keyVaultId;
 
