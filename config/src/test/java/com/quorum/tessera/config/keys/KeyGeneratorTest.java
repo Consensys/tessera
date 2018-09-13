@@ -52,7 +52,7 @@ public class KeyGeneratorTest {
         this.keyEncryptor = mock(KeyEncryptor.class);
         this.passwordReader = mock(PasswordReader.class);
 
-        when(passwordReader.readPassword()).thenReturn("");
+        when(passwordReader.requestUserPassword()).thenReturn("");
 
         this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, passwordReader);
 
@@ -91,7 +91,7 @@ public class KeyGeneratorTest {
     @Test
     public void generateFromKeyDataLockedPrivateKey() throws IOException {
 
-        when(passwordReader.readPassword()).thenReturn("PASSWORD");
+        when(passwordReader.requestUserPassword()).thenReturn("PASSWORD");
 
         final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString());
         final String keyFilesName = tempFolder.resolve(UUID.randomUUID().toString()).toString();
@@ -176,31 +176,5 @@ public class KeyGeneratorTest {
         verify(nacl).generateNewKeys();
     }
 
-    @Test
-    public void passwordsNotMatchingCausesRetry() throws IOException {
-        when(passwordReader.readPassword()).thenReturn("val1", "val2", "val3");
-
-        final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString());
-        final String keyFilesName = tempFolder.resolve(UUID.randomUUID().toString()).toString();
-
-        doReturn(keyPair).when(nacl).generateNewKeys();
-
-        final ArgonOptions argonOptions = new ArgonOptions("id", 1, 1, 1);
-
-        final PrivateKeyData encryptedPrivateKey = new PrivateKeyData(null, null, null, null, argonOptions, null);
-
-        doReturn(encryptedPrivateKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString(), eq(null));
-
-        final PrivateKeyData encryptedKey = new PrivateKeyData(null, "snonce", "salt", "sbox", argonOptions, "PASSWORD");
-
-        doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString(), eq(null));
-
-        final KeyData generated = generator.generate(keyFilesName, null);
-
-        verify(keyEncryptor).encryptPrivateKey(any(Key.class), anyString(), eq(null));
-        verify(nacl).generateNewKeys();
-        verify(passwordReader, times(4)).readPassword();
-
-    }
 
 }
