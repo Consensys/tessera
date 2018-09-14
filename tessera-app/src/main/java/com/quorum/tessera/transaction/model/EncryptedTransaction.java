@@ -27,7 +27,7 @@ public class EncryptedTransaction implements Serializable {
     @Column(name = "ENCODED_PAYLOAD", nullable = false)
     private byte[] encodedPayload;
 
-    @Column(name="TIMESTAMP", nullable = false, updatable = false)
+    @Column(name="TIMESTAMP", updatable = false)
     private long timestamp;
 
     public EncryptedTransaction(final MessageHash hash, final byte[] encodedPayload) {
