@@ -1,0 +1,35 @@
+{
+    "useWhiteList": false,
+    "jdbc": {
+        "username": "sa",
+        "password": "",
+        "url": "jdbc:h2:./target/h2/grpc3;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
+    },
+    "server": {
+        "port": 8082,
+        "grpcPort" : 50522,
+        "hostName": "http://localhost"
+    },
+    "peer": [
+        {
+            "url": "http://localhost:50520"
+        }
+    ],
+    "keys": {
+        "passwords": [],
+        "keyData": [
+            {
+                "privateKey": "ygQVE998+w/C+rU/4CVgyhSAJf63YLKufbkqihcpjVI=",
+                "publicKey": "giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE="
+            },
+            {
+                "privateKey": "rVtozM4nTmiwGAtOfYBNWO+CZgubzhIdPwGLZn3HrMU=",
+                "publicKey": "jP4f+k/IbJvGyh0LklWoea2jQfmLwV53m9XoHVS4NSU="
+            }
+        ]
+    },
+    "alwaysSendTo": [
+        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+    ],
+    "unixSocketFile": "${unixSocketPath}"
+}

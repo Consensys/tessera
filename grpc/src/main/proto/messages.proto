@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.quorum.tessera.api.grpc.model";
+
+message SendRequest {
+    string payload = 1;
+    string from = 2;
+    repeated string to = 3;
+}
+
+message SendResponse {
+    string key = 1;
+}
+
+message ReceiveRequest {
+    string key = 1;
+    string to = 2;
+}
+
+message ReceiveResponse {
+    string payload = 1;
+}
+
+message DeleteRequest {
+    string key = 1;
+}
+
+enum ResendRequestType {
+    ALL = 0;
+    INDIVIDUAL = 1;
+}
+
+message ResendRequest {
+    ResendRequestType type = 1;
+    string publicKey = 2;
+    string key = 3;
+}
+
+message ResendResponse {
+    bytes data = 1;
+}
+
+message VersionMessage {
+    string version = 1;
+}
+
+message UpCheckMessage {
+    string upCheck = 1;
+}
+
+message PartyInfoMessage {
+    bytes partyInfo = 1;
+}
+
+message PushRequest {
+    bytes data = 1;
+}

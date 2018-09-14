@@ -44,12 +44,35 @@
 
         <dependency>
             <groupId>com.quorum.tessera</groupId>
-            <artifactId>rest-server-api</artifactId>
+            <artifactId>jaxrs-service</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>grpc-service</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>grpc-server</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>server-api</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>service-locator-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>tessera-core</artifactId>
         </dependency>
 
         <dependency>
@@ -184,11 +207,6 @@
             <groupId>org.glassfish</groupId>
             <artifactId>javax.el</artifactId>
             <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-server</artifactId>
         </dependency>
 
         <dependency>

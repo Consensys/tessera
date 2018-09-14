@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+import "messages.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option java_multiple_files = true;
+option java_package = "com.quorum.tessera.api.grpc";
+
+service Transaction {
+
+    rpc Send (SendRequest) returns (SendResponse) { }
+
+    rpc Receive (ReceiveRequest) returns (ReceiveResponse) { }
+
+    rpc Delete(DeleteRequest) returns (DeleteRequest) { }
+
+    rpc Resend(ResendRequest) returns (ResendResponse) { }
+
+    rpc Push(PushRequest) returns (PushRequest) { }
+
+}
+
+service PartyInfo {
+
+    rpc GetPartyInfo (PartyInfoMessage) returns (PartyInfoMessage) { }
+
+    rpc GetPartyInfoStream (stream PartyInfoMessage) returns (stream PartyInfoMessage) { }
+
+}
+
+service Tessera {
+
+    rpc GetVersion (google.protobuf.Empty) returns (VersionMessage) {
+        option (google.api.http) = {
+            get: "/version"
+            body: "*"
+        };
+    }
+
+    rpc GetUpCheck (google.protobuf.Empty) returns (UpCheckMessage) {
+        option (google.api.http) = {
+            get: "/upcheck"
+            body: "*"
+        };
+    }
+
+}
