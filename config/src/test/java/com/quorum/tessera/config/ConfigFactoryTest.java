@@ -7,10 +7,12 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
@@ -31,7 +33,7 @@ public class ConfigFactoryTest {
         InputStream configInputStream = ElUtil.process(getClass()
                 .getResourceAsStream("/sample.json"), params);
 
-        Config config = configFactory.create(configInputStream, null);
+        Config config = configFactory.create(configInputStream, Collections.emptyList());
 
         assertThat(config).isNotNull();
         assertThat(config.isUseWhiteList()).isFalse();
@@ -55,9 +57,6 @@ public class ConfigFactoryTest {
         assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions().getIterations()).isEqualTo(10);
         assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions().getParallelism()).isEqualTo(4);
         assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions().getMemory()).isEqualTo(1048576);
-        
-        
-        Files.deleteIfExists(unixSocketPath);
     }
 
     @Test
@@ -77,14 +76,16 @@ public class ConfigFactoryTest {
 
         final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString()).toAbsolutePath();
 
-        final String password = UUID.randomUUID().toString();
-
-        final InputStream tempSystemIn = new ByteArrayInputStream(
-                (password + System.lineSeparator() + password + System.lineSeparator()).getBytes()
+        final KeyData precreatedKey = new KeyData(
+            new KeyDataConfig(
+                new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 10, 1048576, 4), "pass"),
+                PrivateKeyType.LOCKED
+            ),
+            null,
+            null,
+            tempFolder.resolve(".key"),
+            tempFolder.resolve(".pub")
         );
-
-        final InputStream oldSystemIn = System.in;
-        System.setIn(tempSystemIn);
 
         final ConfigFactory configFactory = ConfigFactory.create();
         assertThat(configFactory).isExactlyInstanceOf(JaxbConfigFactory.class);
@@ -97,7 +98,7 @@ public class ConfigFactoryTest {
         InputStream configInputStream = ElUtil.process(getClass()
                 .getResourceAsStream("/sample-private-keygen.json"), params);
 
-        Config config = configFactory.create(configInputStream, null, tempFolder.toString());
+        Config config = configFactory.create(configInputStream, singletonList(precreatedKey));
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys().getKeyData()).hasSize(1);
@@ -116,10 +117,5 @@ public class ConfigFactoryTest {
         assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getIterations()).isEqualTo(10);
         assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getParallelism()).isEqualTo(4);
         assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getMemory()).isEqualTo(1048576);
-
-        System.setIn(oldSystemIn);
-
-        Files.deleteIfExists(unixSocketPath);
-
     }
 }
