@@ -10,8 +10,8 @@ public class KeyVaultService {
     private KeyVaultClientDelegate keyVaultClientDelegate;
 
     public KeyVaultService(KeyConfiguration keyConfig, KeyVaultClientDelegate keyVaultClientDelegate) {
-        if(Objects.nonNull(keyConfig.getKeyVaultConfig())) {
-            this.vaultUrl = keyConfig.getKeyVaultConfig().getUrl();
+        if(Objects.nonNull(keyConfig.getAzureKeyVaultConfig())) {
+            this.vaultUrl = keyConfig.getAzureKeyVaultConfig().getUrl();
         }
 
         this.keyVaultClientDelegate = keyVaultClientDelegate;

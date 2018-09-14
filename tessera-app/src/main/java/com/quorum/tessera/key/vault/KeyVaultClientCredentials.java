@@ -39,6 +39,9 @@ public class KeyVaultClientCredentials extends KeyVaultCredentials {
             if(Objects.isNull(authenticationContext)) {
                 this.authenticationContext = new AuthenticationContext(authorization, false, service);
             }
+            if(clientId == null || clientSecret == null) {
+                throw new RuntimeException("AZURE_CLIENT_ID and AZURE_CLIENT_SECRET environment variables must be set");
+            }
             ClientCredential credential = new ClientCredential(clientId,clientSecret);
 
             return authenticationContext.acquireToken(resource, credential, null).get().getAccessToken();

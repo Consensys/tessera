@@ -22,7 +22,7 @@ public class KeyDataValidator implements ConstraintValidator<ValidKeyData, KeyDa
             return true;
         }
 
-        if(keyData.getPublicKey() != null && keyData.getPrivateKey() == null && keyData.getKeyVaultId() == null) {
+        if(keyData.getPublicKey() != null && keyData.getPrivateKey() == null && keyData.getAzureKeyVaultId() == null) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{ValidKeyData.bothPrivateAndPublicRequired.message}")
                 .addConstraintViolation();

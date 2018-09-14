@@ -173,7 +173,7 @@ public class ValidationTest {
         String keyVaultId = "0123456789-abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         KeyData keyData = new KeyData(null, null, null, null, null, keyVaultId);
 
-        Set<ConstraintViolation<KeyData>> violations = validator.validateProperty(keyData, "keyVaultId");
+        Set<ConstraintViolation<KeyData>> violations = validator.validateProperty(keyData, "azureKeyVaultId");
         assertThat(violations).hasSize(0);
     }
 
@@ -182,7 +182,7 @@ public class ValidationTest {
         String keyVaultId = "invalid_@!£$%^~^&_id";
         KeyData keyData = new KeyData(null, null, null, null, null, keyVaultId);
 
-        Set<ConstraintViolation<KeyData>> violations = validator.validateProperty(keyData, "keyVaultId");
+        Set<ConstraintViolation<KeyData>> violations = validator.validateProperty(keyData, "azureKeyVaultId");
         assertThat(violations).hasSize(1);
 
         ConstraintViolation<KeyData> violation = violations.iterator().next();
@@ -279,6 +279,6 @@ public class ValidationTest {
 
         ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
         assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("keyVaultConfig.url");
+        assertThat(violation.getPropertyPath().toString()).isEqualTo("azureKeyVaultConfig.url");
     }
 }

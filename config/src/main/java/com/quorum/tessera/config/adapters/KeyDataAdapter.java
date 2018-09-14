@@ -85,7 +85,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
                         publicKeyString,
                         privateKeyPath,
                         publicKeyPath,
-                        keyData.getKeyVaultId()
+                        keyData.getAzureKeyVaultId()
                 )
         );
 
@@ -118,7 +118,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
                 keyData.getPublicKey(),
                 keyData.getPrivateKeyPath(),
                 keyData.getPublicKeyPath(),
-                keyData.getKeyVaultId()
+                keyData.getAzureKeyVaultId()
         );
     }
 
@@ -131,7 +131,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
 
         if(keyData.getPrivateKeyPath()!=null || keyData.getPublicKeyPath()!=null) {
             return new KeyData(
-                null, null, null, keyData.getPrivateKeyPath(), keyData.getPublicKeyPath(), keyData.getKeyVaultId()
+                null, null, null, keyData.getPrivateKeyPath(), keyData.getPublicKeyPath(), keyData.getAzureKeyVaultId()
             );
         }
 
@@ -152,7 +152,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
                     keyData.getPublicKey(),
                     keyData.getPrivateKeyPath(),
                     keyData.getPublicKeyPath(),
-                    keyData.getKeyVaultId()
+                    keyData.getAzureKeyVaultId()
             );
         }
 

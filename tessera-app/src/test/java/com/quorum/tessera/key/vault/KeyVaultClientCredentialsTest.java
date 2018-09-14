@@ -108,4 +108,37 @@ public class KeyVaultClientCredentialsTest {
 
         credentials.doAuthenticate("auth", "resource", null);
     }
+
+    @Test
+    public void nullClientIdThrowsRuntimeException() {
+        credentials = new KeyVaultClientCredentials(null, "secret", executorService);
+
+        String goodUrl = "https://url/path";
+        final Throwable ex = catchThrowable(() -> credentials.doAuthenticate(goodUrl, null, null));
+
+        assertThat(ex).isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("AZURE_CLIENT_ID and AZURE_CLIENT_SECRET environment variables must be set");
+    }
+
+    @Test
+    public void nullClientSecretThrowsRuntimeException() {
+        credentials = new KeyVaultClientCredentials("id", null, executorService);
+
+        String goodUrl = "https://url/path";
+        final Throwable ex = catchThrowable(() -> credentials.doAuthenticate(goodUrl, null, null));
+
+        assertThat(ex).isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("AZURE_CLIENT_ID and AZURE_CLIENT_SECRET environment variables must be set");
+    }
+
+    @Test
+    public void nullClientIdAndSecretThrowsRuntimeException() {
+        credentials = new KeyVaultClientCredentials(null, null, executorService);
+
+        String goodUrl = "https://url/path";
+        final Throwable ex = catchThrowable(() -> credentials.doAuthenticate(goodUrl, null, null));
+
+        assertThat(ex).isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("AZURE_CLIENT_ID and AZURE_CLIENT_SECRET environment variables must be set");
+    }
 }

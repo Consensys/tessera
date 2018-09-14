@@ -21,7 +21,7 @@ public class KeyPairFactory {
         final String publicKey = keyData.getPublicKey();
 
         if(Objects.isNull(keyData.getPrivateKey())) {
-            privateKey = keyVaultService.getSecret(keyData.getKeyVaultId());
+            privateKey = keyVaultService.getSecret(keyData.getAzureKeyVaultId());
         } else {
             privateKey = keyData.getPrivateKey();
         }

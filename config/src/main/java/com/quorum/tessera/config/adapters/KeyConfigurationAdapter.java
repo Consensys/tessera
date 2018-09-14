@@ -77,7 +77,7 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
                         kd.getPublicKey(),
                         kd.getPrivateKeyPath(),
                         kd.getPublicKeyPath(),
-                        kd.getKeyVaultId()
+                        kd.getAzureKeyVaultId()
                     );
                 }).collect(Collectors.toList());
         }
@@ -89,7 +89,7 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
                 .stream()
                 .map(keyDataAdapter::unmarshal)
                 .collect(Collectors.toList()),
-            input.getKeyVaultConfig()
+            input.getAzureKeyVaultConfig()
         );
 
     }
@@ -103,7 +103,7 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
                 .stream()
                 .map(keyDataAdapter::marshal)
                 .collect(Collectors.toList()),
-            input.getKeyVaultConfig()
+            input.getAzureKeyVaultConfig()
         );
     }
 
