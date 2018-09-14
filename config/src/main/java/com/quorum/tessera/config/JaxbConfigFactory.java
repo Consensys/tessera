@@ -1,7 +1,5 @@
 package com.quorum.tessera.config;
 
-import com.quorum.tessera.config.keys.KeyGenerator;
-import com.quorum.tessera.config.keys.KeyGeneratorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 
 import java.io.IOException;
@@ -24,16 +22,9 @@ public class JaxbConfigFactory implements ConfigFactory {
     private static final Set<PosixFilePermission> NEW_PASSWORD_FILE_PERMS = Stream
         .of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE)
         .collect(Collectors.toSet());
-
-    private final KeyGenerator generator = KeyGeneratorFactory.newFactory().create();
     
     @Override
-    public Config create(final InputStream configData, final ArgonOptions keygenConfig, final String... filenames) {
-
-        final List<KeyData> newKeys = Stream
-            .of(filenames)
-            .map(name -> generator.generate(name, keygenConfig))
-            .collect(Collectors.toList());
+    public Config create(final InputStream configData, final List<KeyData> newKeys) {
 
         final Config config = JaxbUtil.unmarshal(configData, Config.class);
 

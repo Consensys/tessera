@@ -4,7 +4,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -13,41 +12,46 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
-import static java.lang.System.lineSeparator;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class JaxbConfigFactoryTest {
 
-    private static final String PASS = "pass" + lineSeparator();
-
     private JaxbConfigFactory factory;
 
-    private InputStream oldSystemIn;
+    private KeyData sampleGeneratedKey;
 
     @Before
-    public void init() {
-        final InputStream tempSystemIn = new ByteArrayInputStream((PASS + PASS).getBytes());
-        this.oldSystemIn = System.in;
-        System.setIn(tempSystemIn);
+    public void init() throws IOException {
+        final Path blankName = Files.createTempDirectory(UUID.randomUUID().toString());
+        this.sampleGeneratedKey = new KeyData(
+            new KeyDataConfig(
+                new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 1, 1, 1), "pass"),
+                PrivateKeyType.LOCKED
+            ),
+            null,
+            null,
+            blankName.resolve(".key"),
+            blankName.resolve(".pub")
+        );
 
         this.factory = new JaxbConfigFactory();
     }
 
     @After
     public void after() throws IOException {
-        System.setIn(oldSystemIn);
         Files.deleteIfExists(Paths.get("newPasses.txt"));
         Files.deleteIfExists(Paths.get("passwords.txt"));
     }
 
     @Test
-    public void createNewLockedKeyAddPasswordToInline() throws IOException {
+    public void createNewLockedKeyAddPasswordToInline() {
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddInline.json");
-        final Path blankName = Files.createTempDirectory(UUID.randomUUID().toString());
 
-        final Config config = factory.create(inputStream, null, blankName.toAbsolutePath().toString());
+        final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
 
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getKeys().getKeyData()).hasSize(1);
@@ -56,12 +60,11 @@ public class JaxbConfigFactoryTest {
     }
 
     @Test
-    public void createNewLockedKeyAppendsToList() throws IOException {
+    public void createNewLockedKeyAppendsToList() {
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddInlineWithExisting.json");
-        final Path blankName = Files.createTempDirectory(UUID.randomUUID().toString());
 
-        final Config config = factory.create(inputStream, null, blankName.toAbsolutePath().toString());
+        final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
 
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getKeys().getKeyData()).hasSize(1);
@@ -73,9 +76,8 @@ public class JaxbConfigFactoryTest {
     public void createNewLockedKeyCreatesNewPasswordFile() throws IOException {
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddToFile.json");
-        final Path blankName = Files.createTempDirectory(UUID.randomUUID().toString());
 
-        final Config config = factory.create(inputStream, null, blankName.toAbsolutePath().toString());
+        final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
 
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getKeys().getKeyData()).hasSize(1);
@@ -93,11 +95,8 @@ public class JaxbConfigFactoryTest {
         Paths.get("newPasses.txt").toFile().setWritable(false);
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddToFile.json");
-        final Path blankName = Files.createTempDirectory(UUID.randomUUID().toString());
 
-        final Throwable throwable = catchThrowable(
-            () -> factory.create(inputStream, null, blankName.toAbsolutePath().toString())
-        );
+        final Throwable throwable = catchThrowable(() -> factory.create(inputStream, singletonList(sampleGeneratedKey)));
 
         assertThat(throwable).hasMessage("Could not store new passwords: newPasses.txt");
     }
@@ -106,9 +105,8 @@ public class JaxbConfigFactoryTest {
     public void createNewLockedKeyWithNoPasswordsSet() throws IOException {
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
-        final Path blankName = Files.createTempDirectory(UUID.randomUUID().toString());
 
-        final Config config = factory.create(inputStream, null, blankName.toAbsolutePath().toString());
+        final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
 
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getKeys().getKeyData()).hasSize(1);
@@ -123,14 +121,18 @@ public class JaxbConfigFactoryTest {
     @Test
     public void unlockedKeyDoesntTriggerPasswordFile() throws IOException {
 
-        final InputStream tempSystemIn = new ByteArrayInputStream((lineSeparator() + lineSeparator()).getBytes());
-        System.setIn(tempSystemIn);
-        this.factory = new JaxbConfigFactory();
+        final Path blankName = Files.createTempDirectory(UUID.randomUUID().toString());
+        final KeyData unlockedSampleGeneratedKey = new KeyData(
+            new KeyDataConfig(new PrivateKeyData("value", null, null, null, null, null), PrivateKeyType.UNLOCKED),
+            null,
+            null,
+            blankName.resolve(".key"),
+            blankName.resolve(".pub")
+        );
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
-        final Path blankName = Files.createTempDirectory(UUID.randomUUID().toString());
 
-        final Config config = factory.create(inputStream, null, blankName.toAbsolutePath().toString());
+        final Config config = factory.create(inputStream, singletonList(unlockedSampleGeneratedKey));
 
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getKeys().getKeyData()).hasSize(1);
@@ -142,14 +144,12 @@ public class JaxbConfigFactoryTest {
     public void ifExistingKeysWereUnlockedThenAddEmptyPassword() throws IOException {
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyWithUnlockedPrevious.json");
-        final Path blankName = Files.createTempDirectory(UUID.randomUUID().toString());
 
-        final Config config = factory.create(inputStream, null, blankName.toAbsolutePath().toString());
+        final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
 
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getKeys().getKeyData()).hasSize(2);
         assertThat(config.getKeys().getPasswords()).isNull();
-
 
         assertThat(config.getKeys().getPasswordFile()).isEqualTo(Paths.get("passwords.txt"));
         final List<String> passes = Files.readAllLines(config.getKeys().getPasswordFile());
@@ -160,13 +160,9 @@ public class JaxbConfigFactoryTest {
     @Test
     public void noNewKeyDoesntTriggerPasswords() {
 
-        final InputStream tempSystemIn = new ByteArrayInputStream((lineSeparator() + lineSeparator()).getBytes());
-        System.setIn(tempSystemIn);
-        this.factory = new JaxbConfigFactory();
-
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
 
-        final Config config = factory.create(inputStream, null);
+        final Config config = factory.create(inputStream, emptyList());
 
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getKeys().getKeyData()).isEmpty();
@@ -176,13 +172,10 @@ public class JaxbConfigFactoryTest {
 
     @Test
     public void nullKeysDoesntCreatePasswords() {
-        final InputStream tempSystemIn = new ByteArrayInputStream((lineSeparator() + lineSeparator()).getBytes());
-        System.setIn(tempSystemIn);
-        this.factory = new JaxbConfigFactory();
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/nullKeys.json");
 
-        final Config config = factory.create(inputStream, null);
+        final Config config = factory.create(inputStream, emptyList());
 
         assertThat(config.getKeys()).isNull();
     }
