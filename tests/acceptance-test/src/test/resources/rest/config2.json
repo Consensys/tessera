@@ -7,7 +7,6 @@
     },
     "server": {
         "port": 8081,
-        "grpcPort" : 50521,
         "hostName": "http://localhost"
     },
     "peer": [
