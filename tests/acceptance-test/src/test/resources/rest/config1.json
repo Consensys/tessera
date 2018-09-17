@@ -1,0 +1,28 @@
+{
+    "useWhiteList": false,
+    "jdbc": {
+        "username": "sa",
+        "password": "",
+        "url": "jdbc:h2:./target/h2/rest1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
+    },
+    "server": {
+        "port": 8080,
+        "hostName": "http://localhost"
+    },
+    "peer": [
+        {
+            "url": "http://localhost:8081"
+        }
+    ],
+    "keys": {
+        "passwords": [],
+        "keyData": [
+            {
+                "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
+                "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+            }
+        ]
+    },
+    "alwaysSendTo": [],
+    "unixSocketFile": "${unixSocketPath}"
+}

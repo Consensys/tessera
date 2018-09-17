@@ -9,13 +9,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PasswordReaderTest {
 
     @Test
-    public void nullConsoleReadsFromInputStream() {
+    public void passwordsNotMatchingCausesRetry() {
 
-        final PasswordReader passwordReader = new PasswordReader(null, new ByteArrayInputStream("TEST".getBytes()));
+        final byte[] systemInBytes = (
+            "TRY1" + System.lineSeparator() +
+            "TRY2" + System.lineSeparator() +
+            "TRY3" + System.lineSeparator() +
+            "TRY3" + System.lineSeparator()
+        ).getBytes();
 
-        final String readValue = passwordReader.readPassword();
+        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(systemInBytes);
 
-        assertThat(readValue).isEqualTo("TEST");
+        final PasswordReader passwordReader = new InputStreamPasswordReader(byteArrayInputStream);
+
+        final String password = passwordReader.requestUserPassword();
+
+        assertThat(password).isEqualTo("TRY3");
 
     }
 

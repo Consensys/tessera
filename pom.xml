@@ -36,6 +36,7 @@
         <spring.version>5.0.6.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
         <eclipselink.version>2.7.1</eclipselink.version>
+        <grpc.version>1.14.0</grpc.version>
     </properties>
 
     <build>
@@ -190,7 +191,8 @@
                                 <exclude>com/quorum/tessera/Launcher*</exclude>
                                 <exclude>com/quorum/tessera/data/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/config/migration/Main*</exclude>
-                                <exclude>com/quorum/tessera/config/util/PasswordReader*</exclude>
+                                <exclude>com/quorum/tessera/config/util/ConsolePasswordReader*</exclude>
+                                <exclude>com/quorum/tessera/config/util/PasswordReaderFactory*</exclude>
                             </excludes>
                             
                             <rules>
@@ -237,6 +239,10 @@
         <module>data-migration</module>
         <module>config-migration</module>
         <module>shared</module>
+        <module>grpc</module>
+        <module>grpc-service</module>
+        <module>jaxrs-service</module>
+        <module>tessera-core</module>
     </modules>
 
     <dependencyManagement>
@@ -312,7 +318,7 @@
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
-                <artifactId>rest-server-api</artifactId>
+                <artifactId>server-api</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
             
@@ -330,6 +336,18 @@
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
+                <artifactId>grpc-server</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>grpc</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>test-util</artifactId>
                 <version>0.7-SNAPSHOT</version>
                 <scope>test</scope>
@@ -341,6 +359,25 @@
                 <version>0.7-SNAPSHOT</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>tessera-core</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>grpc-service</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+            
+            
+             <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>jaxrs-service</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+        
             <dependency>
                 <groupId>org.glassfish.jersey</groupId>
                 <artifactId>jersey-bom</artifactId>
@@ -626,6 +663,35 @@
                 <scope>test</scope>
                 <type>jar</type>
             </dependency>
+
+            <!--  GRPC-->
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-netty</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-protobuf</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-stub</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.api.grpc</groupId>
+                <artifactId>googleapis-common-protos</artifactId>
+                <version>0.0.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-testing</artifactId>
+                <version>${grpc.version}</version>
+                <scope>test</scope>
+            </dependency>
             
         </dependencies>
     </dependencyManagement>
@@ -633,7 +699,7 @@
     <dependencies>
 
         <!-- Needed for JavaDoc plugin -->
-        <dependency>
+<!--        <dependency>
             <groupId>javax.interceptor</groupId>
             <artifactId>javax.interceptor-api</artifactId>
         </dependency>
@@ -641,7 +707,7 @@
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
-        </dependency>
+        </dependency>-->
 
         <!-- Testing -->
 
@@ -688,6 +754,7 @@
             <artifactId>slf4j-api</artifactId>
             <scope>compile</scope>
         </dependency>
+
 
     </dependencies>
     

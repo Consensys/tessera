@@ -33,7 +33,7 @@ import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 /**
  * Implementation of a RestServer using Jersey and Grizzly.
  */
-public class JerseyServer implements RestServer {
+public class JerseyServer implements TesseraServer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JerseyServer.class);
 
@@ -51,8 +51,8 @@ public class JerseyServer implements RestServer {
 
     private final InfluxConfig influxConfig;
 
-    public JerseyServer(final URI uri, final Application application, final ServerConfig serverConfig) {
-        this.uri = Objects.requireNonNull(uri);
+    public JerseyServer(final ServerConfig serverConfig,final Application application) {
+        this.uri = serverConfig.getBindingUri();
         this.application = Objects.requireNonNull(application);
         this.secure = serverConfig.isSsl();
 

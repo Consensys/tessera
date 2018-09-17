@@ -3,6 +3,7 @@ package com.quorum.tessera.config.cli;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
+import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.keys.KeyGenerator;
 import com.quorum.tessera.config.keys.KeyGeneratorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -32,7 +33,7 @@ public class DefaultCliAdapter implements CliAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCliAdapter.class);
 
-    private final KeyGeneratorFactory keyGeneratorFactory = KeyGeneratorFactory.newFactory();
+    private final KeyGenerator generator = KeyGeneratorFactory.newFactory().create();
 
     private final Validator validator = Validation.byDefaultProvider()
             .configure()
@@ -44,7 +45,6 @@ public class DefaultCliAdapter implements CliAdapter {
     public CliResult execute(String... args) throws Exception {
 
         Options options = new Options();
-        
 
         options.addOption(
                 Option.builder("configfile")
@@ -96,29 +96,21 @@ public class DefaultCliAdapter implements CliAdapter {
 
         Map<String, Class> overrideOptions = OverrideUtil.buildConfigOptions();
 
-        overrideOptions.entrySet().forEach(entry -> {
+        overrideOptions.forEach((optionName, optionType) -> {
 
-            final String optionName = entry.getKey();
-
-
-
-            final boolean isCollection = entry.getValue().isArray();
-
-            Class optionType = entry.getValue();
+            final boolean isCollection = optionType.isArray();
 
             Option.Builder optionBuilder = Option.builder()
-                    .longOpt(optionName)
-                    .desc(String.format("Override option for %s , type: %s", optionName, optionType.getSimpleName()));
+                .longOpt(optionName)
+                .desc(String.format("Override option for %s , type: %s", optionName, optionType.getSimpleName()));
 
             if (isCollection) {
-                optionBuilder.hasArgs()
-                        .argName(optionType.getSimpleName().toUpperCase() + "...");
+                optionBuilder.hasArgs().argName(optionType.getSimpleName().toUpperCase() + "...");
             } else {
-                optionBuilder.hasArg()
-                        .argName(optionType.getSimpleName().toUpperCase());
+                optionBuilder.hasArg().argName(optionType.getSimpleName().toUpperCase());
             }
 
-            if(!optionName.startsWith("keys")) {
+            if (!optionName.startsWith("keys")) {
                 options.addOption(optionBuilder.build());
             }
 
@@ -140,8 +132,7 @@ public class DefaultCliAdapter implements CliAdapter {
 
             final Config config = parseConfig(line);
 
-            overrideOptions.entrySet().forEach(dynEntry -> {
-                String optionName = dynEntry.getKey();
+            overrideOptions.forEach((optionName, value) -> {
                 if (line.hasOption(optionName)) {
                     String[] values = line.getOptionValues(optionName);
                     LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
@@ -179,6 +170,15 @@ public class DefaultCliAdapter implements CliAdapter {
 
         Config config = null;
 
+        final List<KeyData> newKeys = new ArrayList<>();
+        if (commandLine.hasOption("keygen")) {
+            newKeys.addAll(keyGenConfigs
+                .stream()
+                .map(name -> generator.generate(name, options))
+                .collect(Collectors.toList())
+            );
+        }
+
         if (commandLine.hasOption("configfile")) {
             final Path path = Paths.get(commandLine.getOptionValue("configfile"));
 
@@ -187,7 +187,7 @@ public class DefaultCliAdapter implements CliAdapter {
             }
 
             try (InputStream in = Files.newInputStream(path)) {
-                config = configFactory.create(in, options, keyGenConfigs.toArray(new String[0]));
+                config = configFactory.create(in, newKeys);
             }
 
             if (!keyGenConfigs.isEmpty()) {
@@ -195,13 +195,7 @@ public class DefaultCliAdapter implements CliAdapter {
                 output(commandLine, config);
             }
 
-        } else if(commandLine.hasOption("keygen")) {
-            final KeyGenerator generator = keyGeneratorFactory.create();
-            keyGenConfigs
-                    .stream()
-                    .map(name -> generator.generate(name, options))
-                    .collect(Collectors.toList());
-        } else {
+        } else if (!commandLine.hasOption("keygen")) {
             throw new CliException("One or both: -configfile <PATH> or -keygen options are required.");
         }
 

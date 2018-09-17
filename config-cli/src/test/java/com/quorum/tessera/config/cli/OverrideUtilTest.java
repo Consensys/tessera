@@ -33,6 +33,8 @@ public class OverrideUtilTest {
                 "jdbc.url",
                 "server.hostName",
                 "server.port",
+                "server.grpcPort",
+                "server.communicationType",
                 "server.bindingAddress",
                 "server.sslConfig.tls",
                 "server.sslConfig.generateKeyStoreIfNotExisted",
@@ -106,6 +108,7 @@ public class OverrideUtilTest {
         OverrideUtil.setValue(config, "jdbc.url", "someurl");
         OverrideUtil.setValue(config, "server.hostName", "somehost");
         OverrideUtil.setValue(config, "server.port", "999");
+        OverrideUtil.setValue(config, "server.grpcPort", "50000");
         OverrideUtil.setValue(config, "server.bindingAddress", "http://binding:9999");
         OverrideUtil.setValue(config, "keys.passwords", "pw_one", "pw_two");
 
@@ -141,6 +144,7 @@ public class OverrideUtilTest {
         assertThat(serverConfig).isNotNull();
         assertThat(serverConfig.getHostName()).isEqualTo("somehost");
         assertThat(serverConfig.getPort()).isEqualTo(999);
+        assertThat(serverConfig.getGrpcPort()).isEqualTo(50000);
         assertThat(serverConfig.getBindingAddress()).isEqualTo("http://binding:9999");
 
         assertThat(serverConfig.getSslConfig().getClientKeyStorePassword()).isEqualTo("SomeClientKeyStorePassword");
