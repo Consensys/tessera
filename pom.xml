@@ -191,7 +191,9 @@
                                 <exclude>com/quorum/tessera/Launcher*</exclude>
                                 <exclude>com/quorum/tessera/data/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/config/migration/Main*</exclude>
-                                <exclude>com/quorum/tessera/config/util/PasswordReader*</exclude>
+                                <exclude>com/quorum/tessera/config/util/ConsolePasswordReader*</exclude>
+                                <exclude>com/quorum/tessera/config/util/PasswordReaderFactory*</exclude>
+
                                 <exclude>com/quorum/tessera/key/vault/KeyVaultClientDelegate*</exclude>
                             </excludes>
                             
@@ -370,7 +372,6 @@
                 <artifactId>grpc-service</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
-
 
              <dependency>
                 <groupId>com.quorum.tessera</groupId>

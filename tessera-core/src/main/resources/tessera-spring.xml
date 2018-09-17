@@ -75,6 +75,11 @@
         </constructor-arg>
         <constructor-arg ref="resendPartyStore" />
         <constructor-arg ref="transactionRequester" />
+        <constructor-arg ref="partyInfoService"/>
+        <constructor-arg>
+            <bean class="com.quorum.tessera.node.PartyInfoParser" factory-method="create"/>
+        </constructor-arg>
+        <constructor-arg ref="p2pClient"/>
     </bean>
 
     <bean name="syncExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">
