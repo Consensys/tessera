@@ -257,9 +257,7 @@ final TransactionService transactionService,
                 <prop key="eclipselink.logging.logger">org.eclipse.persistence.logging.slf4j.SLF4JLogger</prop>
                 <prop key="eclipselink.logging.session">false</prop>
 
-                <prop key="eclipselink.ddl-generation">create-or-extend-tables</prop>
-                <prop key="eclipselink.ddl-generation.output-mode">database</prop>
-
+                <prop key="javax.persistence.schema-generation.database.action">create</prop>
                 <prop key="javax.persistence.schema-generation.scripts.action">none</prop>
                 <!--<prop key="javax.persistence.schema-generation.scripts.action">create</prop>-->
                 <!--<prop key="javax.persistence.schema-generation.scripts.create-target">tesseraDDL.sql</prop>-->
