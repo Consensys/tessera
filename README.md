@@ -37,17 +37,17 @@ To build and install Tessera:
 
 
 ### Selecting an NaCl Implementation 
-Tessera can be built with different NaCl cryptography implementations:
+Tessera can use either the [jnacl](https://github.com/neilalexander/jnacl) or [kalium](https://github.com/abstractj/kalium) NaCl cryptography implementations.  The implementation to be used is specified when building the project:
 
-#### jnacl
+#### jnacl (default)
 
 `mvn install`
 
 #### kalium
- 
+
 Install libsodium as detailed on the [kalium project page](https://github.com/abstractj/kalium), then run
  
-`mvn install -Pkalium`
+`mvn install -P kalium,jersey`
 
 
 ## Running Tessera
