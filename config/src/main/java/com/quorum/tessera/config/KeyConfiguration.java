@@ -31,14 +31,19 @@ public class KeyConfiguration extends ConfigItem {
     @Size(min = 1, message = "At least 1 public/private key pair must be provided")
     private final List<@ValidKeyData KeyData> keyData;
 
-    public KeyConfiguration(final Path passwordFile, final List<String> passwords, final List<KeyData> keyData) {
+    @Valid
+    @XmlElement
+    private final KeyVaultConfig azureKeyVaultConfig;
+
+    public KeyConfiguration(final Path passwordFile, final List<String> passwords, final List<KeyData> keyData, final KeyVaultConfig azureKeyVaultConfig) {
         this.passwordFile = passwordFile;
         this.passwords = passwords;
         this.keyData = keyData;
+        this.azureKeyVaultConfig = azureKeyVaultConfig;
     }
 
     private static KeyConfiguration create() {
-        return new KeyConfiguration(null, null, null);
+        return new KeyConfiguration(null, null, null, null);
     }
 
     public Path getPasswordFile() {
@@ -53,4 +58,7 @@ public class KeyConfiguration extends ConfigItem {
         return this.keyData;
     }
 
+    public KeyVaultConfig getAzureKeyVaultConfig() {
+        return this.azureKeyVaultConfig;
+    }
 }

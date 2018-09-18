@@ -6,6 +6,7 @@
    },
    "server" : {
       "port" : 9001,
+      "grpcPort" : 50521,
       "communicationType" : "REST",
       "sslConfig" : {
          "tls" : "OFF",

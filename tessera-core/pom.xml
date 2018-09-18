@@ -102,6 +102,18 @@
             <artifactId>org.eclipse.persistence.extension</artifactId>
             <scope>runtime</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-keyvault</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>adal4j</artifactId>
+            <version>1.6.0</version>
+        </dependency>
     </dependencies>
     <name>tessera-core</name>
 </project>

@@ -72,7 +72,7 @@ public class JaxbConfigFactory implements ConfigFactory {
                 config.getJdbcConfig(),
                 config.getServerConfig(),
                 config.getPeers(),
-                new KeyConfiguration(Paths.get("passwords.txt"), null, config.getKeys().getKeyData()),
+                new KeyConfiguration(Paths.get("passwords.txt"), null, config.getKeys().getKeyData(), config.getKeys().getAzureKeyVaultConfig()),
                 config.getAlwaysSendTo(),
                 config.getUnixSocketFile(),
                 config.isUseWhiteList()

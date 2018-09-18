@@ -2,6 +2,7 @@ package com.quorum.tessera.key;
 
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.nacl.KeyPair;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,6 +13,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class KeyManagerTest {
 
@@ -23,18 +26,23 @@ public class KeyManagerTest {
 
     private KeyManager keyManager;
 
+    private KeyPairFactory keyPairFactory;
+
     @Before
     public void init() {
 
-        final KeyData keyData = new KeyData(null, PRIVATE_KEY.toString(), PUBLIC_KEY.toString(), null, null);
+        final KeyData keyData = new KeyData(null, PRIVATE_KEY.toString(), PUBLIC_KEY.toString(), null, null, null);
 
-        this.keyManager = new KeyManagerImpl(singleton(keyData), singleton(FORWARDING_KEY));
+        this.keyPairFactory = mock(KeyPairFactory.class);
+        when(keyPairFactory.getKeyPair(keyData)).thenReturn(new KeyPair(PUBLIC_KEY, PRIVATE_KEY));
+
+        this.keyManager = new KeyManagerImpl(singleton(keyData), singleton(FORWARDING_KEY), keyPairFactory);
     }
 
     @Test
     public void initialisedWithNoKeysThrowsError() {
         //throws error because there is no default key
-        final Throwable throwable = catchThrowable(() -> new KeyManagerImpl(emptyList(), emptyList()));
+        final Throwable throwable = catchThrowable(() -> new KeyManagerImpl(emptyList(), emptyList(), keyPairFactory));
 
         assertThat(throwable).isInstanceOf(NoSuchElementException.class);
     }

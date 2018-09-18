@@ -35,7 +35,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <spring.version>5.0.6.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
-        <eclipselink.version>2.7.1</eclipselink.version>
+        <eclipselink.version>2.7.3</eclipselink.version>
         <grpc.version>1.14.0</grpc.version>
     </properties>
 
@@ -193,6 +193,7 @@
                                 <exclude>com/quorum/tessera/config/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/config/util/ConsolePasswordReader*</exclude>
                                 <exclude>com/quorum/tessera/config/util/PasswordReaderFactory*</exclude>
+                                <exclude>com/quorum/tessera/key/vault/KeyVaultClientDelegate*</exclude>
                             </excludes>
                             
                             <rules>
@@ -370,14 +371,13 @@
                 <artifactId>grpc-service</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
-            
-            
+
              <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>jaxrs-service</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
-        
+
             <dependency>
                 <groupId>org.glassfish.jersey</groupId>
                 <artifactId>jersey-bom</artifactId>
@@ -692,7 +692,7 @@
                 <version>${grpc.version}</version>
                 <scope>test</scope>
             </dependency>
-            
+
         </dependencies>
     </dependencyManagement>
 
@@ -754,7 +754,6 @@
             <artifactId>slf4j-api</artifactId>
             <scope>compile</scope>
         </dependency>
-
 
     </dependencies>
     

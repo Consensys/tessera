@@ -23,15 +23,11 @@ public class KeyManagerImpl implements KeyManager {
 
     private final Set<Key> forwardingPublicKeys;
 
-    public KeyManagerImpl(final Collection<KeyData> keys, Collection<Key> forwardKeys) {
+    public KeyManagerImpl(final Collection<KeyData> keys, Collection<Key> forwardKeys, KeyPairFactory keyPairFactory) {
         this.localKeys = keys
             .stream()
-            .map(kd ->
-                new KeyPair(
-                    new Key(Base64.getDecoder().decode(kd.getPublicKey())),
-                    new Key(Base64.getDecoder().decode(kd.getPrivateKey()))
-                )
-            ).collect(Collectors.toSet());
+            .map(keyPairFactory::getKeyPair)
+            .collect(Collectors.toSet());
 
         this.defaultKeys = localKeys.iterator().next();
 

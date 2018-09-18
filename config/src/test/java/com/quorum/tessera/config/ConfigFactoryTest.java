@@ -84,7 +84,8 @@ public class ConfigFactoryTest {
             null,
             null,
             tempFolder.resolve(".key"),
-            tempFolder.resolve(".pub")
+            tempFolder.resolve(".pub"),
+            null
         );
 
         final ConfigFactory configFactory = ConfigFactory.create();

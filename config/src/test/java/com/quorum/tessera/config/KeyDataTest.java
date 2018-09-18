@@ -9,7 +9,7 @@ public class KeyDataTest {
     @Test
     public void hasKeys() {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
-        KeyData keyData = new KeyData(keyDataConfig, "privateKey", "publicKey", null, null);
+        KeyData keyData = new KeyData(keyDataConfig, "privateKey", "publicKey", null, null, null);
 
         assertThat(keyData.hasKeys()).isTrue();
     }
@@ -17,7 +17,7 @@ public class KeyDataTest {
     @Test
     public void hasKeysNullKeys() {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
-        KeyData keyData = new KeyData(keyDataConfig, null, null, null, null);
+        KeyData keyData = new KeyData(keyDataConfig, null, null, null, null, null);
 
         assertThat(keyData.hasKeys()).isFalse();
     }
@@ -25,7 +25,7 @@ public class KeyDataTest {
     @Test
     public void hasKeysNullPrivateKey() {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
-        KeyData keyData = new KeyData(keyDataConfig, null, "publicKey", null, null);
+        KeyData keyData = new KeyData(keyDataConfig, null, "publicKey", null, null, null);
 
         assertThat(keyData.hasKeys()).isFalse();
     }
@@ -33,7 +33,7 @@ public class KeyDataTest {
     @Test
     public void hasKeysNullPublicKey() {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
-        KeyData keyData = new KeyData(keyDataConfig, "privateKey", null, null, null);
+        KeyData keyData = new KeyData(keyDataConfig, "privateKey", null, null, null, null);
 
         assertThat(keyData.hasKeys()).isFalse();
     }
