@@ -7,7 +7,7 @@ public class MockKeyGeneratorFactory implements KeyGeneratorFactory {
     public enum KeyGeneratorHolder {
         INSTANCE;
 
-        final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        KeyGenerator keyGenerator = mock(KeyGenerator.class);
 
     }
 
@@ -18,6 +18,10 @@ public class MockKeyGeneratorFactory implements KeyGeneratorFactory {
 
     public static KeyGenerator getMockKeyGenerator() {
         return KeyGeneratorHolder.INSTANCE.keyGenerator;
+    }
+
+    public static void reset() {
+        KeyGeneratorHolder.INSTANCE.keyGenerator =  mock(KeyGenerator.class);
     }
 
 }
