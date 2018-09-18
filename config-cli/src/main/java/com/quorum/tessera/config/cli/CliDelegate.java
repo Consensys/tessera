@@ -2,7 +2,6 @@ package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.config.Config;
 
-
 public enum CliDelegate {
 
     INSTANCE;
@@ -18,13 +17,13 @@ public enum CliDelegate {
     }
 
     public CliResult execute(String... args) throws Exception {
-        
-        CliAdapter cliAdapter = CliAdapter.create();
 
-        CliResult result = cliAdapter.execute(args);
+        final CliAdapter cliAdapter = CliAdapter.create();
+
+        final CliResult result = cliAdapter.execute(args);
+
         this.config = result.getConfig().orElse(null);
         return result;
     }
-
 
 }
