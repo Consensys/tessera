@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <bean id="tesseraJaxrsApplication" class="com.quorum.tessera.api.Tessera">
+        <constructor-arg>
+             <bean class="com.quorum.tessera.service.locator.ServiceLocator" factory-method="create" />
+        </constructor-arg>
+         <constructor-arg value="tessera-core-spring.xml" />
+    </bean>
+
+    
+    <!-- Resources -->
+    <bean class="com.quorum.tessera.api.VersionResource"/>
+    <bean class="com.quorum.tessera.api.UpCheckResource"/>
+    
+    <bean class="com.quorum.tessera.api.TransactionResource">
+        <constructor-arg ref="enclaveDelegate"/>
+    </bean>
+    
+    <bean class="com.quorum.tessera.api.PartyInfoResource">
+        <constructor-arg ref="partyInfoService"/>
+        <constructor-arg ref="partyInfoParser" />
+    </bean>
+
+    <bean name="postDelegate" class="com.quorum.tessera.client.PostDelegate">
+        <constructor-arg>
+            <bean factory-bean="clientFactory" factory-method="buildFrom">
+                <constructor-arg>
+                    <bean factory-bean="config" factory-method="getServerConfig"/>
+                </constructor-arg>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+
+
+    <bean name="clientFactory" class="com.quorum.tessera.client.ClientFactory">
+        <constructor-arg>
+            <bean class="com.quorum.tessera.ssl.context.ClientSSLContextFactory" factory-method="create"/>
+        </constructor-arg>
+    </bean>
+
+    <bean class="com.quorum.tessera.api.filter.LoggingFilter"/>
+
+    <bean class="com.quorum.tessera.api.filter.IPWhitelistFilter">
+        <constructor-arg ref="config"/>
+    </bean>
+
+    <bean class="com.quorum.tessera.api.filter.PrivateApiFilter" />
+
+
+    <bean class="com.quorum.tessera.api.exception.DefaultExceptionMapper"/>
+    <bean class="com.quorum.tessera.api.exception.DecodingExceptionMapper"/>
+    <bean class="com.quorum.tessera.api.exception.KeyNotFoundExceptionMapper"/>
+    <bean class="com.quorum.tessera.api.exception.NotFoundExceptionMapper"/>
+    <bean class="com.quorum.tessera.api.exception.TransactionNotFoundExceptionMapper"/>
+    <bean class="com.quorum.tessera.api.exception.WebApplicationExceptionMapper"/>
+    <bean class="com.quorum.tessera.api.exception.EntityNotFoundExceptionMapper"/>
+
+    <bean class="com.quorum.tessera.api.ApiResource"/>
+
+
+</beans>

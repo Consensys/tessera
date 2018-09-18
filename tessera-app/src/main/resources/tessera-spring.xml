@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <import resource="classpath:/tessera-core-spring.xml" />
+    <import resource="classpath:/tessera-grpc-spring.xml" />
+    <import resource="classpath:/tessera-jaxrs-spring.xml" />
+    
+    <beans profile="!disable-unixsocket">
+        <bean id="socketServer" class="com.quorum.tessera.socket.SocketServerFactory"
+              factory-method="createSocketServer">
+            <constructor-arg ref="config"/>
+        </bean>
+
+        <bean name="unixSocketExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">
+            <constructor-arg>
+                <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
+            </constructor-arg>
+            <constructor-arg ref="socketServer"/>
+            <constructor-arg value="2"/>
+        </bean>
+    </beans>
+    
+</beans>
