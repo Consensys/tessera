@@ -1,10 +1,9 @@
-
 package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.config.Config;
+
 import java.util.Objects;
 import java.util.Optional;
-
 
 public class CliResult {
     
