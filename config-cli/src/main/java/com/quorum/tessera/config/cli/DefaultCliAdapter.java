@@ -1,98 +1,38 @@
 package com.quorum.tessera.config.cli;
 
-import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.keys.KeyGenerator;
-import com.quorum.tessera.config.keys.KeyGeneratorFactory;
-import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.config.cli.parsers.ConfigurationParser;
+import com.quorum.tessera.config.cli.parsers.KeyGenerationParser;
+import com.quorum.tessera.config.cli.parsers.KeyUpdateParser;
+import com.quorum.tessera.config.cli.parsers.PidFileParser;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
+import com.quorum.tessera.config.util.PasswordReaderFactory;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.management.ManagementFactory;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static java.nio.file.StandardOpenOption.*;
-import static java.util.Collections.singletonList;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.validation.*;
+import java.io.IOException;
+import java.util.*;
 
 public class DefaultCliAdapter implements CliAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCliAdapter.class);
 
-    private final KeyGenerator generator = KeyGeneratorFactory.newFactory().create();
-
     private final Validator validator = Validation.byDefaultProvider()
-            .configure()
-            .ignoreXmlConfiguration()
-            .buildValidatorFactory()
-            .getValidator();
+        .configure()
+        .ignoreXmlConfiguration()
+        .buildValidatorFactory()
+        .getValidator();
 
     @Override
     public CliResult execute(String... args) throws Exception {
 
-        Options options = new Options();
-
-        options.addOption(
-                Option.builder("configfile")
-                        .desc("Path to node configuration file")
-                        .hasArg(true)
-                        .optionalArg(false)
-                        .numberOfArgs(1)
-                        .argName("PATH")
-                        .build());
-
-        //If keygen then we require the path to the private key config path
-        options.addOption(
-                Option.builder("keygen")
-                        .desc("Use this option to generate public/private keypair")
-                        .hasArg(false)
-                        .build());
-
-        options.addOption(
-                Option.builder("filename")
-                        .desc("Path to private key config for generation of missing key files")
-                        .hasArg(true)
-                        .optionalArg(false)
-                        .argName("PATH")
-                        .build());
-
-        options.addOption(
-                Option.builder("keygenconfig")
-                        .desc("Path to private key config for generation of missing key files")
-                        .hasArg(true)
-                        .optionalArg(false)
-                        .argName("PATH")
-                        .build());
-
-        options.addOption(
-                Option.builder("output")
-                        .desc("Generate updated config file with generated keys")
-                        .hasArg(true)
-                        .numberOfArgs(1)
-                        .build());
-
-        options.addOption(
-                Option.builder("pidfile")
-                        .desc("Path to pid file")
-                        .hasArg(true)
-                        .optionalArg(false)
-                        .numberOfArgs(1)
-                        .argName("PATH")
-                        .build());
+        Options options = this.buildBaseOptions();
 
         Map<String, Class> overrideOptions = OverrideUtil.buildConfigOptions();
 
@@ -110,9 +50,7 @@ public class DefaultCliAdapter implements CliAdapter {
                 optionBuilder.hasArg().argName(optionType.getSimpleName().toUpperCase());
             }
 
-            if (!optionName.startsWith("keys")) {
-                options.addOption(optionBuilder.build());
-            }
+            options.addOption(optionBuilder.build());
 
         });
 
@@ -124,24 +62,22 @@ public class DefaultCliAdapter implements CliAdapter {
             return new CliResult(0, true, false, null);
         }
 
-        final CommandLineParser parser = new DefaultParser();
-
         try {
 
-            final CommandLine line = parser.parse(options, args);
+            final CommandLine line = new DefaultParser().parse(options, args);
 
             final Config config = parseConfig(line);
 
-            overrideOptions.forEach((optionName, value) -> {
-                if (line.hasOption(optionName)) {
-                    String[] values = line.getOptionValues(optionName);
-                    LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
-                    OverrideUtil.setValue(config, optionName, values);
-                    LOGGER.debug("Set : {} with value(s) {}", optionName, values);
-                }
-            });
-
             if (Objects.nonNull(config)) {
+
+                overrideOptions.forEach((optionName, value) -> {
+                    if (line.hasOption(optionName)) {
+                        String[] values = line.getOptionValues(optionName);
+                        LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
+                        OverrideUtil.setValue(config, optionName, values);
+                        LOGGER.debug("Set : {} with value(s) {}", optionName, values);
+                    }
+                });
 
                 Set<ConstraintViolation<Config>> violations = validator.validate(config);
                 if (!violations.isEmpty()) {
@@ -149,9 +85,7 @@ public class DefaultCliAdapter implements CliAdapter {
                 }
             }
 
-            if (line.hasOption("pidfile")) {
-                createPidFile(line);
-            }
+            new PidFileParser().parse(line);
 
             return new CliResult(0, false, line.hasOption("keygen"), config);
 
@@ -163,104 +97,87 @@ public class DefaultCliAdapter implements CliAdapter {
 
     private Config parseConfig(CommandLine commandLine) throws IOException {
 
-        final ConfigFactory configFactory = ConfigFactory.create();
+        if(commandLine.hasOption("updatepassword")) {
+            new KeyUpdateParser(
+                KeyEncryptorFactory.create(),
+                PasswordReaderFactory.create()
+            ).parse(commandLine);
 
-        final List<String> keyGenConfigs = this.getKeyGenConfig(commandLine);
-        final ArgonOptions options = keygenConfiguration(commandLine).orElse(null);
-
-        Config config = null;
-
-        final List<KeyData> newKeys = new ArrayList<>();
-        if (commandLine.hasOption("keygen")) {
-            newKeys.addAll(keyGenConfigs
-                .stream()
-                .map(name -> generator.generate(name, options))
-                .collect(Collectors.toList())
-            );
+            //return early so other options don't get processed
+            return null;
         }
 
-        if (commandLine.hasOption("configfile")) {
-            final Path path = Paths.get(commandLine.getOptionValue("configfile"));
+        final List<KeyData> newKeys = new KeyGenerationParser().parse(commandLine);
 
-            if (!Files.exists(path)) {
-                throw new FileNotFoundException(String.format("%s not found.", path));
-            }
+        final Config config = new ConfigurationParser().withNewKeys(newKeys).parse(commandLine);
 
-            try (InputStream in = Files.newInputStream(path)) {
-                config = configFactory.create(in, newKeys);
-            }
-
-            if (!keyGenConfigs.isEmpty()) {
-                //we have generated new keys, so we need to output the new configuration
-                output(commandLine, config);
-            }
-
-        } else if (!commandLine.hasOption("keygen")) {
-            throw new CliException("One or both: -configfile <PATH> or -keygen options are required.");
+        if (!commandLine.hasOption("configfile") && !commandLine.hasOption("keygen") && !commandLine.hasOption("updatepassword")) {
+            throw new CliException("One or more: -configfile or -keygen or -updatepassword options are required.");
         }
 
         return config;
     }
 
-    private List<String> getKeyGenConfig(CommandLine commandLine) {
+    private Options buildBaseOptions() {
 
-        if (commandLine.hasOption("keygen")) {
+        final Options options = new Options();
 
-            if (commandLine.hasOption("filename")) {
+        options.addOption(
+            Option.builder("configfile")
+                .desc("Path to node configuration file")
+                .hasArg(true)
+                .optionalArg(false)
+                .numberOfArgs(1)
+                .argName("PATH")
+                .build());
 
-                final String keyNames = commandLine.getOptionValue("filename");
-                if (keyNames != null) {
-                    return Stream.of(keyNames.split(",")).collect(Collectors.toList());
-                }
+        //If keygen then we require the path to the private key config path
+        options.addOption(
+            Option.builder("keygen")
+                .desc("Use this option to generate public/private keypair")
+                .hasArg(false)
+                .build());
 
-            }
+        options.addOption(
+            Option.builder("filename")
+                .desc("Path to private key config for generation of missing key files")
+                .hasArg(true)
+                .optionalArg(false)
+                .argName("PATH")
+                .build());
 
-            return singletonList("");
-        }
+        options.addOption(
+            Option.builder("keygenconfig")
+                .desc("Path to private key config for generation of missing key files")
+                .hasArg(true)
+                .optionalArg(false)
+                .argName("PATH")
+                .build());
 
-        return new ArrayList<>();
-    }
+        options.addOption(
+            Option.builder("output")
+                .desc("Generate updated config file with generated keys")
+                .hasArg(true)
+                .numberOfArgs(1)
+                .build());
 
-    private static Optional<ArgonOptions> keygenConfiguration(final CommandLine commandLine) throws IOException {
-        if (commandLine.hasOption("keygenconfig")) {
-            final String pathName = commandLine.getOptionValue("keygenconfig");
-            final InputStream configStream = Files.newInputStream(Paths.get(pathName));
+        options.addOption(
+            Option.builder("pidfile")
+                .desc("Path to pid file")
+                .hasArg(true)
+                .optionalArg(false)
+                .numberOfArgs(1)
+                .argName("PATH")
+                .build());
 
-            ArgonOptions argonOptions = JaxbUtil.unmarshal(configStream, ArgonOptions.class);
-            return Optional.of(argonOptions);
-        }
-        return Optional.empty();
-    }
+        options.addOption(
+            Option.builder("updatepassword")
+                .desc("Update the password for a locked key")
+                .hasArg(false)
+                .build()
+        );
 
-    private static void output(CommandLine commandLine, Config config) throws IOException {
-
-        if (commandLine.hasOption("output")) {
-            final Path outputConfigFile = Paths.get(commandLine.getOptionValue("output"));
-
-            try (OutputStream out = Files.newOutputStream(outputConfigFile, CREATE_NEW)) {
-                JaxbUtil.marshal(config, out);
-            }
-        } else {
-            JaxbUtil.marshal(config, System.out);
-        }
-    }
-
-    private static void createPidFile(CommandLine commandLine) throws IOException {
-
-        final Path pidFilePath = Paths.get(commandLine.getOptionValue("pidfile"));
-
-        if (Files.exists(pidFilePath)) {
-            LOGGER.info("File already exists {}", pidFilePath);
-        } else {
-            Files.createFile(pidFilePath);
-            LOGGER.info("Created pid file {}", pidFilePath);
-        }
-
-        final String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-
-        try (final OutputStream stream = Files.newOutputStream(pidFilePath, CREATE, TRUNCATE_EXISTING)) {
-            stream.write(pid.getBytes(StandardCharsets.UTF_8));
-        }
+        return options;
     }
 
 }

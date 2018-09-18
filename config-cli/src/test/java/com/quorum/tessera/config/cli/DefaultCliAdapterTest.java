@@ -1,18 +1,17 @@
 package com.quorum.tessera.config.cli;
 
-import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.keys.KeyGenerator;
-import com.quorum.tessera.config.keys.KeyGeneratorFactory;
 import com.quorum.tessera.config.keys.MockKeyGeneratorFactory;
+import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.test.util.ElUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import com.quorum.tessera.test.util.ElUtil;
-import static com.quorum.tessera.test.util.ElUtil.*;
+
+import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
@@ -25,13 +24,11 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import javax.validation.ConstraintViolation;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static com.quorum.tessera.test.util.ElUtil.createAndPopulatePaths;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-
 
 public class DefaultCliAdapterTest {
     
@@ -39,7 +36,8 @@ public class DefaultCliAdapterTest {
     
     @Before
     public void setUp() {
-        cliDelegate = CliAdapter.create();
+        MockKeyGeneratorFactory.reset();
+        this.cliDelegate = CliAdapter.create();
     }
     
     @After
@@ -51,7 +49,8 @@ public class DefaultCliAdapterTest {
     @Test
     public void help() throws Exception {
         
-        CliResult result = cliDelegate.execute("help");
+        final CliResult result = cliDelegate.execute("help");
+
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(0);
@@ -63,7 +62,8 @@ public class DefaultCliAdapterTest {
     @Test
     public void noArgsPrintsHelp() throws Exception {
         
-        CliResult result = cliDelegate.execute();
+        final CliResult result = cliDelegate.execute();
+
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(0);
@@ -76,9 +76,7 @@ public class DefaultCliAdapterTest {
     public void withValidConfig() throws Exception {
         
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-        CliResult result = cliDelegate.execute(
-                "-configfile",
-                configFile.toString());
+        CliResult result = cliDelegate.execute("-configfile", configFile.toString());
         
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
@@ -87,7 +85,7 @@ public class DefaultCliAdapterTest {
     }
     
     @Test(expected = FileNotFoundException.class)
-    public void callApiVersionWithConfigFileDoesnotExist() throws Exception {
+    public void callApiVersionWithConfigFileDoesNotExist() throws Exception {
         cliDelegate.execute("-configfile", "bogus.json");
     }
     
@@ -102,9 +100,7 @@ public class DefaultCliAdapterTest {
         Path configFile = createAndPopulatePaths(getClass().getResource("/missing-config.json"));
         
         try {
-            cliDelegate.execute(
-                    "-configfile",
-                    configFile.toString());
+            cliDelegate.execute("-configfile", configFile.toString());
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
             assertThat(ex.getConstraintViolations()).hasSize(2);
@@ -146,53 +142,23 @@ public class DefaultCliAdapterTest {
         verify(keyGenerator).generate(anyString(), eq(null));
         verifyNoMoreInteractions(keyGenerator);
         
-        Files.deleteIfExists(unixSocketPath);
-        
-    }
-    
-    @Test
-    public void keygenWithNoName() throws Exception {
-        
-        final InputStream tempSystemIn = new ByteArrayInputStream(System.lineSeparator().getBytes());
-        
-        final InputStream oldSystemIn = System.in;
-        System.setIn(tempSystemIn);
-        
-        final CliResult result = cliDelegate.execute(
-                "-keygen"
-        );
-        
-        assertThat(result).isNotNull();
-        assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.getConfig()).isNotNull();
-        assertThat(result.isHelpOn()).isFalse();
-        
-        System.setIn(oldSystemIn);
-        
     }
     
     @Test
     public void keygenThenExit() throws Exception {
-        
-        Path keyConfigPath = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
-        
-        CliResult result = cliDelegate.execute(
-                "-keygen",
-                keyConfigPath.toString()
-        );
+
+        final CliResult result = cliDelegate.execute("-keygen");
         
         assertThat(result).isNotNull();
         assertThat(result.isKeyGenOn()).isTrue();
         
     }
-    
+
     @Test
     public void fileNameWithoutKeygenArgThenExit() throws Exception {
-        
+
         try {
-            cliDelegate.execute(
-                    "-filename"
-            );
+            cliDelegate.execute("-filename");
             failBecauseExceptionWasNotThrown(CliException.class);
         } catch (CliException ex) {
             assertThat(ex).hasMessage("Missing argument for option: filename");
@@ -200,16 +166,13 @@ public class DefaultCliAdapterTest {
     }
 
     @Test
-    public void outputWithoutKeygenOrConfig() throws Exception {
+    public void outputWithoutKeygenOrConfig() {
 
-        try {
-            cliDelegate.execute(
-                "-output","bogus"
-            );
-            failBecauseExceptionWasNotThrown(CliException.class);
-        } catch (CliException ex) {
-            assertThat(ex).hasMessage("One or both: -configfile <PATH> or -keygen options are required.");
-        }
+        final Throwable throwable = catchThrowable(() ->  cliDelegate.execute("-output","bogus"));
+        assertThat(throwable)
+            .isInstanceOf(CliException.class)
+            .hasMessage("One or more: -configfile or -keygen or -updatepassword options are required.");
+
     }
     
     @Test
@@ -273,55 +236,6 @@ public class DefaultCliAdapterTest {
     }
     
     @Test
-    public void pidFile() throws Exception {
-        
-        Path pidFile = Paths.get(getClass().getResource("/pid").getFile());
-        
-        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-        
-        CliResult result = cliDelegate.execute(
-                "-pidfile",
-                pidFile.toFile().getPath(),
-                "-configfile",
-                configFile.toString()
-        );
-        
-        assertThat(result).isNotNull();
-        
-        try (InputStream in = Files.newInputStream(pidFile)) {
-            assertThat(in.read()).isGreaterThan(1);
-        }
-        
-    }
-    
-    @Test
-    public void pidFileNotExisted() throws Exception {
-        
-        Path anotherPidFile = Paths.get("/tmp/anotherPidFile");
-        
-        assertThat(Files.notExists(anotherPidFile)).isTrue();
-        
-        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-        
-        CliResult result = cliDelegate.execute(
-                "-pidfile",
-                anotherPidFile.toFile().getPath(),
-                "-configfile",
-                configFile.toString()
-        );
-        
-        assertThat(result).isNotNull();
-        assertThat(Files.exists(anotherPidFile)).isTrue();
-        
-        try (InputStream in = Files.newInputStream(anotherPidFile)) {
-            assertThat(in.read()).isGreaterThan(1);
-        }
-        
-        Files.deleteIfExists(anotherPidFile);
-        
-    }
-    
-    @Test
     public void dynOption() throws Exception {
         
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
@@ -338,56 +252,6 @@ public class DefaultCliAdapterTest {
         assertThat(result.getConfig().get().getJdbcConfig().getUsername()).isEqualTo("somename");
         assertThat(result.getConfig().get().getJdbcConfig().getPassword()).isEqualTo("tiger");
         
-    }
-    
-    @Test
-    public void providingArgonOptionsGetSentCorrectly() throws Exception {
-        final String options = "{\"variant\": \"id\",\"memory\": 100,\"iterations\": 7,\"parallelism\": 22}";
-        final Path argonOptions = Files.createTempFile(UUID.randomUUID().toString(), "");
-        Files.write(argonOptions, options.getBytes());
-        
-        final Path keyLocation = Files.createTempFile(UUID.randomUUID().toString(), "");
-        
-        final CliResult result = cliDelegate.execute(
-                "-keygen",
-                "-keygenconfig", argonOptions.toString(),
-                "-filename", keyLocation.toString()
-        );
-        
-        assertThat(result).isNotNull();
-        assertThat(result.isKeyGenOn()).isTrue();
-        
-        final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create();
-        
-        final ArgumentCaptor<ArgonOptions> captor = ArgumentCaptor.forClass(ArgonOptions.class);
-        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture());
-        
-        assertThat(captor.getAllValues()).hasSize(1);
-        assertThat(captor.getValue().getAlgorithm()).isEqualTo("id");
-        assertThat(captor.getValue().getIterations()).isEqualTo(7);
-        assertThat(captor.getValue().getMemory()).isEqualTo(100);
-        assertThat(captor.getValue().getParallelism()).isEqualTo(22);
-    }
-    
-    @Test
-    public void notProvidingArgonOptionsGivesNull() throws Exception {
-        final Path keyLocation = Files.createTempFile(UUID.randomUUID().toString(), "");
-        
-        final CliResult result = cliDelegate.execute(
-                "-keygen",
-                "-filename", keyLocation.toString()
-        );
-        
-        assertThat(result).isNotNull();
-        assertThat(result.isKeyGenOn()).isTrue();
-        
-        final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create();
-        
-        final ArgumentCaptor<ArgonOptions> captor = ArgumentCaptor.forClass(ArgonOptions.class);
-        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture());
-        
-        assertThat(captor.getAllValues()).hasSize(1);
-        assertThat(captor.getValue()).isNull();
     }
     
     @Test
@@ -459,6 +323,35 @@ public class DefaultCliAdapterTest {
                 .containsExactlyInAnyOrder("anotherpeer","yetanotherpeer","http://bogus1.com","http://bogus2.com");
         
     }
-    
+
+    @Test
+    public void updatingPasswordsDoesntProcessOtherOptions() throws Exception {
+        MockKeyGeneratorFactory.reset();
+
+        final InputStream oldIn = System.in;
+        final InputStream inputStream = new ByteArrayInputStream(
+            (System.lineSeparator() + System.lineSeparator()).getBytes()
+        );
+        System.setIn(inputStream);
+
+        final KeyDataConfig startingKey = JaxbUtil.unmarshal(
+            getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class
+        );
+
+        final Path key = Files.createTempFile("key", ".key");
+        Files.write(key, JaxbUtil.marshalToString(startingKey).getBytes());
+
+        final CliResult result = cliDelegate.execute(
+            "-updatepassword",
+            "--keys.keyData.privateKeyPath", key.toString(),
+            "--keys.passwords", "q",
+            "-keygen"
+        );
+
+        assertThat(result).isNotNull();
+
+        verifyZeroInteractions(MockKeyGeneratorFactory.getMockKeyGenerator());
+        System.setIn(oldIn);
+    }
     
 }
