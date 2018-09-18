@@ -29,8 +29,8 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 @RunWith(Suite.class)
 @Suite.SuiteClasses(
     {
-        //EncryptedTransactionDAOTest.H2Test.class,
-        //EncryptedTransactionDAOTest.HsqlTest.class,
+        EncryptedTransactionDAOTest.H2Test.class,
+        EncryptedTransactionDAOTest.HsqlTest.class,
         EncryptedTransactionDAOTest.SqliteTest.class})
 public class EncryptedTransactionDAOTest {
 
@@ -190,6 +190,22 @@ public class EncryptedTransactionDAOTest {
 
             assertThat(retrieved.isPresent()).isFalse();
         }
+
+        @Test
+        public void persistAddsTimestampToEntity() {
+            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+            encryptedTransaction.setEncodedPayload(new byte[]{5});
+            encryptedTransaction.setHash(new MessageHash(new byte[]{1}));
+
+            final long expected = System.currentTimeMillis();
+            encryptedTransactionDAO.save(encryptedTransaction);
+
+            final EncryptedTransaction retrieved
+                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
+
+            assertThat(retrieved).isNotNull();
+            assertThat(retrieved.getTimestamp()).isNotZero();
+        }
     }
 
     @Transactional
@@ -347,6 +363,22 @@ public class EncryptedTransactionDAOTest {
             final Optional<EncryptedTransaction> retrieved = encryptedTransactionDAO.retrieveByHash(searchHash);
 
             assertThat(retrieved.isPresent()).isFalse();
+        }
+
+        @Test
+        public void persistAddsTimestampToEntity() {
+            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+            encryptedTransaction.setEncodedPayload(new byte[]{5});
+            encryptedTransaction.setHash(new MessageHash(new byte[]{1}));
+
+            final long expected = System.currentTimeMillis();
+            encryptedTransactionDAO.save(encryptedTransaction);
+
+            final EncryptedTransaction retrieved
+                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
+
+            assertThat(retrieved).isNotNull();
+            assertThat(retrieved.getTimestamp()).isNotZero();
         }
     }
 
@@ -506,6 +538,22 @@ public class EncryptedTransactionDAOTest {
             final Optional<EncryptedTransaction> retrieved = encryptedTransactionDAO.retrieveByHash(searchHash);
 
             assertThat(retrieved.isPresent()).isFalse();
+        }
+
+        @Test
+        public void persistAddsTimestampToEntity() {
+            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+            encryptedTransaction.setEncodedPayload(new byte[]{5});
+            encryptedTransaction.setHash(new MessageHash(new byte[]{1}));
+
+            final long expected = System.currentTimeMillis();
+            encryptedTransactionDAO.save(encryptedTransaction);
+
+            final EncryptedTransaction retrieved
+                = entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
+
+            assertThat(retrieved).isNotNull();
+            assertThat(retrieved.getTimestamp()).isNotZero();
         }
     }
 }
