@@ -34,7 +34,8 @@ public class JaxbConfigFactoryTest {
             null,
             null,
             blankName.resolve(".key"),
-            blankName.resolve(".pub")
+            blankName.resolve(".pub"),
+            null
         );
 
         this.factory = new JaxbConfigFactory();
@@ -127,7 +128,8 @@ public class JaxbConfigFactoryTest {
             null,
             null,
             blankName.resolve(".key"),
-            blankName.resolve(".pub")
+            blankName.resolve(".pub"),
+            null
         );
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
