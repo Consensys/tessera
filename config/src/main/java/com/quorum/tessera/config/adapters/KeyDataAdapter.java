@@ -50,7 +50,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
         }
 
         //case4: public key and private key vault id provided
-        //(plus alkel invalid cases which are picked up later by constraint validation)
+        //(plus all invalid cases which are picked up later by constraint validation)
         return keyData;
     }
 
