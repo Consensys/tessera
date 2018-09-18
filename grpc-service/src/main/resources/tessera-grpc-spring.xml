@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       
+    
+    <bean name="tesseraGrpcService" class="com.quorum.tessera.api.grpc.TesseraGrpcService"/>
+    
+    <bean name="transactionGrpcService" class="com.quorum.tessera.api.grpc.TransactionGrpcService">
+        <constructor-arg ref="enclaveDelegate"/>
+    </bean>
+    
+    <bean name="partyInfoGrpcService" class="com.quorum.tessera.api.grpc.PartyInfoGrpcService">
+        <constructor-arg ref="partyInfoService"/>
+        <constructor-arg ref="partyInfoParser" />
+    </bean>
+
+</beans>

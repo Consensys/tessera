@@ -31,7 +31,6 @@ public class ProcessManager {
         this.communicationType = communicationType;
     }
 
-
     public void startNodes() throws Exception {
 
         final String jarfile = Objects.requireNonNull(System.getProperty("application.jar", null), "System property application.jar is undefined.");
@@ -49,18 +48,18 @@ public class ProcessManager {
             pids.add(pid);
 
             List<String> args = Arrays.asList(
-                "java",
-                "-Dspring.profiles.active=disable-unixsocket",
-                "-Dnode.number=" + nodeNumber,
-                "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
-                "-jar",
-                jarfile,
-                "-configfile",
-                configFile.toAbsolutePath().toString(),
-                "-pidfile",
-                pid.toAbsolutePath().toString(),
-                "-server.communicationType",
-                communicationType.name()
+                    "java",
+                    "-Dspring.profiles.active=disable-unixsocket",
+                    "-Dnode.number=" + nodeNumber,
+                    "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
+                    "-jar",
+                    jarfile,
+                    "-configfile",
+                    configFile.toAbsolutePath().toString(),
+                    "-pidfile",
+                    pid.toAbsolutePath().toString(),
+                    "-server.communicationType",
+                    communicationType.name()
             );
 
             System.out.println(String.join(" ", args));
@@ -72,8 +71,8 @@ public class ProcessManager {
             executorService.submit(() -> {
 
                 try (BufferedReader reader = Stream.of(process.getInputStream())
-                    .map(InputStreamReader::new)
-                    .map(BufferedReader::new).findAny().get()) {
+                        .map(InputStreamReader::new)
+                        .map(BufferedReader::new).findAny().get()) {
 
                     String line = null;
                     while ((line = reader.readLine()) != null) {
@@ -81,7 +80,6 @@ public class ProcessManager {
                     }
 
                 } catch (IOException ex) {
-                    ex.printStackTrace();
                     throw new UncheckedIOException(ex);
                 }
             });
@@ -110,16 +108,16 @@ public class ProcessManager {
         args.add("kill");
 
         pids.stream()
-            .flatMap(p -> {
-                try {
-                    return Files.readAllLines(p).stream();
-                } catch (IOException ex) {
-                    throw new UncheckedIOException(ex);
-                }
-            })
-            .filter(Objects::nonNull)
-            .filter(s -> !Objects.equals("", s))
-            .forEach(args::add);
+                .flatMap(p -> {
+                    try {
+                        return Files.readAllLines(p).stream();
+                    } catch (IOException ex) {
+                        throw new UncheckedIOException(ex);
+                    }
+                })
+                .filter(Objects::nonNull)
+                .filter(s -> !Objects.equals("", s))
+                .forEach(args::add);
 
         ProcessBuilder processBuilder = new ProcessBuilder(args);
         Process process = processBuilder.start();
@@ -127,4 +125,17 @@ public class ProcessManager {
         int exitCode = process.waitFor();
 
     }
+
+    public static void main(String[] args) throws Exception {
+        System.setProperty("application.jar", "/Users/mark/Library/Maven/repo/com/quorum/tessera/tessera-app/0.7-SNAPSHOT/tessera-app-0.7-SNAPSHOT-app.jar");
+
+        ProcessManager pm = new ProcessManager(CommunicationType.REST);
+        pm.startNodes();
+
+        System.in.read();
+
+        pm.stopNodes();
+
+    }
+
 }
