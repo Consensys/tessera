@@ -4,6 +4,8 @@
 
 # <img src="TesseraLogo.png" width="150" height="150"/>
 
+> __Important: Database change__ <br/>A timestamp is now recorded with each encrypted transaction stored in the Tessera DB.  To update an existing DB to work with this version of Tessera, execute one of the provided [alter scripts](ddls/add-timestamp)
+
 Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/jpmorganchase/quorum/).
 
 Each Tessera node:
@@ -35,17 +37,17 @@ To build and install Tessera:
 
 
 ### Selecting an NaCl Implementation 
-Tessera can be built with different NaCl cryptography implementations:
+Tessera can use either the [jnacl](https://github.com/neilalexander/jnacl) or [kalium](https://github.com/abstractj/kalium) NaCl cryptography implementations.  The implementation to be used is specified when building the project:
 
-#### jnacl
+#### jnacl (default)
 
 `mvn install`
 
 #### kalium
- 
+
 Install libsodium as detailed on the [kalium project page](https://github.com/abstractj/kalium), then run
  
-`mvn install -Pkalium`
+`mvn install -P kalium,jersey`
 
 
 ## Running Tessera
@@ -77,7 +79,7 @@ For example, to use Oracle database:
 java -cp ojdbc7.jar:tessera-app.jar:. com.quorum.tessera.Launcher -configfile config.json
 ```
 
-[DDLs](ddls) have been provided to help with defining these databases.
+[DDLs](ddls/create-table) have been provided to help with defining these databases.
 
 ## Configuration
 
