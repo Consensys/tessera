@@ -25,6 +25,17 @@
             <groupId>com.quorum.tessera</groupId>
             <artifactId>test-util</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java8</artifactId>
+            <version>3.0.2</version>
+        </dependency>
     </dependencies>
 
     <build>
