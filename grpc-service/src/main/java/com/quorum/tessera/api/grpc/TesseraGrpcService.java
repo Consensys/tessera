@@ -18,21 +18,28 @@ public class TesseraGrpcService extends TesseraGrpc.TesseraImplBase {
     @Override
     public void getVersion(Empty request, StreamObserver<VersionMessage> responseObserver) {
         LOGGER.info("GET version");
-        final VersionMessage response = VersionMessage.newBuilder()
-            .setVersion(VERSION)
-            .build();
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+
+        StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
+
+        template.handle(() -> {
+            return VersionMessage.newBuilder()
+                    .setVersion(VERSION)
+                    .build();
+        });
+
     }
 
     @Override
     public void getUpCheck(Empty request, StreamObserver<UpCheckMessage> responseObserver) {
         LOGGER.info("GET upcheck");
-        final UpCheckMessage response = UpCheckMessage.newBuilder()
-            .setUpCheck(UPCHECK_RESPONSE)
-            .build();
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
+
+        template.handle(() -> {
+            return UpCheckMessage.newBuilder()
+                    .setUpCheck(UPCHECK_RESPONSE)
+                    .build();
+        });
+
     }
 
 }
