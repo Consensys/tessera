@@ -32,47 +32,43 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
     @Override
     public void send(SendRequest grpcSendRequest, StreamObserver<SendResponse> responseObserver) {
 
-        LOGGER.info("Enter send {}", grpcSendRequest);
-        com.quorum.tessera.api.model.SendRequest sendRequest = Convertor.toModel(grpcSendRequest);
+        StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
-        Set<ConstraintViolation<com.quorum.tessera.api.model.SendRequest>> violations = validator.validate(sendRequest);
-        if (!violations.isEmpty()) {
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                    .withCause(new ConstraintViolationException(violations))
-                    .asRuntimeException());
-            return;
-        }
-        com.quorum.tessera.api.model.SendResponse response = enclaveMediator.send(sendRequest);
+        template.handle(() -> {
 
-        final SendResponse grpcResponse = Convertor.toGrpc(response);
+            com.quorum.tessera.api.model.SendRequest sendRequest = Convertor.toModel(grpcSendRequest);
 
-        responseObserver.onNext(grpcResponse);
-        responseObserver.onCompleted();
+            Set<ConstraintViolation<com.quorum.tessera.api.model.SendRequest>> violations = validator.validate(sendRequest);
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
+            com.quorum.tessera.api.model.SendResponse response = enclaveMediator.send(sendRequest);
 
-        LOGGER.info("Exit send {}", grpcResponse);
+            return Convertor.toGrpc(response);
+        });
+
     }
 
     @Override
     public void receive(ReceiveRequest grpcRequest, StreamObserver<ReceiveResponse> responseObserver) {
 
-        com.quorum.tessera.api.model.ReceiveRequest request = Convertor.toModel(grpcRequest);
-        Set<ConstraintViolation<com.quorum.tessera.api.model.ReceiveRequest>> violations = validator.validate(request);
-        if (!violations.isEmpty()) {
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                    .withCause(new ConstraintViolationException(violations))
-                    .asRuntimeException());
-            return;
-        }
+        StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
-        String encodedPayload = enclaveMediator.receiveAndEncode(request);
+        template.handle(() -> {
 
-        final ReceiveResponse response = ReceiveResponse
-                .newBuilder()
-                .setPayload(encodedPayload)
-                .build();
+            com.quorum.tessera.api.model.ReceiveRequest request = Convertor.toModel(grpcRequest);
+            Set<ConstraintViolation<com.quorum.tessera.api.model.ReceiveRequest>> violations = validator.validate(request);
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
 
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+            String encodedPayload = enclaveMediator.receiveAndEncode(request);
+
+            return ReceiveResponse
+                    .newBuilder()
+                    .setPayload(encodedPayload)
+                    .build();
+        });
 
     }
 
@@ -80,41 +76,37 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
     public void delete(DeleteRequest grpcRequest, StreamObserver<DeleteRequest> responseObserver) {
         LOGGER.debug("Received delete key request");
 
-        com.quorum.tessera.api.model.DeleteRequest request = Convertor.toModel(grpcRequest);
+        StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
-        Set<ConstraintViolation<com.quorum.tessera.api.model.DeleteRequest>> violations = validator.validate(request);
-        if (!violations.isEmpty()) {
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                    .withCause(new ConstraintViolationException(violations))
-                    .asRuntimeException());
-            return;
-        }
+        template.handle(() -> {
 
-        enclaveMediator.delete(request);
+            com.quorum.tessera.api.model.DeleteRequest request = Convertor.toModel(grpcRequest);
 
-        responseObserver.onNext(grpcRequest);
-        responseObserver.onCompleted();
+            Set<ConstraintViolation<com.quorum.tessera.api.model.DeleteRequest>> violations = validator.validate(request);
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
+
+            enclaveMediator.delete(request);
+            return grpcRequest;
+        });
+
     }
 
     @Override
     public void resend(ResendRequest grpcRequest, StreamObserver<ResendResponse> responseObserver) {
         LOGGER.debug("Received resend request");
 
-        com.quorum.tessera.api.model.ResendRequest request = Convertor.toModel(grpcRequest);
-//        Set<ConstraintViolation<com.quorum.tessera.api.model.ResendRequest>> violations = validator.validate(request);
-//        if (!violations.isEmpty()) {
-//            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-//                    .withCause(new ConstraintViolationException(violations))
-//                    .asRuntimeException());
-//            return;
-//        }
+        StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
-        Optional<byte[]> result = enclaveMediator.resendAndEncode(request);
-        ResendResponse.Builder builder = ResendResponse.newBuilder();
-        result.map(ByteString::copyFrom).ifPresent(builder::setData);
+        template.handle(() -> {
+            com.quorum.tessera.api.model.ResendRequest request = Convertor.toModel(grpcRequest);
 
-        responseObserver.onNext(builder.build());
-        responseObserver.onCompleted();
+            Optional<byte[]> result = enclaveMediator.resendAndEncode(request);
+            ResendResponse.Builder builder = ResendResponse.newBuilder();
+            result.map(ByteString::copyFrom).ifPresent(builder::setData);
+            return builder.build();
+        });
 
     }
 
@@ -122,10 +114,14 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
     public void push(PushRequest request, StreamObserver<PushRequest> responseObserver) {
         LOGGER.debug("Received push request");
 
-        enclaveMediator.storePayload(request.toByteArray());
+        
+                StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
-        responseObserver.onNext(request);
-        responseObserver.onCompleted();
+        template.handle(() -> {
+            enclaveMediator.storePayload(request.toByteArray());
+            return request;
+        });
+
     }
 
 }

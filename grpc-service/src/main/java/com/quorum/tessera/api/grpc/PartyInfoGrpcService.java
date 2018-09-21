@@ -23,46 +23,21 @@ public class PartyInfoGrpcService extends PartyInfoGrpc.PartyInfoImplBase {
 
     @Override
     public void getPartyInfo(PartyInfoMessage request, StreamObserver<PartyInfoMessage> responseObserver) {
-        doGetPartyInfo(request, responseObserver);
-        responseObserver.onCompleted();
+
+        StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
+
+        template.handle(() -> {
+            
+            final PartyInfo partyInfo = partyInfoParser.from(request.getPartyInfo().toByteArray());
+
+            final PartyInfo updatedPartyInfo = partyInfoService.updatePartyInfo(partyInfo);
+
+            return PartyInfoMessage.newBuilder()
+                    .setPartyInfo(ByteString.copyFrom(partyInfoParser.to(updatedPartyInfo)))
+                    .build();
+
+        });
     }
 
-    /**
-     * Experiment
-     *
-     * @param request
-     * @param responseObserver
-     */
-//    @Override
-//    public StreamObserver<PartyInfoMessage> getPartyInfoStream(StreamObserver<PartyInfoMessage> responseObserver) {
-//        return new StreamObserver<PartyInfoMessage>() {
-//
-//            @Override
-//            public void onNext(PartyInfoMessage value) {
-//                doGetPartyInfo(value, responseObserver);
-//            }
-//
-//            @Override
-//            public void onError(Throwable t) {
-//
-//            }
-//
-//            @Override
-//            public void onCompleted() {
-//                responseObserver.onCompleted();
-//            }
-//        };
-//    }
-    private void doGetPartyInfo(PartyInfoMessage request, StreamObserver<PartyInfoMessage> responseObserver) {
-
-        final PartyInfo partyInfo = partyInfoParser.from(request.getPartyInfo().toByteArray());
-
-        final PartyInfo updatedPartyInfo = partyInfoService.updatePartyInfo(partyInfo);
-
-        final PartyInfoMessage response = PartyInfoMessage.newBuilder()
-                .setPartyInfo(ByteString.copyFrom(partyInfoParser.to(updatedPartyInfo)))
-                .build();
-
-        responseObserver.onNext(response);
-    }
+  
 }
