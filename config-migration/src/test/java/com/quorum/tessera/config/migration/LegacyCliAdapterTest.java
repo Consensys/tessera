@@ -48,6 +48,8 @@ public class LegacyCliAdapterTest {
     @After
     public void onTearDown() throws IOException {
 
+        Files.deleteIfExists(Paths.get("tessera-config.json"));
+        
         Files.walk(dataDirectory)
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
