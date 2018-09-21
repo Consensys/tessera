@@ -244,6 +244,7 @@
         <module>grpc-service</module>
         <module>jaxrs-service</module>
         <module>tessera-core</module>
+        <module>key-vault</module>
     </modules>
 
     <dependencyManagement>
@@ -375,6 +376,18 @@
              <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>jaxrs-service</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>key-vault-api</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>azure-key-vault</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
 

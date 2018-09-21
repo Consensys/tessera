@@ -3,10 +3,10 @@ package com.quorum.tessera.key.vault;
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.azure.keyvault.models.SecretBundle;
 
-public class KeyVaultClientDelegate {
+public class AzureKeyVaultClientDelegate {
     private final KeyVaultClient keyVaultClient;
 
-    public KeyVaultClientDelegate(KeyVaultClient keyVaultClient) {
+    public AzureKeyVaultClientDelegate(KeyVaultClient keyVaultClient) {
         this.keyVaultClient = keyVaultClient;
     }
 

@@ -138,7 +138,7 @@ public class DefaultCliAdapter implements CliAdapter {
                 .build());
 
         options.addOption(
-            Option.builder("keygen.path")
+            Option.builder("keygenpath")
                 .desc("Output filepaths for generated .pub and .key files.  Number of args equals number of keys generated.")
                 .hasArgs()
                 .optionalArg(false)
@@ -146,7 +146,7 @@ public class DefaultCliAdapter implements CliAdapter {
                 .build());
 
         options.addOption(
-            Option.builder("keygen.passwordconfig")
+            Option.builder("keygenpwdconfig")
                 .desc("Path to config file for encryption of generated private keys.  If not provided, default config is used.")
                 .hasArg()
                 .optionalArg(false)
@@ -154,7 +154,7 @@ public class DefaultCliAdapter implements CliAdapter {
                 .build());
 
         options.addOption(
-            Option.builder("keygen.output")
+            Option.builder("keygenoutput")
                 .desc("Used with -configfile, will produce updated config file with generated keys. Outputs to terminal by default; alternatively use arg to specify filepath.")
                 .hasArg(true)
                 .numberOfArgs(1)
@@ -162,7 +162,7 @@ public class DefaultCliAdapter implements CliAdapter {
                 .build());
 
         options.addOption(
-            Option.builder("keygen.azurevault.config")
+            Option.builder("keygenvaultconfig")
                 .desc("Path to config file for storage of generated private keys in Azure Key Vault")
                 .hasArg()
                 .optionalArg(false)

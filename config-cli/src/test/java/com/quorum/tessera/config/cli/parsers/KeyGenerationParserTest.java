@@ -39,7 +39,7 @@ public class KeyGenerationParserTest {
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
 
         final ArgumentCaptor<ArgonOptions> captor = ArgumentCaptor.forClass(ArgonOptions.class);
-        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture());
+        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture(), null);
 
         assertThat(captor.getAllValues()).hasSize(1);
         assertThat(captor.getValue()).isNull();
@@ -67,7 +67,7 @@ public class KeyGenerationParserTest {
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
 
         final ArgumentCaptor<ArgonOptions> captor = ArgumentCaptor.forClass(ArgonOptions.class);
-        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture());
+        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture(), null);
 
         assertThat(captor.getAllValues()).hasSize(1);
         assertThat(captor.getValue().getAlgorithm()).isEqualTo("id");
@@ -89,7 +89,7 @@ public class KeyGenerationParserTest {
         assertThat(result).isNotNull().hasSize(1);
 
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
-        verify(keyGenerator).generate("", null);
+        verify(keyGenerator).generate("", null, null);
     }
 
     @Test

@@ -11,16 +11,16 @@ import java.util.concurrent.ExecutorService;
  * Authenticates to Azure Key Vault by providing a callback to authenticate
  * using adal.
  */
-public class KeyVaultClientFactory {
+public class AzureKeyVaultClientFactory {
 
     private final ServiceClientCredentials serviceClientCredentials;
 
     private ExecutorService executorService;
 
-    public KeyVaultClientFactory(ExecutorService executorService) {
+    public AzureKeyVaultClientFactory(ExecutorService executorService) {
         String clientId = System.getenv("AZURE_CLIENT_ID");
         String clientSecret = System.getenv("AZURE_CLIENT_SECRET");
-        this.serviceClientCredentials = new KeyVaultClientCredentials(clientId, clientSecret, executorService);
+        this.serviceClientCredentials = new AzureKeyVaultClientCredentials(clientId, clientSecret, executorService);
         this.executorService = executorService;
     }
 

@@ -11,9 +11,9 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
-public class KeyVaultClientCredentials extends KeyVaultCredentials {
+public class AzureKeyVaultClientCredentials extends KeyVaultCredentials {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeyVaultClientCredentials.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AzureKeyVaultClientCredentials.class);
 
     private final String clientId;
 
@@ -23,7 +23,7 @@ public class KeyVaultClientCredentials extends KeyVaultCredentials {
 
     private final ExecutorService service;
 
-    public KeyVaultClientCredentials(String clientId, String clientSecret, ExecutorService service) {
+    public AzureKeyVaultClientCredentials(String clientId, String clientSecret, ExecutorService service) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.service = service;

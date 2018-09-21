@@ -118,7 +118,7 @@ public class DefaultCliAdapterTest {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         when(keyData.getConfig()).thenReturn(keyDataConfig);
         
-        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keyData);
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keyData);
         
         Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
         
@@ -139,7 +139,7 @@ public class DefaultCliAdapterTest {
         assertThat(result.getConfig()).isNotNull();
         assertThat(result.isHelpOn()).isFalse();
         
-        verify(keyGenerator).generate(anyString(), eq(null));
+        verify(keyGenerator).generate(anyString(), eq(null), eq(null));
         verifyNoMoreInteractions(keyGenerator);
         
     }
@@ -184,7 +184,7 @@ public class DefaultCliAdapterTest {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         when(keyData.getConfig()).thenReturn(keyDataConfig);
         
-        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keyData);
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keyData);
         
         Path generatedKey = Paths.get("/tmp/" + UUID.randomUUID().toString());
         

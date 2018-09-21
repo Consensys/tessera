@@ -5,6 +5,7 @@ import com.microsoft.aad.adal4j.AuthenticationResult;
 import com.microsoft.aad.adal4j.ClientCredential;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -15,8 +16,8 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class KeyVaultClientCredentialsTest {
-    private KeyVaultClientCredentials credentials;
+public class AzureKeyVaultClientCredentialsTest {
+    private AzureKeyVaultClientCredentials credentials;
 
     private ExecutorService executorService;
 
@@ -26,7 +27,7 @@ public class KeyVaultClientCredentialsTest {
     public void onSetUp() {
         executorService = mock(ExecutorService.class);
         authenticationContext = mock(AuthenticationContext.class);
-        credentials = new KeyVaultClientCredentials("clientId","clientSecret", executorService);
+        credentials = new AzureKeyVaultClientCredentials("clientId","clientSecret", executorService);
         credentials.setAuthenticationContext(authenticationContext);
     }
 
@@ -43,7 +44,7 @@ public class KeyVaultClientCredentialsTest {
 
         assertThat(result).isEqualTo("accessToken");
         verify(authenticationContext).acquireToken(anyString(), any(ClientCredential.class), any());
-        verifyNoMoreInteractions(authenticationContext);
+        Mockito.verifyNoMoreInteractions(authenticationContext);
     }
 
     @Test
@@ -111,7 +112,7 @@ public class KeyVaultClientCredentialsTest {
 
     @Test
     public void nullClientIdThrowsRuntimeException() {
-        credentials = new KeyVaultClientCredentials(null, "secret", executorService);
+        credentials = new AzureKeyVaultClientCredentials(null, "secret", executorService);
 
         String goodUrl = "https://url/path";
         final Throwable ex = catchThrowable(() -> credentials.doAuthenticate(goodUrl, null, null));
@@ -122,7 +123,7 @@ public class KeyVaultClientCredentialsTest {
 
     @Test
     public void nullClientSecretThrowsRuntimeException() {
-        credentials = new KeyVaultClientCredentials("id", null, executorService);
+        credentials = new AzureKeyVaultClientCredentials("id", null, executorService);
 
         String goodUrl = "https://url/path";
         final Throwable ex = catchThrowable(() -> credentials.doAuthenticate(goodUrl, null, null));
@@ -133,7 +134,7 @@ public class KeyVaultClientCredentialsTest {
 
     @Test
     public void nullClientIdAndSecretThrowsRuntimeException() {
-        credentials = new KeyVaultClientCredentials(null, null, executorService);
+        credentials = new AzureKeyVaultClientCredentials(null, null, executorService);
 
         String goodUrl = "https://url/path";
         final Throwable ex = catchThrowable(() -> credentials.doAuthenticate(goodUrl, null, null));

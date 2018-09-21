@@ -28,9 +28,20 @@
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>key-vault-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>azure-key-vault</artifactId>
         </dependency>
         
         <dependency>
@@ -103,17 +114,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.microsoft.azure</groupId>
-            <artifactId>azure-keyvault</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.microsoft.azure</groupId>
-            <artifactId>adal4j</artifactId>
-            <version>1.6.0</version>
-        </dependency>
     </dependencies>
     <name>tessera-core</name>
 </project>

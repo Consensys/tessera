@@ -8,15 +8,15 @@ import java.util.concurrent.Executors;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class KeyVaultClientFactoryTest {
+public class AzureKeyVaultClientFactoryTest {
 
-    private KeyVaultClientFactory keyVaultClientFactory;
+    private AzureKeyVaultClientFactory keyVaultClientFactory;
 
     @Test
     public void injectedCredentialsUsedToGetClient() {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-        keyVaultClientFactory = new KeyVaultClientFactory(executorService);
+        keyVaultClientFactory = new AzureKeyVaultClientFactory(executorService);
         keyVaultClientFactory.getAuthenticatedClient();
     }
 
@@ -24,7 +24,7 @@ public class KeyVaultClientFactoryTest {
     public void onDestroyShutsDownExecutor() {
         ExecutorService executorService = mock(ExecutorService.class);
 
-        keyVaultClientFactory = new KeyVaultClientFactory(executorService);
+        keyVaultClientFactory = new AzureKeyVaultClientFactory(executorService);
         keyVaultClientFactory.onDestroy();
 
         verify(executorService).shutdown();

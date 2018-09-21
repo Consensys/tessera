@@ -189,24 +189,22 @@ final TransactionService transactionService,
     <bean id="keyConfig" factory-bean="config" factory-method="getKeys" />
 
     <bean id="keyVaultExecutorService" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool">
-        <constructor-arg><value>
-            1
-        </value></constructor-arg>
+        <constructor-arg value="1"/>
     </bean>
 
-    <bean id="keyVaultClientFactory" class="com.quorum.tessera.key.vault.KeyVaultClientFactory">
+    <bean id="keyVaultClientFactory" class="com.quorum.tessera.key.vault.AzureKeyVaultClientFactory">
         <constructor-arg ref="keyVaultExecutorService"/>
     </bean>
 
-    <bean id="keyVaultClientDelegate" class="com.quorum.tessera.key.vault.KeyVaultClientDelegate">
+    <bean id="azureKeyVaultClientDelegate" class="com.quorum.tessera.key.vault.AzureKeyVaultClientDelegate">
         <constructor-arg>
             <bean id="keyVaultClient" factory-bean="keyVaultClientFactory" factory-method="getAuthenticatedClient"/>
         </constructor-arg>
     </bean>
 
-    <bean id="keyVaultService" class="com.quorum.tessera.key.vault.KeyVaultService">
+    <bean id="azureKeyVaultService" class="com.quorum.tessera.key.vault.AzureKeyVaultService">
         <constructor-arg ref="keyConfig"/>
-        <constructor-arg ref="keyVaultClientDelegate"/>
+        <constructor-arg ref="azureKeyVaultClientDelegate"/>
     </bean>
 
     <bean name="keyManager" class="com.quorum.tessera.key.KeyManagerImpl">
@@ -222,7 +220,7 @@ final TransactionService transactionService,
         </constructor-arg>
         <constructor-arg>
             <bean class="com.quorum.tessera.key.KeyPairFactory">
-                <constructor-arg ref="keyVaultService"/>
+                <constructor-arg ref="azureKeyVaultService"/>
             </bean>
         </constructor-arg>
     </bean>

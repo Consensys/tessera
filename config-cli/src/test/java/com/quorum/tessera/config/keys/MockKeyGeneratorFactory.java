@@ -12,7 +12,7 @@ public class MockKeyGeneratorFactory implements KeyGeneratorFactory {
     }
 
     @Override
-    public KeyGenerator create() {
+    public KeyGenerator create(boolean hasKeyVaultOptions) {
         return getMockKeyGenerator();
     }
 
