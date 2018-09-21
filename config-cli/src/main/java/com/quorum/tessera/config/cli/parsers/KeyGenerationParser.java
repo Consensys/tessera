@@ -72,8 +72,8 @@ public class KeyGenerationParser implements Parser<List<KeyData>> {
     }
 
     private Optional<KeyVaultConfig> keyVaultConfig(CommandLine commandLine) throws IOException {
-        if(commandLine.hasOption("keygen.azurevault.config")) {
-            final String pathName = commandLine.getOptionValue("keygen.azurevault.config");
+        if(commandLine.hasOption("keygenvaultconfig")) {
+            final String pathName = commandLine.getOptionValue("keygenvaultconfig");
             final InputStream configStream = Files.newInputStream(Paths.get(pathName));
 
             final KeyVaultConfig keyVaultConfig = JaxbUtil.unmarshal(configStream, KeyVaultConfig.class);

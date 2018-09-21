@@ -138,7 +138,7 @@ public class DefaultCliAdapter implements CliAdapter {
                 .build());
 
         options.addOption(
-            Option.builder("keygenpath")
+            Option.builder("filename")
                 .desc("Output filepaths for generated .pub and .key files.  Number of args equals number of keys generated.")
                 .hasArgs()
                 .optionalArg(false)
@@ -146,7 +146,7 @@ public class DefaultCliAdapter implements CliAdapter {
                 .build());
 
         options.addOption(
-            Option.builder("keygenpwdconfig")
+            Option.builder("keygenconfig")
                 .desc("Path to config file for encryption of generated private keys.  If not provided, default config is used.")
                 .hasArg()
                 .optionalArg(false)
@@ -154,7 +154,7 @@ public class DefaultCliAdapter implements CliAdapter {
                 .build());
 
         options.addOption(
-            Option.builder("keygenoutput")
+            Option.builder("output")
                 .desc("Used with -configfile, will produce updated config file with generated keys. Outputs to terminal by default; alternatively use arg to specify filepath.")
                 .hasArg(true)
                 .numberOfArgs(1)
