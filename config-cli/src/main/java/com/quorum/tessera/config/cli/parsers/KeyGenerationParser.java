@@ -2,6 +2,7 @@ package com.quorum.tessera.config.cli.parsers;
 
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.KeyVaultConfig;
 import com.quorum.tessera.config.keys.KeyGenerator;
 import com.quorum.tessera.config.keys.KeyGeneratorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -13,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,16 +23,19 @@ import static java.util.Collections.singletonList;
 
 public class KeyGenerationParser implements Parser<List<KeyData>> {
 
-    private final KeyGenerator generator = KeyGeneratorFactory.newFactory().create();
+    private final KeyGeneratorFactory factory = KeyGeneratorFactory.newFactory();
 
     public List<KeyData> parse(final CommandLine commandLine) throws IOException {
 
-        final ArgonOptions options = this.argonOptions(commandLine).orElse(null);
+        final ArgonOptions argonOptions = this.argonOptions(commandLine).orElse(null);
+        final KeyVaultConfig keyVaultConfig = this.keyVaultConfig(commandLine).orElse(null);
+
+        final KeyGenerator generator = factory.create(Objects.nonNull(keyVaultConfig));
 
         if (commandLine.hasOption("keygen")) {
             return this.filenames(commandLine)
                 .stream()
-                .map(name -> generator.generate(name, options))
+                .map(name -> generator.generate(name, argonOptions, keyVaultConfig))
                 .collect(Collectors.toList());
         }
 
@@ -64,6 +69,18 @@ public class KeyGenerationParser implements Parser<List<KeyData>> {
 
         return singletonList("");
 
+    }
+
+    private Optional<KeyVaultConfig> keyVaultConfig(CommandLine commandLine) throws IOException {
+        if(commandLine.hasOption("keygen.azurevault.config")) {
+            final String pathName = commandLine.getOptionValue("keygen.azurevault.config");
+            final InputStream configStream = Files.newInputStream(Paths.get(pathName));
+
+            final KeyVaultConfig keyVaultConfig = JaxbUtil.unmarshal(configStream, KeyVaultConfig.class);
+
+            return Optional.of(keyVaultConfig);
+        }
+        return Optional.empty();
     }
 
 }

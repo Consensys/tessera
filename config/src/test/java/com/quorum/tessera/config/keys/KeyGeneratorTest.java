@@ -70,7 +70,7 @@ public class KeyGeneratorTest {
 
         String filename = UUID.randomUUID().toString();
 
-        final KeyData generated = generator.generate(filename, null);
+        final KeyData generated = generator.generate(filename, null, null);
 
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
         assertThat(generated.getPrivateKey()).isEqualTo("cHJpdmF0ZUtleQ==");
@@ -108,7 +108,7 @@ public class KeyGeneratorTest {
 
         doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString(), eq(null));
 
-        final KeyData generated = generator.generate(keyFilesName, null);
+        final KeyData generated = generator.generate(keyFilesName, null, null);
 
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
         assertThat(generated.getConfig().getPassword()).isEqualTo("PASSWORD");
@@ -128,7 +128,7 @@ public class KeyGeneratorTest {
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
-        final KeyData generated = generator.generate(keyFilesName, null);
+        final KeyData generated = generator.generate(keyFilesName, null, null);
 
         assertThat(Files.exists(tempFolder.resolve("providingPathSavesToFile.pub"))).isTrue();
         assertThat(Files.exists(tempFolder.resolve("providingPathSavesToFile.key"))).isTrue();
@@ -143,7 +143,7 @@ public class KeyGeneratorTest {
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
-        final KeyData generated = generator.generate("", null);
+        final KeyData generated = generator.generate("", null, null);
 
         assertThat(Files.exists(Paths.get(".pub"))).isTrue();
         assertThat(Files.exists(Paths.get(".key"))).isTrue();
@@ -166,7 +166,7 @@ public class KeyGeneratorTest {
                 .when(keyEncryptor)
                 .encryptPrivateKey(any(Key.class), anyString(), eq(null));
 
-        final Throwable throwable = catchThrowable(() -> generator.generate(keyFilesName, null));
+        final Throwable throwable = catchThrowable(() -> generator.generate(keyFilesName, null, null));
 
         assertThat(throwable).isInstanceOf(UncheckedIOException.class);
 

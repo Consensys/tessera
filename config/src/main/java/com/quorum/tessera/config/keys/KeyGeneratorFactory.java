@@ -5,7 +5,7 @@ import com.quorum.tessera.ServiceLoaderUtil;
 
 public interface KeyGeneratorFactory {
 
-    KeyGenerator create();
+    KeyGenerator create(boolean hasKeyVaultOptions);
     
     static KeyGeneratorFactory newFactory() {
         return ServiceLoaderUtil.load(KeyGeneratorFactory.class).orElse(new DefaultKeyGeneratorFactory());

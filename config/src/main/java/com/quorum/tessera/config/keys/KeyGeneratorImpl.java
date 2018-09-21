@@ -39,7 +39,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
     }
 
     @Override
-    public KeyData generate(final String filename, final ArgonOptions encryptionOptions) {
+    public KeyData generate(final String filename, final ArgonOptions encryptionOptions, final KeyVaultConfig keyVaultConfig) {
 
         final String password = this.passwordReader.requestUserPassword();
 
@@ -98,7 +98,6 @@ public class KeyGeneratorImpl implements KeyGenerator {
         }
 
         final String privateKeyJson = this.privateKeyToJson(finalKeys);
-
 
         final Path resolvedPath = Paths.get(filename).toAbsolutePath();
         final Path parentPath;

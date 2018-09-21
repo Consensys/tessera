@@ -131,35 +131,53 @@ public class DefaultCliAdapter implements CliAdapter {
                 .argName("PATH")
                 .build());
 
-        //If keygen then we require the path to the private key config path
         options.addOption(
             Option.builder("keygen")
-                .desc("Use this option to generate public/private keypair")
+                .desc("Enable the generation of public/private key-pairs")
                 .hasArg(false)
                 .build());
 
         options.addOption(
-            Option.builder("filename")
-                .desc("Path to private key config for generation of missing key files")
-                .hasArg(true)
+            Option.builder("keygen.path")
+                .desc("Output filepaths for generated .pub and .key files.  Number of args equals number of keys generated.")
+                .hasArgs()
                 .optionalArg(false)
                 .argName("PATH")
                 .build());
 
         options.addOption(
-            Option.builder("keygenconfig")
-                .desc("Path to private key config for generation of missing key files")
-                .hasArg(true)
+            Option.builder("keygen.passwordconfig")
+                .desc("Path to config file for encryption of generated private keys.  If not provided, default config is used.")
+                .hasArg()
                 .optionalArg(false)
                 .argName("PATH")
                 .build());
 
         options.addOption(
-            Option.builder("output")
-                .desc("Generate updated config file with generated keys")
+            Option.builder("keygen.output")
+                .desc("Used with -configfile, will produce updated config file with generated keys. Outputs to terminal by default; alternatively use arg to specify filepath.")
                 .hasArg(true)
                 .numberOfArgs(1)
+                .optionalArg(true)
                 .build());
+
+        options.addOption(
+            Option.builder("keygen.azurevault.config")
+                .desc("Path to config file for storage of generated private keys in Azure Key Vault")
+                .hasArg()
+                .optionalArg(false)
+                .argName("PATH")
+                .build()
+        );
+
+//        options.addOption(
+//            Option.builder("keygen.azurevault.keyid")
+//                .desc("Specify ID for generated key, used when retrieving from vault. Number of args equals number of keys generated. Default is: key.")
+//                .hasArgs()
+//                .optionalArg(false)
+//                .argName("STRING")
+//                .build()
+//        );
 
         options.addOption(
             Option.builder("pidfile")
