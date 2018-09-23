@@ -97,6 +97,4 @@ public class KeyReadingTest {
         assertThat(config.getKeys().getKeyData().get(0).getPrivateKey()).startsWith("NACL_FAILURE");
     }
 
-
-
 }

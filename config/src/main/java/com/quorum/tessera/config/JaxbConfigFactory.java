@@ -1,5 +1,6 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 
 import java.io.IOException;
@@ -10,7 +11,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,7 +24,7 @@ public class JaxbConfigFactory implements ConfigFactory {
         .collect(Collectors.toSet());
     
     @Override
-    public Config create(final InputStream configData, final List<KeyData> newKeys) {
+    public Config create(final InputStream configData, final List<ConfigKeyPair> newKeys) {
 
         final Config config = JaxbUtil.unmarshal(configData, Config.class);
 
@@ -34,10 +34,7 @@ public class JaxbConfigFactory implements ConfigFactory {
             try {
                 final List<String> newPasswords = newKeys
                     .stream()
-                    .map(KeyData::getConfig)
-                    .map(KeyDataConfig::getPassword)
-                    .map(Optional::ofNullable)
-                    .map(pass -> pass.orElse(""))
+                    .map(ConfigKeyPair::getPassword)
                     .collect(Collectors.toList());
 
                 if (config.getKeys().getPasswords() != null) {

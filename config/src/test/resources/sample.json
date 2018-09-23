@@ -45,7 +45,6 @@
                     },
                     "type": "argon2sbox"
                 },
-                "privateKey": "PRIVATE_KEY",
                 "publicKey": "PUBLIC_KEY"
             }
         ]

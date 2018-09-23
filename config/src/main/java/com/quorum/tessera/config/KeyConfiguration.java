@@ -1,8 +1,9 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.adapters.KeyDataAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
-import com.quorum.tessera.config.constraints.ValidKeyData;
 import com.quorum.tessera.config.constraints.ValidPath;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -29,9 +30,10 @@ public class KeyConfiguration extends ConfigItem {
     @Valid
     @NotNull
     @Size(min = 1, message = "At least 1 public/private key pair must be provided")
-    private final List<@ValidKeyData KeyData> keyData;
+    @XmlJavaTypeAdapter(KeyDataAdapter.class)
+    private final List<@Valid ConfigKeyPair> keyData;
 
-    public KeyConfiguration(final Path passwordFile, final List<String> passwords, final List<KeyData> keyData) {
+    public KeyConfiguration(final Path passwordFile, final List<String> passwords, final List<ConfigKeyPair> keyData) {
         this.passwordFile = passwordFile;
         this.passwords = passwords;
         this.keyData = keyData;
@@ -49,7 +51,7 @@ public class KeyConfiguration extends ConfigItem {
         return this.passwords;
     }
 
-    public List<KeyData> getKeyData() {
+    public List<ConfigKeyPair> getKeyData() {
         return this.keyData;
     }
 
