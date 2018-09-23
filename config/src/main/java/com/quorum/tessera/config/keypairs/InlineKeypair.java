@@ -4,6 +4,7 @@ import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
+import com.quorum.tessera.nacl.NaclException;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 
@@ -41,7 +42,11 @@ public class InlineKeypair implements ConfigKeyPair {
         if (privateKeyConfig.getType() == UNLOCKED) {
             return privateKeyConfig.getValue();
         } else {
-            return KeyEncryptorFactory.create().decryptPrivateKey(pkd, password).toString();
+            try {
+                return KeyEncryptorFactory.create().decryptPrivateKey(pkd, password).toString();
+            } catch (final NaclException ex) {
+                return "NACL_FAILURE";
+            }
         }
     }
 

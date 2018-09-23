@@ -36,7 +36,7 @@ public class KeyDataAdapterTest {
 
         final KeyData marshalledKey = adapter.marshal(keys);
 
-        assertThat(marshalledKey).isEqualToComparingFieldByField(expected);
+        assertThat(marshalledKey).isEqualToComparingFieldByFieldRecursively(expected);
     }
 
     @Test

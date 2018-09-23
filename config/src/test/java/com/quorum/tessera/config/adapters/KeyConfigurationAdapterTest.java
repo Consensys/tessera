@@ -3,7 +3,6 @@ package com.quorum.tessera.config.adapters;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -16,12 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class KeyConfigurationAdapterTest {
 
-    private KeyConfigurationAdapter keyConfigurationAdapter;
-
-    @Before
-    public void onSetup() {
-        this.keyConfigurationAdapter = new KeyConfigurationAdapter();
-    }
+    private KeyConfigurationAdapter keyConfigurationAdapter = new KeyConfigurationAdapter();
 
     @Test
     public void marshallingDoesNothing() {
@@ -48,7 +42,7 @@ public class KeyConfigurationAdapterTest {
 
         //passwords are always non-null, set to empty string if not present or not needed
         assertThat(returned.getPassword()).isEqualTo("");
-        assertThat(returned).isSameAs(keyConfiguration);
+        assertThat(returned).isSameAs(keypair);
     }
 
     @Test
@@ -65,7 +59,7 @@ public class KeyConfigurationAdapterTest {
 
         //passwords are always non-null, set to empty string if not present or not needed
         assertThat(returned.getPassword()).isEqualTo("");
-        assertThat(returned).isSameAs(keyConfiguration);
+        assertThat(returned).isSameAs(keypair);
     }
 
     @Test
