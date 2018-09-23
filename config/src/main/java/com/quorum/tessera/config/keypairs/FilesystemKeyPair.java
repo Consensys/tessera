@@ -2,9 +2,14 @@ package com.quorum.tessera.config.keypairs;
 
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.adapters.PathAdapter;
+import com.quorum.tessera.config.constraints.ValidPath;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.io.IOCallback;
 
+import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -12,8 +17,16 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FilesystemKeyPair implements ConfigKeyPair {
 
+    @NotNull
+    @ValidPath(checkExists = true)
+    @XmlElement
+    @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path publicKeyPath;
 
+    @NotNull
+    @ValidPath(checkExists = true)
+    @XmlElement
+    @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path privateKeyPath;
 
     private InlineKeypair inlineKeypair;

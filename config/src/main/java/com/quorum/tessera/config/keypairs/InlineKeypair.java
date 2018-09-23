@@ -3,15 +3,26 @@ package com.quorum.tessera.config.keypairs;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
+import com.quorum.tessera.config.constraints.ValidBase64;
+import com.quorum.tessera.config.constraints.ValidKeyDataConfig;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.nacl.NaclException;
+
+import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlElement;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 
 public class InlineKeypair implements ConfigKeyPair {
 
+    @NotNull
+    @ValidBase64
+    @XmlElement
     private final String publicKey;
 
+    @NotNull
+    @ValidKeyDataConfig
+    @XmlElement(name = "config")
     private final KeyDataConfig privateKeyConfig;
 
     private String password = "";

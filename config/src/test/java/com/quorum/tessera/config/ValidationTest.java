@@ -1,13 +1,13 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import org.junit.Test;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -127,34 +127,36 @@ public class ValidationTest {
     }
 
     @Test
-    public void keyDataPublicKeyValidation() {
+    public void keypairPathsValidation() {
 
-        Path publicKeyPath = Paths.get(UUID.randomUUID().toString());
-
-        Path privateKeyPath = Paths.get(UUID.randomUUID().toString());
+        final Path publicKeyPath = Paths.get(UUID.randomUUID().toString());
+        final Path privateKeyPath = Paths.get(UUID.randomUUID().toString());
 
         final ConfigKeyPair keyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
 
-        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair));
+        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair));
 
-        Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
-        assertThat(violations).hasSize(1);
+        final Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
+        assertThat(violations).hasSize(2);
 
-        ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
+        final Iterator<ConstraintViolation<KeyConfiguration>> iterator = violations.iterator();
 
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyData.publicKeyPath.notExists}");
-        assertThat(violation.getPropertyPath().toString()).endsWith("publicKeyPath");
+        ConstraintViolation<KeyConfiguration> violation1 = iterator.next();
+        assertThat(violation1.getMessageTemplate()).isEqualTo("{ValidPath.message}");
+
+        ConstraintViolation<KeyConfiguration> violation2 = iterator.next();
+        assertThat(violation2.getMessageTemplate()).isEqualTo("{ValidPath.message}");
+
+        final List<String> paths = Arrays.asList(
+            violation1.getPropertyPath().toString(), violation2.getPropertyPath().toString()
+        );
+        assertThat(paths).containsExactlyInAnyOrder("keyData[0].publicKeyPath", "keyData[0].privateKeyPath");
     }
 
     @Test
-    public void keyDataPrivateKeyValidation() throws Exception {
+    public void keypairInlineValidation() {
 
-        Path publicKeyPath = Files.createTempFile("keyDataPrivateKeyValidation", ".txt");
-        publicKeyPath.toFile().deleteOnExit();
-
-        Path privateKeyPath = Paths.get(UUID.randomUUID().toString());
-
-        final ConfigKeyPair keyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
+        final ConfigKeyPair keyPair = new DirectKeyPair("notvalidbase64", "c==");
 
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair));
 
@@ -163,8 +165,8 @@ public class ValidationTest {
 
         ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
 
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyData.privateKeyPath.notExists}");
-        assertThat(violation.getPropertyPath().toString()).endsWith("privateKeyPath");
+        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidBase64.message}");
+        assertThat(violation.getPropertyPath().toString()).endsWith("privateKey");
     }
 
 }

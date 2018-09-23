@@ -1,11 +1,21 @@
 package com.quorum.tessera.config.keypairs;
 
 import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.constraints.ValidBase64;
+
+import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlElement;
 
 public class DirectKeyPair implements ConfigKeyPair {
 
+    @NotNull
+    @ValidBase64
+    @XmlElement
     private final String publicKey;
 
+    @NotNull
+    @ValidBase64
+    @XmlElement
     private final String privateKey;
 
     public DirectKeyPair(final String publicKey, final String privateKey) {
