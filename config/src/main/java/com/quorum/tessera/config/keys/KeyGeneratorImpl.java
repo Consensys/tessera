@@ -16,8 +16,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import java.util.Objects;
 
-import static com.quorum.tessera.config.PrivateKeyType.LOCKED;
-import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class KeyGeneratorImpl implements KeyGenerator {
@@ -58,16 +56,11 @@ public class KeyGeneratorImpl implements KeyGenerator {
             finalKeys = new KeyData(
                 new KeyDataConfig(
                     new PrivateKeyData(
-                        generated.getPrivateKey().toString(),
+                        null,
                         encryptedPrivateKey.getSnonce(),
                         encryptedPrivateKey.getAsalt(),
                         encryptedPrivateKey.getSbox(),
-                        new ArgonOptions(
-                            encryptedPrivateKey.getArgonOptions().getAlgorithm(),
-                            encryptedPrivateKey.getArgonOptions().getIterations(),
-                            encryptedPrivateKey.getArgonOptions().getMemory(),
-                            encryptedPrivateKey.getArgonOptions().getParallelism()
-                        ),
+                        encryptedPrivateKey.getArgonOptions(),
                         password
                     ),
                     PrivateKeyType.LOCKED
@@ -85,7 +78,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
             finalKeys = new KeyData(
                 new KeyDataConfig(
                     new PrivateKeyData(generated.getPrivateKey().toString(), null, null, null, null, null),
-                    UNLOCKED
+                    PrivateKeyType.UNLOCKED
                 ),
                 generated.getPrivateKey().toString(),
                 publicKeyBase64,
@@ -95,8 +88,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
         }
 
-        final String privateKeyJson = this.privateKeyToJson(finalKeys);
-
+        final String privateKeyJson = JaxbUtil.marshalToString(finalKeys.getConfig());
 
         final Path resolvedPath = Paths.get(filename).toAbsolutePath();
         final Path parentPath;
@@ -117,32 +109,6 @@ public class KeyGeneratorImpl implements KeyGenerator {
         LOGGER.info("Saved private key to {}", privateKeyPath.toAbsolutePath().toString());
 
         return finalKeys;
-    }
-
-    private String privateKeyToJson(final KeyData keyData) {
-
-        final KeyDataConfig privateKey;
-
-        if (LOCKED.equals(keyData.getConfig().getType())) {
-
-            privateKey = new KeyDataConfig(
-                new PrivateKeyData(
-                    null,
-                    keyData.getConfig().getSnonce(),
-                    keyData.getConfig().getAsalt(),
-                    keyData.getConfig().getSbox(),
-                    keyData.getConfig().getArgonOptions(),
-                    keyData.getConfig().getPassword()
-                ),
-                LOCKED
-            );
-
-        } else {
-            privateKey = keyData.getConfig();
-        }
-
-        return JaxbUtil.marshalToString(privateKey);
-
     }
 
 }
