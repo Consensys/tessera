@@ -3,9 +3,9 @@ package com.quorum.tessera.config.cli.parsers;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyVaultConfig;
-import com.quorum.tessera.config.keys.KeyGenerator;
-import com.quorum.tessera.config.keys.KeyGeneratorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.key.generation.KeyGenerator;
+import com.quorum.tessera.key.generation.KeyGeneratorFactory;
 import org.apache.commons.cli.CommandLine;
 
 import java.io.IOException;
@@ -30,12 +30,12 @@ public class KeyGenerationParser implements Parser<List<KeyData>> {
         final ArgonOptions argonOptions = this.argonOptions(commandLine).orElse(null);
         final KeyVaultConfig keyVaultConfig = this.keyVaultConfig(commandLine).orElse(null);
 
-        final KeyGenerator generator = factory.create(Objects.nonNull(keyVaultConfig));
+        final KeyGenerator generator = factory.create(keyVaultConfig);
 
         if (commandLine.hasOption("keygen")) {
             return this.filenames(commandLine)
                 .stream()
-                .map(name -> generator.generate(name, argonOptions, keyVaultConfig))
+                .map(name -> generator.generate(name, argonOptions))
                 .collect(Collectors.toList());
         }
 
@@ -71,14 +71,11 @@ public class KeyGenerationParser implements Parser<List<KeyData>> {
 
     }
 
-    private Optional<KeyVaultConfig> keyVaultConfig(CommandLine commandLine) throws IOException {
-        if(commandLine.hasOption("keygenvaultconfig")) {
-            final String pathName = commandLine.getOptionValue("keygenvaultconfig");
-            final InputStream configStream = Files.newInputStream(Paths.get(pathName));
+    private Optional<KeyVaultConfig> keyVaultConfig(CommandLine commandLine) {
+        if(commandLine.hasOption("keygenvaulturl")) {
+            final String vaultUrl = commandLine.getOptionValue("keygenvaulturl");
 
-            final KeyVaultConfig keyVaultConfig = JaxbUtil.unmarshal(configStream, KeyVaultConfig.class);
-
-            return Optional.of(keyVaultConfig);
+            return Optional.of(new KeyVaultConfig(vaultUrl));
         }
         return Optional.empty();
     }

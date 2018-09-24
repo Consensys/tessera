@@ -1,4 +1,4 @@
-package com.quorum.tessera.config.keys;
+package com.quorum.tessera.key.generation;
 
 import org.junit.Test;
 

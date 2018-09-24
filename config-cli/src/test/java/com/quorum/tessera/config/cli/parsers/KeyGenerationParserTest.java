@@ -2,8 +2,8 @@ package com.quorum.tessera.config.cli.parsers;
 
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.keys.KeyGenerator;
 import com.quorum.tessera.config.keys.MockKeyGeneratorFactory;
+import com.quorum.tessera.key.generation.KeyGenerator;
 import org.apache.commons.cli.CommandLine;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -39,7 +39,7 @@ public class KeyGenerationParserTest {
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
 
         final ArgumentCaptor<ArgonOptions> captor = ArgumentCaptor.forClass(ArgonOptions.class);
-        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture(), eq(null));
+        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture());
 
         assertThat(captor.getAllValues()).hasSize(1);
         assertThat(captor.getValue()).isNull();
@@ -67,7 +67,7 @@ public class KeyGenerationParserTest {
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
 
         final ArgumentCaptor<ArgonOptions> captor = ArgumentCaptor.forClass(ArgonOptions.class);
-        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture(), eq(null));
+        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture());
 
         assertThat(captor.getAllValues()).hasSize(1);
         assertThat(captor.getValue().getAlgorithm()).isEqualTo("id");
@@ -89,7 +89,7 @@ public class KeyGenerationParserTest {
         assertThat(result).isNotNull().hasSize(1);
 
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
-        verify(keyGenerator).generate("", null, null);
+        verify(keyGenerator).generate("", null);
     }
 
     @Test

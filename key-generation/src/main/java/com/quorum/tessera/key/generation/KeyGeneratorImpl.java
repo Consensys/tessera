@@ -1,6 +1,7 @@
-package com.quorum.tessera.config.keys;
+package com.quorum.tessera.key.generation;
 
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.io.IOCallback;
@@ -39,7 +40,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
     }
 
     @Override
-    public KeyData generate(final String filename, final ArgonOptions encryptionOptions, final KeyVaultConfig keyVaultConfig) {
+    public KeyData generate(final String filename, final ArgonOptions encryptionOptions) {
 
         final String password = this.passwordReader.requestUserPassword();
 
@@ -86,7 +87,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
             finalKeys = new KeyData(
                 new KeyDataConfig(
                     new PrivateKeyData(generated.getPrivateKey().toString(), null, null, null, null, null),
-                    UNLOCKED
+                    PrivateKeyType.UNLOCKED
                 ),
                 generated.getPrivateKey().toString(),
                 publicKeyBase64,
@@ -124,7 +125,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
         final KeyDataConfig privateKey;
 
-        if (LOCKED.equals(keyData.getConfig().getType())) {
+        if (PrivateKeyType.LOCKED.equals(keyData.getConfig().getType())) {
 
             privateKey = new KeyDataConfig(
                 new PrivateKeyData(
@@ -135,7 +136,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
                     keyData.getConfig().getArgonOptions(),
                     keyData.getConfig().getPassword()
                 ),
-                LOCKED
+                PrivateKeyType.LOCKED
             );
 
         } else {

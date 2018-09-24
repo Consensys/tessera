@@ -162,22 +162,13 @@ public class DefaultCliAdapter implements CliAdapter {
                 .build());
 
         options.addOption(
-            Option.builder("keygenvaultconfig")
-                .desc("Path to config file for storage of generated private keys in Azure Key Vault")
+            Option.builder("keygenvaulturl")
+                .desc("Base url for Azure Key Vault")
                 .hasArg()
                 .optionalArg(false)
-                .argName("PATH")
+                .argName("STRING")
                 .build()
         );
-
-//        options.addOption(
-//            Option.builder("keygen.azurevault.keyid")
-//                .desc("Specify ID for generated key, used when retrieving from vault. Number of args equals number of keys generated. Default is: key.")
-//                .hasArgs()
-//                .optionalArg(false)
-//                .argName("STRING")
-//                .build()
-//        );
 
         options.addOption(
             Option.builder("pidfile")
