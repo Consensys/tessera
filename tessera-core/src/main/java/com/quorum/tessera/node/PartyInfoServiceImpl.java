@@ -2,6 +2,7 @@ package com.quorum.tessera.node;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.core.config.ConfigService;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.key.exception.KeyNotFoundException;
 import com.quorum.tessera.nacl.Key;
@@ -15,16 +16,24 @@ import java.util.Objects;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PartyInfoServiceImpl implements PartyInfoService {
 
     private final PartyInfoStore partyInfoStore;
 
+    private final ConfigService configService;
+        
+    private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoServiceImpl.class);
+    
     public PartyInfoServiceImpl(final PartyInfoStore partyInfoStore,
-                                final Config configuration,
+                                final ConfigService configService,
                                 final KeyManager keyManager) {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
-
+        this.configService = Objects.requireNonNull(configService);
+        
+        final Config configuration = configService.getConfig();
         final String advertisedUrl = configuration.getServerConfig().getServerUri().toString();
 
         final Set<Party> initialParties = configuration
@@ -50,9 +59,16 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     @Override
     public PartyInfo updatePartyInfo(final PartyInfo partyInfo) {
+        
+        if(configService.getConfig().isDisablePeerDiscovery()) {
+            LOGGER.warn("Attempt to udpate partyInfo with data {}",partyInfo);
+            throw new AutoDiscoveryDisabledException();
+        }
 
         partyInfoStore.store(partyInfo);
 
+        
+        
         return this.getPartyInfo();
     }
 
