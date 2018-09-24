@@ -1,13 +1,24 @@
 package com.quorum.tessera.key.vault;
 
 import com.microsoft.azure.keyvault.models.SecretBundle;
+import com.microsoft.azure.keyvault.requests.SetSecretRequest;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyVaultConfig;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class AzureKeyVaultServiceTest {
+    private AzureKeyVaultClientDelegate azureKeyVaultClientDelegate;
+
+    @Before
+    public void setUp() {
+        this.azureKeyVaultClientDelegate = mock(AzureKeyVaultClientDelegate.class);
+    }
+
     @Test
     public void getSecretUsingUrlInConfig() {
         String url = "url";
@@ -15,7 +26,6 @@ public class AzureKeyVaultServiceTest {
 
         KeyVaultConfig keyVaultConfig = new KeyVaultConfig(url);
 
-        AzureKeyVaultClientDelegate azureKeyVaultClientDelegate = mock(AzureKeyVaultClientDelegate.class);
         when(azureKeyVaultClientDelegate.getSecret(url, secretId)).thenReturn(new SecretBundle());
 
         AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
@@ -26,8 +36,6 @@ public class AzureKeyVaultServiceTest {
 
     @Test
     public void vaultUrlIsNotSetIfKeyVaultConfigNotDefined() {
-        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, null, null);
-        AzureKeyVaultClientDelegate azureKeyVaultClientDelegate = mock(AzureKeyVaultClientDelegate.class);
         when(azureKeyVaultClientDelegate.getSecret(any(), any())).thenReturn(new SecretBundle());
 
         AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(null, azureKeyVaultClientDelegate);
@@ -35,5 +43,24 @@ public class AzureKeyVaultServiceTest {
         azureKeyVaultService.getSecret("secret");
 
         verify(azureKeyVaultClientDelegate).getSecret(null, "secret");
+    }
+
+    @Test
+    public void setSecretRequestIsUsedToRetrieveSecretFromVault() {
+        KeyVaultConfig keyVaultConfig = new KeyVaultConfig("url");
+
+        AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
+
+        String secretName = "id";
+        String secret = "secret";
+
+        azureKeyVaultService.setSecret(secretName, secret);
+
+        SetSecretRequest expected = new SetSecretRequest.Builder(keyVaultConfig.getUrl(), secretName, secret).build();
+
+        ArgumentCaptor<SetSecretRequest> argument = ArgumentCaptor.forClass(SetSecretRequest.class);
+        verify(azureKeyVaultClientDelegate).setSecret(argument.capture());
+
+        assertThat(argument.getValue()).isEqualToComparingFieldByField(expected);
     }
 }
