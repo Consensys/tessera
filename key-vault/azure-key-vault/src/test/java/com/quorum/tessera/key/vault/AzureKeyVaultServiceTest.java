@@ -2,7 +2,6 @@ package com.quorum.tessera.key.vault;
 
 import com.microsoft.azure.keyvault.models.SecretBundle;
 import com.microsoft.azure.keyvault.requests.SetSecretRequest;
-import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyVaultConfig;
 import org.junit.Before;
 import org.junit.Test;
