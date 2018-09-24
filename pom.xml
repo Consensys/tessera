@@ -245,6 +245,7 @@
         <module>jaxrs-service</module>
         <module>tessera-core</module>
         <module>key-vault</module>
+        <module>key-generation</module>
     </modules>
 
     <dependencyManagement>

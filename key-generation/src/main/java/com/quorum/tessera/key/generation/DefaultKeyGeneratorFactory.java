@@ -28,7 +28,7 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
 
             return new VaultKeyGenerator(NaclFacadeFactory.newFactory().create(), keyVaultService);
         } else {
-            return new KeyGeneratorImpl(
+            return new FileKeyGenerator(
                 NaclFacadeFactory.newFactory().create(), KeyEncryptorFactory.create(), PasswordReaderFactory.create()
             );
         }

@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
-public class KeyGeneratorTest {
+public class FileKeyGeneratorTest {
 
     private static final String PRIVATE_KEY = "privateKey";
 
@@ -55,7 +55,7 @@ public class KeyGeneratorTest {
 
         when(passwordReader.requestUserPassword()).thenReturn("");
 
-        this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, passwordReader);
+        this.generator = new FileKeyGenerator(nacl, keyEncryptor, passwordReader);
 
     }
 
