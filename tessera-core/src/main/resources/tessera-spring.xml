@@ -203,7 +203,9 @@ final TransactionService transactionService,
     </bean>
 
     <bean id="azureKeyVaultService" class="com.quorum.tessera.key.vault.AzureKeyVaultService">
-        <constructor-arg ref="keyConfig"/>
+        <constructor-arg>
+            <bean factory-bean="keyConfig" factory-method="getAzureKeyVaultConfig"></bean>
+        </constructor-arg>
         <constructor-arg ref="azureKeyVaultClientDelegate"/>
     </bean>
 

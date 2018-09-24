@@ -1,7 +1,8 @@
 package com.quorum.tessera.key.vault;
 
 import com.microsoft.azure.keyvault.models.SecretBundle;
-import com.quorum.tessera.config.KeyConfiguration;
+import com.microsoft.azure.keyvault.requests.SetSecretRequest;
+import com.quorum.tessera.config.KeyVaultConfig;
 
 import java.util.Objects;
 
@@ -9,9 +10,9 @@ public class AzureKeyVaultService implements KeyVaultService {
     private String vaultUrl;
     private AzureKeyVaultClientDelegate azureKeyVaultClientDelegate;
 
-    public AzureKeyVaultService(KeyConfiguration keyConfig, AzureKeyVaultClientDelegate azureKeyVaultClientDelegate) {
-        if(Objects.nonNull(keyConfig.getAzureKeyVaultConfig())) {
-            this.vaultUrl = keyConfig.getAzureKeyVaultConfig().getUrl();
+    public AzureKeyVaultService(KeyVaultConfig keyVaultConfig, AzureKeyVaultClientDelegate azureKeyVaultClientDelegate) {
+        if(Objects.nonNull(keyVaultConfig)) {
+            this.vaultUrl = keyVaultConfig.getUrl();
         }
 
         this.azureKeyVaultClientDelegate = azureKeyVaultClientDelegate;
@@ -24,7 +25,9 @@ public class AzureKeyVaultService implements KeyVaultService {
     }
 
     @Override
-    public void saveSecret(String secretName, String secret) {
+    public SecretBundle setSecret(String secretName, String secret) {
+        SetSecretRequest setSecretRequest = new SetSecretRequest.Builder(vaultUrl, secretName, secret).build();
 
+        return this.azureKeyVaultClientDelegate.setSecret(setSecretRequest);
     }
 }

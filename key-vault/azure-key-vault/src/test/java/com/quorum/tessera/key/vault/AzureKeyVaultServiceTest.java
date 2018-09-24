@@ -13,19 +13,12 @@ public class AzureKeyVaultServiceTest {
         String url = "url";
         String secretId = "id";
 
-        KeyConfiguration keyConfig = new KeyConfiguration(
-            null,
-            null,
-            null,
-            new KeyVaultConfig(
-                url
-            )
-        );
+        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(url);
 
         AzureKeyVaultClientDelegate azureKeyVaultClientDelegate = mock(AzureKeyVaultClientDelegate.class);
         when(azureKeyVaultClientDelegate.getSecret(url, secretId)).thenReturn(new SecretBundle());
 
-        AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(keyConfig, azureKeyVaultClientDelegate);
+        AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
         azureKeyVaultService.getSecret(secretId);
 
         verify(azureKeyVaultClientDelegate).getSecret(url, secretId);
@@ -37,7 +30,7 @@ public class AzureKeyVaultServiceTest {
         AzureKeyVaultClientDelegate azureKeyVaultClientDelegate = mock(AzureKeyVaultClientDelegate.class);
         when(azureKeyVaultClientDelegate.getSecret(any(), any())).thenReturn(new SecretBundle());
 
-        AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(keyConfiguration, azureKeyVaultClientDelegate);
+        AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(null, azureKeyVaultClientDelegate);
 
         azureKeyVaultService.getSecret("secret");
 
