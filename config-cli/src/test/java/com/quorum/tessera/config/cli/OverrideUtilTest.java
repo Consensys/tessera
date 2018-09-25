@@ -261,8 +261,10 @@ public class OverrideUtilTest {
 
     @Test
     public void toArrayType() {
-        assertThat(OverrideUtil.toArrayType(String.class)).isEqualTo(String[].class);
-        assertThat(OverrideUtil.toArrayType(Path.class)).isEqualTo(Path[].class);
+        assertThat(OverrideUtil.toArrayType(String.class))
+            .isEqualTo(String[].class);
+        assertThat(OverrideUtil.toArrayType(Path.class))
+            .isEqualTo(Path[].class);
     }
 
     @Test
