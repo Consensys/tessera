@@ -172,7 +172,8 @@ public interface OverrideUtil {
 
                 final Class genericType = resolveCollectionParameter(field.getGenericType());
 
-                List list = (List) Optional.ofNullable(getValue(root, field)).orElse(new ArrayList<>());
+                List list = (List) Optional.ofNullable(getValue(root, field))
+                        .orElse(new ArrayList<>());
 
                 if (isSimple(genericType)) {
 
@@ -269,15 +270,16 @@ public interface OverrideUtil {
 
     static <T> T createInstance(Class<T> type) {
 
-        return ReflectCallback.execute(() -> {
-            if(!type.isInterface()){
-                Method factoryMethod = type.getDeclaredMethod("create");
-                factoryMethod.setAccessible(true);
-                final Object instance = factoryMethod.invoke(null);
-                initialiseNestedObjects(instance);
-                return (T) instance;
-            }
+        if(type.isInterface()) {
             return null;
+        }
+
+        return ReflectCallback.execute(() -> {
+            Method factoryMethod = type.getDeclaredMethod("create");
+            factoryMethod.setAccessible(true);
+            final Object instance = factoryMethod.invoke(null);
+            initialiseNestedObjects(instance);
+            return (T) instance;
         });
 
     }
