@@ -258,7 +258,9 @@ public class DefaultCliAdapterTest {
                 getClass().getResource("/sample-config-invalidpath.json"), params);
         
         try {
-            cliDelegate.execute("-configfile", configFile.toString());
+            cliDelegate.execute(
+                    "-configfile",
+                    configFile.toString());
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
             assertThat(ex.getConstraintViolations())
