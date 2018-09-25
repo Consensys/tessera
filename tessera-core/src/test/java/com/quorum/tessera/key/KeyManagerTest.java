@@ -1,6 +1,5 @@
 package com.quorum.tessera.key;
 
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.nacl.Key;
@@ -27,8 +26,6 @@ public class KeyManagerTest {
 
     @Before
     public void init() {
-
-        final KeyData keyData = new KeyData(null, PRIVATE_KEY.toString(), PUBLIC_KEY.toString(), null, null);
 
         final ConfigKeyPair configKeyPair = new DirectKeyPair(PUBLIC_KEY.toString(), PRIVATE_KEY.toString());
 
