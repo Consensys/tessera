@@ -223,11 +223,21 @@ public class OverrideUtilTest {
 
     static class SomeClass {
 
+        private static SomeClass create() {
+            return new SomeClass();
+        }
+
         @XmlElement(name = "some_value")
-        private String someValue;
+        String someValue;
 
         @XmlElement
-        private String otherValue;
+        String otherValue;
+
+    }
+
+    static class OtherClass {
+
+        List<SomeClass> someList;
 
     }
 
@@ -350,12 +360,20 @@ public class OverrideUtilTest {
         Config config = OverrideUtil.createInstance(Config.class);
 
         OverrideUtil.setValue(config, "jdbc.username", "someuser");
-        OverrideUtil.setValue(config, "keys.keyData.config.privateKeyData.snonce", "snonce1", "snonce2");
+        OverrideUtil.setValue(config, "peers.url", "snonce1", "snonce2");
 
         assertThat(config.getJdbcConfig().getUsername()).isEqualTo("someuser");
 
-        assertThat(config.getKeys().getKeyData().get(0).getConfig().getSnonce()).isEqualTo("snonce1");
-        assertThat(config.getKeys().getKeyData().get(1).getConfig().getSnonce()).isEqualTo("snonce2");
+        assertThat(config.getPeers().get(0).getUrl()).isEqualTo("snonce1");
+        assertThat(config.getPeers().get(1).getUrl()).isEqualTo("snonce2");
+    }
+
+    @Test
+    public void setValueWithoutAdditions() {
+        final OtherClass someList = new OtherClass();
+        OverrideUtil.setValue(someList, "someList.someValue", "password1", "password2");
+        assertThat(someList.someList.get(0).someValue).isEqualTo("password1");
+        assertThat(someList.someList.get(1).someValue).isEqualTo("password2");
     }
 
     @Test
@@ -366,16 +384,10 @@ public class OverrideUtilTest {
         }
 
         OverrideUtil.setValue(config, "jdbc.username", "someuser");
-        OverrideUtil.setValue(config, "keys.keyData.config.privateKeyData.snonce", "snonce1", "snonce2");
 
         assertThat(config.getJdbcConfig().getUsername()).isEqualTo("someuser");
         assertThat(config.getJdbcConfig().getPassword()).isEqualTo("tiger");
 
-        assertThat(config.getKeys().getKeyData().get(0).getConfig().getSnonce()).isEqualTo("snonce1");
-        assertThat(config.getKeys().getKeyData().get(0).getPublicKey()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
-
-        assertThat(config.getKeys().getKeyData().get(1).getConfig().getSnonce()).isEqualTo("snonce2");
-        assertThat(config.getKeys().getKeyData().get(1).getPublicKey()).isNull();
         assertThat(config.getUnixSocketFile()).isEqualTo(Paths.get("${unixSocketPath}"));
     }
 
