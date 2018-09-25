@@ -21,20 +21,13 @@
         "passwords": [],
         "keyData": [
             {
-                "privateKey": {
+                "config": {
                     "data": {
-                        "value": "PRIVATEKEY",
-                        "password": "TOP_SECRET",
-                        "argonOptions": {
-                            "algorithm": "SHA",
-                            "iterations": 1,
-                            "memory": 256,
-                            "parallelism": 1
-                        }
+                        "bytes": "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA="
                     },
-                    "type": "argon2sbox"
+                    "type": "unlocked"
                 },
-                "publicKey": "PUBLICKEY"
+                "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
             }
         ]
     },

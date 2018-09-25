@@ -372,7 +372,7 @@ public class OverrideUtilTest {
         assertThat(config.getJdbcConfig().getPassword()).isEqualTo("tiger");
 
         assertThat(config.getKeys().getKeyData().get(0).getConfig().getSnonce()).isEqualTo("snonce1");
-        assertThat(config.getKeys().getKeyData().get(0).getPublicKey()).isEqualTo("PUBLICKEY");
+        assertThat(config.getKeys().getKeyData().get(0).getPublicKey()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
 
         assertThat(config.getKeys().getKeyData().get(1).getConfig().getSnonce()).isEqualTo("snonce2");
         assertThat(config.getKeys().getKeyData().get(1).getPublicKey()).isNull();

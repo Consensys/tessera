@@ -103,7 +103,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
 
         String decryptedPrivateKey;
         try {
-            decryptedPrivateKey = Objects.toString(kg.decryptPrivateKey(encryptedKey));
+            decryptedPrivateKey = Objects.toString(kg.decryptPrivateKey(encryptedKey, keyData.getConfig().getPassword()));
         } catch (final NaclException ex) {
             LOGGER.debug("Unable to decrypt private key : {}", ex.getMessage());
             decryptedPrivateKey = NACL_FAILURE_TOKEN +": " + ex.getMessage();
