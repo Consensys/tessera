@@ -174,7 +174,6 @@ public interface OverrideUtil {
 
                 List list = (List) Optional.ofNullable(getValue(root, field))
                         .orElse(new ArrayList<>());
-
                 if (isSimple(genericType)) {
 
                     List convertedValues = (List) Stream.of(value)
