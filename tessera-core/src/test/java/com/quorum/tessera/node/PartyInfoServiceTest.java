@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.util.Collections.*;
+import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.*;
@@ -77,8 +78,8 @@ public class PartyInfoServiceTest {
         verify(keyManager).getPublicKeys();
         verify(configuration).getPeers();
         verify(configuration).getServerConfig();
-        
-        verify(partyInfoStore,atLeast(1)).store(any(PartyInfo.class));
+
+        verify(partyInfoStore, atLeast(1)).store(any(PartyInfo.class));
 
         verifyNoMoreInteractions(partyInfoStore);
         verifyNoMoreInteractions(keyManager);
@@ -223,20 +224,53 @@ public class PartyInfoServiceTest {
     }
 
     @Test
-    public void updatePartyInfoDelegatesToStoreAutoDiscobveryDisabled() {
+    public void updatePartyInfoDelegatesToStoreAutoDiscoveryDisabled() {
 
         when(configuration.isDisablePeerDiscovery()).thenReturn(true);
 
-        PartyInfo partyInfo = mock(PartyInfo.class);
+        Set<Party> parties = Stream.of("MyURI", "MyOtherUri")
+                .map(Party::new).collect(Collectors.toSet());
 
+        PartyInfo partyInfo = new PartyInfo("MyURI", EMPTY_SET, parties);
+
+        when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
+
+        PartyInfo forUpdate = new PartyInfo("UnknownUri", EMPTY_SET, parties);
         try {
-            partyInfoService.updatePartyInfo(partyInfo);
+            partyInfoService.updatePartyInfo(forUpdate);
             failBecauseExceptionWasNotThrown(AutoDiscoveryDisabledException.class);
 
         } catch (AutoDiscoveryDisabledException ex) {
             verify(configuration).isDisablePeerDiscovery();
+            verify(partyInfoStore).getPartyInfo();
+        }
+    }
+
+    @Test
+    public void updatePartyInfoDelegatesToStoreAutoDiscoveryDisabledDifferentParties() {
+
+        when(configuration.isDisablePeerDiscovery()).thenReturn(true);
+
+        Set<Party> parties = Stream.of("MyURI", "MyOtherUri")
+                .map(Party::new).collect(Collectors.toSet());
+
+        PartyInfo partyInfo = new PartyInfo("MyURI", EMPTY_SET, parties);
+
+        when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
+
+        Set<Party> otherParties = Stream.of("OtherURI", "OtherUri")
+                .map(Party::new).collect(Collectors.toSet());
+        
+        PartyInfo forUpdate = new PartyInfo("MyOtherUri", EMPTY_SET, otherParties);
+        try {
+            partyInfoService.updatePartyInfo(forUpdate);
+            failBecauseExceptionWasNotThrown(AutoDiscoveryDisabledException.class);
+
+        } catch (AutoDiscoveryDisabledException ex) {
+            verify(configuration).isDisablePeerDiscovery();
+            verify(partyInfoStore).getPartyInfo();
         }
 
-
     }
+
 }

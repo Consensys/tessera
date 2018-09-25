@@ -17,11 +17,14 @@ public class AutoDiscoveryDisabledExceptionMapperTest {
 
     @Test
     public void handleAutoDiscoveryDisabledException() {
-        AutoDiscoveryDisabledException exception = new AutoDiscoveryDisabledException();
+        String message = ".. all outta gum";
+        AutoDiscoveryDisabledException exception = 
+                new AutoDiscoveryDisabledException(message);
 
         Response result = mapper.toResponse(exception);
-
+        
         assertThat(result.getStatus()).isEqualTo(403);
+        assertThat(result.getEntity()).isEqualTo(message);
     }
 
 }
