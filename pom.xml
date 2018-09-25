@@ -385,11 +385,16 @@
                 <artifactId>grpc-service</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
-            
-            
-             <dependency>
+
+            <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>jaxrs-service</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>key-generation</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
         
