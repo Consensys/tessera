@@ -45,7 +45,10 @@ public class KeyGeneratorTest {
     @Before
     public void init() {
 
-        this.keyPair = new KeyPair(new Key(PUBLIC_KEY.getBytes(UTF_8)), new Key(PRIVATE_KEY.getBytes(UTF_8)));
+        this.keyPair = new KeyPair(
+                new Key(PUBLIC_KEY.getBytes(UTF_8)),
+                new Key(PRIVATE_KEY.getBytes(UTF_8))
+        );
 
         this.nacl = mock(NaclFacade.class);
         this.keyEncryptor = mock(KeyEncryptor.class);
