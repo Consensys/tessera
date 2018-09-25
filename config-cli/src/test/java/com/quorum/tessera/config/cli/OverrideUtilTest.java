@@ -314,6 +314,7 @@ public class OverrideUtilTest {
         assertThat(config.getAlwaysSendTo()).isEmpty();
 
     }
+
     @Test
     public void initialiseNestedObjectsWithNullValueDoesNothing() {
 
