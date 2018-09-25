@@ -44,24 +44,29 @@ public class KeyData extends ConfigItem {
 
     @XmlElement
     @Pattern(regexp = "^[0-9a-zA-Z\\-]*$")
-    private final String azureKeyVaultId;
+    private final String azureVaultPublicKeyId;
+
+    @XmlElement
+    @Pattern(regexp = "^[0-9a-zA-Z\\-]*$")
+    private final String azureVaultPrivateKeyId;
 
     public KeyData(final KeyDataConfig keyDataConfig,
                    final String privateKey,
                    final String publicKey,
                    final Path privKeyPath,
                    final Path pubKeyPath,
-                   final String azureKeyVaultId) {
+                   final String azureVaultPrivateKeyId, final String azureVaultPublicKeyId) {
         this.privateKey = privateKey;
         this.publicKey = publicKey;
         this.config = keyDataConfig;
         this.privateKeyPath = privKeyPath;
         this.publicKeyPath = pubKeyPath;
-        this.azureKeyVaultId = azureKeyVaultId;
+        this.azureVaultPublicKeyId = azureVaultPublicKeyId;
+        this.azureVaultPrivateKeyId = azureVaultPrivateKeyId;
     }
 
     private static KeyData create() {
-        return new KeyData(null, null, null, null, null, null);
+        return new KeyData(null, null, null, null, null, null, null);
     }
 
     public String getPrivateKey() {
@@ -84,8 +89,12 @@ public class KeyData extends ConfigItem {
         return publicKeyPath;
     }
 
-    public String getAzureKeyVaultId() {
-        return azureKeyVaultId;
+    public String getAzureVaultPublicKeyId() {
+        return azureVaultPublicKeyId;
+    }
+
+    public String getAzureVaultPrivateKeyId() {
+        return azureVaultPrivateKeyId;
     }
 
     public boolean hasKeys() {

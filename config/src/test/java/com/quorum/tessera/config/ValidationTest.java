@@ -56,7 +56,7 @@ public class ValidationTest {
     public void keyDataConfigMissingPassword() {
         PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), null);
         KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-        KeyData keyData = new KeyData(keyDataConfig, "privateKey", "publicKey", null, null, null);
+        KeyData keyData = new KeyData(keyDataConfig, "privateKey", "publicKey", null, null, null, null);
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
         assertThat(violations).hasSize(1);
 
@@ -70,7 +70,7 @@ public class ValidationTest {
     public void keyDataConfigNaclFailure() {
         PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
         KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-        KeyData keyData = new KeyData(keyDataConfig, "NACL_FAILURE", "publicKey", null, null, null);
+        KeyData keyData = new KeyData(keyDataConfig, "NACL_FAILURE", "publicKey", null, null, null, null);
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
         assertThat(violations).hasSize(1);
 
@@ -84,7 +84,7 @@ public class ValidationTest {
     public void keyDataConfigInvalidBase64() {
         PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
         KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-        KeyData keyData = new KeyData(keyDataConfig, "INAVLID_BASE", "publicKey", null, null, null);
+        KeyData keyData = new KeyData(keyDataConfig, "INAVLID_BASE", "publicKey", null, null, null, null);
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
         assertThat(violations).hasSize(1);
 
@@ -134,7 +134,7 @@ public class ValidationTest {
 
         Path privateKeyPath = Paths.get(UUID.randomUUID().toString());
 
-        KeyData keyData = new KeyData(null, null, null, privateKeyPath, publicKeyPath, null);
+        KeyData keyData = new KeyData(null, null, null, privateKeyPath, publicKeyPath, null, null);
 
         KeyConfiguration keyConfiguration = new KeyConfiguration(null,null,Arrays.asList(keyData), null);
 
@@ -155,7 +155,7 @@ public class ValidationTest {
 
         Path privateKeyPath = Paths.get(UUID.randomUUID().toString());
 
-        KeyData keyData = new KeyData(null, null, null, privateKeyPath, publicKeyPath, null);
+        KeyData keyData = new KeyData(null, null, null, privateKeyPath, publicKeyPath, null, null);
 
         KeyConfiguration keyConfiguration = new KeyConfiguration(null,null,Arrays.asList(keyData), null);
 
@@ -171,27 +171,36 @@ public class ValidationTest {
     @Test
     public void keyVaultIdAllowedCharacterSetIsAlphanumericAndDash() {
         String keyVaultId = "0123456789-abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        KeyData keyData = new KeyData(null, null, null, null, null, keyVaultId);
+        KeyData keyData = new KeyData(null, null, null, null, null, keyVaultId, keyVaultId);
 
-        Set<ConstraintViolation<KeyData>> violations = validator.validateProperty(keyData, "azureKeyVaultId");
+        Set<ConstraintViolation<KeyData>> violations = validator.validateProperty(keyData, "azureVaultPublicKeyId");
+        assertThat(violations).hasSize(0);
+
+        violations = validator.validateProperty(keyData, "azureVaultPrivateKeyId");
         assertThat(violations).hasSize(0);
     }
 
     @Test
     public void keyVaultIdDisallowedCharactersCreateViolation() {
         String keyVaultId = "invalid_@!£$%^~^&_id";
-        KeyData keyData = new KeyData(null, null, null, null, null, keyVaultId);
+        KeyData keyData = new KeyData(null, null, null, null, null, keyVaultId, keyVaultId);
 
-        Set<ConstraintViolation<KeyData>> violations = validator.validateProperty(keyData, "azureKeyVaultId");
+        Set<ConstraintViolation<KeyData>> violations = validator.validateProperty(keyData, "azureVaultPublicKeyId");
         assertThat(violations).hasSize(1);
 
         ConstraintViolation<KeyData> violation = violations.iterator().next();
         assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.Pattern.message}");
+
+        violations = validator.validateProperty(keyData, "azureVaultPrivateKeyId");
+        assertThat(violations).hasSize(1);
+
+        violation = violations.iterator().next();
+        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.Pattern.message}");
     }
 
     @Test
-    public void keyVaultIdProvidedWithoutKeyVaultConfigCreatesViolation() {
-        KeyData keyData = new KeyData(null, null, "public", null, null, "vaultId");
+    public void keyVaultIdsProvidedWithoutKeyVaultConfigCreatesViolation() {
+        KeyData keyData = new KeyData(null, null, "public", null, null, "privateVaultId", "publicVaultId");
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, Arrays.asList(keyData), null);
         Config config = new Config(null, null, null, keyConfiguration, null, null, false);
 
@@ -203,8 +212,8 @@ public class ValidationTest {
     }
 
     @Test
-    public void keyVaultConfigProvidedWithoutKeyVaultIdDoesNotCreateViolation() {
-        KeyData keyData = new KeyData(null, null, "public", null, null, null);
+    public void keyVaultConfigProvidedWithoutKeyVaultIdsDoesNotCreateViolation() {
+        KeyData keyData = new KeyData(null, null, "public", null, null, null, null);
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, Arrays.asList(keyData), new KeyVaultConfig("url"));
         Config config = new Config(null, null, null, keyConfiguration, null, null, false);
 
@@ -227,7 +236,7 @@ public class ValidationTest {
 
     @Test
     public void keyConfigurationPublicKeyOnlyCreatesViolation() {
-        KeyData keyData = new KeyData(null, null, "public", null, null, null);
+        KeyData keyData = new KeyData(null, null, "public", null, null, null, null);
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, Arrays.asList(keyData), null);
 
         Set<ConstraintViolation<KeyConfiguration>> violations = validator.validateProperty(keyConfiguration, "keyData");
@@ -238,18 +247,28 @@ public class ValidationTest {
     }
 
     @Test
-    public void keyConfigurationPublicKeyWithKeyVaultIdAndKeyVaultConfigDoesNotCreateViolation() {
-        KeyData keyData = new KeyData(null, null, "public", null, null, "vaultId");
+    public void keyConfigurationPublicKeyWithKeyVaultIdAndKeyVaultConfigCreatesViolation() {
+        KeyData keyData = new KeyData(null, null, "public", null, null, "privateVaultId", null);
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, Arrays.asList(keyData), new KeyVaultConfig("url"));
         Config config = new Config(null, null, null, keyConfiguration, null, null, false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
-        assertThat(violations).hasSize(0);
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<Config> violation = violations.iterator().next();
+        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyData.keyTypesCannotBeInterchanged.message}");
     }
 
     @Test
-    public void publicAndPrivateInlineWithKeyVaultIdButNoKeyVaultConfigDoesNotCreateViolation() {
-        KeyData keyData = new KeyData(null, "private", "public", null, null, "vaultId");
+    public void keyConfigurationKeyVaultPrivateIdOnlyCreatesViolation() {
+        KeyData keyData = new KeyData(null, null, null, null, null, "privateVaultId", null);
+
+        //TODO
+    }
+
+    @Test
+    public void publicAndPrivateInlineWithKeyVaultIdsButNoKeyVaultConfigDoesNotCreateViolation() {
+        KeyData keyData = new KeyData(null, "private", "public", null, null, "privateVaultId", "publicVaultId");
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, Arrays.asList(keyData),null);
         Config config = new Config(null, null, null, keyConfiguration, null, null, false);
 
@@ -269,8 +288,8 @@ public class ValidationTest {
     }
 
     @Test
-    public void publicAndVaultIdProvidedButKeyVaultConfigHasNullUrlCreatesNullViolation() {
-        KeyData keyData = new KeyData(null, null, "public", null, null, "vaultId");
+    public void vaultIdsProvidedButKeyVaultConfigHasNullUrlCreatesNullViolation() {
+        KeyData keyData = new KeyData(null, null, null, null, null, "privateVaultId", "publicVaultId");
         KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null);
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, Arrays.asList(keyData), keyVaultConfig);
 

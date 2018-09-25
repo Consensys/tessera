@@ -28,7 +28,7 @@ public class KeyDataAdapterTest {
     @Test
     public void marshallUnlockedKey() {
 
-        final KeyData keyData = new KeyData(new KeyDataConfig(null, UNLOCKED), "PRIV", "PUB", null, null, null);
+        final KeyData keyData = new KeyData(new KeyDataConfig(null, UNLOCKED), "PRIV", "PUB", null, null, null, null);
 
         final KeyData marshalledKey = adapter.marshal(keyData);
 
@@ -40,7 +40,7 @@ public class KeyDataAdapterTest {
 
     @Test
     public void marshallKeyWithoutConfiguration() {
-        final KeyData keyData = new KeyData(null, "PRIV", "PUB", null, null, null);
+        final KeyData keyData = new KeyData(null, "PRIV", "PUB", null, null, null, null);
 
         final KeyData marshalledKey = adapter.marshal(keyData);
 
@@ -56,7 +56,7 @@ public class KeyDataAdapterTest {
 
         final KeyData keyData = new KeyData(
                 new KeyDataConfig(new PrivateKeyData(null, null, null, null, null, null), PrivateKeyType.LOCKED),
-                "PRIV", "PUB", null, null, null
+                "PRIV", "PUB", null, null, null, null
         );
 
         final KeyData marshalledKey = adapter.marshal(keyData);
@@ -77,6 +77,7 @@ public class KeyDataAdapterTest {
                 ),
                 null,
                 "PUB",
+                null,
                 null,
                 null,
                 null
@@ -104,7 +105,7 @@ public class KeyDataAdapterTest {
                         PrivateKeyType.LOCKED
                 ),
                 null,
-                "PUB", null, null, null
+                "PUB", null, null, null, null
         );
 
         final KeyData unmarshalled = adapter.unmarshal(keyData);
@@ -125,7 +126,7 @@ public class KeyDataAdapterTest {
         Files.write(pub, publicKey.getBytes(UTF_8));
         Files.write(priv, privateKey.getBytes(UTF_8));
 
-        final KeyData keyData = new KeyData(null, null, null, priv, pub, null);
+        final KeyData keyData = new KeyData(null, null, null, priv, pub, null, null);
 
         final KeyData resolved = this.adapter.unmarshal(keyData);
 
@@ -139,7 +140,7 @@ public class KeyDataAdapterTest {
     public void bothPathsMustBeSetIfUsingKeyPathsPrivReturnsAndDoesNotThrowError() throws Exception {
         final Path priv = Files.createTempFile("private", ".key");
 
-        final KeyData badConfig = new KeyData(null, null, null, priv, null, null);
+        final KeyData badConfig = new KeyData(null, null, null, priv, null, null, null);
 
         KeyData result = this.adapter.unmarshal(badConfig);
         assertThat(result).isSameAs(badConfig);
@@ -149,7 +150,7 @@ public class KeyDataAdapterTest {
     public void bothPathsMustBeSetIfUsingKeyPathsPubReturnsAndDoesNotThrowError() throws Exception {
         final Path pub = Files.createTempFile("public", ".pub");
 
-        final KeyData badConfig = new KeyData(null, null, null, null, pub, null);
+        final KeyData badConfig = new KeyData(null, null, null, null, pub, null, null);
 
         KeyData result = this.adapter.unmarshal(badConfig);
         assertThat(result).isSameAs(badConfig);
@@ -170,7 +171,7 @@ public class KeyDataAdapterTest {
                         PrivateKeyType.LOCKED
                 ),
                 null,
-                "PUB", null, null, null
+                "PUB", null, null, null, null
         );
 
         KeyData result = this.adapter.unmarshal(keyData);
@@ -193,7 +194,7 @@ public class KeyDataAdapterTest {
                         PrivateKeyType.LOCKED
                 ),
                 null,
-                "PUB", null, null, null
+                "PUB", null, null, null, null
         );
 
         KeyData result = this.adapter.unmarshal(keyData);
@@ -225,7 +226,7 @@ public class KeyDataAdapterTest {
                 ),
                 null,
                 "PUB", privateKeyPath, publicKeyPath.toAbsolutePath(),
-            null
+                null, null
         );
 
         KeyData result = this.adapter.unmarshal(keyData);
@@ -258,7 +259,7 @@ public class KeyDataAdapterTest {
                 ),
                 null,
                 "PUB", privateKeyPath, publicKeyPath,
-            null
+                null, null
         );
 
         KeyData result = this.adapter.unmarshal(keyData);
@@ -283,7 +284,7 @@ public class KeyDataAdapterTest {
             ),
             null,
             "PUB", Paths.get("priv"), Paths.get("pub"),
-            null
+            null, null
         );
 
         final KeyData result = this.adapter.marshal(keyData);
@@ -311,7 +312,7 @@ public class KeyDataAdapterTest {
             ),
             null,
             "PUB", null, Paths.get("pub"),
-            null
+            null, null
         );
 
         final KeyData result = this.adapter.marshal(keyData);
@@ -325,7 +326,7 @@ public class KeyDataAdapterTest {
 
     @Test
     public void unmarshallingEmptyKeyDataDoesNothing() {
-        final KeyData initial = new KeyData(null, null, null, null, null, null);
+        final KeyData initial = new KeyData(null, null, null, null, null, null, null);
 
         final KeyData result = this.adapter.unmarshal(initial);
 
@@ -334,7 +335,7 @@ public class KeyDataAdapterTest {
 
     @Test
     public void unmarshallingPublicOnlyDoesNothing() {
-        final KeyData initial = new KeyData(null, null, "publicKey", null, null, null);
+        final KeyData initial = new KeyData(null, null, "publicKey", null, null, null, null);
 
         final KeyData result = this.adapter.unmarshal(initial);
 
@@ -343,7 +344,7 @@ public class KeyDataAdapterTest {
 
     @Test
     public void unmarshallingPrivateOnlyDoesNothing() {
-        final KeyData initial = new KeyData(null, "privateKey", null, null, null, null);
+        final KeyData initial = new KeyData(null, "privateKey", null, null, null, null, null);
 
         final KeyData result = this.adapter.unmarshal(initial);
 
@@ -352,7 +353,7 @@ public class KeyDataAdapterTest {
 
     @Test
     public void unmarshallingPublicAndPrivateDoesNothing() {
-        final KeyData initial = new KeyData(null, "privateKey", "publicKey", null, null, null);
+        final KeyData initial = new KeyData(null, "privateKey", "publicKey", null, null, null, null);
 
         final KeyData result = this.adapter.unmarshal(initial);
 
@@ -360,8 +361,24 @@ public class KeyDataAdapterTest {
     }
 
     @Test
-    public void unmarshallingVaultIdOnlyDoesNothing() {
-        final KeyData initial = new KeyData(null, null, null, null, null, "vaultId");
+    public void unmarshallingPrivateVaultIdOnlyDoesNothing() {
+        final KeyData initial = new KeyData(null, null, null, null, null, "privateVaultId", null);
+        final KeyData result = this.adapter.unmarshal(initial);
+
+        assertThat(result).isEqualTo(initial);
+    }
+
+    @Test
+    public void unmarshallingPublicVaultIdOnlyDoesNothing() {
+        final KeyData initial = new KeyData(null, null, null, null, null, null, "publicVaultId");
+        final KeyData result = this.adapter.unmarshal(initial);
+
+        assertThat(result).isEqualTo(initial);
+    }
+
+    @Test
+    public void unmarshallingPublicAndPrivateVaultIdsOnlyDoesNothing() {
+        final KeyData initial = new KeyData(null, null, null, null, null, "privateVaultId", "publicVaultId");
         final KeyData result = this.adapter.unmarshal(initial);
 
         assertThat(result).isEqualTo(initial);
@@ -373,7 +390,7 @@ public class KeyDataAdapterTest {
             new PrivateKeyData(
                 "value", null, null, null, null, null
             ), PrivateKeyType.UNLOCKED
-        ), null, null, null, null, null
+        ), null, null, null, null, null, null
         );
 
         final KeyData result = this.adapter.unmarshal(initial);
@@ -389,7 +406,7 @@ public class KeyDataAdapterTest {
 
         Files.write(pub, publicKey.getBytes(UTF_8));
 
-        final KeyData initial = new KeyData(null, null, null, null, pub, null);
+        final KeyData initial = new KeyData(null, null, null, null, pub, null, null);
 
         final KeyData result = this.adapter.unmarshal(initial);
 
@@ -404,7 +421,7 @@ public class KeyDataAdapterTest {
 
         Files.write(priv, privateKey.getBytes(UTF_8));
 
-        final KeyData initial = new KeyData(null, null, null, priv, null, null);
+        final KeyData initial = new KeyData(null, null, null, priv, null, null, null);
 
         final KeyData result = this.adapter.unmarshal(initial);
 
@@ -431,7 +448,7 @@ public class KeyDataAdapterTest {
             PrivateKeyType.UNLOCKED
         );
 
-        final KeyData initial = new KeyData(privateKeyConfig, null, null, null, pub, null);
+        final KeyData initial = new KeyData(privateKeyConfig, null, null, null, pub, null, null);
 
         final KeyData result = this.adapter.unmarshal(initial);
 
@@ -439,14 +456,14 @@ public class KeyDataAdapterTest {
     }
 
     @Test
-    public void unmarshallingPublicPathAndVaultIdDoesNothing() throws Exception {
+    public void unmarshallingPublicPathAndPrivateVaultIdDoesNothing() throws Exception {
         final String publicKey = "publicKey";
 
         final Path pub = Files.createTempFile("public", ".pub");
 
         Files.write(pub, publicKey.getBytes(UTF_8));
 
-        final KeyData initial = new KeyData(null, null, null, null, pub, "vaultId");
+        final KeyData initial = new KeyData(null, null, null, null, pub, "privateVaultId", null);
 
         final KeyData result = this.adapter.unmarshal(initial);
 
@@ -454,8 +471,32 @@ public class KeyDataAdapterTest {
     }
 
     @Test
-    public void unmarshallingPublicAndVaultIdDoesNothing() {
-        final KeyData initial = new KeyData(null, null, "publicKey", null, null, "vaultId");
+    public void unmarshallingPrivatePathAndPublicVaultIdDoesNothing() throws Exception {
+        final String privateKey = "privateKey";
+
+        final Path priv = Files.createTempFile("private", ".key");
+
+        Files.write(priv, privateKey.getBytes(UTF_8));
+
+        final KeyData initial = new KeyData(null, null, null, priv, null, null, "publicVaultId");
+
+        final KeyData result = this.adapter.unmarshal(initial);
+
+        assertThat(result).isEqualTo(initial);
+    }
+
+    @Test
+    public void unmarshallingPublicAndPrivateVaultIdDoesNothing() {
+        final KeyData initial = new KeyData(null, null, "publicKey", null, null, "privateVaultId", null);
+
+        final KeyData result = this.adapter.unmarshal(initial);
+
+        assertThat(result).isEqualTo(initial);
+    }
+
+    @Test
+    public void unmarshallingPrivateAndPublicVaultIdDoesNothing() {
+        final KeyData initial = new KeyData(null, "privateKey", null, null, null, null, "publicVaultId");
 
         final KeyData result = this.adapter.unmarshal(initial);
 
@@ -473,7 +514,7 @@ public class KeyDataAdapterTest {
         Files.write(pub, publicKey.getBytes(UTF_8));
         Files.write(priv, privateKey.getBytes(UTF_8));
 
-        final KeyData initial = new KeyData(null, "privInline", "pubInline", priv, pub, null);
+        final KeyData initial = new KeyData(null, "privInline", "pubInline", priv, pub, null, null);
 
         final KeyData result = this.adapter.unmarshal(initial);
 
@@ -491,6 +532,7 @@ public class KeyDataAdapterTest {
             "public",
             null,
             null,
+            null,
             null
         );
 
@@ -500,7 +542,7 @@ public class KeyDataAdapterTest {
     }
 
     @Test
-    public void unmarshallingInlineWithFilesWithConfigWithVaultIdDoesNothing() throws Exception {
+    public void unmarshallingInlineWithFilesWithConfigWithVaultIdsDoesNothing() throws Exception {
         final String publicKey = "publicKey";
         final String privateKey = "{\"data\":{\"bytes\":\"Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=\"},\"type\":\"unlocked\"}";
 
@@ -518,7 +560,7 @@ public class KeyDataAdapterTest {
                 ),
                 PrivateKeyType.UNLOCKED
             ),
-            "privInline", "pubInline", priv, pub, "vaultId");
+            "privInline", "pubInline", priv, pub, "privateVaultId", "publicVaultId");
 
         final KeyData result = this.adapter.unmarshal(initial);
 
@@ -536,7 +578,7 @@ public class KeyDataAdapterTest {
         Files.write(pub, publicKey.getBytes(UTF_8));
         Files.write(priv, privateKey.getBytes(UTF_8));
 
-        final KeyData initial = new KeyData(null, null, null, priv, pub, null);
+        final KeyData initial = new KeyData(null, null, null, priv, pub, null, null);
 
         final KeyData result = this.adapter.unmarshal(initial);
 
@@ -560,7 +602,7 @@ public class KeyDataAdapterTest {
             PrivateKeyType.UNLOCKED
         );
 
-        final KeyData initial = new KeyData(privateKeyConfig, null, publicKey, null, null, null);
+        final KeyData initial = new KeyData(privateKeyConfig, null, publicKey, null, null, null, null);
 
         final KeyData result = this.adapter.unmarshal(initial);
 
@@ -587,7 +629,7 @@ public class KeyDataAdapterTest {
             PrivateKeyType.UNLOCKED
         );
 
-        final KeyData initial = new KeyData(keyDataConfig,null, null, priv, pub, null);
+        final KeyData initial = new KeyData(keyDataConfig,null, null, priv, pub, null, null);
 
         final KeyData result = this.adapter.unmarshal(initial);
 

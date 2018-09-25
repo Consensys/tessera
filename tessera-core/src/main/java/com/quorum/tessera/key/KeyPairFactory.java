@@ -17,13 +17,15 @@ public class KeyPairFactory {
     }
 
     public KeyPair getKeyPair(KeyData keyData) {
+        final String publicKey;
         final String privateKey;
-        final String publicKey = keyData.getPublicKey();
 
-        if(Objects.isNull(keyData.getPrivateKey())) {
-            privateKey = keyVaultService.getSecret(keyData.getAzureKeyVaultId());
-        } else {
+        if(keyData.hasKeys()) {
+            publicKey = keyData.getPublicKey();
             privateKey = keyData.getPrivateKey();
+        } else {
+            publicKey = keyVaultService.getSecret(keyData.getAzureVaultPublicKeyId());
+            privateKey = keyVaultService.getSecret(keyData.getAzureVaultPrivateKeyId());
         }
 
         return new KeyPair(

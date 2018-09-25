@@ -26,7 +26,7 @@ public class KeyVaultConfigurationValidator implements ConstraintValidator<Valid
         boolean isUsingVaultKeys = false;
 
         for(KeyData keyData : keyConfiguration.getKeyData()) {
-            if(keyData.getAzureKeyVaultId() != null && keyData.getPublicKey() != null && keyData.getPrivateKey() == null) {
+            if(keyData.getAzureVaultPrivateKeyId() != null && keyData.getPublicKey() != null && keyData.getPrivateKey() == null) {
                 isUsingVaultKeys = true;
                 break;
             }
