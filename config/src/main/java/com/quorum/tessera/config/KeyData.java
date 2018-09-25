@@ -72,5 +72,4 @@ public class KeyData extends ConfigItem {
     public Path getPublicKeyPath() {
         return publicKeyPath;
     }
-
 }
