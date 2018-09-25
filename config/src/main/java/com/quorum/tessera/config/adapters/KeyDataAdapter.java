@@ -7,6 +7,7 @@ import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keypairs.InlineKeypair;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.util.Objects;
 
 public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
 
@@ -16,7 +17,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
     public ConfigKeyPair unmarshal(final KeyData keyData) {
 
         //case 1, the keys are provided inline
-        if (keyData.getPublicKey() != null && keyData.getPrivateKey() != null) {
+        if (Objects.nonNull(keyData.getPrivateKey()) && Objects.nonNull(keyData.getPublicKey())) {
             return new DirectKeyPair(keyData.getPublicKey(), keyData.getPrivateKey());
         }
 
