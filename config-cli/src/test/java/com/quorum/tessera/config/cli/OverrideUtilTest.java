@@ -406,6 +406,7 @@ public class OverrideUtilTest {
 
         assertThat(config.getJdbcConfig().getUsername()).isEqualTo("someuser");
         assertThat(config.getJdbcConfig().getPassword()).isEqualTo("tiger");
+
         assertThat(config.getUnixSocketFile()).isEqualTo(Paths.get("${unixSocketPath}"));
     }
 
