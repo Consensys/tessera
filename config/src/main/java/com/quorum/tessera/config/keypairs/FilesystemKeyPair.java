@@ -77,4 +77,12 @@ public class FilesystemKeyPair implements ConfigKeyPair {
         }
         this.inlineKeypair.withPassword(this.password);
     }
+
+    //For testing only
+    //TODO: remove
+    public InlineKeypair getInlineKeypair() {
+        loadKeys();
+        return inlineKeypair;
+    }
+
 }

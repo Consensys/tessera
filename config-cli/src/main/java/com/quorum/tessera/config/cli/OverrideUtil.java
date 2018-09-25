@@ -143,6 +143,10 @@ public interface OverrideUtil {
      */
     static void setValue(Object root, String path, String... value) {
 
+        if(root == null) {
+            return;
+        }
+
         final ListIterator<String> pathTokens = Arrays.asList(path.split("\\.")).listIterator();
 
         final Class rootType = root.getClass();
@@ -159,8 +163,8 @@ public interface OverrideUtil {
 
                 final Class genericType = resolveCollectionParameter(field.getGenericType());
 
-                List list = (List) Optional.ofNullable(getValue(root, field))
-                        .orElse(new ArrayList<>());
+                List list = (List) Optional.ofNullable(getValue(root, field)).orElse(new ArrayList<>());
+
                 if (isSimple(genericType)) {
 
                     List convertedValues = (List) Stream.of(value)
@@ -257,11 +261,14 @@ public interface OverrideUtil {
     static <T> T createInstance(Class<T> type) {
 
         return ReflectCallback.execute(() -> {
-            Method factoryMethod = type.getDeclaredMethod("create");
-            factoryMethod.setAccessible(true);
-            final Object instance = factoryMethod.invoke(null);
-            initialiseNestedObjects(instance);
-            return (T) instance;
+            if(!type.isInterface()){
+                Method factoryMethod = type.getDeclaredMethod("create");
+                factoryMethod.setAccessible(true);
+                final Object instance = factoryMethod.invoke(null);
+                initialiseNestedObjects(instance);
+                return (T) instance;
+            }
+            return null;
         });
 
     }
@@ -271,6 +278,9 @@ public interface OverrideUtil {
     }
 
     static void initialiseNestedObjects(Object obj) {
+        if (obj == null) {
+            return;
+        }
         ReflectCallback.execute(() -> {
             Class type = obj.getClass();
             Field[] fields = type.getDeclaredFields();
