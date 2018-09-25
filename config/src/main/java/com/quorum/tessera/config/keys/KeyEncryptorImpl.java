@@ -83,19 +83,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
         final String asalt = this.encoder.encodeToString(salt);
         final String sbox = this.encoder.encodeToString(encryptedKey);
 
-        return new PrivateKeyData(
-            null,
-            snonce,
-            asalt,
-            sbox,
-            new ArgonOptions(
-                argonResult.getOptions().getAlgorithm(),
-                argonResult.getOptions().getIterations(),
-                argonResult.getOptions().getMemory(),
-                argonResult.getOptions().getParallelism()
-            ),
-            null
-        );
+        return new PrivateKeyData(null, snonce, asalt, sbox, argonOptions, null);
     }
 
     @Override
