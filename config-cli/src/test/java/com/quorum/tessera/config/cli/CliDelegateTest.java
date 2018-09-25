@@ -23,9 +23,7 @@ public class CliDelegateTest {
 
         Path configFile = ElUtil.createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
-        CliResult result = instance.execute(
-                "-configfile",
-                configFile.toString());
+        CliResult result = instance.execute("-configfile", configFile.toString());
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();

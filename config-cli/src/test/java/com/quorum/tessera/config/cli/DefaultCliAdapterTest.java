@@ -11,7 +11,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
@@ -259,17 +258,13 @@ public class DefaultCliAdapterTest {
                 getClass().getResource("/sample-config-invalidpath.json"), params);
         
         try {
-            cliDelegate.execute(
-                    "-configfile",
-                    configFile.toString());
+            cliDelegate.execute("-configfile", configFile.toString());
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
-            assertThat(ex.getConstraintViolations()).hasSize(1);
-            
-            ConstraintViolation violation = ex.getConstraintViolations().iterator().next();
-            
-            assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyData.publicKeyPath.notExists}");
-            
+            assertThat(ex.getConstraintViolations())
+                .hasSize(2)
+                .extracting("messageTemplate")
+                .containsExactly("{ValidPath.message}", "{ValidPath.message}");
         }
         
     }
