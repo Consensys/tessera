@@ -1,10 +1,11 @@
-package com.quorum.tessera.config.keys;
+package com.quorum.tessera.key.generation;
 
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
+import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.KeyPair;
