@@ -143,6 +143,10 @@ public interface OverrideUtil {
      */
     static void setValue(Object root, String path, String... value) {
 
+        if(root == null) {
+            return;
+        }
+
         final ListIterator<String> pathTokens = Arrays.asList(path.split("\\.")).listIterator();
 
         final Class rootType = root.getClass();
@@ -256,6 +260,10 @@ public interface OverrideUtil {
 
     static <T> T createInstance(Class<T> type) {
 
+        if(type.isInterface()) {
+            return null;
+        }
+
         return ReflectCallback.execute(() -> {
             Method factoryMethod = type.getDeclaredMethod("create");
             factoryMethod.setAccessible(true);
@@ -271,6 +279,9 @@ public interface OverrideUtil {
     }
 
     static void initialiseNestedObjects(Object obj) {
+        if (obj == null) {
+            return;
+        }
         ReflectCallback.execute(() -> {
             Class type = obj.getClass();
             Field[] fields = type.getDeclaredFields();
