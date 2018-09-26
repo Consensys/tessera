@@ -11,7 +11,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
-import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
@@ -73,9 +72,4 @@ public class KeyData extends ConfigItem {
     public Path getPublicKeyPath() {
         return publicKeyPath;
     }
-
-    public boolean hasKeys() {
-        return Objects.nonNull(privateKey) && Objects.nonNull(publicKey);
-    }
-
 }

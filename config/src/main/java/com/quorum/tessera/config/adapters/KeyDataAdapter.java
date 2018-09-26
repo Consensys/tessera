@@ -34,7 +34,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
     public KeyData unmarshal(final KeyData keyData) {
 
         //case 1, the keys are provided inline
-        if (keyData.hasKeys()) {
+        if (Objects.nonNull(keyData.getPrivateKey()) && Objects.nonNull(keyData.getPublicKey())) {
             return keyData;
         }
 
