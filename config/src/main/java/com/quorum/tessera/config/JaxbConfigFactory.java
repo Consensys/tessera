@@ -20,9 +20,9 @@ import static java.nio.file.StandardOpenOption.APPEND;
 public class JaxbConfigFactory implements ConfigFactory {
 
     private static final Set<PosixFilePermission> NEW_PASSWORD_FILE_PERMS = Stream
-        .of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE)
-        .collect(Collectors.toSet());
-    
+            .of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE)
+            .collect(Collectors.toSet());
+
     @Override
     public Config create(final InputStream configData, final List<KeyData> newKeys) {
 
@@ -33,12 +33,12 @@ public class JaxbConfigFactory implements ConfigFactory {
         if (Objects.nonNull(config.getKeys()) && !newKeys.isEmpty()) {
             try {
                 final List<String> newPasswords = newKeys
-                    .stream()
-                    .map(KeyData::getConfig)
-                    .map(KeyDataConfig::getPassword)
-                    .map(Optional::ofNullable)
-                    .map(pass -> pass.orElse(""))
-                    .collect(Collectors.toList());
+                        .stream()
+                        .map(KeyData::getConfig)
+                        .map(KeyDataConfig::getPassword)
+                        .map(Optional::ofNullable)
+                        .map(pass -> pass.orElse(""))
+                        .collect(Collectors.toList());
 
                 if (config.getKeys().getPasswords() != null) {
                     config.getKeys().getPasswords().addAll(newPasswords);
@@ -47,11 +47,11 @@ public class JaxbConfigFactory implements ConfigFactory {
                     Files.write(config.getKeys().getPasswordFile(), newPasswords, APPEND);
                 } else if (!newPasswords.stream().allMatch(""::equals)) {
                     final List<String> existingPasswords = config
-                        .getKeys()
-                        .getKeyData()
-                        .stream()
-                        .map(k -> "")
-                        .collect(Collectors.toList());
+                            .getKeys()
+                            .getKeyData()
+                            .stream()
+                            .map(k -> "")
+                            .collect(Collectors.toList());
                     existingPasswords.addAll(newPasswords);
 
                     this.createFile(Paths.get("passwords.txt"));
@@ -66,16 +66,17 @@ public class JaxbConfigFactory implements ConfigFactory {
 
         }
 
-        if(createdNewPasswordFile) {
+        if (createdNewPasswordFile) {
             //return a new object with the password file set
             return new Config(
-                config.getJdbcConfig(),
-                config.getServerConfig(),
-                config.getPeers(),
-                new KeyConfiguration(Paths.get("passwords.txt"), null, config.getKeys().getKeyData()),
-                config.getAlwaysSendTo(),
-                config.getUnixSocketFile(),
-                config.isUseWhiteList()
+                    config.getJdbcConfig(),
+                    config.getServerConfig(),
+                    config.getPeers(),
+                    new KeyConfiguration(Paths.get("passwords.txt"), null, config.getKeys().getKeyData()),
+                    config.getAlwaysSendTo(),
+                    config.getUnixSocketFile(),
+                    config.isUseWhiteList(),
+                    config.isDisablePeerDiscovery()
             );
         } else {
             //leave config untouched since it wasn't needed to make a new one
@@ -86,7 +87,7 @@ public class JaxbConfigFactory implements ConfigFactory {
     //create a file if it doesn't exist and set the permissions to be only
     // read/write for the creator
     private void createFile(final Path fileToMake) throws IOException {
-        if(Files.notExists(fileToMake)) {
+        if (Files.notExists(fileToMake)) {
             Files.createFile(fileToMake);
             Files.setPosixFilePermissions(fileToMake, NEW_PASSWORD_FILE_PERMS);
         }
