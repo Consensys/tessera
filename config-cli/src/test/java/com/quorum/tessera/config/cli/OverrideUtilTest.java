@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class OverrideUtilTest {
 
@@ -319,6 +320,12 @@ public class OverrideUtilTest {
     }
 
     @Test
+    public void initialiseNestedObjectsWithNullValueDoesNothing() {
+        final Throwable throwable = catchThrowable(() -> OverrideUtil.initialiseNestedObjects(null));
+        assertThat(throwable).isNull();
+    }
+
+    @Test
     public void createConfigInstance() {
         Config config = OverrideUtil.createInstance(Config.class);
         assertThat(config).isNotNull();
@@ -331,6 +338,12 @@ public class OverrideUtilTest {
         assertThat(config.getPeers()).isEmpty();
         assertThat(config.getAlwaysSendTo()).isEmpty();
 
+    }
+
+    @Test
+    public void createConfigInstanceWithInterfaceReturnsNull() {
+        final OverrideUtil interfaceObject = OverrideUtil.createInstance(OverrideUtil.class);
+        assertThat(interfaceObject).isNull();
     }
 
     @Test
@@ -374,6 +387,12 @@ public class OverrideUtilTest {
         OverrideUtil.setValue(someList, "someList.someValue", "password1", "password2");
         assertThat(someList.someList.get(0).someValue).isEqualTo("password1");
         assertThat(someList.someList.get(1).someValue).isEqualTo("password2");
+    }
+
+    @Test
+    public void setValueOnNullDoesNothing() {
+        final Throwable throwable = catchThrowable(() -> OverrideUtil.setValue(null, "jdbc.username", "someuser"));
+        assertThat(throwable).isNull();
     }
 
     @Test
