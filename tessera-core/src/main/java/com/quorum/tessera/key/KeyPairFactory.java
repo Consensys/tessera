@@ -1,6 +1,5 @@
 package com.quorum.tessera.key;
 
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.ConfigKeyPairType;
@@ -9,7 +8,6 @@ import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.KeyPair;
 
 import java.util.Base64;
-import java.util.Objects;
 
 public class KeyPairFactory {
 

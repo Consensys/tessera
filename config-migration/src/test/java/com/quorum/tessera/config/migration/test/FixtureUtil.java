@@ -12,8 +12,6 @@ import javax.json.JsonObject;
 import java.nio.file.Paths;
 import java.util.Collections;
 
-import static org.mockito.Mockito.mock;
-
 public class FixtureUtil {
 
     private static final JsonObject LOCKED_PRIVATE_KEY_DATA = Json.createObjectBuilder()

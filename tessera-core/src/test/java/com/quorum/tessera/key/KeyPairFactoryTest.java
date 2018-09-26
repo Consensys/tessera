@@ -1,6 +1,5 @@
 package com.quorum.tessera.key;
 
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
@@ -8,7 +7,6 @@ import com.quorum.tessera.config.keypairs.InlineKeypair;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.KeyPair;
-import net.bytebuddy.dynamic.loading.ClassInjector;
 import org.junit.Before;
 import org.junit.Test;
 
