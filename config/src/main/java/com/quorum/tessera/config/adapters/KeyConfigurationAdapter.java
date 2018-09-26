@@ -9,11 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyConfiguration> {
 

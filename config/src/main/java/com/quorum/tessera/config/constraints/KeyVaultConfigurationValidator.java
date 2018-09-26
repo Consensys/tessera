@@ -1,7 +1,6 @@
 package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.ConfigKeyPairType;
 

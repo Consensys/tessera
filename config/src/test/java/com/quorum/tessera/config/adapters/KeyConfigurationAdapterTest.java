@@ -8,14 +8,10 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 
-import static com.quorum.tessera.config.PrivateKeyType.LOCKED;
-import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 public class KeyConfigurationAdapterTest {
 
