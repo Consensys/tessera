@@ -25,4 +25,10 @@ public class DirectKeyPairTest {
         assertThat(keyPair.getPrivateKey()).isEqualTo("private");
     }
 
+    @Test
+    public void getTypeReturnsDirect() {
+        DirectKeyPair keyPair = new DirectKeyPair("key1", "key2");
+        assertThat(keyPair.getType()).isEqualByComparingTo(ConfigKeyPairType.DIRECT);
+    }
+
 }
