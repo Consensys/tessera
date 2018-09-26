@@ -101,7 +101,7 @@ public class ValidationTest {
 
         List<String> alwaysSendTo = Arrays.asList("BOGUS");
 
-        Config config = new Config(null, null, null, null, alwaysSendTo, null, false);
+        Config config = new Config(null, null, null, null, alwaysSendTo, null, false,false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "alwaysSendTo");
 
@@ -120,7 +120,7 @@ public class ValidationTest {
         
         List<String> alwaysSendTo = Arrays.asList(value);
 
-        Config config = new Config(null, null, null, null, alwaysSendTo, null, false);
+        Config config = new Config(null, null, null, null, alwaysSendTo, null, false,false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "alwaysSendTo");
 
