@@ -3,10 +3,7 @@ package com.quorum.tessera.config.adapters;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.keypairs.DirectKeyPair;
-import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
-import com.quorum.tessera.config.keypairs.InlineKeypair;
+import com.quorum.tessera.config.keypairs.*;
 import org.junit.Test;
 
 import java.nio.file.Paths;
@@ -74,7 +71,14 @@ public class KeyDataAdapterTest {
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(FilesystemKeyPair.class);
+    }
 
+    @Test
+    public void unmarshallingAzureKeysGivesCorrectKeyPair() {
+        final KeyData input = new KeyData(null, null, null, null, null, "privId", "pubId");
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(AzureVaultKeyPair.class);
     }
 
 }

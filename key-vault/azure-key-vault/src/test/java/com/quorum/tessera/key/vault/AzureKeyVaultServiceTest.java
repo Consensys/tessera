@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class AzureKeyVaultServiceTest {
@@ -16,6 +17,23 @@ public class AzureKeyVaultServiceTest {
     @Before
     public void setUp() {
         this.azureKeyVaultClientDelegate = mock(AzureKeyVaultClientDelegate.class);
+    }
+
+    @Test
+    public void exceptionThrownIfKeyNotFoundInVault() {
+        String secretName = "secret";
+        String vaultUrl = "vaultUrl";
+
+        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(vaultUrl);
+
+        when(azureKeyVaultClientDelegate.getSecret(anyString(), anyString())).thenReturn(null);
+
+        AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
+
+        Throwable throwable = catchThrowable(() -> azureKeyVaultService.getSecret(secretName));
+
+        assertThat(throwable).isInstanceOf(RuntimeException.class);
+        assertThat(throwable).hasMessageContaining("Azure Key Vault secret " + secretName + " was not found in vault " + vaultUrl);
     }
 
     @Test
