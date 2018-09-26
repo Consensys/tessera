@@ -21,6 +21,10 @@ public class AzureKeyVaultService implements KeyVaultService {
     public String getSecret(String secretName) {
         SecretBundle secretBundle = azureKeyVaultClientDelegate.getSecret(vaultUrl, secretName);
 
+        if(secretBundle == null) {
+            throw new RuntimeException("Azure Key Vault secret " + secretName + " was not found in vault " + vaultUrl);
+        }
+
         return secretBundle.value();
     }
 

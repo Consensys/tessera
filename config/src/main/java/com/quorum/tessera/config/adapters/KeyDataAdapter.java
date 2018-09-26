@@ -1,10 +1,7 @@
 package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.keypairs.DirectKeyPair;
-import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
-import com.quorum.tessera.config.keypairs.InlineKeypair;
+import com.quorum.tessera.config.keypairs.*;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.Objects;
@@ -26,11 +23,15 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
             return new InlineKeypair(keyData.getPublicKey(), keyData.getConfig());
         }
 
-        //case 3, the keys are provided inside a file
+        //case 3, the key vault ids are provided
+        if(keyData.getAzureVaultPublicKeyId() != null && keyData.getAzureVaultPrivateKeyId() != null) {
+            return new AzureVaultKeyPair(keyData.getAzureVaultPublicKeyId(), keyData.getAzureVaultPrivateKeyId());
+        }
+
+        //case 4, the keys are provided inside a file
         return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath());
 
-        //TODO Add keyvault case
-        //TODO Do we need negative case that (i.e. the case that was previously handled by returning the same keydata object so that validation would pick up any errors?
+        //TODO Add DefaultKeyPair type to account for negative case (i.e. incorrect input?) with accompanying generic validation messages
     }
 
     @Override
