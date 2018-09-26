@@ -16,7 +16,6 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
     @Override
     public KeyGenerator create(KeyVaultConfig keyVaultConfig) {
         if(keyVaultConfig != null) {
-            //TODO improve this
             final KeyVaultService keyVaultService = new AzureKeyVaultService(
                 new KeyVaultConfig(keyVaultConfig.getUrl()),
                 new AzureKeyVaultClientDelegate(

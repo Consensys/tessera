@@ -1,7 +1,7 @@
 package com.quorum.tessera.key.generation;
 
 import com.microsoft.azure.keyvault.models.SecretBundle;
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.nacl.Key;
@@ -42,23 +42,16 @@ public class AzureVaultKeyGeneratorTest {
     public void keysSavedInVaultWithProvidedVaultId() {
         final String vaultId = "vaultId";
         final String pubVaultId = vaultId + "Pub";
-        final String privVaultId = vaultId + "Priv";
+        final String privVaultId = vaultId + "Key";
 
         final AzureVaultKeyPair result = azureVaultKeyGenerator.generate(vaultId, null);
-
-        final KeyData expected = new KeyData(
-            new KeyDataConfig(
-                new PrivateKeyData(priv.toString(), null, null, null, null, null),
-                PrivateKeyType.UNLOCKED
-            ),
-            priv.toString(), pub.toString(), null, null,
-            privVaultId, pubVaultId
-        );
 
         verify(keyVaultService, times(2)).setSecret(any(String.class), any(String.class));
         verify(keyVaultService, times(1)).setSecret(vaultId + "Pub", pub.toString());
         verify(keyVaultService, times(1)).setSecret(vaultId + "Key", priv.toString());
         verifyNoMoreInteractions(keyVaultService);
+
+        final AzureVaultKeyPair expected = new AzureVaultKeyPair(pubVaultId, privVaultId);
 
         assertThat(result).isEqualToComparingFieldByFieldRecursively(expected);
     }
