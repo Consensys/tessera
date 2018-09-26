@@ -99,10 +99,10 @@ public class KeyEncryptorImpl implements KeyEncryptor {
     }
 
     @Override
-    public Key decryptPrivateKey(final PrivateKeyData privateKey) {
+    public Key decryptPrivateKey(final PrivateKeyData privateKey, final String password) {
 
         LOGGER.info("Decrypting private key");
-        LOGGER.debug("Decrypting private key {} using password {}", privateKey.getValue(), privateKey.getPassword());
+        LOGGER.debug("Decrypting private key {} using password {}", privateKey.getValue(), password);
 
         final byte[] salt = this.decoder.decode(privateKey.getAsalt());
 
@@ -113,7 +113,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
                 privateKey.getArgonOptions().getMemory(),
                 privateKey.getArgonOptions().getParallelism()
             ),
-            privateKey.getPassword(),
+            password,
             salt
         );
 
