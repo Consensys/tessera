@@ -2,6 +2,7 @@ package com.quorum.tessera.key.generation;
 
 import com.microsoft.azure.keyvault.models.SecretBundle;
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.KeyPair;
@@ -13,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
-public class VaultKeyGeneratorTest {
+public class AzureVaultKeyGeneratorTest {
 
     private final String pubStr = "public";
     private final String privStr = "private";
@@ -22,7 +23,7 @@ public class VaultKeyGeneratorTest {
 
     private NaclFacade naclFacade;
     private KeyVaultService keyVaultService;
-    private VaultKeyGenerator vaultKeyGenerator;
+    private AzureVaultKeyGenerator azureVaultKeyGenerator;
 
     @Before
     public void setUp() {
@@ -34,14 +35,16 @@ public class VaultKeyGeneratorTest {
         when(naclFacade.generateNewKeys()).thenReturn(keyPair);
         when(keyVaultService.setSecret("id", "secret")).thenReturn(new SecretBundle());
 
-        vaultKeyGenerator = new VaultKeyGenerator(naclFacade, keyVaultService);
+        azureVaultKeyGenerator = new AzureVaultKeyGenerator(naclFacade, keyVaultService);
     }
 
     @Test
     public void keysSavedInVaultWithProvidedVaultId() {
         final String vaultId = "vaultId";
+        final String pubVaultId = vaultId + "Pub";
+        final String privVaultId = vaultId + "Priv";
 
-        final KeyData result = vaultKeyGenerator.generate(vaultId, null);
+        final AzureVaultKeyPair result = azureVaultKeyGenerator.generate(vaultId, null);
 
         final KeyData expected = new KeyData(
             new KeyDataConfig(
@@ -49,7 +52,7 @@ public class VaultKeyGeneratorTest {
                 PrivateKeyType.UNLOCKED
             ),
             priv.toString(), pub.toString(), null, null,
-            vaultId
+            privVaultId, pubVaultId
         );
 
         verify(keyVaultService, times(2)).setSecret(any(String.class), any(String.class));
@@ -64,7 +67,7 @@ public class VaultKeyGeneratorTest {
     public void publicKeyIsSavedToVaultAndIdHasPubSuffix() {
         final String vaultId = "vaultId";
 
-        vaultKeyGenerator.generate(vaultId, null);
+        azureVaultKeyGenerator.generate(vaultId, null);
 
         verify(keyVaultService, times(1)).setSecret(vaultId + "Pub", pub.toString());
     }
@@ -73,7 +76,7 @@ public class VaultKeyGeneratorTest {
     public void privateKeyIsSavedToVaultAndIdHasKeySuffix() {
         final String vaultId = "vaultId";
 
-        vaultKeyGenerator.generate(vaultId, null);
+        azureVaultKeyGenerator.generate(vaultId, null);
 
         verify(keyVaultService, times(1)).setSecret(vaultId + "Key", priv.toString());
     }
@@ -83,7 +86,7 @@ public class VaultKeyGeneratorTest {
         final String vaultId = "vaultId";
         final String path = "/some/path/" + vaultId;
 
-        vaultKeyGenerator.generate(path, null);
+        azureVaultKeyGenerator.generate(path, null);
 
         verify(keyVaultService, times(1)).setSecret(vaultId + "Pub", pub.toString());
         verify(keyVaultService, times(1)).setSecret(vaultId + "Key", priv.toString());
@@ -91,7 +94,7 @@ public class VaultKeyGeneratorTest {
 
     @Test
     public void ifNoVaultIdProvidedThenSuffixOnlyIsUsed() {
-        vaultKeyGenerator.generate(null, null);
+        azureVaultKeyGenerator.generate(null, null);
 
         verify(keyVaultService, times(1)).setSecret("Pub", pub.toString());
         verify(keyVaultService, times(1)).setSecret("Key", priv.toString());
@@ -101,7 +104,7 @@ public class VaultKeyGeneratorTest {
     public void allowedCharactersUsedInVaultIdDoesNotThrowException() {
         final String allowedId = "abcdefghijklmnopqrstuvwxyz-ABCDEFDGHIJKLMNOPQRSTUVWXYZ-0123456789";
 
-        vaultKeyGenerator.generate(allowedId, null);
+        azureVaultKeyGenerator.generate(allowedId, null);
 
         verify(keyVaultService, times(2)).setSecret(any(String.class), any(String.class));
     }
@@ -111,7 +114,7 @@ public class VaultKeyGeneratorTest {
         final String invalidId = "!@£$%^&*()";
 
         final Throwable throwable = catchThrowable(
-            () -> vaultKeyGenerator.generate(invalidId, null)
+            () -> azureVaultKeyGenerator.generate(invalidId, null)
         );
 
         assertThat(throwable).isInstanceOf(RuntimeException.class);
@@ -124,7 +127,7 @@ public class VaultKeyGeneratorTest {
     public void encryptionIsNotUsedWhenSavingToVault() {
         final ArgonOptions argonOptions = mock(ArgonOptions.class);
 
-        vaultKeyGenerator.generate("vaultId", argonOptions);
+        azureVaultKeyGenerator.generate("vaultId", argonOptions);
 
         verifyNoMoreInteractions(argonOptions);
     }

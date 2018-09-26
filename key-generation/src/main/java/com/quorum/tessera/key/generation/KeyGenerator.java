@@ -2,9 +2,10 @@ package com.quorum.tessera.key.generation;
 
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 
 public interface KeyGenerator {
 
-    KeyData generate(String filename, ArgonOptions encryptionOptions);
+    ConfigKeyPair generate(String filename, ArgonOptions encryptionOptions);
 
 }

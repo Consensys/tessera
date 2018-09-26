@@ -132,7 +132,7 @@ public class KeyEncryptorTest {
             .when(this.argon2)
             .hash(any(com.quorum.tessera.argon2.ArgonOptions.class), eq(password), any(byte[].class));
 
-        final Key key = this.keyEncryptor.decryptPrivateKey(lockedPrivateKey);
+        final Key key = this.keyEncryptor.decryptPrivateKey(lockedPrivateKey, password);
 
         assertThat(key.getKeyBytes()).isEqualTo(new byte[]{1, 2, 3});
 

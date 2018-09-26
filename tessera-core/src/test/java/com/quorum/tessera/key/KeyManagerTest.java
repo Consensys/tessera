@@ -1,6 +1,7 @@
 package com.quorum.tessera.key;
 
-import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.KeyPair;
 import org.junit.Before;
@@ -31,12 +32,12 @@ public class KeyManagerTest {
     @Before
     public void init() {
 
-        final KeyData keyData = new KeyData(null, PRIVATE_KEY.toString(), PUBLIC_KEY.toString(), null, null, null);
+        final ConfigKeyPair configKeyPair = new DirectKeyPair(PUBLIC_KEY.toString(), PRIVATE_KEY.toString());
 
         this.keyPairFactory = mock(KeyPairFactory.class);
-        when(keyPairFactory.getKeyPair(keyData)).thenReturn(new KeyPair(PUBLIC_KEY, PRIVATE_KEY));
+        when(keyPairFactory.getKeyPair(configKeyPair)).thenReturn(new KeyPair(PUBLIC_KEY, PRIVATE_KEY));
 
-        this.keyManager = new KeyManagerImpl(singleton(keyData), singleton(FORWARDING_KEY), keyPairFactory);
+        this.keyManager = new KeyManagerImpl(singleton(configKeyPair), singleton(FORWARDING_KEY), keyPairFactory);
     }
 
     @Test

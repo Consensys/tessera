@@ -1,9 +1,10 @@
 package com.quorum.tessera.key.generation;
 
 import com.quorum.tessera.config.ArgonOptions;
-import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
+import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.nacl.Key;
@@ -20,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -39,14 +41,14 @@ public class FileKeyGeneratorTest {
 
     private PasswordReader passwordReader;
 
-    private KeyGenerator generator;
+    private FileKeyGenerator generator;
 
     @Before
     public void init() {
 
         this.keyPair = new KeyPair(
-                new Key(PUBLIC_KEY.getBytes(UTF_8)),
-                new Key(PRIVATE_KEY.getBytes(UTF_8))
+            new Key(PUBLIC_KEY.getBytes(UTF_8)),
+            new Key(PRIVATE_KEY.getBytes(UTF_8))
         );
 
         this.nacl = mock(NaclFacade.class);
@@ -71,22 +73,24 @@ public class FileKeyGeneratorTest {
 
         String filename = UUID.randomUUID().toString();
 
-        final KeyData generated = generator.generate(filename, null);
+        final FilesystemKeyPair generated = generator.generate(filename, null);
 
+        assertThat(generated).isInstanceOf(FilesystemKeyPair.class);
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
         assertThat(generated.getPrivateKey()).isEqualTo("cHJpdmF0ZUtleQ==");
-        assertThat(generated.getConfig().getType()).isEqualTo(PrivateKeyType.UNLOCKED);
+        assertThat(generated.getInlineKeypair().getPrivateKeyConfig().getType()).isEqualTo(UNLOCKED);
+
 
         verify(nacl).generateNewKeys();
 
         Files.list(Paths.get(""))
-                .filter(f -> f.toString().contains(filename))
-                .forEach(f -> {
-                    try {
-                        Files.deleteIfExists(f);
-                    } catch (IOException ex) {
-                    }
-                });
+            .filter(f -> f.toString().contains(filename))
+            .forEach(f -> {
+                try {
+                    Files.deleteIfExists(f);
+                } catch (IOException ex) {
+                }
+            });
     }
 
     @Test
@@ -109,14 +113,15 @@ public class FileKeyGeneratorTest {
 
         doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString(), eq(null));
 
-        final KeyData generated = generator.generate(keyFilesName, null);
+        final FilesystemKeyPair generated = generator.generate(keyFilesName, null);
 
+        final KeyDataConfig pkd = generated.getInlineKeypair().getPrivateKeyConfig();
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
-        assertThat(generated.getConfig().getPassword()).isEqualTo("PASSWORD");
-        assertThat(generated.getConfig().getSbox()).isEqualTo("sbox");
-        assertThat(generated.getConfig().getSnonce()).isEqualTo("snonce");
-        assertThat(generated.getConfig().getAsalt()).isEqualTo("salt");
-        assertThat(generated.getConfig().getType()).isEqualTo(PrivateKeyType.LOCKED);
+        assertThat(pkd.getPassword()).isEqualTo("PASSWORD");
+        assertThat(pkd.getSbox()).isEqualTo("sbox");
+        assertThat(pkd.getSnonce()).isEqualTo("snonce");
+        assertThat(pkd.getAsalt()).isEqualTo("salt");
+        assertThat(pkd.getType()).isEqualTo(PrivateKeyType.LOCKED);
 
         verify(keyEncryptor).encryptPrivateKey(any(Key.class), anyString(), eq(null));
         verify(nacl).generateNewKeys();
@@ -129,7 +134,7 @@ public class FileKeyGeneratorTest {
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
-        final KeyData generated = generator.generate(keyFilesName, null);
+        final FilesystemKeyPair generated = generator.generate(keyFilesName, null);
 
         assertThat(Files.exists(tempFolder.resolve("providingPathSavesToFile.pub"))).isTrue();
         assertThat(Files.exists(tempFolder.resolve("providingPathSavesToFile.key"))).isTrue();
@@ -144,7 +149,7 @@ public class FileKeyGeneratorTest {
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
-        final KeyData generated = generator.generate("", null);
+        final FilesystemKeyPair generated = generator.generate("", null);
 
         assertThat(Files.exists(Paths.get(".pub"))).isTrue();
         assertThat(Files.exists(Paths.get(".key"))).isTrue();
@@ -164,8 +169,8 @@ public class FileKeyGeneratorTest {
         doReturn(keyPair).when(nacl).generateNewKeys();
 
         doReturn(new PrivateKeyData("", "", "", "", new ArgonOptions("", 1, 1, 1), ""))
-                .when(keyEncryptor)
-                .encryptPrivateKey(any(Key.class), anyString(), eq(null));
+            .when(keyEncryptor)
+            .encryptPrivateKey(any(Key.class), anyString(), eq(null));
 
         final Throwable throwable = catchThrowable(() -> generator.generate(keyFilesName, null));
 
@@ -176,6 +181,4 @@ public class FileKeyGeneratorTest {
 
         verify(nacl).generateNewKeys();
     }
-
-
 }

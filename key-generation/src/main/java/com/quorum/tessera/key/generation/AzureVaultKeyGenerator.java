@@ -1,6 +1,7 @@
 package com.quorum.tessera.key.generation;
 
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.KeyPair;
@@ -11,20 +12,20 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class VaultKeyGenerator implements KeyGenerator {
+public class AzureVaultKeyGenerator implements KeyGenerator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VaultKeyGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AzureVaultKeyGenerator.class);
 
     private final NaclFacade nacl;
     private final KeyVaultService keyVaultService;
 
-    public VaultKeyGenerator(final NaclFacade nacl, KeyVaultService keyVaultService) {
+    public AzureVaultKeyGenerator(final NaclFacade nacl, KeyVaultService keyVaultService) {
         this.nacl = nacl;
         this.keyVaultService = keyVaultService;
     }
 
     @Override
-    public KeyData generate(String filename, ArgonOptions encryptionOptions) {
+    public AzureVaultKeyPair generate(String filename, ArgonOptions encryptionOptions) {
         final KeyPair keys = this.nacl.generateNewKeys();
 
         final StringBuilder publicId = new StringBuilder();
@@ -50,20 +51,7 @@ public class VaultKeyGenerator implements KeyGenerator {
         saveKeyInVault(publicId.toString(), keys.getPublicKey());
         saveKeyInVault(privateId.toString(), keys.getPrivateKey());
 
-        final KeyData keyData = new KeyData(
-            new KeyDataConfig(
-                new PrivateKeyData(keys.getPrivateKey().toString(), null, null, null, null, null),
-                PrivateKeyType.UNLOCKED
-            ),
-            keys.getPrivateKey().toString(),
-            keys.getPublicKey().toString(),
-            null,
-            null,
-            publicId.toString(),
-            privateId.toString()
-        );
-
-        return keyData;
+        return new AzureVaultKeyPair(publicId.toString(), privateId.toString());
     }
 
     private void saveKeyInVault(String id, Key key) {

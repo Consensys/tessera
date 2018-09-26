@@ -2,6 +2,8 @@ package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.keypairs.ConfigKeyPairType;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -23,14 +25,10 @@ public class KeyVaultConfigurationValidator implements ConstraintValidator<Valid
             return true;
         }
 
-        boolean isUsingVaultKeys = false;
-
-        for(KeyData keyData : keyConfiguration.getKeyData()) {
-            if(keyData.getAzureVaultPrivateKeyId() != null && keyData.getPublicKey() != null && keyData.getPrivateKey() == null) {
-                isUsingVaultKeys = true;
-                break;
-            }
-        }
+        boolean isUsingVaultKeys = keyConfiguration.getKeyData()
+            .stream()
+            .map(ConfigKeyPair::getType)
+            .anyMatch(ConfigKeyPairType.AZURE::equals);
 
         if(isUsingVaultKeys && keyConfiguration.getAzureKeyVaultConfig() == null) {
             return false;

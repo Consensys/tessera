@@ -1,6 +1,7 @@
 package com.quorum.tessera.key.generation;
 
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
@@ -38,7 +39,7 @@ public class FileKeyGenerator implements KeyGenerator {
     }
 
     @Override
-    public KeyData generate(final String filename, final ArgonOptions encryptionOptions) {
+    public FilesystemKeyPair generate(final String filename, final ArgonOptions encryptionOptions) {
 
         final String password = this.passwordReader.requestUserPassword();
 
@@ -57,16 +58,11 @@ public class FileKeyGenerator implements KeyGenerator {
             finalKeys = new KeyData(
                 new KeyDataConfig(
                     new PrivateKeyData(
-                        generated.getPrivateKey().toString(),
+                        null,
                         encryptedPrivateKey.getSnonce(),
                         encryptedPrivateKey.getAsalt(),
                         encryptedPrivateKey.getSbox(),
-                        new ArgonOptions(
-                            encryptedPrivateKey.getArgonOptions().getAlgorithm(),
-                            encryptedPrivateKey.getArgonOptions().getIterations(),
-                            encryptedPrivateKey.getArgonOptions().getMemory(),
-                            encryptedPrivateKey.getArgonOptions().getParallelism()
-                        ),
+                        encryptedPrivateKey.getArgonOptions(),
                         password
                     ),
                     PrivateKeyType.LOCKED
@@ -98,7 +94,7 @@ public class FileKeyGenerator implements KeyGenerator {
 
         }
 
-        final String privateKeyJson = this.privateKeyToJson(finalKeys);
+        final String privateKeyJson = JaxbUtil.marshalToString(finalKeys.getConfig());
 
         final Path resolvedPath = Paths.get(filename).toAbsolutePath();
         final Path parentPath;
@@ -118,33 +114,7 @@ public class FileKeyGenerator implements KeyGenerator {
         LOGGER.info("Saved public key to {}", publicKeyPath.toAbsolutePath().toString());
         LOGGER.info("Saved private key to {}", privateKeyPath.toAbsolutePath().toString());
 
-        return finalKeys;
-    }
-
-    private String privateKeyToJson(final KeyData keyData) {
-
-        final KeyDataConfig privateKey;
-
-        if (PrivateKeyType.LOCKED.equals(keyData.getConfig().getType())) {
-
-            privateKey = new KeyDataConfig(
-                new PrivateKeyData(
-                    null,
-                    keyData.getConfig().getSnonce(),
-                    keyData.getConfig().getAsalt(),
-                    keyData.getConfig().getSbox(),
-                    keyData.getConfig().getArgonOptions(),
-                    keyData.getConfig().getPassword()
-                ),
-                PrivateKeyType.LOCKED
-            );
-
-        } else {
-            privateKey = keyData.getConfig();
-        }
-
-        return JaxbUtil.marshalToString(privateKey);
-
+        return new FilesystemKeyPair(publicKeyPath, privateKeyPath);
     }
 
 }

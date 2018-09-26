@@ -1,5 +1,7 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.keypairs.InlineKeypair;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,7 +9,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
@@ -21,21 +22,16 @@ public class JaxbConfigFactoryTest {
 
     private JaxbConfigFactory factory;
 
-    private KeyData sampleGeneratedKey;
+    private ConfigKeyPair sampleGeneratedKey;
 
     @Before
-    public void init() throws IOException {
-        final Path blankName = Files.createTempDirectory(UUID.randomUUID().toString());
-        this.sampleGeneratedKey = new KeyData(
+    public void init() {
+        this.sampleGeneratedKey = new InlineKeypair(
+            "publickey",
             new KeyDataConfig(
                 new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 1, 1, 1), "pass"),
                 PrivateKeyType.LOCKED
-            ),
-            null,
-            null,
-            blankName.resolve(".key"),
-            blankName.resolve(".pub"),
-            null
+            )
         );
 
         this.factory = new JaxbConfigFactory();
@@ -51,6 +47,7 @@ public class JaxbConfigFactoryTest {
     public void createNewLockedKeyAddPasswordToInline() {
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddInline.json");
+        this.sampleGeneratedKey.withPassword("pass");
 
         final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
 
@@ -64,6 +61,7 @@ public class JaxbConfigFactoryTest {
     public void createNewLockedKeyAppendsToList() {
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddInlineWithExisting.json");
+        this.sampleGeneratedKey.withPassword("pass");
 
         final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
 
@@ -77,6 +75,7 @@ public class JaxbConfigFactoryTest {
     public void createNewLockedKeyCreatesNewPasswordFile() throws IOException {
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddToFile.json");
+        this.sampleGeneratedKey.withPassword("pass");
 
         final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
 
@@ -106,6 +105,7 @@ public class JaxbConfigFactoryTest {
     public void createNewLockedKeyWithNoPasswordsSet() throws IOException {
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
+        this.sampleGeneratedKey.withPassword("pass");
 
         final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
 
@@ -120,16 +120,11 @@ public class JaxbConfigFactoryTest {
     }
 
     @Test
-    public void unlockedKeyDoesntTriggerPasswordFile() throws IOException {
+    public void unlockedKeyDoesntTriggerPasswordFile() {
 
-        final Path blankName = Files.createTempDirectory(UUID.randomUUID().toString());
-        final KeyData unlockedSampleGeneratedKey = new KeyData(
-            new KeyDataConfig(new PrivateKeyData("value", null, null, null, null, null), PrivateKeyType.UNLOCKED),
-            null,
-            null,
-            blankName.resolve(".key"),
-            blankName.resolve(".pub"),
-            null
+        final ConfigKeyPair unlockedSampleGeneratedKey = new InlineKeypair(
+            "publickey",
+            new KeyDataConfig(new PrivateKeyData("value", null, null, null, null, null), PrivateKeyType.UNLOCKED)
         );
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
@@ -146,6 +141,7 @@ public class JaxbConfigFactoryTest {
     public void ifExistingKeysWereUnlockedThenAddEmptyPassword() throws IOException {
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyWithUnlockedPrevious.json");
+        this.sampleGeneratedKey.withPassword("pass");
 
         final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
 

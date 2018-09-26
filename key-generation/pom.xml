@@ -10,20 +10,22 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>key-generation</artifactId>
+
     <dependencies>
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>encryption-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>config</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>azure-key-vault</artifactId>
         </dependency>
     </dependencies>
-
 
 </project>

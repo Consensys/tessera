@@ -220,6 +220,20 @@
                 </executions>
             </plugin>
 
+            <plugin>
+              <groupId>org.ec4j.maven</groupId>
+              <artifactId>editorconfig-maven-plugin</artifactId>
+              <version>0.0.5</version>
+              <executions>
+                <execution>
+                  <id>check</id>
+                  <phase>verify</phase>
+                  <goals>
+                    <goal>check</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
 
         </plugins>
 
@@ -374,7 +388,7 @@
                 <version>0.7-SNAPSHOT</version>
             </dependency>
 
-             <dependency>
+            <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>jaxrs-service</artifactId>
                 <version>0.7-SNAPSHOT</version>
@@ -389,6 +403,12 @@
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>azure-key-vault</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>key-generation</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
 

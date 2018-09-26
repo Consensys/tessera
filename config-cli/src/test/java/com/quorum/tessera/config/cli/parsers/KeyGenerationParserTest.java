@@ -1,6 +1,8 @@
 package com.quorum.tessera.config.cli.parsers;
 
 import com.quorum.tessera.config.ArgonOptions;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.keys.MockKeyGeneratorFactory;
 import com.quorum.tessera.key.generation.KeyGenerator;
@@ -31,7 +33,7 @@ public class KeyGenerationParserTest {
         when(commandLine.getOptionValue("filename")).thenReturn(keyLocation.toString());
         when(commandLine.hasOption("keygenconfig")).thenReturn(false);
 
-        final List<KeyData> result = parser.parse(commandLine);
+        final List<ConfigKeyPair> result = parser.parse(commandLine);
 
         assertThat(result).isNotNull().hasSize(1);
 
@@ -59,7 +61,7 @@ public class KeyGenerationParserTest {
         when(commandLine.hasOption("keygenconfig")).thenReturn(true);
         when(commandLine.getOptionValue("keygenconfig")).thenReturn(argonOptions.toString());
 
-        final List<KeyData> result = parser.parse(commandLine);
+        final List<ConfigKeyPair> result = parser.parse(commandLine);
 
         assertThat(result).isNotNull().hasSize(1);
 
@@ -83,7 +85,7 @@ public class KeyGenerationParserTest {
         when(commandLine.hasOption("filename")).thenReturn(false);
         when(commandLine.hasOption("keygenconfig")).thenReturn(false);
 
-        final List<KeyData> result = this.parser.parse(commandLine);
+        final List<ConfigKeyPair> result = this.parser.parse(commandLine);
 
         assertThat(result).isNotNull().hasSize(1);
 
@@ -99,7 +101,7 @@ public class KeyGenerationParserTest {
         when(commandLine.hasOption("filename")).thenReturn(false);
         when(commandLine.hasOption("keygenconfig")).thenReturn(false);
 
-        final List<KeyData> result = this.parser.parse(commandLine);
+        final List<ConfigKeyPair> result = this.parser.parse(commandLine);
 
         assertThat(result).isNotNull().hasSize(0);
 
