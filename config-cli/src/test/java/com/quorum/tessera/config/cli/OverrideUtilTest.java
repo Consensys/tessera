@@ -319,9 +319,7 @@ public class OverrideUtilTest {
 
     @Test
     public void initialiseNestedObjectsWithNullValueDoesNothing() {
-
         final Throwable throwable = catchThrowable(() -> OverrideUtil.initialiseNestedObjects(null));
-
         assertThat(throwable).isNull();
     }
 
@@ -342,8 +340,8 @@ public class OverrideUtilTest {
 
     @Test
     public void createConfigInstanceWithInterfaceReturnsNull() {
-        final ConfigKeyPair keyPair = OverrideUtil.createInstance(ConfigKeyPair.class);
-        assertThat(keyPair).isNull();
+        final OverrideUtil interfaceObject = OverrideUtil.createInstance(OverrideUtil.class);
+        assertThat(interfaceObject).isNull();
     }
 
     @Test
@@ -391,7 +389,6 @@ public class OverrideUtilTest {
     @Test
     public void setValueOnNullDoesNothing() {
         final Throwable throwable = catchThrowable(() -> OverrideUtil.setValue(null, "jdbc.username", "someuser"));
-
         assertThat(throwable).isNull();
     }
 
