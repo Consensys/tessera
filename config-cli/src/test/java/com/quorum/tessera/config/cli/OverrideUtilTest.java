@@ -81,7 +81,8 @@ public class OverrideUtilTest {
                 "unixSocketFile",
                 "useWhiteList",
                 "server.sslConfig.clientTrustCertificates",
-                "server.sslConfig.serverTrustCertificates"
+                "server.sslConfig.serverTrustCertificates",
+                "disablePeerDiscovery"
         );
 
         final Map<String, Class> results = OverrideUtil.buildConfigOptions();
@@ -303,7 +304,7 @@ public class OverrideUtilTest {
     @Test
     public void initialiseNestedObjects() {
 
-        Config config = new Config(null, null, null, null, null, null, true);
+        Config config = new Config(null, null, null, null, null, null, true,true);
 
         OverrideUtil.initialiseNestedObjects(config);
 
@@ -314,6 +315,7 @@ public class OverrideUtilTest {
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getPeers()).isEmpty();
         assertThat(config.getAlwaysSendTo()).isEmpty();
+        assertThat(config.isDisablePeerDiscovery()).isTrue();
 
     }
 
