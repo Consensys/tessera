@@ -75,11 +75,7 @@ public class KeyUpdateParser implements Parser<Optional> {
 
             for (final String pass : passwords) {
                 try {
-                    return keyEncryptor.decryptPrivateKey(
-                        new PrivateKeyData(
-                            null, kdc.getSnonce(), kdc.getAsalt(), kdc.getSbox(), kdc.getArgonOptions(), pass
-                        )
-                    );
+                    return keyEncryptor.decryptPrivateKey(kdc.getPrivateKeyData(), pass);
                 } catch (final Exception e) {
                     LOGGER.debug("Password failed to decrypt. Trying next if available.");
                 }

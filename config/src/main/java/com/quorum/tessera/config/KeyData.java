@@ -4,16 +4,13 @@ import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.ValidBase64;
 import com.quorum.tessera.config.constraints.ValidKeyDataConfig;
 
-import java.nio.file.Path;
-import java.util.Objects;
+import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import javax.validation.constraints.Pattern;
+import java.nio.file.Path;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryMethod = "create")
@@ -27,11 +24,9 @@ public class KeyData extends ConfigItem {
     @Pattern(regexp = "^((?!NACL_FAILURE).)*$",
             message = "Could not decrypt the private key with the provided password, please double check the passwords provided")
     @XmlElement
-    @XmlSchemaType(name = "anyURI")
     private final String privateKey;
 
     @XmlElement
-    @XmlSchemaType(name = "anyURI")
     private final String publicKey;
 
     @XmlElement
@@ -77,9 +72,4 @@ public class KeyData extends ConfigItem {
     public Path getPublicKeyPath() {
         return publicKeyPath;
     }
-
-    public boolean hasKeys() {
-        return Objects.nonNull(privateKey) && Objects.nonNull(publicKey);
-    }
-
 }
