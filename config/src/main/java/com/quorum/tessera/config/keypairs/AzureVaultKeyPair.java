@@ -12,12 +12,14 @@ public class AzureVaultKeyPair implements ConfigKeyPair {
 
     @NotNull
     @XmlElement
-    @Pattern(regexp = "^[0-9a-zA-Z\\-]*$")
+    @Pattern(regexp = "^[0-9a-zA-Z\\-]*$",
+            message = "Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)")
     private String publicKeyId;
 
     @NotNull
     @XmlElement
-    @Pattern(regexp = "^[0-9a-zA-Z\\-]*$")
+    @Pattern(regexp = "^[0-9a-zA-Z\\-]*$",
+            message = "Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)")
     private String privateKeyId;
 
     private ConfigKeyPairType type = AZURE;

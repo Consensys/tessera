@@ -171,33 +171,25 @@ public class ValidationTest {
     }
 
     @Test
-    public void keyVaultIdAllowedCharacterSetIsAlphanumericAndDash() {
+    public void azureKeyPairIdsAllowedCharacterSetIsAlphanumericAndDash() {
         String keyVaultId = "0123456789-abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        KeyData keyData = new KeyData(null, null, null, null, null, keyVaultId, keyVaultId);
+        AzureVaultKeyPair keyPair = new AzureVaultKeyPair(keyVaultId, keyVaultId);
 
-        Set<ConstraintViolation<KeyData>> violations = validator.validateProperty(keyData, "azureVaultPublicKeyId");
-        assertThat(violations).hasSize(0);
-
-        violations = validator.validateProperty(keyData, "azureVaultPrivateKeyId");
+        Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(keyPair);
         assertThat(violations).hasSize(0);
     }
 
     @Test
-    public void keyVaultIdDisallowedCharactersCreateViolation() {
+    public void azureKeyPairIdsDisallowedCharactersCreateViolation() {
         String keyVaultId = "invalid_@!£$%^~^&_id";
-        KeyData keyData = new KeyData(null, null, null, null, null, keyVaultId, keyVaultId);
+        AzureVaultKeyPair keyPair = new AzureVaultKeyPair(keyVaultId, keyVaultId);
 
-        Set<ConstraintViolation<KeyData>> violations = validator.validateProperty(keyData, "azureVaultPublicKeyId");
-        assertThat(violations).hasSize(1);
+        Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(keyPair);
+        assertThat(violations).hasSize(2);
 
-        ConstraintViolation<KeyData> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.Pattern.message}");
-
-        violations = validator.validateProperty(keyData, "azureVaultPrivateKeyId");
-        assertThat(violations).hasSize(1);
-
-        violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.Pattern.message}");
+        assertThat(violations).extracting("messageTemplate")
+                                .containsExactly("Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)",
+                                    "Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)");
     }
 
     @Test
