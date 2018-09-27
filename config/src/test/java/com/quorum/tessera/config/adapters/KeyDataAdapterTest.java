@@ -9,10 +9,12 @@ import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keypairs.InlineKeypair;
 import org.junit.Test;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class KeyDataAdapterTest {
 
@@ -75,6 +77,57 @@ public class KeyDataAdapterTest {
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(FilesystemKeyPair.class);
 
+    }
+
+    @Test
+    public void unmarshallingPrivateOnlyGivesUnsupportedKeyPair() {
+        final KeyData input = new KeyData(null, "private", null, null, null, null, null);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingPrivateConfigOnlyGivesUnsupportedKeyPair() {
+        final KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
+        final KeyData input = new KeyData(keyDataConfig, null, null, null, null, null, null);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingAzurePublicOnlyGivesUnsupportedKeyPair() {
+        final KeyData input = new KeyData(null, null, null, null, null, null, "pubId");
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingAzurePrivateOnlyGivesUnsupportedKeyPair() {
+        final KeyData input = new KeyData(null, null, null, null, null, "priv", null);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingPublicPathOnlyGivesUnsupportedKeyPair() {
+        final Path path = mock(Path.class);
+        final KeyData input = new KeyData(null, null, null, null, path, null, null);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingPrivatePathOnlyGivesUnsupportedKeyPair() {
+        final Path path = mock(Path.class);
+        final KeyData input = new KeyData(null, null, null, path, null, null, null);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
     }
 
 }
