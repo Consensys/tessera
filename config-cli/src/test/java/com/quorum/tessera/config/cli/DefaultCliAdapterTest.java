@@ -266,8 +266,7 @@ public class DefaultCliAdapterTest {
             assertThat(ex.getConstraintViolations())
                 .hasSize(2)
                 .extracting("messageTemplate")
-                .containsExactly("{ValidPath.message}", "{ValidPath.message}");
-        }
+                .containsExactly("File does not exist", "File does not exist");         }
         
     }
 

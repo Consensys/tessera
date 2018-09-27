@@ -17,13 +17,9 @@ import static com.quorum.tessera.config.keypairs.ConfigKeyPairType.INVALID;
 @ValidUnsupportedKeyPair
 public class UnsupportedKeyPair implements ConfigKeyPair {
 
-    @ValidKeyDataConfig
     @XmlElement
     private final KeyDataConfig config;
 
-    @ValidBase64
-    @Pattern(regexp = "^((?!NACL_FAILURE).)*$",
-        message = "Could not decrypt the private key with the provided password, please double check the passwords provided")
     @XmlElement
     private final String privateKey;
 
@@ -38,12 +34,10 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path publicKeyPath;
 
-    @Pattern(regexp = "^[0-9a-zA-Z\\-]*$",
-            message = "Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)")
+    @XmlElement
     private final String azureVaultPublicKeyId;
 
-    @Pattern(regexp = "^[0-9a-zA-Z\\-]*$",
-            message = "Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)")
+    @XmlElement
     private final String azureVaultPrivateKeyId;
 
     public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId) {
