@@ -4,6 +4,7 @@ import com.quorum.tessera.config.keypairs.UnsupportedKeyPair;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Objects;
 
 public class UnsupportedKeyPairValidator implements ConstraintValidator<ValidUnsupportedKeyPair, UnsupportedKeyPair> {
 
@@ -41,46 +42,22 @@ public class UnsupportedKeyPairValidator implements ConstraintValidator<ValidUns
     }
 
     private boolean isIncompleteDirectKeyPair(UnsupportedKeyPair keyPair) {
-        if(keyPair.getPublicKey() != null && keyPair.getPrivateKey() == null) {
-            return true;
-        }
-
-        if(keyPair.getPublicKey() == null && keyPair.getPrivateKey() != null) {
-            return true;
-        }
-
-        return false;
+        return isOnlyOneInputNull(keyPair.getPublicKey(), keyPair.getPrivateKey());
     }
 
     private boolean isIncompleteInlineKeyPair(UnsupportedKeyPair keyPair) {
-        if(keyPair.getPublicKey() == null && keyPair.getConfig() != null) {
-            return true;
-        }
-
-        return false;
+        return isOnlyOneInputNull(keyPair.getPublicKey(), keyPair.getConfig());
     }
 
     private boolean isIncompleteAzureVaultKeyPair(UnsupportedKeyPair keyPair) {
-        if(keyPair.getAzureVaultPublicKeyId() != null && keyPair.getAzureVaultPrivateKeyId() == null) {
-            return true;
-        }
-
-        if(keyPair.getAzureVaultPublicKeyId() == null && keyPair.getAzureVaultPrivateKeyId() != null) {
-            return true;
-        }
-
-        return false;
+        return isOnlyOneInputNull(keyPair.getAzureVaultPublicKeyId(), keyPair.getAzureVaultPrivateKeyId());
     }
 
     private boolean isIncompleteFilesystemKeyPair(UnsupportedKeyPair keyPair) {
-        if(keyPair.getPublicKeyPath() != null && keyPair.getPrivateKeyPath() == null) {
-            return true;
-        }
+        return isOnlyOneInputNull(keyPair.getPublicKeyPath(), keyPair.getPrivateKeyPath());
+    }
 
-        if(keyPair.getPublicKeyPath() == null && keyPair.getPrivateKeyPath() != null) {
-            return true;
-        }
-
-        return false;
+    private boolean isOnlyOneInputNull(Object obj1, Object obj2) {
+        return Objects.isNull(obj1) ^ Objects.isNull(obj2);
     }
 }
