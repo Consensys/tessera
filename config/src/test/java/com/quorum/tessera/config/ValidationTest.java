@@ -193,7 +193,7 @@ public class ValidationTest {
     public void keyVaultVaultPairProvidedWithoutKeyVaultConfigCreatesViolation() {
         AzureVaultKeyPair keyPair = new AzureVaultKeyPair("publicVauldId", "privateVaultId");
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null);
-        Config config = new Config(null, null, null, keyConfiguration, null, null, false);
+        Config config = new Config(null, null, null, keyConfiguration, null, null, false, false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
         assertThat(violations).hasSize(1);
@@ -207,7 +207,7 @@ public class ValidationTest {
         DirectKeyPair keyPair = new DirectKeyPair("pub", "priv");
 
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null);
-        Config config = new Config(null, null, null, keyConfiguration, null, null, false);
+        Config config = new Config(null, null, null, keyConfiguration, null, null, false, false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
         assertThat(violations).hasSize(0);
@@ -216,7 +216,7 @@ public class ValidationTest {
 
     @Test
     public void keyConfigurationIsNullCreatesNotNullViolation() {
-        Config config = new Config(null, null, null, null, null, null, false);
+        Config config = new Config(null, null, null, null, null, null, false, false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
 
