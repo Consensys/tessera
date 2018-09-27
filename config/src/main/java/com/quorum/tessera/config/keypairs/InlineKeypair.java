@@ -16,7 +16,7 @@ import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 public class InlineKeypair implements ConfigKeyPair {
 
     @NotNull
-    @ValidBase64
+    @ValidBase64(message = "Invalid Base64 key provided")
     @XmlElement
     private final String publicKey;
 

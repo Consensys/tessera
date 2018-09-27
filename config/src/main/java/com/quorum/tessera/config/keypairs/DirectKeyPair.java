@@ -9,12 +9,12 @@ import javax.xml.bind.annotation.XmlElement;
 public class DirectKeyPair implements ConfigKeyPair {
 
     @NotNull
-    @ValidBase64
+    @ValidBase64(message = "Invalid Base64 key provided")
     @XmlElement
     private final String publicKey;
 
     @NotNull
-    @ValidBase64
+    @ValidBase64(message = "Invalid Base64 key provided")
     @XmlElement
     private final String privateKey;
 
