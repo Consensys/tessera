@@ -48,12 +48,6 @@
             <groupId>com.quorum.tessera</groupId>
             <artifactId>key-generation</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.quorum.tessera</groupId>
-            <artifactId>key-generation</artifactId>
-            <version>0.7-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
 
     </dependencies>
 
