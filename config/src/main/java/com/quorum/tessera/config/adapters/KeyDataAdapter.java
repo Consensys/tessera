@@ -1,10 +1,7 @@
 package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.keypairs.DirectKeyPair;
-import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
-import com.quorum.tessera.config.keypairs.InlineKeypair;
+import com.quorum.tessera.config.keypairs.*;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.Objects;
@@ -26,8 +23,26 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
             return new InlineKeypair(keyData.getPublicKey(), keyData.getConfig());
         }
 
-        //case 3, the keys are provided inside a file
-        return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath());
+        //case 3, the key vault ids are provided
+        if(keyData.getAzureVaultPublicKeyId() != null && keyData.getAzureVaultPrivateKeyId() != null) {
+            return new AzureVaultKeyPair(keyData.getAzureVaultPublicKeyId(), keyData.getAzureVaultPrivateKeyId());
+        }
+
+        //case 4, the keys are provided inside a file
+        if(keyData.getPublicKeyPath() != null && keyData.getPrivateKeyPath() != null) {
+            return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath());
+        }
+
+        //case 5, the key config specified is invalid
+        return new UnsupportedKeyPair(
+            keyData.getConfig(),
+            keyData.getPrivateKey(),
+            keyData.getPublicKey(),
+            keyData.getPrivateKeyPath(),
+            keyData.getPublicKeyPath(),
+            keyData.getAzureVaultPublicKeyId(),
+            keyData.getAzureVaultPrivateKeyId()
+        );
     }
 
     @Override
