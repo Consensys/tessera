@@ -29,9 +29,20 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
         }
 
         //case 4, the keys are provided inside a file
-        return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath());
+        if(keyData.getPublicKeyPath() != null && keyData.getPrivateKeyPath() != null) {
+            return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath());
+        }
 
-        //TODO Add DefaultKeyPair type to account for negative case (i.e. incorrect input?) with accompanying generic validation messages
+        //case 5, the key config specified is invalid
+        return new UnsupportedKeyPair(
+            keyData.getConfig(),
+            keyData.getPrivateKey(),
+            keyData.getPublicKey(),
+            keyData.getPrivateKeyPath(),
+            keyData.getPublicKeyPath(),
+            keyData.getAzureVaultPublicKeyId(),
+            keyData.getAzureVaultPrivateKeyId()
+        );
     }
 
     @Override
