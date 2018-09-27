@@ -284,7 +284,7 @@ public class ConfigBuilder {
             forwardingKeys = Collections.emptyList();
         }
 
-        return new Config(jdbcConfig, serverConfig, peerList, keyData, forwardingKeys, toPath(workDir, unixSocketFile), useWhiteList);
+        return new Config(jdbcConfig, serverConfig, peerList, keyData, forwardingKeys, toPath(workDir, unixSocketFile), useWhiteList,false);
     }
 
 }

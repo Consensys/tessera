@@ -18,13 +18,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class FilesystemKeyPair implements ConfigKeyPair {
 
     @NotNull
-    @ValidPath(checkExists = true)
+    @ValidPath(checkExists = true, message = "File does not exist")
     @XmlElement
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path publicKeyPath;
 
     @NotNull
-    @ValidPath(checkExists = true)
+    @ValidPath(checkExists = true, message = "File does not exist")
     @XmlElement
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path privateKeyPath;

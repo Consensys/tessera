@@ -98,7 +98,7 @@ public class ValidationTest {
 
         List<String> alwaysSendTo = Arrays.asList("BOGUS");
 
-        Config config = new Config(null, null, null, null, alwaysSendTo, null, false);
+        Config config = new Config(null, null, null, null, alwaysSendTo, null, false,false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "alwaysSendTo");
 
@@ -117,7 +117,7 @@ public class ValidationTest {
 
         List<String> alwaysSendTo = Arrays.asList(value);
 
-        Config config = new Config(null, null, null, null, alwaysSendTo, null, false);
+        Config config = new Config(null, null, null, null, alwaysSendTo, null, false,false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "alwaysSendTo");
 
@@ -142,10 +142,10 @@ public class ValidationTest {
         final Iterator<ConstraintViolation<KeyConfiguration>> iterator = violations.iterator();
 
         ConstraintViolation<KeyConfiguration> violation1 = iterator.next();
-        assertThat(violation1.getMessageTemplate()).isEqualTo("{ValidPath.message}");
+        assertThat(violation1.getMessageTemplate()).isEqualTo("File does not exist");
 
         ConstraintViolation<KeyConfiguration> violation2 = iterator.next();
-        assertThat(violation2.getMessageTemplate()).isEqualTo("{ValidPath.message}");
+        assertThat(violation2.getMessageTemplate()).isEqualTo("File does not exist");
 
         final List<String> paths = Arrays.asList(
             violation1.getPropertyPath().toString(), violation2.getPropertyPath().toString()
@@ -165,7 +165,7 @@ public class ValidationTest {
 
         ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
 
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidBase64.message}");
+        assertThat(violation.getMessageTemplate()).isEqualTo("Invalid Base64 key provided");
         assertThat(violation.getPropertyPath().toString()).endsWith("privateKey");
     }
 
