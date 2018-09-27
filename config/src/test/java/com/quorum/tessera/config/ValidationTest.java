@@ -1,5 +1,6 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
@@ -14,7 +15,6 @@ import java.util.*;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class ValidationTest {
 
@@ -51,52 +51,53 @@ public class ValidationTest {
 
     }
 
-    @Test
-    public void keyDataConfigMissingPassword() {
-        PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), null);
-        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-        KeyData keyData = new KeyData(keyDataConfig, "privateKey", "publicKey", null, null);
-        Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<KeyData> violation = violations.iterator().next();
-
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyDataConfig.message}");
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("config");
-    }
-
-    @Test
-    public void keyDataConfigNaclFailure() {
-        PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
-        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-        KeyData keyData = new KeyData(keyDataConfig, "NACL_FAILURE", "publicKey", null, null);
-        Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<KeyData> violation = violations.iterator().next();
-
-        assertThat(violation.getMessageTemplate()).isEqualTo("Could not decrypt the private key with the provided password, please double check the passwords provided");
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("privateKey");
-    }
-
-    @Test
-    public void keyDataConfigInvalidBase64() {
-        PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
-        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-        KeyData keyData = new KeyData(keyDataConfig, "INAVLID_BASE", "publicKey", null, null);
-        Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<KeyData> violation = violations.iterator().next();
-
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidBase64.message}");
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("privateKey");
-    }
+    //TODO Update these tests so they don't use the now unneeded KeyDataValidator
+//    @Test
+//    public void keyDataConfigMissingPassword() {
+//        PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), null);
+//        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
+//        KeyData keyData = new KeyData(keyDataConfig, "privateKey", "publicKey", null, null, null, null);
+//        Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
+//        assertThat(violations).hasSize(1);
+//
+//        ConstraintViolation<KeyData> violation = violations.iterator().next();
+//
+//        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyDataConfig.message}");
+//        assertThat(violation.getPropertyPath().toString()).isEqualTo("config");
+//    }
+//
+//    @Test
+//    public void keyDataConfigNaclFailure() {
+//        PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
+//        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
+//        KeyData keyData = new KeyData(keyDataConfig, "NACL_FAILURE", "publicKey", null, null, null, null);
+//        Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
+//        assertThat(violations).hasSize(1);
+//
+//        ConstraintViolation<KeyData> violation = violations.iterator().next();
+//
+//        assertThat(violation.getMessageTemplate()).isEqualTo("Could not decrypt the private key with the provided password, please double check the passwords provided");
+//        assertThat(violation.getPropertyPath().toString()).isEqualTo("privateKey");
+//    }
+//
+//    @Test
+//    public void keyDataConfigInvalidBase64() {
+//        PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
+//        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
+//        KeyData keyData = new KeyData(keyDataConfig, "INAVLID_BASE", "publicKey", null, null, null, null);
+//        Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
+//        assertThat(violations).hasSize(1);
+//
+//        ConstraintViolation<KeyData> violation = violations.iterator().next();
+//
+//        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidBase64.message}");
+//        assertThat(violation.getPropertyPath().toString()).isEqualTo("privateKey");
+//    }
 
     @Test
     public void invalidAlwaysSendTo() {
 
-        List<String> alwaysSendTo = Arrays.asList("BOGUS");
+        List<String> alwaysSendTo = singletonList("BOGUS");
 
         Config config = new Config(null, null, null, null, alwaysSendTo, null, false,false);
 
@@ -107,7 +108,6 @@ public class ValidationTest {
         ConstraintViolation<Config> violation = violations.iterator().next();
         assertThat(violation.getPropertyPath().toString()).startsWith("alwaysSendTo[0]");
         assertThat(violation.getMessageTemplate()).isEqualTo("{ValidBase64.message}");
-
     }
 
     @Test
@@ -115,15 +115,13 @@ public class ValidationTest {
 
         String value = Base64.getEncoder().encodeToString("HELLOW".getBytes());
 
-        List<String> alwaysSendTo = Arrays.asList(value);
+        List<String> alwaysSendTo = singletonList(value);
 
         Config config = new Config(null, null, null, null, alwaysSendTo, null, false,false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "alwaysSendTo");
 
         assertThat(violations).isEmpty();
-
-
     }
 
     @Test
@@ -169,4 +167,87 @@ public class ValidationTest {
         assertThat(violation.getPropertyPath().toString()).endsWith("privateKey");
     }
 
+    @Test
+    public void azureKeyPairIdsAllowedCharacterSetIsAlphanumericAndDash() {
+        String keyVaultId = "0123456789-abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        AzureVaultKeyPair keyPair = new AzureVaultKeyPair(keyVaultId, keyVaultId);
+
+        Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(keyPair);
+        assertThat(violations).hasSize(0);
+    }
+
+    @Test
+    public void azureKeyPairIdsDisallowedCharactersCreateViolation() {
+        String keyVaultId = "invalid_@!£$%^~^&_id";
+        AzureVaultKeyPair keyPair = new AzureVaultKeyPair(keyVaultId, keyVaultId);
+
+        Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(keyPair);
+        assertThat(violations).hasSize(2);
+
+        assertThat(violations).extracting("messageTemplate")
+                                .containsExactly("Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)",
+                                    "Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)");
+    }
+
+    @Test
+    public void keyVaultVaultPairProvidedWithoutKeyVaultConfigCreatesViolation() {
+        AzureVaultKeyPair keyPair = new AzureVaultKeyPair("publicVauldId", "privateVaultId");
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null);
+        Config config = new Config(null, null, null, keyConfiguration, null, null, false);
+
+        Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<Config> violation = violations.iterator().next();
+        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyVaultConfiguration.message}");
+    }
+
+    @Test
+    public void nonKeyVaultPairProvidedWithoutKeyVaultConfigDoesNotCreateViolation() {
+        DirectKeyPair keyPair = new DirectKeyPair("pub", "priv");
+
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null);
+        Config config = new Config(null, null, null, keyConfiguration, null, null, false);
+
+        Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
+        assertThat(violations).hasSize(0);
+    }
+
+
+    @Test
+    public void keyConfigurationIsNullCreatesNotNullViolation() {
+        Config config = new Config(null, null, null, null, null, null, false);
+
+        Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
+
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<Config> violation = violations.iterator().next();
+        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
+    }
+
+    @Test
+    public void keyVaultConfigWithNoUrlCreatesNullViolation() {
+        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null);
+
+        Set<ConstraintViolation<KeyVaultConfig>> violations = validator.validate(keyVaultConfig);
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<KeyVaultConfig> violation = violations.iterator().next();
+        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
+    }
+
+    @Test
+    public void vaultKeyPairProvidedButKeyVaultConfigHasNullUrlCreatesNullViolation() {
+        AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pubId", "privId");
+        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null);
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), keyVaultConfig);
+
+        Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
+        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
+        assertThat(violation.getPropertyPath().toString()).isEqualTo("azureKeyVaultConfig.url");
+    }
 }
