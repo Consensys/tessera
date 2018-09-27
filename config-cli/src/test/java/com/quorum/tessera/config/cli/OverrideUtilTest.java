@@ -1,7 +1,6 @@
 package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import org.junit.Ignore;
 import org.junit.Test;
