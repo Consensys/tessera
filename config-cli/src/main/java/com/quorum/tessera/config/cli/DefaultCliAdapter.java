@@ -133,13 +133,13 @@ public class DefaultCliAdapter implements CliAdapter {
 
         options.addOption(
             Option.builder("keygen")
-                .desc("Enable the generation of public/private key-pairs")
+                .desc("Generate public/private key-pairs")
                 .hasArg(false)
                 .build());
 
         options.addOption(
             Option.builder("filename")
-                .desc("Output filepaths for generated .pub and .key files.  Number of args equals number of keys generated.")
+                .desc("Comma-separated list of paths to save generated key files. Can also be used with keyvault. Number of args equals number of key-pairs generated.")
                 .hasArgs()
                 .optionalArg(false)
                 .argName("PATH")
@@ -147,7 +147,7 @@ public class DefaultCliAdapter implements CliAdapter {
 
         options.addOption(
             Option.builder("keygenconfig")
-                .desc("Path to config file for encryption of generated private keys.  If not provided, default config is used.")
+                .desc("Path to config file for encryption of generated private keys.  If not set, default config is used.")
                 .hasArg()
                 .optionalArg(false)
                 .argName("PATH")
@@ -155,10 +155,11 @@ public class DefaultCliAdapter implements CliAdapter {
 
         options.addOption(
             Option.builder("output")
-                .desc("Used with -configfile, will produce updated config file with generated keys. Outputs to terminal by default; alternatively use arg to specify filepath.")
+                .desc("When used with -configfile and -keygen, will save updated config to file.")
                 .hasArg(true)
                 .numberOfArgs(1)
-                .optionalArg(true)
+                .optionalArg(false)
+                .argName("PATH")
                 .build());
 
         options.addOption(
