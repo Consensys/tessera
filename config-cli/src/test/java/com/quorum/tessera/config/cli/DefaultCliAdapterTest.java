@@ -115,7 +115,7 @@ public class DefaultCliAdapterTest {
 
         FilesystemKeyPair keypair = new FilesystemKeyPair(Paths.get(""), Paths.get(""));
         when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keypair);
-        
+
         Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
         
         Map<String, Object> params = new HashMap<>();
@@ -178,7 +178,7 @@ public class DefaultCliAdapterTest {
 
         FilesystemKeyPair keypair = new FilesystemKeyPair(Paths.get(""), Paths.get(""));
         when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keypair);
-        
+
         Path generatedKey = Paths.get("/tmp/" + UUID.randomUUID().toString());
         
         Files.deleteIfExists(generatedKey);
