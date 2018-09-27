@@ -66,13 +66,14 @@ public class JaxbConfigFactory implements ConfigFactory {
         if(createdNewPasswordFile) {
             //return a new object with the password file set
             return new Config(
-                config.getJdbcConfig(),
-                config.getServerConfig(),
-                config.getPeers(),
-                new KeyConfiguration(Paths.get("passwords.txt"), null, config.getKeys().getKeyData(), config.getKeys().getAzureKeyVaultConfig()),
-                config.getAlwaysSendTo(),
-                config.getUnixSocketFile(),
-                config.isUseWhiteList()
+                    config.getJdbcConfig(),
+                    config.getServerConfig(),
+                    config.getPeers(),
+                    new KeyConfiguration(Paths.get("passwords.txt"), null, config.getKeys().getKeyData(), config.getKeys().getAzureKeyVaultConfig()),
+                    config.getAlwaysSendTo(),
+                    config.getUnixSocketFile(),
+                    config.isUseWhiteList(),
+                    config.isDisablePeerDiscovery()
             );
         } else {
             //leave config untouched since it wasn't needed to make a new one

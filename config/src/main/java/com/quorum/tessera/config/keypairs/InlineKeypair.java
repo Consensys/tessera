@@ -4,25 +4,26 @@ import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.constraints.ValidBase64;
-import com.quorum.tessera.config.constraints.ValidKeyDataConfig;
+import com.quorum.tessera.config.constraints.ValidInlineKeypair;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.nacl.NaclException;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlElement;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import static com.quorum.tessera.config.keypairs.ConfigKeyPairType.INLINE;
 
+@ValidInlineKeypair
 public class InlineKeypair implements ConfigKeyPair {
 
     @NotNull
-    @ValidBase64
+    @ValidBase64(message = "Invalid Base64 key provided")
     @XmlElement
     private final String publicKey;
 
     @NotNull
-    @ValidKeyDataConfig
     @XmlElement(name = "config")
     private final KeyDataConfig privateKeyConfig;
 
@@ -50,6 +51,7 @@ public class InlineKeypair implements ConfigKeyPair {
     }
 
     @Override
+    @Pattern(regexp = "^((?!NACL_FAILURE).)*$", message = "Could not decrypt the private key with the provided password, please double check the passwords provided")
     public String getPrivateKey() {
         final PrivateKeyData pkd = privateKeyConfig.getPrivateKeyData();
 

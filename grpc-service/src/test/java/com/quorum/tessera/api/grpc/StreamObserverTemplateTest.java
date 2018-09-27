@@ -1,5 +1,6 @@
 package com.quorum.tessera.api.grpc;
 
+import com.quorum.tessera.node.AutoDiscoveryDisabledException;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -15,6 +16,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class StreamObserverTemplateTest {
 
@@ -76,7 +78,6 @@ public class StreamObserverTemplateTest {
     @Test
     public void executeOtherError() {
 
-
         Throwable exception = new Throwable("OUCH");
 
         template.handle(() -> {
@@ -86,5 +87,35 @@ public class StreamObserverTemplateTest {
 
         verify(observer).onError(exception);
 
+    }
+    
+    
+    @Test
+    public void executeAutoDiscoveryDisabled() {
+    
+        List<StatusRuntimeException> results = new ArrayList<>();
+        doAnswer((iom) -> {
+            results.add(iom.getArgument(0));
+            return null;
+        }).when(observer)
+                .onError(any(StatusRuntimeException.class));
+
+        final String exceptionMessage = "Sorry Dave I cant let you do that";
+        
+        AutoDiscoveryDisabledException exception = mock(AutoDiscoveryDisabledException.class);
+        when(exception.getMessage()).thenReturn(exceptionMessage);
+        
+
+        template.handle(() -> {
+            throw exception;
+        });
+
+        StatusRuntimeException result = results.stream().findAny().get();
+
+        assertThat(result.getStatus().getCode()).isEqualTo(Status.PERMISSION_DENIED.getCode());
+
+        assertThat(result.getStatus().getDescription()).isEqualTo(exceptionMessage);
+
+        verify(observer).onError(result);
     }
 }

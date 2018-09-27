@@ -1,5 +1,6 @@
 package com.quorum.tessera.api.grpc;
 
+import com.quorum.tessera.node.AutoDiscoveryDisabledException;
 import io.grpc.stub.StreamObserver;
 import java.util.Objects;
 import javax.validation.ConstraintViolationException;
@@ -23,6 +24,9 @@ public class StreamObserverTemplate {
             observer.onNext(r);
             observer.onCompleted();
 
+        } catch(AutoDiscoveryDisabledException ex) {
+            observer.onError(io.grpc.Status.PERMISSION_DENIED
+                    .withDescription(ex.getMessage()).asRuntimeException());
         } catch (ConstraintViolationException validationError) {
             observer.onError(io.grpc.Status.INVALID_ARGUMENT
                     .withCause(validationError)

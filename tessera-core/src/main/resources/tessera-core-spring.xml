@@ -39,9 +39,7 @@
         <constructor-arg ref="resendPartyStore" />
         <constructor-arg ref="transactionRequester" />
         <constructor-arg ref="partyInfoService"/>
-        <constructor-arg>
-            <bean class="com.quorum.tessera.node.PartyInfoParser" factory-method="create"/>
-        </constructor-arg>
+        <constructor-arg ref="partyInfoParser" />
         <constructor-arg ref="p2pClient"/>
     </bean>
 
@@ -69,15 +67,13 @@
 
     <bean name="partyInfoService" class="com.quorum.tessera.node.PartyInfoServiceImpl">
         <constructor-arg ref="partyInfoStore"/>
-        <constructor-arg ref="config"/>
+        <constructor-arg ref="configService"/>
         <constructor-arg ref="keyManager"/>
     </bean>
 
     <bean name="partyInfoPoller" class="com.quorum.tessera.node.PartyInfoPoller">
         <constructor-arg ref="partyInfoService"/>
-        <constructor-arg>
-            <bean class="com.quorum.tessera.node.PartyInfoParser" factory-method="create"/>
-        </constructor-arg>
+        <constructor-arg ref="partyInfoParser" />
         <constructor-arg ref="resendPartyStore" />
         <constructor-arg ref="p2pClient"/>
     </bean>
@@ -163,6 +159,11 @@
 
     <bean id="config" factory-bean="cliDelegate" factory-method="getConfig"/>
 
+    <bean id="configService" class="com.quorum.tessera.core.config.ConfigServiceImpl">
+        <constructor-arg ref="config" />
+    </bean>
+    
+    
     <bean name="naclFactory" class="com.quorum.tessera.nacl.NaclFacadeFactory" factory-method="newFactory"/>
 
     <bean name="nacl" factory-bean="naclFactory" factory-method="create"/>

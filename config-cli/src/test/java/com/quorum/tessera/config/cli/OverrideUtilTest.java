@@ -1,7 +1,6 @@
 package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -82,7 +81,8 @@ public class OverrideUtilTest {
                 "unixSocketFile",
                 "useWhiteList",
                 "server.sslConfig.clientTrustCertificates",
-                "server.sslConfig.serverTrustCertificates"
+                "server.sslConfig.serverTrustCertificates",
+                "disablePeerDiscovery"
         );
 
         final Map<String, Class> results = OverrideUtil.buildConfigOptions();
@@ -262,8 +262,10 @@ public class OverrideUtilTest {
 
     @Test
     public void toArrayType() {
-        assertThat(OverrideUtil.toArrayType(String.class)).isEqualTo(String[].class);
-        assertThat(OverrideUtil.toArrayType(Path.class)).isEqualTo(Path[].class);
+        assertThat(OverrideUtil.toArrayType(String.class))
+            .isEqualTo(String[].class);
+        assertThat(OverrideUtil.toArrayType(Path.class))
+            .isEqualTo(Path[].class);
     }
 
     @Test
@@ -302,7 +304,7 @@ public class OverrideUtilTest {
     @Test
     public void initialiseNestedObjects() {
 
-        Config config = new Config(null, null, null, null, null, null, true);
+        Config config = new Config(null, null, null, null, null, null, true,true);
 
         OverrideUtil.initialiseNestedObjects(config);
 
@@ -313,14 +315,13 @@ public class OverrideUtilTest {
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getPeers()).isEmpty();
         assertThat(config.getAlwaysSendTo()).isEmpty();
+        assertThat(config.isDisablePeerDiscovery()).isTrue();
 
     }
 
     @Test
     public void initialiseNestedObjectsWithNullValueDoesNothing() {
-
         final Throwable throwable = catchThrowable(() -> OverrideUtil.initialiseNestedObjects(null));
-
         assertThat(throwable).isNull();
     }
 
@@ -341,8 +342,8 @@ public class OverrideUtilTest {
 
     @Test
     public void createConfigInstanceWithInterfaceReturnsNull() {
-        final ConfigKeyPair keyPair = OverrideUtil.createInstance(ConfigKeyPair.class);
-        assertThat(keyPair).isNull();
+        final OverrideUtil interfaceObject = OverrideUtil.createInstance(OverrideUtil.class);
+        assertThat(interfaceObject).isNull();
     }
 
     @Test
@@ -390,7 +391,6 @@ public class OverrideUtilTest {
     @Test
     public void setValueOnNullDoesNothing() {
         final Throwable throwable = catchThrowable(() -> OverrideUtil.setValue(null, "jdbc.username", "someuser"));
-
         assertThat(throwable).isNull();
     }
 

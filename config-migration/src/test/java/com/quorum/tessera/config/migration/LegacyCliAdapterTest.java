@@ -113,10 +113,10 @@ public class LegacyCliAdapterTest {
         assertThat(config.getPeers().get(0).getUrl()).isEqualTo("http://127.0.0.1:9001/");
         assertThat(config.getPeers().get(1).getUrl()).isEqualTo("http://127.0.0.1:9002/");
         assertThat(config.getKeys().getKeyData().size()).isEqualTo(2);
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0)).extracting("publicKeyPath").containsExactly(Paths.get("data/foo.pub"));
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0)).extracting("privateKeyPath").containsExactly(Paths.get("data/foo.key"));
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(1)).extracting("publicKeyPath").containsExactly(Paths.get("data/foo2.pub"));
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(1)).extracting("privateKeyPath").containsExactly(Paths.get("data/foo2.key"));
+        assertThat(config.getKeys().getKeyData().get(0)).extracting("publicKeyPath").containsExactly(Paths.get("data/foo.pub"));
+        assertThat(config.getKeys().getKeyData().get(0)).extracting("privateKeyPath").containsExactly(Paths.get("data/foo.key"));
+        assertThat(config.getKeys().getKeyData().get(1)).extracting("publicKeyPath").containsExactly(Paths.get("data/foo2.pub"));
+        assertThat(config.getKeys().getKeyData().get(1)).extracting("privateKeyPath").containsExactly(Paths.get("data/foo2.key"));
         assertThat(config.getAlwaysSendTo().size()).isEqualTo(3);
         assertThat(config.getAlwaysSendTo().get(0)).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
         assertThat(config.getAlwaysSendTo().get(1)).isEqualTo("jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
