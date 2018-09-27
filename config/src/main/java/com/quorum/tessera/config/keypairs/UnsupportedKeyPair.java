@@ -3,11 +3,8 @@ package com.quorum.tessera.config.keypairs;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.adapters.PathAdapter;
-import com.quorum.tessera.config.constraints.ValidBase64;
-import com.quorum.tessera.config.constraints.ValidKeyDataConfig;
 import com.quorum.tessera.config.constraints.ValidUnsupportedKeyPair;
 
-import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;

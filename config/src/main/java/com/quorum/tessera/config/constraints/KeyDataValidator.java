@@ -22,6 +22,8 @@ public class KeyDataValidator implements ConstraintValidator<ValidKeyData, KeyDa
             return true;
         }
 
+        //TODO This class is not used any more, need to incorporate these validation messages into the default key pair type to be used in the KeyDataAdapter
+
         if(keyData.getPublicKey() != null && keyData.getPrivateKey() == null && keyData.getAzureVaultPrivateKeyId() == null) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{ValidKeyData.bothPrivateAndPublicRequired.message}")
@@ -29,7 +31,7 @@ public class KeyDataValidator implements ConstraintValidator<ValidKeyData, KeyDa
             return false;
         }
 
-        //Assume that test values have been provided. 
+        //Assume that test values have been provided.
         if (keyData.getPublicKeyPath() == null && keyData.getPrivateKeyPath() == null) {
             return true;
         }
