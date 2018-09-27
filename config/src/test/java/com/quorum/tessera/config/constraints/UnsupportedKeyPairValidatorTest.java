@@ -35,7 +35,7 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothDirectKeysRequired}");
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothDirectKeysRequired.message}");
     }
 
     @Test
@@ -44,7 +44,7 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothDirectKeysRequired}");
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothDirectKeysRequired.message}");
     }
 
     @Test
@@ -56,7 +56,7 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothDirectKeysRequired}");
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothDirectKeysRequired.message}");
     }
 
     @Test
@@ -68,7 +68,7 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothDirectKeysRequired}");
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothDirectKeysRequired.message}");
     }
 
     @Test
@@ -78,7 +78,7 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothInlineKeysRequired}");
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothInlineKeysRequired.message}");
     }
 
     @Test
@@ -90,7 +90,7 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothInlineKeysRequired}");
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothInlineKeysRequired.message}");
     }
 
     @Test
@@ -99,7 +99,7 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAzureKeysRequired}");
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAzureKeysRequired.message}");
     }
 
     @Test
@@ -108,7 +108,7 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAzureKeysRequired}");
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAzureKeysRequired.message}");
     }
 
     @Test
@@ -119,7 +119,7 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAzureKeysRequired}");
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAzureKeysRequired.message}");
     }
 
     @Test
@@ -130,7 +130,7 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAzureKeysRequired}");
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAzureKeysRequired.message}");
     }
 
     @Test
@@ -141,7 +141,7 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothFilesystemKeysRequired}");
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothFilesystemKeysRequired.message}");
     }
 
     @Test
@@ -152,7 +152,7 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothFilesystemKeysRequired}");
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothFilesystemKeysRequired.message}");
     }
 
     @Test
