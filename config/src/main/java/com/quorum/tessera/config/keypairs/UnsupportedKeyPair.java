@@ -31,20 +31,12 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path publicKeyPath;
 
-    @XmlElement
-    private final String azureVaultPublicKeyId;
-
-    @XmlElement
-    private final String azureVaultPrivateKeyId;
-
-    public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId) {
+    public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath) {
         this.config = config;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
         this.privateKeyPath = privateKeyPath;
         this.publicKeyPath = publicKeyPath;
-        this.azureVaultPublicKeyId = azureVaultPublicKeyId;
-        this.azureVaultPrivateKeyId = azureVaultPrivateKeyId;
     }
 
     @Override
@@ -67,14 +59,6 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
 
     public KeyDataConfig getConfig() {
         return config;
-    }
-
-    public String getAzureVaultPublicKeyId() {
-        return azureVaultPublicKeyId;
-    }
-
-    public String getAzureVaultPrivateKeyId() {
-        return azureVaultPrivateKeyId;
     }
 
     @Override

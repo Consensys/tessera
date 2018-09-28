@@ -23,25 +23,18 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
             return new InlineKeypair(keyData.getPublicKey(), keyData.getConfig());
         }
 
-        //case 3, the key vault ids are provided
-        if(keyData.getAzureVaultPublicKeyId() != null && keyData.getAzureVaultPrivateKeyId() != null) {
-            return new AzureVaultKeyPair(keyData.getAzureVaultPublicKeyId(), keyData.getAzureVaultPrivateKeyId());
-        }
-
-        //case 4, the keys are provided inside a file
+        //case 3, the keys are provided inside a file
         if(keyData.getPublicKeyPath() != null && keyData.getPrivateKeyPath() != null) {
             return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath());
         }
 
-        //case 5, the key config specified is invalid
+        //case 4, the key config specified is invalid
         return new UnsupportedKeyPair(
             keyData.getConfig(),
             keyData.getPrivateKey(),
             keyData.getPublicKey(),
             keyData.getPrivateKeyPath(),
-            keyData.getPublicKeyPath(),
-            keyData.getAzureVaultPublicKeyId(),
-            keyData.getAzureVaultPrivateKeyId()
+            keyData.getPublicKeyPath()
         );
     }
 

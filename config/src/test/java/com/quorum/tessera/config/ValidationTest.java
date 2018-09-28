@@ -1,6 +1,5 @@
 package com.quorum.tessera.config;
 
-import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
@@ -168,45 +167,10 @@ public class ValidationTest {
     }
 
     @Test
-    public void azureKeyPairIdsAllowedCharacterSetIsAlphanumericAndDash() {
-        String keyVaultId = "0123456789-abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        AzureVaultKeyPair keyPair = new AzureVaultKeyPair(keyVaultId, keyVaultId);
-
-        Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(keyPair);
-        assertThat(violations).hasSize(0);
-    }
-
-    @Test
-    public void azureKeyPairIdsDisallowedCharactersCreateViolation() {
-        String keyVaultId = "invalid_@!£$%^~^&_id";
-        AzureVaultKeyPair keyPair = new AzureVaultKeyPair(keyVaultId, keyVaultId);
-
-        Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(keyPair);
-        assertThat(violations).hasSize(2);
-
-        assertThat(violations).extracting("messageTemplate")
-                                .containsExactly("Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)",
-                                    "Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)");
-    }
-
-    @Test
-    public void keyVaultVaultPairProvidedWithoutKeyVaultConfigCreatesViolation() {
-        AzureVaultKeyPair keyPair = new AzureVaultKeyPair("publicVauldId", "privateVaultId");
-        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null);
-        Config config = new Config(null, null, null, keyConfiguration, null, null, false, false);
-
-        Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<Config> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyVaultConfiguration.message}");
-    }
-
-    @Test
     public void nonKeyVaultPairProvidedWithoutKeyVaultConfigDoesNotCreateViolation() {
         DirectKeyPair keyPair = new DirectKeyPair("pub", "priv");
 
-        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null);
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair));
         Config config = new Config(null, null, null, keyConfiguration, null, null, false, false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
@@ -224,30 +188,5 @@ public class ValidationTest {
 
         ConstraintViolation<Config> violation = violations.iterator().next();
         assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
-    }
-
-    @Test
-    public void keyVaultConfigWithNoUrlCreatesNullViolation() {
-        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null);
-
-        Set<ConstraintViolation<KeyVaultConfig>> violations = validator.validate(keyVaultConfig);
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<KeyVaultConfig> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
-    }
-
-    @Test
-    public void vaultKeyPairProvidedButKeyVaultConfigHasNullUrlCreatesNullViolation() {
-        AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pubId", "privId");
-        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null);
-        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), keyVaultConfig);
-
-        Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("azureKeyVaultConfig.url");
     }
 }

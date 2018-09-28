@@ -11,7 +11,7 @@ public class UnsupportedKeyPairTest {
 
     @Before
     public void setUp() {
-        this.keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, null);
+        this.keyPair = new UnsupportedKeyPair(null, null, null, null, null);
     }
 
     @Test
@@ -30,7 +30,7 @@ public class UnsupportedKeyPairTest {
 
     @Test
     public void getTypeReturnsCorrectEnum() {
-        assertThat(keyPair.getType()).isEqualByComparingTo(ConfigKeyPairType.INVALID);
+        assertThat(keyPair.getType()).isEqualByComparingTo(ConfigKeyPairType.UNSUPPORTED);
     }
 
 
