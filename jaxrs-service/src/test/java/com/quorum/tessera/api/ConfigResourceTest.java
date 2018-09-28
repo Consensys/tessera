@@ -67,5 +67,16 @@ public class ConfigResourceTest {
         verify(configService).getPeers();
 
     }
+    @Test
+    public void getPeerNotFound() {
+        Peer peer = new Peer("getPeerNoptFound");
+        when(configService.getPeers()).thenReturn(Arrays.asList(peer));
 
+        Response response = configResource.getPeer(2);
+
+        assertThat(response.getStatus()).isEqualTo(404);
+
+        verify(configService).getPeers();
+
+    }
 }
