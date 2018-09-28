@@ -10,6 +10,7 @@ public class ConsolePasswordReader implements PasswordReader {
         this.console = console;
     }
 
+    @Override
     public String readPasswordFromConsole() {
         final char[] consolePassword = this.console.readPassword();
         return new String(consolePassword);
