@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
 
-import static com.quorum.tessera.config.keypairs.ConfigKeyPairType.INVALID;
+import static com.quorum.tessera.config.keypairs.ConfigKeyPairType.UNSUPPORTED;
 
 @ValidUnsupportedKeyPair
 public class UnsupportedKeyPair implements ConfigKeyPair {
@@ -94,7 +94,7 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
 
     @Override
     public ConfigKeyPairType getType() {
-        return INVALID;
+        return UNSUPPORTED;
     }
 
 }

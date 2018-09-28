@@ -13,6 +13,7 @@ import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlElement;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
+import static com.quorum.tessera.config.keypairs.ConfigKeyPairType.INLINE;
 
 @ValidInlineKeypair
 public class InlineKeypair implements ConfigKeyPair {
@@ -71,5 +72,10 @@ public class InlineKeypair implements ConfigKeyPair {
     @Override
     public String getPassword() {
         return this.password;
+    }
+
+    @Override
+    public ConfigKeyPairType getType() {
+        return INLINE;
     }
 }

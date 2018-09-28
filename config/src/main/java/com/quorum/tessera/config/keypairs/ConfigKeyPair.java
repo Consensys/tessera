@@ -14,4 +14,6 @@ public interface ConfigKeyPair {
 
     KeyData marshal();
 
+    ConfigKeyPairType getType();
+
 }
