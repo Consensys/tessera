@@ -24,6 +24,10 @@
         <constructor-arg ref="partyInfoService"/>
         <constructor-arg ref="partyInfoParser" />
     </bean>
+    
+    <bean class="com.quorum.tessera.api.ConfigResource">
+        <constructor-arg ref="configService" />
+    </bean>
 
     <bean name="postDelegate" class="com.quorum.tessera.client.PostDelegate">
         <constructor-arg>

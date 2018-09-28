@@ -4,6 +4,7 @@ import com.quorum.tessera.api.filter.PrivateApi;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.core.config.ConfigService;
 import java.net.URI;
+import java.util.List;
 import java.util.Objects;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -31,22 +32,27 @@ public class ConfigResource {
     @PUT
     @Path("/peers")
     public Response addPeer(@Valid Peer peer) {
+        
         configService.addPeer(peer.getUrl());
-        URI uri = UriBuilder.fromMethod(ConfigResource.class, "getPeer").build(peer.getUrl());
+        
+        int index = configService.getPeers().size() - 1;
+
+        URI uri = UriBuilder.fromPath("config")
+                .path("peers")
+                .path(String.valueOf(index))
+                .build();
         return Response.created(uri).build();
     }
 
-    
     @GET
-    @Path("/peers/{url}")
-    public Response getPeer(@PathParam("url") String url) {
+    @Path("/peers/{index}")
+    public Response getPeer(@PathParam("index") Integer index) {
 
-        return configService.getPeers().stream()
-                .filter(p -> Objects.equals(p.getUrl(), url))
-                .map(p -> Response.ok(p))
-                .map(r -> r.build())
-                .findAny()
-                .orElse(Response.status(Response.Status.NOT_FOUND).build());
-    }   
+        List<Peer> peers = configService.getPeers();
+        if (peers.size() <= index) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return Response.ok(peers.get(index)).build();
+    }
 
 }

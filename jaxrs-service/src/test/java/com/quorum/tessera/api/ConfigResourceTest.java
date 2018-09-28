@@ -46,7 +46,7 @@ public class ConfigResourceTest {
         Peer peer = new Peer("getPeerIsSucessfulUrl");
         when(configService.getPeers()).thenReturn(Arrays.asList(peer));
 
-        Response response = configResource.getPeer("getPeerIsSucessfulUrl");
+        Response response = configResource.getPeer(0);
 
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getEntity()).isEqualTo(peer);
