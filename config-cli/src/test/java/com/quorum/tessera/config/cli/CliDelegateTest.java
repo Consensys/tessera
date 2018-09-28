@@ -19,6 +19,15 @@ public class CliDelegateTest {
     }
 
     @Test
+    public void createAdminInstance() throws Exception {
+
+        Path configFile = ElUtil.createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        CliResult result = instance.execute("admin", "-configfile",  configFile.toString());
+
+        assertThat(result).isNotNull();
+    }
+
+    @Test
     public void withValidConfig() throws Exception {
 
         Path configFile = ElUtil.createAndPopulatePaths(getClass().getResource("/sample-config.json"));

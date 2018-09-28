@@ -24,8 +24,11 @@
             <artifactId>config</artifactId>
         </dependency>
         
-
-
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>jaxrs-client</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
@@ -42,9 +45,26 @@
         
         <dependency>
             <groupId>com.quorum.tessera</groupId>
-              <artifactId>test-util</artifactId>
+            <artifactId>test-util</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>jersey-server</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.test-framework</groupId>
+            <artifactId>jersey-test-framework-core</artifactId>
+            <version>2.27</version>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 
     

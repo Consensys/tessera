@@ -31,6 +31,11 @@
             <artifactId>config</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>jaxrs-client</artifactId>
+        </dependency>
+        
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
@@ -82,7 +87,7 @@
                 </executions>
             </plugin>
             
-                        <plugin>
+            <plugin>
                 <groupId>com.github.kongchen</groupId>
                 <artifactId>swagger-maven-plugin</artifactId>
                 <version>3.1.7</version>

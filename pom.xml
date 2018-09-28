@@ -220,18 +220,18 @@
             </plugin>
 
             <plugin>
-              <groupId>org.ec4j.maven</groupId>
-              <artifactId>editorconfig-maven-plugin</artifactId>
-              <version>0.0.5</version>
-              <executions>
-                <execution>
-                  <id>check</id>
-                  <phase>verify</phase>
-                  <goals>
-                    <goal>check</goal>
-                  </goals>
-                </execution>
-              </executions>
+                <groupId>org.ec4j.maven</groupId>
+                <artifactId>editorconfig-maven-plugin</artifactId>
+                <version>0.0.5</version>
+                <executions>
+                    <execution>
+                        <id>check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
         </plugins>
@@ -257,6 +257,7 @@
         <module>grpc-service</module>
         <module>jaxrs-service</module>
         <module>tessera-core</module>
+        <module>jaxrs-client</module>
     </modules>
 
     <dependencyManagement>
@@ -386,9 +387,15 @@
             </dependency>
             
             
-             <dependency>
+            <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>jaxrs-service</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+        
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>jaxrs-client</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
         
@@ -713,7 +720,7 @@
     <dependencies>
 
         <!-- Needed for JavaDoc plugin -->
-<!--        <dependency>
+        <!--        <dependency>
             <groupId>javax.interceptor</groupId>
             <artifactId>javax.interceptor-api</artifactId>
         </dependency>

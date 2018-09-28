@@ -37,7 +37,7 @@ public class DefaultCliAdapterTest {
     @Before
     public void setUp() {
         MockKeyGeneratorFactory.reset();
-        this.cliDelegate = CliAdapter.create();
+        this.cliDelegate = new DefaultCliAdapter();
     }
     
     @After

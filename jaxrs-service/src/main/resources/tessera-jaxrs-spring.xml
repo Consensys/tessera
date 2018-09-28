@@ -37,7 +37,7 @@
 
 
 
-    <bean name="clientFactory" class="com.quorum.tessera.client.ClientFactory">
+    <bean name="clientFactory" class="com.quorum.tessera.jaxrs.client.ClientFactory">
         <constructor-arg>
             <bean class="com.quorum.tessera.ssl.context.ClientSSLContextFactory" factory-method="create"/>
         </constructor-arg>
