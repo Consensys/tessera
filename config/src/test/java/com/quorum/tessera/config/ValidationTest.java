@@ -167,18 +167,6 @@ public class ValidationTest {
     }
 
     @Test
-    public void nonKeyVaultPairProvidedWithoutKeyVaultConfigDoesNotCreateViolation() {
-        DirectKeyPair keyPair = new DirectKeyPair("pub", "priv");
-
-        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair));
-        Config config = new Config(null, null, null, keyConfiguration, null, null, false, false);
-
-        Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
-        assertThat(violations).hasSize(0);
-    }
-
-
-    @Test
     public void keyConfigurationIsNullCreatesNotNullViolation() {
         Config config = new Config(null, null, null, null, null, null, false, false);
 
