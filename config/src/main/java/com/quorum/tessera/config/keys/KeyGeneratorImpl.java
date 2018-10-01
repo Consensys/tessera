@@ -1,6 +1,7 @@
 package com.quorum.tessera.config.keys;
 
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.io.IOCallback;
@@ -37,7 +38,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
     }
 
     @Override
-    public KeyData generate(final String filename, final ArgonOptions encryptionOptions) {
+    public FilesystemKeyPair generate(final String filename, final ArgonOptions encryptionOptions) {
 
         final String password = this.passwordReader.requestUserPassword();
 
@@ -61,7 +62,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
                         encryptedPrivateKey.getAsalt(),
                         encryptedPrivateKey.getSbox(),
                         encryptedPrivateKey.getArgonOptions(),
-                        password
+                        null
                     ),
                     PrivateKeyType.LOCKED
                 ),
@@ -108,7 +109,11 @@ public class KeyGeneratorImpl implements KeyGenerator {
         LOGGER.info("Saved public key to {}", publicKeyPath.toAbsolutePath().toString());
         LOGGER.info("Saved private key to {}", privateKeyPath.toAbsolutePath().toString());
 
-        return finalKeys;
+        final FilesystemKeyPair keyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
+
+        keyPair.withPassword(password);
+
+        return keyPair;
     }
 
 }

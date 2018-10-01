@@ -1,6 +1,9 @@
 package com.quorum.tessera.config.builder;
 
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.SslConfig;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
 import org.junit.Test;
 
@@ -31,9 +34,9 @@ public class ConfigBuilderTest {
         assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("somepath.ipc"));
 
         assertThat(result.getKeys().getKeyData()).hasSize(1);
-        final KeyData keyData = result.getKeys().getKeyData().get(0);
-        assertThat(keyData).isNotNull();
-        assertThat(keyData.getConfig().getType()).isEqualTo(PrivateKeyType.LOCKED);
+        final ConfigKeyPair keyData = result.getKeys().getKeyData().get(0);
+        assertThat(keyData).isNotNull().extracting("privateKeyPath").containsExactly(Paths.get("private"));
+        assertThat(keyData).isNotNull().extracting("publicKeyPath").containsExactly(Paths.get("public"));
 
         final ServerConfig serverConfig = result.getServerConfig();
         assertThat(serverConfig).isNotNull();

@@ -1,6 +1,6 @@
 package com.quorum.tessera.key;
 
-import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.key.exception.KeyNotFoundException;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.KeyPair;
@@ -23,7 +23,7 @@ public class KeyManagerImpl implements KeyManager {
 
     private final Set<Key> forwardingPublicKeys;
 
-    public KeyManagerImpl(final Collection<KeyData> keys, Collection<Key> forwardKeys) {
+    public KeyManagerImpl(final Collection<ConfigKeyPair> keys, Collection<Key> forwardKeys) {
         this.localKeys = keys
             .stream()
             .map(kd ->

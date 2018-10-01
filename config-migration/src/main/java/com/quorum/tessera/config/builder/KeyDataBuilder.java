@@ -2,7 +2,8 @@ package com.quorum.tessera.config.builder;
 
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -55,9 +56,9 @@ public class KeyDataBuilder {
             throw new ConfigException(new RuntimeException("Different amount of public and private keys supplied"));
         }
 
-        final List<KeyData> keyData = IntStream
+        final List<ConfigKeyPair> keyData = IntStream
             .range(0, publicKeys.size())
-            .mapToObj(i -> new KeyData(null, null, null, ConfigBuilder.toPath(workdir, privateKeys.get(i)), ConfigBuilder.toPath(workdir, publicKeys.get(i))))
+            .mapToObj(i -> new FilesystemKeyPair(ConfigBuilder.toPath(workdir, publicKeys.get(i)), ConfigBuilder.toPath(workdir, privateKeys.get(i))))
             .collect(toList());
 
         final Path privateKeyPasswordFilePath;
