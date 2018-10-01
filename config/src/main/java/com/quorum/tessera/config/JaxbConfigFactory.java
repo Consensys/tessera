@@ -1,5 +1,6 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 
 import java.io.IOException;
@@ -10,7 +11,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,11 +20,11 @@ import static java.nio.file.StandardOpenOption.APPEND;
 public class JaxbConfigFactory implements ConfigFactory {
 
     private static final Set<PosixFilePermission> NEW_PASSWORD_FILE_PERMS = Stream
-            .of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE)
-            .collect(Collectors.toSet());
-
+        .of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE)
+        .collect(Collectors.toSet());
+    
     @Override
-    public Config create(final InputStream configData, final List<KeyData> newKeys) {
+    public Config create(final InputStream configData, final List<ConfigKeyPair> newKeys) {
 
         final Config config = JaxbUtil.unmarshal(configData, Config.class);
 
@@ -33,12 +33,9 @@ public class JaxbConfigFactory implements ConfigFactory {
         if (Objects.nonNull(config.getKeys()) && !newKeys.isEmpty()) {
             try {
                 final List<String> newPasswords = newKeys
-                        .stream()
-                        .map(KeyData::getConfig)
-                        .map(KeyDataConfig::getPassword)
-                        .map(Optional::ofNullable)
-                        .map(pass -> pass.orElse(""))
-                        .collect(Collectors.toList());
+                    .stream()
+                    .map(ConfigKeyPair::getPassword)
+                    .collect(Collectors.toList());
 
                 if (config.getKeys().getPasswords() != null) {
                     config.getKeys().getPasswords().addAll(newPasswords);
@@ -47,11 +44,11 @@ public class JaxbConfigFactory implements ConfigFactory {
                     Files.write(config.getKeys().getPasswordFile(), newPasswords, APPEND);
                 } else if (!newPasswords.stream().allMatch(""::equals)) {
                     final List<String> existingPasswords = config
-                            .getKeys()
-                            .getKeyData()
-                            .stream()
-                            .map(k -> "")
-                            .collect(Collectors.toList());
+                        .getKeys()
+                        .getKeyData()
+                        .stream()
+                        .map(k -> "")
+                        .collect(Collectors.toList());
                     existingPasswords.addAll(newPasswords);
 
                     this.createFile(Paths.get("passwords.txt"));
