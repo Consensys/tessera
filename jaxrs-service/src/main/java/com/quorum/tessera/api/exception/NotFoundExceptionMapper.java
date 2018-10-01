@@ -1,6 +1,7 @@
 package com.quorum.tessera.api.exception;
 
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -13,6 +14,7 @@ public class NotFoundExceptionMapper implements ExceptionMapper<NotFoundExceptio
     public Response toResponse(NotFoundException e) {
         return Response.status(Status.NOT_FOUND)
                 .entity(e.getMessage())
+                .type(MediaType.APPLICATION_JSON)
                 .build();
     }
     

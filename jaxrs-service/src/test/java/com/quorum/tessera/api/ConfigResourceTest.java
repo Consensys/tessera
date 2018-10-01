@@ -5,8 +5,9 @@ import com.quorum.tessera.core.config.ConfigService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,16 +37,16 @@ public class ConfigResourceTest {
 
     @Test
     public void addPeerIsSucessful() {
-        
+
         List<Peer> peers = new ArrayList<>();
         Mockito.doAnswer((inv) -> {
             peers.add(new Peer(inv.getArgument(0)));
             return null;
         }).when(configService).addPeer(anyString());
         when(configService.getPeers()).thenReturn(peers);
-        
+
         Peer peer = new Peer("junit");
-        
+
         Response response = configResource.addPeer(peer);
         assertThat(response.getStatus()).isEqualTo(201);
         assertThat(response.getLocation().toString()).isEqualTo("config/peers/0");
@@ -67,16 +68,17 @@ public class ConfigResourceTest {
         verify(configService).getPeers();
 
     }
+
     @Test
     public void getPeerNotFound() {
         Peer peer = new Peer("getPeerNoptFound");
         when(configService.getPeers()).thenReturn(Arrays.asList(peer));
 
-        Response response = configResource.getPeer(2);
-
-        assertThat(response.getStatus()).isEqualTo(404);
-
-        verify(configService).getPeers();
-
+        try {
+            configResource.getPeer(2);
+            failBecauseExceptionWasNotThrown(NotFoundException.class);
+        } catch (NotFoundException ex) {
+            verify(configService).getPeers();
+        }
     }
 }
