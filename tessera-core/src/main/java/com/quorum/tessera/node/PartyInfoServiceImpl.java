@@ -1,6 +1,5 @@
 package com.quorum.tessera.node;
 
-import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.core.config.ConfigService;
 import com.quorum.tessera.key.KeyManager;
@@ -34,10 +33,9 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
         this.configService = Objects.requireNonNull(configService);
         
-        final Config configuration = configService.getConfig();
-        final String advertisedUrl = configuration.getServerConfig().getServerUri().toString();
+        final String advertisedUrl = configService.getServerUri().toString();
 
-        final Set<Party> initialParties = configuration
+        final Set<Party> initialParties = configService
             .getPeers()
             .stream()
             .map(Peer::getUrl)
@@ -61,7 +59,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     @Override
     public PartyInfo updatePartyInfo(final PartyInfo partyInfo) {
         
-        if(configService.getConfig().isDisablePeerDiscovery()) {
+        if(configService.isDisablePeerDiscovery()) {
             
             PartyInfo currentPartyInfo = getPartyInfo();
             

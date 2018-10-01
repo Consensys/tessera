@@ -50,7 +50,7 @@
     <bean class="com.quorum.tessera.api.filter.LoggingFilter"/>
 
     <bean class="com.quorum.tessera.api.filter.IPWhitelistFilter">
-        <constructor-arg ref="config"/>
+        <constructor-arg ref="configService"/>
     </bean>
 
     <bean class="com.quorum.tessera.api.filter.PrivateApiFilter" />
