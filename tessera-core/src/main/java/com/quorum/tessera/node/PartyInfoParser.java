@@ -5,6 +5,7 @@ import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
 import com.quorum.tessera.util.BinaryEncoder;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -42,8 +43,6 @@ public interface PartyInfoParser extends BinaryEncoder {
         final Set<Recipient> recipients = new HashSet<>();
 
         for (int i = 0; i < numberOfRecipients; i++) {
-
-            final int recipientElementCount = (int) byteBuffer.getLong();
 
             final int recipientKeyLength = (int) byteBuffer.getLong();
             final byte[] recipientKeyBytes = new byte[recipientKeyLength];
@@ -91,12 +90,14 @@ public interface PartyInfoParser extends BinaryEncoder {
         //so the prefix is always 2 (2 elements) and
         final List<byte[]> recipients = partyInfo.getRecipients()
             .stream()
-            .map(r -> new byte[][]{
-                    r.getKey().getKeyBytes(),
-                    r.getUrl().getBytes(UTF_8)
-                }
-            ).map(this::encodeArray)
-            .collect(Collectors.toList());
+            .map(r -> {
+                final byte[] encodedKey = encodeField(r.getKey().getKeyBytes());
+                final byte[] encodedUrl = encodeField(r.getUrl().getBytes(UTF_8));
+
+                //using Apache Commons array utils since it is already available
+                //other concat the two arrays manually
+                return ArrayUtils.addAll(encodedKey, encodedUrl);
+            }).collect(Collectors.toList());
         final int recipientLength = recipients.stream().mapToInt(r -> r.length).sum();
 
         final List<byte[]> parties = partyInfo.getParties()
