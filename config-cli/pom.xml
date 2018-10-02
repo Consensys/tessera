@@ -23,8 +23,6 @@
             <groupId>com.quorum.tessera</groupId>
             <artifactId>config</artifactId>
         </dependency>
-        
-
 
         <dependency>
             <groupId>javax.validation</groupId>
@@ -35,6 +33,7 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.github.stefanbirkner</groupId>
             <artifactId>system-rules</artifactId>
@@ -42,7 +41,12 @@
         
         <dependency>
             <groupId>com.quorum.tessera</groupId>
-              <artifactId>test-util</artifactId>
+            <artifactId>test-util</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>key-generation</artifactId>
         </dependency>
 
     </dependencies>
