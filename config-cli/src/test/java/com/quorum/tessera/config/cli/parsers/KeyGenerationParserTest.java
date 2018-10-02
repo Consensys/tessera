@@ -2,7 +2,7 @@ package com.quorum.tessera.config.cli.parsers;
 
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.keys.KeyGenerator;
+import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.config.keys.MockKeyGeneratorFactory;
 import org.apache.commons.cli.CommandLine;
 import org.junit.Test;
