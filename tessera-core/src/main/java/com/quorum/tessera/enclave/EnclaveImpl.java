@@ -103,7 +103,7 @@ public class EnclaveImpl implements Enclave {
     @Override
     public MessageHash storePayload(final byte[] payload) {
         return transactionService.storeEncodedPayload(
-            payloadEncoder.decodePayloadWithRecipients(payload)
+            new EncodedPayloadWithRecipients(payloadEncoder.decode(payload), emptyList())
         );
     }
 
