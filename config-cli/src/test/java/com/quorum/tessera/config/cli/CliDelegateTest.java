@@ -40,8 +40,8 @@ public class CliDelegateTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig().get()).isSameAs(instance.getConfig());
         assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.isHelpOn()).isFalse();
-        assertThat(result.isKeyGenOn()).isFalse();
+        assertThat(result.isSuppressStartup()).isFalse();
+ 
     }
 
     @Test

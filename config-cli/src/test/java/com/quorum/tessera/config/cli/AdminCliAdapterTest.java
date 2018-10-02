@@ -64,8 +64,8 @@ public class AdminCliAdapterTest {
         CliResult result = adminCliAdapter.execute("help");
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
-        assertThat(result.isHelpOn()).isTrue();
-        assertThat(result.isKeyGenOn()).isFalse();
+        assertThat(result.isSuppressStartup()).isTrue();
+  
     }
     
     @Test
@@ -82,8 +82,7 @@ public class AdminCliAdapterTest {
         CliResult result = adminCliAdapter.execute("-addpeer",peer.getUrl(),"-configfile",configFile.toString());
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
-        assertThat(result.isHelpOn()).isFalse();
-        assertThat(result.isKeyGenOn()).isFalse();
+        assertThat(result.isSuppressStartup()).isTrue();
         
         assertThat(result.getStatus()).isEqualTo(0);
         
@@ -106,8 +105,7 @@ public class AdminCliAdapterTest {
         CliResult result = adminCliAdapter.execute("-addpeer",peer.getUrl(),"-configfile",configFile.toString());
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
-        assertThat(result.isHelpOn()).isFalse();
-        assertThat(result.isKeyGenOn()).isFalse();
+        assertThat(result.isSuppressStartup()).isTrue();
         
         assertThat(result.getStatus()).isEqualTo(1);
         

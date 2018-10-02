@@ -67,27 +67,21 @@ public class AdminCliAdapter implements CliAdapter {
             HelpFormatter formatter = new HelpFormatter();
             formatter.setWidth(200);
             formatter.printHelp("tessera admin", options);
-            return new CliResult(0, true, false, null);
+            return new CliResult(0, true, null);
         }
 
         final CommandLine line = new DefaultParser().parse(options, args);
         if(!line.hasOption("addpeer")) {
             System.out.println("No peer defined");
-            return new CliResult(1, false, false, null);
+            return new CliResult(1, true, null);
         }
-        
-        
+
         Config config = new ConfigurationParser().parse(line);
 
         Client restClient = clientFactory.buildFrom(config.getServerConfig());
 
-       
-        
         String peerUrl = line.getOptionValue("addpeer");
-                
-                
-                
-                
+    
         final Peer peer = new Peer(peerUrl);
         
         String scheme = Optional.of(config)
@@ -116,15 +110,15 @@ public class AdminCliAdapter implements CliAdapter {
 
         if(response.getStatus() == Response.Status.CREATED.getStatusCode()) {
 
-            System.out.printf("Peer %s added.",response.getEntity());
+            System.out.printf("Peer %s added.",response.getLocation());
             System.out.println();
             
-            return new CliResult(0, false, false, null);
+            return new CliResult(0, true, null);
         }
         
         System.err.println("Unable to create peer");
         
-        return new CliResult(1, false, false, null);
+        return new CliResult(1, true, null);
     }
 
 }

@@ -53,8 +53,8 @@ public class DefaultCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.isHelpOn()).isTrue();
-        assertThat(result.isKeyGenOn()).isFalse();
+        assertThat(result.isSuppressStartup()).isTrue();
+
         
     }
     
@@ -66,8 +66,8 @@ public class DefaultCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.isHelpOn()).isTrue();
-        assertThat(result.isKeyGenOn()).isFalse();
+        assertThat(result.isSuppressStartup()).isTrue();
+
         
     }
     
@@ -80,7 +80,7 @@ public class DefaultCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.isHelpOn()).isFalse();
+        assertThat(result.isSuppressStartup()).isFalse();
     }
     
     @Test(expected = FileNotFoundException.class)
@@ -133,7 +133,7 @@ public class DefaultCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
         assertThat(result.getConfig()).isNotNull();
-        assertThat(result.isHelpOn()).isFalse();
+        assertThat(result.isSuppressStartup()).isTrue();
         
         verify(keyGenerator).generate(anyString(), eq(null));
         verifyNoMoreInteractions(keyGenerator);
@@ -146,7 +146,7 @@ public class DefaultCliAdapterTest {
         final CliResult result = cliDelegate.execute("-keygen");
         
         assertThat(result).isNotNull();
-        assertThat(result.isKeyGenOn()).isTrue();
+        assertThat(result.isSuppressStartup()).isTrue();
         
     }
 

@@ -59,7 +59,7 @@ public class DefaultCliAdapter implements CliAdapter {
             HelpFormatter formatter = new HelpFormatter();
             formatter.setWidth(200);
             formatter.printHelp("tessera -configfile <PATH> [-keygen <PATH>] [-pidfile <PATH>]", options);
-            return new CliResult(0, true, false, null);
+            return new CliResult(0, true, null);
         }
 
         try {
@@ -87,7 +87,7 @@ public class DefaultCliAdapter implements CliAdapter {
 
             new PidFileParser().parse(line);
 
-            return new CliResult(0, false, line.hasOption("keygen"), config);
+            return new CliResult(0, line.hasOption("keygen"), config);
 
         } catch (ParseException exp) {
             throw new CliException(exp.getMessage());
