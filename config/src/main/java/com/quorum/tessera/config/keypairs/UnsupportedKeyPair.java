@@ -63,7 +63,7 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
 
     @Override
     public void withPassword(String password) {
-
+        //do nothing as password not used with this keypair type
     }
 
     @Override

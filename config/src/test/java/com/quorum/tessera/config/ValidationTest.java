@@ -14,8 +14,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static com.quorum.tessera.config.PrivateKeyType.LOCKED;
-import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -60,7 +58,7 @@ public class ValidationTest {
     @Test
     public void keyDataConfigMissingPassword() {
         PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), null);
-        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, LOCKED);
+        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
         KeyData keyData = new KeyData(keyDataConfig, "privateKey", "publicKey", null, null);
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
         assertThat(violations).hasSize(1);
@@ -74,7 +72,7 @@ public class ValidationTest {
     @Test
     public void keyDataConfigNaclFailure() {
         PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
-        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, LOCKED);
+        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
         KeyData keyData = new KeyData(keyDataConfig, "NACL_FAILURE", "publicKey", null, null);
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
         assertThat(violations).hasSize(1);
@@ -88,7 +86,7 @@ public class ValidationTest {
     @Test
     public void keyDataConfigInvalidBase64() {
         PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
-        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, LOCKED);
+        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
         KeyData keyData = new KeyData(keyDataConfig, "INAVLID_BASE", "publicKey", null, null);
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
         assertThat(violations).hasSize(1);
@@ -102,7 +100,7 @@ public class ValidationTest {
     @Test
     public void inlineKeyPairNoPasswordProvided() {
         KeyDataConfig keyConfig = mock(KeyDataConfig.class);
-        when(keyConfig.getType()).thenReturn(LOCKED);
+        when(keyConfig.getType()).thenReturn(PrivateKeyType.LOCKED);
         when(keyConfig.getValue()).thenReturn("");
 
         InlineKeypair spy = Mockito.spy(new InlineKeypair("validkey", keyConfig));
@@ -122,7 +120,7 @@ public class ValidationTest {
     @Test
     public void inlineKeyPairNaClFailure() {
         KeyDataConfig keyConfig = mock(KeyDataConfig.class);
-        when(keyConfig.getType()).thenReturn(UNLOCKED);
+        when(keyConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
         when(keyConfig.getValue()).thenReturn("NACL_FAILURE");
 
         InlineKeypair keyPair = new InlineKeypair("validkey", keyConfig);
@@ -157,7 +155,7 @@ public class ValidationTest {
     @Test
     public void inlineKeyPairInvalidBase64() {
         KeyDataConfig keyConfig = mock(KeyDataConfig.class);
-        when(keyConfig.getType()).thenReturn(UNLOCKED);
+        when(keyConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
         when(keyConfig.getValue()).thenReturn("validkey");
         InlineKeypair keyPair = new InlineKeypair("INVALID_BASE", keyConfig);
 
