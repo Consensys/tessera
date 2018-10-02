@@ -5,6 +5,7 @@ import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keypairs.InlineKeypair;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -17,6 +18,7 @@ import static com.quorum.tessera.config.PrivateKeyType.LOCKED;
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -97,26 +99,16 @@ public class ValidationTest {
         assertThat(violation.getPropertyPath().toString()).isEqualTo("privateKey");
     }
 
-    private class MockInlineKeypair extends InlineKeypair {
-        public MockInlineKeypair(String publicKey, KeyDataConfig privateKeyConfig) {
-            super(publicKey, privateKeyConfig);
-        }
-
-        @Override
-        public String getPrivateKey() {
-            return "validkey";
-        }
-    }
-
     @Test
     public void inlineKeyPairNoPasswordProvided() {
         KeyDataConfig keyConfig = mock(KeyDataConfig.class);
         when(keyConfig.getType()).thenReturn(LOCKED);
         when(keyConfig.getValue()).thenReturn("");
 
-        MockInlineKeypair keyPair = new MockInlineKeypair("validkey", keyConfig);
+        InlineKeypair spy = Mockito.spy(new InlineKeypair("validkey", keyConfig));
+        doReturn("validkey").when(spy).getPrivateKey();
 
-        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair));
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(spy));
 
         Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
 
@@ -156,12 +148,10 @@ public class ValidationTest {
         ConstraintViolation<DirectKeyPair> violation = iterator.next();
 
         assertThat(violation.getMessageTemplate()).isEqualTo("Invalid Base64 key provided");
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("publicKey");
 
         ConstraintViolation<DirectKeyPair> violation2 = iterator.next();
 
         assertThat(violation2.getMessageTemplate()).isEqualTo("Invalid Base64 key provided");
-        assertThat(violation2.getPropertyPath().toString()).isEqualTo("privateKey");
     }
 
     @Test
