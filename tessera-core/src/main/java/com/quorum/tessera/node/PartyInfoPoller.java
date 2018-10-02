@@ -61,7 +61,8 @@ public class PartyInfoPoller implements Runnable {
                 .filter(Objects::nonNull)
                 .map(partyInfoParser::from)
                 .forEach(newPartyInfo -> {
-                    this.resendForNewKeys(newPartyInfo);
+                    final Set<Party> newPartiesFound = this.partyInfoService.findUnsavedParties(newPartyInfo);
+                    this.resendPartyStore.addUnseenParties(newPartiesFound);
                     partyInfoService.updatePartyInfo(newPartyInfo);
                 });
 
@@ -97,9 +98,6 @@ public class PartyInfoPoller implements Runnable {
 
     }
 
-    private void resendForNewKeys(final PartyInfo receivedPartyInfo) {
-        final Set<Party> newPartiesFound = this.partyInfoService.findUnsavedParties(receivedPartyInfo);
-        this.resendPartyStore.addUnseenParties(newPartiesFound);
-    }
+
 
 }
