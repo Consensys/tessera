@@ -70,7 +70,7 @@ public class PartyInfoServiceTest {
     public void after() {
         //Called in constructor
         verify(keyManager).getPublicKeys();
-        verify(configService).getPeers();
+        verify(configService, atLeast(1)).getPeers();
         verify(configService).getServerUri();
 
         verify(partyInfoStore, atLeast(1)).store(any(PartyInfo.class));
@@ -136,10 +136,9 @@ public class PartyInfoServiceTest {
         partyInfoService.updatePartyInfo(secondNodePartyInfo);
         partyInfoService.updatePartyInfo(thirdNodePartyInfo);
 
-        verify(partyInfoStore).store(secondNodePartyInfo);
-        verify(partyInfoStore).store(thirdNodePartyInfo);
         verify(partyInfoStore, times(3)).store(any(PartyInfo.class));
         verify(partyInfoStore, times(2)).getPartyInfo();
+        verify(configService, times(3)).getPeers();
         verify(configService, times(2)).isDisablePeerDiscovery();
     }
 
