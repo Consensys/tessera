@@ -91,7 +91,7 @@ public class KeyDataAdapterTest {
 
         Throwable ex = catchThrowable(() -> adapter.marshal(keyPair));
 
-        assertThat(ex).isInstanceOf(RuntimeException.class);
+        assertThat(ex).isInstanceOf(UnsupportedOperationException.class);
         assertThat(ex).hasMessage("The keypair type " + keyPair.getClass() + " is not allowed");
     }
 

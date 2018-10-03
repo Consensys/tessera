@@ -61,7 +61,6 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
             return new KeyData(kp.getConfig(), kp.getPrivateKey(), kp.getPublicKey(), kp.getPrivateKeyPath(), kp.getPublicKeyPath());
         }
 
-        throw new RuntimeException("The keypair type " + keyData.getClass() + " is not allowed");
-
+        throw new UnsupportedOperationException("The keypair type " + keyData.getClass() + " is not allowed");
     }
 }
