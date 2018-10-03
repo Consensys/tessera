@@ -1,13 +1,13 @@
 package com.quorum.tessera.api;
 
-import com.quorum.tessera.enclave.EnclaveMediator;
 import com.quorum.tessera.api.filter.PrivateApi;
 import com.quorum.tessera.api.model.*;
+import com.quorum.tessera.enclave.EnclaveMediator;
+import com.quorum.tessera.enclave.model.MessageHash;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,9 +16,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.util.Optional;
-import static javax.ws.rs.core.MediaType.*;
 import javax.ws.rs.core.Response.Status;
+import java.util.Objects;
+import java.util.Optional;
+
+import static javax.ws.rs.core.MediaType.*;
 
 /**
  * Provides endpoints for dealing with transactions, including:
@@ -39,8 +41,7 @@ public class TransactionResource {
 
     @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
     @ApiResponses({
-        @ApiResponse(code = 200, response = SendResponse.class, message = "Send response")
-        ,
+        @ApiResponse(code = 200, response = SendResponse.class, message = "Send response"),
         @ApiResponse(code = 400, message = "For unknown and unknown keys")
     })
     @POST
@@ -63,8 +64,7 @@ public class TransactionResource {
 
     @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Encoded Key", response = String.class)
-        ,
+        @ApiResponse(code = 200, message = "Encoded Key", response = String.class),
         @ApiResponse(code = 500, message = "Unknown server error")
     })
     @POST
@@ -148,8 +148,7 @@ public class TransactionResource {
     @Deprecated
     @ApiOperation("Deprecated: Replaced by /transaction/{key} DELETE HTTP method")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Status message", response = String.class)
-        ,
+        @ApiResponse(code = 200, message = "Status message", response = String.class),
         @ApiResponse(code = 404, message = "If the entity doesn't exist")
     })
     @POST
@@ -172,8 +171,7 @@ public class TransactionResource {
 
     @ApiOperation("Delete single transaction from Tessera node")
     @ApiResponses({
-        @ApiResponse(code = 204, message = "Successful deletion")
-        ,
+        @ApiResponse(code = 204, message = "Successful deletion"),
         @ApiResponse(code = 404, message = "If the entity doesn't exist")
     })
     @DELETE
@@ -189,8 +187,7 @@ public class TransactionResource {
 
     @ApiOperation("Resend transactions for given key or message hash/recipient")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Encoded payload when TYPE is INDIVIDUAL", response = String.class)
-        ,
+        @ApiResponse(code = 200, message = "Encoded payload when TYPE is INDIVIDUAL", response = String.class),
         @ApiResponse(code = 500, message = "General error")
     })
     @POST
@@ -201,7 +198,6 @@ public class TransactionResource {
             @ApiParam(name = "resendRequest", required = true) @Valid @NotNull final ResendRequest resendRequest
     ) {
 
-        
         LOGGER.debug("Received resend request");
         
         Optional<byte[]> o = delegate.resendAndEncode(resendRequest);
@@ -213,23 +209,21 @@ public class TransactionResource {
 
     @ApiOperation(value = "Transmit encrypted payload between Tessera Nodes")
     @ApiResponses({
-        @ApiResponse(code = 201, message = "Key created status")
-        ,
+        @ApiResponse(code = 201, message = "Key created status"),
         @ApiResponse(code = 500, message = "General error")
     })
     @POST
     @Path("push")
     @Consumes(APPLICATION_OCTET_STREAM)
     public Response push(
-            @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload
+        @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload
     ) {
 
         LOGGER.debug("Received push request");
-        
-        delegate.storePayload(payload);
-        
+        final MessageHash messageHash = delegate.storePayload(payload);
+        LOGGER.debug("Push request generated hash {}", messageHash.toString());
 
-        return Response.status(Response.Status.CREATED).build();
+        return Response.status(Response.Status.CREATED).entity(messageHash.toString()).build();
     }
 
 }

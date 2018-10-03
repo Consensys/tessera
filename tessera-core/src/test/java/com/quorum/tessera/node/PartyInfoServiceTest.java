@@ -119,8 +119,8 @@ public class PartyInfoServiceTest {
         assertThat(allRegisteredKeys)
                 .hasSize(2)
                 .containsExactlyInAnyOrder(
-                        new Recipient(new Key("some-key".getBytes()), URI),
-                        new Recipient(new Key("another-public-key".getBytes()), URI)
+                        new Recipient(new Key("some-key".getBytes()), URI + "/"),
+                        new Recipient(new Key("another-public-key".getBytes()), URI + "/")
                 );
     }
 
