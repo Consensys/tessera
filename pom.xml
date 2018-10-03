@@ -259,6 +259,7 @@
         <module>jaxrs-service</module>
         <module>tessera-core</module>
         <module>jaxrs-client</module>
+        <module>key-generation</module>
     </modules>
 
     <dependencyManagement>
@@ -386,11 +387,16 @@
                 <artifactId>grpc-service</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
-            
-            
+
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>jaxrs-service</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>key-generation</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
         
