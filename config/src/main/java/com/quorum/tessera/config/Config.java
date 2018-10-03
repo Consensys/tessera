@@ -13,6 +13,7 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 
 @XmlRootElement
@@ -100,7 +101,7 @@ public class Config extends ConfigItem {
     }
 
     public List<Peer> getPeers() {
-        return this.peers;
+        return Collections.unmodifiableList(peers);
     }
 
     public KeyConfiguration getKeys() {
@@ -117,6 +118,11 @@ public class Config extends ConfigItem {
 
     public boolean isDisablePeerDiscovery() {
         return disablePeerDiscovery;
+    }
+    
+    @XmlTransient
+    public void addPeer(Peer peer) {
+        this.peers.add(peer);
     }
 
 }

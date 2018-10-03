@@ -20,7 +20,7 @@ public class DecodingExceptionMapper implements ExceptionMapper<DecodingExceptio
 
         return Response.status(Response.Status.BAD_REQUEST)
             .entity(e.getMessage())
-            .header("Content-Type", MediaType.TEXT_PLAIN)
+            .type(MediaType.TEXT_PLAIN)
             .build();
     }
 }

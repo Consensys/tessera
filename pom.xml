@@ -258,6 +258,7 @@
         <module>grpc-service</module>
         <module>jaxrs-service</module>
         <module>tessera-core</module>
+        <module>jaxrs-client</module>
         <module>key-vault</module>
         <module>key-generation</module>
     </modules>
@@ -409,6 +410,12 @@
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>key-generation</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>jaxrs-client</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
 
@@ -726,14 +733,14 @@
                 <version>${grpc.version}</version>
                 <scope>test</scope>
             </dependency>
-
+            
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
 
         <!-- Needed for JavaDoc plugin -->
-<!--        <dependency>
+        <!--        <dependency>
             <groupId>javax.interceptor</groupId>
             <artifactId>javax.interceptor-api</artifactId>
         </dependency>

@@ -63,7 +63,7 @@ public class FileKeyGenerator implements KeyGenerator {
                         encryptedPrivateKey.getAsalt(),
                         encryptedPrivateKey.getSbox(),
                         encryptedPrivateKey.getArgonOptions(),
-                        password
+                        null
                     ),
                     PrivateKeyType.LOCKED
                 ),
@@ -114,7 +114,11 @@ public class FileKeyGenerator implements KeyGenerator {
         LOGGER.info("Saved public key to {}", publicKeyPath.toAbsolutePath().toString());
         LOGGER.info("Saved private key to {}", privateKeyPath.toAbsolutePath().toString());
 
-        return new FilesystemKeyPair(publicKeyPath, privateKeyPath);
+        final FilesystemKeyPair keyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
+
+        keyPair.withPassword(password);
+
+        return keyPair;
     }
 
 }

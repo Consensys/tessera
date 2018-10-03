@@ -1,4 +1,4 @@
-package com.quorum.tessera.client;
+package com.quorum.tessera.jaxrs.client;
 
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.ssl.context.SSLContextFactory;

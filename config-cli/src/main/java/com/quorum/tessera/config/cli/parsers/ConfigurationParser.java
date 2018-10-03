@@ -2,6 +2,7 @@ package com.quorum.tessera.config.cli.parsers;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
+import com.quorum.tessera.config.util.ConfigFileStore;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import org.apache.commons.cli.CommandLine;
@@ -52,6 +53,8 @@ public class ConfigurationParser implements Parser<Config> {
                 //we have generated new keys, so we need to output the new configuration
                 output(commandLine, config);
             }
+            
+            ConfigFileStore.create(path);
 
         }
 

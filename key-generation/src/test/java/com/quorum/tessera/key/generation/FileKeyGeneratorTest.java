@@ -117,7 +117,6 @@ public class FileKeyGeneratorTest {
 
         final KeyDataConfig pkd = generated.getInlineKeypair().getPrivateKeyConfig();
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
-        assertThat(pkd.getPassword()).isEqualTo("PASSWORD");
         assertThat(pkd.getSbox()).isEqualTo("sbox");
         assertThat(pkd.getSnonce()).isEqualTo("snonce");
         assertThat(pkd.getAsalt()).isEqualTo("salt");
