@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.xml.bind.UnmarshalException;
@@ -25,10 +26,16 @@ public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplica
 
         } catch (final UnmarshalException ex) {
             LOGGER.warn("Unable to unmarshal payload");
-            return Response.status(Response.Status.BAD_REQUEST).entity(exception.getMessage()).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(exception.getMessage())
+                    .type(MediaType.TEXT_PLAIN)
+                    .build();
 
         } catch (final Throwable ex) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(exception.getMessage())
+                    .type(MediaType.TEXT_PLAIN)
+                    .build();
 
         }
 

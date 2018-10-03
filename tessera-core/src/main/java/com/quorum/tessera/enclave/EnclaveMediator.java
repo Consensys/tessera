@@ -123,14 +123,14 @@ public class EnclaveMediator {
         }
     }
 
-    public void storePayload(byte[] payload) {
+    public MessageHash storePayload(byte[] payload) {
         final MessageHash messageHash = enclave.storePayload(payload);
         LOGGER.info(base64Decoder.encodeToString(messageHash.getHashBytes()));
+        return messageHash;
     }
 
     public void delete(DeleteRequest request) {
-        final byte[] hashBytes = base64Decoder.decode(request.getKey());
-        enclave.delete(hashBytes);
+        this.deleteKey(request.getKey());
     }
 
     public ReceiveResponse receive(String hash, String toStr) {

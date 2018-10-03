@@ -1,6 +1,9 @@
 package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.jaxrs.client.ClientFactory;
+import java.util.Arrays;
+import java.util.List;
 
 public enum CliDelegate {
 
@@ -18,7 +21,15 @@ public enum CliDelegate {
 
     public CliResult execute(String... args) throws Exception {
 
-        final CliAdapter cliAdapter = CliAdapter.create();
+        final List<String> argsList = Arrays.asList(args);
+            
+        final CliAdapter cliAdapter;
+        
+        if(argsList.contains("admin")) {
+            cliAdapter = new AdminCliAdapter(new ClientFactory());
+        } else {
+            cliAdapter = new DefaultCliAdapter();
+        }
 
         final CliResult result = cliAdapter.execute(args);
 
