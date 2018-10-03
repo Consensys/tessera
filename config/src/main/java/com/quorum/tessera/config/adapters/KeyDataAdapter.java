@@ -47,7 +47,27 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
 
     @Override
     public KeyData marshal(final ConfigKeyPair keyData) {
-        return keyData.marshal();
-    }
 
+        if(keyData instanceof DirectKeyPair) {
+            DirectKeyPair kp = (DirectKeyPair) keyData;
+            return new KeyData(null, kp.getPrivateKey(), kp.getPublicKey(), null, null, null, null);
+        }
+
+        if(keyData instanceof InlineKeypair) {
+            InlineKeypair kp = (InlineKeypair) keyData;
+            return new KeyData(kp.getPrivateKeyConfig(), null, kp.getPublicKey(), null, null, null, null);
+        }
+
+        if(keyData instanceof FilesystemKeyPair) {
+            FilesystemKeyPair kp = (FilesystemKeyPair) keyData;
+            return new KeyData(null, null, null, kp.getPrivateKeyPath(), kp.getPublicKeyPath(), null, null);
+        }
+
+        if(keyData instanceof UnsupportedKeyPair) {
+            UnsupportedKeyPair kp = (UnsupportedKeyPair) keyData;
+            return new KeyData(kp.getConfig(), kp.getPrivateKey(), kp.getPublicKey(), kp.getPrivateKeyPath(), kp.getPublicKeyPath(), kp.getAzureVaultPrivateKeyId(), kp.getAzureVaultPublicKeyId());
+        }
+
+        throw new UnsupportedOperationException("The keypair type " + keyData.getClass() + " is not allowed");
+    }
 }

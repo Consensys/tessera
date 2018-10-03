@@ -23,15 +23,4 @@ public class UnsupportedKeyPairTest {
         assertThat(keyPair.getPassword()).isNull();
     }
 
-    @Test
-    public void marshallReturnsNull() {
-        assertThat(keyPair.marshal()).isNull();
-    }
-
-    @Test
-    public void getTypeReturnsCorrectEnum() {
-        assertThat(keyPair.getType()).isEqualByComparingTo(ConfigKeyPairType.INVALID);
-    }
-
-
 }

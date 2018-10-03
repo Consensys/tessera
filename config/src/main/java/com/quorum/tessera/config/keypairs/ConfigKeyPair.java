@@ -1,7 +1,5 @@
 package com.quorum.tessera.config.keypairs;
 
-import com.quorum.tessera.config.KeyData;
-
 public interface ConfigKeyPair {
 
     String getPublicKey();
@@ -11,9 +9,5 @@ public interface ConfigKeyPair {
     void withPassword(String password);
 
     String getPassword();
-
-    KeyData marshal();
-
-    ConfigKeyPairType getType();
 
 }

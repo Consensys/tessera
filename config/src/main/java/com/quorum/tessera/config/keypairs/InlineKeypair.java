@@ -1,6 +1,5 @@
 package com.quorum.tessera.config.keypairs;
 
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.constraints.ValidBase64;
@@ -13,7 +12,6 @@ import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlElement;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
-import static com.quorum.tessera.config.keypairs.ConfigKeyPairType.INLINE;
 
 @ValidInlineKeypair
 public class InlineKeypair implements ConfigKeyPair {
@@ -27,18 +25,11 @@ public class InlineKeypair implements ConfigKeyPair {
     @XmlElement(name = "config")
     private final KeyDataConfig privateKeyConfig;
 
-    private ConfigKeyPairType type = INLINE;
-
     private String password = "";
 
     public InlineKeypair(final String publicKey, final KeyDataConfig privateKeyConfig) {
         this.publicKey = publicKey;
         this.privateKeyConfig = privateKeyConfig;
-    }
-
-    @Override
-    public KeyData marshal() {
-        return new KeyData(privateKeyConfig, null, publicKey, null, null, null, null);
     }
 
     public KeyDataConfig getPrivateKeyConfig() {
@@ -76,7 +67,4 @@ public class InlineKeypair implements ConfigKeyPair {
         return this.password;
     }
 
-    public ConfigKeyPairType getType() {
-        return type;
-    }
 }

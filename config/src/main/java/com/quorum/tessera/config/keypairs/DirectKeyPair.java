@@ -1,12 +1,9 @@
 package com.quorum.tessera.config.keypairs;
 
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.constraints.ValidBase64;
 
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlElement;
-
-import static com.quorum.tessera.config.keypairs.ConfigKeyPairType.DIRECT;
 
 public class DirectKeyPair implements ConfigKeyPair {
 
@@ -20,16 +17,9 @@ public class DirectKeyPair implements ConfigKeyPair {
     @XmlElement
     private final String privateKey;
 
-    private ConfigKeyPairType type = DIRECT;
-
     public DirectKeyPair(final String publicKey, final String privateKey) {
         this.publicKey = publicKey;
         this.privateKey = privateKey;
-    }
-
-    @Override
-    public KeyData marshal() {
-        return new KeyData(null, this.privateKey, this.publicKey, null, null, null, null);
     }
 
     @Override
@@ -51,11 +41,6 @@ public class DirectKeyPair implements ConfigKeyPair {
     public String getPassword() {
         //no password to return
         return "";
-    }
-
-    @Override
-    public ConfigKeyPairType getType() {
-        return this.type;
     }
 
 }

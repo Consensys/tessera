@@ -1,6 +1,5 @@
 package com.quorum.tessera.config.keypairs;
 
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.ValidPath;
@@ -13,7 +12,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static com.quorum.tessera.config.keypairs.ConfigKeyPairType.FILESYSTEM;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FilesystemKeyPair implements ConfigKeyPair {
@@ -34,16 +32,9 @@ public class FilesystemKeyPair implements ConfigKeyPair {
 
     private String password = "";
 
-    private ConfigKeyPairType type = FILESYSTEM;
-
     public FilesystemKeyPair(final Path publicKeyPath, final Path privateKeyPath) {
         this.publicKeyPath = publicKeyPath;
         this.privateKeyPath = privateKeyPath;
-    }
-
-    @Override
-    public KeyData marshal() {
-        return new KeyData(null, null, null, this.privateKeyPath, this.publicKeyPath, null, null);
     }
 
     @Override
@@ -68,6 +59,14 @@ public class FilesystemKeyPair implements ConfigKeyPair {
         return this.password;
     }
 
+    public Path getPublicKeyPath() {
+        return publicKeyPath;
+    }
+
+    public Path getPrivateKeyPath() {
+        return privateKeyPath;
+    }
+
     private void loadKeys() {
         if(inlineKeypair == null) {
             this.inlineKeypair = new InlineKeypair(
@@ -86,11 +85,6 @@ public class FilesystemKeyPair implements ConfigKeyPair {
     public InlineKeypair getInlineKeypair() {
         loadKeys();
         return inlineKeypair;
-    }
-
-    @Override
-    public ConfigKeyPairType getType() {
-        return this.type;
     }
 
 }

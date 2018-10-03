@@ -1,6 +1,5 @@
 package com.quorum.tessera.config.keypairs;
 
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.ValidUnsupportedKeyPair;
@@ -8,8 +7,6 @@ import com.quorum.tessera.config.constraints.ValidUnsupportedKeyPair;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
-
-import static com.quorum.tessera.config.keypairs.ConfigKeyPairType.INVALID;
 
 @ValidUnsupportedKeyPair
 public class UnsupportedKeyPair implements ConfigKeyPair {
@@ -79,22 +76,12 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
 
     @Override
     public void withPassword(String password) {
-
+        //do nothing as password not used with this keypair type
     }
 
     @Override
     public String getPassword() {
         return null;
-    }
-
-    @Override
-    public KeyData marshal() {
-        return null;
-    }
-
-    @Override
-    public ConfigKeyPairType getType() {
-        return INVALID;
     }
 
 }
