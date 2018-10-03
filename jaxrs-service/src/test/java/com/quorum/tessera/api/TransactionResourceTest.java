@@ -2,12 +2,11 @@ package com.quorum.tessera.api;
 
 import com.quorum.tessera.transaction.TransactionManagerImpl;
 import com.quorum.tessera.api.model.*;
-import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.Nonce;
 import com.quorum.tessera.transaction.PayloadEncoder;
-import com.quorum.tessera.transaction.TransactionService;
+import com.quorum.tessera.transaction.TransactionServiceImpl;
 import com.quorum.tessera.transaction.model.EncodedPayload;
 import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
 import com.quorum.tessera.util.Base64Decoder;
@@ -28,7 +27,6 @@ import static org.mockito.Mockito.*;
 
 public class TransactionResourceTest {
 
-    private Enclave enclave;
 
     private Base64Decoder base64Decoder = Base64Decoder.create();
 
@@ -36,19 +34,18 @@ public class TransactionResourceTest {
 
     private PayloadEncoder payloadEncoder;
     
-    private TransactionService transactionService;
+    private TransactionServiceImpl transactionService;
     
     @Before
     public void onSetup() {
-        this.enclave = mock(Enclave.class);
         this.payloadEncoder = mock(PayloadEncoder.class);
-        this.transactionService = mock(TransactionService.class);
-        transactionResource = new TransactionResource(new TransactionManagerImpl(enclave, base64Decoder,payloadEncoder,transactionService));
+        this.transactionService = mock(TransactionServiceImpl.class);
+        transactionResource = new TransactionResource(new TransactionManagerImpl(base64Decoder,payloadEncoder,transactionService));
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(enclave,payloadEncoder,transactionService);
+        verifyNoMoreInteractions(payloadEncoder,transactionService);
     }
 
     @Test
@@ -59,11 +56,11 @@ public class TransactionResourceTest {
         sendRequest.setTo(new String[]{"cmVjaXBpZW50MQ=="});
         sendRequest.setPayload("Zm9v");
 
-        when(enclave.store(any(), any(), any())).thenReturn(new MessageHash("SOMEKEY".getBytes()));
+        when(transactionService.store(any(), any(), any())).thenReturn(new MessageHash("SOMEKEY".getBytes()));
 
         Response response = transactionResource.send(sendRequest);
 
-        verify(enclave, times(1)).store(any(), any(), any());
+        verify(transactionService, times(1)).store(any(), any(), any());
         assertThat(response).isNotNull();
         SendResponse sr = (SendResponse) response.getEntity();
         assertThat(sr.getKey()).isNotEmpty();
@@ -74,12 +71,12 @@ public class TransactionResourceTest {
     public void testSendRaw() {
         final byte[] payload = "Zm9v".getBytes();
 
-        doReturn(new MessageHash("SOMEKEY".getBytes())).when(enclave).store(any(), any(), eq(payload));
+        doReturn(new MessageHash("SOMEKEY".getBytes())).when(transactionService).store(any(), any(), eq(payload));
 
         String senderKey = "bXlwdWJsaWNrZXk=";
         final Response response = transactionResource.sendRaw(senderKey, "cmVjaXBpZW50MQ==", payload);
 
-        verify(enclave).store(any(Optional.class), any(byte[][].class), eq(payload));
+        verify(transactionService).store(any(Optional.class), any(byte[][].class), eq(payload));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
@@ -89,12 +86,12 @@ public class TransactionResourceTest {
     public void sendrawWithNoRecipients() {
         final byte[] payload = "Zm9v".getBytes();
 
-        doReturn(new MessageHash("SOMEKEY".getBytes())).when(enclave).store(any(), any(), eq(payload));
+        doReturn(new MessageHash("SOMEKEY".getBytes())).when(transactionService).store(any(), any(), eq(payload));
 
         String senderKey = "bXlwdWJsaWNrZXk=";
         final Response response = transactionResource.sendRaw(senderKey, null, payload);
 
-        verify(enclave).store(any(Optional.class), any(byte[][].class), eq(payload));
+        verify(transactionService).store(any(Optional.class), any(byte[][].class), eq(payload));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
@@ -108,7 +105,7 @@ public class TransactionResourceTest {
         sendRequest.setTo(new String[]{"cmVjaXBpZW50MQ=="});
         sendRequest.setPayload("Zm9v");
 
-        when(enclave.store(any(), any(), any())).thenThrow(new IllegalArgumentException());
+        when(transactionService.store(any(), any(), any())).thenThrow(new IllegalArgumentException());
 
         try {
             transactionResource.send(sendRequest);
@@ -116,14 +113,14 @@ public class TransactionResourceTest {
         } catch (DecodingException ex) {
             Assertions.assertThat(ex).isNotNull();
         }
-        verify(enclave, times(1)).store(any(), any(), any());
+        verify(transactionService, times(1)).store(any(), any(), any());
 
     }
 
     @Test
     public void receiveWithValidParameters() {
 
-        doReturn("SOME DATA".getBytes()).when(enclave).receive(any(), any());
+        doReturn("SOME DATA".getBytes()).when(transactionService).receive(any(), any());
 
         Response response = transactionResource
                 .receive("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=", "cmVjaXBpZW50MQ==");
@@ -134,14 +131,14 @@ public class TransactionResourceTest {
         ReceiveResponse receiveResponse = (ReceiveResponse) response.getEntity();
 
         assertThat(receiveResponse.getPayload()).isEqualTo("U09NRSBEQVRB");
-        verify(enclave).receive(any(), any());
+        verify(transactionService).receive(any(), any());
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
     @Test
     public void receiveWithNoToField() {
 
-        doReturn("SOME DATA".getBytes()).when(enclave).receive(any(), any());
+        doReturn("SOME DATA".getBytes()).when(transactionService).receive(any(), any());
 
         Response response = transactionResource
                 .receive("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=", "");
@@ -152,7 +149,7 @@ public class TransactionResourceTest {
         ReceiveResponse receiveResponse = (ReceiveResponse) response.getEntity();
 
         assertThat(receiveResponse.getPayload()).isEqualTo("U09NRSBEQVRB");
-        verify(enclave).receive(any(), any());
+        verify(transactionService).receive(any(), any());
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
@@ -164,7 +161,7 @@ public class TransactionResourceTest {
         receiveRequest.setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
         receiveRequest.setTo("cmVjaXBpZW50MQ==");
 
-        doReturn("SOME DATA".getBytes()).when(enclave).receive(any(), any());
+        doReturn("SOME DATA".getBytes()).when(transactionService).receive(any(), any());
 
         Response response = transactionResource.receive(receiveRequest);
 
@@ -174,7 +171,7 @@ public class TransactionResourceTest {
         ReceiveResponse receiveResponse = (ReceiveResponse) response.getEntity();
 
         assertThat(receiveResponse.getPayload()).isEqualTo("U09NRSBEQVRB");
-        verify(enclave).receive(any(), any());
+        verify(transactionService).receive(any(), any());
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
@@ -185,11 +182,11 @@ public class TransactionResourceTest {
 
         String recipientKey = "cmVjaXBpZW50MQ==";
 
-        when(enclave.receive(any(), any())).thenReturn("SOMEKEY".getBytes());
+        when(transactionService.receive(any(), any())).thenReturn("SOMEKEY".getBytes());
 
         Response response = transactionResource.receiveRaw(key, recipientKey);
 
-        verify(enclave).receive(any(), any());
+        verify(transactionService).receive(any(), any());
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
     }
@@ -211,7 +208,7 @@ public class TransactionResourceTest {
         DeleteRequest deleteRequest = new DeleteRequest();
         deleteRequest.setKey(Base64.getEncoder().encodeToString("HELLOW".getBytes()));
         Response response = transactionResource.delete(deleteRequest);
-        verify(enclave, times(1)).delete(any());
+        verify(transactionService, times(1)).delete(any());
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
     }
@@ -226,7 +223,7 @@ public class TransactionResourceTest {
         Response response = transactionResource.resend(resendRequest);
         byte[] decodedKey = base64Decoder.decode(resendRequest.getPublicKey());
 
-        verify(enclave).resendAll(decodedKey);
+        verify(transactionService).resendAll(decodedKey);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
@@ -248,13 +245,13 @@ public class TransactionResourceTest {
         resendRequest.setPublicKey("mypublickey");
         resendRequest.setKey(Base64.getEncoder().encodeToString("mykey".getBytes()));
 
-        when(enclave.fetchTransactionForRecipient(any(), any())).thenReturn(epwr);
+        when(transactionService.fetchTransactionForRecipient(any(), any())).thenReturn(epwr);
 
         when(payloadEncoder.encode(epwr)).thenReturn("ENCODED".getBytes());
         
         Response response = transactionResource.resend(resendRequest);
 
-        verify(enclave).fetchTransactionForRecipient(any(), any());
+        verify(transactionService).fetchTransactionForRecipient(any(), any());
         verify(payloadEncoder).encode(epwr);
         
         assertThat(response).isNotNull();
@@ -263,9 +260,9 @@ public class TransactionResourceTest {
 
     @Test
     public void testPush() {
-        when(enclave.storePayload(any())).thenReturn(new MessageHash("somehash".getBytes()));
+        when(transactionService.storePayload(any())).thenReturn(new MessageHash("somehash".getBytes()));
         Response response = transactionResource.push("SOMEDATA".getBytes());
-        verify(enclave).storePayload(any());
+        verify(transactionService).storePayload(any());
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
     }
@@ -277,7 +274,7 @@ public class TransactionResourceTest {
         String key = Base64.getEncoder().encodeToString("HELLOW".getBytes());
         
         transactionResource.deleteKey(key);
-        verify(enclave, times(1)).delete(any());
+        verify(transactionService, times(1)).delete(any());
 
     }
 

@@ -1,10 +1,12 @@
 package com.quorum.tessera.transaction;
 
+import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.NaclFacade;
 import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.model.EncodedPayload;
 import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
@@ -43,7 +45,11 @@ public class TransactionServiceTest {
 
     private NaclFacade naclFacade;
 
-    private TransactionService transactionService;
+    private TransactionServiceImpl transactionService;
+
+    private PartyInfoService partyInfoService;
+    
+    private P2pClient p2pClient;
 
     @Before
     public void init() {
@@ -51,13 +57,14 @@ public class TransactionServiceTest {
         this.payloadEncoder = mock(PayloadEncoder.class);
         this.keyManager = mock(KeyManager.class);
         this.naclFacade = mock(NaclFacade.class);
-
-        this.transactionService = new TransactionServiceImpl(dao, payloadEncoder, keyManager, naclFacade);
+        this.partyInfoService = mock(PartyInfoService.class);
+        this.p2pClient = mock(P2pClient.class);
+        this.transactionService = new TransactionServiceImpl(dao, payloadEncoder, keyManager, naclFacade,partyInfoService,p2pClient);
     }
 
     @After
     public void after() {
-        verifyNoMoreInteractions(dao, keyManager, naclFacade, payloadEncoder);
+        verifyNoMoreInteractions(dao, keyManager, naclFacade, payloadEncoder,partyInfoService,p2pClient);
     }
 
     @Test
@@ -95,7 +102,6 @@ public class TransactionServiceTest {
         verify(dao).retrieveAllTransactions();
         verify(payloadEncoder).decodePayloadWithRecipients(encodedPayload);
     }
-
 
     @Test
     public void storingPayloadCalculatesSha3512Hash() {
@@ -264,8 +270,8 @@ public class TransactionServiceTest {
         Key recipientKey = new Key("RECIPIENT_KEY".getBytes());
 
         final EncodedPayloadWithRecipients payloadWithRecipients = new EncodedPayloadWithRecipients(
-            encodedPayload,
-            singletonList(recipientKey)
+                encodedPayload,
+                singletonList(recipientKey)
         );
 
         when(payloadEncoder.decodePayloadWithRecipients(txnData))
@@ -300,7 +306,6 @@ public class TransactionServiceTest {
 
     }
 
-
     //retrievePayload
     @Test
     public void missingTransactionThrowsError() {
@@ -318,7 +323,6 @@ public class TransactionServiceTest {
         verify(dao).retrieveByHash(hash);
 
     }
-
 
     @Test
     public void retrievePayload() {
@@ -370,7 +374,7 @@ public class TransactionServiceTest {
         final EncryptedTransaction tx = new EncryptedTransaction(hash, txnData);
 
         final EncodedPayloadWithRecipients payloadWithRecipients
-            = new EncodedPayloadWithRecipients(encodedPayload, emptyList());
+                = new EncodedPayloadWithRecipients(encodedPayload, emptyList());
 
         when(payloadEncoder.decodePayloadWithRecipients(txnData))
                 .thenReturn(payloadWithRecipients);

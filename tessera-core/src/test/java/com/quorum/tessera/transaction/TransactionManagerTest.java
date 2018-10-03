@@ -1,11 +1,7 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.api.model.*;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.transaction.TransactionManagerImpl;
 import com.quorum.tessera.enclave.model.MessageHash;
-import com.quorum.tessera.transaction.PayloadEncoder;
-import com.quorum.tessera.transaction.TransactionService;
 import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
 import com.quorum.tessera.util.Base64Decoder;
 import java.util.ArrayList;
@@ -21,28 +17,25 @@ import static org.mockito.Mockito.*;
 import org.mockito.stubbing.Answer;
 
 public class TransactionManagerTest {
-    
-    private Enclave enclave;
-    
+        
     private PayloadEncoder payloadEncoder;
     
     private Base64Decoder base64Decoder = Base64Decoder.create();
     
-    private TransactionManagerImpl enclaveMediator;
+    private TransactionManagerImpl transactionManager;
     
-    private TransactionService transactionService;
+    private TransactionServiceImpl transactionService;
     
     @Before
     public void onSetup() {
-        this.enclave = mock(Enclave.class);
         payloadEncoder = mock(PayloadEncoder.class);
-        this.transactionService = mock(TransactionService.class);
-        enclaveMediator = new TransactionManagerImpl(enclave, base64Decoder, payloadEncoder,transactionService);
+        this.transactionService = mock(TransactionServiceImpl.class);
+        transactionManager = new TransactionManagerImpl(base64Decoder, payloadEncoder,transactionService);
     }
     
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(enclave, payloadEncoder,transactionService);
+        verifyNoMoreInteractions(payloadEncoder,transactionService);
     }
     
     @Test
@@ -53,11 +46,11 @@ public class TransactionManagerTest {
         sendRequest.setTo(new String[]{"cmVjaXBpZW50MQ=="});
         sendRequest.setPayload("Zm9v");
         
-        when(enclave.store(any(), any(), any())).thenReturn(new MessageHash("SOMEKEY".getBytes()));
+        when(transactionService.store(any(), any(), any())).thenReturn(new MessageHash("SOMEKEY".getBytes()));
         
-        SendResponse sendResponse = enclaveMediator.send(sendRequest);
+        SendResponse sendResponse = transactionManager.send(sendRequest);
         
-        verify(enclave, times(1)).store(any(), any(), any());
+        verify(transactionService, times(1)).store(any(), any(), any());
         
         assertThat(sendResponse).isNotNull();
         assertThat(new String(Base64Decoder.create().decode(sendResponse.getKey()))).isEqualTo("SOMEKEY");
@@ -71,11 +64,11 @@ public class TransactionManagerTest {
         sendRequest.setTo(new String[]{"cmVjaXBpZW50MQ=="});
         sendRequest.setPayload("Zm9v");
         
-        when(enclave.store(any(), any(), any())).thenReturn(new MessageHash("SOMEKEY".getBytes()));
+        when(transactionService.store(any(), any(), any())).thenReturn(new MessageHash("SOMEKEY".getBytes()));
         
-        SendResponse sendResponse = enclaveMediator.send(sendRequest);
+        SendResponse sendResponse = transactionManager.send(sendRequest);
         
-        verify(enclave, times(1)).store(any(), any(), any());
+        verify(transactionService, times(1)).store(any(), any(), any());
         
         assertThat(sendResponse).isNotNull();
         assertThat(new String(Base64Decoder.create().decode(sendResponse.getKey()))).isEqualTo("SOMEKEY");
@@ -83,15 +76,15 @@ public class TransactionManagerTest {
     
     @Test
     public void testReceive() {
-        doReturn("SOME DATA".getBytes()).when(enclave).receive(any(), any());
+        doReturn("SOME DATA".getBytes()).when(transactionService).receive(any(), any());
         
         ReceiveRequest request = new ReceiveRequest();
         request.setTo("cmVjaXBpZW50MQ==");
         request.setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
         
-        ReceiveResponse response = enclaveMediator.receive(request);
+        ReceiveResponse response = transactionManager.receive(request);
         
-        verify(enclave).receive(any(), any());
+        verify(transactionService).receive(any(), any());
         
         assertThat(response).isNotNull();
         assertThat(new String(Base64Decoder.create().decode(response.getPayload()))).isEqualTo("SOME DATA");
@@ -101,14 +94,14 @@ public class TransactionManagerTest {
     @Test
     public void testReceiveWithNoToField() {
         
-        doReturn("SOME DATA".getBytes()).when(enclave).receive(any(), any());
+        doReturn("SOME DATA".getBytes()).when(transactionService).receive(any(), any());
         
         ReceiveRequest request = new ReceiveRequest();
         request.setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
         
-        ReceiveResponse response = enclaveMediator.receive(request);
+        ReceiveResponse response = transactionManager.receive(request);
         
-        verify(enclave).receive(any(), any());
+        verify(transactionService).receive(any(), any());
         
         assertThat(response).isNotNull();
         assertThat(new String(Base64Decoder.create().decode(response.getPayload()))).isEqualTo("SOME DATA");
@@ -129,7 +122,7 @@ public class TransactionManagerTest {
             return null;
         }).when(transactionService).delete(any(MessageHash.class));
         
-        enclaveMediator.delete(request);
+        transactionManager.delete(request);
 
         verify(transactionService).delete(any(MessageHash.class));
         
@@ -146,13 +139,13 @@ public class TransactionManagerTest {
         request.setPublicKey("mypublickey");
         request.setKey("mykey");
         
-        Optional<byte[]> result = enclaveMediator.resendAndEncode(request);
+        Optional<byte[]> result = transactionManager.resendAndEncode(request);
         
         assertThat(result).isNotPresent();
         
         byte[] decodedKey = Base64.getDecoder().decode(request.getPublicKey());
         
-        verify(enclave).resendAll(decodedKey);
+        verify(transactionService).resendAll(decodedKey);
         
     }
     
@@ -171,14 +164,14 @@ public class TransactionManagerTest {
         
         when(payloadEncoder.encode(encodedPayloadWithRecipients)).thenReturn(encodedPayload);
         
-        when(enclave.fetchTransactionForRecipient(any(), any())).thenReturn(encodedPayloadWithRecipients);
+        when(transactionService.fetchTransactionForRecipient(any(), any())).thenReturn(encodedPayloadWithRecipients);
         
-        Optional<byte[]> result = enclaveMediator.resendAndEncode(request);
+        Optional<byte[]> result = transactionManager.resendAndEncode(request);
         
         assertThat(result).isPresent();
         assertThat(result.get()).isEqualTo(encodedPayload);
         
-        verify(enclave).fetchTransactionForRecipient(any(), any());
+        verify(transactionService).fetchTransactionForRecipient(any(), any());
         verify(payloadEncoder).encode(encodedPayloadWithRecipients);
         
     }
@@ -195,15 +188,15 @@ public class TransactionManagerTest {
         
         byte[] enclaveResponse = Base64.getDecoder().decode("DATA");
         
-        when(enclave.receive(any(), any())).thenReturn(enclaveResponse);
+        when(transactionService.receive(any(), any())).thenReturn(enclaveResponse);
         
-        String result = enclaveMediator.receiveAndEncode(receiveRequest);
+        String result = transactionManager.receiveAndEncode(receiveRequest);
         
         assertThat(result).isNotNull();
         
         assertThat(result).isEqualTo(Base64.getEncoder().encodeToString(enclaveResponse));
         
-        verify(enclave).receive(any(), any());
+        verify(transactionService).receive(any(), any());
         
     }
     
@@ -216,15 +209,15 @@ public class TransactionManagerTest {
         receiveRequest.setTo("");
         byte[] enclaveResponse = Base64.getDecoder().decode("DATA");
         
-        when(enclave.receive(any(), any())).thenReturn(enclaveResponse);
+        when(transactionService.receive(any(), any())).thenReturn(enclaveResponse);
         
-        String result = enclaveMediator.receiveAndEncode(receiveRequest);
+        String result = transactionManager.receiveAndEncode(receiveRequest);
         
         assertThat(result).isNotNull();
         
         assertThat(result).isEqualTo(Base64.getEncoder().encodeToString(enclaveResponse));
         
-        verify(enclave).receive(any(), any());
+        verify(transactionService).receive(any(), any());
         
     }
     
@@ -238,11 +231,11 @@ public class TransactionManagerTest {
         MessageHash messageHash = mock(MessageHash.class);
         when(messageHash.getHashBytes()).thenReturn("messageHash".getBytes());
         
-        when(enclave.store(any(), any(), any())).thenReturn(messageHash);
+        when(transactionService.store(any(), any(), any())).thenReturn(messageHash);
         
-        enclaveMediator.storeAndEncodeKey(sender, recipientKeys, payload);
+        transactionManager.storeAndEncodeKey(sender, recipientKeys, payload);
         
-        verify(enclave).store(any(), any(), any());
+        verify(transactionService).store(any(), any(), any());
         
     }
     
@@ -257,11 +250,11 @@ public class TransactionManagerTest {
         MessageHash messageHash = mock(MessageHash.class);
         when(messageHash.getHashBytes()).thenReturn("messageHash".getBytes());
         
-        when(enclave.store(any(), any(), any())).thenReturn(messageHash);
+        when(transactionService.store(any(), any(), any())).thenReturn(messageHash);
         
-        enclaveMediator.storeAndEncodeKey(sender, recipientKeys, payload);
+        transactionManager.storeAndEncodeKey(sender, recipientKeys, payload);
         
-        verify(enclave).store(any(), any(), any());
+        verify(transactionService).store(any(), any(), any());
         
     }
     
@@ -273,11 +266,11 @@ public class TransactionManagerTest {
         
         byte[] payload = "PAYLOAD".getBytes();
         
-        when(enclave.storePayload(payload)).thenReturn(messageHash);
+        when(transactionService.storePayload(payload)).thenReturn(messageHash);
         
-        enclaveMediator.storePayload(payload);
+        transactionManager.storePayload(payload);
         
-        verify(enclave).storePayload(payload);
+        verify(transactionService).storePayload(payload);
         
     }
     
@@ -286,7 +279,7 @@ public class TransactionManagerTest {
         
         String key = Base64.getEncoder().encodeToString("KEY".getBytes());
         
-        enclaveMediator.deleteKey(key);
+        transactionManager.deleteKey(key);
         
 
         verify(transactionService).delete(any(MessageHash.class));
@@ -299,27 +292,25 @@ public class TransactionManagerTest {
         String hash = Base64.getEncoder().encodeToString("hash".getBytes());
         String recipientKey = Base64.getEncoder().encodeToString("recipientKey".getBytes());
 
-        enclaveMediator.receiveRaw(hash, recipientKey);
+        transactionManager.receiveRaw(hash, recipientKey);
         
-        verify(enclave).receive(any(),any());
+        verify(transactionService).receive(any(),any());
 
     }
-    
-    
-        
+
     @Test
     public void testReceiveNullTo() {
         
         String hash = Base64.getEncoder().encodeToString("hash".getBytes());
         
-        when(enclave.receive(any(), any())).thenReturn("RESULT".getBytes());
+        when(transactionService.receive(any(), any())).thenReturn("RESULT".getBytes());
         
-        ReceiveResponse result = enclaveMediator.receive(hash, null);
+        ReceiveResponse result = transactionManager.receive(hash, null);
         
         assertThat(result.getPayload())
                 .isEqualTo(Base64.getEncoder().encodeToString("RESULT".getBytes()));
         
-        verify(enclave).receive(any(), any());
+        verify(transactionService).receive(any(), any());
         
         
     }
@@ -329,14 +320,14 @@ public class TransactionManagerTest {
         
         String hash = Base64.getEncoder().encodeToString("hash".getBytes());
         
-        when(enclave.receive(any(), any())).thenReturn("RESULT".getBytes());
+        when(transactionService.receive(any(), any())).thenReturn("RESULT".getBytes());
         
-        ReceiveResponse result = enclaveMediator.receive(hash, "");
+        ReceiveResponse result = transactionManager.receive(hash, "");
         
         assertThat(result.getPayload())
                 .isEqualTo(Base64.getEncoder().encodeToString("RESULT".getBytes()));
         
-        verify(enclave).receive(any(), any());
+        verify(transactionService).receive(any(), any());
         
         
     }

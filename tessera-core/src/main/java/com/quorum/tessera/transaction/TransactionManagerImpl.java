@@ -7,7 +7,6 @@ import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendRequestType;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
-import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
@@ -30,16 +29,13 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class);
 
-    private final Enclave enclave;
-
     private final PayloadEncoder payloadEncoder;
 
     private final Base64Decoder base64Decoder;
 
     private final TransactionService transactionService;
     
-    public TransactionManagerImpl(Enclave enclave, Base64Decoder base64Decoder, PayloadEncoder payloadEncoder,TransactionService transactionService) {
-        this.enclave = Objects.requireNonNull(enclave);
+    public TransactionManagerImpl(Base64Decoder base64Decoder, PayloadEncoder payloadEncoder,TransactionService transactionService) {
         this.base64Decoder = Objects.requireNonNull(base64Decoder);
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
         this.transactionService = Objects.requireNonNull(transactionService);
@@ -66,7 +62,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final byte[] payload = base64Decoder.decode(sendRequest.getPayload());
 
-        final byte[] key = enclave.store(from, recipients, payload).getHashBytes();
+        final byte[] key = transactionService.store(from, recipients, payload).getHashBytes();
 
         final String encodedKey = base64Decoder.encodeToString(key);
         return new SendResponse(encodedKey);
@@ -86,7 +82,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         LOGGER.debug("SendRaw Recipients: {}", nonnullRecipients);
 
-        final byte[] key = enclave.store(from, recipients, payload).getHashBytes();
+        final byte[] key = transactionService.store(from, recipients, payload).getHashBytes();
 
         final String encodedKey = base64Decoder.encodeToString(key);
 
@@ -105,7 +101,7 @@ public class TransactionManagerImpl implements TransactionManager {
                 .filter(str -> !str.isEmpty())
                 .map(base64Decoder::decode);
 
-        final byte[] payload = enclave.receive(key, to);
+        final byte[] payload = transactionService.receive(key, to);
 
         return base64Decoder.encodeToString(payload);
     }
@@ -116,12 +112,12 @@ public class TransactionManagerImpl implements TransactionManager {
         final byte[] publicKey = base64Decoder.decode(request.getPublicKey());
 
         if (request.getType() == ResendRequestType.ALL) {
-            enclave.resendAll(publicKey);
+            transactionService.resendAll(publicKey);
             return Optional.empty();
         } else {
             final byte[] hashKey = base64Decoder.decode(request.getKey());
 
-            final EncodedPayloadWithRecipients payloadWithRecipients = enclave
+            final EncodedPayloadWithRecipients payloadWithRecipients = transactionService
                     .fetchTransactionForRecipient(new MessageHash(hashKey), new Key(publicKey));
 
             final byte[] encoded = payloadEncoder.encode(payloadWithRecipients);
@@ -132,7 +128,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     @Override
     public void storePayload(byte[] payload) {
-        final MessageHash messageHash = enclave.storePayload(payload);
+        final MessageHash messageHash = transactionService.storePayload(payload);
         LOGGER.info(base64Decoder.encodeToString(messageHash.getHashBytes()));
     }
 
@@ -155,7 +151,7 @@ public class TransactionManagerImpl implements TransactionManager {
                 .filter(str -> !str.isEmpty())
                 .map(base64Decoder::decode);
 
-        final byte[] payload = enclave.receive(key, to);
+        final byte[] payload = transactionService.receive(key, to);
 
         final String encodedPayload = base64Decoder.encodeToString(payload);
 
@@ -171,7 +167,7 @@ public class TransactionManagerImpl implements TransactionManager {
                 .ofNullable(recipientKey)
                 .map(base64Decoder::decode);
 
-        return enclave.receive(decodedKey, to);
+        return transactionService.receive(decodedKey, to);
     }
 
     @Override
