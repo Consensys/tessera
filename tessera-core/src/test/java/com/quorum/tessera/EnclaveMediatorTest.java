@@ -5,6 +5,7 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveMediator;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.transaction.PayloadEncoder;
+import com.quorum.tessera.transaction.TransactionService;
 import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
 import com.quorum.tessera.util.Base64Decoder;
 import java.util.ArrayList;
@@ -29,16 +30,19 @@ public class EnclaveMediatorTest {
     
     private EnclaveMediator enclaveMediator;
     
+    private TransactionService transactionService;
+    
     @Before
     public void onSetup() {
         this.enclave = mock(Enclave.class);
         payloadEncoder = mock(PayloadEncoder.class);
-        enclaveMediator = new EnclaveMediator(enclave, base64Decoder, payloadEncoder);
+        this.transactionService = mock(TransactionService.class);
+        enclaveMediator = new EnclaveMediator(enclave, base64Decoder, payloadEncoder,transactionService);
     }
     
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(enclave, payloadEncoder);
+        verifyNoMoreInteractions(enclave, payloadEncoder,transactionService);
     }
     
     @Test
