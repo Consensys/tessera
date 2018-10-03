@@ -21,7 +21,7 @@ public class KeyNotFoundExceptionMapper implements ExceptionMapper<KeyNotFoundEx
         //TODO: change to 404
         return Response.status(Response.Status.BAD_REQUEST)
             .entity(e.getMessage())
-            .header("Content-Type", MediaType.TEXT_PLAIN)
+            .type(MediaType.TEXT_PLAIN)
             .build();
     }
 }

@@ -24,6 +24,10 @@
         <constructor-arg ref="partyInfoService"/>
         <constructor-arg ref="partyInfoParser" />
     </bean>
+    
+    <bean class="com.quorum.tessera.api.ConfigResource">
+        <constructor-arg ref="configService" />
+    </bean>
 
     <bean name="postDelegate" class="com.quorum.tessera.client.PostDelegate">
         <constructor-arg>
@@ -37,7 +41,7 @@
 
 
 
-    <bean name="clientFactory" class="com.quorum.tessera.client.ClientFactory">
+    <bean name="clientFactory" class="com.quorum.tessera.jaxrs.client.ClientFactory">
         <constructor-arg>
             <bean class="com.quorum.tessera.ssl.context.ClientSSLContextFactory" factory-method="create"/>
         </constructor-arg>
@@ -46,7 +50,7 @@
     <bean class="com.quorum.tessera.api.filter.LoggingFilter"/>
 
     <bean class="com.quorum.tessera.api.filter.IPWhitelistFilter">
-        <constructor-arg ref="config"/>
+        <constructor-arg ref="configService"/>
     </bean>
 
     <bean class="com.quorum.tessera.api.filter.PrivateApiFilter" />
