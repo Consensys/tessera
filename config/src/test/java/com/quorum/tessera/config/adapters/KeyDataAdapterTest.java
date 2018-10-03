@@ -83,11 +83,6 @@ public class KeyDataAdapterTest {
         public String getPassword() {
             return null;
         }
-
-        @Override
-        public ConfigKeyPairType getType() {
-            return null;
-        }
     }
 
     @Test

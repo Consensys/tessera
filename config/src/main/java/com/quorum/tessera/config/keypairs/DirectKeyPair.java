@@ -5,8 +5,6 @@ import com.quorum.tessera.config.constraints.ValidBase64;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlElement;
 
-import static com.quorum.tessera.config.keypairs.ConfigKeyPairType.DIRECT;
-
 public class DirectKeyPair implements ConfigKeyPair {
 
     @NotNull
@@ -43,11 +41,6 @@ public class DirectKeyPair implements ConfigKeyPair {
     public String getPassword() {
         //no password to return
         return "";
-    }
-
-    @Override
-    public ConfigKeyPairType getType() {
-        return DIRECT;
     }
 
 }

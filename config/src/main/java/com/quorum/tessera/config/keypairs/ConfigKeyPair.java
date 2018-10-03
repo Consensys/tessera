@@ -10,6 +10,4 @@ public interface ConfigKeyPair {
 
     String getPassword();
 
-    ConfigKeyPairType getType();
-
 }

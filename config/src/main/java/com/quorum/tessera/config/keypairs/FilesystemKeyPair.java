@@ -12,7 +12,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static com.quorum.tessera.config.keypairs.ConfigKeyPairType.FILESYSTEM;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FilesystemKeyPair implements ConfigKeyPair {
@@ -86,11 +85,6 @@ public class FilesystemKeyPair implements ConfigKeyPair {
     public InlineKeypair getInlineKeypair() {
         loadKeys();
         return inlineKeypair;
-    }
-
-    @Override
-    public ConfigKeyPairType getType() {
-        return FILESYSTEM;
     }
 
 }

@@ -49,9 +49,4 @@ public class FilesystemKeyPairTest {
         assertThat(result).isEqualToComparingFieldByFieldRecursively(expected);
     }
 
-    @Test
-    public void getTypeReturnsFilesystem() {
-        FilesystemKeyPair keyPair = new FilesystemKeyPair(Paths.get("path1"), Paths.get("path2"));
-        assertThat(keyPair.getType()).isEqualByComparingTo(ConfigKeyPairType.FILESYSTEM);
-    }
 }
