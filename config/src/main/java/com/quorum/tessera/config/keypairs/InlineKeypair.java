@@ -1,6 +1,5 @@
 package com.quorum.tessera.config.keypairs;
 
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.constraints.ValidBase64;
@@ -32,11 +31,6 @@ public class InlineKeypair implements ConfigKeyPair {
     public InlineKeypair(final String publicKey, final KeyDataConfig privateKeyConfig) {
         this.publicKey = publicKey;
         this.privateKeyConfig = privateKeyConfig;
-    }
-
-    @Override
-    public KeyData marshal() {
-        return new KeyData(privateKeyConfig, null, publicKey, null, null);
     }
 
     public KeyDataConfig getPrivateKeyConfig() {

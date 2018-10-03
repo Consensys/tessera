@@ -1,14 +1,12 @@
 package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.keypairs.DirectKeyPair;
-import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
-import com.quorum.tessera.config.keypairs.InlineKeypair;
-import com.quorum.tessera.config.keypairs.UnsupportedKeyPair;
+import com.quorum.tessera.config.keypairs.*;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.Objects;
+
+import static com.quorum.tessera.config.keypairs.ConfigKeyPairType.*;
 
 public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
 
@@ -44,7 +42,28 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
 
     @Override
     public KeyData marshal(final ConfigKeyPair keyData) {
-        return keyData.marshal();
-    }
+        ConfigKeyPairType type = keyData.getType();
 
+        if(type == DIRECT) {
+            DirectKeyPair kp = (DirectKeyPair) keyData;
+            return new KeyData(null, kp.getPrivateKey(), kp.getPublicKey(), null, null);
+        }
+
+        if(type == INLINE) {
+            InlineKeypair kp = (InlineKeypair) keyData;
+            return new KeyData(kp.getPrivateKeyConfig(), null, kp.getPublicKey(), null, null);
+        }
+
+        if(type == FILESYSTEM) {
+            FilesystemKeyPair kp = (FilesystemKeyPair) keyData;
+            return new KeyData(null, null, null, kp.getPrivateKeyPath(), kp.getPublicKeyPath());
+        }
+
+        if(type == UNSUPPORTED) {
+            UnsupportedKeyPair kp = (UnsupportedKeyPair) keyData;
+            return new KeyData(kp.getConfig(), kp.getPrivateKey(), kp.getPublicKey(), kp.getPrivateKeyPath(), kp.getPublicKeyPath());
+        }
+
+        throw new RuntimeException("The keypair type " + keyData.getClass() + " is not allowed");
+    }
 }

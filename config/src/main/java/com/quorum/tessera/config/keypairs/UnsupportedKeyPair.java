@@ -1,6 +1,5 @@
 package com.quorum.tessera.config.keypairs;
 
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.ValidUnsupportedKeyPair;
@@ -68,11 +67,6 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
 
     @Override
     public String getPassword() {
-        return null;
-    }
-
-    @Override
-    public KeyData marshal() {
         return null;
     }
 

@@ -1,6 +1,5 @@
 package com.quorum.tessera.config.keypairs;
 
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
@@ -16,22 +15,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FilesystemKeyPairTest {
 
     @Test
-    public void marshallingSetsCorrectFields() {
+    public void gettersWorkAsExpected() {
+        Path pub = Paths.get("pubPath");
+        Path priv = Paths.get("privPath");
 
-        final Path publicPath = Paths.get("public");
-        final Path privatePath = Paths.get("private");
+        FilesystemKeyPair keyPair = new FilesystemKeyPair(pub, priv);
 
-        final FilesystemKeyPair keyPair = new FilesystemKeyPair(publicPath, privatePath);
-
-        final KeyData result = keyPair.marshal();
-
-        assertThat(result.getConfig()).isNull();
-        assertThat(result.getPrivateKey()).isNull();
-        assertThat(result.getPublicKey()).isNull();
-
-        assertThat(result.getPublicKeyPath()).isEqualTo(publicPath);
-        assertThat(result.getPrivateKeyPath()).isEqualTo(privatePath);
-
+        assertThat(keyPair.getPublicKeyPath()).isEqualByComparingTo(pub);
+        assertThat(keyPair.getPrivateKeyPath()).isEqualByComparingTo(priv);
     }
 
     @Test
