@@ -10,6 +10,8 @@ import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.transaction.PayloadEncoder;
+import com.quorum.tessera.transaction.TransactionManager;
+import com.quorum.tessera.transaction.TransactionService;
 import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
 import com.quorum.tessera.util.Base64Decoder;
 import java.util.Objects;
@@ -26,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * @see {Base64Decoder}
  * @see {Enclave}
  */
-public class EnclaveMediator {
+public class EnclaveMediator implements TransactionManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveMediator.class);
 
@@ -36,12 +38,16 @@ public class EnclaveMediator {
 
     private final Base64Decoder base64Decoder;
 
-    public EnclaveMediator(Enclave enclave, Base64Decoder base64Decoder, PayloadEncoder payloadEncoder) {
+    private final TransactionService transactionService;
+    
+    public EnclaveMediator(Enclave enclave, Base64Decoder base64Decoder, PayloadEncoder payloadEncoder,TransactionService transactionService) {
         this.enclave = Objects.requireNonNull(enclave);
         this.base64Decoder = Objects.requireNonNull(base64Decoder);
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
+        this.transactionService = Objects.requireNonNull(transactionService);
     }
 
+    @Override
     public SendResponse send(SendRequest sendRequest) {
 
         LOGGER.debug("Received send request");
@@ -68,6 +74,7 @@ public class EnclaveMediator {
         return new SendResponse(encodedKey);
     }
 
+    @Override
     public String storeAndEncodeKey(String sender, String recipientKeys, byte[] payload) {
         final Optional<byte[]> from = Optional
                 .ofNullable(sender)
@@ -90,6 +97,7 @@ public class EnclaveMediator {
         return encodedKey;
     }
 
+    @Override
     public String receiveAndEncode(ReceiveRequest request) {
 
         final byte[] key = base64Decoder.decode(request.getKey());
@@ -104,6 +112,7 @@ public class EnclaveMediator {
         return base64Decoder.encodeToString(payload);
     }
 
+    @Override
     public Optional<byte[]> resendAndEncode(ResendRequest request) {
 
         final byte[] publicKey = base64Decoder.decode(request.getPublicKey());
@@ -123,16 +132,19 @@ public class EnclaveMediator {
         }
     }
 
+    @Override
     public void storePayload(byte[] payload) {
         final MessageHash messageHash = enclave.storePayload(payload);
         LOGGER.info(base64Decoder.encodeToString(messageHash.getHashBytes()));
     }
 
+    @Override
     public void delete(DeleteRequest request) {
         final byte[] hashBytes = base64Decoder.decode(request.getKey());
         enclave.delete(hashBytes);
     }
 
+    @Override
     public ReceiveResponse receive(String hash, String toStr) {
 
         final byte[] key = base64Decoder.decode(hash);
@@ -149,6 +161,7 @@ public class EnclaveMediator {
         return new ReceiveResponse(encodedPayload);
     }
 
+    @Override
     public byte[] receiveRaw(String hash, String recipientKey) {
         
         final byte[] decodedKey = base64Decoder.decode(hash);
@@ -160,6 +173,7 @@ public class EnclaveMediator {
         return enclave.receive(decodedKey, to);
     }
 
+    @Override
     public void deleteKey(String key) {
         final byte[] hashBytes = base64Decoder.decode(key);
         enclave.delete(hashBytes);

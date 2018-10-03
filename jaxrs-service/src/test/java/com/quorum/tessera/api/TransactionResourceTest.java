@@ -7,6 +7,7 @@ import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.Nonce;
 import com.quorum.tessera.transaction.PayloadEncoder;
+import com.quorum.tessera.transaction.TransactionService;
 import com.quorum.tessera.transaction.model.EncodedPayload;
 import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
 import com.quorum.tessera.util.Base64Decoder;
@@ -35,18 +36,19 @@ public class TransactionResourceTest {
 
     private PayloadEncoder payloadEncoder;
     
-    
+    private TransactionService transactionService;
     
     @Before
     public void onSetup() {
         this.enclave = mock(Enclave.class);
         this.payloadEncoder = mock(PayloadEncoder.class);
-        transactionResource = new TransactionResource(new EnclaveMediator(enclave, base64Decoder,payloadEncoder));
+        this.transactionService = mock(TransactionService.class);
+        transactionResource = new TransactionResource(new EnclaveMediator(enclave, base64Decoder,payloadEncoder,transactionService));
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(enclave,payloadEncoder);
+        verifyNoMoreInteractions(enclave,payloadEncoder,transactionService);
     }
 
     @Test
