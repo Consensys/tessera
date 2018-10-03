@@ -50,13 +50,6 @@ public class EnclaveImpl implements Enclave {
     }
 
     @Override
-    public void delete(final byte[] hashBytes) {
-        final MessageHash messageHash = new MessageHash(hashBytes);
-
-        this.transactionService.delete(messageHash);
-    }
-
-    @Override
     public byte[] receive(final byte[] hashBytes, final Optional<byte[]> to) {
         final MessageHash hash = new MessageHash(hashBytes);
 

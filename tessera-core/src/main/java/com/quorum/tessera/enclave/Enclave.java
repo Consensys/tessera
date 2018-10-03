@@ -8,17 +8,6 @@ import java.util.Optional;
 
 public interface Enclave {
 
-    /**
-     * Deletes a particular transaction from the enclave
-     * Returns whether the desired state was achieved
-     * i.e. {@code true} if the message no longer exists, {@code false} if the message still exists
-     * <p>
-     * Note that the method will return true if trying to delete a non-existent message,
-     * since the desired state of the message no longer existing is satisfied
-     *
-     * @param hashBytes The hash of the payload that should be deleted
-     */
-    void delete(byte[] hashBytes);
 
     /**
      * Retrieves the message specified by the provided hash,

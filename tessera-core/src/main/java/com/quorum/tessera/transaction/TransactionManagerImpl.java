@@ -139,7 +139,10 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     public void delete(DeleteRequest request) {
         final byte[] hashBytes = base64Decoder.decode(request.getKey());
-        enclave.delete(hashBytes);
+        final MessageHash messageHash = new MessageHash(hashBytes);
+        
+        transactionService.delete(messageHash);
+        
     }
 
     @Override
@@ -174,7 +177,8 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     public void deleteKey(String key) {
         final byte[] hashBytes = base64Decoder.decode(key);
-        enclave.delete(hashBytes);
+        MessageHash messageHash = new MessageHash(hashBytes);
+        transactionService.delete(messageHash);
     }
 
     public ReceiveResponse receive(ReceiveRequest request) {
