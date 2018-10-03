@@ -1,4 +1,4 @@
-package com.quorum.tessera.enclave;
+package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.api.model.DeleteRequest;
 import com.quorum.tessera.api.model.ReceiveRequest;
@@ -7,11 +7,9 @@ import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendRequestType;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
+import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.nacl.Key;
-import com.quorum.tessera.transaction.PayloadEncoder;
-import com.quorum.tessera.transaction.TransactionManager;
-import com.quorum.tessera.transaction.TransactionService;
 import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
 import com.quorum.tessera.util.Base64Decoder;
 import java.util.Objects;
@@ -28,9 +26,9 @@ import org.slf4j.LoggerFactory;
  * @see {Base64Decoder}
  * @see {Enclave}
  */
-public class EnclaveMediator implements TransactionManager {
+public class TransactionManagerImpl implements TransactionManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveMediator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class);
 
     private final Enclave enclave;
 
@@ -40,7 +38,7 @@ public class EnclaveMediator implements TransactionManager {
 
     private final TransactionService transactionService;
     
-    public EnclaveMediator(Enclave enclave, Base64Decoder base64Decoder, PayloadEncoder payloadEncoder,TransactionService transactionService) {
+    public TransactionManagerImpl(Enclave enclave, Base64Decoder base64Decoder, PayloadEncoder payloadEncoder,TransactionService transactionService) {
         this.enclave = Objects.requireNonNull(enclave);
         this.base64Decoder = Objects.requireNonNull(base64Decoder);
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);

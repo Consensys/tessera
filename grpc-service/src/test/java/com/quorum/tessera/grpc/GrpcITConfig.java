@@ -1,7 +1,7 @@
 
 package com.quorum.tessera.grpc;
 
-import com.quorum.tessera.enclave.EnclaveMediator;
+import com.quorum.tessera.transaction.TransactionManagerImpl;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
 import static org.mockito.Mockito.mock;
@@ -15,8 +15,8 @@ import org.springframework.context.annotation.ImportResource;
 public class GrpcITConfig {
     
     @Bean(name = "enclaveDelegate")
-    public EnclaveMediator enclaveMediator() {
-        return mock(EnclaveMediator.class);
+    public TransactionManagerImpl enclaveMediator() {
+        return mock(TransactionManagerImpl.class);
     }
     
     @Bean

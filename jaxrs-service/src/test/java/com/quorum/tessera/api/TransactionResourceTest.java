@@ -1,6 +1,6 @@
 package com.quorum.tessera.api;
 
-import com.quorum.tessera.enclave.EnclaveMediator;
+import com.quorum.tessera.transaction.TransactionManagerImpl;
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.model.MessageHash;
@@ -43,7 +43,7 @@ public class TransactionResourceTest {
         this.enclave = mock(Enclave.class);
         this.payloadEncoder = mock(PayloadEncoder.class);
         this.transactionService = mock(TransactionService.class);
-        transactionResource = new TransactionResource(new EnclaveMediator(enclave, base64Decoder,payloadEncoder,transactionService));
+        transactionResource = new TransactionResource(new TransactionManagerImpl(enclave, base64Decoder,payloadEncoder,transactionService));
     }
 
     @After

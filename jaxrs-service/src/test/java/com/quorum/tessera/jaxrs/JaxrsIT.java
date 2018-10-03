@@ -3,7 +3,7 @@ package com.quorum.tessera.jaxrs;
 import com.quorum.tessera.api.PartyInfoResource;
 import com.quorum.tessera.api.TransactionResource;
 import com.quorum.tessera.api.VersionResource;
-import com.quorum.tessera.enclave.EnclaveMediator;
+import com.quorum.tessera.transaction.TransactionManagerImpl;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.model.PartyInfo;
@@ -40,7 +40,7 @@ public class JaxrsIT {
     private TransactionResource transactionResource;
 
     @Inject
-    private EnclaveMediator enclaveMediator;
+    private TransactionManagerImpl enclaveMediator;
 
     @After
     public void afterTest() {

@@ -12,7 +12,7 @@
     <context:component-scan base-package="com.quorum.tessera"/>
     
      
-    <bean id="enclaveDelegate" class="com.quorum.tessera.enclave.EnclaveMediator">
+    <bean id="enclaveDelegate" class="com.quorum.tessera.transaction.TransactionManagerImpl">
         <constructor-arg ref="enclave"/>
         <constructor-arg>
             <bean class="com.quorum.tessera.util.Base64Decoder" factory-method="create"/>

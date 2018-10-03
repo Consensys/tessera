@@ -1,6 +1,7 @@
-package com.quorum.tessera.enclave;
+package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.client.P2pClient;
+import com.quorum.tessera.enclave.EnclaveImpl;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.nacl.Key;
@@ -8,8 +9,6 @@ import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.nacl.Nonce;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.model.PartyInfo;
-import com.quorum.tessera.transaction.PayloadEncoder;
-import com.quorum.tessera.transaction.TransactionService;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.model.EncodedPayload;
 import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
@@ -29,7 +28,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class EnclaveImplTest {
+public class TransactionManagerTest {
 
     private static final Key EMPTY_KEY = new Key(new byte[0]);
 

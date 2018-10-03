@@ -1,7 +1,7 @@
 package com.quorum.tessera.api.grpc;
 
 import com.google.protobuf.ByteString;
-import com.quorum.tessera.enclave.EnclaveMediator;
+import com.quorum.tessera.transaction.TransactionManagerImpl;
 import com.quorum.tessera.api.grpc.model.*;
 import io.grpc.stub.StreamObserver;
 import java.util.Base64;
@@ -35,7 +35,7 @@ public class TransactionGrpcServiceTest {
     private StreamObserver<ResendResponse> resendResponseObserver;
 
     @Mock
-    private EnclaveMediator enclaveMediator;
+    private TransactionManagerImpl enclaveMediator;
 
     private TransactionGrpcService service;
 

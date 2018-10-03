@@ -2,7 +2,7 @@ package com.quorum.tessera;
 
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveMediator;
+import com.quorum.tessera.transaction.TransactionManagerImpl;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.transaction.PayloadEncoder;
 import com.quorum.tessera.transaction.TransactionService;
@@ -28,7 +28,7 @@ public class EnclaveMediatorTest {
     
     private Base64Decoder base64Decoder = Base64Decoder.create();
     
-    private EnclaveMediator enclaveMediator;
+    private TransactionManagerImpl enclaveMediator;
     
     private TransactionService transactionService;
     
@@ -37,7 +37,7 @@ public class EnclaveMediatorTest {
         this.enclave = mock(Enclave.class);
         payloadEncoder = mock(PayloadEncoder.class);
         this.transactionService = mock(TransactionService.class);
-        enclaveMediator = new EnclaveMediator(enclave, base64Decoder, payloadEncoder,transactionService);
+        enclaveMediator = new TransactionManagerImpl(enclave, base64Decoder, payloadEncoder,transactionService);
     }
     
     @After
