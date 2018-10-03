@@ -1,10 +1,10 @@
 package com.quorum.tessera.config.cli.parsers;
 
 import com.quorum.tessera.config.ArgonOptions;
-import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.keys.KeyGenerator;
-import com.quorum.tessera.config.keys.KeyGeneratorFactory;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.key.generation.KeyGenerator;
+import com.quorum.tessera.key.generation.KeyGeneratorFactory;
 import org.apache.commons.cli.CommandLine;
 
 import java.io.IOException;
@@ -19,11 +19,11 @@ import java.util.stream.Stream;
 
 import static java.util.Collections.singletonList;
 
-public class KeyGenerationParser implements Parser<List<KeyData>> {
+public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
 
     private final KeyGenerator generator = KeyGeneratorFactory.newFactory().create();
 
-    public List<KeyData> parse(final CommandLine commandLine) throws IOException {
+    public List<ConfigKeyPair> parse(final CommandLine commandLine) throws IOException {
 
         final ArgonOptions options = this.argonOptions(commandLine).orElse(null);
 

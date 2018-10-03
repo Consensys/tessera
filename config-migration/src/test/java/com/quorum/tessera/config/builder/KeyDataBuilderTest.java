@@ -2,7 +2,7 @@ package com.quorum.tessera.config.builder;
 
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
 import org.junit.Test;
 
@@ -41,7 +41,7 @@ public class KeyDataBuilderTest {
 
         Files.write(passwordFile, Arrays.asList("SECRET1", "SECRET2", "SECRET3"));
 
-        List<KeyData> result = KeyDataBuilder.create()
+        List<ConfigKeyPair> result = KeyDataBuilder.create()
             .withPrivateKeys(privateKeys)
             .withPublicKeys(publicKeys)
             .withPrivateKeyPasswordFile(passwordFile.toString())
@@ -93,7 +93,7 @@ public class KeyDataBuilderTest {
         Files.write(passwordsFile, privateKeyPasswords);
         
         
-        List<KeyData> result = KeyDataBuilder.create()
+        List<ConfigKeyPair> result = KeyDataBuilder.create()
                 .withPrivateKeys(privateKeys)
                 .withPublicKeys(publicKeys)
                 .withPrivateKeyPasswordFile(passwordsFile.toString())

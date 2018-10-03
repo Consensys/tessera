@@ -1,9 +1,9 @@
 package com.quorum.tessera.config.cli;
 
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.keys.KeyGenerator;
+import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
+import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.config.keys.MockKeyGeneratorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.util.ElUtil;
@@ -11,7 +11,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
@@ -113,12 +112,9 @@ public class DefaultCliAdapterTest {
     public void keygen() throws Exception {
         
         KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
-        
-        KeyData keyData = mock(KeyData.class);
-        KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
-        when(keyData.getConfig()).thenReturn(keyDataConfig);
-        
-        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keyData);
+
+        FilesystemKeyPair keypair = new FilesystemKeyPair(Paths.get(""), Paths.get(""));
+        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keypair);
         
         Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
         
@@ -179,12 +175,9 @@ public class DefaultCliAdapterTest {
     public void output() throws Exception {
         
         KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
-        
-        KeyData keyData = mock(KeyData.class);
-        KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
-        when(keyData.getConfig()).thenReturn(keyDataConfig);
-        
-        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keyData);
+
+        FilesystemKeyPair keypair = new FilesystemKeyPair(Paths.get(""), Paths.get(""));
+        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keypair);
         
         Path generatedKey = Paths.get("/tmp/" + UUID.randomUUID().toString());
         
@@ -270,12 +263,10 @@ public class DefaultCliAdapterTest {
                     configFile.toString());
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
-            assertThat(ex.getConstraintViolations()).hasSize(1);
-            
-            ConstraintViolation violation = ex.getConstraintViolations().iterator().next();
-            
-            assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyData.publicKeyPath.notExists}");
-            
+            assertThat(ex.getConstraintViolations())
+                .hasSize(2)
+                .extracting("messageTemplate")
+                .containsExactly("File does not exist", "File does not exist");
         }
         
     }

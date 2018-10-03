@@ -1,11 +1,11 @@
 package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.cli.parsers.ConfigurationParser;
 import com.quorum.tessera.config.cli.parsers.KeyGenerationParser;
 import com.quorum.tessera.config.cli.parsers.KeyUpdateParser;
 import com.quorum.tessera.config.cli.parsers.PidFileParser;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.PasswordReaderFactory;
 import org.apache.commons.cli.*;
@@ -107,7 +107,7 @@ public class DefaultCliAdapter implements CliAdapter {
             return null;
         }
 
-        final List<KeyData> newKeys = new KeyGenerationParser().parse(commandLine);
+        final List<ConfigKeyPair> newKeys = new KeyGenerationParser().parse(commandLine);
 
         final Config config = new ConfigurationParser().withNewKeys(newKeys).parse(commandLine);
 
