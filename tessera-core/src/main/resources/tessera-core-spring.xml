@@ -137,6 +137,9 @@
 
     <bean id="configService" class="com.quorum.tessera.core.config.ConfigServiceImpl">
         <constructor-arg ref="config" />
+        <constructor-arg>
+            <bean class="com.quorum.tessera.config.util.ConfigFileStore" factory-method="get" />
+        </constructor-arg>
     </bean>
     
     

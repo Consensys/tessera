@@ -19,6 +19,15 @@ public class CliDelegateTest {
     }
 
     @Test
+    public void createAdminInstance() throws Exception {
+
+        Path configFile = ElUtil.createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        CliResult result = instance.execute("admin", "-configfile",  configFile.toString());
+
+        assertThat(result).isNotNull();
+    }
+
+    @Test
     public void withValidConfig() throws Exception {
 
         Path configFile = ElUtil.createAndPopulatePaths(getClass().getResource("/sample-config.json"));
@@ -31,8 +40,8 @@ public class CliDelegateTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig().get()).isSameAs(instance.getConfig());
         assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.isHelpOn()).isFalse();
-        assertThat(result.isKeyGenOn()).isFalse();
+        assertThat(result.isSuppressStartup()).isFalse();
+ 
     }
 
     @Test

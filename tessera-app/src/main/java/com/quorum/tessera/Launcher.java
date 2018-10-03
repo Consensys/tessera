@@ -30,13 +30,13 @@ public class Launcher {
         try {
             final CliResult cliResult = CliDelegate.instance().execute(args);
 
-            if (cliResult.isHelpOn()) {
+            if (cliResult.isSuppressStartup()) {
                 System.exit(0);
             } else if (cliResult.getStatus() != 0) {
                 System.exit(cliResult.getStatus());
             }
 
-            if (!cliResult.getConfig().isPresent() && cliResult.isKeyGenOn()) {
+            if (!cliResult.getConfig().isPresent() && cliResult.isSuppressStartup()) {
                 System.exit(cliResult.getStatus());
             }
 
