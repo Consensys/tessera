@@ -19,7 +19,8 @@ import org.junit.runners.Suite;
     SendIT.class,
     SendRawIT.class,
     TesseraIT.class,
-    TransactionForwardingIT.class
+    TransactionForwardingIT.class,
+    AdminConfigIT.class
 })
 public class RestSuite {
 

@@ -54,14 +54,15 @@ public class PartyInfoPoller implements Runnable {
 
         partyInfo
                 .getParties()
-                .parallelStream()
+                .stream()
                 .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
                 .map(Party::getUrl)
                 .map(url -> pollSingleParty(url, encodedPartyInfo))
                 .filter(Objects::nonNull)
                 .map(partyInfoParser::from)
                 .forEach(newPartyInfo -> {
-                    this.resendForNewKeys(newPartyInfo);
+                    Set<Party> newPartiesFound = partyInfoService.findUnsavedParties(newPartyInfo);
+                    resendPartyStore.addUnseenParties(newPartiesFound);
                     partyInfoService.updatePartyInfo(newPartyInfo);
                 });
 
@@ -97,9 +98,6 @@ public class PartyInfoPoller implements Runnable {
 
     }
 
-    private void resendForNewKeys(final PartyInfo receivedPartyInfo) {
-        final Set<Party> newPartiesFound = this.partyInfoService.findUnsavedParties(receivedPartyInfo);
-        this.resendPartyStore.addUnseenParties(newPartiesFound);
-    }
+
 
 }

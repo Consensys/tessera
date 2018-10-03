@@ -1,6 +1,7 @@
 package com.quorum.tessera.api.exception;
 
 import javax.persistence.EntityNotFoundException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -10,8 +11,10 @@ public class EntityNotFoundExceptionMapper implements ExceptionMapper<EntityNotF
 
     @Override
     public Response toResponse(EntityNotFoundException e) {
-       
-        return Response.status(404).entity(e.getMessage()).build();
+        return Response.status(404)
+                .entity(e.getMessage())
+                .type(MediaType.TEXT_PLAIN)
+                .build();
         
     }
     
