@@ -14,7 +14,7 @@ import org.springframework.context.annotation.ImportResource;
 @ImportResource(locations="classpath:tessera-grpc-spring.xml")
 public class GrpcITConfig {
     
-    @Bean(name = "enclaveDelegate")
+    @Bean(name = "transactionManager")
     public TransactionManagerImpl enclaveMediator() {
         return mock(TransactionManagerImpl.class);
     }

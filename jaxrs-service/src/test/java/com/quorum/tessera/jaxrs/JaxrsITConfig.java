@@ -19,7 +19,7 @@ import org.springframework.context.annotation.ImportResource;
 @ImportResource(locations = "classpath:tessera-jaxrs-spring.xml")
 public class JaxrsITConfig {
     
-    @Bean(name = "enclaveDelegate")    
+    @Bean(name = "transactionManager")    
     public TransactionManagerImpl enclaveMediator() {
         return mock(TransactionManagerImpl.class);
     }

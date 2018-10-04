@@ -127,7 +127,7 @@ public class ProcessManager {
     }
 
     public static void main(String[] args) throws Exception {
-        System.setProperty("application.jar", "/Users/mark/Library/Maven/repo/com/quorum/tessera/tessera-app/0.7-SNAPSHOT/tessera-app-0.7-SNAPSHOT-app.jar");
+        System.setProperty("application.jar", "/Users/mark/Projects/tessera/tessera-app/target/tessera-app-0.7-SNAPSHOT-app.jar");
 
         ProcessManager pm = new ProcessManager(CommunicationType.REST);
         pm.startNodes();

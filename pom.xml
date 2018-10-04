@@ -193,7 +193,7 @@
                                 <exclude>com/quorum/tessera/config/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/config/util/ConsolePasswordReader*</exclude>
                                 <exclude>com/quorum/tessera/config/util/PasswordReaderFactory*</exclude>
-                                <exclude>com/quorum/tessera/transaction/TransactionServiceImpl*</exclude>
+                                <exclude>com/quorum/tessera/transaction/TransactionManagerImpl*</exclude>
                             </excludes>
                             
                             <rules>
