@@ -12,6 +12,12 @@
     <context:component-scan base-package="com.quorum.tessera"/>
     
 
+    <bean id="payloadPublisher" class="com.quorum.tessera.transaction.PayloadPublisherImpl">
+        <constructor-arg ref="payloadEncoder" />
+        <constructor-arg ref="partyInfoService" />
+        <constructor-arg ref="p2pClient" />
+    </bean>
+    
     
     <bean id="transactionManager" class="com.quorum.tessera.transaction.TransactionManagerImpl">
         <constructor-arg>
@@ -21,8 +27,7 @@
         <constructor-arg ref="keyManager" />
         <constructor-arg ref="nacl" />
         <constructor-arg ref="encryptedTransactionDAO" />
-        <constructor-arg ref="partyInfoService" />
-        <constructor-arg ref="p2pClient" />
+        <constructor-arg ref="payloadPublisher" />
          
     </bean>
 

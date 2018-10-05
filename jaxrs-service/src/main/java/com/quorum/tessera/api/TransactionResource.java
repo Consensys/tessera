@@ -8,6 +8,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +43,7 @@ public class TransactionResource {
 
     @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
     @ApiResponses({
-        @ApiResponse(code = 200, response = SendResponse.class, message = "Send response")
-        ,
+        @ApiResponse(code = 200, response = SendResponse.class, message = "Send response"),
         @ApiResponse(code = 400, message = "For unknown and unknown keys")
     })
     @POST
@@ -57,7 +58,7 @@ public class TransactionResource {
         final SendResponse response = delegate.send(sendRequest);
 
         return Response.status(Response.Status.OK)
-                .header("Content-Type", APPLICATION_JSON)
+                .type(APPLICATION_JSON)
                 .entity(response)
                 .build();
 
@@ -65,8 +66,7 @@ public class TransactionResource {
 
     @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Encoded Key", response = String.class)
-        ,
+        @ApiResponse(code = 200, message = "Encoded Key", response = String.class),
         @ApiResponse(code = 500, message = "Unknown server error")
     })
     @POST
@@ -74,11 +74,25 @@ public class TransactionResource {
     @Path("sendraw")
     @Consumes(APPLICATION_OCTET_STREAM)
     @Produces(TEXT_PLAIN)
-    public Response sendRaw(@HeaderParam("c11n-from") final String sender,
+    public Response sendRaw(
+            @HeaderParam("c11n-from") final String sender,
             @HeaderParam("c11n-to") final String recipientKeys,
             @NotNull @Size(min = 1) final byte[] payload) {
 
-        final String encodedKey = delegate.storeAndEncodeKey(sender, recipientKeys, payload);
+        SendRequest sendRequest = new SendRequest();
+        sendRequest.setFrom(sender);
+
+        sendRequest.setPayload(new String(payload, StandardCharsets.UTF_8));
+
+        Optional.ofNullable(recipientKeys)
+                .filter(Objects::nonNull)
+                .filter(v -> !Objects.equals("", v))
+                .map(v -> v.split(","))
+                .ifPresent(sendRequest::setTo);
+
+        final SendResponse sendResponse = delegate.send(sendRequest);
+
+        final String encodedKey = sendResponse.getKey();
 
         LOGGER.debug("Encoded key: {}", encodedKey);
 
@@ -103,17 +117,19 @@ public class TransactionResource {
             @Valid @QueryParam("to") final String toStr
     ) {
 
-        ReceiveResponse response = delegate.receive(hash, toStr);
+        ReceiveRequest receiveRequest = new ReceiveRequest();
+        receiveRequest.setKey(hash);
+        receiveRequest.setTo(toStr);
+        ReceiveResponse response = delegate.receive(receiveRequest);
 
         return Response.status(Response.Status.OK)
-                .header("Content-Type", APPLICATION_JSON)
+                .type(APPLICATION_JSON)
                 .entity(response)
                 .build();
 
     }
 
     @GET
-    @Deprecated
     @PrivateApi
     @Path("/receive")
     @Consumes(APPLICATION_JSON)
@@ -122,7 +138,12 @@ public class TransactionResource {
 
         LOGGER.debug("Received receive request");
 
-        return this.receive(request.getKey(), request.getTo());
+        ReceiveResponse response = delegate.receive(request);
+
+        return Response.status(Response.Status.OK)
+                .type(APPLICATION_JSON)
+                .entity(response)
+                .build();
     }
 
     @ApiOperation(value = "Submit keys to retrieve payload and decrypt it", produces = "Unencrypted payload")
@@ -139,19 +160,24 @@ public class TransactionResource {
             @HeaderParam(value = "c11n-to") String recipientKey) {
 
         LOGGER.debug("Received receiveraw request");
-        
-        byte[] payload = delegate.receiveRaw(hash,recipientKey);
 
+        ReceiveRequest receiveRequest = new ReceiveRequest();
+        receiveRequest.setKey(hash);
+        receiveRequest.setTo(recipientKey);
+
+        ReceiveResponse receiveResponse = delegate.receive(receiveRequest);
+        
+        byte[] decodedPayload = Base64.getDecoder().decode(receiveResponse.getPayload());
+        
         return Response.status(Response.Status.OK)
-                .entity(payload)
+                .entity(decodedPayload)
                 .build();
     }
 
     @Deprecated
     @ApiOperation("Deprecated: Replaced by /transaction/{key} DELETE HTTP method")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Status message", response = String.class)
-        ,
+        @ApiResponse(code = 200, message = "Status message", response = String.class),
         @ApiResponse(code = 404, message = "If the entity doesn't exist")
     })
     @POST
@@ -164,7 +190,7 @@ public class TransactionResource {
 
         LOGGER.debug("Received deprecated delete request");
 
-        this.deleteKey(deleteRequest.getKey());
+        delegate.delete(deleteRequest);
 
         return Response.status(Response.Status.OK)
                 .entity("Delete successful")
@@ -174,8 +200,7 @@ public class TransactionResource {
 
     @ApiOperation("Delete single transaction from Tessera node")
     @ApiResponses({
-        @ApiResponse(code = 204, message = "Successful deletion")
-        ,
+        @ApiResponse(code = 204, message = "Successful deletion"),
         @ApiResponse(code = 404, message = "If the entity doesn't exist")
     })
     @DELETE
@@ -184,15 +209,16 @@ public class TransactionResource {
 
         LOGGER.debug("Received delete key request");
 
-        delegate.deleteKey(key);
+        DeleteRequest delete = new DeleteRequest();
+        delete.setKey(key);
+        delegate.delete(delete);
 
         return Response.noContent().build();
     }
 
     @ApiOperation("Resend transactions for given key or message hash/recipient")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Encoded payload when TYPE is INDIVIDUAL", response = String.class)
-        ,
+        @ApiResponse(code = 200, message = "Encoded payload when TYPE is INDIVIDUAL", response = String.class),
         @ApiResponse(code = 500, message = "General error")
     })
     @POST
@@ -203,20 +229,18 @@ public class TransactionResource {
             @ApiParam(name = "resendRequest", required = true) @Valid @NotNull final ResendRequest resendRequest
     ) {
 
-        
         LOGGER.debug("Received resend request");
-        
-        Optional<byte[]> o = delegate.resendAndEncode(resendRequest);
+
+        ResendResponse response = delegate.resend(resendRequest);
         Response.ResponseBuilder builder = Response.status(Status.OK);
-        o.ifPresent(builder::entity);
+        response.getPayload().ifPresent(builder::entity);
         return builder.build();
 
     }
 
     @ApiOperation(value = "Transmit encrypted payload between Tessera Nodes")
     @ApiResponses({
-        @ApiResponse(code = 201, message = "Key created status")
-        ,
+        @ApiResponse(code = 201, message = "Key created status"),
         @ApiResponse(code = 500, message = "General error")
     })
     @POST
@@ -227,9 +251,8 @@ public class TransactionResource {
     ) {
 
         LOGGER.debug("Received push request");
-        
+
         delegate.storePayload(payload);
-        
 
         return Response.status(Response.Status.CREATED).build();
     }

@@ -22,7 +22,6 @@ public class OpenPojoEntityTest {
                 .with(new NoPublicFieldsExceptStaticFinalRule())
                 .build();
 
-        pojoValidator.validate("com.quorum.tessera.api.model");
         pojoValidator.validateRecursively("com.quorum.tessera.enclave.model");
     }
 
