@@ -1,7 +1,7 @@
 package com.quorum.tessera.nacl.jnacl;
 
 import com.quorum.tessera.nacl.Key;
-import com.quorum.tessera.nacl.KeyPair;
+import com.quorum.tessera.nacl.NaclKeyPair;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.nacl.Nonce;
 import org.junit.After;
@@ -45,7 +45,7 @@ public class JnaclTest {
         this.jnacl = new Jnacl(this.secureRandom, this.secretBox);
 
         final Jnacl setupJnacl = new Jnacl(new SecureRandom(), new JnaclSecretBox());
-        final KeyPair keys = setupJnacl.generateNewKeys();
+        final NaclKeyPair keys = setupJnacl.generateNewKeys();
         this.publicKey = keys.getPublicKey();
         this.privateKey = keys.getPrivateKey();
         this.sharedKey = setupJnacl.computeSharedKey(publicKey, privateKey);
@@ -171,7 +171,7 @@ public class JnaclTest {
     @Test
     public void generateNewKeysSodiumSuccess() {
 
-        final KeyPair result = this.jnacl.generateNewKeys();
+        final NaclKeyPair result = this.jnacl.generateNewKeys();
 
         assertThat(result).isNotNull();
 

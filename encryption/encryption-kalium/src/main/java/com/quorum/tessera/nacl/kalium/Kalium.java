@@ -1,7 +1,7 @@
 package com.quorum.tessera.nacl.kalium;
 
 import com.quorum.tessera.nacl.Key;
-import com.quorum.tessera.nacl.KeyPair;
+import com.quorum.tessera.nacl.NaclKeyPair;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.nacl.NaclFacade;
 import com.quorum.tessera.nacl.Nonce;
@@ -213,7 +213,7 @@ public class Kalium implements NaclFacade {
     }
 
     @Override
-    public KeyPair generateNewKeys() {
+    public NaclKeyPair generateNewKeys() {
         final byte[] publicKey = new byte[CRYPTO_BOX_CURVE25519XSALSA20POLY1305_PUBLICKEYBYTES];
         final byte[] privateKey = new byte[CRYPTO_BOX_CURVE25519XSALSA20POLY1305_SECRETKEYBYTES];
 
@@ -232,7 +232,7 @@ public class Kalium implements NaclFacade {
         LOGGER.info("Generated public key {} and private key {}", pubKey, REDACTED);
         LOGGER.debug("Generated public key {} and private key {}", pubKey, privKey);
 
-        return new KeyPair(pubKey, privKey);
+        return new NaclKeyPair(pubKey, privKey);
     }
 
     /**

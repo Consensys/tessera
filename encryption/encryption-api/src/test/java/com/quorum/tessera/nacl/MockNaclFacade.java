@@ -35,7 +35,7 @@ public enum MockNaclFacade implements NaclFacade {
     }
 
     @Override
-    public KeyPair generateNewKeys() {
+    public NaclKeyPair generateNewKeys() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

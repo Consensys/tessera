@@ -4,7 +4,9 @@ import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendRequestType;
 import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.key.KeyManager;
+import com.quorum.tessera.key.PublicKey;
 import com.quorum.tessera.nacl.Key;
+import java.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +21,7 @@ public class TransactionRequesterImpl implements TransactionRequester {
     private final P2pClient client;
 
     public TransactionRequesterImpl(final KeyManager keyManager,
-                                    final P2pClient client) {
+            final P2pClient client) {
         this.keyManager = Objects.requireNonNull(keyManager);
         this.client = Objects.requireNonNull(client);
     }
@@ -30,17 +32,21 @@ public class TransactionRequesterImpl implements TransactionRequester {
         LOGGER.debug("Requesting transactions get resent for {}", uri);
 
         return this.keyManager
-            .getPublicKeys()
-            .parallelStream()
-            .map(this::createRequestAllEntity)
-            .allMatch(req -> this.makeRequest(uri, req));
+                .getPublicKeys()
+                
+                .stream()
+                .map(Key::getKeyBytes)
+                .map(PublicKey::from)
+                .map(this::createRequestAllEntity)
+                .allMatch(req -> this.makeRequest(uri, req));
 
     }
 
     /**
-     * Will make the desired request until succeeds or max tries has been reached
+     * Will make the desired request until succeeds or max tries has been
+     * reached
      *
-     * @param uri     the URI to call
+     * @param uri the URI to call
      * @param request the request object to send
      */
     private boolean makeRequest(final String uri, final ResendRequest request) {
@@ -50,7 +56,7 @@ public class TransactionRequesterImpl implements TransactionRequester {
         int numberOfTries = 0;
 
         do {
-            
+
             try {
                 success = client.makeResendRequest(uri, request);
             } catch (final Exception ex) {
@@ -72,10 +78,11 @@ public class TransactionRequesterImpl implements TransactionRequester {
      * @param key the public key that transactions should be resent for
      * @return the request to be sent
      */
-    private ResendRequest createRequestAllEntity(final Key key) {
+    private ResendRequest createRequestAllEntity(final PublicKey key) {
 
         final ResendRequest request = new ResendRequest();
-        request.setPublicKey(key.toString());
+        String encoded = Base64.getEncoder().encodeToString(key.getKeyBytes());
+        request.setPublicKey(encoded);
         request.setType(ResendRequestType.ALL);
 
         return request;

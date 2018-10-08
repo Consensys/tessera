@@ -2,6 +2,7 @@ package com.quorum.tessera.key;
 
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
+import com.quorum.tessera.key.exception.KeyNotFoundException;
 import com.quorum.tessera.nacl.Key;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,20 +17,30 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class KeyManagerTest {
 
-    private static final Key PRIVATE_KEY = new Key("privateKey".getBytes());
+    private static final byte[] PRIVATE_KEY_DATA = "privateKey".getBytes();
+    
+    private static final Key NACL_PRIVATE_KEY = new Key(PRIVATE_KEY_DATA);
 
-    private static final Key PUBLIC_KEY = new Key("publicKey".getBytes());
+    private static final byte[] PUBLIC_KEY_DATA = "publicKey".getBytes();
+    
+    private static final Key NACL_PUBLIC_KEY = new Key(PUBLIC_KEY_DATA);
 
-    private static final Key FORWARDING_KEY = new Key("forwardingKey".getBytes());
+    private static final byte[] FORWARDING_KEY_DATA = "forwardingKey".getBytes();
+    
+    private static final Key NACL_FORWARDING_KEY = new Key(FORWARDING_KEY_DATA);
 
+    private static final PublicKey PUBLIC_KEY = PublicKey.from(PUBLIC_KEY_DATA);
+    
+     private static final PrivateKey PRIVATE_KEY = PrivateKey.from(PRIVATE_KEY_DATA);
+    
     private KeyManager keyManager;
 
     @Before
     public void init() {
 
-        final ConfigKeyPair configKeyPair = new DirectKeyPair(PUBLIC_KEY.toString(), PRIVATE_KEY.toString());
+        final ConfigKeyPair configKeyPair = new DirectKeyPair(NACL_PUBLIC_KEY.toString(), NACL_PRIVATE_KEY.toString());
 
-        this.keyManager = new KeyManagerImpl(singleton(configKeyPair), singleton(FORWARDING_KEY));
+        this.keyManager = new KeyManagerImpl(singleton(configKeyPair), singleton(NACL_FORWARDING_KEY));
     }
 
     @Test
@@ -42,36 +53,36 @@ public class KeyManagerTest {
 
     @Test
     public void publicKeyFoundGivenPrivateKey() {
-        final Key publicKey = this.keyManager.getPublicKeyForPrivateKey(PRIVATE_KEY);
+        final PublicKey publicKey = this.keyManager.getPublicKeyForPrivateKey(PRIVATE_KEY);
 
         assertThat(publicKey).isEqualTo(PUBLIC_KEY);
     }
 
     @Test
     public void exceptionThrownWhenPrivateKeyNotFound() {
-        final Key unknownKey = new Key("unknownKey".getBytes());
+        final PrivateKey unknownKey = PrivateKey.from("unknownKey".getBytes());
         final Throwable throwable = catchThrowable(() -> this.keyManager.getPublicKeyForPrivateKey(unknownKey));
 
         assertThat(throwable)
-            .isInstanceOf(RuntimeException.class)
+            .isInstanceOf(KeyNotFoundException.class)
             .hasMessage("Private key dW5rbm93bktleQ== not found when searching for public key");
 
     }
 
     @Test
     public void privateKeyFoundGivenPublicKey() {
-        final Key privateKey = this.keyManager.getPrivateKeyForPublicKey(PUBLIC_KEY);
+        final PrivateKey privateKey = this.keyManager.getPrivateKeyForPublicKey(PUBLIC_KEY);
 
         assertThat(privateKey).isEqualTo(PRIVATE_KEY);
     }
 
     @Test
     public void exceptionThrownWhenPublicKeyNotFound() {
-        final Key unknownKey = new Key("unknownKey".getBytes());
+        final PublicKey unknownKey = PublicKey.from("unknownKey".getBytes());
         final Throwable throwable = catchThrowable(() -> this.keyManager.getPrivateKeyForPublicKey(unknownKey));
 
         assertThat(throwable)
-            .isInstanceOf(RuntimeException.class)
+            .isInstanceOf(KeyNotFoundException.class)
             .hasMessage("Public key dW5rbm93bktleQ== not found when searching for private key");
     }
 
@@ -80,18 +91,18 @@ public class KeyManagerTest {
         final Set<Key> publicKeys = this.keyManager.getPublicKeys();
 
         assertThat(publicKeys.size()).isEqualTo(1);
-        assertThat(publicKeys.iterator().next()).isEqualTo(PUBLIC_KEY);
+        assertThat(publicKeys.iterator().next()).isEqualTo(NACL_PUBLIC_KEY);
     }
 
     @Test
     public void defaultKeyIsPopulated() {
         //the key manager is already set up with a keypair, so just check that
-        assertThat(this.keyManager.defaultPublicKey()).isEqualTo(PUBLIC_KEY);
+        assertThat(this.keyManager.defaultPublicKey()).isEqualTo(NACL_PUBLIC_KEY);
     }
 
     @Test
     public void forwardingKeysContainsOnlyOneKey() {
-        assertThat(this.keyManager.getForwardingKeys()).hasSize(1).containsExactlyInAnyOrder(FORWARDING_KEY);
+        assertThat(this.keyManager.getForwardingKeys()).hasSize(1).containsExactlyInAnyOrder(NACL_FORWARDING_KEY);
     }
 
 }

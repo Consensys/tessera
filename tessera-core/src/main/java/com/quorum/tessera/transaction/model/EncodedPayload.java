@@ -1,7 +1,7 @@
 package com.quorum.tessera.transaction.model;
 
 
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.key.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
 
 import java.util.*;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  */
 public class EncodedPayload {
 
-    private final Key senderKey;
+    private final PublicKey senderKey;
 
     private final byte[] cipherText;
 
@@ -23,7 +23,7 @@ public class EncodedPayload {
 
     private final Nonce recipientNonce;
 
-    public EncodedPayload(final Key senderKey,
+    public EncodedPayload(final PublicKey senderKey,
                           final byte[] cipherText,
                           final Nonce cipherTextNonce,
                           final List<byte[]> recipientBoxes,
@@ -44,7 +44,7 @@ public class EncodedPayload {
         this.recipientBoxes = Collections.unmodifiableList(recBoxes);
     }
 
-    public Key getSenderKey() {
+    public PublicKey getSenderKey() {
         return senderKey;
     }
 

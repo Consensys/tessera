@@ -10,6 +10,8 @@ import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.key.KeyManager;
+import com.quorum.tessera.key.PrivateKey;
+import com.quorum.tessera.key.PublicKey;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.nacl.NaclFacade;
@@ -26,7 +28,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import java.util.stream.Stream;
 import javax.transaction.Transactional;
@@ -77,59 +78,49 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     public SendResponse send(SendRequest sendRequest) {
 
-        LOGGER.debug("Received send request");
-
         final String sender = sendRequest.getFrom();
-        LOGGER.debug("Received send request from {}", sender);
-        final Optional<byte[]> from = Optional.ofNullable(sender)
-                .map(base64Decoder::decode);
 
-        LOGGER.debug("SEND: sender {}", sender);
+        final PublicKey senderPublicKey = Optional.ofNullable(sender)
+                .map(base64Decoder::decode)
+                .map(PublicKey::from)
+                .orElseGet(() -> PublicKey.from(keyManager.defaultPublicKey().getKeyBytes()));
 
         final byte[][] recipients = Stream
                 .of(sendRequest.getTo())
                 .map(base64Decoder::decode)
                 .toArray(byte[][]::new);
 
-        LOGGER.debug("SEND: recipients {}", Stream.of(sendRequest.getTo()).collect(joining()));
+        final List<PublicKey> recipientList = Stream
+                .of(recipients)
+                .map(PublicKey::from)
+                .collect(Collectors.toList());
+
+        keyManager.getForwardingKeys().stream()
+                .map(Key::getKeyBytes)
+                .map(PublicKey::from)
+                .forEach(recipientList::add);
+        
 
         final byte[] payload = base64Decoder.decode(sendRequest.getPayload());
 
-        final MessageHash messageHash = store(from, recipients, payload);
-
-        final byte[] key = messageHash.getHashBytes();
-
-        final String encodedKey = base64Decoder.encodeToString(key);
-        return new SendResponse(encodedKey);
-    }
-
-    private MessageHash store(final Optional<byte[]> sender, final byte[][] recipients, final byte[] message) {
-
-        final Key senderPublicKey = sender
-                .map(Key::new)
-                .orElseGet(keyManager::defaultPublicKey);
-
-        final List<Key> recipientList = Stream
-                .of(recipients)
-                .map(Key::new)
-                .collect(Collectors.toList());
-
-        recipientList.addAll(keyManager.getForwardingKeys());
-
         EncodedPayloadWithRecipients encryptedPayload
-                = encryptPayload(message, senderPublicKey, recipientList);
+                = encryptPayload(payload, senderPublicKey, recipientList);
 
         MessageHash messageHash = storeEncodedPayload(encryptedPayload);
 
         recipientList.forEach(recipient -> payloadPublisher.publishPayload(encryptedPayload, recipient));
 
-        return messageHash;
+        final byte[] key = messageHash.getHashBytes();
 
+        final String encodedKey = base64Decoder.encodeToString(key);
+
+        return new SendResponse(encodedKey);
     }
 
+
     private EncodedPayloadWithRecipients encryptPayload(final byte[] message,
-            final Key senderPublicKey,
-            final List<Key> recipientPublicKeys) {
+            final PublicKey senderPublicKey,
+            final List<PublicKey> recipientPublicKeys) {
 
         final Key masterKey = nacl.createSingleKey();
         final Nonce nonce = nacl.randomNonce();
@@ -137,11 +128,15 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final byte[] cipherText = nacl.sealAfterPrecomputation(message, nonce, masterKey);
 
-        final Key privateKey = keyManager.getPrivateKeyForPublicKey(senderPublicKey);
+        final PrivateKey privateKey = keyManager.getPrivateKeyForPublicKey(senderPublicKey);
 
+        final Key privateKeyKey = new Key(privateKey.getKeyBytes());
+        
         final List<byte[]> encryptedMasterKeys = recipientPublicKeys
                 .stream()
-                .map(key -> nacl.computeSharedKey(key, privateKey))
+                .map(PublicKey::getKeyBytes)
+                .map(Key::new)
+                .map(key -> nacl.computeSharedKey(key, privateKeyKey))
                 .map(key -> nacl.sealAfterPrecomputation(masterKey.getKeyBytes(), recipientNonce, key))
                 .collect(Collectors.toList());
 
@@ -182,7 +177,7 @@ public class TransactionManagerImpl implements TransactionManager {
         } else {
             final byte[] hashKey = base64Decoder.decode(request.getKey());
 
-            final EncodedPayloadWithRecipients payloadWithRecipients = fetchTransactionForRecipient(new MessageHash(hashKey), new Key(publicKey));
+            final EncodedPayloadWithRecipients payloadWithRecipients = fetchTransactionForRecipient(new MessageHash(hashKey), PublicKey.from(publicKey));
 
             final byte[] encoded = payloadEncoder.encode(payloadWithRecipients);
 
@@ -221,15 +216,17 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final MessageHash hash = new MessageHash(key);
 
+        
         if (to.isPresent()) {
-            byte[] payload = retrieveUnencryptedTransaction(hash, new Key(to.get()));
-            String encodedPayload =  base64Decoder.encodeToString(payload);
+            byte[] payload = retrieveUnencryptedTransaction(hash, PublicKey.from(to.get()));
+            String encodedPayload = base64Decoder.encodeToString(payload);
             return new ReceiveResponse(encodedPayload);
         } else {
-            for (final Key potentialMatchingKey : this.keyManager.getPublicKeys()) {
+            for (final Key potentialMatchingKeyKey : this.keyManager.getPublicKeys()) {
                 try {
+                    PublicKey potentialMatchingKey = PublicKey.from(potentialMatchingKeyKey.getKeyBytes());
                     byte[] payload = retrieveUnencryptedTransaction(hash, potentialMatchingKey);
-                    String encodedPayload =  base64Decoder.encodeToString(payload);
+                    String encodedPayload = base64Decoder.encodeToString(payload);
                     return new ReceiveResponse(encodedPayload);
                 } catch (final NaclException ex) {
                     LOGGER.debug("Attempted payload decryption using wrong key, discarding.");
@@ -240,7 +237,7 @@ public class TransactionManagerImpl implements TransactionManager {
         }
     }
 
-    private byte[] retrieveUnencryptedTransaction(final MessageHash hash, final Key providedKey) {
+    private byte[] retrieveUnencryptedTransaction(final MessageHash hash, final PublicKey providedKey) {
 
         final EncryptedTransaction encryptedTransaction = encryptedTransactionDAO
                 .retrieveByHash(hash)
@@ -251,9 +248,9 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final EncodedPayload encodedPayload = payloadWithRecipients.getEncodedPayload();
 
-        final Key senderPubKey;
+        final PublicKey senderPubKey;
 
-        final Key recipientPubKey;
+        final PublicKey recipientPubKey;
 
         if (!keyManager.getPublicKeys().contains(encodedPayload.getSenderKey())) {
             // This is a payload originally sent to us by another node
@@ -265,8 +262,11 @@ public class TransactionManagerImpl implements TransactionManager {
             recipientPubKey = payloadWithRecipients.getRecipientKeys().get(0);
         }
 
-        final Key senderPrivKey = keyManager.getPrivateKeyForPublicKey(senderPubKey);
-        final Key sharedKey = nacl.computeSharedKey(recipientPubKey, senderPrivKey);
+        final PrivateKey senderPrivKey = keyManager.getPrivateKeyForPublicKey(senderPubKey);
+        Key senderPrivKeyKey = new Key(senderPrivKey.getKeyBytes());
+        Key recipientPubKeyKey = new Key(recipientPubKey.getKeyBytes());
+        
+        final Key sharedKey = nacl.computeSharedKey(recipientPubKeyKey, senderPrivKeyKey);
 
         try {
             final byte[] recipientBox = encodedPayload.getRecipientBoxes().iterator().next();
@@ -289,7 +289,7 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     private void resendAll(final byte[] recipientPublicKey) {
-        final Key recipient = new Key(recipientPublicKey);
+        final PublicKey recipient = PublicKey.from(recipientPublicKey);
 
         final Collection<EncodedPayloadWithRecipients> payloads
                 = retrieveAllForRecipient(recipient);
@@ -301,7 +301,7 @@ public class TransactionManagerImpl implements TransactionManager {
         );
     }
 
-    private Collection<EncodedPayloadWithRecipients> retrieveAllForRecipient(final Key recipientPublicKey) {
+    private Collection<EncodedPayloadWithRecipients> retrieveAllForRecipient(final PublicKey recipientPublicKey) {
         LOGGER.debug("Retrieving all transaction for recipient {}", recipientPublicKey);
 
         return encryptedTransactionDAO
@@ -313,7 +313,7 @@ public class TransactionManagerImpl implements TransactionManager {
                 .collect(toList());
     }
 
-    private EncodedPayloadWithRecipients fetchTransactionForRecipient(final MessageHash hash, final Key recipient) {
+    private EncodedPayloadWithRecipients fetchTransactionForRecipient(final MessageHash hash, final PublicKey recipient) {
         final EncodedPayloadWithRecipients payloadWithRecipients = encryptedTransactionDAO
                 .retrieveByHash(hash)
                 .map(EncryptedTransaction::getEncodedPayload)

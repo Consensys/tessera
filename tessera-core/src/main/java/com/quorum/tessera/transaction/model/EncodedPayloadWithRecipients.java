@@ -1,21 +1,21 @@
 package com.quorum.tessera.transaction.model;
 
-import com.quorum.tessera.nacl.Key;
-
+import com.quorum.tessera.key.PublicKey;
 import java.util.Collections;
+
 import java.util.List;
 
 /**
- * Wrap an {@link EncodedPayload} with the recipients of the message
- * so that the sender can identify which sealed box is theirs
+ * Wrap an {@link EncodedPayload} with the recipients of the message so that the
+ * sender can identify which sealed box is theirs
  */
 public class EncodedPayloadWithRecipients {
 
     private final EncodedPayload encodedPayload;
 
-    private final List<Key> recipientKeys;
+    private final List<PublicKey> recipientKeys;
 
-    public EncodedPayloadWithRecipients(final EncodedPayload encodedPayload, final List<Key> recipientKeys) {
+    public EncodedPayloadWithRecipients(final EncodedPayload encodedPayload, final List<PublicKey> recipientKeys) {
         this.encodedPayload = encodedPayload;
         this.recipientKeys = Collections.unmodifiableList(recipientKeys);
     }
@@ -24,7 +24,7 @@ public class EncodedPayloadWithRecipients {
         return encodedPayload;
     }
 
-    public List<Key> getRecipientKeys() {
+    public List<PublicKey> getRecipientKeys() {
         return recipientKeys;
     }
 

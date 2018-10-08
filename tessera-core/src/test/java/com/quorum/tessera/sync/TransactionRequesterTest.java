@@ -3,26 +3,27 @@ package com.quorum.tessera.sync;
 import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.key.KeyManager;
+import com.quorum.tessera.key.PublicKey;
 import com.quorum.tessera.nacl.Key;
+import java.util.Base64;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.HashSet;
 import java.util.Set;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
+import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class TransactionRequesterTest {
 
-    private static final Key KEY_ONE = new Key(new byte[]{1});
+    private static final PublicKey KEY_ONE = PublicKey.from(new byte[]{1});
 
-    private static final Key KEY_TWO = new Key(new byte[]{2});
+    private static final PublicKey KEY_TWO = PublicKey.from(new byte[]{2});
 
     private KeyManager keyManager;
 
@@ -48,7 +49,7 @@ public class TransactionRequesterTest {
 
     @Test
     public void noPublicKeysMakesNoCalls() {
-        doReturn(emptySet()).when(keyManager).getPublicKeys();
+        when(keyManager.getPublicKeys()).thenReturn(Collections.emptySet());
 
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
@@ -58,26 +59,35 @@ public class TransactionRequesterTest {
 
     @Test
     public void multipleKeysMakesCorrectCalls() {
-        final Set<Key> allKeys = new HashSet<>(asList(KEY_ONE, KEY_TWO));
+        
+        final Set<Key> allKeys = Stream.of(KEY_ONE, KEY_TWO)
+                .map(PublicKey::getKeyBytes)
+                .map(Key::new).collect(Collectors.toSet());
 
-        doReturn(allKeys).when(keyManager).getPublicKeys();
 
+        when(keyManager.getPublicKeys()).thenReturn(allKeys);
+        
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl1.com");
 
         final ArgumentCaptor<ResendRequest> captor = ArgumentCaptor.forClass(ResendRequest.class);
         verify(p2pClient, times(2)).makeResendRequest(eq("fakeurl1.com"), captor.capture());
         verify(keyManager).getPublicKeys();
 
+        String encodedKeyOne = Base64.getEncoder().encodeToString(KEY_ONE.getKeyBytes());
+        String encodedKeyTwo = Base64.getEncoder().encodeToString(KEY_TWO.getKeyBytes());
+        
         assertThat(captor.getAllValues())
             .hasSize(2)
             .extracting("publicKey")
-            .containsExactlyInAnyOrder(KEY_ONE.toString(), KEY_TWO.toString());
+            .containsExactlyInAnyOrder(encodedKeyOne, encodedKeyTwo);
     }
 
     @Test
     public void failedCallRetries() {
-        doReturn(singleton(KEY_ONE)).when(keyManager).getPublicKeys();
-        doReturn(false).when(p2pClient).makeResendRequest(anyString(), any(ResendRequest.class));
+        when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(new Key(KEY_ONE.getKeyBytes())));
+        
+        when(p2pClient.makeResendRequest(anyString(), any(ResendRequest.class))).thenReturn(false)
+                ;
 
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
@@ -88,9 +98,10 @@ public class TransactionRequesterTest {
 
     @Test
     public void calltoPostDelegateThrowsException() {
-        doReturn(singleton(KEY_ONE)).when(keyManager).getPublicKeys();
-        doThrow(RuntimeException.class).when(p2pClient).makeResendRequest(anyString(), any(ResendRequest.class));
 
+        when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(new Key(KEY_ONE.getKeyBytes())));
+        when(p2pClient.makeResendRequest(anyString(), any(ResendRequest.class))).thenThrow(RuntimeException.class);
+        
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
         verify(p2pClient, times(5)).makeResendRequest(eq("fakeurl.com"), any(ResendRequest.class));

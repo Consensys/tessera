@@ -18,7 +18,7 @@ public interface KeyManager {
      * @return the corresponding public key
      * @throws RuntimeException if the private key could not be found
      */
-    Key getPublicKeyForPrivateKey(Key privateKey);
+    PublicKey getPublicKeyForPrivateKey(PrivateKey privateKey);
 
     /**
      * Fetches the private key that corresponds to the given public key
@@ -29,7 +29,7 @@ public interface KeyManager {
      * @return the corresponding private key
      * @throws RuntimeException if the public key could not be found
      */
-    Key getPrivateKeyForPublicKey(Key publicKey);
+    PrivateKey getPrivateKeyForPublicKey(PublicKey publicKey);
 
     /**
      * Return a list of all recipients public keys of this node

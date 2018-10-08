@@ -78,7 +78,7 @@ public interface NaclFacade {
      *
      * @return A pair of public and private keys
      */
-    KeyPair generateNewKeys();
+    NaclKeyPair generateNewKeys();
 
     /**
      * Creates a single standalone key

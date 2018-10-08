@@ -1,9 +1,9 @@
 package com.quorum.tessera.transaction;
 
+import com.quorum.tessera.key.PublicKey;
 import com.quorum.tessera.transaction.model.EncodedPayload;
 import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
 import com.quorum.tessera.util.BinaryEncoder;
-import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.Nonce;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         buffer.get(recipientNonce);
 
         return new EncodedPayload(
-                new Key(senderKey),
+                PublicKey.from(senderKey),
                 cipherText,
                 new Nonce(nonce),
                 recipientBoxes,
@@ -75,7 +75,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         final List<byte[]> keysAsBytes = encodedPayloadWithRecipients
                 .getRecipientKeys()
                 .stream()
-                .map(Key::getKeyBytes)
+                .map(PublicKey::getKeyBytes)
                 .collect(toList());
 
         final byte[] recipientBytes = encodeArray(keysAsBytes);
@@ -118,7 +118,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         buffer.get(recipientNonce);
 
         EncodedPayload payload = new EncodedPayload(
-                new Key(senderKey),
+                PublicKey.from(senderKey),
                 cipherText,
                 new Nonce(nonce),
                 recipientBoxes,
@@ -137,7 +137,9 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
 
         return new EncodedPayloadWithRecipients(
                 payload,
-                recipientKeys.stream().map(Key::new).collect(toList())
+                recipientKeys.stream()
+                        .map(PublicKey::from)
+                        .collect(toList())
         );
     }
 

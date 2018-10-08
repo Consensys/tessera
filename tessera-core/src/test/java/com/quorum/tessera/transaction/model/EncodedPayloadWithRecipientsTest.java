@@ -1,6 +1,6 @@
 package com.quorum.tessera.transaction.model;
 
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.key.PublicKey;
 import java.util.Collections;
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,7 +13,7 @@ public class EncodedPayloadWithRecipientsTest {
     public void createWithEmpyKeyList() {
         final EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
-        final List<Key> recipientKeys = Collections.EMPTY_LIST;
+        final List<PublicKey> recipientKeys = Collections.EMPTY_LIST;
 
         EncodedPayloadWithRecipients encodedPayloadWithRecipients
                 = new EncodedPayloadWithRecipients(encodedPayload, recipientKeys);

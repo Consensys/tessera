@@ -185,7 +185,7 @@ public class Jnacl implements NaclFacade {
     }
 
     @Override
-    public KeyPair generateNewKeys() {
+    public NaclKeyPair generateNewKeys() {
         final byte[] publicKey = new byte[crypto_secretbox_PUBLICKEYBYTES];
         final byte[] privateKey = new byte[crypto_secretbox_SECRETKEYBYTES];
 
@@ -204,7 +204,7 @@ public class Jnacl implements NaclFacade {
         LOGGER.info("Generated public key {} and private key {}", pubKey, REDACTED);
         LOGGER.debug("Generated public key {} and private key {}", pubKey, privKey);
 
-        return new KeyPair(pubKey, privKey);
+        return new NaclKeyPair(pubKey, privKey);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.quorum.tessera.node;
 
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.key.PublicKey;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 
@@ -30,7 +30,7 @@ public interface PartyInfoService {
      * @param key the public key to search for
      * @return the url the key's node is located at
      */
-    String getURLFromRecipientKey(Key key);
+    String getURLFromRecipientKey(PublicKey key);
 
     /**
      * Searches the provided {@link PartyInfo} for recipients that haven't yet been saved to

@@ -1,7 +1,7 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.client.P2pClient;
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.key.PublicKey;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.transaction.model.EncodedPayload;
@@ -40,7 +40,7 @@ public class PayloadPublisherTest {
     public void publishPayloadPartyOInfoUrlIsEqualToRecipientKeyUrl() {
 
         String url = "SOMEURL";
-        Key recipientKey = mock(Key.class);
+        PublicKey recipientKey = mock(PublicKey.class);
         when(partyInfoService.getURLFromRecipientKey(recipientKey)).thenReturn(url);
 
         EncodedPayloadWithRecipients encodedPayloadWithRecipients = mock(EncodedPayloadWithRecipients.class);
@@ -59,7 +59,7 @@ public class PayloadPublisherTest {
     public void publishPayloadPartyOInfoUrlIsNotEqualToRecipientKeyUrl() {
 
         String url = "SOMEURL";
-        Key recipientKey = mock(Key.class);
+        PublicKey recipientKey = mock(PublicKey.class);
         when(partyInfoService.getURLFromRecipientKey(recipientKey)).thenReturn(url);
 
         EncodedPayloadWithRecipients encodedPayloadWithRecipients = mock(EncodedPayloadWithRecipients.class);

@@ -3,8 +3,8 @@ package com.quorum.tessera.node;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.core.config.ConfigService;
 import com.quorum.tessera.key.KeyManager;
+import com.quorum.tessera.key.PublicKey;
 import com.quorum.tessera.key.exception.KeyNotFoundException;
-import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
@@ -46,6 +46,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         final Set<Recipient> ourKeys = keyManager
                 .getPublicKeys()
                 .stream()
+                .map(key -> PublicKey.from(key.getKeyBytes()))
                 .map(key -> new Recipient(key, advertisedUrl))
                 .collect(toSet());
 
@@ -109,7 +110,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     }
 
     @Override
-    public String getURLFromRecipientKey(final Key key) {
+    public String getURLFromRecipientKey(final PublicKey key) {
 
         final Recipient retrievedRecipientFromStore = partyInfoStore
                 .getPartyInfo()

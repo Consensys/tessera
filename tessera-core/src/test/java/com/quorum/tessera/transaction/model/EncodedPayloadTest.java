@@ -1,6 +1,6 @@
 package com.quorum.tessera.transaction.model;
 
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.key.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +13,7 @@ public class EncodedPayloadTest {
     @Test
     public void create() {
 
-        final Key senderKey = mock(Key.class);
+        final PublicKey senderKey = mock(PublicKey.class);
 
         final byte[] cipherText = "HELLOW".getBytes();
         final Nonce cipherTextNonce = mock(Nonce.class);

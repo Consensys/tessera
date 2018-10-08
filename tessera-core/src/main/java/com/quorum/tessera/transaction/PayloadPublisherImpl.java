@@ -2,7 +2,7 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.client.P2pClient;
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.key.PublicKey;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.transaction.model.EncodedPayload;
 import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
@@ -27,7 +27,7 @@ public class PayloadPublisherImpl implements PayloadPublisher {
     
     
     @Override
-    public void publishPayload(EncodedPayloadWithRecipients encodedPayloadWithRecipients, Key recipientKey) {
+    public void publishPayload(EncodedPayloadWithRecipients encodedPayloadWithRecipients, PublicKey recipientKey) {
         final String targetUrl = partyInfoService.getURLFromRecipientKey(recipientKey);
 
         if (!partyInfoService.getPartyInfo().getUrl().equals(targetUrl)) {

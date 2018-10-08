@@ -1,6 +1,6 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.key.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
 import com.quorum.tessera.transaction.model.EncodedPayload;
 import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
@@ -24,7 +24,7 @@ public class PayloadEncoderTest {
         final byte[] recipient = new byte[]{-87, -102, 0, 95, -13, 48, 76, -115, -115, 62, 54, -55, -78, 125, -54, -34, -71, -11, -95, -85, 78, -24, -30, 47, 65, 5, 88, 38, -111, -12, -41, -97, 103, -60, -101, 43, -57, -68, 68, -109, 36, 49, -63, -123, 62, 21, 67, -28};
 
         final EncodedPayload encodedPayload = new EncodedPayload(
-                new Key(senderKeyInt),
+                PublicKey.from(senderKeyInt),
                 ciphertext,
                 new Nonce(nonceInt),
                 singletonList(recipient),
@@ -50,7 +50,7 @@ public class PayloadEncoderTest {
 
         final EncodedPayload encodedPayload = payloadEncoder.decode(input);
 
-        assertThat(encodedPayload.getSenderKey()).isEqualTo(new Key(senderKey));
+        assertThat(encodedPayload.getSenderKey()).isEqualTo(PublicKey.from(senderKey));
         assertThat(encodedPayload.getCipherText()).containsExactly(ciphertext);
         assertThat(encodedPayload.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
         assertThat(encodedPayload.getRecipientNonce()).isEqualTo(new Nonce(recipientnonce));
@@ -74,13 +74,13 @@ public class PayloadEncoderTest {
 
         final EncodedPayloadWithRecipients encodedPayloadWithRecipients = new EncodedPayloadWithRecipients(
                 new EncodedPayload(
-                        new Key(sender),
+                        PublicKey.from(sender),
                         cipherText,
                         new Nonce(nonce),
                         singletonList(recipientBox),
                         new Nonce(recipientNonce)
                 ),
-                singletonList(new Key(recipientKey))
+                singletonList(PublicKey.from(recipientKey))
         );
 
         final byte[] encodedResult = payloadEncoder.encode(encodedPayloadWithRecipients);
@@ -121,7 +121,7 @@ public class PayloadEncoderTest {
         final EncodedPayloadWithRecipients decoded = payloadEncoder.decodePayloadWithRecipients(encoded);
         final EncodedPayload decodedPayload = decoded.getEncodedPayload();
 
-        assertThat(decodedPayload.getSenderKey()).isEqualTo(new Key(sender));
+        assertThat(decodedPayload.getSenderKey()).isEqualTo(PublicKey.from(sender));
         assertThat(decodedPayload.getCipherText()).containsExactly(cipherText);
         assertThat(decodedPayload.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
         assertThat(decodedPayload.getRecipientBoxes()).hasSize(1);
@@ -129,7 +129,7 @@ public class PayloadEncoderTest {
         assertThat(decodedPayload.getRecipientNonce()).isEqualTo(new Nonce(recipientNonce));
 
         assertThat(decoded.getRecipientKeys()).hasSize(1);
-        assertThat(decoded.getRecipientKeys().get(0)).isEqualTo(new Key(recipientKey));
+        assertThat(decoded.getRecipientKeys().get(0)).isEqualTo(PublicKey.from(recipientKey));
 
     }
 

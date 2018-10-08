@@ -1,6 +1,6 @@
 package com.quorum.tessera.node;
 
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.key.PublicKey;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
@@ -53,8 +53,8 @@ public interface PartyInfoParser extends BinaryEncoder {
             final byte[] urlValueData = new byte[recipientUrlValueLength];
             byteBuffer.get(urlValueData);
             final String recipientUrl = new String(urlValueData, UTF_8);
-
-            recipients.add(new Recipient(new Key(recipientKeyBytes), recipientUrl));
+            
+            recipients.add(new Recipient(PublicKey.from(recipientKeyBytes), recipientUrl));
 
         }
 
