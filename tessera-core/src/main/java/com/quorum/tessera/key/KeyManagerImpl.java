@@ -3,7 +3,6 @@ package com.quorum.tessera.key;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.key.exception.KeyNotFoundException;
 import com.quorum.tessera.nacl.Key;
-import com.quorum.tessera.nacl.NaclKeyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,40 +16,42 @@ public class KeyManagerImpl implements KeyManager {
     /**
      * A list of all pub/priv keys that are attached to this node
      */
-    private final Set<NaclKeyPair> localKeys;
+    private final Set<KeyPair> localKeys;
     
-    private final NaclKeyPair defaultKeys;
+    private final KeyPair defaultKeys;
     
-    private final Set<Key> forwardingPublicKeys;
+    private final Set<PublicKey> forwardingPublicKeys;
     
     public KeyManagerImpl(final Collection<ConfigKeyPair> keys, Collection<Key> forwardKeys) {
         this.localKeys = keys
                 .stream()
                 .map(kd
-                        -> new NaclKeyPair(
-                        new Key(Base64.getDecoder().decode(kd.getPublicKey())),
-                        new Key(Base64.getDecoder().decode(kd.getPrivateKey()))
+                        -> new KeyPair(
+                        PublicKey.from(Base64.getDecoder().decode(kd.getPublicKey())),
+                        PrivateKey.from(Base64.getDecoder().decode(kd.getPrivateKey()))
                 )
                 ).collect(Collectors.toSet());
         
         this.defaultKeys = localKeys.iterator().next();
         
-        this.forwardingPublicKeys = Collections.unmodifiableSet(new HashSet<>(forwardKeys));
+        this.forwardingPublicKeys = forwardKeys.stream()
+                .map(Key::getKeyBytes)
+                .map(PublicKey::from)
+                .collect(Collectors.toSet());
     }
     
     @Override
     public PublicKey getPublicKeyForPrivateKey(final PrivateKey privateKey) {
         LOGGER.debug("Attempting to find public key for the private key {}", privateKey);
-        //TODO: 
-        Key naclPRivateKey = new Key(privateKey.getKeyBytes());
+        
         final PublicKey publicKey = localKeys
                 .stream()
-                .filter(keypair -> Objects.equals(keypair.getPrivateKey(), naclPRivateKey))
+                .filter(keypair -> Objects.equals(keypair.getPrivateKey(), privateKey))
                 .findFirst()
-                .map(NaclKeyPair::getPublicKey)
-                .map(key -> PublicKey.from(key.getKeyBytes()))
+                .map(KeyPair::getPublicKey)
                 .orElseThrow(
-                        () -> new KeyNotFoundException("Private key " + Base64.getEncoder().encodeToString(privateKey.getKeyBytes()) 
+                        () -> new KeyNotFoundException("Private key " + 
+                                KeyUtil.encodeToBase64(privateKey) 
                                 + " not found when searching for public key")
                 );
         
@@ -63,14 +64,12 @@ public class KeyManagerImpl implements KeyManager {
     @Override
     public PrivateKey getPrivateKeyForPublicKey(final PublicKey publicKey) {
         LOGGER.debug("Attempting to find private key for the public key {}", publicKey);
-        //TODO: 
-        Key naclPublicKey = new Key(publicKey.getKeyBytes());
+
         final PrivateKey privateKey = localKeys
                 .stream()
-                .filter(keypair -> Objects.equals(keypair.getPublicKey(), naclPublicKey))
+                .filter(keypair -> Objects.equals(keypair.getPublicKey(), publicKey))
                 .findFirst()
-                .map(NaclKeyPair::getPrivateKey)
-                .map(key -> PrivateKey.from(key.getKeyBytes()))
+                .map(KeyPair::getPrivateKey)
                 .orElseThrow(
                         () -> new KeyNotFoundException("Public key " + KeyUtil.encodeToBase64(publicKey) 
                                 + " not found when searching for private key")
@@ -85,19 +84,17 @@ public class KeyManagerImpl implements KeyManager {
     public Set<PublicKey> getPublicKeys() {
         return localKeys
                 .stream()
-                .map(NaclKeyPair::getPublicKey)
-                .map(Key::getKeyBytes)
-                .map(PublicKey::from)
+                .map(KeyPair::getPublicKey)
                 .collect(Collectors.toSet());
     }
     
     @Override
-    public Key defaultPublicKey() {
-        return defaultKeys.getPublicKey();
+    public PublicKey defaultPublicKey() {
+        return PublicKey.from(defaultKeys.getPublicKey().getKeyBytes());
     }
     
     @Override
-    public Set<Key> getForwardingKeys() {
+    public Set<PublicKey> getForwardingKeys() {
         return this.forwardingPublicKeys;
     }
     

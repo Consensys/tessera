@@ -1,6 +1,5 @@
 package com.quorum.tessera.key;
 
-import com.quorum.tessera.nacl.Key;
 
 import java.util.Set;
 
@@ -48,7 +47,7 @@ public interface KeyManager {
      *
      * @return The public key to use as the default sender
      */
-    Key defaultPublicKey();
+    PublicKey defaultPublicKey();
 
     /**
      * Returns a set of public keys that all transactions should be sent to in
@@ -56,6 +55,6 @@ public interface KeyManager {
      *
      * @return the set of keys to forward to
      */
-    Set<Key> getForwardingKeys();
+    Set<PublicKey> getForwardingKeys();
 
 }

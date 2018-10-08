@@ -96,10 +96,8 @@ public class TransactionManagerImpl implements TransactionManager {
                 .map(PublicKey::from)
                 .collect(Collectors.toList());
 
-        keyManager.getForwardingKeys().stream()
-                .map(Key::getKeyBytes)
-                .map(PublicKey::from)
-                .forEach(recipientList::add);
+
+        recipientList.addAll(keyManager.getForwardingKeys());
         
 
         final byte[] payload = base64Decoder.decode(sendRequest.getPayload());

@@ -97,12 +97,12 @@ public class KeyManagerTest {
     @Test
     public void defaultKeyIsPopulated() {
         //the key manager is already set up with a keypair, so just check that
-        assertThat(this.keyManager.defaultPublicKey()).isEqualTo(NACL_PUBLIC_KEY);
+        assertThat(this.keyManager.defaultPublicKey()).isEqualTo(PUBLIC_KEY);
     }
 
     @Test
     public void forwardingKeysContainsOnlyOneKey() {
-        assertThat(this.keyManager.getForwardingKeys()).hasSize(1).containsExactlyInAnyOrder(NACL_FORWARDING_KEY);
+        assertThat(this.keyManager.getForwardingKeys()).hasSize(1).containsExactlyInAnyOrder(PublicKey.from(FORWARDING_KEY_DATA));
     }
 
 }
