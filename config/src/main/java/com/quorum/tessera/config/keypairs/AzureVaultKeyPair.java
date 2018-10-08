@@ -33,13 +33,13 @@ public class AzureVaultKeyPair implements ConfigKeyPair {
 
     @Override
     public String getPublicKey() {
-        //keys have not been fetched from vault yet so return null
+        //keys are not fetched from vault yet so return null
         return null;
     }
 
     @Override
     public String getPrivateKey() {
-        //keys have not been fetched from vault yet so return null
+        //keys are not fetched from vault yet so return null
         return null;
     }
 

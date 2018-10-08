@@ -133,7 +133,7 @@ public class DefaultCliAdapter implements CliAdapter {
 
         options.addOption(
             Option.builder("keygen")
-                .desc("Generate public/private key-pairs")
+                .desc("Use this option to generate public/private keypair")
                 .hasArg(false)
                 .build());
 
@@ -147,19 +147,17 @@ public class DefaultCliAdapter implements CliAdapter {
 
         options.addOption(
             Option.builder("keygenconfig")
-                .desc("Path to config file for encryption of generated private keys.  If not set, default config is used.")
-                .hasArg()
+                .desc("Path to private key config for generation of missing key files")
+                .hasArg(true)
                 .optionalArg(false)
                 .argName("PATH")
                 .build());
 
         options.addOption(
             Option.builder("output")
-                .desc("When used with -configfile and -keygen, will save updated config to file.")
+                .desc("Generate updated config file with generated keys")
                 .hasArg(true)
                 .numberOfArgs(1)
-                .optionalArg(false)
-                .argName("PATH")
                 .build());
 
         options.addOption(

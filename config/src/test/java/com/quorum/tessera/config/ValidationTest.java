@@ -266,7 +266,7 @@ public class ValidationTest {
     }
 
     @Test
-    public void keyVaultVaultPairProvidedWithoutKeyVaultConfigCreatesViolation() {
+    public void azureKeyPairProvidedWithoutKeyVaultConfigCreatesViolation() {
         AzureVaultKeyPair keyPair = new AzureVaultKeyPair("publicVauldId", "privateVaultId");
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null);
         Config config = new Config(null, null, null, keyConfiguration, null, null, false, false);
