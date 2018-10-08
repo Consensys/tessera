@@ -2,15 +2,16 @@ package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyVaultConfig;
-import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
-import com.quorum.tessera.config.keypairs.DirectKeyPair;
+import com.quorum.tessera.config.keypairs.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintValidatorContext;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -38,19 +39,49 @@ public class KeyVaultConfigurationValidatorTest {
     }
 
     @Test
-    public void keyVaultConfigWithVaultKeyPairTypeIsValid() {
-        AzureVaultKeyPair keyPair = mock(AzureVaultKeyPair.class);
-
+    public void keyVaultConfigWithVaultKeyPairIsValid() {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
+        AzureVaultKeyPair keyPair = mock(AzureVaultKeyPair.class);
         KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
+
+        when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
         when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
 
     @Test
-    public void keyVaultConfigWithNonVaultKeyPairTypeIsValid() {
+    public void keyVaultConfigWithMultipleVaultKeyPairTypesIsValid() {
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
+        List<ConfigKeyPair> keyPairs = new ArrayList<>();
+
+        keyPairs.add(mock(AzureVaultKeyPair.class));
+        keyPairs.add(mock(AzureVaultKeyPair.class));
+
+        when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
+
+        assertThat(validator.isValid(keyConfiguration, context)).isTrue();
+    }
+
+    @Test
+    public void keyVaultConfigWithMultipleKeyPairTypesIncludingVaultIsValid() {
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
+        List<ConfigKeyPair> keyPairs = new ArrayList<>();
+
+        keyPairs.add(mock(AzureVaultKeyPair.class));
+        keyPairs.add(mock(DirectKeyPair.class));
+
+        when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
+
+        assertThat(validator.isValid(keyConfiguration, context)).isTrue();
+    }
+
+    @Test
+    public void keyVaultConfigWithNonVaultKeyPairIsValid() {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         DirectKeyPair keyPair = mock(DirectKeyPair.class);
         KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
@@ -62,10 +93,25 @@ public class KeyVaultConfigurationValidatorTest {
     }
 
     @Test
-    public void noKeyVaultConfigWithVaultKeyPairTypeIsInvalid() {
+    public void keyVaultConfigWithMultipleNonVaultKeyPairsIsValid() {
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
+        List<ConfigKeyPair> keyPairs = new ArrayList<>();
+
+        keyPairs.add(mock(DirectKeyPair.class));
+        keyPairs.add(mock(InlineKeypair.class));
+
+        when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
+
+        assertThat(validator.isValid(keyConfiguration, context)).isTrue();
+    }
+
+    @Test
+    public void noKeyVaultConfigWithVaultKeyPairIsInvalid() {
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         AzureVaultKeyPair keyPair = mock(AzureVaultKeyPair.class);
 
-        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
         when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
 
@@ -73,11 +119,53 @@ public class KeyVaultConfigurationValidatorTest {
     }
 
     @Test
-    public void noKeyVaultConfigWithNonVaultKeyPairTypeIsValid() {
+    public void noKeyVaultConfigWithMultipleVaultKeyPairsIsInvalid() {
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        List<ConfigKeyPair> keyPairs = new ArrayList<>();
+
+        keyPairs.add(mock(AzureVaultKeyPair.class));
+        keyPairs.add(mock(AzureVaultKeyPair.class));
+
+        when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
+
+        assertThat(validator.isValid(keyConfiguration, context)).isFalse();
+    }
+
+    @Test
+    public void noKeyVaultConfigWithMultipleKeyPairsIncludingVaultIsInvalid() {
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        List<ConfigKeyPair> keyPairs = new ArrayList<>();
+
+        keyPairs.add(mock(AzureVaultKeyPair.class));
+        keyPairs.add(mock(DirectKeyPair.class));
+
+        when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
+
+        assertThat(validator.isValid(keyConfiguration, context)).isFalse();
+    }
+
+    @Test
+    public void noKeyVaultConfigWithNonVaultKeyPairIsValid() {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         DirectKeyPair keyPair = mock(DirectKeyPair.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
+
+        assertThat(validator.isValid(keyConfiguration, context)).isTrue();
+    }
+
+    @Test
+    public void noKeyVaultConfigWithMultipleNonVaultKeyPairsIsValid() {
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        List<ConfigKeyPair> keyPairs = new ArrayList<>();
+
+        keyPairs.add(mock(DirectKeyPair.class));
+        keyPairs.add(mock(FilesystemKeyPair.class));
+
+        when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
         when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
