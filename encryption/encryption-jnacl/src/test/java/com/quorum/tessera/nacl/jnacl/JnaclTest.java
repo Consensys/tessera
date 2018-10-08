@@ -1,6 +1,5 @@
 package com.quorum.tessera.nacl.jnacl;
 
-import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.NaclKeyPair;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.nacl.Nonce;
@@ -11,6 +10,9 @@ import org.junit.Test;
 import java.security.SecureRandom;
 
 import static com.neilalexander.jnacl.crypto.curve25519xsalsa20poly1305.crypto_secretbox_BEFORENMBYTES;
+import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.encryption.SharedKey;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -21,11 +23,11 @@ import static org.mockito.Mockito.*;
 
 public class JnaclTest {
 
-    private Key publicKey;
+    private PublicKey publicKey;
 
-    private Key privateKey;
+    private PrivateKey privateKey;
 
-    private Key sharedKey;
+    private SharedKey sharedKey;
 
     private byte[] message = "TEST_MESSAGE".getBytes(UTF_8);
 
@@ -75,7 +77,7 @@ public class JnaclTest {
     public void sealUsingKeysThrowsExceptionOnFailure() {
 
         final Throwable kaclEx = catchThrowable(
-            () -> this.jnacl.seal(message, nonce, publicKey, new Key(new byte[]{}))
+            () -> this.jnacl.seal(message, nonce, publicKey, PrivateKey.from(new byte[]{}))
         );
 
         assertThat(kaclEx)
@@ -87,7 +89,7 @@ public class JnaclTest {
     @Test
     public void openUsingKeysThrowsExceptionOnFailure() {
         final Throwable kaclEx = catchThrowable(
-            () -> this.jnacl.open(message, nonce, publicKey, new Key(new byte[]{}))
+            () -> this.jnacl.open(message, nonce, publicKey, PrivateKey.from(new byte[]{}))
         );
 
         assertThat(kaclEx)
@@ -157,7 +159,7 @@ public class JnaclTest {
             .when(this.secretBox)
             .cryptoBoxBeforenm(any(byte[].class), any(byte[].class), any(byte[].class));
 
-        final Key result = this.jnacl.computeSharedKey(publicKey, privateKey);
+        final SharedKey result = this.jnacl.computeSharedKey(publicKey, privateKey);
 
         assertThat(result).isNotNull();
 
@@ -245,7 +247,7 @@ public class JnaclTest {
     public void generatingRandomKeyReturnsCorrectSize() {
         final int expectedKeysize = 32;
 
-        final Key key = this.jnacl.createSingleKey();
+        final SharedKey key = this.jnacl.createSingleKey();
 
         assertThat(key.getKeyBytes()).hasSize(expectedKeysize);
     }

@@ -1,6 +1,6 @@
 package com.quorum.tessera.transaction.model;
 
-import com.quorum.tessera.key.PublicKey;
+import com.quorum.tessera.encryption.PublicKey;
 import java.util.Collections;
 
 import java.util.List;

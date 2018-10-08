@@ -1,5 +1,10 @@
 package com.quorum.tessera.nacl;
 
+import com.quorum.tessera.encryption.MasterKey;
+import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.encryption.SharedKey;
+
 /**
  * The API provided to the application that all implementation of this API
  * module should extend
@@ -22,7 +27,7 @@ public interface NaclFacade {
      * @param privateKey A private key from the second keyset
      * @return The shared key for this key pair.
      */
-    Key computeSharedKey(Key publicKey, Key privateKey);
+    SharedKey computeSharedKey(PublicKey publicKey, PrivateKey privateKey);
 
     /**
      * Encrypt a payload directly using the given public/private key pair for the sender/recipient
@@ -33,7 +38,7 @@ public interface NaclFacade {
      * @param privateKey The other key from either sender or recipient
      * @return The encrypted payload
      */
-    byte[] seal(byte[] message, Nonce nonce, Key publicKey, Key privateKey);
+    byte[] seal(byte[] message, Nonce nonce, PublicKey publicKey, PrivateKey privateKey);
 
     /**
      * Decrypt a payload directly using the given public/private key pair for the sender/recipient
@@ -44,7 +49,7 @@ public interface NaclFacade {
      * @param privateKey The other key from either sender or recipient
      * @return The encrypted payload
      */
-    byte[] open(byte[] cipherText, Nonce nonce, Key publicKey, Key privateKey);
+    byte[] open(byte[] cipherText, Nonce nonce, PublicKey publicKey, PrivateKey privateKey);
 
     /**
      * Encrypt a payload using the given public/private key pair for the sender/recipient
@@ -54,8 +59,13 @@ public interface NaclFacade {
      * @param sharedKey The shared key between the sender and recipient of the payload
      * @return The encrypted payload
      */
-    byte[] sealAfterPrecomputation(byte[] message, Nonce nonce, Key sharedKey);
+    byte[] sealAfterPrecomputation(byte[] message, Nonce nonce, SharedKey sharedKey);
 
+    default byte[] sealAfterPrecomputation(byte[] message, Nonce nonce, MasterKey masterKey) {
+        SharedKey sharedKey = SharedKey.from(masterKey.getKeyBytes());
+        return sealAfterPrecomputation(message, nonce, sharedKey);
+    }
+    
     /**
      * Decrypts a payload using the shared key between the sender and recipient
      *
@@ -64,7 +74,7 @@ public interface NaclFacade {
      * @param sharedKey  The shared key for the sender and recipient
      * @return The decrypted payload
      */
-    byte[] openAfterPrecomputation(byte[] cipherText, Nonce nonce, Key sharedKey);
+    byte[] openAfterPrecomputation(byte[] cipherText, Nonce nonce, SharedKey sharedKey);
 
     /**
      * Generates a new random nonce of the correct size
@@ -85,6 +95,12 @@ public interface NaclFacade {
      *
      * @return The randomly generated key
      */
-    Key createSingleKey();
+    SharedKey createSingleKey();
+    
+    default MasterKey createMasterKey() {
+        SharedKey sharedKey = createSingleKey();
+        return MasterKey.from(sharedKey.getKeyBytes());
+    }
+    
 
 }

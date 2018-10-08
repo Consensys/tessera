@@ -76,10 +76,12 @@ public class KeyGeneratorImpl implements KeyGenerator {
             LOGGER.info("Newly generated private key has been encrypted");
 
         } else {
-
+            
+            String keyData = Base64.getEncoder().encodeToString(generated.getPrivateKey().getKeyBytes());
+            
             finalKeys = new KeyData(
                 new KeyDataConfig(
-                    new PrivateKeyData(generated.getPrivateKey().toString(), null, null, null, null, null),
+                    new PrivateKeyData(keyData, null, null, null, null, null),
                     PrivateKeyType.UNLOCKED
                 ),
                 generated.getPrivateKey().toString(),

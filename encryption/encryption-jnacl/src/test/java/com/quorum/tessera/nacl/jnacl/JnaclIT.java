@@ -1,6 +1,6 @@
 package com.quorum.tessera.nacl.jnacl;
 
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.encryption.SharedKey;
 import com.quorum.tessera.nacl.NaclKeyPair;
 import com.quorum.tessera.nacl.Nonce;
 import org.junit.Before;
@@ -30,9 +30,9 @@ public class JnaclIT {
     @Test
     public void sharedKeyPubaprivbEqualsPrivapubb() {
 
-        final Key sharedKey = jnacl.computeSharedKey(keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
+        final SharedKey sharedKey = jnacl.computeSharedKey(keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
 
-        final Key secondSharedKey = jnacl.computeSharedKey(keypairTwo.getPublicKey(), keypairOne.getPrivateKey());
+        final SharedKey secondSharedKey = jnacl.computeSharedKey(keypairTwo.getPublicKey(), keypairOne.getPrivateKey());
 
         assertThat(sharedKey).isEqualTo(secondSharedKey);
 
@@ -42,7 +42,7 @@ public class JnaclIT {
     public void encryptAndDecryptPayloadUsingSameKeys() {
         final String payload = "Hello world";
 
-        final Key sharedKey = jnacl.computeSharedKey(keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
+        final SharedKey sharedKey = jnacl.computeSharedKey(keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
         final byte[] payloadBytes = payload.getBytes(UTF_8);
         final Nonce nonce = jnacl.randomNonce();
 
@@ -76,7 +76,7 @@ public class JnaclIT {
         final byte[] payloadBytes = payload.getBytes(UTF_8);
         final Nonce nonce = jnacl.randomNonce();
 
-        final Key symmentricKey = jnacl.createSingleKey();
+        final SharedKey symmentricKey = jnacl.createSingleKey();
 
         final byte[] encryptedPayload = jnacl.sealAfterPrecomputation(payloadBytes, nonce, symmentricKey);
         final byte[] decryptedPayload = jnacl.openAfterPrecomputation(encryptedPayload, nonce, symmentricKey);

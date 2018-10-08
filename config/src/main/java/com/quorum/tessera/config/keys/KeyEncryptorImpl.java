@@ -4,6 +4,8 @@ import com.quorum.tessera.argon2.Argon2;
 import com.quorum.tessera.argon2.ArgonResult;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.PrivateKeyData;
+import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.encryption.SharedKey;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.NaclFacade;
 import com.quorum.tessera.nacl.Nonce;
@@ -42,7 +44,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
     }
 
     @Override
-    public PrivateKeyData encryptPrivateKey(final Key privateKey, final String password, final ArgonOptions argonOptions) {
+    public PrivateKeyData encryptPrivateKey(final PrivateKey privateKey, final String password, final ArgonOptions argonOptions) {
 
         LOGGER.info("Encrypting a private key");
 
@@ -74,7 +76,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
         LOGGER.debug("Generated the random nonce {}", nonce);
 
         final byte[] encryptedKey = this.nacl.sealAfterPrecomputation(
-            privateKey.getKeyBytes(), nonce, new Key(argonResult.getHash())
+            privateKey.getKeyBytes(), nonce, SharedKey.from(argonResult.getHash())
         );
 
         LOGGER.info("Private key encrypted");
@@ -120,7 +122,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
         final byte[] originalKey = this.nacl.openAfterPrecomputation(
             this.decoder.decode(privateKey.getSbox()),
             new Nonce(this.decoder.decode(privateKey.getSnonce())),
-            new Key(argonResult.getHash())
+            SharedKey.from(argonResult.getHash())
         );
 
         LOGGER.info("Decrypted private key");

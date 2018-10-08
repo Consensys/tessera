@@ -1,5 +1,7 @@
 package com.quorum.tessera.nacl;
 
+import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.encryption.PublicKey;
 import java.util.Objects;
 
 /**
@@ -10,20 +12,20 @@ import java.util.Objects;
  */
 public class NaclKeyPair {
 
-    private final Key publicKey;
+    private final PublicKey publicKey;
 
-    private final Key privateKey;
+    private final PrivateKey privateKey;
 
-    public NaclKeyPair(final Key publicKey, final Key privateKey) {
+    public NaclKeyPair(final PublicKey publicKey, final PrivateKey privateKey) {
         this.publicKey = Objects.requireNonNull(publicKey);
         this.privateKey = Objects.requireNonNull(privateKey);
     }
 
-    public Key getPublicKey() {
+    public PublicKey getPublicKey() {
         return publicKey;
     }
 
-    public Key getPrivateKey() {
+    public PrivateKey getPrivateKey() {
         return privateKey;
     }
 

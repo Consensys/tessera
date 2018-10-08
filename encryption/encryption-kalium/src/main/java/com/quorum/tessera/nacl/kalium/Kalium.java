@@ -1,6 +1,8 @@
 package com.quorum.tessera.nacl.kalium;
 
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.encryption.SharedKey;
 import com.quorum.tessera.nacl.NaclKeyPair;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.nacl.NaclFacade;
@@ -34,7 +36,7 @@ public class Kalium implements NaclFacade {
     }
 
     @Override
-    public Key computeSharedKey(final Key publicKey, final Key privateKey) {
+    public SharedKey computeSharedKey(final PublicKey publicKey, final PrivateKey privateKey) {
         final byte[] output = new byte[CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BEFORENMBYTES];
 
         LOGGER.info("Computing the shared key for public key {} and private key {}", publicKey, REDACTED);
@@ -49,7 +51,7 @@ public class Kalium implements NaclFacade {
             throw new NaclException("Kalium could not compute the shared key");
         }
 
-        final Key sharedKey = new Key(output);
+        final SharedKey sharedKey = SharedKey.from(output);
 
         LOGGER.info("Computed shared key {} for pub {} and priv {}", sharedKey, publicKey, REDACTED);
         LOGGER.debug("Computed shared key {} for pub {} and priv {}", sharedKey, publicKey, privateKey);
@@ -58,7 +60,7 @@ public class Kalium implements NaclFacade {
     }
 
     @Override
-    public byte[] seal(final byte[] message, final Nonce nonce, final Key publicKey, final Key privateKey) {
+    public byte[] seal(final byte[] message, final Nonce nonce, final PublicKey publicKey, final PrivateKey privateKey) {
         /*
          * The Kalium library uses the C API
          * which expects the first CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES bytes to be zero
@@ -96,7 +98,7 @@ public class Kalium implements NaclFacade {
     }
 
     @Override
-    public byte[] open(final byte[] cipherText, final Nonce nonce, final Key publicKey, final Key privateKey) {
+    public byte[] open(final byte[] cipherText, final Nonce nonce, final PublicKey publicKey, final PrivateKey privateKey) {
         LOGGER.info("Opening message using public key {}", publicKey);
         LOGGER.debug(
             "Opening message {} using nonce {}, public key {} and private key {}",
@@ -130,7 +132,7 @@ public class Kalium implements NaclFacade {
     }
 
     @Override
-    public byte[] sealAfterPrecomputation(final byte[] message, final Nonce nonce, final Key sharedKey) {
+    public byte[] sealAfterPrecomputation(final byte[] message, final Nonce nonce, final SharedKey sharedKey) {
         /*
          * The Kalium library uses the C API
          * which expects the first CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES bytes to be zero
@@ -166,7 +168,7 @@ public class Kalium implements NaclFacade {
     }
 
     @Override
-    public byte[] openAfterPrecomputation(final byte[] encryptedPayload, final Nonce nonce, final Key sharedKey) {
+    public byte[] openAfterPrecomputation(final byte[] encryptedPayload, final Nonce nonce, final SharedKey sharedKey) {
         LOGGER.info("Opening message using shared key {}", sharedKey);
         LOGGER.debug(
             "Opening message {} using nonce {} and shared key {}", Arrays.toString(encryptedPayload), nonce, sharedKey
@@ -226,8 +228,8 @@ public class Kalium implements NaclFacade {
             throw new NaclException("Kalium could not generate a new public/private keypair");
         }
 
-        final Key pubKey = new Key(publicKey);
-        final Key privKey = new Key(privateKey);
+        final PublicKey pubKey = PublicKey.from(publicKey);
+        final PrivateKey privKey = PrivateKey.from(privateKey);
 
         LOGGER.info("Generated public key {} and private key {}", pubKey, REDACTED);
         LOGGER.debug("Generated public key {} and private key {}", pubKey, privKey);
@@ -264,14 +266,14 @@ public class Kalium implements NaclFacade {
     }
 
     @Override
-    public Key createSingleKey() {
+    public SharedKey createSingleKey() {
         LOGGER.info("Generating random key");
 
         final byte[] keyBytes = new byte[CRYPTO_BOX_CURVE25519XSALSA20POLY1305_PUBLICKEYBYTES];
 
         this.sodium.randombytes(keyBytes, keyBytes.length);
 
-        final Key key = new Key(keyBytes);
+        final SharedKey key = SharedKey.from(keyBytes);
 
         LOGGER.info("Random key generated");
         LOGGER.debug("Generated key with value {}", key);

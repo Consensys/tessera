@@ -1,6 +1,6 @@
 package com.quorum.tessera.node.model;
 
-import com.quorum.tessera.key.PublicKey;
+import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
 
 import java.util.Objects;

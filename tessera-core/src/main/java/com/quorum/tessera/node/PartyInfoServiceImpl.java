@@ -3,7 +3,7 @@ package com.quorum.tessera.node;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.core.config.ConfigService;
 import com.quorum.tessera.key.KeyManager;
-import com.quorum.tessera.key.PublicKey;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.key.exception.KeyNotFoundException;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;

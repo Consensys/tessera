@@ -1,13 +1,14 @@
-package com.quorum.tessera.key;
+
+package com.quorum.tessera.encryption;
 
 import java.util.Arrays;
 
 
-public interface PrivateKey {
-    byte[] getKeyBytes();
-    
-    static PrivateKey from(byte[] data) {
-        return new PrivateKey() {
+public interface SharedKey {
+     byte[] getKeyBytes();
+     
+    static SharedKey from(byte[] data) {
+        return new SharedKey() {
 
             @Override
             public byte[] getKeyBytes() {
@@ -16,8 +17,8 @@ public interface PrivateKey {
 
             @Override
             public boolean equals(Object arg0) {
-                return PrivateKey.class.isInstance(arg0) 
-                        && Arrays.equals(data, ((PrivateKey) arg0).getKeyBytes());
+                return SharedKey.class.isInstance(arg0) 
+                        && Arrays.equals(data, ((SharedKey) arg0).getKeyBytes());
             }
 
             @Override
@@ -25,7 +26,6 @@ public interface PrivateKey {
                 return Arrays.hashCode(data);
 
             }
-            
 
         };
     }

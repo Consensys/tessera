@@ -1,9 +1,10 @@
 package com.quorum.tessera.key;
 
+import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.key.exception.KeyNotFoundException;
-import com.quorum.tessera.nacl.Key;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,30 +18,23 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class KeyManagerTest {
 
-    private static final byte[] PRIVATE_KEY_DATA = "privateKey".getBytes();
+    private static final PublicKey PUBLIC_KEY = PublicKey.from("publicKey".getBytes());
     
-    private static final Key NACL_PRIVATE_KEY = new Key(PRIVATE_KEY_DATA);
-
-    private static final byte[] PUBLIC_KEY_DATA = "publicKey".getBytes();
+     private static final PrivateKey PRIVATE_KEY = PrivateKey.from("privateKey".getBytes());
     
-    private static final Key NACL_PUBLIC_KEY = new Key(PUBLIC_KEY_DATA);
-
-    private static final byte[] FORWARDING_KEY_DATA = "forwardingKey".getBytes();
-    
-    private static final Key NACL_FORWARDING_KEY = new Key(FORWARDING_KEY_DATA);
-
-    private static final PublicKey PUBLIC_KEY = PublicKey.from(PUBLIC_KEY_DATA);
-    
-     private static final PrivateKey PRIVATE_KEY = PrivateKey.from(PRIVATE_KEY_DATA);
-    
+     private static final PublicKey FORWARDING_KEY = PublicKey.from("forwardingKey".getBytes());
+     
     private KeyManager keyManager;
 
     @Before
     public void init() {
+        
+        String encodedPublicKey = KeyUtil.encodeToBase64(PUBLIC_KEY);
+        String encodedPrivateKey = KeyUtil.encodeToBase64(PRIVATE_KEY);
+        
+        final ConfigKeyPair configKeyPair = new DirectKeyPair(encodedPublicKey, encodedPrivateKey);
 
-        final ConfigKeyPair configKeyPair = new DirectKeyPair(NACL_PUBLIC_KEY.toString(), NACL_PRIVATE_KEY.toString());
-
-        this.keyManager = new KeyManagerImpl(singleton(configKeyPair), singleton(NACL_FORWARDING_KEY));
+        this.keyManager = new KeyManagerImpl(singleton(configKeyPair), singleton(FORWARDING_KEY));
     }
 
     @Test
@@ -102,7 +96,8 @@ public class KeyManagerTest {
 
     @Test
     public void forwardingKeysContainsOnlyOneKey() {
-        assertThat(this.keyManager.getForwardingKeys()).hasSize(1).containsExactlyInAnyOrder(PublicKey.from(FORWARDING_KEY_DATA));
+        assertThat(this.keyManager.getForwardingKeys()).hasSize(1)
+                .containsExactlyInAnyOrder(FORWARDING_KEY);
     }
 
 }

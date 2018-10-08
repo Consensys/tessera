@@ -8,7 +8,7 @@ import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeysConverter;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.encryption.PrivateKey;
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class KeyUpdateParser implements Parser<Optional> {
             final Path keypath = privateKeyPath(commandLine);
 
             final KeyDataConfig keyDataConfig = JaxbUtil.unmarshal(Files.newInputStream(keypath), KeyDataConfig.class);
-            final Key privateKey = this.getExistingKey(keyDataConfig, passwords);
+            final PrivateKey privateKey = this.getExistingKey(keyDataConfig, passwords);
 
             final String newPassword = passwordReader.requestUserPassword();
 
@@ -67,15 +67,15 @@ public class KeyUpdateParser implements Parser<Optional> {
         return Optional.empty();
     }
 
-    Key getExistingKey(final KeyDataConfig kdc, final List<String> passwords) {
+    PrivateKey getExistingKey(final KeyDataConfig kdc, final List<String> passwords) {
 
         if (kdc.getType() == PrivateKeyType.UNLOCKED) {
-            return KeysConverter.convert(singletonList(kdc.getValue())).get(0);
+            return PrivateKey.from(KeysConverter.convert(singletonList(kdc.getValue())).get(0).getKeyBytes());
         } else {
 
             for (final String pass : passwords) {
                 try {
-                    return keyEncryptor.decryptPrivateKey(kdc.getPrivateKeyData(), pass);
+                    return PrivateKey.from(keyEncryptor.decryptPrivateKey(kdc.getPrivateKeyData(), pass).getKeyBytes());
                 } catch (final Exception e) {
                     LOGGER.debug("Password failed to decrypt. Trying next if available.");
                 }

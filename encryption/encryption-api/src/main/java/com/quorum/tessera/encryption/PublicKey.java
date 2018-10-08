@@ -1,4 +1,4 @@
-package com.quorum.tessera.key;
+package com.quorum.tessera.encryption;
 
 import java.util.Arrays;
 

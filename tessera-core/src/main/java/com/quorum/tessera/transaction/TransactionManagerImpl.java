@@ -9,10 +9,12 @@ import com.quorum.tessera.api.model.ResendResponse;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.enclave.model.MessageHash;
+import com.quorum.tessera.encryption.MasterKey;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.key.KeyUtil;
-import com.quorum.tessera.key.PrivateKey;
-import com.quorum.tessera.key.PublicKey;
+import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.encryption.SharedKey;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.nacl.NaclFacade;
@@ -84,7 +86,7 @@ public class TransactionManagerImpl implements TransactionManager {
         final PublicKey senderPublicKey = Optional.ofNullable(sender)
                 .map(base64Decoder::decode)
                 .map(PublicKey::from)
-                .orElseGet(() -> PublicKey.from(keyManager.defaultPublicKey().getKeyBytes()));
+                .orElseGet(keyManager::defaultPublicKey);
 
         final byte[][] recipients = Stream
                 .of(sendRequest.getTo())
@@ -121,7 +123,7 @@ public class TransactionManagerImpl implements TransactionManager {
             final PublicKey senderPublicKey,
             final List<PublicKey> recipientPublicKeys) {
 
-        final Key masterKey = nacl.createSingleKey();
+        final MasterKey masterKey = nacl.createMasterKey();
         final Nonce nonce = nacl.randomNonce();
         final Nonce recipientNonce = nacl.randomNonce();
 
@@ -133,9 +135,7 @@ public class TransactionManagerImpl implements TransactionManager {
         
         final List<byte[]> encryptedMasterKeys = recipientPublicKeys
                 .stream()
-                .map(PublicKey::getKeyBytes)
-                .map(Key::new)
-                .map(key -> nacl.computeSharedKey(key, privateKeyKey))
+                .map(key -> nacl.computeSharedKey(key, privateKey))
                 .map(key -> nacl.sealAfterPrecomputation(masterKey.getKeyBytes(), recipientNonce, key))
                 .collect(Collectors.toList());
 
@@ -261,17 +261,15 @@ public class TransactionManagerImpl implements TransactionManager {
         }
 
         final PrivateKey senderPrivKey = keyManager.getPrivateKeyForPublicKey(senderPubKey);
-        Key senderPrivKeyKey = new Key(senderPrivKey.getKeyBytes());
-        Key recipientPubKeyKey = new Key(recipientPubKey.getKeyBytes());
-        
-        final Key sharedKey = nacl.computeSharedKey(recipientPubKeyKey, senderPrivKeyKey);
+ 
+        final SharedKey sharedKey = nacl.computeSharedKey(recipientPubKey, senderPrivKey);
 
         try {
             final byte[] recipientBox = encodedPayload.getRecipientBoxes().iterator().next();
             final Nonce nonce = encodedPayload.getRecipientNonce();
             final byte[] masterKeyBytes = nacl.openAfterPrecomputation(recipientBox, nonce, sharedKey);
 
-            final Key masterKey = new Key(masterKeyBytes);
+            final SharedKey masterKey = SharedKey.from(masterKeyBytes);
 
             final byte[] cipherText = encodedPayload.getCipherText();
             final Nonce cipherTextNonce = encodedPayload.getCipherTextNonce();

@@ -10,6 +10,9 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import static com.neilalexander.jnacl.crypto.curve25519xsalsa20poly1305.*;
+import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.encryption.SharedKey;
 
 /**
  * Uses jnacl, which is a pure Java implementation of the NaCl standard
@@ -30,7 +33,7 @@ public class Jnacl implements NaclFacade {
     }
 
     @Override
-    public Key computeSharedKey(final Key publicKey, final Key privateKey) {
+    public SharedKey computeSharedKey(final PublicKey publicKey, final PrivateKey privateKey) {
         final byte[] precomputed = new byte[crypto_secretbox_BEFORENMBYTES];
 
         LOGGER.debug("Computing the shared key for public key {} and private key {}", publicKey, privateKey);
@@ -44,7 +47,7 @@ public class Jnacl implements NaclFacade {
             throw new NaclException("JNacl could not compute the shared key");
         }
 
-        final Key sharedKey = new Key(precomputed);
+        final SharedKey sharedKey = SharedKey.from(precomputed);
 
         LOGGER.debug("Computed shared key {} for pub {} and priv {}", sharedKey, publicKey, privateKey);
 
@@ -53,7 +56,7 @@ public class Jnacl implements NaclFacade {
     }
 
     @Override
-    public byte[] seal(final byte[] message, final Nonce nonce, final Key publicKey, final Key privateKey) {
+    public byte[] seal(final byte[] message, final Nonce nonce, final PublicKey publicKey, final PrivateKey privateKey) {
 
         LOGGER.debug("Sealing message using public key {}", publicKey);
         LOGGER.debug(
@@ -82,7 +85,7 @@ public class Jnacl implements NaclFacade {
     }
 
     @Override
-    public byte[] open(final byte[] cipherText, final Nonce nonce, final Key publicKey, final Key privateKey) {
+    public byte[] open(final byte[] cipherText, final Nonce nonce, final PublicKey publicKey, final PrivateKey privateKey) {
         LOGGER.debug("Opening message using public key {}", publicKey);
         LOGGER.debug(
             "Opening message {} using nonce {}, public key {} and private key {}",
@@ -110,7 +113,7 @@ public class Jnacl implements NaclFacade {
     }
 
     @Override
-    public byte[] sealAfterPrecomputation(final byte[] message, final Nonce nonce, final Key sharedKey) {
+    public byte[] sealAfterPrecomputation(final byte[] message, final Nonce nonce, final SharedKey sharedKey) {
 
         final byte[] paddedMessage = new byte[message.length + crypto_secretbox_ZEROBYTES];
         final byte[] output = new byte[message.length + crypto_secretbox_ZEROBYTES];
@@ -142,7 +145,7 @@ public class Jnacl implements NaclFacade {
     }
 
     @Override
-    public byte[] openAfterPrecomputation(final byte[] cipherText, final Nonce nonce, final Key sharedKey) {
+    public byte[] openAfterPrecomputation(final byte[] cipherText, final Nonce nonce, final SharedKey sharedKey) {
         LOGGER.debug("Opening message using shared key {}", sharedKey);
         LOGGER.debug(
             "Opening message {} using nonce {} and shared key {}",
@@ -198,8 +201,8 @@ public class Jnacl implements NaclFacade {
             throw new NaclException("jnacl could not generate a new public/private keypair");
         }
 
-        final Key pubKey = new Key(publicKey);
-        final Key privKey = new Key(privateKey);
+        final PublicKey pubKey = PublicKey.from(publicKey);
+        final PrivateKey privKey = PrivateKey.from(privateKey);
 
         LOGGER.info("Generated public key {} and private key {}", pubKey, REDACTED);
         LOGGER.debug("Generated public key {} and private key {}", pubKey, privKey);
@@ -208,14 +211,14 @@ public class Jnacl implements NaclFacade {
     }
 
     @Override
-    public Key createSingleKey() {
+    public SharedKey createSingleKey() {
         LOGGER.debug("Generating random key");
 
         final byte[] keyBytes = new byte[crypto_secretbox_PUBLICKEYBYTES];
 
         this.secureRandom.nextBytes(keyBytes);
 
-        final Key key = new Key(keyBytes);
+        final SharedKey key = SharedKey.from(keyBytes);
 
         LOGGER.debug("Random key generated");
         LOGGER.debug("Generated key with value {}", key);
@@ -250,5 +253,7 @@ public class Jnacl implements NaclFacade {
 
         return extractedMessage;
     }
+
+
 
 }
