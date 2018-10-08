@@ -1,6 +1,8 @@
 package com.quorum.tessera.nacl.kalium;
 
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.encryption.SharedKey;
 import com.quorum.tessera.nacl.NaclKeyPair;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.nacl.Nonce;
@@ -20,11 +22,11 @@ import static org.mockito.Mockito.*;
 
 public class KaliumTest {
 
-    private Key publicKey = new Key("publickey".getBytes(UTF_8));
+    private PublicKey publicKey = PublicKey.from("publickey".getBytes(UTF_8));
 
-    private Key privateKey = new Key("privateKey".getBytes(UTF_8));
+    private PrivateKey privateKey = PrivateKey.from("privateKey".getBytes(UTF_8));
 
-    private Key sharedKey = new Key("sharedKey".getBytes(UTF_8));
+    private SharedKey sharedKey = SharedKey.from("sharedKey".getBytes(UTF_8));
 
     private byte[] message = "TEST_MESSAGE".getBytes(UTF_8);
 
@@ -165,7 +167,7 @@ public class KaliumTest {
             any(byte[].class), any(byte[].class), any(byte[].class))
         ).thenReturn(1);
 
-        final Key result = kalium.computeSharedKey(publicKey, privateKey);
+        final SharedKey result = kalium.computeSharedKey(publicKey, privateKey);
 
         assertThat(result).isNotNull();
         assertThat(result.getKeyBytes()).isEqualTo(new byte[CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BEFORENMBYTES]);
@@ -268,7 +270,7 @@ public class KaliumTest {
     public void generatingRandomKeyReturnsCorrectSize() {
         final int expectedKeysize = 32;
 
-        final Key key = this.kalium.createSingleKey();
+        final SharedKey key = this.kalium.createSingleKey();
 
         verify(this.sodium).randombytes(any(byte[].class), eq(expectedKeysize));
 

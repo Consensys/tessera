@@ -15,7 +15,6 @@ import com.quorum.tessera.encryption.KeyUtil;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.SharedKey;
-import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.nacl.NaclFacade;
 import com.quorum.tessera.nacl.Nonce;
@@ -131,12 +130,10 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final PrivateKey privateKey = keyManager.getPrivateKeyForPublicKey(senderPublicKey);
 
-        final Key privateKeyKey = new Key(privateKey.getKeyBytes());
-        
         final List<byte[]> encryptedMasterKeys = recipientPublicKeys
                 .stream()
-                .map(key -> nacl.computeSharedKey(key, privateKey))
-                .map(key -> nacl.sealAfterPrecomputation(masterKey.getKeyBytes(), recipientNonce, key))
+                .map(publicKey -> nacl.computeSharedKey(publicKey, privateKey))
+                .map(sharedKey -> nacl.sealAfterPrecomputation(masterKey.getKeyBytes(), recipientNonce, sharedKey))
                 .collect(Collectors.toList());
 
         return new EncodedPayloadWithRecipients(
