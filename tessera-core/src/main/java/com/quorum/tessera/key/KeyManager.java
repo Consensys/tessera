@@ -36,7 +36,7 @@ public interface KeyManager {
      *
      * @return the set of all public keys
      */
-    Set<Key> getPublicKeys();
+    Set<PublicKey> getPublicKeys();
 
     /**
      * Returns the default public key of this node if a transaction is

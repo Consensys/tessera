@@ -10,6 +10,7 @@ import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.key.KeyManager;
+import com.quorum.tessera.key.KeyUtil;
 import com.quorum.tessera.key.PrivateKey;
 import com.quorum.tessera.key.PublicKey;
 import com.quorum.tessera.nacl.Key;
@@ -222,9 +223,8 @@ public class TransactionManagerImpl implements TransactionManager {
             String encodedPayload = base64Decoder.encodeToString(payload);
             return new ReceiveResponse(encodedPayload);
         } else {
-            for (final Key potentialMatchingKeyKey : this.keyManager.getPublicKeys()) {
+            for (final PublicKey potentialMatchingKey : this.keyManager.getPublicKeys()) {
                 try {
-                    PublicKey potentialMatchingKey = PublicKey.from(potentialMatchingKeyKey.getKeyBytes());
                     byte[] payload = retrieveUnencryptedTransaction(hash, potentialMatchingKey);
                     String encodedPayload = base64Decoder.encodeToString(payload);
                     return new ReceiveResponse(encodedPayload);
@@ -323,7 +323,8 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncodedPayload encodedPayload = payloadWithRecipients.getEncodedPayload();
 
         if (!payloadWithRecipients.getRecipientKeys().contains(recipient)) {
-            throw new RuntimeException("Recipient " + recipient + " is not a recipient of transaction " + hash);
+            
+            throw new RuntimeException("Recipient " + KeyUtil.encodeToBase64(recipient) + " is not a recipient of transaction " + hash);
         }
 
         final int recipientIndex = payloadWithRecipients.getRecipientKeys().indexOf(recipient);

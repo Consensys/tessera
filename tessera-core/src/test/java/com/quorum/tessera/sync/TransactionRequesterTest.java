@@ -4,7 +4,6 @@ import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.key.PublicKey;
-import com.quorum.tessera.nacl.Key;
 import java.util.Base64;
 import org.junit.After;
 import org.junit.Before;
@@ -60,10 +59,7 @@ public class TransactionRequesterTest {
     @Test
     public void multipleKeysMakesCorrectCalls() {
         
-        final Set<Key> allKeys = Stream.of(KEY_ONE, KEY_TWO)
-                .map(PublicKey::getKeyBytes)
-                .map(Key::new).collect(Collectors.toSet());
-
+        final Set<PublicKey> allKeys = Stream.of(KEY_ONE, KEY_TWO).collect(Collectors.toSet());
 
         when(keyManager.getPublicKeys()).thenReturn(allKeys);
         
@@ -84,7 +80,7 @@ public class TransactionRequesterTest {
 
     @Test
     public void failedCallRetries() {
-        when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(new Key(KEY_ONE.getKeyBytes())));
+        when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(KEY_ONE));
         
         when(p2pClient.makeResendRequest(anyString(), any(ResendRequest.class))).thenReturn(false)
                 ;
@@ -99,7 +95,7 @@ public class TransactionRequesterTest {
     @Test
     public void calltoPostDelegateThrowsException() {
 
-        when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(new Key(KEY_ONE.getKeyBytes())));
+        when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(KEY_ONE));
         when(p2pClient.makeResendRequest(anyString(), any(ResendRequest.class))).thenThrow(RuntimeException.class);
         
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");

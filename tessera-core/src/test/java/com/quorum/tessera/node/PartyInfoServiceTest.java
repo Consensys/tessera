@@ -5,7 +5,6 @@ import com.quorum.tessera.core.config.ConfigService;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.key.PublicKey;
 import com.quorum.tessera.key.exception.KeyNotFoundException;
-import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
@@ -56,10 +55,10 @@ public class PartyInfoServiceTest {
         final Peer peer = new Peer("http://other-node.com:8080");
         when(configService.getPeers()).thenReturn(singletonList(peer));
 
-        final Set<Key> ourKeys = new HashSet<>(
+        final Set<PublicKey> ourKeys = new HashSet<>(
                 Arrays.asList(
-                        new Key("some-key".getBytes()),
-                        new Key("another-public-key".getBytes())
+                        PublicKey.from("some-key".getBytes()),
+                        PublicKey.from("another-public-key".getBytes())
                 )
         );
         doReturn(ourKeys).when(keyManager).getPublicKeys();

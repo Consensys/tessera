@@ -72,7 +72,7 @@ public class KeyManagerImpl implements KeyManager {
                 .map(NaclKeyPair::getPrivateKey)
                 .map(key -> PrivateKey.from(key.getKeyBytes()))
                 .orElseThrow(
-                        () -> new KeyNotFoundException("Public key " + Base64.getEncoder().encodeToString(publicKey.getKeyBytes()) 
+                        () -> new KeyNotFoundException("Public key " + KeyUtil.encodeToBase64(publicKey) 
                                 + " not found when searching for private key")
                 );
         
@@ -82,10 +82,12 @@ public class KeyManagerImpl implements KeyManager {
     }
     
     @Override
-    public Set<Key> getPublicKeys() {
+    public Set<PublicKey> getPublicKeys() {
         return localKeys
                 .stream()
                 .map(NaclKeyPair::getPublicKey)
+                .map(Key::getKeyBytes)
+                .map(PublicKey::from)
                 .collect(Collectors.toSet());
     }
     

@@ -88,10 +88,10 @@ public class KeyManagerTest {
 
     @Test
     public void getPublicKeysReturnsAllKeys() {
-        final Set<Key> publicKeys = this.keyManager.getPublicKeys();
+        final Set<PublicKey> publicKeys = this.keyManager.getPublicKeys();
 
         assertThat(publicKeys.size()).isEqualTo(1);
-        assertThat(publicKeys.iterator().next()).isEqualTo(NACL_PUBLIC_KEY);
+        assertThat(publicKeys.iterator().next()).isEqualTo(PUBLIC_KEY);
     }
 
     @Test

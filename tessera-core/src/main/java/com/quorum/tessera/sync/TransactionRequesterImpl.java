@@ -5,7 +5,6 @@ import com.quorum.tessera.api.model.ResendRequestType;
 import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.key.PublicKey;
-import com.quorum.tessera.nacl.Key;
 import java.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +31,8 @@ public class TransactionRequesterImpl implements TransactionRequester {
         LOGGER.debug("Requesting transactions get resent for {}", uri);
 
         return this.keyManager
-                .getPublicKeys()
-                
+                .getPublicKeys() 
                 .stream()
-                .map(Key::getKeyBytes)
-                .map(PublicKey::from)
                 .map(this::createRequestAllEntity)
                 .allMatch(req -> this.makeRequest(uri, req));
 
