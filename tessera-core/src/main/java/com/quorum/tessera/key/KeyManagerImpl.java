@@ -5,6 +5,7 @@ import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.key.exception.KeyNotFoundException;
+import com.quorum.tessera.encryption.KeyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

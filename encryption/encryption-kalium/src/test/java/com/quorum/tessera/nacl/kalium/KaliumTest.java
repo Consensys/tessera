@@ -3,7 +3,7 @@ package com.quorum.tessera.nacl.kalium;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.SharedKey;
-import com.quorum.tessera.nacl.NaclKeyPair;
+import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.nacl.Nonce;
 import org.abstractj.kalium.NaCl;
@@ -183,7 +183,7 @@ public class KaliumTest {
 
         when(sodium.crypto_box_curve25519xsalsa20poly1305_keypair(any(byte[].class), any(byte[].class))).thenReturn(1);
 
-        final NaclKeyPair result = kalium.generateNewKeys();
+        final KeyPair result = kalium.generateNewKeys();
 
         assertThat(result).isNotNull();
         assertThat(result.getPrivateKey()).isNotNull();

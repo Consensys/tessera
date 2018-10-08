@@ -6,7 +6,7 @@ import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.io.IOCallback;
-import com.quorum.tessera.nacl.NaclKeyPair;
+import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
         final String password = this.passwordReader.requestUserPassword();
 
-        final NaclKeyPair generated = this.nacl.generateNewKeys();
+        final KeyPair generated = this.nacl.generateNewKeys();
 
         final String publicKeyBase64 = Base64.getEncoder().encodeToString(generated.getPublicKey().getKeyBytes());
 

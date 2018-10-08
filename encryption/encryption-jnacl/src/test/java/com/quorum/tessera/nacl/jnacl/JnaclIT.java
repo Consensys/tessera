@@ -1,7 +1,7 @@
 package com.quorum.tessera.nacl.jnacl;
 
 import com.quorum.tessera.encryption.SharedKey;
-import com.quorum.tessera.nacl.NaclKeyPair;
+import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.nacl.Nonce;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,9 +13,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class JnaclIT {
 
-    private NaclKeyPair keypairOne;
+    private KeyPair keypairOne;
 
-    private NaclKeyPair keypairTwo;
+    private KeyPair keypairTwo;
 
     private Jnacl jnacl;
 

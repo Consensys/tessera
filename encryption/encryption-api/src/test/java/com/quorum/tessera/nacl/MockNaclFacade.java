@@ -1,5 +1,6 @@
 package com.quorum.tessera.nacl;
 
+import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.MasterKey;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
@@ -15,7 +16,7 @@ public enum MockNaclFacade implements NaclFacade {
     }
 
     @Override
-    public NaclKeyPair generateNewKeys() {
+    public KeyPair generateNewKeys() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

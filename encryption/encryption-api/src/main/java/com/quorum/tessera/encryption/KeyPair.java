@@ -1,4 +1,4 @@
-package com.quorum.tessera.nacl;
+package com.quorum.tessera.encryption;
 
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
@@ -10,13 +10,13 @@ import java.util.Objects;
  * The public and private key should be related to each other, not just an
  * arbitrary pairing of two keys
  */
-public class NaclKeyPair {
+public class KeyPair {
 
     private final PublicKey publicKey;
 
     private final PrivateKey privateKey;
 
-    public NaclKeyPair(final PublicKey publicKey, final PrivateKey privateKey) {
+    public KeyPair(final PublicKey publicKey, final PrivateKey privateKey) {
         this.publicKey = Objects.requireNonNull(publicKey);
         this.privateKey = Objects.requireNonNull(privateKey);
     }
@@ -31,9 +31,9 @@ public class NaclKeyPair {
 
     @Override
     public boolean equals(final Object o) {
-        return (o instanceof NaclKeyPair) &&
-            Objects.equals(publicKey, ((NaclKeyPair) o).publicKey) &&
-            Objects.equals(privateKey, ((NaclKeyPair) o).privateKey);
+        return (o instanceof KeyPair) &&
+            Objects.equals(publicKey, ((KeyPair) o).publicKey) &&
+            Objects.equals(privateKey, ((KeyPair) o).privateKey);
     }
 
     @Override

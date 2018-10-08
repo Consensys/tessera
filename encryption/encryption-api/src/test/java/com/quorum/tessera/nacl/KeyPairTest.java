@@ -1,5 +1,6 @@
 package com.quorum.tessera.nacl;
 
+import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
@@ -18,10 +19,10 @@ public class KeyPairTest {
 
     @Test
     public void differentPublicKeysAreNotEqual() {
-        final NaclKeyPair keyPair = new NaclKeyPair(TEST_KEY, PRIVATE_KEY);
+        final KeyPair keyPair = new KeyPair(TEST_KEY, PRIVATE_KEY);
 
         assertThat(keyPair).
-            isNotEqualTo(new NaclKeyPair(
+            isNotEqualTo(new KeyPair(
                 PublicKey.from("other".getBytes(UTF_8)),
                 PRIVATE_KEY
             ));
@@ -31,9 +32,9 @@ public class KeyPairTest {
 
     @Test
     public void equalTest() {
-        final NaclKeyPair keyPair = new NaclKeyPair(TEST_KEY, PRIVATE_KEY);
+        final KeyPair keyPair = new KeyPair(TEST_KEY, PRIVATE_KEY);
 
-        assertThat(keyPair).isEqualTo(new NaclKeyPair(TEST_KEY, PRIVATE_KEY));
+        assertThat(keyPair).isEqualTo(new KeyPair(TEST_KEY, PRIVATE_KEY));
     }
 
 }

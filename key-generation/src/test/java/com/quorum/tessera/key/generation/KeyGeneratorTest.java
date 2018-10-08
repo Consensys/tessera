@@ -7,7 +7,7 @@ import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.PasswordReader;
-import com.quorum.tessera.nacl.NaclKeyPair;
+import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
 import org.junit.After;
 import org.junit.Before;
@@ -34,7 +34,7 @@ public class KeyGeneratorTest {
 
     private static final String PUBLIC_KEY = "publicKey";
 
-    private NaclKeyPair keyPair;
+    private KeyPair keyPair;
 
     private NaclFacade nacl;
 
@@ -47,7 +47,7 @@ public class KeyGeneratorTest {
     @Before
     public void init() {
 
-        this.keyPair = new NaclKeyPair(
+        this.keyPair = new KeyPair(
                 PublicKey.from(PUBLIC_KEY.getBytes(UTF_8)),
                 PrivateKey.from(PRIVATE_KEY.getBytes(UTF_8))
         );

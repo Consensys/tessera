@@ -1,7 +1,7 @@
 package com.quorum.tessera.nacl.kalium;
 
 import com.quorum.tessera.encryption.SharedKey;
-import com.quorum.tessera.nacl.NaclKeyPair;
+import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.nacl.Nonce;
 import org.abstractj.kalium.NaCl;
 import org.junit.Before;
@@ -12,9 +12,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class KaliumIT {
 
-    private NaclKeyPair keypairOne;
+    private KeyPair keypairOne;
 
-    private NaclKeyPair keypairTwo;
+    private KeyPair keypairTwo;
 
     private Kalium kalium;
 

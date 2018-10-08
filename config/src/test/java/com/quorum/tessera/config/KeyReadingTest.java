@@ -1,15 +1,14 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Ignore;
 
 
-@Ignore
 public class KeyReadingTest {
 
     @Test
@@ -52,8 +51,9 @@ public class KeyReadingTest {
         assertThat(config).isNotNull();
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getKeys().getKeyData()).isNotNull().hasSize(1);
-        assertThat(config.getKeys().getKeyData().get(0).getPublicKey()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
-        assertThat(config.getKeys().getKeyData().get(0).getPrivateKey()).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
+        ConfigKeyPair keyPair = config.getKeys().getKeyData().get(0);
+        assertThat(keyPair.getPublicKey()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+        assertThat(keyPair.getPrivateKey()).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
 
     }
 

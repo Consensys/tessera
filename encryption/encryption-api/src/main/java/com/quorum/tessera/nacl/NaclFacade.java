@@ -1,5 +1,6 @@
 package com.quorum.tessera.nacl;
 
+import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.MasterKey;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
@@ -88,7 +89,7 @@ public interface NaclFacade {
      *
      * @return A pair of public and private keys
      */
-    NaclKeyPair generateNewKeys();
+    KeyPair generateNewKeys();
 
     /**
      * Creates a single standalone key

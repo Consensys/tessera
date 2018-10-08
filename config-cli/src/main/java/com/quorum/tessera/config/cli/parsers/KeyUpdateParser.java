@@ -5,7 +5,6 @@ import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keys.KeyEncryptor;
-import com.quorum.tessera.config.keys.KeysConverter;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.encryption.PrivateKey;
@@ -22,6 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.Base64;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
@@ -70,7 +70,8 @@ public class KeyUpdateParser implements Parser<Optional> {
     PrivateKey getExistingKey(final KeyDataConfig kdc, final List<String> passwords) {
 
         if (kdc.getType() == PrivateKeyType.UNLOCKED) {
-            return PrivateKey.from(KeysConverter.convert(singletonList(kdc.getValue())).get(0).getKeyBytes());
+            byte[] privateKeyData = Base64.getDecoder().decode(kdc.getValue().getBytes(UTF_8));
+            return PrivateKey.from(privateKeyData);
         } else {
 
             for (final String pass : passwords) {

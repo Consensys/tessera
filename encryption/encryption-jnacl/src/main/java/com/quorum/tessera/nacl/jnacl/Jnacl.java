@@ -1,5 +1,6 @@
 package com.quorum.tessera.nacl.jnacl;
 
+import com.quorum.tessera.encryption.KeyPair;
 import com.neilalexander.jnacl.NaCl;
 import com.quorum.tessera.nacl.*;
 import org.slf4j.Logger;
@@ -188,7 +189,7 @@ public class Jnacl implements NaclFacade {
     }
 
     @Override
-    public NaclKeyPair generateNewKeys() {
+    public KeyPair generateNewKeys() {
         final byte[] publicKey = new byte[crypto_secretbox_PUBLICKEYBYTES];
         final byte[] privateKey = new byte[crypto_secretbox_SECRETKEYBYTES];
 
@@ -207,7 +208,7 @@ public class Jnacl implements NaclFacade {
         LOGGER.info("Generated public key {} and private key {}", pubKey, REDACTED);
         LOGGER.debug("Generated public key {} and private key {}", pubKey, privKey);
 
-        return new NaclKeyPair(pubKey, privKey);
+        return new KeyPair(pubKey, privKey);
     }
 
     @Override
