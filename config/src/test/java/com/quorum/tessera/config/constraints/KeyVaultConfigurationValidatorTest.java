@@ -2,8 +2,8 @@ package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyVaultConfig;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.keypairs.ConfigKeyPairType;
+import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
+import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -39,8 +39,7 @@ public class KeyVaultConfigurationValidatorTest {
 
     @Test
     public void keyVaultConfigWithVaultKeyPairTypeIsValid() {
-        ConfigKeyPair keyPair = mock(ConfigKeyPair.class);
-        when(keyPair.getType()).thenReturn(ConfigKeyPairType.AZURE);
+        AzureVaultKeyPair keyPair = mock(AzureVaultKeyPair.class);
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
@@ -52,26 +51,19 @@ public class KeyVaultConfigurationValidatorTest {
 
     @Test
     public void keyVaultConfigWithNonVaultKeyPairTypeIsValid() {
-        ConfigKeyPair keyPair = mock(ConfigKeyPair.class);
-
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
+        DirectKeyPair keyPair = mock(DirectKeyPair.class);
         KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
+
+        when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
         when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
 
-        for(ConfigKeyPairType type : ConfigKeyPairType.values()) {
-            if(type != ConfigKeyPairType.AZURE) {
-                when(keyPair.getType()).thenReturn(type);
-                LOGGER.info("Testing validation with ConfigKeyPairType {}", type);
-                assertThat(validator.isValid(keyConfiguration, context)).isTrue();
-            }
-        }
+        assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
 
     @Test
     public void noKeyVaultConfigWithVaultKeyPairTypeIsInvalid() {
-        ConfigKeyPair keyPair = mock(ConfigKeyPair.class);
-        when(keyPair.getType()).thenReturn(ConfigKeyPairType.AZURE);
+        AzureVaultKeyPair keyPair = mock(AzureVaultKeyPair.class);
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
@@ -82,20 +74,13 @@ public class KeyVaultConfigurationValidatorTest {
 
     @Test
     public void noKeyVaultConfigWithNonVaultKeyPairTypeIsValid() {
-        ConfigKeyPair keyPair = mock(ConfigKeyPair.class);
-
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        DirectKeyPair keyPair = mock(DirectKeyPair.class);
+
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
         when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
 
-        for(ConfigKeyPairType type : ConfigKeyPairType.values()) {
-            if(type != ConfigKeyPairType.AZURE) {
-                when(keyPair.getType()).thenReturn(type);
-                LOGGER.info("Testing validation with ConfigKeyPairType {}", type);
-                assertThat(validator.isValid(keyConfiguration, context)).isTrue();
-            }
-        }
+        assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
 
 }

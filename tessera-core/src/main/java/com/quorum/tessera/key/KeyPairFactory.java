@@ -2,7 +2,6 @@ package com.quorum.tessera.key;
 
 import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.keypairs.ConfigKeyPairType;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.KeyPair;
@@ -21,7 +20,7 @@ public class KeyPairFactory {
         final String publicKey;
         final String privateKey;
 
-        if(configKeyPair.getType() == ConfigKeyPairType.AZURE) {
+        if(configKeyPair instanceof AzureVaultKeyPair) {
             AzureVaultKeyPair azureVaultKeyPair = (AzureVaultKeyPair) configKeyPair;
             publicKey = keyVaultService.getSecret(azureVaultKeyPair.getPublicKeyId());
             privateKey = keyVaultService.getSecret(azureVaultKeyPair.getPrivateKeyId());

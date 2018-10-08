@@ -44,7 +44,17 @@ public class KeyDataAdapterTest {
         final Path path = mock(Path.class);
         final FilesystemKeyPair keyPair = new FilesystemKeyPair(path, path);
 
-        final KeyData expected = new KeyData(null, null, null, path, path);
+        final KeyData expected = new KeyData(null, null, null, path, path, null, null);
+        final KeyData result = adapter.marshal(keyPair);
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    public void marshallAzureKeys() {
+        final AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pubId", "privId");
+
+        final KeyData expected = new KeyData(null, null, null, null, null, "privId", "pubId");
         final KeyData result = adapter.marshal(keyPair);
 
         assertThat(result).isEqualTo(expected);
@@ -54,9 +64,9 @@ public class KeyDataAdapterTest {
     public void marshallUnsupportedKeys() {
         final KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         final Path path = mock(Path.class);
-        final UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, "priv", null, path, null);
+        final UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, "priv", null, path, null, null, null);
 
-        final KeyData expected = new KeyData(keyDataConfig, "priv", null, path, null);
+        final KeyData expected = new KeyData(keyDataConfig, "priv", null, path, null, null, null);
         final KeyData result = adapter.marshal(keyPair);
 
         assertThat(result).isEqualTo(expected);
@@ -186,41 +196,6 @@ public class KeyDataAdapterTest {
     public void unmarshallingPrivatePathOnlyGivesUnsupportedKeyPair() {
         final Path path = mock(Path.class);
         final KeyData input = new KeyData(null, null, null, path, null, null, null);
-
-        final ConfigKeyPair result = this.adapter.unmarshal(input);
-        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
-    }
-
-    @Test
-    public void unmarshallingPrivateOnlyGivesUnsupportedKeyPair() {
-        final KeyData input = new KeyData(null, "private", null, null, null);
-
-        final ConfigKeyPair result = this.adapter.unmarshal(input);
-        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
-    }
-
-    @Test
-    public void unmarshallingPrivateConfigOnlyGivesUnsupportedKeyPair() {
-        final KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
-        final KeyData input = new KeyData(keyDataConfig, null, null, null, null);
-
-        final ConfigKeyPair result = this.adapter.unmarshal(input);
-        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
-    }
-
-    @Test
-    public void unmarshallingPublicPathOnlyGivesUnsupportedKeyPair() {
-        final Path path = mock(Path.class);
-        final KeyData input = new KeyData(null, null, null, null, path);
-
-        final ConfigKeyPair result = this.adapter.unmarshal(input);
-        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
-    }
-
-    @Test
-    public void unmarshallingPrivatePathOnlyGivesUnsupportedKeyPair() {
-        final Path path = mock(Path.class);
-        final KeyData input = new KeyData(null, null, null, path, null);
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(UnsupportedKeyPair.class);

@@ -107,7 +107,7 @@ public class ValidationTest {
         InlineKeypair spy = Mockito.spy(new InlineKeypair("validkey", keyConfig));
         doReturn("validkey").when(spy).getPrivateKey();
 
-        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(spy));
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(spy), null);
 
         Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
 

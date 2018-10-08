@@ -58,6 +58,11 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
             return new KeyData(kp.getPrivateKeyConfig(), null, kp.getPublicKey(), null, null, null, null);
         }
 
+        if(keyData instanceof AzureVaultKeyPair) {
+            AzureVaultKeyPair kp = (AzureVaultKeyPair) keyData;
+            return new KeyData(null, null, null, null, null, kp.getPrivateKeyId(), kp.getPublicKeyId());
+        }
+
         if(keyData instanceof FilesystemKeyPair) {
             FilesystemKeyPair kp = (FilesystemKeyPair) keyData;
             return new KeyData(null, null, null, kp.getPrivateKeyPath(), kp.getPublicKeyPath(), null, null);
