@@ -11,7 +11,7 @@ import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.encryption.MasterKey;
 import com.quorum.tessera.key.KeyManager;
-import com.quorum.tessera.key.KeyUtil;
+import com.quorum.tessera.encryption.KeyUtil;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.SharedKey;

@@ -6,7 +6,6 @@ import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.SharedKey;
-import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.NaclFacade;
 import com.quorum.tessera.nacl.Nonce;
 import org.junit.Before;
@@ -134,7 +133,7 @@ public class KeyEncryptorTest {
             .when(this.argon2)
             .hash(any(com.quorum.tessera.argon2.ArgonOptions.class), eq(password), any(byte[].class));
 
-        final Key key = this.keyEncryptor.decryptPrivateKey(lockedPrivateKey, password);
+        final PrivateKey key = this.keyEncryptor.decryptPrivateKey(lockedPrivateKey, password);
 
         assertThat(key.getKeyBytes()).isEqualTo(new byte[]{1, 2, 3});
 

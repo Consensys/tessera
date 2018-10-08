@@ -7,6 +7,7 @@ import java.util.Base64;
  * Represents a Key, which is usually 32 bytes in length The possible types of
  * keys include: - public - private - symmetric
  */
+@Deprecated
 public class Key {
 
     private final byte[] keyBytes;

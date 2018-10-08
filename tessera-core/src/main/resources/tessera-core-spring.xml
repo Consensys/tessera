@@ -117,7 +117,7 @@
             <bean factory-bean="keyConfig" factory-method="getKeyData"/>
         </constructor-arg>
         <constructor-arg>
-            <bean class="com.quorum.tessera.key.KeyUtil" factory-method="convert">
+            <bean class="com.quorum.tessera.encryption.KeyUtil" factory-method="convert">
                 <constructor-arg>
                     <bean factory-bean="config" factory-method="getAlwaysSendTo" />
                 </constructor-arg>

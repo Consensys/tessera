@@ -1,7 +1,5 @@
-package com.quorum.tessera.key;
+package com.quorum.tessera.encryption;
 
-import com.quorum.tessera.encryption.PrivateKey;
-import com.quorum.tessera.encryption.PublicKey;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
