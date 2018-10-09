@@ -50,7 +50,7 @@ public class SendRequest {
         return Arrays.copyOf(this.to, this.to.length);
     }
 
-    public void setTo(final String[] to) {
+    public void setTo(final String... to) {
         this.to = to;
     }
 }

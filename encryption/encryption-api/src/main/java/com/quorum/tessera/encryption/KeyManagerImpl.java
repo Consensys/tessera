@@ -1,10 +1,6 @@
-package com.quorum.tessera.key;
+package com.quorum.tessera.encryption;
 
-import com.quorum.tessera.encryption.PrivateKey;
-import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.key.exception.KeyNotFoundException;
-import com.quorum.tessera.encryption.KeyPair;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,15 +20,9 @@ public class KeyManagerImpl implements KeyManager {
     
     private final Set<PublicKey> forwardingPublicKeys;
     
-    public KeyManagerImpl(final Collection<ConfigKeyPair> keys, Collection<PublicKey> forwardKeys) {
-        this.localKeys = keys
-                .stream()
-                .map(kd
-                        -> new KeyPair(
-                        PublicKey.from(Base64.getDecoder().decode(kd.getPublicKey())),
-                        PrivateKey.from(Base64.getDecoder().decode(kd.getPrivateKey()))
-                )
-                ).collect(Collectors.toSet());
+    public KeyManagerImpl(final Collection<KeyPair> keys, Collection<PublicKey> forwardKeys) {
+        
+        this.localKeys = keys.stream().collect(Collectors.toSet());
         
         this.defaultKeys = localKeys.iterator().next();
         

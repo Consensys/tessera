@@ -112,9 +112,13 @@
 
 
 
-    <bean name="keyManager" class="com.quorum.tessera.key.KeyManagerImpl">
+    <bean name="keyManager" class="com.quorum.tessera.encryption.KeyManagerImpl">
         <constructor-arg>
-            <bean factory-bean="keyConfig" factory-method="getKeyData"/>
+            <bean class="com.quorum.tessera.config.keypairs.KeyPairConvertor" factory-method="convert">
+                <constructor-arg>
+                    <bean factory-bean="keyConfig" factory-method="getKeyData"/>
+                </constructor-arg>
+            </bean>
         </constructor-arg>
         <constructor-arg>
             <bean class="com.quorum.tessera.encryption.KeyFactory" factory-method="convert">

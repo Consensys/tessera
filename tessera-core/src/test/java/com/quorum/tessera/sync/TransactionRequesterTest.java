@@ -2,7 +2,6 @@ package com.quorum.tessera.sync;
 
 import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.client.P2pClient;
-import com.quorum.tessera.key.KeyManager;
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.Base64;
 import org.junit.After;
@@ -17,6 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+import com.quorum.tessera.encryption.KeyManager;
 
 public class TransactionRequesterTest {
 

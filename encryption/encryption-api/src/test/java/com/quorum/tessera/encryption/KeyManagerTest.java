@@ -1,10 +1,5 @@
-package com.quorum.tessera.key;
+package com.quorum.tessera.encryption;
 
-import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.encryption.PrivateKey;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.keypairs.DirectKeyPair;
-import com.quorum.tessera.key.exception.KeyNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,11 +23,8 @@ public class KeyManagerTest {
 
     @Before
     public void init() {
-        
-        String encodedPublicKey = PUBLIC_KEY.encodeToBase64();
-        String encodedPrivateKey = PRIVATE_KEY.encodeToBase64();
-        
-        final ConfigKeyPair configKeyPair = new DirectKeyPair(encodedPublicKey, encodedPrivateKey);
+
+        final KeyPair configKeyPair = new KeyPair(PUBLIC_KEY, PRIVATE_KEY);
 
         this.keyManager = new KeyManagerImpl(singleton(configKeyPair), singleton(FORWARDING_KEY));
     }

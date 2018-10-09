@@ -1,11 +1,10 @@
-package com.quorum.tessera.key.exception;
+package com.quorum.tessera.encryption;
 
-import com.quorum.tessera.exception.TesseraException;
 
 /**
  * An exception thrown when a key is searched for but is not managed by this node
  */
-public class KeyNotFoundException extends TesseraException {
+public class KeyNotFoundException extends RuntimeException {
 
     public KeyNotFoundException(final String message) {
         super(message);

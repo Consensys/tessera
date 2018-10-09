@@ -3,7 +3,7 @@ package com.quorum.tessera.sync;
 import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendRequestType;
 import com.quorum.tessera.client.P2pClient;
-import com.quorum.tessera.key.KeyManager;
+import com.quorum.tessera.encryption.KeyManager;
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.Base64;
 import org.slf4j.Logger;
