@@ -87,7 +87,9 @@ public class DefaultCliAdapter implements CliAdapter {
 
             new PidFileParser().parse(line);
 
-            return new CliResult(0, line.hasOption("keygen"), config);
+            boolean suppressStartup = line.hasOption("keygen") && Objects.isNull(config);
+
+            return new CliResult(0, suppressStartup, config);
 
         } catch (ParseException exp) {
             throw new CliException(exp.getMessage());
