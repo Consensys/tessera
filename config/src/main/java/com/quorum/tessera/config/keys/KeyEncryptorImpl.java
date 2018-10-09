@@ -4,7 +4,6 @@ import com.quorum.tessera.argon2.Argon2;
 import com.quorum.tessera.argon2.ArgonResult;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.PrivateKeyData;
-import com.quorum.tessera.encryption.KeyUtil;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.SharedKey;
 import com.quorum.tessera.nacl.NaclFacade;
@@ -128,7 +127,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
         PrivateKey outcome = PrivateKey.from(originalKey);
 
         LOGGER.info("Decrypted private key");
-        LOGGER.debug("Decrypted private key {}", KeyUtil.encodeToBase64(outcome));
+        LOGGER.debug("Decrypted private key {}", outcome.encodeToBase64());
 
         return outcome;
     }

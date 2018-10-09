@@ -1,6 +1,5 @@
 package com.quorum.tessera.key;
 
-import com.quorum.tessera.encryption.KeyUtil;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
@@ -30,8 +29,8 @@ public class KeyManagerTest {
     @Before
     public void init() {
         
-        String encodedPublicKey = KeyUtil.encodeToBase64(PUBLIC_KEY);
-        String encodedPrivateKey = KeyUtil.encodeToBase64(PRIVATE_KEY);
+        String encodedPublicKey = PUBLIC_KEY.encodeToBase64();
+        String encodedPrivateKey = PRIVATE_KEY.encodeToBase64();
         
         final ConfigKeyPair configKeyPair = new DirectKeyPair(encodedPublicKey, encodedPrivateKey);
 

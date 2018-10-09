@@ -11,7 +11,6 @@ import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.encryption.MasterKey;
 import com.quorum.tessera.key.KeyManager;
-import com.quorum.tessera.encryption.KeyUtil;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.SharedKey;
@@ -317,7 +316,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         if (!payloadWithRecipients.getRecipientKeys().contains(recipient)) {
             
-            throw new RuntimeException("Recipient " + KeyUtil.encodeToBase64(recipient) + " is not a recipient of transaction " + hash);
+            throw new RuntimeException("Recipient " + recipient.encodeToBase64() + " is not a recipient of transaction " + hash);
         }
 
         final int recipientIndex = payloadWithRecipients.getRecipientKeys().indexOf(recipient);

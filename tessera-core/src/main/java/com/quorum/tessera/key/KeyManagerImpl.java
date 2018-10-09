@@ -1,6 +1,5 @@
 package com.quorum.tessera.key;
 
-import com.quorum.tessera.encryption.KeyUtil;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
@@ -49,9 +48,8 @@ public class KeyManagerImpl implements KeyManager {
                 .filter(keypair -> Objects.equals(keypair.getPrivateKey(), privateKey))
                 .findFirst()
                 .map(KeyPair::getPublicKey)
-                .orElseThrow(
-                        () -> new KeyNotFoundException("Private key " + 
-                                KeyUtil.encodeToBase64(privateKey) 
+                .orElseThrow(() -> new KeyNotFoundException("Private key " + 
+                                privateKey.encodeToBase64()
                                 + " not found when searching for public key")
                 );
         
@@ -70,8 +68,7 @@ public class KeyManagerImpl implements KeyManager {
                 .filter(keypair -> Objects.equals(keypair.getPublicKey(), publicKey))
                 .findFirst()
                 .map(KeyPair::getPrivateKey)
-                .orElseThrow(
-                        () -> new KeyNotFoundException("Public key " + KeyUtil.encodeToBase64(publicKey) 
+                .orElseThrow(() -> new KeyNotFoundException("Public key " + publicKey.encodeToBase64()
                                 + " not found when searching for private key")
                 );
         
