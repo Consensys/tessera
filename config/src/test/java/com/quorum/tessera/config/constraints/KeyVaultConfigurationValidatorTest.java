@@ -52,12 +52,12 @@ public class KeyVaultConfigurationValidatorTest {
 
     @Test
     public void keyVaultConfigWithMultipleVaultKeyPairTypesIsValid() {
+        List<ConfigKeyPair> keyPairs = new ArrayList<>();
+        keyPairs.add(mock(AzureVaultKeyPair.class));
+        keyPairs.add(mock(AzureVaultKeyPair.class));
+
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
-        List<ConfigKeyPair> keyPairs = new ArrayList<>();
-
-        keyPairs.add(mock(AzureVaultKeyPair.class));
-        keyPairs.add(mock(AzureVaultKeyPair.class));
 
         when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
         when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
@@ -67,12 +67,12 @@ public class KeyVaultConfigurationValidatorTest {
 
     @Test
     public void keyVaultConfigWithMultipleKeyPairTypesIncludingVaultIsValid() {
-        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
         List<ConfigKeyPair> keyPairs = new ArrayList<>();
-
         keyPairs.add(mock(AzureVaultKeyPair.class));
         keyPairs.add(mock(DirectKeyPair.class));
+
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
         when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
@@ -94,12 +94,12 @@ public class KeyVaultConfigurationValidatorTest {
 
     @Test
     public void keyVaultConfigWithMultipleNonVaultKeyPairsIsValid() {
-        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
         List<ConfigKeyPair> keyPairs = new ArrayList<>();
-
         keyPairs.add(mock(DirectKeyPair.class));
         keyPairs.add(mock(InlineKeypair.class));
+
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
         when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
