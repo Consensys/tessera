@@ -85,8 +85,7 @@ public class TransactionResource {
         sendRequest.setPayload(new String(payload, StandardCharsets.UTF_8));
 
         Optional.ofNullable(recipientKeys)
-                .filter(Objects::nonNull)
-                .filter(v -> !Objects.equals("", v))
+                .filter(s -> !Objects.equals("",s))
                 .map(v -> v.split(","))
                 .ifPresent(sendRequest::setTo);
 

@@ -1,4 +1,4 @@
-package com.quorum.tessera.api;
+package com.quorum.tessera.api.filter;
 
 import com.quorum.tessera.api.filter.LoggingFilter;
 import org.junit.After;
@@ -7,9 +7,11 @@ import org.junit.Test;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class LoggingFilterTest {
 
@@ -41,7 +43,10 @@ public class LoggingFilterTest {
     public void filterRequestAndResponse() {
         ContainerRequestContext request = mock(ContainerRequestContext.class);
         ContainerResponseContext response = mock(ContainerResponseContext.class);
+        Response.StatusType statusInfo = mock(Response.StatusType.class);
+        when(response.getStatusInfo()).thenReturn(statusInfo);
         loggingFilter.filter(request,response);
+        
         //Very silly test 
         assertThat(loggingFilter).isNotNull();
 
