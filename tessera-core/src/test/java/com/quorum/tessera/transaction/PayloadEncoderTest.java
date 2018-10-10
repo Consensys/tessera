@@ -143,7 +143,7 @@ public class PayloadEncoderTest {
 
         assertThat(encodedPayloadWithRecipients).isNotNull();
         assertThat(encodedPayloadWithRecipients.getRecipientKeys()).hasSize(1);
-        
+
     }
 
     @Test(expected = InvalidRecipientException.class)
@@ -166,11 +166,17 @@ public class PayloadEncoderTest {
 
         PublicKey recipientKey = PublicKey.from(Base64.getDecoder().decode("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc="));
 
+        EncodedPayloadWithRecipients control = payloadEncoder.decodePayloadWithRecipients(data);
+
         EncodedPayloadWithRecipients result = payloadEncoder.decodePayloadWithRecipients(data, recipientKey);
-        
-        
+
         assertThat(result).isNotNull();
-        
+        assertThat(result.getEncodedPayload().getCipherText()).isEqualTo(control.getEncodedPayload().getCipherText());
+        assertThat(result.getEncodedPayload().getSenderKey()).isEqualTo(control.getEncodedPayload().getSenderKey());
+        assertThat(result.getEncodedPayload().getRecipientNonce()).isEqualTo(control.getEncodedPayload().getRecipientNonce());
+        assertThat(result.getEncodedPayload().getCipherTextNonce()).isEqualTo(control.getEncodedPayload().getCipherTextNonce());
+        assertThat(result.getRecipientKeys()).isEmpty();
+        assertThat(result.getEncodedPayload().getRecipientBoxes()).isNotEqualTo(control.getEncodedPayload().getRecipientBoxes());
     }
 
 }
