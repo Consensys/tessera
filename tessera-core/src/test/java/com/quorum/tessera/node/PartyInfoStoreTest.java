@@ -2,7 +2,7 @@ package com.quorum.tessera.node;
 
 
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
@@ -41,7 +41,7 @@ public class PartyInfoStoreTest {
         final String ourUrl = annoyingUriAsAString;
 
         final Set<Recipient> ourKeys = singleton(
-            new Recipient(new Key("some-key".getBytes()), ourUrl)
+            new Recipient(PublicKey.from("some-key".getBytes()), ourUrl)
         );
         final Set<Party> parties = singleton(
             new Party("http://other-node.com:8080")
@@ -58,7 +58,7 @@ public class PartyInfoStoreTest {
 
         assertThat(retrievedParties).hasSize(1).containsExactly(new Party("http://other-node.com:8080"));
         assertThat(retrievedRecipients).hasSize(1).containsExactly(
-            new Recipient(new Key("some-key".getBytes()), ourUrl)
+            new Recipient(PublicKey.from("some-key".getBytes()), ourUrl)
         );
 
         assertThat(fetchedUrl).isEqualTo(ourUrl);

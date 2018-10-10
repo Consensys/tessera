@@ -3,7 +3,8 @@ package com.quorum.tessera.jaxrs;
 import com.quorum.tessera.api.PartyInfoResource;
 import com.quorum.tessera.api.TransactionResource;
 import com.quorum.tessera.api.VersionResource;
-import com.quorum.tessera.enclave.EnclaveMediator;
+import com.quorum.tessera.api.model.DeleteRequest;
+import com.quorum.tessera.transaction.TransactionManagerImpl;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.model.PartyInfo;
@@ -13,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -40,11 +42,11 @@ public class JaxrsIT {
     private TransactionResource transactionResource;
 
     @Inject
-    private EnclaveMediator enclaveMediator;
+    private TransactionManagerImpl transactionManager;
 
     @After
     public void afterTest() {
-        verifyNoMoreInteractions(partyInfoParser, partyInfoService, enclaveMediator);
+        verifyNoMoreInteractions(partyInfoParser, partyInfoService, transactionManager);
     }
 
     @Test
@@ -81,9 +83,9 @@ public class JaxrsIT {
         Response response = transactionResource.deleteKey(key);
         assertThat(response.getStatus()).isEqualTo(204);
 
-        verify(enclaveMediator).deleteKey(key);
+        verify(transactionManager).delete(any(DeleteRequest.class));
 
-        verifyNoMoreInteractions(enclaveMediator);
+        verifyNoMoreInteractions(transactionManager);
     }
 
 }

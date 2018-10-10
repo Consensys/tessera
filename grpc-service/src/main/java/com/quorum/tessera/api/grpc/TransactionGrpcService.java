@@ -1,8 +1,8 @@
 package com.quorum.tessera.api.grpc;
 
 import com.google.protobuf.ByteString;
-import com.quorum.tessera.enclave.EnclaveMediator;
 import com.quorum.tessera.api.grpc.model.*;
+import com.quorum.tessera.transaction.TransactionManager;
 
 import io.grpc.stub.StreamObserver;
 import java.util.Objects;
@@ -23,10 +23,10 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
     private final Validator validator = Validation.byDefaultProvider()
             .configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
 
-    private final EnclaveMediator enclaveMediator;
+    private final TransactionManager transactionManager;
 
-    public TransactionGrpcService(EnclaveMediator enclaveMediator) {
-        this.enclaveMediator = Objects.requireNonNull(enclaveMediator);
+    public TransactionGrpcService(TransactionManager transactionManager) {
+        this.transactionManager = Objects.requireNonNull(transactionManager);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
             if (!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);
             }
-            com.quorum.tessera.api.model.SendResponse response = enclaveMediator.send(sendRequest);
+            com.quorum.tessera.api.model.SendResponse response = transactionManager.send(sendRequest);
 
             return Convertor.toGrpc(response);
         });
@@ -62,7 +62,11 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
                 throw new ConstraintViolationException(violations);
             }
 
-            String encodedPayload = enclaveMediator.receiveAndEncode(request);
+            com.quorum.tessera.api.model.ReceiveRequest receiveRequest = Convertor.toModel(grpcRequest);
+
+            com.quorum.tessera.api.model.ReceiveResponse receiveResponse = transactionManager.receive(receiveRequest);
+
+            String encodedPayload = receiveResponse.getPayload();
 
             return ReceiveResponse
                     .newBuilder()
@@ -87,7 +91,7 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
                 throw new ConstraintViolationException(violations);
             }
 
-            enclaveMediator.delete(request);
+            transactionManager.delete(request);
             return grpcRequest;
         });
 
@@ -102,7 +106,8 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
         template.handle(() -> {
             com.quorum.tessera.api.model.ResendRequest request = Convertor.toModel(grpcRequest);
 
-            Optional<byte[]> result = enclaveMediator.resendAndEncode(request);
+            Optional<byte[]> result = transactionManager.resend(request).getPayload();
+
             ResendResponse.Builder builder = ResendResponse.newBuilder();
             result.map(ByteString::copyFrom).ifPresent(builder::setData);
             return builder.build();
@@ -114,11 +119,10 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
     public void push(PushRequest request, StreamObserver<PushRequest> responseObserver) {
         LOGGER.debug("Received push request");
 
-        
-                StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
+        StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
         template.handle(() -> {
-            enclaveMediator.storePayload(request.toByteArray());
+            transactionManager.storePayload(request.toByteArray());
             return request;
         });
 

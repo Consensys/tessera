@@ -2,9 +2,9 @@ package com.quorum.tessera.node;
 
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.core.config.ConfigService;
-import com.quorum.tessera.key.KeyManager;
-import com.quorum.tessera.key.exception.KeyNotFoundException;
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.encryption.KeyManager;
+import com.quorum.tessera.encryption.KeyNotFoundException;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
@@ -55,10 +55,10 @@ public class PartyInfoServiceTest {
         final Peer peer = new Peer("http://other-node.com:8080");
         when(configService.getPeers()).thenReturn(singletonList(peer));
 
-        final Set<Key> ourKeys = new HashSet<>(
+        final Set<PublicKey> ourKeys = new HashSet<>(
                 Arrays.asList(
-                        new Key("some-key".getBytes()),
-                        new Key("another-public-key".getBytes())
+                        PublicKey.from("some-key".getBytes()),
+                        PublicKey.from("another-public-key".getBytes())
                 )
         );
         doReturn(ourKeys).when(keyManager).getPublicKeys();
@@ -119,8 +119,8 @@ public class PartyInfoServiceTest {
         assertThat(allRegisteredKeys)
                 .hasSize(2)
                 .containsExactlyInAnyOrder(
-                        new Recipient(new Key("some-key".getBytes()), URI + "/"),
-                        new Recipient(new Key("another-public-key".getBytes()), URI + "/")
+                        new Recipient(PublicKey.from("some-key".getBytes()), URI),
+                        new Recipient(PublicKey.from("another-public-key".getBytes()), URI)
                 );
     }
 
@@ -145,11 +145,11 @@ public class PartyInfoServiceTest {
     @Test
     public void getRecipientURLFromPartyInfoStore() {
 
-        final Recipient recipient = new Recipient(new Key("key".getBytes()), "someurl");
+        final Recipient recipient = new Recipient(PublicKey.from("key".getBytes()), "someurl");
         final PartyInfo partyInfo = new PartyInfo(URI, singleton(recipient), emptySet());
         doReturn(partyInfo).when(partyInfoStore).getPartyInfo();
 
-        final String result = partyInfoService.getURLFromRecipientKey(new Key("key".getBytes()));
+        final String result = partyInfoService.getURLFromRecipientKey(PublicKey.from("key".getBytes()));
         assertThat(result).isEqualTo("someurl");
 
         verify(partyInfoStore).getPartyInfo();
@@ -160,7 +160,7 @@ public class PartyInfoServiceTest {
 
         doReturn(new PartyInfo("", emptySet(), emptySet())).when(partyInfoStore).getPartyInfo();
 
-        final Key failingKey = new Key("otherKey".getBytes());
+        final PublicKey failingKey = PublicKey.from("otherKey".getBytes());
         final Throwable throwable = catchThrowable(() -> partyInfoService.getURLFromRecipientKey(failingKey));
         assertThat(throwable).isInstanceOf(KeyNotFoundException.class).hasMessage("Recipient not found");
 

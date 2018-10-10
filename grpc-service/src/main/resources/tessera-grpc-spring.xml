@@ -7,7 +7,7 @@
     <bean name="tesseraGrpcService" class="com.quorum.tessera.api.grpc.TesseraGrpcService"/>
     
     <bean name="transactionGrpcService" class="com.quorum.tessera.api.grpc.TransactionGrpcService">
-        <constructor-arg ref="enclaveDelegate"/>
+        <constructor-arg ref="transactionManager"/>
     </bean>
     
     <bean name="partyInfoGrpcService" class="com.quorum.tessera.api.grpc.PartyInfoGrpcService">

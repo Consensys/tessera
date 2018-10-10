@@ -17,7 +17,7 @@
     <bean class="com.quorum.tessera.api.UpCheckResource"/>
     
     <bean class="com.quorum.tessera.api.TransactionResource">
-        <constructor-arg ref="enclaveDelegate"/>
+        <constructor-arg ref="transactionManager"/>
     </bean>
     
     <bean class="com.quorum.tessera.api.PartyInfoResource">

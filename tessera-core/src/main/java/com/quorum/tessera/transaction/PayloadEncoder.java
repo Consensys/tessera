@@ -1,10 +1,12 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.transaction.model.EncodedPayload;
-import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
+import com.quorum.tessera.encryption.EncodedPayload;
+import com.quorum.tessera.encryption.EncodedPayloadWithRecipients;
+import com.quorum.tessera.encryption.PublicKey;
 
 /**
- * Encodes and decodes a {@link EncodedPayload} to and from its binary representation
+ * Encodes and decodes a {@link EncodedPayload} to and from its binary
+ * representation
  */
 public interface PayloadEncoder {
 
@@ -39,5 +41,9 @@ public interface PayloadEncoder {
      * @return the decoded payload
      */
     EncodedPayloadWithRecipients decodePayloadWithRecipients(byte[] input);
+    
+    
+    //TODO: 
+    EncodedPayloadWithRecipients decodePayloadWithRecipients(byte[] input, final PublicKey recipient);
 
 }

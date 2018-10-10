@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.NotNull;
-import java.util.Arrays;
 import javax.validation.constraints.Size;
 
 /**
@@ -43,14 +42,10 @@ public class SendRequest {
     }
 
     public String[] getTo() {
-        if (this.to == null) {
-            return new String[]{};
-        }
-
-        return Arrays.copyOf(this.to, this.to.length);
+        return to;
     }
 
-    public void setTo(final String[] to) {
+    public void setTo(final String... to) {
         this.to = to;
     }
 }

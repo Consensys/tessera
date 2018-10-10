@@ -4,7 +4,8 @@ import com.quorum.tessera.argon2.Argon2;
 import com.quorum.tessera.argon2.ArgonResult;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.PrivateKeyData;
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.encryption.SharedKey;
 import com.quorum.tessera.nacl.NaclFacade;
 import com.quorum.tessera.nacl.Nonce;
 import org.junit.Before;
@@ -37,7 +38,7 @@ public class KeyEncryptorTest {
     @Test
     public void encryptingKeyReturnsCorrectJson() {
 
-        final Key key = new Key(new byte[]{1, 2, 3, 4, 5});
+        final PrivateKey key = PrivateKey.from(new byte[]{1, 2, 3, 4, 5});
         final String password = "pass";
         final ArgonResult result = new ArgonResult(
             new com.quorum.tessera.argon2.ArgonOptions("i", 1, 1, 1),
@@ -47,7 +48,7 @@ public class KeyEncryptorTest {
 
         doReturn(result).when(argon2).hash(eq(password), any(byte[].class));
         doReturn(new Nonce(new byte[]{})).when(nacl).randomNonce();
-        doReturn(new byte[]{}).when(nacl).sealAfterPrecomputation(any(byte[].class), any(Nonce.class), any(Key.class));
+        doReturn(new byte[]{}).when(nacl).sealAfterPrecomputation(any(byte[].class), any(Nonce.class), any(SharedKey.class));
 
         final PrivateKeyData privateKey = this.keyEncryptor.encryptPrivateKey(key, password, null);
 
@@ -65,14 +66,14 @@ public class KeyEncryptorTest {
 
         verify(argon2).hash(eq(password), any(byte[].class));
         verify(nacl).randomNonce();
-        verify(nacl).sealAfterPrecomputation(any(byte[].class), any(Nonce.class), any(Key.class));
+        verify(nacl).sealAfterPrecomputation(any(byte[].class), any(Nonce.class), any(SharedKey.class));
 
     }
 
     @Test
     public void providingArgonOptionsEncryptsKey() {
 
-        final Key key = new Key(new byte[]{1, 2, 3, 4, 5});
+        final PrivateKey key = PrivateKey.from(new byte[]{1, 2, 3, 4, 5});
         final String password = "pass";
         final ArgonResult result = new ArgonResult(
             new com.quorum.tessera.argon2.ArgonOptions("i", 5, 6, 7),
@@ -82,7 +83,7 @@ public class KeyEncryptorTest {
 
         doReturn(result).when(argon2).hash(any(com.quorum.tessera.argon2.ArgonOptions.class), eq(password), any(byte[].class));
         doReturn(new Nonce(new byte[]{})).when(nacl).randomNonce();
-        doReturn(new byte[]{}).when(nacl).sealAfterPrecomputation(any(byte[].class), any(Nonce.class), any(Key.class));
+        doReturn(new byte[]{}).when(nacl).sealAfterPrecomputation(any(byte[].class), any(Nonce.class), any(SharedKey.class));
 
         final PrivateKeyData privateKey
             = this.keyEncryptor.encryptPrivateKey(key, password, new ArgonOptions("i", 5, 6, 7));
@@ -101,7 +102,7 @@ public class KeyEncryptorTest {
 
         verify(argon2).hash(any(com.quorum.tessera.argon2.ArgonOptions.class), eq(password), any(byte[].class));
         verify(nacl).randomNonce();
-        verify(nacl).sealAfterPrecomputation(any(byte[].class), any(Nonce.class), any(Key.class));
+        verify(nacl).sealAfterPrecomputation(any(byte[].class), any(Nonce.class), any(SharedKey.class));
 
     }
 
@@ -126,17 +127,17 @@ public class KeyEncryptorTest {
 
         doReturn(new byte[]{1, 2, 3})
             .when(this.nacl)
-            .openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(Key.class));
+            .openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(SharedKey.class));
 
         doReturn(new ArgonResult(null, new byte[]{}, new byte[]{4, 5, 6}))
             .when(this.argon2)
             .hash(any(com.quorum.tessera.argon2.ArgonOptions.class), eq(password), any(byte[].class));
 
-        final Key key = this.keyEncryptor.decryptPrivateKey(lockedPrivateKey, password);
+        final PrivateKey key = this.keyEncryptor.decryptPrivateKey(lockedPrivateKey, password);
 
         assertThat(key.getKeyBytes()).isEqualTo(new byte[]{1, 2, 3});
 
-        verify(this.nacl).openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(Key.class));
+        verify(this.nacl).openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(SharedKey.class));
         verify(this.argon2).hash(any(com.quorum.tessera.argon2.ArgonOptions.class), eq(password), any(byte[].class));
 
     }

@@ -11,10 +11,12 @@ import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import javax.transaction.Transactional;
 
 /**
  * A JPA implementation of {@link EncryptedTransactionDAO}
  */
+@Transactional
 public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EncryptedTransactionDAOImpl.class);

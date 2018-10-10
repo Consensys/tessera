@@ -7,8 +7,7 @@ import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.PasswordReader;
-import com.quorum.tessera.nacl.Key;
-import com.quorum.tessera.nacl.KeyPair;
+import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
 import org.junit.After;
 import org.junit.Before;
@@ -22,6 +21,8 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
+import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.encryption.PublicKey;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -47,8 +48,8 @@ public class KeyGeneratorTest {
     public void init() {
 
         this.keyPair = new KeyPair(
-                new Key(PUBLIC_KEY.getBytes(UTF_8)),
-                new Key(PRIVATE_KEY.getBytes(UTF_8))
+                PublicKey.from(PUBLIC_KEY.getBytes(UTF_8)),
+                PrivateKey.from(PRIVATE_KEY.getBytes(UTF_8))
         );
 
         this.nacl = mock(NaclFacade.class);
@@ -107,11 +108,11 @@ public class KeyGeneratorTest {
 
         final PrivateKeyData encryptedPrivateKey = new PrivateKeyData(null, null, null, null, argonOptions, null);
 
-        doReturn(encryptedPrivateKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString(), eq(null));
+        doReturn(encryptedPrivateKey).when(keyEncryptor).encryptPrivateKey(any(PrivateKey.class), anyString(), eq(null));
 
         final PrivateKeyData encryptedKey = new PrivateKeyData(null, "snonce", "salt", "sbox", argonOptions, "PASSWORD");
 
-        doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(Key.class), anyString(), eq(null));
+        doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(PrivateKey.class), anyString(), eq(null));
 
         final FilesystemKeyPair generated = generator.generate(keyFilesName, null);
 
@@ -122,7 +123,7 @@ public class KeyGeneratorTest {
         assertThat(pkd.getAsalt()).isEqualTo("salt");
         assertThat(pkd.getType()).isEqualTo(PrivateKeyType.LOCKED);
 
-        verify(keyEncryptor).encryptPrivateKey(any(Key.class), anyString(), eq(null));
+        verify(keyEncryptor).encryptPrivateKey(any(PrivateKey.class), anyString(), eq(null));
         verify(nacl).generateNewKeys();
     }
 
@@ -169,7 +170,7 @@ public class KeyGeneratorTest {
 
         doReturn(new PrivateKeyData("", "", "", "", new ArgonOptions("", 1, 1, 1), ""))
                 .when(keyEncryptor)
-                .encryptPrivateKey(any(Key.class), anyString(), eq(null));
+                .encryptPrivateKey(any(PrivateKey.class), anyString(), eq(null));
 
         final Throwable throwable = catchThrowable(() -> generator.generate(keyFilesName, null));
 
