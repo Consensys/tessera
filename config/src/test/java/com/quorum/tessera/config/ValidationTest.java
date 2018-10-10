@@ -3,7 +3,9 @@ package com.quorum.tessera.config;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
+import com.quorum.tessera.config.keypairs.InlineKeypair;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -14,7 +16,9 @@ import java.util.*;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ValidationTest {
 
@@ -94,9 +98,81 @@ public class ValidationTest {
     }
 
     @Test
+    public void inlineKeyPairNoPasswordProvided() {
+        KeyDataConfig keyConfig = mock(KeyDataConfig.class);
+        when(keyConfig.getType()).thenReturn(PrivateKeyType.LOCKED);
+        when(keyConfig.getValue()).thenReturn("");
+
+        InlineKeypair spy = Mockito.spy(new InlineKeypair("validkey", keyConfig));
+        doReturn("validkey").when(spy).getPrivateKey();
+
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(spy));
+
+        Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
+
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
+
+        assertThat(violation.getMessage()).isEqualTo("A locked key was provided without a password.\n Please ensure the same number of passwords are provided as there are keys and remember to include empty passwords for unlocked keys");
+    }
+
+    @Test
+    public void inlineKeyPairNaClFailure() {
+        KeyDataConfig keyConfig = mock(KeyDataConfig.class);
+        when(keyConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
+        when(keyConfig.getValue()).thenReturn("NACL_FAILURE");
+
+        InlineKeypair keyPair = new InlineKeypair("validkey", keyConfig);
+
+        Set<ConstraintViolation<InlineKeypair>> violations = validator.validate(keyPair);
+
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<InlineKeypair> violation = violations.iterator().next();
+
+        assertThat(violation.getMessageTemplate()).isEqualTo("Could not decrypt the private key with the provided password, please double check the passwords provided");
+    }
+
+    @Test
+    public void directKeyPairInvalidBase64() {
+        DirectKeyPair keyPair = new DirectKeyPair("INVALID_BASE", "INVALID_BASE");
+
+        Set<ConstraintViolation<DirectKeyPair>> violations = validator.validate(keyPair);
+
+        assertThat(violations).hasSize(2);
+
+        Iterator<ConstraintViolation<DirectKeyPair>> iterator = violations.iterator();
+        ConstraintViolation<DirectKeyPair> violation = iterator.next();
+
+        assertThat(violation.getMessageTemplate()).isEqualTo("Invalid Base64 key provided");
+
+        ConstraintViolation<DirectKeyPair> violation2 = iterator.next();
+
+        assertThat(violation2.getMessageTemplate()).isEqualTo("Invalid Base64 key provided");
+    }
+
+    @Test
+    public void inlineKeyPairInvalidBase64() {
+        KeyDataConfig keyConfig = mock(KeyDataConfig.class);
+        when(keyConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
+        when(keyConfig.getValue()).thenReturn("validkey");
+        InlineKeypair keyPair = new InlineKeypair("INVALID_BASE", keyConfig);
+
+        Set<ConstraintViolation<InlineKeypair>> violations = validator.validate(keyPair);
+
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<InlineKeypair> violation = violations.iterator().next();
+
+        assertThat(violation.getMessageTemplate()).isEqualTo("Invalid Base64 key provided");
+        assertThat(violation.getPropertyPath().toString()).isEqualTo("publicKey");
+    }
+
+    @Test
     public void invalidAlwaysSendTo() {
 
-        List<String> alwaysSendTo = Arrays.asList("BOGUS");
+        List<String> alwaysSendTo = singletonList("BOGUS");
 
         Config config = new Config(null, null, null, null, alwaysSendTo, null, false,false);
 
@@ -107,7 +183,6 @@ public class ValidationTest {
         ConstraintViolation<Config> violation = violations.iterator().next();
         assertThat(violation.getPropertyPath().toString()).startsWith("alwaysSendTo[0]");
         assertThat(violation.getMessageTemplate()).isEqualTo("{ValidBase64.message}");
-
     }
 
     @Test
@@ -115,15 +190,13 @@ public class ValidationTest {
 
         String value = Base64.getEncoder().encodeToString("HELLOW".getBytes());
 
-        List<String> alwaysSendTo = Arrays.asList(value);
+        List<String> alwaysSendTo = singletonList(value);
 
         Config config = new Config(null, null, null, null, alwaysSendTo, null, false,false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "alwaysSendTo");
 
         assertThat(violations).isEmpty();
-
-
     }
 
     @Test
@@ -169,4 +242,15 @@ public class ValidationTest {
         assertThat(violation.getPropertyPath().toString()).endsWith("privateKey");
     }
 
+    @Test
+    public void keyConfigurationIsNullCreatesNotNullViolation() {
+        Config config = new Config(null, null, null, null, null, null, false, false);
+
+        Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
+
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<Config> violation = violations.iterator().next();
+        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
+    }
 }

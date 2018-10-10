@@ -155,7 +155,7 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    public void storePayload(byte[] payload) {
+    public MessageHash storePayload(byte[] payload) {
 
         final EncodedPayloadWithRecipients encodedPayloadWithRecipients = payloadEncoder.decodePayloadWithRecipients(payload);
 
@@ -172,6 +172,7 @@ public class TransactionManagerImpl implements TransactionManager {
         this.encryptedTransactionDAO.save(newTransaction);
 
         LOGGER.info(base64Decoder.encodeToString(transactionHash.getHashBytes()));
+        return transactionHash;
     }
 
     @Override

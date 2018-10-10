@@ -10,18 +10,18 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import java.util.Objects;
 import java.util.Optional;
 import static javax.ws.rs.core.MediaType.*;
-import javax.ws.rs.core.Response.Status;
+import com.quorum.tessera.enclave.model.MessageHash;
 
 /**
  * Provides endpoints for dealing with transactions, including:
@@ -85,7 +85,7 @@ public class TransactionResource {
         sendRequest.setPayload(new String(payload, StandardCharsets.UTF_8));
 
         Optional.ofNullable(recipientKeys)
-                .filter(s -> !Objects.equals("",s))
+                .filter(s -> !Objects.equals("", s))
                 .map(v -> v.split(","))
                 .ifPresent(sendRequest::setTo);
 
@@ -165,9 +165,9 @@ public class TransactionResource {
         receiveRequest.setTo(recipientKey);
 
         ReceiveResponse receiveResponse = delegate.receive(receiveRequest);
-        
+
         byte[] decodedPayload = Base64.getDecoder().decode(receiveResponse.getPayload());
-        
+
         return Response.status(Response.Status.OK)
                 .entity(decodedPayload)
                 .build();
@@ -251,9 +251,12 @@ public class TransactionResource {
 
         LOGGER.debug("Received push request");
 
-        delegate.storePayload(payload);
+        final MessageHash messageHash = delegate.storePayload(payload);
+        LOGGER.debug("Push request generated hash {}", Objects.toString(messageHash));
 
-        return Response.status(Response.Status.CREATED).build();
+        return Response.status(Response.Status.CREATED)
+                .entity(Objects.toString(messageHash))
+                .build();
     }
 
 }

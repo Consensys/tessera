@@ -7,6 +7,7 @@ import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendResponse;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
+import com.quorum.tessera.enclave.model.MessageHash;
 
 
 public interface TransactionManager {
@@ -17,7 +18,7 @@ public interface TransactionManager {
 
     ResendResponse resend(ResendRequest request);
 
-    void storePayload(byte[] toByteArray);
+    MessageHash storePayload(byte[] toByteArray);
 
     ReceiveResponse receive(ReceiveRequest request);
 

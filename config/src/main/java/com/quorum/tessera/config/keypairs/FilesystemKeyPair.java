@@ -1,6 +1,5 @@
 package com.quorum.tessera.config.keypairs;
 
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.ValidPath;
@@ -39,11 +38,6 @@ public class FilesystemKeyPair implements ConfigKeyPair {
     }
 
     @Override
-    public KeyData marshal() {
-        return new KeyData(null, null, null, this.privateKeyPath, this.publicKeyPath);
-    }
-
-    @Override
     public String getPublicKey() {
         loadKeys();
         return this.inlineKeypair.getPublicKey();
@@ -63,6 +57,14 @@ public class FilesystemKeyPair implements ConfigKeyPair {
     @Override
     public String getPassword() {
         return this.password;
+    }
+
+    public Path getPublicKeyPath() {
+        return publicKeyPath;
+    }
+
+    public Path getPrivateKeyPath() {
+        return privateKeyPath;
     }
 
     private void loadKeys() {

@@ -39,7 +39,9 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
                 .mapToObj(i -> {
 
                     final ConfigKeyPair kd = input.getKeyData().get(i);
-                    kd.withPassword(allPasswords.get(i));
+                    if(i < allPasswords.size()) {
+                        kd.withPassword(allPasswords.get(i));
+                    }
 
                     return kd;
                 }).collect(Collectors.toList());

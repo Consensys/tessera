@@ -7,14 +7,16 @@ import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendResponse;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
-import com.quorum.tessera.transaction.TransactionManager;
 import java.util.Base64;
 import javax.ws.rs.core.Response;
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
+
+import com.quorum.tessera.transaction.TransactionManager;
 
 public class TransactionResourceTest {
 
@@ -24,13 +26,16 @@ public class TransactionResourceTest {
 
     @Before
     public void onSetup() {
+
         transactionManager = mock(TransactionManager.class);
         transactionResource = new TransactionResource(transactionManager);
+
     }
 
     @After
     public void onTearDown() {
         verifyNoMoreInteractions(transactionManager);
+
     }
 
     @Test
@@ -56,7 +61,7 @@ public class TransactionResourceTest {
         byte[] someData = "SomeData".getBytes();
         Response result = transactionResource.push(someData);
         assertThat(result.getStatus()).isEqualTo(201);
-        assertThat(result.hasEntity()).isFalse();
+        assertThat(result.hasEntity()).isTrue();
         verify(transactionManager).storePayload(someData);
     }
 

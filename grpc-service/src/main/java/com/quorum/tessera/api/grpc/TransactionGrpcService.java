@@ -61,12 +61,11 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
             if (!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);
             }
-            
+
             com.quorum.tessera.api.model.ReceiveRequest receiveRequest = Convertor.toModel(grpcRequest);
 
-
             com.quorum.tessera.api.model.ReceiveResponse receiveResponse = transactionManager.receive(receiveRequest);
-            
+
             String encodedPayload = receiveResponse.getPayload();
 
             return ReceiveResponse
@@ -108,6 +107,7 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
             com.quorum.tessera.api.model.ResendRequest request = Convertor.toModel(grpcRequest);
 
             Optional<byte[]> result = transactionManager.resend(request).getPayload();
+
             ResendResponse.Builder builder = ResendResponse.newBuilder();
             result.map(ByteString::copyFrom).ifPresent(builder::setData);
             return builder.build();
