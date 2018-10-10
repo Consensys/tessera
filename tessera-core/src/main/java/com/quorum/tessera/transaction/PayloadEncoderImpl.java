@@ -2,7 +2,6 @@ package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.encryption.EncodedPayload;
 import com.quorum.tessera.encryption.EncodedPayloadWithRecipients;
-import com.quorum.tessera.encryption.InvalidRecipientException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.util.BinaryEncoder;
 import com.quorum.tessera.nacl.Nonce;
