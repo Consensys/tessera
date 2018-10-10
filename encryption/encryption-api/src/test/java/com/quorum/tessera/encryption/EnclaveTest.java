@@ -1,6 +1,10 @@
 package com.quorum.tessera.encryption;
 
 import com.quorum.tessera.nacl.NaclFacade;
+import com.quorum.tessera.nacl.Nonce;
+import java.util.Arrays;
+import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +47,30 @@ public class EnclaveTest {
     public void getPublicKeys() {
         enclave.getPublicKeys();
         verify(keyManager).getPublicKeys();
+    }
+    
+    @Test
+    public void addRecipientToPayload() {
+
+        PublicKey senderKey = mock(PublicKey.class);
+        byte[] cipherText = "CIPHER_TEXT".getBytes();
+        Nonce cipherTextNonce = mock(Nonce.class);
+        Nonce recipientNonce = mock(Nonce.class);
+        
+        List<byte[]> recipientBoxes = Arrays.asList("RBOX".getBytes());
+        EncodedPayload encodedPayload = new EncodedPayload(senderKey,cipherText,cipherTextNonce,recipientBoxes,recipientNonce);
+ 
+        byte[] keyBytes = "".getBytes();
+        PublicKey recipientKey = PublicKey.from(keyBytes); 
+        List<PublicKey> recipientKeys = Arrays.asList(recipientKey);
+        
+        EncodedPayloadWithRecipients encodedPayloadWithRecipients = 
+                new EncodedPayloadWithRecipients(encodedPayload, recipientKeys);
+        
+
+        EncodedPayloadWithRecipients result = enclave.extractRecipientBoxForRecipientAndAddToNestedPayload(encodedPayloadWithRecipients, recipientKey);
+        
+        assertThat(result.getRecipientKeys()).isEmpty();
     }
 
 }

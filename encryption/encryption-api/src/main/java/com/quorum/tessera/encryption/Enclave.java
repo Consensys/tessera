@@ -19,6 +19,6 @@ public interface Enclave {
     
     byte[] unencryptTransaction(EncodedPayloadWithRecipients payloadWithRecipients, final PublicKey providedKey);
     
-    EncodedPayloadWithRecipients addRecipientToPayload(EncodedPayloadWithRecipients payloadWithRecipients,
+    EncodedPayloadWithRecipients extractRecipientBoxForRecipientAndAddToNestedPayload(EncodedPayloadWithRecipients payloadWithRecipients,
             final PublicKey recipient);
 }

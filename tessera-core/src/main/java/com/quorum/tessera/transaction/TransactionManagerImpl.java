@@ -141,15 +141,15 @@ public class TransactionManagerImpl implements TransactionManager {
             final byte[] hashKey = base64Decoder.decode(request.getKey());
             MessageHash messageHash = new MessageHash(hashKey);
 
-            final EncodedPayloadWithRecipients payloadWithRecipients = encryptedTransactionDAO
-                    .retrieveByHash(messageHash)
-                    .map(EncryptedTransaction::getEncodedPayload)
-                    .map(payloadEncoder::decodePayloadWithRecipients)
-                    .map(p -> enclave.addRecipientToPayload(p, recipientPublicKey))
+            EncryptedTransaction encryptedTransaction = encryptedTransactionDAO.retrieveByHash(messageHash)
                     .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + messageHash + " was not found"));
 
+            EncodedPayloadWithRecipients encodedPayloadWithRecipients
+                    = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
 
-            final byte[] encoded = payloadEncoder.encode(payloadWithRecipients);
+            enclave.extractRecipientBoxForRecipientAndAddToNestedPayload(encodedPayloadWithRecipients, recipientPublicKey);
+
+            final byte[] encoded = payloadEncoder.encode(encodedPayloadWithRecipients);
 
             return new ResendResponse(encoded);
         }
@@ -231,6 +231,5 @@ public class TransactionManagerImpl implements TransactionManager {
         return enclave.unencryptTransaction(payloadWithRecipients, providedKey);
 
     }
-
 
 }

@@ -160,7 +160,7 @@ public class TransactionManagerTest {
         String publicKeyData = Base64.getEncoder().encodeToString("PUBLICKEY".getBytes());
 
         PublicKey recipientKey = PublicKey.from(publicKeyData.getBytes());
-        when(enclave.addRecipientToPayload(encodedPayloadWithRecipients, recipientKey))
+        when(enclave.extractRecipientBoxForRecipientAndAddToNestedPayload(encodedPayloadWithRecipients, recipientKey))
                 .thenReturn(encodedPayloadWithRecipients);
 
         ResendRequest resendRequest = new ResendRequest();
@@ -176,7 +176,7 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decodePayloadWithRecipients(encodedPayloadData);
         verify(payloadEncoder).encode(any(EncodedPayloadWithRecipients.class));
-        verify(enclave).addRecipientToPayload(encodedPayloadWithRecipients, recipientKey);
+        verify(enclave).extractRecipientBoxForRecipientAndAddToNestedPayload(encodedPayloadWithRecipients, recipientKey);
     }
 
 }
