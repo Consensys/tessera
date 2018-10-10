@@ -23,7 +23,7 @@ public class NaclFacadeTest {
     public void sealAfterPrecomputationWithMasterKey() {
         byte[] message = "MESSAGE".getBytes();
         Nonce nonce = mock(Nonce.class);
-        MasterKey masterKey = mock(MasterKey.class);
+        MasterKey masterKey = MasterKey.from("".getBytes());
 
         byte[] outcome = "sealAfterPrecomputationWithSharedKey".getBytes();
 
@@ -36,7 +36,7 @@ public class NaclFacadeTest {
     public void openAfterPrecomputationWithMasterKey() {
         byte[] message = "MESSAGE".getBytes();
         Nonce nonce = mock(Nonce.class);
-        MasterKey masterKey = mock(MasterKey.class);
+        MasterKey masterKey = MasterKey.from("".getBytes());
 
         byte[] outcome = "openAfterPrecomputationWithSharedKey".getBytes();
 
