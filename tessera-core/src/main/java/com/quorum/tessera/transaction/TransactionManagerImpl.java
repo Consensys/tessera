@@ -145,9 +145,7 @@ public class TransactionManagerImpl implements TransactionManager {
                     .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + messageHash + " was not found"));
 
             EncodedPayloadWithRecipients encodedPayloadWithRecipients
-                    = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
-
-            enclave.extractRecipientBoxForRecipientAndAddToNestedPayload(encodedPayloadWithRecipients, recipientPublicKey);
+                    = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload(),recipientPublicKey);
 
             final byte[] encoded = payloadEncoder.encode(encodedPayloadWithRecipients);
 

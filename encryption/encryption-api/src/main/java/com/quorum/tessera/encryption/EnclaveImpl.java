@@ -2,8 +2,6 @@ package com.quorum.tessera.encryption;
 
 import com.quorum.tessera.nacl.NaclFacade;
 import com.quorum.tessera.nacl.Nonce;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -46,31 +44,6 @@ public class EnclaveImpl implements Enclave {
 
     }
 
-    @Override
-    public EncodedPayloadWithRecipients extractRecipientBoxForRecipientAndAddToNestedPayload(EncodedPayloadWithRecipients payloadWithRecipients,
-            final PublicKey recipient) {
-
-        final EncodedPayload encodedPayload = payloadWithRecipients.getEncodedPayload();
-
-        if (!payloadWithRecipients.getRecipientKeys().isEmpty() && !payloadWithRecipients.getRecipientKeys().contains(recipient)) {
-             throw new InvalidRecipientException("Recipient " + recipient.encodeToBase64() + " is not a recipient of transaction ");
-        }
-
-        final int recipientIndex = payloadWithRecipients.getRecipientKeys().indexOf(recipient);
-        final byte[] recipientBox = encodedPayload.getRecipientBoxes().get(recipientIndex);
-
-        return new EncodedPayloadWithRecipients(
-                new EncodedPayload(
-                        encodedPayload.getSenderKey(),
-                        encodedPayload.getCipherText(),
-                        encodedPayload.getCipherTextNonce(),
-                        singletonList(recipientBox),
-                        encodedPayload.getRecipientNonce()
-                ),
-                emptyList()
-        );
-
-    }
 
     @Override
     public byte[] unencryptTransaction(EncodedPayloadWithRecipients payloadWithRecipients, final PublicKey providedKey) {

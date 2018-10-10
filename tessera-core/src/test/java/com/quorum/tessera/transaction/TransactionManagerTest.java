@@ -146,22 +146,23 @@ public class TransactionManagerTest {
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
         when(encodedPayload.getRecipientBoxes()).thenReturn(Arrays.asList("RECIPIENTBOX".getBytes()));
 
+                byte[] encodedOutcome = "SUCCESS".getBytes();
+         String publicKeyData = Base64.getEncoder().encodeToString("PUBLICKEY".getBytes());
+        PublicKey recipientKey = PublicKey.from(publicKeyData.getBytes());
+        
         EncodedPayloadWithRecipients encodedPayloadWithRecipients = mock(EncodedPayloadWithRecipients.class);
         when(encodedPayloadWithRecipients.getEncodedPayload()).thenReturn(encodedPayload);
-        when(payloadEncoder.decodePayloadWithRecipients(encodedPayloadData))
+        when(payloadEncoder.decodePayloadWithRecipients(encodedPayloadData,recipientKey))
                 .thenReturn(encodedPayloadWithRecipients);
         
         
         
-        byte[] encodedOutcome = "SUCCESS".getBytes();
+
+        
         when(payloadEncoder.encode(any(EncodedPayloadWithRecipients.class))).thenReturn(encodedOutcome);
 
         byte[] keyData = Base64.getEncoder().encode("KEY".getBytes());
-        String publicKeyData = Base64.getEncoder().encodeToString("PUBLICKEY".getBytes());
-
-        PublicKey recipientKey = PublicKey.from(publicKeyData.getBytes());
-        when(enclave.extractRecipientBoxForRecipientAndAddToNestedPayload(encodedPayloadWithRecipients, recipientKey))
-                .thenReturn(encodedPayloadWithRecipients);
+       
 
         ResendRequest resendRequest = new ResendRequest();
         resendRequest.setKey(new String(keyData));
@@ -174,9 +175,8 @@ public class TransactionManagerTest {
         assertThat(result.getPayload()).contains(encodedOutcome);
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
-        verify(payloadEncoder).decodePayloadWithRecipients(encodedPayloadData);
+        verify(payloadEncoder).decodePayloadWithRecipients(encodedPayloadData,recipientKey);
         verify(payloadEncoder).encode(any(EncodedPayloadWithRecipients.class));
-        verify(enclave).extractRecipientBoxForRecipientAndAddToNestedPayload(encodedPayloadWithRecipients, recipientKey);
     }
 
 }
