@@ -53,7 +53,7 @@ public class TransactionResource {
     @Produces(APPLICATION_JSON)
     public Response send(
             @ApiParam(name = "sendRequest", required = true)
-            @Valid final SendRequest sendRequest) {
+            @NotNull @Valid final SendRequest sendRequest) {
 
         final SendResponse response = delegate.send(sendRequest);
 

@@ -67,7 +67,7 @@
                     </systemPropertyVariables>
                     <includes>
                         <include>RestSuite</include>
-<!--                        <include>GrpcSuite</include>-->
+                        <include>GrpcSuite</include>
                     </includes>
                 </configuration>
                 <executions>

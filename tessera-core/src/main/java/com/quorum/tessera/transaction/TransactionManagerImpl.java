@@ -77,8 +77,9 @@ public class TransactionManagerImpl implements TransactionManager {
                 .map(PublicKey::from)
                 .orElseGet(enclave::defaultPublicKey);
 
-        final byte[][] recipients = Stream
-                .of(sendRequest.getTo())
+        final byte[][] recipients = Stream.of(sendRequest)
+                .filter(sr -> Objects.nonNull(sr.getTo()))
+                .flatMap(s -> Stream.of(s.getTo()))
                 .map(base64Decoder::decode)
                 .toArray(byte[][]::new);
 
