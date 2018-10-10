@@ -47,13 +47,13 @@ public class EnclaveImpl implements Enclave {
     }
 
     @Override
-    public EncodedPayloadWithRecipients fetchTransactionForRecipient(EncodedPayloadWithRecipients payloadWithRecipients,
+    public EncodedPayloadWithRecipients addRecipientToPayload(EncodedPayloadWithRecipients payloadWithRecipients,
             final PublicKey recipient) {
 
         final EncodedPayload encodedPayload = payloadWithRecipients.getEncodedPayload();
 
         if (!payloadWithRecipients.getRecipientKeys().contains(recipient)) {
-             throw new RuntimeException("Recipient " + recipient.encodeToBase64() + " is not a recipient of transaction ");
+             throw new InvalidRecipientException("Recipient " + recipient.encodeToBase64() + " is not a recipient of transaction ");
         }
 
         final int recipientIndex = payloadWithRecipients.getRecipientKeys().indexOf(recipient);

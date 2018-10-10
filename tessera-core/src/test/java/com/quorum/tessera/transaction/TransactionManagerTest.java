@@ -131,36 +131,7 @@ public class TransactionManagerTest {
 
     }
 
-    @Test
-    public void resendIndividualInvalidRecipient() {
 
-        byte[] encodedPayloadData = "".getBytes();
-        EncryptedTransaction encryptedTransaction = mock(EncryptedTransaction.class);
-        when(encryptedTransaction.getEncodedPayload()).thenReturn(encodedPayloadData);
-        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedTransaction));
-
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
-        EncodedPayloadWithRecipients encodedPayloadWithRecipients = mock(EncodedPayloadWithRecipients.class);
-        when(encodedPayloadWithRecipients.getEncodedPayload()).thenReturn(encodedPayload);
-        when(payloadEncoder.decodePayloadWithRecipients(encodedPayloadData)).thenReturn(encodedPayloadWithRecipients);
-
-        String keyData = Base64.getEncoder().encodeToString("KEY".getBytes());
-        String publicKeyData = Base64.getEncoder().encodeToString("PUBLICKEY".getBytes());
-
-        ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setKey(keyData);
-        resendRequest.setPublicKey(publicKeyData);
-        resendRequest.setType(ResendRequestType.INDIVIDUAL);
-
-        try {
-            transactionManager.resend(resendRequest);
-            failBecauseExceptionWasNotThrown(InvalidRecipientException.class);
-        } catch (InvalidRecipientException ex) {
-            verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
-            verify(payloadEncoder).decodePayloadWithRecipients(encodedPayloadData);
-        }
-    }
 
     @Test
     public void resendIndividual() {
@@ -179,7 +150,9 @@ public class TransactionManagerTest {
         when(encodedPayloadWithRecipients.getEncodedPayload()).thenReturn(encodedPayload);
         when(payloadEncoder.decodePayloadWithRecipients(encodedPayloadData))
                 .thenReturn(encodedPayloadWithRecipients);
-
+        
+        
+        
         byte[] encodedOutcome = "SUCCESS".getBytes();
         when(payloadEncoder.encode(any(EncodedPayloadWithRecipients.class))).thenReturn(encodedOutcome);
 
@@ -187,8 +160,8 @@ public class TransactionManagerTest {
         String publicKeyData = Base64.getEncoder().encodeToString("PUBLICKEY".getBytes());
 
         PublicKey recipientKey = PublicKey.from(publicKeyData.getBytes());
-        when(encodedPayloadWithRecipients.getRecipientKeys())
-                .thenReturn(Arrays.asList(recipientKey));
+        when(enclave.addRecipientToPayload(encodedPayloadWithRecipients, recipientKey))
+                .thenReturn(encodedPayloadWithRecipients);
 
         ResendRequest resendRequest = new ResendRequest();
         resendRequest.setKey(new String(keyData));
@@ -203,6 +176,7 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decodePayloadWithRecipients(encodedPayloadData);
         verify(payloadEncoder).encode(any(EncodedPayloadWithRecipients.class));
+        verify(enclave).addRecipientToPayload(encodedPayloadWithRecipients, recipientKey);
     }
 
 }

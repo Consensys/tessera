@@ -19,8 +19,6 @@ import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.model.EncryptedTransaction;
 import com.quorum.tessera.util.Base64Decoder;
 import java.util.Collection;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -124,7 +122,6 @@ public class TransactionManagerImpl implements TransactionManager {
         PublicKey recipientPublicKey = PublicKey.from(publicKeyData);
         if (request.getType() == ResendRequestType.ALL) {
 
-
             final Collection<EncodedPayloadWithRecipients> payloads = encryptedTransactionDAO
                     .retrieveAllTransactions()
                     .stream()
@@ -143,8 +140,14 @@ public class TransactionManagerImpl implements TransactionManager {
 
             final byte[] hashKey = base64Decoder.decode(request.getKey());
             MessageHash messageHash = new MessageHash(hashKey);
-            
-            final EncodedPayloadWithRecipients payloadWithRecipients = fetchTransactionForRecipient(messageHash, recipientPublicKey);
+
+            final EncodedPayloadWithRecipients payloadWithRecipients = encryptedTransactionDAO
+                    .retrieveByHash(messageHash)
+                    .map(EncryptedTransaction::getEncodedPayload)
+                    .map(payloadEncoder::decodePayloadWithRecipients)
+                    .map(p -> enclave.addRecipientToPayload(p, recipientPublicKey))
+                    .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + messageHash + " was not found"));
+
 
             final byte[] encoded = payloadEncoder.encode(payloadWithRecipients);
 
@@ -229,35 +232,5 @@ public class TransactionManagerImpl implements TransactionManager {
 
     }
 
-    private EncodedPayloadWithRecipients fetchTransactionForRecipient(final MessageHash hash, final PublicKey recipient) {
-        final EncodedPayloadWithRecipients payloadWithRecipients = encryptedTransactionDAO
-                .retrieveByHash(hash)
-                .map(EncryptedTransaction::getEncodedPayload)
-                .map(payloadEncoder::decodePayloadWithRecipients)
-                .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
-
-        final EncodedPayload encodedPayload = payloadWithRecipients.getEncodedPayload();
-
-        List<PublicKey> recipientKeys = payloadWithRecipients.getRecipientKeys();
-        
-        if (!recipientKeys.contains(recipient)) {
-            throw new InvalidRecipientException("Recipient " + recipient.encodeToBase64() + " is not a recipient of transaction " + hash);
-        }
-
-        final int recipientIndex = payloadWithRecipients.getRecipientKeys().indexOf(recipient);
-        final byte[] recipientBox = encodedPayload.getRecipientBoxes().get(recipientIndex);
-
-        return new EncodedPayloadWithRecipients(
-                new EncodedPayload(
-                        encodedPayload.getSenderKey(),
-                        encodedPayload.getCipherText(),
-                        encodedPayload.getCipherTextNonce(),
-                        singletonList(recipientBox),
-                        encodedPayload.getRecipientNonce()
-                ),
-                emptyList()
-        );
-
-    }
 
 }
