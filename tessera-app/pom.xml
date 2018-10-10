@@ -59,6 +59,13 @@
 
         <dependency>
             <groupId>com.quorum.tessera</groupId>
+            <artifactId>unix-socket-server</artifactId>
+            <version>0.7-SNAPSHOT</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
             <artifactId>server-api</artifactId>
         </dependency>
 

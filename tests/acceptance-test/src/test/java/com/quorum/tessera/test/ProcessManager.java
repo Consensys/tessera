@@ -10,7 +10,6 @@ import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +42,7 @@ public class ProcessManager {
 
             Path configFile = com.quorum.tessera.test.util.ElUtil.createAndPopulatePaths(GrpcSuite.class.getResource("/" + communicationType.name().toLowerCase() + "/config" + nodeNumber + ".json"));
 
-            Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "pid" + nodeNumber + ".pid");
+            Path pid = Files.createTempFile("pid", ".pid");
 
             pids.add(pid);
 
@@ -52,6 +51,7 @@ public class ProcessManager {
                     "-Dspring.profiles.active=disable-unixsocket",
                     "-Dnode.number=" + nodeNumber,
                     "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
+                    "-Ddebug=true",
                     "-jar",
                     jarfile,
                     "-configfile",

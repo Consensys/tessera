@@ -2,7 +2,6 @@ package com.quorum.tessera;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.cli.CliDelegate;
 import com.quorum.tessera.config.cli.CliResult;
 import com.quorum.tessera.server.TesseraServer;
@@ -43,7 +42,7 @@ public class Launcher {
             final Config config = cliResult.getConfig()
                     .orElseThrow(() -> new NoSuchElementException("No Config found. Tessera will not run"));
 
-            runWebServer(config.getServerConfig());
+            runWebServer(config);
 
             System.exit(0);
 
@@ -80,7 +79,7 @@ public class Launcher {
         return ex;
     }
 
-    private static void runWebServer(final ServerConfig serverConfig) throws Exception {
+    private static void runWebServer(final Config config) throws Exception {
 
         ServiceLocator serviceLocator = ServiceLocator.create();
 
@@ -89,11 +88,14 @@ public class Launcher {
         TesseraServerFactory restServerFactory = TesseraServerFactory.create(CommunicationType.REST);
 
         TesseraServerFactory grpcServerFactory = TesseraServerFactory.create(CommunicationType.GRPC);
-        
-        TesseraServer restServer = restServerFactory.createServer(serverConfig, services);
+
+        TesseraServerFactory unixSocketServerFactory = TesseraServerFactory.create(CommunicationType.UNIX_SOCKET);
+        TesseraServer unixSocketServer = unixSocketServerFactory.createServer(config, services);
+
+        TesseraServer restServer = restServerFactory.createServer(config, services);
 
         Optional<TesseraServer> grpcServer =
-            Optional.ofNullable(grpcServerFactory.createServer(serverConfig, services));
+            Optional.ofNullable(grpcServerFactory.createServer(config, services));
 
         CountDownLatch countDown = new CountDownLatch(1);
 
@@ -111,6 +113,7 @@ public class Launcher {
         }));
 
         restServer.start();
+        unixSocketServer.start();
         if (grpcServer.isPresent()) {
             grpcServer.get().start();
         }

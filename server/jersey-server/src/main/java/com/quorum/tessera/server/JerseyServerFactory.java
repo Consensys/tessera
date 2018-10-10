@@ -1,23 +1,24 @@
 package com.quorum.tessera.server;
 
 import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.ServerConfig;
-import java.util.Set;
+import com.quorum.tessera.config.Config;
+
 import javax.ws.rs.core.Application;
+import java.util.Set;
 
 /**
- * Creates Grizzly and Jersey implementations of the {@link RestServer}
+ * Creates Grizzly and Jersey implementations of the {@link TesseraServer}
  */
 public class JerseyServerFactory implements TesseraServerFactory {
 
     @Override
-    public TesseraServer createServer(ServerConfig serverConfig, Set<Object> services) {
+    public TesseraServer createServer(Config config, Set<Object> services) {
         Application application = services.stream()
                 .filter(Application.class::isInstance)
                 .findFirst()
                 .map(Application.class::cast)
                 .get();
-        return new JerseyServer(serverConfig,application);
+        return new JerseyServer(config.getServerConfig(), application);
     }
 
     @Override
