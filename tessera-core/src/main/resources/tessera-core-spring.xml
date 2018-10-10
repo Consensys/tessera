@@ -24,10 +24,9 @@
             <bean class="com.quorum.tessera.util.Base64Decoder" factory-method="create"/>
         </constructor-arg>
         <constructor-arg ref="payloadEncoder" />
-        <constructor-arg ref="keyManager" />
-        <constructor-arg ref="nacl" />
         <constructor-arg ref="encryptedTransactionDAO" />
         <constructor-arg ref="payloadPublisher" />
+        <constructor-arg ref="enclave" />
          
     </bean>
 
@@ -110,7 +109,11 @@
 
     <bean id="keyConfig" factory-bean="config" factory-method="getKeys" />
 
-
+    <bean id="enclave" class="com.quorum.tessera.encryption.EnclaveImpl">
+        <constructor-arg ref="nacl" />
+        <constructor-arg ref="keyManager" />
+    </bean>
+    
 
     <bean name="keyManager" class="com.quorum.tessera.encryption.KeyManagerImpl">
         <constructor-arg>

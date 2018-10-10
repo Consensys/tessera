@@ -1,12 +1,11 @@
 package com.quorum.tessera.transaction;
-
+import com.quorum.tessera.encryption.EncodedPayloadWithRecipients;
+import com.quorum.tessera.encryption.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
-import com.quorum.tessera.transaction.model.EncodedPayload;
-import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
+import static java.util.Collections.singletonList;
 import org.junit.Test;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.bouncycastle.util.encoders.Hex;
 

@@ -1,7 +1,5 @@
-package com.quorum.tessera.transaction.model;
+package com.quorum.tessera.encryption;
 
-
-import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
 
 import java.util.*;
@@ -30,18 +28,11 @@ public class EncodedPayload {
                           final Nonce recipientNonce) {
 
         this.senderKey = senderKey;
-        this.cipherText = Arrays.copyOf(cipherText, cipherText.length);
+        this.cipherText = cipherText;
         this.cipherTextNonce = cipherTextNonce;
         this.recipientNonce = recipientNonce;
 
-        final List<byte[]> recBoxes = Optional
-            .ofNullable(recipientBoxes)
-            .orElse(new ArrayList<>())
-            .stream()
-            .map(arr -> Arrays.copyOf(arr, arr.length))
-            .collect(Collectors.toList());
-
-        this.recipientBoxes = Collections.unmodifiableList(recBoxes);
+        this.recipientBoxes = Collections.unmodifiableList(recipientBoxes);
     }
 
     public PublicKey getSenderKey() {

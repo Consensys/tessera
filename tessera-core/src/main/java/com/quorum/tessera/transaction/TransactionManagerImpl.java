@@ -9,17 +9,13 @@ import com.quorum.tessera.api.model.ResendResponse;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.enclave.model.MessageHash;
-import com.quorum.tessera.encryption.KeyManager;
-import com.quorum.tessera.encryption.MasterKey;
-import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.enclave.model.MessageHashFactory;
+import com.quorum.tessera.encryption.Enclave;
+import com.quorum.tessera.encryption.EncodedPayload;
+import com.quorum.tessera.encryption.EncodedPayloadWithRecipients;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.encryption.SharedKey;
 import com.quorum.tessera.nacl.NaclException;
-import com.quorum.tessera.nacl.NaclFacade;
-import com.quorum.tessera.nacl.Nonce;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
-import com.quorum.tessera.transaction.model.EncodedPayload;
-import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
 import com.quorum.tessera.transaction.model.EncryptedTransaction;
 import com.quorum.tessera.util.Base64Decoder;
 import java.util.Collection;
@@ -32,7 +28,6 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toList;
 import java.util.stream.Stream;
 import javax.transaction.Transactional;
-import org.bouncycastle.jcajce.provider.digest.SHA3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,28 +47,26 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final Base64Decoder base64Decoder;
 
-    private final KeyManager keyManager;
-
-    private final NaclFacade nacl;
-
     private final EncryptedTransactionDAO encryptedTransactionDAO;
 
     private final PayloadPublisher payloadPublisher;
 
+    private final Enclave enclave;
+
+    private final MessageHashFactory messageHashFactory = MessageHashFactory.create();
+
     public TransactionManagerImpl(
             Base64Decoder base64Decoder,
             PayloadEncoder payloadEncoder,
-            KeyManager keyManager,
-            NaclFacade nacl,
             EncryptedTransactionDAO encryptedTransactionDAO,
-            PayloadPublisher payloadPublisher) {
+            PayloadPublisher payloadPublisher,
+            Enclave enclave) {
 
         this.base64Decoder = Objects.requireNonNull(base64Decoder);
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
-        this.keyManager = Objects.requireNonNull(keyManager);
-        this.nacl = Objects.requireNonNull(nacl);
         this.encryptedTransactionDAO = Objects.requireNonNull(encryptedTransactionDAO);
         this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
+        this.enclave = Objects.requireNonNull(enclave);
     }
 
     @Override
@@ -84,7 +77,7 @@ public class TransactionManagerImpl implements TransactionManager {
         final PublicKey senderPublicKey = Optional.ofNullable(sender)
                 .map(base64Decoder::decode)
                 .map(PublicKey::from)
-                .orElseGet(keyManager::defaultPublicKey);
+                .orElseGet(enclave::defaultPublicKey);
 
         final byte[][] recipients = Stream
                 .of(sendRequest.getTo())
@@ -96,83 +89,62 @@ public class TransactionManagerImpl implements TransactionManager {
                 .map(PublicKey::from)
                 .collect(Collectors.toList());
 
-
-        recipientList.addAll(keyManager.getForwardingKeys());
-        
+        recipientList.addAll(enclave.getForwardingKeys());
 
         final byte[] payload = base64Decoder.decode(sendRequest.getPayload());
 
-        EncodedPayloadWithRecipients encryptedPayload
-                = encryptPayload(payload, senderPublicKey, recipientList);
+        EncodedPayloadWithRecipients encodedPayloadWithRecipients
+                = enclave.encryptPayload(payload, senderPublicKey, recipientList);
 
-        MessageHash messageHash = storeEncodedPayload(encryptedPayload);
+        final MessageHash transactionHash = Optional.of(encodedPayloadWithRecipients)
+                .map(EncodedPayloadWithRecipients::getEncodedPayload)
+                .map(EncodedPayload::getCipherText)
+                .map(messageHashFactory::createFromCipherText).get();
 
-        recipientList.forEach(recipient -> payloadPublisher.publishPayload(encryptedPayload, recipient));
+        final EncryptedTransaction newTransaction = new EncryptedTransaction(
+                transactionHash,
+                this.payloadEncoder.encode(encodedPayloadWithRecipients)
+        );
 
-        final byte[] key = messageHash.getHashBytes();
+        this.encryptedTransactionDAO.save(newTransaction);
+
+        recipientList.forEach(recipient -> payloadPublisher.publishPayload(encodedPayloadWithRecipients, recipient));
+
+        final byte[] key = transactionHash.getHashBytes();
 
         final String encodedKey = base64Decoder.encodeToString(key);
 
         return new SendResponse(encodedKey);
     }
 
-
-    private EncodedPayloadWithRecipients encryptPayload(final byte[] message,
-            final PublicKey senderPublicKey,
-            final List<PublicKey> recipientPublicKeys) {
-
-        final MasterKey masterKey = nacl.createMasterKey();
-        final Nonce nonce = nacl.randomNonce();
-        final Nonce recipientNonce = nacl.randomNonce();
-
-        final byte[] cipherText = nacl.sealAfterPrecomputation(message, nonce, masterKey);
-
-        final PrivateKey privateKey = keyManager.getPrivateKeyForPublicKey(senderPublicKey);
-
-        final List<byte[]> encryptedMasterKeys = recipientPublicKeys
-                .stream()
-                .map(publicKey -> nacl.computeSharedKey(publicKey, privateKey))
-                .map(sharedKey -> nacl.sealAfterPrecomputation(masterKey.getKeyBytes(), recipientNonce, sharedKey))
-                .collect(Collectors.toList());
-
-        return new EncodedPayloadWithRecipients(
-                new EncodedPayload(senderPublicKey, cipherText, nonce, encryptedMasterKeys, recipientNonce),
-                recipientPublicKeys
-        );
-
-    }
-
-    private MessageHash storeEncodedPayload(final EncodedPayloadWithRecipients payloadWithRecipients) {
-
-        final SHA3.DigestSHA3 digestSHA3 = new SHA3.Digest512();
-        final byte[] digest = digestSHA3.digest(payloadWithRecipients.getEncodedPayload().getCipherText());
-
-        final MessageHash transactionHash = new MessageHash(digest);
-
-        LOGGER.info("Generated transaction hash {}", transactionHash);
-
-        final EncryptedTransaction newTransaction = new EncryptedTransaction(
-                transactionHash,
-                this.payloadEncoder.encode(payloadWithRecipients)
-        );
-
-        this.encryptedTransactionDAO.save(newTransaction);
-
-        return transactionHash;
-    }
-
     @Override
     public ResendResponse resend(ResendRequest request) {
 
-        final byte[] publicKey = base64Decoder.decode(request.getPublicKey());
-
+        final byte[] publicKeyData = base64Decoder.decode(request.getPublicKey());
+        PublicKey recipientPublicKey = PublicKey.from(publicKeyData);
         if (request.getType() == ResendRequestType.ALL) {
-            resendAll(publicKey);
+
+
+            final Collection<EncodedPayloadWithRecipients> payloads = encryptedTransactionDAO
+                    .retrieveAllTransactions()
+                    .stream()
+                    .map(EncryptedTransaction::getEncodedPayload)
+                    .map(payloadEncoder::decodePayloadWithRecipients)
+                    .filter(payload -> payload.getRecipientKeys().contains(recipientPublicKey))
+                    .collect(toList());
+
+            payloads.forEach(payload
+                    -> payload.getRecipientKeys().forEach(recipientKey
+                            -> payloadPublisher.publishPayload(payload, recipientKey)
+                    )
+            );
             return new ResendResponse();
         } else {
-            final byte[] hashKey = base64Decoder.decode(request.getKey());
 
-            final EncodedPayloadWithRecipients payloadWithRecipients = fetchTransactionForRecipient(new MessageHash(hashKey), PublicKey.from(publicKey));
+            final byte[] hashKey = base64Decoder.decode(request.getKey());
+            MessageHash messageHash = new MessageHash(hashKey);
+            
+            final EncodedPayloadWithRecipients payloadWithRecipients = fetchTransactionForRecipient(messageHash, recipientPublicKey);
 
             final byte[] encoded = payloadEncoder.encode(payloadWithRecipients);
 
@@ -185,9 +157,19 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final EncodedPayloadWithRecipients encodedPayloadWithRecipients = payloadEncoder.decodePayloadWithRecipients(payload);
 
-        final MessageHash messageHash = storeEncodedPayload(encodedPayloadWithRecipients);
+        final MessageHash transactionHash = Optional.of(encodedPayloadWithRecipients)
+                .map(EncodedPayloadWithRecipients::getEncodedPayload)
+                .map(EncodedPayload::getCipherText)
+                .map(messageHashFactory::createFromCipherText).get();
 
-        LOGGER.info(base64Decoder.encodeToString(messageHash.getHashBytes()));
+        final EncryptedTransaction newTransaction = new EncryptedTransaction(
+                transactionHash,
+                this.payloadEncoder.encode(encodedPayloadWithRecipients)
+        );
+
+        this.encryptedTransactionDAO.save(newTransaction);
+
+        LOGGER.info(base64Decoder.encodeToString(transactionHash.getHashBytes()));
     }
 
     @Override
@@ -211,98 +193,40 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final MessageHash hash = new MessageHash(key);
 
-        
-        if (to.isPresent()) {
-            byte[] payload = retrieveUnencryptedTransaction(hash, PublicKey.from(to.get()));
-            String encodedPayload = base64Decoder.encodeToString(payload);
-            return new ReceiveResponse(encodedPayload);
-        } else {
-            for (final PublicKey potentialMatchingKey : this.keyManager.getPublicKeys()) {
-                try {
-                    byte[] payload = retrieveUnencryptedTransaction(hash, potentialMatchingKey);
-                    String encodedPayload = base64Decoder.encodeToString(payload);
-                    return new ReceiveResponse(encodedPayload);
-                } catch (final NaclException ex) {
-                    LOGGER.debug("Attempted payload decryption using wrong key, discarding.");
-                }
-            }
-
-            throw new RuntimeException("No key found that could decrypt the requested payload: " + hash.toString());
-        }
-    }
-
-    private byte[] retrieveUnencryptedTransaction(final MessageHash hash, final PublicKey providedKey) {
-
         final EncryptedTransaction encryptedTransaction = encryptedTransactionDAO
                 .retrieveByHash(hash)
                 .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
 
+        PublicKey recipientKey = to.map(PublicKey::from)
+                .orElse(searchForRecipientKey(encryptedTransaction)
+                        .orElseThrow(() -> new RuntimeException("No key found that could decrypt the requested payload: " + hash))
+                );
+
+        byte[] payload = unencryptTransaction(encryptedTransaction, recipientKey);
+        String encodedPayload = base64Decoder.encodeToString(payload);
+        return new ReceiveResponse(encodedPayload);
+
+    }
+
+    private Optional<PublicKey> searchForRecipientKey(EncryptedTransaction encryptedTransaction) {
+        for (final PublicKey potentialMatchingKey : enclave.getPublicKeys()) {
+            try {
+                unencryptTransaction(encryptedTransaction, potentialMatchingKey);
+                return Optional.of(potentialMatchingKey);
+            } catch (final NaclException ex) {
+                LOGGER.debug("Attempted payload decryption using wrong key, discarding.");
+            }
+        }
+        return Optional.empty();
+    }
+
+    private byte[] unencryptTransaction(EncryptedTransaction encryptedTransaction, final PublicKey providedKey) {
+
         final EncodedPayloadWithRecipients payloadWithRecipients
                 = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
 
-        final EncodedPayload encodedPayload = payloadWithRecipients.getEncodedPayload();
+        return enclave.unencryptTransaction(payloadWithRecipients, providedKey);
 
-        final PublicKey senderPubKey;
-
-        final PublicKey recipientPubKey;
-
-        if (!keyManager.getPublicKeys().contains(encodedPayload.getSenderKey())) {
-            // This is a payload originally sent to us by another node
-            recipientPubKey = encodedPayload.getSenderKey();
-            senderPubKey = providedKey;
-        } else {
-            // This is a payload that originated from us
-            senderPubKey = encodedPayload.getSenderKey();
-            recipientPubKey = payloadWithRecipients.getRecipientKeys().get(0);
-        }
-
-        final PrivateKey senderPrivKey = keyManager.getPrivateKeyForPublicKey(senderPubKey);
- 
-        final SharedKey sharedKey = nacl.computeSharedKey(recipientPubKey, senderPrivKey);
-
-        try {
-            final byte[] recipientBox = encodedPayload.getRecipientBoxes().iterator().next();
-            final Nonce nonce = encodedPayload.getRecipientNonce();
-            final byte[] masterKeyBytes = nacl.openAfterPrecomputation(recipientBox, nonce, sharedKey);
-
-            final SharedKey masterKey = SharedKey.from(masterKeyBytes);
-
-            final byte[] cipherText = encodedPayload.getCipherText();
-            final Nonce cipherTextNonce = encodedPayload.getCipherTextNonce();
-
-            return nacl.openAfterPrecomputation(cipherText, cipherTextNonce, masterKey);
-
-        } catch (final RuntimeException ex) {
-            LOGGER.info("Couldn't decrypt message with hash {}. Our public key is: {}", hash, senderPubKey);
-            LOGGER.debug("RuntimeException: ", ex);
-            throw ex;
-        }
-
-    }
-
-    private void resendAll(final byte[] recipientPublicKey) {
-        final PublicKey recipient = PublicKey.from(recipientPublicKey);
-
-        final Collection<EncodedPayloadWithRecipients> payloads
-                = retrieveAllForRecipient(recipient);
-
-        payloads.forEach(payload
-                -> payload.getRecipientKeys().forEach(recipientKey
-                        -> payloadPublisher.publishPayload(payload, recipientKey)
-                )
-        );
-    }
-
-    private Collection<EncodedPayloadWithRecipients> retrieveAllForRecipient(final PublicKey recipientPublicKey) {
-        LOGGER.debug("Retrieving all transaction for recipient {}", recipientPublicKey);
-
-        return encryptedTransactionDAO
-                .retrieveAllTransactions()
-                .stream()
-                .map(EncryptedTransaction::getEncodedPayload)
-                .map(payloadEncoder::decodePayloadWithRecipients)
-                .filter(payload -> payload.getRecipientKeys().contains(recipientPublicKey))
-                .collect(toList());
     }
 
     private EncodedPayloadWithRecipients fetchTransactionForRecipient(final MessageHash hash, final PublicKey recipient) {
@@ -314,9 +238,10 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final EncodedPayload encodedPayload = payloadWithRecipients.getEncodedPayload();
 
-        if (!payloadWithRecipients.getRecipientKeys().contains(recipient)) {
-            
-            throw new RuntimeException("Recipient " + recipient.encodeToBase64() + " is not a recipient of transaction " + hash);
+        List<PublicKey> recipientKeys = payloadWithRecipients.getRecipientKeys();
+        
+        if (!recipientKeys.contains(recipient)) {
+            throw new InvalidRecipientException("Recipient " + recipient.encodeToBase64() + " is not a recipient of transaction " + hash);
         }
 
         final int recipientIndex = payloadWithRecipients.getRecipientKeys().indexOf(recipient);

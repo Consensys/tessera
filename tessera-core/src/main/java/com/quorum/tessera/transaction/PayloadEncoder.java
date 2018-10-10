@@ -1,7 +1,8 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.transaction.model.EncodedPayload;
-import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
+import com.quorum.tessera.encryption.EncodedPayload;
+import com.quorum.tessera.encryption.EncodedPayloadWithRecipients;
+
 
 /**
  * Encodes and decodes a {@link EncodedPayload} to and from its binary representation
