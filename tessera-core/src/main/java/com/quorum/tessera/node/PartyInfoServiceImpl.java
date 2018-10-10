@@ -8,6 +8,8 @@ import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -17,8 +19,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PartyInfoServiceImpl implements PartyInfoService {
 
@@ -34,7 +34,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
         this.configService = Objects.requireNonNull(configService);
 
-        final String advertisedUrl = configService.getServerUri().toString();
+        final String advertisedUrl = configService.getServerUri().toString() + "/";
 
         final Set<Party> initialParties = configService
                 .getPeers()

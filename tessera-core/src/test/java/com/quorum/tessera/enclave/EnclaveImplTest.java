@@ -158,7 +158,7 @@ public class EnclaveImplTest {
         when(transactionService.storeEncodedPayload(any(EncodedPayloadWithRecipients.class)))
             .thenReturn(new MessageHash(new byte[0]));
         enclave.storePayload(new byte[0]);
-        verify(encoder).decodePayloadWithRecipients(any());
+        verify(encoder).decode(any());
         verify(transactionService).storeEncodedPayload(any());
     }
 

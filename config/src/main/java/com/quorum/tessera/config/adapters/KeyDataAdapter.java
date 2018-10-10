@@ -1,10 +1,7 @@
 package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.keypairs.DirectKeyPair;
-import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
-import com.quorum.tessera.config.keypairs.InlineKeypair;
+import com.quorum.tessera.config.keypairs.*;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.Objects;
@@ -27,12 +24,43 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
         }
 
         //case 3, the keys are provided inside a file
-        return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath());
+        if(keyData.getPublicKeyPath() != null && keyData.getPrivateKeyPath() != null) {
+            return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath());
+        }
+
+        //case 4, the key config specified is invalid
+        return new UnsupportedKeyPair(
+            keyData.getConfig(),
+            keyData.getPrivateKey(),
+            keyData.getPublicKey(),
+            keyData.getPrivateKeyPath(),
+            keyData.getPublicKeyPath()
+        );
     }
 
     @Override
     public KeyData marshal(final ConfigKeyPair keyData) {
-        return keyData.marshal();
-    }
 
+        if(keyData instanceof DirectKeyPair) {
+            DirectKeyPair kp = (DirectKeyPair) keyData;
+            return new KeyData(null, kp.getPrivateKey(), kp.getPublicKey(), null, null);
+        }
+
+        if(keyData instanceof InlineKeypair) {
+            InlineKeypair kp = (InlineKeypair) keyData;
+            return new KeyData(kp.getPrivateKeyConfig(), null, kp.getPublicKey(), null, null);
+        }
+
+        if(keyData instanceof FilesystemKeyPair) {
+            FilesystemKeyPair kp = (FilesystemKeyPair) keyData;
+            return new KeyData(null, null, null, kp.getPrivateKeyPath(), kp.getPublicKeyPath());
+        }
+
+        if(keyData instanceof UnsupportedKeyPair) {
+            UnsupportedKeyPair kp = (UnsupportedKeyPair) keyData;
+            return new KeyData(kp.getConfig(), kp.getPrivateKey(), kp.getPublicKey(), kp.getPrivateKeyPath(), kp.getPublicKeyPath());
+        }
+
+        throw new UnsupportedOperationException("The keypair type " + keyData.getClass() + " is not allowed");
+    }
 }
