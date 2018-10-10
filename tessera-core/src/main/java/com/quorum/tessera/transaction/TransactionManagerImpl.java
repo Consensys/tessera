@@ -145,7 +145,7 @@ public class TransactionManagerImpl implements TransactionManager {
                     .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + messageHash + " was not found"));
 
             EncodedPayloadWithRecipients encodedPayloadWithRecipients
-                    = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload(),recipientPublicKey);
+                    = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload(), recipientPublicKey);
 
             final byte[] encoded = payloadEncoder.encode(encodedPayloadWithRecipients);
 
@@ -200,10 +200,16 @@ public class TransactionManagerImpl implements TransactionManager {
 
         PublicKey recipientKey = to.map(PublicKey::from)
                 .orElse(searchForRecipientKey(encryptedTransaction)
-                        .orElseThrow(() -> new RuntimeException("No key found that could decrypt the requested payload: " + hash))
+                        .orElseThrow(() -> new NoRecipientKeyFoundException("No suitable recipient keys found to decrypt payload for : " + hash))
                 );
 
-        byte[] payload = unencryptTransaction(encryptedTransaction, recipientKey);
+        final EncodedPayloadWithRecipients payloadWithRecipients = Optional.of(encryptedTransaction)
+                .map(EncryptedTransaction::getEncodedPayload)
+                .map(payloadEncoder::decodePayloadWithRecipients)
+                .orElseThrow(() -> new IllegalStateException("Unable to decode previosuly encoded payload"));
+
+        byte[] payload = enclave.unencryptTransaction(payloadWithRecipients, recipientKey);
+
         String encodedPayload = base64Decoder.encodeToString(payload);
         return new ReceiveResponse(encodedPayload);
 
@@ -212,7 +218,10 @@ public class TransactionManagerImpl implements TransactionManager {
     private Optional<PublicKey> searchForRecipientKey(EncryptedTransaction encryptedTransaction) {
         for (final PublicKey potentialMatchingKey : enclave.getPublicKeys()) {
             try {
-                unencryptTransaction(encryptedTransaction, potentialMatchingKey);
+                
+                final EncodedPayloadWithRecipients payloadWithRecipients
+                        = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
+                enclave.unencryptTransaction(payloadWithRecipients, potentialMatchingKey);
                 return Optional.of(potentialMatchingKey);
             } catch (final NaclException ex) {
                 LOGGER.debug("Attempted payload decryption using wrong key, discarding.");
@@ -221,13 +230,6 @@ public class TransactionManagerImpl implements TransactionManager {
         return Optional.empty();
     }
 
-    private byte[] unencryptTransaction(EncryptedTransaction encryptedTransaction, final PublicKey providedKey) {
 
-        final EncodedPayloadWithRecipients payloadWithRecipients
-                = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
-
-        return enclave.unencryptTransaction(payloadWithRecipients, providedKey);
-
-    }
 
 }

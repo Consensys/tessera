@@ -1,10 +1,12 @@
 package com.quorum.tessera;
 
+import com.openpojo.reflection.impl.PojoClassFactory;
 import com.openpojo.validation.Validator;
 import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.rule.impl.*;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
+import com.quorum.tessera.enclave.model.MessageHash;
 import org.junit.Test;
 
 public class OpenPojoEntityTest {
@@ -21,8 +23,8 @@ public class OpenPojoEntityTest {
                 .with(new NoPrimitivesRule())
                 .with(new NoPublicFieldsExceptStaticFinalRule())
                 .build();
-
-        pojoValidator.validateRecursively("com.quorum.tessera.enclave.model");
+   
+           pojoValidator.validate(PojoClassFactory.getPojoClass(MessageHash.class));
     }
 
 
