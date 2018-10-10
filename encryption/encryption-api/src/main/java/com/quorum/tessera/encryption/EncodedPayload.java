@@ -3,7 +3,6 @@ package com.quorum.tessera.encryption;
 import com.quorum.tessera.nacl.Nonce;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * This class contains the base data that is sent to other nodes
@@ -40,7 +39,7 @@ public class EncodedPayload {
     }
 
     public byte[] getCipherText() {
-        return Arrays.copyOf(this.cipherText, this.cipherText.length);
+        return cipherText;
     }
 
     public Nonce getCipherTextNonce() {
@@ -48,10 +47,7 @@ public class EncodedPayload {
     }
 
     public List<byte[]> getRecipientBoxes() {
-        return recipientBoxes
-            .stream()
-            .map(arr -> Arrays.copyOf(arr, arr.length))
-            .collect(Collectors.toList());
+        return recipientBoxes;
     }
 
     public Nonce getRecipientNonce() {

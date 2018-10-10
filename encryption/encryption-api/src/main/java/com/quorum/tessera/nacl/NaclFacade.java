@@ -102,6 +102,11 @@ public interface NaclFacade {
         SharedKey sharedKey = createSingleKey();
         return MasterKey.from(sharedKey.getKeyBytes());
     }
+
+    default byte[] openAfterPrecomputation(byte[] cipherText, Nonce cipherTextNonce, MasterKey masterKey) {
+        SharedKey sharedKey = SharedKey.from(masterKey.getKeyBytes());
+        return openAfterPrecomputation(cipherText, cipherTextNonce, sharedKey);
+    }
     
 
 }

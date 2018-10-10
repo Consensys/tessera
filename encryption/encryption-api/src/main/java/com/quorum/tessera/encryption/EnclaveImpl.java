@@ -44,9 +44,10 @@ public class EnclaveImpl implements Enclave {
 
     }
 
-
+    
+    
     @Override
-    public byte[] unencryptTransaction(EncodedPayloadWithRecipients payloadWithRecipients, final PublicKey providedKey) {
+    public byte[] unencryptTransaction(EncodedPayloadWithRecipients payloadWithRecipients, final PublicKey providedSenderKey) {
 
         EncodedPayload encodedPayload = payloadWithRecipients.getEncodedPayload();
 
@@ -56,8 +57,8 @@ public class EnclaveImpl implements Enclave {
 
         if (!keyManager.getPublicKeys().contains(encodedPayload.getSenderKey())) {
             // This is a payload originally sent to us by another node
+            senderPubKey = providedSenderKey;
             recipientPubKey = encodedPayload.getSenderKey();
-            senderPubKey = providedKey;
         } else {
             // This is a payload that originated from us
             senderPubKey = encodedPayload.getSenderKey();
@@ -69,10 +70,12 @@ public class EnclaveImpl implements Enclave {
         final SharedKey sharedKey = nacl.computeSharedKey(recipientPubKey, senderPrivKey);
 
         final byte[] recipientBox = encodedPayload.getRecipientBoxes().iterator().next();
-        final Nonce nonce = encodedPayload.getRecipientNonce();
-        final byte[] masterKeyBytes = nacl.openAfterPrecomputation(recipientBox, nonce, sharedKey);
 
-        final SharedKey masterKey = SharedKey.from(masterKeyBytes);
+        final Nonce recipientNonce = encodedPayload.getRecipientNonce();
+
+        final byte[] masterKeyBytes = nacl.openAfterPrecomputation(recipientBox, recipientNonce, sharedKey);
+
+        final MasterKey masterKey = MasterKey.from(masterKeyBytes);
 
         final byte[] cipherText = encodedPayload.getCipherText();
         final Nonce cipherTextNonce = encodedPayload.getCipherTextNonce();
