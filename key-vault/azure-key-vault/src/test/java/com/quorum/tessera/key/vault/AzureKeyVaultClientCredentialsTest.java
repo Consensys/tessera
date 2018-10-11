@@ -142,4 +142,14 @@ public class AzureKeyVaultClientCredentialsTest {
         assertThat(ex).isInstanceOf(RuntimeException.class)
             .hasMessageContaining("AZURE_CLIENT_ID and AZURE_CLIENT_SECRET environment variables must be set");
     }
+
+    @Test
+    public void onDestroyShutsDownExecutor() {
+        ExecutorService executorService = mock(ExecutorService.class);
+
+        credentials = new AzureKeyVaultClientCredentials("id", "secret", executorService);
+        credentials.onDestroy();
+
+        verify(executorService).shutdown();
+    }
 }

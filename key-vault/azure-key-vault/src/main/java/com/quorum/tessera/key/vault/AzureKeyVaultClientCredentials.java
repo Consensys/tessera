@@ -6,6 +6,7 @@ import com.microsoft.azure.keyvault.authentication.KeyVaultCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
 import java.net.MalformedURLException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -21,12 +22,12 @@ public class AzureKeyVaultClientCredentials extends KeyVaultCredentials {
 
     private AuthenticationContext authenticationContext;
 
-    private final ExecutorService service;
+    private final ExecutorService executorService;
 
-    public AzureKeyVaultClientCredentials(String clientId, String clientSecret, ExecutorService service) {
+    public AzureKeyVaultClientCredentials(String clientId, String clientSecret, ExecutorService executorService) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
-        this.service = Objects.requireNonNull(service);
+        this.executorService = Objects.requireNonNull(executorService);
     }
 
     protected void setAuthenticationContext(AuthenticationContext authenticationContext) {
@@ -35,22 +36,27 @@ public class AzureKeyVaultClientCredentials extends KeyVaultCredentials {
 
     @Override
     public String doAuthenticate(String authorization, String resource, String scope) {
+        if(clientId == null || clientSecret == null) {
+            throw new AzureCredentialNotSetException("AZURE_CLIENT_ID and AZURE_CLIENT_SECRET environment variables must be set");
+        }
         try {
             if(Objects.isNull(authenticationContext)) {
-                this.authenticationContext = new AuthenticationContext(authorization, false, service);
-            }
-            if(clientId == null || clientSecret == null) {
-                throw new RuntimeException("AZURE_CLIENT_ID and AZURE_CLIENT_SECRET environment variables must be set");
+                this.authenticationContext = new AuthenticationContext(authorization, false, executorService);
             }
             ClientCredential credential = new ClientCredential(clientId,clientSecret);
 
             return authenticationContext.acquireToken(resource, credential, null).get().getAccessToken();
 
-        } catch (ExecutionException  | MalformedURLException ex) {
+        } catch (ExecutionException | MalformedURLException ex) {
             throw new RuntimeException(ex);
         } catch(InterruptedException ex) {
-            LOGGER.warn("Key vault executor service interrupted");
+            LOGGER.warn("Key vault executor executorService interrupted");
             throw new RuntimeException(ex);
         }
+    }
+
+    @PreDestroy
+    public void onDestroy() {
+        executorService.shutdown();
     }
 }

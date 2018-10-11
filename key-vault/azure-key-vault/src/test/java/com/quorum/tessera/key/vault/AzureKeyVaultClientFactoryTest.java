@@ -2,9 +2,7 @@ package com.quorum.tessera.key.vault;
 
 import org.junit.Test;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -14,19 +12,11 @@ public class AzureKeyVaultClientFactoryTest {
 
     @Test
     public void injectedCredentialsUsedToGetClient() {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        AzureKeyVaultClientCredentials clientCredentials = mock(AzureKeyVaultClientCredentials.class);
 
-        keyVaultClientFactory = new AzureKeyVaultClientFactory(executorService);
+        keyVaultClientFactory = new AzureKeyVaultClientFactory(clientCredentials);
         keyVaultClientFactory.getAuthenticatedClient();
-    }
 
-    @Test
-    public void onDestroyShutsDownExecutor() {
-        ExecutorService executorService = mock(ExecutorService.class);
-
-        keyVaultClientFactory = new AzureKeyVaultClientFactory(executorService);
-        keyVaultClientFactory.onDestroy();
-
-        verify(executorService).shutdown();
+        verify(clientCredentials).applyCredentialsFilter(any());
     }
 }

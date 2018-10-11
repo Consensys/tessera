@@ -120,8 +120,14 @@
         <constructor-arg value="1"/>
     </bean>
 
-    <bean id="keyVaultClientFactory" class="com.quorum.tessera.key.vault.AzureKeyVaultClientFactory">
+    <bean id="keyVaultCredentials" class="com.quorum.tessera.key.vault.AzureKeyVaultClientCredentials">
+        <constructor-arg value="#{systemEnvironment['AZURE_CLIENT_ID']}"/>
+        <constructor-arg value="#{systemEnvironment['AZURE_CLIENT_SECRET']}"/>
         <constructor-arg ref="keyVaultExecutorService"/>
+    </bean>
+
+    <bean id="keyVaultClientFactory" class="com.quorum.tessera.key.vault.AzureKeyVaultClientFactory">
+        <constructor-arg ref="keyVaultCredentials"/>
     </bean>
 
     <bean id="azureKeyVaultClientDelegate" class="com.quorum.tessera.key.vault.AzureKeyVaultClientDelegate">
