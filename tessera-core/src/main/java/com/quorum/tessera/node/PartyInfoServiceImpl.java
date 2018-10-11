@@ -34,7 +34,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
         this.configService = Objects.requireNonNull(configService);
 
-        final String advertisedUrl = configService.getServerUri().toString();
+        final String advertisedUrl = configService.getServerUri() +"/";
 
         final Set<Party> initialParties = configService
                 .getPeers()
