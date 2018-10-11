@@ -55,8 +55,8 @@ public class AzureVaultKeyGenerator implements KeyGenerator {
     }
 
     private void saveKeyInVault(String id, Key key) {
-        keyVaultService.setSecret(id, key.toString());
-        LOGGER.debug("Key {} saved to vault with id {}", key.toString(), id);
+        keyVaultService.setSecret(id, key.getKeyAsString());
+        LOGGER.debug("Key {} saved to vault with id {}", key.getKeyAsString(), id);
         LOGGER.info("Key saved to vault with id {}", id);
     }
 }
