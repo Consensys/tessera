@@ -10,6 +10,8 @@ import com.quorum.tessera.nacl.NaclFacade;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.charset.UnsupportedCharsetException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
@@ -110,7 +112,7 @@ public class AzureVaultKeyGeneratorTest {
             () -> azureVaultKeyGenerator.generate(invalidId, null)
         );
 
-        assertThat(throwable).isInstanceOf(RuntimeException.class);
+        assertThat(throwable).isInstanceOf(UnsupportedCharsetException.class);
         assertThat(throwable).hasMessageContaining(
             "Generated key ID for Azure Key Vault can contain only 0-9, a-z, A-Z and - characters"
         );

@@ -32,7 +32,7 @@ public class AzureKeyVaultServiceTest {
 
         Throwable throwable = catchThrowable(() -> azureKeyVaultService.getSecret(secretName));
 
-        assertThat(throwable).isInstanceOf(RuntimeException.class);
+        assertThat(throwable).isInstanceOf(VaultSecretNotFoundException.class);
         assertThat(throwable).hasMessageContaining("Azure Key Vault secret " + secretName + " was not found in vault " + vaultUrl);
     }
 

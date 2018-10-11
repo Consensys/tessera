@@ -9,6 +9,7 @@ import com.quorum.tessera.nacl.NaclFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -36,13 +37,12 @@ public class AzureVaultKeyGenerator implements KeyGenerator {
             final String keyVaultId = path.getFileName().toString();
 
             if(!keyVaultId.matches("^[0-9a-zA-Z\\-]*$")) {
-                throw new RuntimeException("Generated key ID for Azure Key Vault can contain only 0-9, a-z, A-Z and - characters");
+                throw new UnsupportedCharsetException("Generated key ID for Azure Key Vault can contain only 0-9, a-z, A-Z and - characters");
             }
 
-            if(keyVaultId != null) {
-                publicId.append(keyVaultId);
-                privateId.append(keyVaultId);
-            }
+            publicId.append(keyVaultId);
+            privateId.append(keyVaultId);
+
         }
 
         publicId.append("Pub");
