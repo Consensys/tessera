@@ -29,11 +29,10 @@
             <artifactId>adal4j</artifactId>
             <version>1.6.0</version>
         </dependency>
+
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>key-vault-api</artifactId>
-            <version>0.7-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
 
     </dependencies>
