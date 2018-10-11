@@ -17,19 +17,19 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class KeyPairFactoryTest {
-    KeyPairFactory test;
-    KeyVaultService keyVaultService;
-    String secret = "secret";
+    private KeyPairFactory keyPairFactory;
+    private KeyVaultService keyVaultService;
+    private final String secret = "secret";
 
     @Before
     public void setUp() {
         keyVaultService = mock(KeyVaultService.class);
         when(keyVaultService.getSecret(anyString())).thenReturn(secret);
 
-        this.test = new KeyPairFactory(keyVaultService);
+        this.keyPairFactory = new KeyPairFactory(keyVaultService);
     }
 
-    public Key createKey(String value) {
+    private Key createKey(String value) {
         return new Key(Base64.getDecoder().decode(value));
     }
 
@@ -40,7 +40,7 @@ public class KeyPairFactoryTest {
 
         DirectKeyPair directKeyPair = new DirectKeyPair(pub, priv);
 
-        KeyPair result = test.getKeyPair(directKeyPair);
+        KeyPair result = keyPairFactory.getKeyPair(directKeyPair);
 
         assertThat(result.getPublicKey()).isEqualToComparingFieldByField(createKey(pub));
         assertThat(result.getPrivateKey()).isEqualToComparingFieldByField(createKey(priv));
@@ -55,7 +55,7 @@ public class KeyPairFactoryTest {
         when(filesystemKeyPair.getPublicKey()).thenReturn(pub);
         when(filesystemKeyPair.getPrivateKey()).thenReturn(priv);
 
-        KeyPair result = test.getKeyPair(filesystemKeyPair);
+        KeyPair result = keyPairFactory.getKeyPair(filesystemKeyPair);
 
         assertThat(result.getPublicKey()).isEqualToComparingFieldByField(createKey(pub));
         assertThat(result.getPrivateKey()).isEqualToComparingFieldByField(createKey(priv));
@@ -70,7 +70,7 @@ public class KeyPairFactoryTest {
         when(inlineKeypair.getPublicKey()).thenReturn(pub);
         when(inlineKeypair.getPrivateKey()).thenReturn(priv);
 
-        KeyPair result = test.getKeyPair(inlineKeypair);
+        KeyPair result = keyPairFactory.getKeyPair(inlineKeypair);
 
         assertThat(result.getPublicKey()).isEqualToComparingFieldByField(createKey(pub));
         assertThat(result.getPrivateKey()).isEqualToComparingFieldByField(createKey(priv));
@@ -83,7 +83,7 @@ public class KeyPairFactoryTest {
 
         AzureVaultKeyPair azureVaultKeyPair = new AzureVaultKeyPair(publicId, privateId);
 
-        test.getKeyPair(azureVaultKeyPair);
+        keyPairFactory.getKeyPair(azureVaultKeyPair);
 
         verify(keyVaultService, times(1)).getSecret(publicId);
         verify(keyVaultService, times(1)).getSecret(privateId);

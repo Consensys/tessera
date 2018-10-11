@@ -13,7 +13,7 @@ public class KeyGeneratorFactoryTest {
         final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(keyVaultConfig);
 
         assertThat(keyGenerator).isNotNull();
-        assertThat(keyGenerator.getClass()).isEqualTo(AzureVaultKeyGenerator.class);
+        assertThat(keyGenerator).isExactlyInstanceOf(AzureVaultKeyGenerator.class);
     }
 
     @Test
@@ -21,6 +21,6 @@ public class KeyGeneratorFactoryTest {
         final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(null);
 
         assertThat(keyGenerator).isNotNull();
-        assertThat(keyGenerator.getClass()).isEqualTo(FileKeyGenerator.class);
+        assertThat(keyGenerator).isExactlyInstanceOf(FileKeyGenerator.class);
     }
 }
