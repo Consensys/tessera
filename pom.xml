@@ -249,7 +249,6 @@
         <module>service-locator</module>
         <module>server</module>
         <module>encryption</module>
-        <module>socket</module>
         <module>data-migration</module>
         <module>config-migration</module>
         <module>shared</module>
