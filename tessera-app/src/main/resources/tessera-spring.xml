@@ -18,8 +18,8 @@
                 <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
             </constructor-arg>
             <constructor-arg ref="socketServer"/>
-            <constructor-arg value="2000"/>
-            <constructor-arg value="30000"/>
+            <constructor-arg value="2"/>
+            <constructor-arg value="5000"/>
         </bean>
     </beans>
     
