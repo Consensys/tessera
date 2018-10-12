@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +60,7 @@ public class TransactionResource {
         amendSendRequest.setTo(sendRequest.getTo());
         
         byte[] decodedPayload = Base64.getDecoder().decode(sendRequest.getPayload());
-        amendSendRequest.setPayload(new String(decodedPayload,StandardCharsets.UTF_8));
+        amendSendRequest.setPayload(decodedPayload);
         
         final SendResponse response = delegate.send(amendSendRequest);
 
@@ -90,7 +89,7 @@ public class TransactionResource {
         SendRequest sendRequest = new SendRequest();
         sendRequest.setFrom(sender);
 
-        sendRequest.setPayload(new String(payload, StandardCharsets.UTF_8));
+        sendRequest.setPayload(payload);
 
         Optional.ofNullable(recipientKeys)
                 .filter(s -> !Objects.equals("", s))
@@ -174,10 +173,10 @@ public class TransactionResource {
 
         ReceiveResponse receiveResponse = delegate.receive(receiveRequest);
 
-        byte[] decodedPayload = Base64.getDecoder().decode(receiveResponse.getPayload());
+        byte[] payload = receiveResponse.getPayload();
 
         return Response.status(Response.Status.OK)
-                .entity(decodedPayload)
+                .entity(payload)
                 .build();
     }
 
@@ -261,7 +260,7 @@ public class TransactionResource {
 
         final MessageHash messageHash = delegate.storePayload(payload);
         LOGGER.debug("Push request generated hash {}", Objects.toString(messageHash));
-
+        //TODO: Return the query url not the string of the messageHAsh
         return Response.status(Response.Status.CREATED)
                 .entity(Objects.toString(messageHash))
                 .build();

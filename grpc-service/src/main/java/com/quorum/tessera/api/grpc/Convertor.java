@@ -1,5 +1,6 @@
 package com.quorum.tessera.api.grpc;
 
+import com.google.protobuf.ByteString;
 import com.quorum.tessera.api.grpc.model.SendResponse;
 import com.quorum.tessera.api.model.DeleteRequest;
 import com.quorum.tessera.api.model.ReceiveRequest;
@@ -40,14 +41,14 @@ public class Convertor {
         com.quorum.tessera.api.model.SendRequest sendRequest = new com.quorum.tessera.api.model.SendRequest();
         sendRequest.setTo(grpcObject.getToList().toArray(new String[0]));
         sendRequest.setFrom(grpcObject.getFrom());
-        sendRequest.setPayload(grpcObject.getPayload());
+        sendRequest.setPayload(grpcObject.getPayload().toByteArray());
         return sendRequest;
     }
 
     public static com.quorum.tessera.api.grpc.model.SendRequest toGrpc(com.quorum.tessera.api.model.SendRequest modelObject) {
         return com.quorum.tessera.api.grpc.model.SendRequest.newBuilder()
                 .setFrom(modelObject.getFrom())
-                .setPayload(modelObject.getPayload())
+                .setPayload(ByteString.copyFrom(modelObject.getPayload()))
                 .addAllTo(Arrays.asList(modelObject.getTo()))
                 .build();
     }

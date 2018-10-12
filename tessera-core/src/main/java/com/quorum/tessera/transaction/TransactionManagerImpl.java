@@ -18,7 +18,6 @@ import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.model.EncryptedTransaction;
 import com.quorum.tessera.util.Base64Decoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -91,7 +90,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         recipientList.addAll(enclave.getForwardingKeys());
 
-        final byte[] payload = sendRequest.getPayload().getBytes(StandardCharsets.UTF_8);
+        final byte[] payload = sendRequest.getPayload();
 
         EncodedPayloadWithRecipients encodedPayloadWithRecipients
                 = enclave.encryptPayload(payload, senderPublicKey, recipientList);
@@ -165,14 +164,17 @@ public class TransactionManagerImpl implements TransactionManager {
                 .map(EncodedPayload::getCipherText)
                 .map(messageHashFactory::createFromCipherText).get();
 
+        
+        byte[] encodedPayloadWithRecipientsBytes = this.payloadEncoder.encode(encodedPayloadWithRecipients);
         final EncryptedTransaction newTransaction = new EncryptedTransaction(
                 transactionHash,
-                this.payloadEncoder.encode(encodedPayloadWithRecipients)
+                encodedPayloadWithRecipientsBytes
         );
 
         this.encryptedTransactionDAO.save(newTransaction);
 
-        LOGGER.info(base64Decoder.encodeToString(transactionHash.getHashBytes()));
+        LOGGER.info("Stored payload with hash {}",transactionHash);
+        
         return transactionHash;
     }
 
@@ -196,7 +198,8 @@ public class TransactionManagerImpl implements TransactionManager {
                 .map(base64Decoder::decode);
 
         final MessageHash hash = new MessageHash(key);
-
+        LOGGER.info("Lookup transaction {}",hash);
+        
         final EncryptedTransaction encryptedTransaction = encryptedTransactionDAO
                 .retrieveByHash(hash)
                 .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
@@ -213,15 +216,14 @@ public class TransactionManagerImpl implements TransactionManager {
 
         byte[] payload = enclave.unencryptTransaction(payloadWithRecipients, recipientKey);
 
-        String encodedPayload = base64Decoder.encodeToString(payload);
-        return new ReceiveResponse(encodedPayload);
+        return new ReceiveResponse(payload);
 
     }
 
     private Optional<PublicKey> searchForRecipientKey(EncryptedTransaction encryptedTransaction) {
         for (final PublicKey potentialMatchingKey : enclave.getPublicKeys()) {
             try {
-                
+
                 final EncodedPayloadWithRecipients payloadWithRecipients
                         = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
                 enclave.unencryptTransaction(payloadWithRecipients, potentialMatchingKey);
@@ -232,7 +234,5 @@ public class TransactionManagerImpl implements TransactionManager {
         }
         return Optional.empty();
     }
-
-
 
 }

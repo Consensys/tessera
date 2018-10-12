@@ -18,6 +18,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.Base64;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -52,7 +53,7 @@ public class ReceiveIT {
         final String sendRequest = Json.createObjectBuilder()
             .add("from", SENDER_KEY)
             .add("to", Json.createArrayBuilder().add(RECIPIENT_ONE))
-            .add("payload", PAYLOAD).build().toString();
+            .add("payload", Base64.getEncoder().encodeToString(PAYLOAD.getBytes())).build().toString();
 
         final Response response = client.target(SERVER_URI)
             .path("/send")
@@ -91,12 +92,13 @@ public class ReceiveIT {
         final Reader reader = new StringReader(result);
         final JsonObject jsonResult = Json.createReader(reader).readObject();
         assertThat(jsonResult).containsKeys("payload");
-        assertThat(jsonResult.getString("payload")).isEqualTo(PAYLOAD);
+        assertThat(jsonResult.getString("payload"))
+                .isEqualTo(PAYLOAD);
 
     }
 
     @Test
-    public void fetchExistingTransactionUsingRecipientKey() {
+    public void fetchExistingTransactionUsingRecipientKey() throws Exception {
 
         final Response response = client.target(SERVER_URI)
             .path(RECEIVE_PATH + "/" + this.encodedHash)
@@ -114,7 +116,12 @@ public class ReceiveIT {
         final Reader reader = new StringReader(result);
         final JsonObject jsonResult = Json.createReader(reader).readObject();
         assertThat(jsonResult).containsKeys("payload");
-        assertThat(jsonResult.getString("payload")).isEqualTo(PAYLOAD);
+        
+
+        String payloadString = jsonResult.getString("payload");
+       
+        assertThat(payloadString)
+                .isEqualTo(PAYLOAD);
 
     }
 
@@ -136,7 +143,8 @@ public class ReceiveIT {
         final Reader reader = new StringReader(result);
         final JsonObject jsonResult = Json.createReader(reader).readObject();
         assertThat(jsonResult).containsKeys("payload");
-        assertThat(jsonResult.getString("payload")).isEqualTo(PAYLOAD);
+        assertThat(jsonResult.getString("payload"))
+                .isEqualTo(PAYLOAD);
 
     }
 

@@ -86,7 +86,7 @@ public class TransactionResourceTest {
     @Test
     public void receiveRaw() {
 
-        String encodedPayload = Base64.getEncoder().encodeToString("Payload".getBytes());
+        byte[] encodedPayload = Base64.getEncoder().encode("Payload".getBytes());
         ReceiveResponse receiveResponse = new ReceiveResponse(encodedPayload);
 
         when(transactionManager.receive(any(ReceiveRequest.class))).thenReturn(receiveResponse);
@@ -115,7 +115,7 @@ public class TransactionResourceTest {
     public void send() {
 
         SendRequest sendRequest = new SendRequest();
-        sendRequest.setPayload(Base64.getEncoder().encodeToString("PAYLOAD".getBytes()));
+        sendRequest.setPayload(Base64.getEncoder().encode("PAYLOAD".getBytes()));
         
         Response result = transactionResource.send(sendRequest);
         assertThat(result.getStatus()).isEqualTo(200);

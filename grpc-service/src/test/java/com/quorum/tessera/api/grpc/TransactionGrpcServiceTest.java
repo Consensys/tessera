@@ -61,7 +61,7 @@ public class TransactionGrpcServiceTest {
         SendRequest sendRequest = SendRequest.newBuilder()
                 .setFrom("bXlwdWJsaWNrZXk=")
                 .addTo("cmVjaXBpZW50MQ==")
-                .setPayload("Zm9v").build();
+                .setPayload(ByteString.copyFromUtf8("Zm9v")).build();
 
         com.quorum.tessera.api.model.SendResponse r = new com.quorum.tessera.api.model.SendResponse("KEY");
         when(enclaveMediator.send(any())).thenReturn(r);
@@ -79,7 +79,7 @@ public class TransactionGrpcServiceTest {
     public void testSendWithEmptySender() {
         SendRequest sendRequest = SendRequest.newBuilder()
                 .addTo("cmVjaXBpZW50MQ==")
-                .setPayload("Zm9v")
+                .setPayload(ByteString.copyFromUtf8("Zm9v"))
                 .build();
 
         com.quorum.tessera.api.model.SendResponse r = new com.quorum.tessera.api.model.SendResponse("KEY");
@@ -97,7 +97,7 @@ public class TransactionGrpcServiceTest {
     @Test
     public void testReceive() {
 
-        com.quorum.tessera.api.model.ReceiveResponse r = new com.quorum.tessera.api.model.ReceiveResponse("SOME DATA");
+        com.quorum.tessera.api.model.ReceiveResponse r = new com.quorum.tessera.api.model.ReceiveResponse("SOME DATA".getBytes());
 
         
         when(enclaveMediator.receive(any())).thenReturn(r);

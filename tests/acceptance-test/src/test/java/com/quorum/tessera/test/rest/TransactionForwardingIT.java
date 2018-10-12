@@ -17,6 +17,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.Base64;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -58,8 +59,11 @@ public class TransactionForwardingIT {
         final String result = response.readEntity(String.class);
         final Reader reader = new StringReader(result);
         final JsonObject jsonResult = Json.createReader(reader).readObject();
+
         assertThat(jsonResult).containsKeys("payload");
-        assertThat(jsonResult.getString("payload")).isEqualTo("Zm9v");
+
+        assertThat(jsonResult.getString("payload"))
+                .isEqualTo("Zm9v");
 
     }
 
@@ -111,7 +115,7 @@ public class TransactionForwardingIT {
         final String sendRequest = Json.createObjectBuilder()
             .add("from", from)
             .add("to", Json.createArrayBuilder())
-            .add("payload", "Zm9v").build().toString();
+            .add("payload", Base64.getEncoder().encodeToString("Zm9v".getBytes())).build().toString();
 
         
         LOGGER.debug("Sending {} to {}", sendRequest,node);

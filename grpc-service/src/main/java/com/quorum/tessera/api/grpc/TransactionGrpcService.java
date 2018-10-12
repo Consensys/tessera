@@ -66,11 +66,10 @@ public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase 
 
             com.quorum.tessera.api.model.ReceiveResponse receiveResponse = transactionManager.receive(receiveRequest);
 
-            String encodedPayload = receiveResponse.getPayload();
-
+            ByteString payload = ByteString.copyFrom(receiveResponse.getPayload());
             return ReceiveResponse
                     .newBuilder()
-                    .setPayload(encodedPayload)
+                    .setPayload(payload)
                     .build();
         });
 
