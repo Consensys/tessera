@@ -116,7 +116,7 @@ public class TransactionGrpcServiceTest {
         ReceiveResponse response = receiveResponseCaptor.getValue();
 
         assertThat(response).isNotNull();
-        assertThat(response.getPayload()).isEqualTo("SOME DATA");
+        assertThat(response.getPayload().toStringUtf8()).isEqualTo("SOME DATA");
         verify(receiveResponseObserver).onCompleted();
     }
 
