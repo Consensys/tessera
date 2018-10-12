@@ -57,7 +57,7 @@
         </constructor-arg>
         <constructor-arg ref="syncPoller"/>
         <constructor-arg value="60"/>
-        <constructor-arg value="30000"/>
+        <constructor-arg value="5000"/>
     </bean>
     
     <bean id="p2pClientFactory" class="com.quorum.tessera.client.P2pClientFactory" factory-method="newFactory">
@@ -93,7 +93,7 @@
         </constructor-arg>
         <constructor-arg ref="partyInfoPoller"/>
         <constructor-arg value="2000"/>
-        <constructor-arg value="30000"/>
+        <constructor-arg value="5000"/>
     </bean>
 
     <bean name="payloadEncoder" class="com.quorum.tessera.transaction.PayloadEncoderImpl"/>
