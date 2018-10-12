@@ -68,7 +68,7 @@ public class TransactionManagerTest {
         String sender = Base64.getEncoder().encodeToString("SENDER".getBytes());
         String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
         
-        String payload = Base64.getEncoder().encodeToString("PAYLOAD".getBytes());
+        byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
         
         SendRequest sendRequest = new SendRequest();
         sendRequest.setFrom(sender);
@@ -249,9 +249,8 @@ public class TransactionManagerTest {
         
         assertThat(receiveResponse).isNotNull();
         
-        String encodedExpectedOutcome = Base64.getEncoder().encodeToString(expectedOutcome);
         assertThat(receiveResponse.getPayload())
-                .isEqualTo(encodedExpectedOutcome);
+                .isEqualTo(expectedOutcome);
         
         verify(payloadEncoder, times(2)).decodePayloadWithRecipients(any(byte[].class));
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));

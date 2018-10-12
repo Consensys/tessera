@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
+import javax.xml.bind.annotation.XmlMimeType;
 /**
  * Model representation of a JSON body on incoming HTTP requests
  *
@@ -14,10 +14,11 @@ import javax.validation.constraints.Size;
 @ApiModel
 public class SendRequest {
 
+    @XmlMimeType("base64Binary")
     @Size(min = 1)
     @NotNull
     @ApiModelProperty("Encrypted payload to send to other parties.")
-    private String payload;
+    private byte[] payload;
 
     @ApiModelProperty("Sender public key")
     private String from;
@@ -25,11 +26,11 @@ public class SendRequest {
     @ApiModelProperty("Recipient public keys")
     private String[] to;
 
-    public String getPayload() {
+    public byte[] getPayload() {
         return this.payload;
     }
 
-    public void setPayload(final String payload) {
+    public void setPayload(final byte[]  payload) {
         this.payload = payload;
     }
 

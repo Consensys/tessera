@@ -9,7 +9,7 @@ public class ReceiveResponseTest {
     
     @Test
     public void createInstanceWithPayload() {
-        String payload = "HELLOW";
+        byte[] payload = "HELLOW".getBytes();
         ReceiveResponse instance = new ReceiveResponse(payload);
         
         assertThat(instance.getPayload()).isEqualTo(payload);
