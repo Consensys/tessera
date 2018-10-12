@@ -55,7 +55,15 @@ public class TransactionResource {
             @ApiParam(name = "sendRequest", required = true)
             @NotNull @Valid final SendRequest sendRequest) {
 
-        final SendResponse response = delegate.send(sendRequest);
+        //TODO: Hand cranking decoding will be fixed using jaxrs rather than manually
+        SendRequest amendSendRequest = new SendRequest();
+        amendSendRequest.setFrom(sendRequest.getFrom());
+        amendSendRequest.setTo(sendRequest.getTo());
+        
+        byte[] decodedPayload = Base64.getDecoder().decode(sendRequest.getPayload());
+        amendSendRequest.setPayload(new String(decodedPayload,StandardCharsets.UTF_8));
+        
+        final SendResponse response = delegate.send(amendSendRequest);
 
         return Response.status(Response.Status.OK)
                 .type(APPLICATION_JSON)

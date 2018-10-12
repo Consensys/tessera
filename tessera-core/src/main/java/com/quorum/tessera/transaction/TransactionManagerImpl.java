@@ -18,6 +18,7 @@ import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.model.EncryptedTransaction;
 import com.quorum.tessera.util.Base64Decoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -90,7 +91,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         recipientList.addAll(enclave.getForwardingKeys());
 
-        final byte[] payload = base64Decoder.decode(sendRequest.getPayload());
+        final byte[] payload = sendRequest.getPayload().getBytes(StandardCharsets.UTF_8);
 
         EncodedPayloadWithRecipients encodedPayloadWithRecipients
                 = enclave.encryptPayload(payload, senderPublicKey, recipientList);

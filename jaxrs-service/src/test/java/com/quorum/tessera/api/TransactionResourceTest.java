@@ -114,11 +114,13 @@ public class TransactionResourceTest {
     @Test
     public void send() {
 
-        SendRequest sendRequest = mock(SendRequest.class);
+        SendRequest sendRequest = new SendRequest();
+        sendRequest.setPayload(Base64.getEncoder().encodeToString("PAYLOAD".getBytes()));
+        
         Response result = transactionResource.send(sendRequest);
         assertThat(result.getStatus()).isEqualTo(200);
 
-        verify(transactionManager).send(sendRequest);
+        verify(transactionManager).send(any(SendRequest.class));
 
     }
 
