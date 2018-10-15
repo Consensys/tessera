@@ -4,7 +4,7 @@ option java_multiple_files = true;
 option java_package = "com.quorum.tessera.api.grpc.model";
 
 message SendRequest {
-    string payload = 1;
+    bytes payload = 1;
     string from = 2;
     repeated string to = 3;
 }
@@ -19,7 +19,7 @@ message ReceiveRequest {
 }
 
 message ReceiveResponse {
-    string payload = 1;
+    bytes payload = 1;
 }
 
 message DeleteRequest {

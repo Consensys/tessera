@@ -11,16 +11,18 @@ import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import javax.transaction.Transactional;
 
 /**
  * A JPA implementation of {@link EncryptedTransactionDAO}
  */
+@Transactional
 public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EncryptedTransactionDAOImpl.class);
 
     private static final String FIND_HASH_EQUAL
-        = "SELECT et FROM EncryptedTransaction et WHERE et.hash.hashBytes = :hash";
+            = "SELECT et FROM EncryptedTransaction et WHERE et.hash.hashBytes = :hash";
 
     private static final String FIND_ALL = "SELECT et FROM EncryptedTransaction et";
 
@@ -30,10 +32,12 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
     @Override
     public EncryptedTransaction save(final EncryptedTransaction entity) {
         entityManager.persist(entity);
-
-        LOGGER.debug("Persisting entity with hash {} and payload {}",
-            entity.getHash(), Arrays.toString(entity.getEncodedPayload())
-        );
+        LOGGER.info("Stored transaction {}",entity.getHash());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Persisting entity with hash {} and payload {}",
+                    entity.getHash(), Arrays.toString(entity.getEncodedPayload())
+            );
+        }
 
         return entity;
     }
@@ -43,10 +47,10 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
         LOGGER.info("Retrieving payload with hash {}", hash);
 
         return entityManager
-            .createQuery(FIND_HASH_EQUAL, EncryptedTransaction.class)
-            .setParameter("hash", hash.getHashBytes())
-            .getResultStream()
-            .findAny();
+                .createQuery(FIND_HASH_EQUAL, EncryptedTransaction.class)
+                .setParameter("hash", hash.getHashBytes())
+                .getResultStream()
+                .findAny();
     }
 
     @Override
@@ -54,21 +58,20 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
         LOGGER.info("Fetching all EncryptedTransaction database rows");
 
         return entityManager
-            .createQuery(FIND_ALL, EncryptedTransaction.class)
-            .getResultList();
+                .createQuery(FIND_ALL, EncryptedTransaction.class)
+                .getResultList();
     }
-
 
     @Override
     public void delete(final MessageHash hash) {
         LOGGER.info("Deleting transaction with hash {}", hash);
 
         final EncryptedTransaction message = entityManager
-            .createQuery(FIND_HASH_EQUAL, EncryptedTransaction.class)
-            .setParameter("hash", hash.getHashBytes())
-            .getResultStream()
-            .findAny()
-            .orElseThrow(EntityNotFoundException::new);
+                .createQuery(FIND_HASH_EQUAL, EncryptedTransaction.class)
+                .setParameter("hash", hash.getHashBytes())
+                .getResultStream()
+                .findAny()
+                .orElseThrow(EntityNotFoundException::new);
 
         entityManager.remove(message);
     }

@@ -1,16 +1,16 @@
 package com.quorum.tessera.api;
 
+import com.quorum.tessera.api.filter.Logged;
+import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.api.filter.PrivateApi;
 import com.quorum.tessera.api.model.*;
-import com.quorum.tessera.enclave.EnclaveMediator;
-import com.quorum.tessera.enclave.model.MessageHash;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -19,8 +19,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.Objects;
 import java.util.Optional;
-
 import static javax.ws.rs.core.MediaType.*;
+import com.quorum.tessera.enclave.model.MessageHash;
 
 /**
  * Provides endpoints for dealing with transactions, including:
@@ -28,14 +28,15 @@ import static javax.ws.rs.core.MediaType.*;
  * - creating new transactions and distributing them - deleting transactions -
  * fetching transactions - resending old transactions
  */
+@Logged
 @Path("/")
 public class TransactionResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionResource.class);
 
-    private final EnclaveMediator delegate;
+    private final TransactionManager delegate;
 
-    public TransactionResource(EnclaveMediator delegate) {
+    public TransactionResource(TransactionManager delegate) {
         this.delegate = Objects.requireNonNull(delegate);
     }
 
@@ -51,12 +52,20 @@ public class TransactionResource {
     @Produces(APPLICATION_JSON)
     public Response send(
             @ApiParam(name = "sendRequest", required = true)
-            @Valid final SendRequest sendRequest) {
+            @NotNull @Valid final SendRequest sendRequest) {
 
-        final SendResponse response = delegate.send(sendRequest);
+        //TODO: Hand cranking decoding will be fixed using jaxrs rather than manually
+        SendRequest amendSendRequest = new SendRequest();
+        amendSendRequest.setFrom(sendRequest.getFrom());
+        amendSendRequest.setTo(sendRequest.getTo());
+        
+        byte[] decodedPayload = Base64.getDecoder().decode(sendRequest.getPayload());
+        amendSendRequest.setPayload(decodedPayload);
+        
+        final SendResponse response = delegate.send(amendSendRequest);
 
         return Response.status(Response.Status.OK)
-                .header("Content-Type", APPLICATION_JSON)
+                .type(APPLICATION_JSON)
                 .entity(response)
                 .build();
 
@@ -72,11 +81,24 @@ public class TransactionResource {
     @Path("sendraw")
     @Consumes(APPLICATION_OCTET_STREAM)
     @Produces(TEXT_PLAIN)
-    public Response sendRaw(@HeaderParam("c11n-from") final String sender,
+    public Response sendRaw(
+            @HeaderParam("c11n-from") final String sender,
             @HeaderParam("c11n-to") final String recipientKeys,
             @NotNull @Size(min = 1) final byte[] payload) {
 
-        final String encodedKey = delegate.storeAndEncodeKey(sender, recipientKeys, payload);
+        SendRequest sendRequest = new SendRequest();
+        sendRequest.setFrom(sender);
+
+        sendRequest.setPayload(payload);
+
+        Optional.ofNullable(recipientKeys)
+                .filter(s -> !Objects.equals("", s))
+                .map(v -> v.split(","))
+                .ifPresent(sendRequest::setTo);
+
+        final SendResponse sendResponse = delegate.send(sendRequest);
+
+        final String encodedKey = sendResponse.getKey();
 
         LOGGER.debug("Encoded key: {}", encodedKey);
 
@@ -101,17 +123,19 @@ public class TransactionResource {
             @Valid @QueryParam("to") final String toStr
     ) {
 
-        ReceiveResponse response = delegate.receive(hash, toStr);
+        ReceiveRequest receiveRequest = new ReceiveRequest();
+        receiveRequest.setKey(hash);
+        receiveRequest.setTo(toStr);
+        ReceiveResponse response = delegate.receive(receiveRequest);
 
         return Response.status(Response.Status.OK)
-                .header("Content-Type", APPLICATION_JSON)
+                .type(APPLICATION_JSON)
                 .entity(response)
                 .build();
 
     }
 
     @GET
-    @Deprecated
     @PrivateApi
     @Path("/receive")
     @Consumes(APPLICATION_JSON)
@@ -120,7 +144,12 @@ public class TransactionResource {
 
         LOGGER.debug("Received receive request");
 
-        return this.receive(request.getKey(), request.getTo());
+        ReceiveResponse response = delegate.receive(request);
+
+        return Response.status(Response.Status.OK)
+                .type(APPLICATION_JSON)
+                .entity(response)
+                .build();
     }
 
     @ApiOperation(value = "Submit keys to retrieve payload and decrypt it", produces = "Unencrypted payload")
@@ -137,8 +166,14 @@ public class TransactionResource {
             @HeaderParam(value = "c11n-to") String recipientKey) {
 
         LOGGER.debug("Received receiveraw request");
-        
-        byte[] payload = delegate.receiveRaw(hash,recipientKey);
+
+        ReceiveRequest receiveRequest = new ReceiveRequest();
+        receiveRequest.setKey(hash);
+        receiveRequest.setTo(recipientKey);
+
+        ReceiveResponse receiveResponse = delegate.receive(receiveRequest);
+
+        byte[] payload = receiveResponse.getPayload();
 
         return Response.status(Response.Status.OK)
                 .entity(payload)
@@ -161,7 +196,7 @@ public class TransactionResource {
 
         LOGGER.debug("Received deprecated delete request");
 
-        this.deleteKey(deleteRequest.getKey());
+        delegate.delete(deleteRequest);
 
         return Response.status(Response.Status.OK)
                 .entity("Delete successful")
@@ -180,7 +215,9 @@ public class TransactionResource {
 
         LOGGER.debug("Received delete key request");
 
-        delegate.deleteKey(key);
+        DeleteRequest delete = new DeleteRequest();
+        delete.setKey(key);
+        delegate.delete(delete);
 
         return Response.noContent().build();
     }
@@ -199,10 +236,10 @@ public class TransactionResource {
     ) {
 
         LOGGER.debug("Received resend request");
-        
-        Optional<byte[]> o = delegate.resendAndEncode(resendRequest);
+
+        ResendResponse response = delegate.resend(resendRequest);
         Response.ResponseBuilder builder = Response.status(Status.OK);
-        o.ifPresent(builder::entity);
+        response.getPayload().ifPresent(builder::entity);
         return builder.build();
 
     }
@@ -216,14 +253,17 @@ public class TransactionResource {
     @Path("push")
     @Consumes(APPLICATION_OCTET_STREAM)
     public Response push(
-        @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload
+            @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload
     ) {
 
         LOGGER.debug("Received push request");
-        final MessageHash messageHash = delegate.storePayload(payload);
-        LOGGER.debug("Push request generated hash {}", messageHash.toString());
 
-        return Response.status(Response.Status.CREATED).entity(messageHash.toString()).build();
+        final MessageHash messageHash = delegate.storePayload(payload);
+        LOGGER.debug("Push request generated hash {}", Objects.toString(messageHash));
+        //TODO: Return the query url not the string of the messageHAsh
+        return Response.status(Response.Status.CREATED)
+                .entity(Objects.toString(messageHash))
+                .build();
     }
 
 }
