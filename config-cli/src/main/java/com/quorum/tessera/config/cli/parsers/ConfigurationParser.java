@@ -36,7 +36,9 @@ public class ConfigurationParser implements Parser<Config> {
 
         Config config = null;
 
-        if (commandLine.hasOption("configfile")) {
+        final boolean isGeneratingWithKeyVault = commandLine.hasOption("keygen") && commandLine.hasOption("keygenvaulturl");
+
+        if (commandLine.hasOption("configfile") && !isGeneratingWithKeyVault) {
             final Path path = Paths.get(commandLine.getOptionValue("configfile"));
 
             if (!Files.exists(path)) {

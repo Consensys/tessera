@@ -109,7 +109,7 @@ public class DefaultCliAdapterTest {
     }
     
     @Test
-    public void keygen() throws Exception {
+    public void keygenWithConfig() throws Exception {
         
         KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
 
@@ -133,7 +133,7 @@ public class DefaultCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
         assertThat(result.getConfig()).isNotNull();
-        assertThat(result.isSuppressStartup()).isTrue();
+        assertThat(result.isSuppressStartup()).isFalse();
         
         verify(keyGenerator).generate(anyString(), eq(null));
         verifyNoMoreInteractions(keyGenerator);
@@ -344,5 +344,38 @@ public class DefaultCliAdapterTest {
         verifyZeroInteractions(MockKeyGeneratorFactory.getMockKeyGenerator());
         System.setIn(oldIn);
     }
-    
+
+    @Test
+    public void suppressStartupForKeygenOption() throws Exception {
+        final CliResult cliResult = cliDelegate.execute("-keygen");
+
+        assertThat(cliResult.isSuppressStartup()).isTrue();
+    }
+
+    @Test
+    public void allowStartupForKeygenAndConfigfileOptions() throws Exception {
+        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
+        final FilesystemKeyPair keypair = new FilesystemKeyPair(Paths.get(""), Paths.get(""));
+        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keypair);
+
+        final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+
+        final CliResult cliResult = cliDelegate.execute("-keygen", "-configfile", configFile.toString());
+
+        assertThat(cliResult.isSuppressStartup()).isFalse();
+    }
+
+    @Test
+    public void suppressStartupForKeygenAndVaultUrlAndConfigfileOptions() throws Exception {
+        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
+        final FilesystemKeyPair keypair = new FilesystemKeyPair(Paths.get(""), Paths.get(""));
+        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keypair);
+
+        final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        final String vaultUrl = "https://test.vault.azure.net";
+
+        final CliResult cliResult = cliDelegate.execute("-keygen", "-keygenvaulturl", vaultUrl, "-configfile", configFile.toString());
+
+        assertThat(cliResult.isSuppressStartup()).isTrue();
+    }
 }

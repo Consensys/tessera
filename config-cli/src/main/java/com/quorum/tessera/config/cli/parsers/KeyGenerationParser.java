@@ -1,10 +1,12 @@
 package com.quorum.tessera.config.cli.parsers;
 
 import com.quorum.tessera.config.ArgonOptions;
+import com.quorum.tessera.config.KeyVaultConfig;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.key.generation.KeyGeneratorFactory;
+import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import org.apache.commons.cli.CommandLine;
 
 import java.io.IOException;
@@ -21,16 +23,20 @@ import static java.util.Collections.singletonList;
 
 public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
 
-    private final KeyGenerator generator = KeyGeneratorFactory.newFactory().create();
+    private final KeyGeneratorFactory factory = KeyGeneratorFactory.newFactory();
 
     public List<ConfigKeyPair> parse(final CommandLine commandLine) throws IOException {
 
-        final ArgonOptions options = this.argonOptions(commandLine).orElse(null);
+        final ArgonOptions argonOptions = this.argonOptions(commandLine).orElse(null);
+        final KeyVaultConfig keyVaultConfig = this.keyVaultConfig(commandLine).orElse(null);
+        final EnvironmentVariableProvider envProvider = new EnvironmentVariableProvider();
+
+        final KeyGenerator generator = factory.create(keyVaultConfig, envProvider);
 
         if (commandLine.hasOption("keygen")) {
             return this.filenames(commandLine)
                 .stream()
-                .map(name -> generator.generate(name, options))
+                .map(name -> generator.generate(name, argonOptions))
                 .collect(Collectors.toList());
         }
 
@@ -64,6 +70,15 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
 
         return singletonList("");
 
+    }
+
+    private Optional<KeyVaultConfig> keyVaultConfig(CommandLine commandLine) {
+        if(commandLine.hasOption("keygenvaulturl")) {
+            final String vaultUrl = commandLine.getOptionValue("keygenvaulturl");
+
+            return Optional.of(new KeyVaultConfig(vaultUrl));
+        }
+        return Optional.empty();
     }
 
 }

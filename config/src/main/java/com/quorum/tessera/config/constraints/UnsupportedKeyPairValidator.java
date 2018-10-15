@@ -27,6 +27,11 @@ public class UnsupportedKeyPairValidator implements ConstraintValidator<ValidUns
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothInlineKeysRequired.message}")
                 .addConstraintViolation();
         }
+        else if(isIncompleteAzureVaultKeyPair(keyPair)) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAzureKeysRequired.message}")
+                .addConstraintViolation();
+        }
         else if(isIncompleteFilesystemKeyPair(keyPair)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothFilesystemKeysRequired.message}")
@@ -42,6 +47,10 @@ public class UnsupportedKeyPairValidator implements ConstraintValidator<ValidUns
 
     private boolean isIncompleteInlineKeyPair(UnsupportedKeyPair keyPair) {
         return isOnlyOneInputNull(keyPair.getPublicKey(), keyPair.getConfig());
+    }
+
+    private boolean isIncompleteAzureVaultKeyPair(UnsupportedKeyPair keyPair) {
+        return isOnlyOneInputNull(keyPair.getAzureVaultPublicKeyId(), keyPair.getAzureVaultPrivateKeyId());
     }
 
     private boolean isIncompleteFilesystemKeyPair(UnsupportedKeyPair keyPair) {

@@ -38,13 +38,13 @@
             <groupId>com.quorum.tessera</groupId>
             <artifactId>security</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>jaxrs-service</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>grpc-service</artifactId>
@@ -99,7 +99,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
+
     </dependencies>
 
     <build>

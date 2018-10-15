@@ -20,9 +20,9 @@ import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class KeyGeneratorImpl implements KeyGenerator {
+public class FileKeyGenerator implements KeyGenerator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeyGeneratorImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileKeyGenerator.class);
 
     private static final String EMPTY_FILENAME = "";
 
@@ -32,7 +32,7 @@ public class KeyGeneratorImpl implements KeyGenerator {
 
     private final PasswordReader passwordReader;
 
-    public KeyGeneratorImpl(final NaclFacade nacl, final KeyEncryptor keyEncryptor, final PasswordReader passwordReader) {
+    public FileKeyGenerator(final NaclFacade nacl, final KeyEncryptor keyEncryptor, final PasswordReader passwordReader) {
         this.nacl = Objects.requireNonNull(nacl);
         this.keyEncryptor = Objects.requireNonNull(keyEncryptor);
         this.passwordReader = Objects.requireNonNull(passwordReader);
@@ -70,6 +70,8 @@ public class KeyGeneratorImpl implements KeyGenerator {
                 generated.getPrivateKey().toString(),
                 publicKeyBase64,
                 null,
+                null,
+                null,
                 null
             );
 
@@ -86,6 +88,8 @@ public class KeyGeneratorImpl implements KeyGenerator {
                 ),
                 generated.getPrivateKey().toString(),
                 publicKeyBase64,
+                null,
+                null,
                 null,
                 null
             );

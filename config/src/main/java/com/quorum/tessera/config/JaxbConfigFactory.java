@@ -63,13 +63,13 @@ public class JaxbConfigFactory implements ConfigFactory {
 
         }
 
-        if (createdNewPasswordFile) {
+        if(createdNewPasswordFile) {
             //return a new object with the password file set
             return new Config(
                     config.getJdbcConfig(),
                     config.getServerConfig(),
                     config.getPeers(),
-                    new KeyConfiguration(Paths.get("passwords.txt"), null, config.getKeys().getKeyData()),
+                    new KeyConfiguration(Paths.get("passwords.txt"), null, config.getKeys().getKeyData(), config.getKeys().getAzureKeyVaultConfig()),
                     config.getAlwaysSendTo(),
                     config.getUnixSocketFile(),
                     config.isUseWhiteList(),
@@ -84,7 +84,7 @@ public class JaxbConfigFactory implements ConfigFactory {
     //create a file if it doesn't exist and set the permissions to be only
     // read/write for the creator
     private void createFile(final Path fileToMake) throws IOException {
-        if (Files.notExists(fileToMake)) {
+        if(Files.notExists(fileToMake)) {
             Files.createFile(fileToMake);
             Files.setPosixFilePermissions(fileToMake, NEW_PASSWORD_FILE_PERMS);
         }
