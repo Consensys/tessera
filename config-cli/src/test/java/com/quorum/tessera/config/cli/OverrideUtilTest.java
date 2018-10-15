@@ -82,7 +82,30 @@ public class OverrideUtilTest {
                 "useWhiteList",
                 "server.sslConfig.clientTrustCertificates",
                 "server.sslConfig.serverTrustCertificates",
-                "disablePeerDiscovery"
+                "disablePeerDiscovery",
+                "server.thirdPartyAPIConfig.hostName",
+                "server.thirdPartyAPIConfig.sslConfig.serverTrustStore",
+                "server.thirdPartyAPIConfig.sslConfig.generateKeyStoreIfNotExisted",
+                "server.thirdPartyAPIConfig.sslConfig.serverTlsKeyPath",
+                "server.thirdPartyAPIConfig.port",
+                "server.thirdPartyAPIConfig.sslConfig.clientTlsCertificatePath",
+                "server.thirdPartyAPIConfig.sslConfig.clientTrustStore",
+                "server.thirdPartyAPIConfig.enabled",
+                "server.thirdPartyAPIConfig.sslConfig.serverTlsCertificatePath",
+                "server.thirdPartyAPIConfig.sslConfig.serverTrustStorePassword",
+                "server.thirdPartyAPIConfig.sslConfig.clientTrustMode",
+                "server.thirdPartyAPIConfig.sslConfig.knownServersFile",
+                "server.thirdPartyAPIConfig.sslConfig.clientTlsKeyPath",
+                "server.thirdPartyAPIConfig.sslConfig.clientKeyStore",
+                "server.thirdPartyAPIConfig.sslConfig.serverTrustMode",
+                "server.thirdPartyAPIConfig.sslConfig.tls",
+                "server.thirdPartyAPIConfig.sslConfig.serverTrustCertificates",
+                "server.thirdPartyAPIConfig.sslConfig.clientTrustCertificates",
+                "server.thirdPartyAPIConfig.sslConfig.knownClientsFile",
+                "server.thirdPartyAPIConfig.sslConfig.clientKeyStorePassword",
+                "server.thirdPartyAPIConfig.sslConfig.serverKeyStorePassword",
+                "server.thirdPartyAPIConfig.sslConfig.clientTrustStorePassword",
+                "server.thirdPartyAPIConfig.sslConfig.serverKeyStore"
         );
 
         final Map<String, Class> results = OverrideUtil.buildConfigOptions();

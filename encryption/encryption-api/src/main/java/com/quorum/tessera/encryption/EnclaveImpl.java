@@ -44,8 +44,23 @@ public class EnclaveImpl implements Enclave {
 
     }
 
-    
-    
+    @Override
+    public RawTransaction encryptRawPayload(byte[] message, PublicKey sender) {
+        final MasterKey masterKey = nacl.createMasterKey();
+        final Nonce nonce = nacl.randomNonce();
+
+        final byte[] cipherText = nacl.sealAfterPrecomputation(message, nonce, masterKey);
+
+        final PrivateKey privateKey = keyManager.getPrivateKeyForPublicKey(sender);
+
+        // TODO NL - check if it makes sense to compute a shared key from the public and private parts of the same key
+        SharedKey sharedKey = nacl.computeSharedKey(sender, privateKey);
+        final byte[] encryptedMasterKey = nacl.sealAfterPrecomputation(masterKey.getKeyBytes(), nonce, sharedKey);
+
+        return new RawTransaction(cipherText, encryptedMasterKey, nonce, sender);
+    }
+
+
     @Override
     public byte[] unencryptTransaction(EncodedPayloadWithRecipients payloadWithRecipients, final PublicKey providedSenderKey) {
 

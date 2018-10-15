@@ -1,7 +1,6 @@
-package com.quorum.tessera.api;
+package com.quorum.tessera.thridparty;
 
-import com.quorum.tessera.api.filter.GlobalFilter;
-import com.quorum.tessera.config.appmarkers.TesseraAPP;
+import com.quorum.tessera.config.appmarkers.ThirdPartyAPP;
 import com.quorum.tessera.service.locator.ServiceLocator;
 
 import javax.ws.rs.ApplicationPath;
@@ -14,15 +13,14 @@ import java.util.stream.Collectors;
  * The main application that is submitted to the HTTP server
  * Contains all the service classes created by the service locator
  */
-@GlobalFilter
 @ApplicationPath("/")
-public class Tessera extends Application implements TesseraAPP {
+public class ThirdParty extends Application implements ThirdPartyAPP {
 
     private final ServiceLocator serviceLocator;
 
     private final String contextName;
-        
-    public Tessera(final ServiceLocator serviceLocator, final String contextName) {
+
+    public ThirdParty(final ServiceLocator serviceLocator, final String contextName) {
         this.serviceLocator = Objects.requireNonNull(serviceLocator);
         this.contextName = Objects.requireNonNull(contextName);
     }

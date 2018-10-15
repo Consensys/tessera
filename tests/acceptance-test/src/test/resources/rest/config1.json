@@ -7,7 +7,12 @@
     },
     "server": {
         "port": 8080,
-        "hostName": "http://localhost"
+        "hostName": "http://localhost",
+        "thirdPartyAPIConfig": {
+            "enabled": true,
+            "port": 8090,
+            "hostName": "http://localhost"
+        }
     },
     "peer": [
         {
