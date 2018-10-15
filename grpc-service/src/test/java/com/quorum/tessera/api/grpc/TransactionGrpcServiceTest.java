@@ -1,7 +1,7 @@
 package com.quorum.tessera.api.grpc;
 
 import com.google.protobuf.ByteString;
-import com.quorum.tessera.enclave.EnclaveMediator;
+import com.quorum.tessera.transaction.TransactionManagerImpl;
 import com.quorum.tessera.api.grpc.model.*;
 import io.grpc.stub.StreamObserver;
 import java.util.Base64;
@@ -35,7 +35,7 @@ public class TransactionGrpcServiceTest {
     private StreamObserver<ResendResponse> resendResponseObserver;
 
     @Mock
-    private EnclaveMediator enclaveMediator;
+    private TransactionManagerImpl enclaveMediator;
 
     private TransactionGrpcService service;
 
@@ -61,7 +61,7 @@ public class TransactionGrpcServiceTest {
         SendRequest sendRequest = SendRequest.newBuilder()
                 .setFrom("bXlwdWJsaWNrZXk=")
                 .addTo("cmVjaXBpZW50MQ==")
-                .setPayload("Zm9v").build();
+                .setPayload(ByteString.copyFromUtf8("Zm9v")).build();
 
         com.quorum.tessera.api.model.SendResponse r = new com.quorum.tessera.api.model.SendResponse("KEY");
         when(enclaveMediator.send(any())).thenReturn(r);
@@ -79,7 +79,7 @@ public class TransactionGrpcServiceTest {
     public void testSendWithEmptySender() {
         SendRequest sendRequest = SendRequest.newBuilder()
                 .addTo("cmVjaXBpZW50MQ==")
-                .setPayload("Zm9v")
+                .setPayload(ByteString.copyFromUtf8("Zm9v"))
                 .build();
 
         com.quorum.tessera.api.model.SendResponse r = new com.quorum.tessera.api.model.SendResponse("KEY");
@@ -97,7 +97,10 @@ public class TransactionGrpcServiceTest {
     @Test
     public void testReceive() {
 
-        when(enclaveMediator.receiveAndEncode(any())).thenReturn("SOME DATA");
+        com.quorum.tessera.api.model.ReceiveResponse r = new com.quorum.tessera.api.model.ReceiveResponse("SOME DATA".getBytes());
+
+        
+        when(enclaveMediator.receive(any())).thenReturn(r);
 
         ReceiveRequest request = ReceiveRequest.newBuilder()
                 .setTo("cmVjaXBpZW50MQ==")
@@ -106,14 +109,14 @@ public class TransactionGrpcServiceTest {
 
         service.receive(request, receiveResponseObserver);
 
-        verify(enclaveMediator).receiveAndEncode(any());
+        verify(enclaveMediator).receive(any());
 
         ArgumentCaptor<ReceiveResponse> receiveResponseCaptor = ArgumentCaptor.forClass(ReceiveResponse.class);
         verify(receiveResponseObserver).onNext(receiveResponseCaptor.capture());
         ReceiveResponse response = receiveResponseCaptor.getValue();
 
         assertThat(response).isNotNull();
-        assertThat(response.getPayload()).isEqualTo("SOME DATA");
+        assertThat(response.getPayload().toStringUtf8()).isEqualTo("SOME DATA");
         verify(receiveResponseObserver).onCompleted();
     }
 
@@ -179,11 +182,13 @@ public class TransactionGrpcServiceTest {
                 .setKey("mykey")
                 .build();
 
-        when(enclaveMediator.resendAndEncode(any())).thenReturn(Optional.empty());
+        com.quorum.tessera.api.model.ResendResponse resendResponse = mock(com.quorum.tessera.api.model.ResendResponse.class);
+        when(resendResponse.getPayload()).thenReturn(Optional.empty());
+        when(enclaveMediator.resend(any())).thenReturn(resendResponse);
 
         service.resend(request, resendResponseObserver);
 
-        verify(enclaveMediator).resendAndEncode(any());
+        verify(enclaveMediator).resend(any());
 
         verify(resendResponseObserver).onNext(any());
         verify(resendResponseObserver).onCompleted();

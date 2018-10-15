@@ -1,12 +1,14 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.transaction.model.EncodedPayload;
-import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
+import com.quorum.tessera.encryption.EncodedPayload;
+import com.quorum.tessera.encryption.EncodedPayloadWithRecipients;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.util.BinaryEncoder;
-import com.quorum.tessera.nacl.Key;
 import com.quorum.tessera.nacl.Nonce;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -60,7 +62,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         buffer.get(recipientNonce);
 
         return new EncodedPayload(
-                new Key(senderKey),
+                PublicKey.from(senderKey),
                 cipherText,
                 new Nonce(nonce),
                 recipientBoxes,
@@ -75,7 +77,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         final List<byte[]> keysAsBytes = encodedPayloadWithRecipients
                 .getRecipientKeys()
                 .stream()
-                .map(Key::getKeyBytes)
+                .map(PublicKey::getKeyBytes)
                 .collect(toList());
 
         final byte[] recipientBytes = encodeArray(keysAsBytes);
@@ -118,7 +120,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         buffer.get(recipientNonce);
 
         EncodedPayload payload = new EncodedPayload(
-                new Key(senderKey),
+                PublicKey.from(senderKey),
                 cipherText,
                 new Nonce(nonce),
                 recipientBoxes,
@@ -137,7 +139,33 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
 
         return new EncodedPayloadWithRecipients(
                 payload,
-                recipientKeys.stream().map(Key::new).collect(toList())
+                recipientKeys.stream()
+                        .map(PublicKey::from)
+                        .collect(toList())
+        );
+    }
+
+    @Override
+    public EncodedPayloadWithRecipients decodePayloadWithRecipients(byte[] input, PublicKey recipient) {
+        EncodedPayloadWithRecipients payloadWithRecipients = decodePayloadWithRecipients(input);
+        final EncodedPayload encodedPayload = payloadWithRecipients.getEncodedPayload();
+
+        if (!payloadWithRecipients.getRecipientKeys().isEmpty() && !payloadWithRecipients.getRecipientKeys().contains(recipient)) {
+            throw new InvalidRecipientException("Recipient " + recipient.encodeToBase64() + " is not a recipient of transaction ");
+        }
+
+        final int recipientIndex = payloadWithRecipients.getRecipientKeys().indexOf(recipient);
+        final byte[] recipientBox = encodedPayload.getRecipientBoxes().get(recipientIndex);
+
+        return new EncodedPayloadWithRecipients(
+                new EncodedPayload(
+                        encodedPayload.getSenderKey(),
+                        encodedPayload.getCipherText(),
+                        encodedPayload.getCipherTextNonce(),
+                        singletonList(recipientBox),
+                        encodedPayload.getRecipientNonce()
+                ),
+                emptyList()
         );
     }
 
