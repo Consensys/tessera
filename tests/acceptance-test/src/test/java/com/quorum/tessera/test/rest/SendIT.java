@@ -15,29 +15,26 @@ import javax.ws.rs.core.UriBuilder;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
-
+import java.util.Base64;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Scenarios tested:
  * <p>
- * - 1 sender, 1 private for
- * - 1 sender, 2 private for
- * - TODO: 1 sender, 2 private for, 1 is down
- * - 0 sender, 1 private for
- * - 1 sender, 0 private for
- * - no payload
- * - sending when it isn't json
- * - sending to an unknown recipient
- * - TODO: send using an unknown sender key
+ * - 1 sender, 1 private for - 1 sender, 2 private for - TODO: 1 sender, 2
+ * private for, 1 is down - 0 sender, 1 private for - 1 sender, 0 private for -
+ * no payload - sending when it isn't json - sending to an unknown recipient -
+ * TODO: send using an unknown sender key
  */
 public class SendIT {
-
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(SendIT.class);
 
     public static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
 
     private static final String SEND_PATH = "/send";
+
+    private static final String PAYLOAD = Base64.getEncoder().encodeToString("Zm9v".getBytes());
 
     private final Client client = ClientBuilder.newClient();
 
@@ -48,19 +45,19 @@ public class SendIT {
     public void sendToSingleRecipient() {
 
         final String sendRequest = Json.createObjectBuilder()
-            .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-            .add("to", Json.createArrayBuilder().add("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0="))
-            .add("payload", "Zm9v").build().toString();
+                .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+                .add("to", Json.createArrayBuilder().add("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0="))
+                .add("payload", PAYLOAD)
+                .build().toString();
 
         LOGGER.info("sendRequest: {}", sendRequest);
 
         final Response response = client.target(SERVER_URI)
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
-
         final String result = response.readEntity(String.class);
         final Reader reader = new StringReader(result);
         final JsonObject jsonResult = Json.createReader(reader).readObject();
@@ -68,7 +65,6 @@ public class SendIT {
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
-
     }
 
     /**
@@ -77,22 +73,21 @@ public class SendIT {
     @Test
     public void sendSingleTransactionToMultipleParties() {
         final String sendRequest = Json.createObjectBuilder()
-            .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-            .add("to", Json.createArrayBuilder()
-                .add("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
-                .add("giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=")
-            )
-            .add("payload", "Zm9v").build().toString();
+                .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+                .add("to", Json.createArrayBuilder()
+                        .add("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
+                        .add("giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=")
+                )
+                .add("payload", PAYLOAD).build().toString();
 
         LOGGER.info("sendRequest: {}", sendRequest);
 
         final Response response = client.target(SERVER_URI)
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
-
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
 
@@ -106,18 +101,17 @@ public class SendIT {
     public void sendTransactionWithoutASender() {
 
         final String sendRequest = Json.createObjectBuilder()
-            .add("to", Json.createArrayBuilder().add("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0="))
-            .add("payload", "Zm9v").build().toString();
+                .add("to", Json.createArrayBuilder().add("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0="))
+                .add("payload", PAYLOAD).build().toString();
 
         LOGGER.info("sendRequest: {}", sendRequest);
 
         final Response response = client.target(SERVER_URI)
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
-
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
 
@@ -130,26 +124,25 @@ public class SendIT {
 
 //        final String b64Hash = jsonResult.getString("key");
         //TODO: add retrieving the transaction and checking if the default sender was added
-
     }
 
     @Test
     public void sendTransactionWithEmptyRecipients() {
 
         final String sendRequest = Json.createObjectBuilder()
-            .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-            .add("to", Json.createArrayBuilder())
-            .add("payload", "Zm9v").build().toString();
+                .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+                .add("to", Json.createArrayBuilder())
+                .add("payload", PAYLOAD)
+                .build().toString();
 
         LOGGER.info("sendRequest: {}", sendRequest);
 
         final Response response = client.target(SERVER_URI)
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
-
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
 
@@ -165,18 +158,18 @@ public class SendIT {
     public void sendTransactionWithMissingRecipients() {
 
         final String sendRequest = Json.createObjectBuilder()
-            .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-            .add("payload", "Zm9v").build().toString();
+                .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+                .add("payload", PAYLOAD)
+                .build().toString();
 
         LOGGER.info("sendRequest: {}", sendRequest);
 
         final Response response = client.target(SERVER_URI)
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
-
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
 
@@ -193,19 +186,18 @@ public class SendIT {
     public void missingPayloadFails() {
 
         final String sendRequest = Json.createObjectBuilder()
-            .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-            .add("to", Json.createArrayBuilder().add("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0="))
-            .build().toString();
+                .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+                .add("to", Json.createArrayBuilder().add("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0="))
+                .build().toString();
 
         LOGGER.info("sendRequest: {}", sendRequest);
 
         final Response response = client.target(SERVER_URI)
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
-
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(400);
     }
@@ -218,12 +210,11 @@ public class SendIT {
         LOGGER.info("sendRequest: {}", sendRequest);
 
         final Response response = client.target(SERVER_URI)
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
-
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(400);
     }
@@ -235,16 +226,17 @@ public class SendIT {
     public void sendUnknownPublicKey() {
 
         final String sendRequest = Json.createObjectBuilder()
-            .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-            .add("to", Json.createArrayBuilder().add("8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0="))
-            .add("payload", "Zm9v").build().toString();
+                .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+                .add("to", Json.createArrayBuilder().add("8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0="))
+                .add("payload", PAYLOAD)
+                .build().toString();
 
         LOGGER.info("sendRequest: {}", sendRequest);
 
         final Response response = client.target(SERVER_URI)
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(400);
@@ -253,20 +245,21 @@ public class SendIT {
     /**
      * Quorum sends transaction with unknown public key
      */
-   // @Test
+    // @Test
     public void sendToDeadNode() {
 
         final String sendRequest = Json.createObjectBuilder()
-            .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-            .add("to", Json.createArrayBuilder().add("Tj8xg/HpsYmh7Te3UerzlLx1HgpWVOGq25ZgbwaPNVM="))
-            .add("payload", "Zm9v").build().toString();
+                .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+                .add("to", Json.createArrayBuilder().add("Tj8xg/HpsYmh7Te3UerzlLx1HgpWVOGq25ZgbwaPNVM="))
+                .add("payload", PAYLOAD)
+                .build().toString();
 
         LOGGER.info("sendRequest: {}", sendRequest);
 
         final Response response = client.target(SERVER_URI)
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(500);

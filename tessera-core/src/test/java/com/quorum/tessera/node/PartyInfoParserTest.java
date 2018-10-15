@@ -1,6 +1,6 @@
 package com.quorum.tessera.node;
 
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
@@ -90,8 +90,8 @@ public class PartyInfoParserTest {
 
     }
 
-    private Key toKey(final String b64) {
-        return new Key(Base64.getDecoder().decode(b64));
+    private PublicKey toKey(final String b64) {
+        return PublicKey.from(Base64.getDecoder().decode(b64));
     }
 
     @Test

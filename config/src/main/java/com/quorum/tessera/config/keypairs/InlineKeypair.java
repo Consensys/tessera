@@ -12,6 +12,7 @@ import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlElement;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
+import com.quorum.tessera.encryption.PrivateKey;
 
 @ValidInlineKeypair
 public class InlineKeypair implements ConfigKeyPair {
@@ -50,7 +51,8 @@ public class InlineKeypair implements ConfigKeyPair {
             return privateKeyConfig.getValue();
         } else {
             try {
-                return KeyEncryptorFactory.create().decryptPrivateKey(pkd, password).toString();
+                PrivateKey privateKey = KeyEncryptorFactory.create().decryptPrivateKey(pkd, password);
+                return privateKey.encodeToBase64();
             } catch (final NaclException ex) {
                 return "NACL_FAILURE";
             }

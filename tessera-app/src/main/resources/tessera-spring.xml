@@ -19,6 +19,7 @@
             </constructor-arg>
             <constructor-arg ref="socketServer"/>
             <constructor-arg value="2"/>
+            <constructor-arg value="5000"/>
         </bean>
     </beans>
     

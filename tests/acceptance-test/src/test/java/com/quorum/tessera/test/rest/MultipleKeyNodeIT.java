@@ -15,6 +15,7 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -85,7 +86,7 @@ public class MultipleKeyNodeIT {
         final String sendRequest = Json.createObjectBuilder()
             .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
             .add("to", Json.createArrayBuilder().add(recipientPublicKey))
-            .add("payload", "Zm9v").build().toString();
+            .add("payload", Base64.getEncoder().encodeToString("Zm9v".getBytes())).build().toString();
 
         final Response response = this.client.target(SEND_SERVER_URI)
             .path("/send")

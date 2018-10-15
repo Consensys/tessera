@@ -1,6 +1,6 @@
 package com.quorum.tessera.api.exception;
 
-import com.quorum.tessera.key.exception.KeyNotFoundException;
+import com.quorum.tessera.encryption.KeyNotFoundException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,8 +15,6 @@ public class KeyNotFoundExceptionMapperTest {
 
     public KeyNotFoundExceptionMapperTest() {
     }
-
-
 
     @Before
     public void setUp() {

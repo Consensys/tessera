@@ -6,7 +6,7 @@ import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.io.IOCallback;
-import com.quorum.tessera.nacl.KeyPair;
+import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,10 +76,12 @@ public class KeyGeneratorImpl implements KeyGenerator {
             LOGGER.info("Newly generated private key has been encrypted");
 
         } else {
-
+            
+            String keyData = Base64.getEncoder().encodeToString(generated.getPrivateKey().getKeyBytes());
+            
             finalKeys = new KeyData(
                 new KeyDataConfig(
-                    new PrivateKeyData(generated.getPrivateKey().toString(), null, null, null, null, null),
+                    new PrivateKeyData(keyData, null, null, null, null, null),
                     PrivateKeyType.UNLOCKED
                 ),
                 generated.getPrivateKey().toString(),
