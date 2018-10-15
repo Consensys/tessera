@@ -141,9 +141,13 @@
         <constructor-arg ref="azureKeyVaultClientDelegate"/>
     </bean>
 
+    <bean name="keyPairConverter" class="com.quorum.tessera.config.keypairs.KeyPairConverter">
+        <constructor-arg ref="azureKeyVaultService"/>
+    </bean>
+
     <bean name="keyManager" class="com.quorum.tessera.encryption.KeyManagerImpl">
         <constructor-arg>
-            <bean class="com.quorum.tessera.config.keypairs.KeyPairConvertor" factory-method="convert">
+            <bean factory-bean="keyPairConverter" factory-method="convert">
                 <constructor-arg>
                     <bean factory-bean="keyConfig" factory-method="getKeyData"/>
                 </constructor-arg>
@@ -154,11 +158,6 @@
                 <constructor-arg>
                     <bean factory-bean="config" factory-method="getAlwaysSendTo" />
                 </constructor-arg>
-            </bean>
-        </constructor-arg>
-        <constructor-arg>
-            <bean class="com.quorum.tessera.key.KeyPairFactory">
-                <constructor-arg ref="azureKeyVaultService"/>
             </bean>
         </constructor-arg>
     </bean>

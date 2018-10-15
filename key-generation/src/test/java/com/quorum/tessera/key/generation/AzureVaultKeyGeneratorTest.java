@@ -3,9 +3,10 @@ package com.quorum.tessera.key.generation;
 import com.microsoft.azure.keyvault.models.SecretBundle;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
+import com.quorum.tessera.encryption.KeyPair;
+import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.key.vault.KeyVaultService;
-import com.quorum.tessera.nacl.Key;
-import com.quorum.tessera.nacl.KeyPair;
 import com.quorum.tessera.nacl.NaclFacade;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,8 +21,8 @@ public class AzureVaultKeyGeneratorTest {
 
     private final String pubStr = "public";
     private final String privStr = "private";
-    private final Key pub = new Key(pubStr.getBytes());
-    private final Key priv = new Key(privStr.getBytes());
+    private final PublicKey pub = PublicKey.from(pubStr.getBytes());
+    private final PrivateKey priv = PrivateKey.from(privStr.getBytes());
 
     private NaclFacade naclFacade;
     private KeyVaultService keyVaultService;
@@ -49,8 +50,8 @@ public class AzureVaultKeyGeneratorTest {
         final AzureVaultKeyPair result = azureVaultKeyGenerator.generate(vaultId, null);
 
         verify(keyVaultService, times(2)).setSecret(any(String.class), any(String.class));
-        verify(keyVaultService, times(1)).setSecret(vaultId + "Pub", pub.getKeyAsString());
-        verify(keyVaultService, times(1)).setSecret(vaultId + "Key", priv.getKeyAsString());
+        verify(keyVaultService, times(1)).setSecret(vaultId + "Pub", pub.encodeToBase64());
+        verify(keyVaultService, times(1)).setSecret(vaultId + "Key", priv.encodeToBase64());
         verifyNoMoreInteractions(keyVaultService);
 
         final AzureVaultKeyPair expected = new AzureVaultKeyPair(pubVaultId, privVaultId);
@@ -64,7 +65,7 @@ public class AzureVaultKeyGeneratorTest {
 
         azureVaultKeyGenerator.generate(vaultId, null);
 
-        verify(keyVaultService, times(1)).setSecret(vaultId + "Pub", pub.getKeyAsString());
+        verify(keyVaultService, times(1)).setSecret(vaultId + "Pub", pub.encodeToBase64());
     }
 
     @Test
@@ -73,7 +74,7 @@ public class AzureVaultKeyGeneratorTest {
 
         azureVaultKeyGenerator.generate(vaultId, null);
 
-        verify(keyVaultService, times(1)).setSecret(vaultId + "Key", priv.getKeyAsString());
+        verify(keyVaultService, times(1)).setSecret(vaultId + "Key", priv.encodeToBase64());
     }
 
     @Test
@@ -83,16 +84,16 @@ public class AzureVaultKeyGeneratorTest {
 
         azureVaultKeyGenerator.generate(path, null);
 
-        verify(keyVaultService, times(1)).setSecret(vaultId + "Pub", pub.getKeyAsString());
-        verify(keyVaultService, times(1)).setSecret(vaultId + "Key", priv.getKeyAsString());
+        verify(keyVaultService, times(1)).setSecret(vaultId + "Pub", pub.encodeToBase64());
+        verify(keyVaultService, times(1)).setSecret(vaultId + "Key", priv.encodeToBase64());
     }
 
     @Test
     public void ifNoVaultIdProvidedThenSuffixOnlyIsUsed() {
         azureVaultKeyGenerator.generate(null, null);
 
-        verify(keyVaultService, times(1)).setSecret("Pub", pub.getKeyAsString());
-        verify(keyVaultService, times(1)).setSecret("Key", priv.getKeyAsString());
+        verify(keyVaultService, times(1)).setSecret("Pub", pub.encodeToBase64());
+        verify(keyVaultService, times(1)).setSecret("Key", priv.encodeToBase64());
     }
 
     @Test

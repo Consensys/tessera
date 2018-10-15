@@ -10,8 +10,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class KeyManagerTest {
 
@@ -23,23 +21,18 @@ public class KeyManagerTest {
 
     private KeyManager keyManager;
 
-    private KeyPairFactory keyPairFactory;
-
     @Before
     public void init() {
 
         final KeyPair configKeyPair = new KeyPair(PUBLIC_KEY, PRIVATE_KEY);
 
-        this.keyPairFactory = mock(KeyPairFactory.class);
-        when(keyPairFactory.getKeyPair(configKeyPair)).thenReturn(new KeyPair(PUBLIC_KEY, PRIVATE_KEY));
-
-        this.keyManager = new KeyManagerImpl(singleton(configKeyPair), singleton(FORWARDING_KEY), keyPairFactory);
+        this.keyManager = new KeyManagerImpl(singleton(configKeyPair), singleton(FORWARDING_KEY));
     }
 
     @Test
     public void initialisedWithNoKeysThrowsError() {
         //throws error because there is no default key
-        final Throwable throwable = catchThrowable(() -> new KeyManagerImpl(emptyList(), emptyList(), keyPairFactory));
+        final Throwable throwable = catchThrowable(() -> new KeyManagerImpl(emptyList(), emptyList()));
 
         assertThat(throwable).isInstanceOf(NoSuchElementException.class);
     }
