@@ -1,12 +1,9 @@
 package com.quorum.tessera.config.migration;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.migration.test.FixtureUtil;
 import com.quorum.tessera.test.util.ElUtil;
-import org.junit.Before;
 import org.junit.Test;
 
-import javax.json.JsonObject;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,12 +18,7 @@ import static org.mockito.Mockito.mock;
 
 public class TomlConfigFactoryTest {
 
-    private TomlConfigFactory tomlConfigFactory;
-
-    @Before
-    public void onSetup() {
-        tomlConfigFactory = new TomlConfigFactory();
-    }
+    private TomlConfigFactory tomlConfigFactory = new TomlConfigFactory();
 
     @Test
     public void createConfigFromSampleFile() throws IOException {
@@ -145,66 +137,6 @@ public class TomlConfigFactoryTest {
         InputStream configData = mock(InputStream.class);
 
         tomlConfigFactory.create(configData, null, "testKey");
-    }
-
-    @Test
-    public void createPrivateKeyData() throws Exception {
-
-        JsonObject keyDataConfigJson = FixtureUtil.createLockedPrivateKey();
-
-        Path privateKeyPath = Files.createTempFile("createPrivateKeyData", ".txt");
-        Files.write(privateKeyPath, keyDataConfigJson.toString().getBytes());
-
-        List<KeyDataConfig> result = TomlConfigFactory
-            .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
-
-        assertThat(result).hasSize(1);
-
-        KeyDataConfig keyConfig = result.get(0);
-
-        assertThat(keyConfig.getType()).isEqualTo(PrivateKeyType.LOCKED);
-
-        JsonObject privateKeyData = keyDataConfigJson.getJsonObject("data");
-
-        PrivateKeyData key = keyConfig.getPrivateKeyData();
-
-        assertThat(key.getPassword()).isEqualTo("Secret");
-        assertThat(key.getAsalt()).isEqualTo(privateKeyData.getString("asalt"));
-        assertThat(key.getSbox()).isEqualTo(privateKeyData.getString("sbox"));
-        assertThat(key.getSnonce()).isEqualTo(privateKeyData.getString("snonce"));
-
-        assertThat(key.getArgonOptions()).isNotNull();
-
-        JsonObject argonOptions = privateKeyData.getJsonObject("aopts");
-
-        assertThat(key.getArgonOptions().getIterations()).isEqualTo(argonOptions.getInt("iterations"));
-        assertThat(key.getArgonOptions().getMemory()).isEqualTo(argonOptions.getInt("memory"));
-        assertThat(key.getArgonOptions().getParallelism()).isEqualTo(argonOptions.getInt("parallelism"));
-        assertThat(key.getArgonOptions().getAlgorithm()).isEqualTo(argonOptions.getString("variant"));
-
-        Files.deleteIfExists(privateKeyPath);
-
-    }
-
-    @Test
-    public void createUnlockedPrivateKeyData() throws Exception {
-
-        JsonObject keyDataConfigJson = FixtureUtil.createUnlockedPrivateKey();
-
-        Path privateKeyPath = Files.createTempFile("createUnlockedPrivateKeyData", ".txt");
-        Files.write(privateKeyPath, keyDataConfigJson.toString().getBytes());
-
-        List<KeyDataConfig> result = TomlConfigFactory
-            .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
-
-        assertThat(result).hasSize(1);
-
-        KeyDataConfig keyConfig = result.get(0);
-
-        assertThat(keyConfig.getType()).isEqualTo(PrivateKeyType.UNLOCKED);
-
-        Files.deleteIfExists(privateKeyPath);
-
     }
 
     @Test
