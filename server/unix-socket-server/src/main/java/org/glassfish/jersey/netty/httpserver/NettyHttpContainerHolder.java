@@ -24,15 +24,13 @@ public class NettyHttpContainerHolder {
 
     private final NettyHttpContainer container;
 
-    private final GenericFutureListener<? extends Future<? super Void>> containerShutdownFuture;
-
-    private final ChannelInitializer<DomainSocketChannel> initializer;
-
     public NettyHttpContainerHolder(final ResourceConfig configuration) {
 
         this.container = new NettyHttpContainer(configuration);
+    }
 
-        this.initializer = new ChannelInitializer<DomainSocketChannel>() {
+    public ChannelInitializer<DomainSocketChannel> getChannelInitializer() {
+        return new ChannelInitializer<DomainSocketChannel>() {
             @Override
             protected void initChannel(final DomainSocketChannel ch) {
                 ch.pipeline().addLast(new HttpServerCodec());
@@ -40,17 +38,10 @@ public class NettyHttpContainerHolder {
                 ch.pipeline().addLast(new JerseyServerHandler(URI, container));
             }
         };
-
-        this.containerShutdownFuture = future -> container.getApplicationHandler().onShutdown(container);
-
-    }
-
-    public ChannelInitializer<DomainSocketChannel> getChannelInitializer() {
-        return this.initializer;
     }
 
     public GenericFutureListener<? extends Future<? super Void>> getContainerShutdownFuture() {
-         return this.containerShutdownFuture;
+         return future -> container.getApplicationHandler().onShutdown(container);
     }
 
 }
