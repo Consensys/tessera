@@ -20,8 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.ws.rs.core.Application;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,21 +31,13 @@ public class UnixSocketServer implements TesseraServer  {
 
     private final ResourceConfig resourceConfig;
 
-    private URI uri;
-
     private Channel unixSocketServer;
 
     public UnixSocketServer(final Config config, final Application application) {
+
         this.unixSocketAddress = new DomainSocketAddress(config.getUnixSocketFile().toFile());
 
-        try {
-            this.uri = new URI("unixsocket");
-        } catch (final URISyntaxException ex) {
-            LOGGER.error("Unable to ensure that the server URI ends with /");
-            throw new RuntimeException(ex);
-        }
-
-        /////
+        //Install the correct handlers (logback instead of jul)
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
 
@@ -61,6 +51,7 @@ public class UnixSocketServer implements TesseraServer  {
         initParams.put("jersey.config.server.monitoring.statistics.enabled", "true");
         initParams.put("jersey.config.server.monitoring.enabled", "true");
         initParams.put("jersey.config.server.monitoring.statistics.mbeans.enabled", "true");
+
         this.resourceConfig = ResourceConfig.forApplication(application);
         this.resourceConfig.addProperties(initParams);
     }
@@ -68,24 +59,25 @@ public class UnixSocketServer implements TesseraServer  {
     @Override
     public void start() throws InterruptedException {
 
-        if (null != this.unixSocketAddress) {
+        LOGGER.info("Starting the Unix Domain Socket server");
 
-            if(Epoll.isAvailable()) {
-                this.unixSocketServer = this.createChannel(
-                    EpollServerDomainSocketChannel.class, new EpollEventLoopGroup(), new EpollEventLoopGroup()
-                );
-            } else if (KQueue.isAvailable()) {
-                this.unixSocketServer = this.createChannel(
-                    KQueueServerDomainSocketChannel.class, new KQueueEventLoopGroup(), new KQueueEventLoopGroup()
-                );
-            }
-
+        if(Epoll.isAvailable()) {
+            LOGGER.debug("On Linux - using Epoll");
+            this.unixSocketServer = this.createChannel(
+                EpollServerDomainSocketChannel.class, new EpollEventLoopGroup(), new EpollEventLoopGroup()
+            );
+        } else if (KQueue.isAvailable()) {
+            LOGGER.debug("On MacOS - using KQueue");
+            this.unixSocketServer = this.createChannel(
+                KQueueServerDomainSocketChannel.class, new KQueueEventLoopGroup(), new KQueueEventLoopGroup()
+            );
         }
 
     }
 
     @Override
     public void stop() throws InterruptedException {
+        LOGGER.info("Stopping the Unix Domain Socket server");
         this.unixSocketServer.close().sync();
     }
 
@@ -93,7 +85,7 @@ public class UnixSocketServer implements TesseraServer  {
                                   final EventLoopGroup bossGroup,
                                   final EventLoopGroup workerGroup) throws InterruptedException {
 
-        final NettyHttpContainerHolder holder = new NettyHttpContainerHolder(uri, resourceConfig);
+        final NettyHttpContainerHolder holder = new NettyHttpContainerHolder(resourceConfig);
 
         final Channel ch = new ServerBootstrap()
             .option(ChannelOption.SO_BACKLOG, 4096)

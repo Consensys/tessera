@@ -10,6 +10,7 @@ import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +43,7 @@ public class ProcessManager {
 
             Path configFile = com.quorum.tessera.test.util.ElUtil.createAndPopulatePaths(GrpcSuite.class.getResource("/" + communicationType.name().toLowerCase() + "/config" + nodeNumber + ".json"));
 
-            Path pid = Files.createTempFile("pid", ".pid");
+            Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "pid" + nodeNumber + ".pid");
 
             pids.add(pid);
 

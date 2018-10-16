@@ -6,6 +6,9 @@ import com.quorum.tessera.config.Config;
 import javax.ws.rs.core.Application;
 import java.util.Set;
 
+/**
+ * A factory for creating HTTP servers served over a Unix Domain Socket
+ */
 public class UnixSocketServerFactory implements TesseraServerFactory {
 
     @Override

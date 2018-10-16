@@ -8,9 +8,19 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
+/**
+ * A helper class that allows access to {@link NettyHttpContainer} and
+ * {@link JerseyServerHandler}
+ *
+ * Creates the socket channel init and shutdown sequences that require the
+ * package private classes.
+ */
 public class NettyHttpContainerHolder {
+
+    private static final URI URI = UriBuilder.fromPath("unixsocket").build();
 
     private final NettyHttpContainer container;
 
@@ -18,7 +28,7 @@ public class NettyHttpContainerHolder {
 
     private final ChannelInitializer<DomainSocketChannel> initializer;
 
-    public NettyHttpContainerHolder(final URI baseUri, final ResourceConfig configuration) {
+    public NettyHttpContainerHolder(final ResourceConfig configuration) {
 
         this.container = new NettyHttpContainer(configuration);
 
@@ -27,7 +37,7 @@ public class NettyHttpContainerHolder {
             protected void initChannel(final DomainSocketChannel ch) {
                 ch.pipeline().addLast(new HttpServerCodec());
                 ch.pipeline().addLast(new ChunkedWriteHandler());
-                ch.pipeline().addLast(new JerseyServerHandler(baseUri, container));
+                ch.pipeline().addLast(new JerseyServerHandler(URI, container));
             }
         };
 
