@@ -45,7 +45,7 @@ public class RawTransactionResource implements ThirdPartyAPP {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     public Response store(
-            @ApiParam(name = "storeRequest", required = true)
+            @ApiParam(name = "storeRawRequest", required = true)
             @NotNull @Valid final StoreRawRequest storeRawRequest) {
 
         final StoreRawResponse response = delegate.store(storeRawRequest);
