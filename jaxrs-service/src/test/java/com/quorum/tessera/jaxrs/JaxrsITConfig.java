@@ -5,7 +5,7 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.JdbcConfig;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.enclave.EnclaveMediator;
+import com.quorum.tessera.transaction.TransactionManagerImpl;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
 import java.nio.file.Path;
@@ -19,9 +19,9 @@ import org.springframework.context.annotation.ImportResource;
 @ImportResource(locations = "classpath:tessera-jaxrs-spring.xml")
 public class JaxrsITConfig {
     
-    @Bean(name = "enclaveDelegate")    
-    public EnclaveMediator enclaveMediator() {
-        return mock(EnclaveMediator.class);
+    @Bean(name = "transactionManager")    
+    public TransactionManagerImpl enclaveMediator() {
+        return mock(TransactionManagerImpl.class);
     }
     
     @Bean

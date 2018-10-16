@@ -2,8 +2,7 @@
 package com.quorum.tessera.core;
 
 import com.quorum.tessera.config.cli.CliDelegate;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.transaction.TransactionService;
+import com.quorum.tessera.transaction.TransactionManager;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -18,11 +17,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration(locations = "classpath:tessera-core-spring.xml")
 public class CoreIT {
     
-    @Inject
-    private Enclave enclave;
     
     @Inject
-    private TransactionService transactionService;
+    private TransactionManager transactionManager;
     
     @PersistenceContext(unitName = "tessera")
     private EntityManager entityManager;
@@ -35,8 +32,7 @@ public class CoreIT {
     
     @Test
     public void doStuff() throws Exception {
-        assertThat(enclave).isNotNull();
-        assertThat(transactionService).isNotNull();
+        assertThat(transactionManager).isNotNull();
         assertThat(entityManager).isNotNull();
     }
     

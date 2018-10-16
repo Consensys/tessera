@@ -1,7 +1,6 @@
 package com.quorum.tessera.api;
 
 import com.quorum.tessera.api.filter.GlobalFilter;
-import com.quorum.tessera.api.filter.Logged;
 import com.quorum.tessera.service.locator.ServiceLocator;
 
 import javax.ws.rs.ApplicationPath;
@@ -14,7 +13,6 @@ import java.util.stream.Collectors;
  * The main application that is submitted to the HTTP server
  * Contains all the service classes created by the service locator
  */
-@Logged
 @GlobalFilter
 @ApplicationPath("/")
 public class Tessera extends Application {

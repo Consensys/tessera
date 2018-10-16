@@ -6,5 +6,5 @@
     <import resource="classpath:/tessera-core-spring.xml" />
     <import resource="classpath:/tessera-grpc-spring.xml" />
     <import resource="classpath:/tessera-jaxrs-spring.xml" />
-    
+
 </beans>

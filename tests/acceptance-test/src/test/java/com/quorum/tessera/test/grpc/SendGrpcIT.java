@@ -1,5 +1,6 @@
 package com.quorum.tessera.test.grpc;
 
+import com.google.protobuf.ByteString;
 import com.quorum.tessera.api.grpc.TransactionGrpc;
 import com.quorum.tessera.api.grpc.model.SendRequest;
 import com.quorum.tessera.api.grpc.model.SendResponse;
@@ -40,7 +41,7 @@ public class SendGrpcIT {
         SendRequest request = SendRequest.newBuilder()
                 .setFrom("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
                 .addTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
-                .setPayload("Zm9v")
+                .setPayload(ByteString.copyFromUtf8("Zm9v"))
                 .build();
 
         SendResponse result = blockingStub.send(request);
@@ -57,7 +58,7 @@ public class SendGrpcIT {
                 .setFrom("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
                 .addTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
                 .addTo("giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=")
-                .setPayload("Zm9v")
+                .setPayload(ByteString.copyFromUtf8("Zm9v"))
                 .build();
 
         SendResponse result = blockingStub.send(request);

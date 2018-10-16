@@ -2,7 +2,7 @@ package com.quorum.tessera.api.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
+import javax.xml.bind.annotation.XmlMimeType;
 /**
  * Model representation of a JSON body on outgoing HTTP requests
  *
@@ -11,21 +11,22 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel
 public class ReceiveResponse {
 
+    @XmlMimeType("base64Binary")
     @ApiModelProperty("Encode response servicing receive requests")
-    private String payload;
+    private byte[] payload;
 
-    public ReceiveResponse(final String payload) {
+    public ReceiveResponse(final byte[] payload) {
         this.payload = payload;
     }
 
     public ReceiveResponse() {
     }
 
-    public String getPayload() {
+    public byte[] getPayload() {
         return payload;
     }
 
-    public void setPayload(final String payload) {
+    public void setPayload(final byte[] payload) {
         this.payload = payload;
     }
 }

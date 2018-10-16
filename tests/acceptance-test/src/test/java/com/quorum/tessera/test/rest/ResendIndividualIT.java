@@ -2,9 +2,9 @@ package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendRequestType;
+import com.quorum.tessera.encryption.EncodedPayloadWithRecipients;
 import com.quorum.tessera.transaction.PayloadEncoder;
 import com.quorum.tessera.transaction.PayloadEncoderImpl;
-import com.quorum.tessera.transaction.model.EncodedPayloadWithRecipients;
 import org.junit.Before;
 import org.junit.Test;
 

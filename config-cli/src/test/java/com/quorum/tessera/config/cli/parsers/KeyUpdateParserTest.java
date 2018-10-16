@@ -4,7 +4,7 @@ import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.encryption.PrivateKey;
 import org.apache.commons.cli.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -187,10 +188,11 @@ public class KeyUpdateParserTest {
             PrivateKeyType.UNLOCKED
         );
 
-        final Key key = this.parser.getExistingKey(kdc, emptyList());
+        final PrivateKey key = this.parser.getExistingKey(kdc, emptyList());
 
-        assertThat(key).isNotNull();
-        assertThat(key.toString()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+        String encodedKeyValue = Base64.getEncoder().encodeToString(key.getKeyBytes());
+        
+        assertThat(encodedKeyValue).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
 
     }
 
@@ -231,10 +233,12 @@ public class KeyUpdateParserTest {
             PrivateKeyType.LOCKED
         );
 
-        final Key key = this.parser.getExistingKey(kdc, singletonList("q"));
-
-        assertThat(key).isNotNull();
-        assertThat(key.toString()).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
+        final PrivateKey key = this.parser.getExistingKey(kdc, singletonList("q"));
+        
+        String encodedKeyValue = Base64.getEncoder().encodeToString(key.getKeyBytes());
+        
+        assertThat(encodedKeyValue).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
+        
 
     }
 
@@ -253,10 +257,13 @@ public class KeyUpdateParserTest {
             PrivateKeyType.LOCKED
         );
 
-        final Key key = this.parser.getExistingKey(kdc, Arrays.asList("wrong", "q"));
+        final PrivateKey key = this.parser.getExistingKey(kdc, Arrays.asList("wrong", "q"));
 
         assertThat(key).isNotNull();
-        assertThat(key.toString()).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
+        
+         String encodedKeyValue = Base64.getEncoder().encodeToString(key.getKeyBytes());
+        
+        assertThat(encodedKeyValue).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
 
     }
 

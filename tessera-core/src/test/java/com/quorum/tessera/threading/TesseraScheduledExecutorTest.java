@@ -10,11 +10,13 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class TesseraScheduledExecutorTest {
+
 
     private static final long RATE = 2000L;
 
@@ -29,14 +31,14 @@ public class TesseraScheduledExecutorTest {
         this.executorService = mock(ScheduledExecutorService.class);
         this.action = mock(Runnable.class);
 
-        this.tesseraScheduledExecutor = new TesseraScheduledExecutor(executorService, action, RATE);
+        this.tesseraScheduledExecutor = new TesseraScheduledExecutor(executorService, action, RATE,RATE);
     }
 
     @Test
     public void start() {
         tesseraScheduledExecutor.start();
 
-        verify(executorService).scheduleWithFixedDelay(any(Runnable.class), eq(RATE), eq(RATE), eq(TimeUnit.MILLISECONDS));
+        verify(executorService).scheduleWithFixedDelay(any(Runnable.class),anyLong(), anyLong(), eq(TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -58,7 +60,7 @@ public class TesseraScheduledExecutorTest {
         };
 
         final TesseraScheduledExecutor executor
-            = new TesseraScheduledExecutor(Executors.newSingleThreadScheduledExecutor(), runnable, 2);
+            = new TesseraScheduledExecutor(Executors.newSingleThreadScheduledExecutor(), runnable, 2,2);
 
         executor.start();
 

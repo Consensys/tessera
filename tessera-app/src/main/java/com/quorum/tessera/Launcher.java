@@ -118,6 +118,8 @@ public class Launcher {
             grpcServer.get().start();
         }
 
+       
+        
         countDown.await();
     }
 

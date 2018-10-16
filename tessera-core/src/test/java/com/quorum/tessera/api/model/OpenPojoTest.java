@@ -26,7 +26,7 @@ public class OpenPojoTest {
                 .with(new GetterTester())
                 .build();
 
-        pojoValidator.validate(getClass().getPackage().getName());
+        pojoValidator.validate(getClass().getPackage().getName(), (pc) -> !pc.getClazz().isAssignableFrom(ResendResponse.class));
 
     }
     
