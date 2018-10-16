@@ -39,7 +39,8 @@ public class RawTransactionManagerImpl implements RawTransactionManager {
         EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction(hash,
             rawTransaction.getEncryptedPayload(),
             rawTransaction.getEncryptedKey(),
-            rawTransaction.getNonce().getNonceBytes());
+            rawTransaction.getNonce().getNonceBytes(),
+            rawTransaction.getFrom().getKeyBytes());
 
         encryptedRawTransactionDAO.save(encryptedRawTransaction);
 

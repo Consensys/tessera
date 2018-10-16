@@ -32,14 +32,20 @@ public class EncryptedRawTransaction implements Serializable {
     @Column(name = "NONCE", nullable = false)
     private byte[] nonce;
 
+    @Lob
+    @Column(name = "SENDER", nullable = false)
+    private byte[] sender;
+
     @Column(name="TIMESTAMP", updatable = false)
     private long timestamp;
 
-    public EncryptedRawTransaction(final MessageHash hash, final byte[] encryptedPayload, final byte[] encryptedKey, final byte[] nonce) {
+    public EncryptedRawTransaction(final MessageHash hash, final byte[] encryptedPayload, final byte[] encryptedKey,
+                                   final byte[] nonce, final byte[] sender) {
         this.hash = hash;
         this.encryptedPayload = encryptedPayload;
         this.encryptedKey = encryptedKey;
         this.nonce = nonce;
+        this.sender = sender;
     }
 
     public EncryptedRawTransaction() {
@@ -85,6 +91,14 @@ public class EncryptedRawTransaction implements Serializable {
 
     public long getTimestamp() {
         return this.timestamp;
+    }
+
+    public byte[] getSender() {
+        return sender;
+    }
+
+    public void setSender(byte[] sender) {
+        this.sender = sender;
     }
 
     @Override

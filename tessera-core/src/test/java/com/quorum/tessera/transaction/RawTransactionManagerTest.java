@@ -63,6 +63,7 @@ public class RawTransactionManagerTest {
             assertThat(et.getEncryptedPayload()).containsExactly("CIPHERTEXT".getBytes());
             assertThat(et.getHash()).isEqualTo(expectedHash);
             assertThat(et.getNonce()).containsExactly("nonce".getBytes());
+            assertThat(et.getSender()).containsExactly(sender);
             return true;
         }));
     }
@@ -91,6 +92,7 @@ public class RawTransactionManagerTest {
             assertThat(et.getEncryptedPayload()).containsExactly("CIPHERTEXT".getBytes());
             assertThat(et.getHash()).isEqualTo(expectedHash);
             assertThat(et.getNonce()).containsExactly("nonce".getBytes());
+            assertThat(et.getSender()).containsExactly(sender);
             return true;
         }));
     }
