@@ -14,11 +14,11 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 public class KeyManagerTest {
 
     private static final PublicKey PUBLIC_KEY = PublicKey.from("publicKey".getBytes());
-    
+
      private static final PrivateKey PRIVATE_KEY = PrivateKey.from("privateKey".getBytes());
-    
+
      private static final PublicKey FORWARDING_KEY = PublicKey.from("forwardingKey".getBytes());
-     
+
     private KeyManager keyManager;
 
     @Before

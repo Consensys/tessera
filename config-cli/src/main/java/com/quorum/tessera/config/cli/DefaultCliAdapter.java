@@ -87,7 +87,9 @@ public class DefaultCliAdapter implements CliAdapter {
 
             new PidFileParser().parse(line);
 
-            return new CliResult(0, line.hasOption("keygen"), config);
+            boolean suppressStartup = line.hasOption("keygen") && Objects.isNull(config);
+
+            return new CliResult(0, suppressStartup, config);
 
         } catch (ParseException exp) {
             throw new CliException(exp.getMessage());
@@ -131,7 +133,6 @@ public class DefaultCliAdapter implements CliAdapter {
                 .argName("PATH")
                 .build());
 
-        //If keygen then we require the path to the private key config path
         options.addOption(
             Option.builder("keygen")
                 .desc("Use this option to generate public/private keypair")
@@ -140,8 +141,8 @@ public class DefaultCliAdapter implements CliAdapter {
 
         options.addOption(
             Option.builder("filename")
-                .desc("Path to private key config for generation of missing key files")
-                .hasArg(true)
+                .desc("Comma-separated list of paths to save generated key files. Can also be used with keyvault. Number of args equals number of key-pairs generated.")
+                .hasArgs()
                 .optionalArg(false)
                 .argName("PATH")
                 .build());
@@ -160,6 +161,15 @@ public class DefaultCliAdapter implements CliAdapter {
                 .hasArg(true)
                 .numberOfArgs(1)
                 .build());
+
+        options.addOption(
+            Option.builder("keygenvaulturl")
+                .desc("Base url for Azure Key Vault")
+                .hasArg()
+                .optionalArg(false)
+                .argName("STRING")
+                .build()
+        );
 
         options.addOption(
             Option.builder("pidfile")

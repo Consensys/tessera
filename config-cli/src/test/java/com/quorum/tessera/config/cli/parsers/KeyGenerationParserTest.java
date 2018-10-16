@@ -2,13 +2,12 @@ package com.quorum.tessera.config.cli.parsers;
 
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.config.keys.MockKeyGeneratorFactory;
+import com.quorum.tessera.key.generation.KeyGenerator;
 import org.apache.commons.cli.CommandLine;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -93,7 +92,7 @@ public class KeyGenerationParserTest {
     }
 
     @Test
-    public void keygenNotGivenReturnsEmptyList() throws IOException {
+    public void keygenNotGivenReturnsEmptyList() throws Exception {
 
         final CommandLine commandLine = mock(CommandLine.class);
         when(commandLine.hasOption("keygen")).thenReturn(false);
@@ -106,6 +105,26 @@ public class KeyGenerationParserTest {
 
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
         verifyZeroInteractions(keyGenerator);
+    }
+
+    @Test
+    public void vaultUrlOptionIsChecked() throws Exception {
+        final CommandLine commandLine = mock(CommandLine.class);
+        when(commandLine.hasOption("keygenvaulturl")).thenReturn(true);
+
+        this.parser.parse(commandLine);
+
+        verify(commandLine).getOptionValue("keygenvaulturl");
+    }
+
+    @Test
+    public void noVaultUrlOptionDoesNotThrowException() throws Exception {
+        final CommandLine commandLine = mock(CommandLine.class);
+        when(commandLine.hasOption("keygenvaulturl")).thenReturn(false);
+
+        this.parser.parse(commandLine);
+
+        verify(commandLine, times(0)).getOptionValue("keygenvaulturl");
     }
 
 }

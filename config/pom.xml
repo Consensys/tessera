@@ -65,6 +65,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>key-vault-api</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
             <scope>test</scope>

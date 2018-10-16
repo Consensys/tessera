@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
-public class KeyGeneratorTest {
+public class FileKeyGeneratorTest {
 
     private static final String PRIVATE_KEY = "privateKey";
 
@@ -42,7 +42,7 @@ public class KeyGeneratorTest {
 
     private PasswordReader passwordReader;
 
-    private KeyGeneratorImpl generator;
+    private FileKeyGenerator generator;
 
     @Before
     public void init() {
@@ -58,7 +58,7 @@ public class KeyGeneratorTest {
 
         when(passwordReader.requestUserPassword()).thenReturn("");
 
-        this.generator = new KeyGeneratorImpl(nacl, keyEncryptor, passwordReader);
+        this.generator = new FileKeyGenerator(nacl, keyEncryptor, passwordReader);
 
     }
 
@@ -85,13 +85,13 @@ public class KeyGeneratorTest {
         verify(nacl).generateNewKeys();
 
         Files.list(Paths.get(""))
-                .filter(f -> f.toString().contains(filename))
-                .forEach(f -> {
-                    try {
-                        Files.deleteIfExists(f);
-                    } catch (IOException ex) {
-                    }
-                });
+            .filter(f -> f.toString().contains(filename))
+            .forEach(f -> {
+                try {
+                    Files.deleteIfExists(f);
+                } catch (IOException ex) {
+                }
+            });
     }
 
     @Test
