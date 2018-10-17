@@ -17,6 +17,7 @@ import org.junit.Test;
 import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.transaction.TransactionManager;
+import java.io.UnsupportedEncodingException;
 
 public class TransactionResourceTest {
 
@@ -112,20 +113,27 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void send() {
+    public void send() throws Exception {
 
         SendRequest sendRequest = new SendRequest();
         sendRequest.setPayload(Base64.getEncoder().encode("PAYLOAD".getBytes()));
         
+        SendResponse sendResponse = new SendResponse("KEY");
+        when(transactionManager.send(any(SendRequest.class))).thenReturn(sendResponse);
+        
         Response result = transactionResource.send(sendRequest);
         assertThat(result.getStatus()).isEqualTo(200);
 
+        assertThat(result.getLocation().getPath())
+                .isEqualTo("transaction/KEY");
+        
         verify(transactionManager).send(any(SendRequest.class));
+        
 
     }
 
     @Test
-    public void sendRaw() {
+    public void sendRaw() throws UnsupportedEncodingException {
 
         SendResponse sendResponse = new SendResponse("KEY");
         when(transactionManager.send(any(SendRequest.class))).thenReturn(sendResponse);
@@ -137,7 +145,7 @@ public class TransactionResourceTest {
 
     }
     @Test
-    public void sendRawEmptyRecipients() {
+    public void sendRawEmptyRecipients() throws UnsupportedEncodingException {
 
         SendResponse sendResponse = new SendResponse("KEY");
         when(transactionManager.send(any(SendRequest.class))).thenReturn(sendResponse);
@@ -149,7 +157,7 @@ public class TransactionResourceTest {
 
     }
     @Test
-    public void sendRawNullRecipient() {
+    public void sendRawNullRecipient() throws UnsupportedEncodingException {
 
         SendResponse sendResponse = new SendResponse("KEY");
         when(transactionManager.send(any(SendRequest.class))).thenReturn(sendResponse);

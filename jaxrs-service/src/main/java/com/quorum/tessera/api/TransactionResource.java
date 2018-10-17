@@ -21,6 +21,10 @@ import java.util.Objects;
 import java.util.Optional;
 import static javax.ws.rs.core.MediaType.*;
 import com.quorum.tessera.enclave.model.MessageHash;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import javax.ws.rs.core.UriBuilder;
 
 /**
  * Provides endpoints for dealing with transactions, including:
@@ -42,7 +46,8 @@ public class TransactionResource {
 
     @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
     @ApiResponses({
-        @ApiResponse(code = 200, response = SendResponse.class, message = "Send response"),
+        @ApiResponse(code = 200, response = SendResponse.class, message = "Send response")
+        ,
         @ApiResponse(code = 400, message = "For unknown and unknown keys")
     })
     @POST
@@ -52,20 +57,25 @@ public class TransactionResource {
     @Produces(APPLICATION_JSON)
     public Response send(
             @ApiParam(name = "sendRequest", required = true)
-            @NotNull @Valid final SendRequest sendRequest) {
+            @NotNull @Valid final SendRequest sendRequest) throws UnsupportedEncodingException {
 
         //TODO: Hand cranking decoding will be fixed using jaxrs rather than manually
         SendRequest amendSendRequest = new SendRequest();
         amendSendRequest.setFrom(sendRequest.getFrom());
         amendSendRequest.setTo(sendRequest.getTo());
-        
+
         byte[] decodedPayload = Base64.getDecoder().decode(sendRequest.getPayload());
         amendSendRequest.setPayload(decodedPayload);
-        
+
         final SendResponse response = delegate.send(amendSendRequest);
 
+        java.net.URI location = UriBuilder.fromPath("transaction")
+                .path(URLEncoder.encode(response.getKey(), StandardCharsets.UTF_8.toString()))
+                .build();
+        
         return Response.status(Response.Status.OK)
                 .type(APPLICATION_JSON)
+                .location(location)
                 .entity(response)
                 .build();
 
@@ -73,7 +83,8 @@ public class TransactionResource {
 
     @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Encoded Key", response = String.class),
+        @ApiResponse(code = 200, message = "Encoded Key", response = String.class)
+        ,
         @ApiResponse(code = 500, message = "Unknown server error")
     })
     @POST
@@ -84,7 +95,7 @@ public class TransactionResource {
     public Response sendRaw(
             @HeaderParam("c11n-from") final String sender,
             @HeaderParam("c11n-to") final String recipientKeys,
-            @NotNull @Size(min = 1) final byte[] payload) {
+            @NotNull @Size(min = 1) final byte[] payload) throws UnsupportedEncodingException {
 
         SendRequest sendRequest = new SendRequest();
         sendRequest.setFrom(sender);
@@ -102,9 +113,14 @@ public class TransactionResource {
 
         LOGGER.debug("Encoded key: {}", encodedKey);
 
+        java.net.URI location = UriBuilder.fromPath("transaction")
+                .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8.toString()))
+                .build();
+
         //TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
         return Response.status(Response.Status.OK)
                 .entity(encodedKey)
+                .location(location)
                 .build();
     }
 
@@ -183,7 +199,8 @@ public class TransactionResource {
     @Deprecated
     @ApiOperation("Deprecated: Replaced by /transaction/{key} DELETE HTTP method")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Status message", response = String.class),
+        @ApiResponse(code = 200, message = "Status message", response = String.class)
+        ,
         @ApiResponse(code = 404, message = "If the entity doesn't exist")
     })
     @POST
@@ -206,7 +223,8 @@ public class TransactionResource {
 
     @ApiOperation("Delete single transaction from Tessera node")
     @ApiResponses({
-        @ApiResponse(code = 204, message = "Successful deletion"),
+        @ApiResponse(code = 204, message = "Successful deletion")
+        ,
         @ApiResponse(code = 404, message = "If the entity doesn't exist")
     })
     @DELETE
@@ -224,7 +242,8 @@ public class TransactionResource {
 
     @ApiOperation("Resend transactions for given key or message hash/recipient")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Encoded payload when TYPE is INDIVIDUAL", response = String.class),
+        @ApiResponse(code = 200, message = "Encoded payload when TYPE is INDIVIDUAL", response = String.class)
+        ,
         @ApiResponse(code = 500, message = "General error")
     })
     @POST
@@ -246,7 +265,8 @@ public class TransactionResource {
 
     @ApiOperation(value = "Transmit encrypted payload between Tessera Nodes")
     @ApiResponses({
-        @ApiResponse(code = 201, message = "Key created status"),
+        @ApiResponse(code = 201, message = "Key created status")
+        ,
         @ApiResponse(code = 500, message = "General error")
     })
     @POST
