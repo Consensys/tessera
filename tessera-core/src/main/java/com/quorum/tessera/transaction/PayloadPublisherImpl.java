@@ -7,7 +7,6 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.PartyInfoService;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,12 +27,12 @@ public class PayloadPublisherImpl implements PayloadPublisher {
         this.p2pClient = p2pClient;
     }
 
+    
     @Override
     public void publishPayload(EncodedPayloadWithRecipients encodedPayloadWithRecipients, PublicKey recipientKey) {
         final String targetUrl = partyInfoService.getURLFromRecipientKey(recipientKey);
-        
         final String url = partyInfoService.getPartyInfo().getUrl();
-        if (Objects.equals(url,targetUrl)) {
+        if (targetUrl.startsWith(url) || url.startsWith(targetUrl)) {
             LOGGER.debug("Own url {} is same as target {}. Not publishing", url,targetUrl);
             return;
         }
