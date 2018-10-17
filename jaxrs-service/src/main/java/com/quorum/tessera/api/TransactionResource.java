@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.validation.Valid;
@@ -59,21 +58,13 @@ public class TransactionResource {
             @ApiParam(name = "sendRequest", required = true)
             @NotNull @Valid final SendRequest sendRequest) throws UnsupportedEncodingException {
 
-        //TODO: Hand cranking decoding will be fixed using jaxrs rather than manually
-        SendRequest amendSendRequest = new SendRequest();
-        amendSendRequest.setFrom(sendRequest.getFrom());
-        amendSendRequest.setTo(sendRequest.getTo());
-
-        byte[] decodedPayload = Base64.getDecoder().decode(sendRequest.getPayload());
-        amendSendRequest.setPayload(decodedPayload);
-
-        final SendResponse response = delegate.send(amendSendRequest);
+        final SendResponse response = delegate.send(sendRequest);
 
         java.net.URI location = UriBuilder.fromPath("transaction")
                 .path(URLEncoder.encode(response.getKey(), StandardCharsets.UTF_8.toString()))
                 .build();
-        
-        return Response.status(Response.Status.OK)
+
+        return Response.status(Response.Status.CREATED)
                 .type(APPLICATION_JSON)
                 .location(location)
                 .entity(response)
@@ -99,7 +90,6 @@ public class TransactionResource {
 
         SendRequest sendRequest = new SendRequest();
         sendRequest.setFrom(sender);
-
         sendRequest.setPayload(payload);
 
         Optional.ofNullable(recipientKeys)

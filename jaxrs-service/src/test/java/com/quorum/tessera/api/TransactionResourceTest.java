@@ -122,7 +122,7 @@ public class TransactionResourceTest {
         when(transactionManager.send(any(SendRequest.class))).thenReturn(sendResponse);
         
         Response result = transactionResource.send(sendRequest);
-        assertThat(result.getStatus()).isEqualTo(200);
+        assertThat(result.getStatus()).isEqualTo(201);
 
         assertThat(result.getLocation().getPath())
                 .isEqualTo("transaction/KEY");
