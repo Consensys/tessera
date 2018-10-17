@@ -1,6 +1,7 @@
 package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.config.Peer;
+import static com.quorum.tessera.test.Fixtures.*;
 import java.net.URI;
 import java.util.UUID;
 import javax.ws.rs.client.Client;
@@ -8,15 +9,14 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
 public class AdminConfigIT {
 
-    private static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
+    private static final URI SERVER_URI = NODE1_URI;
 
-    private static final Client client = ClientBuilder.newClient();
+    private final Client client = ClientBuilder.newClient();
 
     
     @Test

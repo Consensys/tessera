@@ -39,8 +39,8 @@ public class ReceiveIT {
     public void init() throws UnsupportedEncodingException {
         
         SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(SENDER_KEY);
-        sendRequest.setTo(RECIPIENT_ONE);
+        sendRequest.setFrom(PTY1_KEY);
+        sendRequest.setTo(PTY2_KEY);
         sendRequest.setPayload(TXN_DATA);
         
         final Response response = client.target(NODE1_URI)
@@ -55,8 +55,8 @@ public class ReceiveIT {
         final String hash = result.getKey();
         
         this.encodedHash = URLEncoder.encode(hash, UTF_8.toString());
-        this.encodedSender = URLEncoder.encode(SENDER_KEY, UTF_8.toString());
-        this.encodedRecipientOne = URLEncoder.encode(RECIPIENT_ONE, UTF_8.toString());
+        this.encodedSender = URLEncoder.encode(PTY1_KEY, UTF_8.toString());
+        this.encodedRecipientOne = URLEncoder.encode(PTY2_KEY, UTF_8.toString());
         
     }
     

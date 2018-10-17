@@ -40,8 +40,8 @@ public class ReceiveRawIT {
         
         SendRequest sendRequest = new SendRequest();
         sendRequest.setPayload(PAYLOAD);
-        sendRequest.setTo(RECIPIENT_ONE);
-        sendRequest.setFrom(SENDER_KEY);
+        sendRequest.setTo(PTY2_KEY);
+        sendRequest.setFrom(PTY1_KEY);
 
         final Response response = client.target(SERVER_URI)
             .path("/send")
@@ -64,7 +64,7 @@ public class ReceiveRawIT {
             .path(RECEIVE_PATH)
             .request()
             .header(C11N_KEY, this.hash)
-            .header(C11N_TO, SENDER_KEY)
+            .header(C11N_TO, PTY1_KEY)
             .buildGet()
             .invoke();
 
@@ -103,7 +103,7 @@ public class ReceiveRawIT {
     @Test
     public void fetchExistingTransactionNotUsingKeyOnRecipient() {
 
-        final Response response = client.target(NODE3_URI)
+        final Response response = client.target(NODE2_URI)
             .path(RECEIVE_PATH)
             .request()
             .header(C11N_KEY, this.hash)
@@ -124,11 +124,11 @@ public class ReceiveRawIT {
     @Test
     public void fetchExistingTransactionUsingRecipientKey() {
 
-        final Response response = client.target(NODE3_URI)
+        final Response response = client.target(NODE2_URI)
             .path(RECEIVE_PATH)
             .request()
             .header(C11N_KEY, this.hash)
-            .header(C11N_TO, RECIPIENT_ONE)
+            .header(C11N_TO, PTY2_KEY)
             .buildGet()
             .invoke();
 

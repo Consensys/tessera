@@ -48,8 +48,8 @@ public class SendIT {
     public void sendToSingleRecipient() {
 
         final SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(SENDER_KEY);
-        sendRequest.setTo(RECIPIENT_ONE);
+        sendRequest.setFrom(PTY1_KEY);
+        sendRequest.setTo(PTY2_KEY);
         sendRequest.setPayload(TXN_DATA);
 
         LOGGER.info("sendRequest: {}", sendRequest);
@@ -87,8 +87,8 @@ public class SendIT {
     public void sendSingleTransactionToMultipleParties() {
 
         final SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(SENDER_KEY);
-        sendRequest.setTo(RECIPIENT_ONE, RECIPIENT_TWO);
+        sendRequest.setFrom(PTY1_KEY);
+        sendRequest.setTo(PTY2_KEY, PTY3_KEY);
         sendRequest.setPayload(TXN_DATA);
 
         LOGGER.info("sendRequest: {}", sendRequest);
@@ -121,7 +121,7 @@ public class SendIT {
     public void sendTransactionWithoutASender() {
 
         final SendRequest sendRequest = new SendRequest();
-        sendRequest.setTo(RECIPIENT_ONE);
+        sendRequest.setTo(PTY2_KEY);
         sendRequest.setPayload(TXN_DATA);
 
         LOGGER.info("sendRequest: {}", sendRequest);
@@ -154,7 +154,7 @@ public class SendIT {
     public void sendTransactionWithMissingRecipients() {
 
         final SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(SENDER_KEY);
+        sendRequest.setFrom(PTY1_KEY);
         sendRequest.setPayload(TXN_DATA);
 
         LOGGER.info("sendRequest: {}", sendRequest);
@@ -188,9 +188,9 @@ public class SendIT {
     public void missingPayloadFails() {
 
         final String sendRequest = Json.createObjectBuilder()
-                .add("from", SENDER_KEY)
+                .add("from", PTY1_KEY)
                 .add("to",
-                        Json.createArrayBuilder().add(RECIPIENT_ONE)
+                        Json.createArrayBuilder().add(PTY2_KEY)
                 )
                 .build().toString();
 
@@ -247,7 +247,7 @@ public class SendIT {
     public void sendUnknownPublicKey() {
 
         final SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(SENDER_KEY);
+        sendRequest.setFrom(PTY1_KEY);
         sendRequest.setTo("8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=");
         sendRequest.setPayload(TXN_DATA_BASE64);
 

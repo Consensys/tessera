@@ -37,8 +37,8 @@ public class SendRawIT {
         final Response response = client.target(NODE1_URI)
                 .path(SEND_PATH)
                 .request()
-                .header(SENDER, SENDER_KEY)
-                .header(RECIPIENTS, RECIPIENT_ONE)
+                .header(SENDER, PTY1_KEY)
+                .header(RECIPIENTS, PTY2_KEY)
                 .post(Entity.entity(TXN_DATA, MediaType.APPLICATION_OCTET_STREAM));
 
         //validate result
@@ -72,8 +72,8 @@ public class SendRawIT {
         final Response response = client.target(NODE1_URI)
                 .path(SEND_PATH)
                 .request()
-                .header(SENDER, SENDER_KEY)
-                .header(RECIPIENTS, RECIPIENT_ONE + "," + RECIPIENT_TWO)
+                .header(SENDER, PTY1_KEY)
+                .header(RECIPIENTS, PTY2_KEY + "," + PTY3_KEY)
                 .post(Entity.entity(TXN_DATA, MediaType.APPLICATION_OCTET_STREAM));
 
         //validate result
@@ -103,7 +103,7 @@ public class SendRawIT {
         final Response response = client.target(NODE1_URI)
                 .path(SEND_PATH)
                 .request()
-                .header(RECIPIENTS, RECIPIENT_ONE)
+                .header(RECIPIENTS, PTY2_KEY)
                 .post(Entity.entity(TXN_DATA, MediaType.APPLICATION_OCTET_STREAM));
 
         //validate result
@@ -132,7 +132,7 @@ public class SendRawIT {
         final Response response = client.target(NODE1_URI)
                 .path(SEND_PATH)
                 .request()
-                .header(SENDER, SENDER_KEY)
+                .header(SENDER, PTY1_KEY)
                 .header(RECIPIENTS, "")
                 .post(Entity.entity(txnData, MediaType.APPLICATION_OCTET_STREAM));
 
@@ -167,7 +167,7 @@ public class SendRawIT {
         final Response response = client.target(NODE1_URI)
                 .path(SEND_PATH)
                 .request()
-                .header(SENDER, SENDER_KEY)
+                .header(SENDER, PTY1_KEY)
                 .post(Entity.entity(txnData, MediaType.APPLICATION_OCTET_STREAM));
 
         //validate result
@@ -196,8 +196,8 @@ public class SendRawIT {
         final Response response = client.target(NODE1_URI)
                 .path(SEND_PATH)
                 .request()
-                .header(SENDER, SENDER_KEY)
-                .header(RECIPIENTS, RECIPIENT_ONE)
+                .header(SENDER, PTY1_KEY)
+                .header(RECIPIENTS, PTY2_KEY)
                 .post(Entity.entity(null, MediaType.APPLICATION_OCTET_STREAM));
 
         //validate result
@@ -214,7 +214,7 @@ public class SendRawIT {
         final Response response = client.target(NODE1_URI)
                 .path(SEND_PATH)
                 .request()
-                .header(SENDER, SENDER_KEY)
+                .header(SENDER, PTY1_KEY)
                 .header(RECIPIENTS, "8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=")
                 .post(Entity.entity(TXN_DATA, MediaType.APPLICATION_OCTET_STREAM));
 

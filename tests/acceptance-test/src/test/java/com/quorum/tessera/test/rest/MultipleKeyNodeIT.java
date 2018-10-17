@@ -31,7 +31,7 @@ public class MultipleKeyNodeIT {
 
     private static final URI SEND_SERVER_URI = NODE1_URI;
 
-    private static final URI SERVER_URI = NODE2_URI;
+    private static final URI SERVER_URI = NODE3_URI;
 
     private final Client client = ClientBuilder.newClient();
 
@@ -48,7 +48,7 @@ public class MultipleKeyNodeIT {
     public void onSetUp() {
         //Given a transaction is sent to NODE1 
         final SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(SENDER_KEY);
+        sendRequest.setFrom(PTY1_KEY);
         sendRequest.setTo(recipientPublicKey);
         sendRequest.setPayload(TXN_DATA);
 
@@ -88,7 +88,7 @@ public class MultipleKeyNodeIT {
 
     @Parameterized.Parameters
     public static List<String> recipientKeys() {
-        return Arrays.asList(RECIPIENT_THREE,RECIPIENT_TWO);
+        return Arrays.asList(PTY4_KEY,PTY3_KEY);
     }
     
     

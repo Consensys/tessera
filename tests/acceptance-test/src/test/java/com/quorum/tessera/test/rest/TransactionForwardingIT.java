@@ -31,22 +31,22 @@ public class TransactionForwardingIT {
 
     private static final URI NODE_ONE = NODE1_URI;
 
-    private static final URI NODE_TWO = NODE3_URI;
+    private static final URI NODE_TWO = NODE2_URI;
 
-    private static final URI NODE_THREE = NODE2_URI;
+    private static final URI NODE_THREE = NODE3_URI;
 
     private final Client client = ClientBuilder.newClient();
 
     @Test
     public void sendTransactionToNode3AddsNode1AsRecipient() throws UnsupportedEncodingException {
 
-        final String hash = this.sendNewTransaction(NODE_THREE, RECIPIENT_TWO);
+        final String hash = this.sendNewTransaction(NODE_THREE, PTY3_KEY);
 
         //check the transaction is in node 1
         final Response response = this.client.target(NODE_ONE)
                 .path("transaction")
                 .path(URLEncoder.encode(hash, UTF_8.toString()))
-                .property("to", URLEncoder.encode(SENDER_KEY, UTF_8.toString()))
+                .property("to", URLEncoder.encode(PTY1_KEY, UTF_8.toString()))
                 .request()
                 .get();
 
@@ -64,13 +64,13 @@ public class TransactionForwardingIT {
     @Test
     public void sendTransactionToNode2DoesNotAddNode1AsRecipient() throws UnsupportedEncodingException {
 
-        final String hash = this.sendNewTransaction(NODE_TWO, RECIPIENT_ONE);
+        final String hash = this.sendNewTransaction(NODE_TWO, PTY2_KEY);
 
         //check the transaction is not in node 1
         final Response response = this.client.target(NODE_ONE)
                 .path("transaction")
                 .path(URLEncoder.encode(hash, UTF_8.toString()))
-                .property("to", URLEncoder.encode(SENDER_KEY, UTF_8.toString()))
+                .property("to", URLEncoder.encode(PTY1_KEY, UTF_8.toString()))
                 .request()
                 .get();
 
@@ -83,13 +83,13 @@ public class TransactionForwardingIT {
     @Test
     public void sendTransactionToNode3DoesNotAddNode2AsRecipient() throws UnsupportedEncodingException {
 
-        final String hash = this.sendNewTransaction(NODE_THREE, RECIPIENT_TWO);
+        final String hash = this.sendNewTransaction(NODE_THREE, PTY3_KEY);
 
         //check the transaction is in node 1
         final Response response = this.client.target(NODE_TWO)
                 .path("transaction")
                 .path(URLEncoder.encode(hash, UTF_8.toString()))
-                .property("to", URLEncoder.encode(SENDER_KEY, UTF_8.toString()))
+                .property("to", URLEncoder.encode(PTY1_KEY, UTF_8.toString()))
                 .request()
                 .get();
 
