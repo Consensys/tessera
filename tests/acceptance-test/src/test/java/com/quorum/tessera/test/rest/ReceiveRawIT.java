@@ -1,6 +1,7 @@
 package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.api.model.SendRequest;
+import static com.quorum.tessera.test.Fixtures.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,7 +12,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
@@ -19,9 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReceiveRawIT {
 
-    private static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
-
-    private static final URI SECONDAERY_SERVER = UriBuilder.fromUri("http://127.0.0.1").port(8081).build();
+    private static final URI SERVER_URI = NODE1_URI;
 
     private static final String RECEIVE_PATH = "/receiveraw";
 
@@ -29,20 +27,17 @@ public class ReceiveRawIT {
 
     private static final String C11N_KEY = "c11n-key";
 
-    private static final String SENDER_KEY = "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=";
-
-    private static final String RECIPIENT_ONE = "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=";
-
-    private static final byte[] PAYLOAD = "Zm9v".getBytes();
+    private static final byte[] PAYLOAD = TXN_DATA;
     
 
-    private static final Client client = ClientBuilder.newClient();
+    private Client client = ClientBuilder.newClient();
 
     private String hash;
 
     //Persist a single transaction that can be used later
     @Before
     public void init() {
+        
         SendRequest sendRequest = new SendRequest();
         sendRequest.setPayload(PAYLOAD);
         sendRequest.setTo(RECIPIENT_ONE);
@@ -80,7 +75,7 @@ public class ReceiveRawIT {
 
         final byte[] result = response.readEntity(byte[].class);
 
-        assertThat(result).isNotEmpty();
+        assertThat(result).isEqualTo(PAYLOAD);
 
     }
 
@@ -101,14 +96,14 @@ public class ReceiveRawIT {
 
         final byte[] result = response.readEntity(byte[].class);
 
-        assertThat(result).isNotEmpty();
+        assertThat(result).isEqualTo(PAYLOAD);
 
     }
 
     @Test
     public void fetchExistingTransactionNotUsingKeyOnRecipient() {
 
-        final Response response = client.target(SECONDAERY_SERVER)
+        final Response response = client.target(NODE3_URI)
             .path(RECEIVE_PATH)
             .request()
             .header(C11N_KEY, this.hash)
@@ -122,14 +117,14 @@ public class ReceiveRawIT {
 
         final byte[] result = response.readEntity(byte[].class);
 
-        assertThat(result).isNotEmpty();
+        assertThat(result).isEqualTo(PAYLOAD);
 
     }
 
     @Test
     public void fetchExistingTransactionUsingRecipientKey() {
 
-        final Response response = client.target(SECONDAERY_SERVER)
+        final Response response = client.target(NODE3_URI)
             .path(RECEIVE_PATH)
             .request()
             .header(C11N_KEY, this.hash)
@@ -144,7 +139,7 @@ public class ReceiveRawIT {
 
         final byte[] result = response.readEntity(byte[].class);
 
-        assertThat(result).isNotEmpty();
+        assertThat(result).isEqualTo(PAYLOAD);
 
     }
 

@@ -8,15 +8,14 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.UUID;
+import static com.quorum.tessera.test.Fixtures.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SendRawIT {
 
-    private static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
 
     private static final String SEND_PATH = "/sendraw";
 
@@ -24,11 +23,6 @@ public class SendRawIT {
 
     private static final String RECIPIENTS = "c11n-to";
 
-    private static final String SENDER_KEY = "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=";
-
-    private static final String RECIPIENT_ONE = "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=";
-
-    private static final String RECIPIENT_TWO = "giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=";
 
     private final Client client = ClientBuilder.newClient();
 
@@ -40,7 +34,7 @@ public class SendRawIT {
     @Test
     public void sendToSingleRecipient() {
 
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(NODE1_URI)
                 .path(SEND_PATH)
                 .request()
                 .header(SENDER, SENDER_KEY)
@@ -75,7 +69,7 @@ public class SendRawIT {
     @Test
     public void sendSingleTransactionToMultipleParties() {
 
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(NODE1_URI)
                 .path(SEND_PATH)
                 .request()
                 .header(SENDER, SENDER_KEY)
@@ -106,7 +100,7 @@ public class SendRawIT {
     @Test
     public void sendTransactionWithoutASender() {
 
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(NODE1_URI)
                 .path(SEND_PATH)
                 .request()
                 .header(RECIPIENTS, RECIPIENT_ONE)
@@ -135,7 +129,7 @@ public class SendRawIT {
 
         byte[] txnData = UUID.randomUUID().toString().getBytes();
         
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(NODE1_URI)
                 .path(SEND_PATH)
                 .request()
                 .header(SENDER, SENDER_KEY)
@@ -170,7 +164,7 @@ public class SendRawIT {
 
         byte[] txnData = UUID.randomUUID().toString().getBytes();
         
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(NODE1_URI)
                 .path(SEND_PATH)
                 .request()
                 .header(SENDER, SENDER_KEY)
@@ -199,7 +193,7 @@ public class SendRawIT {
     @Test
     public void missingPayloadFails() {
 
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(NODE1_URI)
                 .path(SEND_PATH)
                 .request()
                 .header(SENDER, SENDER_KEY)
@@ -217,7 +211,7 @@ public class SendRawIT {
     @Test
     public void sendUnknownPublicKey() {
 
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(NODE1_URI)
                 .path(SEND_PATH)
                 .request()
                 .header(SENDER, SENDER_KEY)

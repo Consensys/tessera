@@ -1,109 +1,97 @@
 package com.quorum.tessera.test.rest;
 
+import com.quorum.tessera.api.model.ReceiveResponse;
+import com.quorum.tessera.api.model.SendRequest;
+import com.quorum.tessera.api.model.SendResponse;
+import static com.quorum.tessera.test.Fixtures.*;
 import org.junit.Test;
 
-import javax.json.Json;
-import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import java.io.Reader;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.util.Base64;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * This tests that a node that hosts multiple sets of keys can send/receive
  * transactions for both keys
  */
+@RunWith(Parameterized.class)
 public class MultipleKeyNodeIT {
 
-    private static final URI SEND_SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
+    private static final URI SEND_SERVER_URI = NODE1_URI;
 
-    private static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8082).build();
+    private static final URI SERVER_URI = NODE2_URI;
 
     private final Client client = ClientBuilder.newClient();
 
-    @Test
-    public void storePayloadOnFirstKey() throws UnsupportedEncodingException {
+    private final String recipientPublicKey;
 
-        final String recipientPublicKey = "giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=";
-
-        final String txHash = this.sendNewPayload(recipientPublicKey);
-
-        //retrieve the transaction
-        final Response retrieveResponse = this.client.target(SERVER_URI)
-            .path("/transaction/" + URLEncoder.encode(txHash, "UTF-8"))
-            .request()
-            .buildGet()
-            .invoke();
-
-        assertThat(retrieveResponse).isNotNull();
-        assertThat(retrieveResponse.getStatus()).isEqualTo(200);
-
-        final String result = retrieveResponse.readEntity(String.class);
-        final Reader reader = new StringReader(result);
-        final JsonObject jsonResult = Json.createReader(reader).readObject();
-        assertThat(jsonResult).containsKeys("payload");
-        assertThat(jsonResult.getString("payload")).isEqualTo("Zm9v");
-
+    private String txHash;
+    
+    public MultipleKeyNodeIT(String recipientPublicKey) {
+        this.recipientPublicKey = recipientPublicKey;
     }
-
-    @Test
-    public void storePayloadOnSecondKey() throws UnsupportedEncodingException {
-
-        final String recipientPublicKey = "jP4f+k/IbJvGyh0LklWoea2jQfmLwV53m9XoHVS4NSU=";
-
-        final String txHash = this.sendNewPayload(recipientPublicKey);
-
-        //retrieve the transaction
-        final Response retrieveResponse = this.client.target(SERVER_URI)
-            .path("/transaction/" + URLEncoder.encode(txHash, "UTF-8"))
-            .request()
-            .buildGet()
-            .invoke();
-
-        assertThat(retrieveResponse).isNotNull();
-        assertThat(retrieveResponse.getStatus()).isEqualTo(200);
-
-        final String result = retrieveResponse.readEntity(String.class);
-        final Reader reader = new StringReader(result);
-        final JsonObject jsonResult = Json.createReader(reader).readObject();
-        assertThat(jsonResult).containsKeys("payload");
-        assertThat(jsonResult.getString("payload")).isEqualTo("Zm9v");
-
-    }
-
-    private String sendNewPayload(final String recipientPublicKey) {
-
-        final String sendRequest = Json.createObjectBuilder()
-            .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-            .add("to", Json.createArrayBuilder().add(recipientPublicKey))
-            .add("payload", Base64.getEncoder().encodeToString("Zm9v".getBytes())).build().toString();
+    
+    
+    @Before
+    public void onSetUp() {
+        //Given a transaction is sent to NODE1 
+        final SendRequest sendRequest = new SendRequest();
+        sendRequest.setFrom(SENDER_KEY);
+        sendRequest.setTo(recipientPublicKey);
+        sendRequest.setPayload(TXN_DATA);
 
         final Response response = this.client.target(SEND_SERVER_URI)
-            .path("/send")
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-
-        //validate result
-
-        final String result = response.readEntity(String.class);
-        final Reader reader = new StringReader(result);
-        final JsonObject jsonResult = Json.createReader(reader).readObject();
-        assertThat(jsonResult).containsKeys("key");
+                .path("/send")
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getStatus()).isEqualTo(201);
 
-        return jsonResult.getString("key");
+        final SendResponse result = response.readEntity(SendResponse.class);
+
+        assertThat(result.getKey()).isNotBlank();
+        
+        this.txHash = result.getKey();
+        
     }
+    
+    @Test
+    public void thenTransactionHasBeenPersistedOnOtherNode() throws UnsupportedEncodingException {
+
+        //retrieve the transaction
+        final Response retrieveResponse = this.client.target(SERVER_URI)
+                .path("transaction")
+                .path(URLEncoder.encode(txHash, "UTF-8"))
+                .request().get();
+
+        assertThat(retrieveResponse).isNotNull();
+        assertThat(retrieveResponse.getStatus()).isEqualTo(200);
+
+        final ReceiveResponse result = retrieveResponse.readEntity(ReceiveResponse.class);
+
+        assertThat(result.getPayload()).isEqualTo(TXN_DATA);
+
+    }
+
+    @Parameterized.Parameters
+    public static List<String> recipientKeys() {
+        return Arrays.asList(RECIPIENT_THREE,RECIPIENT_TWO);
+    }
+    
+    
+    
 
 }
