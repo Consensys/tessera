@@ -4,6 +4,7 @@ import com.quorum.tessera.api.model.ReceiveResponse;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
 import static com.quorum.tessera.test.Fixtures.*;
+import com.quorum.tessera.test.Party;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Base64;
+import java.util.stream.Stream;
 import javax.json.Json;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,18 +30,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class SendIT {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SendIT.class);
-
-    public static final URI SERVER_URI = NODE1_URI;
-
     private static final String SEND_PATH = "/send";
-
-    private static final byte[] TXN_DATA = "Zm9v".getBytes();
-
-    private static final byte[] TXN_DATA_BASE64 = Base64.getEncoder().encode(TXN_DATA);
 
     private final Client client = ClientBuilder.newClient();
 
+    private RestUtils utils = new RestUtils();
 
     /**
      * Quorum sends transaction with single public recipient key
@@ -47,17 +42,19 @@ public class SendIT {
     @Test
     public void sendToSingleRecipient() {
 
+        Party firstParty = Party.ONE;
+        Party secondParty = Party.TWO;
+        byte[] transactionData = utils.createTransactionData();
+
         final SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(PTY1_KEY);
-        sendRequest.setTo(PTY2_KEY);
-        sendRequest.setPayload(TXN_DATA);
+        sendRequest.setFrom(firstParty.getPublicKey());
+        sendRequest.setTo(secondParty.getPublicKey());
+        sendRequest.setPayload(transactionData);
 
-        LOGGER.info("sendRequest: {}", sendRequest);
-
-        final Response response = client.target(SERVER_URI)
-                .path(SEND_PATH)
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+        final Response response = client.target(firstParty.getUri())
+            .path(SEND_PATH)
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
         final SendResponse result = response.readEntity(SendResponse.class);
@@ -69,14 +66,22 @@ public class SendIT {
         URI location = response.getLocation();
 
         final Response checkPersistedTxnResponse = client.target(location)
-                .request()
-                .get();
+            .request()
+            .get();
 
         assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
         ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
 
-        assertThat(receiveResponse.getPayload()).isEqualTo(TXN_DATA);
+        assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
+
+        utils.findTransaction(result.getKey(), Party.ONE, Party.TWO).forEach(r -> {
+            assertThat(r.getStatus()).isEqualTo(200);
+        });
+
+        utils.findTransaction(result.getKey(), Party.THREE, Party.FOUR).forEach(r -> {
+            assertThat(r.getStatus()).isEqualTo(404);
+        });
 
     }
 
@@ -84,20 +89,28 @@ public class SendIT {
      * Quorum sends transaction with multiple public recipient keys
      */
     @Test
-    public void sendSingleTransactionToMultipleParties() {
+    public void firstPartyForwardsToTwoOtherParties() {
+
+        Party sendingParty = Party.ONE;
+
+        Party secondParty = Party.TWO;
+        Party thirdParty = Party.FOUR;
+
+        Party excludedParty = Party.THREE;
+
+        byte[] transactionData = utils.createTransactionData();
 
         final SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(PTY1_KEY);
-        sendRequest.setTo(PTY2_KEY, PTY3_KEY);
-        sendRequest.setPayload(TXN_DATA);
+        sendRequest.setFrom(sendingParty.getPublicKey());
+        sendRequest.setTo(secondParty.getPublicKey(), thirdParty.getPublicKey());
+        sendRequest.setPayload(transactionData);
 
-        LOGGER.info("sendRequest: {}", sendRequest);
+        final Response response = client.target(sendingParty.getUri())
+            .path(SEND_PATH)
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
-        final Response response = client.target(SERVER_URI)
-                .path(SEND_PATH)
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-
+        //
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
 
@@ -107,29 +120,40 @@ public class SendIT {
         URI location = response.getLocation();
 
         final Response checkPersistedTxnResponse = client.target(location)
-                .request()
-                .get();
+            .request()
+            .get();
 
         assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
         ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
 
-        assertThat(receiveResponse.getPayload()).isEqualTo(TXN_DATA);
+        assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
+
+        utils.findTransaction(result.getKey(), sendingParty, secondParty, thirdParty).forEach(r -> {
+            assertThat(r.getStatus()).isEqualTo(200);
+        });
+
+        utils.findTransaction(result.getKey(), excludedParty).forEach(r -> {
+            assertThat(r.getStatus()).isEqualTo(404);
+        });
+
     }
 
     @Test
     public void sendTransactionWithoutASender() {
 
+        Party recipient = Stream.of(Party.values()).findAny().get();
+
+        byte[] transactionData = utils.createTransactionData();
+
         final SendRequest sendRequest = new SendRequest();
-        sendRequest.setTo(PTY2_KEY);
-        sendRequest.setPayload(TXN_DATA);
+        sendRequest.setTo(recipient.getPublicKey());
+        sendRequest.setPayload(transactionData);
 
-        LOGGER.info("sendRequest: {}", sendRequest);
-
-        final Response response = client.target(SERVER_URI)
-                .path(SEND_PATH)
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+        final Response response = client.target(recipient.getUri())
+            .path(SEND_PATH)
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
@@ -140,29 +164,31 @@ public class SendIT {
         URI location = response.getLocation();
 
         final Response checkPersistedTxnResponse = client.target(location)
-                .request()
-                .get();
+            .request()
+            .get();
 
         assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
         ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
 
-        assertThat(receiveResponse.getPayload()).isEqualTo(TXN_DATA);
+        assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
+
     }
 
     @Test
     public void sendTransactionWithMissingRecipients() {
 
+        Party sendingParty = Stream.of(Party.values()).findAny().get();
+        byte[] transactionData = utils.createTransactionData();
+
         final SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(PTY1_KEY);
-        sendRequest.setPayload(TXN_DATA);
+        sendRequest.setFrom(sendingParty.getPublicKey());
+        sendRequest.setPayload(transactionData);
 
-        LOGGER.info("sendRequest: {}", sendRequest);
-
-        final Response response = client.target(SERVER_URI)
-                .path(SEND_PATH)
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+        final Response response = client.target(sendingParty.getUri())
+            .path(SEND_PATH)
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
@@ -173,33 +199,39 @@ public class SendIT {
         URI location = response.getLocation();
 
         final Response checkPersistedTxnResponse = client.target(location)
-                .request()
-                .get();
+            .request()
+            .get();
 
         assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
         ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
 
-        assertThat(receiveResponse.getPayload()).isEqualTo(TXN_DATA);
+        assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
+
+        assertThat(location.getHost()).isEqualTo(sendingParty.getUri().getHost());
+        assertThat(location.getPort()).isEqualTo(sendingParty.getUri().getPort());
 
     }
 
     @Test
     public void missingPayloadFails() {
 
+        Party sendingParty = Stream.of(Party.values()).findAny().get();
+
+        Party recipient = Stream.of(Party.values()).filter(p -> p != sendingParty)
+            .findAny().get();
+
         final String sendRequest = Json.createObjectBuilder()
-                .add("from", PTY1_KEY)
-                .add("to",
-                        Json.createArrayBuilder().add(PTY2_KEY)
-                )
-                .build().toString();
+            .add("from", sendingParty.getPublicKey())
+            .add("to",
+                Json.createArrayBuilder().add(recipient.getPublicKey())
+            )
+            .build().toString();
 
-        LOGGER.info("sendRequest: {}", sendRequest);
-
-        final Response response = client.target(SERVER_URI)
-                .path(SEND_PATH)
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+        final Response response = client.target(sendingParty.getUri())
+            .path(SEND_PATH)
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
         assertThat(response).isNotNull();
@@ -208,15 +240,14 @@ public class SendIT {
 
     @Test
     public void garbageMessageFails() {
+        Party sendingParty = Stream.of(Party.values()).findAny().get();
 
         final String sendRequest = "this is clearly a garbage message";
 
-        LOGGER.info("sendRequest: {}", sendRequest);
-
-        final Response response = client.target(SERVER_URI)
-                .path(SEND_PATH)
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+        final Response response = client.target(sendingParty.getUri())
+            .path(SEND_PATH)
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
         assertThat(response).isNotNull();
@@ -226,14 +257,13 @@ public class SendIT {
     @Test
     public void emptyMessageFails() {
 
+        Party sendingParty = Stream.of(Party.values()).findAny().get();
         final String sendRequest = "{}";
 
-        LOGGER.info("sendRequest: {}", sendRequest);
-
-        final Response response = client.target(SERVER_URI)
-                .path(SEND_PATH)
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+        final Response response = client.target(sendingParty.getUri())
+            .path(SEND_PATH)
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
         assertThat(response).isNotNull();
@@ -246,20 +276,58 @@ public class SendIT {
     @Test
     public void sendUnknownPublicKey() {
 
+        Party sendingParty = Stream.of(Party.values()).findAny().get();
+        byte[] transactionData = utils.createTransactionData();
+
         final SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(PTY1_KEY);
+        sendRequest.setFrom(sendingParty.getPublicKey());
         sendRequest.setTo("8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=");
-        sendRequest.setPayload(TXN_DATA_BASE64);
+        sendRequest.setPayload(transactionData);
 
-        LOGGER.info("sendRequest: {}", sendRequest);
-
-        final Response response = client.target(SERVER_URI)
-                .path(SEND_PATH)
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+        final Response response = client.target(sendingParty.getUri())
+            .path(SEND_PATH)
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(400);
+
+    }
+
+    /**
+     * config3.json has party 1's key in always send to list
+     */
+    @Test
+    public void partyAlwaysSendsToPartyOne() {
+
+        Party sender = Party.THREE;
+        Party recipient = Party.FOUR;
+
+        byte[] transactionData = utils.createTransactionData();
+
+        final SendRequest sendRequest = new SendRequest();
+        sendRequest.setFrom(sender.getPublicKey());
+        sendRequest.setTo(recipient.getPublicKey());
+        sendRequest.setPayload(transactionData);
+
+        final Response response = client.target(sender.getUri())
+            .path(SEND_PATH)
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+
+        final SendResponse result = response.readEntity(SendResponse.class);
+        assertThat(result.getKey()).isNotNull().isNotBlank();
+
+        //Party one recieved by always send to
+        utils.findTransaction(result.getKey(), sender, recipient, Party.ONE).forEach(r -> {
+            assertThat(r.getStatus()).isEqualTo(200);
+        });
+
+        //Party 2 is out of the loop
+        utils.findTransaction(result.getKey(), Party.TWO).forEach(r -> {
+            assertThat(r.getStatus()).isEqualTo(404);
+        });
+
     }
 
 }
