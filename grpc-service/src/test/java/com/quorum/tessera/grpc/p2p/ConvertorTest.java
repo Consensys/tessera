@@ -1,11 +1,5 @@
-package com.quorum.tessera.api.grpc;
+package com.quorum.tessera.grpc.p2p;
 
-import com.google.protobuf.ByteString;
-import com.quorum.tessera.api.grpc.model.ReceiveRequest;
-import com.quorum.tessera.api.grpc.model.DeleteRequest;
-import com.quorum.tessera.api.grpc.model.ResendRequest;
-import com.quorum.tessera.api.grpc.model.ResendRequestType;
-import com.quorum.tessera.api.grpc.model.SendRequest;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import static org.assertj.core.api.Assertions.*;
@@ -26,46 +20,6 @@ public class ConvertorTest {
     }
 
     @Test
-    public void toGrpcReceiveRequest() {
-
-        String key = "Some Key";
-        String to = "Mr Benn";
-
-        com.quorum.tessera.api.model.ReceiveRequest receiveRequest
-                = new com.quorum.tessera.api.model.ReceiveRequest();
-
-        receiveRequest.setKey(key);
-        receiveRequest.setTo(to);
-
-        ReceiveRequest result = Convertor.toGrpc(receiveRequest);
-
-        assertThat(result).isNotNull();
-
-        assertThat(result.getKey()).isEqualTo(key);
-        assertThat(result.getTo()).isEqualTo(to);
-
-    }
-
-    @Test
-    public void toModelReceiveRequest() {
-
-        String key = "Some Key";
-        String to = "Mr Benn";
-
-        ReceiveRequest receiveRequest = ReceiveRequest.newBuilder()
-                .setKey(key).setTo(to)
-                .build();
-
-        com.quorum.tessera.api.model.ReceiveRequest result = Convertor.toModel(receiveRequest);
-
-        assertThat(result).isNotNull();
-
-        assertThat(result.getKey()).isEqualTo(key);
-        assertThat(result.getTo()).isEqualTo(to);
-
-    }
-
-    @Test
     public void toModelDeleteRequest() {
 
         String key = "Some Key";
@@ -80,20 +34,6 @@ public class ConvertorTest {
         assertThat(result.getKey()).isEqualTo(key);
     }
 
-    @Test
-    public void toGrpcSendRequest() {
-
-        com.quorum.tessera.api.model.SendRequest sendRequest = new com.quorum.tessera.api.model.SendRequest();
-        sendRequest.setFrom("FROM");
-        sendRequest.setPayload("PAYLOAD".getBytes());
-        sendRequest.setTo(new String[]{"TO1"});
-
-        SendRequest result = Convertor.toGrpc(sendRequest);
-        assertThat(result.getFrom()).isEqualTo("FROM");
-        assertThat(result.getPayload().toStringUtf8()).isEqualTo("PAYLOAD");
-        assertThat(result.getToList()).containsExactly("TO1");
-
-    }
 
     @Test
     public void toModelResendRequest() {
@@ -142,23 +82,6 @@ public class ConvertorTest {
         assertThat(result.getKey()).isEqualTo("KEY");
         assertThat(result.getPublicKey()).isEqualTo("PUBLICKEY");
         assertThat(result.getType()).isEqualTo(com.quorum.tessera.api.model.ResendRequestType.INDIVIDUAL);
-
-    }
-
-    @Test
-    public void toModelSendRequest() {
-        SendRequest grpcSendRequest = SendRequest.newBuilder()
-                .setFrom("FROM")
-                .setPayload(ByteString.copyFromUtf8("PAYLOAD"))
-                .addTo("TO1")
-                .addTo("TO2")
-                .build();
-
-        com.quorum.tessera.api.model.SendRequest result = Convertor.toModel(grpcSendRequest);
-        assertThat(result).isNotNull();
-        assertThat(result.getTo()).containsExactly("TO1", "TO2");
-        assertThat(result.getFrom()).isEqualTo("FROM");
-        assertThat(result.getPayload()).isEqualTo("PAYLOAD".getBytes());
 
     }
 

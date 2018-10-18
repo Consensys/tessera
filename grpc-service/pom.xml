@@ -14,7 +14,12 @@
             <groupId>com.quorum.tessera</groupId>
             <artifactId>grpc</artifactId>
         </dependency>
-        
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>grpc-api</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>tessera-core</artifactId>

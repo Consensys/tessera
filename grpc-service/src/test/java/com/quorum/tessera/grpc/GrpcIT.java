@@ -1,8 +1,8 @@
 package com.quorum.tessera.grpc;
 
-import com.quorum.tessera.api.grpc.PartyInfoGrpcService;
-import com.quorum.tessera.api.grpc.TesseraGrpcService;
-import com.quorum.tessera.api.grpc.TransactionGrpcService;
+import com.quorum.tessera.grpc.p2p.PartyInfoGrpcService;
+import com.quorum.tessera.grpc.p2p.TesseraGrpcService;
+import com.quorum.tessera.grpc.p2p.TransactionGrpcService;
 import javax.inject.Inject;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;

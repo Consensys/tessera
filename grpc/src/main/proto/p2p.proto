@@ -1,17 +1,12 @@
 syntax = "proto3";
 
-import "messages.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 option java_multiple_files = true;
-option java_package = "com.quorum.tessera.api.grpc";
+option java_package = "com.quorum.tessera.grpc.p2p";
 
 service Transaction {
-
-    rpc Send (SendRequest) returns (SendResponse) { }
-
-    rpc Receive (ReceiveRequest) returns (ReceiveResponse) { }
 
     rpc Delete(DeleteRequest) returns (DeleteRequest) { }
 
@@ -45,4 +40,39 @@ service Tessera {
         };
     }
 
+}
+
+message DeleteRequest {
+    string key = 1;
+}
+
+enum ResendRequestType {
+    ALL = 0;
+    INDIVIDUAL = 1;
+}
+
+message ResendRequest {
+    ResendRequestType type = 1;
+    string publicKey = 2;
+    string key = 3;
+}
+
+message ResendResponse {
+    bytes data = 1;
+}
+
+message VersionMessage {
+    string version = 1;
+}
+
+message UpCheckMessage {
+    string upCheck = 1;
+}
+
+message PartyInfoMessage {
+    bytes partyInfo = 1;
+}
+
+message PushRequest {
+    bytes data = 1;
 }

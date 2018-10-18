@@ -1,11 +1,7 @@
 package com.quorum.tessera.client;
 
 import com.google.protobuf.ByteString;
-import com.quorum.tessera.api.grpc.PartyInfoGrpc;
-import com.quorum.tessera.api.grpc.TransactionGrpc;
-import com.quorum.tessera.api.grpc.model.PartyInfoMessage;
-import com.quorum.tessera.api.grpc.model.PushRequest;
-import com.quorum.tessera.api.grpc.model.ResendRequest;
+import com.quorum.tessera.grpc.p2p.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;

@@ -4,13 +4,17 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
        
     
-    <bean name="tesseraGrpcService" class="com.quorum.tessera.api.grpc.TesseraGrpcService"/>
+    <bean name="tesseraGrpcService" class="com.quorum.tessera.grpc.p2p.TesseraGrpcService"/>
     
-    <bean name="transactionGrpcService" class="com.quorum.tessera.api.grpc.TransactionGrpcService">
+    <bean name="p2pTransactionGrpcService" class="com.quorum.tessera.grpc.p2p.TransactionGrpcService">
+        <constructor-arg ref="transactionManager"/>
+    </bean>
+
+    <bean name="apiTransactionGrpcService" class="com.quorum.tessera.grpc.api.TransactionGrpcService">
         <constructor-arg ref="transactionManager"/>
     </bean>
     
-    <bean name="partyInfoGrpcService" class="com.quorum.tessera.api.grpc.PartyInfoGrpcService">
+    <bean name="partyInfoGrpcService" class="com.quorum.tessera.grpc.p2p.PartyInfoGrpcService">
         <constructor-arg ref="partyInfoService"/>
         <constructor-arg ref="partyInfoParser" />
     </bean>

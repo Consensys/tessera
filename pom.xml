@@ -255,6 +255,7 @@
         <module>config-migration</module>
         <module>shared</module>
         <module>grpc</module>
+        <module>grpc-api</module>
         <module>grpc-service</module>
         <module>jaxrs-service</module>
         <module>tessera-core</module>
@@ -361,6 +362,12 @@
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>grpc</artifactId>
+                <version>0.7-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>grpc-api</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
 

@@ -1,9 +1,7 @@
 package com.quorum.tessera.test.grpc;
 
 import com.google.protobuf.ByteString;
-import com.quorum.tessera.api.grpc.TransactionGrpc;
-import com.quorum.tessera.api.grpc.model.SendRequest;
-import com.quorum.tessera.api.grpc.model.SendResponse;
+import com.quorum.tessera.grpc.api.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
@@ -16,40 +14,61 @@ import org.junit.Test;
 
 public class SendGrpcIT {
 
-    private ManagedChannel channel;
+    private ManagedChannel channel1;
+    private ManagedChannel channel2;
 
-    private TransactionGrpc.TransactionBlockingStub blockingStub;
+    private TransactionGrpc.TransactionBlockingStub blockingStub1;
+    private TransactionGrpc.TransactionBlockingStub blockingStub2;
 
     @Before
     public void onSetUp() {
-        channel = ManagedChannelBuilder.forAddress("127.0.0.1", 50520)
+        channel1 = ManagedChannelBuilder.forAddress("127.0.0.1", 50520)
+                .usePlaintext()
+                .build();
+        channel2 = ManagedChannelBuilder.forAddress("127.0.0.1", 50521)
                 .usePlaintext()
                 .build();
 
-        blockingStub = TransactionGrpc.newBlockingStub(channel);
+        blockingStub1 = TransactionGrpc.newBlockingStub(channel1);
+        blockingStub2 = TransactionGrpc.newBlockingStub(channel2);
     }
 
     @After
     public void onTearDown() {
-        channel.shutdown();
+        channel1.shutdown();
 
     }
 
     @Test
     public void sendToSingleRecipient() {
 
+        ByteString payload = ByteString.copyFromUtf8("Zm9v");
+
         SendRequest request = SendRequest.newBuilder()
                 .setFrom("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
                 .addTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
-                .setPayload(ByteString.copyFromUtf8("Zm9v"))
+                .setPayload(payload)
                 .build();
 
-        SendResponse result = blockingStub.send(request);
+        SendResponse result = blockingStub1.send(request);
 
         assertThat(result).isNotNull();
         result.getAllFields().forEach((k, v) -> System.out.println(k + " " + v));
         assertThat(result.getKey()).isNotNull().isNotBlank();
 
+        // confirm that the message has been propagated to the target tessera (config2.json)
+        String hash = result.getKey();
+
+        ReceiveRequest receiveRequest = ReceiveRequest.newBuilder()
+            .setKey(hash)
+            .setTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
+            .build();
+
+        ReceiveResponse receiveResponse = blockingStub2.receive(receiveRequest);
+
+        assertThat(receiveResponse).isNotNull();
+        result.getAllFields().forEach((k, v) -> System.out.println(k + " " + v));
+        assertThat(receiveResponse.getPayload()).isNotNull().isEqualTo(payload);
     }
 
     @Test
@@ -61,7 +80,7 @@ public class SendGrpcIT {
                 .setPayload(ByteString.copyFromUtf8("Zm9v"))
                 .build();
 
-        SendResponse result = blockingStub.send(request);
+        SendResponse result = blockingStub1.send(request);
 
         assertThat(result).isNotNull();
         result.getAllFields().forEach((k, v) -> System.out.println(k + " " + v));
@@ -77,13 +96,11 @@ public class SendGrpcIT {
                 .addTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
                 .build();
         try {
-            SendResponse result = blockingStub.send(request);
+            SendResponse result = blockingStub1.send(request);
             failBecauseExceptionWasNotThrown(StatusRuntimeException.class);
         } catch (StatusRuntimeException ex) {
             assertThat(ex.getStatus()).isEqualTo(Status.INVALID_ARGUMENT);
         }
 
     }
-
-   
 }

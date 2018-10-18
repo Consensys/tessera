@@ -1,13 +1,7 @@
 package com.quorum.tessera.client;
 
 import com.google.protobuf.ByteString;
-import com.quorum.tessera.api.grpc.PartyInfoGrpc;
-import com.quorum.tessera.api.grpc.TransactionGrpc;
-import com.quorum.tessera.api.grpc.model.PartyInfoMessage;
-import com.quorum.tessera.api.grpc.model.PushRequest;
-import com.quorum.tessera.api.grpc.model.ResendRequest;
-import com.quorum.tessera.api.grpc.model.ResendResponse;
-import com.quorum.tessera.client.GrpcClientImpl;
+import com.quorum.tessera.grpc.p2p.*;
 import io.grpc.ManagedChannel;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -36,11 +30,13 @@ public class GrpcClientTest {
 
     private final PartyInfoGrpc.PartyInfoImplBase partyInfoService =
         mock(PartyInfoGrpc.PartyInfoImplBase.class,
-            delegatesTo(new PartyInfoGrpcServiceDelegate() { }));
+            delegatesTo(new PartyInfoGrpcServiceDelegate() {
+            }));
 
-    private final TransactionGrpc.TransactionImplBase transactionService =
+    private final TransactionGrpc.TransactionImplBase p2pTransactionService =
         mock(TransactionGrpc.TransactionImplBase.class,
-            delegatesTo(new TransactionGrpcServiceDelegate() { }));
+            delegatesTo(new TransactionGrpcServiceDelegate() {
+            }));
 
     private GrpcClientImpl client;
 
@@ -52,7 +48,7 @@ public class GrpcClientTest {
             .forName(serverName)
             .directExecutor()
             .addService(partyInfoService)
-            .addService(transactionService)
+            .addService(p2pTransactionService)
             .build()
             .start());
 
@@ -92,7 +88,7 @@ public class GrpcClientTest {
 
         client.push(data);
 
-        verify(transactionService).push(requestCaptor.capture(), any());
+        verify(p2pTransactionService).push(requestCaptor.capture(), any());
 
         assertEquals(ByteString.copyFrom(data), requestCaptor.getValue().getData());
     }
@@ -112,7 +108,7 @@ public class GrpcClientTest {
 
         boolean result = client.makeResendRequest(request);
 
-        verify(transactionService).resend(requestCaptor.capture(), any());
+        verify(p2pTransactionService).resend(requestCaptor.capture(), any());
 
         assertEquals(request, requestCaptor.getValue());
         assertThat(result).isTrue();
