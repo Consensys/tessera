@@ -90,12 +90,14 @@ public class Launcher {
         TesseraServerFactory grpcServerFactory = TesseraServerFactory.create(CommunicationType.GRPC);
 
         TesseraServerFactory unixSocketServerFactory = TesseraServerFactory.create(CommunicationType.UNIX_SOCKET);
-        TesseraServer unixSocketServer = unixSocketServerFactory.createServer(config, services);
 
         TesseraServer restServer = restServerFactory.createServer(config, services);
 
         Optional<TesseraServer> grpcServer =
             Optional.ofNullable(grpcServerFactory.createServer(config, services));
+
+        Optional<TesseraServer> unixSocketServer
+            = Optional.ofNullable(unixSocketServerFactory.createServer(config, services));
 
         CountDownLatch countDown = new CountDownLatch(1);
 
@@ -105,6 +107,9 @@ public class Launcher {
                 if (grpcServer.isPresent()) {
                     grpcServer.get().stop();
                 }
+                if (unixSocketServer.isPresent()) {
+                    unixSocketServer.get().stop();
+                }
             } catch (Exception ex) {
                 LOGGER.error(null, ex);
             } finally {
@@ -113,9 +118,11 @@ public class Launcher {
         }));
 
         restServer.start();
-        unixSocketServer.start();
         if (grpcServer.isPresent()) {
             grpcServer.get().start();
+        }
+        if (unixSocketServer.isPresent()) {
+            unixSocketServer.get().start();
         }
 
        

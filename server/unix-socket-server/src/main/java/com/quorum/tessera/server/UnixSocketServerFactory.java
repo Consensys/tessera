@@ -13,6 +13,11 @@ public class UnixSocketServerFactory implements TesseraServerFactory {
 
     @Override
     public TesseraServer createServer(final Config config, final Set<Object> services) {
+
+        if (System.getProperty("spring.profiles.active", "").contains("disable-unixsocket")) {
+            return null;
+        }
+
         final Application application = services
             .stream()
             .filter(Application.class::isInstance)
