@@ -109,7 +109,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         this.encryptedTransactionDAO.save(newTransaction);
 
-        recipientList.stream().forEach(recipient -> payloadPublisher.publishPayload(encodedPayloadWithRecipients, recipient));
+        recipientList.forEach(recipient -> payloadPublisher.publishPayload(encodedPayloadWithRecipients, recipient));
 
         final byte[] key = transactionHash.getHashBytes();
 
