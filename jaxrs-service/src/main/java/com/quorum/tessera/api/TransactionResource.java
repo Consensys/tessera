@@ -45,8 +45,7 @@ public class TransactionResource {
 
     @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
     @ApiResponses({
-        @ApiResponse(code = 200, response = SendResponse.class, message = "Send response")
-        ,
+        @ApiResponse(code = 200, response = SendResponse.class, message = "Send response"),
         @ApiResponse(code = 400, message = "For unknown and unknown keys")
     })
     @POST
@@ -74,8 +73,7 @@ public class TransactionResource {
 
     @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Encoded Key", response = String.class)
-        ,
+        @ApiResponse(code = 200, message = "Encoded Key", response = String.class),
         @ApiResponse(code = 500, message = "Unknown server error")
     })
     @POST
@@ -138,7 +136,6 @@ public class TransactionResource {
                 .type(APPLICATION_JSON)
                 .entity(response)
                 .build();
-
     }
 
     @GET
@@ -189,8 +186,7 @@ public class TransactionResource {
     @Deprecated
     @ApiOperation("Deprecated: Replaced by /transaction/{key} DELETE HTTP method")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Status message", response = String.class)
-        ,
+        @ApiResponse(code = 200, message = "Status message", response = String.class),
         @ApiResponse(code = 404, message = "If the entity doesn't exist")
     })
     @POST
@@ -208,13 +204,11 @@ public class TransactionResource {
         return Response.status(Response.Status.OK)
                 .entity("Delete successful")
                 .build();
-
     }
 
     @ApiOperation("Delete single transaction from Tessera node")
     @ApiResponses({
-        @ApiResponse(code = 204, message = "Successful deletion")
-        ,
+        @ApiResponse(code = 204, message = "Successful deletion"),
         @ApiResponse(code = 404, message = "If the entity doesn't exist")
     })
     @DELETE
@@ -232,8 +226,7 @@ public class TransactionResource {
 
     @ApiOperation("Resend transactions for given key or message hash/recipient")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Encoded payload when TYPE is INDIVIDUAL", response = String.class)
-        ,
+        @ApiResponse(code = 200, message = "Encoded payload when TYPE is INDIVIDUAL", response = String.class),
         @ApiResponse(code = 500, message = "General error")
     })
     @POST
@@ -255,8 +248,7 @@ public class TransactionResource {
 
     @ApiOperation(value = "Transmit encrypted payload between Tessera Nodes")
     @ApiResponses({
-        @ApiResponse(code = 201, message = "Key created status")
-        ,
+        @ApiResponse(code = 201, message = "Key created status"),
         @ApiResponse(code = 500, message = "General error")
     })
     @POST
