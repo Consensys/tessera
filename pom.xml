@@ -288,22 +288,10 @@
                 <artifactId>config-cli</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
-            
-            <dependency>
-                <groupId>com.quorum.tessera</groupId>
-                <artifactId>unixsocket</artifactId>
-                <version>0.7-SNAPSHOT</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>security</artifactId>
-                <version>0.7-SNAPSHOT</version>
-            </dependency>
-       
-            <dependency>
-                <groupId>com.quorum.tessera</groupId>
-                <artifactId>junixsocket-adapter</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
             
