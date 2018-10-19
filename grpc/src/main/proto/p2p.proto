@@ -6,7 +6,7 @@ import "google/protobuf/empty.proto";
 option java_multiple_files = true;
 option java_package = "com.quorum.tessera.grpc.p2p";
 
-service Transaction {
+service P2PTransaction {
 
     rpc Delete(DeleteRequest) returns (DeleteRequest) { }
 

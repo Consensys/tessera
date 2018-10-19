@@ -33,8 +33,8 @@ public class GrpcClientTest {
             delegatesTo(new PartyInfoGrpcServiceDelegate() {
             }));
 
-    private final TransactionGrpc.TransactionImplBase p2pTransactionService =
-        mock(TransactionGrpc.TransactionImplBase.class,
+    private final P2PTransactionGrpc.P2PTransactionImplBase p2pTransactionService =
+        mock(P2PTransactionGrpc.P2PTransactionImplBase.class,
             delegatesTo(new TransactionGrpcServiceDelegate() {
             }));
 
@@ -140,11 +140,11 @@ public class GrpcClientTest {
     }
 
     /**
-     * Delegate to mock the TransactionGrpcService class
+     * Delegate to mock the APITransactionGrpcService class
      * The focus here is to ensure the client fires requests correctly.
      * The real logic for these services are being tests at service test classes
      */
-    private class TransactionGrpcServiceDelegate extends TransactionGrpc.TransactionImplBase {
+    private class TransactionGrpcServiceDelegate extends P2PTransactionGrpc.P2PTransactionImplBase {
         @Override
         public void push(PushRequest request, StreamObserver<PushRequest> responseObserver) {
             byte[] responseData = "RESPONSE".getBytes();

@@ -6,11 +6,11 @@
     
     <bean name="tesseraGrpcService" class="com.quorum.tessera.grpc.p2p.TesseraGrpcService"/>
     
-    <bean name="p2pTransactionGrpcService" class="com.quorum.tessera.grpc.p2p.TransactionGrpcService">
+    <bean name="p2pTransactionGrpcService" class="com.quorum.tessera.grpc.p2p.P2PTransactionGrpcService">
         <constructor-arg ref="transactionManager"/>
     </bean>
 
-    <bean name="apiTransactionGrpcService" class="com.quorum.tessera.grpc.api.TransactionGrpcService">
+    <bean name="apiTransactionGrpcService" class="com.quorum.tessera.grpc.api.APITransactionGrpcService">
         <constructor-arg ref="transactionManager"/>
     </bean>
     

@@ -18,13 +18,13 @@ final class GrpcClientImpl implements GrpcClient {
 
     private final PartyInfoGrpc.PartyInfoBlockingStub partyInfoBlockingStub;
 
-    private final TransactionGrpc.TransactionBlockingStub transactionBlockingStub;
+    private final P2PTransactionGrpc.P2PTransactionBlockingStub transactionBlockingStub;
 
 
     GrpcClientImpl(final ManagedChannel channel) {
         this.channel = channel;
         this.partyInfoBlockingStub = PartyInfoGrpc.newBlockingStub(channel);
-        this.transactionBlockingStub = TransactionGrpc.newBlockingStub(channel);
+        this.transactionBlockingStub = P2PTransactionGrpc.newBlockingStub(channel);
     }
 
     GrpcClientImpl(final String targetUrl) {

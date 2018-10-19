@@ -8,7 +8,8 @@
     "server": {
         "port": 8080,
         "grpcPort" : 50520,
-        "hostName": "http://localhost"
+        "hostName": "http://localhost",
+        "communicationType" : "GRPC"
     },
     "peer": [
         {

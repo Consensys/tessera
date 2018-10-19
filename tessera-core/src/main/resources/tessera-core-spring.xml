@@ -71,7 +71,7 @@
 
     <!-- Party Info management -->
     <bean id="partyInfoStore" class="com.quorum.tessera.node.PartyInfoStore">
-        <constructor-arg value="#{config.serverConfig}"/>
+        <constructor-arg ref="configService"/>
     </bean>
 
     <bean name="partyInfoService" class="com.quorum.tessera.node.PartyInfoServiceImpl">

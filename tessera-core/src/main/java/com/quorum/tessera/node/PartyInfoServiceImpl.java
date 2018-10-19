@@ -100,6 +100,8 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         Set<Party> newParties = new HashSet<>(partyInfo.getParties());
         peerUrls.stream().map(Party::new).forEach(newParties::add);
 
+        // TODO NL - check if we should add the unsaved parties to the resend party store (in the same way in which we are doing it in PartyInfoPoller)
+
         partyInfoStore.store(new PartyInfo(partyInfo.getUrl(), partyInfo.getRecipients(), newParties));
 
         if (!peerUrls.isEmpty()) {

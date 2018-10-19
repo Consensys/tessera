@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class TransactionGrpcServiceTest {
+public class APITransactionGrpcServiceTest {
 
     @Mock
     private StreamObserver<SendResponse> sendResponseObserver;
@@ -25,12 +25,12 @@ public class TransactionGrpcServiceTest {
     @Mock
     private TransactionManagerImpl enclaveMediator;
 
-    private TransactionGrpcService service;
+    private APITransactionGrpcService service;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        service = new TransactionGrpcService(enclaveMediator);
+        service = new APITransactionGrpcService(enclaveMediator);
     }
 
     @After

@@ -17,8 +17,8 @@ public class SendGrpcIT {
     private ManagedChannel channel1;
     private ManagedChannel channel2;
 
-    private TransactionGrpc.TransactionBlockingStub blockingStub1;
-    private TransactionGrpc.TransactionBlockingStub blockingStub2;
+    private APITransactionGrpc.APITransactionBlockingStub blockingStub1;
+    private APITransactionGrpc.APITransactionBlockingStub blockingStub2;
 
     @Before
     public void onSetUp() {
@@ -29,8 +29,8 @@ public class SendGrpcIT {
                 .usePlaintext()
                 .build();
 
-        blockingStub1 = TransactionGrpc.newBlockingStub(channel1);
-        blockingStub2 = TransactionGrpc.newBlockingStub(channel2);
+        blockingStub1 = APITransactionGrpc.newBlockingStub(channel1);
+        blockingStub2 = APITransactionGrpc.newBlockingStub(channel2);
     }
 
     @After
@@ -67,7 +67,7 @@ public class SendGrpcIT {
         ReceiveResponse receiveResponse = blockingStub2.receive(receiveRequest);
 
         assertThat(receiveResponse).isNotNull();
-        result.getAllFields().forEach((k, v) -> System.out.println(k + " " + v));
+        receiveResponse.getAllFields().forEach((k, v) -> System.out.println(k + " " + v));
         assertThat(receiveResponse.getPayload()).isNotNull().isEqualTo(payload);
     }
 
@@ -89,7 +89,7 @@ public class SendGrpcIT {
     }
 
     @Test
-    public void missingPayloadFails() throws Exception {
+    public void missingPayloadFails() {
 
         SendRequest request = SendRequest.newBuilder()
                 .setFrom("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")

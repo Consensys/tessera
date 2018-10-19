@@ -2,7 +2,6 @@ package com.quorum.tessera.grpc.api;
 
 import com.google.protobuf.ByteString;
 import com.quorum.tessera.grpc.StreamObserverTemplate;
-import com.quorum.tessera.grpc.api.*;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
@@ -15,16 +14,16 @@ import javax.validation.Validator;
 import java.util.Objects;
 import java.util.Set;
 
-public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase {
+public class APITransactionGrpcService extends APITransactionGrpc.APITransactionImplBase{
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionGrpcService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(APITransactionGrpcService.class);
 
     private final Validator validator = Validation.byDefaultProvider()
             .configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
 
     private final TransactionManager transactionManager;
 
-    public TransactionGrpcService(TransactionManager transactionManager) {
+    public APITransactionGrpcService(TransactionManager transactionManager) {
         this.transactionManager = Objects.requireNonNull(transactionManager);
     }
 

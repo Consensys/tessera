@@ -1,7 +1,6 @@
 package com.quorum.tessera.grpc.p2p;
 
 import com.google.protobuf.ByteString;
-import com.quorum.tessera.grpc.p2p.*;
 import com.quorum.tessera.grpc.StreamObserverTemplate;
 import com.quorum.tessera.transaction.TransactionManager;
 
@@ -17,16 +16,16 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
-public class TransactionGrpcService extends TransactionGrpc.TransactionImplBase {
+public class P2PTransactionGrpcService extends P2PTransactionGrpc.P2PTransactionImplBase{
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionGrpcService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(P2PTransactionGrpcService.class);
 
     private final Validator validator = Validation.byDefaultProvider()
             .configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
 
     private final TransactionManager transactionManager;
 
-    public TransactionGrpcService(TransactionManager transactionManager) {
+    public P2PTransactionGrpcService(TransactionManager transactionManager) {
         this.transactionManager = Objects.requireNonNull(transactionManager);
     }
 
