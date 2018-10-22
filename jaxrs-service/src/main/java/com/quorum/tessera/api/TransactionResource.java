@@ -168,7 +168,7 @@ public class TransactionResource {
             @ApiParam("Encoded Recipient Public Key")
             @HeaderParam(value = "c11n-to") String recipientKey) {
 
-        LOGGER.debug("Received receiveraw request");
+        LOGGER.debug("Received receiveraw request for hash : {}, recipientKey: {}",hash,recipientKey);
 
         ReceiveRequest receiveRequest = new ReceiveRequest();
         receiveRequest.setKey(hash);
