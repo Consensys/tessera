@@ -1,5 +1,6 @@
 package com.quorum.tessera.core.config;
 
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.ServerConfig;
@@ -74,17 +75,22 @@ public class ConfigServiceTest {
     public void getServerUri() throws URISyntaxException {
         ServerConfig serverConfig = mock(ServerConfig.class);
         URI serverUri = new URI("someuri");
+        URI grpcUri = new URI("grpcuri");
         when(serverConfig.getServerUri()).thenReturn(serverUri);
-        
+        when(serverConfig.getGrpcUri()).thenReturn(grpcUri);
         when(config.getServerConfig()).thenReturn(serverConfig);
-        
-        URI result = configService.getServerUri();
-        
-        assertThat(result).isSameAs(serverUri);
-        
-        verify(config).getServerConfig();
-        verify(serverConfig).getServerUri();
-        
-    }
 
+        when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
+        URI result = configService.getServerUri();
+        assertThat(result).isSameAs(serverUri);
+
+        when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.GRPC);
+        result = configService.getServerUri();
+        assertThat(result).isSameAs(grpcUri);
+
+        
+        verify(config, times(4)).getServerConfig();
+        verify(serverConfig).getServerUri();
+        verify(serverConfig).getGrpcUri();
+    }
 }
