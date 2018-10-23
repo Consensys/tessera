@@ -1,8 +1,9 @@
-package com.quorum.tessera.api.grpc;
+package com.quorum.tessera.grpc.p2p;
 
 import com.google.protobuf.Empty;
-import com.quorum.tessera.api.grpc.model.UpCheckMessage;
-import com.quorum.tessera.api.grpc.model.VersionMessage;
+import com.quorum.tessera.grpc.p2p.UpCheckMessage;
+import com.quorum.tessera.grpc.p2p.VersionMessage;
+import com.quorum.tessera.grpc.StreamObserverTemplate;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

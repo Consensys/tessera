@@ -1,7 +1,6 @@
-package com.quorum.tessera.api.grpc;
+package com.quorum.tessera.grpc.p2p;
 
 import com.google.protobuf.ByteString;
-import com.quorum.tessera.api.grpc.model.PartyInfoMessage;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.model.PartyInfo;

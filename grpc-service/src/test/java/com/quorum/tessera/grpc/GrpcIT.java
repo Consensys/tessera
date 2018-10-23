@@ -1,8 +1,9 @@
 package com.quorum.tessera.grpc;
 
-import com.quorum.tessera.api.grpc.PartyInfoGrpcService;
-import com.quorum.tessera.api.grpc.TesseraGrpcService;
-import com.quorum.tessera.api.grpc.TransactionGrpcService;
+import com.quorum.tessera.grpc.api.APITransactionGrpcService;
+import com.quorum.tessera.grpc.p2p.PartyInfoGrpcService;
+import com.quorum.tessera.grpc.p2p.TesseraGrpcService;
+import com.quorum.tessera.grpc.p2p.P2PTransactionGrpcService;
 import javax.inject.Inject;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
@@ -18,7 +19,10 @@ public class GrpcIT {
     private TesseraGrpcService tesseraGrpcService;
 
     @Inject
-    private TransactionGrpcService transactionGrpcService;
+    private P2PTransactionGrpcService p2pTransactionGrpcService;
+
+    @Inject
+    private APITransactionGrpcService apiTransactionGrpcService;
 
     @Inject
     private PartyInfoGrpcService partyInfoGrpcService;
@@ -29,8 +33,13 @@ public class GrpcIT {
     }
     
     @Test
-    public void transactionGrpcServiceHasBeenCreated() {
-        assertThat(transactionGrpcService).isNotNull();
+    public void p2pTransactionGrpcServiceHasBeenCreated() {
+        assertThat(p2pTransactionGrpcService).isNotNull();
+    }
+
+    @Test
+    public void apiTransactionGrpcServiceHasBeenCreated() {
+        assertThat(apiTransactionGrpcService).isNotNull();
     }
 
     @Test
