@@ -1,30 +1,22 @@
 package com.quorum.tessera.api.filter;
 
-import com.quorum.tessera.ssl.util.HostnameUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.net.UnknownHostException;
 
+/**
+ * The filter logic that only allows requests to certain hosts to hit HTTP endpoints
+ */
 @PrivateApi
 public class PrivateApiFilter implements ContainerRequestFilter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PrivateApiFilter.class);
+    //Allow the Unix Socket host to receive the requests to private endpoints
+    private static final String UNIX_SOCKET = "unixsocket";
 
-    private static final String LOCALHOST = "127.0.0.1";
-
-    private HttpServletRequest httpServletRequest;
-
-    private final String hostname;
-
-    public PrivateApiFilter() throws UnknownHostException {
-        this.hostname = HostnameUtil.create().getHostIpAddress();
-    }
+    //TODO: this should be changed to be injected
+    //This is used to allow Private API endpoints to be called over the HTTP server,
+    //instead of via the Unix Domain Socket
+    private final boolean isDebug = Boolean.valueOf(System.getProperty("debug", "false"));
 
     /**
      * Extract the callers hostname and address,
@@ -37,14 +29,9 @@ public class PrivateApiFilter implements ContainerRequestFilter {
     @Override
     public void filter(final ContainerRequestContext requestContext) {
 
-        if(this.httpServletRequest == null) {
-            LOGGER.debug("No servlet available, could not determine request origin. Allowing...");
-            return;
-        }
+        final String baseUri = requestContext.getUriInfo().getBaseUri().toString();
 
-        final String remoteAddress = httpServletRequest.getRemoteAddr();
-
-        final boolean allowed = hostname.equals(remoteAddress) || LOCALHOST.equals(remoteAddress);
+        final boolean allowed = isDebug || UNIX_SOCKET.equals(baseUri);
 
         if (!allowed) {
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
@@ -52,13 +39,4 @@ public class PrivateApiFilter implements ContainerRequestFilter {
 
     }
 
-    /**
-     * Apply the current HTTP context to the filter, to check the remote host
-     *
-     * @param request the request to be filtered
-     */
-    @Context
-    public void setHttpServletRequest(final HttpServletRequest request) {
-        this.httpServletRequest = request;
-    }
 }

@@ -52,6 +52,7 @@ public class ProcessManager {
                     "-Dspring.profiles.active=disable-unixsocket",
                     "-Dnode.number=" + nodeNumber,
                     "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
+                    "-Ddebug=true",
                     "-jar",
                     jarfile,
                     "-configfile",
