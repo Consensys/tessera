@@ -1,7 +1,7 @@
 package com.quorum.tessera.grpc.server;
 
 import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
 import io.grpc.BindableService;
@@ -17,16 +17,16 @@ public class GrpcServerFactory implements TesseraServerFactory {
 
 
     @Override
-    public TesseraServer createServer(ServerConfig serverConfig, Set<Object> services) {
+    public TesseraServer createServer(Config config, Set<Object> services) {
 
-        if (Objects.nonNull(serverConfig.getGrpcPort())) {
+        if (Objects.nonNull(config.getServerConfig().getGrpcPort())) {
             final List<BindableService> bindableServices = services
                 .stream()
                 .filter(BindableService.class::isInstance)
                 .map(o -> (BindableService) o)
                 .collect(Collectors.toList());
 
-            final URI serverUri = serverConfig.getGrpcUri();
+            final URI serverUri = config.getServerConfig().getGrpcUri();
 
             ServerBuilder serverBuilder = ServerBuilder.forPort(serverUri.getPort());
 

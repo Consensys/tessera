@@ -250,7 +250,6 @@
         <module>service-locator</module>
         <module>server</module>
         <module>encryption</module>
-        <module>socket</module>
         <module>data-migration</module>
         <module>config-migration</module>
         <module>shared</module>
@@ -289,22 +288,10 @@
                 <artifactId>config-cli</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
-            
-            <dependency>
-                <groupId>com.quorum.tessera</groupId>
-                <artifactId>unixsocket</artifactId>
-                <version>0.7-SNAPSHOT</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>security</artifactId>
-                <version>0.7-SNAPSHOT</version>
-            </dependency>
-       
-            <dependency>
-                <groupId>com.quorum.tessera</groupId>
-                <artifactId>junixsocket-adapter</artifactId>
                 <version>0.7-SNAPSHOT</version>
             </dependency>
             
@@ -732,6 +719,12 @@
                 <artifactId>grpc-testing</artifactId>
                 <version>${grpc.version}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>4.1.27.Final</version>
             </dependency>
             
         </dependencies>
