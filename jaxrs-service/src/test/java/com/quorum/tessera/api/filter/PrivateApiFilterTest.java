@@ -1,14 +1,15 @@
 package com.quorum.tessera.api.filter;
 
-import com.quorum.tessera.ssl.util.HostnameUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
-import java.net.UnknownHostException;
+import javax.ws.rs.core.UriInfo;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -17,29 +18,23 @@ public class PrivateApiFilterTest {
 
     private ContainerRequestContext ctx;
 
-    private PrivateApiFilter filter;
+    private PrivateApiFilter filter = new PrivateApiFilter();
 
     @Before
-    public void init() throws UnknownHostException {
-
-        this.filter = new PrivateApiFilter();
-
+    public void init() {
         this.ctx = mock(ContainerRequestContext.class);
     }
 
     @Test
-    public void hostNotALocalAddressGetsRejected() {
+    public void hostWithWrongBaseUriFails() throws URISyntaxException {
 
         final Response expectedResponse = Response.status(Response.Status.UNAUTHORIZED).build();
 
-        final HttpServletRequest request = mock(HttpServletRequest.class);
-        doReturn("127.0.0.2").when(request).getRemoteAddr();
-
-        filter.setHttpServletRequest(request);
+        final UriInfo uriInfo = mock(UriInfo.class);
+        when(uriInfo.getBaseUri()).thenReturn(new URI("otherhost.com:8080"));
+        when(ctx.getUriInfo()).thenReturn(uriInfo);
 
         filter.filter(ctx);
-
-        verify(request).getRemoteAddr();
 
         final ArgumentCaptor<Response> captor = ArgumentCaptor.forClass(Response.class);
         verify(ctx).abortWith(captor.capture());
@@ -49,27 +44,16 @@ public class PrivateApiFilterTest {
     }
 
     @Test
-    public void hostThatIsLocalAddressGetsAccepted() throws UnknownHostException {
-        final HttpServletRequest request = mock(HttpServletRequest.class);
-        doReturn(HostnameUtil.create().getHostIpAddress()).when(request).getRemoteAddr();
+    public void hostWithCorrectBaseUriSucceeds() throws URISyntaxException {
 
-        filter.setHttpServletRequest(request);
-
-        filter.filter(ctx);
-
-        verify(request).getRemoteAddr();
-        verifyZeroInteractions(ctx);
-
-    }
-
-    @Test
-    public void noServletAllowsRequest() {
-
-        filter.setHttpServletRequest(null);
+        final UriInfo uriInfo = mock(UriInfo.class);
+        when(uriInfo.getBaseUri()).thenReturn(new URI("unixsocket"));
+        when(ctx.getUriInfo()).thenReturn(uriInfo);
 
         filter.filter(ctx);
 
-        verifyZeroInteractions(ctx);
+        verify(ctx).getUriInfo();
+        verifyNoMoreInteractions(ctx);
 
     }
 

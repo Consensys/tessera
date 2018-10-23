@@ -124,7 +124,6 @@
                                 <configFile>${project.build.testOutputDirectory}/config1.json</configFile>
                                 <pidFile>${project.build.directory}/node1.pid</pidFile>
                                 <logbackConfigFile>${project.build.testOutputDirectory}/logback-node1.xml</logbackConfigFile>
-                                <junixsocketLibPath>${project.build.directory}/junixsocket-1.3/lib-native</junixsocketLibPath>
                             </properties>
                             <source>${basedir}/src/test/groovy/startNode.groovy</source>
                         </configuration>
@@ -141,7 +140,6 @@
                                 <configFile>${project.build.testOutputDirectory}/config2.json</configFile>
                                 <pidFile>${project.build.directory}/node2.pid</pidFile>
                                 <logbackConfigFile>${project.build.testOutputDirectory}/logback-node2.xml</logbackConfigFile>
-                                <junixsocketLibPath>${project.build.directory}/junixsocket-1.3/lib-native</junixsocketLibPath>
                             </properties>
                             <source>${basedir}/src/test/groovy/startNode.groovy</source>
                         </configuration>

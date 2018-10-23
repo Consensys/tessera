@@ -1,27 +1,27 @@
 package com.quorum.tessera.resteasy;
 
 import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
-import java.util.Set;
 
 import javax.ws.rs.core.Application;
+import java.util.Set;
 
 /**
- * Creates RestEasy and Sun HTTP server implementations of the {@link RestServer}
+ * Creates RestEasy and Sun HTTP server implementations of the {@link TesseraServer}
  */
 public class RestEasyServerFactory implements TesseraServerFactory {
 
     @Override
-    public TesseraServer createServer(ServerConfig serverConfig,Set<Object> services) {
+    public TesseraServer createServer(Config config, Set<Object> services) {
         Application application = services.stream()
                 .filter(Application.class::isInstance)
                 .findFirst()
                 .map(Application.class::cast)
                 .get();
         
-        return new RestEasyServer(application, serverConfig);
+        return new RestEasyServer(application, config.getServerConfig());
     }
 
     @Override
