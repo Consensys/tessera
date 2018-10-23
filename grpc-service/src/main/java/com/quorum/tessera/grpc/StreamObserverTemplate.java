@@ -1,4 +1,4 @@
-package com.quorum.tessera.api.grpc;
+package com.quorum.tessera.grpc;
 
 import com.quorum.tessera.node.AutoDiscoveryDisabledException;
 import io.grpc.stub.StreamObserver;

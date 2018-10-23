@@ -1,6 +1,6 @@
 package com.quorum.tessera.node;
 
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.core.config.ConfigService;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
@@ -21,12 +21,13 @@ public class PartyInfoStore {
 
     private final Set<Party> parties;
 
-    public PartyInfoStore(final ServerConfig configuration) {
+    public PartyInfoStore(final ConfigService configService) {
 
-        this.advertisedUrl = configuration.getServerUri().toString();
+        this.advertisedUrl = configService.getServerUri().toString();
 
         this.recipients = new HashSet<>();
         this.parties = new HashSet<>();
+        this.parties.add(new Party(this.advertisedUrl));
     }
 
     /**

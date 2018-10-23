@@ -1,17 +1,16 @@
 package com.quorum.tessera.node;
 
 
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.core.config.ConfigService;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Set;
 
 import static java.util.Collections.singleton;
@@ -22,16 +21,16 @@ import static org.mockito.Mockito.when;
 public class PartyInfoStoreTest {
 
     private String annoyingUriAsAString = "FIXME";
-    
-    private ServerConfig configuration;
+
+    private ConfigService configService;
 
     private PartyInfoStore partyInfoStore;
 
     @Before
     public void onSetUp() throws URISyntaxException {
-        configuration = mock(ServerConfig.class);
-        when(configuration.getServerUri()).thenReturn(new URI(annoyingUriAsAString));
-        this.partyInfoStore = new PartyInfoStore(configuration);
+        configService = mock(ConfigService.class);
+        when(configService.getServerUri()).thenReturn(new URI(annoyingUriAsAString));
+        this.partyInfoStore = new PartyInfoStore(configService);
 
     }
 
@@ -56,7 +55,8 @@ public class PartyInfoStoreTest {
         final Set<Recipient> retrievedRecipients = partyInfoStore.getPartyInfo().getRecipients();
         final String fetchedUrl = partyInfoStore.getPartyInfo().getUrl();
 
-        assertThat(retrievedParties).hasSize(1).containsExactly(new Party("http://other-node.com:8080"));
+        assertThat(retrievedParties).hasSize(2).containsExactlyInAnyOrder(new Party("http://other-node.com:8080"),
+            new Party(ourUrl));
         assertThat(retrievedRecipients).hasSize(1).containsExactly(
             new Recipient(PublicKey.from("some-key".getBytes()), ourUrl)
         );

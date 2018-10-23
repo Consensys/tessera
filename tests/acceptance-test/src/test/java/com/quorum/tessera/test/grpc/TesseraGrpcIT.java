@@ -1,8 +1,8 @@
 package com.quorum.tessera.test.grpc;
 
 import com.google.protobuf.Empty;
-import com.quorum.tessera.api.grpc.TesseraGrpc;
-import com.quorum.tessera.api.grpc.model.VersionMessage;
+import com.quorum.tessera.grpc.p2p.TesseraGrpc;
+import com.quorum.tessera.grpc.p2p.VersionMessage;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -1,7 +1,7 @@
 
 package com.quorum.tessera.client;
 
-import com.quorum.tessera.api.grpc.model.ResendRequest;
+import com.quorum.tessera.grpc.p2p.ResendRequest;
 
 
 interface GrpcClient {
