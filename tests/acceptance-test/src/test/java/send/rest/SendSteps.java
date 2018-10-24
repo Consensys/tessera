@@ -5,8 +5,7 @@ import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.test.ClientFacade;
 import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.PartyFactory;
-import com.quorum.tessera.test.RestPartyFactory;
+import com.quorum.tessera.test.RestPartyHelper;
 import cucumber.api.java8.En;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,6 +25,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import static org.assertj.core.api.Assertions.assertThat;
+import com.quorum.tessera.test.PartyHelper;
 
 public class SendSteps implements En {
 
@@ -33,7 +33,7 @@ public class SendSteps implements En {
 
     private Client client = ClientBuilder.newClient();
 
-    private PartyFactory partyFactory = new RestPartyFactory();
+    private PartyHelper partyFactory = new RestPartyHelper();
     
     public SendSteps() {
 

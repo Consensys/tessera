@@ -9,9 +9,8 @@ import com.quorum.tessera.grpc.api.SendRequest;
 import com.quorum.tessera.grpc.api.SendResponse;
 import com.quorum.tessera.grpc.p2p.TesseraGrpc;
 import com.quorum.tessera.test.ClientFacade;
-import com.quorum.tessera.test.GrpcPartyFactory;
+import com.quorum.tessera.test.GrpcPartyHelper;
 import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.PartyFactory;
 import cucumber.api.java8.En;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -27,12 +26,13 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
+import com.quorum.tessera.test.PartyHelper;
 
 public class SendGrpcSteps implements En {
 
 
     
-    private PartyFactory partyFactory = new GrpcPartyFactory();
+    private PartyHelper partyFactory = new GrpcPartyHelper();
 
     public SendGrpcSteps() {
 

@@ -3,8 +3,7 @@ package com.quorum.tessera.test.rest;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.test.ClientFacade;
 import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.PartyFactory;
-import com.quorum.tessera.test.RestPartyFactory;
+import com.quorum.tessera.test.RestPartyHelper;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -16,12 +15,13 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import com.quorum.tessera.test.PartyHelper;
 
 public class RestClientFacade implements ClientFacade {
 
     private Client  client = RestUtils.buildClient();
 
-    private PartyFactory partyFactory = new RestPartyFactory();
+    private PartyHelper partyHelper = new RestPartyHelper();
     
     @Override
     public Response send(Party sender, byte[] transactionData, Party... recipients) {
@@ -64,7 +64,7 @@ public class RestClientFacade implements ClientFacade {
     }
     
     public boolean allNodesAreUp() {
-        return partyFactory.getParties().allMatch(this::isUp);
+        return partyHelper.getParties().allMatch(this::isUp);
     }
 
     @Override

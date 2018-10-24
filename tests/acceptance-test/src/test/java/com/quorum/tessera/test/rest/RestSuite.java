@@ -1,6 +1,7 @@
 package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.test.CucumberRestIT;
 import com.quorum.tessera.test.ProcessManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -20,7 +21,7 @@ import org.junit.runners.Suite;
     SendRawIT.class,
     TesseraIT.class,
     TransactionForwardingIT.class,
-    AdminConfigIT.class
+    AdminConfigIT.class,CucumberRestIT.class
 })
 public class RestSuite {
 

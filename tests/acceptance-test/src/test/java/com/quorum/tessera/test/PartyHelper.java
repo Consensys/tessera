@@ -2,7 +2,7 @@ package com.quorum.tessera.test;
 
 import java.util.stream.Stream;
 
-public interface PartyFactory {
+public interface PartyHelper {
 
     Stream<Party> getParties();
 

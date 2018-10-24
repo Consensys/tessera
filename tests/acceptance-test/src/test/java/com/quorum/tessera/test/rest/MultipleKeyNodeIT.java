@@ -3,8 +3,7 @@ package com.quorum.tessera.test.rest;
 import com.quorum.tessera.api.model.ReceiveResponse;
 import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.PartyFactory;
-import com.quorum.tessera.test.RestPartyFactory;
+import com.quorum.tessera.test.RestPartyHelper;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
@@ -19,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import com.quorum.tessera.test.PartyHelper;
 
 /**
  * This tests that a node that hosts multiple sets of keys can send/receive
@@ -29,7 +29,7 @@ public class MultipleKeyNodeIT {
 
 
     
-    private static PartyFactory partyFactory = new RestPartyFactory();
+    private static PartyHelper partyHelper = new RestPartyHelper();
 
     private final Client client = ClientBuilder.newClient();
 
@@ -47,7 +47,7 @@ public class MultipleKeyNodeIT {
     @Before
     public void onSetUp() {
         
-        Party sender = partyFactory.findByAlias("A");
+        Party sender = partyHelper.findByAlias("A");
 
         byte[] transactionData = restUtils.createTransactionData();
         final SendResponse result = restUtils.sendRequestAssertSuccess(sender, transactionData, recipient);
@@ -63,7 +63,7 @@ public class MultipleKeyNodeIT {
         
         final byte[] transactionData = RestUtils.generateTransactionData();
         
-        Party sender = partyFactory.findByAlias("A");
+        Party sender = partyHelper.findByAlias("A");
         
         //retrieve the transaction
         final Response retrieveResponse = this.client.target(sender.getPublicKey())
@@ -82,7 +82,7 @@ public class MultipleKeyNodeIT {
 
     @Parameterized.Parameters
     public static List<Party> recipients() {
-        return partyFactory.getParties()
+        return partyHelper.getParties()
             .filter(p -> p.getAlias().equals("D"))
             .filter(p -> p.getAlias().equals("C")).collect(Collectors.toList());
     }

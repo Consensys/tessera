@@ -11,11 +11,11 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import static com.quorum.tessera.test.Fixtures.*;
 import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.PartyFactory;
-import com.quorum.tessera.test.RestPartyFactory;
+import com.quorum.tessera.test.RestPartyHelper;
 import static com.quorum.tessera.test.rest.RawHeaderName.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import com.quorum.tessera.test.PartyHelper;
 
 public class SendRawIT {
 
@@ -27,7 +27,7 @@ public class SendRawIT {
 
     private static final byte[] TXN_DATA = "Zm9v".getBytes();
 
-    private PartyFactory partyFactory = new RestPartyFactory();
+    private PartyHelper partyHelper = new RestPartyHelper();
     
     /**
      * Quorum sends transaction with singe public recipient key
@@ -35,9 +35,9 @@ public class SendRawIT {
     @Test
     public void sendToSingleRecipient() {
 
-        Party sender = partyFactory.findByAlias("A");
+        Party sender = partyHelper.findByAlias("A");
 
-        Party recipient = partyFactory.findByAlias("D");
+        Party recipient = partyHelper.findByAlias("D");
 
         byte[] transactionData = restUtils.createTransactionData();
 
@@ -68,7 +68,7 @@ public class SendRawIT {
             assertThat(r.getStatus()).isEqualTo(200);
         });
 
-        restUtils.findTransaction(persistedKey, partyFactory.findByAlias("C"), partyFactory.findByAlias("B")).forEach(r -> {
+        restUtils.findTransaction(persistedKey, partyHelper.findByAlias("C"), partyHelper.findByAlias("B")).forEach(r -> {
             assertThat(r.getStatus()).isEqualTo(404);
         });
 
@@ -80,9 +80,9 @@ public class SendRawIT {
     @Test
     public void sendSingleTransactionToMultipleParties() {
 
-        Party sender = partyFactory.findByAlias("A");
-        Party firstRecipient = partyFactory.findByAlias("B");
-        Party secondRecipient = partyFactory.findByAlias("D");
+        Party sender = partyHelper.findByAlias("A");
+        Party firstRecipient = partyHelper.findByAlias("B");
+        Party secondRecipient = partyHelper.findByAlias("D");
 
         byte[] transactionData = restUtils.createTransactionData();
 
@@ -111,7 +111,7 @@ public class SendRawIT {
             assertThat(r.getStatus()).isEqualTo(200);
         });
 
-        restUtils.findTransaction(persistedKey, partyFactory.findByAlias("C")).forEach(r -> {
+        restUtils.findTransaction(persistedKey, partyHelper.findByAlias("C")).forEach(r -> {
             assertThat(r.getStatus()).isEqualTo(404);
         });
 
@@ -120,8 +120,8 @@ public class SendRawIT {
     @Test
     public void sendTransactionWithoutASender() {
 
-        URI uriToSendToWithoutPublicKey = partyFactory.findByAlias("A").getUri();
-        Party recipient = partyFactory.findByAlias("D");
+        URI uriToSendToWithoutPublicKey = partyHelper.findByAlias("A").getUri();
+        Party recipient = partyHelper.findByAlias("D");
 
         byte[] transactionData = restUtils.createTransactionData();
 
@@ -150,11 +150,11 @@ public class SendRawIT {
 
         assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
 
-        restUtils.findTransaction(persistedKey, partyFactory.findByAlias("A"), recipient).forEach(r -> {
+        restUtils.findTransaction(persistedKey, partyHelper.findByAlias("A"), recipient).forEach(r -> {
             assertThat(r.getStatus()).isEqualTo(200);
         });
 
-        restUtils.findTransaction(persistedKey, partyFactory.findByAlias("C"),partyFactory.findByAlias("B")).forEach(r -> {
+        restUtils.findTransaction(persistedKey, partyHelper.findByAlias("C"),partyHelper.findByAlias("B")).forEach(r -> {
             assertThat(r.getStatus()).isEqualTo(404);
         });
     }
@@ -162,7 +162,7 @@ public class SendRawIT {
     @Test
     public void sendTransactionWithEmptyRecipients() {
 
-        Party sender = partyFactory.findByAlias("A");
+        Party sender = partyHelper.findByAlias("A");
 
         byte[] txnData = restUtils.createTransactionData();
 
@@ -193,7 +193,7 @@ public class SendRawIT {
     @Test
     public void sendTransactionWithMissingRecipients() {
 
-        Party sender = partyFactory.findByAlias("A");
+        Party sender = partyHelper.findByAlias("A");
 
         byte[] txnData = restUtils.createTransactionData();
 

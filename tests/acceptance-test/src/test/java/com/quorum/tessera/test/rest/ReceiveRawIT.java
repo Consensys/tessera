@@ -4,8 +4,7 @@ import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
 import static com.quorum.tessera.test.Fixtures.*;
 import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.PartyFactory;
-import com.quorum.tessera.test.RestPartyFactory;
+import com.quorum.tessera.test.RestPartyHelper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import static org.assertj.core.api.Assertions.assertThat;
+import com.quorum.tessera.test.PartyHelper;
 
 public class ReceiveRawIT {
 
@@ -29,7 +29,7 @@ public class ReceiveRawIT {
 
     private static final byte[] PAYLOAD = TXN_DATA;
     
-    private PartyFactory partyFactory = new RestPartyFactory();
+    private PartyHelper partyHelper = new RestPartyHelper();
 
     private Client client = ClientBuilder.newClient();
 
@@ -101,14 +101,14 @@ public class ReceiveRawIT {
     @Test
     public void fetchExistingTransactionNotUsingKeyOnRecipient() {
 
-        Party sender = partyFactory.findByAlias("A");
+        Party sender = partyHelper.findByAlias("A");
         
         byte[] transactionPayload = new RestUtils().createTransactionData();
 
         SendRequest sendRequest = new SendRequest();
         sendRequest.setPayload(transactionPayload);
         sendRequest.setFrom(sender.getPublicKey());
-        sendRequest.setTo(partyFactory.findByAlias("B").getPublicKey());
+        sendRequest.setTo(partyHelper.findByAlias("B").getPublicKey());
         
 
         final Response r = client.target(sender.getUri())
@@ -118,7 +118,7 @@ public class ReceiveRawIT {
 
         final SendResponse sendResponse = r.readEntity(SendResponse.class);
 
-        final Response response = client.target(partyFactory.findByAlias("B").getUri())
+        final Response response = client.target(partyHelper.findByAlias("B").getUri())
             .path(RECEIVE_PATH)
             .request()
             .header(C11N_KEY, sendResponse.getKey())

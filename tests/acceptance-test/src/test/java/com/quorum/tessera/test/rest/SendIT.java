@@ -4,8 +4,7 @@ import com.quorum.tessera.api.model.ReceiveResponse;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.PartyFactory;
-import com.quorum.tessera.test.RestPartyFactory;
+import com.quorum.tessera.test.RestPartyHelper;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
@@ -16,6 +15,7 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import javax.json.Json;
 import static org.assertj.core.api.Assertions.assertThat;
+import com.quorum.tessera.test.PartyHelper;
 
 /**
  * Scenarios tested:
@@ -34,15 +34,15 @@ public class SendIT {
     private RestUtils utils = new RestUtils();
     
     
-    private PartyFactory partyFactory = new RestPartyFactory();
+    private PartyHelper partyHelper = new RestPartyHelper();
     /**
      * Quorum sends transaction with single public recipient key
      */
     @Test
     public void sendToSingleRecipient() {
 
-        Party firstParty = partyFactory.findByAlias("A");
-        Party secondParty = partyFactory.findByAlias("B");
+        Party firstParty = partyHelper.findByAlias("A");
+        Party secondParty = partyHelper.findByAlias("B");
         byte[] transactionData = utils.createTransactionData();
 
         final SendRequest sendRequest = new SendRequest();
@@ -74,11 +74,11 @@ public class SendIT {
 
         assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
 
-        utils.findTransaction(result.getKey(), partyFactory.findByAlias("A"), partyFactory.findByAlias("B")).forEach(r -> {
+        utils.findTransaction(result.getKey(), partyHelper.findByAlias("A"), partyHelper.findByAlias("B")).forEach(r -> {
             assertThat(r.getStatus()).isEqualTo(200);
         });
 
-        utils.findTransaction(result.getKey(), partyFactory.findByAlias("C"), partyFactory.findByAlias("D")).forEach(r -> {
+        utils.findTransaction(result.getKey(), partyHelper.findByAlias("C"), partyHelper.findByAlias("D")).forEach(r -> {
             assertThat(r.getStatus()).isEqualTo(404);
         });
 
@@ -90,12 +90,12 @@ public class SendIT {
     @Test
     public void firstPartyForwardsToTwoOtherParties() {
 
-        Party sendingParty = partyFactory.findByAlias("A");
+        Party sendingParty = partyHelper.findByAlias("A");
 
-        Party secondParty = partyFactory.findByAlias("B");
-        Party thirdParty = partyFactory.findByAlias("D");
+        Party secondParty = partyHelper.findByAlias("B");
+        Party thirdParty = partyHelper.findByAlias("D");
 
-        Party excludedParty = partyFactory.findByAlias("C");
+        Party excludedParty = partyHelper.findByAlias("C");
 
         byte[] transactionData = utils.createTransactionData();
 
@@ -141,7 +141,7 @@ public class SendIT {
     @Test
     public void sendTransactionWithoutASender() {
 
-        Party recipient = partyFactory.getParties().findAny().get();
+        Party recipient = partyHelper.getParties().findAny().get();
 
         byte[] transactionData = utils.createTransactionData();
 
@@ -177,7 +177,7 @@ public class SendIT {
     @Test
     public void sendTransactionWithMissingRecipients() {
 
-        Party sendingParty = partyFactory.getParties().findAny().get();
+        Party sendingParty = partyHelper.getParties().findAny().get();
         byte[] transactionData = utils.createTransactionData();
 
         final SendRequest sendRequest = new SendRequest();
@@ -215,9 +215,9 @@ public class SendIT {
     @Test
     public void missingPayloadFails() {
 
-        Party sendingParty = partyFactory.getParties().findAny().get();
+        Party sendingParty = partyHelper.getParties().findAny().get();
 
-        Party recipient = partyFactory.getParties().filter(p -> p != sendingParty)
+        Party recipient = partyHelper.getParties().filter(p -> p != sendingParty)
             .findAny().get();
 
         final String sendRequest = Json.createObjectBuilder()
@@ -239,7 +239,7 @@ public class SendIT {
 
     @Test
     public void garbageMessageFails() {
-        Party sendingParty = partyFactory.getParties().findAny().get();
+        Party sendingParty = partyHelper.getParties().findAny().get();
 
         final String sendRequest = "this is clearly a garbage message";
 
@@ -256,7 +256,7 @@ public class SendIT {
     @Test
     public void emptyMessageFails() {
 
-        Party sendingParty = partyFactory.getParties().findAny().get();
+        Party sendingParty = partyHelper.getParties().findAny().get();
         final String sendRequest = "{}";
 
         final Response response = client.target(sendingParty.getUri())
@@ -275,7 +275,7 @@ public class SendIT {
     @Test
     public void sendUnknownPublicKey() {
 
-        Party sendingParty = partyFactory.getParties().findAny().get();
+        Party sendingParty = partyHelper.getParties().findAny().get();
         byte[] transactionData = utils.createTransactionData();
 
         final SendRequest sendRequest = new SendRequest();
@@ -299,8 +299,8 @@ public class SendIT {
     @Test
     public void partyAlwaysSendsToPartyOne() {
 
-        Party sender = partyFactory.findByAlias("C");
-        Party recipient = partyFactory.findByAlias("D");
+        Party sender = partyHelper.findByAlias("C");
+        Party recipient = partyHelper.findByAlias("D");
 
         byte[] transactionData = utils.createTransactionData();
 
@@ -318,12 +318,12 @@ public class SendIT {
         assertThat(result.getKey()).isNotNull().isNotBlank();
 
         //Party one recieved by always send to
-        utils.findTransaction(result.getKey(), sender, recipient, partyFactory.findByAlias("A")).forEach(r -> {
+        utils.findTransaction(result.getKey(), sender, recipient, partyHelper.findByAlias("A")).forEach(r -> {
             assertThat(r.getStatus()).isEqualTo(200);
         });
 
         //Party 2 is out of the loop
-        utils.findTransaction(result.getKey(), partyFactory.findByAlias("B")).forEach(r -> {
+        utils.findTransaction(result.getKey(), partyHelper.findByAlias("B")).forEach(r -> {
             assertThat(r.getStatus()).isEqualTo(404);
         });
 
