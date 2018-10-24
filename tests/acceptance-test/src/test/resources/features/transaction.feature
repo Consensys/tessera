@@ -1,4 +1,4 @@
-Feature: Store and forward transactions
+Feature: Store and forward transactions. 
 
     @raw
     @rest
@@ -9,7 +9,7 @@ Feature: Store and forward transactions
     And all parties are running
 	When sender party receives transaction from Quorum peer
 	Then sender party stores the transaction 
-	And forwards the transaction to recipient party
+    And forwards the transaction to recipient party
 
     @raw
     @rest
@@ -31,7 +31,6 @@ Feature: Store and forward transactions
 	When sender party receives transaction with no sender key defined from Quorum peer
 	Then sender party stores the transaction 
 	And forwards the transaction to recipient parties
-
 
     @raw
     @rest

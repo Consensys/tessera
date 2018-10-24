@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import javax.ws.rs.core.UriBuilder;
 
 public class Party {
@@ -26,18 +27,20 @@ public class Party {
     private final String alias;
     
     public Party(String publicKey, URL configUrl,String alias) {
-        this.publicKey = publicKey;
+        this.publicKey = Objects.requireNonNull(publicKey);
+        
         try (InputStream inputStream = configUrl.openStream()) {
             this.config = JaxbUtil.unmarshal(inputStream, Config.class);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
+        
         ServerConfig serverConfig = config.getServerConfig();
         this.uri = UriBuilder.fromUri(serverConfig.getHostName())
             .port(serverConfig.getPort())
             .build();
         
-        this.alias = alias;
+        this.alias = Objects.requireNonNull(alias);
 
     }
 
@@ -66,38 +69,25 @@ public class Party {
             throw new UncheckedSQLException(ex);
         }
     }
-
-//    private static final Map<String, Party> LOOKUP = new HashMap<String, Party>() {
-//        {
-//            put("A", Party.ONE);
-//            put("B", Party.TWO);
-//            put("C", Party.THREE);
-//            put("D", Party.FOUR);
-//        }
-//    };
-
     
     public String getGprcHostName() {
-        return config.getServerConfig().getGrpcUri().getHost();
+        return config.getServerConfig()
+                .getGrpcUri().getHost();
     
     }
     
     public Integer getGrpcPort() {
-        return config.getServerConfig().getGrpcPort();
+        return config.getServerConfig()
+                .getGrpcPort();
     }
     
-    
-//    public static Party findByAlias(String alias) {
-//        
-//        return LOOKUP.entrySet().stream()
-//            .filter(entry -> entry.getKey().equals(alias))
-//            .findAny()
-//            .map(Entry::getValue)
-//            .orElseThrow(() -> new RuntimeException("No party found with alias " + alias));
-//    }
-
     public String getAlias() {
         return alias;
+    }
+
+    @Override
+    public String toString() {
+        return "Party{" + "uri=" + uri + ", alias=" + alias + '}';
     }
     
     

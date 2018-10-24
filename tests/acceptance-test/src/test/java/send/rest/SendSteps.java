@@ -3,7 +3,6 @@ package send.rest;
 import com.quorum.tessera.api.model.ReceiveResponse;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
-import com.quorum.tessera.test.ClientFacade;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.RestPartyHelper;
 import cucumber.api.java8.En;
@@ -24,16 +23,21 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import static org.assertj.core.api.Assertions.assertThat;
 import com.quorum.tessera.test.PartyHelper;
+import com.quorum.tessera.test.rest.RestUtils;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import static org.assertj.core.api.Assertions.assertThat;
+import send.utils.Utils;
 
 public class SendSteps implements En {
 
-    private ClientFacade clientFacade = ClientFacade.create(ClientFacade.CommunicationType.REST);
 
+    private final RestUtils restUtils = new RestUtils();
+    
     private Client client = ClientBuilder.newClient();
 
-    private PartyHelper partyFactory = new RestPartyHelper();
+    private PartyHelper partyHelper = new RestPartyHelper();
     
     public SendSteps() {
 
@@ -43,23 +47,29 @@ public class SendSteps implements En {
 
         Set<String> storedHashes = new TreeSet<>();
 
-        byte[] txnData = ClientFacade.generateTransactionData();
+        byte[] txnData = Utils.generateTransactionData();
 
         Given("^Sender party (.+)$", (String pty) -> {
-            senderHolder.add(partyFactory.findByAlias(pty));
+            senderHolder.add(partyHelper.findByAlias(pty));
         });
 
         And("^Recipient part(?:y|ies) (.+)$", (String alias) -> {
             parseAliases(alias).stream()
-                .map(partyFactory::findByAlias)
+                .map(partyHelper::findByAlias)
                 .forEach(recipients::add);
 
             assertThat(recipients).isNotEmpty();
         });
 
         And("^all parties are running$", () -> {
-            assertThat(partyFactory.getParties()
-                .allMatch(clientFacade::isUp))
+            
+            assertThat(partyHelper.getParties()
+                .map(Party::getUri)
+                .map(client::target)
+                .map(t -> t.path("upcheck"))
+                .map(WebTarget::request)
+                .map(Invocation.Builder::get)
+                .allMatch(r -> r.getStatus() == 200))
                 .isTrue();
         });
 
@@ -131,8 +141,7 @@ public class SendSteps implements En {
 
             Party sender = senderHolder.stream().findAny().get();
 
-            Response response = clientFacade.send(sender, txnData, recipients.toArray(new Party[recipients.size()]));
-
+            Response response = restUtils.send(sender, txnData, recipients);
             assertThat(response.getStatus()).isEqualTo(201);
 
             SendResponse sendResponse = response.readEntity(SendResponse.class);
@@ -159,7 +168,8 @@ public class SendSteps implements En {
 
             recipients.forEach(rec -> {
                 String storedHash = storedHashes.iterator().next();
-                Response response = clientFacade.find(rec, storedHash);
+                Response response = restUtils.findTransaction(storedHash,rec)
+                    .findAny().get();
 
                 assertThat(response.getStatus()).isEqualTo(200);
 
@@ -168,30 +178,31 @@ public class SendSteps implements En {
                 assertThat(receiveResponse.getPayload()).isEqualTo(txnData);
             });
 
-            partyFactory.getParties()
+            partyHelper.getParties()
                 .filter(p -> !senderHolder.contains(p))
                 .filter(p -> !recipients.contains(p))
                 .forEach(p -> {
                     String storedHash = storedHashes.iterator().next();
-                    Response response = clientFacade.find(p, storedHash);
+                    Response response = restUtils.findTransaction(storedHash,p)
+                        .findAny().get();
                     assertThat(response.getStatus()).isEqualTo(404);
                 });
 
         });
 
         Then("^.*does not forward transaction to any recipients?$", () -> {
-            partyFactory.getParties()
+            partyHelper.getParties()
                 .filter(p -> !senderHolder.contains(p))
                 .forEach(p -> {
                     String storedHash = storedHashes.stream().findAny().get();
-                    Response response = clientFacade.find(p, storedHash);
+                    Response response = restUtils.findTransaction(storedHash,p).findAny().get();
                     assertThat(response.getStatus()).isEqualTo(404);
                 });
 
         });
 
         Then("an invalid request error is raised", () -> {
-
+              //TODO: asserted in preceding step
         });
     }
 

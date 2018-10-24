@@ -149,7 +149,7 @@ public class RawSteps implements En {
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isEqualTo(400);
         });
-        
+
         Then("an invalid request error is raised", () -> {
             //FIXME: validated in sending function
         });
@@ -157,28 +157,27 @@ public class RawSteps implements En {
         Then("^sender party stores the transaction$", () -> {
             Party sender = senderHolder.iterator().next();
             try (PreparedStatement statement
-                = sender.getDatabaseConnection().prepareStatement("SELECT COUNT(*) FROM ENCRYPTED_TRANSACTION WHERE HASH = ?")) {
-                statement.setBytes(1, Base64.getDecoder().decode(storedHashes.iterator().next()));
+                = sender.getDatabaseConnection()
+                    .prepareStatement("SELECT COUNT(*) FROM ENCRYPTED_TRANSACTION WHERE HASH = ?")) {
+                    statement.setBytes(1, Base64.getDecoder().decode(storedHashes.iterator().next()));
 
-                try (ResultSet results = statement.executeQuery()) {
-                    assertThat(results.next()).isTrue();
-                    assertThat(results.getLong(1)).isEqualTo(1);
+                    try (ResultSet results = statement.executeQuery()) {
+                        assertThat(results.next()).isTrue();
+                        assertThat(results.getLong(1)).isEqualTo(1);
+                    }
+
                 }
-
-            }
         });
 
         Then("^forwards the transaction to recipient part(?:y|ies)$", () -> {
 
             recipients.forEach(rec -> {
-                String storedHash = storedHashes.iterator().next();
-                Response response = restUtils.findTransaction(storedHash, rec).findAny().get();
+                String storedHash = storedHashes.stream().findAny().get();
+                Response response = restUtils.receiveRaw(storedHash, rec);
 
                 assertThat(response.getStatus()).isEqualTo(200);
-
-                ReceiveResponse receiveResponse = response.readEntity(ReceiveResponse.class);
-
-                assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
+                final byte[] result = response.readEntity(byte[].class);
+                assertThat(result).isEqualTo(transactionData);
             });
 
         });
@@ -188,7 +187,7 @@ public class RawSteps implements En {
                 .filter(p -> !senderHolder.contains(p))
                 .forEach(p -> {
                     String storedHash = storedHashes.stream().findAny().get();
-                    Response response = restUtils.findTransaction(storedHash, p).findAny().get();
+                    Response response = restUtils.receiveRaw(storedHash, p);
                     assertThat(response.getStatus()).isEqualTo(404);
                 });
 

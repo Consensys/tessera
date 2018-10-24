@@ -8,7 +8,6 @@ import com.quorum.tessera.grpc.api.ReceiveResponse;
 import com.quorum.tessera.grpc.api.SendRequest;
 import com.quorum.tessera.grpc.api.SendResponse;
 import com.quorum.tessera.grpc.p2p.TesseraGrpc;
-import com.quorum.tessera.test.ClientFacade;
 import com.quorum.tessera.test.GrpcPartyHelper;
 import com.quorum.tessera.test.Party;
 import cucumber.api.java8.En;
@@ -27,6 +26,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.*;
 import com.quorum.tessera.test.PartyHelper;
+import send.utils.Utils;
 
 public class SendGrpcSteps implements En {
 
@@ -40,7 +40,7 @@ public class SendGrpcSteps implements En {
 
         Set<String> storedHashes = new TreeSet<>();
 
-        byte[] txnData = ClientFacade.generateTransactionData();
+        byte[] txnData = Utils.generateTransactionData();
 
         Given("^Sender party (.+)$", (String pty) -> {
             partyFactory.getParties()
