@@ -4,6 +4,8 @@ import com.quorum.tessera.api.model.ReceiveResponse;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.test.Party;
+import com.quorum.tessera.test.PartyFactory;
+import com.quorum.tessera.test.RestPartyFactory;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
@@ -12,7 +14,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.stream.Stream;
 import javax.json.Json;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,15 +32,17 @@ public class SendIT {
     private final Client client = ClientBuilder.newClient();
 
     private RestUtils utils = new RestUtils();
-
+    
+    
+    private PartyFactory partyFactory = new RestPartyFactory();
     /**
      * Quorum sends transaction with single public recipient key
      */
     @Test
     public void sendToSingleRecipient() {
 
-        Party firstParty = Party.ONE;
-        Party secondParty = Party.TWO;
+        Party firstParty = partyFactory.findByAlias("A");
+        Party secondParty = partyFactory.findByAlias("B");
         byte[] transactionData = utils.createTransactionData();
 
         final SendRequest sendRequest = new SendRequest();
@@ -71,11 +74,11 @@ public class SendIT {
 
         assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
 
-        utils.findTransaction(result.getKey(), Party.ONE, Party.TWO).forEach(r -> {
+        utils.findTransaction(result.getKey(), partyFactory.findByAlias("A"), partyFactory.findByAlias("B")).forEach(r -> {
             assertThat(r.getStatus()).isEqualTo(200);
         });
 
-        utils.findTransaction(result.getKey(), Party.THREE, Party.FOUR).forEach(r -> {
+        utils.findTransaction(result.getKey(), partyFactory.findByAlias("C"), partyFactory.findByAlias("D")).forEach(r -> {
             assertThat(r.getStatus()).isEqualTo(404);
         });
 
@@ -87,12 +90,12 @@ public class SendIT {
     @Test
     public void firstPartyForwardsToTwoOtherParties() {
 
-        Party sendingParty = Party.ONE;
+        Party sendingParty = partyFactory.findByAlias("A");
 
-        Party secondParty = Party.TWO;
-        Party thirdParty = Party.FOUR;
+        Party secondParty = partyFactory.findByAlias("B");
+        Party thirdParty = partyFactory.findByAlias("D");
 
-        Party excludedParty = Party.THREE;
+        Party excludedParty = partyFactory.findByAlias("C");
 
         byte[] transactionData = utils.createTransactionData();
 
@@ -138,7 +141,7 @@ public class SendIT {
     @Test
     public void sendTransactionWithoutASender() {
 
-        Party recipient = Stream.of(Party.values()).findAny().get();
+        Party recipient = partyFactory.getParties().findAny().get();
 
         byte[] transactionData = utils.createTransactionData();
 
@@ -174,7 +177,7 @@ public class SendIT {
     @Test
     public void sendTransactionWithMissingRecipients() {
 
-        Party sendingParty = Stream.of(Party.values()).findAny().get();
+        Party sendingParty = partyFactory.getParties().findAny().get();
         byte[] transactionData = utils.createTransactionData();
 
         final SendRequest sendRequest = new SendRequest();
@@ -212,9 +215,9 @@ public class SendIT {
     @Test
     public void missingPayloadFails() {
 
-        Party sendingParty = Stream.of(Party.values()).findAny().get();
+        Party sendingParty = partyFactory.getParties().findAny().get();
 
-        Party recipient = Stream.of(Party.values()).filter(p -> p != sendingParty)
+        Party recipient = partyFactory.getParties().filter(p -> p != sendingParty)
             .findAny().get();
 
         final String sendRequest = Json.createObjectBuilder()
@@ -236,7 +239,7 @@ public class SendIT {
 
     @Test
     public void garbageMessageFails() {
-        Party sendingParty = Stream.of(Party.values()).findAny().get();
+        Party sendingParty = partyFactory.getParties().findAny().get();
 
         final String sendRequest = "this is clearly a garbage message";
 
@@ -253,7 +256,7 @@ public class SendIT {
     @Test
     public void emptyMessageFails() {
 
-        Party sendingParty = Stream.of(Party.values()).findAny().get();
+        Party sendingParty = partyFactory.getParties().findAny().get();
         final String sendRequest = "{}";
 
         final Response response = client.target(sendingParty.getUri())
@@ -272,7 +275,7 @@ public class SendIT {
     @Test
     public void sendUnknownPublicKey() {
 
-        Party sendingParty = Stream.of(Party.values()).findAny().get();
+        Party sendingParty = partyFactory.getParties().findAny().get();
         byte[] transactionData = utils.createTransactionData();
 
         final SendRequest sendRequest = new SendRequest();
@@ -296,8 +299,8 @@ public class SendIT {
     @Test
     public void partyAlwaysSendsToPartyOne() {
 
-        Party sender = Party.THREE;
-        Party recipient = Party.FOUR;
+        Party sender = partyFactory.findByAlias("C");
+        Party recipient = partyFactory.findByAlias("D");
 
         byte[] transactionData = utils.createTransactionData();
 
@@ -315,12 +318,12 @@ public class SendIT {
         assertThat(result.getKey()).isNotNull().isNotBlank();
 
         //Party one recieved by always send to
-        utils.findTransaction(result.getKey(), sender, recipient, Party.ONE).forEach(r -> {
+        utils.findTransaction(result.getKey(), sender, recipient, partyFactory.findByAlias("A")).forEach(r -> {
             assertThat(r.getStatus()).isEqualTo(200);
         });
 
         //Party 2 is out of the loop
-        utils.findTransaction(result.getKey(), Party.TWO).forEach(r -> {
+        utils.findTransaction(result.getKey(), partyFactory.findByAlias("B")).forEach(r -> {
             assertThat(r.getStatus()).isEqualTo(404);
         });
 

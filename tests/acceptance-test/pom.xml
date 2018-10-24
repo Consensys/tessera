@@ -29,12 +29,12 @@
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-junit</artifactId>
-            <version>3.0.2</version>
+            <version>4.0.1</version>
         </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java8</artifactId>
-            <version>3.0.2</version>
+            <version>4.0.1</version>
         </dependency>
     </dependencies>
 
@@ -68,6 +68,7 @@
                     <includes>
                         <include>RestSuite</include>
                         <include>GrpcSuite</include>
+                        <include>CucumberSuite</include>
                     </includes>
                 </configuration>
                 <executions>

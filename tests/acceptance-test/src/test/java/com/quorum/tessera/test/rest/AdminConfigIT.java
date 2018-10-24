@@ -1,7 +1,9 @@
 package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.config.Peer;
-import static com.quorum.tessera.test.Fixtures.*;
+import com.quorum.tessera.test.Party;
+import com.quorum.tessera.test.PartyFactory;
+import com.quorum.tessera.test.RestPartyFactory;
 import java.net.URI;
 import java.util.UUID;
 import javax.ws.rs.client.Client;
@@ -14,19 +16,20 @@ import org.junit.Test;
 
 public class AdminConfigIT {
 
-    private static final URI SERVER_URI = NODE1_URI;
-
     private final Client client = ClientBuilder.newClient();
 
+    private final PartyFactory partyFactory = new RestPartyFactory();
     
     @Test
     public void addPeer() {
+        
+        Party party = partyFactory.getParties().findAny().get();
         
         String url = "http://"+ UUID.randomUUID().toString().replaceAll("-", "");
         
         Peer peer = new Peer(url);
         
-        Response response = client.target(SERVER_URI)
+        Response response = client.target(party.getUri())
                 .path("config")
                 .path("peers")
                 .request(MediaType.APPLICATION_JSON)
