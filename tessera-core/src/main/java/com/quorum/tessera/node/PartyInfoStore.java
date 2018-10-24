@@ -23,7 +23,8 @@ public class PartyInfoStore {
 
     public PartyInfoStore(final ConfigService configService) {
 
-        this.advertisedUrl = configService.getServerUri().toString();
+        //TODO: remove the extra "/" when we deprecate backwards compatibility
+        this.advertisedUrl = configService.getServerUri().toString() + "/";
 
         this.recipients = new HashSet<>();
         this.parties = new HashSet<>();

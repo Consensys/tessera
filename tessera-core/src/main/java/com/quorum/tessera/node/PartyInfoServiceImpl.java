@@ -8,17 +8,16 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PartyInfoServiceImpl implements PartyInfoService {
 
@@ -29,28 +28,21 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoServiceImpl.class);
 
     public PartyInfoServiceImpl(final PartyInfoStore partyInfoStore,
-            final ConfigService configService,
-            final KeyManager keyManager) {
+                                final ConfigService configService,
+                                final KeyManager keyManager) {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
         this.configService = Objects.requireNonNull(configService);
 
-        final String advertisedUrl = configService.getServerUri() +"/";
-
-        final Set<Party> initialParties = configService
-                .getPeers()
-                .stream()
-                .map(Peer::getUrl)
-                .map(Party::new)
-                .collect(toSet());
+        final String advertisedUrl = configService.getServerUri() + "/";
 
         final Set<Recipient> ourKeys = keyManager
-                .getPublicKeys()
-                .stream()
-                .map(key -> PublicKey.from(key.getKeyBytes()))
-                .map(key -> new Recipient(key, advertisedUrl))
-                .collect(toSet());
+            .getPublicKeys()
+            .stream()
+            .map(key -> PublicKey.from(key.getKeyBytes()))
+            .map(key -> new Recipient(key, advertisedUrl))
+            .collect(toSet());
 
-        partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, initialParties));
+        partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, Collections.emptySet()));
     }
 
     @Override
@@ -61,52 +53,45 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     @Override
     public PartyInfo updatePartyInfo(final PartyInfo partyInfo) {
 
-        if (configService.isDisablePeerDiscovery()) {
-
-            PartyInfo currentPartyInfo = getPartyInfo();
-
-            if (!Objects.equals(currentPartyInfo.getParties(), partyInfo.getParties())) {
-                final String message = String.format("Parties found in party info from %s are different.", partyInfo.getUrl());
-                throw new AutoDiscoveryDisabledException(message);
-            }
-
-            Predicate<String> matchUrl = u -> Objects.equals(u, partyInfo.getUrl());
-
-            if (!currentPartyInfo.getParties().stream()
-                    .map(Party::getUrl)
-                    .anyMatch(matchUrl)) {
-                final String message = String.format("Peer %s not found in known peer list", partyInfo.getUrl());
-                throw new AutoDiscoveryDisabledException(message);
-            }
-
+        if (!configService.isDisablePeerDiscovery()) {
+            //auto-discovery is on, we can accept all input to us
+            this.partyInfoStore.store(partyInfo);
+            return partyInfoStore.getPartyInfo();
         }
 
-        //TODO: Review whether this is the best place
-        //Compare peers to parties if any new peers are detected then add them to part info
-        Set<String> peerUrls = configService.getPeers().stream()
-                .map(Peer::getUrl)
-                .collect(Collectors.toSet());
+        //auto-discovery is off
 
-        Set<String> partyUrls = partyInfo.getParties().stream()
-                .map(Party::getUrl)
-                .collect(Collectors.toSet());
+        final Set<String> peerUrls = configService
+            .getPeers()
+            .stream()
+            .map(Peer::getUrl)
+            .collect(Collectors.toSet());
 
-        peerUrls.removeAll(partyUrls);
+        LOGGER.debug("Known peers: {}", peerUrls);
 
-        if (!peerUrls.isEmpty()) {
-            LOGGER.info("Adding new parties from config update. {}", peerUrls);
+        //check the caller is allowed to update our party info, which it can do
+        //if it one of our known peers
+        final String incomingUrl = partyInfo.getUrl();
+
+        //TODO: should we just check peer is the same or with +"/", instead of just starts with?
+        if (peerUrls.stream().noneMatch(incomingUrl::startsWith)) {
+            final String message = String.format("Peer %s not found in known peer list", partyInfo.getUrl());
+            throw new AutoDiscoveryDisabledException(message);
         }
 
-        Set<Party> newParties = new HashSet<>(partyInfo.getParties());
-        peerUrls.stream().map(Party::new).forEach(newParties::add);
+        //filter out all keys that aren't from that node
+        final Set<Recipient> knownRecipients = partyInfo
+            .getRecipients()
+            .stream()
+            .filter(recipient -> Objects.equals(recipient.getUrl(), incomingUrl))
+            .collect(Collectors.toSet());
 
         // TODO NL - check if we should add the unsaved parties to the resend party store (in the same way in which we are doing it in PartyInfoPoller)
 
-        partyInfoStore.store(new PartyInfo(partyInfo.getUrl(), partyInfo.getRecipients(), newParties));
+        //TODO: instead of adding the peers every time, if a new peer is added at runtime then this should be added separately
+        final Set<Party> parties = peerUrls.stream().map(Party::new).collect(toSet());
 
-        if (!peerUrls.isEmpty()) {
-            LOGGER.info("Added new parties. {}", peerUrls);
-        }
+        partyInfoStore.store(new PartyInfo(partyInfo.getUrl(), knownRecipients, parties));
 
         return this.getPartyInfo();
     }

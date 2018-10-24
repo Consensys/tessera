@@ -28,7 +28,7 @@ public class AdminCliAdapter implements CliAdapter {
     
     private final ClientFactory clientFactory;
 
-    public AdminCliAdapter(ClientFactory clientFactory) {
+    public AdminCliAdapter(final ClientFactory clientFactory) {
         this.clientFactory = Objects.requireNonNull(clientFactory);
     }
     
@@ -83,10 +83,10 @@ public class AdminCliAdapter implements CliAdapter {
         String peerUrl = line.getOptionValue("addpeer");
     
         final Peer peer = new Peer(peerUrl);
-        
+
         String scheme = Optional.of(config)
                 .map(Config::getServerConfig)
-                .map(ServerConfig::getServerUri)
+                .map(ServerConfig::getBindingUri)
                 .map(URI::getScheme)
                 .orElse("http");
         
@@ -95,12 +95,11 @@ public class AdminCliAdapter implements CliAdapter {
                 .map(ServerConfig::getPort)
                 .orElse(80);
  
-        URI uri = UriBuilder.fromPath("/")
+        URI uri = UriBuilder.fromUri(config.getServerConfig().getBindingUri())
                 .port(port)
-                .host("localhost")
-                .scheme(scheme).build();
-        
-        
+                .scheme(scheme)
+                .build();
+
         Response response = restClient.target(uri)
                 .path("config")
                 .path("peers")
