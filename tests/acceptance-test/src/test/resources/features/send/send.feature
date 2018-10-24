@@ -1,5 +1,6 @@
 Feature: Store and forward transactions
 
+    @raw
     @rest
     @grpc
 	Scenario: Party sends transaction to single recipient
@@ -10,6 +11,7 @@ Feature: Store and forward transactions
 	Then sender party stores the transaction 
 	And forwards the transaction to recipient party
 
+    @raw
     @rest
     @grpc
 	Scenario: Party sends transaction to multiple recipients 
@@ -20,6 +22,7 @@ Feature: Store and forward transactions
 	Then sender party stores the transaction 
 	And forwards the transaction to recipient parties
  
+    @raw
     @rest
 	Scenario: Party sends transaction with no sender defined to a single recipient
     Given Sender party D
@@ -29,6 +32,8 @@ Feature: Store and forward transactions
 	Then sender party stores the transaction 
 	And forwards the transaction to recipient parties
 
+
+    @raw
     @rest
 	Scenario: Party sends transaction with no recipients defined
 	Given Sender party A
@@ -36,6 +41,7 @@ Feature: Store and forward transactions
 	Then sender party stores the transaction 
 	And does not forward transaction to any recipients
 
+    @raw
     @rest
     Scenario: Party sends transaction with no transaction payload
     Given Sender party B
@@ -44,6 +50,8 @@ Feature: Store and forward transactions
 	When sender party receives transaction with no payload from Quorum peer
 	Then an invalid request error is raised 
 
+    @raw
+    @grpc
     @rest
     Scenario: Party sends transaction to unknown recipient
 	Given Sender party A

@@ -25,19 +25,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import com.quorum.tessera.test.PartyHelper;
 
 public class SendGrpcSteps implements En {
 
-
-    
     private PartyHelper partyFactory = new GrpcPartyHelper();
 
     public SendGrpcSteps() {
 
-
-        
         Collection<Party> senderHolder = new ArrayList<>();
 
         Set<Party> recipients = new HashSet<>();
@@ -53,7 +49,7 @@ public class SendGrpcSteps implements En {
                 .ifPresent(senderHolder::add);
 
         });
-        
+
         And("^Recipient part(?:y|ies) (.+)$", (String alias) -> {
             parseAliases(alias).stream()
                 .map(partyFactory::findByAlias)
@@ -61,7 +57,7 @@ public class SendGrpcSteps implements En {
 
             assertThat(recipients).isNotEmpty();
         });
-        
+
         And("^all parties are running$", () -> {
 
             partyFactory.getParties()
@@ -98,7 +94,34 @@ public class SendGrpcSteps implements En {
 
         });
 
-        
+        When("sender party receives transaction with an unknown party from Quorum peer", () -> {
+
+            Party sender = senderHolder.stream().findAny().get();
+
+            SendRequest sendRequest = SendRequest.newBuilder()
+                .setFrom(sender.getPublicKey())
+                .addTo("8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=")
+                .setPayload(ByteString.copyFrom(txnData))
+                .build();
+
+            APITransactionGrpc.APITransactionBlockingStub stub = senderHolder.stream()
+                .map(p -> createChannel(p))
+                .map(APITransactionGrpc::newBlockingStub)
+                .findAny().get();
+
+            try {
+                stub.send(sendRequest);
+                failBecauseExceptionWasNotThrown(io.grpc.StatusRuntimeException.class);
+            } catch (io.grpc.StatusRuntimeException ex) {
+                //FIXME: Should be invalid arg
+                assertThat(ex.getStatus()).isEqualTo(io.grpc.Status.UNKNOWN);
+            }
+
+        });
+
+        Then("an invalid request error is raised", () -> {
+            //FIXME: handled in requesting line
+        });
 
         Then("^sender party stores the transaction$", () -> {
             Party sender = senderHolder.iterator().next();

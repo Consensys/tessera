@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ws.rs.client.Client;
@@ -30,6 +31,11 @@ public class RestUtils {
         return ClientBuilder.newClient();
     }
     
+    
+    public Response sendRaw(Party sender, byte[] transactionData, Set<Party> recipients) {
+        return sendRaw(sender, transactionData, recipients.toArray(new Party[0]));
+        
+    }
     public Response sendRaw(Party sender, byte[] transactionData, Party... recipients) {
 
         Objects.requireNonNull(sender);
@@ -39,7 +45,9 @@ public class RestUtils {
             .collect(Collectors.joining(","));
 
         Invocation.Builder invocationBuilder = client.target(sender.getUri())
-            .path("sendraw").request().header(SENDER, sender.getPublicKey());
+            .path("sendraw")
+            .request()
+            .header(SENDER, sender.getPublicKey());
 
         Optional.of(recipientString)
             .filter(s -> !Objects.equals("", s))
@@ -104,6 +112,12 @@ public class RestUtils {
         assertThat(response.getStatus()).isEqualTo(201); 
         return response.readEntity(SendResponse.class);
         
+    }
+
+
+
+    public Stream<Response> findTransaction(String transactionKey, Set<Party> recipients) {
+        return findTransaction(transactionKey, recipients.toArray(new Party[0]));
     }
     
 }
