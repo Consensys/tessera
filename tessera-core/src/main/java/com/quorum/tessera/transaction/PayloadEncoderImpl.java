@@ -127,6 +127,11 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
                 new Nonce(recipientNonce)
         );
 
+        //this means there are no recipients in the payload (which we receive when we are a participant)
+        if (!buffer.hasRemaining()) {
+            return new EncodedPayloadWithRecipients(payload, emptyList());
+        }
+
         final long recipientLength = buffer.getLong();
 
         final List<byte[]> recipientKeys = new ArrayList<>();
