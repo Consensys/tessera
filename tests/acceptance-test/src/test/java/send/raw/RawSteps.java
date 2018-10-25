@@ -90,6 +90,7 @@ public class RawSteps implements En {
 
         When("sender party receives transaction with no sender key defined from Quorum peer", () -> {
             Party sender = senderHolder.stream().findAny().get();
+            
             final Response response = client.target(sender.getUri())
                 .path("sendraw")
                 .request()

@@ -145,6 +145,7 @@ public class RestUtils {
             .path("receiveraw")
             .request()
             .header(C11N_KEY, transactionKey)
+            
             .header(C11N_TO, Stream.concat(Stream.of(recipients),Stream.of(party))
                 .map(Party::getPublicKey)
                 .collect(Collectors.joining(",")))

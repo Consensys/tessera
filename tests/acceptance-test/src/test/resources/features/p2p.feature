@@ -1,1 +1,1 @@
-Feature: Functions related to intra tessesa node communication
+Feature: Functions related to intra tessera node communication
