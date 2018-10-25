@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 public class PartyInfoStoreTest {
 
-    private String annoyingUriAsAString = "FIXME";
+    private String uri = "http://localhost:8080";
 
     private ConfigService configService;
 
@@ -28,8 +28,9 @@ public class PartyInfoStoreTest {
 
     @Before
     public void onSetUp() throws URISyntaxException {
-        configService = mock(ConfigService.class);
-        when(configService.getServerUri()).thenReturn(new URI(annoyingUriAsAString));
+        this.configService = mock(ConfigService.class);
+        when(configService.getServerUri()).thenReturn(new URI(uri));
+
         this.partyInfoStore = new PartyInfoStore(configService);
 
     }
@@ -37,16 +38,12 @@ public class PartyInfoStoreTest {
     @Test
     public void registeringSamePublicKeyTwice() {
 
-        final String ourUrl = annoyingUriAsAString;
+        final PublicKey testKey = PublicKey.from("some-key".getBytes());
 
-        final Set<Recipient> ourKeys = singleton(
-            new Recipient(PublicKey.from("some-key".getBytes()), ourUrl)
-        );
-        final Set<Party> parties = singleton(
-            new Party("http://other-node.com:8080")
-        );
+        final Set<Recipient> ourKeys = singleton(new Recipient(testKey, uri));
+        final Set<Party> parties = singleton(new Party("http://other-node.com:8080"));
 
-        final PartyInfo initialInfo = new PartyInfo(ourUrl, ourKeys, parties);
+        final PartyInfo initialInfo = new PartyInfo(uri, ourKeys, parties);
 
         partyInfoStore.store(initialInfo);
         partyInfoStore.store(initialInfo);
@@ -55,13 +52,13 @@ public class PartyInfoStoreTest {
         final Set<Recipient> retrievedRecipients = partyInfoStore.getPartyInfo().getRecipients();
         final String fetchedUrl = partyInfoStore.getPartyInfo().getUrl();
 
-        assertThat(retrievedParties).hasSize(2).containsExactlyInAnyOrder(new Party("http://other-node.com:8080"),
-            new Party(ourUrl));
-        assertThat(retrievedRecipients).hasSize(1).containsExactly(
-            new Recipient(PublicKey.from("some-key".getBytes()), ourUrl)
-        );
-
-        assertThat(fetchedUrl).isEqualTo(ourUrl);
+        assertThat(fetchedUrl).isEqualTo(uri + "/");
+        assertThat(retrievedParties)
+            .hasSize(2)
+            .containsExactlyInAnyOrder(new Party("http://other-node.com:8080"), new Party(uri + "/"));
+        assertThat(retrievedRecipients)
+            .hasSize(1)
+            .containsExactly(new Recipient(testKey, uri));
     }
 
 }

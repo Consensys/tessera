@@ -31,7 +31,6 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
     
     private final ConfigService configService;
 
-    //private final Set<String> whitelisted;
     private boolean disabled;
 
     private HttpServletRequest httpServletRequest;
@@ -59,6 +58,11 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
             return;
         }
 
+        //this is the unix socket request, so let it through the filter
+        if ("unixsocket".equals(requestContext.getUriInfo().getBaseUri().toString())) {
+            return;
+        }
+
         try {
 
             final Set<String> whitelisted = configService.getPeers().stream()
@@ -66,10 +70,6 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
                     .map(s -> IOCallback.execute(() -> new URL(s)))
                     .map(URL::getHost)
                     .collect(Collectors.toSet());
-
-            //add ourself to the whitelist to let the unix socket in
-            //don't use the advertised address, as we only want to talk to ourselves
-            whitelisted.add("127.0.0.1");
 
             final String remoteAddress = httpServletRequest.getRemoteAddr();
             final String remoteHost = httpServletRequest.getRemoteHost();

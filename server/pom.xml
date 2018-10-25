@@ -17,6 +17,7 @@
         <module>jersey-server</module>
         <module>grpc-server</module>
         <module>server-api</module>
+        <module>unix-socket-server</module>
     </modules>
     <build>
         <plugins>

@@ -88,7 +88,7 @@ java -cp ojdbc7.jar:tessera-app.jar:. com.quorum.tessera.Launcher -configfile co
 A configuration file detailing database, server and network peer information must be provided using the `-configfile`
 command line property.
 
-An in-depth look at configuring Tessera can be found on the [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/Configuration) and includes details on all aspects of configuration including:
+An in-depth look at configuring Tessera can be found on the [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/Configuration-overview) and includes details on all aspects of configuration including:
 * Cryptographic key config:
     * Using existing private/public key pairs with Tessera
     * How to use Tessera to generate new key pairs 
@@ -97,7 +97,7 @@ An in-depth look at configuring Tessera can be found on the [Tessera Wiki](https
     * Choosing a trust mode
  
 ### Migrating from Constellation to Tessera
-Tessera is the service used to provide Quorum with the ability to support private transactions, replacing Constellation.  If you have previously been using Constellation, utilities are provided within Tessera to enable the migration of Constellation configuration and datastores to Tessera compatible formats.  Details on how to use these utilities can be found in the [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/Migrating-from-Constellation-to-Tessera).
+Tessera is the service used to provide Quorum with the ability to support private transactions, replacing Constellation.  If you have previously been using Constellation, utilities are provided within Tessera to enable the migration of Constellation configuration and datastores to Tessera compatible formats.  Details on how to use these utilities can be found in the [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/Migrating-from-Constellation).
 
 ## Further reading
 * The [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/) provides additional information on how Tessera works, migrating from Constellation to Tessera, configuration details, and more.
