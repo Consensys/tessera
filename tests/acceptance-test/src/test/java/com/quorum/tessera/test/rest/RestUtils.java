@@ -20,7 +20,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import static org.assertj.core.api.Assertions.assertThat;
-import send.utils.Utils;
+import transaction.utils.Utils;
 
 public class RestUtils {
 

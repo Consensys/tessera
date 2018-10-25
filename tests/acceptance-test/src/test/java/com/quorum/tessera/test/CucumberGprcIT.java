@@ -1,19 +1,12 @@
 package com.quorum.tessera.test;
 
 import cucumber.api.CucumberOptions;
-import org.junit.runner.RunWith;
-import cucumber.api.junit.Cucumber;
 
-@RunWith(Cucumber.class)
 @CucumberOptions(
-    features = {
-        "classpath:features/transaction.feature",
-    },
-    glue = "send.grpc",
+    glue = "transaction.grpc",
     tags = "@grpc",
-    monochrome = true,
-    plugin = {"pretty"}
+    plugin = {"json:target/cucumber/grpc.json"}
 )
-public class CucumberGprcIT {
+public class CucumberGprcIT extends CucumberTestCase {
 
 }

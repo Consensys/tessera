@@ -1,4 +1,4 @@
-package send.raw;
+package transaction.raw;
 
 import com.quorum.tessera.api.model.ReceiveResponse;
 import com.quorum.tessera.test.Party;

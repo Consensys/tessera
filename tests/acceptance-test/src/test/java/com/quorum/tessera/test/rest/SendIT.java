@@ -177,8 +177,8 @@ public class SendIT {
     @Test
     public void sendTransactionWithMissingRecipients() {
 
-        Party sendingParty = partyHelper.getParties().findAny().get();
-        byte[] transactionData = utils.createTransactionData();
+        final  Party sendingParty = partyHelper.getParties().findAny().get();
+        final byte[] transactionData = utils.createTransactionData();
 
         final SendRequest sendRequest = new SendRequest();
         sendRequest.setFrom(sendingParty.getPublicKey());

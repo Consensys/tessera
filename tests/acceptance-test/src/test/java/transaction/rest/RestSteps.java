@@ -1,4 +1,4 @@
-package send.rest;
+package transaction.rest;
 
 import com.quorum.tessera.api.model.ReceiveResponse;
 import com.quorum.tessera.api.model.SendRequest;
@@ -28,9 +28,9 @@ import com.quorum.tessera.test.rest.RestUtils;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import static org.assertj.core.api.Assertions.assertThat;
-import send.utils.Utils;
+import transaction.utils.Utils;
 
-public class SendSteps implements En {
+public class RestSteps implements En {
 
 
     private final RestUtils restUtils = new RestUtils();
@@ -39,7 +39,7 @@ public class SendSteps implements En {
 
     private PartyHelper partyHelper = new RestPartyHelper();
     
-    public SendSteps() {
+    public RestSteps() {
 
         Collection<Party> senderHolder = new ArrayList<>();
 

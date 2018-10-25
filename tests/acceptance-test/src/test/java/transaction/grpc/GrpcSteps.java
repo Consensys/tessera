@@ -1,4 +1,4 @@
-package send.grpc;
+package transaction.grpc;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
@@ -26,13 +26,13 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.*;
 import com.quorum.tessera.test.PartyHelper;
-import send.utils.Utils;
+import transaction.utils.Utils;
 
-public class SendGrpcSteps implements En {
+public class GrpcSteps implements En {
 
     private PartyHelper partyFactory = new GrpcPartyHelper();
 
-    public SendGrpcSteps() {
+    public GrpcSteps() {
 
         Collection<Party> senderHolder = new ArrayList<>();
 
