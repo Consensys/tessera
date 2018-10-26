@@ -11,6 +11,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
+import javax.ws.rs.core.GenericEntity;
 
 @Path("/config")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -33,9 +34,9 @@ public class ConfigResource {
         final int index = this.configService.getPeers().size() - 1;
 
         final URI uri = UriBuilder.fromPath("config")
-                .path("peers")
-                .path(String.valueOf(index))
-                .build();
+            .path("peers")
+            .path(String.valueOf(index))
+            .build();
 
         return Response.created(uri).build();
     }
@@ -47,10 +48,19 @@ public class ConfigResource {
         final List<Peer> peers = this.configService.getPeers();
 
         if (peers.size() <= index) {
-            throw new NotFoundException("No peer found at index "+ index);
+            throw new NotFoundException("No peer found at index " + index);
         }
 
         return Response.ok(peers.get(index)).build();
+    }
+
+    @GET
+    @Path("/peers")
+    public Response getPeers() {
+        final List<Peer> peers = this.configService.getPeers();
+
+        return Response.ok(new GenericEntity<List<Peer>>(peers) {
+        }).build();
     }
 
 }
