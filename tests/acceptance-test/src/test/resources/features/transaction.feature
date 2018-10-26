@@ -57,3 +57,9 @@ Feature: Store and forward transactions.
     And all parties are running
 	When sender party receives transaction with an unknown party from Quorum peer
 	Then an invalid request error is raised
+
+    Scenario: Party/Node goes offline and then synchronises transactions with peers
+    Given Sender party A
+    And party B is stopped
+	When sender party receives transaction from Quorum peer
+	Then sender party stores the transaction 
