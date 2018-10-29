@@ -14,6 +14,11 @@
             "hostName": "localhost",
             "dbName": "dummy",
             "pushIntervalInSecs" : "10"
+        },
+        "thirdPartyAPIConfig": {
+            "enabled": true,
+            "port": 8090,
+            "hostName": "http://localhost"
         }
     },
     "peer": [

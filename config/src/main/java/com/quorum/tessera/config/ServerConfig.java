@@ -42,13 +42,18 @@ public class ServerConfig extends ConfigItem {
     @XmlElement
     private final String bindingAddress;
 
+    @Valid
+    @XmlElement
+    private final ThirdPartyAPIConfig thirdPartyAPIConfig;
+
     public ServerConfig(final String hostName,
                         final Integer port,
                         final Integer grpcPort,
                         final CommunicationType communicationType,
                         final SslConfig sslConfig,
                         final InfluxConfig influxConfig,
-                        final String bindingAddress) {
+                        final String bindingAddress,
+                        final ThirdPartyAPIConfig thirdPartyAPIConfig) {
         this.hostName = hostName;
         this.port = port;
         this.grpcPort = grpcPort;
@@ -56,10 +61,11 @@ public class ServerConfig extends ConfigItem {
         this.sslConfig = sslConfig;
         this.influxConfig = influxConfig;
         this.bindingAddress = bindingAddress;
+        this.thirdPartyAPIConfig = thirdPartyAPIConfig;
     }
 
     private static ServerConfig create() {
-        return new ServerConfig(null, null, null, CommunicationType.REST, null, null, null);
+        return new ServerConfig(null, null, null, CommunicationType.REST, null, null, null, null);
     }
 
     public String getHostName() {
@@ -84,6 +90,10 @@ public class ServerConfig extends ConfigItem {
 
     public InfluxConfig getInfluxConfig() {
         return influxConfig;
+    }
+
+    public ThirdPartyAPIConfig getThirdPartyAPIConfig() {
+        return thirdPartyAPIConfig;
     }
 
     public String getBindingAddress() {
