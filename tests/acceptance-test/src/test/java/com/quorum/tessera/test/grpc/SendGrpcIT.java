@@ -35,7 +35,8 @@ public class SendGrpcIT {
 
     @After
     public void onTearDown() {
-        channel1.shutdown();
+        channel1.shutdownNow();
+        channel2.shutdownNow();
 
     }
 

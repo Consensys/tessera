@@ -1,6 +1,8 @@
 package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.test.Party;
+import com.quorum.tessera.test.RestPartyHelper;
 import java.net.URI;
 import java.util.UUID;
 import javax.ws.rs.client.Client;
@@ -8,25 +10,26 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
+import com.quorum.tessera.test.PartyHelper;
 
 public class AdminConfigIT {
 
-    private static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
+    private final Client client = ClientBuilder.newClient();
 
-    private static final Client client = ClientBuilder.newClient();
-
+    private final PartyHelper partyHelper = new RestPartyHelper();
     
     @Test
     public void addPeer() {
+        
+        Party party = partyHelper.getParties().findAny().get();
         
         String url = "http://"+ UUID.randomUUID().toString().replaceAll("-", "");
         
         Peer peer = new Peer(url);
         
-        Response response = client.target(SERVER_URI)
+        Response response = client.target(party.getUri())
                 .path("config")
                 .path("peers")
                 .request(MediaType.APPLICATION_JSON)

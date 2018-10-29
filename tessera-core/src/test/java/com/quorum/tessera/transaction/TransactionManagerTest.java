@@ -82,7 +82,7 @@ public class TransactionManagerTest {
         verify(enclave).encryptPayload(any(), any(), any());
         verify(payloadEncoder).encode(encodedPayloadWithRecipients);
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
-        verify(payloadPublisher).publishPayload(any(EncodedPayloadWithRecipients.class), any(PublicKey.class));
+        verify(payloadPublisher,times(2)).publishPayload(any(EncodedPayloadWithRecipients.class), any(PublicKey.class));
         verify(enclave).getForwardingKeys();
     }
     

@@ -1,6 +1,9 @@
 package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.test.CucumberAdminIT;
+import com.quorum.tessera.test.CucumberRawIT;
+import com.quorum.tessera.test.CucumberRestIT;
 import com.quorum.tessera.test.ProcessManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -20,7 +23,10 @@ import org.junit.runners.Suite;
     SendRawIT.class,
     TesseraIT.class,
     TransactionForwardingIT.class,
-    AdminConfigIT.class
+    AdminConfigIT.class,
+    CucumberRestIT.class,
+    CucumberRawIT.class,
+    CucumberAdminIT.class
 })
 public class RestSuite {
 
@@ -36,4 +42,6 @@ public class RestSuite {
         PROCESS_MANAGER.stopNodes();
 
     }
+    
+    
 }

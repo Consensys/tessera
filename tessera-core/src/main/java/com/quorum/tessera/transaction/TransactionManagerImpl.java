@@ -87,7 +87,9 @@ public class TransactionManagerImpl implements TransactionManager {
                 .of(recipients)
                 .map(PublicKey::from)
                 .collect(Collectors.toList());
-
+        
+        recipientList.add(senderPublicKey);
+        
         recipientList.addAll(enclave.getForwardingKeys());
 
         final byte[] payload = sendRequest.getPayload();
@@ -228,7 +230,7 @@ public class TransactionManagerImpl implements TransactionManager {
                         = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
                 enclave.unencryptTransaction(payloadWithRecipients, potentialMatchingKey);
                 return Optional.of(potentialMatchingKey);
-            } catch (final NaclException ex) {
+            } catch (IndexOutOfBoundsException | NaclException ex) {
                 LOGGER.debug("Attempted payload decryption using wrong key, discarding.");
             }
         }

@@ -81,4 +81,18 @@ public class ConfigResourceTest {
             verify(configService).getPeers();
         }
     }
+
+    @Test
+    public void getPeers() {
+        Peer peer = new Peer("somepeer");
+        when(configService.getPeers()).thenReturn(Arrays.asList(peer));
+        Response response = configResource.getPeers();
+        assertThat(response.getStatus()).isEqualTo(200);
+        
+        List<Peer> results = (List<Peer>) response.getEntity();
+        assertThat(results).containsExactly(peer);
+
+        verify(configService).getPeers();
+    }
+
 }
