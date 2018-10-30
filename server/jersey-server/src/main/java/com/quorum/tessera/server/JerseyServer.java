@@ -2,14 +2,12 @@ package com.quorum.tessera.server;
 
 import com.quorum.tessera.config.InfluxConfig;
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.ThirdPartyAPIConfig;
 import com.quorum.tessera.server.monitoring.InfluxDbClient;
 import com.quorum.tessera.server.monitoring.InfluxDbPublisher;
 import com.quorum.tessera.server.monitoring.MetricsResource;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
 import com.quorum.tessera.ssl.context.ServerSSLContextFactory;
 import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
 import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
@@ -52,13 +50,7 @@ public class JerseyServer implements TesseraServer {
 
     private final InfluxConfig influxConfig;
 
-    private HttpServer thirdPartyServer;
-    private final URI thirdPartyUri;
-    private final Application thirdPartyApplication;
-    private final SSLContext thirdPartySSLContext;
-    private final boolean thirdPartyEnabled;
-
-    public JerseyServer(final ServerConfig serverConfig, final Application application, final Application thirdPartyApplication) {
+    public JerseyServer(final ServerConfig serverConfig, final Application application) {
         this.uri = serverConfig.getBindingUri();
         this.application = Objects.requireNonNull(application);
         this.secure = serverConfig.isSsl();
@@ -77,26 +69,6 @@ public class JerseyServer implements TesseraServer {
         } else {
             this.influxConfig = null;
         }
-
-        thirdPartyEnabled = serverConfig.getThirdPartyAPIConfig() != null && serverConfig.getThirdPartyAPIConfig().isEnabled();
-        if (thirdPartyEnabled) {
-            ThirdPartyAPIConfig tpc = serverConfig.getThirdPartyAPIConfig();
-            this.thirdPartyUri = tpc.getServerUri();
-            this.thirdPartyApplication = thirdPartyApplication;
-
-            if (tpc.isSsl()) {
-                final SSLContextFactory sslContextFactory = ServerSSLContextFactory.create();
-                this.thirdPartySSLContext = sslContextFactory.from(thirdPartyUri.toString(), serverConfig.getSslConfig());
-            } else {
-                this.thirdPartySSLContext = null;
-            }
-
-        } else {
-            this.thirdPartyUri = null;
-            this.thirdPartyApplication = null;
-            this.thirdPartySSLContext = null;
-        }
-
     }
 
     @Override
@@ -138,39 +110,12 @@ public class JerseyServer implements TesseraServer {
 
         ctx.deploy(this.server);
 
-        if (this.thirdPartyEnabled) {
-            final ResourceConfig thirdPartyConfig = ResourceConfig.forApplication(thirdPartyApplication);
-            if (this.thirdPartySSLContext != null) {
-                this.thirdPartyServer = GrizzlyHttpServerFactory.createHttpServer(
-                    thirdPartyUri,
-                    new ResourceConfig(),
-                    true,
-                    new SSLEngineConfigurator(thirdPartySSLContext).setClientMode(false).setNeedClientAuth(true),
-                    false
-                );
-            } else {
-                this.thirdPartyServer = GrizzlyHttpServerFactory.createHttpServer(this.thirdPartyUri, false);
-            }
-
-            final WebappContext thirdPartyCtx = new WebappContext("WebappContext3rdPty");
-            final ServletRegistration thirdPartyRegistration = thirdPartyCtx.addServlet("ServletContainer3rdPty",
-                new ServletContainer(thirdPartyConfig));
-            thirdPartyRegistration.addMapping("/*");
-            thirdPartyCtx.deploy(this.thirdPartyServer);
-        }
-
         LOGGER.info("Starting {}", uri);
 
         this.server.start();
 
         LOGGER.info("Started {}", uri);
         LOGGER.info("WADL {}/application.wadl", uri);
-
-        if (this.thirdPartyEnabled){
-            LOGGER.info("Starting 3rd party API on {}", this.thirdPartyUri);
-            this.thirdPartyServer.start();
-            LOGGER.info("Started 3rd party API on {}", this.thirdPartyUri);
-        }
 
         if (influxConfig != null) {
             startInfluxMonitoring();
@@ -197,12 +142,6 @@ public class JerseyServer implements TesseraServer {
 
     @Override
     public void stop() {
-        if (Objects.nonNull(this.thirdPartyServer)){
-            LOGGER.info("Stopping 3rd party API at {}", this.thirdPartyUri);
-            this.thirdPartyServer.shutdown();
-            LOGGER.info("Stopped 3rd party API at {}", this.thirdPartyUri);
-        }
-
         LOGGER.info("Stopping Jersey server at {}", uri);
 
         if (influxConfig != null) {

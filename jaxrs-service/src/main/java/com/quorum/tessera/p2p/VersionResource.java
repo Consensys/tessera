@@ -1,4 +1,4 @@
-package com.quorum.tessera.api;
+package com.quorum.tessera.p2p;
 
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -29,7 +29,7 @@ public class VersionResource {
      */
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Request current version of Tessera", produces = "current version number")
+    @ApiOperation(value = "Request current version of P2PRestApp", produces = "current version number")
     @ApiResponses({@ApiResponse(code = 200, message = "Current application version ", response = String.class)})
     public String getVersion() {
 

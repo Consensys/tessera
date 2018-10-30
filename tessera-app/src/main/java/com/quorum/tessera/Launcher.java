@@ -2,6 +2,7 @@ package com.quorum.tessera;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.cli.CliDelegate;
 import com.quorum.tessera.config.cli.CliResult;
 import com.quorum.tessera.server.TesseraServer;
@@ -91,24 +92,32 @@ public class Launcher {
 
         TesseraServerFactory unixSocketServerFactory = TesseraServerFactory.create(CommunicationType.UNIX_SOCKET);
 
-        TesseraServer restServer = restServerFactory.createServer(config, services);
-
-        Optional<TesseraServer> grpcServer =
-            Optional.ofNullable(grpcServerFactory.createServer(config, services));
-
-        Optional<TesseraServer> unixSocketServer
-            = Optional.ofNullable(unixSocketServerFactory.createServer(config, services));
+        //TODO - we should only need one netty factory that is able to deal with any type of ServerConfig
+        List<TesseraServer> servers = new ArrayList<>();
+        for(ServerConfig serverConfig : config.getServerConfigs()){
+            TesseraServer tesseraServer = null;
+            switch (serverConfig.getCommunicationType()){
+                case GRPC:
+                    tesseraServer = grpcServerFactory.createServer(serverConfig, services);
+                    break;
+                case REST:
+                    tesseraServer = restServerFactory.createServer(serverConfig, services);
+                    break;
+                case UNIX_SOCKET:
+                    tesseraServer = unixSocketServerFactory.createServer(serverConfig, services);
+                    break;
+            }
+            if (null != tesseraServer) {
+                servers.add(tesseraServer);
+            }
+        }
 
         CountDownLatch countDown = new CountDownLatch(1);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                restServer.stop();
-                if (grpcServer.isPresent()) {
-                    grpcServer.get().stop();
-                }
-                if (unixSocketServer.isPresent()) {
-                    unixSocketServer.get().stop();
+                for (TesseraServer ts : servers){
+                    ts.stop();
                 }
             } catch (Exception ex) {
                 LOGGER.error(null, ex);
@@ -117,16 +126,10 @@ public class Launcher {
             }
         }));
 
-        restServer.start();
-        if (grpcServer.isPresent()) {
-            grpcServer.get().start();
-        }
-        if (unixSocketServer.isPresent()) {
-            unixSocketServer.get().start();
+        for (TesseraServer ts : servers){
+            ts.start();
         }
 
-       
-        
         countDown.await();
     }
 

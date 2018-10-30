@@ -1,4 +1,4 @@
-package com.quorum.tessera.api;
+package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;

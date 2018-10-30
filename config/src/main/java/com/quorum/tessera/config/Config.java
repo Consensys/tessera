@@ -28,8 +28,8 @@ public class Config extends ConfigItem {
 
     @NotNull
     @Valid
-    @XmlElement(name = "server", required = true)
-    private final ServerConfig serverConfig;
+    @XmlElement(name = "serverConfigs", required = true)
+    private final List<@Valid ServerConfig> serverConfigs;
 
     @NotNull
     @Size(min = 1, message = "At least 1 peer must be provided")
@@ -63,7 +63,7 @@ public class Config extends ConfigItem {
     private final boolean disablePeerDiscovery;
     
     public Config(final JdbcConfig jdbcConfig,
-                  final ServerConfig serverConfig,
+                  final List<ServerConfig> serverConfigs,
                   final List<Peer> peers,
                   final KeyConfiguration keyConfiguration,
                   final List<String> alwaysSendTo,
@@ -71,7 +71,7 @@ public class Config extends ConfigItem {
                   final boolean useWhiteList,
                   final boolean disablePeerDiscovery) {
         this.jdbcConfig = jdbcConfig;
-        this.serverConfig = serverConfig;
+        this.serverConfigs = serverConfigs;
         this.peers = peers;
         this.keys = keyConfiguration;
         this.alwaysSendTo = alwaysSendTo;
@@ -92,8 +92,8 @@ public class Config extends ConfigItem {
         return this.jdbcConfig;
     }
 
-    public ServerConfig getServerConfig() {
-        return this.serverConfig;
+    public List<ServerConfig> getServerConfigs() {
+        return this.serverConfigs;
     }
 
     public Path getUnixSocketFile() {
@@ -123,6 +123,15 @@ public class Config extends ConfigItem {
     @XmlTransient
     public void addPeer(Peer peer) {
         this.peers.add(peer);
+    }
+
+    public ServerConfig getP2PServerConfig(){
+        // TODO need to revisit
+        return serverConfigs.stream().
+            filter(ServerConfig::isEnabled).
+            filter(sc -> sc.getApp() == AppType.P2P).
+            findFirst().
+            orElseThrow(() -> new RuntimeException("Unable to find an enabled P2P ServerConfig."));
     }
 
 }

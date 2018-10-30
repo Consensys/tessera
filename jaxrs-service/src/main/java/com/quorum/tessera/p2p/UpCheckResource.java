@@ -1,4 +1,4 @@
-package com.quorum.tessera.api;
+package com.quorum.tessera.p2p;
 
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -31,7 +31,7 @@ public class UpCheckResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @ApiResponses({@ApiResponse(code = 200, message = UPCHECK_RESPONSE)})
-    @ApiOperation(value = "Check if local Tessera Node is up", produces = "I'm up")
+    @ApiOperation(value = "Check if local P2PRestApp Node is up", produces = "I'm up")
     public String upCheck() {
 
         LOGGER.info("GET upcheck");

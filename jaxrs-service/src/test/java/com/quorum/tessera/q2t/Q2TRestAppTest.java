@@ -1,4 +1,4 @@
-package com.quorum.tessera.thridparty;
+package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.service.locator.ServiceLocator;
 import org.junit.After;
@@ -7,18 +7,18 @@ import org.junit.Test;
 
 import static org.mockito.Mockito.*;
 
-public class ThirdPartyTest {
+public class Q2TRestAppTest {
 
     private static final String contextName = "context";
 
     private ServiceLocator serviceLocator;
 
-    private ThirdPartyRestApp thirdParty;
+    private Q2TRestApp q2TRestApp;
 
     @Before
     public void setUp() {
         serviceLocator = mock(ServiceLocator.class);
-        thirdParty = new ThirdPartyRestApp(serviceLocator, contextName);
+        q2TRestApp = new Q2TRestApp(serviceLocator, contextName);
     }
 
     @After
@@ -28,7 +28,7 @@ public class ThirdPartyTest {
 
     @Test
     public void getSingletons() {
-        thirdParty.getSingletons();
+        q2TRestApp.getSingletons();
         verify(serviceLocator).getServices(contextName);
     }
 }

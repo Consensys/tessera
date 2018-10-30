@@ -143,7 +143,7 @@ public class ProcessManager {
             }
         });
 
-        startUpLatch.await(15, TimeUnit.SECONDS);
+        startUpLatch.await(30, TimeUnit.SECONDS);
 
     }
 

@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DeleteIT {
 
-    private static final URI SERVER_URI = NODE1_URI;
+    private static final URI SERVER_URI = NODE1_Q2T_URI;
 
     private static final Client client = ClientBuilder.newClient();
 

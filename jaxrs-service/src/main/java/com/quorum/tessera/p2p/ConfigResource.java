@@ -1,4 +1,4 @@
-package com.quorum.tessera.api;
+package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.core.config.ConfigService;

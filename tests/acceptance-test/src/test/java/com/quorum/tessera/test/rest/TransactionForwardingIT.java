@@ -29,11 +29,11 @@ public class TransactionForwardingIT {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionForwardingIT.class);
 
-    private static final URI NODE_ONE = NODE1_URI;
+    private static final URI NODE_ONE = NODE1_Q2T_URI;
 
-    private static final URI NODE_TWO = NODE2_URI;
+    private static final URI NODE_TWO = NODE2_Q2T_URI;
 
-    private static final URI NODE_THREE = NODE3_URI;
+    private static final URI NODE_THREE = NODE3_Q2T_URI;
 
     private final Client client = ClientBuilder.newClient();
 

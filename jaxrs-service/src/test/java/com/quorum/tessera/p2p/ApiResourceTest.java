@@ -1,4 +1,4 @@
-package com.quorum.tessera.api;
+package com.quorum.tessera.p2p;
 
 import java.util.List;
 import javax.ws.rs.core.MediaType;
@@ -6,6 +6,8 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Variant;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import com.quorum.tessera.p2p.ApiResource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

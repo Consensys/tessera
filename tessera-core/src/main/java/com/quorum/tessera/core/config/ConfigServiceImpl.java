@@ -1,9 +1,9 @@
 package com.quorum.tessera.core.config;
 
-import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.util.ConfigFileStore;
+
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
@@ -43,10 +43,7 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     public URI getServerUri() {
-        if (CommunicationType.GRPC == config.getServerConfig().getCommunicationType()){
-            return config.getServerConfig().getGrpcUri();
-        }
-        return config.getServerConfig().getServerUri();
+        return config.getP2PServerConfig().getServerUri();
     }
 
 }

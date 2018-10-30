@@ -1,7 +1,7 @@
 package com.quorum.tessera.app;
 
-import com.quorum.tessera.api.ApiResource;
-import com.quorum.tessera.api.Tessera;
+import com.quorum.tessera.p2p.ApiResource;
+import com.quorum.tessera.p2p.P2PRestApp;
 import com.quorum.tessera.api.exception.DefaultExceptionMapper;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import org.junit.After;
@@ -23,12 +23,12 @@ public class RestAppTest {
 
     private ServiceLocator serviceLocator;
 
-    private Tessera tessera;
+    private P2PRestApp p2PRestApp;
 
     @Before
     public void setUp() {
         serviceLocator = mock(ServiceLocator.class);
-        tessera = new Tessera(serviceLocator, contextName);
+        p2PRestApp = new P2PRestApp(serviceLocator, contextName);
     }
 
     @After
@@ -38,17 +38,17 @@ public class RestAppTest {
 
     @Test
     public void getSingletons() {
-        tessera.getSingletons();
+        p2PRestApp.getSingletons();
         verify(serviceLocator).getServices(contextName);
     }
 
     @Test
     public void createWithNoServiceLocator() {
 
-        final Throwable throwable = catchThrowable(() -> new Tessera(null, contextName));
+        final Throwable throwable = catchThrowable(() -> new P2PRestApp(null, contextName));
         assertThat(throwable).isInstanceOf(NullPointerException.class);
 
-        final Throwable throwableName = catchThrowable(() -> new Tessera(serviceLocator, null));
+        final Throwable throwableName = catchThrowable(() -> new P2PRestApp(serviceLocator, null));
         assertThat(throwableName).isInstanceOf(NullPointerException.class);
 
     }
@@ -63,7 +63,7 @@ public class RestAppTest {
             .thenReturn(Stream.of(apiObject, nestedApiObject, nonApiObject)
                 .collect(Collectors.toSet()));
 
-        Set<Object> result = tessera.getSingletons();
+        Set<Object> result = p2PRestApp.getSingletons();
         assertThat(result).containsOnly(apiObject, nestedApiObject);
         verify(serviceLocator).getServices(contextName);
     }

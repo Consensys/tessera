@@ -64,7 +64,7 @@ public class RestSteps implements En {
         And("^all parties are running$", () -> {
             
             assertThat(partyHelper.getParties()
-                .map(Party::getUri)
+                .map(Party::getP2PUri)
                 .map(client::target)
                 .map(t -> t.path("upcheck"))
                 .map(WebTarget::request)
@@ -81,7 +81,7 @@ public class RestSteps implements En {
             sendRequest.setTo("8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=");
             sendRequest.setPayload(txnData);
 
-            final Response response = client.target(sender.getUri())
+            final Response response = client.target(sender.getQ2TUri())
                 .path("send")
                 .request()
                 .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -105,7 +105,7 @@ public class RestSteps implements En {
                 )
                 .build().toString();
 
-            Response response = client.target(sender.getUri()).path("send")
+            Response response = client.target(sender.getQ2TUri()).path("send")
                 .request()
                 .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
@@ -126,7 +126,7 @@ public class RestSteps implements En {
 
             sendRequest.setTo(recipientArray);
 
-            Response response = client.target(sender.getUri()).path("send")
+            Response response = client.target(sender.getQ2TUri()).path("send")
                 .request().post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
             assertThat(response.getStatus()).isEqualTo(201);

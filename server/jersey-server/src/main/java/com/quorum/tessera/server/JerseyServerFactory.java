@@ -1,9 +1,7 @@
 package com.quorum.tessera.server;
 
 import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.appmarkers.TesseraAPP;
-import com.quorum.tessera.config.appmarkers.ThirdPartyAPP;
+import com.quorum.tessera.config.ServerConfig;
 
 import javax.ws.rs.core.Application;
 import java.util.Set;
@@ -14,20 +12,15 @@ import java.util.Set;
 public class JerseyServerFactory implements TesseraServerFactory {
 
     @Override
-    public TesseraServer createServer(Config config, Set<Object> services) {
+    public TesseraServer createServer(ServerConfig serverConfig, Set<Object> services) {
         Application application = services.stream()
                 .filter(Application.class::isInstance)
-                .filter(TesseraAPP.class::isInstance)
+                .filter(serverConfig.getApp().getIntf()::isInstance)
                 .findFirst()
                 .map(Application.class::cast)
                 .get();
-        Application thirdPartyApplication = services.stream()
-            .filter(Application.class::isInstance)
-            .filter(ThirdPartyAPP.class::isInstance)
-            .findFirst()
-            .map(Application.class::cast)
-            .get();
-        return new JerseyServer(config.getServerConfig(), application, thirdPartyApplication);
+
+        return new JerseyServer(serverConfig, application);
     }
 
     @Override

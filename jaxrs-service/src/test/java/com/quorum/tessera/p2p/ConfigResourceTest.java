@@ -1,4 +1,4 @@
-package com.quorum.tessera.api;
+package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.core.config.ConfigService;
@@ -8,6 +8,8 @@ import java.util.List;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import static org.assertj.core.api.Assertions.*;
+
+import com.quorum.tessera.p2p.ConfigResource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

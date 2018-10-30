@@ -253,7 +253,11 @@ public class ConfigBuilder {
                 toPath(workDir, sslClientTlsCertificatePath)
         );
 
-        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, 50521, CommunicationType.REST, sslConfig, null, null, null);
+
+
+        //TODO must add P2P and Q2T server configs. Maybe ThirdParty too - in disabled state.
+        final ServerConfig serverConfig = null;
+            //new ServerConfig(serverHostname, serverPort, 50521, CommunicationType.REST, sslConfig, null, null, null);
 
         final List<Peer> peerList;
         if(peers != null) {
@@ -284,7 +288,7 @@ public class ConfigBuilder {
             forwardingKeys = Collections.emptyList();
         }
 
-        return new Config(jdbcConfig, serverConfig, peerList, keyData, forwardingKeys, toPath(workDir, unixSocketFile), useWhiteList,false);
+        return new Config(jdbcConfig, Collections.singletonList(serverConfig), peerList, keyData, forwardingKeys, toPath(workDir, unixSocketFile), useWhiteList,false);
     }
 
 }

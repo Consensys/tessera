@@ -1,29 +1,29 @@
-package com.quorum.tessera.api;
+package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.filter.Logged;
-import com.quorum.tessera.transaction.TransactionManager;
-import com.quorum.tessera.api.filter.PrivateApi;
 import com.quorum.tessera.api.model.*;
+import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.util.Objects;
-import java.util.Optional;
-import static javax.ws.rs.core.MediaType.*;
-import com.quorum.tessera.enclave.model.MessageHash;
+import javax.ws.rs.core.UriBuilder;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import javax.ws.rs.core.UriBuilder;
+import java.util.Objects;
+import java.util.Optional;
+
+import static javax.ws.rs.core.MediaType.*;
 
 /**
  * Provides endpoints for dealing with transactions, including:
@@ -49,7 +49,6 @@ public class TransactionResource {
         @ApiResponse(code = 400, message = "For unknown and unknown keys")
     })
     @POST
-    @PrivateApi
     @Path("send")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
@@ -63,7 +62,7 @@ public class TransactionResource {
                 .path(URLEncoder.encode(response.getKey(), StandardCharsets.UTF_8.toString()))
                 .build();
 
-        return Response.status(Response.Status.CREATED)
+        return Response.status(Status.CREATED)
                 .type(APPLICATION_JSON)
                 .location(location)
                 .entity(response)
@@ -77,7 +76,6 @@ public class TransactionResource {
         @ApiResponse(code = 500, message = "Unknown server error")
     })
     @POST
-    @PrivateApi
     @Path("sendraw")
     @Consumes(APPLICATION_OCTET_STREAM)
     @Produces(TEXT_PLAIN)
@@ -106,7 +104,7 @@ public class TransactionResource {
                 .build();
 
         //TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
-        return Response.status(Response.Status.OK)
+        return Response.status(Status.OK)
                 .entity(encodedKey)
                 .location(location)
                 .build();
@@ -117,7 +115,6 @@ public class TransactionResource {
         @ApiResponse(code = 200, response = ReceiveResponse.class, message = "Receive Response object")
     })
     @GET
-    @PrivateApi
     @Path("/transaction/{hash}")
     @Produces(APPLICATION_JSON)
     public Response receive(
@@ -132,14 +129,13 @@ public class TransactionResource {
         receiveRequest.setTo(toStr);
         ReceiveResponse response = delegate.receive(receiveRequest);
 
-        return Response.status(Response.Status.OK)
+        return Response.status(Status.OK)
                 .type(APPLICATION_JSON)
                 .entity(response)
                 .build();
     }
 
     @GET
-    @PrivateApi
     @Path("/receive")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
@@ -149,7 +145,7 @@ public class TransactionResource {
 
         ReceiveResponse response = delegate.receive(request);
 
-        return Response.status(Response.Status.OK)
+        return Response.status(Status.OK)
                 .type(APPLICATION_JSON)
                 .entity(response)
                 .build();
@@ -178,7 +174,7 @@ public class TransactionResource {
 
         byte[] payload = receiveResponse.getPayload();
 
-        return Response.status(Response.Status.OK)
+        return Response.status(Status.OK)
                 .entity(payload)
                 .build();
     }
@@ -194,19 +190,19 @@ public class TransactionResource {
     @Consumes(APPLICATION_JSON)
     @Produces(TEXT_PLAIN)
     public Response delete(
-            @ApiParam(name = "deleteRequest", required = true, value = "Key data to be deleted")
-            @Valid final DeleteRequest deleteRequest) {
+        @ApiParam(name = "deleteRequest", required = true, value = "Key data to be deleted")
+        @Valid final DeleteRequest deleteRequest) {
 
         LOGGER.debug("Received deprecated delete request");
 
         delegate.delete(deleteRequest);
 
         return Response.status(Response.Status.OK)
-                .entity("Delete successful")
-                .build();
+            .entity("Delete successful")
+            .build();
     }
 
-    @ApiOperation("Delete single transaction from Tessera node")
+    @ApiOperation("Delete single transaction from P2PRestApp node")
     @ApiResponses({
         @ApiResponse(code = 204, message = "Successful deletion"),
         @ApiResponse(code = 404, message = "If the entity doesn't exist")
@@ -223,49 +219,4 @@ public class TransactionResource {
 
         return Response.noContent().build();
     }
-
-    @ApiOperation("Resend transactions for given key or message hash/recipient")
-    @ApiResponses({
-        @ApiResponse(code = 200, message = "Encoded payload when TYPE is INDIVIDUAL", response = String.class),
-        @ApiResponse(code = 500, message = "General error")
-    })
-    @POST
-    @Path("resend")
-    @Consumes(APPLICATION_JSON)
-    @Produces(TEXT_PLAIN)
-    public Response resend(
-            @ApiParam(name = "resendRequest", required = true) @Valid @NotNull final ResendRequest resendRequest
-    ) {
-
-        LOGGER.debug("Received resend request");
-
-        ResendResponse response = delegate.resend(resendRequest);
-        Response.ResponseBuilder builder = Response.status(Status.OK);
-        response.getPayload().ifPresent(builder::entity);
-        return builder.build();
-
-    }
-
-    @ApiOperation(value = "Transmit encrypted payload between Tessera Nodes")
-    @ApiResponses({
-        @ApiResponse(code = 201, message = "Key created status"),
-        @ApiResponse(code = 500, message = "General error")
-    })
-    @POST
-    @Path("push")
-    @Consumes(APPLICATION_OCTET_STREAM)
-    public Response push(
-            @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload
-    ) {
-
-        LOGGER.debug("Received push request");
-
-        final MessageHash messageHash = delegate.storePayload(payload);
-        LOGGER.debug("Push request generated hash {}", Objects.toString(messageHash));
-        //TODO: Return the query url not the string of the messageHAsh
-        return Response.status(Response.Status.CREATED)
-                .entity(Objects.toString(messageHash))
-                .build();
-    }
-
 }

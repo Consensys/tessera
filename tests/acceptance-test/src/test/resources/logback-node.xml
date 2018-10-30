@@ -14,7 +14,8 @@
     <logger name="org.glassfish.jersey.logging.LoggingFeature" level="ERROR"/>
     <logger name="com.quorum.tessera.api.exception" level="ALL" />
     <logger name="com.quorum.tessera.api.filter" level="ALL" />
-    <logger name="com.quorum.tessera.api.TransactionResource" level="DEBUG" />
+    <logger name="com.quorum.tessera.p2p.TransactionResource" level="DEBUG" />
+    <logger name="com.quorum.tessera.q2t.TransactionResource" level="DEBUG" />
     <logger name="com.quorum.tessera.transaction" level="DEBUG" />
     <root level="ERROR">
         <appender-ref ref="FILE"/>

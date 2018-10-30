@@ -1,31 +1,29 @@
 package com.quorum.tessera.test;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.JdbcConfig;
-import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import javax.ws.rs.core.UriBuilder;
-import java.nio.file.Path;
-import java.util.Collections;
 
 public class Party {
 
     private final String publicKey;
 
-    private final URI uri;
+    private final URI p2pUri;
+    private final URI q2tUri;
 
     private final Config config;
 
@@ -45,10 +43,11 @@ public class Party {
             throw new RuntimeException(ex);
         }
         
-        ServerConfig serverConfig = config.getServerConfig();
-        this.uri = UriBuilder.fromUri(serverConfig.getHostName())
-            .port(serverConfig.getPort())
-            .build();
+        ServerConfig p2pServerConfig = config.getP2PServerConfig();
+        this.p2pUri = p2pServerConfig.getServerUri();
+        ServerConfig q2tServerConfig = config.getServerConfigs().stream().
+            filter(sc -> sc.getApp() == AppType.Q2T).findFirst().get();
+        this.q2tUri = q2tServerConfig.getServerUri();
         
         this.alias = Objects.requireNonNull(alias);
 
@@ -58,8 +57,12 @@ public class Party {
         return publicKey;
     }
 
-    public URI getUri() {
-        return uri;
+    public URI getP2PUri() {
+        return p2pUri;
+    }
+
+    public URI getQ2TUri() {
+        return q2tUri;
     }
 
     public List<String> getAlwaysSendTo() {
@@ -80,15 +83,8 @@ public class Party {
         }
     }
     
-    public String getGprcHostName() {
-        return config.getServerConfig()
-                .getGrpcUri().getHost();
-    
-    }
-    
     public Integer getGrpcPort() {
-        return config.getServerConfig()
-                .getGrpcPort();
+        return config.getP2PServerConfig().getServerUri().getPort();
     }
     
     public String getAlias() {
@@ -97,7 +93,7 @@ public class Party {
 
     @Override
     public String toString() {
-        return "Party{" + "uri=" + uri + ", alias=" + alias + '}';
+        return "Party{" + "p2pUri=" + p2pUri + ", q2tUri=" + q2tUri + ", alias=" + alias + '}';
     }
 
     public Path getConfigFilePath() {

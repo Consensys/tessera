@@ -16,16 +16,19 @@ import java.util.Objects;
 @XmlType(factoryMethod = "create")
 public class ServerConfig extends ConfigItem {
 
+    //TODO validate that the server socket type and the communication type match the AppType
     @NotNull
     @XmlElement(required = true)
-    private final String hostName;
+    private final AppType app;
 
     @NotNull
-    @XmlElement
-    private final Integer port;
+    @XmlElement(required = true)
+    private final boolean enabled;
 
-    @XmlElement
-    private final Integer grpcPort;
+    @NotNull
+    @XmlElement(required = true)
+    @Valid
+    private ServerSocket serverSocket;
 
     @XmlElement
     private final CommunicationType communicationType;
@@ -42,42 +45,36 @@ public class ServerConfig extends ConfigItem {
     @XmlElement
     private final String bindingAddress;
 
-    @Valid
-    @XmlElement
-    private final ThirdPartyAPIConfig thirdPartyAPIConfig;
-
-    public ServerConfig(final String hostName,
-                        final Integer port,
-                        final Integer grpcPort,
+    public ServerConfig(final AppType app,
+                        final boolean enabled,
+                        final ServerSocket serverSocket,
                         final CommunicationType communicationType,
                         final SslConfig sslConfig,
                         final InfluxConfig influxConfig,
-                        final String bindingAddress,
-                        final ThirdPartyAPIConfig thirdPartyAPIConfig) {
-        this.hostName = hostName;
-        this.port = port;
-        this.grpcPort = grpcPort;
+                        final String bindingAddress) {
+        this.app = app;
+        this.enabled = enabled;
+        this.serverSocket = serverSocket;
         this.communicationType = communicationType;
         this.sslConfig = sslConfig;
         this.influxConfig = influxConfig;
         this.bindingAddress = bindingAddress;
-        this.thirdPartyAPIConfig = thirdPartyAPIConfig;
     }
 
     private static ServerConfig create() {
-        return new ServerConfig(null, null, null, CommunicationType.REST, null, null, null, null);
+        return new ServerConfig(null, false, null, CommunicationType.REST, null, null, null);
     }
 
-    public String getHostName() {
-        return hostName;
+    public AppType getApp() {
+        return app;
     }
 
-    public Integer getPort() {
-        return port;
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    public Integer getGrpcPort() {
-        return grpcPort;
+    public ServerSocket getServerSocket() {
+        return serverSocket;
     }
 
     public CommunicationType getCommunicationType() {
@@ -92,20 +89,12 @@ public class ServerConfig extends ConfigItem {
         return influxConfig;
     }
 
-    public ThirdPartyAPIConfig getThirdPartyAPIConfig() {
-        return thirdPartyAPIConfig;
-    }
-
     public String getBindingAddress() {
         return this.bindingAddress == null ? this.getServerUri().toString() : this.bindingAddress;
     }
 
     public URI getServerUri() {
-        try {
-            return new URI(hostName + ":" + port);
-        } catch (URISyntaxException ex) {
-            throw new ConfigException(ex);
-        }
+        return serverSocket.getServerUri();
     }
 
     public boolean isSsl() {
@@ -115,14 +104,6 @@ public class ServerConfig extends ConfigItem {
     public URI getBindingUri() {
         try {
             return new URI(this.getBindingAddress());
-        } catch (URISyntaxException ex) {
-            throw new ConfigException(ex);
-        }
-    }
-
-    public URI getGrpcUri() {
-        try {
-            return new URI(hostName + ":" + grpcPort);
         } catch (URISyntaxException ex) {
             throw new ConfigException(ex);
         }

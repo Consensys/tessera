@@ -1,8 +1,9 @@
-package com.quorum.tessera.api;
+package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.model.PartyInfo;
+import com.quorum.tessera.p2p.PartyInfoResource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

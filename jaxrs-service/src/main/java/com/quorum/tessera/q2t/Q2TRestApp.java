@@ -1,8 +1,8 @@
-package com.quorum.tessera.api;
+package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.filter.GlobalFilter;
 import com.quorum.tessera.app.RestApp;
-import com.quorum.tessera.config.appmarkers.TesseraAPP;
+import com.quorum.tessera.config.apps.Q2TApp;
 import com.quorum.tessera.service.locator.ServiceLocator;
 
 import javax.ws.rs.ApplicationPath;
@@ -13,9 +13,9 @@ import javax.ws.rs.ApplicationPath;
  */
 @GlobalFilter
 @ApplicationPath("/")
-public class Tessera extends RestApp implements TesseraAPP {
+public class Q2TRestApp extends RestApp implements Q2TApp {
 
-    public Tessera(final ServiceLocator serviceLocator, final String contextName) {
+    public Q2TRestApp(final ServiceLocator serviceLocator, final String contextName) {
         super(serviceLocator, contextName);
     }
 }

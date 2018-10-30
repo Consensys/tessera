@@ -50,7 +50,7 @@ public class SendIT {
         sendRequest.setTo(secondParty.getPublicKey());
         sendRequest.setPayload(transactionData);
 
-        final Response response = client.target(firstParty.getUri())
+        final Response response = client.target(firstParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -78,7 +78,7 @@ public class SendIT {
             assertThat(r.getStatus()).isEqualTo(200);
         });
 
-        utils.findTransaction(result.getKey(), partyHelper.findByAlias("C"), partyHelper.findByAlias("D")).forEach(r -> {
+        utils.findTransaction(result.getKey(), partyHelper.findByAlias("D")).forEach(r -> {
             assertThat(r.getStatus()).isEqualTo(404);
         });
 
@@ -104,7 +104,7 @@ public class SendIT {
         sendRequest.setTo(secondParty.getPublicKey(), thirdParty.getPublicKey());
         sendRequest.setPayload(transactionData);
 
-        final Response response = client.target(sendingParty.getUri())
+        final Response response = client.target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -149,7 +149,7 @@ public class SendIT {
         sendRequest.setTo(recipient.getPublicKey());
         sendRequest.setPayload(transactionData);
 
-        final Response response = client.target(recipient.getUri())
+        final Response response = client.target(recipient.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -184,7 +184,7 @@ public class SendIT {
         sendRequest.setFrom(sendingParty.getPublicKey());
         sendRequest.setPayload(transactionData);
 
-        final Response response = client.target(sendingParty.getUri())
+        final Response response = client.target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -207,8 +207,8 @@ public class SendIT {
 
         assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
 
-        assertThat(location.getHost()).isEqualTo(sendingParty.getUri().getHost());
-        assertThat(location.getPort()).isEqualTo(sendingParty.getUri().getPort());
+        assertThat(location.getHost()).isEqualTo(sendingParty.getQ2TUri().getHost());
+        assertThat(location.getPort()).isEqualTo(sendingParty.getQ2TUri().getPort());
 
     }
 
@@ -227,7 +227,7 @@ public class SendIT {
             )
             .build().toString();
 
-        final Response response = client.target(sendingParty.getUri())
+        final Response response = client.target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -243,7 +243,7 @@ public class SendIT {
 
         final String sendRequest = "this is clearly a garbage message";
 
-        final Response response = client.target(sendingParty.getUri())
+        final Response response = client.target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -259,7 +259,7 @@ public class SendIT {
         Party sendingParty = partyHelper.getParties().findAny().get();
         final String sendRequest = "{}";
 
-        final Response response = client.target(sendingParty.getUri())
+        final Response response = client.target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -283,7 +283,7 @@ public class SendIT {
         sendRequest.setTo("8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=");
         sendRequest.setPayload(transactionData);
 
-        final Response response = client.target(sendingParty.getUri())
+        final Response response = client.target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -309,7 +309,7 @@ public class SendIT {
         sendRequest.setTo(recipient.getPublicKey());
         sendRequest.setPayload(transactionData);
 
-        final Response response = client.target(sender.getUri())
+        final Response response = client.target(sender.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));

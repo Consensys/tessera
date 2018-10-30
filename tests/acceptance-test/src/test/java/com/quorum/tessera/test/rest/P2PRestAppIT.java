@@ -17,13 +17,13 @@ import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TesseraIT {
+public class P2PRestAppIT {
 
     public static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
 
     private final Client client = ClientBuilder.newClient();
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TesseraIT.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(P2PRestAppIT.class);
 
     @Rule
     public TestName testName = new TestName();

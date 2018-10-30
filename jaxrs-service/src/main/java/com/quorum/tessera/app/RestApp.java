@@ -26,11 +26,15 @@ public class RestApp extends Application {
     public Set<Object> getSingletons() {
         final String apiPackageName = getClass().getPackage().getName();
 
+        //TODO find a nicer way for rest apps to share exception mappers / filters
+
         return serviceLocator.getServices(contextName).stream()
             .filter(Objects::nonNull)
             .filter(o -> Objects.nonNull(o.getClass()))
             .filter(o -> Objects.nonNull(o.getClass().getPackage()))
-            .filter(o -> o.getClass().getPackage().getName().startsWith(apiPackageName))
+            .filter(o -> o.getClass().getPackage().getName().startsWith(apiPackageName) ||
+                o.getClass().getPackage().getName().startsWith("com.quorum.tessera.api.exception") ||
+                o.getClass().getPackage().getName().startsWith("com.quorum.tessera.api.filter"))
             .collect(Collectors.toSet());
     }
 

@@ -20,7 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResendIndividualIT {
 
-    private static final URI SERVER_URI = NODE1_URI;
+    private static final URI SERVER_Q2T_URI = NODE1_Q2T_URI;
+    private static final URI SERVER_P2P_URI = NODE1_P2P_URI;
 
     private final Client client = ClientBuilder.newClient();
 
@@ -36,7 +37,7 @@ public class ResendIndividualIT {
 
     @Before
     public void init() {
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(SERVER_Q2T_URI)
             .path("/sendraw")
             .request()
             .header("c11n-from", SENDER_KEY)
@@ -58,7 +59,7 @@ public class ResendIndividualIT {
         request.setKey(this.hash);
         request.setPublicKey(RECIPIENT_KEY);
 
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(SERVER_P2P_URI)
             .path(RESEND_PATH)
             .request()
             .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
@@ -79,7 +80,7 @@ public class ResendIndividualIT {
         request.setKey(this.hash);
         request.setPublicKey(PTY3_KEY);
 
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(SERVER_P2P_URI)
             .path(RESEND_PATH)
             .request()
             .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
@@ -102,7 +103,7 @@ public class ResendIndividualIT {
         request.setKey(unknownHash);
         request.setPublicKey(PTY3_KEY);
 
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(SERVER_P2P_URI)
             .path(RESEND_PATH)
             .request()
             .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
