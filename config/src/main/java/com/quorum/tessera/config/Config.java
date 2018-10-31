@@ -13,6 +13,8 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,18 +26,18 @@ public class Config extends ConfigItem {
     @NotNull
     @Valid
     @XmlElement(name = "jdbc", required = true)
-    private final JdbcConfig jdbcConfig;
+    private JdbcConfig jdbcConfig;
 
     @NotNull
     @Valid
     @XmlElement(name = "serverConfigs", required = true)
-    private final List<@Valid ServerConfig> serverConfigs;
+    private List<@Valid ServerConfig> serverConfigs;
 
     @NotNull
     @Size(min = 1, message = "At least 1 peer must be provided")
     @Valid
     @XmlElement(name = "peer", required = true)
-    private final List<Peer> peers;
+    private List<Peer> peers;
 
     @Valid
     @NotNull
@@ -43,33 +45,32 @@ public class Config extends ConfigItem {
     @ValidKeyConfiguration
     @ValidKeyVaultConfiguration
     @XmlJavaTypeAdapter(KeyConfigurationAdapter.class)
-    private final KeyConfiguration keys;
-    
-    
+    private KeyConfiguration keys;
+
     @NotNull
     @XmlElement(name = "alwaysSendTo", required = true)
-    private final List<@ValidBase64 String> alwaysSendTo;
+    private List<@ValidBase64 String> alwaysSendTo;
 
     @ValidPath(checkCanCreate = true)
     @NotNull
     @XmlElement(required = true, type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path unixSocketFile;
+    private Path unixSocketFile;
 
     @XmlAttribute
     private final boolean useWhiteList;
 
     @XmlAttribute
     private final boolean disablePeerDiscovery;
-    
+
     public Config(final JdbcConfig jdbcConfig,
-                  final List<ServerConfig> serverConfigs,
-                  final List<Peer> peers,
-                  final KeyConfiguration keyConfiguration,
-                  final List<String> alwaysSendTo,
-                  final Path unixSocketFile,
-                  final boolean useWhiteList,
-                  final boolean disablePeerDiscovery) {
+        final List<ServerConfig> serverConfigs,
+        final List<Peer> peers,
+        final KeyConfiguration keyConfiguration,
+        final List<String> alwaysSendTo,
+        final Path unixSocketFile,
+        final boolean useWhiteList,
+        final boolean disablePeerDiscovery) {
         this.jdbcConfig = jdbcConfig;
         this.serverConfigs = serverConfigs;
         this.peers = peers;
@@ -85,7 +86,7 @@ public class Config extends ConfigItem {
     }
 
     private Config() {
-        this(null, null, null, null, null, null, false,false);
+        this(null, null, null, null, null, null, false, false);
     }
 
     public JdbcConfig getJdbcConfig() {
@@ -96,8 +97,43 @@ public class Config extends ConfigItem {
         return this.serverConfigs;
     }
 
+    @Deprecated
+    public ServerConfig getServerConfig() {
+        if (serverConfigs == null) {
+            return null;
+        }
+        if (serverConfigs.size() != 1) {
+            return null;
+        }
+        return serverConfigs.get(0);
+    }
+
+    @Deprecated
+    public void setServerConfig(ServerConfig serverConfig) {
+        if (serverConfigs != null && !serverConfigs.isEmpty()) {
+            throw new UnsupportedOperationException("");
+        }
+        if (serverConfigs == null) {
+            serverConfigs = Arrays.asList(serverConfig);
+            return;
+        }
+        serverConfigs = new ArrayList<>();
+
+    }
+    @Deprecated
+    public ServerConfig getServer() {
+        return getServerConfig();
+    }
+        
+    
+    @Deprecated
+    public void setServer(ServerConfig serverConfig) {
+        setServerConfig(serverConfig);
+
+    }
+    @Deprecated
     public Path getUnixSocketFile() {
-        return this.unixSocketFile;
+        return unixSocketFile;
     }
 
     public List<Peer> getPeers() {
@@ -119,13 +155,13 @@ public class Config extends ConfigItem {
     public boolean isDisablePeerDiscovery() {
         return disablePeerDiscovery;
     }
-    
+
     @XmlTransient
     public void addPeer(Peer peer) {
         this.peers.add(peer);
     }
 
-    public ServerConfig getP2PServerConfig(){
+    public ServerConfig getP2PServerConfig() {
         // TODO need to revisit
         return serverConfigs.stream().
             filter(ServerConfig::isEnabled).

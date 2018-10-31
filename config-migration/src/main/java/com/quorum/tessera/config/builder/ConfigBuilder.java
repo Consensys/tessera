@@ -256,9 +256,8 @@ public class ConfigBuilder {
 
 
         //TODO must add P2P and Q2T server configs. Maybe ThirdParty too - in disabled state.
-        final ServerConfig serverConfig = null;
-            //new ServerConfig(serverHostname, serverPort, 50521, CommunicationType.REST, sslConfig, null, null, null);
-
+        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, 50521, CommunicationType.REST, sslConfig, null, null, null);
+        
         final List<Peer> peerList;
         if(peers != null) {
             peerList = peers.stream()
