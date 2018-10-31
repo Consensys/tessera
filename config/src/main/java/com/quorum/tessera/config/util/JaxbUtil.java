@@ -33,6 +33,9 @@ public final class JaxbUtil {
         Peer.class,
         PrivateKeyType.class,
         ServerConfig.class,
+        ServerSocket.class,
+        InetServerSocket.class,
+        UnixServerSocket.class,
         SslAuthenticationMode.class,
         SslConfig.class,
         SslTrustMode.class

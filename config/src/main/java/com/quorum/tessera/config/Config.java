@@ -2,10 +2,7 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.KeyConfigurationAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
-import com.quorum.tessera.config.constraints.ValidBase64;
-import com.quorum.tessera.config.constraints.ValidKeyConfiguration;
-import com.quorum.tessera.config.constraints.ValidKeyVaultConfiguration;
-import com.quorum.tessera.config.constraints.ValidPath;
+import com.quorum.tessera.config.constraints.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -30,8 +27,9 @@ public class Config extends ConfigItem {
 
     @NotNull
     @Valid
+    @ValidServerConfigs
     @XmlElement(name = "serverConfigs", required = true)
-    private List<@Valid ServerConfig> serverConfigs;
+    private List<@Valid @ValidServerConfig ServerConfig> serverConfigs;
 
     @NotNull
     @Size(min = 1, message = "At least 1 peer must be provided")
@@ -124,8 +122,8 @@ public class Config extends ConfigItem {
     public ServerConfig getServer() {
         return getServerConfig();
     }
-        
-    
+
+
     @Deprecated
     public void setServer(ServerConfig serverConfig) {
         setServerConfig(serverConfig);

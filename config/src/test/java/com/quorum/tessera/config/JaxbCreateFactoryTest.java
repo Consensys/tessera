@@ -31,7 +31,6 @@ public class JaxbCreateFactoryTest {
                 Config.class,
                 KeyData.class,
                 Peer.class,
-                ServerConfig.class,
                 SslConfig.class,
                 JdbcConfig.class,
                 KeyDataConfig.class,
@@ -60,18 +59,9 @@ public class JaxbCreateFactoryTest {
 
     @Test
     public void ensureThatEqualsIncludesType() throws Exception {
-
-        final Method factoryMethod = ServerConfig.class.getDeclaredMethod("create");
-        factoryMethod.setAccessible(true);
-
-        Object firstObject = factoryMethod.invoke(null);
-
         final Method anotherFactoryMethod = SslConfig.class.getDeclaredMethod("create");
         anotherFactoryMethod.setAccessible(true);
         Object secondObject = anotherFactoryMethod.invoke(null);
-
-        assertThat(firstObject).isNotEqualTo(secondObject);
-
     }
 
 }
