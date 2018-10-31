@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.Optional;
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.json.JsonString;
 import javax.validation.ConstraintViolationException;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.MarshalException;
@@ -214,17 +213,7 @@ public class JaxbUtilTest {
 
                     assertThat(result.getJsonObject("jdbc").getString("password")).isEqualTo(expectedMaskValue);
 
-                    JsonObject sslConfig = result.getJsonObject("server")
-                            .getJsonObject("sslConfig");
 
-                    sslConfig.entrySet().stream()
-                            .filter(entry -> entry.getKey().toLowerCase().contains("password"))
-                            .forEach(entry -> {
-
-                                JsonString v = (JsonString) entry.getValue();
-                                assertThat(v.getString()).isEqualTo(expectedMaskValue);
-
-                            });
 
                     assertThat(result.getJsonObject("keys").getJsonArray("keyData")
                             .getJsonObject(0).getString("privateKey"))
@@ -254,14 +243,6 @@ public class JaxbUtilTest {
 
             assertThat(result.getJsonObject("jdbc").getString("password")).isEqualTo(expectedMaskValue);
 
-            JsonObject sslConfig = result.getJsonObject("server").getJsonObject("sslConfig");
-
-            sslConfig.entrySet().stream()
-                    .filter(entry -> entry.getKey().toLowerCase().contains("password"))
-                    .forEach(entry -> {
-                        JsonString v = (JsonString) entry.getValue();
-                        assertThat(v.getString()).isEqualTo(expectedMaskValue);
-                    });
         }
 
     }
