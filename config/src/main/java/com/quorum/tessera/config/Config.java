@@ -2,10 +2,7 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.KeyConfigurationAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
-import com.quorum.tessera.config.constraints.ValidBase64;
-import com.quorum.tessera.config.constraints.ValidKeyConfiguration;
-import com.quorum.tessera.config.constraints.ValidKeyVaultConfiguration;
-import com.quorum.tessera.config.constraints.ValidPath;
+import com.quorum.tessera.config.constraints.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -14,7 +11,6 @@ import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +28,7 @@ public class Config extends ConfigItem {
     @NotNull
     @Valid
     @XmlElement(name = "serverConfigs", required = true)
-    private List<@Valid ServerConfig> serverConfigs = new ArrayList<>();
+    private List<@Valid ServerConfig> serverConfigs;
 
     @NotNull
     @Size(min = 1, message = "At least 1 peer must be provided")
@@ -63,6 +59,9 @@ public class Config extends ConfigItem {
 
     @XmlAttribute
     private boolean disablePeerDiscovery;
+
+    @XmlElement
+    private DeprecatedServerConfig server;
 
     public Config(final JdbcConfig jdbcConfig,
         final List<ServerConfig> serverConfigs,
@@ -98,30 +97,44 @@ public class Config extends ConfigItem {
         return this.serverConfigs;
     }
 
-    @XmlElement(name = "server")
     @Deprecated
-    public ServerConfig getServerConfig() {
-        if (serverConfigs == null) {
-            return null;
-        }
-        if (serverConfigs.size() != 1) {
-            return null;
-        }
-        return serverConfigs.get(0);
+    public DeprecatedServerConfig getServer() {
+        return server;
     }
 
     @Deprecated
-    public void setServerConfig(ServerConfig serverConfig) {
+    public void setServer(DeprecatedServerConfig server) {
+
         if (serverConfigs != null && !serverConfigs.isEmpty()) {
             throw new UnsupportedOperationException("");
         }
+        this.server = server;
 
-        serverConfig.setEnabled(true);
-        serverConfig.setApp(AppType.P2P);
+        this.serverConfigs = new ArrayList<>(AppType.values().length);
+        for (AppType app : AppType.values()) {
 
-        serverConfigs = Arrays.asList(serverConfig);
+            ServerConfig newConfig = new ServerConfig();
+            newConfig.setEnabled(true);
+            if (server.getGrpcPort() != null) {
+                newConfig.setCommunicationType(CommunicationType.GRPC);
+            } else if (getUnixSocketFile() != null) {
+                newConfig.setCommunicationType(CommunicationType.UNIX_SOCKET);
+            } else {
+                newConfig.setCommunicationType(CommunicationType.REST);
+            }
+
+            newConfig.setCommunicationType(this.server.getCommunicationType());
+            newConfig.setServerSocket(new InetServerSocket(this.server.getHostName(), this.server.getPort()));
+            newConfig.setInfluxConfig(this.server.getInfluxConfig());
+            newConfig.setSslConfig(this.server.getSslConfig());
+            newConfig.setApp(app);
+            newConfig.setBindingAddress(this.server.getBindingAddress());
+
+            serverConfigs.add(newConfig);
+        }
 
     }
+
 
     @Deprecated
     public Path getUnixSocketFile() {
@@ -151,11 +164,6 @@ public class Config extends ConfigItem {
     @XmlTransient
     public void addPeer(Peer peer) {
         this.peers.add(peer);
-    }
-
-    public ServerConfig getP2PServerConfig() {
-        // TODO need to revisit
-        return getServerConfig();
     }
 
 }
