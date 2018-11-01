@@ -21,7 +21,6 @@ public class UnixServerSocket extends ServerSocket {
     }
 
     public UnixServerSocket(){
-        this(null);
     }
 
     public String getPath() {
@@ -40,4 +39,6 @@ public class UnixServerSocket extends ServerSocket {
             throw new ConfigException(ex);
         }
     }
+    
+    
 }

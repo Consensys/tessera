@@ -33,6 +33,7 @@ public final class JaxbUtil {
         Peer.class,
         PrivateKeyType.class,
         ServerConfig.class,
+        DeprecatedServerConfig.class,
         ServerSocket.class,
         InetServerSocket.class,
         UnixServerSocket.class,

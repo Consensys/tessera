@@ -16,7 +16,6 @@ import java.util.List;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(factoryMethod = "create")
 public class Config extends ConfigItem {
 
     @NotNull
@@ -79,10 +78,6 @@ public class Config extends ConfigItem {
         this.unixSocketFile = unixSocketFile;
         this.useWhiteList = useWhiteList;
         this.disablePeerDiscovery = disablePeerDiscovery;
-    }
-
-    private static Config create() {
-        return new Config();
     }
 
     public Config() {

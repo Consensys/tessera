@@ -4,27 +4,25 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(factoryMethod = "create")
 public class InfluxConfig extends ConfigItem {
 
     @NotNull
     @XmlElement(required = true)
-    private final String hostName;
+    private String hostName;
 
     @NotNull
     @XmlElement(required = true)
-    private final Integer port;
+    private Integer port;
 
     @NotNull
     @XmlElement(required = true)
-    private final Long pushIntervalInSecs;
+    private Long pushIntervalInSecs;
 
     @NotNull
     @XmlElement(required = true)
-    private final String dbName;
+    private String dbName;
 
     public InfluxConfig(String hostName, Integer port, Long pushIntervalInSecs, String dbName) {
         this.hostName = hostName;
@@ -33,9 +31,10 @@ public class InfluxConfig extends ConfigItem {
         this.pushIntervalInSecs = pushIntervalInSecs;
     }
 
-    private static InfluxConfig create() {
-        return new InfluxConfig(null, null, null, null);
+    public InfluxConfig() {
     }
+
+
 
     public String getHostName() {
         return hostName;
@@ -52,4 +51,22 @@ public class InfluxConfig extends ConfigItem {
     public String getDbName() {
         return dbName;
     }
+
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
+    }
+
+    public void setPushIntervalInSecs(Long pushIntervalInSecs) {
+        this.pushIntervalInSecs = pushIntervalInSecs;
+    }
+
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
+    }
+    
+    
 }

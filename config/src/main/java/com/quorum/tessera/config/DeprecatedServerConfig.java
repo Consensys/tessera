@@ -6,11 +6,9 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
 
 @Deprecated
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(factoryMethod = "create")
 public class DeprecatedServerConfig extends ConfigItem {
     
     @NotNull
@@ -38,10 +36,11 @@ public class DeprecatedServerConfig extends ConfigItem {
 
     @XmlElement
     private  String bindingAddress;
-    
-    public static DeprecatedServerConfig create() {
-        return new DeprecatedServerConfig();
+
+    public DeprecatedServerConfig() {
     }
+    
+
     
     public String getHostName() {
         return hostName;

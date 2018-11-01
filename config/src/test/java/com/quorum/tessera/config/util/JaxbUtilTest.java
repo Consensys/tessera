@@ -55,6 +55,7 @@ public class JaxbUtilTest {
                 new PrivateKeyData("VAL", null, null, null, null, null),
                 PrivateKeyType.UNLOCKED
         );
+        
 
         try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
             JaxbUtil.marshal(input, bout);
