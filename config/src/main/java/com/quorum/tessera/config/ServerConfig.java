@@ -19,11 +19,11 @@ public class ServerConfig extends ConfigItem {
     //TODO validate that the server socket type and the communication type match the AppType
     @NotNull
     @XmlElement(required = true)
-    private final AppType app;
+    private AppType app;
 
     @NotNull
     @XmlElement(required = true)
-    private final boolean enabled;
+    private boolean enabled;
 
     @NotNull
     @XmlElement(required = true)
@@ -31,20 +31,20 @@ public class ServerConfig extends ConfigItem {
     private ServerSocket serverSocket;
 
     @XmlElement
-    private final CommunicationType communicationType;
+    private CommunicationType communicationType;
 
     @Valid
     @XmlElement
     @ValidSsl
-    private final SslConfig sslConfig;
+    private SslConfig sslConfig;
 
     @Valid
     @XmlElement
-    private final InfluxConfig influxConfig;
+    private InfluxConfig influxConfig;
 
     @XmlElement
-    private final String bindingAddress;
-
+    private String bindingAddress;
+    
     public ServerConfig(final AppType app,
                         final boolean enabled,
                         final ServerSocket serverSocket,
@@ -63,6 +63,9 @@ public class ServerConfig extends ConfigItem {
 
     private static ServerConfig create() {
         return new ServerConfig(null, false, null, CommunicationType.REST, null, null, null);
+    }
+
+    public ServerConfig() {
     }
 
     public AppType getApp() {
@@ -108,5 +111,37 @@ public class ServerConfig extends ConfigItem {
             throw new ConfigException(ex);
         }
     }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public void setServerSocket(ServerSocket serverSocket) {
+        this.serverSocket = serverSocket;
+    }
+
+    public void setCommunicationType(CommunicationType communicationType) {
+        this.communicationType = communicationType;
+    }
+
+    public void setSslConfig(SslConfig sslConfig) {
+        this.sslConfig = sslConfig;
+    }
+
+    public void setInfluxConfig(InfluxConfig influxConfig) {
+        this.influxConfig = influxConfig;
+    }
+
+    public void setBindingAddress(String bindingAddress) {
+        this.bindingAddress = bindingAddress;
+    }
+
+    public void setApp(AppType app) {
+        this.app = app;
+    }
+
+
+    
+    
 
 }

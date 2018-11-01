@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -31,7 +32,7 @@ public class Config extends ConfigItem {
     @NotNull
     @Valid
     @XmlElement(name = "serverConfigs", required = true)
-    private List<@Valid ServerConfig> serverConfigs;
+    private List<@Valid ServerConfig> serverConfigs = new ArrayList<>();
 
     @NotNull
     @Size(min = 1, message = "At least 1 peer must be provided")
@@ -58,10 +59,10 @@ public class Config extends ConfigItem {
     private Path unixSocketFile;
 
     @XmlAttribute
-    private final boolean useWhiteList;
+    private boolean useWhiteList;
 
     @XmlAttribute
-    private final boolean disablePeerDiscovery;
+    private boolean disablePeerDiscovery;
 
     public Config(final JdbcConfig jdbcConfig,
         final List<ServerConfig> serverConfigs,
@@ -72,7 +73,7 @@ public class Config extends ConfigItem {
         final boolean useWhiteList,
         final boolean disablePeerDiscovery) {
         this.jdbcConfig = jdbcConfig;
-        this.serverConfigs = serverConfigs;
+        this.serverConfigs = Objects.nonNull(serverConfigs) ? serverConfigs : new ArrayList<>();
         this.peers = peers;
         this.keys = keyConfiguration;
         this.alwaysSendTo = alwaysSendTo;
@@ -85,8 +86,8 @@ public class Config extends ConfigItem {
         return new Config();
     }
 
-    private Config() {
-        this(null, null, null, null, null, null, false, false);
+    public Config() {
+
     }
 
     public JdbcConfig getJdbcConfig() {
@@ -97,6 +98,7 @@ public class Config extends ConfigItem {
         return this.serverConfigs;
     }
 
+    @XmlElement(name = "server")
     @Deprecated
     public ServerConfig getServerConfig() {
         if (serverConfigs == null) {
@@ -113,24 +115,14 @@ public class Config extends ConfigItem {
         if (serverConfigs != null && !serverConfigs.isEmpty()) {
             throw new UnsupportedOperationException("");
         }
-        if (serverConfigs == null) {
-            serverConfigs = Arrays.asList(serverConfig);
-            return;
-        }
-        serverConfigs = new ArrayList<>();
+
+        serverConfig.setEnabled(true);
+        serverConfig.setApp(AppType.P2P);
+
+        serverConfigs = Arrays.asList(serverConfig);
 
     }
-    @Deprecated
-    public ServerConfig getServer() {
-        return getServerConfig();
-    }
-        
-    
-    @Deprecated
-    public void setServer(ServerConfig serverConfig) {
-        setServerConfig(serverConfig);
 
-    }
     @Deprecated
     public Path getUnixSocketFile() {
         return unixSocketFile;
@@ -163,11 +155,7 @@ public class Config extends ConfigItem {
 
     public ServerConfig getP2PServerConfig() {
         // TODO need to revisit
-        return serverConfigs.stream().
-            filter(ServerConfig::isEnabled).
-            filter(sc -> sc.getApp() == AppType.P2P).
-            findFirst().
-            orElseThrow(() -> new RuntimeException("Unable to find an enabled P2P ServerConfig."));
+        return getServerConfig();
     }
 
 }
