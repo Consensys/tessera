@@ -1,6 +1,5 @@
 package com.quorum.tessera.client;
 
-import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
@@ -19,16 +18,7 @@ public class RestP2pClientFactory implements P2pClientFactory {
         ClientFactory clientFactory = new ClientFactory(clientSSLContextFactory);
 
         
-        Client client = config.getServerConfigs().stream()
-            .filter(c -> c.getApp() == AppType.P2P)
-            .map(clientFactory::buildFrom)
-            .findAny()
-            .orElse(
-                config.getServerConfigs().stream()
-                    .findAny()
-                        .map(clientFactory::buildFrom)
-                        .get()
-            );
+        Client client = clientFactory.buildFrom(config.getP2PServerConfig());
 
         PostDelegate postDelegate = new PostDelegate(client);
 
