@@ -2,36 +2,38 @@ package com.quorum.tessera.grpc.server;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.grpc.GrpcApp;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
-import io.grpc.BindableService;
 import io.grpc.ServerBuilder;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class GrpcServerFactory implements TesseraServerFactory {
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GrpcServerFactory.class);
 
 
     @Override
     public TesseraServer createServer(ServerConfig serverConfig, Set<Object> services) {
 
         if (serverConfig.getCommunicationType() == CommunicationType.GRPC) {
-            final List<BindableService> bindableServices = services
-                .stream()
-                .filter(BindableService.class::isInstance)
-                .map(o -> (BindableService) o)
-                .collect(Collectors.toList());
+            final Optional<GrpcApp> grpcApp = services.stream()
+                .filter(GrpcApp.class::isInstance)
+                .filter(serverConfig.getApp().getIntf()::isInstance)
+                .findFirst()
+                .map(GrpcApp.class::cast);
 
-            final URI serverUri = serverConfig.getServerUri();
-
-            ServerBuilder serverBuilder = ServerBuilder.forPort(serverUri.getPort());
-
-            bindableServices.stream().forEach(serverBuilder::addService);
-
-            return new GrpcServer(serverUri, serverBuilder.build());
+            if (grpcApp.isPresent()) {
+                final URI serverUri = serverConfig.getServerUri();
+                ServerBuilder serverBuilder = ServerBuilder.forPort(serverUri.getPort());
+                grpcApp.get().getBindableServices().forEach(serverBuilder::addService);
+                return new GrpcServer(serverUri, serverBuilder.build());
+            } else {
+                LOGGER.info("Unable to find grpc app for " + serverConfig.getApp().getIntf().getCanonicalName());
+            }
         }
 
         return null;

@@ -22,10 +22,10 @@ public class SendGrpcIT {
 
     @Before
     public void onSetUp() {
-        channel1 = ManagedChannelBuilder.forAddress("127.0.0.1", 50520)
+        channel1 = ManagedChannelBuilder.forAddress("127.0.0.1", 51520)
                 .usePlaintext()
                 .build();
-        channel2 = ManagedChannelBuilder.forAddress("127.0.0.1", 50521)
+        channel2 = ManagedChannelBuilder.forAddress("127.0.0.1", 51521)
                 .usePlaintext()
                 .build();
 

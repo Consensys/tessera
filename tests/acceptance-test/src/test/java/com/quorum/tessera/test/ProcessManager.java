@@ -102,9 +102,7 @@ public class ProcessManager {
             "-configfile",
             ElUtil.createAndPopulatePaths(configFile).toAbsolutePath().toString(),
             "-pidfile",
-            pid.toAbsolutePath().toString(),
-            "-server.communicationType",
-            communicationType.name()
+            pid.toAbsolutePath().toString()
         );
         System.out.println(String.join(" ", args));
 

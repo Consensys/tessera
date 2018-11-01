@@ -91,7 +91,7 @@ public class RawSteps implements En {
         When("sender party receives transaction with no sender key defined from Quorum peer", () -> {
             Party sender = senderHolder.stream().findAny().get();
             
-            final Response response = client.target(sender.getP2PUri())
+            final Response response = client.target(sender.getQ2TUri())
                 .path("sendraw")
                 .request()
                 .header(RECIPIENTS, recipients.stream()
@@ -140,7 +140,7 @@ public class RawSteps implements En {
         When("sender party receives transaction with an unknown party from Quorum peer", () -> {
             Party sender = senderHolder.stream().findAny().get();
 
-            final Response response = client.target(sender.getP2PUri())
+            final Response response = client.target(sender.getQ2TUri())
                 .path("sendraw")
                 .request()
                 .header(SENDER, sender.getPublicKey())
