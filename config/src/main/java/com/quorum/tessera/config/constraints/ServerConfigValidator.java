@@ -21,6 +21,10 @@ public class ServerConfigValidator implements ConstraintValidator<ValidServerCon
     @Override
     public boolean isValid(ServerConfig serverConfig, ConstraintValidatorContext constraintContext) {
 
+        if(serverConfig == null) {
+            return true;
+        }
+        
         if (!serverConfig.getApp().getAllowedCommunicationTypes().contains(serverConfig.getCommunicationType())) {
             LOGGER.debug("Invalid communicationType '" + serverConfig.getCommunicationType() +
                 "' specified for serverConfig with app " + serverConfig.getApp());

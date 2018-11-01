@@ -21,6 +21,10 @@ public class ServerConfigsValidator implements ConstraintValidator<ValidServerCo
 
     @Override
     public boolean isValid(List<ServerConfig> serverConfigs, ConstraintValidatorContext constraintContext) {
+        if(serverConfigs == null) {
+            return true;
+        }
+        
         int p2PEnabledConfigsCount = 0;
         int q2TEnabledConfigsCount = 0;
 
