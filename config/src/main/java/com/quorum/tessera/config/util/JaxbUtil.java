@@ -33,6 +33,10 @@ public final class JaxbUtil {
         Peer.class,
         PrivateKeyType.class,
         ServerConfig.class,
+        DeprecatedServerConfig.class,
+        ServerSocket.class,
+        InetServerSocket.class,
+        UnixServerSocket.class,
         SslAuthenticationMode.class,
         SslConfig.class,
         SslTrustMode.class
@@ -45,7 +49,7 @@ public final class JaxbUtil {
 
         try {
             return UnmarshallerBuilder.create()
-                    .build().unmarshal(new StreamSource(inputStream), type).getValue();
+                .build().unmarshal(new StreamSource(inputStream), type).getValue();
         } catch (JAXBException ex) {
             throw new ConfigException(ex);
         }
@@ -54,7 +58,7 @@ public final class JaxbUtil {
     public static void marshal(Object object, OutputStream outputStream) {
         try {
             MarshallerBuilder.create().build()
-                    .marshal(object, outputStream);
+                .marshal(object, outputStream);
         } catch (Throwable ex) {
             Optional<ConstraintViolationException> validationException = unwrapConstraintViolationException(ex);
             if (validationException.isPresent()) {
@@ -68,9 +72,9 @@ public final class JaxbUtil {
     public static void marshalWithNoValidation(Object object, OutputStream outputStream) {
         try {
             MarshallerBuilder.create()
-                    .withoutBeanValidation()
-                    .build()
-                    .marshal(object, outputStream);
+                .withoutBeanValidation()
+                .build()
+                .marshal(object, outputStream);
 
         } catch (JAXBException ex) {
             throw new ConfigException(ex);
@@ -97,10 +101,10 @@ public final class JaxbUtil {
 
     protected static Optional<ConstraintViolationException> unwrapConstraintViolationException(Throwable ex) {
         return Optional.of(ex)
-                .map(Throwable::getCause)
-                .filter(Objects::nonNull)
-                .filter(ConstraintViolationException.class::isInstance)
-                .map(ConstraintViolationException.class::cast);
+            .map(Throwable::getCause)
+            .filter(Objects::nonNull)
+            .filter(ConstraintViolationException.class::isInstance)
+            .map(ConstraintViolationException.class::cast);
     }
 
     public static void marshalMasked(Config object, OutputStream outputStream) {
@@ -108,9 +112,9 @@ public final class JaxbUtil {
         XmlProcessingCallback.execute(() -> {
 
             Marshaller marshaller = MarshallerBuilder.create()
-                    .withXmlMediaType()
-                    .withoutBeanValidation()
-                    .build();
+                .withXmlMediaType()
+                .withoutBeanValidation()
+                .build();
 
             String xmlData;
             try (StringWriter writer = new StringWriter()) {
@@ -125,9 +129,9 @@ public final class JaxbUtil {
                 writer.flush();
 
                 Unmarshaller unmarshaller = UnmarshallerBuilder.create()
-                        .withXmlMediaType()
-                        .withoutBeanValidation()
-                        .build();
+                    .withXmlMediaType()
+                    .withoutBeanValidation()
+                    .build();
 
                 Config masked = (Config) unmarshaller.unmarshal(new StringReader(writer.toString()));
 
