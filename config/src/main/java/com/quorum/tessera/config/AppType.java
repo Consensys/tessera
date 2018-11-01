@@ -14,8 +14,7 @@ public enum AppType {
         new HashSet<>(Arrays.asList(CommunicationType.GRPC,CommunicationType.REST)),
         new HashSet<>(Arrays.asList(InetServerSocket.class))),
     Q2T(Q2TApp.class,
-        // TODO UNIX_SOCKET will be removed when we will have a netty server configurable for both unix/inet sockets
-        new HashSet<>(Arrays.asList(CommunicationType.GRPC,CommunicationType.REST,CommunicationType.UNIX_SOCKET)),
+        new HashSet<>(Arrays.asList(CommunicationType.REST)),
         new HashSet<>(Arrays.asList(InetServerSocket.class, UnixServerSocket.class))),
     ThirdParty(ThirdPartyApp.class,
         new HashSet<>(Arrays.asList(CommunicationType.REST)),

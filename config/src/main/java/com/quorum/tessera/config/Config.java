@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -27,8 +26,9 @@ public class Config extends ConfigItem {
 
     @NotNull
     @Valid
+    @ValidServerConfigs
     @XmlElement(name = "serverConfigs", required = true)
-    private List<@Valid ServerConfig> serverConfigs;
+    private List<@Valid @ValidServerConfig ServerConfig> serverConfigs;
 
     @NotNull
     @Size(min = 1, message = "At least 1 peer must be provided")
@@ -49,15 +49,16 @@ public class Config extends ConfigItem {
     private List<@ValidBase64 String> alwaysSendTo;
 
     @ValidPath(checkCanCreate = true)
+    @NotNull
     @XmlElement(required = true, type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path unixSocketFile;
 
     @XmlAttribute
-    private boolean useWhiteList;
+    private final boolean useWhiteList;
 
     @XmlAttribute
-    private boolean disablePeerDiscovery;
+    private final boolean disablePeerDiscovery;
 
     @XmlElement
     private DeprecatedServerConfig server;
@@ -71,7 +72,7 @@ public class Config extends ConfigItem {
         final boolean useWhiteList,
         final boolean disablePeerDiscovery) {
         this.jdbcConfig = jdbcConfig;
-        this.serverConfigs = Objects.nonNull(serverConfigs) ? serverConfigs : new ArrayList<>();
+        this.serverConfigs = serverConfigs;
         this.peers = peers;
         this.keys = keyConfiguration;
         this.alwaysSendTo = alwaysSendTo;
@@ -84,8 +85,8 @@ public class Config extends ConfigItem {
         return new Config();
     }
 
-    public Config() {
-
+    private Config() {
+        this(null, null, null, null, null, null, false, false);
     }
 
     public JdbcConfig getJdbcConfig() {
@@ -97,46 +98,8 @@ public class Config extends ConfigItem {
     }
 
     @Deprecated
-    public DeprecatedServerConfig getServer() {
-        return getServer();
-    }
-    
-    @Deprecated
-    public DeprecatedServerConfig getServerConfig() {
-        return server;
-    }
-
-    @Deprecated
-    public void setServer(DeprecatedServerConfig server) {
-
-        if (serverConfigs != null && !serverConfigs.isEmpty()) {
-            throw new UnsupportedOperationException("");
-        }
-        this.server = server;
-
-        this.serverConfigs = new ArrayList<>(AppType.values().length);
-        for (AppType app : AppType.values()) {
-
-            ServerConfig newConfig = new ServerConfig();
-            newConfig.setEnabled(true);
-            if (server.getGrpcPort() != null) {
-                newConfig.setCommunicationType(CommunicationType.GRPC);
-            } else if (getUnixSocketFile() != null) {
-                newConfig.setCommunicationType(CommunicationType.UNIX_SOCKET);
-            } else {
-                newConfig.setCommunicationType(CommunicationType.REST);
-            }
-
-            newConfig.setCommunicationType(this.server.getCommunicationType());
-            newConfig.setServerSocket(new InetServerSocket(this.server.getHostName(), this.server.getPort()));
-            newConfig.setInfluxConfig(this.server.getInfluxConfig());
-            newConfig.setSslConfig(this.server.getSslConfig());
-            newConfig.setApp(app);
-            newConfig.setBindingAddress(this.server.getBindingAddress());
-
-            serverConfigs.add(newConfig);
-        }
-
+    public Path getUnixSocketFile() {
+        return unixSocketFile;
     }
 
     public List<Peer> getPeers() {
@@ -164,19 +127,54 @@ public class Config extends ConfigItem {
         this.peers.add(peer);
     }
 
-    @Deprecated
-    public Path getUnixSocketFile() {
-        return unixSocketFile;
-    }
-
-    @Deprecated
-    public void setUnixSocketFile(Path unixSocketFile) {
-        this.unixSocketFile = unixSocketFile;
+    public ServerConfig getP2PServerConfig() {
+        // TODO need to revisit
+        return serverConfigs.stream().
+            filter(ServerConfig::isEnabled).
+            filter(sc -> sc.getApp() == AppType.P2P).
+            findFirst().
+            orElseThrow(() -> new RuntimeException("Unable to find an enabled P2P ServerConfig."));
     }
     
-    public ServerConfig getP2PServerConfig() {
-        return getServerConfigs().stream()
-            .filter(c -> c.getApp() == AppType.P2P).findAny().get();
+    @Deprecated
+    public DeprecatedServerConfig getServer() {
+        return server;
     }
+    
+    @Deprecated
+    public void setServer(DeprecatedServerConfig server) {
 
+        if (serverConfigs != null && !serverConfigs.isEmpty()) {
+            throw new UnsupportedOperationException("");
+        }
+        this.server = server;
+
+        this.serverConfigs = new ArrayList<>(AppType.values().length);
+        for (AppType app : AppType.values()) {
+            
+            ServerConfig newConfig = new ServerConfig();
+            newConfig.setEnabled(true);
+            
+            if (server.getGrpcPort() != null) {
+                newConfig.setCommunicationType(CommunicationType.GRPC);
+                newConfig.setServerSocket(new InetServerSocket(server.getHostName(),server.getGrpcPort()));
+            } else if (getUnixSocketFile() != null) {
+                newConfig.setCommunicationType(CommunicationType.UNIX_SOCKET);
+                newConfig.setServerSocket(new UnixServerSocket(getUnixSocketFile().toString()));
+                
+            } else {
+                newConfig.setCommunicationType(CommunicationType.REST);
+                newConfig.setServerSocket(new InetServerSocket(server.getHostName(),server.getPort()));
+            }
+
+            
+            newConfig.setInfluxConfig(this.server.getInfluxConfig());
+            newConfig.setSslConfig(this.server.getSslConfig());
+            newConfig.setApp(app);
+            newConfig.setBindingAddress(this.server.getBindingAddress());
+
+            serverConfigs.add(newConfig);
+        }
+
+    }
 }

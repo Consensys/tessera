@@ -42,7 +42,7 @@ public class ServerConfig extends ConfigItem {
 
     @XmlElement
     private String bindingAddress;
-    
+
     public ServerConfig(final AppType app,
                         final boolean enabled,
                         final ServerSocket serverSocket,
