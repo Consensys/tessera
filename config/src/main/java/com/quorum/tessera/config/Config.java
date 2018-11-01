@@ -55,10 +55,10 @@ public class Config extends ConfigItem {
     private Path unixSocketFile;
 
     @XmlAttribute
-    private final boolean useWhiteList;
+    private boolean useWhiteList;
 
     @XmlAttribute
-    private final boolean disablePeerDiscovery;
+    private boolean disablePeerDiscovery;
 
     @XmlElement
     private DeprecatedServerConfig server;
@@ -85,8 +85,8 @@ public class Config extends ConfigItem {
         return new Config();
     }
 
-    private Config() {
-        this(null, null, null, null, null, null, false, false);
+    public Config() {
+
     }
 
     public JdbcConfig getJdbcConfig() {
@@ -144,6 +144,8 @@ public class Config extends ConfigItem {
     @Deprecated
     public void setServer(DeprecatedServerConfig server) {
 
+        if(server == null) return;
+        
         if (serverConfigs != null && !serverConfigs.isEmpty()) {
             throw new UnsupportedOperationException("");
         }
@@ -177,4 +179,41 @@ public class Config extends ConfigItem {
         }
 
     }
+
+    public void setJdbcConfig(JdbcConfig jdbcConfig) {
+        this.jdbcConfig = jdbcConfig;
+    }
+
+    public void setServerConfigs(List<ServerConfig> serverConfigs) {
+        this.serverConfigs = serverConfigs;
+    }
+
+    public void setPeers(List<Peer> peers) {
+        this.peers = peers;
+    }
+
+    public void setKeys(KeyConfiguration keys) {
+        this.keys = keys;
+    }
+
+    public void setAlwaysSendTo(List<String> alwaysSendTo) {
+        this.alwaysSendTo = alwaysSendTo;
+    }
+
+    @Deprecated
+    public void setUnixSocketFile(Path unixSocketFile) {
+        this.unixSocketFile = unixSocketFile;
+    }
+
+    public void setUseWhiteList(boolean useWhiteList) {
+        this.useWhiteList = useWhiteList;
+    }
+
+    public void setDisablePeerDiscovery(boolean disablePeerDiscovery) {
+        this.disablePeerDiscovery = disablePeerDiscovery;
+    }
+    
+    
+    
+    
 }

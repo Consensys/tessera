@@ -92,6 +92,9 @@ public class DeprecatedServerConfig extends ConfigItem {
     }
 
     public String getBindingAddress() {
+        if(bindingAddress == null) {
+            this.bindingAddress = hostName + ":"+ port;
+        }
         return bindingAddress;
     }
 
