@@ -77,7 +77,9 @@ public class AdminCliAdapter implements CliAdapter {
         Config config = new ConfigurationParser().parse(line);
 
         //TODO revisit - maybe the admin stuff should be reached via unix socket - in order to avoid security concerns
-        ServerConfig serverConfig = config.getP2PServerConfig();
+        ServerConfig serverConfig = config.getServerConfigs().stream()
+            .filter(c -> c.getApp() == AppType.P2P)
+            .findFirst().orElse(config.getServerConfigs().stream().findAny().get());
 
         Client restClient = clientFactory.buildFrom(serverConfig);
 

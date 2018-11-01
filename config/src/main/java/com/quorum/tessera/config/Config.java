@@ -49,7 +49,6 @@ public class Config extends ConfigItem {
     private List<@ValidBase64 String> alwaysSendTo;
 
     @ValidPath(checkCanCreate = true)
-    @NotNull
     @XmlElement(required = true, type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path unixSocketFile;
@@ -99,6 +98,11 @@ public class Config extends ConfigItem {
 
     @Deprecated
     public DeprecatedServerConfig getServer() {
+        return getServer();
+    }
+    
+    @Deprecated
+    public DeprecatedServerConfig getServerConfig() {
         return server;
     }
 
@@ -135,12 +139,6 @@ public class Config extends ConfigItem {
 
     }
 
-
-    @Deprecated
-    public Path getUnixSocketFile() {
-        return unixSocketFile;
-    }
-
     public List<Peer> getPeers() {
         return Collections.unmodifiableList(peers);
     }
@@ -164,6 +162,21 @@ public class Config extends ConfigItem {
     @XmlTransient
     public void addPeer(Peer peer) {
         this.peers.add(peer);
+    }
+
+    @Deprecated
+    public Path getUnixSocketFile() {
+        return unixSocketFile;
+    }
+
+    @Deprecated
+    public void setUnixSocketFile(Path unixSocketFile) {
+        this.unixSocketFile = unixSocketFile;
+    }
+    
+    public ServerConfig getP2PServerConfig() {
+        return getServerConfigs().stream()
+            .filter(c -> c.getApp() == AppType.P2P).findAny().get();
     }
 
 }

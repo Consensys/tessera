@@ -7,13 +7,11 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(factoryMethod = "create")
 public class ServerConfig extends ConfigItem {
 
     //TODO validate that the server socket type and the communication type match the AppType
@@ -61,36 +59,7 @@ public class ServerConfig extends ConfigItem {
         this.bindingAddress = bindingAddress;
     }
 
-    private static ServerConfig create() {
-        return new ServerConfig(null, false, null, CommunicationType.REST, null, null, null);
-    }
-
-    public ServerConfig() {
-    }
-
-    public AppType getApp() {
-        return app;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public ServerSocket getServerSocket() {
-        return serverSocket;
-    }
-
-    public CommunicationType getCommunicationType() {
-        return communicationType;
-    }
-
-    public SslConfig getSslConfig() {
-        return sslConfig;
-    }
-
-    public InfluxConfig getInfluxConfig() {
-        return influxConfig;
-    }
+    public ServerConfig(){}
 
     public String getBindingAddress() {
         return this.bindingAddress == null ? this.getServerUri().toString() : this.bindingAddress;
@@ -112,20 +81,48 @@ public class ServerConfig extends ConfigItem {
         }
     }
 
+    public AppType getApp() {
+        return app;
+    }
+
+    public void setApp(AppType app) {
+        this.app = app;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public ServerSocket getServerSocket() {
+        return serverSocket;
     }
 
     public void setServerSocket(ServerSocket serverSocket) {
         this.serverSocket = serverSocket;
     }
 
+    public CommunicationType getCommunicationType() {
+        return communicationType;
+    }
+
     public void setCommunicationType(CommunicationType communicationType) {
         this.communicationType = communicationType;
     }
 
+    public SslConfig getSslConfig() {
+        return sslConfig;
+    }
+
     public void setSslConfig(SslConfig sslConfig) {
         this.sslConfig = sslConfig;
+    }
+
+    public InfluxConfig getInfluxConfig() {
+        return influxConfig;
     }
 
     public void setInfluxConfig(InfluxConfig influxConfig) {
@@ -135,13 +132,4 @@ public class ServerConfig extends ConfigItem {
     public void setBindingAddress(String bindingAddress) {
         this.bindingAddress = bindingAddress;
     }
-
-    public void setApp(AppType app) {
-        this.app = app;
-    }
-
-
-    
-    
-
 }

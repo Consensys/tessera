@@ -15,7 +15,7 @@
     
     <logger name="com.quorum.tessera.config.cli" level="TRACE" />
     <logger name="com.openpojo" level="ERROR" />
-    <root level="INFO">
+    <root level="ALL">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
