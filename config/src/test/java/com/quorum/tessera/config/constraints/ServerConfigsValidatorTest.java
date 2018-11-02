@@ -62,6 +62,11 @@ public class ServerConfigsValidatorTest {
     }
 
     @Test
+    public void isValidWhenServerConfigsIsNull() {
+        assertThat(validator.isValid(null, cvc)).isTrue();
+    }
+
+    @Test
     public void isValidWhenValidDataIsSupplied() {
         thirdPartyServerConfig.setEnabled(false);
         assertThat(validator.isValid(serverConfigs, cvc)).isTrue();
