@@ -1,16 +1,16 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.constraints.ValidSsl;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Deprecated
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -104,38 +104,36 @@ public class DeprecatedServerConfig extends ConfigItem {
         this.bindingAddress = bindingAddress;
     }
 
-
-
-    
-    public static List<ServerConfig> from(DeprecatedServerConfig serverConfig,Optional<Path> unixSocketFile) {
-        
-        List<ServerConfig> serverConfigs = new ArrayList<>(AppType.values().length);
-
-        for (AppType app : AppType.values()) {
-
-            ServerConfig newConfig = new ServerConfig();
-            newConfig.setEnabled(true);
-
-            if (serverConfig.getGrpcPort() != null) {
-                newConfig.setCommunicationType(CommunicationType.GRPC);
-                newConfig.setServerSocket(new InetServerSocket(serverConfig.getHostName(), serverConfig.getGrpcPort()));
-            } else if (unixSocketFile.isPresent()) {
-                newConfig.setCommunicationType(CommunicationType.UNIX_SOCKET);
-                newConfig.setServerSocket(new UnixServerSocket(unixSocketFile.get().toString()));
-            } else {
-                newConfig.setCommunicationType(CommunicationType.REST);
-                newConfig.setServerSocket(new InetServerSocket(serverConfig.getHostName(), serverConfig.getPort()));
-            }
-
-            newConfig.setInfluxConfig(serverConfig.getInfluxConfig());
-            newConfig.setSslConfig(serverConfig.getSslConfig());
-            newConfig.setApp(app);
-            newConfig.setBindingAddress(serverConfig.getBindingAddress());
-
-            serverConfigs.add(newConfig);
+    public static List<ServerConfig> from(DeprecatedServerConfig server, Path unixSocketFile) {
+        if (null == server) {
+            return Collections.emptyList();
         }
-        
-        return Collections.unmodifiableList(serverConfigs);
+
+        ServerConfig q2tConfig = new ServerConfig();
+        q2tConfig.setEnabled(true);
+        q2tConfig.setApp(AppType.Q2T);
+        q2tConfig.setCommunicationType(CommunicationType.UNIX_SOCKET);
+        q2tConfig.setServerSocket(new UnixServerSocket(String.valueOf(unixSocketFile)));
+
+        ServerConfig p2pConfig = new ServerConfig();
+        p2pConfig.setEnabled(true);
+        p2pConfig.setApp(AppType.P2P);
+        if (server.getCommunicationType() == CommunicationType.GRPC) {
+            p2pConfig.setServerSocket(new InetServerSocket(server.getHostName(), server.getGrpcPort()));
+            p2pConfig.setCommunicationType(CommunicationType.GRPC);
+        } else {
+            p2pConfig.setServerSocket(new InetServerSocket(server.getHostName(), server.getPort()));
+            p2pConfig.setCommunicationType(CommunicationType.REST);
+        }
+        p2pConfig.setInfluxConfig(server.getInfluxConfig());
+        p2pConfig.setSslConfig(server.getSslConfig());
+        p2pConfig.setBindingAddress(server.getBindingAddress());
+
+        List<ServerConfig> srvConfigs = new ArrayList<>();
+        srvConfigs.add(q2tConfig);
+        srvConfigs.add(p2pConfig);
+
+        return srvConfigs;
     }
 
 }

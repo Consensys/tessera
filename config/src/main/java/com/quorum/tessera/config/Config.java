@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -91,7 +90,11 @@ public class Config extends ConfigItem {
     }
 
     public List<ServerConfig> getServerConfigs() {
-        return this.serverConfigs;
+        if (null != this.serverConfigs) {
+            return this.serverConfigs;
+        }
+        return DeprecatedServerConfig.from(server, unixSocketFile);
+
     }
 
     @Deprecated
@@ -132,13 +135,10 @@ public class Config extends ConfigItem {
 
     public ServerConfig getP2PServerConfig() {
         // TODO need to revisit
-        if(serverConfigs == null) {
-            return null;
-        }
-        return serverConfigs.stream().
+        return getServerConfigs().stream().
             filter(ServerConfig::isEnabled).
             filter(sc -> sc.getApp() == AppType.P2P).
-            findFirst().get();
+            findFirst().orElse(null);
     }
     
     @Deprecated
@@ -148,13 +148,7 @@ public class Config extends ConfigItem {
     
     @Deprecated
     public void setServer(DeprecatedServerConfig server) {
-
-        if(server == null) return;
-        
         this.server = server;
-
-        this.serverConfigs = DeprecatedServerConfig.from(server,Optional.ofNullable(unixSocketFile));
-
     }
 
     public void setJdbcConfig(JdbcConfig jdbcConfig) {

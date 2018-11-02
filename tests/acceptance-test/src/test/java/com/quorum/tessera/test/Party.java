@@ -82,14 +82,9 @@ public class Party {
             throw new UncheckedSQLException(ex);
         }
     }
-    
+
     public Integer getGrpcPort() {
-        return config.getServerConfigs().stream()
-            .filter(c -> c.getCommunicationType() == CommunicationType.GRPC)
-            .map(ServerConfig::getServerSocket)
-            .map(InetServerSocket.class::cast)
-            .map(InetServerSocket::getPort).findAny()
-            .get();
+        return config.getP2PServerConfig().getServerUri().getPort();
     }
     
     public String getAlias() {

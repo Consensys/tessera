@@ -60,7 +60,7 @@ public class ConfigTest {
         Config config = new Config();
         config.setServer(null);
 
-        assertThat(config.getServerConfigs()).isNull();
+        assertThat(config.getServerConfigs()).isEmpty();
         assertThat(config.getServer()).isNull();
 
     }
