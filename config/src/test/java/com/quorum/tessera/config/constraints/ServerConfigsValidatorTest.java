@@ -44,7 +44,7 @@ public class ServerConfigsValidatorTest {
         q2tServerConfig = new ServerConfig(AppType.Q2T, true,
             new InetServerSocket("localhost", 1234), CommunicationType.REST,
             null, null, null);
-        thirdPartyServerConfig = new ServerConfig(AppType.ThirdParty, true,
+        thirdPartyServerConfig = new ServerConfig(AppType.THIRD_PARTY, true,
             new InetServerSocket("localhost", 12345), CommunicationType.REST,
             null, null, null);
 

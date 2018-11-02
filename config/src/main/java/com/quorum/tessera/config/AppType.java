@@ -8,6 +8,7 @@ import com.quorum.tessera.config.apps.ThirdPartyApp;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import javax.xml.bind.annotation.XmlEnumValue;
 
 public enum AppType {
     P2P(P2PApp.class,
@@ -17,7 +18,8 @@ public enum AppType {
         // TODO UNIX_SOCKET will be removed when we will have a netty server configurable for both unix/inet sockets
         new HashSet<>(Arrays.asList(CommunicationType.GRPC,CommunicationType.REST,CommunicationType.UNIX_SOCKET)),
         new HashSet<>(Arrays.asList(InetServerSocket.class, UnixServerSocket.class))),
-    ThirdParty(ThirdPartyApp.class,
+    @XmlEnumValue("ThirdParty")
+    THIRD_PARTY(ThirdPartyApp.class,
         new HashSet<>(Arrays.asList(CommunicationType.REST)),
         new HashSet<>(Arrays.asList(InetServerSocket.class)));
 
