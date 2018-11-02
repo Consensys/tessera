@@ -133,6 +133,14 @@
                     <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
                     <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                    <groupId>com.github.sevntu-checkstyle</groupId>
+                    <artifactId>sevntu-checks</artifactId>
+                    <version>1.32.0</version>
+                    </dependency>
+                    
+                </dependencies>
             </plugin>
 
             <plugin>
