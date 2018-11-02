@@ -1,6 +1,11 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.constraints.ValidSsl;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -10,38 +15,36 @@ import javax.xml.bind.annotation.XmlElement;
 @Deprecated
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DeprecatedServerConfig extends ConfigItem {
-    
+
     @NotNull
     @XmlElement(required = true)
-    private  String hostName;
+    private String hostName;
 
     @NotNull
     @XmlElement
-    private  Integer port;
+    private Integer port;
 
     @XmlElement
-    private  Integer grpcPort;
+    private Integer grpcPort;
 
     @XmlElement
-    private  CommunicationType communicationType;
+    private CommunicationType communicationType;
 
     @Valid
     @XmlElement
     @ValidSsl
-    private  SslConfig sslConfig;
+    private SslConfig sslConfig;
 
     @Valid
     @XmlElement
-    private  InfluxConfig influxConfig;
+    private InfluxConfig influxConfig;
 
     @XmlElement
-    private  String bindingAddress;
+    private String bindingAddress;
 
     public DeprecatedServerConfig() {
     }
-    
 
-    
     public String getHostName() {
         return hostName;
     }
@@ -91,8 +94,8 @@ public class DeprecatedServerConfig extends ConfigItem {
     }
 
     public String getBindingAddress() {
-        if(bindingAddress == null) {
-            this.bindingAddress = hostName + ":"+ port;
+        if (bindingAddress == null) {
+            this.bindingAddress = hostName + ":" + port;
         }
         return bindingAddress;
     }
@@ -102,5 +105,37 @@ public class DeprecatedServerConfig extends ConfigItem {
     }
 
 
+
+    
+    public static List<ServerConfig> from(DeprecatedServerConfig serverConfig,Optional<Path> unixSocketFile) {
+        
+        List<ServerConfig> serverConfigs = new ArrayList<>(AppType.values().length);
+
+        for (AppType app : AppType.values()) {
+
+            ServerConfig newConfig = new ServerConfig();
+            newConfig.setEnabled(true);
+
+            if (serverConfig.getGrpcPort() != null) {
+                newConfig.setCommunicationType(CommunicationType.GRPC);
+                newConfig.setServerSocket(new InetServerSocket(serverConfig.getHostName(), serverConfig.getGrpcPort()));
+            } else if (unixSocketFile.isPresent()) {
+                newConfig.setCommunicationType(CommunicationType.UNIX_SOCKET);
+                newConfig.setServerSocket(new UnixServerSocket(unixSocketFile.get().toString()));
+            } else {
+                newConfig.setCommunicationType(CommunicationType.REST);
+                newConfig.setServerSocket(new InetServerSocket(serverConfig.getHostName(), serverConfig.getPort()));
+            }
+
+            newConfig.setInfluxConfig(serverConfig.getInfluxConfig());
+            newConfig.setSslConfig(serverConfig.getSslConfig());
+            newConfig.setApp(app);
+            newConfig.setBindingAddress(serverConfig.getBindingAddress());
+
+            serverConfigs.add(newConfig);
+        }
+        
+        return Collections.unmodifiableList(serverConfigs);
+    }
 
 }

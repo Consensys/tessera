@@ -7,6 +7,12 @@ import org.junit.Test;
 public class ConfigTest {
 
     @Test
+    public void createDefault() {
+        Config config = new Config();
+        assertThat(config).isNotNull();
+    }
+
+    @Test
     public void createWithNullArgs() {
         Config config = new Config(null, null, null, null, null, null, false, false);
         assertThat(config).isNotNull();
@@ -21,5 +27,8 @@ public class ConfigTest {
         assertThat(config.getPeers()).containsOnly(peer);
 
     }
+
+
+
 
 }

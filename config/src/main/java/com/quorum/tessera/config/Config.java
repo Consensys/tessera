@@ -10,9 +10,9 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -62,6 +62,7 @@ public class Config extends ConfigItem {
     @XmlElement
     private DeprecatedServerConfig server;
 
+    @Deprecated
     public Config(final JdbcConfig jdbcConfig,
         final List<ServerConfig> serverConfigs,
         final List<Peer> peers,
@@ -141,37 +142,9 @@ public class Config extends ConfigItem {
 
         if(server == null) return;
         
-        if (serverConfigs != null && !serverConfigs.isEmpty()) {
-            throw new UnsupportedOperationException("");
-        }
         this.server = server;
 
-        this.serverConfigs = new ArrayList<>(AppType.values().length);
-        for (AppType app : AppType.values()) {
-            
-            ServerConfig newConfig = new ServerConfig();
-            newConfig.setEnabled(true);
-            
-            if (server.getGrpcPort() != null) {
-                newConfig.setCommunicationType(CommunicationType.GRPC);
-                newConfig.setServerSocket(new InetServerSocket(server.getHostName(),server.getGrpcPort()));
-            } else if (getUnixSocketFile() != null) {
-                newConfig.setCommunicationType(CommunicationType.UNIX_SOCKET);
-                newConfig.setServerSocket(new UnixServerSocket(getUnixSocketFile().toString()));
-                
-            } else {
-                newConfig.setCommunicationType(CommunicationType.REST);
-                newConfig.setServerSocket(new InetServerSocket(server.getHostName(),server.getPort()));
-            }
-
-            
-            newConfig.setInfluxConfig(this.server.getInfluxConfig());
-            newConfig.setSslConfig(this.server.getSslConfig());
-            newConfig.setApp(app);
-            newConfig.setBindingAddress(this.server.getBindingAddress());
-
-            serverConfigs.add(newConfig);
-        }
+        this.serverConfigs = DeprecatedServerConfig.from(server,Optional.ofNullable(unixSocketFile));
 
     }
 
