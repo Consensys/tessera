@@ -16,6 +16,7 @@ import java.util.List;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@ValidEitherServerConfigsOrServer
 public class Config extends ConfigItem {
 
     @NotNull
@@ -23,7 +24,6 @@ public class Config extends ConfigItem {
     @XmlElement(name = "jdbc", required = true)
     private JdbcConfig jdbcConfig;
 
-    @NotNull
     @Valid
     @ValidServerConfigs
     @XmlElement(name = "serverConfigs", required = true)
@@ -95,6 +95,10 @@ public class Config extends ConfigItem {
         }
         return DeprecatedServerConfig.from(server, unixSocketFile);
 
+    }
+
+    public boolean isServerConfigsNull(){
+        return null == this.serverConfigs;
     }
 
     @Deprecated
