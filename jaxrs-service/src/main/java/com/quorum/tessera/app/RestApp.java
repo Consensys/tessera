@@ -34,7 +34,8 @@ public class RestApp extends Application {
             .filter(o -> Objects.nonNull(o.getClass().getPackage()))
             .filter(o -> o.getClass().getPackage().getName().startsWith(apiPackageName) ||
                 o.getClass().getPackage().getName().startsWith("com.quorum.tessera.api.exception") ||
-                o.getClass().getPackage().getName().startsWith("com.quorum.tessera.api.filter"))
+                o.getClass().getPackage().getName().startsWith("com.quorum.tessera.api.filter") ||
+                o.getClass().getPackage().getName().startsWith("com.quorum.tessera.api.common"))
             .collect(Collectors.toSet());
     }
 
