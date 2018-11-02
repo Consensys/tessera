@@ -24,8 +24,8 @@ public class JdbcConfig extends ConfigItem {
         this.url = url;
     }
 
-
     public JdbcConfig() {
+        this(null,null,null);
     }
 
     public String getUsername() {

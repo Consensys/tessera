@@ -89,6 +89,8 @@ public class Config extends ConfigItem {
         return this.jdbcConfig;
     }
 
+    
+    //TODO: Shouldn't need to laziely recalcuate on a getter
     public List<ServerConfig> getServerConfigs() {
         if (null != this.serverConfigs) {
             return this.serverConfigs;

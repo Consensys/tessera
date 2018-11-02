@@ -1,6 +1,7 @@
 package com.quorum.tessera.config;
 
 import java.util.Arrays;
+import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
@@ -55,7 +56,7 @@ public class ConfigTest {
 
     }
 
-        @Test
+    @Test
     public void getP2PServerConfigSingleServerByWrongAppType() {
         Config config = new Config();
         ServerConfig serverConfig = new ServerConfig();
@@ -67,7 +68,7 @@ public class ConfigTest {
             .isNull();
 
     }
-    
+
     @Test
     public void setNullServerDoesNothing() {
         Config config = new Config();
@@ -77,7 +78,17 @@ public class ConfigTest {
         assertThat(config.getServer()).isNull();
 
     }
-    
-    
+
+    @Test
+    public void areServerConfigsNull() {
+        Config config = new Config();
+
+        assertThat(config.getServerConfigs()).isEmpty();
+        assertThat(config.isServerConfigsNull()).isTrue();
+
+        config.setServerConfigs(Collections.EMPTY_LIST);
+        assertThat(config.isServerConfigsNull()).isFalse();
+
+    }
 
 }
