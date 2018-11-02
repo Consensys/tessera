@@ -8,7 +8,9 @@ import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -69,18 +71,17 @@ public class TransactionResourceTest {
 
         SendRequest sendRequest = new SendRequest();
         sendRequest.setPayload(Base64.getEncoder().encode("PAYLOAD".getBytes()));
-        
+
         SendResponse sendResponse = new SendResponse("KEY");
         when(transactionManager.send(any(SendRequest.class))).thenReturn(sendResponse);
-        
+
         Response result = transactionResource.send(sendRequest);
         assertThat(result.getStatus()).isEqualTo(201);
 
         assertThat(result.getLocation().getPath())
-                .isEqualTo("transaction/KEY");
-        
+            .isEqualTo("transaction/KEY");
+
         verify(transactionManager).send(any(SendRequest.class));
-        
 
     }
 
@@ -96,6 +97,7 @@ public class TransactionResourceTest {
         verify(transactionManager).send(any(SendRequest.class));
 
     }
+
     @Test
     public void sendRawEmptyRecipients() throws UnsupportedEncodingException {
 
@@ -108,6 +110,7 @@ public class TransactionResourceTest {
         verify(transactionManager).send(any(SendRequest.class));
 
     }
+
     @Test
     public void sendRawNullRecipient() throws UnsupportedEncodingException {
 
@@ -118,6 +121,40 @@ public class TransactionResourceTest {
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.getEntity()).isEqualTo("KEY");
         verify(transactionManager).send(any(SendRequest.class));
+
+    }
+
+    @Test
+    public void deleteKey() {
+
+        List<DeleteRequest> results = new ArrayList<>();
+        doAnswer((iom) -> results.add(iom.getArgument(0)))
+            .when(transactionManager).delete(any(DeleteRequest.class));
+
+        Response response = transactionResource.deleteKey("KEY");
+
+        assertThat(results)
+            .hasSize(1)
+            .extracting(DeleteRequest::getKey)
+            .containsExactly("KEY");
+
+        assertThat(response.getStatus()).isEqualTo(204);
+
+        verify(transactionManager).delete(any(DeleteRequest.class));
+
+    }
+
+    @Test
+    public void delete() {
+
+        DeleteRequest deleteRequest = new DeleteRequest();
+        deleteRequest.setKey("KEY");
+
+        Response response = transactionResource.delete(deleteRequest);
+
+        assertThat(response.getStatus()).isEqualTo(200);
+
+        verify(transactionManager).delete(deleteRequest);
 
     }
 }
