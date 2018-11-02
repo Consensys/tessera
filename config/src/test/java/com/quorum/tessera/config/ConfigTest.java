@@ -1,6 +1,6 @@
 package com.quorum.tessera.config;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
@@ -20,15 +20,51 @@ public class ConfigTest {
 
     @Test
     public void addPeer() {
-        Config config = new Config(null, null, new ArrayList<>(), null, null, null, false, false);
-        assertThat(config.getPeers()).isEmpty();
+
+        Config config = new Config();
+        assertThat(config.getPeers()).isNull();
+
         Peer peer = new Peer("Junit");
         config.addPeer(peer);
         assertThat(config.getPeers()).containsOnly(peer);
 
+        Peer anotherPeer = new Peer("anotherPeer");
+        config.addPeer(anotherPeer);
+        assertThat(config.getPeers()).containsOnly(peer, anotherPeer);
+
     }
 
+    @Test
+    public void getP2PServerConfigNoServers() {
+        Config config = new Config();
 
+        assertThat(config.getP2PServerConfig()).isNull();
 
+    }
+
+    @Test
+    public void getP2PServerConfigSingleServer() {
+        Config config = new Config();
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setApp(AppType.P2P);
+        serverConfig.setEnabled(true);
+        config.setServerConfigs(Arrays.asList(serverConfig));
+
+        assertThat(config.getP2PServerConfig())
+            .isSameAs(serverConfig);
+
+    }
+
+    @Test
+    public void setNullServerDoesNothing() {
+        Config config = new Config();
+        config.setServer(null);
+
+        assertThat(config.getServerConfigs()).isNull();
+        assertThat(config.getServer()).isNull();
+
+    }
+    
+    
 
 }

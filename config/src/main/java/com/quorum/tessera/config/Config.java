@@ -10,6 +10,7 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -99,6 +100,9 @@ public class Config extends ConfigItem {
     }
 
     public List<Peer> getPeers() {
+        if(peers == null) {
+            return null;
+        }
         return Collections.unmodifiableList(peers);
     }
 
@@ -120,16 +124,21 @@ public class Config extends ConfigItem {
 
     @XmlTransient
     public void addPeer(Peer peer) {
+        if(peers == null) {
+         this.peers = new ArrayList<>();
+        }
         this.peers.add(peer);
     }
 
     public ServerConfig getP2PServerConfig() {
         // TODO need to revisit
+        if(serverConfigs == null) {
+            return null;
+        }
         return serverConfigs.stream().
             filter(ServerConfig::isEnabled).
             filter(sc -> sc.getApp() == AppType.P2P).
-            findFirst().
-            orElseThrow(() -> new RuntimeException("Unable to find an enabled P2P ServerConfig."));
+            findFirst().get();
     }
     
     @Deprecated

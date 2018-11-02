@@ -84,7 +84,12 @@ public class Party {
     }
     
     public Integer getGrpcPort() {
-        return config.getP2PServerConfig().getServerUri().getPort();
+        return config.getServerConfigs().stream()
+            .filter(c -> c.getCommunicationType() == CommunicationType.GRPC)
+            .map(ServerConfig::getServerSocket)
+            .map(InetServerSocket.class::cast)
+            .map(InetServerSocket::getPort).findAny()
+            .get();
     }
     
     public String getAlias() {

@@ -1,6 +1,8 @@
 package com.quorum.tessera.config.util;
 
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.JdbcConfig;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
@@ -34,6 +36,21 @@ public class ConfigFileStoreTest {
     public void getReturnsSameInstance() {
         assertThat(ConfigFileStore.get()).isSameAs(configFileStore);
 
+    }
+    
+    @Test
+    public void save() throws IOException {
+        
+        Config config = new Config();
+        config.setJdbcConfig(new JdbcConfig());
+        config.getJdbcConfig().setUsername("JUNIT");
+        configFileStore.save(config);
+        
+        
+        Config result = JaxbUtil.unmarshal(Files.newInputStream(path), Config.class);
+        
+        assertThat(result.getJdbcConfig().getUsername()).isEqualTo("JUNIT");
+        
     }
 
 }

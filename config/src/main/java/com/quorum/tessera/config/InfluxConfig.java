@@ -32,6 +32,7 @@ public class InfluxConfig extends ConfigItem {
     }
 
     public InfluxConfig() {
+        this(null,null,null,null);
     }
 
 
