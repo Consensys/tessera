@@ -1,10 +1,9 @@
-package com.quorum.tessera.p2p;
+package com.quorum.tessera.api.common;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.quorum.tessera.p2p.VersionResource;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class VersionResourceTest {
 

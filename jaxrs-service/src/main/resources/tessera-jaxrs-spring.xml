@@ -27,8 +27,8 @@
     </bean>
     
     <!-- Resources -->
-    <bean class="com.quorum.tessera.p2p.VersionResource"/>
-    <bean class="com.quorum.tessera.p2p.UpCheckResource"/>
+    <bean class="com.quorum.tessera.api.common.VersionResource"/>
+    <bean class="com.quorum.tessera.api.common.UpCheckResource"/>
     
     <bean class="com.quorum.tessera.p2p.TransactionResource">
         <constructor-arg ref="transactionManager"/>
