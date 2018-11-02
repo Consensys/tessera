@@ -13,7 +13,9 @@ public class Convertor {
     public static com.quorum.tessera.api.model.SendRequest toModel(com.quorum.tessera.grpc.api.SendRequest grpcObject) {
         com.quorum.tessera.api.model.SendRequest sendRequest = new com.quorum.tessera.api.model.SendRequest();
         sendRequest.setTo(grpcObject.getToList().toArray(new String[0]));
-        sendRequest.setFrom(grpcObject.getFrom());
+        if (!grpcObject.getFrom().isEmpty()) {
+            sendRequest.setFrom(grpcObject.getFrom());
+        }
         sendRequest.setPayload(grpcObject.getPayload().toByteArray());
         return sendRequest;
     }
