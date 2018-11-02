@@ -63,7 +63,7 @@ public class ServerConfigValidatorTest {
 
     @Test
     public void testInvalidCommTypeForApp() {
-        serverConfig.setApp(AppType.ThirdParty);
+        serverConfig.setApp(AppType.THIRD_PARTY);
         serverConfig.setCommunicationType(CommunicationType.GRPC);
         assertThat(validator.isValid(serverConfig, cvc)).isFalse();
         verify(cvc).disableDefaultConstraintViolation();

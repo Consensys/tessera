@@ -55,6 +55,19 @@ public class ConfigTest {
 
     }
 
+        @Test
+    public void getP2PServerConfigSingleServerByWrongAppType() {
+        Config config = new Config();
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setApp(AppType.THIRD_PARTY);
+        serverConfig.setEnabled(true);
+        config.setServerConfigs(Arrays.asList(serverConfig));
+
+        assertThat(config.getP2PServerConfig())
+            .isNull();
+
+    }
+    
     @Test
     public void setNullServerDoesNothing() {
         Config config = new Config();
