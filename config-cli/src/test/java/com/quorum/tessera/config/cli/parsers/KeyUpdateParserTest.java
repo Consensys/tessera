@@ -307,4 +307,32 @@ public class KeyUpdateParserTest {
         assertThat(endingKey.getAsalt()).isNotEqualTo(startingKey.getAsalt());
     }
 
+    @Test
+    public void keyGetsUpdatedToNoPassword() throws IOException, ParseException {
+        final KeyDataConfig startingKey = JaxbUtil.unmarshal(
+            getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class
+        );
+
+        when(passwordReader.requestUserPassword()).thenReturn("");
+
+        final Path key = Files.createTempFile("key", ".key");
+        Files.write(key, JaxbUtil.marshalToString(startingKey).getBytes());
+
+        final String[] args = new String[]{
+            "-updatepassword",
+            "--keys.keyData.privateKeyPath", key.toString(),
+            "--keys.passwords", "q"
+        };
+        final CommandLine commandLine = new DefaultParser().parse(options, args);
+
+        this.parser.parse(commandLine);
+
+        final KeyDataConfig endingKey = JaxbUtil.unmarshal(Files.newInputStream(key), KeyDataConfig.class);
+
+        assertThat(endingKey.getSbox()).isNotEqualTo(startingKey.getSbox());
+        assertThat(endingKey.getSnonce()).isNotEqualTo(startingKey.getSnonce());
+        assertThat(endingKey.getAsalt()).isNotEqualTo(startingKey.getAsalt());
+        assertThat(endingKey.getPrivateKeyData().getValue()).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
+    }
+
 }
