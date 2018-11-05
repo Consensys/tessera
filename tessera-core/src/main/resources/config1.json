@@ -24,11 +24,6 @@
             "clientTrustMode": "TOFU",
             "knownClientsFile": "./target/knownClients1",
             "knownServersFile": "./target/knownServers1"
-        },
-        "thirdPartyAPIConfig": {
-            "enabled": true,
-            "port": 8090,
-            "hostName": "http://localhost"
         }
     },
     "peer": [
