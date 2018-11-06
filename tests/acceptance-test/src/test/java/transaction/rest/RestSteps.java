@@ -6,16 +6,11 @@ import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.RestPartyHelper;
 import cucumber.api.java8.En;
+
+import java.net.URI;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.json.Json;
 import javax.ws.rs.client.Client;
@@ -43,6 +38,9 @@ public class RestSteps implements En {
 
         Collection<Party> senderHolder = new ArrayList<>();
 
+        List<String> portHolder = new ArrayList<>();
+        Collection<String> responseCodes = new ArrayList<>();
+
         Set<Party> recipients = new HashSet<>();
 
         Set<String> storedHashes = new TreeSet<>();
@@ -52,6 +50,8 @@ public class RestSteps implements En {
         Given("^Sender party (.+)$", (String pty) -> {
             senderHolder.add(partyHelper.findByAlias(pty));
         });
+
+        Given("^Node at port (.+)$", (String port) -> portHolder.add(port));
 
         And("^Recipient part(?:y|ies) (.+)$", (String alias) -> {
             parseAliases(alias).stream()
@@ -71,6 +71,21 @@ public class RestSteps implements En {
                 .map(Invocation.Builder::get)
                 .allMatch(r -> r.getStatus() == 200))
                 .isTrue();
+        });
+
+        When("^a request is made against the node", () -> {
+            Optional<URI> uri = Optional.of(new URI("http://localhost:" + portHolder.get(0)));
+
+            responseCodes.add(
+                uri
+                    .map(client::target)
+                    .map(t -> t.path("upcheck"))
+                    .map(WebTarget::request)
+                    .map(Invocation.Builder::get)
+                    .map(Response::getStatus)
+                    .get()
+                    .toString()
+            );
         });
 
         When("sender party receives transaction with an unknown party from Quorum peer", () -> {
@@ -162,6 +177,10 @@ public class RestSteps implements En {
                 }
 
             }
+        });
+
+        Then("^the response code is UNAUTHORIZED", () -> {
+            assertThat(responseCodes).containsExactly("401");
         });
 
         Then("^forwards the transaction to recipient part(?:y|ies)$", () -> {
