@@ -3,7 +3,7 @@ package com.quorum.tessera.sync;
 import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendRequestType;
 import com.quorum.tessera.client.P2pClient;
-import com.quorum.tessera.encryption.KeyManager;
+import com.quorum.tessera.encryption.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.Base64;
 import org.slf4j.Logger;
@@ -15,13 +15,13 @@ public class TransactionRequesterImpl implements TransactionRequester {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionRequesterImpl.class);
 
-    private final KeyManager keyManager;
+    private final Enclave enclave;
 
     private final P2pClient client;
 
-    public TransactionRequesterImpl(final KeyManager keyManager,
+    public TransactionRequesterImpl(final Enclave enclave,
             final P2pClient client) {
-        this.keyManager = Objects.requireNonNull(keyManager);
+        this.enclave = Objects.requireNonNull(enclave);
         this.client = Objects.requireNonNull(client);
     }
 
@@ -30,7 +30,7 @@ public class TransactionRequesterImpl implements TransactionRequester {
 
         LOGGER.debug("Requesting transactions get resent for {}", uri);
 
-        return this.keyManager
+        return this.enclave
                 .getPublicKeys() 
                 .stream()
                 .map(this::createRequestAllEntity)

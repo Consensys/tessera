@@ -11,6 +11,10 @@
 
     <context:component-scan base-package="com.quorum.tessera"/>
     
+    <bean id="cliDelegate" class="com.quorum.tessera.config.cli.CliDelegate" factory-method="instance"/>
+
+    <bean id="config" factory-bean="cliDelegate" factory-method="getConfig"/>
+
 
     <bean id="payloadPublisher" class="com.quorum.tessera.transaction.PayloadPublisherImpl">
         <constructor-arg ref="payloadEncoder" />
@@ -36,7 +40,7 @@
     </bean>
 
     <bean name="transactionRequester" class="com.quorum.tessera.sync.TransactionRequesterImpl">
-        <constructor-arg ref="keyManager" />
+        <constructor-arg ref="enclave" />
         <constructor-arg ref="p2pClient" />
     </bean>
 
@@ -77,7 +81,7 @@
     <bean name="partyInfoService" class="com.quorum.tessera.node.PartyInfoServiceImpl">
         <constructor-arg ref="partyInfoStore"/>
         <constructor-arg ref="configService"/>
-        <constructor-arg ref="keyManager"/>
+        <constructor-arg ref="enclave"/>
     </bean>
 
     <bean name="partyInfoPoller" class="com.quorum.tessera.node.PartyInfoPoller">
@@ -109,10 +113,7 @@
 
     <bean id="keyConfig" factory-bean="config" factory-method="getKeys" />
 
-    <bean id="enclave" class="com.quorum.tessera.encryption.EnclaveImpl">
-        <constructor-arg ref="nacl" />
-        <constructor-arg ref="keyManager" />
-    </bean>
+
 
     <bean id="keyVaultExecutorService" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool">
         <constructor-arg value="1"/>
@@ -162,9 +163,6 @@
         </constructor-arg>
     </bean>
 
-    <bean id="cliDelegate" class="com.quorum.tessera.config.cli.CliDelegate" factory-method="instance"/>
-
-    <bean id="config" factory-bean="cliDelegate" factory-method="getConfig"/>
 
     <bean id="configService" class="com.quorum.tessera.core.config.ConfigServiceImpl">
         <constructor-arg ref="config" />
@@ -172,14 +170,8 @@
             <bean class="com.quorum.tessera.config.util.ConfigFileStore" factory-method="get" />
         </constructor-arg>
     </bean>
-    
-    
-    <bean name="naclFactory" class="com.quorum.tessera.nacl.NaclFacadeFactory" factory-method="newFactory"/>
-
-    <bean name="nacl" factory-bean="naclFactory" factory-method="create"/>
 
     <bean name="encryptedTransactionDAO" class="com.quorum.tessera.transaction.EncryptedTransactionDAOImpl"/>
-
 
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
         <property name="url" value="#{ config.getJdbcConfig().getUrl() }" />
