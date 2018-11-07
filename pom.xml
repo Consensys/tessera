@@ -5,7 +5,7 @@
 
     <groupId>com.quorum.tessera</groupId>
     <artifactId>tessera</artifactId>
-    <version>0.7-SNAPSHOT</version>
+    <version>0.7</version>
 
     <name>tessera</name>
     <packaging>pom</packaging>
@@ -20,7 +20,7 @@
         <url>https://github.com/jpmorganchase/tessera</url>
         <connection>scm:git:git://github.com/jpmorganchase/tessera.git</connection>
         <developerConnection>scm:git:git@github.com:jpmorganchase/tessera.git</developerConnection>
-        <tag>master</tag>
+        <tag>tessera-0.7</tag>
     </scm>
 
     <ciManagement>
@@ -269,148 +269,148 @@
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>encryption-api</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>argon2</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>config</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>config-cli</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>security</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>encryption-jnacl</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
                 <scope>runtime</scope>
             </dependency>
                         
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>encryption-kalium</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
                 <scope>runtime</scope>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>service-locator-api</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>service-locator-spring</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>server-api</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
             
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>jersey-server</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>resteasy-server</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>grpc-server</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>grpc</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>grpc-api</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>test-util</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>shared</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>tessera-core</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>grpc-service</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>jaxrs-service</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>key-vault-api</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>azure-key-vault</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>key-generation</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>jaxrs-client</artifactId>
-                <version>0.7-SNAPSHOT</version>
+                <version>0.7</version>
             </dependency>
 
             <dependency>
