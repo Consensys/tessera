@@ -117,16 +117,14 @@ public class Launcher {
             }
         }));
 
-        restServer.start();
         if (grpcServer.isPresent()) {
             grpcServer.get().start();
         }
         if (unixSocketServer.isPresent()) {
             unixSocketServer.get().start();
         }
+        restServer.start();
 
-       
-        
         countDown.await();
     }
 
