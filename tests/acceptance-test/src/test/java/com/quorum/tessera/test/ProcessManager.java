@@ -97,6 +97,8 @@ public class ProcessManager {
             "-Dspring.profiles.active=disable-unixsocket",
             "-Dnode.number=" + nodeAlias,
             "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
+            //javax.xml.bind.JAXBContextFactory>org.eclipse.persistence.jaxb.JAXBContextFactory
+            "-Djavax.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",
             "-Ddebug=true",
             "-jar",
             jarfile,

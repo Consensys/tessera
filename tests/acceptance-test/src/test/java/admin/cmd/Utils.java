@@ -19,16 +19,17 @@ public class Utils {
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
     public static int addPeer(Party party, String url) throws IOException, InterruptedException {
-  
+
         List<String> args = Arrays.asList(
-            "java",
-            "-jar",
-            jarPath,
-            "-configfile",
-            party.getConfigFilePath().toAbsolutePath().toString(),
-            "admin",
-            "-addpeer",
-            url
+                "java",
+                "-Djavax.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",
+                "-jar",
+                jarPath,
+                "-configfile",
+                party.getConfigFilePath().toAbsolutePath().toString(),
+                "admin",
+                "-addpeer",
+                url
         );
 
         LOGGER.info("exec : {}", String.join(" ", args));
@@ -38,12 +39,11 @@ public class Utils {
         Process process = processBuilder.start();
 
         Collection<StreamConsumer> streamConsumers = Arrays.asList(
-            new StreamConsumer(process.getErrorStream(), true),
-            new StreamConsumer(process.getInputStream(), false)
+                new StreamConsumer(process.getErrorStream(), true),
+                new StreamConsumer(process.getInputStream(), false)
         );
 
         Executors.newCachedThreadPool().invokeAll(streamConsumers);
-
 
         return process.waitFor();
 
@@ -60,15 +60,14 @@ public class Utils {
             this.isError = isError;
         }
 
-
         @Override
         public Void call() throws Exception {
 
             try (BufferedReader reader = Stream.of(inputStream)
-                .map(InputStreamReader::new)
-                .map(BufferedReader::new)
-                .findAny()
-                .get()) {
+                    .map(InputStreamReader::new)
+                    .map(BufferedReader::new)
+                    .findAny()
+                    .get()) {
 
                 String line = null;
                 while ((line = reader.readLine()) != null) {
@@ -80,7 +79,7 @@ public class Utils {
 
                 }
                 return null;
-            } 
+            }
 
         }
 

@@ -64,6 +64,7 @@
                     <rerunFailingTestsCount>0</rerunFailingTestsCount>
                     <systemPropertyVariables>
                         <application.jar>${com.quorum.tessera:tessera-app:jar:app}</application.jar>
+                        <javax.xml.bind.JAXBContextFactory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.JAXBContextFactory>
                     </systemPropertyVariables>
                     <includes>
                         <include>RestSuite</include>
