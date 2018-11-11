@@ -41,8 +41,8 @@ public class KeyPairConverter {
         }
 
         return new KeyPair(
-            PublicKey.from(Base64.getDecoder().decode(encodedPub)),
-            PrivateKey.from(Base64.getDecoder().decode(encodedPriv))
+            PublicKey.from(Base64.getDecoder().decode(encodedPub.trim())),
+            PrivateKey.from(Base64.getDecoder().decode(encodedPriv.trim()))
         );
     }
     
