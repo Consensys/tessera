@@ -122,7 +122,7 @@ public class KeyPairConverterTest {
     public void convertKeyPairWithNewlineOrSpace() {
         final DirectKeyPair keyPair =
             new DirectKeyPair("gybY1t9GOYiuN6QgwcrvM2+pQzIu4UrHwiMG7yKQnTg=\n",
-            "yTjqANGAvPCy8AfhcIZ+e4O8CHZPbHkIeOmae5W3srY=\n\n\n");
+            "   yTjqANGAvPCy8AfhcIZ+e4O8CHZPbHkIeOmae5W3srY=\n\n\n");
 
         Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
 
