@@ -42,6 +42,12 @@
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>azure-key-vault</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
