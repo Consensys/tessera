@@ -23,6 +23,7 @@ public class Utils {
         List<String> args = Arrays.asList(
                 "java",
                 "-Djavax.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",
+                "-Djavax.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory",
                 "-jar",
                 jarPath,
                 "-configfile",

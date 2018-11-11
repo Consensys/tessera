@@ -99,6 +99,7 @@ public class ProcessManager {
             "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
             //javax.xml.bind.JAXBContextFactory>org.eclipse.persistence.jaxb.JAXBContextFactory
             "-Djavax.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",
+            "-Djavax.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory",
             "-Ddebug=true",
             "-jar",
             jarfile,
