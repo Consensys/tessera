@@ -120,7 +120,7 @@ public class PartyInfoServiceTest {
 
         final PublicKey failingKey = PublicKey.from("otherKey".getBytes());
         final Throwable throwable = catchThrowable(() -> partyInfoService.getURLFromRecipientKey(failingKey));
-        assertThat(throwable).isInstanceOf(KeyNotFoundException.class).hasMessage("Recipient not found");
+        assertThat(throwable).isInstanceOf(KeyNotFoundException.class).hasMessage("Recipient not found for key: "+ failingKey.encodeToBase64());
 
         verify(partyInfoStore).getPartyInfo();
     }
