@@ -105,7 +105,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
                 .stream()
                 .filter(recipient -> key.equals(recipient.getKey()))
                 .findAny()
-                .orElseThrow(() -> new KeyNotFoundException("Recipient not found"));
+                .orElseThrow(() -> new KeyNotFoundException("Recipient not found for key: "+ key.encodeToBase64()));
 
         return retrievedRecipientFromStore.getUrl();
     }
