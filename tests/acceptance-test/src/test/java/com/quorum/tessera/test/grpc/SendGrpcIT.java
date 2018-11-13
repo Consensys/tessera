@@ -90,6 +90,21 @@ public class SendGrpcIT {
     }
 
     @Test
+    public void sendTransactionWithNoSender() {
+        SendRequest request = SendRequest.newBuilder()
+            .addTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
+            .setPayload(ByteString.copyFromUtf8("Zm9v"))
+            .build();
+
+        SendResponse result = blockingStub1.send(request);
+
+        assertThat(result).isNotNull();
+        result.getAllFields().forEach((k, v) -> System.out.println(k + " " + v));
+        assertThat(result.getKey()).isNotNull().isNotBlank();
+
+    }
+
+    @Test
     public void missingPayloadFails() {
 
         SendRequest request = SendRequest.newBuilder()

@@ -46,6 +46,7 @@ public class ProcessManager {
         configs.put("B", getClass().getResource(String.format(pathTemplate, "2")));
         configs.put("C", getClass().getResource(String.format(pathTemplate, "3")));
         configs.put("D", getClass().getResource(String.format(pathTemplate, "4")));
+        configs.put("E", getClass().getResource(String.format(pathTemplate, "-whitelist")));
         this.configFiles = Collections.unmodifiableMap(configs);
     }
 

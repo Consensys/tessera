@@ -129,6 +129,7 @@ public class Launcher {
         for (TesseraServer ts : servers){
             ts.start();
         }
+        restServer.start();
 
         countDown.await();
     }

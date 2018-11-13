@@ -117,4 +117,20 @@ public class KeyPairConverterTest {
         final KeyPair resultB = it.next();
         assertThat(resultB).isEqualToComparingFieldByField(expectedB);
     }
+
+    @Test
+    public void convertKeyPairWithNewlineOrSpace() {
+        final DirectKeyPair keyPair =
+            new DirectKeyPair("gybY1t9GOYiuN6QgwcrvM2+pQzIu4UrHwiMG7yKQnTg=\n",
+            "   yTjqANGAvPCy8AfhcIZ+e4O8CHZPbHkIeOmae5W3srY=\n\n\n");
+
+        Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
+
+        KeyPair expected = new KeyPair(
+            PublicKey.from(decodeBase64("gybY1t9GOYiuN6QgwcrvM2+pQzIu4UrHwiMG7yKQnTg=")),
+            PrivateKey.from(decodeBase64("yTjqANGAvPCy8AfhcIZ+e4O8CHZPbHkIeOmae5W3srY=")));
+
+        KeyPair resultKeyPair = result.iterator().next();
+        assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
+    }
 }
