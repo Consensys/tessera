@@ -35,14 +35,22 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         final String advertisedUrl = configService.getServerUri() + "/";
 
-        final Set<Recipient> ourKeys = keyManager
-            .getPublicKeys()
-            .stream()
-            .map(key -> PublicKey.from(key.getKeyBytes()))
-            .map(key -> new Recipient(key, advertisedUrl))
-            .collect(toSet());
+        final Set<Party> initialParties = configService
+                .getPeers()
+                .stream()
+                .map(Peer::getUrl)
+                .map(Party::new)
+                .collect(toSet());
 
-        partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, Collections.emptySet()));
+        final Set<Recipient> ourKeys = keyManager
+                .getPublicKeys()
+                .stream()
+                .map(key -> PublicKey.from(key.getKeyBytes()))
+                .map(key -> new Recipient(key, advertisedUrl))
+                .collect(toSet());
+
+        partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, initialParties));
+
     }
 
     @Override
