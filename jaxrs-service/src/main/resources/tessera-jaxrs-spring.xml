@@ -27,6 +27,7 @@
     
     <bean class="com.quorum.tessera.api.ConfigResource">
         <constructor-arg ref="configService" />
+        <constructor-arg ref="partyInfoService"/>
     </bean>
 
     <bean name="postDelegate" class="com.quorum.tessera.client.PostDelegate">

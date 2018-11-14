@@ -2,6 +2,9 @@ package com.quorum.tessera.api;
 
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.core.config.ConfigService;
+import com.quorum.tessera.node.PartyInfoService;
+import com.quorum.tessera.node.model.Party;
+import com.quorum.tessera.node.model.PartyInfo;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -9,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import javax.ws.rs.core.GenericEntity;
@@ -20,9 +24,15 @@ public class ConfigResource {
 
     private final ConfigService configService;
 
-    public ConfigResource(final ConfigService configService) {
+    private final PartyInfoService partyInfoService;
+
+    public ConfigResource(ConfigService configService, 
+            PartyInfoService partyInfoService) {
         this.configService = Objects.requireNonNull(configService);
+        this.partyInfoService = Objects.requireNonNull(partyInfoService);
     }
+    
+
 
     @PUT
     @Path("/peers")
@@ -30,6 +40,10 @@ public class ConfigResource {
 
         this.configService.addPeer(peer.getUrl());
 
+        partyInfoService.updatePartyInfo(
+                new PartyInfo(peer.getUrl(),Collections.EMPTY_SET, 
+                        Collections.singleton(new Party(peer.getUrl()))));
+        
         //TODO: this seems a bit presumptuous, search for the peer instead?
         final int index = this.configService.getPeers().size() - 1;
 
