@@ -104,6 +104,10 @@ public class Party {
         return configFilePath;
     }
 
+    public Config getConfig() {
+        return config;
+    }
+
     public List<Peer> getConfiguredPeers() {
         return Collections.unmodifiableList(config.getPeers());
     }
