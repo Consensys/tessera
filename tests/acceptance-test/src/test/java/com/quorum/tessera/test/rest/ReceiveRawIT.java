@@ -159,7 +159,7 @@ public class ReceiveRawIT {
     }
 
     @Test
-    public void fetchNonexistantTransactionFails() throws Exception {
+    public void fetchNonexistentTransactionFails() {
 
         final Response response = client.target(SERVER_URI)
             .path(RECEIVE_PATH)

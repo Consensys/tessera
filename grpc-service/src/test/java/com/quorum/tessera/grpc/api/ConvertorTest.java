@@ -94,4 +94,19 @@ public class ConvertorTest {
         assertThat(result.getPayload()).isEqualTo("PAYLOAD".getBytes());
 
     }
+
+    @Test
+    public void toModelSendRequestEmptyFromField() {
+        SendRequest grpcSendRequest = SendRequest.newBuilder()
+            .setPayload(ByteString.copyFromUtf8("PAYLOAD"))
+            .addTo("TO1")
+            .build();
+
+        com.quorum.tessera.api.model.SendRequest result = Convertor.toModel(grpcSendRequest);
+        assertThat(result).isNotNull();
+        assertThat(result.getTo()).containsExactly("TO1");
+        assertThat(result.getFrom()).isNull();
+        assertThat(result.getPayload()).isEqualTo("PAYLOAD".getBytes());
+
+    }
 }
