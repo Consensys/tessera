@@ -20,7 +20,7 @@
         <url>https://github.com/jpmorganchase/tessera</url>
         <connection>scm:git:git://github.com/jpmorganchase/tessera.git</connection>
         <developerConnection>scm:git:git@github.com:jpmorganchase/tessera.git</developerConnection>
-        <tag>tessera-0.7</tag>
+        <tag>patch-release-0.7.1 </tag>
     </scm>
 
     <ciManagement>
