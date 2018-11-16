@@ -107,7 +107,7 @@ public class AzureVaultKeyGeneratorTest {
 
     @Test
     public void exceptionThrownIfDisallowedCharactersUsedInVaultId() {
-        final String invalidId = "!@£$%^&*()";
+        final String invalidId = "/tmp/abc@+";
 
         final Throwable throwable = catchThrowable(
             () -> azureVaultKeyGenerator.generate(invalidId, null)
