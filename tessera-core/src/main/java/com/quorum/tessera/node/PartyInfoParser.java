@@ -144,18 +144,18 @@ public interface PartyInfoParser extends BinaryEncoder {
     }
 
     
-    static boolean checkLength(long value) {
-      return Optional.of(value)
-                .filter(v -> v >= 0)
+    static void checkLength(long value) {
+      Optional.of(value)
+                .filter(v -> v > 0)
                 .filter(v -> v < Long.MAX_VALUE - 1)
-               .isPresent();
+                .orElseThrow(() -> new PartyInfoParserException("Invalid length "+ value));
     }
 
-    static boolean checkLength(int value) {
-        return Optional.of(value)
-                .filter(v -> v >= 0)
+    static void checkLength(int value) {
+        Optional.of(value)
+                .filter(v -> v > 0)
                 .filter(v -> v < Integer.MAX_VALUE - 1)
-                .isPresent();
+                .orElseThrow(() -> new PartyInfoParserException("Invalid length "+ value));
     }
 
 }

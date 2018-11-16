@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 import java.util.Base64;
-import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -165,64 +164,34 @@ public class PartyInfoParserTest {
 
     }
 
-    @Test
-    public void zeroAllows() {
-        assertThat(PartyInfoParser.checkLength(0)).isTrue();
+    @Test(expected = PartyInfoParserException.class)
+    public void checkLengthZero() {
+        PartyInfoParser.checkLength(0);
     }
 
-    @Test
-    public void negativeValuesNotAllowed() {
-        
-        new Random()
-                .ints(10)
-                .forEach(n -> {
-                    int input = Integer.signum(n) == 1 ? Math.negateExact(n) : n;
-                    boolean result = PartyInfoParser.checkLength(input);
-                    assertThat(result).isFalse();
-                            
-                });
+    @Test(expected = PartyInfoParserException.class)
+    public void checkLengthMinusValue() {
+        PartyInfoParser.checkLength(-1);
     }
 
-    @Test
-    public void positiveValuesAllowed() {
-
-        new Random()
-                .ints(10)
-                .map(Math::abs)
-                .forEach(n -> {
-
-                    assertThat(PartyInfoParser.checkLength(n))
-                            .isTrue();
-
-                });
-
+    @Test(expected = PartyInfoParserException.class)
+    public void checkLengthZeroLong() {
+        PartyInfoParser.checkLength((long) 0);
     }
 
-    @Test
+    @Test(expected = PartyInfoParserException.class)
     public void checkLengthMaxValue() {
-        assertThat(PartyInfoParser.checkLength(Integer.MAX_VALUE)).isFalse();
-
+        PartyInfoParser.checkLength(Integer.MAX_VALUE);
     }
 
-    @Test
-    public void negativeLOngValuesNotAllows() {
-
-        new Random()
-                .ints(10)
-                .map(Math::negateExact)
-                .asLongStream()
-                .forEach(n -> {
-                    
-                    long input = Long.signum(n) == 1 ? Math.negateExact(n) : n;
-                    boolean result = PartyInfoParser.checkLength(input);
-                    assertThat(result).isFalse();
-                });
+    @Test(expected = PartyInfoParserException.class)
+    public void checkLengthMinusValueLong() {
+        PartyInfoParser.checkLength((long) -1);
     }
 
-    @Test
+    @Test(expected = PartyInfoParserException.class)
     public void checkLengthMaxValueLong() {
-        assertThat(PartyInfoParser.checkLength(Long.MAX_VALUE)).isFalse();
-
+        PartyInfoParser.checkLength(Long.MAX_VALUE);
     }
 
 }
