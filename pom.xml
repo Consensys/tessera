@@ -20,7 +20,7 @@
         <url>https://github.com/jpmorganchase/tessera</url>
         <connection>scm:git:git://github.com/jpmorganchase/tessera.git</connection>
         <developerConnection>scm:git:git@github.com:jpmorganchase/tessera.git</developerConnection>
-        <tag>bugfix-partyinfo-line46</tag>
+        <tag>master</tag>
     </scm>
 
     <ciManagement>
