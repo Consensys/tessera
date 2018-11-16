@@ -164,9 +164,10 @@ public class PartyInfoParserTest {
 
     }
 
-    @Test(expected = PartyInfoParserException.class)
+    @Test
     public void checkLengthZero() {
         PartyInfoParser.checkLength(0);
+        //NO ERROR
     }
 
     @Test(expected = PartyInfoParserException.class)
@@ -174,7 +175,7 @@ public class PartyInfoParserTest {
         PartyInfoParser.checkLength(-1);
     }
 
-    @Test(expected = PartyInfoParserException.class)
+    @Test
     public void checkLengthZeroLong() {
         PartyInfoParser.checkLength((long) 0);
     }
