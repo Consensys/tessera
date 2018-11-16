@@ -43,7 +43,7 @@ public interface PartyInfoParser extends BinaryEncoder {
         final String url = new String(urlBytes, UTF_8);
 
         final int numberOfRecipients = (int) toIntExact(byteBuffer.getLong());
-        checkLength(urlLength);
+        checkLength(numberOfRecipients);
 
         final Set<Recipient> recipients = new HashSet<>();
 
