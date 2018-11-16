@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.quorum.tessera</groupId>
         <artifactId>tessera</artifactId>
-        <version>0.7.2</version>
+        <version>0.7.3-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -54,7 +54,7 @@
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>unix-socket-server</artifactId>
-            <version>0.7.2</version>
+            <version>0.7.3-SNAPSHOT</version>
             <scope>runtime</scope>
         </dependency>
 
