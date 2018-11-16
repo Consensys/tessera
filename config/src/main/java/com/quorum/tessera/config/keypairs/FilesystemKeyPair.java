@@ -2,6 +2,7 @@ package com.quorum.tessera.config.keypairs;
 
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.adapters.PathAdapter;
+import com.quorum.tessera.config.constraints.ValidContent;
 import com.quorum.tessera.config.constraints.ValidPath;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.io.IOCallback;
@@ -16,12 +17,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FilesystemKeyPair implements ConfigKeyPair {
 
+    @ValidContent(minLines = 1,maxLines = 1,message = "file expected to contain a single non empty value")
     @NotNull
     @ValidPath(checkExists = true, message = "File does not exist")
     @XmlElement
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path publicKeyPath;
 
+    @ValidContent(minLines = 1,message = "file expected to contain at least one line")
     @NotNull
     @ValidPath(checkExists = true, message = "File does not exist")
     @XmlElement

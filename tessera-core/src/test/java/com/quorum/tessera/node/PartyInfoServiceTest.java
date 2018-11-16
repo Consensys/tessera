@@ -70,6 +70,7 @@ public class PartyInfoServiceTest {
         //Called in constructor
         verify(keyManager).getPublicKeys();
         verify(configService).getServerUri();
+        verify(configService,atLeast(1)).getPeers();
         verify(partyInfoStore, atLeast(1)).store(any(PartyInfo.class));
 
         verifyNoMoreInteractions(partyInfoStore);
@@ -120,7 +121,7 @@ public class PartyInfoServiceTest {
 
         final PublicKey failingKey = PublicKey.from("otherKey".getBytes());
         final Throwable throwable = catchThrowable(() -> partyInfoService.getURLFromRecipientKey(failingKey));
-        assertThat(throwable).isInstanceOf(KeyNotFoundException.class).hasMessage("Recipient not found");
+        assertThat(throwable).isInstanceOf(KeyNotFoundException.class).hasMessage("Recipient not found for key: "+ failingKey.encodeToBase64());
 
         verify(partyInfoStore).getPartyInfo();
     }
@@ -205,7 +206,6 @@ public class PartyInfoServiceTest {
             .hasMessage("Peer SomeUnknownUri not found in known peer list");
 
         verify(configService).isDisablePeerDiscovery();
-        verify(configService).getPeers();
 
     }
 
@@ -227,7 +227,7 @@ public class PartyInfoServiceTest {
 
 
         verify(configService).isDisablePeerDiscovery();
-        verify(configService).getPeers();
+        verify(configService,times(2)).getPeers();
 
         //check that the only added keys were from that node (and our own)
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
@@ -263,27 +263,18 @@ public class PartyInfoServiceTest {
             Stream.of(new Party("known"), new Party("unknown")).collect(toSet())
         );
 
+
         partyInfoService.updatePartyInfo(forUpdate);
 
         verify(configService).isDisablePeerDiscovery();
-        verify(configService).getPeers();
+        verify(configService,times(2)).getPeers();
 
         //check that the only added keys were from that node (and our own)
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
 
         verify(partyInfoStore).getPartyInfo();
-        verify(partyInfoStore, times(2)).store(captor.capture());
+        verify(partyInfoStore,times(2)).store(captor.capture());
 
-        final List<Party> allRegisteredParties = captor
-            .getAllValues()
-            .stream()
-            .map(PartyInfo::getParties)
-            .flatMap(Set::stream)
-            .collect(toList());
-
-        assertThat(allRegisteredParties)
-            .hasSize(1)
-            .containsExactlyInAnyOrder(new Party("http://other-node.com:8080"));
 
     }
 

@@ -13,10 +13,12 @@ import javax.xml.bind.annotation.XmlElement;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import com.quorum.tessera.encryption.PrivateKey;
+import javax.validation.constraints.Size;
 
 @ValidInlineKeypair
 public class InlineKeypair implements ConfigKeyPair {
 
+    @Size(min = 1)
     @NotNull
     @ValidBase64(message = "Invalid Base64 key provided")
     @XmlElement

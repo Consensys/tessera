@@ -2,6 +2,8 @@ package com.quorum.tessera.api;
 
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.core.config.ConfigService;
+import com.quorum.tessera.node.PartyInfoService;
+import com.quorum.tessera.node.model.PartyInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +13,7 @@ import static org.assertj.core.api.Assertions.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.mock;
@@ -24,15 +27,19 @@ public class ConfigResourceTest {
 
     private ConfigService configService;
 
+    private PartyInfoService partyInfoService;
+    
     @Before
     public void onSetUp() {
         configService = mock(ConfigService.class);
-        configResource = new ConfigResource(configService);
+        partyInfoService = mock(PartyInfoService.class);
+        configResource = new ConfigResource(configService,partyInfoService);
+        
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(configService);
+        verifyNoMoreInteractions(configService,partyInfoService);
     }
 
     @Test
@@ -53,6 +60,7 @@ public class ConfigResourceTest {
         assertThat(peers).containsExactly(peer);
         verify(configService).addPeer(peer.getUrl());
         verify(configService).getPeers();
+        verify(partyInfoService).updatePartyInfo(any(PartyInfo.class));
     }
 
     @Test
@@ -66,7 +74,6 @@ public class ConfigResourceTest {
         assertThat(response.getEntity()).isEqualTo(peer);
 
         verify(configService).getPeers();
-
     }
 
     @Test
