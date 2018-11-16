@@ -11,7 +11,7 @@
     <parent>
         <artifactId>tessera</artifactId>
         <groupId>com.quorum.tessera</groupId>
-        <version>0.7.3-SNAPSHOT</version>
+        <version>0.8-SNAPSHOT</version>
     </parent>
     
     
