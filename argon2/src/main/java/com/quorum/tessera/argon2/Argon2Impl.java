@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.stream.Stream;
 
 public class Argon2Impl implements Argon2 {
 
@@ -19,30 +18,12 @@ public class Argon2Impl implements Argon2 {
         final Argon2Advanced argon2 = this.getArgon2Instance(options.getAlgorithm());
 
         final byte[] hash = argon2.rawHash(
-            options.getIterations(),
-            options.getMemory(),
-            options.getParallelism(),
-            password,
-            salt
+            options.getIterations(), options.getMemory(), options.getParallelism(), password, salt
         );
 
         LOGGER.debug("Argon2 hash produced the array {}", Arrays.toString(hash));
 
-        final String algoName = Stream.of("d", "id", "i")
-            .filter(options.getAlgorithm()::equals)
-            .findAny()
-            .orElse("i");
-
-        return new ArgonResult(
-            new ArgonOptions(
-                algoName,
-                options.getIterations(),
-                options.getMemory(),
-                options.getParallelism()
-            ),
-            salt,
-            hash
-        );
+        return new ArgonResult(options, salt, hash);
     }
 
     @Override
@@ -66,8 +47,10 @@ public class Argon2Impl implements Argon2 {
             case "id":
                 return Argon2Factory.createAdvanced(Argon2Factory.Argon2Types.ARGON2id);
             case "i":
-            default:
                 return Argon2Factory.createAdvanced(Argon2Factory.Argon2Types.ARGON2i);
+            default:
+                throw new IllegalArgumentException("Invalid Argon2 algorithm " + algorithm);
         }
     }
+
 }
