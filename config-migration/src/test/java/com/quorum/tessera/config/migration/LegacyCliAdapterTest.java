@@ -245,7 +245,8 @@ public class LegacyCliAdapterTest {
         Path configFile = Files.createTempFile("emptyConfig", ".txt");
         Path keysFile = Paths.get("abcxyz");
         Files.deleteIfExists(keysFile);
-        Files.createFile(Paths.get("abcxyz"));
+        Files.createFile(keysFile);
+        Files.write(keysFile, Arrays.asList("SOMEDATA"));
 
         String[] requiredParams = {
             "--tomlfile=" + configFile.toString(),
