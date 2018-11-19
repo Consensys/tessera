@@ -36,6 +36,11 @@
 
         <dependency>
             <groupId>com.quorum.tessera</groupId>
+            <artifactId>key-pair-converter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
             <artifactId>key-vault-api</artifactId>
         </dependency>
 

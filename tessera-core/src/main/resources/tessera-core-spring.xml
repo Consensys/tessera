@@ -126,7 +126,7 @@
         <constructor-arg ref="azureKeyVaultClientDelegate"/>
     </bean>
 
-    <bean name="keyPairConverter" class="com.quorum.tessera.config.keypairs.KeyPairConverter">
+    <bean name="keyPairConverter" class="com.quorum.tessera.keypairconverter.KeyPairConverter">
         <constructor-arg ref="azureKeyVaultService"/>
     </bean>
 

@@ -1,6 +1,8 @@
 
-package com.quorum.tessera.config.keypairs;
+package com.quorum.tessera.keypairconverter;
 
+import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;

@@ -192,7 +192,7 @@
                                 <exclude>com/quorum/tessera/config/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/config/util/ConsolePasswordReader*</exclude>
                                 <exclude>com/quorum/tessera/config/util/PasswordReaderFactory*</exclude>
-                                <exclude>com/quorum/tessera/key/vault/AzureKeyVaultClientDelegate*</exclude>
+                                <exclude>com/quorum/tessera/key/vault/azure/AzureKeyVaultClientDelegate*</exclude>
                             </excludes>
                             
                             <rules>
@@ -260,6 +260,7 @@
         <module>jaxrs-client</module>
         <module>key-vault</module>
         <module>key-generation</module>
+        <module>key-pair-converter</module>
     </modules>
 
     <dependencyManagement>
@@ -286,6 +287,12 @@
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
                 <artifactId>config-cli</artifactId>
+                <version>0.8-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
+                <artifactId>key-pair-converter</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 

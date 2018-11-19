@@ -1,16 +1,21 @@
-package com.quorum.tessera.config.keypairs;
+package com.quorum.tessera.keypairconverter;
 
+import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
+import com.quorum.tessera.config.keypairs.DirectKeyPair;
+import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
+import com.quorum.tessera.config.keypairs.InlineKeypair;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.key.vault.KeyVaultService;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class KeyPairConverterTest {
 
@@ -32,12 +37,12 @@ public class KeyPairConverterTest {
         final DirectKeyPair keyPair = new DirectKeyPair("public", "private");
         Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
 
-        assertThat(result).hasSize(1);
+        Assertions.assertThat(result).hasSize(1);
 
         KeyPair expected = new KeyPair(PublicKey.from(decodeBase64("public")), PrivateKey.from(decodeBase64("private")));
         KeyPair resultKeyPair = result.iterator().next();
 
-        assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
+        Assertions.assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
     }
 
     @Test
@@ -48,12 +53,12 @@ public class KeyPairConverterTest {
 
         Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
 
-        assertThat(result).hasSize(1);
+        Assertions.assertThat(result).hasSize(1);
 
         KeyPair expected = new KeyPair(PublicKey.from(decodeBase64("public")), PrivateKey.from(decodeBase64("private")));
         KeyPair resultKeyPair = result.iterator().next();
 
-        assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
+        Assertions.assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
     }
 
     @Test
@@ -64,12 +69,12 @@ public class KeyPairConverterTest {
 
         Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
 
-        assertThat(result).hasSize(1);
+        Assertions.assertThat(result).hasSize(1);
 
         KeyPair expected = new KeyPair(PublicKey.from(decodeBase64("public")), PrivateKey.from(decodeBase64("private")));
         KeyPair resultKeyPair = result.iterator().next();
 
-        assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
+        Assertions.assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
     }
 
     @Test
@@ -83,12 +88,12 @@ public class KeyPairConverterTest {
 
         Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
 
-        assertThat(result).hasSize(1);
+        Assertions.assertThat(result).hasSize(1);
 
         KeyPair resultKeyPair = result.iterator().next();
         KeyPair expected = new KeyPair(PublicKey.from(decodeBase64("publicSecret")), PrivateKey.from(decodeBase64("privSecret")));
 
-        assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
+        Assertions.assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
     }
 
 
@@ -104,7 +109,7 @@ public class KeyPairConverterTest {
 
         final Collection<KeyPair> result = converter.convert(Arrays.asList(keyPairA, keyPairB));
 
-        assertThat(result).hasSize(2);
+        Assertions.assertThat(result).hasSize(2);
 
         final KeyPair expectedA = new KeyPair(PublicKey.from(decodeBase64(pubA)), PrivateKey.from(decodeBase64(privA)));
         final KeyPair expectedB = new KeyPair(PublicKey.from(decodeBase64(pubB)), PrivateKey.from(decodeBase64(privB)));
@@ -112,10 +117,10 @@ public class KeyPairConverterTest {
         final Iterator<KeyPair> it = result.iterator();
 
         final KeyPair resultA = it.next();
-        assertThat(resultA).isEqualToComparingFieldByField(expectedA);
+        Assertions.assertThat(resultA).isEqualToComparingFieldByField(expectedA);
 
         final KeyPair resultB = it.next();
-        assertThat(resultB).isEqualToComparingFieldByField(expectedB);
+        Assertions.assertThat(resultB).isEqualToComparingFieldByField(expectedB);
     }
 
     @Test
@@ -131,6 +136,6 @@ public class KeyPairConverterTest {
             PrivateKey.from(decodeBase64("yTjqANGAvPCy8AfhcIZ+e4O8CHZPbHkIeOmae5W3srY=")));
 
         KeyPair resultKeyPair = result.iterator().next();
-        assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
+        Assertions.assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
     }
 }
