@@ -1,12 +1,16 @@
 
 package com.quorum.tessera.keypairconverter;
 
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.keypairs.KeyPairType;
+import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.key.vault.KeyVaultService;
+import com.quorum.tessera.key.vault.KeyVaultServiceFactory;
 
 import java.util.Base64;
 import java.util.Collection;
@@ -15,10 +19,13 @@ import java.util.stream.Collectors;
 
 public class KeyPairConverter {
 
-    private final KeyVaultService keyVaultService;
+    private final Config config;
 
-    public KeyPairConverter(KeyVaultService keyVaultService) {
-        this.keyVaultService = keyVaultService;
+    private final EnvironmentVariableProvider envProvider;
+
+    public KeyPairConverter(Config config, EnvironmentVariableProvider envProvider) {
+        this.config = config;
+        this.envProvider = envProvider;
     }
 
     public Collection<KeyPair> convert(Collection<ConfigKeyPair> configKeyPairs) {
@@ -33,6 +40,11 @@ public class KeyPairConverter {
         String encodedPriv;
 
         if(configKeyPair instanceof AzureVaultKeyPair) {
+            //TODO Override this factory or getInstance() method in some way so a MockKeyVaultService/Factory is used in test classes (look at MockKeyGeneratorFactory)
+            KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(KeyPairType.AZURE);
+            KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, envProvider);
+            //TODO Move KeyVaultService to be a property of ConfigKeyPair, so configKeyPair.getPublicKey() can be used for all key types
+
             AzureVaultKeyPair akp = (AzureVaultKeyPair) configKeyPair;
             encodedPub = keyVaultService.getSecret(akp.getPublicKeyId());
             encodedPriv = keyVaultService.getSecret(akp.getPrivateKeyId());

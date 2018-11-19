@@ -11,14 +11,21 @@
 
     <artifactId>key-pair-converter</artifactId>
     <dependencies>
+
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>encryption-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>key-vault-api</artifactId>
+        </dependency>
+
     </dependencies>
 
 
