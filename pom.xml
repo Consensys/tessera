@@ -1003,11 +1003,6 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
-        
-        <repository>
-            <id>checkstyle-repo</id>
-            <url>https://raw.github.com/checkstyle/checkstyle/releases</url>
-        </repository>
     </repositories>
     
     <pluginRepositories>
@@ -1015,12 +1010,6 @@
             <id>synergian-repo</id>
             <url>https://raw.github.com/synergian/wagon-git/releases</url>
         </pluginRepository>
-        
-        <pluginRepository>
-            <id>checkstyle-repo</id>
-            <url>https://raw.github.com/checkstyle/checkstyle/releases</url>
-        </pluginRepository>
-        
     </pluginRepositories>
 
 </project>
