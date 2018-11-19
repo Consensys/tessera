@@ -1,13 +1,13 @@
 package com.quorum.tessera.argon2;
 
 import de.mkammerer.argon2.Argon2Constants;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class Argon2Test {
 
@@ -15,12 +15,7 @@ public class Argon2Test {
 
     private SecureRandom secureRandom = new SecureRandom();
 
-    private Argon2 argon2;
-
-    @Before
-    public void init() {
-        this.argon2 = Argon2.create();
-    }
+    private Argon2 argon2 = Argon2.create();
 
     @Test
     public void hashCalledWithDefaultOptionsWhenOnlyPasswordProvided() {
@@ -58,16 +53,16 @@ public class Argon2Test {
     }
 
     @Test
-    public void invalidAlgorithmDefaultsToi() {
+    public void invalidAlgorithmThrowsException() {
         final byte[] salt = new byte[Argon2Constants.DEFAULT_SALT_LENGTH];
         secureRandom.nextBytes(salt);
 
-        final ArgonResult hash = argon2.hash(TEST_OPTIONS, "password", salt);
+        final ArgonOptions invalidOptions = new ArgonOptions("invalid", 1, 1024, 1);
+        final Throwable throwable = catchThrowable(() -> this.argon2.hash(invalidOptions, "password", salt));
 
-        assertThat(hash.getOptions().getAlgorithm()).isEqualTo("i");
-        assertThat(hash.getOptions().getIterations()).isEqualTo(1);
-        assertThat(hash.getOptions().getParallelism()).isEqualTo(1);
-        assertThat(hash.getOptions().getMemory()).isEqualTo(1024);
+        assertThat(throwable)
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Invalid Argon2 algorithm invalid");
     }
 
     @Test
