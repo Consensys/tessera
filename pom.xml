@@ -132,6 +132,14 @@
                     <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
                     <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
                 </configuration>
+                
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>8.14</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <plugin>
@@ -220,18 +228,18 @@
             </plugin>
 
             <plugin>
-              <groupId>org.ec4j.maven</groupId>
-              <artifactId>editorconfig-maven-plugin</artifactId>
-              <version>0.0.5</version>
-              <executions>
-                <execution>
-                  <id>check</id>
-                  <phase>verify</phase>
-                  <goals>
-                    <goal>check</goal>
-                  </goals>
-                </execution>
-              </executions>
+                <groupId>org.ec4j.maven</groupId>
+                <artifactId>editorconfig-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <executions>
+                    <execution>
+                        <id>check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
         </plugins>
@@ -995,6 +1003,11 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
+        
+        <repository>
+            <id>checkstyle-repo</id>
+            <url>https://raw.github.com/checkstyle/checkstyle/releases</url>
+        </repository>
     </repositories>
     
     <pluginRepositories>
@@ -1002,6 +1015,12 @@
             <id>synergian-repo</id>
             <url>https://raw.github.com/synergian/wagon-git/releases</url>
         </pluginRepository>
+        
+        <pluginRepository>
+            <id>checkstyle-repo</id>
+            <url>https://raw.github.com/checkstyle/checkstyle/releases</url>
+        </pluginRepository>
+        
     </pluginRepositories>
 
 </project>

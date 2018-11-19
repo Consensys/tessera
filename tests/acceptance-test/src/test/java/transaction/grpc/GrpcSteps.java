@@ -38,9 +38,9 @@ public class GrpcSteps implements En {
 
         Set<Party> recipients = new HashSet<>();
 
-        Set<String> storedHashes = new TreeSet<>();
+        final Set<String> storedHashes = new TreeSet<>();
 
-        byte[] txnData = Utils.generateTransactionData();
+        final byte[] txnData = Utils.generateTransactionData();
 
         Given("^Sender party (.+)$", (String pty) -> {
             partyFactory.getParties()
