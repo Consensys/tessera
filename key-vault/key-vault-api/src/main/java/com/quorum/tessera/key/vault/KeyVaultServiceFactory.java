@@ -4,9 +4,7 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.keypairs.KeyPairType;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ServiceLoader;
+import java.util.*;
 
 public interface KeyVaultServiceFactory {
 
@@ -20,7 +18,8 @@ public interface KeyVaultServiceFactory {
 
         return providers.stream()
             .filter(factory -> factory.getType() == keyPairType)
-            .findFirst().get();
+            .findFirst()
+            .orElseThrow(() -> new NoKeyVaultServiceFactoryException("No implementation of KeyVaultServiceFactory found"));
     }
 
 }
