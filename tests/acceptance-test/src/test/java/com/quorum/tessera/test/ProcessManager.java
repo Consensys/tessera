@@ -56,7 +56,10 @@ public class ProcessManager {
     }
 
     public void startNodes() throws Exception {
-        for (String nodeAlias : configFiles.keySet()) {
+        List<String> nodeAliases = Arrays.asList(configFiles.keySet().toArray(new String[0]));
+        Collections.shuffle(nodeAliases);
+        
+        for (String nodeAlias : nodeAliases) {
             start(nodeAlias);
         }
     }
@@ -94,7 +97,7 @@ public class ProcessManager {
         
         List<String> args = Arrays.asList(
             "java",
-            "-Dspring.profiles.active=disable-unixsocket",
+            "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
             "-Dnode.number=" + nodeAlias,
             "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
             "-Ddebug=true",

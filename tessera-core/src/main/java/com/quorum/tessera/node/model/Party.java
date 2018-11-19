@@ -27,4 +27,11 @@ public class Party {
         return Objects.hash(url);
     }
 
+    @Override
+    public String toString() {
+        return "Party{" + "url=" + url + '}';
+    }
+    
+    
+
 }

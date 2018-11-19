@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.quorum.tessera.test.util.ElUtil.createAndPopulatePaths;
+import java.util.Arrays;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -102,7 +103,7 @@ public class DefaultCliAdapterTest {
             cliDelegate.execute("-configfile", configFile.toString());
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
-            assertThat(ex.getConstraintViolations()).hasSize(2);
+            assertThat(ex.getConstraintViolations()).hasSize(4);
             
         }
         
@@ -113,7 +114,13 @@ public class DefaultCliAdapterTest {
         
         KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
 
-        FilesystemKeyPair keypair = new FilesystemKeyPair(Paths.get(""), Paths.get(""));
+        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        
+        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
+         Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+         
+        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
         when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keypair);
 
         Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
@@ -175,8 +182,14 @@ public class DefaultCliAdapterTest {
     public void output() throws Exception {
         
         KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
-
-        FilesystemKeyPair keypair = new FilesystemKeyPair(Paths.get(""), Paths.get(""));
+        
+        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        
+        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
+         Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+         
+        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
         when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keypair);
 
         Path generatedKey = Paths.get("/tmp/" + UUID.randomUUID().toString());
@@ -355,7 +368,13 @@ public class DefaultCliAdapterTest {
     @Test
     public void allowStartupForKeygenAndConfigfileOptions() throws Exception {
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
-        final FilesystemKeyPair keypair = new FilesystemKeyPair(Paths.get(""), Paths.get(""));
+        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        
+        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
+         Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+         
+        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
         when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keypair);
 
         final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
