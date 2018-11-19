@@ -1,8 +1,8 @@
 package com.quorum.tessera.key.generation;
 
 import com.quorum.tessera.config.KeyVaultConfig;
-import com.quorum.tessera.key.vault.AzureCredentialNotSetException;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
+import com.quorum.tessera.key.vault.azure.AzureCredentialNotSetException;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

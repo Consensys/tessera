@@ -1,8 +1,9 @@
-package com.quorum.tessera.key.vault;
+package com.quorum.tessera.key.vault.azure;
 
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
 import com.microsoft.aad.adal4j.ClientCredential;
+import com.quorum.tessera.key.vault.azure.AzureKeyVaultClientCredentials;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

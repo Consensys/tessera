@@ -1,4 +1,4 @@
-package com.quorum.tessera.key.vault;
+package com.quorum.tessera.key.vault.azure;
 
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.azure.keyvault.models.SecretBundle;

@@ -4,7 +4,8 @@ import com.quorum.tessera.config.KeyVaultConfig;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.config.util.PasswordReaderFactory;
-import com.quorum.tessera.key.vault.*;
+import com.quorum.tessera.key.vault.KeyVaultService;
+import com.quorum.tessera.key.vault.azure.*;
 import com.quorum.tessera.nacl.NaclFacadeFactory;
 
 import java.util.concurrent.Executors;

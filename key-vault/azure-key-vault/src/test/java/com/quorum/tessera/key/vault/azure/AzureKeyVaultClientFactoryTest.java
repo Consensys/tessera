@@ -1,5 +1,7 @@
-package com.quorum.tessera.key.vault;
+package com.quorum.tessera.key.vault.azure;
 
+import com.quorum.tessera.key.vault.azure.AzureKeyVaultClientCredentials;
+import com.quorum.tessera.key.vault.azure.AzureKeyVaultClientFactory;
 import org.junit.Test;
 
 import static org.mockito.ArgumentMatchers.any;

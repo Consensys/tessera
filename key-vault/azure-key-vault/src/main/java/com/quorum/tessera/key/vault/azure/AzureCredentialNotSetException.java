@@ -1,4 +1,4 @@
-package com.quorum.tessera.key.vault;
+package com.quorum.tessera.key.vault.azure;
 
 public class AzureCredentialNotSetException extends IllegalStateException {
 
