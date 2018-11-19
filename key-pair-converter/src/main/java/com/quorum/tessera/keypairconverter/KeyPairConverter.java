@@ -40,7 +40,6 @@ public class KeyPairConverter {
         String encodedPriv;
 
         if(configKeyPair instanceof AzureVaultKeyPair) {
-            //TODO Override this factory or getInstance() method in some way so a MockKeyVaultService/Factory is used in test classes (look at MockKeyGeneratorFactory)
             KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(KeyPairType.AZURE);
             KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, envProvider);
             //TODO Move KeyVaultService to be a property of ConfigKeyPair, so configKeyPair.getPublicKey() can be used for all key types
