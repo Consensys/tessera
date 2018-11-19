@@ -1,17 +1,21 @@
 package com.quorum.tessera.test;
 
+import com.google.protobuf.Empty;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.grpc.p2p.TesseraGrpc;
+import com.quorum.tessera.grpc.p2p.UpCheckMessage;
 import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.test.util.ElUtil;
-
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -141,25 +145,33 @@ public class ProcessManager {
 
         final Config config = JaxbUtil.unmarshal(configFile.openStream(), Config.class);
 
-        final URL bindingUrl = config.getServerConfig().getBindingUri().toURL();
+        final URL bindingUrl = UriBuilder.fromUri(config.getServerConfig().getBindingUri()).path("upcheck").build().toURL();
 
         CountDownLatch startUpLatch = new CountDownLatch(communicationType == CommunicationType.GRPC ? 2 : 1);
 
         if (communicationType == CommunicationType.GRPC) {
             URL grpcUrl = UriBuilder.fromUri(config.getServerConfig().getBindingUri())
                     .port(config.getServerConfig().getGrpcPort())
+                    .path("upcheck")
                     .build().toURL();
 
+            ManagedChannel channel = ManagedChannelBuilder
+                    .forAddress(grpcUrl.getHost(), grpcUrl.getPort())
+                    .usePlaintext()
+                    .build();
+           
             executorService.submit(() -> {
 
                 while (true) {
                     try {
-                        URLConnection conn = grpcUrl.openConnection();
-                        conn.connect();
-                        System.out.println(grpcUrl + " started. ");
+
+                        UpCheckMessage result = TesseraGrpc.newBlockingStub(channel).getUpCheck(Empty.getDefaultInstance());
+
+                        System.out.println(grpcUrl + " started. " + result.getUpCheck());
+
                         startUpLatch.countDown();
                         return;
-                    } catch (IOException ex) {
+                    } catch (Exception ex) {
                         try {
                             TimeUnit.MILLISECONDS.sleep(200L);
                         } catch (InterruptedException ex1) {
@@ -170,13 +182,17 @@ public class ProcessManager {
             });
         }
 
+        
+        
         executorService.submit(() -> {
 
             while (true) {
                 try {
-                    URLConnection conn = bindingUrl.openConnection();
+                    HttpURLConnection conn = (HttpURLConnection) bindingUrl.openConnection();
                     conn.connect();
-                    System.out.println(bindingUrl + " started. ");
+
+                    System.out.println(bindingUrl + " started." + conn.getResponseCode());
+
                     startUpLatch.countDown();
                     return;
                 } catch (IOException ex) {
