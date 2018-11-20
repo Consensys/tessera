@@ -36,7 +36,7 @@ public class PidFileParser implements Parser<Optional> {
 
             final String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
 
-            try (final OutputStream stream = Files.newOutputStream(pidFilePath, CREATE, TRUNCATE_EXISTING)) {
+            try (OutputStream stream = Files.newOutputStream(pidFilePath, CREATE, TRUNCATE_EXISTING)) {
                 stream.write(pid.getBytes(UTF_8));
             }
 

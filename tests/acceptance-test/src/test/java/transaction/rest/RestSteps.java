@@ -36,16 +36,17 @@ public class RestSteps implements En {
     
     public RestSteps() {
 
-        Collection<Party> senderHolder = new ArrayList<>();
+        final Collection<Party> senderHolder = new ArrayList<>();
 
-        List<String> portHolder = new ArrayList<>();
-        Collection<String> responseCodes = new ArrayList<>();
+        final List<String> portHolder = new ArrayList<>();
+        
+        final Collection<String> responseCodes = new ArrayList<>();
 
-        Set<Party> recipients = new HashSet<>();
+        final Set<Party> recipients = new HashSet<>();
 
-        Set<String> storedHashes = new TreeSet<>();
+        final Set<String> storedHashes = new TreeSet<>();
 
-        byte[] txnData = Utils.generateTransactionData();
+        final byte[] txnData = Utils.generateTransactionData();
 
         Given("^Sender party (.+)$", (String pty) -> {
             senderHolder.add(partyHelper.findByAlias(pty));

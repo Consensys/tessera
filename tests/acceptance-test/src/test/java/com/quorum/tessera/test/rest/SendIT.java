@@ -32,9 +32,9 @@ public class SendIT {
     private final Client client = ClientBuilder.newClient();
 
     private RestUtils utils = new RestUtils();
-    
-    
+
     private PartyHelper partyHelper = new RestPartyHelper();
+
     /**
      * Quorum sends transaction with single public recipient key
      */
@@ -51,9 +51,9 @@ public class SendIT {
         sendRequest.setPayload(transactionData);
 
         final Response response = client.target(firstParty.getUri())
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
         final SendResponse result = response.readEntity(SendResponse.class);
@@ -65,8 +65,8 @@ public class SendIT {
         URI location = response.getLocation();
 
         final Response checkPersistedTxnResponse = client.target(location)
-            .request()
-            .get();
+                .request()
+                .get();
 
         assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -90,14 +90,14 @@ public class SendIT {
     @Test
     public void firstPartyForwardsToTwoOtherParties() {
 
-        Party sendingParty = partyHelper.findByAlias("A");
+        final Party sendingParty = partyHelper.findByAlias("A");
 
-        Party secondParty = partyHelper.findByAlias("B");
-        Party thirdParty = partyHelper.findByAlias("D");
+        final Party secondParty = partyHelper.findByAlias("B");
+        final Party thirdParty = partyHelper.findByAlias("D");
 
-        Party excludedParty = partyHelper.findByAlias("C");
+        final Party excludedParty = partyHelper.findByAlias("C");
 
-        byte[] transactionData = utils.createTransactionData();
+        final byte[] transactionData = utils.createTransactionData();
 
         final SendRequest sendRequest = new SendRequest();
         sendRequest.setFrom(sendingParty.getPublicKey());
@@ -105,9 +105,9 @@ public class SendIT {
         sendRequest.setPayload(transactionData);
 
         final Response response = client.target(sendingParty.getUri())
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //
         final SendResponse result = response.readEntity(SendResponse.class);
@@ -119,8 +119,8 @@ public class SendIT {
         URI location = response.getLocation();
 
         final Response checkPersistedTxnResponse = client.target(location)
-            .request()
-            .get();
+                .request()
+                .get();
 
         assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -150,9 +150,9 @@ public class SendIT {
         sendRequest.setPayload(transactionData);
 
         final Response response = client.target(recipient.getUri())
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
@@ -163,8 +163,8 @@ public class SendIT {
         URI location = response.getLocation();
 
         final Response checkPersistedTxnResponse = client.target(location)
-            .request()
-            .get();
+                .request()
+                .get();
 
         assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -177,7 +177,7 @@ public class SendIT {
     @Test
     public void sendTransactionWithMissingRecipients() {
 
-        final  Party sendingParty = partyHelper.getParties().findAny().get();
+        final Party sendingParty = partyHelper.getParties().findAny().get();
         final byte[] transactionData = utils.createTransactionData();
 
         final SendRequest sendRequest = new SendRequest();
@@ -185,9 +185,9 @@ public class SendIT {
         sendRequest.setPayload(transactionData);
 
         final Response response = client.target(sendingParty.getUri())
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
@@ -198,8 +198,8 @@ public class SendIT {
         URI location = response.getLocation();
 
         final Response checkPersistedTxnResponse = client.target(location)
-            .request()
-            .get();
+                .request()
+                .get();
 
         assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -218,19 +218,19 @@ public class SendIT {
         Party sendingParty = partyHelper.getParties().findAny().get();
 
         Party recipient = partyHelper.getParties().filter(p -> p != sendingParty)
-            .findAny().get();
+                .findAny().get();
 
         final String sendRequest = Json.createObjectBuilder()
-            .add("from", sendingParty.getPublicKey())
-            .add("to",
-                Json.createArrayBuilder().add(recipient.getPublicKey())
-            )
-            .build().toString();
+                .add("from", sendingParty.getPublicKey())
+                .add("to",
+                        Json.createArrayBuilder().add(recipient.getPublicKey())
+                )
+                .build().toString();
 
         final Response response = client.target(sendingParty.getUri())
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
         assertThat(response).isNotNull();
@@ -244,9 +244,9 @@ public class SendIT {
         final String sendRequest = "this is clearly a garbage message";
 
         final Response response = client.target(sendingParty.getUri())
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
         assertThat(response).isNotNull();
@@ -260,9 +260,9 @@ public class SendIT {
         final String sendRequest = "{}";
 
         final Response response = client.target(sendingParty.getUri())
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         //validate result
         assertThat(response).isNotNull();
@@ -284,9 +284,9 @@ public class SendIT {
         sendRequest.setPayload(transactionData);
 
         final Response response = client.target(sendingParty.getUri())
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(400);
@@ -310,9 +310,9 @@ public class SendIT {
         sendRequest.setPayload(transactionData);
 
         final Response response = client.target(sender.getUri())
-            .path(SEND_PATH)
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();

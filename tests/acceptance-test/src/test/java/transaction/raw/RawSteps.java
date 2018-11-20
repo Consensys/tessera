@@ -38,13 +38,13 @@ public class RawSteps implements En {
 
     public RawSteps() {
 
-        Collection<Party> senderHolder = new ArrayList<>();
+        final Collection<Party> senderHolder = new ArrayList<>();
 
-        Set<Party> recipients = new HashSet<>();
+        final Set<Party> recipients = new HashSet<>();
 
-        byte[] transactionData = restUtils.createTransactionData();
+        final byte[] transactionData = restUtils.createTransactionData();
 
-        Set<String> storedHashes = new TreeSet<>();
+        final Set<String> storedHashes = new TreeSet<>();
 
         Given("^Sender party (.+)$", (String pty) -> {
             Party sender = partyHelper.findByAlias(pty);

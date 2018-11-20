@@ -44,6 +44,6 @@ public interface PayloadEncoder {
     
     
     //TODO: 
-    EncodedPayloadWithRecipients decodePayloadWithRecipients(byte[] input, final PublicKey recipient);
+    EncodedPayloadWithRecipients decodePayloadWithRecipients(byte[] input, PublicKey recipient);
 
 }
