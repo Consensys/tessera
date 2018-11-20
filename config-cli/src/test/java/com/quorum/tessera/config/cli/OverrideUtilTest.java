@@ -76,7 +76,7 @@ public class OverrideUtilTest {
 //                "keys.keyData.publicKey",
                 "keys.keyData.privateKeyPath",
 //                "keys.keyData.publicKeyPath",
-                "keys.azureKeyVaultConfig.url",
+                "keys.keyVaultConfig.url",
                 "alwaysSendTo",
                 "unixSocketFile",
                 "useWhiteList",

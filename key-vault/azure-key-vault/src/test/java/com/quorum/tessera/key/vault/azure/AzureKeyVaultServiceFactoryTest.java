@@ -88,7 +88,7 @@ public class AzureKeyVaultServiceFactoryTest {
     public void nullKeyVaultConfigurationThrowsException() {
         when(envProvider.getEnv(anyString())).thenReturn("envVar");
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
+        when(keyConfiguration.getKeyVaultConfig()).thenReturn(null);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
@@ -102,7 +102,7 @@ public class AzureKeyVaultServiceFactoryTest {
         when(envProvider.getEnv(anyString())).thenReturn("envVar");
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
-        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         KeyVaultService result = azureKeyVaultServiceFactory.create(config, envProvider);

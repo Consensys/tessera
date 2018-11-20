@@ -35,13 +35,13 @@ public class KeyConfiguration extends ConfigItem {
 
     @Valid
     @XmlElement
-    private final KeyVaultConfig azureKeyVaultConfig;
+    private final KeyVaultConfig keyVaultConfig;
 
-    public KeyConfiguration(final Path passwordFile, final List<String> passwords, final List<ConfigKeyPair> keyData, final KeyVaultConfig azureKeyVaultConfig) {
+    public KeyConfiguration(final Path passwordFile, final List<String> passwords, final List<ConfigKeyPair> keyData, final KeyVaultConfig keyVaultConfig) {
         this.passwordFile = passwordFile;
         this.passwords = passwords;
         this.keyData = keyData;
-        this.azureKeyVaultConfig = azureKeyVaultConfig;
+        this.keyVaultConfig = keyVaultConfig;
     }
 
     private static KeyConfiguration create() {
@@ -60,7 +60,7 @@ public class KeyConfiguration extends ConfigItem {
         return this.keyData;
     }
 
-    public KeyVaultConfig getAzureKeyVaultConfig() {
-        return this.azureKeyVaultConfig;
+    public KeyVaultConfig getKeyVaultConfig() {
+        return this.keyVaultConfig;
     }
 }

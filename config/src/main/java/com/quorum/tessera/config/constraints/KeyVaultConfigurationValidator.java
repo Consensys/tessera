@@ -27,7 +27,7 @@ public class KeyVaultConfigurationValidator implements ConstraintValidator<Valid
             .stream()
             .anyMatch(keyPair -> keyPair instanceof AzureVaultKeyPair);
 
-        if(isUsingVaultKeys && keyConfiguration.getAzureKeyVaultConfig() == null) {
+        if(isUsingVaultKeys && keyConfiguration.getKeyVaultConfig() == null) {
             return false;
         }
 

@@ -32,7 +32,7 @@ public class AzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
 
         //TODO null check
         KeyVaultConfig keyVaultConfig = Optional.ofNullable(config.getKeys())
-            .map(KeyConfiguration::getAzureKeyVaultConfig)
+            .map(KeyConfiguration::getKeyVaultConfig)
             .orElseThrow(() -> new RuntimeException("Trying to create Azure key vault but no Azure configuration provided in the configfile"));
 
         return new AzureKeyVaultService(
