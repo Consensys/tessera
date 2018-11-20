@@ -4,7 +4,6 @@ import com.quorum.tessera.api.model.SendResponse;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -37,7 +36,7 @@ public class DeleteIT {
 
         final String encodedHash = URLEncoder.encode(sendResponse.getKey(), UTF_8.toString());
 
-        Client client = ClientBuilder.newClient();
+        Client client = RestUtils.buildClient();
         //delete it
         final Response resp = client.target(sender.getUri())
                 .path("transaction")
@@ -56,7 +55,7 @@ public class DeleteIT {
 
         final String madeupHash = Base64.getUrlEncoder().encodeToString("madeup".getBytes());
 
-        Client client = ClientBuilder.newClient();
+        Client client = RestUtils.buildClient();
 
         Party party = partyHelper.getParties().findAny().get();
 
