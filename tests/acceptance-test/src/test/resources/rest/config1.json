@@ -38,6 +38,5 @@
             }
         ]
     },
-    "alwaysSendTo": [],
-    "unixSocketFile": "${unixSocketPath}"
+    "alwaysSendTo": []
 }

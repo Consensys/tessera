@@ -47,6 +47,5 @@
     },
     "alwaysSendTo": [
         "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-    ],
-    "unixSocketFile": "${unixSocketPath}"
+    ]
 }
