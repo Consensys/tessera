@@ -40,16 +40,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.quorum.tessera</groupId>
-            <artifactId>key-vault-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.quorum.tessera</groupId>
-            <artifactId>azure-key-vault</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>javax.transaction</groupId>
             <artifactId>javax.transaction-api</artifactId>
         </dependency>
