@@ -61,7 +61,7 @@
                 <version>3.0.0-M1</version>
                 <configuration>
                     <skip>false</skip>
-                    <rerunFailingTestsCount>0</rerunFailingTestsCount>
+                    <rerunFailingTestsCount>3</rerunFailingTestsCount>
                     <systemPropertyVariables>
                         <application.jar>${com.quorum.tessera:tessera-app:jar:app}</application.jar>
                     </systemPropertyVariables>
