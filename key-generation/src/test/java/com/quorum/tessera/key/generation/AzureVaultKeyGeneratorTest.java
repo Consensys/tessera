@@ -1,6 +1,5 @@
 package com.quorum.tessera.key.generation;
 
-import com.microsoft.azure.keyvault.models.SecretBundle;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.encryption.KeyPair;
@@ -36,7 +35,6 @@ public class AzureVaultKeyGeneratorTest {
         final KeyPair keyPair = new KeyPair(pub, priv);
 
         when(naclFacade.generateNewKeys()).thenReturn(keyPair);
-        when(keyVaultService.setSecret("id", "secret")).thenReturn(new SecretBundle());
 
         azureVaultKeyGenerator = new AzureVaultKeyGenerator(naclFacade, keyVaultService);
     }
