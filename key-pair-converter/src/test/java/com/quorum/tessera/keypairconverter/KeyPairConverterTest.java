@@ -81,13 +81,9 @@ public class KeyPairConverterTest {
     }
 
     @Test
-    //TODO See KeyPairConverter todos
+    //Uses com.quorum.tessera.keypairconverter.MockAzureKeyVaultServiceFactory
     public void convertSingleAzureVaultKeyPair() {
-        //Uses com.quorum.tessera.keypairconverter.MockAzureKeyVaultServiceFactory
-
-        final AzureVaultKeyPair keyPair = mock(AzureVaultKeyPair.class);
-        when(keyPair.getPublicKeyId()).thenReturn("pub");
-        when(keyPair.getPrivateKeyId()).thenReturn("priv");
+        final AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pub", "priv");
 
         Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
 

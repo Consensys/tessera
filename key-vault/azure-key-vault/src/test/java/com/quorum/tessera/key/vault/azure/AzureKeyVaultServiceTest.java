@@ -4,8 +4,6 @@ import com.microsoft.azure.keyvault.models.SecretBundle;
 import com.microsoft.azure.keyvault.requests.SetSecretRequest;
 import com.quorum.tessera.config.KeyVaultConfig;
 import com.quorum.tessera.key.vault.VaultSecretNotFoundException;
-import com.quorum.tessera.key.vault.azure.AzureKeyVaultClientDelegate;
-import com.quorum.tessera.key.vault.azure.AzureKeyVaultService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
