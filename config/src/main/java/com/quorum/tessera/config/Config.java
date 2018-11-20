@@ -48,7 +48,6 @@ public class Config extends ConfigItem {
     private List<@ValidBase64 String> alwaysSendTo;
 
     @ValidPath(checkCanCreate = true)
-    @NotNull
     @XmlElement(required = true, type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path unixSocketFile;
