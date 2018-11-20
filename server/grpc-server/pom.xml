@@ -27,6 +27,10 @@
             <groupId>com.quorum.tessera</groupId>
             <artifactId>server-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>grpc-service</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

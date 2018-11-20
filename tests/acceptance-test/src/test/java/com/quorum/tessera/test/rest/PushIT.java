@@ -19,7 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PushIT {
 
-    private static final URI SERVER_URI = NODE1_URI;
+    private static final URI SERVER_Q2T_URI = NODE1_Q2T_URI;
+    private static final URI SERVER_P2P_URI = NODE1_P2P_URI;
 
     private static final String MSG_BASE64 = "AAAAAAAAACDIZyOQXJmSVNNeufz5YiRjCJwDYQYGf3BkWRy0Bp3hfQAAAAAAAAATJ9Sb5lOtjzaZayBRFP9jOUDczAAAAAAAAAAYggoaH+1mIGV91rR0KkrM89Pizi0e6MYGAAAAAAAAAAEAAAAAAAAAMP+KGceAS1WXguC8E6lq4tvtBi2gJfMa0QZ6DAGBdBp3fDAdTq8tKOjstP1aNIFqvAAAAAAAAAAYM9xGQhx2/GYXetUmFZNMe9ED57Rh58MWAAAAAAAAAAA=";
 
@@ -36,7 +37,7 @@ public class PushIT {
         this.message = Base64.getDecoder().decode(MSG_BASE64);
 
         //delete the tx if it exists, or do nothing if it doesn't
-        client.target(SERVER_URI)
+        client.target(SERVER_Q2T_URI)
             .path("/transaction/" + ENCODED_HASH)
             .request()
             .buildDelete()
@@ -46,7 +47,7 @@ public class PushIT {
     @Test
     public void storePayloadFromAnotherNode() {
 
-        final Response pushReponse = client.target(SERVER_URI)
+        final Response pushReponse = client.target(SERVER_P2P_URI)
             .path(PUSH_PATH)
             .request()
             .post(Entity.entity(message, APPLICATION_OCTET_STREAM));
@@ -57,7 +58,7 @@ public class PushIT {
 
         //retrieve that tx
 
-        final Response retrieveResponse = client.target(SERVER_URI)
+        final Response retrieveResponse = client.target(SERVER_Q2T_URI)
             .path("/transaction/" + ENCODED_HASH)
             .request()
             .buildGet()
@@ -76,7 +77,7 @@ public class PushIT {
 
     @Test
     public void storeExistingPayloadThrowsError() {
-        final Response pushReponse = client.target(SERVER_URI)
+        final Response pushReponse = client.target(SERVER_P2P_URI)
             .path(PUSH_PATH)
             .request()
             .post(Entity.entity(message, APPLICATION_OCTET_STREAM));
@@ -86,7 +87,7 @@ public class PushIT {
 
         //send it again
 
-        final Response pushReponseDup = client.target(SERVER_URI)
+        final Response pushReponseDup = client.target(SERVER_P2P_URI)
             .path(PUSH_PATH)
             .request()
             .post(Entity.entity(message, APPLICATION_OCTET_STREAM));
@@ -101,7 +102,7 @@ public class PushIT {
 
         final byte[] badPayload = "this is a bad payload that does not conform to the expected byte array".getBytes();
 
-        final Response pushReponse = client.target(SERVER_URI)
+        final Response pushReponse = client.target(SERVER_P2P_URI)
             .path(PUSH_PATH)
             .request()
             .post(Entity.entity(badPayload, APPLICATION_OCTET_STREAM));

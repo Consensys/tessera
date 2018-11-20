@@ -19,7 +19,7 @@ import com.quorum.tessera.test.PartyHelper;
 
 public class ReceiveRawIT {
 
-    private static final URI SERVER_URI = NODE1_URI;
+    private static final URI SERVER_URI = NODE1_Q2T_URI;
 
     private static final String RECEIVE_PATH = "/receiveraw";
 
@@ -111,14 +111,14 @@ public class ReceiveRawIT {
         sendRequest.setTo(partyHelper.findByAlias("B").getPublicKey());
         
 
-        final Response r = client.target(sender.getUri())
+        final Response r = client.target(sender.getQ2TUri())
             .path("/send")
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         final SendResponse sendResponse = r.readEntity(SendResponse.class);
 
-        final Response response = client.target(partyHelper.findByAlias("B").getUri())
+        final Response response = client.target(partyHelper.findByAlias("B").getQ2TUri())
             .path(RECEIVE_PATH)
             .request()
             .header(C11N_KEY, sendResponse.getKey())
@@ -139,7 +139,7 @@ public class ReceiveRawIT {
     @Test
     public void fetchExistingTransactionUsingRecipientKey() {
 
-        final Response response = client.target(NODE2_URI)
+        final Response response = client.target(NODE2_Q2T_URI)
             .path(RECEIVE_PATH)
             .request()
             .header(C11N_KEY, this.hash)

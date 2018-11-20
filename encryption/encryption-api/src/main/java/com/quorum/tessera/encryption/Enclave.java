@@ -16,6 +16,9 @@ public interface Enclave {
     EncodedPayloadWithRecipients encryptPayload(byte[] message,
              PublicKey senderPublicKey,
              List<PublicKey> recipientPublicKeys);
+
+
+    RawTransaction encryptRawPayload(byte[] message, PublicKey sender);
     
     byte[] unencryptTransaction(EncodedPayloadWithRecipients payloadWithRecipients, PublicKey providedKey);
     

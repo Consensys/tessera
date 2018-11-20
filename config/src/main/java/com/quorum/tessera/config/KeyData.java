@@ -8,42 +8,40 @@ import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(factoryMethod = "create")
 public class KeyData extends ConfigItem {
 
     @ValidKeyDataConfig
     @XmlElement
-    private final KeyDataConfig config;
+    private KeyDataConfig config;
 
     @ValidBase64
     @Pattern(regexp = "^((?!NACL_FAILURE).)*$",
             message = "Could not decrypt the private key with the provided password, please double check the passwords provided")
     @XmlElement
-    private final String privateKey;
+    private String privateKey;
 
     @XmlElement
-    private final String publicKey;
-
-    @XmlElement
-    @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path privateKeyPath;
+    private String publicKey;
 
     @XmlElement
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path publicKeyPath;
+    private Path privateKeyPath;
+
+    @XmlElement
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private Path publicKeyPath;
 
     @XmlElement
     @Pattern(regexp = "^[0-9a-zA-Z\\-]*$")
-    private final String azureVaultPublicKeyId;
+    private String azureVaultPublicKeyId;
 
     @XmlElement
     @Pattern(regexp = "^[0-9a-zA-Z\\-]*$")
-    private final String azureVaultPrivateKeyId;
+    private String azureVaultPrivateKeyId;
 
     public KeyData(final KeyDataConfig keyDataConfig,
                    final String privateKey,
@@ -61,9 +59,9 @@ public class KeyData extends ConfigItem {
         this.azureVaultPrivateKeyId = azureVaultPrivateKeyId;
     }
 
-    private static KeyData create() {
-        return new KeyData(null, null, null, null, null, null, null);
+    public KeyData() {
     }
+
 
     public String getPrivateKey() {
         return privateKey;

@@ -1,16 +1,13 @@
 package com.quorum.tessera.config.util;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.io.FilesDelegate;
+import com.quorum.tessera.config.JdbcConfig;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.UUID;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,25 +37,20 @@ public class ConfigFileStoreTest {
         assertThat(ConfigFileStore.get()).isSameAs(configFileStore);
 
     }
-
+    
     @Test
-    public void save() throws Exception {
-
-        final URL updatedConfig = getClass().getResource("/sample_full.json");
-        try (InputStream in = updatedConfig.openStream()) {
-            Config config = JaxbUtil.unmarshal(in, Config.class);
-            configFileStore.save(config);
-        }
-
-        final JsonObject result = Optional.of(path)
-                .map(FilesDelegate.create()::newInputStream)
-                .map(Json::createReader)
-                .map(JsonReader::readObject)
-                .get();
-
-        assertThat(result.getJsonObject("server").getString("hostName"))
-                .isEqualTo("http://localhost");
-
+    public void save() throws IOException {
+        
+        Config config = new Config();
+        config.setJdbcConfig(new JdbcConfig());
+        config.getJdbcConfig().setUsername("JUNIT");
+        configFileStore.save(config);
+        
+        
+        Config result = JaxbUtil.unmarshal(Files.newInputStream(path), Config.class);
+        
+        assertThat(result.getJdbcConfig().getUsername()).isEqualTo("JUNIT");
+        
     }
 
 }

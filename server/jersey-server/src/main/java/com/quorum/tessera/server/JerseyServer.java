@@ -50,7 +50,7 @@ public class JerseyServer implements TesseraServer {
 
     private final InfluxConfig influxConfig;
 
-    public JerseyServer(final ServerConfig serverConfig,final Application application) {
+    public JerseyServer(final ServerConfig serverConfig, final Application application) {
         this.uri = serverConfig.getBindingUri();
         this.application = Objects.requireNonNull(application);
         this.secure = serverConfig.isSsl();
@@ -64,7 +64,7 @@ public class JerseyServer implements TesseraServer {
 
         this.executor = newSingleThreadScheduledExecutor();
 
-        if(serverConfig.getInfluxConfig() != null) {
+        if (serverConfig.getInfluxConfig() != null) {
             this.influxConfig = serverConfig.getInfluxConfig();
         } else {
             this.influxConfig = null;
@@ -90,7 +90,7 @@ public class JerseyServer implements TesseraServer {
 
         final ResourceConfig config = ResourceConfig.forApplication(application);
         config.addProperties(initParams)
-              .register(MetricsResource.class);
+            .register(MetricsResource.class);
 
         if (this.secure) {
             this.server = GrizzlyHttpServerFactory.createHttpServer(
@@ -117,7 +117,7 @@ public class JerseyServer implements TesseraServer {
         LOGGER.info("Started {}", uri);
         LOGGER.info("WADL {}/application.wadl", uri);
 
-        if(influxConfig != null) {
+        if (influxConfig != null) {
             startInfluxMonitoring();
         }
 
@@ -144,7 +144,7 @@ public class JerseyServer implements TesseraServer {
     public void stop() {
         LOGGER.info("Stopping Jersey server at {}", uri);
 
-        if(influxConfig != null) {
+        if (influxConfig != null) {
             this.executor.shutdown();
         }
 

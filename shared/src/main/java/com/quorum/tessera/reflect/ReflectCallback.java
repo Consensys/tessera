@@ -14,13 +14,14 @@ public interface ReflectCallback<T> {
             IllegalArgumentException,
             IllegalAccessException,
             NoSuchMethodException,
-            InvocationTargetException;
+            InvocationTargetException,
+            InstantiationException;
 
 
     static <T> T execute(ReflectCallback<T> callback) {
         try {
             return callback.doExecute();
-        } catch (NoSuchMethodException | InvocationTargetException
+        } catch (InstantiationException | NoSuchMethodException | InvocationTargetException
                 | IllegalArgumentException | IllegalAccessException | NoSuchFieldException | ClassNotFoundException ex) {
             LOGGER.error(null, ex);
             throw new ReflectException(ex);

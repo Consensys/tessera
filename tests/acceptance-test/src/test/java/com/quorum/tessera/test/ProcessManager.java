@@ -105,7 +105,7 @@ public class ProcessManager {
 
         List<String> args = Arrays.asList(
                 "java",
-                "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
+                "-Dspring.profiles.active=disable-unixsocket",
                 "-Dnode.number=" + nodeAlias,
                 "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
                 "-Ddebug=true",
@@ -114,9 +114,7 @@ public class ProcessManager {
                 "-configfile",
                 ElUtil.createAndPopulatePaths(configFile).toAbsolutePath().toString(),
                 "-pidfile",
-                pid.toAbsolutePath().toString(),
-                "-server.communicationType",
-                communicationType.name()
+                pid.toAbsolutePath().toString()
         );
         System.out.println(String.join(" ", args));
 
@@ -145,13 +143,12 @@ public class ProcessManager {
 
         final Config config = JaxbUtil.unmarshal(configFile.openStream(), Config.class);
 
-        final URL bindingUrl = UriBuilder.fromUri(config.getServerConfig().getBindingUri()).path("upcheck").build().toURL();
+        final URL bindingUrl = UriBuilder.fromUri(config.getP2PServerConfig().getBindingUri()).path("upcheck").build().toURL();
 
-        CountDownLatch startUpLatch = new CountDownLatch(communicationType == CommunicationType.GRPC ? 2 : 1);
+        CountDownLatch startUpLatch = new CountDownLatch(1);
 
         if (communicationType == CommunicationType.GRPC) {
-            URL grpcUrl = UriBuilder.fromUri(config.getServerConfig().getBindingUri())
-                    .port(config.getServerConfig().getGrpcPort())
+            URL grpcUrl = UriBuilder.fromUri(config.getP2PServerConfig().getBindingUri())
                     .path("upcheck")
                     .build().toURL();
 
@@ -159,7 +156,7 @@ public class ProcessManager {
                     .forAddress(grpcUrl.getHost(), grpcUrl.getPort())
                     .usePlaintext()
                     .build();
-           
+
             executorService.submit(() -> {
 
                 while (true) {
@@ -180,32 +177,31 @@ public class ProcessManager {
                 }
 
             });
-        }
+        } else {
 
-        
-        
-        executorService.submit(() -> {
+            executorService.submit(() -> {
 
-            while (true) {
-                try {
-                    HttpURLConnection conn = (HttpURLConnection) bindingUrl.openConnection();
-                    conn.connect();
-
-                    System.out.println(bindingUrl + " started." + conn.getResponseCode());
-
-                    startUpLatch.countDown();
-                    return;
-                } catch (IOException ex) {
+                while (true) {
                     try {
-                        TimeUnit.MILLISECONDS.sleep(200L);
-                    } catch (InterruptedException ex1) {
+                        HttpURLConnection conn = (HttpURLConnection) bindingUrl.openConnection();
+                        conn.connect();
+
+                        System.out.println(bindingUrl + " started." + conn.getResponseCode());
+
+                        startUpLatch.countDown();
+                        return;
+                    } catch (IOException ex) {
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(200L);
+                        } catch (InterruptedException ex1) {
+                        }
                     }
                 }
-            }
 
-        });
-
-        boolean started = startUpLatch.await(2, TimeUnit.MINUTES);
+            });
+        }
+        
+        boolean started = startUpLatch.await(30, TimeUnit.SECONDS);
 
         if (!started) {
             System.err.println(bindingUrl + " Not started. ");
@@ -221,6 +217,8 @@ public class ProcessManager {
                 ex.printStackTrace();
             }
         });
+
+        startUpLatch.await(30, TimeUnit.SECONDS);
 
     }
 

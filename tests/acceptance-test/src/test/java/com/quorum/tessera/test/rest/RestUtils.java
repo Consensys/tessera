@@ -43,7 +43,7 @@ public class RestUtils {
             .map(Party::getPublicKey)
             .collect(Collectors.joining(","));
 
-        Invocation.Builder invocationBuilder = client.target(sender.getUri())
+        Invocation.Builder invocationBuilder = client.target(sender.getQ2TUri())
             .path("sendraw")
             .request()
             .header(SENDER, sender.getPublicKey());
@@ -61,7 +61,7 @@ public class RestUtils {
         String encodedId = urlEncode(transactionId);
 
         return Stream.of(party)
-            .map(p -> client.target(p.getUri()))
+            .map(p -> client.target(p.getQ2TUri()))
             .map(target -> target.path("transaction"))
             .map(target -> target.path(encodedId))
             .map(target -> target.request().get());
@@ -96,7 +96,7 @@ public class RestUtils {
         sendRequest.setTo(recipientArray);
         sendRequest.setPayload(transactionData);
 
-        final Response response = this.client.target(sender.getUri())
+        final Response response = this.client.target(sender.getQ2TUri())
             .path("send")
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -128,7 +128,7 @@ public class RestUtils {
         sendRequest.setTo(recipientArray);
         sendRequest.setPayload(transactionData);
 
-        return this.client.target(sender.getUri())
+        return this.client.target(sender.getQ2TUri())
             .path("send")
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -141,7 +141,7 @@ public class RestUtils {
 
     public Response receiveRaw(String transactionKey, Party party, Party... recipients) {
 
-        return client.target(party.getUri())
+        return client.target(party.getQ2TUri())
             .path("receiveraw")
             .request()
             .header(C11N_KEY, transactionKey)

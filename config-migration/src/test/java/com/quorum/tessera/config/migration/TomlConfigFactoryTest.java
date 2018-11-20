@@ -37,14 +37,14 @@ public class TomlConfigFactoryTest {
             Config result = tomlConfigFactory.create(configData, null).build();
             assertThat(result).isNotNull();
             assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("data", "myipcfile.ipc"));
-            assertThat(result.getServerConfig()).isNotNull();
-            assertThat(result.getServerConfig().getSslConfig()).isNotNull();
+            assertThat(result.getServer()).isNotNull();
+            assertThat(result.getServer().getSslConfig()).isNotNull();
 
-            SslConfig sslConfig = result.getServerConfig().getSslConfig();
+            SslConfig sslConfig = result.getServer().getSslConfig();
 
-            assertThat(result.getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
-            assertThat(result.getServerConfig().getPort()).isEqualTo(9001);
-            assertThat(result.getServerConfig().getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
+            assertThat(result.getServer().getHostName()).isEqualTo("http://127.0.0.1");
+            assertThat(result.getServer().getPort()).isEqualTo(9001);
+            assertThat(result.getServer().getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
 
             assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
@@ -61,7 +61,7 @@ public class TomlConfigFactoryTest {
 
         Config result = tomlConfigFactory.create(template, null).build();
 
-        assertThat(result.getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
+        assertThat(result.getServer().getHostName()).isEqualTo("http://127.0.0.1");
 
 
     }
@@ -88,10 +88,10 @@ public class TomlConfigFactoryTest {
             Config result = tomlConfigFactory.create(configData, null).build();
             assertThat(result).isNotNull();
             assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("data", "constellation.ipc"));
-            assertThat(result.getServerConfig()).isNotNull();
-            assertThat(result.getServerConfig().getSslConfig()).isNotNull();
+            assertThat(result.getServer()).isNotNull();
+            assertThat(result.getServer().getSslConfig()).isNotNull();
 
-            SslConfig sslConfig = result.getServerConfig().getSslConfig();
+            SslConfig sslConfig = result.getServer().getSslConfig();
 
             assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);

@@ -10,7 +10,12 @@
     <tx:annotation-driven transaction-manager="jpaTransactionManager"/>
 
     <context:component-scan base-package="com.quorum.tessera"/>
-    
+
+
+    <bean id="rawTransactionManager" class="com.quorum.tessera.transaction.RawTransactionManagerImpl">
+        <constructor-arg ref="enclave" />
+        <constructor-arg ref="encryptedRawTransactionDAO" />
+    </bean>
 
     <bean id="payloadPublisher" class="com.quorum.tessera.transaction.PayloadPublisherImpl">
         <constructor-arg ref="payloadEncoder" />
@@ -165,6 +170,7 @@
 
     <bean name="encryptedTransactionDAO" class="com.quorum.tessera.transaction.EncryptedTransactionDAOImpl"/>
 
+    <bean name="encryptedRawTransactionDAO" class="com.quorum.tessera.transaction.EncryptedRawTransactionDAOImpl"/>
 
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
         <property name="url" value="#{ config.getJdbcConfig().getUrl() }" />

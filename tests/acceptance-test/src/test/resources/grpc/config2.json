@@ -5,12 +5,28 @@
         "password": "",
         "url": "jdbc:h2:./target/h2/grpc2;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE;AUTO_SERVER_PORT=9091"
     },
-    "server": {
-        "port": 8081,
-        "grpcPort" : 50521,
-        "hostName": "http://localhost",
-        "communicationType" : "GRPC"
-    },
+    "serverConfigs":[
+        {
+            "app":"Q2T",
+            "enabled": true,
+            "serverSocket":{
+                "type":"INET",
+                "port": 51521,
+                "hostName": "http://localhost"
+            },
+            "communicationType" : "GRPC"
+        },
+        {
+            "app":"P2P",
+            "enabled": true,
+            "serverSocket":{
+                "type":"INET",
+                "port": 50521,
+                "hostName": "http://localhost"
+            },
+            "communicationType" : "GRPC"
+        }
+    ],
     "peer": [
         {
             "url": "http://localhost:50522"

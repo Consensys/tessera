@@ -1,7 +1,7 @@
 package com.quorum.tessera.config.builder;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.DeprecatedServerConfig;
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
@@ -38,7 +38,7 @@ public class ConfigBuilderTest {
         assertThat(keyData).isNotNull().extracting("privateKeyPath").containsExactly(Paths.get("private"));
         assertThat(keyData).isNotNull().extracting("publicKeyPath").containsExactly(Paths.get("public"));
 
-        final ServerConfig serverConfig = result.getServerConfig();
+        final DeprecatedServerConfig serverConfig = result.getServer();
         assertThat(serverConfig).isNotNull();
         assertThat(serverConfig.getPort()).isEqualTo(892);
         assertThat(serverConfig.getHostName()).isEqualTo("http://bogus.com");
@@ -62,7 +62,7 @@ public class ConfigBuilderTest {
     public void influxHostNameEmptyThenInfluxConfigIsNull() {
         final Config result = builderWithValidValues.build();
 
-        assertThat(result.getServerConfig().getInfluxConfig()).isNull();
+        assertThat(result.getServer().getInfluxConfig()).isNull();
     }
 
 
