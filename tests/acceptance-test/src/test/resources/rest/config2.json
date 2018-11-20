@@ -29,7 +29,7 @@
     ],
     "peer": [
         {
-            "url": "http://localhost:8082"
+            "url": "http://localhost:8082/"
         }
     ],
     "keys": {

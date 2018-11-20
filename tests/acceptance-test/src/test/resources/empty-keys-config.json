@@ -11,7 +11,7 @@
     },
     "peer": [
         {
-            "url": "http://localhost:8990"
+            "url": "http://localhost:8990/"
         }
     ],
     "keys": {
