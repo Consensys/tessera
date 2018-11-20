@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UnsupportedKeyPairTest {
 
-    UnsupportedKeyPair keyPair;
+    private UnsupportedKeyPair keyPair;
 
     @Before
     public void setUp() {
@@ -21,6 +21,11 @@ public class UnsupportedKeyPairTest {
         keyPair.withPassword("password");
 
         assertThat(keyPair.getPassword()).isNull();
+    }
+
+    @Test
+    public void getType() {
+        assertThat(keyPair.getType()).isEqualTo(KeyPairType.UNSUPPORTED);
     }
 
 }

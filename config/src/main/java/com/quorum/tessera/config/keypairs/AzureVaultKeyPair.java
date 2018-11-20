@@ -54,4 +54,8 @@ public class AzureVaultKeyPair implements ConfigKeyPair {
         return "";
     }
 
+    @Override
+    public KeyPairType getType() {
+        return KeyPairType.AZURE;
+    }
 }

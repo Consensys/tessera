@@ -62,6 +62,11 @@ public class FilesystemKeyPair implements ConfigKeyPair {
         return this.password;
     }
 
+    @Override
+    public KeyPairType getType() {
+        return KeyPairType.FILESYSTEM;
+    }
+
     public Path getPublicKeyPath() {
         return publicKeyPath;
     }

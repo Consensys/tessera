@@ -47,4 +47,9 @@ public class DirectKeyPair implements ConfigKeyPair {
         return "";
     }
 
+    @Override
+    public KeyPairType getType() {
+        return KeyPairType.DIRECT;
+    }
+
 }

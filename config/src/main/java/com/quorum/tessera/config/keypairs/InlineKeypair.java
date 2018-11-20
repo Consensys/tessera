@@ -71,4 +71,9 @@ public class InlineKeypair implements ConfigKeyPair {
         return this.password;
     }
 
+    @Override
+    public KeyPairType getType() {
+        return KeyPairType.INLINE;
+    }
+
 }

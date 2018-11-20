@@ -36,27 +36,29 @@ public class KeyPairConverter {
     }
 
     private KeyPair convert(ConfigKeyPair configKeyPair) {
-        String encodedPub;
-        String encodedPriv;
+        String base64PublicKey;
+        String base64PrivateKey;
 
-        if(configKeyPair instanceof AzureVaultKeyPair) {
+        if((KeyPairType.AZURE).equals(configKeyPair.getType())) {
+
             KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(KeyPairType.AZURE);
             KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, envProvider);
-            //TODO Move KeyVaultService to be a property of ConfigKeyPair, so configKeyPair.getPublicKey() can be used for all key types
-
             AzureVaultKeyPair akp = (AzureVaultKeyPair) configKeyPair;
-            encodedPub = keyVaultService.getSecret(akp.getPublicKeyId());
-            encodedPriv = keyVaultService.getSecret(akp.getPrivateKeyId());
-        }
-        else {
-            encodedPub = configKeyPair.getPublicKey();
-            encodedPriv = configKeyPair.getPrivateKey();
+
+            base64PublicKey = keyVaultService.getSecret(akp.getPublicKeyId());
+            base64PrivateKey = keyVaultService.getSecret(akp.getPrivateKeyId());
+
+        } else {
+
+            base64PublicKey = configKeyPair.getPublicKey();
+            base64PrivateKey = configKeyPair.getPrivateKey();
+
         }
 
         return new KeyPair(
-            PublicKey.from(Base64.getDecoder().decode(encodedPub.trim())),
-            PrivateKey.from(Base64.getDecoder().decode(encodedPriv.trim()))
+            PublicKey.from(Base64.getDecoder().decode(base64PublicKey.trim())),
+            PrivateKey.from(Base64.getDecoder().decode(base64PrivateKey.trim()))
         );
     }
-    
+
 }

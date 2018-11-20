@@ -19,7 +19,7 @@ public interface KeyVaultServiceFactory {
         return providers.stream()
             .filter(factory -> factory.getType() == keyPairType)
             .findFirst()
-            .orElseThrow(() -> new NoKeyVaultServiceFactoryException("No implementation of KeyVaultServiceFactory found"));
+            .orElseThrow(() -> new NoKeyVaultServiceFactoryException(keyPairType + " implementation of KeyVaultServiceFactory was not found on the classpath"));
     }
 
 }
