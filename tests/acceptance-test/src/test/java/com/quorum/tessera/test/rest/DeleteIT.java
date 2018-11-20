@@ -5,11 +5,12 @@ import org.junit.Test;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Base64;
 import com.quorum.tessera.test.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,7 +19,7 @@ public class DeleteIT {
     private final PartyHelper partyHelper = new RestPartyHelper();
 
     @Test
-    public void deleteTransactionThatExists() throws UnsupportedEncodingException {
+    public void deleteTransactionThatExists() throws Exception {
         //setup (sending in a tx)
 
         Party sender = partyHelper.getParties().findAny().get();
@@ -35,6 +36,15 @@ public class DeleteIT {
         final SendResponse sendResponse = response.readEntity(SendResponse.class);
 
         final String encodedHash = URLEncoder.encode(sendResponse.getKey(), UTF_8.toString());
+
+        try(PreparedStatement statement 
+                = sender.getDatabaseConnection().prepareStatement("select count(*) from ENCRYPTED_TRANSACTION where hash = ?")) {
+            statement.setBytes(1, Base64.getDecoder().decode(sendResponse.getKey()));
+            try(ResultSet rs = statement.executeQuery()) {
+                assertThat(rs.next()).isTrue();
+                assertThat(rs.getLong(1)).isEqualTo(1);
+            }
+        }
 
         Client client = RestUtils.buildClient();
         //delete it
