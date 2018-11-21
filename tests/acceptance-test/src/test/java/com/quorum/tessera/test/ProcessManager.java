@@ -10,6 +10,10 @@ import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.test.util.ElUtil;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.core.UriBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,21 +23,15 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
-import javax.ws.rs.core.UriBuilder;
 
 public class ProcessManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessManager.class);
 
     private final Map<String, Path> pids = new HashMap<>();
 
@@ -70,6 +68,9 @@ public class ProcessManager {
         for (String nodeAlias : nodeAliases) {
             start(nodeAlias);
         }
+        // sleep a little before starting the tests (give the party info a chance to propagate)
+        LOGGER.info("sleeping a little before allowing the tests to start (making sure the party info propagates in the cluster)");
+        Thread.sleep(5000);
     }
 
     public void stopNodes() throws Exception {

@@ -70,6 +70,45 @@ public class TransactionResource {
 
     }
 
+    @ApiOperation(value = "Send private raw transaction payload", produces = "Encrypted payload hash")
+    @ApiResponses({
+        @ApiResponse(code = 200, response = SendResponse.class, message = "Send response"),
+        @ApiResponse(code = 400, message = "For unknown and unknown keys")
+    })
+    @POST
+    @Path("sendsignedtx")
+    @Consumes(APPLICATION_OCTET_STREAM)
+    @Produces(TEXT_PLAIN)
+    public Response sendSignedTransaction(
+        @HeaderParam("c11n-to") final String recipientKeys,
+        @NotNull @Size(min = 1) final byte[] signedTransaction) throws UnsupportedEncodingException {
+
+        SendSignedRequest sendSignedRequest = new SendSignedRequest();
+
+        sendSignedRequest.setHash(signedTransaction);
+
+        Optional.ofNullable(recipientKeys)
+            .filter(s -> !Objects.equals("", s))
+            .map(v -> v.split(","))
+            .ifPresent(sendSignedRequest::setTo);
+
+        final SendResponse response = delegate.sendSignedTransaction(sendSignedRequest);
+
+        final String encodedKey = response.getKey();
+
+        LOGGER.debug("Encoded key: {}", encodedKey);
+
+        java.net.URI location = UriBuilder.fromPath("transaction")
+            .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8.toString()))
+            .build();
+
+        //TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
+        return Response.status(Status.OK)
+            .entity(encodedKey)
+            .location(location)
+            .build();
+    }
+
     @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
     @ApiResponses({
         @ApiResponse(code = 200, message = "Encoded Key", response = String.class),

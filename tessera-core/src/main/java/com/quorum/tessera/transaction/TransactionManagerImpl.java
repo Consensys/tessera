@@ -1,13 +1,6 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.api.model.DeleteRequest;
-import com.quorum.tessera.api.model.ReceiveRequest;
-import com.quorum.tessera.api.model.ReceiveResponse;
-import com.quorum.tessera.api.model.ResendRequest;
-import com.quorum.tessera.api.model.ResendRequestType;
-import com.quorum.tessera.api.model.ResendResponse;
-import com.quorum.tessera.api.model.SendRequest;
-import com.quorum.tessera.api.model.SendResponse;
+import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.enclave.model.MessageHashFactory;
 import com.quorum.tessera.encryption.Enclave;
@@ -16,6 +9,7 @@ import com.quorum.tessera.encryption.EncodedPayloadWithRecipients;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
+import com.quorum.tessera.transaction.model.EncryptedRawTransaction;
 import com.quorum.tessera.transaction.model.EncryptedTransaction;
 import com.quorum.tessera.util.Base64Decoder;
 import java.util.Collection;
@@ -47,6 +41,8 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final EncryptedTransactionDAO encryptedTransactionDAO;
 
+    private final EncryptedRawTransactionDAO encryptedRawTransactionDAO;
+
     private final PayloadPublisher payloadPublisher;
 
     private final Enclave enclave;
@@ -58,13 +54,15 @@ public class TransactionManagerImpl implements TransactionManager {
             PayloadEncoder payloadEncoder,
             EncryptedTransactionDAO encryptedTransactionDAO,
             PayloadPublisher payloadPublisher,
-            Enclave enclave) {
+            Enclave enclave,
+            EncryptedRawTransactionDAO encryptedRawTransactionDAO) {
 
         this.base64Decoder = Objects.requireNonNull(base64Decoder);
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
         this.encryptedTransactionDAO = Objects.requireNonNull(encryptedTransactionDAO);
         this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
         this.enclave = Objects.requireNonNull(enclave);
+        this.encryptedRawTransactionDAO = Objects.requireNonNull(encryptedRawTransactionDAO);
     }
 
     @Override
@@ -112,6 +110,46 @@ public class TransactionManagerImpl implements TransactionManager {
         recipientList.forEach(recipient -> payloadPublisher.publishPayload(encodedPayloadWithRecipients, recipient));
 
         final byte[] key = transactionHash.getHashBytes();
+
+        final String encodedKey = base64Decoder.encodeToString(key);
+
+        return new SendResponse(encodedKey);
+    }
+
+    @Override
+    public SendResponse sendSignedTransaction(SendSignedRequest sendRequest) {
+        final byte[][] recipients = Stream.of(sendRequest)
+            .filter(sr -> Objects.nonNull(sr.getTo()))
+            .flatMap(s -> Stream.of(s.getTo()))
+            .map(base64Decoder::decode)
+            .toArray(byte[][]::new);
+
+        final List<PublicKey> recipientList = Stream
+            .of(recipients)
+            .map(PublicKey::from)
+            .collect(Collectors.toList());
+
+        recipientList.addAll(enclave.getForwardingKeys());
+
+        MessageHash messageHash = new MessageHash(sendRequest.getHash());
+
+        EncryptedRawTransaction encryptedRawTransaction = encryptedRawTransactionDAO.retrieveByHash(messageHash)
+            .orElseThrow(() -> new TransactionNotFoundException("Raw Transaction with hash " + messageHash + " was not found"));
+
+        EncodedPayloadWithRecipients encodedPayloadWithRecipients
+            = enclave.encryptPayload(encryptedRawTransaction.toRawTransaction(), recipientList);
+
+
+        final EncryptedTransaction newTransaction = new EncryptedTransaction(
+            messageHash,
+            this.payloadEncoder.encode(encodedPayloadWithRecipients)
+        );
+
+        this.encryptedTransactionDAO.save(newTransaction);
+
+        recipientList.forEach(recipient -> payloadPublisher.publishPayload(encodedPayloadWithRecipients, recipient));
+
+        final byte[] key = messageHash.getHashBytes();
 
         final String encodedKey = base64Decoder.encodeToString(key);
 
