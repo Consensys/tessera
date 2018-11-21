@@ -55,7 +55,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.1</version>
+                    <version>0.8.2</version>
                 </plugin>
 
                 <plugin>
@@ -139,6 +139,13 @@
                         <artifactId>checkstyle</artifactId>
                         <version>8.14</version>
                     </dependency>
+                    
+		    <dependency>
+                        <groupId>com.github.sevntu-checkstyle</groupId>
+                        <artifactId>sevntu-checks</artifactId>
+                        <version>1.32.0</version>
+                    </dependency>
+                    
                 </dependencies>
             </plugin>
 
@@ -871,7 +878,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.1</version>
+                <version>0.8.2</version>
 
                 <reportSets>
                     <reportSet>

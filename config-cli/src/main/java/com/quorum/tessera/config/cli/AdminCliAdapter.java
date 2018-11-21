@@ -1,8 +1,6 @@
 package com.quorum.tessera.config.cli;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.cli.parsers.ConfigurationParser;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import java.net.URI;
@@ -78,24 +76,28 @@ public class AdminCliAdapter implements CliAdapter {
 
         Config config = new ConfigurationParser().parse(line);
 
-        Client restClient = clientFactory.buildFrom(config.getServerConfig());
+        //TODO revisit - maybe the admin stuff should be reached via unix socket - in order to avoid security concerns
+        ServerConfig serverConfig = config.getServerConfigs().stream()
+            .filter(c -> c.getApp() == AppType.P2P)
+            .findFirst().orElse(config.getServerConfigs().stream().findAny().get());
+
+        Client restClient = clientFactory.buildFrom(serverConfig);
 
         String peerUrl = line.getOptionValue("addpeer");
     
         final Peer peer = new Peer(peerUrl);
 
-        String scheme = Optional.of(config)
-                .map(Config::getServerConfig)
+        String scheme = Optional.of(serverConfig)
                 .map(ServerConfig::getBindingUri)
                 .map(URI::getScheme)
                 .orElse("http");
         
-        Integer port = Optional.of(config)
-                .map(Config::getServerConfig)
-                .map(ServerConfig::getPort)
+        Integer port = Optional.of(serverConfig)
+                .map(ServerConfig::getServerSocket)
+                .map(ss -> ((InetServerSocket)ss).getPort())
                 .orElse(80);
  
-        URI uri = UriBuilder.fromUri(config.getServerConfig().getBindingUri())
+        URI uri = UriBuilder.fromUri(serverConfig.getBindingUri())
                 .port(port)
                 .scheme(scheme)
                 .build();

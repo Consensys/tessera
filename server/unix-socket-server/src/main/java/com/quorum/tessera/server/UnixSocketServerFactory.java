@@ -1,7 +1,7 @@
 package com.quorum.tessera.server;
 
 import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ServerConfig;
 
 import javax.ws.rs.core.Application;
 import java.util.Set;
@@ -12,7 +12,7 @@ import java.util.Set;
 public class UnixSocketServerFactory implements TesseraServerFactory {
 
     @Override
-    public TesseraServer createServer(final Config config, final Set<Object> services) {
+    public TesseraServer createServer(final ServerConfig serverConfig, final Set<Object> services) {
 
         if (System.getProperty("spring.profiles.active", "").contains("disable-unixsocket")) {
             return null;
@@ -25,7 +25,7 @@ public class UnixSocketServerFactory implements TesseraServerFactory {
             .map(Application.class::cast)
             .get();
 
-        return new UnixSocketServer(config, application);
+        return new UnixSocketServer(serverConfig, application);
     }
 
     @Override

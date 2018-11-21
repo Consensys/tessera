@@ -2,10 +2,7 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.KeyConfigurationAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
-import com.quorum.tessera.config.constraints.ValidBase64;
-import com.quorum.tessera.config.constraints.ValidKeyConfiguration;
-import com.quorum.tessera.config.constraints.ValidKeyVaultConfiguration;
-import com.quorum.tessera.config.constraints.ValidPath;
+import com.quorum.tessera.config.constraints.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -13,29 +10,30 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(factoryMethod = "create")
+@ValidEitherServerConfigsOrServer
 public class Config extends ConfigItem {
 
     @NotNull
     @Valid
     @XmlElement(name = "jdbc", required = true)
-    private final JdbcConfig jdbcConfig;
+    private JdbcConfig jdbcConfig;
 
-    @NotNull
     @Valid
-    @XmlElement(name = "server", required = true)
-    private final ServerConfig serverConfig;
+    @ValidServerConfigs
+    @XmlElement(name = "serverConfigs", required = true)
+    private List<@Valid @ValidServerConfig ServerConfig> serverConfigs;
 
     @NotNull
     @Size(min = 1, message = "At least 1 peer must be provided")
     @Valid
     @XmlElement(name = "peer", required = true)
-    private final List<Peer> peers;
+    private List<Peer> peers;
 
     @Valid
     @NotNull
@@ -43,35 +41,37 @@ public class Config extends ConfigItem {
     @ValidKeyConfiguration
     @ValidKeyVaultConfiguration
     @XmlJavaTypeAdapter(KeyConfigurationAdapter.class)
-    private final KeyConfiguration keys;
-    
-    
+    private KeyConfiguration keys;
+
     @NotNull
     @XmlElement(name = "alwaysSendTo", required = true)
-    private final List<@ValidBase64 String> alwaysSendTo;
+    private List<@ValidBase64 String> alwaysSendTo;
 
     @ValidPath(checkCanCreate = true)
-    @NotNull
     @XmlElement(required = true, type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path unixSocketFile;
+    private Path unixSocketFile;
 
     @XmlAttribute
-    private final boolean useWhiteList;
+    private boolean useWhiteList;
 
     @XmlAttribute
-    private final boolean disablePeerDiscovery;
-    
+    private boolean disablePeerDiscovery;
+
+    @XmlElement
+    private DeprecatedServerConfig server;
+
+    @Deprecated
     public Config(final JdbcConfig jdbcConfig,
-                  final ServerConfig serverConfig,
-                  final List<Peer> peers,
-                  final KeyConfiguration keyConfiguration,
-                  final List<String> alwaysSendTo,
-                  final Path unixSocketFile,
-                  final boolean useWhiteList,
-                  final boolean disablePeerDiscovery) {
+        final List<ServerConfig> serverConfigs,
+        final List<Peer> peers,
+        final KeyConfiguration keyConfiguration,
+        final List<String> alwaysSendTo,
+        final Path unixSocketFile,
+        final boolean useWhiteList,
+        final boolean disablePeerDiscovery) {
         this.jdbcConfig = jdbcConfig;
-        this.serverConfig = serverConfig;
+        this.serverConfigs = serverConfigs;
         this.peers = peers;
         this.keys = keyConfiguration;
         this.alwaysSendTo = alwaysSendTo;
@@ -80,27 +80,37 @@ public class Config extends ConfigItem {
         this.disablePeerDiscovery = disablePeerDiscovery;
     }
 
-    private static Config create() {
-        return new Config();
-    }
+    public Config() {
 
-    private Config() {
-        this(null, null, null, null, null, null, false,false);
     }
 
     public JdbcConfig getJdbcConfig() {
         return this.jdbcConfig;
     }
 
-    public ServerConfig getServerConfig() {
-        return this.serverConfig;
+    
+    //TODO: Shouldn't need to laziely recalcuate on a getter
+    public List<ServerConfig> getServerConfigs() {
+        if (null != this.serverConfigs) {
+            return this.serverConfigs;
+        }
+        return DeprecatedServerConfig.from(server, unixSocketFile);
+
     }
 
+    public boolean isServerConfigsNull(){
+        return null == this.serverConfigs;
+    }
+
+    @Deprecated
     public Path getUnixSocketFile() {
-        return this.unixSocketFile;
+        return unixSocketFile;
     }
 
     public List<Peer> getPeers() {
+        if(peers == null) {
+            return null;
+        }
         return Collections.unmodifiableList(peers);
     }
 
@@ -119,10 +129,67 @@ public class Config extends ConfigItem {
     public boolean isDisablePeerDiscovery() {
         return disablePeerDiscovery;
     }
-    
+
     @XmlTransient
     public void addPeer(Peer peer) {
+        if(peers == null) {
+         this.peers = new ArrayList<>();
+        }
         this.peers.add(peer);
     }
 
+    public ServerConfig getP2PServerConfig() {
+        // TODO need to revisit
+        return getServerConfigs().stream().
+            filter(ServerConfig::isEnabled).
+            filter(sc -> sc.getApp() == AppType.P2P).
+            findFirst().orElse(null);
+    }
+    
+    @Deprecated
+    public DeprecatedServerConfig getServer() {
+        return server;
+    }
+    
+    @Deprecated
+    public void setServer(DeprecatedServerConfig server) {
+        this.server = server;
+    }
+
+    public void setJdbcConfig(JdbcConfig jdbcConfig) {
+        this.jdbcConfig = jdbcConfig;
+    }
+
+    public void setServerConfigs(List<ServerConfig> serverConfigs) {
+        this.serverConfigs = serverConfigs;
+    }
+
+    public void setPeers(List<Peer> peers) {
+        this.peers = peers;
+    }
+
+    public void setKeys(KeyConfiguration keys) {
+        this.keys = keys;
+    }
+
+    public void setAlwaysSendTo(List<String> alwaysSendTo) {
+        this.alwaysSendTo = alwaysSendTo;
+    }
+
+    @Deprecated
+    public void setUnixSocketFile(Path unixSocketFile) {
+        this.unixSocketFile = unixSocketFile;
+    }
+
+    public void setUseWhiteList(boolean useWhiteList) {
+        this.useWhiteList = useWhiteList;
+    }
+
+    public void setDisablePeerDiscovery(boolean disablePeerDiscovery) {
+        this.disablePeerDiscovery = disablePeerDiscovery;
+    }
+    
+    
+    
+    
 }

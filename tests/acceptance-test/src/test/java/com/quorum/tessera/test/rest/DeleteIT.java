@@ -48,7 +48,7 @@ public class DeleteIT {
 
         Client client = RestUtils.buildClient();
         //delete it
-        final Response resp = client.target(sender.getUri())
+        final Response resp = client.target(sender.getP2PUri())
                 .path("transaction")
                 .path(encodedHash)
                 .request()
@@ -69,7 +69,7 @@ public class DeleteIT {
 
         Party party = partyHelper.getParties().findAny().get();
 
-        final Response response = client.target(party.getUri())
+        final Response response = client.target(party.getP2PUri())
                 .path("transaction")
                 .path(madeupHash)
                 .request()

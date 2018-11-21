@@ -43,7 +43,7 @@ public class ReceiveIT {
         sendRequest.setTo(PTY2_KEY);
         sendRequest.setPayload(TXN_DATA);
         
-        final Response response = client.target(NODE1_URI)
+        final Response response = client.target(NODE1_Q2T_URI)
                 .path("/send")
                 .request()
                 .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -63,7 +63,7 @@ public class ReceiveIT {
     @Test
     public void fetchExistingTransactionUsingOwnKey() {
         
-        final Response response = client.target(NODE1_URI)
+        final Response response = client.target(NODE1_Q2T_URI)
                 .path(RECEIVE_PATH + "/" + this.encodedHash)
                 .request()
                 .buildGet()
@@ -84,7 +84,7 @@ public class ReceiveIT {
     @Test
     public void fetchExistingTransactionUsingRecipientKey() throws Exception {
         
-        final Response response = client.target(NODE1_URI)
+        final Response response = client.target(NODE1_Q2T_URI)
                 .path(RECEIVE_PATH)
                 .path(encodedHash)
                 .request()
@@ -105,7 +105,7 @@ public class ReceiveIT {
     @Test
     public void fetchExistingTransactionNotUsingKey() throws UnsupportedEncodingException {
         
-        final Response response = client.target(NODE1_URI)
+        final Response response = client.target(NODE1_Q2T_URI)
                 .path(RECEIVE_PATH)
                 .path(encodedHash)
                 .request()
@@ -126,7 +126,7 @@ public class ReceiveIT {
     @Test
     public void fetchNonexistantTransactionFails() {
         
-        final Response response = client.target(NODE1_URI)
+        final Response response = client.target(NODE1_Q2T_URI)
                 .path(RECEIVE_PATH)
                 .path("invalidhashvalue")
                 .request()

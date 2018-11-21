@@ -116,10 +116,10 @@ public class PartyInfoGrpcIT {
             new Recipient(PublicKey.from(Base64.decode("Tj8xg/HpsYmh7Te3UerzlLx1HgpWVOGq25ZgbwaPNVM=")),"http://localhost:50523/")
             );
         assertThat(partyInfo.getParties()).containsExactlyInAnyOrder(
-            new Party("http://localhost:50520"),
-            new Party("http://localhost:50521"),
-            new Party("http://localhost:50522"),
-            new Party("http://localhost:50523")
+            new Party("http://localhost:50520/"),
+            new Party("http://localhost:50521/"),
+            new Party("http://localhost:50522/"),
+            new Party("http://localhost:50523/")
             );
     }
 

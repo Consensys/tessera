@@ -253,8 +253,16 @@ public class ConfigBuilder {
                 toPath(workDir, sslClientTlsCertificatePath)
         );
 
-        final ServerConfig serverConfig = new ServerConfig(serverHostname, serverPort, 50521, CommunicationType.REST, sslConfig, null, null);
 
+
+        //TODO must add P2P and Q2T server configs. Maybe ThirdParty too - in disabled state.
+        //serverHostname, serverPort, 50521, CommunicationType.REST, sslConfig, null, null, null
+        final DeprecatedServerConfig serverConfig = new DeprecatedServerConfig();
+        serverConfig.setPort(serverPort);
+        serverConfig.setHostName(serverHostname);
+        serverConfig.setCommunicationType(CommunicationType.REST);
+        serverConfig.setSslConfig(sslConfig);
+        
         final List<Peer> peerList;
         if(peers != null) {
             peerList = peers.stream()
@@ -284,7 +292,16 @@ public class ConfigBuilder {
             forwardingKeys = Collections.emptyList();
         }
 
-        return new Config(jdbcConfig, serverConfig, peerList, keyData, forwardingKeys, toPath(workDir, unixSocketFile), useWhiteList,false);
+        Config config = new Config();
+        config.setServer(serverConfig);
+        config.setJdbcConfig(jdbcConfig);
+        config.setPeers(peerList);
+        config.setAlwaysSendTo(forwardingKeys);
+        config.setUnixSocketFile(toPath(workDir, unixSocketFile));
+        config.setUseWhiteList(useWhiteList);
+        config.setKeys(keyData);
+        config.setDisablePeerDiscovery(false);
+        return config;
     }
 
 }

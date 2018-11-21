@@ -4,7 +4,6 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.reflect.ReflectCallback;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -274,11 +273,9 @@ public interface OverrideUtil {
         }
 
         return ReflectCallback.execute(() -> {
-            Method factoryMethod = type.getDeclaredMethod("create");
-            factoryMethod.setAccessible(true);
-            final Object instance = factoryMethod.invoke(null);
+            final T instance = type.newInstance();
             initialiseNestedObjects(instance);
-            return (T) instance;
+            return instance;
         });
 
     }

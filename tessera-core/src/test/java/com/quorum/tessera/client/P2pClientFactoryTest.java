@@ -17,7 +17,7 @@ public class P2pClientFactoryTest {
         Config config = mock(Config.class);
         ServerConfig serverConfig = mock(ServerConfig.class);
         when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
-        when(config.getServerConfig()).thenReturn(serverConfig);
+        when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
         P2pClientFactory factory = P2pClientFactory.newFactory(config);
 
@@ -31,7 +31,7 @@ public class P2pClientFactoryTest {
         Config config = mock(Config.class);
         ServerConfig serverConfig = mock(ServerConfig.class);
         when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.GRPC);
-        when(config.getServerConfig()).thenReturn(serverConfig);
+        when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
         P2pClientFactory.newFactory(config);
 
@@ -42,7 +42,7 @@ public class P2pClientFactoryTest {
 
         Config config = mock(Config.class);
         ServerConfig serverConfig = mock(ServerConfig.class);
-        when(config.getServerConfig()).thenReturn(serverConfig);
+        when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
         P2pClientFactory.newFactory(config);
 

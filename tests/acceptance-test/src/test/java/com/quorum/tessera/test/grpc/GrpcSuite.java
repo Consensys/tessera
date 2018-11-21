@@ -11,7 +11,9 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     SendGrpcIT.class,
-    TesseraGrpcIT.class,CucumberGprcIT.class
+    PartyInfoGrpcIT.class,
+    TesseraGrpcIT.class,
+    CucumberGprcIT.class
 })
 public class GrpcSuite {
     

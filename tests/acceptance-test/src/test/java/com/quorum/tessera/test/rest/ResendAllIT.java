@@ -19,9 +19,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResendAllIT {
 
-    private static final URI PRIMARY_SERVER_URI = NODE1_URI;
+    private static final URI PRIMARY_SERVER_Q2T_URI = NODE1_Q2T_URI;
+    private static final URI PRIMARY_SERVER_P2P_URI = NODE1_P2P_URI;
 
-    private static final URI SECONDARY_SERVER_URI = NODE2_URI;
+    private static final URI SECONDARY_SERVER_Q2T_URI = NODE2_Q2T_URI;
+    private static final URI SECONDARY_SERVER_P2P_URI = NODE2_P2P_URI;
 
     private final Client client = ClientBuilder.newClient();
 
@@ -32,7 +34,7 @@ public class ResendAllIT {
     public void resendTransactionsForGivenKey() throws UnsupportedEncodingException {
         //setup (sending in a tx)
 
-        Response sendRawResponse = client.target(PRIMARY_SERVER_URI)
+        Response sendRawResponse = client.target(PRIMARY_SERVER_Q2T_URI)
                 .path("/sendraw")
                 .request()
                 .header("c11n-from", PTY1_KEY)
@@ -54,7 +56,7 @@ public class ResendAllIT {
         assertThat(deleteReq.getStatus()).isEqualTo(204);
 
         //check it is deleted
-        final Response deleteCheck = client.target(PRIMARY_SERVER_URI)
+        final Response deleteCheck = client.target(PRIMARY_SERVER_Q2T_URI)
                 .path("transaction")
                 .path(encodedHash)
                 .request()
@@ -68,7 +70,7 @@ public class ResendAllIT {
         req.setType(ResendRequestType.ALL);
         req.setPublicKey(PTY2_KEY);
 
-        final Response resendRequest = client.target(PRIMARY_SERVER_URI)
+        final Response resendRequest = client.target(PRIMARY_SERVER_P2P_URI)
                 .path(RESEND_PATH)
                 .request()
                 .buildPost(Entity.entity(req, MediaType.APPLICATION_JSON_TYPE))
@@ -78,7 +80,7 @@ public class ResendAllIT {
         assertThat(resendRequest.getStatus()).isEqualTo(200);
 
         //and fetch the transaction to make sure it is there
-        final Response resendCheck = client.target(SECONDARY_SERVER_URI)
+        final Response resendCheck = client.target(SECONDARY_SERVER_Q2T_URI)
                 .path("transaction")
                 .path(encodedHash)
                 .request()
@@ -96,7 +98,7 @@ public class ResendAllIT {
         req.setType(ResendRequestType.ALL);
         req.setPublicKey("rUSW9gnm2Unm5ECvEfuU10LX7KYsN59Flw7m7iu6wEo=");
 
-        final Response resendRequest = client.target(PRIMARY_SERVER_URI)
+        final Response resendRequest = client.target(PRIMARY_SERVER_P2P_URI)
                 .path(RESEND_PATH)
                 .request()
                 .buildPost(Entity.entity(req, MediaType.APPLICATION_JSON_TYPE))
@@ -113,7 +115,7 @@ public class ResendAllIT {
         req.setType(ResendRequestType.ALL);
         req.setPublicKey("rUSW9gnm2Unm5ECvEfuU&&&&&&&&59Flw7m7iu6wEo=");
 
-        final Response resendRequest = client.target(PRIMARY_SERVER_URI)
+        final Response resendRequest = client.target(PRIMARY_SERVER_P2P_URI)
                 .path(RESEND_PATH)
                 .request()
                 .buildPost(Entity.entity(req, MediaType.APPLICATION_JSON_TYPE))

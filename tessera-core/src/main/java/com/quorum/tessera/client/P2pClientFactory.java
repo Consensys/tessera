@@ -20,7 +20,7 @@ public interface P2pClientFactory {
         List<P2pClientFactory> all = new ArrayList<>();
         ServiceLoader.load(P2pClientFactory.class).forEach(all::add);
         return all.stream()
-                .filter(c -> c.communicationType() == config.getServerConfig().getCommunicationType())
+                .filter(c -> c.communicationType() == config.getP2PServerConfig().getCommunicationType())
                 .findFirst().get();
     }
     

@@ -120,7 +120,7 @@ public class SendRawIT {
     @Test
     public void sendTransactionWithoutASender() {
 
-        URI uriToSendToWithoutPublicKey = partyHelper.findByAlias("A").getUri();
+        URI uriToSendToWithoutPublicKey = partyHelper.findByAlias("A").getQ2TUri();
         Party recipient = partyHelper.findByAlias("D");
 
         byte[] transactionData = restUtils.createTransactionData();
@@ -222,7 +222,7 @@ public class SendRawIT {
     @Test
     public void missingPayloadFails() {
 
-        final Response response = client.target(NODE1_URI)
+        final Response response = client.target(NODE1_Q2T_URI)
             .path(SEND_PATH)
             .request()
             .header(SENDER, PTY1_KEY)
@@ -240,7 +240,7 @@ public class SendRawIT {
     @Test
     public void sendUnknownPublicKey() {
 
-        final Response response = client.target(NODE1_URI)
+        final Response response = client.target(NODE1_Q2T_URI)
             .path(SEND_PATH)
             .request()
             .header(SENDER, PTY1_KEY)

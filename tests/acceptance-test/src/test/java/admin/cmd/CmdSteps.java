@@ -29,7 +29,7 @@ public class CmdSteps implements En {
 
         Given("any node is running", () -> {
             assertThat(Stream.of(subjectNode)
-                .map(Party::getUri)
+                .map(Party::getP2PUri)
                 .map(client::target)
                 .map(t -> t.path("upcheck"))
                 .map(WebTarget::request)
@@ -47,7 +47,7 @@ public class CmdSteps implements En {
         Then("a peer is added to party", () -> {
 
             Response response = Stream.of(subjectNode)
-                .map(Party::getUri)
+                .map(Party::getP2PUri)
                 .map(client::target)
                 .map(t -> t.path("config"))
                 .map(t -> t.path("peers"))
