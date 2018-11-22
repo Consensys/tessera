@@ -2,13 +2,15 @@ package com.quorum.tessera.config.cli.parsers;
 
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.KeyVaultConfig;
+import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.key.generation.KeyGeneratorFactory;
-import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import org.apache.commons.cli.CommandLine;
 
+import javax.validation.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -16,6 +18,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,6 +27,12 @@ import static java.util.Collections.singletonList;
 public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
 
     private final KeyGeneratorFactory factory = KeyGeneratorFactory.newFactory();
+
+    private final Validator validator = Validation.byDefaultProvider()
+        .configure()
+        .ignoreXmlConfiguration()
+        .buildValidatorFactory()
+        .getValidator();
 
     public List<ConfigKeyPair> parse(final CommandLine commandLine) throws IOException {
 
@@ -73,12 +82,30 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
     }
 
     private Optional<KeyVaultConfig> keyVaultConfig(CommandLine commandLine) {
-        if(commandLine.hasOption("keygenvaulturl")) {
-            final String vaultUrl = commandLine.getOptionValue("keygenvaulturl");
-
-            return Optional.of(new KeyVaultConfig(vaultUrl));
+        if(!commandLine.hasOption("keygenvaulttype") && !commandLine.hasOption("keygenvaulturl")) {
+            return Optional.empty();
         }
-        return Optional.empty();
+
+        String t = commandLine.getOptionValue("keygenvaulttype");
+        KeyVaultType keyVaultType;
+        try {
+            keyVaultType = KeyVaultType.valueOf(t);
+        } catch(IllegalArgumentException | NullPointerException e) {
+            //catch so validation exception thrown later if type not known
+            keyVaultType = null;
+        }
+
+        String keyVaultUrl = commandLine.getOptionValue("keygenvaulturl");
+
+        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(keyVaultType, keyVaultUrl);
+
+        Set<ConstraintViolation<KeyVaultConfig>> violations = validator.validate(keyVaultConfig);
+
+        if(!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+
+        return Optional.of(keyVaultConfig);
     }
 
 }

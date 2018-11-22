@@ -12,19 +12,29 @@ import javax.xml.bind.annotation.XmlType;
 public class KeyVaultConfig extends ConfigItem {
 
     @Valid
+    @NotNull(message = "{KeyVaultConfig.typeCannotBeNull.message}")
+    @XmlAttribute
+    private final KeyVaultType vaultType;
+
+    @Valid
     @NotNull
     @XmlAttribute
     private final String url;
 
-    public KeyVaultConfig(String url) {
+    public KeyVaultConfig(KeyVaultType vaultType, String url) {
+        this.vaultType = vaultType;
         this.url = url;
     }
 
     private static KeyVaultConfig create() {
-        return new KeyVaultConfig(null);
+        return new KeyVaultConfig(null, null);
+    }
+
+    public KeyVaultType getVaultType() {
+        return vaultType;
     }
 
     public String getUrl() {
-        return this.url;
+        return url;
     }
 }

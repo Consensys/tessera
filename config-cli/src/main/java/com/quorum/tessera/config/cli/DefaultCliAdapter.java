@@ -163,8 +163,17 @@ public class DefaultCliAdapter implements CliAdapter {
                 .build());
 
         options.addOption(
+            Option.builder("keygenvaulttype")
+                .desc("Type of key vault the generated key is to be saved in")
+                .hasArg()
+                .optionalArg(false)
+                .argName("KEYVAULTTYPE")
+                .build()
+        );
+
+        options.addOption(
             Option.builder("keygenvaulturl")
-                .desc("Base url for Azure Key Vault")
+                .desc("Base url for key vault")
                 .hasArg()
                 .optionalArg(false)
                 .argName("STRING")

@@ -3,9 +3,9 @@ package com.quorum.tessera.config.cli;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
-import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.config.keys.MockKeyGeneratorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.test.util.ElUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -20,12 +20,12 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 import static com.quorum.tessera.test.util.ElUtil.createAndPopulatePaths;
-import java.util.Arrays;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -393,7 +393,7 @@ public class DefaultCliAdapterTest {
         final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         final String vaultUrl = "https://test.vault.azure.net";
 
-        final CliResult cliResult = cliDelegate.execute("-keygen", "-keygenvaulturl", vaultUrl, "-configfile", configFile.toString());
+        final CliResult cliResult = cliDelegate.execute("-keygen", "-keygenvaulttype", "AZURE", "-keygenvaulturl", vaultUrl, "-configfile", configFile.toString());
 
         assertThat(cliResult.isSuppressStartup()).isTrue();
     }

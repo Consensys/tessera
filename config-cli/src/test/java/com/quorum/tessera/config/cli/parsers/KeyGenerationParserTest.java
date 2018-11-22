@@ -8,12 +8,16 @@ import org.apache.commons.cli.CommandLine;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -21,11 +25,12 @@ public class KeyGenerationParserTest {
 
     private KeyGenerationParser parser = new KeyGenerationParser();
 
+    private CommandLine commandLine = mock(CommandLine.class);
+
     @Test
     public void notProvidingArgonOptionsGivesNull() throws Exception {
         final Path keyLocation = Files.createTempFile(UUID.randomUUID().toString(), "");
 
-        final CommandLine commandLine = mock(CommandLine.class);
         when(commandLine.hasOption("keygen")).thenReturn(true);
         when(commandLine.hasOption("filename")).thenReturn(true);
         when(commandLine.getOptionValue("filename")).thenReturn(keyLocation.toString());
@@ -52,7 +57,6 @@ public class KeyGenerationParserTest {
 
         final Path keyLocation = Files.createTempFile(UUID.randomUUID().toString(), "");
 
-        final CommandLine commandLine = mock(CommandLine.class);
         when(commandLine.hasOption("keygen")).thenReturn(true);
         when(commandLine.hasOption("filename")).thenReturn(true);
         when(commandLine.getOptionValue("filename")).thenReturn(keyLocation.toString());
@@ -78,7 +82,6 @@ public class KeyGenerationParserTest {
     @Test
     public void keygenWithNoName() throws Exception {
 
-        final CommandLine commandLine = mock(CommandLine.class);
         when(commandLine.hasOption("keygen")).thenReturn(true);
         when(commandLine.hasOption("filename")).thenReturn(false);
         when(commandLine.hasOption("keygenconfig")).thenReturn(false);
@@ -94,7 +97,6 @@ public class KeyGenerationParserTest {
     @Test
     public void keygenNotGivenReturnsEmptyList() throws Exception {
 
-        final CommandLine commandLine = mock(CommandLine.class);
         when(commandLine.hasOption("keygen")).thenReturn(false);
         when(commandLine.hasOption("filename")).thenReturn(false);
         when(commandLine.hasOption("keygenconfig")).thenReturn(false);
@@ -108,23 +110,97 @@ public class KeyGenerationParserTest {
     }
 
     @Test
-    public void vaultUrlOptionIsChecked() throws Exception {
-        final CommandLine commandLine = mock(CommandLine.class);
-        when(commandLine.hasOption("keygenvaulturl")).thenReturn(true);
-
-        this.parser.parse(commandLine);
-
-        verify(commandLine).getOptionValue("keygenvaulturl");
-    }
-
-    @Test
-    public void noVaultUrlOptionDoesNotThrowException() throws Exception {
-        final CommandLine commandLine = mock(CommandLine.class);
+    public void vaultOptionsNotUsedIfNoneProvided() throws Exception {
+        when(commandLine.hasOption("keygenvaulttype")).thenReturn(false);
         when(commandLine.hasOption("keygenvaulturl")).thenReturn(false);
 
         this.parser.parse(commandLine);
 
+        verify(commandLine, times(0)).getOptionValue("keygenvaulttype");
         verify(commandLine, times(0)).getOptionValue("keygenvaulturl");
+    }
+
+    @Test
+    public void ifAllVaultOptionsProvidedAndValidThenOkay() throws Exception {
+        when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
+        when(commandLine.hasOption("keygenvaulturl")).thenReturn(true);
+        when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("someurl");
+        when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("AZURE");
+
+        this.parser.parse(commandLine);
+
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
+    }
+
+    @Test
+    public void ifOnlyValidVaultTypeOptionProvidedThenValidationException()  {
+        when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
+        when(commandLine.hasOption("keygenvaulturl")).thenReturn(false);
+        when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("AZURE");
+
+        Throwable ex = catchThrowable(() -> this.parser.parse(commandLine));
+
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
+
+        assertThat(ex).isInstanceOf(ConstraintViolationException.class);
+
+        Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
+
+        assertThat(violations.size()).isEqualTo(1);
+
+        ConstraintViolation violation = violations.iterator().next();
+
+        assertThat(violation.getPropertyPath().toString()).isEqualTo("url");
+        assertThat(violation.getMessage()).isEqualTo("may not be null");
+    }
+
+    @Test
+    public void ifOnlyVaultUrlOptionProvidedThenValidationException() {
+        when(commandLine.hasOption("keygenvaulttype")).thenReturn(false);
+        when(commandLine.hasOption("keygenvaulturl")).thenReturn(true);
+        when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("someurl");
+
+        Throwable ex = catchThrowable(() -> this.parser.parse(commandLine));
+
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
+
+        assertThat(ex).isInstanceOf(ConstraintViolationException.class);
+
+        Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
+
+        assertThat(violations.size()).isEqualTo(1);
+
+        ConstraintViolation violation = violations.iterator().next();
+
+        assertThat(violation.getPropertyPath().toString()).isEqualTo("vaultType");
+        assertThat(violation.getMessageTemplate()).isEqualTo("{KeyVaultConfig.typeCannotBeNull.message}");
+    }
+
+    @Test
+    public void ifAllVaultOptionsProvidedButTypeUnknownThenValidationException() {
+        when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
+        when(commandLine.hasOption("keygenvaulturl")).thenReturn(true);
+        when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("someurl");
+        when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("unknown");
+
+        Throwable ex = catchThrowable(() -> this.parser.parse(commandLine));
+
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
+
+        assertThat(ex).isInstanceOf(ConstraintViolationException.class);
+
+        Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
+
+        assertThat(violations.size()).isEqualTo(1);
+
+        ConstraintViolation violation = violations.iterator().next();
+
+        assertThat(violation.getPropertyPath().toString()).isEqualTo("vaultType");
+        assertThat(violation.getMessageTemplate()).isEqualTo("{KeyVaultConfig.typeCannotBeNull.message}");
     }
 
 }

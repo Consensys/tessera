@@ -303,8 +303,19 @@ public class ValidationTest {
     }
 
     @Test
+    public void keyVaultConfigWithUnknownTypeCreatesNullViolation() {
+        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null, "someurl");
+
+        Set<ConstraintViolation<KeyVaultConfig>> violations = validator.validate(keyVaultConfig);
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<KeyVaultConfig> violation = violations.iterator().next();
+        assertThat(violation.getMessageTemplate()).isEqualTo("{KeyVaultConfig.typeCannotBeNull.message}");
+    }
+
+    @Test
     public void keyVaultConfigWithNoUrlCreatesNullViolation() {
-        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null);
+        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(KeyVaultType.AZURE, null);
 
         Set<ConstraintViolation<KeyVaultConfig>> violations = validator.validate(keyVaultConfig);
         assertThat(violations).hasSize(1);
@@ -316,7 +327,7 @@ public class ValidationTest {
     @Test
     public void vaultKeyPairProvidedButKeyVaultConfigHasNullUrlCreatesNullViolation() {
         AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pubId", "privId");
-        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null);
+        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(KeyVaultType.AZURE, null);
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), keyVaultConfig);
 
         Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
@@ -325,5 +336,19 @@ public class ValidationTest {
         ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
         assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
         assertThat(violation.getPropertyPath().toString()).isEqualTo("keyVaultConfig.url");
+    }
+
+    @Test
+    public void vaultKeyPairProvidedButKeyVaultConfigHasNullTypeCreatesNullViolation() {
+        AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pubId", "privId");
+        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null, "someurl");
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), keyVaultConfig);
+
+        Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
+        assertThat(violations).hasSize(1);
+
+        ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
+        assertThat(violation.getMessageTemplate()).isEqualTo("{KeyVaultConfig.typeCannotBeNull.message}");
+        assertThat(violation.getPropertyPath().toString()).isEqualTo("keyVaultConfig.vaultType");
     }
 }

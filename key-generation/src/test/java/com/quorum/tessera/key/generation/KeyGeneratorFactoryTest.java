@@ -23,7 +23,7 @@ public class KeyGeneratorFactoryTest {
 
     @Test
     public void vaultKeyGeneratorWhenKeyVaultConfigProvided() {
-        final KeyVaultConfig keyVaultConfig = new KeyVaultConfig("url");
+        final KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null, "url");
         final EnvironmentVariableProvider envProvider = mock(EnvironmentVariableProvider.class);
         when(envProvider.getEnv(anyString())).thenReturn("env");
 

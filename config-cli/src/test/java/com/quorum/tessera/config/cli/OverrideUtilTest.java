@@ -76,6 +76,7 @@ public class OverrideUtilTest {
 //                "keys.keyData.publicKey",
                 "keys.keyData.privateKeyPath",
 //                "keys.keyData.publicKeyPath",
+                "keys.keyVaultConfig.vaultType",
                 "keys.keyVaultConfig.url",
                 "alwaysSendTo",
                 "unixSocketFile",
