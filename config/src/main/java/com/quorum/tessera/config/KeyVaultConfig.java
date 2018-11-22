@@ -39,8 +39,8 @@ public class KeyVaultConfig extends ConfigItem {
         this.url = url;
     }
 
-    public KeyVaultType setKeyVaultType(KeyVaultType keyVaultType) {
-        this.vaultType = keyVaultType
+    public void setKeyVaultType(KeyVaultType keyVaultType) {
+        this.vaultType = keyVaultType;
     }
 
 
