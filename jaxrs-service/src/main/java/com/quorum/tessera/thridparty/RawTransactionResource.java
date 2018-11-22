@@ -24,7 +24,7 @@ import static javax.ws.rs.core.MediaType.*;
  * Provides endpoints for dealing with raw transactions
  */
 @Logged
-@Path("/raw")
+@Path("/")
 public class RawTransactionResource implements ThirdPartyApp {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RawTransactionResource.class);
@@ -41,7 +41,7 @@ public class RawTransactionResource implements ThirdPartyApp {
         @ApiResponse(code = 400, message = "For unknown sender")
     })
     @POST
-    @Path("store")
+    @Path("storeraw")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     public Response store(

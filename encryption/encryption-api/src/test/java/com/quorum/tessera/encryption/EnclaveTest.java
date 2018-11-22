@@ -195,6 +195,58 @@ public class EnclaveTest {
         verify(keyManager).getPrivateKeyForPublicKey(senderPublicKey);
     }
 
+    @Test
+    public void encryptPayloadRawTransaction() {
+
+        byte[] message = "MESSAGE".getBytes();
+
+        byte[] masterKeyBytes = "masterKeyBytes".getBytes();
+        MasterKey masterKey = MasterKey.from(masterKeyBytes);
+        PublicKey senderPublicKey = PublicKey.from("SENDER".getBytes());
+        PrivateKey senderPrivateKey = mock(PrivateKey.class);
+
+        PublicKey recipientPublicKey = PublicKey.from("RECIPIENT".getBytes());
+        Nonce cipherNonce = new Nonce("NONCE".getBytes());
+        byte[] cipherText = "cipherText".getBytes();
+        byte[] encryptedKeyBytes = "ENCRYPTED_KEY".getBytes();
+
+        RawTransaction rawTransaction = new RawTransaction(cipherText, encryptedKeyBytes, cipherNonce, senderPublicKey);
+
+        Nonce recipientNonce = mock(Nonce.class);
+
+        when(keyManager.getPrivateKeyForPublicKey(senderPublicKey)).thenReturn(senderPrivateKey);
+
+        SharedKey sharedKeyForSender = mock(SharedKey.class);
+        when(nacl.computeSharedKey(senderPublicKey, senderPrivateKey)).thenReturn(sharedKeyForSender);
+
+        when(nacl.openAfterPrecomputation(encryptedKeyBytes, cipherNonce, sharedKeyForSender)).thenReturn(masterKeyBytes);
+
+        when(nacl.randomNonce()).thenReturn(recipientNonce);
+
+        when(nacl.sealAfterPrecomputation(message, cipherNonce, masterKey)).thenReturn(cipherText);
+
+        SharedKey sharedKey = mock(SharedKey.class);
+        when(nacl.computeSharedKey(recipientPublicKey, senderPrivateKey)).thenReturn(sharedKey);
+
+        byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
+        when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey)).thenReturn(encryptedMasterKeys);
+
+        EncodedPayloadWithRecipients result = enclave.encryptPayload(rawTransaction, Arrays.asList(recipientPublicKey));
+
+        assertThat(result).isNotNull();
+        assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
+        assertThat(result.getEncodedPayload().getCipherText()).isEqualTo(cipherText);
+        assertThat(result.getEncodedPayload().getCipherTextNonce()).isEqualTo(cipherNonce);
+        assertThat(result.getEncodedPayload().getSenderKey()).isEqualTo(senderPublicKey);
+        assertThat(result.getEncodedPayload().getRecipientBoxes()).containsExactly(encryptedMasterKeys);
+
+        verify(nacl).randomNonce();
+        verify(nacl).openAfterPrecomputation(encryptedKeyBytes, cipherNonce, sharedKeyForSender);
+        verify(nacl).sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey);
+        verify(nacl).computeSharedKey(recipientPublicKey, senderPrivateKey);
+        verify(nacl).computeSharedKey(senderPublicKey, senderPrivateKey);
+        verify(keyManager, times(2)).getPrivateKeyForPublicKey(senderPublicKey);
+    }
 
     @Test
     public void encryptRawPayload() {

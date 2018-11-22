@@ -1,6 +1,9 @@
 package com.quorum.tessera.transaction.model;
 
 import com.quorum.tessera.enclave.model.MessageHash;
+import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.encryption.RawTransaction;
+import com.quorum.tessera.nacl.Nonce;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -113,5 +116,8 @@ public class EncryptedRawTransaction implements Serializable {
             Objects.equals(this.hash, ((EncryptedRawTransaction) obj).hash);
     }
 
+    public RawTransaction toRawTransaction(){
+        return new RawTransaction(this.encryptedPayload, this.encryptedKey, new Nonce(this.nonce), PublicKey.from(this.sender));
+    }
 
 }
