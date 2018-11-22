@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.quorum.tessera</groupId>
+  <artifactId>tessera-app</artifactId>
+  <versioning>
+    <versions>
+      <version>0.7.4-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20181122101712</lastUpdated>
+  </versioning>
+</metadata>

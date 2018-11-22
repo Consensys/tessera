@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>com.quorum.tessera</groupId>
+  <artifactId>tessera-app</artifactId>
+  <version>0.7.4-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <timestamp>20181122.101712</timestamp>
+      <buildNumber>1</buildNumber>
+    </snapshot>
+    <lastUpdated>20181122101712</lastUpdated>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>jar</extension>
+        <value>0.7.4-20181122.101712-1</value>
+        <updated>20181122101712</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>0.7.4-20181122.101712-1</value>
+        <updated>20181122101712</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+</metadata>
