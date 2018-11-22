@@ -20,6 +20,12 @@
         <value>0.7.4-20181122.101712-1</value>
         <updated>20181122101712</updated>
       </snapshotVersion>
+      <snapshotVersion>
+        <classifier>app</classifier>
+        <extension>jar</extension>
+        <value>0.7.4-20181122.101712-1</value>
+        <updated>20181122101712</updated>
+      </snapshotVersion>
     </snapshotVersions>
   </versioning>
 </metadata>
