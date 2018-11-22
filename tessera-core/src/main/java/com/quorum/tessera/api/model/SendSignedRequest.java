@@ -18,7 +18,7 @@ public class SendSignedRequest {
     @XmlMimeType("base64Binary")
     @Size(min = 1)
     @NotNull
-    @ApiModelProperty("Encrypted payload to send to other parties.")
+    @ApiModelProperty("The hash of the stored payload to send to other parties.")
     private byte[] hash;
 
     @ApiModelProperty("Recipient public keys")

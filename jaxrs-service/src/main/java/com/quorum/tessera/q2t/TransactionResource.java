@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -58,7 +59,7 @@ public class TransactionResource {
 
         final SendResponse response = delegate.send(sendRequest);
 
-        java.net.URI location = UriBuilder.fromPath("transaction")
+        URI location = UriBuilder.fromPath("transaction")
                 .path(URLEncoder.encode(response.getKey(), StandardCharsets.UTF_8.toString()))
                 .build();
 
@@ -98,7 +99,7 @@ public class TransactionResource {
 
         LOGGER.debug("Encoded key: {}", encodedKey);
 
-        java.net.URI location = UriBuilder.fromPath("transaction")
+        URI location = UriBuilder.fromPath("transaction")
             .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8.toString()))
             .build();
 
@@ -138,7 +139,7 @@ public class TransactionResource {
 
         LOGGER.debug("Encoded key: {}", encodedKey);
 
-        java.net.URI location = UriBuilder.fromPath("transaction")
+        URI location = UriBuilder.fromPath("transaction")
                 .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8.toString()))
                 .build();
 
