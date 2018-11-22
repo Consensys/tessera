@@ -4,13 +4,15 @@ import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.KeyVaultConfig;
 import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.key.generation.KeyGeneratorFactory;
 import org.apache.commons.cli.CommandLine;
 
-import javax.validation.*;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -38,9 +40,8 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
 
         final ArgonOptions argonOptions = this.argonOptions(commandLine).orElse(null);
         final KeyVaultConfig keyVaultConfig = this.keyVaultConfig(commandLine).orElse(null);
-        final EnvironmentVariableProvider envProvider = new EnvironmentVariableProvider();
 
-        final KeyGenerator generator = factory.create(keyVaultConfig, envProvider);
+        final KeyGenerator generator = factory.create(keyVaultConfig);
 
         if (commandLine.hasOption("keygen")) {
             return this.filenames(commandLine)

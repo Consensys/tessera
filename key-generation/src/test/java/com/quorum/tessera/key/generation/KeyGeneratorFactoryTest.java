@@ -1,6 +1,7 @@
 package com.quorum.tessera.key.generation;
 
 import com.quorum.tessera.config.KeyVaultConfig;
+import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import org.junit.Test;
 
@@ -14,7 +15,7 @@ public class KeyGeneratorFactoryTest {
     @Test
     public void fileKeyGeneratorWhenKeyVaultConfigNotProvided() {
         final EnvironmentVariableProvider envProvider = mock(EnvironmentVariableProvider.class);
-        final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(null, envProvider);
+        final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(null);
         when(envProvider.getEnv(anyString())).thenReturn("env");
 
         assertThat(keyGenerator).isNotNull();
@@ -22,12 +23,10 @@ public class KeyGeneratorFactoryTest {
     }
 
     @Test
-    public void vaultKeyGeneratorWhenKeyVaultConfigProvided() {
-        final KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null, "url");
-        final EnvironmentVariableProvider envProvider = mock(EnvironmentVariableProvider.class);
-        when(envProvider.getEnv(anyString())).thenReturn("env");
+    public void azureVaultKeyGeneratorWhenKeyVaultConfigProvided() {
+        final KeyVaultConfig keyVaultConfig = new KeyVaultConfig(KeyVaultType.AZURE, "url");
 
-        final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(keyVaultConfig, envProvider);
+        final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(keyVaultConfig);
 
         assertThat(keyGenerator).isNotNull();
         assertThat(keyGenerator).isExactlyInstanceOf(AzureVaultKeyGenerator.class);

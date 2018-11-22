@@ -3,7 +3,6 @@ package com.quorum.tessera.config.keys;
 import com.quorum.tessera.config.KeyVaultConfig;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.key.generation.KeyGeneratorFactory;
-import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 
 import static org.mockito.Mockito.mock;
 
@@ -17,7 +16,7 @@ public class MockKeyGeneratorFactory implements KeyGeneratorFactory {
     }
 
     @Override
-    public KeyGenerator create(KeyVaultConfig keyVaultConfig, EnvironmentVariableProvider envProvider) {
+    public KeyGenerator create(KeyVaultConfig keyVaultConfig) {
         return getMockKeyGenerator();
     }
 
