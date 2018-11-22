@@ -1,6 +1,8 @@
 
 package com.quorum.tessera.dao;
 
+import com.quorum.tessera.transaction.EncryptedRawTransactionDAO;
+import com.quorum.tessera.transaction.EncryptedRawTransactionDAOImpl;
 import com.quorum.tessera.transaction.EncryptedTransactionDAO;
 import com.quorum.tessera.transaction.EncryptedTransactionDAOImpl;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +24,11 @@ public abstract class JpaConfig {
     @Bean
     public EncryptedTransactionDAO someDAO() {
         return new EncryptedTransactionDAOImpl();
+    }
+
+    @Bean
+    public EncryptedRawTransactionDAO encryptedRawTransactionDAO() {
+        return new EncryptedRawTransactionDAOImpl();
     }
 
     @Bean

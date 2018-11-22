@@ -45,7 +45,7 @@ public class JaxrsITConfig {
         
         Path unixSocketFile = mock(Path.class);
                 
-         Config config = new Config(jdbcConfig,serverConfig,Collections.EMPTY_LIST,keyConfiguration,Collections.EMPTY_LIST,unixSocketFile,false,false);
+         Config config = new Config(jdbcConfig,Collections.singletonList(serverConfig),Collections.EMPTY_LIST,keyConfiguration,Collections.EMPTY_LIST,unixSocketFile,false,false);
         
         return config;
     }

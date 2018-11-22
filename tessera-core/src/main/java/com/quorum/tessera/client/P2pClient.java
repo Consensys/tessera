@@ -8,8 +8,6 @@ public interface P2pClient {
 
     byte[] getPartyInfo(String targetUrl, byte[] data);
 
-    boolean makeResendRequest(final String targetUrl, final ResendRequest request);
-
-    
-    
+    boolean makeResendRequest(String targetUrl, ResendRequest request);
+ 
 }

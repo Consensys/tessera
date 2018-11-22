@@ -38,13 +38,13 @@ public class RawSteps implements En {
 
     public RawSteps() {
 
-        Collection<Party> senderHolder = new ArrayList<>();
+        final Collection<Party> senderHolder = new ArrayList<>();
 
-        Set<Party> recipients = new HashSet<>();
+        final Set<Party> recipients = new HashSet<>();
 
-        byte[] transactionData = restUtils.createTransactionData();
+        final byte[] transactionData = restUtils.createTransactionData();
 
-        Set<String> storedHashes = new TreeSet<>();
+        final Set<String> storedHashes = new TreeSet<>();
 
         Given("^Sender party (.+)$", (String pty) -> {
             Party sender = partyHelper.findByAlias(pty);
@@ -62,7 +62,7 @@ public class RawSteps implements En {
         And("^all parties are running$", () -> {
 
             assertThat(partyHelper.getParties()
-                .map(Party::getUri)
+                .map(Party::getP2PUri)
                 .map(client::target)
                 .map(t -> t.path("upcheck"))
                 .map(WebTarget::request)
@@ -91,7 +91,7 @@ public class RawSteps implements En {
         When("sender party receives transaction with no sender key defined from Quorum peer", () -> {
             Party sender = senderHolder.stream().findAny().get();
             
-            final Response response = client.target(sender.getUri())
+            final Response response = client.target(sender.getQ2TUri())
                 .path("sendraw")
                 .request()
                 .header(RECIPIENTS, recipients.stream()
@@ -140,7 +140,7 @@ public class RawSteps implements En {
         When("sender party receives transaction with an unknown party from Quorum peer", () -> {
             Party sender = senderHolder.stream().findAny().get();
 
-            final Response response = client.target(sender.getUri())
+            final Response response = client.target(sender.getQ2TUri())
                 .path("sendraw")
                 .request()
                 .header(SENDER, sender.getPublicKey())

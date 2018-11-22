@@ -32,9 +32,9 @@ public class SendIT {
     private final Client client = ClientBuilder.newClient();
 
     private RestUtils utils = new RestUtils();
-    
-    
+
     private PartyHelper partyHelper = new RestPartyHelper();
+
     /**
      * Quorum sends transaction with single public recipient key
      */
@@ -50,7 +50,7 @@ public class SendIT {
         sendRequest.setTo(secondParty.getPublicKey());
         sendRequest.setPayload(transactionData);
 
-        final Response response = client.target(firstParty.getUri())
+        final Response response = client.target(firstParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -65,8 +65,8 @@ public class SendIT {
         URI location = response.getLocation();
 
         final Response checkPersistedTxnResponse = client.target(location)
-            .request()
-            .get();
+                .request()
+                .get();
 
         assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -78,7 +78,7 @@ public class SendIT {
             assertThat(r.getStatus()).isEqualTo(200);
         });
 
-        utils.findTransaction(result.getKey(), partyHelper.findByAlias("C"), partyHelper.findByAlias("D")).forEach(r -> {
+        utils.findTransaction(result.getKey(), partyHelper.findByAlias("D")).forEach(r -> {
             assertThat(r.getStatus()).isEqualTo(404);
         });
 
@@ -90,21 +90,21 @@ public class SendIT {
     @Test
     public void firstPartyForwardsToTwoOtherParties() {
 
-        Party sendingParty = partyHelper.findByAlias("A");
+        final Party sendingParty = partyHelper.findByAlias("A");
 
-        Party secondParty = partyHelper.findByAlias("B");
-        Party thirdParty = partyHelper.findByAlias("D");
+        final Party secondParty = partyHelper.findByAlias("B");
+        final Party thirdParty = partyHelper.findByAlias("D");
 
-        Party excludedParty = partyHelper.findByAlias("C");
+        final Party excludedParty = partyHelper.findByAlias("C");
 
-        byte[] transactionData = utils.createTransactionData();
+        final byte[] transactionData = utils.createTransactionData();
 
         final SendRequest sendRequest = new SendRequest();
         sendRequest.setFrom(sendingParty.getPublicKey());
         sendRequest.setTo(secondParty.getPublicKey(), thirdParty.getPublicKey());
         sendRequest.setPayload(transactionData);
 
-        final Response response = client.target(sendingParty.getUri())
+        final Response response = client.target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -119,8 +119,8 @@ public class SendIT {
         URI location = response.getLocation();
 
         final Response checkPersistedTxnResponse = client.target(location)
-            .request()
-            .get();
+                .request()
+                .get();
 
         assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -149,7 +149,7 @@ public class SendIT {
         sendRequest.setTo(recipient.getPublicKey());
         sendRequest.setPayload(transactionData);
 
-        final Response response = client.target(recipient.getUri())
+        final Response response = client.target(recipient.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -163,8 +163,8 @@ public class SendIT {
         URI location = response.getLocation();
 
         final Response checkPersistedTxnResponse = client.target(location)
-            .request()
-            .get();
+                .request()
+                .get();
 
         assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -177,14 +177,14 @@ public class SendIT {
     @Test
     public void sendTransactionWithMissingRecipients() {
 
-        final  Party sendingParty = partyHelper.getParties().findAny().get();
+        final Party sendingParty = partyHelper.getParties().findAny().get();
         final byte[] transactionData = utils.createTransactionData();
 
         final SendRequest sendRequest = new SendRequest();
         sendRequest.setFrom(sendingParty.getPublicKey());
         sendRequest.setPayload(transactionData);
 
-        final Response response = client.target(sendingParty.getUri())
+        final Response response = client.target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -198,8 +198,8 @@ public class SendIT {
         URI location = response.getLocation();
 
         final Response checkPersistedTxnResponse = client.target(location)
-            .request()
-            .get();
+                .request()
+                .get();
 
         assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -207,8 +207,8 @@ public class SendIT {
 
         assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
 
-        assertThat(location.getHost()).isEqualTo(sendingParty.getUri().getHost());
-        assertThat(location.getPort()).isEqualTo(sendingParty.getUri().getPort());
+        assertThat(location.getHost()).isEqualTo(sendingParty.getQ2TUri().getHost());
+        assertThat(location.getPort()).isEqualTo(sendingParty.getQ2TUri().getPort());
 
     }
 
@@ -218,16 +218,16 @@ public class SendIT {
         Party sendingParty = partyHelper.getParties().findAny().get();
 
         Party recipient = partyHelper.getParties().filter(p -> p != sendingParty)
-            .findAny().get();
+                .findAny().get();
 
         final String sendRequest = Json.createObjectBuilder()
-            .add("from", sendingParty.getPublicKey())
-            .add("to",
-                Json.createArrayBuilder().add(recipient.getPublicKey())
-            )
-            .build().toString();
+                .add("from", sendingParty.getPublicKey())
+                .add("to",
+                        Json.createArrayBuilder().add(recipient.getPublicKey())
+                )
+                .build().toString();
 
-        final Response response = client.target(sendingParty.getUri())
+        final Response response = client.target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -243,7 +243,7 @@ public class SendIT {
 
         final String sendRequest = "this is clearly a garbage message";
 
-        final Response response = client.target(sendingParty.getUri())
+        final Response response = client.target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -259,7 +259,7 @@ public class SendIT {
         Party sendingParty = partyHelper.getParties().findAny().get();
         final String sendRequest = "{}";
 
-        final Response response = client.target(sendingParty.getUri())
+        final Response response = client.target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -283,7 +283,7 @@ public class SendIT {
         sendRequest.setTo("8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=");
         sendRequest.setPayload(transactionData);
 
-        final Response response = client.target(sendingParty.getUri())
+        final Response response = client.target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -309,7 +309,7 @@ public class SendIT {
         sendRequest.setTo(recipient.getPublicKey());
         sendRequest.setPayload(transactionData);
 
-        final Response response = client.target(sender.getUri())
+        final Response response = client.target(sender.getQ2TUri())
             .path(SEND_PATH)
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));

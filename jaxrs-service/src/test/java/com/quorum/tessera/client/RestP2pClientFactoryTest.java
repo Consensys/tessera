@@ -20,7 +20,7 @@ public class RestP2pClientFactoryTest {
         Config config = mock(Config.class);
         ServerConfig serverConfig = mock(ServerConfig.class);
         when(serverConfig.isSsl()).thenReturn(Boolean.FALSE);
-        when(config.getServerConfig()).thenReturn(serverConfig);
+        when(config.getP2PServerConfig()).thenReturn(serverConfig);
         P2pClient result = factory.create(config);
         
     }

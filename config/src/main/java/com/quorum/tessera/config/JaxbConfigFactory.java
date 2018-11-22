@@ -67,7 +67,7 @@ public class JaxbConfigFactory implements ConfigFactory {
             //return a new object with the password file set
             return new Config(
                     config.getJdbcConfig(),
-                    config.getServerConfig(),
+                    config.getServerConfigs(),
                     config.getPeers(),
                     new KeyConfiguration(Paths.get("passwords.txt"), null, config.getKeys().getKeyData(), config.getKeys().getKeyVaultConfig()),
                     config.getAlwaysSendTo(),

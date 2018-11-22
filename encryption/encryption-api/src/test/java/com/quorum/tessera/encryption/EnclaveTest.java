@@ -195,4 +195,48 @@ public class EnclaveTest {
         verify(keyManager).getPrivateKeyForPublicKey(senderPublicKey);
     }
 
+
+    @Test
+    public void encryptRawPayload() {
+
+        byte[] message = "MESSAGE".getBytes();
+
+        PublicKey senderPublicKey = mock(PublicKey.class);
+
+        byte[] masterKeyBytes = "masterKeyBytes".getBytes();
+        MasterKey masterKey = MasterKey.from(masterKeyBytes);
+        Nonce cipherNonce = mock(Nonce.class);
+
+        byte[] cipherText = "cipherText".getBytes();
+
+        when(nacl.createMasterKey()).thenReturn(masterKey);
+        when(nacl.randomNonce()).thenReturn(cipherNonce);
+
+        when(nacl.sealAfterPrecomputation(message, cipherNonce, masterKey)).thenReturn(cipherText);
+
+        PrivateKey senderPrivateKey = mock(PrivateKey.class);
+        when(keyManager.getPrivateKeyForPublicKey(senderPublicKey)).thenReturn(senderPrivateKey);
+
+        SharedKey sharedKey = mock(SharedKey.class);
+        when(nacl.computeSharedKey(senderPublicKey, senderPrivateKey)).thenReturn(sharedKey);
+
+        byte[] encryptedMasterKey = "encryptedMasterKeys".getBytes();
+        when(nacl.sealAfterPrecomputation(masterKeyBytes, cipherNonce, sharedKey)).thenReturn(encryptedMasterKey);
+
+        RawTransaction result = enclave.encryptRawPayload(message, senderPublicKey);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getFrom()).isEqualTo(senderPublicKey);
+        assertThat(result.getEncryptedPayload()).isEqualTo(cipherText);
+        assertThat(result.getNonce()).isEqualTo(cipherNonce);
+        assertThat(result.getEncryptedKey()).isEqualTo(encryptedMasterKey);
+
+
+        verify(nacl).createMasterKey();
+        verify(nacl, times(1)).randomNonce();
+        verify(nacl).sealAfterPrecomputation(message, cipherNonce, masterKey);
+        verify(nacl).sealAfterPrecomputation(masterKeyBytes, cipherNonce, sharedKey);
+        verify(nacl).computeSharedKey(senderPublicKey, senderPrivateKey);
+        verify(keyManager).getPrivateKeyForPublicKey(senderPublicKey);
+    }
 }

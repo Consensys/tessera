@@ -75,22 +75,15 @@ public class ConfigServiceTest {
     public void getServerUri() throws URISyntaxException {
         ServerConfig serverConfig = mock(ServerConfig.class);
         URI serverUri = new URI("someuri");
-        URI grpcUri = new URI("grpcuri");
         when(serverConfig.getServerUri()).thenReturn(serverUri);
-        when(serverConfig.getGrpcUri()).thenReturn(grpcUri);
-        when(config.getServerConfig()).thenReturn(serverConfig);
+        when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
         when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
         URI result = configService.getServerUri();
         assertThat(result).isSameAs(serverUri);
 
-        when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.GRPC);
-        result = configService.getServerUri();
-        assertThat(result).isSameAs(grpcUri);
 
-        
-        verify(config, times(4)).getServerConfig();
+        verify(config).getP2PServerConfig();
         verify(serverConfig).getServerUri();
-        verify(serverConfig).getGrpcUri();
     }
 }

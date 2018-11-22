@@ -1,8 +1,8 @@
 package com.quorum.tessera.jaxrs;
 
-import com.quorum.tessera.api.PartyInfoResource;
-import com.quorum.tessera.api.TransactionResource;
-import com.quorum.tessera.api.VersionResource;
+import com.quorum.tessera.p2p.PartyInfoResource;
+import com.quorum.tessera.p2p.TransactionResource;
+import com.quorum.tessera.api.common.VersionResource;
 import com.quorum.tessera.api.model.DeleteRequest;
 import com.quorum.tessera.transaction.TransactionManagerImpl;
 import com.quorum.tessera.node.PartyInfoParser;

@@ -12,6 +12,7 @@
         <property name="file" value="${checkstyle.suppressions.file}" />
     </module>
     
+
     <module name="TreeWalker">
         <module name="InterfaceTypeParameterName"/>
         <module name="MethodName"/>
@@ -45,5 +46,7 @@
             <property name="allowMissingParamTags" value="true" />
             <property name="allowMissingThrowsTags" value="true" />
         </module>
+        <module name="EnumValueName"/>
+
     </module>
 </module>

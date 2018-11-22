@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.validation.ConstraintViolationException;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.assertj.core.api.Fail;
 import org.junit.Test;
 
 public class CliDelegateTest {
@@ -62,6 +63,7 @@ public class CliDelegateTest {
             );
 
             assertThat(result).isNotNull();
+            Fail.failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
             ex.getConstraintViolations().forEach(System.out::println);
         }

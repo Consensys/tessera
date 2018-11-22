@@ -38,9 +38,9 @@ public class GrpcSteps implements En {
 
         Set<Party> recipients = new HashSet<>();
 
-        Set<String> storedHashes = new TreeSet<>();
+        final Set<String> storedHashes = new TreeSet<>();
 
-        byte[] txnData = Utils.generateTransactionData();
+        final byte[] txnData = Utils.generateTransactionData();
 
         Given("^Sender party (.+)$", (String pty) -> {
             partyFactory.getParties()
@@ -61,7 +61,7 @@ public class GrpcSteps implements En {
         And("^all parties are running$", () -> {
 
             partyFactory.getParties()
-                .map(p -> createChannel(p))
+                .map(p -> createP2PChannel(p))
                 .map(TesseraGrpc::newBlockingStub)
                 .map(stub -> stub.getUpCheck(Empty.getDefaultInstance()))
                 .forEach(mesage -> {
@@ -85,7 +85,7 @@ public class GrpcSteps implements En {
                 .build();
 
             SendResponse sendResponse = senderHolder.stream()
-                .map(p -> createChannel(p))
+                .map(p -> createQ2TChannel(p))
                 .map(APITransactionGrpc::newBlockingStub)
                 .map(stub -> stub.send(sendRequest))
                 .findAny().get();
@@ -105,7 +105,7 @@ public class GrpcSteps implements En {
                 .build();
 
             APITransactionGrpc.APITransactionBlockingStub stub = senderHolder.stream()
-                .map(p -> createChannel(p))
+                .map(p -> createQ2TChannel(p))
                 .map(APITransactionGrpc::newBlockingStub)
                 .findAny().get();
 
@@ -148,7 +148,7 @@ public class GrpcSteps implements En {
                     .setKey(hash)
                     .build();
 
-                ManagedChannel channel = createChannel(recipient);
+                ManagedChannel channel = createQ2TChannel(recipient);
 
                 ReceiveResponse receiveResponse = APITransactionGrpc.newBlockingStub(channel).receive(receiveRequest);
                 assertThat(receiveResponse.getPayload().toByteArray()).isNotNull().isEqualTo(txnData);
@@ -172,9 +172,20 @@ public class GrpcSteps implements En {
 
     static List<ManagedChannel> channels = new ArrayList<>();
 
-    static ManagedChannel createChannel(Party party) {
+    static ManagedChannel createP2PChannel(Party party) {
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress("127.0.0.1", party.getGrpcPort())
+            .usePlaintext()
+            .build();
+
+        channels.add(channel);
+
+        return channel;
+    }
+
+    static ManagedChannel createQ2TChannel(Party party) {
+
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("127.0.0.1", party.getQ2TUri().getPort())
             .usePlaintext()
             .build();
 

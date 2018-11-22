@@ -105,9 +105,9 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig()).isPresent();
         final Config config = result.getConfig().get();
 
-        assertThat(config.getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
-        assertThat(config.getServerConfig().getPort()).isEqualTo(9001);
-        assertThat(config.getServerConfig().getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
+        assertThat(config.getServer().getHostName()).isEqualTo("http://127.0.0.1");
+        assertThat(config.getServer().getPort()).isEqualTo(9001);
+        assertThat(config.getServer().getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
         assertThat(config.getUnixSocketFile().toString()).isEqualTo("data/constellation.ipc");
         assertThat(config.getPeers().size()).isEqualTo(2);
         assertThat(config.getPeers().get(0).getUrl()).isEqualTo("http://127.0.0.1:9001/");
@@ -124,21 +124,21 @@ public class LegacyCliAdapterTest {
         assertThat(config.getKeys().getPasswordFile().toString()).isEqualTo("data/passwords");
         assertThat(config.getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
         assertThat(config.isUseWhiteList()).isTrue();
-        assertThat(config.getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.STRICT);
-        assertThat(config.getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("data/tls-server-cert.pem");
-        assertThat(config.getServerConfig().getSslConfig().getServerTrustCertificates().size()).isEqualTo(2);
-        assertThat(config.getServerConfig().getSslConfig().getServerTrustCertificates().get(0).toString()).isEqualTo("data/chain1");
-        assertThat(config.getServerConfig().getSslConfig().getServerTrustCertificates().get(1).toString()).isEqualTo("data/chain2");
-        assertThat(config.getServerConfig().getSslConfig().getServerTlsKeyPath().toString()).isEqualTo("data/tls-server-key.pem");
-        assertThat(config.getServerConfig().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
-        assertThat(config.getServerConfig().getSslConfig().getKnownClientsFile().toString()).isEqualTo("data/tls-known-clients");
-        assertThat(config.getServerConfig().getSslConfig().getClientTlsCertificatePath().toString()).isEqualTo("data/tls-client-cert.pem");
-        assertThat(config.getServerConfig().getSslConfig().getClientTrustCertificates().size()).isEqualTo(2);
-        assertThat(config.getServerConfig().getSslConfig().getClientTrustCertificates().get(0).toString()).isEqualTo("data/clientchain1");
-        assertThat(config.getServerConfig().getSslConfig().getClientTrustCertificates().get(1).toString()).isEqualTo("data/clientchain2");
-        assertThat(config.getServerConfig().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("data/tls-client-key.pem");
-        assertThat(config.getServerConfig().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.CA_OR_TOFU);
-        assertThat(config.getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("data/tls-known-servers");
+        assertThat(config.getServer().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.STRICT);
+        assertThat(config.getServer().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("data/tls-server-cert.pem");
+        assertThat(config.getServer().getSslConfig().getServerTrustCertificates().size()).isEqualTo(2);
+        assertThat(config.getServer().getSslConfig().getServerTrustCertificates().get(0).toString()).isEqualTo("data/chain1");
+        assertThat(config.getServer().getSslConfig().getServerTrustCertificates().get(1).toString()).isEqualTo("data/chain2");
+        assertThat(config.getServer().getSslConfig().getServerTlsKeyPath().toString()).isEqualTo("data/tls-server-key.pem");
+        assertThat(config.getServer().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
+        assertThat(config.getServer().getSslConfig().getKnownClientsFile().toString()).isEqualTo("data/tls-known-clients");
+        assertThat(config.getServer().getSslConfig().getClientTlsCertificatePath().toString()).isEqualTo("data/tls-client-cert.pem");
+        assertThat(config.getServer().getSslConfig().getClientTrustCertificates().size()).isEqualTo(2);
+        assertThat(config.getServer().getSslConfig().getClientTrustCertificates().get(0).toString()).isEqualTo("data/clientchain1");
+        assertThat(config.getServer().getSslConfig().getClientTrustCertificates().get(1).toString()).isEqualTo("data/clientchain2");
+        assertThat(config.getServer().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("data/tls-client-key.pem");
+        assertThat(config.getServer().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.CA_OR_TOFU);
+        assertThat(config.getServer().getSslConfig().getKnownServersFile().toString()).isEqualTo("data/tls-known-servers");
 
         Files.deleteIfExists(configFile);
     }
@@ -202,9 +202,9 @@ public class LegacyCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
 
-        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://override");
-        assertThat(result.getConfig().get().getServerConfig().getPort()).isEqualTo(1111);
-        assertThat(result.getConfig().get().getServerConfig().getBindingAddress()).isEqualTo("http://override:1111");
+        assertThat(result.getConfig().get().getServer().getHostName()).isEqualTo("http://override");
+        assertThat(result.getConfig().get().getServer().getPort()).isEqualTo(1111);
+        assertThat(result.getConfig().get().getServer().getBindingAddress()).isEqualTo("http://override:1111");
         assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("override/cli.ipc");
         assertThat(result.getConfig().get().getPeers().size()).isEqualTo(1);
         assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://others");
@@ -217,19 +217,19 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getKeys().getPasswordFile().toString()).isEqualTo("override/pw.txt");
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:test");
         assertThat(result.getConfig().get().isUseWhiteList()).isTrue();
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("override/over-server-cert.pem");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().size()).isEqualTo(1);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().get(0).toString()).isEqualTo("override/serverchain.file");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsKeyPath().toString()).isEqualTo("override/over-server-key.pem");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.WHITELIST);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownClientsFile().toString()).isEqualTo("override/over-known-clients");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsCertificatePath().toString()).isEqualTo("override/over-client-cert.pem");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates().size()).isEqualTo(1);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates().get(0).toString()).isEqualTo("override/clientchain.file");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("override/over-client-key.pem");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("override/over-known-servers");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
+        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("override/over-server-cert.pem");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustCertificates().size()).isEqualTo(1);
+        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustCertificates().get(0).toString()).isEqualTo("override/serverchain.file");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTlsKeyPath().toString()).isEqualTo("override/over-server-key.pem");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.WHITELIST);
+        assertThat(result.getConfig().get().getServer().getSslConfig().getKnownClientsFile().toString()).isEqualTo("override/over-known-clients");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTlsCertificatePath().toString()).isEqualTo("override/over-client-cert.pem");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustCertificates().size()).isEqualTo(1);
+        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustCertificates().get(0).toString()).isEqualTo("override/clientchain.file");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("override/over-client-key.pem");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
+        assertThat(result.getConfig().get().getServer().getSslConfig().getKnownServersFile().toString()).isEqualTo("override/over-known-servers");
 
         Files.deleteIfExists(configFile);
 
@@ -271,17 +271,17 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getKeys().getPasswordFile()).isNull();
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
         assertThat(result.getConfig().get().isUseWhiteList()).isFalse();
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath()).isNull();
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().size()).isEqualTo(0);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsKeyPath()).isNull();
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownClientsFile()).isNull();
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsCertificatePath()).isNull();
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates().size()).isEqualTo(0);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsKeyPath()).isNull();
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile()).isNull();
+        assertThat(result.getConfig().get().getServer().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
+        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTlsCertificatePath()).isNull();
+        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustCertificates().size()).isEqualTo(0);
+        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTlsKeyPath()).isNull();
+        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
+        assertThat(result.getConfig().get().getServer().getSslConfig().getKnownClientsFile()).isNull();
+        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTlsCertificatePath()).isNull();
+        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustCertificates().size()).isEqualTo(0);
+        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTlsKeyPath()).isNull();
+        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
+        assertThat(result.getConfig().get().getServer().getSslConfig().getKnownServersFile()).isNull();
 
         Files.deleteIfExists(configFile);
         Files.deleteIfExists(keysFile);
@@ -330,9 +330,9 @@ public class LegacyCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
 
-        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
-        assertThat(result.getConfig().get().getServerConfig().getPort()).isEqualTo(9001);
-        assertThat(result.getConfig().get().getServerConfig().getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
+        assertThat(result.getConfig().get().getServer().getHostName()).isEqualTo("http://127.0.0.1");
+        assertThat(result.getConfig().get().getServer().getPort()).isEqualTo(9001);
+        assertThat(result.getConfig().get().getServer().getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
         assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("override/constellation.ipc");
         assertThat(result.getConfig().get().getPeers().size()).isEqualTo(2);
         assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://127.0.0.1:9001/");
@@ -348,21 +348,21 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getKeys().getPasswordFile().toString()).isEqualTo("override/passwords");
         assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
         assertThat(result.getConfig().get().isUseWhiteList()).isTrue();
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("override/tls-server-cert.pem");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().size()).isEqualTo(2);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().get(0).toString()).isEqualTo("override/chain1");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustCertificates().get(1).toString()).isEqualTo("override/chain2");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTlsKeyPath().toString()).isEqualTo("override/tls-server-key.pem");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownClientsFile().toString()).isEqualTo("override/tls-known-clients");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsCertificatePath().toString()).isEqualTo("override/tls-client-cert.pem");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates().size()).isEqualTo(2);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates().get(0).toString()).isEqualTo("override/clientchain1");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustCertificates().get(1).toString()).isEqualTo("override/clientchain2");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("override/tls-client-key.pem");
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.CA_OR_TOFU);
-        assertThat(result.getConfig().get().getServerConfig().getSslConfig().getKnownServersFile().toString()).isEqualTo("override/tls-known-servers");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
+        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTlsCertificatePath().toString()).isEqualTo("override/tls-server-cert.pem");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustCertificates().size()).isEqualTo(2);
+        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustCertificates().get(0).toString()).isEqualTo("override/chain1");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustCertificates().get(1).toString()).isEqualTo("override/chain2");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTlsKeyPath().toString()).isEqualTo("override/tls-server-key.pem");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
+        assertThat(result.getConfig().get().getServer().getSslConfig().getKnownClientsFile().toString()).isEqualTo("override/tls-known-clients");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTlsCertificatePath().toString()).isEqualTo("override/tls-client-cert.pem");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustCertificates().size()).isEqualTo(2);
+        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustCertificates().get(0).toString()).isEqualTo("override/clientchain1");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustCertificates().get(1).toString()).isEqualTo("override/clientchain2");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("override/tls-client-key.pem");
+        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.CA_OR_TOFU);
+        assertThat(result.getConfig().get().getServer().getSslConfig().getKnownServersFile().toString()).isEqualTo("override/tls-known-servers");
 
         Files.deleteIfExists(configFile);
     }
@@ -383,7 +383,7 @@ public class LegacyCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
 
-        assertThat(result.getConfig().get().getServerConfig().getHostName()).isNull();
+        assertThat(result.getConfig().get().getServer().getHostName()).isNull();
 
         Files.deleteIfExists(configFile);
     }
@@ -404,7 +404,7 @@ public class LegacyCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
 
-        assertThat(result.getConfig().get().getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
+        assertThat(result.getConfig().get().getServer().getHostName()).isEqualTo("http://127.0.0.1");
     }
 
     @Test
@@ -736,35 +736,35 @@ public class LegacyCliAdapterTest {
         Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues, KeyDataBuilder.create()).build();
 
         assertThat(result).isNotNull();
-        assertThat(result.getServerConfig().getHostName()).isEqualTo("http://junit.com");
-        assertThat(result.getServerConfig().getPort()).isEqualTo(portOverride);
-        assertThat(result.getServerConfig().getBindingAddress()).isEqualTo("http://junit.com:" + portOverride);
+        assertThat(result.getServer().getHostName()).isEqualTo("http://junit.com");
+        assertThat(result.getServer().getPort()).isEqualTo(portOverride);
+        assertThat(result.getServer().getBindingAddress()).isEqualTo("http://junit.com:" + portOverride);
         assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get(workdirOverride, unixSocketFileOverride));
         assertThat(result.getPeers()).containsExactly(overridePeers.toArray(new Peer[0]));
         assertThat(result.getKeys().getKeyData()).hasSize(2);
         assertThat(result.getJdbcConfig()).isNotNull();
         assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:sqlite:somepath");
 
-        assertThat(result.getServerConfig().getSslConfig().getServerTrustMode()).isEqualTo(SslTrustMode.WHITELIST);
-        assertThat(result.getServerConfig().getSslConfig().getClientTrustMode()).isEqualTo(SslTrustMode.CA);
+        assertThat(result.getServer().getSslConfig().getServerTrustMode()).isEqualTo(SslTrustMode.WHITELIST);
+        assertThat(result.getServer().getSslConfig().getClientTrustMode()).isEqualTo(SslTrustMode.CA);
 
-        assertThat(result.getServerConfig().getSslConfig().getClientTlsCertificatePath()).isEqualTo(Paths.get("workdirOverride/tlsclientcert.cert"));
+        assertThat(result.getServer().getSslConfig().getClientTlsCertificatePath()).isEqualTo(Paths.get("workdirOverride/tlsclientcert.cert"));
 
-        assertThat(result.getServerConfig().getSslConfig().getServerTlsCertificatePath()).isEqualTo(Paths.get("workdirOverride/tlsservercert.cert"));
+        assertThat(result.getServer().getSslConfig().getServerTlsCertificatePath()).isEqualTo(Paths.get("workdirOverride/tlsservercert.cert"));
 
-        assertThat(result.getServerConfig().getSslConfig().getServerTrustCertificates())
+        assertThat(result.getServer().getSslConfig().getServerTrustCertificates())
                 .containsExactly(Paths.get(workdirOverride, "server1.crt"), Paths.get(workdirOverride, "server2.crt"), Paths.get(workdirOverride, "server3.crt"));
 
-        assertThat(result.getServerConfig().getSslConfig().getClientTrustCertificates())
+        assertThat(result.getServer().getSslConfig().getClientTrustCertificates())
                 .containsExactly(Paths.get(workdirOverride, "client1.crt"), Paths.get(workdirOverride, "client2.crt"), Paths.get(workdirOverride, "client3.crt"));
 
-        assertThat(result.getServerConfig().getSslConfig().getServerKeyStore())
+        assertThat(result.getServer().getSslConfig().getServerKeyStore())
                 .isEqualTo(Paths.get("workdirOverride/sslServerKeyStorePath"));
-        assertThat(result.getServerConfig().getSslConfig().getClientKeyStore())
+        assertThat(result.getServer().getSslConfig().getClientKeyStore())
                 .isEqualTo(Paths.get("workdirOverride/sslClientKeyStorePath"));
-        assertThat(result.getServerConfig().getSslConfig().getKnownServersFile())
+        assertThat(result.getServer().getSslConfig().getKnownServersFile())
                 .isEqualTo(Paths.get("workdirOverride/tlsknownservers.file"));
-        assertThat(result.getServerConfig().getSslConfig().getKnownClientsFile())
+        assertThat(result.getServer().getSslConfig().getKnownClientsFile())
                 .isEqualTo(Paths.get(workdirOverride, "tlsknownclients.file"));
 
         Files.deleteIfExists(privateKeyPasswordFile);
@@ -785,8 +785,8 @@ public class LegacyCliAdapterTest {
 
         assertThat(result).isNotNull();
 
-        final ServerConfig expectedServerConfig = expectedValues.getServerConfig();
-        final ServerConfig realServerConfig = result.getServerConfig();
+        final DeprecatedServerConfig expectedServerConfig = expectedValues.getServer();
+        final DeprecatedServerConfig realServerConfig = result.getServer();
         final SslConfig sslConfig = realServerConfig.getSslConfig();
 
         assertThat(realServerConfig.getHostName()).isEqualTo(expectedServerConfig.getHostName());

@@ -1,6 +1,6 @@
 package com.quorum.tessera.server;
 
-import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ServerConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -33,9 +33,9 @@ public class UnixSocketServer implements TesseraServer  {
 
     private Channel unixSocketServer;
 
-    public UnixSocketServer(final Config config, final Application application) {
+    public UnixSocketServer(final ServerConfig serverConfig, final Application application) {
 
-        this.unixSocketAddress = new DomainSocketAddress(config.getUnixSocketFile().toFile());
+        this.unixSocketAddress = new DomainSocketAddress(serverConfig.getServerUri().toString());
 
         //Install the correct handlers (logback instead of jul)
         SLF4JBridgeHandler.removeHandlersForRootLogger();
