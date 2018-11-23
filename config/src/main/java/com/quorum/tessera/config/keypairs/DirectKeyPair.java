@@ -46,10 +46,4 @@ public class DirectKeyPair implements ConfigKeyPair {
         //no password to return
         return "";
     }
-
-    @Override
-    public KeyPairType getType() {
-        return KeyPairType.DIRECT;
-    }
-
 }

@@ -22,10 +22,4 @@ public class UnsupportedKeyPairTest {
 
         assertThat(keyPair.getPassword()).isNull();
     }
-
-    @Test
-    public void getType() {
-        assertThat(keyPair.getType()).isEqualTo(KeyPairType.UNSUPPORTED);
-    }
-
 }

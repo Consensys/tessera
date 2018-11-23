@@ -29,10 +29,4 @@ public class DirectKeyPairTest {
         assertThat(keyPair.getPublicKey()).isEqualTo("public");
         assertThat(keyPair.getPrivateKey()).isEqualTo("private");
     }
-
-    @Test
-    public void getType() {
-        assertThat(keyPair.getType()).isEqualTo(KeyPairType.DIRECT);
-    }
-
 }

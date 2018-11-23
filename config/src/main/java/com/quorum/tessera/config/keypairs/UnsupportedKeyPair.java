@@ -84,9 +84,4 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
         return null;
     }
 
-    @Override
-    public KeyPairType getType() {
-        return KeyPairType.UNSUPPORTED;
-    }
-
 }

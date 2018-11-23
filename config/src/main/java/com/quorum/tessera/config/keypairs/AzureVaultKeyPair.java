@@ -53,9 +53,4 @@ public class AzureVaultKeyPair implements ConfigKeyPair {
         //no password to return
         return "";
     }
-
-    @Override
-    public KeyPairType getType() {
-        return KeyPairType.AZURE;
-    }
 }

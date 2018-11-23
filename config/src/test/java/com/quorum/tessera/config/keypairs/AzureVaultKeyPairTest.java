@@ -34,9 +34,4 @@ public class AzureVaultKeyPairTest {
 
         assertThat(keyPair.getPassword()).isEmpty();
     }
-
-    @Test
-    public void getType() {
-        assertThat(keyPair.getType()).isEqualTo(KeyPairType.AZURE);
-    }
 }
