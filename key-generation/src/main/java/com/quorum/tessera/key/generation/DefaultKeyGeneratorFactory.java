@@ -1,10 +1,9 @@
 package com.quorum.tessera.key.generation;
 
+import com.quorum.tessera.config.AzureKeyVaultConfig;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyVaultConfig;
-import com.quorum.tessera.config.KeyVaultType;
-import com.quorum.tessera.config.keypairs.KeyPairType;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.config.util.PasswordReaderFactory;
@@ -18,18 +17,16 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
     public KeyGenerator create(KeyVaultConfig keyVaultConfig) {
 
         if(keyVaultConfig != null) {
-            final Config configWithKeyVault = new Config(null, null, null,
-                new KeyConfiguration(null, null, null, keyVaultConfig),
-                null, null, true, true);
+            final KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(keyVaultConfig.getKeyVaultType());
 
-            final EnvironmentVariableProvider envProvider = new EnvironmentVariableProvider();
+            final Config config = new Config();
+            final KeyConfiguration keyConfiguration = new KeyConfiguration();
+            keyConfiguration.setAzureKeyVaultConfig((AzureKeyVaultConfig)keyVaultConfig);
+            config.setKeys(keyConfiguration);
 
-            if(keyVaultConfig.getVaultType().equals(KeyVaultType.AZURE)) {
-                final KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(KeyPairType.AZURE);
-                final KeyVaultService keyVaultService = keyVaultServiceFactory.create(configWithKeyVault, envProvider);
+            final KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, new EnvironmentVariableProvider());
 
-                return new AzureVaultKeyGenerator(NaclFacadeFactory.newFactory().create(), keyVaultService);
-            }
+            return new AzureVaultKeyGenerator(NaclFacadeFactory.newFactory().create(), keyVaultService);
         }
 
         return new FileKeyGenerator(

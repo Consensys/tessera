@@ -1,6 +1,7 @@
 package com.quorum.tessera.config.cli.parsers;
 
 import com.quorum.tessera.config.ArgonOptions;
+import com.quorum.tessera.config.cli.CliException;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keys.MockKeyGeneratorFactory;
 import com.quorum.tessera.key.generation.KeyGenerator;
@@ -157,50 +158,27 @@ public class KeyGenerationParserTest {
     }
 
     @Test
-    public void ifOnlyVaultUrlOptionProvidedThenValidationException() {
+    public void ifOnlyVaultUrlOptionProvidedThenException() {
         when(commandLine.hasOption("keygenvaulttype")).thenReturn(false);
         when(commandLine.hasOption("keygenvaulturl")).thenReturn(true);
         when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("someurl");
 
         Throwable ex = catchThrowable(() -> this.parser.parse(commandLine));
 
-        verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
-        verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
-
-        assertThat(ex).isInstanceOf(ConstraintViolationException.class);
-
-        Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
-
-        assertThat(violations.size()).isEqualTo(1);
-
-        ConstraintViolation violation = violations.iterator().next();
-
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("vaultType");
-        assertThat(violation.getMessageTemplate()).isEqualTo("{KeyVaultConfig.typeCannotBeNull.message}");
+        assertThat(ex).isInstanceOf(CliException.class);
+        assertThat(ex.getMessage()).isEqualTo("Key vault type either not provided or not recognised.  Ensure provided value is UPPERCASE and has no leading or trailing whitespace characters");
     }
 
     @Test
-    public void ifAllVaultOptionsProvidedButTypeUnknownThenValidationException() {
+    public void ifAllVaultOptionsProvidedButTypeUnknownThenException() {
         when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
         when(commandLine.hasOption("keygenvaulturl")).thenReturn(true);
-        when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("someurl");
         when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("unknown");
 
         Throwable ex = catchThrowable(() -> this.parser.parse(commandLine));
 
-        verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
-        verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
-
-        assertThat(ex).isInstanceOf(ConstraintViolationException.class);
-
-        Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
-
-        assertThat(violations.size()).isEqualTo(1);
-
-        ConstraintViolation violation = violations.iterator().next();
-
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("vaultType");
-        assertThat(violation.getMessageTemplate()).isEqualTo("{KeyVaultConfig.typeCannotBeNull.message}");
+        assertThat(ex).isInstanceOf(CliException.class);
+        assertThat(ex.getMessage()).isEqualTo("Key vault type either not provided or not recognised.  Ensure provided value is UPPERCASE and has no leading or trailing whitespace characters");
     }
 
 }

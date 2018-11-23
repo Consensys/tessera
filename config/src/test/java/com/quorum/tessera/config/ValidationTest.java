@@ -324,6 +324,6 @@ public class ValidationTest {
 
         ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
         assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("keyVaultConfig.url");
+        assertThat(violation.getPropertyPath().toString()).isEqualTo("azureKeyVaultConfig.url");
     }
 }

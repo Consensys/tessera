@@ -1,8 +1,10 @@
 package com.quorum.tessera.config.cli.parsers;
 
 import com.quorum.tessera.config.ArgonOptions;
+import com.quorum.tessera.config.AzureKeyVaultConfig;
 import com.quorum.tessera.config.KeyVaultConfig;
 import com.quorum.tessera.config.KeyVaultType;
+import com.quorum.tessera.config.cli.CliException;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.key.generation.KeyGenerator;
@@ -51,7 +53,6 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
         }
 
         return new ArrayList<>();
-
     }
 
     private Optional<ArgonOptions> argonOptions(final CommandLine commandLine) throws IOException {
@@ -88,19 +89,19 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
         }
 
         String t = commandLine.getOptionValue("keygenvaulttype");
-        KeyVaultType keyVaultType;
+
         try {
-            keyVaultType = KeyVaultType.valueOf(t);
+            KeyVaultType.valueOf(t);
         } catch(IllegalArgumentException | NullPointerException e) {
-            //catch so validation exception thrown later if type not known
-            keyVaultType = null;
+            throw new CliException("Key vault type either not provided or not recognised.  Ensure provided value is UPPERCASE and has no leading or trailing whitespace characters");
         }
 
         String keyVaultUrl = commandLine.getOptionValue("keygenvaulturl");
 
-        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(keyVaultType, keyVaultUrl);
+        //Only Azure supported atm so no need to check keyvaulttype
+        KeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig(keyVaultUrl);
 
-        Set<ConstraintViolation<KeyVaultConfig>> violations = validator.validate(keyVaultConfig);
+        Set<ConstraintViolation<AzureKeyVaultConfig>> violations = validator.validate((AzureKeyVaultConfig)keyVaultConfig);
 
         if(!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);

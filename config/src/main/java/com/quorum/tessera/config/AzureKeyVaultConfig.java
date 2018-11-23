@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class AzureKeyVaultConfig extends ConfigItem {
+public class AzureKeyVaultConfig extends ConfigItem implements KeyVaultConfig {
 
     @Valid
     @NotNull
@@ -27,6 +27,11 @@ public class AzureKeyVaultConfig extends ConfigItem {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    @Override
+    public KeyVaultType getKeyVaultType() {
+        return KeyVaultType.AZURE;
     }
 
 }

@@ -26,4 +26,9 @@ public class AzureKeyVaultConfigTest {
         assertThat(keyVaultConfig.getUrl()).isEqualTo("newurl");
     }
 
+    @Test
+    public void getKeyVaultType() {
+        assertThat(keyVaultConfig.getKeyVaultType()).isEqualTo(KeyVaultType.AZURE);
+    }
+
 }

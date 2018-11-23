@@ -1,7 +1,6 @@
 package com.quorum.tessera.key.generation;
 
-import com.quorum.tessera.config.KeyVaultConfig;
-import com.quorum.tessera.config.KeyVaultType;
+import com.quorum.tessera.config.AzureKeyVaultConfig;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import org.junit.Test;
 
@@ -24,7 +23,7 @@ public class KeyGeneratorFactoryTest {
 
     @Test
     public void azureVaultKeyGeneratorWhenKeyVaultConfigProvided() {
-        final KeyVaultConfig keyVaultConfig = new KeyVaultConfig(KeyVaultType.AZURE, "url");
+        final AzureKeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig("url");
 
         final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(keyVaultConfig);
 
