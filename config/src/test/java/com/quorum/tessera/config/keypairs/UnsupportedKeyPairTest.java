@@ -22,4 +22,5 @@ public class UnsupportedKeyPairTest {
 
         assertThat(keyPair.getPassword()).isNull();
     }
+
 }

@@ -46,4 +46,5 @@ public class DirectKeyPair implements ConfigKeyPair {
         //no password to return
         return "";
     }
+
 }

@@ -25,12 +25,6 @@
             <artifactId>key-vault-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.quorum.tessera</groupId>
-            <artifactId>azure-key-vault</artifactId>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
 </project>

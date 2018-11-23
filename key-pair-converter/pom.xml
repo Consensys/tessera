@@ -21,6 +21,7 @@
             <groupId>com.quorum.tessera</groupId>
             <artifactId>config</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>key-vault-api</artifactId>
