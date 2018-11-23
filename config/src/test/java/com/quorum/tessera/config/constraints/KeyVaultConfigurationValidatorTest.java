@@ -1,7 +1,7 @@
 package com.quorum.tessera.config.constraints;
 
+import com.quorum.tessera.config.AzureKeyVaultConfig;
 import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.KeyVaultConfig;
 import com.quorum.tessera.config.keypairs.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,10 +42,10 @@ public class KeyVaultConfigurationValidatorTest {
     public void keyVaultConfigWithVaultKeyPairIsValid() {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         AzureVaultKeyPair keyPair = mock(AzureVaultKeyPair.class);
-        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
+        AzureKeyVaultConfig keyVaultConfig = mock(AzureKeyVaultConfig.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -57,10 +57,10 @@ public class KeyVaultConfigurationValidatorTest {
         keyPairs.add(mock(AzureVaultKeyPair.class));
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
+        AzureKeyVaultConfig keyVaultConfig = mock(AzureKeyVaultConfig.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -72,10 +72,10 @@ public class KeyVaultConfigurationValidatorTest {
         keyPairs.add(mock(DirectKeyPair.class));
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
+        AzureKeyVaultConfig keyVaultConfig = mock(AzureKeyVaultConfig.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -84,10 +84,10 @@ public class KeyVaultConfigurationValidatorTest {
     public void keyVaultConfigWithNonVaultKeyPairIsValid() {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         DirectKeyPair keyPair = mock(DirectKeyPair.class);
-        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
+        AzureKeyVaultConfig keyVaultConfig = mock(AzureKeyVaultConfig.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -99,10 +99,10 @@ public class KeyVaultConfigurationValidatorTest {
         keyPairs.add(mock(InlineKeypair.class));
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
+        AzureKeyVaultConfig keyVaultConfig = mock(AzureKeyVaultConfig.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -113,7 +113,7 @@ public class KeyVaultConfigurationValidatorTest {
         AzureVaultKeyPair keyPair = mock(AzureVaultKeyPair.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(null);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
     }
@@ -127,7 +127,7 @@ public class KeyVaultConfigurationValidatorTest {
         keyPairs.add(mock(AzureVaultKeyPair.class));
 
         when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(null);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
     }
@@ -141,7 +141,7 @@ public class KeyVaultConfigurationValidatorTest {
         keyPairs.add(mock(DirectKeyPair.class));
 
         when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(null);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
     }
@@ -152,7 +152,7 @@ public class KeyVaultConfigurationValidatorTest {
         DirectKeyPair keyPair = mock(DirectKeyPair.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(null);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -166,7 +166,7 @@ public class KeyVaultConfigurationValidatorTest {
         keyPairs.add(mock(FilesystemKeyPair.class));
 
         when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(null);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }

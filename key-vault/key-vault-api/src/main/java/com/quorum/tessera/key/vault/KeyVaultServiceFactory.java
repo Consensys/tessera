@@ -1,25 +1,27 @@
 package com.quorum.tessera.key.vault;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.keypairs.KeyPairType;
+import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ServiceLoader;
 
 public interface KeyVaultServiceFactory {
 
     KeyVaultService create(Config config, EnvironmentVariableProvider envProvider);
 
-    KeyPairType getType();
+    KeyVaultType getType();
 
-    static KeyVaultServiceFactory getInstance(KeyPairType keyPairType) {
+    static KeyVaultServiceFactory getInstance(KeyVaultType keyVaultType) {
         List<KeyVaultServiceFactory> providers = new ArrayList<>();
         ServiceLoader.load(KeyVaultServiceFactory.class).forEach(providers::add);
 
         return providers.stream()
-            .filter(factory -> factory.getType() == keyPairType)
+            .filter(factory -> factory.getType() == keyVaultType)
             .findFirst()
-            .orElseThrow(() -> new NoKeyVaultServiceFactoryException(keyPairType + " implementation of KeyVaultServiceFactory was not found on the classpath"));
+            .orElseThrow(() -> new NoKeyVaultServiceFactoryException(keyVaultType + " implementation of KeyVaultServiceFactory was not found on the classpath"));
     }
 
 }

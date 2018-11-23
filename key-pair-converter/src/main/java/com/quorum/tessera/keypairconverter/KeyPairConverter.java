@@ -2,9 +2,9 @@
 package com.quorum.tessera.keypairconverter;
 
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.keypairs.KeyPairType;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
@@ -39,9 +39,8 @@ public class KeyPairConverter {
         String base64PublicKey;
         String base64PrivateKey;
 
-        if((KeyPairType.AZURE).equals(configKeyPair.getType())) {
-
-            KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(KeyPairType.AZURE);
+        if(configKeyPair instanceof AzureVaultKeyPair) {
+            KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(KeyVaultType.AZURE);
             KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, envProvider);
             AzureVaultKeyPair akp = (AzureVaultKeyPair) configKeyPair;
 

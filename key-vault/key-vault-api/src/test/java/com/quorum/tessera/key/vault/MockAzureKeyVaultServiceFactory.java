@@ -1,7 +1,7 @@
 package com.quorum.tessera.key.vault;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.keypairs.KeyPairType;
+import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 
 public class MockAzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
@@ -11,7 +11,7 @@ public class MockAzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
     }
 
     @Override
-    public KeyPairType getType() {
-        return KeyPairType.AZURE;
+    public KeyVaultType getType() {
+        return KeyVaultType.AZURE;
     }
 }

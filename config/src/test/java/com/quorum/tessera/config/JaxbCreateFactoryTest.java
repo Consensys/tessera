@@ -34,7 +34,7 @@ public class JaxbCreateFactoryTest {
                 JdbcConfig.class,
                 KeyDataConfig.class,
                 PrivateKeyData.class,
-                KeyVaultConfig.class
+                AzureKeyVaultConfig.class
         );
 
     }

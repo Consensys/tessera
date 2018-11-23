@@ -7,28 +7,18 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class KeyVaultConfig extends ConfigItem {
-
-    @Valid
-    @NotNull(message = "{KeyVaultConfig.typeCannotBeNull.message}")
-    @XmlAttribute
-    private KeyVaultType vaultType;
+public class AzureKeyVaultConfig extends ConfigItem {
 
     @Valid
     @NotNull
     @XmlAttribute
     private String url;
 
-    public KeyVaultConfig(KeyVaultType vaultType, String url) {
-        this.vaultType = vaultType;
+    public AzureKeyVaultConfig(String url) {
         this.url = url;
     }
 
-    public KeyVaultConfig() {
-    }
-
-    public KeyVaultType getVaultType() {
-        return this.vaultType;
+    public AzureKeyVaultConfig() {
     }
 
     public String getUrl() {
@@ -38,10 +28,5 @@ public class KeyVaultConfig extends ConfigItem {
     public void setUrl(String url) {
         this.url = url;
     }
-
-    public void setKeyVaultType(KeyVaultType keyVaultType) {
-        this.vaultType = keyVaultType;
-    }
-
 
 }

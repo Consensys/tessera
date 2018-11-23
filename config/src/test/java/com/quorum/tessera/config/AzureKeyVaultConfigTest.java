@@ -5,27 +5,24 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class KeyVaultConfigTest {
+public class AzureKeyVaultConfigTest {
 
-    private KeyVaultConfig keyVaultConfig;
+    private AzureKeyVaultConfig keyVaultConfig;
 
     @Before
     public void setUp() {
-        this.keyVaultConfig = new KeyVaultConfig(KeyVaultType.AZURE, "someurl");
+        this.keyVaultConfig = new AzureKeyVaultConfig("someurl");
     }
 
     @Test
     public void getters() {
-        assertThat(keyVaultConfig.getVaultType()).isEqualTo(KeyVaultType.AZURE);
         assertThat(keyVaultConfig.getUrl()).isEqualTo("someurl");
     }
 
     @Test
     public void setters() {
-        keyVaultConfig.setKeyVaultType(null);
         keyVaultConfig.setUrl("newurl");
 
-        assertThat(keyVaultConfig.getVaultType()).isNull();
         assertThat(keyVaultConfig.getUrl()).isEqualTo("newurl");
     }
 

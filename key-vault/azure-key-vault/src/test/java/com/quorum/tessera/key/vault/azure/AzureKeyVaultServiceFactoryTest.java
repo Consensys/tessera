@@ -1,9 +1,6 @@
 package com.quorum.tessera.key.vault.azure;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.KeyVaultConfig;
-import com.quorum.tessera.config.keypairs.KeyPairType;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import org.junit.Before;
@@ -80,29 +77,29 @@ public class AzureKeyVaultServiceFactoryTest {
 
         Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
 
-        assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
-        assertThat(ex.getMessage()).isEqualTo("Trying to create Azure key vault but no Azure configuration provided in the configfile");
+        assertThat(ex).isExactlyInstanceOf(ConfigException.class);
+        assertThat(ex.getMessage()).contains("Trying to create Azure key vault but no Azure configuration provided in the configfile");
     }
 
     @Test
     public void nullKeyVaultConfigurationThrowsException() {
         when(envProvider.getEnv(anyString())).thenReturn("envVar");
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(null);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
 
-        assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
-        assertThat(ex.getMessage()).isEqualTo("Trying to create Azure key vault but no Azure configuration provided in the configfile");
+        assertThat(ex).isExactlyInstanceOf(ConfigException.class);
+        assertThat(ex.getMessage()).contains("Trying to create Azure key vault but no Azure configuration provided in the configfile");
     }
 
     @Test
     public void envVarsAndKeyVaultConfigProvidedCreatesAzureKeyVaultService() {
         when(envProvider.getEnv(anyString())).thenReturn("envVar");
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+        AzureKeyVaultConfig keyVaultConfig = mock(AzureKeyVaultConfig.class);
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         KeyVaultService result = azureKeyVaultServiceFactory.create(config, envProvider);
@@ -112,7 +109,7 @@ public class AzureKeyVaultServiceFactoryTest {
 
     @Test
     public void getType() {
-        assertThat(azureKeyVaultServiceFactory.getType()).isEqualTo(KeyPairType.AZURE);
+        assertThat(azureKeyVaultServiceFactory.getType()).isEqualTo(KeyVaultType.AZURE);
     }
 
 }
