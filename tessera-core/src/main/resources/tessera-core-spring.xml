@@ -32,7 +32,7 @@
         <constructor-arg ref="encryptedTransactionDAO" />
         <constructor-arg ref="payloadPublisher" />
         <constructor-arg ref="enclave" />
-
+        <constructor-arg ref="encryptedRawTransactionDAO" />
     </bean>
 
     <!-- Node synchronization management-->

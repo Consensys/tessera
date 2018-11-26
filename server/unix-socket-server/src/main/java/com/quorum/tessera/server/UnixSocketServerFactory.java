@@ -21,6 +21,7 @@ public class UnixSocketServerFactory implements TesseraServerFactory {
         final Application application = services
             .stream()
             .filter(Application.class::isInstance)
+            .filter(serverConfig.getApp().getIntf()::isInstance)
             .findFirst()
             .map(Application.class::cast)
             .get();
