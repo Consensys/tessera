@@ -23,11 +23,11 @@ public class KeyVaultConfigurationValidator implements ConstraintValidator<Valid
             return true;
         }
 
-        boolean isUsingVaultKeys = keyConfiguration.getKeyData()
+        boolean isUsingAzureVaultKeys = keyConfiguration.getKeyData()
             .stream()
             .anyMatch(keyPair -> keyPair instanceof AzureVaultKeyPair);
 
-        if(isUsingVaultKeys && keyConfiguration.getAzureKeyVaultConfig() == null) {
+        if(isUsingAzureVaultKeys && keyConfiguration.getAzureKeyVaultConfig() == null) {
             return false;
         }
 

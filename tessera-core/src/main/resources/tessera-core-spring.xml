@@ -104,35 +104,11 @@
         <constructor-arg ref="keyManager" />
     </bean>
 
-    <bean id="keyVaultExecutorService" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool">
-        <constructor-arg value="1"/>
-    </bean>
+    <bean id="environmentVariableProvider" class="com.quorum.tessera.config.util.EnvironmentVariableProvider"></bean>
 
-    <bean id="keyVaultCredentials" class="com.quorum.tessera.key.vault.AzureKeyVaultClientCredentials">
-        <constructor-arg value="#{systemEnvironment['AZURE_CLIENT_ID']}"/>
-        <constructor-arg value="#{systemEnvironment['AZURE_CLIENT_SECRET']}"/>
-        <constructor-arg ref="keyVaultExecutorService"/>
-    </bean>
-
-    <bean id="keyVaultClientFactory" class="com.quorum.tessera.key.vault.AzureKeyVaultClientFactory">
-        <constructor-arg ref="keyVaultCredentials"/>
-    </bean>
-
-    <bean id="azureKeyVaultClientDelegate" class="com.quorum.tessera.key.vault.AzureKeyVaultClientDelegate">
-        <constructor-arg>
-            <bean id="keyVaultClient" factory-bean="keyVaultClientFactory" factory-method="getAuthenticatedClient"/>
-        </constructor-arg>
-    </bean>
-
-    <bean id="azureKeyVaultService" class="com.quorum.tessera.key.vault.AzureKeyVaultService">
-        <constructor-arg>
-            <bean factory-bean="keyConfig" factory-method="getAzureKeyVaultConfig"></bean>
-        </constructor-arg>
-        <constructor-arg ref="azureKeyVaultClientDelegate"/>
-    </bean>
-
-    <bean name="keyPairConverter" class="com.quorum.tessera.config.keypairs.KeyPairConverter">
-        <constructor-arg ref="azureKeyVaultService"/>
+    <bean name="keyPairConverter" class="com.quorum.tessera.keypairconverter.KeyPairConverter">
+        <constructor-arg ref="config"/>
+        <constructor-arg ref="environmentVariableProvider"/>
     </bean>
 
     <bean name="keyManager" class="com.quorum.tessera.encryption.KeyManagerImpl">

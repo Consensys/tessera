@@ -1,4 +1,4 @@
-package com.quorum.tessera.key.vault;
+package com.quorum.tessera.key.vault.azure;
 
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.ClientCredential;

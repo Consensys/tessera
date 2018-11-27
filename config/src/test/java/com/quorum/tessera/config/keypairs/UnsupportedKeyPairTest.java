@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UnsupportedKeyPairTest {
 
-    UnsupportedKeyPair keyPair;
+    private UnsupportedKeyPair keyPair;
 
     @Before
     public void setUp() {

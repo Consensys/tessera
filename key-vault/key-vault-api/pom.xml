@@ -20,4 +20,10 @@
             </plugin>
         </plugins>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>config</artifactId>
+        </dependency>
+    </dependencies>
 </project>

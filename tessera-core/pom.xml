@@ -36,12 +36,18 @@
 
         <dependency>
             <groupId>com.quorum.tessera</groupId>
+            <artifactId>key-pair-converter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
             <artifactId>key-vault-api</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>azure-key-vault</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>

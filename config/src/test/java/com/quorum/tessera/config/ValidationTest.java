@@ -303,20 +303,20 @@ public class ValidationTest {
     }
 
     @Test
-    public void keyVaultConfigWithNoUrlCreatesNullViolation() {
-        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null);
+    public void azureVaultConfigWithNoUrlCreatesNullViolation() {
+        AzureKeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig(null);
 
-        Set<ConstraintViolation<KeyVaultConfig>> violations = validator.validate(keyVaultConfig);
+        Set<ConstraintViolation<AzureKeyVaultConfig>> violations = validator.validate(keyVaultConfig);
         assertThat(violations).hasSize(1);
 
-        ConstraintViolation<KeyVaultConfig> violation = violations.iterator().next();
+        ConstraintViolation<AzureKeyVaultConfig> violation = violations.iterator().next();
         assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
     }
 
     @Test
-    public void vaultKeyPairProvidedButKeyVaultConfigHasNullUrlCreatesNullViolation() {
+    public void azureVaultKeyPairProvidedButKeyVaultConfigHasNullUrlCreatesNullViolation() {
         AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pubId", "privId");
-        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(null);
+        AzureKeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig(null);
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), keyVaultConfig);
 
         Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);

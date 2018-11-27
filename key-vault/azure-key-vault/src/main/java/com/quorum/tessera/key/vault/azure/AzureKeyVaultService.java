@@ -1,8 +1,10 @@
-package com.quorum.tessera.key.vault;
+package com.quorum.tessera.key.vault.azure;
 
 import com.microsoft.azure.keyvault.models.SecretBundle;
 import com.microsoft.azure.keyvault.requests.SetSecretRequest;
-import com.quorum.tessera.config.KeyVaultConfig;
+import com.quorum.tessera.config.AzureKeyVaultConfig;
+import com.quorum.tessera.key.vault.KeyVaultService;
+import com.quorum.tessera.key.vault.VaultSecretNotFoundException;
 
 import java.util.Objects;
 
@@ -10,7 +12,7 @@ public class AzureKeyVaultService implements KeyVaultService {
     private String vaultUrl;
     private AzureKeyVaultClientDelegate azureKeyVaultClientDelegate;
 
-    public AzureKeyVaultService(KeyVaultConfig keyVaultConfig, AzureKeyVaultClientDelegate azureKeyVaultClientDelegate) {
+    public AzureKeyVaultService(AzureKeyVaultConfig keyVaultConfig, AzureKeyVaultClientDelegate azureKeyVaultClientDelegate) {
         if(Objects.nonNull(keyVaultConfig)) {
             this.vaultUrl = keyVaultConfig.getUrl();
         }

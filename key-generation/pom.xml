@@ -22,8 +22,9 @@
 
         <dependency>
             <groupId>com.quorum.tessera</groupId>
-            <artifactId>azure-key-vault</artifactId>
+            <artifactId>key-vault-api</artifactId>
         </dependency>
+
     </dependencies>
 
 </project>

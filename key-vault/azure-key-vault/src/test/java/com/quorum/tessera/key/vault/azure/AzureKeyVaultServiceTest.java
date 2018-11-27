@@ -1,8 +1,9 @@
-package com.quorum.tessera.key.vault;
+package com.quorum.tessera.key.vault.azure;
 
 import com.microsoft.azure.keyvault.models.SecretBundle;
 import com.microsoft.azure.keyvault.requests.SetSecretRequest;
-import com.quorum.tessera.config.KeyVaultConfig;
+import com.quorum.tessera.config.AzureKeyVaultConfig;
+import com.quorum.tessera.key.vault.VaultSecretNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -24,7 +25,7 @@ public class AzureKeyVaultServiceTest {
         String secretName = "secret";
         String vaultUrl = "vaultUrl";
 
-        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(vaultUrl);
+        AzureKeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig(vaultUrl);
 
         when(azureKeyVaultClientDelegate.getSecret(anyString(), anyString())).thenReturn(null);
 
@@ -41,7 +42,7 @@ public class AzureKeyVaultServiceTest {
         String url = "url";
         String secretId = "id";
 
-        KeyVaultConfig keyVaultConfig = new KeyVaultConfig(url);
+        AzureKeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig(url);
 
         when(azureKeyVaultClientDelegate.getSecret(url, secretId)).thenReturn(new SecretBundle());
 
@@ -64,7 +65,7 @@ public class AzureKeyVaultServiceTest {
 
     @Test
     public void setSecretRequestIsUsedToRetrieveSecretFromVault() {
-        KeyVaultConfig keyVaultConfig = new KeyVaultConfig("url");
+        AzureKeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig("url");
 
         AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
 
