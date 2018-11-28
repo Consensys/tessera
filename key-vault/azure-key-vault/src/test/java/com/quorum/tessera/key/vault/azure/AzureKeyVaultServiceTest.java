@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.Collections;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
@@ -80,5 +82,25 @@ public class AzureKeyVaultServiceTest {
         verify(azureKeyVaultClientDelegate).setSecret(argument.capture());
 
         assertThat(argument.getValue()).isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    public void getSecretFromPathDoesNotInteractWithAzureClient() {
+        AzureKeyVaultConfig keyVaultConfig = mock(AzureKeyVaultConfig.class);
+
+        AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
+
+        assertThat(azureKeyVaultService.getSecretFromPath("secretPath", "secretName")).isNull();
+        verifyZeroInteractions(azureKeyVaultClientDelegate);
+    }
+
+    @Test
+    public void setSecretAtPathReturnsNull() {
+        AzureKeyVaultConfig keyVaultConfig = mock(AzureKeyVaultConfig.class);
+
+        AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
+
+        assertThat(azureKeyVaultService.setSecretAtPath("secretPath", Collections.singletonMap("secretName", "secretValue"))).isNull();
+        verifyZeroInteractions(azureKeyVaultClientDelegate);
     }
 }

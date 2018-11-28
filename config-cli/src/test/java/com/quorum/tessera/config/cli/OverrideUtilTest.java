@@ -41,6 +41,7 @@ public class OverrideUtilTest {
             "keys.keyData.config.data.aopts.parallelism",
             "keys.keyData.privateKeyPath",
             "keys.azureKeyVaultConfig.url",
+            "keys.hashicorpKeyVaultConfig.url",
             "alwaysSendTo",
             "unixSocketFile",
             "useWhiteList",
