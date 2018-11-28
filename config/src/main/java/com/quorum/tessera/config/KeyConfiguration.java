@@ -36,7 +36,8 @@ public class KeyConfiguration extends ConfigItem {
     private AzureKeyVaultConfig azureKeyVaultConfig;
 
     @Valid
-    @XmlElement HashicorpKeyVaultConfig hashicorpKeyVaultConfig;
+    @XmlElement
+    private HashicorpKeyVaultConfig hashicorpKeyVaultConfig;
 
     public KeyConfiguration(final Path passwordFile, final List<String> passwords, final List<ConfigKeyPair> keyData, final AzureKeyVaultConfig azureKeyVaultConfig, final HashicorpKeyVaultConfig hashicorpKeyVaultConfig) {
         this.passwordFile = passwordFile;

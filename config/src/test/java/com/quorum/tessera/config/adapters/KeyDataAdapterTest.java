@@ -61,6 +61,17 @@ public class KeyDataAdapterTest {
     }
 
     @Test
+    public void marshallHashicorpKeys() {
+        final HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretPath");
+
+        final KeyData expected = new KeyData(null, null, null, null, null, null, null, "privId", "pubId", "secretPath");
+
+        final KeyData result = adapter.marshal(keyPair);
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
     public void marshallUnsupportedKeys() {
         final KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         final Path path = mock(Path.class);
@@ -151,6 +162,14 @@ public class KeyDataAdapterTest {
     }
 
     @Test
+    public void unmarshallingHashicorpKeysGivesCorrectKeyPair() {
+        final KeyData input = new KeyData(null, null, null, null, null, null, null, "privId", "pubId", "secretPath");
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
+    }
+
+    @Test
     public void unmarshallingPrivateOnlyGivesUnsupportedKeyPair() {
         final KeyData input = new KeyData(null, "private", null, null, null, null, null, null, null, null);
 
@@ -178,6 +197,30 @@ public class KeyDataAdapterTest {
     @Test
     public void unmarshallingAzurePrivateOnlyGivesUnsupportedKeyPair() {
         final KeyData input = new KeyData(null, null, null, null, null, "priv", null, null, null, null);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingHashicorpPublicOnlyGivesUnsupprtedKeyPair() {
+        final KeyData input = new KeyData(null, null, null, null, null, null, null, null, "pubId", null);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingHashicorpPrivateOnlyGivesUnsupprtedKeyPair() {
+        final KeyData input = new KeyData(null, null, null, null, null, null, null, "privId", null, null);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingHashicorpSecretPathOnlyGivesUnsupprtedKeyPair() {
+        final KeyData input = new KeyData(null, null, null, null, null, null, null, null, null, "secretPath");
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
