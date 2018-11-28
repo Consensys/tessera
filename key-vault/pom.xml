@@ -12,5 +12,6 @@
     <modules>
         <module>azure-key-vault</module>
         <module>key-vault-api</module>
+        <module>hashicorp-key-vault</module>
     </modules>
 </project>

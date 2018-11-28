@@ -1,5 +1,5 @@
 package com.quorum.tessera.config;
 
 public enum KeyVaultType {
-    AZURE
+    AZURE, HASHICORP
 }
