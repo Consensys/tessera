@@ -20,7 +20,7 @@ public class KeyConfigurationAdapterTest {
     @Test
     public void marshallingDoesNothing() {
 
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, emptyList(), null);
+        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, emptyList(), null, null);
 
         final KeyConfiguration marshalled = this.keyConfigurationAdapter.marshal(keyConfiguration);
 
@@ -33,7 +33,7 @@ public class KeyConfigurationAdapterTest {
 
         //null paths since we won't actually be reading them
         final ConfigKeyPair keypair = new FilesystemKeyPair(null, null);
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, emptyList(), singletonList(keypair), null);
+        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, emptyList(), singletonList(keypair), null, null);
 
         final KeyConfiguration configuration = this.keyConfigurationAdapter.unmarshal(keyConfiguration);
 
@@ -50,7 +50,7 @@ public class KeyConfigurationAdapterTest {
 
         //null paths since we won't actually be reading them
         final ConfigKeyPair keypair = new FilesystemKeyPair(null, null);
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keypair), null);
+        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keypair), null, null);
 
         final KeyConfiguration configuration = this.keyConfigurationAdapter.unmarshal(keyConfiguration);
 
@@ -68,7 +68,7 @@ public class KeyConfigurationAdapterTest {
         //null paths since we won't actually be reading them
         final ConfigKeyPair keypair = new FilesystemKeyPair(null, null);
         final KeyConfiguration keyConfiguration
-            = new KeyConfiguration(null, singletonList("passwordsAssignedToKeys"), singletonList(keypair), null);
+            = new KeyConfiguration(null, singletonList("passwordsAssignedToKeys"), singletonList(keypair), null, null);
 
         final KeyConfiguration configuration = this.keyConfigurationAdapter.unmarshal(keyConfiguration);
 
@@ -83,7 +83,7 @@ public class KeyConfigurationAdapterTest {
         final Path passes = Files.createTempDirectory("testdirectory").resolve("nonexistantfile.txt");
 
         final ConfigKeyPair keypair = new FilesystemKeyPair(null, null);
-        final KeyConfiguration keyConfiguration = new KeyConfiguration(passes, null, singletonList(keypair), null);
+        final KeyConfiguration keyConfiguration = new KeyConfiguration(passes, null, singletonList(keypair), null, null);
 
         final KeyConfiguration configuration = this.keyConfigurationAdapter.unmarshal(keyConfiguration);
 

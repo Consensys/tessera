@@ -61,7 +61,7 @@ public class FixtureUtil {
             .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
             .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
             .keyData(new KeyConfiguration(null, Collections.emptyList(),
-                Collections.singletonList(new FilesystemKeyPair(Paths.get("public"), Paths.get("private"))), null));
+                Collections.singletonList(new FilesystemKeyPair(Paths.get("public"), Paths.get("private"))), null, null));
     }
 
     public static ConfigBuilder builderWithNullValues() {
@@ -91,7 +91,7 @@ public class FixtureUtil {
             .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
             .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
             .keyData(new KeyConfiguration(null, Collections.emptyList(),
-                Collections.singletonList(new FilesystemKeyPair(Paths.get("public"), Paths.get("private"))), null));
+                Collections.singletonList(new FilesystemKeyPair(Paths.get("public"), Paths.get("private"))), null, null));
     }
     
     public static JsonObject createUnlockedPrivateKey() {
