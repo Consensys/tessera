@@ -123,6 +123,62 @@ public class UnsupportedKeyPairValidatorTest {
     }
 
     @Test
+    public void hashicorpViolationIfPublicIdButNoPrivateIdOrSecretPath() {
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, null, "pubId", null, null);
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfPrivateIdButNoPublicIdOrSecretPath() {
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, null, null, "privId", null);
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfSecretPathButNoPublicIdOrPrivateId() {
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, null, null, null, "secretPath");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfPublicIdAndPrivateIdButNoSecretPath() {
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, null, "pubId", "privId", null);
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfPublicIdAndSecretPathButNoPrivateId() {
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, null, "pubId", null, "secretPath");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfPrivateIdAndSecretPathButNoPublicId() {
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, null, null, "privId", "secretPath");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+
+
+    @Test
     public void azureViolationIfNoPrivateIdEvenIfFilesystemIncomplete() {
         Path path = mock(Path.class);
 
