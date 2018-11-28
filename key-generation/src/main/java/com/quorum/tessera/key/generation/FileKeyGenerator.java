@@ -72,6 +72,9 @@ public class FileKeyGenerator implements KeyGenerator {
                 null,
                 null,
                 null,
+                null,
+                null,
+                null,
                 null
             );
 
@@ -88,6 +91,9 @@ public class FileKeyGenerator implements KeyGenerator {
                 ),
                 generated.getPrivateKey().toString(),
                 publicKeyBase64,
+                null,
+                null,
+                null,
                 null,
                 null,
                 null,

@@ -11,7 +11,7 @@ public class UnsupportedKeyPairTest {
 
     @Before
     public void setUp() {
-        this.keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, null);
+        this.keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, null, null, null, null);
     }
 
     @Test

@@ -31,7 +31,7 @@ public class UnsupportedKeyPairValidatorTest {
 
     @Test
     public void directViolationIfPublicKeyButNoPrivateKey() {
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, "public", null, null, null, null);
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, "public", null, null, null, null, null, null, null);
 
         validator.isValid(keyPair, context);
 
@@ -40,7 +40,7 @@ public class UnsupportedKeyPairValidatorTest {
 
     @Test
     public void directViolationIfNoPublicKeyButPrivateKey() {
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, "private", null, null, null, null, null);
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, "private", null, null, null, null, null, null, null, null);
 
         validator.isValid(keyPair, context);
 
@@ -52,7 +52,7 @@ public class UnsupportedKeyPairValidatorTest {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         Path path = mock(Path.class);
 
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, "private", null, path, null, null, "privVault");
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, "private", null, path, null, null, "privVault", null, null, null);
 
         validator.isValid(keyPair, context);
 
@@ -64,7 +64,7 @@ public class UnsupportedKeyPairValidatorTest {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         Path path = mock(Path.class);
 
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, null, "public", null, path, "pubVault", null);
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, null, "public", null, path, "pubVault", null, null, null, null);
 
         validator.isValid(keyPair, context);
 
@@ -74,7 +74,7 @@ public class UnsupportedKeyPairValidatorTest {
     @Test
     public void inlineViolationIfPrivateKeyConfigButNoPublicKey() {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, null, null, null, null, null, null);
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, null, null, null, null, null, null, null, null, null);
 
         validator.isValid(keyPair, context);
 
@@ -86,7 +86,7 @@ public class UnsupportedKeyPairValidatorTest {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         Path path = mock(Path.class);
 
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, null, null, null, path, "pubId", null);
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, null, null, null, path, "pubId", null, null, null, null);
 
         validator.isValid(keyPair, context);
 
@@ -95,7 +95,7 @@ public class UnsupportedKeyPairValidatorTest {
 
     @Test
     public void azureViolationIfPublicIdButNoPrivateId() {
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, null, "pubId", null);
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, null, "pubId", null, null, null, null);
 
         validator.isValid(keyPair, context);
 
@@ -104,7 +104,7 @@ public class UnsupportedKeyPairValidatorTest {
 
     @Test
     public void azureViolationIfNoPublicIdButPrivateId() {
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, "privId");
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, "privId", null, null, null);
 
         validator.isValid(keyPair, context);
 
@@ -115,7 +115,7 @@ public class UnsupportedKeyPairValidatorTest {
     public void azureViolationIfNoPublicIdEvenIfFilesystemIncomplete() {
         Path path = mock(Path.class);
 
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, path, null, "privId");
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, path, null, "privId", null, null, null);
 
         validator.isValid(keyPair, context);
 
@@ -126,7 +126,7 @@ public class UnsupportedKeyPairValidatorTest {
     public void azureViolationIfNoPrivateIdEvenIfFilesystemIncomplete() {
         Path path = mock(Path.class);
 
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, path, "pubId", null);
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, path, "pubId", null, null, null, null);
 
         validator.isValid(keyPair, context);
 
@@ -137,7 +137,7 @@ public class UnsupportedKeyPairValidatorTest {
     public void filesystemViolationIfPublicPathButNoPrivatePath() {
         Path path = mock(Path.class);
 
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, path, null, null);
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, path, null, null, null, null, null);
 
         validator.isValid(keyPair, context);
 
@@ -148,7 +148,7 @@ public class UnsupportedKeyPairValidatorTest {
     public void filesystemViolationIfNoPublicPathButPrivatePath() {
         Path path = mock(Path.class);
 
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, path, null, null, null);
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, path, null, null, null, null, null, null);
 
         validator.isValid(keyPair, context);
 
@@ -157,7 +157,7 @@ public class UnsupportedKeyPairValidatorTest {
 
     @Test
     public void defaultViolationIfNoRecognisedKeyPairDataProvided() {
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, null);
+        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, null, null, null, null);
 
         validator.isValid(keyPair, context);
 

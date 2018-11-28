@@ -60,7 +60,7 @@ public class ValidationTest {
     public void keyDataConfigMissingPassword() {
         PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), null);
         KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-        KeyData keyData = new KeyData(keyDataConfig, "privateKey", "publicKey", null, null, null, null);
+        KeyData keyData = new KeyData(keyDataConfig, "privateKey", "publicKey", null, null, null, null, null, null, null);
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
         assertThat(violations).hasSize(1);
 
@@ -74,7 +74,7 @@ public class ValidationTest {
     public void keyDataConfigNaclFailure() {
         PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
         KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-        KeyData keyData = new KeyData(keyDataConfig, "NACL_FAILURE", "publicKey", null, null, null, null);
+        KeyData keyData = new KeyData(keyDataConfig, "NACL_FAILURE", "publicKey", null, null, null, null, null, null, null);
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
         assertThat(violations).hasSize(1);
 
@@ -88,7 +88,7 @@ public class ValidationTest {
     public void keyDataConfigInvalidBase64() {
         PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
         KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-        KeyData keyData = new KeyData(keyDataConfig, "INAVLID_BASE", "publicKey", null, null, null, null);
+        KeyData keyData = new KeyData(keyDataConfig, "INAVLID_BASE", "publicKey", null, null, null, null, null, null, null);
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
         assertThat(violations).hasSize(1);
 

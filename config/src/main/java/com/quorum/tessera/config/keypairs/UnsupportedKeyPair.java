@@ -34,7 +34,16 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
     @XmlElement
     private final String azureVaultPrivateKeyId;
 
-    public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId) {
+    @XmlElement
+    private String hashicorpVaultPublicKeyId;
+
+    @XmlElement
+    private String hashicorpVaultPrivateKeyId;
+
+    @XmlElement
+    private String hashicorpVaultSecretPath;
+
+    public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretPath) {
         this.config = config;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
@@ -42,6 +51,9 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
         this.publicKeyPath = publicKeyPath;
         this.azureVaultPublicKeyId = azureVaultPublicKeyId;
         this.azureVaultPrivateKeyId = azureVaultPrivateKeyId;
+        this.hashicorpVaultPublicKeyId = hashicorpVaultPublicKeyId;
+        this.hashicorpVaultPrivateKeyId = hashicorpVaultPrivateKeyId;
+        this.hashicorpVaultSecretPath = hashicorpVaultSecretPath;
     }
 
     @Override
@@ -72,6 +84,18 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
 
     public String getAzureVaultPrivateKeyId() {
         return azureVaultPrivateKeyId;
+    }
+
+    public String getHashicorpVaultPublicKeyId() {
+        return hashicorpVaultPublicKeyId;
+    }
+
+    public String getHashicorpVaultPrivateKeyId() {
+        return hashicorpVaultPrivateKeyId;
+    }
+
+    public String getHashicorpVaultSecretPath() {
+        return hashicorpVaultSecretPath;
     }
 
     @Override

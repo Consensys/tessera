@@ -43,13 +43,25 @@ public class KeyData extends ConfigItem {
     @Pattern(regexp = "^[0-9a-zA-Z\\-]*$")
     private String azureVaultPrivateKeyId;
 
+    @XmlElement
+    private String hashicorpVaultPublicKeyId;
+
+    @XmlElement
+    private String hashicorpVaultPrivateKeyId;
+
+    @XmlElement
+    private String hashicorpVaultSecretPath;
+
     public KeyData(final KeyDataConfig keyDataConfig,
                    final String privateKey,
                    final String publicKey,
                    final Path privKeyPath,
                    final Path pubKeyPath,
                    final String azureVaultPrivateKeyId,
-                   final String azureVaultPublicKeyId) {
+                   final String azureVaultPublicKeyId,
+                   final String hashicorpVaultPrivateKeyId,
+                   final String hashicorpVaultPublicKeyId,
+                   final String hashicorpVaultSecretPath) {
         this.privateKey = privateKey;
         this.publicKey = publicKey;
         this.config = keyDataConfig;
@@ -57,6 +69,9 @@ public class KeyData extends ConfigItem {
         this.publicKeyPath = pubKeyPath;
         this.azureVaultPublicKeyId = azureVaultPublicKeyId;
         this.azureVaultPrivateKeyId = azureVaultPrivateKeyId;
+        this.hashicorpVaultPublicKeyId = hashicorpVaultPublicKeyId;
+        this.hashicorpVaultPrivateKeyId = hashicorpVaultPrivateKeyId;
+        this.hashicorpVaultSecretPath = hashicorpVaultSecretPath;
     }
 
     public KeyData() {
@@ -91,4 +106,15 @@ public class KeyData extends ConfigItem {
         return azureVaultPrivateKeyId;
     }
 
+    public String getHashicorpVaultPublicKeyId() {
+        return hashicorpVaultPublicKeyId;
+    }
+
+    public String getHashicorpVaultPrivateKeyId() {
+        return hashicorpVaultPrivateKeyId;
+    }
+
+    public String getHashicorpVaultSecretPath() {
+        return hashicorpVaultSecretPath;
+    }
 }
