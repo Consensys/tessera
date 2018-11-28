@@ -28,7 +28,11 @@ public class HashicorpKeyVaultService implements KeyVaultService {
         }
 
         if(response.getData() == null) {
-            throw new VaultSecretNotFoundException("Value for secret key " + secretName + " not found at path " + secretPath + " in vault " + vaultUrl);
+            throw new VaultSecretNotFoundException("No data for Hashicorp Vault secret at path " + secretPath + " in vault " + vaultUrl);
+        }
+
+        if(response.getData().get(secretName) == null) {
+            throw new VaultSecretNotFoundException("Value for secret id " + secretName + " not found at path " + secretPath + " in vault " + vaultUrl);
         }
 
         return response.getData().get(secretName).toString();

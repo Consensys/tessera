@@ -26,17 +26,17 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
         String authToken = envProvider.getEnv(authTokenEnvVar);
 
         if(authToken == null) {
-            throw new RuntimeException(authTokenEnvVar + " must be set");
+            throw new HashicorpCredentialNotSetException(authTokenEnvVar + " must be set");
         }
 
         HashicorpKeyVaultConfig keyVaultConfig = Optional.ofNullable(config.getKeys())
             .map(KeyConfiguration::getHashicorpKeyVaultConfig)
-            .orElseThrow(() -> new ConfigException(new RuntimeException("Trying to create Hashicorp Vault connection but no Vault configuration provided in the configfile")));
+            .orElseThrow(() -> new ConfigException(new RuntimeException("Trying to create Hashicorp Vault connection but no Vault configuration provided")));
 
         VaultEndpoint vaultEndpoint;
         try {
             vaultEndpoint = VaultEndpoint.from(new URI(keyVaultConfig.getUrl()));
-        } catch (URISyntaxException e) {
+        } catch (URISyntaxException | IllegalArgumentException e) {
             throw new ConfigException(new Throwable("Provided Hashicorp Vault url is incorrectly formatted", e));
         }
 

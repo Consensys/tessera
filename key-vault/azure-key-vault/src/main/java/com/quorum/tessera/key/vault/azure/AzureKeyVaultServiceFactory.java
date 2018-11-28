@@ -28,7 +28,7 @@ public class AzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
 
         AzureKeyVaultConfig keyVaultConfig = Optional.ofNullable(config.getKeys())
             .map(KeyConfiguration::getAzureKeyVaultConfig)
-            .orElseThrow(() -> new ConfigException(new RuntimeException("Trying to create Azure key vault connection but no Azure configuration provided in the configfile")));
+            .orElseThrow(() -> new ConfigException(new RuntimeException("Trying to create Azure key vault connection but no Azure configuration provided")));
 
         return new AzureKeyVaultService(
             keyVaultConfig,
