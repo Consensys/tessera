@@ -20,7 +20,18 @@ public class HashicorpKeyVaultService implements KeyVaultService {
         this.vaultTemplate = vaultTemplate;
     }
 
-    public String getHashicorpSecret(String secretPath, String secretName) {
+    @Override
+    public String getSecret(String secretName) {
+        return null;
+    }
+
+    @Override
+    public Object setSecret(String secretName, String secret) {
+        return null;
+    }
+
+    @Override
+    public String getSecretFromPath(String secretPath, String secretName) {
         VaultResponse response = vaultTemplate.read(secretPath);
 
         if(response == null) {
@@ -38,17 +49,8 @@ public class HashicorpKeyVaultService implements KeyVaultService {
         return response.getData().get(secretName).toString();
     }
 
-    public void setHashicorpSecret(String secretPath, Map<String, String> keyValuePairs) {
-        vaultTemplate.write(secretPath, keyValuePairs);
-    }
-
     @Override
-    public String getSecret(String secretName) {
-        return null;
-    }
-
-    @Override
-    public Object setSecret(String secretName, String secret) {
-        return null;
+    public Object setSecretAtPath(String secretPath, Map<String, String> secretData) {
+        return vaultTemplate.write(secretPath, secretData);
     }
 }

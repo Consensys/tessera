@@ -424,6 +424,12 @@
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
+                <artifactId>hashicorp-key-vault</artifactId>
+                <version>0.8-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.quorum.tessera</groupId>
                 <artifactId>key-generation</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>

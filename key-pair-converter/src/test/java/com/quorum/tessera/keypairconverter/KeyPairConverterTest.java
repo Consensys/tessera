@@ -1,10 +1,7 @@
 package com.quorum.tessera.keypairconverter;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
-import com.quorum.tessera.config.keypairs.DirectKeyPair;
-import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
-import com.quorum.tessera.config.keypairs.InlineKeypair;
+import com.quorum.tessera.config.keypairs.*;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
@@ -95,6 +92,19 @@ public class KeyPairConverterTest {
         assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
     }
 
+    @Test
+    public void convertSingleHashicorpVaultKeyPair() {
+        final HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pub", "priv", "secretPath");
+
+        Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
+
+        assertThat(result).hasSize(1);
+
+        KeyPair resultKeyPair = result.iterator().next();
+        KeyPair expected = new KeyPair(PublicKey.from(decodeBase64("publicSecret")), PrivateKey.from(decodeBase64("privSecret")));
+
+        assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
+    }
 
     @Test
     public void convertMultipleKeyPairs() {

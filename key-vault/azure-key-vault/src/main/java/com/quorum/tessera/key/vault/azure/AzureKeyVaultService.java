@@ -6,6 +6,7 @@ import com.quorum.tessera.config.AzureKeyVaultConfig;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.key.vault.VaultSecretNotFoundException;
 
+import java.util.Map;
 import java.util.Objects;
 
 public class AzureKeyVaultService implements KeyVaultService {
@@ -31,9 +32,19 @@ public class AzureKeyVaultService implements KeyVaultService {
     }
 
     @Override
+    public String getSecretFromPath(String secretPath, String secretName) {
+        return null;
+    }
+
+    @Override
     public SecretBundle setSecret(String secretName, String secret) {
         SetSecretRequest setSecretRequest = new SetSecretRequest.Builder(vaultUrl, secretName, secret).build();
 
         return this.azureKeyVaultClientDelegate.setSecret(setSecretRequest);
+    }
+
+    @Override
+    public Object setSecretAtPath(String secretPath, Map<String, String> secretData) {
+        return null;
     }
 }

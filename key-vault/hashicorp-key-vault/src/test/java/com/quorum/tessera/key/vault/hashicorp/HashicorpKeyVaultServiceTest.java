@@ -40,7 +40,7 @@ public class HashicorpKeyVaultServiceTest {
     public void getSecretThrowsExceptionIfSecretNotFoundAtPath() {
         when(vaultTemplate.read(anyString())).thenReturn(null);
 
-        final Throwable ex = catchThrowable(() -> keyVaultService.getHashicorpSecret(secretPath, secretName));
+        final Throwable ex = catchThrowable(() -> keyVaultService.getSecretFromPath(secretPath, secretName));
 
         assertThat(ex).isInstanceOf(VaultSecretNotFoundException.class);
         assertThat(ex).hasMessage("Hashicorp Vault secret not found at path " + secretPath + " in vault " + url);
@@ -54,7 +54,7 @@ public class HashicorpKeyVaultServiceTest {
         when(vaultTemplate.read(anyString())).thenReturn(vaultResponse);
         when(vaultResponse.getData()).thenReturn(null);
 
-        final Throwable ex = catchThrowable(() -> keyVaultService.getHashicorpSecret(secretPath, secretName));
+        final Throwable ex = catchThrowable(() -> keyVaultService.getSecretFromPath(secretPath, secretName));
 
         assertThat(ex).isInstanceOf(VaultSecretNotFoundException.class);
         assertThat(ex).hasMessage("No data for Hashicorp Vault secret at path " + secretPath + " in vault " + url);
@@ -68,7 +68,7 @@ public class HashicorpKeyVaultServiceTest {
         when(vaultTemplate.read(anyString())).thenReturn(vaultResponse);
         when(vaultResponse.getData()).thenReturn(secretData);
 
-        final Throwable ex = catchThrowable(() -> keyVaultService.getHashicorpSecret(secretPath, secretName));
+        final Throwable ex = catchThrowable(() -> keyVaultService.getSecretFromPath(secretPath, secretName));
 
         assertThat(ex).isInstanceOf(VaultSecretNotFoundException.class);
         assertThat(ex).hasMessage("Value for secret id " + secretName + " not found at path " + secretPath + " in vault " + url);
@@ -83,7 +83,7 @@ public class HashicorpKeyVaultServiceTest {
         when(vaultTemplate.read(anyString())).thenReturn(vaultResponse);
         when(vaultResponse.getData()).thenReturn(secretData);
 
-        String result = keyVaultService.getHashicorpSecret(secretPath, secretName);
+        String result = keyVaultService.getSecretFromPath(secretPath, secretName);
 
         assertThat(result).isEqualTo(value);
     }
@@ -91,7 +91,7 @@ public class HashicorpKeyVaultServiceTest {
     @Test
     public void setSecretCallsVaultTemplate() {
         Map<String, String> secretData = Collections.singletonMap(secretName, "value");
-        keyVaultService.setHashicorpSecret(secretPath, secretData);
+        keyVaultService.setSecretAtPath(secretPath, secretData);
 
         verify(vaultTemplate, times(1)).write(secretPath, secretData);
     }
