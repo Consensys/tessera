@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.quorum.tessera</groupId>
+  <artifactId>data-migration</artifactId>
+  <versioning>
+    <versions>
+      <version>0.8-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20181128172230</lastUpdated>
+  </versioning>
+</metadata>
