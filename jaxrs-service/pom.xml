@@ -101,14 +101,13 @@
                             <host>localhost:8080</host>
                             <basePath>/</basePath>
                             <springmvc>false</springmvc>
-                            
                             <info>
                                 <title>Tessera rest</title>
                                 <version>${project.version}</version>
                             </info>
 
                             <locations>
-                                <location>com.quorum.tessera.api</location>
+                                <location>com.quorum.tessera</location>
                             </locations>
                             <templatePath>${basedir}/src/main/swagger/strapdown.html.hbs</templatePath>
                             <outputPath>${project.build.directory}/generated-resources/swagger/swagger.html</outputPath>
