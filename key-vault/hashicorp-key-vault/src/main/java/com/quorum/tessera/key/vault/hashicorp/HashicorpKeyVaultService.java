@@ -3,6 +3,7 @@ package com.quorum.tessera.key.vault.hashicorp;
 import com.quorum.tessera.config.HashicorpKeyVaultConfig;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.key.vault.VaultSecretNotFoundException;
+import org.springframework.vault.VaultException;
 import org.springframework.vault.core.VaultTemplate;
 import org.springframework.vault.support.VaultResponse;
 
@@ -51,6 +52,10 @@ public class HashicorpKeyVaultService implements KeyVaultService {
 
     @Override
     public Object setSecretAtPath(String secretPath, Map<String, String> secretData) {
-        return vaultTemplate.write(secretPath, secretData);
+        try {
+            return vaultTemplate.write(secretPath, secretData);
+        } catch(VaultException e) {
+            throw new VaultSecretNotFoundException("Unable to write secret to path '" + secretPath + "' - " + e.getMessage() );
+        }
     }
 }

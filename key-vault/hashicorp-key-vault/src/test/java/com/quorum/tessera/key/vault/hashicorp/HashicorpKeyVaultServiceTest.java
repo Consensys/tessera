@@ -4,6 +4,7 @@ import com.quorum.tessera.config.HashicorpKeyVaultConfig;
 import com.quorum.tessera.key.vault.VaultSecretNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.vault.VaultException;
 import org.springframework.vault.core.VaultTemplate;
 import org.springframework.vault.support.VaultResponse;
 
@@ -92,6 +93,17 @@ public class HashicorpKeyVaultServiceTest {
         keyVaultService.setSecretAtPath(secretPath, secretData);
 
         verify(vaultTemplate, times(1)).write(secretPath, secretData);
+    }
+
+    @Test
+    public void setSecretThrowsExceptionIfUnsuccessful() {
+        when(vaultTemplate.write(anyString(), anyMap())).thenThrow(new VaultException("new exception"));
+
+        Throwable ex = catchThrowable(() -> keyVaultService.setSecretAtPath("secretpath", Collections.emptyMap()));
+
+        assertThat(ex).isInstanceOf(VaultSecretNotFoundException.class);
+        assertThat(ex.getMessage()).isEqualTo("Unable to write secret to path 'secretpath' - new exception");
+
     }
 
     @Test
