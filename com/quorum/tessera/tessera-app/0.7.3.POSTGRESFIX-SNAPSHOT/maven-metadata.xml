@@ -20,6 +20,12 @@
         <value>0.7.3.POSTGRESFIX-20181129.120943-1</value>
         <updated>20181129120943</updated>
       </snapshotVersion>
+      <snapshotVersion>
+        <classifier>app</classifier>
+        <extension>jar</extension>
+        <value>0.7.3.POSTGRESFIX-20181129.120943-1</value>
+        <updated>20181129120943</updated>
+      </snapshotVersion>
     </snapshotVersions>
   </versioning>
 </metadata>
