@@ -5,7 +5,8 @@
   <versioning>
     <versions>
       <version>0.7.4-SNAPSHOT</version>
+      <version>0.7.3.POSTGRESFIX-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20181122101712</lastUpdated>
+    <lastUpdated>20181129120943</lastUpdated>
   </versioning>
 </metadata>
