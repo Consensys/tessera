@@ -135,10 +135,35 @@ public class KeyGenerationParserTest {
     }
 
     @Test
-    public void ifOnlyValidVaultTypeOptionProvidedThenValidationException()  {
+    public void ifAzureVaultTypeOptionProvidedButNoVaultUrlThenValidationException()  {
         when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
         when(commandLine.hasOption("keygenvaulturl")).thenReturn(false);
         when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("AZURE");
+
+        Throwable ex = catchThrowable(() -> this.parser.parse(commandLine));
+
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
+
+        assertThat(ex).isInstanceOf(ConstraintViolationException.class);
+
+        Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
+
+        assertThat(violations.size()).isEqualTo(1);
+
+        ConstraintViolation violation = violations.iterator().next();
+
+        assertThat(violation.getPropertyPath().toString()).isEqualTo("url");
+        assertThat(violation.getMessage()).isEqualTo("may not be null");
+    }
+
+    @Test
+    public void ifHashicorpVaultTypeOptionAndFilenameProvidedButNoVaultUrlThenValidationException()  {
+        when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
+        when(commandLine.hasOption("keygenvaulturl")).thenReturn(false);
+        when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("HASHICORP");
+        when(commandLine.hasOption("filename")).thenReturn(true);
+        when(commandLine.getOptionValue("filename")).thenReturn("secret/path");
 
         Throwable ex = catchThrowable(() -> this.parser.parse(commandLine));
 
@@ -179,6 +204,35 @@ public class KeyGenerationParserTest {
 
         assertThat(ex).isInstanceOf(CliException.class);
         assertThat(ex.getMessage()).isEqualTo("Key vault type either not provided or not recognised.  Ensure provided value is UPPERCASE and has no leading or trailing whitespace characters");
+    }
+
+    @Test
+    public void noFilenameProvidedWhenUsingHashicorpVaultThrowsException() {
+        when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
+        when(commandLine.hasOption("keygenvaulturl")).thenReturn(true);
+        when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("HASHICORP");
+        when(commandLine.hasOption("filename")).thenReturn(false);
+
+        Throwable ex = catchThrowable(() -> this.parser.parse(commandLine));
+
+        assertThat(ex).isInstanceOf(CliException.class);
+        assertThat(ex.getMessage()).isEqualTo("At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
+    }
+
+    @Test
+    public void ifAllVaultOptionsAndFilenameProvidedForHashicorpThenOkay() throws Exception {
+        when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
+        when(commandLine.hasOption("keygenvaulturl")).thenReturn(true);
+        when(commandLine.hasOption("filename")).thenReturn(true);
+        when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("someurl");
+        when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("HASHICORP");
+        when(commandLine.getOptionValue("filename")).thenReturn("secret/path");
+
+        this.parser.parse(commandLine);
+
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
     }
 
 }
