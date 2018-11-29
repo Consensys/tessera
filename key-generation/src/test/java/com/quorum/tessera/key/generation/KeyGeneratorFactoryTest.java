@@ -1,6 +1,7 @@
 package com.quorum.tessera.key.generation;
 
 import com.quorum.tessera.config.AzureKeyVaultConfig;
+import com.quorum.tessera.config.HashicorpKeyVaultConfig;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import org.junit.Test;
 
@@ -22,13 +23,25 @@ public class KeyGeneratorFactoryTest {
     }
 
     @Test
-    public void azureVaultKeyGeneratorWhenKeyVaultConfigProvided() {
-        final AzureKeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig("url");
+    public void azureVaultKeyGeneratorWhenAzureConfigProvided() {
+        final AzureKeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig();
 
         final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(keyVaultConfig);
 
         assertThat(keyGenerator).isNotNull();
         assertThat(keyGenerator).isExactlyInstanceOf(AzureVaultKeyGenerator.class);
     }
+
+    @Test
+    public void hashicorpVaultKeyGeneratorWhenHashicorpConfigProvided() {
+        final HashicorpKeyVaultConfig keyVaultConfig = new HashicorpKeyVaultConfig();
+
+        final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(keyVaultConfig);
+
+        assertThat(keyGenerator).isNotNull();
+        assertThat(keyGenerator).isExactlyInstanceOf(HashicorpVaultKeyGenerator.class);
+    }
+
+
 
 }
