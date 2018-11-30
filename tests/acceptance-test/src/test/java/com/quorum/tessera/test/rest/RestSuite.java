@@ -9,7 +9,22 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    SendIT.class
+    DeleteIT.class,
+    MultipleKeyNodeIT.class,
+    PushIT.class,
+    ReceiveIT.class,
+    ReceiveRawIT.class,
+    ResendAllIT.class,
+    ResendIndividualIT.class,
+    SendIT.class,
+    SendRawIT.class,
+    P2PRestAppIT.class,
+    TransactionForwardingIT.class,
+    AdminConfigIT.class,
+    CucumberRestIT.class,
+    CucumberRawIT.class,
+    CucumberAdminIT.class,
+    CucumberWhitelistIT.class
 })
 public class RestSuite {
 
