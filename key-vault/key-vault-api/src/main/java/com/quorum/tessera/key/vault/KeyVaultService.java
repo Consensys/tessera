@@ -11,4 +11,8 @@ public interface KeyVaultService {
 
     Object setSecretAtPath(String secretPath, Map<String, Object> secretData);
 
+    String getSecret(GetSecretData getSecretData);
+
+    Object setSecret(SetSecretData setSecretData);
+
 }
