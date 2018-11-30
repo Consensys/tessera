@@ -1,18 +1,21 @@
-
 package com.quorum.tessera.data.migration;
 
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-
 
 public class CmdLineExecutor {
 
@@ -20,8 +23,7 @@ public class CmdLineExecutor {
         throw new UnsupportedOperationException("");
     }
 
-
-        protected static int execute(String... args) throws Exception {
+    protected static int execute(String... args) throws Exception {
 
         Options options = new Options();
 
@@ -47,6 +49,8 @@ public class CmdLineExecutor {
                         .required()
                         .build());
 
+        
+
         options.addOption(
                 Option.builder()
                         .longOpt("exporttype")
@@ -56,6 +60,16 @@ public class CmdLineExecutor {
                         .numberOfArgs(1)
                         .argName("TYPE")
                         .required()
+                        .build());
+        
+        options.addOption(
+                Option.builder()
+                        .longOpt("dbconfig")
+                        .desc("Properties file with create table, insert row and jdbc url")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("PATH")
                         .build());
 
         options.addOption(
@@ -71,25 +85,27 @@ public class CmdLineExecutor {
 
         options.addOption(
                 Option.builder()
-                    .longOpt("dbuser")
-                    .desc("Database username to use")
-                    .hasArg(true)
-                    .optionalArg(true)
-                    .numberOfArgs(1)
-                    .argName("PATH")
-                    .required()
-                    .build());
+                        .longOpt("dbuser")
+                        .desc("Database username to use")
+                        .hasArg(true)
+                        .optionalArg(true)
+                        .numberOfArgs(1)
+                        .argName("USER")
+                        .required()
+                        .build());
 
         options.addOption(
                 Option.builder()
-                    .longOpt("dbpass")
-                    .desc("Database password to use")
-                    .hasArg(true)
-                    .optionalArg(true)
-                    .numberOfArgs(1)
-                    .argName("PATH")
-                    .required()
-                    .build());
+                        .longOpt("dbpass")
+                        .desc("Database password to use")
+                        .hasArg(true)
+                        .optionalArg(true)
+                        .numberOfArgs(1)
+                        .argName("PASS")
+                        .required()
+                        .build());
+
+
 
         if (Arrays.asList(args).contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
@@ -110,10 +126,41 @@ public class CmdLineExecutor {
         final String password = line.getOptionValue("dbpass");
 
         final String exportTypeStr = line.getOptionValue("exporttype");
-        final ExportType exportType = ExportType.valueOf(exportTypeStr.toUpperCase());
+
+        final ExportType exportType = Optional.ofNullable(exportTypeStr)
+                .map(String::toUpperCase)
+                .map(ExportType::valueOf).get();
 
         final Path outputFile = Paths.get(line.getOptionValue("outputfile")).toAbsolutePath();
-        final DataExporter dataExporter = DataExporterFactory.create(exportType);
+
+        final DataExporter dataExporter;
+        if (exportType == ExportType.JDBC) {
+            if (!line.hasOption("dbconfig")) {
+                throw new MissingOptionException("dbconfig file path is required when no export type is defined.");
+            }
+
+            String dbconfig = line.getOptionValue("dbconfig");
+
+            Properties properties = new Properties();
+            try (InputStream inStream = Files.newInputStream(Paths.get(dbconfig))) {
+                properties.load(inStream);
+            }
+
+            String insertRow = Objects.requireNonNull(properties.getProperty("insertRow",null),
+                    "No insertRow value defined in config file. ");
+            
+            String createTable = Objects.requireNonNull(properties.getProperty("createTable",null),
+                    "No createTable value defined in config file. ");
+            
+            String jdbcUrl = Objects.requireNonNull(properties.getProperty("jdbcUrl",null),
+                    "No jdbcUrl value defined in config file. ");
+
+            dataExporter = new JdbcDataExporter(jdbcUrl, insertRow, createTable);
+
+        } else {
+            dataExporter = DataExporterFactory.create(exportType);
+        }
+
         dataExporter.export(data, outputFile, username, password);
 
         System.out.printf("Exported data to %s", Objects.toString(outputFile));
