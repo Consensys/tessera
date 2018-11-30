@@ -12,10 +12,6 @@
     <artifactId>hashicorp-key-vault</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.vault</groupId>
-            <artifactId>spring-vault-core</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>com.bettercloud</groupId>
