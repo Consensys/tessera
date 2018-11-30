@@ -181,6 +181,15 @@ public class DefaultCliAdapter implements CliAdapter {
         );
 
         options.addOption(
+            Option.builder("keygenvaultcert")
+                .desc("TLS certificate for key vault - not required for Azure vaults")
+                .hasArg()
+                .optionalArg(false)
+                .argName("PATH")
+                .build()
+        );
+
+        options.addOption(
             Option.builder("pidfile")
                 .desc("Path to pid file")
                 .hasArg(true)

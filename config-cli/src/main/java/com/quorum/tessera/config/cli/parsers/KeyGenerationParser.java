@@ -15,6 +15,7 @@ import javax.validation.Validator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -111,8 +112,13 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
                 throw new CliException("At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
             }
 
-            //TODO
-            keyVaultConfig = new HashicorpKeyVaultConfig(keyVaultUrl, null);
+            Path tlsCertificatePath = null;
+
+            if(commandLine.hasOption("keygenvaultcert")) {
+                tlsCertificatePath = Paths.get(commandLine.getOptionValue("keygenvaultcert"));
+            }
+
+            keyVaultConfig = new HashicorpKeyVaultConfig(keyVaultUrl, tlsCertificatePath);
 
             Set<ConstraintViolation<HashicorpKeyVaultConfig>> violations = validator.validate((HashicorpKeyVaultConfig)keyVaultConfig);
 
