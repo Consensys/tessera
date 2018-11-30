@@ -125,6 +125,7 @@
                                     <outputDirectory>${project.build.outputDirectory}/ddls</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
+                            <excludes>**/*.class</excludes>
                         </configuration>
                     </execution>
                 </executions>

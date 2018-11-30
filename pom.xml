@@ -141,7 +141,7 @@
                         <version>8.14</version>
                     </dependency>
                     
-		    <dependency>
+                    <dependency>
                         <groupId>com.github.sevntu-checkstyle</groupId>
                         <artifactId>sevntu-checks</artifactId>
                         <version>1.32.0</version>
@@ -209,6 +209,7 @@
                                 <exclude>com/quorum/tessera/config/util/ConsolePasswordReader*</exclude>
                                 <exclude>com/quorum/tessera/config/util/PasswordReaderFactory*</exclude>
                                 <exclude>com/quorum/tessera/key/vault/azure/AzureKeyVaultClientDelegate*</exclude>
+                                <exclude>dbsetup/Main*</exclude>
                             </excludes>
                             
                             <rules>
