@@ -44,7 +44,7 @@ public class AzureKeyVaultService implements KeyVaultService {
     }
 
     @Override
-    public Object setSecretAtPath(String secretPath, Map<String, String> secretData) {
+    public Object setSecretAtPath(String secretPath, Map<String, Object> secretData) {
         return null;
     }
 }

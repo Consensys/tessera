@@ -11,7 +11,8 @@ public class HashicorpKeyVaultConfigTest {
 
     @Before
     public void setUp() {
-        vaultConfig = new HashicorpKeyVaultConfig("url");
+        vaultConfig = new HashicorpKeyVaultConfig();
+        vaultConfig.setUrl("url");
     }
 
     @Test

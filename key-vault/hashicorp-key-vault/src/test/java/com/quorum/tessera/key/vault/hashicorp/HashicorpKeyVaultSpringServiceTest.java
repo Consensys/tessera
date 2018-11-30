@@ -16,9 +16,9 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class HashicorpKeyVaultServiceTest {
+public class HashicorpKeyVaultSpringServiceTest {
 
-    private HashicorpKeyVaultService keyVaultService;
+    private HashicorpKeyVaultSpringService keyVaultService;
     private VaultTemplate vaultTemplate;
 
     private final String url = "someurl";
@@ -32,7 +32,7 @@ public class HashicorpKeyVaultServiceTest {
         when(keyVaultConfig.getUrl()).thenReturn(url);
         vaultTemplate = mock(VaultTemplate.class);
 
-        keyVaultService = new HashicorpKeyVaultService(keyVaultConfig, vaultTemplate);
+        keyVaultService = new HashicorpKeyVaultSpringService(keyVaultConfig, vaultTemplate);
     }
 
     @Test
@@ -89,7 +89,7 @@ public class HashicorpKeyVaultServiceTest {
 
     @Test
     public void setSecretCallsVaultTemplate() {
-        Map<String, String> secretData = Collections.singletonMap(secretName, "value");
+        Map<String, Object> secretData = Collections.singletonMap(secretName, "value");
         keyVaultService.setSecretAtPath(secretPath, secretData);
 
         verify(vaultTemplate, times(1)).write(secretPath, secretData);

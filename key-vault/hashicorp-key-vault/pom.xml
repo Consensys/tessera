@@ -18,6 +18,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.bettercloud</groupId>
+            <artifactId>vault-java-driver</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>key-vault-api</artifactId>
         </dependency>

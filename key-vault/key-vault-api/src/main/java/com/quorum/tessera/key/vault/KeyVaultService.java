@@ -9,6 +9,6 @@ public interface KeyVaultService {
 
     Object setSecret(String secretName, String secret);
 
-    Object setSecretAtPath(String secretPath, Map<String, String> secretData);
+    Object setSecretAtPath(String secretPath, Map<String, Object> secretData);
 
 }

@@ -111,7 +111,8 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
                 throw new CliException("At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
             }
 
-            keyVaultConfig = new HashicorpKeyVaultConfig(keyVaultUrl);
+            //TODO
+            keyVaultConfig = new HashicorpKeyVaultConfig(keyVaultUrl, null);
 
             Set<ConstraintViolation<HashicorpKeyVaultConfig>> violations = validator.validate((HashicorpKeyVaultConfig)keyVaultConfig);
 

@@ -12,9 +12,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class HashicorpKeyVaultServiceFactoryTest {
+public class HashicorpKeyVaultSpringServiceFactoryTest {
 
-    private HashicorpKeyVaultServiceFactory factory;
+    private HashicorpKeyVaultSpringServiceFactory factory;
 
     private Config config;
 
@@ -24,7 +24,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
     public void setUp() {
         config = mock(Config.class);
         envProvider = mock(EnvironmentVariableProvider.class);
-        factory = new HashicorpKeyVaultServiceFactory();
+        factory = new HashicorpKeyVaultSpringServiceFactory();
     }
 
     @Test(expected = NullPointerException.class)
@@ -124,7 +124,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
         KeyVaultService result = factory.create(config, envProvider);
 
-        assertThat(result).isInstanceOf(HashicorpKeyVaultService.class);
+        assertThat(result).isInstanceOf(HashicorpKeyVaultSpringService.class);
     }
 
     @Test

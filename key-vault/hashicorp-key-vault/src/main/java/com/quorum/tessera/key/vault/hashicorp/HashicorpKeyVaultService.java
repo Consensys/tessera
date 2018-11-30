@@ -1,24 +1,23 @@
 package com.quorum.tessera.key.vault.hashicorp;
 
+import com.bettercloud.vault.Vault;
+import com.bettercloud.vault.VaultException;
+import com.bettercloud.vault.response.LogicalResponse;
 import com.quorum.tessera.config.HashicorpKeyVaultConfig;
 import com.quorum.tessera.key.vault.KeyVaultService;
-import com.quorum.tessera.key.vault.VaultSecretNotFoundException;
-import org.springframework.vault.VaultException;
-import org.springframework.vault.core.VaultTemplate;
-import org.springframework.vault.support.VaultResponse;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class HashicorpKeyVaultService implements KeyVaultService {
 
-    //TODO Make use of methods from KeyVaultService
+    private final HashicorpKeyVaultConfig keyVaultConfig;
 
-    private String vaultUrl;
-    private VaultTemplate vaultTemplate;
+    private final Vault vault;
 
-    public HashicorpKeyVaultService(HashicorpKeyVaultConfig keyVaultConfig, VaultTemplate vaultTemplate) {
-        this.vaultUrl = keyVaultConfig.getUrl();
-        this.vaultTemplate = vaultTemplate;
+    public HashicorpKeyVaultService(HashicorpKeyVaultConfig keyVaultConfig, Vault vault) {
+        this.keyVaultConfig = keyVaultConfig;
+        this.vault = vault;
     }
 
     @Override
@@ -27,35 +26,31 @@ public class HashicorpKeyVaultService implements KeyVaultService {
     }
 
     @Override
+    public String getSecretFromPath(String secretPath, String secretName) {
+        LogicalResponse response;
+        try {
+            response = vault.logical().read(secretPath);
+        } catch(VaultException e) {
+            throw new HashicorpVaultException("Error getting secret " + secretName + " from path " + secretPath + " - " + e.getMessage());
+        }
+
+        return Optional.of(response)
+            .map(LogicalResponse::getData)
+            .map(data -> data.get(secretName))
+            .orElseThrow(() -> new HashicorpVaultException("No secret " + secretName + " found at path " + secretPath));
+    }
+
+    @Override
     public Object setSecret(String secretName, String secret) {
         return null;
     }
 
     @Override
-    public String getSecretFromPath(String secretPath, String secretName) {
-        VaultResponse response = vaultTemplate.read(secretPath);
-
-        if(response == null) {
-            throw new VaultSecretNotFoundException("Hashicorp Vault secret not found at path " + secretPath + " in vault " + vaultUrl);
-        }
-
-        if(response.getData() == null) {
-            throw new VaultSecretNotFoundException("No data for Hashicorp Vault secret at path " + secretPath + " in vault " + vaultUrl);
-        }
-
-        if(response.getData().get(secretName) == null) {
-            throw new VaultSecretNotFoundException("Value for secret id " + secretName + " not found at path " + secretPath + " in vault " + vaultUrl);
-        }
-
-        return response.getData().get(secretName).toString();
-    }
-
-    @Override
-    public Object setSecretAtPath(String secretPath, Map<String, String> secretData) {
+    public Object setSecretAtPath(String secretPath, Map<String, Object> secretData) {
         try {
-            return vaultTemplate.write(secretPath, secretData);
+            return vault.logical().write(secretPath, secretData);
         } catch(VaultException e) {
-            throw new VaultSecretNotFoundException("Unable to write secret to path '" + secretPath + "' - " + e.getMessage() );
+            throw new HashicorpVaultException("Error writing secret to path " + secretPath + " - " + e.getMessage());
         }
     }
 }

@@ -31,7 +31,7 @@ public class HashicorpVaultKeyGenerator implements KeyGenerator {
 
         String pubId = "publicKey";
         String privId = "privateKey";
-        Map<String, String> keyPairData = new HashMap<>();
+        Map<String, Object> keyPairData = new HashMap<>();
         keyPairData.put(pubId, keys.getPublicKey().encodeToBase64());
         keyPairData.put(privId, keys.getPrivateKey().encodeToBase64());
 

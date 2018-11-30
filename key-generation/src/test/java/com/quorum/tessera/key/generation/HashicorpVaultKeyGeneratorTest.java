@@ -47,7 +47,7 @@ public class HashicorpVaultKeyGeneratorTest {
 
         hashicorpVaultKeyGenerator.generate(filename, null);
 
-        Map<String, String> expectedData = new HashMap<>();
+        Map<String, Object> expectedData = new HashMap<>();
         expectedData.put("publicKey", pub.encodeToBase64());
         expectedData.put("privateKey", priv.encodeToBase64());
 

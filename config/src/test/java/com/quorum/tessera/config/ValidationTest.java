@@ -13,9 +13,7 @@ import java.util.*;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ValidationTest {
 
@@ -383,7 +381,7 @@ public class ValidationTest {
 
     @Test
     public void hashicorpVaultConfigWithNoUrlCreatesNotNullViolation() {
-        HashicorpKeyVaultConfig keyVaultConfig = new HashicorpKeyVaultConfig(null);
+        HashicorpKeyVaultConfig keyVaultConfig = new HashicorpKeyVaultConfig();
 
         Set<ConstraintViolation<HashicorpKeyVaultConfig>> violations = validator.validate(keyVaultConfig);
         assertThat(violations).hasSize(1);
@@ -395,7 +393,7 @@ public class ValidationTest {
     @Test
     public void hashicorpVaultKeyPairProvidedButKeyVaultConfigHasNullUrlCreatesNotNullViolation() {
         HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretPath");
-        HashicorpKeyVaultConfig keyVaultConfig = new HashicorpKeyVaultConfig(null);
+        HashicorpKeyVaultConfig keyVaultConfig = new HashicorpKeyVaultConfig();
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null, keyVaultConfig);
 
         Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
