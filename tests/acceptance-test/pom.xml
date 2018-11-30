@@ -20,14 +20,7 @@
             <classifier>app</classifier>
             <version>0.8-SNAPSHOT</version>
         </dependency>
-        
-        <dependency>
-            <groupId>com.quorum.tessera</groupId>
-            <artifactId>ddls</artifactId>
-            <version>0.8-SNAPSHOT</version>
-        </dependency>
-        
-        
+   
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>test-util</artifactId>
@@ -101,34 +94,6 @@
                 <configuration>
                     <failIfNoTests>false</failIfNoTests>
                 </configuration>
-            </plugin>
-
-            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.1</version>
-                <executions>
-                    <execution>
-                        <id>unpack</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>com.quorum.tessera</groupId>
-                                    <artifactId>ddls</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <outputDirectory>${project.build.outputDirectory}/ddls</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                            <excludes>**/*.class</excludes>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
         </plugins>
