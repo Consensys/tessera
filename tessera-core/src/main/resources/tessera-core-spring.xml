@@ -165,9 +165,7 @@
         <property name="persistenceUnitName" value="tessera"/>
 
         <property name="jpaVendorAdapter">
-            <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
-                <property name="databasePlatform" value="org.eclipse.persistence.platform.database.H2Platform"/>
-            </bean>
+            <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter" />
         </property>
         <property name="jpaDialect">
             <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaDialect"/>
