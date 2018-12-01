@@ -105,17 +105,20 @@ public class ProcessManager {
         pids.put(nodeAlias, pid);
 
         List<String> args = Arrays.asList(
-                "java",
-                "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
-                "-Dnode.number=" + nodeAlias,
-                "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
-                "-Ddebug=true",
-                "-jar",
-                jarfile,
-                "-configfile",
-                ElUtil.createAndPopulatePaths(configFile).toAbsolutePath().toString(),
-                "-pidfile",
-                pid.toAbsolutePath().toString()
+            "java",
+            "-Dspring.profiles.active=disable-unixsocket",
+            "-Dnode.number=" + nodeAlias,
+            "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
+            //javax.xml.bind.JAXBContextFactory>org.eclipse.persistence.jaxb.JAXBContextFactory
+            "-Djavax.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",
+            "-Djavax.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory",
+            "-Ddebug=true",
+            "-jar",
+            jarfile,
+            "-configfile",
+            ElUtil.createAndPopulatePaths(configFile).toAbsolutePath().toString(),
+            "-pidfile",
+            pid.toAbsolutePath().toString()
         );
         System.out.println(String.join(" ", args));
 

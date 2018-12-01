@@ -2,7 +2,7 @@ package com.quorum.tessera.node;
 
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.core.config.ConfigService;
-import com.quorum.tessera.encryption.KeyManager;
+import com.quorum.tessera.encryption.Enclave;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.model.Party;
@@ -38,7 +38,7 @@ public class PartyInfoServiceTest {
 
     private ConfigService configService;
 
-    private KeyManager keyManager;
+    private Enclave enclave;
 
     private PartyInfoService partyInfoService;
 
@@ -46,7 +46,7 @@ public class PartyInfoServiceTest {
     public void onSetUp() throws URISyntaxException {
 
         this.partyInfoStore = mock(PartyInfoStore.class);
-        this.keyManager = mock(KeyManager.class);
+        this.enclave = mock(Enclave.class);
         this.configService = mock(ConfigService.class);
 
         doReturn(new URI(URI)).when(configService).getServerUri();
@@ -60,21 +60,21 @@ public class PartyInfoServiceTest {
                 PublicKey.from("another-public-key".getBytes())
             )
         );
-        doReturn(ourKeys).when(keyManager).getPublicKeys();
+        doReturn(ourKeys).when(enclave).getPublicKeys();
 
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configService, keyManager);
+        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configService, enclave);
     }
 
     @After
     public void after() {
         //Called in constructor
-        verify(keyManager).getPublicKeys();
+        verify(enclave).getPublicKeys();
         verify(configService).getServerUri();
         verify(configService,atLeast(1)).getPeers();
         verify(partyInfoStore, atLeast(1)).store(any(PartyInfo.class));
 
         verifyNoMoreInteractions(partyInfoStore);
-        verifyNoMoreInteractions(keyManager);
+        verifyNoMoreInteractions(enclave);
         verifyNoMoreInteractions(configService);
     }
 
@@ -84,7 +84,7 @@ public class PartyInfoServiceTest {
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
 
         verify(partyInfoStore).store(captor.capture());
-        verify(keyManager).getPublicKeys();
+        verify(enclave).getPublicKeys();
 
         final List<Recipient> allRegisteredKeys = captor
             .getAllValues()

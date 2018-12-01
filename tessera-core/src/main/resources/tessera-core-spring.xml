@@ -41,7 +41,7 @@
     </bean>
 
     <bean name="transactionRequester" class="com.quorum.tessera.sync.TransactionRequesterImpl">
-        <constructor-arg ref="keyManager" />
+        <constructor-arg ref="enclave" />
         <constructor-arg ref="p2pClient" />
     </bean>
 
@@ -67,7 +67,7 @@
     <bean name="partyInfoService" class="com.quorum.tessera.node.PartyInfoServiceImpl">
         <constructor-arg ref="partyInfoStore"/>
         <constructor-arg ref="configService"/>
-        <constructor-arg ref="keyManager"/>
+        <constructor-arg ref="enclave"/>
     </bean>
 
     <bean name="partyInfoPoller" class="com.quorum.tessera.node.PartyInfoPoller">
@@ -99,10 +99,6 @@
 
     <bean id="keyConfig" factory-bean="config" factory-method="getKeys" />
 
-    <bean id="enclave" class="com.quorum.tessera.encryption.EnclaveImpl">
-        <constructor-arg ref="nacl" />
-        <constructor-arg ref="keyManager" />
-    </bean>
 
     <bean id="environmentVariableProvider" class="com.quorum.tessera.config.util.EnvironmentVariableProvider"></bean>
 
@@ -138,11 +134,6 @@
             <bean class="com.quorum.tessera.config.util.ConfigFileStore" factory-method="get" />
         </constructor-arg>
     </bean>
-    
-    
-    <bean name="naclFactory" class="com.quorum.tessera.nacl.NaclFacadeFactory" factory-method="newFactory"/>
-
-    <bean name="nacl" factory-bean="naclFactory" factory-method="create"/>
 
     <bean name="encryptedTransactionDAO" class="com.quorum.tessera.transaction.EncryptedTransactionDAOImpl"/>
 
