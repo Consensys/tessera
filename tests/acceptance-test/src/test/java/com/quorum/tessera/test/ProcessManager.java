@@ -107,10 +107,9 @@ public class ProcessManager {
 
         List<String> args = Arrays.asList(
                 "java",
-                "-Dspring.profiles.active=disable-unixsocket",
+                "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
                 "-Dnode.number=" + nodeAlias,
                 "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
-                //javax.xml.bind.JAXBContextFactory>org.eclipse.persistence.jaxb.JAXBContextFactory
                 "-Djavax.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",
                 "-Djavax.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory",
                 "-Ddebug=true",
