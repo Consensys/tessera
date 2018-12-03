@@ -390,12 +390,6 @@
 
             <dependency>
                 <groupId>com.quorum.tessera</groupId>
-                <artifactId>resteasy-server</artifactId>
-                <version>0.8-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.quorum.tessera</groupId>
                 <artifactId>grpc-server</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
