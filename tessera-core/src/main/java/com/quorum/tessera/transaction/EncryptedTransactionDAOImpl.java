@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import javax.transaction.Transactional;
@@ -33,12 +32,6 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
     public EncryptedTransaction save(final EncryptedTransaction entity) {
         entityManager.persist(entity);
         LOGGER.info("Stored transaction {}",entity.getHash());
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Persisting entity with hash {} and payload {}",
-                    entity.getHash(), Arrays.toString(entity.getEncodedPayload())
-            );
-        }
-
         return entity;
     }
 
