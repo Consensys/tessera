@@ -9,7 +9,6 @@
     </encoder>
   </appender>
     
-    <logger name="com.quorum.tessera.config.migration.MainTest" level="ERROR" />
 
     <root level="INFO">
     <appender-ref ref="STDOUT" />
