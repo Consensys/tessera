@@ -12,6 +12,8 @@ public interface KeyVaultServiceFactory {
 
     KeyVaultService create(Config config, EnvironmentVariableProvider envProvider);
 
+    KeyVaultService create(Config config, EnvironmentVariableProvider envProvider, KeyVaultClientFactory keyVaultClientFactory);
+
     KeyVaultType getType();
 
     static KeyVaultServiceFactory getInstance(KeyVaultType keyVaultType) {

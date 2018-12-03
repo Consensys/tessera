@@ -11,6 +11,11 @@ public class MockAzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
     }
 
     @Override
+    public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider, KeyVaultClientFactory keyVaultClientFactory) {
+        return null;
+    }
+
+    @Override
     public KeyVaultType getType() {
         return KeyVaultType.AZURE;
     }
