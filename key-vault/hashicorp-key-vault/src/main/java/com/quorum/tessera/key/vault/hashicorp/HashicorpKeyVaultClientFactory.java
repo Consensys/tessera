@@ -4,6 +4,7 @@ import com.bettercloud.vault.SslConfig;
 import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultConfig;
 import com.quorum.tessera.config.HashicorpKeyVaultConfig;
+import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.key.vault.KeyVaultClientFactory;
 
 public class HashicorpKeyVaultClientFactory implements KeyVaultClientFactory {
@@ -41,5 +42,10 @@ public class HashicorpKeyVaultClientFactory implements KeyVaultClientFactory {
             vaultConfig.sslConfig(sslConfig);
         }
         return vaultConfig;
+    }
+
+    @Override
+    public KeyVaultType getType() {
+        return KeyVaultType.HASHICORP;
     }
 }

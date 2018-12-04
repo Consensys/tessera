@@ -11,12 +11,12 @@ public class AzureGetSecretData implements GetSecretData {
         this.secretName = secretName;
     }
 
-    public String getSecretName() {
-        return secretName;
-    }
-
     @Override
     public KeyVaultType getType() {
         return KeyVaultType.AZURE;
+    }
+
+    public String getSecretName() {
+        return secretName;
     }
 }
