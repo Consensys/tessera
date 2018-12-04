@@ -10,11 +10,6 @@ public class MockAzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
         throw new UnsupportedOperationException("This mock object's method is not expected to be called");
     }
 
-//    @Override
-//    public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider, KeyVaultClientFactory keyVaultClientFactory) {
-//        return null;
-//    }
-
     @Override
     public KeyVaultType getType() {
         return KeyVaultType.AZURE;

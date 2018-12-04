@@ -57,14 +57,6 @@ public class AzureVaultKeyGenerator implements KeyGenerator {
     }
 
     private void saveKeyInVault(String id, Key key) {
-//        SetSecretDataFactory setSecretDataFactory = SetSecretDataFactory.getInstance(KeyVaultType.AZURE);
-
-//        Map<String, Object> data = new HashMap<>();
-//        data.put("secretName", id);
-//        data.put("secret", key.encodeToBase64());
-
-//        SetSecretData setSecretData = setSecretDataFactory.create(data);
-
         SetSecretData setSecretData = new AzureSetSecretData(id, key.encodeToBase64());
 
         keyVaultService.setSecret(setSecretData);

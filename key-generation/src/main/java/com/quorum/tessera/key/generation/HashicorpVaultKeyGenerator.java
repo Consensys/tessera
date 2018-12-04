@@ -37,13 +37,6 @@ public class HashicorpVaultKeyGenerator implements KeyGenerator {
         keyPairData.put(pubId, keys.getPublicKey().encodeToBase64());
         keyPairData.put(privId, keys.getPrivateKey().encodeToBase64());
 
-//        SetSecretDataFactory setSecretDataFactory = SetSecretDataFactory.getInstance(KeyVaultType.HASHICORP);
-
-//        Map<String, Object> data = new HashMap<>();
-//        data.put("secretPath", filename);
-//        data.put("nameValuePairs", keyPairData);
-
-//        SetSecretData setSecretData = setSecretDataFactory.create(data);
         SetSecretData setSecretData = new HashicorpSetSecretData(filename, keyPairData);
 
         keyVaultService.setSecret(setSecretData);

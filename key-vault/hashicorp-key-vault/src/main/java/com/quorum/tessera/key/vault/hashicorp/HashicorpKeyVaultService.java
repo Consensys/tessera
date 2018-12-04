@@ -24,40 +24,6 @@ public class HashicorpKeyVaultService implements KeyVaultService {
         this.vault = vault;
     }
 
-//    @Override
-//    public String getSecret(String secretName) {
-//        return null;
-//    }
-//
-//    @Override
-//    public String getSecretFromPath(String secretPath, String secretName) {
-//        LogicalResponse response;
-//        try {
-//            response = vault.logical().read(secretPath);
-//        } catch(VaultException e) {
-//            throw new HashicorpVaultException("Error getting secret " + secretName + " from path " + secretPath + " - " + e.getMessage());
-//        }
-//
-//        return Optional.of(response)
-//            .map(LogicalResponse::getData)
-//            .map(data -> data.get(secretName))
-//            .orElseThrow(() -> new HashicorpVaultException("No secret " + secretName + " found at path " + secretPath));
-//    }
-//
-//    @Override
-//    public Object setSecret(String secretName, String secret) {
-//        return null;
-//    }
-//
-//    @Override
-//    public Object setSecretAtPath(String secretPath, Map<String, Object> secretData) {
-//        try {
-//            return vault.logical().write(secretPath, secretData);
-//        } catch(VaultException e) {
-//            throw new HashicorpVaultException("Error writing secret to path " + secretPath + " - " + e.getMessage());
-//        }
-//    }
-
     @Override
     public String getSecret(GetSecretData getSecretData) {
         if(!(getSecretData instanceof HashicorpGetSecretData)) {

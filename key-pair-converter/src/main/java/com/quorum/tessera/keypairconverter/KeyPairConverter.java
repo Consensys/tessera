@@ -48,13 +48,10 @@ public class KeyPairConverter {
 
             KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(KeyVaultType.AZURE);
             KeyVaultClientFactory keyVaultClientFactory = KeyVaultClientFactory.getInstance(KeyVaultType.AZURE);
-//            GetSecretDataFactory getSecretDataFactory = GetSecretDataFactory.getInstance(KeyVaultType.AZURE);
 
             KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory);
 
             AzureVaultKeyPair akp = (AzureVaultKeyPair) configKeyPair;
-//            Map<String, String> publicKeyData = Collections.singletonMap("secretName", akp.getPublicKeyId());
-//            Map<String, String> privateKeyData = Collections.singletonMap("secretName", akp.getPrivateKeyId());
 
             GetSecretData getPublicKeyData = new AzureGetSecretData(akp.getPublicKeyId());
             GetSecretData getPrivateKeyData = new AzureGetSecretData(akp.getPrivateKeyId());
@@ -66,25 +63,16 @@ public class KeyPairConverter {
 
             KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(KeyVaultType.HASHICORP);
             KeyVaultClientFactory keyVaultClientFactory = KeyVaultClientFactory.getInstance(KeyVaultType.HASHICORP);
-//            GetSecretDataFactory getSecretDataFactory = GetSecretDataFactory.getInstance(KeyVaultType.HASHICORP);
 
             KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory);
 
             HashicorpVaultKeyPair hkp = (HashicorpVaultKeyPair) configKeyPair;
-//            Map<String, String> publicKeyData = new HashMap<>();
-//            publicKeyData.put("secretName", hkp.getPublicKeyId());
-//            publicKeyData.put("secretPath", hkp.getSecretPath());
-
-//            Map<String, String> privateKeyData = new HashMap<>();
-//            privateKeyData.put("secretName", hkp.getPrivateKeyId());
-//            privateKeyData.put("secretPath", hkp.getSecretPath());
 
             GetSecretData getPublicKeyData = new HashicorpGetSecretData(hkp.getSecretPath(), hkp.getPublicKeyId());
             GetSecretData getPrivateKeyData = new HashicorpGetSecretData(hkp.getSecretPath(), hkp.getPrivateKeyId());
 
             base64PublicKey = keyVaultService.getSecret(getPublicKeyData);
             base64PrivateKey = keyVaultService.getSecret(getPrivateKeyData);
-
         }
         else {
 

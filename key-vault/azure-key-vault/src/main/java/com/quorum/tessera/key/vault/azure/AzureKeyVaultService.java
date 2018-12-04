@@ -25,33 +25,6 @@ public class AzureKeyVaultService implements KeyVaultService {
         this.azureKeyVaultClientDelegate = azureKeyVaultClientDelegate;
     }
 
-//    public String getSecret(String secretName) {
-//        SecretBundle secretBundle = azureKeyVaultClientDelegate.getSecret(vaultUrl, secretName);
-//
-//        if(secretBundle == null) {
-//            throw new VaultSecretNotFoundException("Azure Key Vault secret " + secretName + " was not found in vault " + vaultUrl);
-//        }
-//
-//        return secretBundle.value();
-//    }
-//
-//    @Override
-//    public String getSecretFromPath(String secretPath, String secretName) {
-//        return null;
-//    }
-//
-//    @Override
-//    public SecretBundle setSecret(String secretName, String secret) {
-//        SetSecretRequest setSecretRequest = new SetSecretRequest.Builder(vaultUrl, secretName, secret).build();
-//
-//        return this.azureKeyVaultClientDelegate.setSecret(setSecretRequest);
-//    }
-//
-//    @Override
-//    public Object setSecretAtPath(String secretPath, Map<String, Object> secretData) {
-//        return null;
-//    }
-
     @Override
     public String getSecret(GetSecretData getSecretData) {
         if(!(getSecretData instanceof AzureGetSecretData)) {
