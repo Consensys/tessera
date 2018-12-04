@@ -2,6 +2,7 @@ package com.quorum.tessera.key.vault.azure;
 
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
+import com.quorum.tessera.key.vault.KeyVaultClientFactory;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.key.vault.KeyVaultServiceFactory;
 
@@ -15,7 +16,7 @@ public class AzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
     private final String clientSecretEnvVar = "AZURE_CLIENT_SECRET";
 
     @Override
-    public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider) {
+    public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider, KeyVaultClientFactory keyVaultClientFactory) {
         Objects.requireNonNull(config);
         Objects.requireNonNull(envProvider);
 

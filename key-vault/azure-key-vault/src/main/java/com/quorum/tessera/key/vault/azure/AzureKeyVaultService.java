@@ -5,7 +5,6 @@ import com.microsoft.azure.keyvault.requests.SetSecretRequest;
 import com.quorum.tessera.config.AzureKeyVaultConfig;
 import com.quorum.tessera.key.vault.*;
 
-import java.util.Map;
 import java.util.Objects;
 
 public class AzureKeyVaultService implements KeyVaultService {
@@ -20,37 +19,37 @@ public class AzureKeyVaultService implements KeyVaultService {
         this.azureKeyVaultClientDelegate = azureKeyVaultClientDelegate;
     }
 
-    public String getSecret(String secretName) {
-        SecretBundle secretBundle = azureKeyVaultClientDelegate.getSecret(vaultUrl, secretName);
-
-        if(secretBundle == null) {
-            throw new VaultSecretNotFoundException("Azure Key Vault secret " + secretName + " was not found in vault " + vaultUrl);
-        }
-
-        return secretBundle.value();
-    }
-
-    @Override
-    public String getSecretFromPath(String secretPath, String secretName) {
-        return null;
-    }
-
-    @Override
-    public SecretBundle setSecret(String secretName, String secret) {
-        SetSecretRequest setSecretRequest = new SetSecretRequest.Builder(vaultUrl, secretName, secret).build();
-
-        return this.azureKeyVaultClientDelegate.setSecret(setSecretRequest);
-    }
-
-    @Override
-    public Object setSecretAtPath(String secretPath, Map<String, Object> secretData) {
-        return null;
-    }
+//    public String getSecret(String secretName) {
+//        SecretBundle secretBundle = azureKeyVaultClientDelegate.getSecret(vaultUrl, secretName);
+//
+//        if(secretBundle == null) {
+//            throw new VaultSecretNotFoundException("Azure Key Vault secret " + secretName + " was not found in vault " + vaultUrl);
+//        }
+//
+//        return secretBundle.value();
+//    }
+//
+//    @Override
+//    public String getSecretFromPath(String secretPath, String secretName) {
+//        return null;
+//    }
+//
+//    @Override
+//    public SecretBundle setSecret(String secretName, String secret) {
+//        SetSecretRequest setSecretRequest = new SetSecretRequest.Builder(vaultUrl, secretName, secret).build();
+//
+//        return this.azureKeyVaultClientDelegate.setSecret(setSecretRequest);
+//    }
+//
+//    @Override
+//    public Object setSecretAtPath(String secretPath, Map<String, Object> secretData) {
+//        return null;
+//    }
 
     @Override
     public String getSecret(GetSecretData getSecretData) {
         if(!(getSecretData instanceof AzureGetSecretData)) {
-            throw new KeyVaultException("Incorrect data type passed to HashicorpKeyVaultService.  Type was " + getSecretData.getType());
+            throw new KeyVaultException("Incorrect data type passed to AzureKeyVaultService.  Type was " + getSecretData.getType());
         }
 
         AzureGetSecretData azureGetSecretData = (AzureGetSecretData) getSecretData;
@@ -67,7 +66,7 @@ public class AzureKeyVaultService implements KeyVaultService {
     @Override
     public Object setSecret(SetSecretData setSecretData) {
         if(!(setSecretData instanceof AzureSetSecretData)) {
-            throw new KeyVaultException("Incorrect data type passed to HashicorpKeyVaultService.  Type was " + setSecretData.getType());
+            throw new KeyVaultException("Incorrect data type passed to AzureKeyVaultService.  Type was " + setSecretData.getType());
         }
 
         AzureSetSecretData azureSetSecretData = (AzureSetSecretData) setSecretData;

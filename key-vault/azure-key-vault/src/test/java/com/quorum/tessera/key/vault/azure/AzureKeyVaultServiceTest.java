@@ -3,12 +3,13 @@ package com.quorum.tessera.key.vault.azure;
 import com.microsoft.azure.keyvault.models.SecretBundle;
 import com.microsoft.azure.keyvault.requests.SetSecretRequest;
 import com.quorum.tessera.config.AzureKeyVaultConfig;
+import com.quorum.tessera.key.vault.GetSecretData;
+import com.quorum.tessera.key.vault.KeyVaultException;
+import com.quorum.tessera.key.vault.SetSecretData;
 import com.quorum.tessera.key.vault.VaultSecretNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -23,7 +24,7 @@ public class AzureKeyVaultServiceTest {
     }
 
     @Test
-    public void exceptionThrownIfKeyNotFoundInVault() {
+    public void getSecretExceptionThrownIfKeyNotFoundInVault() {
         String secretName = "secret";
         String vaultUrl = "vaultUrl";
 
@@ -33,7 +34,10 @@ public class AzureKeyVaultServiceTest {
 
         AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
 
-        Throwable throwable = catchThrowable(() -> azureKeyVaultService.getSecret(secretName));
+        AzureGetSecretData getSecretData = mock(AzureGetSecretData.class);
+        when(getSecretData.getSecretName()).thenReturn(secretName);
+
+        Throwable throwable = catchThrowable(() -> azureKeyVaultService.getSecret(getSecretData));
 
         assertThat(throwable).isInstanceOf(VaultSecretNotFoundException.class);
         assertThat(throwable).hasMessageContaining("Azure Key Vault secret " + secretName + " was not found in vault " + vaultUrl);
@@ -49,7 +53,11 @@ public class AzureKeyVaultServiceTest {
         when(azureKeyVaultClientDelegate.getSecret(url, secretId)).thenReturn(new SecretBundle());
 
         AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
-        azureKeyVaultService.getSecret(secretId);
+
+        AzureGetSecretData getSecretData = mock(AzureGetSecretData.class);
+        when(getSecretData.getSecretName()).thenReturn(secretId);
+
+        azureKeyVaultService.getSecret(getSecretData);
 
         verify(azureKeyVaultClientDelegate).getSecret(url, secretId);
     }
@@ -60,9 +68,25 @@ public class AzureKeyVaultServiceTest {
 
         AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(null, azureKeyVaultClientDelegate);
 
-        azureKeyVaultService.getSecret("secret");
+        AzureGetSecretData getSecretData = mock(AzureGetSecretData.class);
+        when(getSecretData.getSecretName()).thenReturn("secret");
+
+
+        azureKeyVaultService.getSecret(getSecretData);
 
         verify(azureKeyVaultClientDelegate).getSecret(null, "secret");
+    }
+
+    @Test
+    public void getSecretThrowsExceptionIfWrongDataImplProvided() {
+        AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(null, azureKeyVaultClientDelegate);
+
+        GetSecretData wrongImpl = mock(GetSecretData.class);
+
+        Throwable ex = catchThrowable(() -> azureKeyVaultService.getSecret(wrongImpl));
+
+        assertThat(ex).isInstanceOf(KeyVaultException.class);
+        assertThat(ex.getMessage()).isEqualTo("Incorrect data type passed to AzureKeyVaultService.  Type was null");
     }
 
     @Test
@@ -74,7 +98,11 @@ public class AzureKeyVaultServiceTest {
         String secretName = "id";
         String secret = "secret";
 
-        azureKeyVaultService.setSecret(secretName, secret);
+        AzureSetSecretData setSecretData = mock(AzureSetSecretData.class);
+        when(setSecretData.getSecretName()).thenReturn(secretName);
+        when(setSecretData.getSecret()).thenReturn(secret);
+
+        azureKeyVaultService.setSecret(setSecretData);
 
         SetSecretRequest expected = new SetSecretRequest.Builder(keyVaultConfig.getUrl(), secretName, secret).build();
 
@@ -85,22 +113,14 @@ public class AzureKeyVaultServiceTest {
     }
 
     @Test
-    public void getSecretFromPathDoesNotInteractWithAzureClient() {
-        AzureKeyVaultConfig keyVaultConfig = mock(AzureKeyVaultConfig.class);
+    public void setSecretThrowsExceptionIfWrongDataImplProvided() {
+        AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(null, azureKeyVaultClientDelegate);
 
-        AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
+        SetSecretData wrongImpl = mock(SetSecretData.class);
 
-        assertThat(azureKeyVaultService.getSecretFromPath("secretPath", "secretName")).isNull();
-        verifyZeroInteractions(azureKeyVaultClientDelegate);
-    }
+        Throwable ex = catchThrowable(() -> azureKeyVaultService.setSecret(wrongImpl));
 
-    @Test
-    public void setSecretAtPathReturnsNull() {
-        AzureKeyVaultConfig keyVaultConfig = mock(AzureKeyVaultConfig.class);
-
-        AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
-
-        assertThat(azureKeyVaultService.setSecretAtPath("secretPath", Collections.singletonMap("secretName", "secretValue"))).isNull();
-        verifyZeroInteractions(azureKeyVaultClientDelegate);
+        assertThat(ex).isInstanceOf(KeyVaultException.class);
+        assertThat(ex.getMessage()).isEqualTo("Incorrect data type passed to AzureKeyVaultService.  Type was null");
     }
 }
