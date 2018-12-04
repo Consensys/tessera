@@ -77,7 +77,7 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
 
         if(roleId != null && secretId != null) {
             //TODO allow other paths
-            AuthResponse loginResponse = VaultCallback.execute(() -> unauthenticatedVault.auth().loginByAppRole("approle", roleId, secretId));
+            AuthResponse loginResponse = VaultCallback.execute(() -> unauthenticatedVault.auth().loginByAppRole(keyVaultConfig.getApprolePath(), roleId, secretId));
             token = loginResponse.getAuthClientToken();
         } else {
             token = authToken;

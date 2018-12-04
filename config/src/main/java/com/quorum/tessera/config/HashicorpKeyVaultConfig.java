@@ -18,6 +18,10 @@ public class HashicorpKeyVaultConfig extends ConfigItem implements KeyVaultConfi
     private String url;
 
     @Valid
+    @XmlElement
+    private String approlePath;
+
+    @Valid
     @ValidPath(checkExists = true, message = "File does not exist")
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
@@ -73,6 +77,17 @@ public class HashicorpKeyVaultConfig extends ConfigItem implements KeyVaultConfi
 
     public void setTlsServerCertificatePath(Path tlsServerCertificatePath) {
         this.tlsServerCertificatePath = tlsServerCertificatePath;
+    }
+
+    public String getApprolePath() {
+        if(approlePath == null) {
+            return "approle";
+        }
+        return approlePath;
+    }
+
+    public void setApprolePath(String approlePath) {
+        this.approlePath = approlePath;
     }
 
     @Override
