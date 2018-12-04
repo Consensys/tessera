@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class ProcessManager {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessManager.class);
 
     private final Map<String, Path> pids = new HashMap<>();
@@ -238,6 +239,7 @@ public class ProcessManager {
 
         int exitCode = process.waitFor();
     }
+
 
     public static void main(String[] args) throws Exception {
         System.setProperty("application.jar", "/Users/mark/Projects/tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");

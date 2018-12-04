@@ -1,6 +1,5 @@
 package admin.cmd;
 
-import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.test.Party;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class Utils {
 
-    private static String jarPath = System.getProperty("application.jar", "../../tessera-app/target/tessera-app-0.7.1-SNAPSHOT-app.jar");
+    private static String jarPath = System.getProperty("application.jar", "../../tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
@@ -30,9 +29,7 @@ public class Utils {
                 "-jar",
                 jarPath,
                 "-configfile",
-                party.getConfigFilePath().toString(),
-                "-server.communicationType",
-                CommunicationType.REST.name()
+                party.getConfigFilePath().toString()
         );
 
         ExecutorService executorService = Executors.newCachedThreadPool();
@@ -40,20 +37,22 @@ public class Utils {
         ProcessBuilder processBuilder = new ProcessBuilder(args);
 
         processBuilder.redirectErrorStream(false);
+        LOGGER.info("Starting {}", String.join(",", args));
         Process process = processBuilder.start();
 
         ExecutionResult executionResult = new ExecutionResult();
 
         executorService.submit(() -> {
 
-            try (BufferedReader reader = Stream.of(process.getInputStream())
+            try(BufferedReader reader = Stream.of(process.getInputStream())
                     .map(InputStreamReader::new)
                     .map(BufferedReader::new)
-                    .findAny().get()) {
+                    .findAny().get()){
 
                 String line = null;
                 while ((line = reader.readLine()) != null) {
                     System.out.println(line);
+                    LOGGER.info(line);
                     executionResult.addOutputLine(line);
                 }
 
@@ -64,14 +63,14 @@ public class Utils {
 
         executorService.submit(() -> {
 
-            try (BufferedReader reader = Stream.of(process.getErrorStream())
+            try(BufferedReader reader = Stream.of(process.getErrorStream())
                     .map(InputStreamReader::new)
                     .map(BufferedReader::new)
-                    .findAny().get()) {
+                    .findAny().get()){
 
                 String line = null;
                 while ((line = reader.readLine()) != null) {
-                     System.err.println(line);
+                    LOGGER.error(line);
                     executionResult.addErrorLine(line);
                 }
 
@@ -81,7 +80,7 @@ public class Utils {
         });
 
         executionResult.setExitCode(process.waitFor());
-        
+
         return executionResult;
 
     }
@@ -130,11 +129,11 @@ public class Utils {
         @Override
         public Void call() throws Exception {
 
-            try (BufferedReader reader = Stream.of(inputStream)
+            try(BufferedReader reader = Stream.of(inputStream)
                     .map(InputStreamReader::new)
                     .map(BufferedReader::new)
                     .findAny()
-                    .get()) {
+                    .get()){
 
                 String line = null;
                 while ((line = reader.readLine()) != null) {

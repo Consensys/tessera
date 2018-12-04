@@ -130,7 +130,6 @@ public class Config extends ConfigItem {
         return disablePeerDiscovery;
     }
 
-    @XmlTransient
     public void addPeer(Peer peer) {
         if(peers == null) {
          this.peers = new ArrayList<>();
