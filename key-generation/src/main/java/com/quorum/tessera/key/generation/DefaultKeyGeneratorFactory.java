@@ -4,6 +4,7 @@ import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.config.util.PasswordReaderFactory;
+import com.quorum.tessera.key.vault.KeyVaultClientFactory;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.key.vault.KeyVaultServiceFactory;
 import com.quorum.tessera.nacl.NaclFacadeFactory;
@@ -24,7 +25,9 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
 
                 config.setKeys(keyConfiguration);
 
-                final KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, new EnvironmentVariableProvider());
+                KeyVaultClientFactory keyVaultClientFactory = KeyVaultClientFactory.getInstance(KeyVaultType.AZURE);
+
+                final KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, new EnvironmentVariableProvider(), keyVaultClientFactory);
 
                 return new AzureVaultKeyGenerator(NaclFacadeFactory.newFactory().create(), keyVaultService);
 
@@ -33,7 +36,9 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
 
                 config.setKeys(keyConfiguration);
 
-                final KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, new EnvironmentVariableProvider());
+                KeyVaultClientFactory keyVaultClientFactory = KeyVaultClientFactory.getInstance(KeyVaultType.HASHICORP);
+
+                final KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, new EnvironmentVariableProvider(), keyVaultClientFactory);
 
                 return new HashicorpVaultKeyGenerator(NaclFacadeFactory.newFactory().create(), keyVaultService);
             }
