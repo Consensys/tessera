@@ -27,6 +27,9 @@ public class Launcher {
 
     public static void main(final String... args) throws Exception {
 
+        System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+        System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+        
         try {
             final CliResult cliResult = CliDelegate.instance().execute(args);
 

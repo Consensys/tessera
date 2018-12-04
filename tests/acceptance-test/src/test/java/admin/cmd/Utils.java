@@ -26,8 +26,6 @@ public class Utils {
                 "java",
                 "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
                 "-Dnode.number=" + party.getAlias(),
-                "-Djavax.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",
-                "-Djavax.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory",
                 "-jar",
                 jarPath,
                 "-configfile",
@@ -91,8 +89,6 @@ public class Utils {
 
         List<String> args = Arrays.asList(
                 "java",
-                "-Djavax.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",
-                "-Djavax.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory",
                 "-jar",
                 jarPath,
                 "-configfile",

@@ -110,8 +110,6 @@ public class ProcessManager {
                 "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
                 "-Dnode.number=" + nodeAlias,
                 "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
-                "-Djavax.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",
-                "-Djavax.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory",
                 "-Ddebug=true",
                 "-jar",
                 jarfile,
@@ -241,14 +239,9 @@ public class ProcessManager {
         int exitCode = process.waitFor();
     }
 
-    /*
-                            <javax.xml.bind.JAXBContextFactory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.JAXBContextFactory>
-                        <javax.xml.bind.context.factory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.context.factory>
-     */
+
     public static void main(String[] args) throws Exception {
         System.setProperty("application.jar", "/Users/mark/Projects/tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
-        System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
-        System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
         ProcessManager pm = new ProcessManager(CommunicationType.REST);
         pm.startNodes();
