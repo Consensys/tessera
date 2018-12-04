@@ -35,7 +35,9 @@ public class HashicorpKeyVaultClientFactory implements KeyVaultClientFactory {
             SslConfig sslConfig = sslConfigFactory.create();
 
             VaultCallback.execute(
-                () -> sslConfig.pemFile(keyVaultConfig.getTlsCertificatePath().toFile())
+                () -> sslConfig.clientPemFile(keyVaultConfig.getTlsCertificatePath().toFile())
+                               .clientKeyPemFile(keyVaultConfig.getTlsKeyPath().toFile())
+                               .pemFile(keyVaultConfig.getTlsServerCertificatePath().toFile())
                                .build()
             );
 

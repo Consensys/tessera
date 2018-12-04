@@ -23,6 +23,18 @@ public class HashicorpKeyVaultConfig extends ConfigItem implements KeyVaultConfi
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path tlsCertificatePath;
 
+    @Valid
+    @ValidPath(checkExists = true, message = "File does not exist")
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private Path tlsKeyPath;
+
+    @Valid
+    @ValidPath(checkExists = true, message = "File does not exist")
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private Path tlsServerCertificatePath;
+
     public HashicorpKeyVaultConfig(String url, Path tlsCertificatePath) {
         this.url = url;
         this.tlsCertificatePath = tlsCertificatePath;
@@ -45,6 +57,22 @@ public class HashicorpKeyVaultConfig extends ConfigItem implements KeyVaultConfi
 
     public void setTlsCertificatePath(Path tlsCertificatePath) {
         this.tlsCertificatePath = tlsCertificatePath;
+    }
+
+    public Path getTlsKeyPath() {
+        return tlsKeyPath;
+    }
+
+    public void setTlsKeyPath(Path tlsKeyPath) {
+        this.tlsKeyPath = tlsKeyPath;
+    }
+
+    public Path getTlsServerCertificatePath() {
+        return tlsServerCertificatePath;
+    }
+
+    public void setTlsServerCertificatePath(Path tlsServerCertificatePath) {
+        this.tlsServerCertificatePath = tlsServerCertificatePath;
     }
 
     @Override
