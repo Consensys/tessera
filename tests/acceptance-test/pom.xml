@@ -20,7 +20,7 @@
             <classifier>app</classifier>
             <version>0.8-SNAPSHOT</version>
         </dependency>
-        
+   
         <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>test-util</artifactId>

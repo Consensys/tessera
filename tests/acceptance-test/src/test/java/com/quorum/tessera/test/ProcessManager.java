@@ -116,7 +116,8 @@ public class ProcessManager {
                 "-configfile",
                 ElUtil.createAndPopulatePaths(configFile).toAbsolutePath().toString(),
                 "-pidfile",
-                pid.toAbsolutePath().toString()
+                pid.toAbsolutePath().toString(),
+                "-jdbc.autoCreateTables", "true"
         );
         System.out.println(String.join(" ", args));
 
