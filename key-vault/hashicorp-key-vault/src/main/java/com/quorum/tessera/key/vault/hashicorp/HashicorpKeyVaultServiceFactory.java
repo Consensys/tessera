@@ -17,11 +17,6 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
     private final String secretIdEnvVar = "HASHICORP_SECRET_ID";
     private final String authTokenEnvVar = "HASHICORP_TOKEN";
 
-//    @Override
-//    public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider) {
-//        return null;
-//    }
-
     @Override
     public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider, KeyVaultClientFactory keyVaultClientFactory) {
         Objects.requireNonNull(config);
@@ -42,29 +37,6 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
             .map(KeyConfiguration::getHashicorpKeyVaultConfig)
             .orElseThrow(() -> new ConfigException(new RuntimeException("Trying to create Hashicorp Vault connection but no Vault configuration provided")));
 
-//        Vault vault = ((HashicorpKeyVaultClientFactory) keyVaultClientFactory)
-//            .init(keyVaultConfig, new VaultConfigFactory(), new SslConfigFactory())
-//            .login(roleId, secretId, authToken)
-//            .create();
-
-//        VaultConfig vaultConfig = new VaultConfig()
-//            .address(keyVaultConfig.getUrl());
-//
-//        if(keyVaultConfig.getTlsCertificatePath() != null) {
-//            SslConfig vaultSslConfig = new SslConfig();
-//                VaultCallback.execute(
-//                    () -> vaultSslConfig
-//                        .pemFile(keyVaultConfig.getTlsCertificatePath().toFile())
-//                        .build()
-//                );
-//
-//            vaultConfig.sslConfig(vaultSslConfig);
-//        }
-//
-//        VaultCallback.execute(vaultConfig::build);
-//
-//        final Vault vault = new Vault(vaultConfig);
-
         if(!(keyVaultClientFactory instanceof HashicorpKeyVaultClientFactory)) {
             throw new HashicorpVaultException("Incorrect KeyVaultClientFactoryType passed to HashicorpKeyVaultServiceFactory");
         }
@@ -76,7 +48,6 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
         String token;
 
         if(roleId != null && secretId != null) {
-            //TODO allow other paths
             AuthResponse loginResponse = VaultCallback.execute(() -> unauthenticatedVault.auth().loginByAppRole(keyVaultConfig.getApprolePath(), roleId, secretId));
             token = loginResponse.getAuthClientToken();
         } else {

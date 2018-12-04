@@ -1,5 +1,7 @@
 package com.quorum.tessera.key.generation;
 
+import com.quorum.tessera.config.keypairs.HashicorpVaultKeyPair;
+import com.quorum.tessera.config.vault.data.HashicorpSetSecretData;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
@@ -7,12 +9,13 @@ import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.nacl.NaclFacade;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class HashicorpVaultKeyGeneratorTest {
 
@@ -46,13 +49,29 @@ public class HashicorpVaultKeyGeneratorTest {
     public void generatedKeyPairIsSavedToSpecifiedPathInVaultWithIds() {
         String filename = "secret/path";
 
-        hashicorpVaultKeyGenerator.generate(filename, null);
+        HashicorpVaultKeyPair result = hashicorpVaultKeyGenerator.generate(filename, null);
 
-        Map<String, Object> expectedData = new HashMap<>();
-        expectedData.put("publicKey", pub.encodeToBase64());
-        expectedData.put("privateKey", priv.encodeToBase64());
 
-//        verify(keyVaultService).setSecretAtPath(filename, expectedData);
+        final ArgumentCaptor<HashicorpSetSecretData> captor = ArgumentCaptor.forClass(HashicorpSetSecretData.class);
+
+        verify(keyVaultService).setSecret(captor.capture());
+
+        assertThat(captor.getAllValues()).hasSize(1);
+        HashicorpSetSecretData capturedArg = captor.getValue();
+
+        Map<String, Object> expectedNameValuePairs = new HashMap<>();
+        expectedNameValuePairs.put("publicKey", pub.encodeToBase64());
+        expectedNameValuePairs.put("privateKey", priv.encodeToBase64());
+
+        HashicorpSetSecretData expectedData = new HashicorpSetSecretData(filename, expectedNameValuePairs);
+
+        assertThat(capturedArg).isEqualToComparingFieldByFieldRecursively(expectedData);
+
+        verifyNoMoreInteractions(keyVaultService);
+
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("publicKey", "privateKey", filename);
+
+        assertThat(result).isEqualToComparingFieldByField(expected);
     }
 
 }
