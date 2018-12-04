@@ -3,12 +3,14 @@ package com.quorum.tessera.key.vault.hashicorp;
 import com.bettercloud.vault.SslConfig;
 import com.bettercloud.vault.VaultConfig;
 import com.quorum.tessera.config.HashicorpKeyVaultConfig;
+import com.quorum.tessera.config.KeyVaultType;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.nio.file.Path;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -33,10 +35,12 @@ public class HashicorpKeyVaultClientFactoryTest {
 
     @Test
     public void tlsConfigAddedToUnauthenticatedVaultClientIfProvided() throws Exception {
-        Path certPath = mock(Path.class);
-        when(keyVaultConfig.getTlsCertificatePath()).thenReturn(certPath);
+        Path tlsPath = mock(Path.class);
+        when(keyVaultConfig.getTlsCertificatePath()).thenReturn(tlsPath);
+        when(keyVaultConfig.getTlsKeyPath()).thenReturn(tlsPath);
+        when(keyVaultConfig.getTlsServerCertificatePath()).thenReturn(tlsPath);
         File certFile = mock(File.class);
-        when(certPath.toFile()).thenReturn(certFile);
+        when(tlsPath.toFile()).thenReturn(certFile);
 
         VaultConfig vaultConfig = mock(VaultConfig.class);
         when(vaultConfigFactory.create().address(anyString())).thenReturn(vaultConfig);
@@ -45,7 +49,13 @@ public class HashicorpKeyVaultClientFactoryTest {
         SslConfig sslConfig = mock(SslConfig.class, RETURNS_DEEP_STUBS);
         when(sslConfigFactory.create()).thenReturn(sslConfig);
 
-        when(sslConfig.pemFile(any(File.class)).build()).thenReturn(sslConfig);
+        when(
+            sslConfig
+                .clientPemFile(any(File.class))
+                .clientKeyPemFile(any(File.class))
+                .pemFile(any(File.class))
+                .build()
+        ).thenReturn(sslConfig);
 
         keyVaultClientFactory.createUnauthenticatedClient(keyVaultConfig, vaultConfigFactory, sslConfigFactory);
 
@@ -68,10 +78,12 @@ public class HashicorpKeyVaultClientFactoryTest {
 
     @Test
     public void tlsConfigAddedToAuthenticatedVaultClientIfProvided() throws Exception {
-        Path certPath = mock(Path.class);
-        when(keyVaultConfig.getTlsCertificatePath()).thenReturn(certPath);
+        Path tlsPath = mock(Path.class);
+        when(keyVaultConfig.getTlsCertificatePath()).thenReturn(tlsPath);
+        when(keyVaultConfig.getTlsKeyPath()).thenReturn(tlsPath);
+        when(keyVaultConfig.getTlsServerCertificatePath()).thenReturn(tlsPath);
         File certFile = mock(File.class);
-        when(certPath.toFile()).thenReturn(certFile);
+        when(tlsPath.toFile()).thenReturn(certFile);
 
         VaultConfig vaultConfig = mock(VaultConfig.class);
         when(vaultConfigFactory.create().address(anyString())).thenReturn(vaultConfig);
@@ -80,7 +92,13 @@ public class HashicorpKeyVaultClientFactoryTest {
         SslConfig sslConfig = mock(SslConfig.class, RETURNS_DEEP_STUBS);
         when(sslConfigFactory.create()).thenReturn(sslConfig);
 
-        when(sslConfig.pemFile(any(File.class)).build()).thenReturn(sslConfig);
+        when(
+            sslConfig
+                .clientPemFile(any(File.class))
+                .clientKeyPemFile(any(File.class))
+                .pemFile(any(File.class))
+                .build()
+        ).thenReturn(sslConfig);
 
         keyVaultClientFactory.createAuthenticatedClient(keyVaultConfig, vaultConfigFactory, sslConfigFactory, "sometoken");
 
@@ -110,6 +128,11 @@ public class HashicorpKeyVaultClientFactoryTest {
         keyVaultClientFactory.createAuthenticatedClient(keyVaultConfig, vaultConfigFactory, sslConfigFactory, "sometoken");
 
         verify(vaultConfig).token("sometoken");
+    }
+
+    @Test
+    public void getType() {
+        assertThat(keyVaultClientFactory.getType()).isEqualTo(KeyVaultType.HASHICORP);
     }
 
 }
