@@ -1,6 +1,7 @@
 package com.quorum.tessera.key.vault.hashicorp;
 
 import com.bettercloud.vault.Vault;
+import com.bettercloud.vault.response.AuthResponse;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.key.vault.KeyVaultClientFactory;
@@ -16,19 +17,15 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
     private final String secretIdEnvVar = "HASHICORP_SECRET_ID";
     private final String authTokenEnvVar = "HASHICORP_TOKEN";
 
-    @Override
-    public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider) {
-        return null;
-    }
+//    @Override
+//    public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider) {
+//        return null;
+//    }
 
     @Override
     public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider, KeyVaultClientFactory keyVaultClientFactory) {
         Objects.requireNonNull(config);
         Objects.requireNonNull(envProvider);
-
-        if(!(keyVaultClientFactory instanceof HashicorpKeyVaultClientFactory)) {
-            throw new HashicorpVaultException("Incorrect KeyVaultClientFactoryType passed to HashicorpKeyVaultServiceFactory");
-        }
 
         String roleId = envProvider.getEnv(roleIdEnvVar);
         String secretId = envProvider.getEnv(secretIdEnvVar);
@@ -45,15 +42,11 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
             .map(KeyConfiguration::getHashicorpKeyVaultConfig)
             .orElseThrow(() -> new ConfigException(new RuntimeException("Trying to create Hashicorp Vault connection but no Vault configuration provided")));
 
-        Vault vault = ((HashicorpKeyVaultClientFactory) keyVaultClientFactory)
-            .init(keyVaultConfig, new VaultConfigFactory(), new SslConfigFactory())
-            .login(roleId, secretId, authToken)
-            .create();
+//        Vault vault = ((HashicorpKeyVaultClientFactory) keyVaultClientFactory)
+//            .init(keyVaultConfig, new VaultConfigFactory(), new SslConfigFactory())
+//            .login(roleId, secretId, authToken)
+//            .create();
 
-//        HashicorpKeyVaultConfig keyVaultConfig = Optional.ofNullable(config.getKeys())
-//            .map(KeyConfiguration::getHashicorpKeyVaultConfig)
-//            .orElseThrow(() -> new ConfigException(new RuntimeException("Trying to create Hashicorp Vault connection but no Vault configuration provided")));
-//
 //        VaultConfig vaultConfig = new VaultConfig()
 //            .address(keyVaultConfig.getUrl());
 //
@@ -71,19 +64,28 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
 //        VaultCallback.execute(vaultConfig::build);
 //
 //        final Vault vault = new Vault(vaultConfig);
-//
-//        String token;
-//
-//        if(roleId != null && secretId != null) {
-//            AuthResponse loginResponse = VaultCallback.execute(() -> vault.auth().loginByAppRole("approle", roleId, secretId));
-//            token = loginResponse.getAuthClientToken();
-//        } else {
-//            token = authToken;
-//        }
-//
-//        vaultConfig.token(token);
 
-        return new HashicorpKeyVaultService(keyVaultConfig, vault);
+        if(!(keyVaultClientFactory instanceof HashicorpKeyVaultClientFactory)) {
+            throw new HashicorpVaultException("Incorrect KeyVaultClientFactoryType passed to HashicorpKeyVaultServiceFactory");
+        }
+
+        HashicorpKeyVaultClientFactory hashicorpClientFactory = (HashicorpKeyVaultClientFactory) keyVaultClientFactory;
+
+        final Vault unauthenticatedVault = hashicorpClientFactory.createUnauthenticatedClient(keyVaultConfig, new VaultConfigFactory(), new SslConfigFactory());
+
+        String token;
+
+        if(roleId != null && secretId != null) {
+            //TODO allow other paths
+            AuthResponse loginResponse = VaultCallback.execute(() -> unauthenticatedVault.auth().loginByAppRole("approle", roleId, secretId));
+            token = loginResponse.getAuthClientToken();
+        } else {
+            token = authToken;
+        }
+
+        final Vault authenticatedVault = hashicorpClientFactory.createAuthenticatedClient(keyVaultConfig, new VaultConfigFactory(), new SslConfigFactory(), token);
+
+        return new HashicorpKeyVaultService(keyVaultConfig, authenticatedVault);
     }
 
     @Override

@@ -3,25 +3,35 @@ package com.quorum.tessera.key.vault.hashicorp;
 import com.bettercloud.vault.SslConfig;
 import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultConfig;
-import com.bettercloud.vault.response.AuthResponse;
 import com.quorum.tessera.config.HashicorpKeyVaultConfig;
 import com.quorum.tessera.key.vault.KeyVaultClientFactory;
 
 public class HashicorpKeyVaultClientFactory implements KeyVaultClientFactory {
 
-    private VaultConfig vaultConfig;
+    public Vault createUnauthenticatedClient(HashicorpKeyVaultConfig keyVaultConfig, VaultConfigFactory vaultConfigFactory, SslConfigFactory sslConfigFactory) {
+        VaultConfig vaultConfig = createBaseVaultConfig(keyVaultConfig, vaultConfigFactory, sslConfigFactory);
 
-    private SslConfig sslConfig;
+        VaultCallback.execute(vaultConfig::build);
 
-    private Vault vault;
+        return new Vault(vaultConfig);
+    }
 
-    public HashicorpKeyVaultClientFactory init(HashicorpKeyVaultConfig keyVaultConfig, VaultConfigFactory vaultConfigFactory, SslConfigFactory sslConfigFactory) {
+    public Vault createAuthenticatedClient(HashicorpKeyVaultConfig keyVaultConfig, VaultConfigFactory vaultConfigFactory, SslConfigFactory sslConfigFactory, String authToken) {
+        VaultConfig vaultConfig = createBaseVaultConfig(keyVaultConfig, vaultConfigFactory, sslConfigFactory);
 
-        this.vaultConfig = vaultConfigFactory.create()
-                                             .address(keyVaultConfig.getUrl());
+        vaultConfig.token(authToken);
 
-        if(keyVaultConfig.getTlsCertificatePath() != null) {
-            this.sslConfig = sslConfigFactory.create();
+        VaultCallback.execute(vaultConfig::build);
+
+        return new Vault(vaultConfig);
+    }
+
+    private VaultConfig createBaseVaultConfig(HashicorpKeyVaultConfig keyVaultConfig, VaultConfigFactory vaultConfigFactory, SslConfigFactory sslConfigFactory) {
+        VaultConfig vaultConfig = vaultConfigFactory.create()
+                                                    .address(keyVaultConfig.getUrl());
+
+        if (keyVaultConfig.getTlsCertificatePath() != null) {
+            SslConfig sslConfig = sslConfigFactory.create();
 
             VaultCallback.execute(
                 () -> sslConfig.pemFile(keyVaultConfig.getTlsCertificatePath().toFile())
@@ -30,31 +40,6 @@ public class HashicorpKeyVaultClientFactory implements KeyVaultClientFactory {
 
             vaultConfig.sslConfig(sslConfig);
         }
-
-        VaultCallback.execute(vaultConfig::build);
-
-        this.vault = new Vault(vaultConfig);
-
-        return this;
+        return vaultConfig;
     }
-
-    public HashicorpKeyVaultClientFactory login(String roleId, String secretId, String authToken) {
-        String token;
-
-        if(roleId != null && secretId != null) {
-            AuthResponse loginResponse = VaultCallback.execute(() -> vault.auth().loginByAppRole("approle", roleId, secretId));
-            token = loginResponse.getAuthClientToken();
-        } else {
-            token = authToken;
-        }
-
-        this.vaultConfig.token(token);
-
-        return this;
-    }
-
-    public Vault create() {
-        return this.vault;
-    }
-
 }

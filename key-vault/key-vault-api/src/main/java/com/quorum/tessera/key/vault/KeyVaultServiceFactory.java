@@ -10,7 +10,7 @@ import java.util.ServiceLoader;
 
 public interface KeyVaultServiceFactory {
 
-    KeyVaultService create(Config config, EnvironmentVariableProvider envProvider);
+//    KeyVaultService create(Config config, EnvironmentVariableProvider envProvider);
 
     KeyVaultService create(Config config, EnvironmentVariableProvider envProvider, KeyVaultClientFactory keyVaultClientFactory);
 
