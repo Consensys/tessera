@@ -4,10 +4,12 @@ import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultException;
 import com.bettercloud.vault.response.LogicalResponse;
 import com.quorum.tessera.config.HashicorpKeyVaultConfig;
-import com.quorum.tessera.key.vault.GetSecretData;
+import com.quorum.tessera.config.vault.data.GetSecretData;
+import com.quorum.tessera.config.vault.data.HashicorpGetSecretData;
+import com.quorum.tessera.config.vault.data.HashicorpSetSecretData;
+import com.quorum.tessera.config.vault.data.SetSecretData;
 import com.quorum.tessera.key.vault.KeyVaultException;
 import com.quorum.tessera.key.vault.KeyVaultService;
-import com.quorum.tessera.key.vault.SetSecretData;
 
 import java.util.Optional;
 

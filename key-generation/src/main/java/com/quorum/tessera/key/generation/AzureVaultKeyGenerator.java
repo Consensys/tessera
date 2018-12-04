@@ -1,13 +1,12 @@
 package com.quorum.tessera.key.generation;
 
 import com.quorum.tessera.config.ArgonOptions;
-import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
+import com.quorum.tessera.config.vault.data.AzureSetSecretData;
+import com.quorum.tessera.config.vault.data.SetSecretData;
 import com.quorum.tessera.encryption.Key;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.key.vault.KeyVaultService;
-import com.quorum.tessera.key.vault.SetSecretData;
-import com.quorum.tessera.key.vault.SetSecretDataFactory;
 import com.quorum.tessera.nacl.NaclFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 
 public class AzureVaultKeyGenerator implements KeyGenerator {
 
@@ -60,13 +57,15 @@ public class AzureVaultKeyGenerator implements KeyGenerator {
     }
 
     private void saveKeyInVault(String id, Key key) {
-        SetSecretDataFactory setSecretDataFactory = SetSecretDataFactory.getInstance(KeyVaultType.AZURE);
+//        SetSecretDataFactory setSecretDataFactory = SetSecretDataFactory.getInstance(KeyVaultType.AZURE);
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("secretName", id);
-        data.put("secret", key.encodeToBase64());
+//        Map<String, Object> data = new HashMap<>();
+//        data.put("secretName", id);
+//        data.put("secret", key.encodeToBase64());
 
-        SetSecretData setSecretData = setSecretDataFactory.create(data);
+//        SetSecretData setSecretData = setSecretDataFactory.create(data);
+
+        SetSecretData setSecretData = new AzureSetSecretData(id, key.encodeToBase64());
 
         keyVaultService.setSecret(setSecretData);
         LOGGER.debug("Key {} saved to vault with id {}", key.encodeToBase64(), id);

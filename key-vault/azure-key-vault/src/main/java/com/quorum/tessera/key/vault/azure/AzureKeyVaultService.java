@@ -3,7 +3,13 @@ package com.quorum.tessera.key.vault.azure;
 import com.microsoft.azure.keyvault.models.SecretBundle;
 import com.microsoft.azure.keyvault.requests.SetSecretRequest;
 import com.quorum.tessera.config.AzureKeyVaultConfig;
-import com.quorum.tessera.key.vault.*;
+import com.quorum.tessera.config.vault.data.AzureGetSecretData;
+import com.quorum.tessera.config.vault.data.AzureSetSecretData;
+import com.quorum.tessera.config.vault.data.GetSecretData;
+import com.quorum.tessera.config.vault.data.SetSecretData;
+import com.quorum.tessera.key.vault.KeyVaultException;
+import com.quorum.tessera.key.vault.KeyVaultService;
+import com.quorum.tessera.key.vault.VaultSecretNotFoundException;
 
 import java.util.Objects;
 

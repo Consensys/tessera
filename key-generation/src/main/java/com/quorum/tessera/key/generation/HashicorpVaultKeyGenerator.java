@@ -1,12 +1,11 @@
 package com.quorum.tessera.key.generation;
 
 import com.quorum.tessera.config.ArgonOptions;
-import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.keypairs.HashicorpVaultKeyPair;
+import com.quorum.tessera.config.vault.data.HashicorpSetSecretData;
+import com.quorum.tessera.config.vault.data.SetSecretData;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.key.vault.KeyVaultService;
-import com.quorum.tessera.key.vault.SetSecretData;
-import com.quorum.tessera.key.vault.SetSecretDataFactory;
 import com.quorum.tessera.nacl.NaclFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,13 +37,14 @@ public class HashicorpVaultKeyGenerator implements KeyGenerator {
         keyPairData.put(pubId, keys.getPublicKey().encodeToBase64());
         keyPairData.put(privId, keys.getPrivateKey().encodeToBase64());
 
-        SetSecretDataFactory setSecretDataFactory = SetSecretDataFactory.getInstance(KeyVaultType.HASHICORP);
+//        SetSecretDataFactory setSecretDataFactory = SetSecretDataFactory.getInstance(KeyVaultType.HASHICORP);
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("secretPath", filename);
-        data.put("nameValuePairs", keyPairData);
+//        Map<String, Object> data = new HashMap<>();
+//        data.put("secretPath", filename);
+//        data.put("nameValuePairs", keyPairData);
 
-        SetSecretData setSecretData = setSecretDataFactory.create(data);
+//        SetSecretData setSecretData = setSecretDataFactory.create(data);
+        SetSecretData setSecretData = new HashicorpSetSecretData(filename, keyPairData);
 
         keyVaultService.setSecret(setSecretData);
         LOGGER.debug("Key {} saved to vault with path {} and id {}", keyPairData.get(pubId), filename, pubId);
