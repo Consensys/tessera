@@ -115,7 +115,8 @@ public class ProcessManager {
                 "-configfile",
                 ElUtil.createAndPopulatePaths(configFile).toAbsolutePath().toString(),
                 "-pidfile",
-                pid.toAbsolutePath().toString()
+                pid.toAbsolutePath().toString(),
+                "-jdbc.autoCreateTables", "true"
         );
         System.out.println(String.join(" ", args));
 
@@ -125,7 +126,7 @@ public class ProcessManager {
 
         executorService.submit(() -> {
 
-            try (BufferedReader reader = Stream.of(process.getInputStream())
+            try(BufferedReader reader = Stream.of(process.getInputStream())
                     .map(InputStreamReader::new)
                     .map(BufferedReader::new)
                     .findAny().get()) {
@@ -201,7 +202,7 @@ public class ProcessManager {
 
             });
         }
-        
+
         boolean started = startUpLatch.await(30, TimeUnit.SECONDS);
 
         if (!started) {

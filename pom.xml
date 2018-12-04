@@ -36,6 +36,7 @@
         <slf4j.version>1.7.5</slf4j.version>
         <eclipselink.version>2.7.3</eclipselink.version>
         <grpc.version>1.14.0</grpc.version>
+        <h2.version>1.4.197</h2.version>
     </properties>
 
     <build>
@@ -140,7 +141,7 @@
                         <version>8.14</version>
                     </dependency>
                     
-		    <dependency>
+                    <dependency>
                         <groupId>com.github.sevntu-checkstyle</groupId>
                         <artifactId>sevntu-checks</artifactId>
                         <version>1.32.0</version>
@@ -276,6 +277,7 @@
         <module>key-vault</module>
         <module>key-generation</module>
         <module>key-pair-converter</module>
+        <module>ddls</module>
     </modules>
 
     <dependencyManagement>
@@ -518,7 +520,7 @@
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
-                <version>1.4.197</version>
+                <version>${h2.version}</version>
                 <scope>runtime</scope>
             </dependency>
 
