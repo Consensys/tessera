@@ -1,6 +1,7 @@
 package com.quorum.tessera.key.vault.hashicorp;
 
 import com.bettercloud.vault.Vault;
+import com.bettercloud.vault.VaultException;
 import com.bettercloud.vault.response.AuthResponse;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
@@ -48,8 +49,13 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
         String token;
 
         if(roleId != null && secretId != null) {
-            AuthResponse loginResponse = VaultCallback.execute(() -> unauthenticatedVault.auth().loginByAppRole(keyVaultConfig.getApprolePath(), roleId, secretId));
-            token = loginResponse.getAuthClientToken();
+            try {
+                AuthResponse loginResponse = unauthenticatedVault.auth().loginByAppRole(keyVaultConfig.getApprolePath(), roleId, secretId);
+                token = loginResponse.getAuthClientToken();
+            } catch (VaultException e) {
+                throw new HashicorpVaultException("Unable to authenticate using AppRole - " + e.getMessage());
+            }
+
         } else {
             token = authToken;
         }
