@@ -1,6 +1,7 @@
 package com.quorum.tessera.key.vault.hashicorp;
 
 import com.bettercloud.vault.Vault;
+import com.bettercloud.vault.VaultException;
 import com.bettercloud.vault.api.Auth;
 import com.bettercloud.vault.response.AuthResponse;
 import com.quorum.tessera.config.*;
@@ -259,6 +260,36 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
         verify(auth).loginByAppRole("approle", "role-id", "secret-id");
         verify(keyVaultClientFactory).createAuthenticatedClient(any(HashicorpKeyVaultConfig.class), any(VaultConfigFactory.class), any(SslConfigFactory.class), matches(token));
+    }
+
+    @Test
+    public void exceptionThrownIfErrorEncounteredDuringAppRoleAuthentication() throws Exception {
+        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
+        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
+        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn(null);
+
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(config.getKeys()).thenReturn(keyConfiguration);
+
+        HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
+        when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyVaultConfig.getApprolePath()).thenReturn("approle");
+
+        Vault unauthenticatedVault = mock(Vault.class);
+        when(
+            keyVaultClientFactory
+                .createUnauthenticatedClient(any(HashicorpKeyVaultConfig.class), any(VaultConfigFactory.class), any(SslConfigFactory.class))
+        ).thenReturn(unauthenticatedVault);
+
+        Auth auth = mock(Auth.class);
+        when(unauthenticatedVault.auth()).thenReturn(auth);
+        AuthResponse loginResponse = mock(AuthResponse.class);
+        when(auth.loginByAppRole(anyString(), anyString(), anyString())).thenThrow(VaultException.class);
+
+        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory));
+
+        assertThat(ex).isInstanceOf(HashicorpVaultException.class);
+        assertThat(ex.getMessage()).contains("Unable to authenticate using AppRole");
     }
 
     @Test
