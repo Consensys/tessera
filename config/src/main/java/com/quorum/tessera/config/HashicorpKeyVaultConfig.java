@@ -39,9 +39,12 @@ public class HashicorpKeyVaultConfig extends ConfigItem implements KeyVaultConfi
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path tlsServerCertificatePath;
 
-    public HashicorpKeyVaultConfig(String url, Path tlsCertificatePath) {
+    public HashicorpKeyVaultConfig(String url, String approlePath, Path tlsCertificatePath, Path tlsKeyPath, Path tlsServerCertificatePath) {
         this.url = url;
+        this.approlePath = approlePath;
         this.tlsCertificatePath = tlsCertificatePath;
+        this.tlsKeyPath = tlsKeyPath;
+        this.tlsServerCertificatePath = tlsServerCertificatePath;
     }
 
     public HashicorpKeyVaultConfig() {
