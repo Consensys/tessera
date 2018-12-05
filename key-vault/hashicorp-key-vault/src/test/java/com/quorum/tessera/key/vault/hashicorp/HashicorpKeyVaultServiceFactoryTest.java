@@ -208,6 +208,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
         HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
         when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyVaultConfig.getApprolePath()).thenReturn("approle");
 
         Vault unauthenticatedVault = mock(Vault.class);
         when(
@@ -239,6 +240,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
         HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
         when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyVaultConfig.getApprolePath()).thenReturn("approle");
 
         Vault unauthenticatedVault = mock(Vault.class);
         when(

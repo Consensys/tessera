@@ -13,6 +13,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -195,7 +196,7 @@ public class KeyGenerationParserTest {
     }
 
     @Test
-    public void ifAllVaultOptionsProvidedButTypeUnknownThenException() {
+    public void ifVaultOptionsProvidedButTypeUnknownThenException() {
         when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
         when(commandLine.hasOption("keygenvaulturl")).thenReturn(true);
         when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("unknown");
@@ -227,12 +228,58 @@ public class KeyGenerationParserTest {
         when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("someurl");
         when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("HASHICORP");
         when(commandLine.getOptionValue("filename")).thenReturn("secret/path");
+        when(commandLine.getOptionValue("keygenvaultapprole")).thenReturn("approle");
+
+        Path tempPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        tempPath.toFile().deleteOnExit();
+
+        when(commandLine.getOptionValue("keygenvaultcert")).thenReturn(tempPath.toString());
+        when(commandLine.getOptionValue("keygenvaultcertkey")).thenReturn(tempPath.toString());
+        when(commandLine.getOptionValue("keygenvaultservercert")).thenReturn(tempPath.toString());
 
         this.parser.parse(commandLine);
 
         verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultapprole");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultcert");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultcertkey");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultservercert");
+    }
+
+    @Test
+    public void ifHashicorpTlsOptionsProvidedButPathsDontExistThenValidationException() {
+        when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
+        when(commandLine.hasOption("keygenvaulturl")).thenReturn(true);
+        when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("HASHICORP");
+        when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("someurl");
+        when(commandLine.hasOption("filename")).thenReturn(true);
+        when(commandLine.getOptionValue("filename")).thenReturn("secret/path");
+        when(commandLine.getOptionValue("keygenvaultapprole")).thenReturn("approle");
+        when(commandLine.getOptionValue("keygenvaultcert")).thenReturn("non/existent/path");
+        when(commandLine.getOptionValue("keygenvaultcertkey")).thenReturn("non/existent/path");
+        when(commandLine.getOptionValue("keygenvaultservercert")).thenReturn("non/existent/path");
+
+        Throwable ex = catchThrowable(() -> this.parser.parse(commandLine));
+
         verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
         verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultapprole");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultcert");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultcertkey");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultservercert");
+
+        assertThat(ex).isInstanceOf(ConstraintViolationException.class);
+
+        Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
+
+        assertThat(violations.size()).isEqualTo(3);
+
+        Iterator<ConstraintViolation<?>> iterator = violations.iterator();
+
+        assertThat(iterator.next().getMessage()).isEqualTo("File does not exist");
+        assertThat(iterator.next().getMessage()).isEqualTo("File does not exist");
+        assertThat(iterator.next().getMessage()).isEqualTo("File does not exist");
     }
 
 }
