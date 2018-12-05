@@ -16,20 +16,19 @@ public class HashicorpKeyVaultConfigTest {
     }
 
     @Test
-    public void getters() {
-        assertThat(vaultConfig.getUrl()).isEqualTo("url");
-    }
-
-    @Test
-    public void setters() {
-        assertThat(vaultConfig.getUrl()).isEqualTo("url");
-        vaultConfig.setUrl("newUrl");
-        assertThat(vaultConfig.getUrl()).isEqualTo("newUrl");
-    }
-
-    @Test
     public void getType() {
         assertThat(vaultConfig.getKeyVaultType()).isEqualTo(KeyVaultType.HASHICORP);
+    }
+
+    @Test
+    public void getApprolePathReturnsDefaultIfNotSet() {
+        assertThat(vaultConfig.getApprolePath()).isEqualTo("approle");
+    }
+
+    @Test
+    public void getApprolePath() {
+        vaultConfig.setApprolePath("notdefault");
+        assertThat(vaultConfig.getApprolePath()).isEqualTo("notdefault");
     }
 
 }

@@ -1,7 +1,6 @@
-package com.quorum.tessera.key.vault.hashicorp;
+package com.quorum.tessera.config.vault.data;
 
 import com.quorum.tessera.config.KeyVaultType;
-import com.quorum.tessera.config.vault.data.HashicorpSetSecretData;
 import org.junit.Before;
 import org.junit.Test;
 
