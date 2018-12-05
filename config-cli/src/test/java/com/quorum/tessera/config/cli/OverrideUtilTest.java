@@ -1,6 +1,9 @@
 package com.quorum.tessera.config.cli;
 
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.KeyConfiguration;
+import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.util.JaxbUtil;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -41,6 +44,10 @@ public class OverrideUtilTest {
             "keys.keyData.config.data.aopts.parallelism",
             "keys.keyData.privateKeyPath",
             "keys.azureKeyVaultConfig.url",
+            "keys.hashicorpKeyVaultConfig.approlePath",
+            "keys.hashicorpKeyVaultConfig.tlsCertificatePath",
+            "keys.hashicorpKeyVaultConfig.tlsServerCertificatePath",
+            "keys.hashicorpKeyVaultConfig.tlsKeyPath",
             "keys.hashicorpKeyVaultConfig.url",
             "alwaysSendTo",
             "unixSocketFile",

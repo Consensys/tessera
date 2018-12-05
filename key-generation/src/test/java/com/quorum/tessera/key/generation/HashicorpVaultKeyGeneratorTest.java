@@ -51,9 +51,10 @@ public class HashicorpVaultKeyGeneratorTest {
 
         HashicorpVaultKeyPair result = hashicorpVaultKeyGenerator.generate(filename, null);
 
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("publicKey", "privateKey", filename);
+        assertThat(result).isEqualToComparingFieldByField(expected);
 
         final ArgumentCaptor<HashicorpSetSecretData> captor = ArgumentCaptor.forClass(HashicorpSetSecretData.class);
-
         verify(keyVaultService).setSecret(captor.capture());
 
         assertThat(captor.getAllValues()).hasSize(1);
@@ -69,9 +70,6 @@ public class HashicorpVaultKeyGeneratorTest {
 
         verifyNoMoreInteractions(keyVaultService);
 
-        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("publicKey", "privateKey", filename);
-
-        assertThat(result).isEqualToComparingFieldByField(expected);
     }
 
 }

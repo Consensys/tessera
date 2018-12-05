@@ -112,13 +112,24 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
                 throw new CliException("At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
             }
 
-            Path tlsCertificatePath = null;
+            String approlePath = commandLine.getOptionValue("keygenvaultapprole");
 
-            if(commandLine.hasOption("keygenvaultcert")) {
-                tlsCertificatePath = Paths.get(commandLine.getOptionValue("keygenvaultcert"));
-            }
+            Optional<Path> tlsCertificatePath = Optional.ofNullable(commandLine.getOptionValue("keygenvaultcert"))
+                                                        .map(Paths::get);
 
-            keyVaultConfig = new HashicorpKeyVaultConfig(keyVaultUrl, tlsCertificatePath);
+            Optional<Path> tlsKeyPath = Optional.ofNullable(commandLine.getOptionValue("keygenvaultcertkey"))
+                                                .map(Paths::get);
+
+            Optional<Path> tlsServerCertificatePath = Optional.ofNullable(commandLine.getOptionValue("keygenvaultservercert"))
+                                                              .map(Paths::get);
+
+            keyVaultConfig = new HashicorpKeyVaultConfig(
+                keyVaultUrl,
+                approlePath,
+                tlsCertificatePath.orElse(null),
+                tlsKeyPath.orElse(null),
+                tlsServerCertificatePath.orElse(null)
+            );
 
             Set<ConstraintViolation<HashicorpKeyVaultConfig>> violations = validator.validate((HashicorpKeyVaultConfig)keyVaultConfig);
 
