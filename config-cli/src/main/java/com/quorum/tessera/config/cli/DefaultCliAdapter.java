@@ -185,7 +185,7 @@ public class DefaultCliAdapter implements CliAdapter {
                   .desc("AppRole path for Hashicorp Vault authentication (defaults to 'approle')")
                   .hasArg()
                   .optionalArg(false)
-                  .argName("PATH")
+                  .argName("STRING")
                   .build()
         );
 
