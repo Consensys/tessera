@@ -20,7 +20,7 @@ public class UpCheckResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpCheckResource.class);
 
-    private static final String UPCHECK_RESPONSE = "I'm up!";
+    private static final String UPCHECK_RESPONSE = "TM_READY";
 
     /**
      * Called to check if the application is running and responsive
