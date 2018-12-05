@@ -22,10 +22,11 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
     public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider, KeyVaultClientFactory keyVaultClientFactory) {
         Objects.requireNonNull(config);
         Objects.requireNonNull(envProvider);
+        Objects.requireNonNull(keyVaultClientFactory);
 
-        String roleId = envProvider.getEnv(roleIdEnvVar);
-        String secretId = envProvider.getEnv(secretIdEnvVar);
-        String authToken = envProvider.getEnv(authTokenEnvVar);
+        final String roleId = envProvider.getEnv(roleIdEnvVar);
+        final String secretId = envProvider.getEnv(secretIdEnvVar);
+        final String authToken = envProvider.getEnv(authTokenEnvVar);
 
         if(roleId == null && secretId == null && authToken == null) {
             throw new HashicorpCredentialNotSetException("Environment variables must be set to authenticate with Hashicorp Vault.  Set the " + roleIdEnvVar + " and " + secretIdEnvVar + " environment variables if using the AppRole authentication method.  Set the " + authTokenEnvVar + " environment variable if using another authentication method.");
@@ -62,7 +63,7 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
 
         final Vault authenticatedVault = hashicorpClientFactory.createAuthenticatedClient(keyVaultConfig, new VaultConfigFactory(), new SslConfigFactory(), token);
 
-        return new HashicorpKeyVaultService(keyVaultConfig, authenticatedVault);
+        return new HashicorpKeyVaultService(authenticatedVault);
     }
 
     @Override

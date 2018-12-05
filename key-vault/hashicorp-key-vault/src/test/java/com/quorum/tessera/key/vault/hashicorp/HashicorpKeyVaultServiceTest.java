@@ -4,7 +4,6 @@ import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultException;
 import com.bettercloud.vault.api.Logical;
 import com.bettercloud.vault.response.LogicalResponse;
-import com.quorum.tessera.config.HashicorpKeyVaultConfig;
 import com.quorum.tessera.config.vault.data.GetSecretData;
 import com.quorum.tessera.config.vault.data.HashicorpGetSecretData;
 import com.quorum.tessera.config.vault.data.HashicorpSetSecretData;
@@ -28,15 +27,12 @@ public class HashicorpKeyVaultServiceTest {
 
     private HashicorpKeyVaultService keyVaultService;
 
-    private HashicorpKeyVaultConfig keyVaultConfig;
-
     private Vault vault;
 
     @Before
     public void setUp() {
-        this.keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
         this.vault = mock(Vault.class);
-        this.keyVaultService = new HashicorpKeyVaultService(keyVaultConfig, vault);
+        this.keyVaultService = new HashicorpKeyVaultService(vault);
     }
 
     @Test

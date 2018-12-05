@@ -3,7 +3,6 @@ package com.quorum.tessera.key.vault.hashicorp;
 import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultException;
 import com.bettercloud.vault.response.LogicalResponse;
-import com.quorum.tessera.config.HashicorpKeyVaultConfig;
 import com.quorum.tessera.config.vault.data.GetSecretData;
 import com.quorum.tessera.config.vault.data.HashicorpGetSecretData;
 import com.quorum.tessera.config.vault.data.HashicorpSetSecretData;
@@ -15,12 +14,9 @@ import java.util.Optional;
 
 public class HashicorpKeyVaultService implements KeyVaultService {
 
-    private final HashicorpKeyVaultConfig keyVaultConfig;
-
     private final Vault vault;
 
-    public HashicorpKeyVaultService(HashicorpKeyVaultConfig keyVaultConfig, Vault vault) {
-        this.keyVaultConfig = keyVaultConfig;
+    public HashicorpKeyVaultService(Vault vault) {
         this.vault = vault;
     }
 

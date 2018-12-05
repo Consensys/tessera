@@ -7,5 +7,4 @@ public class EnvironmentVariableProvider {
         return System.getenv(name);
     }
 
-
 }
