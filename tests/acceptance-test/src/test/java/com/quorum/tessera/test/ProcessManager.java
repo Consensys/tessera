@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class ProcessManager {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessManager.class);
 
     private final Map<String, Path> pids = new HashMap<>();
@@ -115,7 +116,8 @@ public class ProcessManager {
                 "-configfile",
                 ElUtil.createAndPopulatePaths(configFile).toAbsolutePath().toString(),
                 "-pidfile",
-                pid.toAbsolutePath().toString()
+                pid.toAbsolutePath().toString(),
+                "-jdbc.autoCreateTables", "true"
         );
         System.out.println(String.join(" ", args));
 
@@ -125,7 +127,7 @@ public class ProcessManager {
 
         executorService.submit(() -> {
 
-            try (BufferedReader reader = Stream.of(process.getInputStream())
+            try(BufferedReader reader = Stream.of(process.getInputStream())
                     .map(InputStreamReader::new)
                     .map(BufferedReader::new)
                     .findAny().get()) {
@@ -201,7 +203,7 @@ public class ProcessManager {
 
             });
         }
-        
+
         boolean started = startUpLatch.await(30, TimeUnit.SECONDS);
 
         if (!started) {
@@ -237,6 +239,7 @@ public class ProcessManager {
 
         int exitCode = process.waitFor();
     }
+
 
     public static void main(String[] args) throws Exception {
         System.setProperty("application.jar", "/Users/mark/Projects/tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");

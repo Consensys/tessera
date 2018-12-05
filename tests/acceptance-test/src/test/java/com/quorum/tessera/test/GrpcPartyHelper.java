@@ -13,7 +13,6 @@ public class GrpcPartyHelper implements PartyHelper {
         parties.add(new Party("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=", getClass().getResource("/grpc/config2.json"), "B"));
         parties.add(new Party("giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=", getClass().getResource("/grpc/config3.json"), "C"));
         parties.add(new Party("Tj8xg/HpsYmh7Te3UerzlLx1HgpWVOGq25ZgbwaPNVM=", getClass().getResource("/grpc/config4.json"), "D"));
-
     }
 
     @Override

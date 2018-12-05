@@ -47,7 +47,7 @@ Tessera can use either the [jnacl](https://github.com/neilalexander/jnacl) or [k
 
 Install libsodium as detailed on the [kalium project page](https://github.com/abstractj/kalium), then run
  
-`mvn install -P kalium,jersey`
+`mvn install -P kalium`
 
 
 ## Running Tessera

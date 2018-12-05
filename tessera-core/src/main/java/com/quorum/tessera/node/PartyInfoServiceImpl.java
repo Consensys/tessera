@@ -2,7 +2,7 @@ package com.quorum.tessera.node;
 
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.core.config.ConfigService;
-import com.quorum.tessera.encryption.KeyManager;
+import com.quorum.tessera.encryption.Enclave;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.model.Party;
@@ -29,11 +29,12 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     public PartyInfoServiceImpl(final PartyInfoStore partyInfoStore,
                                 final ConfigService configService,
-                                final KeyManager keyManager) {
+                                final Enclave enclave) {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
         this.configService = Objects.requireNonNull(configService);
 
         final String advertisedUrl = configService.getServerUri() + "/";
+
 
         final Set<Party> initialParties = configService
                 .getPeers()
@@ -42,12 +43,13 @@ public class PartyInfoServiceImpl implements PartyInfoService {
                 .map(Party::new)
                 .collect(toSet());
 
-        final Set<Recipient> ourKeys = keyManager
-                .getPublicKeys()
-                .stream()
-                .map(key -> PublicKey.from(key.getKeyBytes()))
-                .map(key -> new Recipient(key, advertisedUrl))
-                .collect(toSet());
+        final Set<Recipient> ourKeys = enclave
+            .getPublicKeys()
+            .stream()
+            .map(key -> PublicKey.from(key.getKeyBytes()))
+            .map(key -> new Recipient(key, advertisedUrl))
+            .collect(toSet());
+
 
         partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, initialParties));
 

@@ -9,6 +9,17 @@
     <artifactId>data-migration</artifactId>
     <packaging>jar</packaging>
     
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.mockrunner</groupId>
+                <artifactId>mockrunner-jdbc</artifactId>
+                <version>2.0.1</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         
@@ -31,7 +42,7 @@
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
-            <scope>compile</scope>
+            <scope>runtime</scope>
         </dependency>
         
         <dependency>
@@ -44,7 +55,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>compile</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -56,6 +67,13 @@
         <dependency>
             <groupId>com.github.stefanbirkner</groupId>
             <artifactId>system-rules</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+
+        <dependency>
+            <groupId>com.mockrunner</groupId>
+            <artifactId>mockrunner-jdbc</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -23,4 +23,14 @@ public class InputStreamPasswordReaderTest {
 
     }
 
+    @Test
+    public void testNoLineFoundInStream() {
+        final byte[] inputStreamBytes = new byte[0];
+        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(inputStreamBytes);
+        final PasswordReader passwordReader = new InputStreamPasswordReader(byteArrayInputStream);
+
+        final String password = passwordReader.readPasswordFromConsole();
+        assertThat(password).isEmpty();
+    }
+
 }

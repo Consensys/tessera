@@ -18,6 +18,12 @@ public class JdbcConfig extends ConfigItem {
     @XmlElement(required = true)
     private String url;
 
+    /**
+     * Auto create tables if no exists
+     */
+    @XmlElement(defaultValue = "false")
+    private boolean autoCreateTables;
+
     public JdbcConfig(String username, String password, String url) {
         this.username = username;
         this.password = password;
@@ -25,7 +31,7 @@ public class JdbcConfig extends ConfigItem {
     }
 
     public JdbcConfig() {
-        this(null,null,null);
+        this(null, null, null);
     }
 
     public String getUsername() {
@@ -51,5 +57,13 @@ public class JdbcConfig extends ConfigItem {
     public void setUrl(String url) {
         this.url = url;
     }
-  
+
+    public boolean isAutoCreateTables() {
+        return autoCreateTables;
+    }
+
+    public void setAutoCreateTables(boolean autoCreateTables) {
+        this.autoCreateTables = autoCreateTables;
+    }
+
 }
