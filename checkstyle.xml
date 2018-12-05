@@ -29,7 +29,6 @@
         <module name="TypeName"/>
         <module name="RedundantModifier"/>
         <module name="ModifierOrder"/>
-        <module name="ParenPad"/>
         <module name="EqualsHashCode"/>
         <module name="EmptyStatement"/>
         <module name="SimplifyBooleanExpression"/>
@@ -48,5 +47,31 @@
         </module>
         <module name="EnumValueName"/>
 
+        <!-- Start: Whitespace -->
+
+        <module name="ParenPad"/>
+
+        <!-- These separators (. @ ::) cannot appear at end of a line-->
+        <module name="SeparatorWrap">
+            <property name="tokens" value="DOT"/>
+            <property name="tokens" value="AT"/>
+            <property name="tokens" value="METHOD_REF"/>
+            <property name="option" value="nl"/>
+        </module>
+
+        <!-- These separators (, ;) cannot appear at start of a line-->
+        <module name="SeparatorWrap">
+            <property name="tokens" value="COMMA"/>
+            <property name="tokens" value="SEMI"/>
+            <property name="option" value="EOL"/>
+        </module>
+
+        <module name="NoLineWrap">
+            <property name="tokens" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/>
+        </module>
+
+        <!-- End: Whitespace -->
+
     </module>
+
 </module>
