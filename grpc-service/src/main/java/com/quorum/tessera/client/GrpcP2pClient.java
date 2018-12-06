@@ -30,7 +30,7 @@ class GrpcP2pClient implements P2pClient {
 
     @Override
     public boolean makeResendRequest(String targetUrl, ResendRequest request) {
-        com.quorum.tessera.grpc.p2p.ResendRequest grpcObj =  Convertor.toGrpc(request);
+        com.quorum.tessera.grpc.p2p.ResendRequest grpcObj = Convertor.toGrpc(request);
         return grpcClientFactory.getClient(targetUrl).makeResendRequest(grpcObj);
     }
     

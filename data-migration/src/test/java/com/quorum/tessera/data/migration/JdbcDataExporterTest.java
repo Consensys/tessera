@@ -27,7 +27,7 @@ public class JdbcDataExporterTest extends BasicJDBCTestCaseAdapter{
     }
     
     @Test
-    public void doStuff() throws Exception  {
+    public void doStuff() throws Exception {
         
 
         JdbcDataExporter exporter = new JdbcDataExporter("jdbc:bogus","insert stuff","create stuff");

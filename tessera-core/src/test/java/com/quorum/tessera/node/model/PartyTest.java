@@ -11,7 +11,7 @@ public class PartyTest {
     @Test
     public void differentClassesAreNotEqual() {
 
-        final Object other =  "test";
+        final Object other = "test";
         final boolean isEqual = Objects.equals(new Party("partyurl"), other);
 
         assertThat(isEqual).isFalse();

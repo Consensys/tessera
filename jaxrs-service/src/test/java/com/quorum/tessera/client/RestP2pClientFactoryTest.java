@@ -14,7 +14,7 @@ public class RestP2pClientFactoryTest {
     
     @Test
     public void create() {
-        RestP2pClientFactory factory  = new RestP2pClientFactory();
+        RestP2pClientFactory factory = new RestP2pClientFactory();
         assertThat(factory.communicationType()).isEqualTo(CommunicationType.REST);
         
         Config config = mock(Config.class);

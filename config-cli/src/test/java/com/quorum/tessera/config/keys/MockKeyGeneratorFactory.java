@@ -25,7 +25,7 @@ public class MockKeyGeneratorFactory implements KeyGeneratorFactory {
     }
 
     public static void reset() {
-        KeyGeneratorHolder.INSTANCE.keyGenerator =  mock(KeyGenerator.class);
+        KeyGeneratorHolder.INSTANCE.keyGenerator = mock(KeyGenerator.class);
     }
 
 }
