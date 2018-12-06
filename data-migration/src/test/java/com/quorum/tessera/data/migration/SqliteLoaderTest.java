@@ -12,7 +12,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,12 +37,12 @@ public class SqliteLoaderTest {
 
         dbfilePath = Files.createTempFile("sample", ".db");
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbfilePath);
-                Statement statement = conn.createStatement();) {
+             Statement statement = conn.createStatement();) {
             statement.execute("CREATE TABLE payload (key LONGVARBINARY,bytes LONGVARBINARY)");
-            try (PreparedStatement insertStatement = conn.prepareStatement("INSERT INTO payload (key,bytes) values (?,?)")) { 
-                for (Entry<String,String> entry : fixtures.entrySet()) {
+            try (PreparedStatement insertStatement = conn.prepareStatement("INSERT INTO payload (key,bytes) values (?,?)")) {
+                for (Entry<String, String> entry : fixtures.entrySet()) {
                     insertStatement.setString(1, entry.getKey());
-                    insertStatement.setString(2,  entry.getValue());
+                    insertStatement.setString(2, entry.getValue());
                     insertStatement.executeUpdate();
                 }
 
@@ -58,15 +60,15 @@ public class SqliteLoaderTest {
     @Test
     public void load() throws IOException {
 
-       Map<byte[],byte[]> results =  loader.load(dbfilePath);
+        Map<byte[], byte[]> results = loader.load(dbfilePath);
 
-       assertThat(results).hasSize(fixtures.size());
-       
-       Map<String,String> resultz = results.entrySet().stream()
-               .collect(Collectors.toMap(entry -> new String(entry.getKey()),entry -> new String(entry.getValue())));
+        assertThat(results).hasSize(fixtures.size());
 
-       assertThat(resultz).containsAllEntriesOf(fixtures);
-       
+        Map<String, String> resultz = results.entrySet().stream()
+            .collect(Collectors.toMap(entry -> new String(entry.getKey()), entry -> new String(entry.getValue())));
+
+        assertThat(resultz).containsAllEntriesOf(fixtures);
+
     }
 
 }

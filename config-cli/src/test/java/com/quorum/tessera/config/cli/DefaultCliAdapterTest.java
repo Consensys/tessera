@@ -172,7 +172,7 @@ public class DefaultCliAdapterTest {
     @Test
     public void outputWithoutKeygenOrConfig() {
 
-        final Throwable throwable = catchThrowable(() ->  cliDelegate.execute("-output","bogus"));
+        final Throwable throwable = catchThrowable(() -> cliDelegate.execute("-output","bogus"));
         assertThat(throwable)
             .isInstanceOf(CliException.class)
             .hasMessage("One or more: -configfile or -keygen or -updatepassword options are required.");

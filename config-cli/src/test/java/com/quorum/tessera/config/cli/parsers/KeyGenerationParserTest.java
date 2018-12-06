@@ -136,7 +136,7 @@ public class KeyGenerationParserTest {
     }
 
     @Test
-    public void ifAzureVaultTypeOptionProvidedButNoVaultUrlThenValidationException()  {
+    public void ifAzureVaultTypeOptionProvidedButNoVaultUrlThenValidationException() {
         when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
         when(commandLine.hasOption("keygenvaulturl")).thenReturn(false);
         when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("AZURE");
