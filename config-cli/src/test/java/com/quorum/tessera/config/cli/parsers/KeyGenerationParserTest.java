@@ -159,7 +159,7 @@ public class KeyGenerationParserTest {
     }
 
     @Test
-    public void ifHashicorpVaultTypeOptionAndFilenameProvidedButNoVaultUrlThenValidationException()  {
+    public void ifHashicorpVaultTypeOptionAndFilenameProvidedButNoVaultUrlThenValidationException() {
         when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
         when(commandLine.hasOption("keygenvaulturl")).thenReturn(false);
         when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("HASHICORP");
