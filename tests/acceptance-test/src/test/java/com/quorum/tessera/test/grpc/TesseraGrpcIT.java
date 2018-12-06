@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 public class TesseraGrpcIT {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TesseraGrpcIT.class);
-    
+
     private ManagedChannel channel;
 
     private TesseraGrpc.TesseraBlockingStub blockingStub;
@@ -28,8 +28,8 @@ public class TesseraGrpcIT {
     @Before
     public void onSetUp() {
         channel = ManagedChannelBuilder.forAddress("127.0.0.1", 50520)
-                .usePlaintext()
-                .build();
+            .usePlaintext()
+            .build();
 
         blockingStub = TesseraGrpc.newBlockingStub(channel);
     }
@@ -42,15 +42,15 @@ public class TesseraGrpcIT {
 
     @Test
     public void version() throws Exception {
-        
+
         LOGGER.info("Sending");
-        
-        
-       VersionMessage result =  blockingStub.getVersion(Empty.getDefaultInstance());
-       LOGGER.info("Sent");
-       
-       assertThat(result).isNotNull();
-        
+
+
+        VersionMessage result = blockingStub.getVersion(Empty.getDefaultInstance());
+        LOGGER.info("Sent");
+
+        assertThat(result).isNotNull();
+
     }
 
 }

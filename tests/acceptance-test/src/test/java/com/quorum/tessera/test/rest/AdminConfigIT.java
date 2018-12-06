@@ -19,37 +19,37 @@ public class AdminConfigIT {
     private final Client client = ClientBuilder.newClient();
 
     private final PartyHelper partyHelper = new RestPartyHelper();
-    
+
     @Test
     public void addPeer() {
-        
+
         Party party = partyHelper.getParties().findAny().get();
-        
+
         String url = "http://"+ UUID.randomUUID().toString().replaceAll("-", "");
-        
+
         Peer peer = new Peer(url);
-        
+
         Response response = client.target(party.getP2PUri())
-                .path("config")
-                .path("peers")
-                .request(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON).put(Entity.entity(peer, MediaType.APPLICATION_JSON));
-        
-        
+            .path("config")
+            .path("peers")
+            .request(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON).put(Entity.entity(peer, MediaType.APPLICATION_JSON));
+
+
         assertThat(response.getStatus()).isEqualTo(201);
-        
-       URI location =  response.getLocation();
-        
+
+        URI location = response.getLocation();
+
         Response queryResponse = client.target(location)
-                .request(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON).get();
-        
-         assertThat(queryResponse.getStatus()).isEqualTo(200);
-        
-         assertThat(queryResponse.readEntity(Peer.class)).isEqualTo(peer);
-        
-        
+            .request(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON).get();
+
+        assertThat(queryResponse.getStatus()).isEqualTo(200);
+
+        assertThat(queryResponse.readEntity(Peer.class)).isEqualTo(peer);
+
+
     }
-    
-    
+
+
 }

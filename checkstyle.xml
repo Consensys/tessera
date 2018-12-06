@@ -50,6 +50,15 @@
         <!-- Start: Whitespace -->
 
         <module name="ParenPad"/>
+        <module name="GenericWhitespace"/>
+        <module name="TypecastParenPad"/>
+        <module name="SingleSpaceSeparator"/>
+
+        <!-- Make sure that method calls have no space between method name and left parenthesis -->
+        <module name="MethodParamPad">
+            <property name="option" value="nospace"/>
+            <property name="tokens" value="CTOR_DEF, LITERAL_NEW, METHOD_CALL, METHOD_DEF, SUPER_CTOR_CALL, ENUM_CONSTANT_DEF"/>
+        </module>
 
         <!-- These separators (. @ ::) cannot appear at end of a line-->
         <module name="SeparatorWrap">

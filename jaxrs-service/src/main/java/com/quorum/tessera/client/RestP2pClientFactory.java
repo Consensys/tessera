@@ -12,12 +12,10 @@ public class RestP2pClientFactory implements P2pClientFactory {
     @Override
     public P2pClient create(Config config) {
 
-        SSLContextFactory clientSSLContextFactory  = 
-                ClientSSLContextFactory.create();
+        SSLContextFactory clientSSLContextFactory = ClientSSLContextFactory.create();
         
         ClientFactory clientFactory = new ClientFactory(clientSSLContextFactory);
 
-        
         Client client = clientFactory.buildFrom(config.getP2PServerConfig());
 
         PostDelegate postDelegate = new PostDelegate(client);

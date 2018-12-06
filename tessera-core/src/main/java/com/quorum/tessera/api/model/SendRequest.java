@@ -30,7 +30,7 @@ public class SendRequest {
         return this.payload;
     }
 
-    public void setPayload(final byte[]  payload) {
+    public void setPayload(final byte[] payload) {
         this.payload = payload;
     }
 

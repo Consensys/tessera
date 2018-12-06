@@ -23,7 +23,7 @@ import javax.ws.rs.core.Application;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UnixSocketServer implements TesseraServer  {
+public class UnixSocketServer implements TesseraServer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UnixSocketServer.class);
 
