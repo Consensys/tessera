@@ -139,10 +139,11 @@ public class Config extends ConfigItem {
 
     public ServerConfig getP2PServerConfig() {
         // TODO need to revisit
-        return getServerConfigs().stream().
-            filter(ServerConfig::isEnabled).
-            filter(sc -> sc.getApp() == AppType.P2P).
-            findFirst().orElse(null);
+        return getServerConfigs().stream()
+            .filter(ServerConfig::isEnabled)
+            .filter(sc -> sc.getApp() == AppType.P2P)
+            .findFirst()
+            .orElse(null);
     }
     
     @Deprecated

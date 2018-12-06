@@ -15,11 +15,9 @@ public class KeyPairTest {
     public void differentPublicKeysAreNotEqual() {
         final KeyPair keyPair = new KeyPair(TEST_KEY, PRIVATE_KEY);
 
-        assertThat(keyPair).
-                isNotEqualTo(new KeyPair(
-                        PublicKey.from("other".getBytes(UTF_8)),
-                        PRIVATE_KEY
-                ));
+        assertThat(keyPair).isNotEqualTo(
+            new KeyPair(PublicKey.from("other".getBytes(UTF_8)), PRIVATE_KEY)
+        );
     }
 
     @Test

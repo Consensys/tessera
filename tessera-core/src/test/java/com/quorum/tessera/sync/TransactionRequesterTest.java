@@ -82,8 +82,7 @@ public class TransactionRequesterTest {
     public void failedCallRetries() {
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(KEY_ONE));
         
-        when(p2pClient.makeResendRequest(anyString(), any(ResendRequest.class))).thenReturn(false)
-                ;
+        when(p2pClient.makeResendRequest(anyString(), any(ResendRequest.class))).thenReturn(false);
 
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
