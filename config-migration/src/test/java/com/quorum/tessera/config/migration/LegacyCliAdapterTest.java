@@ -310,10 +310,10 @@ public class LegacyCliAdapterTest {
         params.put("alwaysSendToPath1", "alwayssendto");
         params.put("alwaysSendToPath2", "alwayssendto");
 
-        String data = ElUtil.process(Files.readAllLines(sampleFile)
-                .stream()
-                .collect(Collectors.joining(System.lineSeparator()))
-            , params);
+        String data = ElUtil.process(
+            Files.readAllLines(sampleFile).stream().collect(Collectors.joining(System.lineSeparator())),
+            params
+        );
 
         Path configFile = Files.createTempFile("workdiroverride", ".txt");
         Files.write(configFile, data.getBytes());

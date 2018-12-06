@@ -45,8 +45,13 @@ public class Party {
         
         ServerConfig p2pServerConfig = config.getP2PServerConfig();
         this.p2pUri = p2pServerConfig.getServerUri();
-        ServerConfig q2tServerConfig = config.getServerConfigs().stream().
-            filter(sc -> sc.getApp() == AppType.Q2T).findFirst().get();
+
+        ServerConfig q2tServerConfig = config.getServerConfigs()
+            .stream()
+            .filter(sc -> sc.getApp() == AppType.Q2T)
+            .findFirst()
+            .get();
+
         this.q2tUri = q2tServerConfig.getServerUri();
         
         this.alias = Objects.requireNonNull(alias);
