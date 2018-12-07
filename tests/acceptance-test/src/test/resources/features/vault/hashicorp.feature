@@ -9,4 +9,4 @@ Feature: Hashicorp Vault support
         And the configfile contains the correct vault configuration
         And the configfile contains the correct key data
         When Tessera is started
-        Then Tessera will retrieve the key pair from the vault
+        Then Tessera will have retrieved the key pair from the vault
