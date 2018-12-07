@@ -283,7 +283,6 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
         Auth auth = mock(Auth.class);
         when(unauthenticatedVault.auth()).thenReturn(auth);
-        AuthResponse loginResponse = mock(AuthResponse.class);
         when(auth.loginByAppRole(anyString(), anyString(), anyString())).thenThrow(VaultException.class);
 
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory));

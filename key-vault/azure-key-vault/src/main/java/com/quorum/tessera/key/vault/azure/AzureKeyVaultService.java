@@ -17,7 +17,7 @@ public class AzureKeyVaultService implements KeyVaultService {
     private String vaultUrl;
     private AzureKeyVaultClientDelegate azureKeyVaultClientDelegate;
 
-    public AzureKeyVaultService(AzureKeyVaultConfig keyVaultConfig, AzureKeyVaultClientDelegate azureKeyVaultClientDelegate) {
+    AzureKeyVaultService(AzureKeyVaultConfig keyVaultConfig, AzureKeyVaultClientDelegate azureKeyVaultClientDelegate) {
         if(Objects.nonNull(keyVaultConfig)) {
             this.vaultUrl = keyVaultConfig.getUrl();
         }

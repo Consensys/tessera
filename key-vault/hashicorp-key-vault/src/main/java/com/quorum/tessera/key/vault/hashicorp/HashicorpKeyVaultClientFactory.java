@@ -9,7 +9,9 @@ import com.quorum.tessera.key.vault.KeyVaultClientFactory;
 
 public class HashicorpKeyVaultClientFactory implements KeyVaultClientFactory {
 
-    public Vault createUnauthenticatedClient(HashicorpKeyVaultConfig keyVaultConfig, VaultConfigFactory vaultConfigFactory, SslConfigFactory sslConfigFactory) {
+    Vault createUnauthenticatedClient(HashicorpKeyVaultConfig keyVaultConfig,
+                                             VaultConfigFactory vaultConfigFactory,
+                                             SslConfigFactory sslConfigFactory) {
         VaultConfig vaultConfig = createBaseVaultConfig(keyVaultConfig, vaultConfigFactory, sslConfigFactory);
 
         VaultCallback.execute(vaultConfig::build);
@@ -17,7 +19,10 @@ public class HashicorpKeyVaultClientFactory implements KeyVaultClientFactory {
         return new Vault(vaultConfig);
     }
 
-    public Vault createAuthenticatedClient(HashicorpKeyVaultConfig keyVaultConfig, VaultConfigFactory vaultConfigFactory, SslConfigFactory sslConfigFactory, String authToken) {
+    Vault createAuthenticatedClient(HashicorpKeyVaultConfig keyVaultConfig,
+                                           VaultConfigFactory vaultConfigFactory,
+                                           SslConfigFactory sslConfigFactory,
+                                           String authToken) {
         VaultConfig vaultConfig = createBaseVaultConfig(keyVaultConfig, vaultConfigFactory, sslConfigFactory);
 
         vaultConfig.token(authToken);
@@ -45,9 +50,7 @@ public class HashicorpKeyVaultClientFactory implements KeyVaultClientFactory {
                 );
             }
 
-            VaultCallback.execute(
-                () -> sslConfig.build()
-            );
+            VaultCallback.execute(sslConfig::build);
 
             vaultConfig.sslConfig(sslConfig);
         }

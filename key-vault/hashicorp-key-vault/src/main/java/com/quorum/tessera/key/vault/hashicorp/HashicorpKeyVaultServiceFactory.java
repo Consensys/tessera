@@ -14,9 +14,9 @@ import java.util.Optional;
 
 public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
 
-    private final String roleIdEnvVar = "HASHICORP_ROLE_ID";
-    private final String secretIdEnvVar = "HASHICORP_SECRET_ID";
-    private final String authTokenEnvVar = "HASHICORP_TOKEN";
+    private static final String roleIdEnvVar = "HASHICORP_ROLE_ID";
+    private static final String secretIdEnvVar = "HASHICORP_SECRET_ID";
+    private static final String authTokenEnvVar = "HASHICORP_TOKEN";
 
     @Override
     public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider, KeyVaultClientFactory keyVaultClientFactory) {

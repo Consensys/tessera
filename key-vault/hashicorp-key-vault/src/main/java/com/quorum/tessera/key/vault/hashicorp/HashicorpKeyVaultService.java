@@ -16,7 +16,7 @@ public class HashicorpKeyVaultService implements KeyVaultService {
 
     private final Vault vault;
 
-    public HashicorpKeyVaultService(Vault vault) {
+    HashicorpKeyVaultService(Vault vault) {
         this.vault = vault;
     }
 

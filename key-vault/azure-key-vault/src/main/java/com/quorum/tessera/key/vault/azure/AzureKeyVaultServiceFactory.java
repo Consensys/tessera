@@ -12,8 +12,8 @@ import java.util.concurrent.Executors;
 
 public class AzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
 
-    private final String clientIdEnvVar = "AZURE_CLIENT_ID";
-    private final String clientSecretEnvVar = "AZURE_CLIENT_SECRET";
+    private static final String clientIdEnvVar = "AZURE_CLIENT_ID";
+    private static final String clientSecretEnvVar = "AZURE_CLIENT_SECRET";
 
     @Override
     public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider, KeyVaultClientFactory keyVaultClientFactory) {
