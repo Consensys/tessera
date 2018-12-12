@@ -15,12 +15,17 @@ public class HashicorpVaultKeyPair implements ConfigKeyPair {
 
     @NotNull
     @XmlElement
-    private String secretPath;
+    private String secretEngineName;
 
-    public HashicorpVaultKeyPair(String publicKeyId, String privateKeyId, String secretPath) {
+    @NotNull
+    @XmlElement
+    private String secretName;
+
+    public HashicorpVaultKeyPair(String publicKeyId, String privateKeyId, String secretEngineName, String secretName) {
         this.publicKeyId = publicKeyId;
         this.privateKeyId = privateKeyId;
-        this.secretPath = secretPath;
+        this.secretEngineName = secretEngineName;
+        this.secretName = secretName;
     }
 
     public String getPublicKeyId() {
@@ -31,8 +36,12 @@ public class HashicorpVaultKeyPair implements ConfigKeyPair {
         return privateKeyId;
     }
 
-    public String getSecretPath() {
-        return secretPath;
+    public String getSecretEngineName() {
+        return secretEngineName;
+    }
+
+    public String getSecretName() {
+        return secretName;
     }
 
     @Override

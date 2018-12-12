@@ -11,14 +11,15 @@ public class HashicorpVaultKeyPairTest {
 
     @Before
     public void setUp() {
-        keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretPath");
+        keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName");
     }
 
     @Test
     public void getters() {
         assertThat(keyPair.getPublicKeyId()).isEqualTo("pubId");
         assertThat(keyPair.getPrivateKeyId()).isEqualTo("privId");
-        assertThat(keyPair.getSecretPath()).isEqualTo("secretPath");
+        assertThat(keyPair.getSecretEngineName()).isEqualTo("secretEngine");
+        assertThat(keyPair.getSecretName()).isEqualTo("secretName");
         assertThat(keyPair.getPublicKey()).isEqualTo(null);
         assertThat(keyPair.getPrivateKey()).isEqualTo(null);
         assertThat(keyPair.getPassword()).isEqualTo("");

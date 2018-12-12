@@ -25,26 +25,19 @@ public class HashicorpKeyVaultConfig extends ConfigItem implements KeyVaultConfi
     @ValidPath(checkExists = true, message = "File does not exist")
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private Path tlsCertificatePath;
+    private Path tlsKeyStorePath;
 
     @Valid
     @ValidPath(checkExists = true, message = "File does not exist")
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private Path tlsKeyPath;
+    private Path tlsTrustStorePath;
 
-    @Valid
-    @ValidPath(checkExists = true, message = "File does not exist")
-    @XmlElement(type = String.class)
-    @XmlJavaTypeAdapter(PathAdapter.class)
-    private Path tlsServerCertificatePath;
-
-    public HashicorpKeyVaultConfig(String url, String approlePath, Path tlsCertificatePath, Path tlsKeyPath, Path tlsServerCertificatePath) {
+    public HashicorpKeyVaultConfig(String url, String approlePath, Path tlsKeyStorePath, Path tlsTrustStorePath) {
         this.url = url;
         this.approlePath = approlePath;
-        this.tlsCertificatePath = tlsCertificatePath;
-        this.tlsKeyPath = tlsKeyPath;
-        this.tlsServerCertificatePath = tlsServerCertificatePath;
+        this.tlsKeyStorePath = tlsKeyStorePath;
+        this.tlsTrustStorePath = tlsTrustStorePath;
     }
 
     public HashicorpKeyVaultConfig() {
@@ -58,28 +51,20 @@ public class HashicorpKeyVaultConfig extends ConfigItem implements KeyVaultConfi
         this.url = url;
     }
 
-    public Path getTlsCertificatePath() {
-        return tlsCertificatePath;
+    public Path getTlsKeyStorePath() {
+        return tlsKeyStorePath;
     }
 
-    public void setTlsCertificatePath(Path tlsCertificatePath) {
-        this.tlsCertificatePath = tlsCertificatePath;
+    public void setTlsKeyStorePath(Path tlsKeyStorePath) {
+        this.tlsKeyStorePath = tlsKeyStorePath;
     }
 
-    public Path getTlsKeyPath() {
-        return tlsKeyPath;
+    public Path getTlsTrustStorePath() {
+        return tlsTrustStorePath;
     }
 
-    public void setTlsKeyPath(Path tlsKeyPath) {
-        this.tlsKeyPath = tlsKeyPath;
-    }
-
-    public Path getTlsServerCertificatePath() {
-        return tlsServerCertificatePath;
-    }
-
-    public void setTlsServerCertificatePath(Path tlsServerCertificatePath) {
-        this.tlsServerCertificatePath = tlsServerCertificatePath;
+    public void setTlsTrustStorePath(Path tlsTrustStorePath) {
+        this.tlsTrustStorePath = tlsTrustStorePath;
     }
 
     public String getApprolePath() {

@@ -54,7 +54,12 @@ public class ValidationTest {
     public void keyDataConfigMissingPassword() {
         PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), null);
         KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-        KeyData keyData = new KeyData(keyDataConfig, "privateKey", "publicKey", null, null, null, null, null, null, null);
+
+        KeyData keyData = new KeyData();
+        keyData.setConfig(keyDataConfig);
+        keyData.setPublicKey("publicKey");
+        keyData.setPrivateKey("privateKey");
+
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
         assertThat(violations).hasSize(1);
 
@@ -68,7 +73,12 @@ public class ValidationTest {
     public void keyDataConfigNaclFailure() {
         PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
         KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-        KeyData keyData = new KeyData(keyDataConfig, "NACL_FAILURE", "publicKey", null, null, null, null, null, null, null);
+
+        KeyData keyData = new KeyData();
+        keyData.setConfig(keyDataConfig);
+        keyData.setPrivateKey("NACL_FAILURE");
+        keyData.setPublicKey("publicKey");
+
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
         assertThat(violations).hasSize(1);
 
@@ -82,7 +92,12 @@ public class ValidationTest {
     public void keyDataConfigInvalidBase64() {
         PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
         KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-        KeyData keyData = new KeyData(keyDataConfig, "INAVLID_BASE", "publicKey", null, null, null, null, null, null, null);
+
+        KeyData keyData = new KeyData();
+        keyData.setConfig(keyDataConfig);
+        keyData.setPrivateKey("INVALID_BASE");
+        keyData.setPublicKey("publicKey");
+
         Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
         assertThat(violations).hasSize(1);
 
@@ -294,7 +309,7 @@ public class ValidationTest {
 
     @Test
     public void hashicorpKeyPairProvidedWithoutKeyVaultConfigCreatesViolation() {
-        HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privdId", "secretPath");
+        HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privdId", "secretEngine", "secretName");
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
         keyConfiguration.setKeyData(singletonList(keyPair));
@@ -312,7 +327,7 @@ public class ValidationTest {
 
     @Test
     public void hashicorpKeyPairProvidedWithAzureKeyVaultConfigCreatesViolation() {
-        HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privdId", "secretPath");
+        HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privdId", "secretEngine", "secretName");
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
         keyConfiguration.setKeyData(singletonList(keyPair));
@@ -392,7 +407,7 @@ public class ValidationTest {
 
     @Test
     public void hashicorpVaultKeyPairProvidedButKeyVaultConfigHasNullUrlCreatesNotNullViolation() {
-        HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretPath");
+        HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName");
         HashicorpKeyVaultConfig keyVaultConfig = new HashicorpKeyVaultConfig();
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null, keyVaultConfig);
 

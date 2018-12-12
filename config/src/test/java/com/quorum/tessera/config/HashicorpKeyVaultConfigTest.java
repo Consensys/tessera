@@ -21,41 +21,34 @@ public class HashicorpKeyVaultConfigTest {
     public void multiArgConstructor() {
         String url = "url";
         String approle = "approle";
-        Path tlsCertPath = Paths.get("tlscertpath");
-        Path tlsKeyPath = Paths.get("tlskeypath");
-        Path tlsServerCertPath = Paths.get("tlsservercertpath");
+        Path keyStore = Paths.get("keystore");
+        Path trustStore = Paths.get("truststore");
 
-        HashicorpKeyVaultConfig conf = new HashicorpKeyVaultConfig(url, approle, tlsCertPath, tlsKeyPath, tlsServerCertPath);
+        HashicorpKeyVaultConfig conf = new HashicorpKeyVaultConfig(url, approle, keyStore, trustStore);
 
         assertThat(conf.getUrl()).isEqualTo(url);
         assertThat(conf.getApprolePath()).isEqualTo("approle");
-        assertThat(conf.getTlsCertificatePath()).isEqualTo(tlsCertPath);
-        assertThat(conf.getTlsKeyPath()).isEqualTo(tlsKeyPath);
-        assertThat(conf.getTlsServerCertificatePath()).isEqualTo(tlsServerCertPath);
+        assertThat(conf.getTlsKeyStorePath()).isEqualTo(keyStore);
+        assertThat(conf.getTlsTrustStorePath()).isEqualTo(trustStore);
     }
 
     @Test
     public void gettersAndSetters() {
         assertThat(vaultConfig.getUrl()).isEqualTo(null);
-        assertThat(vaultConfig.getTlsCertificatePath()).isEqualTo(null);
-        assertThat(vaultConfig.getTlsKeyPath()).isEqualTo(null);
-        assertThat(vaultConfig.getTlsServerCertificatePath()).isEqualTo(null);
+        assertThat(vaultConfig.getTlsKeyStorePath()).isEqualTo(null);
+        assertThat(vaultConfig.getTlsTrustStorePath()).isEqualTo(null);
 
         String url = "url";
-        Path tlsCertPath = Paths.get("tlscertpath");
-        Path tlsKeyPath = Paths.get("tlskeypath");
-        Path tlsServerCertPath = Paths.get("tlsservercertpath");
+        Path keyStore = Paths.get("keystore");
+        Path trustStore = Paths.get("truststore");
 
         vaultConfig.setUrl(url);
-        vaultConfig.setTlsCertificatePath(tlsCertPath);
-        vaultConfig.setTlsKeyPath(tlsKeyPath);
-        vaultConfig.setTlsServerCertificatePath(tlsServerCertPath);
+        vaultConfig.setTlsKeyStorePath(keyStore);
+        vaultConfig.setTlsTrustStorePath(trustStore);
 
         assertThat(vaultConfig.getUrl()).isEqualTo(url);
-        assertThat(vaultConfig.getTlsCertificatePath()).isEqualTo(tlsCertPath);
-        assertThat(vaultConfig.getTlsKeyPath()).isEqualTo(tlsKeyPath);
-        assertThat(vaultConfig.getTlsServerCertificatePath()).isEqualTo(tlsServerCertPath);
-
+        assertThat(vaultConfig.getTlsKeyStorePath()).isEqualTo(keyStore);
+        assertThat(vaultConfig.getTlsTrustStorePath()).isEqualTo(trustStore);
     }
 
     @Test
