@@ -7,4 +7,8 @@ public class EnvironmentVariableProvider {
         return System.getenv(name);
     }
 
+    public char[] getEnvAsCharArray(String name) {
+        return System.getenv(name).toCharArray();
+    }
+
 }
