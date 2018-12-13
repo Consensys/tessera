@@ -1,18 +1,24 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.client.P2pClient;
-import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.node.PartyInfoService;
-import com.quorum.tessera.node.model.PartyInfo;
-import com.quorum.tessera.encryption.EncodedPayloadWithRecipients;
+import com.quorum.tessera.encryption.Enclave;
 import com.quorum.tessera.encryption.EncodedPayload;
-import java.util.Collections;
+import com.quorum.tessera.encryption.EncodedPayloadWithRecipients;
+import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.node.PartyInfoService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Collections;
+
+import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.*;
 
 public class PayloadPublisherTest {
+
+    private static final byte[] EMPTY = new byte[0];
 
     private PayloadPublisher payloadPublisher;
 
@@ -22,13 +28,18 @@ public class PayloadPublisherTest {
 
     private P2pClient p2pClient;
 
+    private Enclave enclave;
+
     @Before
     public void onSetUp() {
         payloadEncoder = mock(PayloadEncoder.class);
         partyInfoService = mock(PartyInfoService.class);
         p2pClient = mock(P2pClient.class);
+        enclave = mock(Enclave.class);
 
-        payloadPublisher = new PayloadPublisherImpl(payloadEncoder, partyInfoService, p2pClient);
+        when(enclave.getPublicKeys()).thenReturn(Collections.emptySet());
+
+        payloadPublisher = new PayloadPublisherImpl(payloadEncoder, partyInfoService, p2pClient, enclave);
     }
 
     @After
@@ -37,51 +48,44 @@ public class PayloadPublisherTest {
     }
 
     @Test
-    public void publishPayloadPartyOInfoUrlIsEqualToRecipientKeyUrl() {
+    public void publishUsingOwnKey() {
 
-        String url = "SOMEURL";
         PublicKey recipientKey = mock(PublicKey.class);
-        when(partyInfoService.getURLFromRecipientKey(recipientKey)).thenReturn(url);
 
-        EncodedPayloadWithRecipients encodedPayloadWithRecipients = mock(EncodedPayloadWithRecipients.class);
+        when(enclave.getPublicKeys()).thenReturn(Collections.singleton(recipientKey));
 
-        PartyInfo partyInfo = mock(PartyInfo.class);
-        when(partyInfo.getUrl()).thenReturn(url);
-        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        final EncodedPayload encodedPayload = new EncodedPayload(
+            PublicKey.from(EMPTY), EMPTY, new Nonce(EMPTY), singletonList(EMPTY), new Nonce(EMPTY)
+        );
+
+        final EncodedPayloadWithRecipients encodedPayloadWithRecipients = new EncodedPayloadWithRecipients(
+            encodedPayload, singletonList(recipientKey)
+        );
 
         payloadPublisher.publishPayload(encodedPayloadWithRecipients, recipientKey);
-
-        verify(partyInfoService).getURLFromRecipientKey(recipientKey);
-        verify(partyInfoService).getPartyInfo();
     }
 
     @Test
-    public void publishPayloadPartyOInfoUrlIsNotEqualToRecipientKeyUrl() {
+    public void publishUsingRemoteKey() {
 
-        String url = "SOMEURL";
+        final String url = "SOMEURL";
         PublicKey recipientKey = mock(PublicKey.class);
         when(partyInfoService.getURLFromRecipientKey(recipientKey)).thenReturn(url);
 
-        EncodedPayloadWithRecipients encodedPayloadWithRecipients = mock(EncodedPayloadWithRecipients.class);
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
-        when(encodedPayloadWithRecipients.getEncodedPayload()).thenReturn(encodedPayload);
-        
-        when(encodedPayloadWithRecipients.getRecipientKeys()).thenReturn(Collections.singletonList(recipientKey));
-        when(encodedPayload.getRecipientBoxes()).thenReturn(Collections.singletonList(new byte[0]));
-        when(encodedPayload.getCipherText()).thenReturn(new byte[0]);
-        PartyInfo partyInfo = mock(PartyInfo.class);
-        
-        String otherUrl = "SOMEOTHERURL";
-        when(partyInfo.getUrl()).thenReturn(otherUrl);
-        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        final EncodedPayload encodedPayload = new EncodedPayload(
+            PublicKey.from(EMPTY), EMPTY, new Nonce(EMPTY), singletonList(EMPTY), new Nonce(EMPTY)
+        );
+
+        final EncodedPayloadWithRecipients encodedPayloadWithRecipients = new EncodedPayloadWithRecipients(
+            encodedPayload, singletonList(recipientKey)
+        );
 
         byte[] encodedBytes = "encodedBytes".getBytes();
         when(payloadEncoder.encode(any(EncodedPayloadWithRecipients.class))).thenReturn(encodedBytes);
-        
+
         payloadPublisher.publishPayload(encodedPayloadWithRecipients, recipientKey);
 
         verify(partyInfoService).getURLFromRecipientKey(recipientKey);
-        verify(partyInfoService).getPartyInfo();
         verify(payloadEncoder).encode(any(EncodedPayloadWithRecipients.class));
         verify(p2pClient).push(url, encodedBytes);
     }
