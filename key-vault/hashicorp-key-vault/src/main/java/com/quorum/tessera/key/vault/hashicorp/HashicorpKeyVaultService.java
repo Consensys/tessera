@@ -6,21 +6,18 @@ import com.quorum.tessera.config.vault.data.HashicorpSetSecretData;
 import com.quorum.tessera.config.vault.data.SetSecretData;
 import com.quorum.tessera.key.vault.KeyVaultException;
 import com.quorum.tessera.key.vault.KeyVaultService;
-import org.springframework.vault.core.VaultOperations;
 import org.springframework.vault.support.Versioned;
 
 import java.util.Map;
 
 public class HashicorpKeyVaultService implements KeyVaultService {
 
-    private final VaultOperations vaultOperations;
+    private final KeyValueOperationsDelegateFactory keyValueOperationsDelegateFactory;
 
-    private final HashicorpKeyVaultServiceDelegate delegate;
-
-    HashicorpKeyVaultService(VaultOperations vaultOperations, HashicorpKeyVaultServiceDelegate delegate) {
-        this.vaultOperations = vaultOperations;
-        this.delegate = delegate;
+    HashicorpKeyVaultService(KeyValueOperationsDelegateFactory keyValueOperationsDelegateFactory) {
+        this.keyValueOperationsDelegateFactory = keyValueOperationsDelegateFactory;
     }
+
 
     @Override
     public String getSecret(GetSecretData getSecretData) {
@@ -30,7 +27,9 @@ public class HashicorpKeyVaultService implements KeyVaultService {
 
         HashicorpGetSecretData hashicorpGetSecretData = (HashicorpGetSecretData) getSecretData;
 
-        Versioned<Map<String, Object>> versionedResponse = delegate.get(vaultOperations, hashicorpGetSecretData);
+        KeyValueOperationsDelegate keyValueOperationsDelegate = keyValueOperationsDelegateFactory.create(hashicorpGetSecretData.getSecretEngineName());
+
+        Versioned<Map<String, Object>> versionedResponse = keyValueOperationsDelegate.get(hashicorpGetSecretData);
 
         if(versionedResponse == null || !versionedResponse.hasData()) {
             throw new HashicorpVaultException("No data found at " + hashicorpGetSecretData.getSecretEngineName() + "/" + hashicorpGetSecretData.getSecretName());
@@ -51,6 +50,8 @@ public class HashicorpKeyVaultService implements KeyVaultService {
 
         HashicorpSetSecretData hashicorpSetSecretData = (HashicorpSetSecretData) setSecretData;
 
-        return delegate.set(vaultOperations, hashicorpSetSecretData);
+        KeyValueOperationsDelegate keyValueOperationsDelegate = keyValueOperationsDelegateFactory.create(hashicorpSetSecretData.getSecretEngineName());
+
+        return keyValueOperationsDelegate.set(hashicorpSetSecretData);
     }
 }

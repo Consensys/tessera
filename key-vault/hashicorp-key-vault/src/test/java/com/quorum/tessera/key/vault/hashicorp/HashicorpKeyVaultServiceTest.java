@@ -7,7 +7,6 @@ import com.quorum.tessera.config.vault.data.SetSecretData;
 import com.quorum.tessera.key.vault.KeyVaultException;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.vault.core.VaultOperations;
 import org.springframework.vault.support.Versioned;
 
 import java.util.Collections;
@@ -16,6 +15,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -23,15 +23,17 @@ public class HashicorpKeyVaultServiceTest {
 
     private HashicorpKeyVaultService keyVaultService;
 
-    private VaultOperations vaultOperations;
+    private KeyValueOperationsDelegateFactory delegateFactory;
 
-    private HashicorpKeyVaultServiceDelegate delegate;
+    private KeyValueOperationsDelegate delegate;
 
     @Before
     public void setUp() {
-        this.vaultOperations = mock(VaultOperations.class);
-        this.delegate = mock(HashicorpKeyVaultServiceDelegate.class);
-        this.keyVaultService = new HashicorpKeyVaultService(vaultOperations, delegate);
+        this.delegateFactory = mock(KeyValueOperationsDelegateFactory.class);
+        this.delegate = mock(KeyValueOperationsDelegate.class);
+        when(delegateFactory.create(anyString())).thenReturn(delegate);
+
+        this.keyVaultService = new HashicorpKeyVaultService(delegateFactory);
     }
 
     @Test
@@ -44,7 +46,7 @@ public class HashicorpKeyVaultServiceTest {
 
         Versioned versionedResponse = mock(Versioned.class);
 
-        when(delegate.get(any(VaultOperations.class), any(HashicorpGetSecretData.class))).thenReturn(versionedResponse);
+        when(delegate.get(any(HashicorpGetSecretData.class))).thenReturn(versionedResponse);
 
         when(versionedResponse.hasData()).thenReturn(true);
 
@@ -74,7 +76,7 @@ public class HashicorpKeyVaultServiceTest {
     public void getSecretThrowsExceptionIfNullRetrievedFromVault() {
         HashicorpGetSecretData getSecretData = new HashicorpGetSecretData("engine", "secretName", "id");
 
-        when(delegate.get(vaultOperations, getSecretData)).thenReturn(null);
+        when(delegate.get(getSecretData)).thenReturn(null);
 
         Throwable ex = catchThrowable(() -> keyVaultService.getSecret(getSecretData));
 
@@ -89,7 +91,7 @@ public class HashicorpKeyVaultServiceTest {
         Versioned versionedResponse = mock(Versioned.class);
         when(versionedResponse.hasData()).thenReturn(false);
 
-        when(delegate.get(vaultOperations, getSecretData)).thenReturn(versionedResponse);
+        when(delegate.get(getSecretData)).thenReturn(versionedResponse);
 
         Throwable ex = catchThrowable(() -> keyVaultService.getSecret(getSecretData));
 
@@ -109,7 +111,7 @@ public class HashicorpKeyVaultServiceTest {
         when(versionedResponse.getData()).thenReturn(responseData);
         when(responseData.containsKey("id")).thenReturn(false);
 
-        when(delegate.get(vaultOperations, getSecretData)).thenReturn(versionedResponse);
+        when(delegate.get(getSecretData)).thenReturn(versionedResponse);
 
         Throwable ex = catchThrowable(() -> keyVaultService.getSecret(getSecretData));
 
@@ -135,7 +137,7 @@ public class HashicorpKeyVaultServiceTest {
         HashicorpSetSecretData setSecretData = new HashicorpSetSecretData("engine", "name", Collections.emptyMap());
 
         Versioned.Metadata metadata = mock(Versioned.Metadata.class);
-        when(delegate.set(vaultOperations, setSecretData)).thenReturn(metadata);
+        when(delegate.set(setSecretData)).thenReturn(metadata);
 
         Object result = keyVaultService.setSecret(setSecretData);
 
