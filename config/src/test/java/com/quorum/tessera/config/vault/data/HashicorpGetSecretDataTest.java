@@ -12,13 +12,14 @@ public class HashicorpGetSecretDataTest {
 
     @Before
     public void setUp() {
-        this.getSecretData = new HashicorpGetSecretData("secret/path", "secretName");
+        this.getSecretData = new HashicorpGetSecretData("secret", "secretName", "keyId");
     }
 
     @Test
     public void getters() {
-        assertThat(getSecretData.getSecretPath()).isEqualTo("secret/path");
+        assertThat(getSecretData.getSecretEngineName()).isEqualTo("secret");
         assertThat(getSecretData.getSecretName()).isEqualTo("secretName");
+        assertThat(getSecretData.getValueId()).isEqualTo("keyId");
     }
 
     @Test

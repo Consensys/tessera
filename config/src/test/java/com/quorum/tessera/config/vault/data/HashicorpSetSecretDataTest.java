@@ -14,12 +14,13 @@ public class HashicorpSetSecretDataTest {
 
     @Before
     public void setUp() {
-        this.setSecretData = new HashicorpSetSecretData("secret/path", Collections.singletonMap("name", "value"));
+        this.setSecretData = new HashicorpSetSecretData("secret", "secretName", Collections.singletonMap("name", "value"));
     }
 
     @Test
     public void getters() {
-        assertThat(setSecretData.getSecretPath()).isEqualTo("secret/path");
+        assertThat(setSecretData.getSecretEngineName()).isEqualTo("secret");
+        assertThat(setSecretData.getSecretName()).isEqualTo("secretName");
         assertThat(setSecretData.getNameValuePairs()).isEqualTo(Collections.singletonMap("name", "value"));
     }
 
