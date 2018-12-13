@@ -94,7 +94,7 @@ public class KeyPairConverterTest {
 
     @Test
     public void convertSingleHashicorpVaultKeyPair() {
-        final HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pub", "priv", "secretPath");
+        final HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pub", "priv", "engine", "secretName");
 
         Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
 
