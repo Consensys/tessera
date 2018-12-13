@@ -47,10 +47,6 @@
     </bean>
 
 
-
-
-
-
     <bean id="p2pClientFactory" class="com.quorum.tessera.client.P2pClientFactory" factory-method="newFactory">
         <constructor-arg ref="config" />
     </bean>

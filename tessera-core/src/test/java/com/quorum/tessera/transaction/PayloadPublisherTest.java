@@ -44,7 +44,7 @@ public class PayloadPublisherTest {
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(payloadEncoder, partyInfoService, p2pClient);
+        verifyNoMoreInteractions(payloadEncoder, partyInfoService, p2pClient, enclave);
     }
 
     @Test
@@ -63,6 +63,8 @@ public class PayloadPublisherTest {
         );
 
         payloadPublisher.publishPayload(encodedPayloadWithRecipients, recipientKey);
+
+        verify(enclave).getPublicKeys();
     }
 
     @Test
@@ -88,6 +90,7 @@ public class PayloadPublisherTest {
         verify(partyInfoService).getURLFromRecipientKey(recipientKey);
         verify(payloadEncoder).encode(any(EncodedPayloadWithRecipients.class));
         verify(p2pClient).push(url, encodedBytes);
+        verify(enclave).getPublicKeys();
     }
 
 }
