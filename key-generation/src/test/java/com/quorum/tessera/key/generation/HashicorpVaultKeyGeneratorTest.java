@@ -42,16 +42,36 @@ public class HashicorpVaultKeyGeneratorTest {
 
     @Test(expected = NullPointerException.class)
     public void nullFilenameThrowsException() {
-        hashicorpVaultKeyGenerator.generate(null, null);
+        KeyVaultOptions keyVaultOptions = mock(KeyVaultOptions.class);
+        when(keyVaultOptions.getSecretEngineName()).thenReturn("secretEngine");
+
+        hashicorpVaultKeyGenerator.generate(null, null, keyVaultOptions);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void nullKeyVaultOptionsThrowsException() {
+        hashicorpVaultKeyGenerator.generate("filename", null, null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void nullSecretEngineNameThrowsException() {
+        KeyVaultOptions keyVaultOptions = mock(KeyVaultOptions.class);
+        when(keyVaultOptions.getSecretEngineName()).thenReturn(null);
+
+        hashicorpVaultKeyGenerator.generate("filename", null, keyVaultOptions);
     }
 
     @Test
     public void generatedKeyPairIsSavedToSpecifiedPathInVaultWithIds() {
-        String filename = "secret/path";
+        String secretEngine = "secretEngine";
+        String filename = "secretName";
 
-        HashicorpVaultKeyPair result = hashicorpVaultKeyGenerator.generate(filename, null);
+        KeyVaultOptions keyVaultOptions = mock(KeyVaultOptions.class);
+        when(keyVaultOptions.getSecretEngineName()).thenReturn(secretEngine);
 
-        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("publicKey", "privateKey", filename);
+        HashicorpVaultKeyPair result = hashicorpVaultKeyGenerator.generate(filename, null, keyVaultOptions);
+
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("publicKey", "privateKey", secretEngine, filename);
         assertThat(result).isEqualToComparingFieldByField(expected);
 
         final ArgumentCaptor<HashicorpSetSecretData> captor = ArgumentCaptor.forClass(HashicorpSetSecretData.class);
@@ -64,7 +84,7 @@ public class HashicorpVaultKeyGeneratorTest {
         expectedNameValuePairs.put("publicKey", pub.encodeToBase64());
         expectedNameValuePairs.put("privateKey", priv.encodeToBase64());
 
-        HashicorpSetSecretData expectedData = new HashicorpSetSecretData(filename, expectedNameValuePairs);
+        HashicorpSetSecretData expectedData = new HashicorpSetSecretData(secretEngine, filename, expectedNameValuePairs);
 
         assertThat(capturedArg).isEqualToComparingFieldByFieldRecursively(expectedData);
 

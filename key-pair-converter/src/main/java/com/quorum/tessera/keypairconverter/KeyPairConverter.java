@@ -32,7 +32,7 @@ public class KeyPairConverter {
         this.envProvider = envProvider;
     }
 
-    Collection<KeyPair> convert(Collection<ConfigKeyPair> configKeyPairs) {
+    public Collection<KeyPair> convert(Collection<ConfigKeyPair> configKeyPairs) {
         return configKeyPairs
                 .stream()
                 .map(this::convert)
