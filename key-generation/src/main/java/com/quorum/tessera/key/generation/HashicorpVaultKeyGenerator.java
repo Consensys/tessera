@@ -28,8 +28,8 @@ public class HashicorpVaultKeyGenerator implements KeyGenerator {
     @Override
     public HashicorpVaultKeyPair generate(String filename, ArgonOptions encryptionOptions, KeyVaultOptions keyVaultOptions) {
         Objects.requireNonNull(filename);
-        Objects.requireNonNull(keyVaultOptions);
-        Objects.requireNonNull(keyVaultOptions.getSecretEngineName());
+        Objects.requireNonNull(keyVaultOptions, "-keygenvaultsecretengine must be provided if using the Hashicorp vault type");
+        Objects.requireNonNull(keyVaultOptions.getSecretEngineName(), "-keygenvaultsecretengine must be provided if using the Hashicorp vault type");
 
         final KeyPair keys = this.nacl.generateNewKeys();
 
@@ -42,10 +42,10 @@ public class HashicorpVaultKeyGenerator implements KeyGenerator {
         SetSecretData setSecretData = new HashicorpSetSecretData(keyVaultOptions.getSecretEngineName(), filename, keyPairData);
 
         keyVaultService.setSecret(setSecretData);
-        LOGGER.debug("Key {} saved to vault with path {} and id {}", keyPairData.get(pubId), filename, pubId);
-        LOGGER.info("Key saved to vault with path {} and id {}", filename, pubId);
-        LOGGER.debug("Key {} saved to vault with path {} and id {}", keyPairData.get(privId), filename, privId);
-        LOGGER.info("Key saved to vault with path {} and id {}", filename, privId);
+        LOGGER.debug("Key {} saved to vault secret engine {} with name {} and id {}", keyPairData.get(pubId), keyVaultOptions.getSecretEngineName(), filename, pubId);
+        LOGGER.info("Key saved to vault secret engine {} with name {} and id {}", keyVaultOptions.getSecretEngineName(), filename, pubId);
+        LOGGER.debug("Key {} saved to vault secret engine {} with name {} and id {}", keyPairData.get(privId), keyVaultOptions.getSecretEngineName(), filename, privId);
+        LOGGER.info("Key saved to vault secret engine {} with name {} and id {}", keyVaultOptions.getSecretEngineName(), filename, privId);
 
         return new HashicorpVaultKeyPair(pubId, privId, keyVaultOptions.getSecretEngineName(), filename, null);
     }

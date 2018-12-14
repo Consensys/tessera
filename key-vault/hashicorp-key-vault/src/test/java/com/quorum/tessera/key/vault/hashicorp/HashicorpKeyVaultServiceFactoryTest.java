@@ -267,4 +267,26 @@ public class HashicorpKeyVaultServiceFactoryTest {
         assertThat(result).isInstanceOf(HashicorpKeyVaultService.class);
     }
 
+    @Test
+    public void returnedValueIsCorrectTypeUsing2ArgConstructor() {
+        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
+        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
+        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
+
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(config.getKeys()).thenReturn(keyConfiguration);
+
+        HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
+        when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(keyVaultConfig);
+
+        when(keyVaultConfig.getUrl()).thenReturn("http://someurl");
+        when(keyVaultConfig.getApprolePath()).thenReturn("approle");
+
+        setUpUtilMocks(keyVaultConfig);
+
+        KeyVaultService result = keyVaultServiceFactory.create(config, envProvider);
+
+        assertThat(result).isInstanceOf(HashicorpKeyVaultService.class);
+    }
+
 }

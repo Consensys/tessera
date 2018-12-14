@@ -12,7 +12,7 @@ public class HashicorpGetSecretData implements GetSecretData {
         this.secretEngineName = secretEngineName;
         this.secretName = secretName;
         this.valueId = valueId;
-        this.secretVersion =  secretVersion;
+        this.secretVersion = secretVersion;
     }
 
     public String getSecretEngineName() {
