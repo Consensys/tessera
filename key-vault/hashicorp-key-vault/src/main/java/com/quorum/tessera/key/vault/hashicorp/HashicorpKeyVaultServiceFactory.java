@@ -35,8 +35,8 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
         return this.create(config, envProvider, util);
     }
 
-    //This method should not be called directly. It has been left public to enable injection of util during testing
-    public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider, HashicorpKeyVaultServiceFactoryUtil util) {
+    //This method should not be called directly. It has been left package-private to enable injection of util during testing
+    KeyVaultService create(Config config, EnvironmentVariableProvider envProvider, HashicorpKeyVaultServiceFactoryUtil util) {
         Objects.requireNonNull(config);
         Objects.requireNonNull(envProvider);
         Objects.requireNonNull(util);
