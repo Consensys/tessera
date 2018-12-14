@@ -538,12 +538,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.bettercloud</groupId>
-                <artifactId>vault-java-driver</artifactId>
-                <version>3.1.0</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk15on</artifactId>
                 <version>1.59</version>

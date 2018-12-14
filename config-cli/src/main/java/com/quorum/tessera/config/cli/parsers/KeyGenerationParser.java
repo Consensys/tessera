@@ -98,9 +98,12 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
 
         KeyVaultType keyVaultType;
         try {
-            keyVaultType = KeyVaultType.valueOf(t);
+            keyVaultType = KeyVaultType.valueOf(
+                t.trim()
+                 .toUpperCase()
+            );
         } catch(IllegalArgumentException | NullPointerException e) {
-            throw new CliException("Key vault type either not provided or not recognised.  Ensure provided value is UPPERCASE and has no leading or trailing whitespace characters");
+            throw new CliException("Key vault type either not provided or not recognised");
         }
 
         String keyVaultUrl = commandLine.getOptionValue("keygenvaulturl");

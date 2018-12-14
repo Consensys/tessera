@@ -192,7 +192,7 @@ public class KeyGenerationParserTest {
         Throwable ex = catchThrowable(() -> this.parser.parse(commandLine));
 
         assertThat(ex).isInstanceOf(CliException.class);
-        assertThat(ex.getMessage()).isEqualTo("Key vault type either not provided or not recognised.  Ensure provided value is UPPERCASE and has no leading or trailing whitespace characters");
+        assertThat(ex.getMessage()).isEqualTo("Key vault type either not provided or not recognised");
     }
 
     @Test
@@ -204,7 +204,7 @@ public class KeyGenerationParserTest {
         Throwable ex = catchThrowable(() -> this.parser.parse(commandLine));
 
         assertThat(ex).isInstanceOf(CliException.class);
-        assertThat(ex.getMessage()).isEqualTo("Key vault type either not provided or not recognised.  Ensure provided value is UPPERCASE and has no leading or trailing whitespace characters");
+        assertThat(ex.getMessage()).isEqualTo("Key vault type either not provided or not recognised");
     }
 
     @Test
@@ -280,5 +280,90 @@ public class KeyGenerationParserTest {
         assertThat(iterator.next().getMessage()).isEqualTo("File does not exist");
         assertThat(iterator.next().getMessage()).isEqualTo("File does not exist");
     }
+
+    @Test
+    public void lowercaseVaultTypeIsOkay() throws Exception {
+        when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
+        when(commandLine.hasOption("keygenvaulturl")).thenReturn(true);
+        when(commandLine.hasOption("filename")).thenReturn(true);
+        when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("someurl");
+        when(commandLine.getOptionValue("filename")).thenReturn("secret/path");
+        when(commandLine.getOptionValue("keygenvaultapprole")).thenReturn("approle");
+        when(commandLine.getOptionValue("keygenvaultsecretengine")).thenReturn("secretEngine");
+
+        when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("hashicorp");
+
+        Path tempPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        tempPath.toFile().deleteOnExit();
+
+        when(commandLine.getOptionValue("keygenvaultkeystore")).thenReturn(tempPath.toString());
+        when(commandLine.getOptionValue("keygenvaulttruststore")).thenReturn(tempPath.toString());
+
+        this.parser.parse(commandLine);
+
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultapprole");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultkeystore");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttruststore");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultsecretengine");
+    }
+
+    @Test
+    public void leadingWhitespaceVaultTypeIsOkay() throws Exception {
+        when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
+        when(commandLine.hasOption("keygenvaulturl")).thenReturn(true);
+        when(commandLine.hasOption("filename")).thenReturn(true);
+        when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("someurl");
+        when(commandLine.getOptionValue("filename")).thenReturn("secret/path");
+        when(commandLine.getOptionValue("keygenvaultapprole")).thenReturn("approle");
+        when(commandLine.getOptionValue("keygenvaultsecretengine")).thenReturn("secretEngine");
+
+        when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("  HASHICORP");
+
+        Path tempPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        tempPath.toFile().deleteOnExit();
+
+        when(commandLine.getOptionValue("keygenvaultkeystore")).thenReturn(tempPath.toString());
+        when(commandLine.getOptionValue("keygenvaulttruststore")).thenReturn(tempPath.toString());
+
+        this.parser.parse(commandLine);
+
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultapprole");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultkeystore");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttruststore");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultsecretengine");
+    }
+
+    @Test
+    public void trailingWhitespaceVaultTypeIsOkay() throws Exception {
+        when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
+        when(commandLine.hasOption("keygenvaulturl")).thenReturn(true);
+        when(commandLine.hasOption("filename")).thenReturn(true);
+        when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("someurl");
+        when(commandLine.getOptionValue("filename")).thenReturn("secret/path");
+        when(commandLine.getOptionValue("keygenvaultapprole")).thenReturn("approle");
+        when(commandLine.getOptionValue("keygenvaultsecretengine")).thenReturn("secretEngine");
+
+        when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("HASHICORP  ");
+
+        Path tempPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        tempPath.toFile().deleteOnExit();
+
+        when(commandLine.getOptionValue("keygenvaultkeystore")).thenReturn(tempPath.toString());
+        when(commandLine.getOptionValue("keygenvaulttruststore")).thenReturn(tempPath.toString());
+
+        this.parser.parse(commandLine);
+
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultapprole");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultkeystore");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttruststore");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultsecretengine");
+    }
+
 
 }
