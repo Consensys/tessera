@@ -42,7 +42,7 @@ public class PayloadPublisherImpl implements PayloadPublisher {
 
         if(enclave.getPublicKeys().contains(recipientKey)) {
             //we are trying to send something to ourselves - don't do it
-            LOGGER.debug("Trying to send message to ourselves with key {}", recipientKey.encodeToBase64());
+            LOGGER.debug("Trying to send message to ourselves with key {}, not publishing", recipientKey.encodeToBase64());
             return;
         }
 
