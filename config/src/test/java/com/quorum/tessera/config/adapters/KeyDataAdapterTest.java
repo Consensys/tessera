@@ -73,7 +73,7 @@ public class KeyDataAdapterTest {
 
     @Test
     public void marshallHashicorpKeys() {
-        final HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretEngineName", "secretName");
+        final HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretEngineName", "secretName", "0");
 
         final KeyData expected = new KeyData();
         expected.setHashicorpVaultPublicKeyId("pubId");
@@ -90,7 +90,7 @@ public class KeyDataAdapterTest {
     public void marshallUnsupportedKeys() {
         final KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         final Path path = mock(Path.class);
-        final UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, "priv", null, path, null, null, null, null, null, null, null);
+        final UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, "priv", null, path, null, null, null, null, null, null, null, null);
 
         final KeyData expected = new KeyData();
         //set a random selection of values that are not sufficient to make a complete key pair of any type

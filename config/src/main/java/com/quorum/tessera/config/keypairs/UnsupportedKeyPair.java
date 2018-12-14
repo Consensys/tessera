@@ -46,7 +46,10 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
     @XmlElement
     private String hashicorpVaultSecretName;
 
-    public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName) {
+    @XmlElement
+    private String hashicorpVaultSecretVersion;
+
+    public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName, String hashicorpVaultSecretVersion) {
         this.config = config;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
@@ -58,6 +61,7 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
         this.hashicorpVaultPrivateKeyId = hashicorpVaultPrivateKeyId;
         this.hashicorpVaultSecretEngineName = hashicorpVaultSecretEngineName;
         this.hashicorpVaultSecretName = hashicorpVaultSecretName;
+        this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;
     }
 
     public UnsupportedKeyPair() {
@@ -108,6 +112,10 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
 
     public String getHashicorpVaultSecretName() {
         return hashicorpVaultSecretName;
+    }
+
+    public String getHashicorpVaultSecretVersion() {
+        return hashicorpVaultSecretVersion;
     }
 
     @Override
@@ -162,5 +170,9 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
 
     public void setHashicorpVaultSecretName(String hashicorpVaultSecretName) {
         this.hashicorpVaultSecretName = hashicorpVaultSecretName;
+    }
+
+    public void setHashicorpVaultSecretVersion(String hashicorpVaultSecretVersion) {
+        this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;
     }
 }

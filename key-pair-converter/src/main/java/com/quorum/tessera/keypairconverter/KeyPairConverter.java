@@ -65,8 +65,8 @@ public class KeyPairConverter {
 
             HashicorpVaultKeyPair hkp = (HashicorpVaultKeyPair) configKeyPair;
 
-            GetSecretData getPublicKeyData = new HashicorpGetSecretData(hkp.getSecretEngineName(), hkp.getSecretName(), hkp.getPublicKeyId());
-            GetSecretData getPrivateKeyData = new HashicorpGetSecretData(hkp.getSecretEngineName(), hkp.getSecretName(), hkp.getPrivateKeyId());
+            GetSecretData getPublicKeyData = new HashicorpGetSecretData(hkp.getSecretEngineName(), hkp.getSecretName(), hkp.getPublicKeyId(), hkp.getSecretVersionAsInt());
+            GetSecretData getPrivateKeyData = new HashicorpGetSecretData(hkp.getSecretEngineName(), hkp.getSecretName(), hkp.getPrivateKeyId(), hkp.getSecretVersionAsInt());
 
             base64PublicKey = keyVaultService.getSecret(getPublicKeyData);
             base64PrivateKey = keyVaultService.getSecret(getPrivateKeyData);

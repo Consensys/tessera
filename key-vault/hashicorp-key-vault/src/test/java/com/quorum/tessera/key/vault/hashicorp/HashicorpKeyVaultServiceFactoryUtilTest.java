@@ -5,7 +5,7 @@ import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.Netty4ClientHttpRequestFactory;
+import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.vault.authentication.AppRoleAuthentication;
 import org.springframework.vault.authentication.ClientAuthentication;
 import org.springframework.vault.authentication.TokenAuthentication;
@@ -98,7 +98,7 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
 
         ClientHttpRequestFactory result = util.createClientHttpRequestFactory(clientOptions, sslConfiguration);
 
-        assertThat(result).isInstanceOf(Netty4ClientHttpRequestFactory.class);
+        assertThat(result).isInstanceOf(OkHttp3ClientHttpRequestFactory.class);
     }
 
     @Test

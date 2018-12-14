@@ -55,7 +55,10 @@ public class KeyData extends ConfigItem {
     @XmlElement
     private String hashicorpVaultSecretName;
 
-    public KeyData(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName) {
+    @XmlElement
+    private String hashicorpVaultSecretVersion;
+
+    public KeyData(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName, String hashicorpVaultSecretVersion) {
         this.config = config;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
@@ -67,6 +70,7 @@ public class KeyData extends ConfigItem {
         this.hashicorpVaultPrivateKeyId = hashicorpVaultPrivateKeyId;
         this.hashicorpVaultSecretEngineName = hashicorpVaultSecretEngineName;
         this.hashicorpVaultSecretName = hashicorpVaultSecretName;
+        this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;
     }
 
     public KeyData() {
@@ -117,6 +121,10 @@ public class KeyData extends ConfigItem {
         return hashicorpVaultSecretName;
     }
 
+    public String getHashicorpVaultSecretVersion() {
+        return hashicorpVaultSecretVersion;
+    }
+
     public void setConfig(KeyDataConfig config) {
         this.config = config;
     }
@@ -159,5 +167,9 @@ public class KeyData extends ConfigItem {
 
     public void setHashicorpVaultSecretName(String hashicorpVaultSecretName) {
         this.hashicorpVaultSecretName = hashicorpVaultSecretName;
+    }
+
+    public void setHashicorpVaultSecretVersion(String hashicorpVaultSecretVersion) {
+        this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;
     }
 }

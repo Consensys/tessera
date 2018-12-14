@@ -71,7 +71,7 @@ public class HashicorpVaultKeyGeneratorTest {
 
         HashicorpVaultKeyPair result = hashicorpVaultKeyGenerator.generate(filename, null, keyVaultOptions);
 
-        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("publicKey", "privateKey", secretEngine, filename);
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("publicKey", "privateKey", secretEngine, filename, null);
         assertThat(result).isEqualToComparingFieldByField(expected);
 
         final ArgumentCaptor<HashicorpSetSecretData> captor = ArgumentCaptor.forClass(HashicorpSetSecretData.class);

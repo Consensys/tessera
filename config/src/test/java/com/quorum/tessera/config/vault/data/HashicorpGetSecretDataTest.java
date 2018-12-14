@@ -12,7 +12,7 @@ public class HashicorpGetSecretDataTest {
 
     @Before
     public void setUp() {
-        this.getSecretData = new HashicorpGetSecretData("secret", "secretName", "keyId");
+        this.getSecretData = new HashicorpGetSecretData("secret", "secretName", "keyId", 1);
     }
 
     @Test
@@ -20,6 +20,7 @@ public class HashicorpGetSecretDataTest {
         assertThat(getSecretData.getSecretEngineName()).isEqualTo("secret");
         assertThat(getSecretData.getSecretName()).isEqualTo("secretName");
         assertThat(getSecretData.getValueId()).isEqualTo("keyId");
+        assertThat(getSecretData.getSecretVersion()).isEqualTo(1);
     }
 
     @Test

@@ -31,7 +31,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
         //case 4, the Hashicorp Vault data is provided
         if(keyData.getHashicorpVaultPublicKeyId() != null && keyData.getHashicorpVaultPrivateKeyId() != null
             && keyData.getHashicorpVaultSecretEngineName() != null && keyData.getHashicorpVaultSecretName() != null) {
-            return new HashicorpVaultKeyPair(keyData.getHashicorpVaultPublicKeyId(), keyData.getHashicorpVaultPrivateKeyId(), keyData.getHashicorpVaultSecretEngineName(), keyData.getHashicorpVaultSecretName());
+            return new HashicorpVaultKeyPair(keyData.getHashicorpVaultPublicKeyId(), keyData.getHashicorpVaultPrivateKeyId(), keyData.getHashicorpVaultSecretEngineName(), keyData.getHashicorpVaultSecretName(), keyData.getHashicorpVaultSecretVersion());
         }
 
         //case 5, the keys are provided inside a file
@@ -51,7 +51,8 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
             keyData.getHashicorpVaultPublicKeyId(),
             keyData.getHashicorpVaultPrivateKeyId(),
             keyData.getHashicorpVaultSecretEngineName(),
-            keyData.getHashicorpVaultSecretName()
+            keyData.getHashicorpVaultSecretName(),
+            keyData.getHashicorpVaultSecretVersion()
         );
     }
 
@@ -104,7 +105,19 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
 
         if(keyPair instanceof UnsupportedKeyPair) {
             UnsupportedKeyPair kp = (UnsupportedKeyPair) keyPair;
-            return new KeyData(kp.getConfig(), kp.getPrivateKey(), kp.getPublicKey(), kp.getPrivateKeyPath(), kp.getPublicKeyPath(), kp.getAzureVaultPrivateKeyId(), kp.getAzureVaultPublicKeyId(), kp.getHashicorpVaultPrivateKeyId(), kp.getHashicorpVaultPublicKeyId(), kp.getHashicorpVaultSecretEngineName(), kp.getHashicorpVaultSecretName());
+            return new KeyData(
+                kp.getConfig(),
+                kp.getPrivateKey(),
+                kp.getPublicKey(),
+                kp.getPrivateKeyPath(),
+                kp.getPublicKeyPath(),
+                kp.getAzureVaultPrivateKeyId(),
+                kp.getAzureVaultPublicKeyId(),
+                kp.getHashicorpVaultPrivateKeyId(),
+                kp.getHashicorpVaultPublicKeyId(),
+                kp.getHashicorpVaultSecretEngineName(),
+                kp.getHashicorpVaultSecretName(),
+                kp.getHashicorpVaultSecretVersion());
         }
 
         throw new UnsupportedOperationException("The keypair type " + keyPair.getClass() + " is not allowed");

@@ -11,7 +11,7 @@ public class HashicorpVaultKeyPairTest {
 
     @Before
     public void setUp() {
-        keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName");
+        keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", "0");
     }
 
     @Test
@@ -23,6 +23,21 @@ public class HashicorpVaultKeyPairTest {
         assertThat(keyPair.getPublicKey()).isEqualTo(null);
         assertThat(keyPair.getPrivateKey()).isEqualTo(null);
         assertThat(keyPair.getPassword()).isEqualTo("");
+        assertThat(keyPair.getSecretVersion()).isEqualTo("0");
+    }
+
+    @Test
+    public void getSecretVersionAsInt() {
+        keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", "10");
+
+        assertThat(keyPair.getSecretVersionAsInt()).isEqualTo(10);
+    }
+
+    @Test
+    public void getSecretVersionAsIntReturns0IfNull() {
+        keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", null);
+
+        assertThat(keyPair.getSecretVersionAsInt()).isEqualTo(0);
     }
 
     @Test

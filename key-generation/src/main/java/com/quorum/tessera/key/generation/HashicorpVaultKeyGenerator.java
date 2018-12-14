@@ -47,6 +47,6 @@ public class HashicorpVaultKeyGenerator implements KeyGenerator {
         LOGGER.debug("Key {} saved to vault with path {} and id {}", keyPairData.get(privId), filename, privId);
         LOGGER.info("Key saved to vault with path {} and id {}", filename, privId);
 
-        return new HashicorpVaultKeyPair(pubId, privId, keyVaultOptions.getSecretEngineName(), filename);
+        return new HashicorpVaultKeyPair(pubId, privId, keyVaultOptions.getSecretEngineName(), filename, null);
     }
 }

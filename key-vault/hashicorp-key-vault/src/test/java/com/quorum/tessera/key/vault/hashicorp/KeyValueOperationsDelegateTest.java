@@ -30,13 +30,14 @@ public class KeyValueOperationsDelegateTest {
 
         HashicorpGetSecretData getSecretData = mock(HashicorpGetSecretData.class);
         when(getSecretData.getSecretName()).thenReturn(secretName);
+        when(getSecretData.getSecretVersion()).thenReturn(0);
 
         Versioned versionedResponse = mock(Versioned.class);
-        when(keyValueOperations.get(secretName)).thenReturn(versionedResponse);
+        when(keyValueOperations.get(secretName, Versioned.Version.from(0))).thenReturn(versionedResponse);
 
         Versioned result = delegate.get(getSecretData);
 
-        verify(keyValueOperations).get(secretName);
+        verify(keyValueOperations).get(secretName, Versioned.Version.unversioned());
 
         assertThat(result).isEqualTo(versionedResponse);
     }

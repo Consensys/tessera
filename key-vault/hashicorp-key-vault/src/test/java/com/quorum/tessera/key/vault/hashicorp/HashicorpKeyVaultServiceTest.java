@@ -74,7 +74,7 @@ public class HashicorpKeyVaultServiceTest {
 
     @Test
     public void getSecretThrowsExceptionIfNullRetrievedFromVault() {
-        HashicorpGetSecretData getSecretData = new HashicorpGetSecretData("engine", "secretName", "id");
+        HashicorpGetSecretData getSecretData = new HashicorpGetSecretData("engine", "secretName", "id", 0);
 
         when(delegate.get(getSecretData)).thenReturn(null);
 
@@ -86,7 +86,7 @@ public class HashicorpKeyVaultServiceTest {
 
     @Test
     public void getSecretThrowsExceptionIfNoDataRetrievedFromVault() {
-        HashicorpGetSecretData getSecretData = new HashicorpGetSecretData("engine", "secretName", "id");
+        HashicorpGetSecretData getSecretData = new HashicorpGetSecretData("engine", "secretName", "id", 0);
 
         Versioned versionedResponse = mock(Versioned.class);
         when(versionedResponse.hasData()).thenReturn(false);
@@ -102,7 +102,7 @@ public class HashicorpKeyVaultServiceTest {
 
     @Test
     public void getSecretThrowsExceptionIfValueNotFoundForGivenId() {
-        HashicorpGetSecretData getSecretData = new HashicorpGetSecretData("engine", "secretName", "id");
+        HashicorpGetSecretData getSecretData = new HashicorpGetSecretData("engine", "secretName", "id", 0);
 
         Versioned versionedResponse = mock(Versioned.class);
         when(versionedResponse.hasData()).thenReturn(true);

@@ -309,7 +309,7 @@ public class ValidationTest {
 
     @Test
     public void hashicorpKeyPairProvidedWithoutKeyVaultConfigCreatesViolation() {
-        HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privdId", "secretEngine", "secretName");
+        HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privdId", "secretEngine", "secretName", null);
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
         keyConfiguration.setKeyData(singletonList(keyPair));
@@ -327,7 +327,7 @@ public class ValidationTest {
 
     @Test
     public void hashicorpKeyPairProvidedWithAzureKeyVaultConfigCreatesViolation() {
-        HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privdId", "secretEngine", "secretName");
+        HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privdId", "secretEngine", "secretName", null);
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
         keyConfiguration.setKeyData(singletonList(keyPair));
@@ -407,7 +407,7 @@ public class ValidationTest {
 
     @Test
     public void hashicorpVaultKeyPairProvidedButKeyVaultConfigHasNullUrlCreatesNotNullViolation() {
-        HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName");
+        HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", null);
         HashicorpKeyVaultConfig keyVaultConfig = new HashicorpKeyVaultConfig();
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null, keyVaultConfig);
 
