@@ -127,54 +127,6 @@ public class PartyInfoServiceTest {
     }
 
     @Test
-    public void diffPartyInfoReturnsFullSetOnEmptyStore() {
-        doReturn(new PartyInfo("", emptySet(), emptySet())).when(partyInfoStore).getPartyInfo();
-
-        final PartyInfo incomingInfo = new PartyInfo("", emptySet(), NEW_PARTIES);
-
-        final Set<Party> unsavedParties = this.partyInfoService.findUnsavedParties(incomingInfo);
-
-        assertThat(unsavedParties)
-            .hasSize(2)
-            .containsExactlyInAnyOrder(NEW_PARTIES.toArray(new Party[0]));
-
-        verify(partyInfoStore).getPartyInfo();
-
-    }
-
-    @Test
-    public void diffPartyInfoReturnsEmptySetOnFullStore() {
-        doReturn(new PartyInfo("", emptySet(), NEW_PARTIES)).when(partyInfoStore).getPartyInfo();
-
-        final PartyInfo incomingInfo = new PartyInfo("", emptySet(), NEW_PARTIES);
-
-        final Set<Party> unsavedParties = this.partyInfoService.findUnsavedParties(incomingInfo);
-
-        assertThat(unsavedParties).isEmpty();
-
-        verify(partyInfoStore).getPartyInfo();
-
-    }
-
-    @Test
-    public void diffPartyInfoReturnsNodesNotInStore() {
-        doReturn(new PartyInfo("", emptySet(), singleton(new Party("url1"))))
-            .when(partyInfoStore)
-            .getPartyInfo();
-
-        final PartyInfo incomingInfo = new PartyInfo("", emptySet(), NEW_PARTIES);
-
-        final Set<Party> unsavedParties = this.partyInfoService.findUnsavedParties(incomingInfo);
-
-        assertThat(unsavedParties)
-            .hasSize(1)
-            .containsExactlyInAnyOrder(new Party("url2"));
-
-        verify(partyInfoStore).getPartyInfo();
-
-    }
-
-    @Test
     public void autoDiscoveryEnabledStoresAsIs() {
 
         final PartyInfo incomingPartyInfo = mock(PartyInfo.class);

@@ -54,6 +54,8 @@ public class SyncPoller implements Runnable {
     @Override
     public void run() {
 
+        this.resendPartyStore.addUnseenParties(partyInfoService.getPartyInfo().getParties());
+
         Optional<SyncableParty> nextPartyToSend = this.resendPartyStore.getNextParty();
 
         while (nextPartyToSend.isPresent()) {
