@@ -45,7 +45,7 @@ public class KeyGenerationParserTest {
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
 
         final ArgumentCaptor<ArgonOptions> captor = ArgumentCaptor.forClass(ArgonOptions.class);
-        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture());
+        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture(), eq(null));
 
         assertThat(captor.getAllValues()).hasSize(1);
         assertThat(captor.getValue()).isNull();
@@ -72,7 +72,7 @@ public class KeyGenerationParserTest {
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
 
         final ArgumentCaptor<ArgonOptions> captor = ArgumentCaptor.forClass(ArgonOptions.class);
-        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture());
+        verify(keyGenerator).generate(eq(keyLocation.toString()), captor.capture(), eq(null));
 
         assertThat(captor.getAllValues()).hasSize(1);
         assertThat(captor.getValue().getAlgorithm()).isEqualTo("id");
@@ -93,7 +93,7 @@ public class KeyGenerationParserTest {
         assertThat(result).isNotNull().hasSize(1);
 
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
-        verify(keyGenerator).generate("", null);
+        verify(keyGenerator).generate("", null, null);
     }
 
     @Test
@@ -229,22 +229,22 @@ public class KeyGenerationParserTest {
         when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("HASHICORP");
         when(commandLine.getOptionValue("filename")).thenReturn("secret/path");
         when(commandLine.getOptionValue("keygenvaultapprole")).thenReturn("approle");
+        when(commandLine.getOptionValue("keygenvaultsecretengine")).thenReturn("secretEngine");
 
         Path tempPath = Files.createTempFile(UUID.randomUUID().toString(), "");
         tempPath.toFile().deleteOnExit();
 
-        when(commandLine.getOptionValue("keygenvaultcert")).thenReturn(tempPath.toString());
-        when(commandLine.getOptionValue("keygenvaultcertkey")).thenReturn(tempPath.toString());
-        when(commandLine.getOptionValue("keygenvaultservercert")).thenReturn(tempPath.toString());
+        when(commandLine.getOptionValue("keygenvaultkeystore")).thenReturn(tempPath.toString());
+        when(commandLine.getOptionValue("keygenvaulttruststore")).thenReturn(tempPath.toString());
 
         this.parser.parse(commandLine);
 
         verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
         verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
         verify(commandLine, times(1)).getOptionValue("keygenvaultapprole");
-        verify(commandLine, times(1)).getOptionValue("keygenvaultcert");
-        verify(commandLine, times(1)).getOptionValue("keygenvaultcertkey");
-        verify(commandLine, times(1)).getOptionValue("keygenvaultservercert");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultkeystore");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttruststore");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultsecretengine");
     }
 
     @Test
@@ -255,29 +255,28 @@ public class KeyGenerationParserTest {
         when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("someurl");
         when(commandLine.hasOption("filename")).thenReturn(true);
         when(commandLine.getOptionValue("filename")).thenReturn("secret/path");
+        when(commandLine.getOptionValue("keygenvaultsecretengine")).thenReturn("secretEngine");
         when(commandLine.getOptionValue("keygenvaultapprole")).thenReturn("approle");
-        when(commandLine.getOptionValue("keygenvaultcert")).thenReturn("non/existent/path");
-        when(commandLine.getOptionValue("keygenvaultcertkey")).thenReturn("non/existent/path");
-        when(commandLine.getOptionValue("keygenvaultservercert")).thenReturn("non/existent/path");
+        when(commandLine.getOptionValue("keygenvaultkeystore")).thenReturn("non/existent/path");
+        when(commandLine.getOptionValue("keygenvaulttruststore")).thenReturn("non/existent/path");
 
         Throwable ex = catchThrowable(() -> this.parser.parse(commandLine));
 
         verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
         verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
         verify(commandLine, times(1)).getOptionValue("keygenvaultapprole");
-        verify(commandLine, times(1)).getOptionValue("keygenvaultcert");
-        verify(commandLine, times(1)).getOptionValue("keygenvaultcertkey");
-        verify(commandLine, times(1)).getOptionValue("keygenvaultservercert");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultkeystore");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttruststore");
+        verify(commandLine, times(1)).getOptionValue("keygenvaultsecretengine");
 
         assertThat(ex).isInstanceOf(ConstraintViolationException.class);
 
         Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
 
-        assertThat(violations.size()).isEqualTo(3);
+        assertThat(violations.size()).isEqualTo(2);
 
         Iterator<ConstraintViolation<?>> iterator = violations.iterator();
 
-        assertThat(iterator.next().getMessage()).isEqualTo("File does not exist");
         assertThat(iterator.next().getMessage()).isEqualTo("File does not exist");
         assertThat(iterator.next().getMessage()).isEqualTo("File does not exist");
     }

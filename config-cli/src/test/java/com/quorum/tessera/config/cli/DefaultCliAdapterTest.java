@@ -122,7 +122,7 @@ public class DefaultCliAdapterTest {
          Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
          
         FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
-        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keypair);
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
 
         Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
         
@@ -143,7 +143,7 @@ public class DefaultCliAdapterTest {
         assertThat(result.getConfig()).isNotNull();
         assertThat(result.isSuppressStartup()).isFalse();
         
-        verify(keyGenerator).generate(anyString(), eq(null));
+        verify(keyGenerator).generate(anyString(), eq(null), eq(null));
         verifyNoMoreInteractions(keyGenerator);
         
     }
@@ -191,7 +191,7 @@ public class DefaultCliAdapterTest {
          Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
          
         FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
-        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keypair);
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
 
         Path generatedKey = Paths.get("/tmp/" + UUID.randomUUID().toString());
         
@@ -376,7 +376,7 @@ public class DefaultCliAdapterTest {
          Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
          
         FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
-        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keypair);
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
 
         final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
@@ -389,7 +389,7 @@ public class DefaultCliAdapterTest {
     public void suppressStartupForKeygenAndVaultUrlAndConfigfileOptions() throws Exception {
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
         final FilesystemKeyPair keypair = new FilesystemKeyPair(Paths.get(""), Paths.get(""));
-        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keypair);
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
 
         final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         final String vaultUrl = "https://test.vault.azure.net";

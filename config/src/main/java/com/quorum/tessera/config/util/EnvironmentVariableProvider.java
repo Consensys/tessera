@@ -1,5 +1,7 @@
 package com.quorum.tessera.config.util;
 
+import java.util.Optional;
+
 //Provide a mockable wrapper for environment variable retrieval
 public class EnvironmentVariableProvider {
 
@@ -8,7 +10,9 @@ public class EnvironmentVariableProvider {
     }
 
     public char[] getEnvAsCharArray(String name) {
-        return System.getenv(name).toCharArray();
+        return Optional.ofNullable(System.getenv(name))
+            .map(String::toCharArray)
+            .orElse(null);
     }
 
 }

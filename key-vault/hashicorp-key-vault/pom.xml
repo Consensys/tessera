@@ -14,11 +14,6 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.bettercloud</groupId>
-            <artifactId>vault-java-driver</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.quorum.tessera</groupId>
             <artifactId>key-vault-api</artifactId>
         </dependency>
@@ -30,8 +25,9 @@
         </dependency>
 
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>3.12.0</version>
         </dependency>
 
     </dependencies>
