@@ -1,8 +1,11 @@
 package com.quorum.tessera.key.vault;
 
-public interface KeyVaultService {
-    String getSecret(String secretName);
+import com.quorum.tessera.config.vault.data.GetSecretData;
+import com.quorum.tessera.config.vault.data.SetSecretData;
 
-    Object setSecret(String secretName, String secret);
+public interface KeyVaultService {
+    String getSecret(GetSecretData getSecretData);
+
+    Object setSecret(SetSecretData setSecretData);
 
 }

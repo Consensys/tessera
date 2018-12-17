@@ -12,29 +12,44 @@ import java.nio.file.Path;
 public class UnsupportedKeyPair implements ConfigKeyPair {
 
     @XmlElement
-    private final KeyDataConfig config;
+    private KeyDataConfig config;
 
     @XmlElement
-    private final String privateKey;
+    private String privateKey;
 
     @XmlElement
-    private final String publicKey;
-
-    @XmlElement
-    @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path privateKeyPath;
+    private String publicKey;
 
     @XmlElement
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path publicKeyPath;
+    private Path privateKeyPath;
 
     @XmlElement
-    private final String azureVaultPublicKeyId;
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private Path publicKeyPath;
 
     @XmlElement
-    private final String azureVaultPrivateKeyId;
+    private String azureVaultPublicKeyId;
 
-    public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId) {
+    @XmlElement
+    private String azureVaultPrivateKeyId;
+
+    @XmlElement
+    private String hashicorpVaultPublicKeyId;
+
+    @XmlElement
+    private String hashicorpVaultPrivateKeyId;
+
+    @XmlElement
+    private String hashicorpVaultSecretEngineName;
+
+    @XmlElement
+    private String hashicorpVaultSecretName;
+
+    @XmlElement
+    private String hashicorpVaultSecretVersion;
+
+    public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName, String hashicorpVaultSecretVersion) {
         this.config = config;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
@@ -42,6 +57,15 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
         this.publicKeyPath = publicKeyPath;
         this.azureVaultPublicKeyId = azureVaultPublicKeyId;
         this.azureVaultPrivateKeyId = azureVaultPrivateKeyId;
+        this.hashicorpVaultPublicKeyId = hashicorpVaultPublicKeyId;
+        this.hashicorpVaultPrivateKeyId = hashicorpVaultPrivateKeyId;
+        this.hashicorpVaultSecretEngineName = hashicorpVaultSecretEngineName;
+        this.hashicorpVaultSecretName = hashicorpVaultSecretName;
+        this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;
+    }
+
+    public UnsupportedKeyPair() {
+
     }
 
     @Override
@@ -74,6 +98,26 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
         return azureVaultPrivateKeyId;
     }
 
+    public String getHashicorpVaultPublicKeyId() {
+        return hashicorpVaultPublicKeyId;
+    }
+
+    public String getHashicorpVaultPrivateKeyId() {
+        return hashicorpVaultPrivateKeyId;
+    }
+
+    public String getHashicorpVaultSecretEngineName() {
+        return hashicorpVaultSecretEngineName;
+    }
+
+    public String getHashicorpVaultSecretName() {
+        return hashicorpVaultSecretName;
+    }
+
+    public String getHashicorpVaultSecretVersion() {
+        return hashicorpVaultSecretVersion;
+    }
+
     @Override
     public void withPassword(String password) {
         //do nothing as password not used with this keypair type
@@ -84,4 +128,51 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
         return null;
     }
 
+    public void setConfig(KeyDataConfig config) {
+        this.config = config;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    public void setPrivateKeyPath(Path privateKeyPath) {
+        this.privateKeyPath = privateKeyPath;
+    }
+
+    public void setPublicKeyPath(Path publicKeyPath) {
+        this.publicKeyPath = publicKeyPath;
+    }
+
+    public void setAzureVaultPublicKeyId(String azureVaultPublicKeyId) {
+        this.azureVaultPublicKeyId = azureVaultPublicKeyId;
+    }
+
+    public void setAzureVaultPrivateKeyId(String azureVaultPrivateKeyId) {
+        this.azureVaultPrivateKeyId = azureVaultPrivateKeyId;
+    }
+
+    public void setHashicorpVaultPublicKeyId(String hashicorpVaultPublicKeyId) {
+        this.hashicorpVaultPublicKeyId = hashicorpVaultPublicKeyId;
+    }
+
+    public void setHashicorpVaultPrivateKeyId(String hashicorpVaultPrivateKeyId) {
+        this.hashicorpVaultPrivateKeyId = hashicorpVaultPrivateKeyId;
+    }
+
+    public void setHashicorpVaultSecretEngineName(String hashicorpVaultSecretEngineName) {
+        this.hashicorpVaultSecretEngineName = hashicorpVaultSecretEngineName;
+    }
+
+    public void setHashicorpVaultSecretName(String hashicorpVaultSecretName) {
+        this.hashicorpVaultSecretName = hashicorpVaultSecretName;
+    }
+
+    public void setHashicorpVaultSecretVersion(String hashicorpVaultSecretVersion) {
+        this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;
+    }
 }

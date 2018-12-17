@@ -11,8 +11,8 @@ import java.util.concurrent.Executors;
 
 public class AzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
 
-    private final String clientIdEnvVar = "AZURE_CLIENT_ID";
-    private final String clientSecretEnvVar = "AZURE_CLIENT_SECRET";
+    private static final String clientIdEnvVar = "AZURE_CLIENT_ID";
+    private static final String clientSecretEnvVar = "AZURE_CLIENT_SECRET";
 
     @Override
     public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider) {
@@ -28,7 +28,7 @@ public class AzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
 
         AzureKeyVaultConfig keyVaultConfig = Optional.ofNullable(config.getKeys())
             .map(KeyConfiguration::getAzureKeyVaultConfig)
-            .orElseThrow(() -> new ConfigException(new RuntimeException("Trying to create Azure key vault but no Azure configuration provided in the configfile")));
+            .orElseThrow(() -> new ConfigException(new RuntimeException("Trying to create Azure key vault connection but no Azure configuration provided")));
 
         return new AzureKeyVaultService(
             keyVaultConfig,

@@ -3,15 +3,15 @@ package com.quorum.tessera.key.vault.azure;
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.rest.credentials.ServiceClientCredentials;
 
-public class AzureKeyVaultClientFactory {
+class AzureKeyVaultClientFactory {
 
     private final ServiceClientCredentials clientCredentials;
 
-    public AzureKeyVaultClientFactory(ServiceClientCredentials clientCredentials) {
+    AzureKeyVaultClientFactory(ServiceClientCredentials clientCredentials) {
         this.clientCredentials = clientCredentials;
     }
 
-    public KeyVaultClient getAuthenticatedClient() {
+    KeyVaultClient getAuthenticatedClient() {
         return new KeyVaultClient(clientCredentials);
     }
 }

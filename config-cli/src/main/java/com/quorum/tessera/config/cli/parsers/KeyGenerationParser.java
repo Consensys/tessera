@@ -1,14 +1,12 @@
 package com.quorum.tessera.config.cli.parsers;
 
-import com.quorum.tessera.config.ArgonOptions;
-import com.quorum.tessera.config.AzureKeyVaultConfig;
-import com.quorum.tessera.config.KeyVaultConfig;
-import com.quorum.tessera.config.KeyVaultType;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.cli.CliException;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.key.generation.KeyGeneratorFactory;
+import com.quorum.tessera.key.generation.KeyVaultOptions;
 import org.apache.commons.cli.CommandLine;
 
 import javax.validation.ConstraintViolation;
@@ -18,6 +16,7 @@ import javax.validation.Validator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +40,7 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
     public List<ConfigKeyPair> parse(final CommandLine commandLine) throws IOException {
 
         final ArgonOptions argonOptions = this.argonOptions(commandLine).orElse(null);
+        final KeyVaultOptions keyVaultOptions = this.keyVaultOptions(commandLine).orElse(null);
         final KeyVaultConfig keyVaultConfig = this.keyVaultConfig(commandLine).orElse(null);
 
         final KeyGenerator generator = factory.create(keyVaultConfig);
@@ -48,7 +48,7 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
         if (commandLine.hasOption("keygen")) {
             return this.filenames(commandLine)
                 .stream()
-                .map(name -> generator.generate(name, argonOptions))
+                .map(name -> generator.generate(name, argonOptions, keyVaultOptions))
                 .collect(Collectors.toList());
         }
 
@@ -66,6 +66,12 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
         }
 
         return Optional.empty();
+    }
+
+    private Optional<KeyVaultOptions> keyVaultOptions(final CommandLine commandLine) {
+        Optional<String> secretEngineName = Optional.ofNullable(commandLine.getOptionValue("keygenvaultsecretengine"));
+
+        return secretEngineName.map(KeyVaultOptions::new);
     }
 
     private List<String> filenames(final CommandLine commandLine) {
@@ -88,23 +94,55 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
             return Optional.empty();
         }
 
-        String t = commandLine.getOptionValue("keygenvaulttype");
+        final String t = commandLine.getOptionValue("keygenvaulttype");
 
+        KeyVaultType keyVaultType;
         try {
-            KeyVaultType.valueOf(t);
+            keyVaultType = KeyVaultType.valueOf(
+                t.trim()
+                 .toUpperCase()
+            );
         } catch(IllegalArgumentException | NullPointerException e) {
-            throw new CliException("Key vault type either not provided or not recognised.  Ensure provided value is UPPERCASE and has no leading or trailing whitespace characters");
+            throw new CliException("Key vault type either not provided or not recognised");
         }
 
         String keyVaultUrl = commandLine.getOptionValue("keygenvaulturl");
 
-        //Only Azure supported atm so no need to check keyvaulttype
-        KeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig(keyVaultUrl);
+        KeyVaultConfig keyVaultConfig;
 
-        Set<ConstraintViolation<AzureKeyVaultConfig>> violations = validator.validate((AzureKeyVaultConfig)keyVaultConfig);
+        if(keyVaultType.equals(KeyVaultType.AZURE)) {
+            keyVaultConfig = new AzureKeyVaultConfig(keyVaultUrl);
 
-        if(!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
+            Set<ConstraintViolation<AzureKeyVaultConfig>> violations = validator.validate((AzureKeyVaultConfig)keyVaultConfig);
+
+            if(!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
+        } else {
+            if(!commandLine.hasOption("filename")) {
+                throw new CliException("At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
+            }
+
+            String approlePath = commandLine.getOptionValue("keygenvaultapprole");
+
+            Optional<Path> tlsKeyStorePath = Optional.ofNullable(commandLine.getOptionValue("keygenvaultkeystore"))
+                                                     .map(Paths::get);
+
+            Optional<Path> tlsTrustStorePath = Optional.ofNullable(commandLine.getOptionValue("keygenvaulttruststore"))
+                                                       .map(Paths::get);
+
+            keyVaultConfig = new HashicorpKeyVaultConfig(
+                keyVaultUrl,
+                approlePath,
+                tlsKeyStorePath.orElse(null),
+                tlsTrustStorePath.orElse(null)
+            );
+
+            Set<ConstraintViolation<HashicorpKeyVaultConfig>> violations = validator.validate((HashicorpKeyVaultConfig)keyVaultConfig);
+
+            if(!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
         }
 
         return Optional.of(keyVaultConfig);

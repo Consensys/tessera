@@ -5,8 +5,8 @@ import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
-import com.quorum.tessera.io.IOCallback;
 import com.quorum.tessera.encryption.KeyPair;
+import com.quorum.tessera.io.IOCallback;
 import com.quorum.tessera.nacl.NaclFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ public class FileKeyGenerator implements KeyGenerator {
     }
 
     @Override
-    public FilesystemKeyPair generate(final String filename, final ArgonOptions encryptionOptions) {
+    public FilesystemKeyPair generate(final String filename, final ArgonOptions encryptionOptions, final KeyVaultOptions keyVaultOptions) {
 
         final String password = this.passwordReader.requestUserPassword();
 
@@ -47,7 +47,7 @@ public class FileKeyGenerator implements KeyGenerator {
 
         final String publicKeyBase64 = Base64.getEncoder().encodeToString(generated.getPublicKey().getKeyBytes());
 
-        final KeyData finalKeys;
+        final KeyData finalKeys = new KeyData();
 
         if (!password.isEmpty()) {
 
@@ -55,7 +55,7 @@ public class FileKeyGenerator implements KeyGenerator {
                 generated.getPrivateKey(), password, encryptionOptions
             );
 
-            finalKeys = new KeyData(
+            finalKeys.setConfig(
                 new KeyDataConfig(
                     new PrivateKeyData(
                         null,
@@ -66,13 +66,7 @@ public class FileKeyGenerator implements KeyGenerator {
                         null
                     ),
                     PrivateKeyType.LOCKED
-                ),
-                generated.getPrivateKey().toString(),
-                publicKeyBase64,
-                null,
-                null,
-                null,
-                null
+                )
             );
 
             LOGGER.info("Newly generated private key has been encrypted");
@@ -80,21 +74,18 @@ public class FileKeyGenerator implements KeyGenerator {
         } else {
             
             String keyData = Base64.getEncoder().encodeToString(generated.getPrivateKey().getKeyBytes());
-            
-            finalKeys = new KeyData(
+
+            finalKeys.setConfig(
                 new KeyDataConfig(
                     new PrivateKeyData(keyData, null, null, null, null, null),
                     PrivateKeyType.UNLOCKED
-                ),
-                generated.getPrivateKey().toString(),
-                publicKeyBase64,
-                null,
-                null,
-                null,
-                null
+                )
             );
 
         }
+
+        finalKeys.setPrivateKey(generated.getPrivateKey().encodeToBase64());
+        finalKeys.setPublicKey(publicKeyBase64);
 
         final String privateKeyJson = JaxbUtil.marshalToString(finalKeys.getConfig());
 

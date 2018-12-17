@@ -181,6 +181,42 @@ public class DefaultCliAdapter implements CliAdapter {
         );
 
         options.addOption(
+            Option.builder("keygenvaultapprole")
+                  .desc("AppRole path for Hashicorp Vault authentication (defaults to 'approle')")
+                  .hasArg()
+                  .optionalArg(false)
+                  .argName("STRING")
+                  .build()
+        );
+
+        options.addOption(
+            Option.builder("keygenvaultkeystore")
+                .desc("Path to JKS keystore for TLS Hashicorp Vault communication")
+                .hasArg()
+                .optionalArg(false)
+                .argName("PATH")
+                .build()
+        );
+
+        options.addOption(
+            Option.builder("keygenvaulttruststore")
+                  .desc("Path to JKS truststore for TLS Hashicorp Vault communication")
+                  .hasArg()
+                  .optionalArg(false)
+                  .argName("PATH")
+                  .build()
+        );
+
+        options.addOption(
+            Option.builder("keygenvaultsecretengine")
+                  .desc("Name of already enabled Hashicorp v2 kv secret engine")
+                  .hasArg()
+                  .optionalArg(false)
+                  .argName("STRING")
+                  .build()
+        );
+
+        options.addOption(
             Option.builder("pidfile")
                 .desc("Path to pid file")
                 .hasArg(true)

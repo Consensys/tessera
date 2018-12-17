@@ -11,7 +11,7 @@ public class UnsupportedKeyPairTest {
 
     @Before
     public void setUp() {
-        this.keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, null);
+        this.keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
     @Test
@@ -21,6 +21,15 @@ public class UnsupportedKeyPairTest {
         keyPair.withPassword("password");
 
         assertThat(keyPair.getPassword()).isNull();
+    }
+
+    @Test
+    public void setHashicorpVaultSecretVersion() {
+        assertThat(keyPair.getHashicorpVaultSecretVersion()).isNull();
+
+        keyPair.setHashicorpVaultSecretVersion("1");
+
+        assertThat(keyPair.getHashicorpVaultSecretVersion()).isEqualTo("1");
     }
 
 }

@@ -78,7 +78,7 @@ public class AzureKeyVaultServiceFactoryTest {
         Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isExactlyInstanceOf(ConfigException.class);
-        assertThat(ex.getMessage()).contains("Trying to create Azure key vault but no Azure configuration provided in the configfile");
+        assertThat(ex.getMessage()).contains("Trying to create Azure key vault connection but no Azure configuration provided");
     }
 
     @Test
@@ -91,7 +91,7 @@ public class AzureKeyVaultServiceFactoryTest {
         Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isExactlyInstanceOf(ConfigException.class);
-        assertThat(ex.getMessage()).contains("Trying to create Azure key vault but no Azure configuration provided in the configfile");
+        assertThat(ex.getMessage()).contains("Trying to create Azure key vault connection but no Azure configuration provided");
     }
 
     @Test

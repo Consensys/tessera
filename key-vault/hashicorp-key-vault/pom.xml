@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>key-vault</artifactId>
+        <groupId>com.quorum.tessera</groupId>
+        <version>0.8-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>hashicorp-key-vault</artifactId>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.quorum.tessera</groupId>
+            <artifactId>key-vault-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.vault</groupId>
+            <artifactId>spring-vault-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

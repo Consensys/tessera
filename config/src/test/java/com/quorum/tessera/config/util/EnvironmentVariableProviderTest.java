@@ -14,4 +14,12 @@ public class EnvironmentVariableProviderTest {
         //returns null as env variables not set in test environment
         assertThat(provider.getEnv("env")).isNull();
     }
+
+    @Test
+    public void getEnvAsCharArray() {
+        EnvironmentVariableProvider provider = new EnvironmentVariableProvider();
+
+        //returns null as env variables not set in test environment
+        assertThat(provider.getEnvAsCharArray("env")).isNull();
+    }
 }

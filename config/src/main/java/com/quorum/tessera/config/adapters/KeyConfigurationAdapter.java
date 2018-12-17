@@ -47,7 +47,7 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
                 }).collect(Collectors.toList());
         }
 
-        return new KeyConfiguration(input.getPasswordFile(), input.getPasswords(), keyDataWithPasswords, input.getAzureKeyVaultConfig());
+        return new KeyConfiguration(input.getPasswordFile(), input.getPasswords(), keyDataWithPasswords, input.getAzureKeyVaultConfig(), input.getHashicorpKeyVaultConfig());
     }
 
     @Override

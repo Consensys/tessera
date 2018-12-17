@@ -2,6 +2,7 @@ package com.quorum.tessera.key.generation;
 
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
+import com.quorum.tessera.config.vault.data.AzureSetSecretData;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
@@ -9,8 +10,10 @@ import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.nacl.NaclFacade;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -40,16 +43,25 @@ public class AzureVaultKeyGeneratorTest {
     }
 
     @Test
-    public void keysSavedInVaultWithProvidedVaultId() {
+    public void keysSavedInVaultWithProvidedVaultIdAndCorrectSuffix() {
         final String vaultId = "vaultId";
         final String pubVaultId = vaultId + "Pub";
         final String privVaultId = vaultId + "Key";
 
-        final AzureVaultKeyPair result = azureVaultKeyGenerator.generate(vaultId, null);
+        final AzureVaultKeyPair result = azureVaultKeyGenerator.generate(vaultId, null, null);
 
-        verify(keyVaultService, times(2)).setSecret(any(String.class), any(String.class));
-        verify(keyVaultService, times(1)).setSecret(vaultId + "Pub", pub.encodeToBase64());
-        verify(keyVaultService, times(1)).setSecret(vaultId + "Key", priv.encodeToBase64());
+        final ArgumentCaptor<AzureSetSecretData> captor = ArgumentCaptor.forClass(AzureSetSecretData.class);
+
+        verify(keyVaultService, times(2)).setSecret(captor.capture());
+
+        List<AzureSetSecretData> capturedArgs = captor.getAllValues();
+        assertThat(capturedArgs).hasSize(2);
+
+        AzureSetSecretData expectedDataPub = new AzureSetSecretData(pubVaultId, pub.encodeToBase64());
+        AzureSetSecretData expectedDataPriv = new AzureSetSecretData(privVaultId, priv.encodeToBase64());
+
+        assertThat(capturedArgs).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
+
         verifyNoMoreInteractions(keyVaultService);
 
         final AzureVaultKeyPair expected = new AzureVaultKeyPair(pubVaultId, privVaultId);
@@ -58,49 +70,55 @@ public class AzureVaultKeyGeneratorTest {
     }
 
     @Test
-    public void publicKeyIsSavedToVaultAndIdHasPubSuffix() {
-        final String vaultId = "vaultId";
-
-        azureVaultKeyGenerator.generate(vaultId, null);
-
-        verify(keyVaultService, times(1)).setSecret(vaultId + "Pub", pub.encodeToBase64());
-    }
-
-    @Test
-    public void privateKeyIsSavedToVaultAndIdHasKeySuffix() {
-        final String vaultId = "vaultId";
-
-        azureVaultKeyGenerator.generate(vaultId, null);
-
-        verify(keyVaultService, times(1)).setSecret(vaultId + "Key", priv.encodeToBase64());
-    }
-
-    @Test
     public void vaultIdIsFinalComponentOfFilePath() {
         final String vaultId = "vaultId";
+        final String pubVaultId = vaultId + "Pub";
+        final String privVaultId = vaultId + "Key";
         final String path = "/some/path/" + vaultId;
 
-        azureVaultKeyGenerator.generate(path, null);
+        azureVaultKeyGenerator.generate(path, null, null);
 
-        verify(keyVaultService, times(1)).setSecret(vaultId + "Pub", pub.encodeToBase64());
-        verify(keyVaultService, times(1)).setSecret(vaultId + "Key", priv.encodeToBase64());
+        final ArgumentCaptor<AzureSetSecretData> captor = ArgumentCaptor.forClass(AzureSetSecretData.class);
+
+        verify(keyVaultService, times(2)).setSecret(captor.capture());
+
+        List<AzureSetSecretData> capturedArgs = captor.getAllValues();
+        assertThat(capturedArgs).hasSize(2);
+
+        AzureSetSecretData expectedDataPub = new AzureSetSecretData(pubVaultId, pub.encodeToBase64());
+        AzureSetSecretData expectedDataPriv = new AzureSetSecretData(privVaultId, priv.encodeToBase64());
+
+        assertThat(capturedArgs).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
+
+        verifyNoMoreInteractions(keyVaultService);
     }
 
     @Test
     public void ifNoVaultIdProvidedThenSuffixOnlyIsUsed() {
-        azureVaultKeyGenerator.generate(null, null);
+        azureVaultKeyGenerator.generate(null, null, null);
 
-        verify(keyVaultService, times(1)).setSecret("Pub", pub.encodeToBase64());
-        verify(keyVaultService, times(1)).setSecret("Key", priv.encodeToBase64());
+        final ArgumentCaptor<AzureSetSecretData> captor = ArgumentCaptor.forClass(AzureSetSecretData.class);
+
+        verify(keyVaultService, times(2)).setSecret(captor.capture());
+
+        List<AzureSetSecretData> capturedArgs = captor.getAllValues();
+        assertThat(capturedArgs).hasSize(2);
+
+        AzureSetSecretData expectedDataPub = new AzureSetSecretData("Pub", pub.encodeToBase64());
+        AzureSetSecretData expectedDataPriv = new AzureSetSecretData("Key", priv.encodeToBase64());
+
+        assertThat(capturedArgs).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
+
+        verifyNoMoreInteractions(keyVaultService);
     }
 
     @Test
     public void allowedCharactersUsedInVaultIdDoesNotThrowException() {
         final String allowedId = "abcdefghijklmnopqrstuvwxyz-ABCDEFDGHIJKLMNOPQRSTUVWXYZ-0123456789";
 
-        azureVaultKeyGenerator.generate(allowedId, null);
+        azureVaultKeyGenerator.generate(allowedId, null, null);
 
-        verify(keyVaultService, times(2)).setSecret(any(String.class), any(String.class));
+        verify(keyVaultService, times(2)).setSecret(any(AzureSetSecretData.class));
     }
 
     @Test
@@ -108,7 +126,7 @@ public class AzureVaultKeyGeneratorTest {
         final String invalidId = "/tmp/abc@+";
 
         final Throwable throwable = catchThrowable(
-            () -> azureVaultKeyGenerator.generate(invalidId, null)
+            () -> azureVaultKeyGenerator.generate(invalidId, null, null)
         );
 
         assertThat(throwable).isInstanceOf(UnsupportedCharsetException.class);
@@ -121,7 +139,7 @@ public class AzureVaultKeyGeneratorTest {
     public void encryptionIsNotUsedWhenSavingToVault() {
         final ArgonOptions argonOptions = mock(ArgonOptions.class);
 
-        azureVaultKeyGenerator.generate("vaultId", argonOptions);
+        azureVaultKeyGenerator.generate("vaultId", argonOptions, null);
 
         verifyNoMoreInteractions(argonOptions);
     }

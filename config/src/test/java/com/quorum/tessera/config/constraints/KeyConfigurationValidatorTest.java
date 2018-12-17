@@ -23,7 +23,7 @@ public class KeyConfigurationValidatorTest {
     @Test
     public void bothNotSetIsValid() {
 
-        final KeyConfiguration configuration = new KeyConfiguration(null, null, null, null);
+        final KeyConfiguration configuration = new KeyConfiguration(null, null, null, null, null);
 
         assertThat(validator.isValid(configuration, mock(ConstraintValidatorContext.class))).isTrue();
 
@@ -32,7 +32,7 @@ public class KeyConfigurationValidatorTest {
     @Test
     public void fileSetIsValid() {
 
-        final KeyConfiguration configuration = new KeyConfiguration(Paths.get("anything"), null, null, null);
+        final KeyConfiguration configuration = new KeyConfiguration(Paths.get("anything"), null, null, null, null);
 
         assertThat(validator.isValid(configuration, mock(ConstraintValidatorContext.class))).isTrue();
 
@@ -41,7 +41,7 @@ public class KeyConfigurationValidatorTest {
     @Test
     public void inlineSetIsValid() {
 
-        final KeyConfiguration configuration = new KeyConfiguration(null, emptyList(), null, null);
+        final KeyConfiguration configuration = new KeyConfiguration(null, emptyList(), null, null, null);
 
         assertThat(validator.isValid(configuration, mock(ConstraintValidatorContext.class))).isTrue();
 
@@ -50,7 +50,7 @@ public class KeyConfigurationValidatorTest {
     @Test
     public void bothSetIsInvalid() {
 
-        final KeyConfiguration configuration = new KeyConfiguration(Paths.get("anything"), emptyList(), null, null);
+        final KeyConfiguration configuration = new KeyConfiguration(Paths.get("anything"), emptyList(), null, null, null);
 
         assertThat(validator.isValid(configuration, mock(ConstraintValidatorContext.class))).isFalse();
 

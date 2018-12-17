@@ -5,6 +5,7 @@ import com.quorum.tessera.config.keypairs.UnsupportedKeyPair;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public class UnsupportedKeyPairValidator implements ConstraintValidator<ValidUnsupportedKeyPair, UnsupportedKeyPair> {
 
@@ -32,6 +33,11 @@ public class UnsupportedKeyPairValidator implements ConstraintValidator<ValidUns
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAzureKeysRequired.message}")
                 .addConstraintViolation();
         }
+        else if(isIncompleteHashicorpVaultKeyPair(keyPair)) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}")
+                .addConstraintViolation();
+        }
         else if(isIncompleteFilesystemKeyPair(keyPair)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothFilesystemKeysRequired.message}")
@@ -42,22 +48,38 @@ public class UnsupportedKeyPairValidator implements ConstraintValidator<ValidUns
     }
 
     private boolean isIncompleteDirectKeyPair(UnsupportedKeyPair keyPair) {
-        return isOnlyOneInputNull(keyPair.getPublicKey(), keyPair.getPrivateKey());
+        return isIncomplete(keyPair.getPublicKey(), keyPair.getPrivateKey());
     }
 
     private boolean isIncompleteInlineKeyPair(UnsupportedKeyPair keyPair) {
-        return isOnlyOneInputNull(keyPair.getPublicKey(), keyPair.getConfig());
+        return isIncomplete(keyPair.getPublicKey(), keyPair.getConfig());
     }
 
     private boolean isIncompleteAzureVaultKeyPair(UnsupportedKeyPair keyPair) {
-        return isOnlyOneInputNull(keyPair.getAzureVaultPublicKeyId(), keyPair.getAzureVaultPrivateKeyId());
+        return isIncomplete(keyPair.getAzureVaultPublicKeyId(), keyPair.getAzureVaultPrivateKeyId());
+    }
+
+    private boolean isIncompleteHashicorpVaultKeyPair(UnsupportedKeyPair keyPair) {
+        return isIncomplete(keyPair.getHashicorpVaultPublicKeyId(), keyPair.getHashicorpVaultPrivateKeyId(), keyPair.getHashicorpVaultSecretEngineName(), keyPair.getHashicorpVaultSecretName());
     }
 
     private boolean isIncompleteFilesystemKeyPair(UnsupportedKeyPair keyPair) {
-        return isOnlyOneInputNull(keyPair.getPublicKeyPath(), keyPair.getPrivateKeyPath());
+        return isIncomplete(keyPair.getPublicKeyPath(), keyPair.getPrivateKeyPath());
     }
 
-    private boolean isOnlyOneInputNull(Object obj1, Object obj2) {
-        return Objects.isNull(obj1) ^ Objects.isNull(obj2);
+    private boolean isIncomplete(Object ...args) {
+        if(areAnyNull(args) && areAnyNonNull(args)) {
+            return true;
+        }
+        return false;
     }
+
+    private boolean areAnyNull(Object... args) {
+        return Stream.of(args).anyMatch(Objects::isNull);
+    }
+
+    private boolean areAnyNonNull(Object... args) {
+        return Stream.of(args).anyMatch(Objects::nonNull);
+    }
+
 }

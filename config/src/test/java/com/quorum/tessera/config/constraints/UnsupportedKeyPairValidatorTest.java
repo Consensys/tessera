@@ -16,6 +16,9 @@ public class UnsupportedKeyPairValidatorTest {
     private ValidUnsupportedKeyPair validUnsupportedKeyPair;
     private ConstraintValidatorContext context;
 
+    private UnsupportedKeyPair keyPair;
+
+
     @Before
     public void setUp() {
         this.validator = new UnsupportedKeyPairValidator();
@@ -27,11 +30,13 @@ public class UnsupportedKeyPairValidatorTest {
         ConstraintValidatorContext.ConstraintViolationBuilder builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
 
         when(context.buildConstraintViolationWithTemplate(any(String.class))).thenReturn(builder);
+
+        this.keyPair = new UnsupportedKeyPair();
     }
 
     @Test
     public void directViolationIfPublicKeyButNoPrivateKey() {
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, "public", null, null, null, null);
+        keyPair.setPublicKey("public");
 
         validator.isValid(keyPair, context);
 
@@ -40,7 +45,7 @@ public class UnsupportedKeyPairValidatorTest {
 
     @Test
     public void directViolationIfNoPublicKeyButPrivateKey() {
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, "private", null, null, null, null, null);
+        keyPair.setPrivateKey("private");
 
         validator.isValid(keyPair, context);
 
@@ -52,7 +57,11 @@ public class UnsupportedKeyPairValidatorTest {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         Path path = mock(Path.class);
 
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, "private", null, path, null, null, "privVault");
+        keyPair.setPrivateKey("private");
+        keyPair.setConfig(keyDataConfig);
+        keyPair.setPrivateKeyPath(path);
+        keyPair.setAzureVaultPrivateKeyId("privAzure");
+        keyPair.setHashicorpVaultPrivateKeyId("privHashicorp");
 
         validator.isValid(keyPair, context);
 
@@ -64,7 +73,11 @@ public class UnsupportedKeyPairValidatorTest {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         Path path = mock(Path.class);
 
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, null, "public", null, path, "pubVault", null);
+        keyPair.setConfig(keyDataConfig);
+        keyPair.setPublicKey("public");
+        keyPair.setPublicKeyPath(path);
+        keyPair.setAzureVaultPublicKeyId("pubAzure");
+        keyPair.setHashicorpVaultPublicKeyId("pubHashicorp");
 
         validator.isValid(keyPair, context);
 
@@ -74,7 +87,8 @@ public class UnsupportedKeyPairValidatorTest {
     @Test
     public void inlineViolationIfPrivateKeyConfigButNoPublicKey() {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, null, null, null, null, null, null);
+
+        keyPair.setConfig(keyDataConfig);
 
         validator.isValid(keyPair, context);
 
@@ -86,7 +100,10 @@ public class UnsupportedKeyPairValidatorTest {
         KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         Path path = mock(Path.class);
 
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, null, null, null, path, "pubId", null);
+        keyPair.setConfig(keyDataConfig);
+        keyPair.setPublicKeyPath(path);
+        keyPair.setAzureVaultPublicKeyId("pubId");
+        keyPair.setHashicorpVaultPublicKeyId("pubId");
 
         validator.isValid(keyPair, context);
 
@@ -95,7 +112,7 @@ public class UnsupportedKeyPairValidatorTest {
 
     @Test
     public void azureViolationIfPublicIdButNoPrivateId() {
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, null, "pubId", null);
+        keyPair.setAzureVaultPublicKeyId("pubId");
 
         validator.isValid(keyPair, context);
 
@@ -104,7 +121,7 @@ public class UnsupportedKeyPairValidatorTest {
 
     @Test
     public void azureViolationIfNoPublicIdButPrivateId() {
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, "privId");
+        keyPair.setAzureVaultPrivateKeyId("privId");
 
         validator.isValid(keyPair, context);
 
@@ -115,7 +132,8 @@ public class UnsupportedKeyPairValidatorTest {
     public void azureViolationIfNoPublicIdEvenIfFilesystemIncomplete() {
         Path path = mock(Path.class);
 
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, path, null, "privId");
+        keyPair.setPublicKeyPath(path);
+        keyPair.setAzureVaultPrivateKeyId("privId");
 
         validator.isValid(keyPair, context);
 
@@ -123,10 +141,151 @@ public class UnsupportedKeyPairValidatorTest {
     }
 
     @Test
+    public void hashicorpViolationIfPublicIdOnly() {
+        keyPair.setHashicorpVaultPublicKeyId("pubId");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfPrivateIdOnly() {
+        keyPair.setHashicorpVaultPrivateKeyId("privId");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfSecretEngineNameOnly() {
+        keyPair.setHashicorpVaultSecretEngineName("secretEngineName");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfSecretNameOnly() {
+        keyPair.setHashicorpVaultSecretName("secretName");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfPublicIdAndPrivateIdOnly() {
+        keyPair.setHashicorpVaultPublicKeyId("pubId");
+        keyPair.setHashicorpVaultPrivateKeyId("privId");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfPublicIdAndSecretEngineNameOnly() {
+        keyPair.setHashicorpVaultPublicKeyId("pubId");
+        keyPair.setHashicorpVaultSecretEngineName("secretEngine");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfPublicIdAndSecretNameOnly() {
+        keyPair.setHashicorpVaultPublicKeyId("pubId");
+        keyPair.setHashicorpVaultSecretName("secretName");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfPrivateIdAndSecretEngineNameOnly() {
+        keyPair.setHashicorpVaultPrivateKeyId("privId");
+        keyPair.setHashicorpVaultSecretEngineName("secretEngine");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfPrivateIdAndSecretNameOnly() {
+        keyPair.setHashicorpVaultPrivateKeyId("privId");
+        keyPair.setHashicorpVaultSecretName("secretName");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfSecretEngineNameAndSecretNameOnly() {
+        keyPair.setHashicorpVaultSecretEngineName("secretEngine");
+        keyPair.setHashicorpVaultSecretName("secretName");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfPublicIdAndPrivateIdAndSecretEngineNameOnly() {
+        keyPair.setHashicorpVaultPublicKeyId("pubId");
+        keyPair.setHashicorpVaultPrivateKeyId("privId");
+        keyPair.setHashicorpVaultSecretEngineName("secretEngine");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfPublicIdAndPrivateIdAndSecretNameOnly() {
+        keyPair.setHashicorpVaultPublicKeyId("pubId");
+        keyPair.setHashicorpVaultPrivateKeyId("privId");
+        keyPair.setHashicorpVaultSecretName("secretName");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfPublicIdAndSecretEngineNameAndSecretNameOnly() {
+        keyPair.setHashicorpVaultPublicKeyId("pubId");
+        keyPair.setHashicorpVaultSecretEngineName("secretEngine");
+        keyPair.setHashicorpVaultSecretName("secretName");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
+    public void hashicorpViolationIfPrivateIdAndSecretEngineNameAndSecretNameOnly() {
+        keyPair.setHashicorpVaultPrivateKeyId("privId");
+        keyPair.setHashicorpVaultSecretEngineName("secretEngine");
+        keyPair.setHashicorpVaultSecretName("secretName");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+    }
+
+    @Test
     public void azureViolationIfNoPrivateIdEvenIfFilesystemIncomplete() {
         Path path = mock(Path.class);
 
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, path, "pubId", null);
+        keyPair.setAzureVaultPublicKeyId("pubId");
+        keyPair.setPublicKeyPath(path);
 
         validator.isValid(keyPair, context);
 
@@ -137,7 +296,7 @@ public class UnsupportedKeyPairValidatorTest {
     public void filesystemViolationIfPublicPathButNoPrivatePath() {
         Path path = mock(Path.class);
 
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, path, null, null);
+        keyPair.setPublicKeyPath(path);
 
         validator.isValid(keyPair, context);
 
@@ -148,7 +307,7 @@ public class UnsupportedKeyPairValidatorTest {
     public void filesystemViolationIfNoPublicPathButPrivatePath() {
         Path path = mock(Path.class);
 
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, path, null, null, null);
+        keyPair.setPrivateKeyPath(path);
 
         validator.isValid(keyPair, context);
 
@@ -157,8 +316,7 @@ public class UnsupportedKeyPairValidatorTest {
 
     @Test
     public void defaultViolationIfNoRecognisedKeyPairDataProvided() {
-        UnsupportedKeyPair keyPair = new UnsupportedKeyPair(null, null, null, null, null, null, null);
-
+        //nothing set
         validator.isValid(keyPair, context);
 
         verifyNoMoreInteractions(context);

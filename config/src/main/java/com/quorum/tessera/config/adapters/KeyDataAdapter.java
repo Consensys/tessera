@@ -23,17 +23,23 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
             return new InlineKeypair(keyData.getPublicKey(), keyData.getConfig());
         }
 
-        //case 3, the key vault ids are provided
+        //case 3, the Azure Key Vault data is provided
         if(keyData.getAzureVaultPublicKeyId() != null && keyData.getAzureVaultPrivateKeyId() != null) {
             return new AzureVaultKeyPair(keyData.getAzureVaultPublicKeyId(), keyData.getAzureVaultPrivateKeyId());
         }
 
-        //case 4, the keys are provided inside a file
+        //case 4, the Hashicorp Vault data is provided
+        if(keyData.getHashicorpVaultPublicKeyId() != null && keyData.getHashicorpVaultPrivateKeyId() != null
+            && keyData.getHashicorpVaultSecretEngineName() != null && keyData.getHashicorpVaultSecretName() != null) {
+            return new HashicorpVaultKeyPair(keyData.getHashicorpVaultPublicKeyId(), keyData.getHashicorpVaultPrivateKeyId(), keyData.getHashicorpVaultSecretEngineName(), keyData.getHashicorpVaultSecretName(), keyData.getHashicorpVaultSecretVersion());
+        }
+
+        //case 5, the keys are provided inside a file
         if(keyData.getPublicKeyPath() != null && keyData.getPrivateKeyPath() != null) {
             return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath());
         }
 
-        //case 5, the key config specified is invalid
+        //case 6, the key config specified is invalid
         return new UnsupportedKeyPair(
             keyData.getConfig(),
             keyData.getPrivateKey(),
@@ -41,38 +47,79 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
             keyData.getPrivateKeyPath(),
             keyData.getPublicKeyPath(),
             keyData.getAzureVaultPublicKeyId(),
-            keyData.getAzureVaultPrivateKeyId()
+            keyData.getAzureVaultPrivateKeyId(),
+            keyData.getHashicorpVaultPublicKeyId(),
+            keyData.getHashicorpVaultPrivateKeyId(),
+            keyData.getHashicorpVaultSecretEngineName(),
+            keyData.getHashicorpVaultSecretName(),
+            keyData.getHashicorpVaultSecretVersion()
         );
     }
 
     @Override
-    public KeyData marshal(final ConfigKeyPair keyData) {
+    public KeyData marshal(final ConfigKeyPair keyPair) {
 
-        if(keyData instanceof DirectKeyPair) {
-            DirectKeyPair kp = (DirectKeyPair) keyData;
-            return new KeyData(null, kp.getPrivateKey(), kp.getPublicKey(), null, null, null, null);
+        KeyData keyData = new KeyData();
+
+        if(keyPair instanceof DirectKeyPair) {
+            DirectKeyPair kp = (DirectKeyPair) keyPair;
+
+            keyData.setPublicKey(kp.getPublicKey());
+            keyData.setPrivateKey(kp.getPrivateKey());
+            return keyData;
         }
 
-        if(keyData instanceof InlineKeypair) {
-            InlineKeypair kp = (InlineKeypair) keyData;
-            return new KeyData(kp.getPrivateKeyConfig(), null, kp.getPublicKey(), null, null, null, null);
+        if(keyPair instanceof InlineKeypair) {
+            InlineKeypair kp = (InlineKeypair) keyPair;
+
+            keyData.setPublicKey(kp.getPublicKey());
+            keyData.setConfig(kp.getPrivateKeyConfig());
+            return keyData;
         }
 
-        if(keyData instanceof AzureVaultKeyPair) {
-            AzureVaultKeyPair kp = (AzureVaultKeyPair) keyData;
-            return new KeyData(null, null, null, null, null, kp.getPrivateKeyId(), kp.getPublicKeyId());
+        if(keyPair instanceof AzureVaultKeyPair) {
+            AzureVaultKeyPair kp = (AzureVaultKeyPair) keyPair;
+
+            keyData.setAzureVaultPublicKeyId(kp.getPublicKeyId());
+            keyData.setAzureVaultPrivateKeyId(kp.getPrivateKeyId());
+            return keyData;
         }
 
-        if(keyData instanceof FilesystemKeyPair) {
-            FilesystemKeyPair kp = (FilesystemKeyPair) keyData;
-            return new KeyData(null, null, null, kp.getPrivateKeyPath(), kp.getPublicKeyPath(), null, null);
+        if(keyPair instanceof HashicorpVaultKeyPair) {
+            HashicorpVaultKeyPair kp = (HashicorpVaultKeyPair) keyPair;
+
+            keyData.setHashicorpVaultPublicKeyId(kp.getPublicKeyId());
+            keyData.setHashicorpVaultPrivateKeyId(kp.getPrivateKeyId());
+            keyData.setHashicorpVaultSecretEngineName(kp.getSecretEngineName());
+            keyData.setHashicorpVaultSecretName(kp.getSecretName());
+            return keyData;
         }
 
-        if(keyData instanceof UnsupportedKeyPair) {
-            UnsupportedKeyPair kp = (UnsupportedKeyPair) keyData;
-            return new KeyData(kp.getConfig(), kp.getPrivateKey(), kp.getPublicKey(), kp.getPrivateKeyPath(), kp.getPublicKeyPath(), kp.getAzureVaultPrivateKeyId(), kp.getAzureVaultPublicKeyId());
+        if(keyPair instanceof FilesystemKeyPair) {
+            FilesystemKeyPair kp = (FilesystemKeyPair) keyPair;
+
+            keyData.setPublicKeyPath(kp.getPublicKeyPath());
+            keyData.setPrivateKeyPath(kp.getPrivateKeyPath());
+            return keyData;
         }
 
-        throw new UnsupportedOperationException("The keypair type " + keyData.getClass() + " is not allowed");
+        if(keyPair instanceof UnsupportedKeyPair) {
+            UnsupportedKeyPair kp = (UnsupportedKeyPair) keyPair;
+            return new KeyData(
+                kp.getConfig(),
+                kp.getPrivateKey(),
+                kp.getPublicKey(),
+                kp.getPrivateKeyPath(),
+                kp.getPublicKeyPath(),
+                kp.getAzureVaultPrivateKeyId(),
+                kp.getAzureVaultPublicKeyId(),
+                kp.getHashicorpVaultPrivateKeyId(),
+                kp.getHashicorpVaultPublicKeyId(),
+                kp.getHashicorpVaultSecretEngineName(),
+                kp.getHashicorpVaultSecretName(),
+                kp.getHashicorpVaultSecretVersion());
+        }
+
+        throw new UnsupportedOperationException("The keypair type " + keyPair.getClass() + " is not allowed");
     }
 }
