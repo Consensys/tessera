@@ -68,8 +68,6 @@ public class FileKeyGenerator implements KeyGenerator {
                     PrivateKeyType.LOCKED
                 )
             );
-            finalKeys.setPrivateKey(generated.getPrivateKey().toString());
-            finalKeys.setPublicKey(publicKeyBase64);
 
             LOGGER.info("Newly generated private key has been encrypted");
 
@@ -83,10 +81,11 @@ public class FileKeyGenerator implements KeyGenerator {
                     PrivateKeyType.UNLOCKED
                 )
             );
-            finalKeys.setPrivateKey(generated.getPrivateKey().toString());
-            finalKeys.setPublicKey(publicKeyBase64);
 
         }
+
+        finalKeys.setPrivateKey(generated.getPrivateKey().encodeToBase64());
+        finalKeys.setPublicKey(publicKeyBase64);
 
         final String privateKeyJson = JaxbUtil.marshalToString(finalKeys.getConfig());
 
