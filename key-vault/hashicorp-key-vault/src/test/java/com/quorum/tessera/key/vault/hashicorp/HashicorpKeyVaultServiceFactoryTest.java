@@ -199,8 +199,8 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultServiceFactoryUtil));
 
-        assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
-        assertThat(ex.getMessage()).isEqualTo("Provided Hashicorp Vault url is incorrectly formatted");
+        assertThat(ex).isExactlyInstanceOf(ConfigException.class);
+        assertThat(ex.getMessage()).contains("Provided Hashicorp Vault url is incorrectly formatted");
     }
 
     @Test
@@ -222,8 +222,8 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultServiceFactoryUtil));
 
-        assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
-        assertThat(ex.getMessage()).isEqualTo("Provided Hashicorp Vault url is incorrectly formatted");
+        assertThat(ex).isExactlyInstanceOf(ConfigException.class);
+        assertThat(ex.getMessage()).contains("Provided Hashicorp Vault url is incorrectly formatted");
     }
 
     private void setUpUtilMocks(HashicorpKeyVaultConfig keyVaultConfig) {

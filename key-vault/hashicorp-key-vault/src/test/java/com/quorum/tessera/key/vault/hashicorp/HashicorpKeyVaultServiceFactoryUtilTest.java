@@ -151,7 +151,7 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
 
         Throwable ex = catchThrowable(() -> util.configureClientAuthentication(keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint));
 
-        assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
+        assertThat(ex).isExactlyInstanceOf(HashicorpCredentialNotSetException.class);
         assertThat(ex.getMessage()).isEqualTo("Both " + roleIdEnvVar + " and " + secretIdEnvVar + " environment variables must be set to use the AppRole authentication method");
     }
 
@@ -168,7 +168,7 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
 
         Throwable ex = catchThrowable(() -> util.configureClientAuthentication(keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint));
 
-        assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
+        assertThat(ex).isExactlyInstanceOf(HashicorpCredentialNotSetException.class);
         assertThat(ex.getMessage()).isEqualTo("Both " + roleIdEnvVar + " and " + secretIdEnvVar + " environment variables must be set to use the AppRole authentication method");
     }
 
@@ -201,7 +201,7 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
 
         Throwable ex = catchThrowable(() -> util.configureClientAuthentication(keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint));
 
-        assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
+        assertThat(ex).isExactlyInstanceOf(HashicorpCredentialNotSetException.class);
         assertThat(ex.getMessage()).isEqualTo("Both " + roleIdEnvVar + " and " + secretIdEnvVar + " environment variables must be set to use the AppRole authentication method.  Alternatively set " + authTokenEnvVar + " to authenticate using the Token method");
     }
 

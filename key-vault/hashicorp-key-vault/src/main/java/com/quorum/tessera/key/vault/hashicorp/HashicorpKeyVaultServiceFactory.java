@@ -61,7 +61,7 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
         try {
             vaultEndpoint = VaultEndpoint.from(new URI(keyVaultConfig.getUrl()));
         } catch (URISyntaxException | IllegalArgumentException e) {
-            throw new RuntimeException("Provided Hashicorp Vault url is incorrectly formatted", e);
+            throw new ConfigException(new RuntimeException("Provided Hashicorp Vault url is incorrectly formatted", e));
         }
 
         SslConfiguration sslConfiguration = util.configureSsl(keyVaultConfig, envProvider);

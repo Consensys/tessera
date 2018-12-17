@@ -85,11 +85,11 @@ class HashicorpKeyVaultServiceFactoryUtil {
 
         } else if (Objects.isNull(roleId) != Objects.isNull(secretId)) {
 
-            throw new RuntimeException("Both " + roleIdEnvVar + " and " + secretIdEnvVar + " environment variables must be set to use the AppRole authentication method");
+            throw new HashicorpCredentialNotSetException("Both " + roleIdEnvVar + " and " + secretIdEnvVar + " environment variables must be set to use the AppRole authentication method");
 
         } else if (authToken == null){
 
-            throw new RuntimeException("Both " + roleIdEnvVar + " and " + secretIdEnvVar + " environment variables must be set to use the AppRole authentication method.  Alternatively set " + authTokenEnvVar + " to authenticate using the Token method");
+            throw new HashicorpCredentialNotSetException("Both " + roleIdEnvVar + " and " + secretIdEnvVar + " environment variables must be set to use the AppRole authentication method.  Alternatively set " + authTokenEnvVar + " to authenticate using the Token method");
         }
 
         return new TokenAuthentication(authToken);
