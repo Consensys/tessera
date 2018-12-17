@@ -21,6 +21,7 @@
         <constructor-arg ref="payloadEncoder" />
         <constructor-arg ref="partyInfoService" />
         <constructor-arg ref="p2pClient" />
+        <constructor-arg ref="enclave" />
     </bean>
 
 
@@ -38,7 +39,7 @@
     <bean id="p2pClientFactory" class="com.quorum.tessera.client.P2pClientFactory" factory-method="newFactory">
         <constructor-arg ref="config" />
     </bean>
-    
+
     <bean id="p2pClient" factory-bean="p2pClientFactory" factory-method="create">
         <constructor-arg ref="config"/>
     </bean>
@@ -84,7 +85,7 @@
     <bean id="keyConfig" factory-bean="config" factory-method="getKeys" />
 
 
-    <bean id="environmentVariableProvider" class="com.quorum.tessera.config.util.EnvironmentVariableProvider"></bean>
+    <bean id="environmentVariableProvider" class="com.quorum.tessera.config.util.EnvironmentVariableProvider"/>
 
     <bean name="keyPairConverter" class="com.quorum.tessera.keypairconverter.KeyPairConverter">
         <constructor-arg ref="config"/>
