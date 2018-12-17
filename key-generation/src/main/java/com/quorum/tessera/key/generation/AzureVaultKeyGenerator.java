@@ -53,7 +53,7 @@ public class AzureVaultKeyGenerator implements KeyGenerator {
         saveKeyInVault(publicId.toString(), keys.getPublicKey());
         saveKeyInVault(privateId.toString(), keys.getPrivateKey());
 
-        return new AzureVaultKeyPair(publicId.toString(), privateId.toString());
+        return new AzureVaultKeyPair(publicId.toString(), privateId.toString(), null, null);
     }
 
     private void saveKeyInVault(String id, Key key) {
