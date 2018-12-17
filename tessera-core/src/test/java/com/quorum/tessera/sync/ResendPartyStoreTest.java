@@ -1,18 +1,16 @@
 package com.quorum.tessera.sync;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.sync.model.SyncableParty;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
-import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 
 public class ResendPartyStoreTest {
 
@@ -20,34 +18,7 @@ public class ResendPartyStoreTest {
 
     @Before
     public void init() {
-
-        final Config config = mock(Config.class);
-        doReturn(emptyList()).when(config).getPeers();
-
-        this.resendPartyStore = new ResendPartyStoreImpl(config);
-    }
-
-    @Test
-    public void initialPeersAreServed() {
-        final List<Peer> peers = Arrays.asList(new Peer("url1.com"), new Peer("url2.com"));
-
-        final Config config = mock(Config.class);
-        doReturn(peers).when(config).getPeers();
-
-        this.resendPartyStore = new ResendPartyStoreImpl(config);
-
-        final Optional<SyncableParty> partyOne = resendPartyStore.getNextParty();
-        assertThat(partyOne).isPresent();
-        assertThat(partyOne.get().getParty()).isEqualTo(new Party("url1.com"));
-        assertThat(partyOne.get().getAttempts()).isEqualTo(0);
-
-        final Optional<SyncableParty> partyTwo = resendPartyStore.getNextParty();
-        assertThat(partyTwo).isPresent();
-        assertThat(partyTwo.get().getParty()).isEqualTo(new Party("url2.com"));
-        assertThat(partyTwo.get().getAttempts()).isEqualTo(0);
-
-        final Optional<SyncableParty> partyThree = resendPartyStore.getNextParty();
-        assertThat(partyThree).isNotPresent();
+        this.resendPartyStore = new ResendPartyStoreImpl();
     }
 
     @Test
@@ -57,17 +28,39 @@ public class ResendPartyStoreTest {
         this.resendPartyStore.addUnseenParties(peers);
 
         final Optional<SyncableParty> partyOne = resendPartyStore.getNextParty();
-        assertThat(partyOne).isPresent();
-        assertThat(partyOne.get().getParty()).isEqualTo(new Party("newurl1.com"));
-        assertThat(partyOne.get().getAttempts()).isEqualTo(0);
-
         final Optional<SyncableParty> partyTwo = resendPartyStore.getNextParty();
+
+        assertThat(partyOne).isPresent();
         assertThat(partyTwo).isPresent();
-        assertThat(partyTwo.get().getParty()).isEqualTo(new Party("newurl2.com"));
+
+        assertThat(partyOne.get().getAttempts()).isEqualTo(0);
         assertThat(partyTwo.get().getAttempts()).isEqualTo(0);
+
+        final List<Party> resultList = Arrays.asList(partyOne.get().getParty(), partyTwo.get().getParty());
+        assertThat(resultList).containsExactlyInAnyOrder(new Party("newurl1.com"), new Party("newurl2.com"));
 
         final Optional<SyncableParty> partyThree = resendPartyStore.getNextParty();
         assertThat(partyThree).isNotPresent();
+    }
+
+    @Test
+    public void oldPeersAreNotServed() {
+        final List<Party> peers = singletonList(new Party("newurl1.com"));
+
+        this.resendPartyStore.addUnseenParties(peers);
+
+        final Optional<SyncableParty> partyOne = resendPartyStore.getNextParty();
+        assertThat(partyOne).isPresent();
+        assertThat(partyOne.get().getAttempts()).isEqualTo(0);
+        assertThat(partyOne.get().getParty()).isEqualTo(new Party("newurl1.com"));
+
+        final Optional<SyncableParty> partyTwo = resendPartyStore.getNextParty();
+        assertThat(partyTwo).isNotPresent();
+
+        this.resendPartyStore.addUnseenParties(peers);
+        final Optional<SyncableParty> partyThree = resendPartyStore.getNextParty();
+        assertThat(partyThree).isNotPresent();
+
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.model.Party;
+import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.sync.model.SyncableParty;
 import org.junit.After;
 import org.junit.Before;
@@ -13,6 +14,7 @@ import org.mockito.ArgumentCaptor;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
+import static java.util.Collections.emptySet;
 import static org.mockito.Mockito.*;
 
 public class SyncPollerTest {
@@ -40,6 +42,7 @@ public class SyncPollerTest {
         this.partyInfoParser = mock(PartyInfoParser.class);
         this.p2pClient = mock(P2pClient.class);
         doReturn(new byte[]{}).when(p2pClient).getPartyInfo(anyString(), any());
+        when(partyInfoService.getPartyInfo()).thenReturn(new PartyInfo("myurl", emptySet(), emptySet()));
 
         this.syncPoller = new SyncPoller(executorService, resendPartyStore, transactionRequester, partyInfoService, partyInfoParser, p2pClient);
     }
@@ -57,6 +60,8 @@ public class SyncPollerTest {
         syncPoller.run();
 
         verify(resendPartyStore).getNextParty();
+        verify(resendPartyStore).addUnseenParties(emptySet());
+        verify(partyInfoService).getPartyInfo();
     }
 
     @Test
@@ -74,15 +79,16 @@ public class SyncPollerTest {
         final ArgumentCaptor<Runnable> captor = ArgumentCaptor.forClass(Runnable.class);
         verify(executorService).submit(captor.capture());
         verify(resendPartyStore, times(2)).getNextParty();
+        verify(resendPartyStore).addUnseenParties(emptySet());
 
         final Runnable task = captor.getValue();
         task.run();
 
         verify(transactionRequester).requestAllTransactionsFromNode(targetUrl);
-        verify(partyInfoService, times(1)).getPartyInfo();
-        verify(partyInfoParser, times(1)).to(any());
-        verify(p2pClient, times(1)).getPartyInfo(eq(targetUrl), any());
-
+        verify(partyInfoService, times(2)).getPartyInfo();
+        verify(partyInfoParser).to(any());
+        verify(p2pClient).getPartyInfo(eq(targetUrl), any());
+        verify(partyInfoService, times(2)).getPartyInfo();
     }
 
     @Test
@@ -106,7 +112,8 @@ public class SyncPollerTest {
 
         verify(transactionRequester).requestAllTransactionsFromNode(targetUrl);
         verify(resendPartyStore).incrementFailedAttempt(syncableParty);
-
+        verify(resendPartyStore).addUnseenParties(emptySet());
+        verify(partyInfoService, times(2)).getPartyInfo();
     }
 
     @Test
@@ -130,7 +137,8 @@ public class SyncPollerTest {
 
         verify(transactionRequester, times(0)).requestAllTransactionsFromNode(targetUrl);
         verify(resendPartyStore).incrementFailedAttempt(syncableParty);
-
+        verify(resendPartyStore).addUnseenParties(emptySet());
+        verify(partyInfoService, times(2)).getPartyInfo();
     }
 
     @Test
@@ -154,7 +162,8 @@ public class SyncPollerTest {
 
         verify(transactionRequester, times(0)).requestAllTransactionsFromNode(targetUrl);
         verify(resendPartyStore).incrementFailedAttempt(syncableParty);
-
+        verify(resendPartyStore).addUnseenParties(emptySet());
+        verify(partyInfoService, times(2)).getPartyInfo();
     }
 
 }

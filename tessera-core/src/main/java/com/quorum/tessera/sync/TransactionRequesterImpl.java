@@ -5,10 +5,10 @@ import com.quorum.tessera.api.model.ResendRequestType;
 import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.encryption.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
-import java.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Base64;
 import java.util.Objects;
 
 public class TransactionRequesterImpl implements TransactionRequester {
@@ -19,8 +19,7 @@ public class TransactionRequesterImpl implements TransactionRequester {
 
     private final P2pClient client;
 
-    public TransactionRequesterImpl(final Enclave enclave,
-            final P2pClient client) {
+    public TransactionRequesterImpl(final Enclave enclave, final P2pClient client) {
         this.enclave = Objects.requireNonNull(enclave);
         this.client = Objects.requireNonNull(client);
     }
@@ -31,10 +30,10 @@ public class TransactionRequesterImpl implements TransactionRequester {
         LOGGER.debug("Requesting transactions get resent for {}", uri);
 
         return this.enclave
-                .getPublicKeys() 
-                .stream()
-                .map(this::createRequestAllEntity)
-                .allMatch(req -> this.makeRequest(uri, req));
+            .getPublicKeys()
+            .stream()
+            .map(this::createRequestAllEntity)
+            .allMatch(req -> this.makeRequest(uri, req));
 
     }
 
@@ -42,7 +41,7 @@ public class TransactionRequesterImpl implements TransactionRequester {
      * Will make the desired request until succeeds or max tries has been
      * reached
      *
-     * @param uri the URI to call
+     * @param uri     the URI to call
      * @param request the request object to send
      */
     private boolean makeRequest(final String uri, final ResendRequest request) {
