@@ -11,7 +11,7 @@ public class AzureVaultKeyPairTest {
 
     @Before
     public void setUp() {
-        keyPair = new AzureVaultKeyPair("pubId", "privId");
+        keyPair = new AzureVaultKeyPair("pubId", "privId", "pubVer", "privVer");
     }
 
     @Test
@@ -21,9 +21,11 @@ public class AzureVaultKeyPairTest {
     }
 
     @Test
-    public void getIdsReturnsConstructorSetValues() {
+    public void getters() {
         assertThat(keyPair.getPublicKeyId()).isEqualTo("pubId");
         assertThat(keyPair.getPrivateKeyId()).isEqualTo("privId");
+        assertThat(keyPair.getPublicKeyVersion()).isEqualTo("pubVer");
+        assertThat(keyPair.getPrivateKeyVersion()).isEqualTo("privVer");
     }
 
     @Test
