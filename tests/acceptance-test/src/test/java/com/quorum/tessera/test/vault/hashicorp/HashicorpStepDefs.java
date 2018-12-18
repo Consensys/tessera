@@ -93,46 +93,14 @@ public class HashicorpStepDefs implements En {
         });
 
         Given("the vault is initialised and unsealed", () -> {
+            final URL initUrl = UriBuilder.fromUri("http://127.0.0.1:8200").path("v1/sys/health").build().toURL();
+            HttpURLConnection initUrlConnection = (HttpURLConnection) initUrl.openConnection();
+            initUrlConnection.connect();
 
-            ProcessBuilder vaultClientProcessBuilder = new ProcessBuilder("vault", "status");
-            Map<String, String> vaultClientEnvironment = vaultClientProcessBuilder.environment();
-            vaultClientEnvironment.put("VAULT_ADDR", "http://127.0.0.1:8200");
-
-            Process vaultClientProcess = vaultClientProcessBuilder.redirectErrorStream(true)
-                                                                  .start();
-
-            final AtomicBoolean isVaultInitialised = new AtomicBoolean(false);
-            final AtomicBoolean isVaultSealed = new AtomicBoolean(true);
-
-            executorService.submit(() -> {
-                try(BufferedReader reader = Stream.of(vaultClientProcess.getInputStream())
-                                                  .map(InputStreamReader::new)
-                                                  .map(BufferedReader::new)
-                                                  .findAny().get()) {
-
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-
-                        if(line.matches("^Initialized.+true$")) {
-                            isVaultInitialised.set(true);
-                        }
-
-                        if(line.matches("^Sealed.+false$")) {
-                            isVaultSealed.set(false);
-                        }
-                    }
-
-                } catch (IOException ex) {
-                    throw new UncheckedIOException(ex);
-                }
-            });
-
-            vaultClientProcess.waitFor();
-
-            assertThat(isVaultInitialised).isTrue();
-            assertThat(isVaultSealed).isFalse();
-
+            // See https://www.vaultproject.io/api/system/health.html for info on response codes for this endpoint
+            assertThat(initUrlConnection.getResponseCode()).as("check vault is initialized").isNotEqualTo(HttpURLConnection.HTTP_NOT_IMPLEMENTED);
+            assertThat(initUrlConnection.getResponseCode()).as("check vault is unsealed").isNotEqualTo(503);
+            assertThat(initUrlConnection.getResponseCode()).isEqualTo(HttpURLConnection.HTTP_OK);
         });
 
         Given("the vault contains a key pair", () -> {
