@@ -13,6 +13,8 @@ import cucumber.api.java8.En;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.json.Json;
+import javax.json.JsonReader;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -106,6 +108,19 @@ public class HashicorpStepDefs implements En {
         Given("the vault contains a key pair", () -> {
             Objects.requireNonNull(VAULTTOKEN);
 
+//            final URL setSecretUrl = UriBuilder.fromUri("http://127.0.0.1:8200").path("v1/secret/data/tessera").build().toURL();
+//            HttpURLConnection setSecretUrlConnection = (HttpURLConnection) setSecretUrl.openConnection();
+//
+//            setSecretUrlConnection.setDoOutput(true);
+//            setSecretUrlConnection.setRequestMethod("POST");
+//            setSecretUrlConnection.setRequestProperty("X-Vault-Token", VAULTTOKEN);
+//
+//            String setSecretData = "{\"publicKey\": \"/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=\", \"privateKey\": \"yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=\"}";
+//
+//            try(OutputStreamWriter writer = new OutputStreamWriter(setSecretUrlConnection.getOutputStream())) {
+//                writer.write(setSecretData);
+//            }
+
             List<String> args = Arrays.asList(
                 "vault",
                 "kv",
@@ -148,60 +163,70 @@ public class HashicorpStepDefs implements En {
 
             vaultClientProcess.waitFor();
 
-            List<String> getArgs = Arrays.asList(
-                "vault",
-                "kv",
-                "get",
-                "secret/tessera"
-            );
+//            List<String> getArgs = Arrays.asList(
+//                "vault",
+//                "kv",
+//                "get",
+//                "secret/tessera"
+//            );
+//
+//            ProcessBuilder getSecretProcessBuilder = new ProcessBuilder(getArgs);
+//            Map<String, String> getSecretEnvironment = getSecretProcessBuilder.environment();
+//            getSecretEnvironment.put("VAULT_ADDR", "http://127.0.0.1:8200");
+//            getSecretEnvironment.put("VAULT_DEV_ROOT_TOKEN_ID", VAULTTOKEN);
+//
+//            Process getSecretProcess = getSecretProcessBuilder.redirectErrorStream(true)
+//                                                              .start();
+//
+//            final AtomicBoolean isPublicKeySet = new AtomicBoolean();
+//            isPublicKeySet.set(false);
+//
+//            final AtomicBoolean isPrivateKeySet = new AtomicBoolean();
+//            isPrivateKeySet.set(false);
+//
+//            executorService.submit(() -> {
+//                try(BufferedReader reader = Stream.of(getSecretProcess.getInputStream())
+//                                                  .map(InputStreamReader::new)
+//                                                  .map(BufferedReader::new)
+//                                                  .findAny().get()) {
+//
+//                    String line;
+//                    while ((line = reader.readLine()) != null) {
+//                        System.out.println(line);
+//                        String[] splitLine = line.split("\\s+");
+//
+//                        if(line.contains("publicKey") && splitLine.length == 2) {
+//                            if(splitLine[1].equals("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")) {
+//                                isPublicKeySet.set(true);
+//                            }
+//                        }
+//
+//                        if(line.contains("privateKey") && splitLine.length == 2) {
+//                            if(splitLine[1].equals("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=")) {
+//                                isPrivateKeySet.set(true);
+//                            }
+//                        }
+//                    }
+//
+//                } catch (IOException ex) {
+//                    throw new UncheckedIOException(ex);
+//                }
+//            });
+//
+//            getSecretProcess.waitFor();
+//
+//            assertThat(isPublicKeySet).isTrue();
+//            assertThat(isPrivateKeySet).isTrue();
 
-            ProcessBuilder getSecretProcessBuilder = new ProcessBuilder(getArgs);
-            Map<String, String> getSecretEnvironment = getSecretProcessBuilder.environment();
-            getSecretEnvironment.put("VAULT_ADDR", "http://127.0.0.1:8200");
-            getSecretEnvironment.put("VAULT_DEV_ROOT_TOKEN_ID", VAULTTOKEN);
+            final URL getSecretUrl = UriBuilder.fromUri("http://127.0.0.1:8200").path("v1/secret/data/tessera").build().toURL();
+            HttpURLConnection getSecretUrlConnection = (HttpURLConnection) getSecretUrl.openConnection();
+            getSecretUrlConnection.setRequestProperty("X-Vault-Token", VAULTTOKEN);
+            getSecretUrlConnection.connect();
 
-            Process getSecretProcess = getSecretProcessBuilder.redirectErrorStream(true)
-                                                              .start();
+            int getSecretResponseCode = getSecretUrlConnection.getResponseCode();
+            String getSecretResponse = new BufferedReader(new InputStreamReader(getSecretUrlConnection.getInputStream())).readLine();
 
-            final AtomicBoolean isPublicKeySet = new AtomicBoolean();
-            isPublicKeySet.set(false);
-
-            final AtomicBoolean isPrivateKeySet = new AtomicBoolean();
-            isPrivateKeySet.set(false);
-
-            executorService.submit(() -> {
-                try(BufferedReader reader = Stream.of(getSecretProcess.getInputStream())
-                                                  .map(InputStreamReader::new)
-                                                  .map(BufferedReader::new)
-                                                  .findAny().get()) {
-
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-                        String[] splitLine = line.split("\\s+");
-
-                        if(line.contains("publicKey") && splitLine.length == 2) {
-                            if(splitLine[1].equals("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")) {
-                                isPublicKeySet.set(true);
-                            }
-                        }
-
-                        if(line.contains("privateKey") && splitLine.length == 2) {
-                            if(splitLine[1].equals("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=")) {
-                                isPrivateKeySet.set(true);
-                            }
-                        }
-                    }
-
-                } catch (IOException ex) {
-                    throw new UncheckedIOException(ex);
-                }
-            });
-
-            getSecretProcess.waitFor();
-
-            assertThat(isPublicKeySet).isTrue();
-            assertThat(isPrivateKeySet).isTrue();
+            JsonReader jsonReader = Json.createReader(getSecretUrlConnection.getInputStream());
         });
 
         Given("the configfile contains the correct vault configuration", () -> {
