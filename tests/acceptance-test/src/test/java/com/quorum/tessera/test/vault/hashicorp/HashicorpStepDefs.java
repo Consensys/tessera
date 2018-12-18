@@ -21,10 +21,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -109,60 +106,22 @@ public class HashicorpStepDefs implements En {
         Given("the vault contains a key pair", () -> {
             Objects.requireNonNull(VAULTTOKEN);
 
-//            final URL setSecretUrl = UriBuilder.fromUri("http://127.0.0.1:8200").path("v1/secret/data/tessera").build().toURL();
-//            HttpURLConnection setSecretUrlConnection = (HttpURLConnection) setSecretUrl.openConnection();
-//
-//            setSecretUrlConnection.setDoOutput(true);
-//            setSecretUrlConnection.setRequestMethod("POST");
-//            setSecretUrlConnection.setRequestProperty("X-Vault-Token", VAULTTOKEN);
-//
-//            String setSecretData = "{\"publicKey\": \"/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=\", \"privateKey\": \"yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=\"}";
-//
-//            try(OutputStreamWriter writer = new OutputStreamWriter(setSecretUrlConnection.getOutputStream())) {
-//                writer.write(setSecretData);
-//            }
+            final URL setSecretUrl = UriBuilder.fromUri("http://127.0.0.1:8200").path("v1/secret/data/tessera").build().toURL();
+            HttpURLConnection setSecretUrlConnection = (HttpURLConnection) setSecretUrl.openConnection();
 
-            List<String> args = Arrays.asList(
-                "vault",
-                "kv",
-                "put",
-                "secret/tessera",
-                "publicKey=/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
-                "privateKey=yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM="
-            );
+            setSecretUrlConnection.setDoOutput(true);
+            setSecretUrlConnection.setRequestMethod("POST");
+            setSecretUrlConnection.setRequestProperty("X-Vault-Token", VAULTTOKEN);
 
-            ProcessBuilder vaultClientProcessBuilder = new ProcessBuilder(args);
-            Map<String, String> vaultClientEnvironment = vaultClientProcessBuilder.environment();
-            vaultClientEnvironment.put("VAULT_ADDR", "http://127.0.0.1:8200");
-            vaultClientEnvironment.put("VAULT_DEV_ROOT_TOKEN_ID", VAULTTOKEN);
+            setSecretUrlConnection.connect();
 
-            Process vaultClientProcess = vaultClientProcessBuilder.redirectErrorStream(true)
-                                                                  .start();
+            String setSecretData = "{\"data\": {\"publicKey\": \"/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=\", \"privateKey\": \"yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=\"}}";
 
-            final AtomicBoolean wasSuccessful = new AtomicBoolean();
-            wasSuccessful.set(false);
+            try(OutputStreamWriter writer = new OutputStreamWriter(setSecretUrlConnection.getOutputStream())) {
+                writer.write(setSecretData);
+            }
 
-            executorService.submit(() -> {
-                try(BufferedReader reader = Stream.of(vaultClientProcess.getInputStream())
-                                                  .map(InputStreamReader::new)
-                                                  .map(BufferedReader::new)
-                                                  .findAny().get()) {
-
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-
-                        if(line.matches("^Success! Data written to: secret-v1/tessera$")) {
-                            wasSuccessful.set(true);
-                        }
-                    }
-
-                } catch (IOException ex) {
-                    throw new UncheckedIOException(ex);
-                }
-            });
-
-            vaultClientProcess.waitFor();
+            assertThat(setSecretUrlConnection.getResponseCode()).isEqualTo(HttpURLConnection.HTTP_OK);
 
             final URL getSecretUrl = UriBuilder.fromUri("http://127.0.0.1:8200").path("v1/secret/data/tessera").build().toURL();
             HttpURLConnection getSecretUrlConnection = (HttpURLConnection) getSecretUrl.openConnection();
@@ -170,6 +129,7 @@ public class HashicorpStepDefs implements En {
             getSecretUrlConnection.connect();
 
             int getSecretResponseCode = getSecretUrlConnection.getResponseCode();
+            assertThat(getSecretResponseCode).isEqualTo(HttpURLConnection.HTTP_OK);
 
             JsonReader jsonReader = Json.createReader(getSecretUrlConnection.getInputStream());
 
