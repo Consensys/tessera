@@ -1,37 +1,31 @@
 package com.quorum.tessera.sync;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.sync.model.SyncableParty;
 
 import java.util.*;
-
-import static java.util.stream.Collectors.toSet;
 
 /**
  * An in-memory store of outstanding parties to contact for transaction resending
  */
 public class ResendPartyStoreImpl implements ResendPartyStore {
 
+    private Set<Party> allSeenParties;
+
     private Queue<SyncableParty> outstandingParties;
 
-    public ResendPartyStoreImpl(final Config config) {
+    public ResendPartyStoreImpl() {
         this.outstandingParties = new LinkedList<>();
-
-        final Set<Party> initialParties = config
-            .getPeers()
-            .stream()
-            .map(Peer::getUrl)
-            .map(Party::new)
-            .collect(toSet());
-
-        this.addUnseenParties(initialParties);
+        this.allSeenParties = new HashSet<>();
     }
 
     @Override
     public void addUnseenParties(final Collection<Party> partiesToRequestFrom) {
-        partiesToRequestFrom
+        final Set<Party> knownParties = new HashSet<>(partiesToRequestFrom);
+        knownParties.removeAll(allSeenParties);
+        this.allSeenParties.addAll(knownParties);
+
+        knownParties
             .stream()
             .map(party -> new SyncableParty(party, 0))
             .forEach(outstandingParties::add);

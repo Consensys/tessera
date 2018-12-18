@@ -3,14 +3,11 @@ package com.quorum.tessera.node;
 import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
-import com.quorum.tessera.sync.ResendPartyStore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import java.net.ConnectException;
-import java.util.Collection;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -30,8 +27,6 @@ public class PartyInfoPollerTest {
 
     private PartyInfoParser partyInfoParser;
 
-    private ResendPartyStore resendPartyStore;
-
     private PartyInfoPoller partyInfoPoller;
 
     private P2pClient p2pClient;
@@ -40,14 +35,13 @@ public class PartyInfoPollerTest {
     public void setUp() {
         this.partyInfoService = mock(PartyInfoService.class);
         this.partyInfoParser = mock(PartyInfoParser.class);
-        this.resendPartyStore = mock(ResendPartyStore.class);
         this.p2pClient = mock(P2pClient.class);
-        this.partyInfoPoller = new PartyInfoPoller(partyInfoService, partyInfoParser, resendPartyStore, p2pClient);
+        this.partyInfoPoller = new PartyInfoPoller(partyInfoService, partyInfoParser, p2pClient);
     }
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(partyInfoService, partyInfoParser, resendPartyStore, p2pClient);
+        verifyNoMoreInteractions(partyInfoService, partyInfoParser, p2pClient);
     }
 
     @Test
@@ -63,23 +57,15 @@ public class PartyInfoPollerTest {
         final PartyInfo updatedPartyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
         doReturn(updatedPartyInfo).when(partyInfoParser).from(RESPONSE);
 
-        doReturn(singleton(new Party(TARGET_URL))).when(partyInfoService).findUnsavedParties(any(PartyInfo.class));
-
         partyInfoPoller.run();
 
         verify(partyInfoService).getPartyInfo();
         verify(partyInfoService).updatePartyInfo(updatedPartyInfo);
-        verify(partyInfoService).findUnsavedParties(any(PartyInfo.class));
 
         verify(partyInfoParser).from(RESPONSE);
         verify(partyInfoParser).to(partyInfo);
 
         verify(p2pClient).getPartyInfo(TARGET_URL, RESPONSE);
-
-        //all nodes were known about, so this is called with no new URLs
-        final ArgumentCaptor<Collection<Party>> captor = ArgumentCaptor.forClass(Collection.class);
-        verify(resendPartyStore).addUnseenParties(captor.capture());
-        assertThat(captor.getValue()).hasSize(1).containsExactlyInAnyOrder(new Party("http://bogus.com:9878"));
     }
 
     @Test
