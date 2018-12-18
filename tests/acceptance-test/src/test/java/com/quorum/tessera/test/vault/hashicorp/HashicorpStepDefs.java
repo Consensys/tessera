@@ -44,7 +44,7 @@ public class HashicorpStepDefs implements En {
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
-    private String VAULTTOKEN;
+    private String vaultToken;
 
     public HashicorpStepDefs() {
         final AtomicReference<Process> vaultServerProcess = new AtomicReference<>();
@@ -76,7 +76,7 @@ public class HashicorpStepDefs implements En {
 
                         if(line.matches("^Root Token: .+$")) {
                             String[] components = line.split(" ");
-                            VAULTTOKEN = components[components.length-1].trim();
+                            vaultToken = components[components.length-1].trim();
                         }
                     }
 
@@ -105,14 +105,14 @@ public class HashicorpStepDefs implements En {
         });
 
         Given("the vault contains a key pair", () -> {
-            Objects.requireNonNull(VAULTTOKEN);
+            Objects.requireNonNull(vaultToken);
 
             final URL setSecretUrl = UriBuilder.fromUri("http://127.0.0.1:8200").path("v1/secret/data/tessera").build().toURL();
             HttpURLConnection setSecretUrlConnection = (HttpURLConnection) setSecretUrl.openConnection();
 
             setSecretUrlConnection.setDoOutput(true);
             setSecretUrlConnection.setRequestMethod("POST");
-            setSecretUrlConnection.setRequestProperty("X-Vault-Token", VAULTTOKEN);
+            setSecretUrlConnection.setRequestProperty("X-Vault-Token", vaultToken);
 
             setSecretUrlConnection.connect();
 
@@ -126,7 +126,7 @@ public class HashicorpStepDefs implements En {
 
             final URL getSecretUrl = UriBuilder.fromUri("http://127.0.0.1:8200").path("v1/secret/data/tessera").build().toURL();
             HttpURLConnection getSecretUrlConnection = (HttpURLConnection) getSecretUrl.openConnection();
-            getSecretUrlConnection.setRequestProperty("X-Vault-Token", VAULTTOKEN);
+            getSecretUrlConnection.setRequestProperty("X-Vault-Token", vaultToken);
             getSecretUrlConnection.connect();
 
             int getSecretResponseCode = getSecretUrlConnection.getResponseCode();
@@ -188,7 +188,7 @@ public class HashicorpStepDefs implements En {
             ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);
 
             Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
-            tesseraEnvironment.put("HASHICORP_TOKEN", VAULTTOKEN);
+            tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
 
             tesseraProcess.set(
                 tesseraProcessBuilder.redirectErrorStream(true)
