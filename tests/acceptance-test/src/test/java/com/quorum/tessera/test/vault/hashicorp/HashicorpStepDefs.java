@@ -33,6 +33,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,28 +47,28 @@ public class HashicorpStepDefs implements En {
     private String VAULTTOKEN;
 
     public HashicorpStepDefs() {
-        //TODO If a vault process is already running, then stop it
-        //TODO If the test fails, make sure the vault process is killed
-        //TODO Use HTTP API instead of vault client to check the vault is up
+        final AtomicReference<Process> vaultServerProcess = new AtomicReference<>();
+        final AtomicReference<Process> tesseraProcess = new AtomicReference<>();
 
         Given("the dev vault server has been started", () -> {
 
             ProcessBuilder vaultServerProcessBuilder = new ProcessBuilder("vault", "server", "-dev");
 
-            Process vaultServerProcess = vaultServerProcessBuilder.redirectErrorStream(true)
-                                                      .start();
+            vaultServerProcess.set(
+                vaultServerProcessBuilder.redirectErrorStream(true)
+                                          .start()
+            );
 
             AtomicBoolean isAddressAlreadyInUse = new AtomicBoolean(false);
 
             executorService.submit(() -> {
-                try(BufferedReader reader = Stream.of(vaultServerProcess.getInputStream())
+                try(BufferedReader reader = Stream.of(vaultServerProcess.get().getInputStream())
                                                   .map(InputStreamReader::new)
                                                   .map(BufferedReader::new)
                                                   .findAny().get()) {
 
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        //TODO The continual output of this interferes with the other processes/threads - how to resolve?
                         System.out.println(line);
                         if(line.matches("^Error.+address already in use")) {
                             isAddressAlreadyInUse.set(true);
@@ -190,12 +191,14 @@ public class HashicorpStepDefs implements En {
             Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
             tesseraEnvironment.put("HASHICORP_TOKEN", VAULTTOKEN);
 
-            Process tesseraProcess = tesseraProcessBuilder.redirectErrorStream(true)
-                                                            .start();
+            tesseraProcess.set(
+                tesseraProcessBuilder.redirectErrorStream(true)
+                                        .start()
+            );
 
             executorService.submit(() -> {
 
-                try(BufferedReader reader = Stream.of(tesseraProcess.getInputStream())
+                try(BufferedReader reader = Stream.of(tesseraProcess.get().getInputStream())
                     .map(InputStreamReader::new)
                     .map(BufferedReader::new)
                     .findAny().get()) {
@@ -245,7 +248,7 @@ public class HashicorpStepDefs implements En {
 
             executorService.submit(() -> {
                 try {
-                    int exitCode = tesseraProcess.waitFor();
+                    int exitCode = tesseraProcess.get().waitFor();
                     if (0 != exitCode) {
                         System.err.println("Tessera node exited with code " + exitCode);
                     }
@@ -287,6 +290,15 @@ public class HashicorpStepDefs implements En {
             assertThat(recipient.getKey().encodeToBase64()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
         });
 
+        After(() -> {
+            if(vaultServerProcess.get().isAlive()) {
+                vaultServerProcess.get().destroy();
+            }
+
+            if(tesseraProcess.get().isAlive()) {
+                tesseraProcess.get().destroy();
+            }
+        });
     }
 
 }
