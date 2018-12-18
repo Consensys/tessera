@@ -39,9 +39,10 @@
         },
         "keyData": [
             {
+                "hashicorpVaultSecretEngineName": "secret",
+                "hashicorpVaultSecretName": "tessera",
                 "hashicorpVaultPublicKeyId": "publicKey",
-                "hashicorpVaultPrivateKeyId": "privateKey",
-                "hashicorpVaultSecretPath": "secret-v1/tessera"
+                "hashicorpVaultPrivateKeyId": "privateKey"
             }
         ]
     },
