@@ -32,7 +32,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <spring.version>5.0.6.RELEASE</spring.version>
+        <spring.version>5.1.2.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
         <eclipselink.version>2.7.3</eclipselink.version>
         <grpc.version>1.14.0</grpc.version>
@@ -220,6 +220,7 @@
                                 <exclude>com/quorum/tessera/config/util/ConsolePasswordReader*</exclude>
                                 <exclude>com/quorum/tessera/config/util/PasswordReaderFactory*</exclude>
                                 <exclude>com/quorum/tessera/key/vault/azure/AzureKeyVaultClientDelegate*</exclude>
+                                <exclude>com/quorum/tessera/key/vault/hashicorp/KeyValueOperationsDelegateFactory*</exclude>
                             </excludes>
                             
                             <rules>
@@ -537,12 +538,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.bettercloud</groupId>
-                <artifactId>vault-java-driver</artifactId>
-                <version>3.1.0</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk15on</artifactId>
                 <version>1.59</version>
@@ -819,6 +814,30 @@
                 <groupId>javax.annotation</groupId>
                 <artifactId>javax.annotation-api</artifactId>
                 <version>1.3.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>azure-keyvault</artifactId>
+                <version>1.1.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>adal4j</artifactId>
+                <version>1.6.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.vault</groupId>
+                <artifactId>spring-vault-core</artifactId>
+                <version>2.1.1.RELEASE</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>3.12.0</version>
             </dependency>
 
         </dependencies>

@@ -13,7 +13,6 @@ import com.quorum.tessera.config.vault.data.HashicorpGetSecretData;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.key.vault.KeyVaultClientFactory;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.key.vault.KeyVaultServiceFactory;
 
@@ -47,9 +46,8 @@ public class KeyPairConverter {
         if(configKeyPair instanceof AzureVaultKeyPair) {
 
             KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(KeyVaultType.AZURE);
-            KeyVaultClientFactory keyVaultClientFactory = KeyVaultClientFactory.getInstance(KeyVaultType.AZURE);
 
-            KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory);
+            KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, envProvider);
 
             AzureVaultKeyPair akp = (AzureVaultKeyPair) configKeyPair;
 
@@ -62,14 +60,13 @@ public class KeyPairConverter {
         else if(configKeyPair instanceof HashicorpVaultKeyPair) {
 
             KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(KeyVaultType.HASHICORP);
-            KeyVaultClientFactory keyVaultClientFactory = KeyVaultClientFactory.getInstance(KeyVaultType.HASHICORP);
 
-            KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory);
+            KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, envProvider);
 
             HashicorpVaultKeyPair hkp = (HashicorpVaultKeyPair) configKeyPair;
 
-            GetSecretData getPublicKeyData = new HashicorpGetSecretData(hkp.getSecretPath(), hkp.getPublicKeyId());
-            GetSecretData getPrivateKeyData = new HashicorpGetSecretData(hkp.getSecretPath(), hkp.getPrivateKeyId());
+            GetSecretData getPublicKeyData = new HashicorpGetSecretData(hkp.getSecretEngineName(), hkp.getSecretName(), hkp.getPublicKeyId(), hkp.getSecretVersionAsInt());
+            GetSecretData getPrivateKeyData = new HashicorpGetSecretData(hkp.getSecretEngineName(), hkp.getSecretName(), hkp.getPrivateKeyId(), hkp.getSecretVersionAsInt());
 
             base64PublicKey = keyVaultService.getSecret(getPublicKeyData);
             base64PrivateKey = keyVaultService.getSecret(getPrivateKeyData);

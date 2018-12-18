@@ -3,21 +3,32 @@ package com.quorum.tessera.config.vault.data;
 import com.quorum.tessera.config.KeyVaultType;
 
 public class HashicorpGetSecretData implements GetSecretData {
-    private String secretPath;
+    private final String secretEngineName;
+    private final String secretName;
+    private final String valueId;
+    private final int secretVersion;
 
-    private String secretName;
-
-    public HashicorpGetSecretData(String secretPath, String secretName) {
-        this.secretPath = secretPath;
+    public HashicorpGetSecretData(String secretEngineName, String secretName, String valueId, int secretVersion) {
+        this.secretEngineName = secretEngineName;
         this.secretName = secretName;
+        this.valueId = valueId;
+        this.secretVersion = secretVersion;
     }
 
-    public String getSecretPath() {
-        return secretPath;
+    public String getSecretEngineName() {
+        return secretEngineName;
     }
 
     public String getSecretName() {
         return secretName;
+    }
+
+    public String getValueId() {
+        return valueId;
+    }
+
+    public int getSecretVersion() {
+        return secretVersion;
     }
 
     @Override

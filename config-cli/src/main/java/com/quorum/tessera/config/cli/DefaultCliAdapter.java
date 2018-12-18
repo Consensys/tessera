@@ -190,8 +190,8 @@ public class DefaultCliAdapter implements CliAdapter {
         );
 
         options.addOption(
-            Option.builder("keygenvaultcert")
-                .desc("TLS certificate for Hashicorp Vault authentication")
+            Option.builder("keygenvaultkeystore")
+                .desc("Path to JKS keystore for TLS Hashicorp Vault communication")
                 .hasArg()
                 .optionalArg(false)
                 .argName("PATH")
@@ -199,8 +199,8 @@ public class DefaultCliAdapter implements CliAdapter {
         );
 
         options.addOption(
-            Option.builder("keygenvaultcertkey")
-                  .desc("TLS key for Hashicorp Vault authentication")
+            Option.builder("keygenvaulttruststore")
+                  .desc("Path to JKS truststore for TLS Hashicorp Vault communication")
                   .hasArg()
                   .optionalArg(false)
                   .argName("PATH")
@@ -208,11 +208,11 @@ public class DefaultCliAdapter implements CliAdapter {
         );
 
         options.addOption(
-            Option.builder("keygenvaultservercert")
-                  .desc("TLS certificate of Vault server for Hashicorp Vault authentication")
+            Option.builder("keygenvaultsecretengine")
+                  .desc("Name of already enabled Hashicorp v2 kv secret engine")
                   .hasArg()
                   .optionalArg(false)
-                  .argName("PATH")
+                  .argName("STRING")
                   .build()
         );
 

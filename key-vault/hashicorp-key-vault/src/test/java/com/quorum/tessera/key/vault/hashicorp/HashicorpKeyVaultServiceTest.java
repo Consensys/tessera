@@ -1,9 +1,5 @@
 package com.quorum.tessera.key.vault.hashicorp;
 
-import com.bettercloud.vault.Vault;
-import com.bettercloud.vault.VaultException;
-import com.bettercloud.vault.api.Logical;
-import com.bettercloud.vault.response.LogicalResponse;
 import com.quorum.tessera.config.vault.data.GetSecretData;
 import com.quorum.tessera.config.vault.data.HashicorpGetSecretData;
 import com.quorum.tessera.config.vault.data.HashicorpSetSecretData;
@@ -11,14 +7,14 @@ import com.quorum.tessera.config.vault.data.SetSecretData;
 import com.quorum.tessera.key.vault.KeyVaultException;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.vault.support.Versioned;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -27,12 +23,42 @@ public class HashicorpKeyVaultServiceTest {
 
     private HashicorpKeyVaultService keyVaultService;
 
-    private Vault vault;
+    private KeyValueOperationsDelegateFactory delegateFactory;
+
+    private KeyValueOperationsDelegate delegate;
 
     @Before
     public void setUp() {
-        this.vault = mock(Vault.class);
-        this.keyVaultService = new HashicorpKeyVaultService(vault);
+        this.delegateFactory = mock(KeyValueOperationsDelegateFactory.class);
+        this.delegate = mock(KeyValueOperationsDelegate.class);
+        when(delegateFactory.create(anyString())).thenReturn(delegate);
+
+        this.keyVaultService = new HashicorpKeyVaultService(delegateFactory);
+    }
+
+    @Test
+    public void getSecret() {
+        HashicorpGetSecretData getSecretData = mock(HashicorpGetSecretData.class);
+
+        when(getSecretData.getSecretEngineName()).thenReturn("secretEngine");
+        when(getSecretData.getSecretName()).thenReturn("secretName");
+        when(getSecretData.getValueId()).thenReturn("keyId");
+
+        Versioned versionedResponse = mock(Versioned.class);
+
+        when(delegate.get(any(HashicorpGetSecretData.class))).thenReturn(versionedResponse);
+
+        when(versionedResponse.hasData()).thenReturn(true);
+
+        Map responseData = mock(Map.class);
+        when(versionedResponse.getData()).thenReturn(responseData);
+        when(responseData.containsKey("keyId")).thenReturn(true);
+        String keyValue = "keyvalue";
+        when(responseData.get("keyId")).thenReturn(keyValue);
+
+        String result = keyVaultService.getSecret(getSecretData);
+
+        assertThat(result).isEqualTo(keyValue);
     }
 
     @Test
@@ -47,97 +73,52 @@ public class HashicorpKeyVaultServiceTest {
     }
 
     @Test
-    public void getSecretThrowsExceptionIfErrorRetrievingSecretFromVault() throws Exception {
-        Logical logical = mock(Logical.class);
-        when(vault.logical()).thenReturn(logical);
-        when(logical.read(anyString())).thenThrow(new VaultException("vault exception msg"));
+    public void getSecretThrowsExceptionIfNullRetrievedFromVault() {
+        HashicorpGetSecretData getSecretData = new HashicorpGetSecretData("engine", "secretName", "id", 0);
 
-        GetSecretData getSecretData = new HashicorpGetSecretData("secret/path", "secretName");
+        when(delegate.get(getSecretData)).thenReturn(null);
 
         Throwable ex = catchThrowable(() -> keyVaultService.getSecret(getSecretData));
 
         assertThat(ex).isExactlyInstanceOf(HashicorpVaultException.class);
-        assertThat(ex).hasMessage("Error getting secret secretName from path secret/path - vault exception msg");
+        assertThat(ex).hasMessage("No data found at engine/secretName");
     }
 
     @Test
-    public void getSecretThrowsExceptionIfResponseHasNoData() throws Exception {
-        Logical logical = mock(Logical.class);
-        when(vault.logical()).thenReturn(logical);
+    public void getSecretThrowsExceptionIfNoDataRetrievedFromVault() {
+        HashicorpGetSecretData getSecretData = new HashicorpGetSecretData("engine", "secretName", "id", 0);
 
-        LogicalResponse response = mock(LogicalResponse.class);
-        when(logical.read(anyString())).thenReturn(response);
+        Versioned versionedResponse = mock(Versioned.class);
+        when(versionedResponse.hasData()).thenReturn(false);
 
-        when(response.getData()).thenReturn(null);
-
-        GetSecretData getSecretData = new HashicorpGetSecretData("secret/path", "secretName");
+        when(delegate.get(getSecretData)).thenReturn(versionedResponse);
 
         Throwable ex = catchThrowable(() -> keyVaultService.getSecret(getSecretData));
 
         assertThat(ex).isExactlyInstanceOf(HashicorpVaultException.class);
-        assertThat(ex).hasMessage("No secret secretName found at path secret/path");
+        assertThat(ex).hasMessage("No data found at engine/secretName");
     }
 
+
     @Test
-    public void getSecretThrowsExceptionIfValueNotFoundForGivenSecretName() throws Exception {
-        Logical logical = mock(Logical.class);
-        when(vault.logical()).thenReturn(logical);
+    public void getSecretThrowsExceptionIfValueNotFoundForGivenId() {
+        HashicorpGetSecretData getSecretData = new HashicorpGetSecretData("engine", "secretName", "id", 0);
 
-        LogicalResponse response = mock(LogicalResponse.class);
-        when(logical.read(anyString())).thenReturn(response);
+        Versioned versionedResponse = mock(Versioned.class);
+        when(versionedResponse.hasData()).thenReturn(true);
 
-        Map<String, String> data = Collections.singletonMap("diffName", "value");
-        when(response.getData()).thenReturn(data);
+        Map responseData = mock(Map.class);
+        when(versionedResponse.getData()).thenReturn(responseData);
+        when(responseData.containsKey("id")).thenReturn(false);
 
-        GetSecretData getSecretData = new HashicorpGetSecretData("secret/path", "secretName");
+        when(delegate.get(getSecretData)).thenReturn(versionedResponse);
 
         Throwable ex = catchThrowable(() -> keyVaultService.getSecret(getSecretData));
 
         assertThat(ex).isExactlyInstanceOf(HashicorpVaultException.class);
-        assertThat(ex).hasMessage("No secret secretName found at path secret/path");
+        assertThat(ex).hasMessage("No value with id id found at engine/secretName");
     }
 
-    @Test
-    public void getSecretReturnsValueForGivenSecretNameAtGivenPath() throws Exception {
-        Logical logical = mock(Logical.class);
-        when(vault.logical()).thenReturn(logical);
-
-        LogicalResponse response = mock(LogicalResponse.class);
-        when(logical.read(anyString())).thenReturn(response);
-
-        String expected = "value";
-
-        Map<String, String> data = Collections.singletonMap("secretName", expected);
-        when(response.getData()).thenReturn(data);
-
-        GetSecretData getSecretData = new HashicorpGetSecretData("secret/path", "secretName");
-
-        String result = keyVaultService.getSecret(getSecretData);
-
-        assertThat(result).isEqualTo(expected);
-    }
-
-    @Test
-    public void getSecretReturnsCorrectValueIfMultipleFoundAtGivenPath() throws Exception {
-        Logical logical = mock(Logical.class);
-        when(vault.logical()).thenReturn(logical);
-
-        LogicalResponse response = mock(LogicalResponse.class);
-        when(logical.read(anyString())).thenReturn(response);
-
-        String expected = "value";
-
-        Map<String, String> data = new HashMap<>();
-        data.put("someOtherSecret", "someOtherValue");
-        data.put("secretName", expected);
-        when(response.getData()).thenReturn(data);
-
-        GetSecretData getSecretData = new HashicorpGetSecretData("secret/path", "secretName");
-
-        String result = keyVaultService.getSecret(getSecretData);
-
-        assertThat(result).isEqualTo(expected);
-    }
 
     @Test
     public void setSecretThrowsExceptionIfProvidedDataIsNotCorrectType() {
@@ -150,34 +131,18 @@ public class HashicorpKeyVaultServiceTest {
         assertThat(ex).hasMessage("Incorrect data type passed to HashicorpKeyVaultService.  Type was null");
     }
 
-    @Test
-    public void setSecretThrowsExceptionIfErrorWritingToVault() throws Exception {
-        Logical logical = mock(Logical.class);
-        when(vault.logical()).thenReturn(logical);
-        when(logical.write(anyString(), anyMap())).thenThrow(new VaultException("vault exception msg"));
-
-        SetSecretData setSecretData = new HashicorpSetSecretData("secret/path", Collections.emptyMap());
-
-        Throwable ex = catchThrowable(() -> keyVaultService.setSecret(setSecretData));
-
-        assertThat(ex).isExactlyInstanceOf(HashicorpVaultException.class);
-        assertThat(ex).hasMessage("Error writing secret to path secret/path - vault exception msg");
-    }
 
     @Test
-    public void setSecretReturnsLogicalResponse() throws Exception {
-        Logical logical = mock(Logical.class);
-        when(vault.logical()).thenReturn(logical);
+    public void setSecretReturnsMetadataObject() {
+        HashicorpSetSecretData setSecretData = new HashicorpSetSecretData("engine", "name", Collections.emptyMap());
 
-        LogicalResponse response = mock(LogicalResponse.class);
-        when(logical.write(anyString(), anyMap())).thenReturn(response);
-
-        SetSecretData setSecretData = new HashicorpSetSecretData("secret/path", Collections.emptyMap());
+        Versioned.Metadata metadata = mock(Versioned.Metadata.class);
+        when(delegate.set(setSecretData)).thenReturn(metadata);
 
         Object result = keyVaultService.setSecret(setSecretData);
 
-        assertThat(result).isInstanceOf(LogicalResponse.class);
-        assertThat(result).isEqualTo(response);
+        assertThat(result).isInstanceOf(Versioned.Metadata.class);
+        assertThat(result).isEqualTo(metadata);
     }
 
 }

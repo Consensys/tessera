@@ -50,28 +50,27 @@ public class KeyData extends ConfigItem {
     private String hashicorpVaultPrivateKeyId;
 
     @XmlElement
-    private String hashicorpVaultSecretPath;
+    private String hashicorpVaultSecretEngineName;
 
-    public KeyData(final KeyDataConfig keyDataConfig,
-                   final String privateKey,
-                   final String publicKey,
-                   final Path privKeyPath,
-                   final Path pubKeyPath,
-                   final String azureVaultPrivateKeyId,
-                   final String azureVaultPublicKeyId,
-                   final String hashicorpVaultPrivateKeyId,
-                   final String hashicorpVaultPublicKeyId,
-                   final String hashicorpVaultSecretPath) {
+    @XmlElement
+    private String hashicorpVaultSecretName;
+
+    @XmlElement
+    private String hashicorpVaultSecretVersion;
+
+    public KeyData(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName, String hashicorpVaultSecretVersion) {
+        this.config = config;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
-        this.config = keyDataConfig;
-        this.privateKeyPath = privKeyPath;
-        this.publicKeyPath = pubKeyPath;
+        this.privateKeyPath = privateKeyPath;
+        this.publicKeyPath = publicKeyPath;
         this.azureVaultPublicKeyId = azureVaultPublicKeyId;
         this.azureVaultPrivateKeyId = azureVaultPrivateKeyId;
         this.hashicorpVaultPublicKeyId = hashicorpVaultPublicKeyId;
         this.hashicorpVaultPrivateKeyId = hashicorpVaultPrivateKeyId;
-        this.hashicorpVaultSecretPath = hashicorpVaultSecretPath;
+        this.hashicorpVaultSecretEngineName = hashicorpVaultSecretEngineName;
+        this.hashicorpVaultSecretName = hashicorpVaultSecretName;
+        this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;
     }
 
     public KeyData() {
@@ -114,7 +113,63 @@ public class KeyData extends ConfigItem {
         return hashicorpVaultPrivateKeyId;
     }
 
-    public String getHashicorpVaultSecretPath() {
-        return hashicorpVaultSecretPath;
+    public String getHashicorpVaultSecretEngineName() {
+        return hashicorpVaultSecretEngineName;
+    }
+
+    public String getHashicorpVaultSecretName() {
+        return hashicorpVaultSecretName;
+    }
+
+    public String getHashicorpVaultSecretVersion() {
+        return hashicorpVaultSecretVersion;
+    }
+
+    public void setConfig(KeyDataConfig config) {
+        this.config = config;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    public void setPrivateKeyPath(Path privateKeyPath) {
+        this.privateKeyPath = privateKeyPath;
+    }
+
+    public void setPublicKeyPath(Path publicKeyPath) {
+        this.publicKeyPath = publicKeyPath;
+    }
+
+    public void setAzureVaultPublicKeyId(String azureVaultPublicKeyId) {
+        this.azureVaultPublicKeyId = azureVaultPublicKeyId;
+    }
+
+    public void setAzureVaultPrivateKeyId(String azureVaultPrivateKeyId) {
+        this.azureVaultPrivateKeyId = azureVaultPrivateKeyId;
+    }
+
+    public void setHashicorpVaultPublicKeyId(String hashicorpVaultPublicKeyId) {
+        this.hashicorpVaultPublicKeyId = hashicorpVaultPublicKeyId;
+    }
+
+    public void setHashicorpVaultPrivateKeyId(String hashicorpVaultPrivateKeyId) {
+        this.hashicorpVaultPrivateKeyId = hashicorpVaultPrivateKeyId;
+    }
+
+    public void setHashicorpVaultSecretEngineName(String hashicorpVaultSecretEngineName) {
+        this.hashicorpVaultSecretEngineName = hashicorpVaultSecretEngineName;
+    }
+
+    public void setHashicorpVaultSecretName(String hashicorpVaultSecretName) {
+        this.hashicorpVaultSecretName = hashicorpVaultSecretName;
+    }
+
+    public void setHashicorpVaultSecretVersion(String hashicorpVaultSecretVersion) {
+        this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;
     }
 }

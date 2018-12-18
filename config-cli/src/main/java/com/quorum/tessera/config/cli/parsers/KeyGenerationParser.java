@@ -6,6 +6,7 @@ import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.key.generation.KeyGeneratorFactory;
+import com.quorum.tessera.key.generation.KeyVaultOptions;
 import org.apache.commons.cli.CommandLine;
 
 import javax.validation.ConstraintViolation;
@@ -39,6 +40,7 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
     public List<ConfigKeyPair> parse(final CommandLine commandLine) throws IOException {
 
         final ArgonOptions argonOptions = this.argonOptions(commandLine).orElse(null);
+        final KeyVaultOptions keyVaultOptions = this.keyVaultOptions(commandLine).orElse(null);
         final KeyVaultConfig keyVaultConfig = this.keyVaultConfig(commandLine).orElse(null);
 
         final KeyGenerator generator = factory.create(keyVaultConfig);
@@ -46,7 +48,7 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
         if (commandLine.hasOption("keygen")) {
             return this.filenames(commandLine)
                 .stream()
-                .map(name -> generator.generate(name, argonOptions))
+                .map(name -> generator.generate(name, argonOptions, keyVaultOptions))
                 .collect(Collectors.toList());
         }
 
@@ -64,6 +66,12 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
         }
 
         return Optional.empty();
+    }
+
+    private Optional<KeyVaultOptions> keyVaultOptions(final CommandLine commandLine) {
+        Optional<String> secretEngineName = Optional.ofNullable(commandLine.getOptionValue("keygenvaultsecretengine"));
+
+        return secretEngineName.map(KeyVaultOptions::new);
     }
 
     private List<String> filenames(final CommandLine commandLine) {
@@ -90,9 +98,12 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
 
         KeyVaultType keyVaultType;
         try {
-            keyVaultType = KeyVaultType.valueOf(t);
+            keyVaultType = KeyVaultType.valueOf(
+                t.trim()
+                 .toUpperCase()
+            );
         } catch(IllegalArgumentException | NullPointerException e) {
-            throw new CliException("Key vault type either not provided or not recognised.  Ensure provided value is UPPERCASE and has no leading or trailing whitespace characters");
+            throw new CliException("Key vault type either not provided or not recognised");
         }
 
         String keyVaultUrl = commandLine.getOptionValue("keygenvaulturl");
@@ -114,21 +125,17 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
 
             String approlePath = commandLine.getOptionValue("keygenvaultapprole");
 
-            Optional<Path> tlsCertificatePath = Optional.ofNullable(commandLine.getOptionValue("keygenvaultcert"))
-                                                        .map(Paths::get);
+            Optional<Path> tlsKeyStorePath = Optional.ofNullable(commandLine.getOptionValue("keygenvaultkeystore"))
+                                                     .map(Paths::get);
 
-            Optional<Path> tlsKeyPath = Optional.ofNullable(commandLine.getOptionValue("keygenvaultcertkey"))
-                                                .map(Paths::get);
-
-            Optional<Path> tlsServerCertificatePath = Optional.ofNullable(commandLine.getOptionValue("keygenvaultservercert"))
-                                                              .map(Paths::get);
+            Optional<Path> tlsTrustStorePath = Optional.ofNullable(commandLine.getOptionValue("keygenvaulttruststore"))
+                                                       .map(Paths::get);
 
             keyVaultConfig = new HashicorpKeyVaultConfig(
                 keyVaultUrl,
                 approlePath,
-                tlsCertificatePath.orElse(null),
-                tlsKeyPath.orElse(null),
-                tlsServerCertificatePath.orElse(null)
+                tlsKeyStorePath.orElse(null),
+                tlsTrustStorePath.orElse(null)
             );
 
             Set<ConstraintViolation<HashicorpKeyVaultConfig>> violations = validator.validate((HashicorpKeyVaultConfig)keyVaultConfig);

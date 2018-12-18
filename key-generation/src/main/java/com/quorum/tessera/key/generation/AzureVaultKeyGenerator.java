@@ -28,7 +28,7 @@ public class AzureVaultKeyGenerator implements KeyGenerator {
     }
 
     @Override
-    public AzureVaultKeyPair generate(String filename, ArgonOptions encryptionOptions) {
+    public AzureVaultKeyPair generate(String filename, ArgonOptions encryptionOptions, KeyVaultOptions keyVaultOptions) {
         final KeyPair keys = this.nacl.generateNewKeys();
 
         final StringBuilder publicId = new StringBuilder();

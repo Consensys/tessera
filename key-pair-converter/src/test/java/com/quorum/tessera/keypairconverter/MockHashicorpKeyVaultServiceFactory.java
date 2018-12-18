@@ -4,7 +4,6 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.config.vault.data.HashicorpGetSecretData;
-import com.quorum.tessera.key.vault.KeyVaultClientFactory;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.key.vault.KeyVaultServiceFactory;
 
@@ -14,7 +13,7 @@ import static org.mockito.Mockito.when;
 
 public class MockHashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
     @Override
-    public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider, KeyVaultClientFactory keyVaultClientFactory) {
+    public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider) {
         KeyVaultService mock = mock(KeyVaultService.class);
 
         when(mock.getSecret(any(HashicorpGetSecretData.class)))

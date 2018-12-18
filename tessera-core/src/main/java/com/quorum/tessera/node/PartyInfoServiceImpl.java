@@ -11,8 +11,6 @@ import com.quorum.tessera.node.model.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,11 +35,11 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
 
         final Set<Party> initialParties = configService
-                .getPeers()
-                .stream()
-                .map(Peer::getUrl)
-                .map(Party::new)
-                .collect(toSet());
+            .getPeers()
+            .stream()
+            .map(Peer::getUrl)
+            .map(Party::new)
+            .collect(toSet());
 
         final Set<Recipient> ourKeys = enclave
             .getPublicKeys()
@@ -49,7 +47,6 @@ public class PartyInfoServiceImpl implements PartyInfoService {
             .map(key -> PublicKey.from(key.getKeyBytes()))
             .map(key -> new Recipient(key, advertisedUrl))
             .collect(toSet());
-
 
         partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, initialParties));
 
@@ -96,8 +93,6 @@ public class PartyInfoServiceImpl implements PartyInfoService {
             .filter(recipient -> Objects.equals(recipient.getUrl(), incomingUrl))
             .collect(Collectors.toSet());
 
-        // TODO NL - check if we should add the unsaved parties to the resend party store (in the same way in which we are doing it in PartyInfoPoller)
-
         //TODO: instead of adding the peers every time, if a new peer is added at runtime then this should be added separately
         final Set<Party> parties = peerUrls.stream().map(Party::new).collect(toSet());
 
@@ -110,24 +105,14 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     public String getURLFromRecipientKey(final PublicKey key) {
 
         final Recipient retrievedRecipientFromStore = partyInfoStore
-                .getPartyInfo()
-                .getRecipients()
-                .stream()
-                .filter(recipient -> key.equals(recipient.getKey()))
-                .findAny()
-                .orElseThrow(() -> new KeyNotFoundException("Recipient not found for key: "+ key.encodeToBase64()));
+            .getPartyInfo()
+            .getRecipients()
+            .stream()
+            .filter(recipient -> key.equals(recipient.getKey()))
+            .findAny()
+            .orElseThrow(() -> new KeyNotFoundException("Recipient not found for key: " + key.encodeToBase64()));
 
         return retrievedRecipientFromStore.getUrl();
-    }
-
-    @Override
-    public Set<Party> findUnsavedParties(final PartyInfo partyInfoWithUnsavedRecipients) {
-        final Set<Party> knownHosts = this.getPartyInfo().getParties();
-
-        final Set<Party> incomingRecipients = new HashSet<>(partyInfoWithUnsavedRecipients.getParties());
-        incomingRecipients.removeAll(knownHosts);
-
-        return Collections.unmodifiableSet(incomingRecipients);
     }
 
 }

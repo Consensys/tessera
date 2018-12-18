@@ -1,19 +1,19 @@
 package com.quorum.tessera.key.vault.hashicorp;
 
-import com.bettercloud.vault.Vault;
-import com.bettercloud.vault.VaultException;
-import com.bettercloud.vault.api.Auth;
-import com.bettercloud.vault.response.AuthResponse;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
-import com.quorum.tessera.key.vault.KeyVaultClientFactory;
+import com.quorum.tessera.key.vault.KeyVaultService;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.vault.authentication.ClientAuthentication;
+import org.springframework.vault.client.VaultEndpoint;
+import org.springframework.vault.support.ClientOptions;
+import org.springframework.vault.support.SslConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class HashicorpKeyVaultServiceFactoryTest {
@@ -24,7 +24,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     private EnvironmentVariableProvider envProvider;
 
-    private HashicorpKeyVaultClientFactory keyVaultClientFactory;
+    private HashicorpKeyVaultServiceFactoryUtil keyVaultServiceFactoryUtil;
 
     private String noCredentialsExceptionMsg = "Environment variables must be set to authenticate with Hashicorp Vault.  Set the HASHICORP_ROLE_ID and HASHICORP_SECRET_ID environment variables if using the AppRole authentication method.  Set the HASHICORP_TOKEN environment variable if using another authentication method.";
 
@@ -35,17 +35,17 @@ public class HashicorpKeyVaultServiceFactoryTest {
         this.keyVaultServiceFactory = new HashicorpKeyVaultServiceFactory();
         this.config = mock(Config.class);
         this.envProvider = mock(EnvironmentVariableProvider.class);
-        this.keyVaultClientFactory = mock(HashicorpKeyVaultClientFactory.class);
+        this.keyVaultServiceFactoryUtil = mock(HashicorpKeyVaultServiceFactoryUtil.class);
     }
 
     @Test(expected = NullPointerException.class)
     public void nullConfigThrowsException() {
-        keyVaultServiceFactory.create(null, envProvider, keyVaultClientFactory);
+        keyVaultServiceFactory.create(null, envProvider);
     }
 
     @Test(expected = NullPointerException.class)
     public void nullEnvVarProviderThrowsException() {
-        keyVaultServiceFactory.create(config, null, keyVaultClientFactory);
+        keyVaultServiceFactory.create(config, null);
     }
 
     @Test
@@ -54,97 +54,97 @@ public class HashicorpKeyVaultServiceFactoryTest {
     }
 
     @Test
-    public void exceptionThrownIfNoEnvVarsSet() {
+    public void exceptionThrownIfNoAuthEnvVarsSet() {
         when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn(null);
         when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn(null);
         when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn(null);
 
-        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory));
+        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isInstanceOf(HashicorpCredentialNotSetException.class);
         assertThat(ex).hasMessage(noCredentialsExceptionMsg);
     }
 
     @Test
-    public void exceptionThrownIfOnlyRoleIdEnvVarSet() {
+    public void exceptionThrownIfOnlyRoleIdAuthEnvVarSet() {
         when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
         when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn(null);
         when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn(null);
 
-        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory));
+        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isInstanceOf(HashicorpCredentialNotSetException.class);
         assertThat(ex).hasMessage(approleCredentialsExceptionMsg);
     }
 
     @Test
-    public void exceptionThrownIfOnlySecretIdEnvVarSet() {
+    public void exceptionThrownIfOnlySecretIdAuthEnvVarSet() {
         when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn(null);
         when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
         when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn(null);
 
-        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory));
+        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isInstanceOf(HashicorpCredentialNotSetException.class);
         assertThat(ex).hasMessage(approleCredentialsExceptionMsg);
     }
 
     @Test
-    public void exceptionThrownIfOnlyRoleIdAndTokenEnvVarsSet() {
+    public void exceptionThrownIfOnlyRoleIdAndTokenAuthEnvVarsSet() {
         when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
         when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn(null);
         when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
 
-        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory));
+        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isInstanceOf(HashicorpCredentialNotSetException.class);
         assertThat(ex).hasMessage(approleCredentialsExceptionMsg);
     }
 
     @Test
-    public void exceptionThrownIfOnlySecretIdAndTokenEnvVarsSet() {
+    public void exceptionThrownIfOnlySecretIdAndTokenAuthEnvVarsSet() {
         when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn(null);
         when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
         when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
 
-        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory));
+        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isInstanceOf(HashicorpCredentialNotSetException.class);
         assertThat(ex).hasMessage(approleCredentialsExceptionMsg);
     }
 
     @Test
-    public void roleIdAndSecretIdEnvVarsAreSetIsAllowed() {
+    public void roleIdAndSecretIdAuthEnvVarsAreSetIsAllowed() {
         when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
         when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
         when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn(null);
 
         //Exception unrelated to env vars will be thrown
-        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory));
+        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isNotInstanceOf(HashicorpCredentialNotSetException.class);
     }
 
     @Test
-    public void onlyTokenEnvVarIsSetIsAllowed() {
+    public void onlyTokenAuthEnvVarIsSetIsAllowed() {
         when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn(null);
         when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn(null);
         when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
 
         //Exception unrelated to env vars will be thrown
-        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory));
+        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isNotInstanceOf(HashicorpCredentialNotSetException.class);
     }
 
     @Test
-    public void allEnvVarsSetIsAllowed() {
+    public void allAuthEnvVarsSetIsAllowed() {
         when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
         when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
         when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
 
         //Exception unrelated to env vars will be thrown
-        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory));
+        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isNotInstanceOf(HashicorpCredentialNotSetException.class);
     }
@@ -157,7 +157,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
         when(config.getKeys()).thenReturn(null);
 
-        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory));
+        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isInstanceOf(ConfigException.class);
         assertThat(ex).hasMessageContaining("Trying to create Hashicorp Vault connection but no Vault configuration provided");
@@ -174,129 +174,104 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
         when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(null);
 
-        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory));
+        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isInstanceOf(ConfigException.class);
         assertThat(ex).hasMessageContaining("Trying to create Hashicorp Vault connection but no Vault configuration provided");
     }
 
     @Test
-    public void exceptionThrownIfKeyVaultClientFactoryNotHashicorpImplementation() {
+    public void exceptionThrownIfKeyVaultConfigUrlSyntaxIncorrect() {
         when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
         when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn(null);
-
-        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        when(config.getKeys()).thenReturn(keyConfiguration);
-        when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(mock(HashicorpKeyVaultConfig.class));
-
-        KeyVaultClientFactory wrongImpl = mock(KeyVaultClientFactory.class);
-
-        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, wrongImpl));
-
-        assertThat(ex).isInstanceOf(HashicorpVaultException.class);
-        assertThat(ex).hasMessageContaining("Incorrect KeyVaultClientFactoryType passed to HashicorpKeyVaultServiceFactory");
-    }
-
-    @Test
-    public void ifRoleIdAndSecretIdEnvVarsSetThenAppRoleIsUsedToAuthenticate() throws Exception {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn(null);
+        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
         when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(keyVaultConfig);
+
+        when(keyVaultConfig.getUrl()).thenReturn("noschemeurl");
         when(keyVaultConfig.getApprolePath()).thenReturn("approle");
 
-        Vault unauthenticatedVault = mock(Vault.class);
-        when(
-            keyVaultClientFactory
-                .createUnauthenticatedClient(any(HashicorpKeyVaultConfig.class), any(VaultConfigFactory.class), any(SslConfigFactory.class))
-        ).thenReturn(unauthenticatedVault);
+        setUpUtilMocks(keyVaultConfig);
 
-        Auth auth = mock(Auth.class);
-        when(unauthenticatedVault.auth()).thenReturn(auth);
-        AuthResponse loginResponse = mock(AuthResponse.class);
-        when(auth.loginByAppRole(anyString(), anyString(), anyString())).thenReturn(loginResponse);
-        String token = "token";
-        when(loginResponse.getAuthClientToken()).thenReturn(token);
+        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultServiceFactoryUtil));
 
-        keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory);
-
-        verify(auth).loginByAppRole("approle", "role-id", "secret-id");
-        verify(keyVaultClientFactory).createAuthenticatedClient(any(HashicorpKeyVaultConfig.class), any(VaultConfigFactory.class), any(SslConfigFactory.class), matches(token));
+        assertThat(ex).isExactlyInstanceOf(ConfigException.class);
+        assertThat(ex.getMessage()).contains("Provided Hashicorp Vault url is incorrectly formatted");
     }
 
     @Test
-    public void ifAllEnvVarsSetThenAppRoleIsUsedToAuthenticate() throws Exception {
+    public void exceptionThrownIfKeyVaultConfigUrlIsMalformed() {
         when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
         when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("env-token");
+        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
         when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(keyVaultConfig);
+
+        when(keyVaultConfig.getUrl()).thenReturn("http://malformedurl:-1");
         when(keyVaultConfig.getApprolePath()).thenReturn("approle");
 
-        Vault unauthenticatedVault = mock(Vault.class);
-        when(
-            keyVaultClientFactory
-                .createUnauthenticatedClient(any(HashicorpKeyVaultConfig.class), any(VaultConfigFactory.class), any(SslConfigFactory.class))
-        ).thenReturn(unauthenticatedVault);
+        setUpUtilMocks(keyVaultConfig);
 
-        Auth auth = mock(Auth.class);
-        when(unauthenticatedVault.auth()).thenReturn(auth);
-        AuthResponse loginResponse = mock(AuthResponse.class);
-        when(auth.loginByAppRole(anyString(), anyString(), anyString())).thenReturn(loginResponse);
-        String token = "token";
-        when(loginResponse.getAuthClientToken()).thenReturn(token);
+        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultServiceFactoryUtil));
 
-        keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory);
+        assertThat(ex).isExactlyInstanceOf(ConfigException.class);
+        assertThat(ex.getMessage()).contains("Provided Hashicorp Vault url is incorrectly formatted");
+    }
 
-        verify(auth).loginByAppRole("approle", "role-id", "secret-id");
-        verify(keyVaultClientFactory).createAuthenticatedClient(any(HashicorpKeyVaultConfig.class), any(VaultConfigFactory.class), any(SslConfigFactory.class), matches(token));
+    private void setUpUtilMocks(HashicorpKeyVaultConfig keyVaultConfig) {
+        SslConfiguration sslConfiguration = mock(SslConfiguration.class);
+        when(keyVaultServiceFactoryUtil.configureSsl(keyVaultConfig, envProvider)).thenReturn(sslConfiguration);
+
+        ClientHttpRequestFactory clientHttpRequestFactory = mock(ClientHttpRequestFactory.class);
+        when(keyVaultServiceFactoryUtil.createClientHttpRequestFactory(
+            any(ClientOptions.class),
+            eq(sslConfiguration))
+        ).thenReturn(clientHttpRequestFactory);
+
+        ClientAuthentication clientAuthentication = mock(ClientAuthentication.class);
+        when(keyVaultServiceFactoryUtil.configureClientAuthentication(
+            eq(keyVaultConfig),
+            eq(envProvider),
+            eq(clientHttpRequestFactory),
+            any(VaultEndpoint.class))
+        ).thenReturn(clientAuthentication);
     }
 
     @Test
-    public void exceptionThrownIfErrorEncounteredDuringAppRoleAuthentication() throws Exception {
+    public void returnedValueIsCorrectType() {
         when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
         when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn(null);
+        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
         when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(keyVaultConfig);
+
+        when(keyVaultConfig.getUrl()).thenReturn("http://someurl");
         when(keyVaultConfig.getApprolePath()).thenReturn("approle");
 
-        Vault unauthenticatedVault = mock(Vault.class);
-        when(
-            keyVaultClientFactory
-                .createUnauthenticatedClient(any(HashicorpKeyVaultConfig.class), any(VaultConfigFactory.class), any(SslConfigFactory.class))
-        ).thenReturn(unauthenticatedVault);
+        setUpUtilMocks(keyVaultConfig);
 
-        Auth auth = mock(Auth.class);
-        when(unauthenticatedVault.auth()).thenReturn(auth);
-        AuthResponse loginResponse = mock(AuthResponse.class);
-        when(auth.loginByAppRole(anyString(), anyString(), anyString())).thenThrow(VaultException.class);
+        KeyVaultService result = keyVaultServiceFactory.create(config, envProvider, keyVaultServiceFactoryUtil);
 
-        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory));
-
-        assertThat(ex).isInstanceOf(HashicorpVaultException.class);
-        assertThat(ex.getMessage()).contains("Unable to authenticate using AppRole");
+        assertThat(result).isInstanceOf(HashicorpKeyVaultService.class);
     }
 
     @Test
-    public void ifOnlyTokenEnvVarSetThenTokenIsUsedToAuthenticate() throws Exception {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn(null);
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn(null);
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("env-token");
+    public void returnedValueIsCorrectTypeUsing2ArgConstructor() {
+        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
+        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
+        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);
@@ -304,15 +279,14 @@ public class HashicorpKeyVaultServiceFactoryTest {
         HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
         when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(keyVaultConfig);
 
-        Vault unauthenticatedVault = mock(Vault.class);
-        when(
-            keyVaultClientFactory
-                .createUnauthenticatedClient(any(HashicorpKeyVaultConfig.class), any(VaultConfigFactory.class), any(SslConfigFactory.class))
-        ).thenReturn(unauthenticatedVault);
+        when(keyVaultConfig.getUrl()).thenReturn("http://someurl");
+        when(keyVaultConfig.getApprolePath()).thenReturn("approle");
 
-        keyVaultServiceFactory.create(config, envProvider, keyVaultClientFactory);
+        setUpUtilMocks(keyVaultConfig);
 
-        verify(keyVaultClientFactory).createAuthenticatedClient(any(HashicorpKeyVaultConfig.class), any(VaultConfigFactory.class), any(SslConfigFactory.class), matches("env-token"));
+        KeyVaultService result = keyVaultServiceFactory.create(config, envProvider);
+
+        assertThat(result).isInstanceOf(HashicorpKeyVaultService.class);
     }
 
 }

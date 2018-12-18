@@ -29,17 +29,17 @@ public class AzureKeyVaultServiceFactoryTest {
 
     @Test(expected = NullPointerException.class)
     public void nullConfigThrowsException() {
-        azureKeyVaultServiceFactory.create(null, envProvider, null);
+        azureKeyVaultServiceFactory.create(null, envProvider);
     }
 
     @Test(expected = NullPointerException.class)
     public void nullEnvVarProviderThrowsException() {
-        azureKeyVaultServiceFactory.create(config, null, null);
+        azureKeyVaultServiceFactory.create(config, null);
     }
 
     @Test
     public void clientIdEnvironmentVariableNotSetThrowsException() {
-        Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider, null));
+        Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
 
         when(envProvider.getEnv("AZURE_CLIENT_ID")).thenReturn(null);
         when(envProvider.getEnv("AZURE_CLIENT_SECRET")).thenReturn("secret");
@@ -50,7 +50,7 @@ public class AzureKeyVaultServiceFactoryTest {
 
     @Test
     public void clientSecretEnvironmentVariableNotSetThrowsException() {
-        Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider, null));
+        Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
 
         when(envProvider.getEnv("AZURE_CLIENT_ID")).thenReturn("id");
         when(envProvider.getEnv("AZURE_CLIENT_SECRET")).thenReturn(null);
@@ -61,7 +61,7 @@ public class AzureKeyVaultServiceFactoryTest {
 
     @Test
     public void bothClientIdAndClientSecretEnvironmentVariablesNotSetThrowsException() {
-        Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider, null));
+        Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
 
         when(envProvider.getEnv("AZURE_CLIENT_ID")).thenReturn(null);
         when(envProvider.getEnv("AZURE_CLIENT_SECRET")).thenReturn(null);
@@ -75,7 +75,7 @@ public class AzureKeyVaultServiceFactoryTest {
         when(envProvider.getEnv(anyString())).thenReturn("envVar");
         when(config.getKeys()).thenReturn(null);
 
-        Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider, null));
+        Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isExactlyInstanceOf(ConfigException.class);
         assertThat(ex.getMessage()).contains("Trying to create Azure key vault connection but no Azure configuration provided");
@@ -88,7 +88,7 @@ public class AzureKeyVaultServiceFactoryTest {
         when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
-        Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider, null));
+        Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isExactlyInstanceOf(ConfigException.class);
         assertThat(ex.getMessage()).contains("Trying to create Azure key vault connection but no Azure configuration provided");
@@ -102,7 +102,7 @@ public class AzureKeyVaultServiceFactoryTest {
         when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
-        KeyVaultService result = azureKeyVaultServiceFactory.create(config, envProvider, null);
+        KeyVaultService result = azureKeyVaultServiceFactory.create(config, envProvider);
 
         assertThat(result).isInstanceOf(AzureKeyVaultService.class);
     }

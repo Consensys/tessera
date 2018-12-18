@@ -1,24 +1,23 @@
 package com.quorum.tessera.key.vault.hashicorp;
 
-import com.bettercloud.vault.Vault;
-import com.bettercloud.vault.VaultException;
-import com.bettercloud.vault.response.LogicalResponse;
 import com.quorum.tessera.config.vault.data.GetSecretData;
 import com.quorum.tessera.config.vault.data.HashicorpGetSecretData;
 import com.quorum.tessera.config.vault.data.HashicorpSetSecretData;
 import com.quorum.tessera.config.vault.data.SetSecretData;
 import com.quorum.tessera.key.vault.KeyVaultException;
 import com.quorum.tessera.key.vault.KeyVaultService;
+import org.springframework.vault.support.Versioned;
 
-import java.util.Optional;
+import java.util.Map;
 
 public class HashicorpKeyVaultService implements KeyVaultService {
 
-    private final Vault vault;
+    private final KeyValueOperationsDelegateFactory keyValueOperationsDelegateFactory;
 
-    public HashicorpKeyVaultService(Vault vault) {
-        this.vault = vault;
+    HashicorpKeyVaultService(KeyValueOperationsDelegateFactory keyValueOperationsDelegateFactory) {
+        this.keyValueOperationsDelegateFactory = keyValueOperationsDelegateFactory;
     }
+
 
     @Override
     public String getSecret(GetSecretData getSecretData) {
@@ -28,17 +27,19 @@ public class HashicorpKeyVaultService implements KeyVaultService {
 
         HashicorpGetSecretData hashicorpGetSecretData = (HashicorpGetSecretData) getSecretData;
 
-        LogicalResponse response;
-        try {
-            response = vault.logical().read(hashicorpGetSecretData.getSecretPath());
-        } catch(VaultException e) {
-            throw new HashicorpVaultException("Error getting secret " + hashicorpGetSecretData.getSecretName() + " from path " + hashicorpGetSecretData.getSecretPath() + " - " + e.getMessage());
+        KeyValueOperationsDelegate keyValueOperationsDelegate = keyValueOperationsDelegateFactory.create(hashicorpGetSecretData.getSecretEngineName());
+
+        Versioned<Map<String, Object>> versionedResponse = keyValueOperationsDelegate.get(hashicorpGetSecretData);
+
+        if(versionedResponse == null || !versionedResponse.hasData()) {
+            throw new HashicorpVaultException("No data found at " + hashicorpGetSecretData.getSecretEngineName() + "/" + hashicorpGetSecretData.getSecretName());
         }
 
-        return Optional.of(response)
-            .map(LogicalResponse::getData)
-            .map(data -> data.get(hashicorpGetSecretData.getSecretName()))
-            .orElseThrow(() -> new HashicorpVaultException("No secret " + hashicorpGetSecretData.getSecretName() + " found at path " + hashicorpGetSecretData.getSecretPath()));
+        if(!versionedResponse.getData().containsKey(hashicorpGetSecretData.getValueId())) {
+            throw new HashicorpVaultException("No value with id " + hashicorpGetSecretData.getValueId() + " found at " + hashicorpGetSecretData.getSecretEngineName() + "/" + hashicorpGetSecretData.getSecretName());
+        }
+
+        return versionedResponse.getData().get(hashicorpGetSecretData.getValueId()).toString();
     }
 
     @Override
@@ -49,10 +50,8 @@ public class HashicorpKeyVaultService implements KeyVaultService {
 
         HashicorpSetSecretData hashicorpSetSecretData = (HashicorpSetSecretData) setSecretData;
 
-        try {
-            return vault.logical().write(hashicorpSetSecretData.getSecretPath(), hashicorpSetSecretData.getNameValuePairs());
-        } catch(VaultException e) {
-            throw new HashicorpVaultException("Error writing secret to path " + hashicorpSetSecretData.getSecretPath() + " - " + e.getMessage());
-        }
+        KeyValueOperationsDelegate keyValueOperationsDelegate = keyValueOperationsDelegateFactory.create(hashicorpSetSecretData.getSecretEngineName());
+
+        return keyValueOperationsDelegate.set(hashicorpSetSecretData);
     }
 }

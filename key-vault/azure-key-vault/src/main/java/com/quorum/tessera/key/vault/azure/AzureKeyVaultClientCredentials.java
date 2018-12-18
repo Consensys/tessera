@@ -24,13 +24,13 @@ public class AzureKeyVaultClientCredentials extends KeyVaultCredentials {
 
     private final ExecutorService executorService;
 
-    public AzureKeyVaultClientCredentials(String clientId, String clientSecret, ExecutorService executorService) {
+    AzureKeyVaultClientCredentials(String clientId, String clientSecret, ExecutorService executorService) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.executorService = Objects.requireNonNull(executorService);
     }
 
-    protected void setAuthenticationContext(AuthenticationContext authenticationContext) {
+    void setAuthenticationContext(AuthenticationContext authenticationContext) {
         this.authenticationContext = authenticationContext;
     }
 

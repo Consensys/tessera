@@ -48,7 +48,7 @@ public class AzureVaultKeyGeneratorTest {
         final String pubVaultId = vaultId + "Pub";
         final String privVaultId = vaultId + "Key";
 
-        final AzureVaultKeyPair result = azureVaultKeyGenerator.generate(vaultId, null);
+        final AzureVaultKeyPair result = azureVaultKeyGenerator.generate(vaultId, null, null);
 
         final ArgumentCaptor<AzureSetSecretData> captor = ArgumentCaptor.forClass(AzureSetSecretData.class);
 
@@ -76,7 +76,7 @@ public class AzureVaultKeyGeneratorTest {
         final String privVaultId = vaultId + "Key";
         final String path = "/some/path/" + vaultId;
 
-        azureVaultKeyGenerator.generate(path, null);
+        azureVaultKeyGenerator.generate(path, null, null);
 
         final ArgumentCaptor<AzureSetSecretData> captor = ArgumentCaptor.forClass(AzureSetSecretData.class);
 
@@ -95,7 +95,7 @@ public class AzureVaultKeyGeneratorTest {
 
     @Test
     public void ifNoVaultIdProvidedThenSuffixOnlyIsUsed() {
-        azureVaultKeyGenerator.generate(null, null);
+        azureVaultKeyGenerator.generate(null, null, null);
 
         final ArgumentCaptor<AzureSetSecretData> captor = ArgumentCaptor.forClass(AzureSetSecretData.class);
 
@@ -116,7 +116,7 @@ public class AzureVaultKeyGeneratorTest {
     public void allowedCharactersUsedInVaultIdDoesNotThrowException() {
         final String allowedId = "abcdefghijklmnopqrstuvwxyz-ABCDEFDGHIJKLMNOPQRSTUVWXYZ-0123456789";
 
-        azureVaultKeyGenerator.generate(allowedId, null);
+        azureVaultKeyGenerator.generate(allowedId, null, null);
 
         verify(keyVaultService, times(2)).setSecret(any(AzureSetSecretData.class));
     }
@@ -126,7 +126,7 @@ public class AzureVaultKeyGeneratorTest {
         final String invalidId = "/tmp/abc@+";
 
         final Throwable throwable = catchThrowable(
-            () -> azureVaultKeyGenerator.generate(invalidId, null)
+            () -> azureVaultKeyGenerator.generate(invalidId, null, null)
         );
 
         assertThat(throwable).isInstanceOf(UnsupportedCharsetException.class);
@@ -139,7 +139,7 @@ public class AzureVaultKeyGeneratorTest {
     public void encryptionIsNotUsedWhenSavingToVault() {
         final ArgonOptions argonOptions = mock(ArgonOptions.class);
 
-        azureVaultKeyGenerator.generate("vaultId", argonOptions);
+        azureVaultKeyGenerator.generate("vaultId", argonOptions, null);
 
         verifyNoMoreInteractions(argonOptions);
     }

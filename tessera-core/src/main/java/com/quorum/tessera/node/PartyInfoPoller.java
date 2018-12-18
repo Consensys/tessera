@@ -3,13 +3,11 @@ package com.quorum.tessera.node;
 import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
-import com.quorum.tessera.sync.ResendPartyStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.ConnectException;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * Polls every so often to all known nodes for any new discoverable nodes This
@@ -23,24 +21,20 @@ public class PartyInfoPoller implements Runnable {
 
     private final PartyInfoParser partyInfoParser;
 
-    private final ResendPartyStore resendPartyStore;
-
     private final P2pClient p2pClient;
 
     public PartyInfoPoller(final PartyInfoService partyInfoService,
-            final PartyInfoParser partyInfoParser,
-            final ResendPartyStore resendPartyStore,
-            final P2pClient p2pClient) {
+                           final PartyInfoParser partyInfoParser,
+                           final P2pClient p2pClient) {
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
         this.partyInfoParser = Objects.requireNonNull(partyInfoParser);
-        this.resendPartyStore = Objects.requireNonNull(resendPartyStore);
         this.p2pClient = Objects.requireNonNull(p2pClient);
     }
 
     /**
      * Iterates over all known parties and contacts them for the current state
      * of their known node discovery list
-     *
+     * <p>
      * It then updates this nodes list of data with any new information
      * collected
      */
@@ -53,18 +47,14 @@ public class PartyInfoPoller implements Runnable {
         final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
         partyInfo
-                .getParties()
-                .stream()
-                .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
-                .map(Party::getUrl)
-                .map(url -> pollSingleParty(url, encodedPartyInfo))
-                .filter(Objects::nonNull)
-                .map(partyInfoParser::from)
-                .forEach(newPartyInfo -> {
-                    Set<Party> newPartiesFound = partyInfoService.findUnsavedParties(newPartyInfo);
-                    resendPartyStore.addUnseenParties(newPartiesFound);
-                    partyInfoService.updatePartyInfo(newPartyInfo);
-                });
+            .getParties()
+            .stream()
+            .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
+            .map(Party::getUrl)
+            .map(url -> pollSingleParty(url, encodedPartyInfo))
+            .filter(Objects::nonNull)
+            .map(partyInfoParser::from)
+            .forEach(partyInfoService::updatePartyInfo);
 
         LOGGER.debug("Polled {}. PartyInfo : {}", getClass().getSimpleName(), partyInfo);
     }
@@ -74,7 +64,7 @@ public class PartyInfoPoller implements Runnable {
      * connect to the target, it returns null, otherwise throws any exception
      * that can be thrown from {@link javax.ws.rs.client.Client}
      *
-     * @param url the target URL to call
+     * @param url              the target URL to call
      * @param encodedPartyInfo the encoded current party information
      * @return the encoded partyinfo from the target node, or null is the node
      * could not be reached
@@ -97,7 +87,5 @@ public class PartyInfoPoller implements Runnable {
         }
 
     }
-
-
 
 }
