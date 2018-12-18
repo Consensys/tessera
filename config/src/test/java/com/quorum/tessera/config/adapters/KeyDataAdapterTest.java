@@ -182,10 +182,24 @@ public class KeyDataAdapterTest {
     }
 
     @Test
-    public void unmarshallingAzureKeysGivesCorrectKeyPair() {
+    public void unmarshallingAzureKeysWithNoVersionsGivesCorrectKeyPair() {
         final KeyData input = new KeyData();
         input.setAzureVaultPublicKeyId("pubId");
         input.setAzureVaultPrivateKeyId("privId");
+        input.setAzureVaultPublicKeyVersion(null);
+        input.setAzureVaultPrivateKeyVersion(null);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(AzureVaultKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingAzureKeysWithVersionsGivesCorrectKeyPair() {
+        final KeyData input = new KeyData();
+        input.setAzureVaultPublicKeyId("pubId");
+        input.setAzureVaultPrivateKeyId("privId");
+        input.setAzureVaultPublicKeyVersion("pubVer");
+        input.setAzureVaultPrivateKeyVersion("privVer");
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(AzureVaultKeyPair.class);

@@ -308,6 +308,30 @@ public class ValidationTest {
     }
 
     @Test
+    public void azureKeyPairOnlyPublicKeyVersionSetCreatesViolation() {
+        String is32Chars = "12345678901234567890123456789012";
+
+        AzureVaultKeyPair azureVaultKeyPair = new AzureVaultKeyPair("pubId", "privId", is32Chars, null);
+
+        Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(azureVaultKeyPair);
+        assertThat(violations).hasSize(1);
+
+        assertThat(violations.iterator().next().getMessage()).isEqualTo("Only one key version was provided for the Azure vault key pair.  Either set the version for both the public and private key, or leave both unset");
+    }
+
+    @Test
+    public void azureKeyPairOnlyPrivateKeyVersionSetCreatesViolation() {
+        String is32Chars = "12345678901234567890123456789012";
+
+        AzureVaultKeyPair azureVaultKeyPair = new AzureVaultKeyPair("pubId", "privId", null, is32Chars);
+
+        Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(azureVaultKeyPair);
+        assertThat(violations).hasSize(1);
+
+        assertThat(violations.iterator().next().getMessage()).isEqualTo("Only one key version was provided for the Azure vault key pair.  Either set the version for both the public and private key, or leave both unset");
+    }
+
+    @Test
     public void azureKeyPairProvidedWithoutKeyVaultConfigCreatesViolation() {
         AzureVaultKeyPair keyPair = new AzureVaultKeyPair("publicVauldId", "privateVaultId", null, null);
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null, null);
