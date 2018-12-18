@@ -163,8 +163,7 @@ public class HashicorpStepDefs implements En {
         });
 
         When("Tessera is started", () -> {
-            //TODO Change (see ProcessManager)
-            final String jarfile = "/Users/chrishounsom/jpmc-tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar";
+            final String jarfile = System.getProperty("application.jar");
 
             URL configFile = getClass().getResource("/vault/hashicorp-config.json");
             Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "pidA.pid");
