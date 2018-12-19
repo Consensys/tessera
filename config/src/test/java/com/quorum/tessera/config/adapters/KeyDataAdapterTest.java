@@ -60,11 +60,13 @@ public class KeyDataAdapterTest {
 
     @Test
     public void marshallAzureKeys() {
-        final AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pubId", "privId");
+        final AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pubId", "privId", "pubVer", "privVer");
 
         final KeyData expected = new KeyData();
         expected.setAzureVaultPublicKeyId("pubId");
         expected.setAzureVaultPrivateKeyId("privId");
+        expected.setAzureVaultPublicKeyVersion("pubVer");
+        expected.setAzureVaultPrivateKeyVersion("privVer");
 
         final KeyData result = adapter.marshal(keyPair);
 
@@ -90,10 +92,10 @@ public class KeyDataAdapterTest {
     public void marshallUnsupportedKeys() {
         final KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         final Path path = mock(Path.class);
-        final UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, "priv", null, path, null, null, null, null, null, null, null, null);
+        //set a random selection of values that are not sufficient to make a complete key pair of any type
+        final UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, "priv", null, path, null, null, null, null, null, null, null, null, null, null);
 
         final KeyData expected = new KeyData();
-        //set a random selection of values that are not sufficient to make a complete key pair of any type
         expected.setConfig(keyDataConfig);
         expected.setPrivateKey("priv");
         expected.setPrivateKeyPath(path);
@@ -180,10 +182,24 @@ public class KeyDataAdapterTest {
     }
 
     @Test
-    public void unmarshallingAzureKeysGivesCorrectKeyPair() {
+    public void unmarshallingAzureKeysWithNoVersionsGivesCorrectKeyPair() {
         final KeyData input = new KeyData();
         input.setAzureVaultPublicKeyId("pubId");
         input.setAzureVaultPrivateKeyId("privId");
+        input.setAzureVaultPublicKeyVersion(null);
+        input.setAzureVaultPrivateKeyVersion(null);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(AzureVaultKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingAzureKeysWithVersionsGivesCorrectKeyPair() {
+        final KeyData input = new KeyData();
+        input.setAzureVaultPublicKeyId("pubId");
+        input.setAzureVaultPrivateKeyId("privId");
+        input.setAzureVaultPublicKeyVersion("pubVer");
+        input.setAzureVaultPrivateKeyVersion("privVer");
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(AzureVaultKeyPair.class);

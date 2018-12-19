@@ -8,9 +8,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AzureGetSecretDataTest {
     @Test
     public void getters() {
-        AzureGetSecretData data = new AzureGetSecretData("secretName");
+        AzureGetSecretData data = new AzureGetSecretData("name", "version");
 
-        assertThat(data.getSecretName()).isEqualTo("secretName");
+        assertThat(data.getSecretName()).isEqualTo("name");
+        assertThat(data.getSecretVersion()).isEqualTo("version");
         assertThat(data.getType()).isEqualTo(KeyVaultType.AZURE);
     }
 }

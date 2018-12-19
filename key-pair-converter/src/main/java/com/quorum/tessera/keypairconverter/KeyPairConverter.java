@@ -51,8 +51,8 @@ public class KeyPairConverter {
 
             AzureVaultKeyPair akp = (AzureVaultKeyPair) configKeyPair;
 
-            GetSecretData getPublicKeyData = new AzureGetSecretData(akp.getPublicKeyId());
-            GetSecretData getPrivateKeyData = new AzureGetSecretData(akp.getPrivateKeyId());
+            GetSecretData getPublicKeyData = new AzureGetSecretData(akp.getPublicKeyId(), akp.getPublicKeyVersion());
+            GetSecretData getPrivateKeyData = new AzureGetSecretData(akp.getPrivateKeyId(), akp.getPrivateKeyVersion());
 
             base64PublicKey = keyVaultService.getSecret(getPublicKeyData);
             base64PrivateKey = keyVaultService.getSecret(getPrivateKeyData);

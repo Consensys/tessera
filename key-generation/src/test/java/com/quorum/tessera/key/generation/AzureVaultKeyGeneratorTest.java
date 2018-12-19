@@ -64,7 +64,7 @@ public class AzureVaultKeyGeneratorTest {
 
         verifyNoMoreInteractions(keyVaultService);
 
-        final AzureVaultKeyPair expected = new AzureVaultKeyPair(pubVaultId, privVaultId);
+        final AzureVaultKeyPair expected = new AzureVaultKeyPair(pubVaultId, privVaultId, null, null);
 
         assertThat(result).isEqualToComparingFieldByFieldRecursively(expected);
     }

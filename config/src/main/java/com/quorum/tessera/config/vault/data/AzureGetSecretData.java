@@ -6,8 +6,11 @@ public class AzureGetSecretData implements GetSecretData {
 
     private String secretName;
 
-    public AzureGetSecretData(String secretName) {
+    private String secretVersion;
+
+    public AzureGetSecretData(String secretName, String secretVersion) {
         this.secretName = secretName;
+        this.secretVersion = secretVersion;
     }
 
     @Override
@@ -17,5 +20,9 @@ public class AzureGetSecretData implements GetSecretData {
 
     public String getSecretName() {
         return secretName;
+    }
+
+    public String getSecretVersion() {
+        return secretVersion;
     }
 }

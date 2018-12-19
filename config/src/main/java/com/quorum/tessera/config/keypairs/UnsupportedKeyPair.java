@@ -35,6 +35,12 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
     private String azureVaultPrivateKeyId;
 
     @XmlElement
+    private String azureVaultPublicKeyVersion;
+
+    @XmlElement
+    private String azureVaultPrivateKeyVersion;
+
+    @XmlElement
     private String hashicorpVaultPublicKeyId;
 
     @XmlElement
@@ -49,7 +55,7 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
     @XmlElement
     private String hashicorpVaultSecretVersion;
 
-    public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName, String hashicorpVaultSecretVersion) {
+    public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String azureVaultPublicKeyVersion, String azureVaultPrivateKeyVersion, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName, String hashicorpVaultSecretVersion) {
         this.config = config;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
@@ -57,6 +63,8 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
         this.publicKeyPath = publicKeyPath;
         this.azureVaultPublicKeyId = azureVaultPublicKeyId;
         this.azureVaultPrivateKeyId = azureVaultPrivateKeyId;
+        this.azureVaultPublicKeyVersion = azureVaultPublicKeyVersion;
+        this.azureVaultPrivateKeyVersion = azureVaultPrivateKeyVersion;
         this.hashicorpVaultPublicKeyId = hashicorpVaultPublicKeyId;
         this.hashicorpVaultPrivateKeyId = hashicorpVaultPrivateKeyId;
         this.hashicorpVaultSecretEngineName = hashicorpVaultSecretEngineName;
@@ -96,6 +104,14 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
 
     public String getAzureVaultPrivateKeyId() {
         return azureVaultPrivateKeyId;
+    }
+
+    public String getAzureVaultPublicKeyVersion() {
+        return azureVaultPublicKeyVersion;
+    }
+
+    public String getAzureVaultPrivateKeyVersion() {
+        return azureVaultPrivateKeyVersion;
     }
 
     public String getHashicorpVaultPublicKeyId() {
@@ -154,6 +170,14 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
 
     public void setAzureVaultPrivateKeyId(String azureVaultPrivateKeyId) {
         this.azureVaultPrivateKeyId = azureVaultPrivateKeyId;
+    }
+
+    public void setAzureVaultPublicKeyVersion(String azureVaultPublicKeyVersion) {
+        this.azureVaultPublicKeyVersion = azureVaultPublicKeyVersion;
+    }
+
+    public void setAzureVaultPrivateKeyVersion(String azureVaultPrivateKeyVersion) {
+        this.azureVaultPrivateKeyVersion = azureVaultPrivateKeyVersion;
     }
 
     public void setHashicorpVaultPublicKeyId(String hashicorpVaultPublicKeyId) {

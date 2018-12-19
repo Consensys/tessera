@@ -18,10 +18,10 @@ public class AzureKeyVaultService implements KeyVaultService {
     private AzureKeyVaultClientDelegate azureKeyVaultClientDelegate;
 
     AzureKeyVaultService(AzureKeyVaultConfig keyVaultConfig, AzureKeyVaultClientDelegate azureKeyVaultClientDelegate) {
-        if(Objects.nonNull(keyVaultConfig)) {
-            this.vaultUrl = keyVaultConfig.getUrl();
-        }
+        Objects.requireNonNull(keyVaultConfig);
+        Objects.requireNonNull(azureKeyVaultClientDelegate);
 
+        this.vaultUrl = keyVaultConfig.getUrl();
         this.azureKeyVaultClientDelegate = azureKeyVaultClientDelegate;
     }
 
@@ -33,7 +33,14 @@ public class AzureKeyVaultService implements KeyVaultService {
 
         AzureGetSecretData azureGetSecretData = (AzureGetSecretData) getSecretData;
 
-        SecretBundle secretBundle = azureKeyVaultClientDelegate.getSecret(vaultUrl, azureGetSecretData.getSecretName());
+        SecretBundle secretBundle;
+
+        if(azureGetSecretData.getSecretVersion() != null) {
+            secretBundle = azureKeyVaultClientDelegate.getSecret(vaultUrl, azureGetSecretData.getSecretName(), azureGetSecretData.getSecretVersion());
+        }
+        else {
+            secretBundle = azureKeyVaultClientDelegate.getSecret(vaultUrl, azureGetSecretData.getSecretName());
+        }
 
         if(secretBundle == null) {
             throw new VaultSecretNotFoundException("Azure Key Vault secret " + azureGetSecretData.getSecretName() + " was not found in vault " + vaultUrl);
