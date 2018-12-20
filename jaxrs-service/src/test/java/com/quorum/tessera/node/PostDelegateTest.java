@@ -12,11 +12,15 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import java.net.URI;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class PostDelegateTest {
+
+    private static final URI TARGET = URI.create("http://example.com");
 
     private PostDelegate delegate;
 
@@ -31,7 +35,7 @@ public class PostDelegateTest {
         this.builder = mock(Invocation.Builder.class);
         doReturn(builder).when(webTarget).request();
 
-        doReturn(webTarget).when(client).target(anyString());
+        doReturn(webTarget).when(client).target(any(URI.class));
         doReturn(webTarget).when(webTarget).path(anyString());
 
         this.delegate = new PostDelegate(client);
@@ -43,12 +47,12 @@ public class PostDelegateTest {
         final byte[] responseData = "I LOVE SPARROWS!".getBytes();
         final Response response = mock(Response.class);
 
-        when(response.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+        when(response.getStatusInfo()).thenReturn(Response.Status.OK);
         when(response.readEntity(byte[].class)).thenReturn(responseData);
         when(builder.post(any(Entity.class))).thenReturn(response);
 
         final byte[] data = "BOGUS".getBytes();
-        final byte[] result = delegate.doPost("http://bogus.com", ApiPath.PARTYINFO, data);
+        final byte[] result = delegate.doPost(TARGET, ApiPath.PARTYINFO, data);
         assertThat(result).isSameAs(responseData);
     }
 
@@ -56,11 +60,11 @@ public class PostDelegateTest {
     public void doPostFailure() {
 
         final Response response = mock(Response.class);
-        when(response.getStatus()).thenReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        when(response.getStatusInfo()).thenReturn(Response.Status.INTERNAL_SERVER_ERROR);
         when(builder.post(any(Entity.class))).thenReturn(response);
 
         final byte[] data = "BOGUS".getBytes();
-        final byte[] result = delegate.doPost("http://bogus.com", ApiPath.PARTYINFO, data);
+        final byte[] result = delegate.doPost(TARGET, ApiPath.PARTYINFO, data);
         verify(response, never()).readEntity(byte[].class);
         assertThat(result).isNull();
     }
@@ -69,12 +73,12 @@ public class PostDelegateTest {
     public void makeResendRequestSucceeds() {
 
         final Response response = mock(Response.class);
-        doReturn(Response.Status.OK.getStatusCode()).when(response).getStatus();
+        doReturn(Response.Status.OK).when(response).getStatusInfo();
         doReturn(response).when(builder).post(any(Entity.class));
 
         final ResendRequest request = new ResendRequest();
 
-        final boolean success = this.delegate.makeResendRequest("http://example.com", request);
+        final boolean success = this.delegate.makeResendRequest(TARGET, request);
 
         assertThat(success).isTrue();
     }
@@ -83,12 +87,12 @@ public class PostDelegateTest {
     public void makeResendRequestFails() {
 
         final Response response = mock(Response.class);
-        doReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).when(response).getStatus();
+        doReturn(Response.Status.INTERNAL_SERVER_ERROR).when(response).getStatusInfo();
         doReturn(response).when(builder).post(any(Entity.class));
 
         final ResendRequest request = new ResendRequest();
 
-        final boolean success = this.delegate.makeResendRequest("http://example.com", request);
+        final boolean success = this.delegate.makeResendRequest(TARGET, request);
 
         assertThat(success).isFalse();
     }
@@ -98,12 +102,9 @@ public class PostDelegateTest {
 
         doThrow(RuntimeException.class).when(builder).post(any(Entity.class));
 
-        final Throwable throwable = catchThrowable(
-            () ->delegate.makeResendRequest("randomUrl", new ResendRequest())
-        );
+        final Throwable throwable = catchThrowable(() -> delegate.makeResendRequest(TARGET, new ResendRequest()));
 
         assertThat(throwable).isInstanceOf(RuntimeException.class);
-
     }
 
 }

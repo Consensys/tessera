@@ -4,6 +4,8 @@ import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.encryption.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
+
+import java.net.URI;
 import java.util.Base64;
 import org.junit.After;
 import org.junit.Before;
@@ -36,7 +38,7 @@ public class TransactionRequesterTest {
         this.enclave = mock(Enclave.class);
         this.p2pClient = mock(P2pClient.class);
 
-        doReturn(true).when(p2pClient).makeResendRequest(anyString(), any(ResendRequest.class));
+        doReturn(true).when(p2pClient).makeResendRequest(any(URI.class), any(ResendRequest.class));
 
         this.transactionRequester = new TransactionRequesterImpl(enclave, p2pClient);
     }
@@ -66,7 +68,7 @@ public class TransactionRequesterTest {
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl1.com");
 
         final ArgumentCaptor<ResendRequest> captor = ArgumentCaptor.forClass(ResendRequest.class);
-        verify(p2pClient, times(2)).makeResendRequest(eq("fakeurl1.com"), captor.capture());
+        verify(p2pClient, times(2)).makeResendRequest(eq(URI.create("fakeurl1.com")), captor.capture());
         verify(enclave).getPublicKeys();
 
         String encodedKeyOne = Base64.getEncoder().encodeToString(KEY_ONE.getKeyBytes());
@@ -82,11 +84,11 @@ public class TransactionRequesterTest {
     public void failedCallRetries() {
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(KEY_ONE));
         
-        when(p2pClient.makeResendRequest(anyString(), any(ResendRequest.class))).thenReturn(false);
+        when(p2pClient.makeResendRequest(any(URI.class), any(ResendRequest.class))).thenReturn(false);
 
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
-        verify(p2pClient, times(5)).makeResendRequest(eq("fakeurl.com"), any(ResendRequest.class));
+        verify(p2pClient, times(5)).makeResendRequest(eq(URI.create("fakeurl.com")), any(ResendRequest.class));
         verify(enclave).getPublicKeys();
 
     }
@@ -95,11 +97,11 @@ public class TransactionRequesterTest {
     public void calltoPostDelegateThrowsException() {
 
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(KEY_ONE));
-        when(p2pClient.makeResendRequest(anyString(), any(ResendRequest.class))).thenThrow(RuntimeException.class);
+        when(p2pClient.makeResendRequest(any(URI.class), any(ResendRequest.class))).thenThrow(RuntimeException.class);
         
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
-        verify(p2pClient, times(5)).makeResendRequest(eq("fakeurl.com"), any(ResendRequest.class));
+        verify(p2pClient, times(5)).makeResendRequest(eq(URI.create("fakeurl.com")), any(ResendRequest.class));
         verify(enclave).getPublicKeys();
 
     }

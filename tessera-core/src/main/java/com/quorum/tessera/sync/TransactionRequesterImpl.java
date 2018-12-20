@@ -8,7 +8,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Base64;
+import java.net.URI;
 import java.util.Objects;
 
 public class TransactionRequesterImpl implements TransactionRequester {
@@ -27,13 +27,15 @@ public class TransactionRequesterImpl implements TransactionRequester {
     @Override
     public boolean requestAllTransactionsFromNode(final String uri) {
 
-        LOGGER.debug("Requesting transactions get resent for {}", uri);
+        final URI target = URI.create(uri);
+
+        LOGGER.debug("Requesting transactions get resent for {}", target);
 
         return this.enclave
             .getPublicKeys()
             .stream()
             .map(this::createRequestAllEntity)
-            .allMatch(req -> this.makeRequest(uri, req));
+            .allMatch(req -> this.makeRequest(target, req));
 
     }
 
@@ -41,10 +43,10 @@ public class TransactionRequesterImpl implements TransactionRequester {
      * Will make the desired request until succeeds or max tries has been
      * reached
      *
-     * @param uri     the URI to call
+     * @param target  the URI to call
      * @param request the request object to send
      */
-    private boolean makeRequest(final String uri, final ResendRequest request) {
+    private boolean makeRequest(final URI target, final ResendRequest request) {
         LOGGER.debug("Requesting a resend for key {}", request.getPublicKey());
 
         boolean success;
@@ -53,10 +55,10 @@ public class TransactionRequesterImpl implements TransactionRequester {
         do {
 
             try {
-                success = client.makeResendRequest(uri, request);
+                success = client.makeResendRequest(target, request);
             } catch (final Exception ex) {
                 success = false;
-                LOGGER.debug("Failed to make resend request to node {} for key {}", uri, request.getPublicKey());
+                LOGGER.debug("Failed to make resend request to node {} for key {}", target, request.getPublicKey());
             }
 
             numberOfTries++;
@@ -76,8 +78,7 @@ public class TransactionRequesterImpl implements TransactionRequester {
     private ResendRequest createRequestAllEntity(final PublicKey key) {
 
         final ResendRequest request = new ResendRequest();
-        String encoded = Base64.getEncoder().encodeToString(key.getKeyBytes());
-        request.setPublicKey(encoded);
+        request.setPublicKey(key.encodeToBase64());
         request.setType(ResendRequestType.ALL);
 
         return request;

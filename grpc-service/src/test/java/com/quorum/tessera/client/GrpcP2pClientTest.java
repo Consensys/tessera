@@ -2,16 +2,14 @@ package com.quorum.tessera.client;
 
 import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendRequestType;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.net.URI;
+
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class GrpcP2pClientTest {
 
@@ -23,8 +21,7 @@ public class GrpcP2pClientTest {
 
     private final String targetUrl = "someurl";
 
-    public GrpcP2pClientTest() {
-    }
+    private final URI targetUri = URI.create(targetUrl);
 
     @Before
     public void setUp() {
@@ -43,7 +40,7 @@ public class GrpcP2pClientTest {
     @Test
     public void getPartyInfo() {
         byte[] data = "DATA".getBytes();
-        p2pClient.getPartyInfo(targetUrl, data);
+        p2pClient.getPartyInfo(targetUri, data);
         verify(grpcClientFactory).getClient(targetUrl);
         verify(grpcClient).getPartyInfo(data);
 
@@ -52,7 +49,7 @@ public class GrpcP2pClientTest {
     @Test
     public void push() {
         byte[] data = "DATA".getBytes();
-        p2pClient.push(targetUrl, data);
+        p2pClient.push(targetUri, data);
 
         verify(grpcClientFactory).getClient(targetUrl);
         verify(grpcClient).push(data);
@@ -70,18 +67,11 @@ public class GrpcP2pClientTest {
 
         when(grpcClient.makeResendRequest(any())).thenReturn(true);
 
-        p2pClient.makeResendRequest(targetUrl, resendRequest);
+        p2pClient.makeResendRequest(targetUri, resendRequest);
 
         verify(grpcClientFactory).getClient(targetUrl);
         verify(grpcClient).makeResendRequest(any());
 
-    }
-    
-    @Test
-    public void defaultConstuct() {
-        GrpcP2pClient instance = new GrpcP2pClient();
-        assertThat(instance).isNotNull();
-        
     }
     
 }

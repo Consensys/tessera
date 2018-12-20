@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.ConnectException;
+import java.net.URI;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -17,9 +18,9 @@ import static org.mockito.Mockito.*;
 
 public class PartyInfoPollerTest {
 
-    private static final String OWN_URL = "http://own.com:8080";
+    private static final URI OWN_URL = URI.create("http://own.com:8080");
 
-    private static final String TARGET_URL = "http://bogus.com:9878";
+    private static final URI TARGET_URL = URI.create("http://bogus.com:9878");
 
     private static final byte[] RESPONSE = "BOGUS".getBytes();
 
@@ -49,12 +50,14 @@ public class PartyInfoPollerTest {
 
         doReturn(RESPONSE).when(p2pClient).getPartyInfo(TARGET_URL, RESPONSE);
 
-        final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
+        final PartyInfo partyInfo
+            = new PartyInfo(OWN_URL.toString(), emptySet(), singleton(new Party(TARGET_URL.toString())));
         doReturn(partyInfo).when(partyInfoService).getPartyInfo();
 
         doReturn(RESPONSE).when(partyInfoParser).to(partyInfo);
 
-        final PartyInfo updatedPartyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
+        final PartyInfo updatedPartyInfo
+            = new PartyInfo(OWN_URL.toString(), emptySet(), singleton(new Party(TARGET_URL.toString())));
         doReturn(updatedPartyInfo).when(partyInfoParser).from(RESPONSE);
 
         partyInfoPoller.run();
@@ -73,7 +76,8 @@ public class PartyInfoPollerTest {
 
         doReturn(RESPONSE).when(p2pClient).getPartyInfo(OWN_URL, RESPONSE);
 
-        final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(OWN_URL)));
+        final PartyInfo partyInfo
+            = new PartyInfo(OWN_URL.toString(), emptySet(), singleton(new Party(OWN_URL.toString())));
         doReturn(partyInfo).when(partyInfoService).getPartyInfo();
         doReturn(RESPONSE).when(partyInfoParser).to(partyInfo);
 
@@ -91,7 +95,8 @@ public class PartyInfoPollerTest {
 
         doReturn(null).when(p2pClient).getPartyInfo(TARGET_URL, RESPONSE);
 
-        final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
+        final PartyInfo partyInfo
+            = new PartyInfo(OWN_URL.toString(), emptySet(), singleton(new Party(TARGET_URL.toString())));
 
         doReturn(partyInfo).when(partyInfoService).getPartyInfo();
         doReturn(RESPONSE).when(partyInfoParser).to(partyInfo);
@@ -110,7 +115,8 @@ public class PartyInfoPollerTest {
     @Test
     public void runThrowsException() {
 
-        final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
+        final PartyInfo partyInfo
+            = new PartyInfo(OWN_URL.toString(), emptySet(), singleton(new Party(TARGET_URL.toString())));
 
         doReturn(partyInfo).when(partyInfoService).getPartyInfo();
         doReturn(RESPONSE).when(partyInfoParser).to(partyInfo);
@@ -134,7 +140,8 @@ public class PartyInfoPollerTest {
     @Test
     public void runThrowsConnectionExceptionAndDoesNotThrow() {
 
-        final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
+        final PartyInfo partyInfo
+            = new PartyInfo(OWN_URL.toString(), emptySet(), singleton(new Party(TARGET_URL.toString())));
 
         doReturn(partyInfo).when(partyInfoService).getPartyInfo();
         doReturn(RESPONSE).when(partyInfoParser).to(partyInfo);

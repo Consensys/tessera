@@ -9,6 +9,7 @@ import com.quorum.tessera.node.PartyInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.util.Objects;
 
 import static java.util.Collections.emptyList;
@@ -47,8 +48,9 @@ public class PayloadPublisherImpl implements PayloadPublisher {
         }
 
         final String targetUrl = partyInfoService.getURLFromRecipientKey(recipientKey);
+        final URI target = URI.create(targetUrl);
 
-        LOGGER.info("Publishing message to {}", targetUrl);
+        LOGGER.info("Publishing message to {}", target);
 
         final EncodedPayload encodedPayload = encodedPayloadWithRecipients.getEncodedPayload();
 
@@ -66,8 +68,8 @@ public class PayloadPublisherImpl implements PayloadPublisher {
         );
 
         final byte[] encoded = payloadEncoder.encode(encodedPayloadWithOneRecipient);
-        p2pClient.push(targetUrl, encoded);
-        LOGGER.info("Published to {}", targetUrl);
+        p2pClient.push(target, encoded);
+        LOGGER.info("Published to {}", target);
 
     }
 

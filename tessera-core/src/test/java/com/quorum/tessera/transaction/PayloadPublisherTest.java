@@ -11,6 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URI;
 import java.util.Collections;
 
 import static java.util.Collections.singletonList;
@@ -89,7 +90,7 @@ public class PayloadPublisherTest {
 
         verify(partyInfoService).getURLFromRecipientKey(recipientKey);
         verify(payloadEncoder).encode(any(EncodedPayloadWithRecipients.class));
-        verify(p2pClient).push(url, encodedBytes);
+        verify(p2pClient).push(URI.create(url), encodedBytes);
         verify(enclave).getPublicKeys();
     }
 

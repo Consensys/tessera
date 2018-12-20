@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.ConnectException;
+import java.net.URI;
 import java.util.Objects;
 
 /**
@@ -51,6 +52,7 @@ public class PartyInfoPoller implements Runnable {
             .stream()
             .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
             .map(Party::getUrl)
+            .map(URI::create)
             .map(url -> pollSingleParty(url, encodedPartyInfo))
             .filter(Objects::nonNull)
             .map(partyInfoParser::from)
@@ -64,19 +66,19 @@ public class PartyInfoPoller implements Runnable {
      * connect to the target, it returns null, otherwise throws any exception
      * that can be thrown from {@link javax.ws.rs.client.Client}
      *
-     * @param url              the target URL to call
+     * @param target           the target URL to call
      * @param encodedPartyInfo the encoded current party information
      * @return the encoded partyinfo from the target node, or null is the node
      * could not be reached
      */
-    private byte[] pollSingleParty(final String url, final byte[] encodedPartyInfo) {
+    private byte[] pollSingleParty(final URI target, final byte[] encodedPartyInfo) {
 
         try {
-            return p2pClient.getPartyInfo(url, encodedPartyInfo);
+            return p2pClient.getPartyInfo(target, encodedPartyInfo);
         } catch (final Exception ex) {
 
             if (ConnectException.class.isInstance(ex.getCause())) {
-                LOGGER.warn("Server error {} when connecting to {}", ex.getMessage(), url);
+                LOGGER.warn("Server error {} when connecting to {}", ex.getMessage(), target);
                 LOGGER.debug(null, ex);
                 return null;
             } else {

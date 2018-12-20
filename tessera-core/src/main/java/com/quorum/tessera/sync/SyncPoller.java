@@ -8,6 +8,7 @@ import com.quorum.tessera.sync.model.SyncableParty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -66,7 +67,7 @@ public class SyncPoller implements Runnable {
             final Runnable action = () -> {
 
                 // perform a getPartyInfo in order to ensure that the target tessera has the current tessera as a recipient
-                boolean allSucceeded = updatePartyInfo(url);
+                boolean allSucceeded = this.updatePartyInfo(URI.create(url));
 
                 if (allSucceeded) {
                     allSucceeded = this.transactionRequester.requestAllTransactionsFromNode(url);
@@ -85,16 +86,16 @@ public class SyncPoller implements Runnable {
 
     }
 
-    private boolean updatePartyInfo(String url) {
+    private boolean updatePartyInfo(final URI target) {
         try {
             final PartyInfo partyInfo = partyInfoService.getPartyInfo();
 
             final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
             // we deliberately discard the response as we do not want to fully duplicate the PartyInfoPoller
-            return null != p2pClient.getPartyInfo(url, encodedPartyInfo);
+            return null != p2pClient.getPartyInfo(target, encodedPartyInfo);
         } catch (final Exception ex) {
-            LOGGER.warn("Server error {} when connecting to {}", ex.getMessage(), url);
+            LOGGER.warn("Server error {} when connecting to {}", ex.getMessage(), target);
             LOGGER.debug(null, ex);
             return false;
         }
