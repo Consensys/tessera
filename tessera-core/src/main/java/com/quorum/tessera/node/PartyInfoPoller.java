@@ -50,9 +50,8 @@ public class PartyInfoPoller implements Runnable {
         partyInfo
             .getParties()
             .stream()
-            .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
+            .filter(party -> !party.getUrl().toString().equals(partyInfo.getUrl()))
             .map(Party::getUrl)
-            .map(URI::create)
             .map(url -> pollSingleParty(url, encodedPartyInfo))
             .filter(Objects::nonNull)
             .map(partyInfoParser::from)

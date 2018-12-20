@@ -1,5 +1,7 @@
 package com.quorum.tessera.sync;
 
+import java.net.URI;
+
 /**
  * Makes requests to other nodes to resend their transactions
  * <p>
@@ -15,6 +17,6 @@ public interface TransactionRequester {
      * @param url the URL to contact for resending
      * @return whether all the resend requests for all keys was successful or not
      */
-    boolean requestAllTransactionsFromNode(String url);
+    boolean requestAllTransactionsFromNode(URI url);
 
 }

@@ -62,12 +62,12 @@ public class SyncPoller implements Runnable {
         while (nextPartyToSend.isPresent()) {
 
             final SyncableParty requestDetails = nextPartyToSend.get();
-            final String url = requestDetails.getParty().getUrl();
+            final URI url = requestDetails.getParty().getUrl();
 
             final Runnable action = () -> {
 
                 // perform a getPartyInfo in order to ensure that the target tessera has the current tessera as a recipient
-                boolean allSucceeded = this.updatePartyInfo(URI.create(url));
+                boolean allSucceeded = this.updatePartyInfo(url);
 
                 if (allSucceeded) {
                     allSucceeded = this.transactionRequester.requestAllTransactionsFromNode(url);

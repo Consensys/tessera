@@ -2,6 +2,7 @@ package com.quorum.tessera.node.model;
 
 import org.junit.Test;
 
+import java.net.URI;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,7 +11,6 @@ public class PartyTest {
 
     @Test
     public void differentClassesAreNotEqual() {
-
         final Object other = "test";
         final boolean isEqual = Objects.equals(new Party("partyurl"), other);
 
@@ -25,20 +25,24 @@ public class PartyTest {
     }
 
     @Test
-    public void getKeyBytes() {
+    public void stringGetsConvertedToUri() {
         final Party party = new Party("partyurl");
 
-        assertThat(party.getUrl())
-            .isEqualTo("partyurl")
-            .isSameAs("partyurl");
+        assertThat(party.getUrl()).isEqualTo(URI.create("partyurl"));
     }
 
     @Test
     public void hashCodeIsSame() {
-
         final Party party = new Party("partyurl");
 
         assertThat(party).hasSameHashCodeAs(new Party("partyurl"));
+    }
+
+    @Test
+    public void toStringContainsUrl() {
+        final Party party = new Party("someurl");
+
+        assertThat(party.toString()).contains("someurl");
     }
 
 }

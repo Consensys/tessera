@@ -1,5 +1,6 @@
 package com.quorum.tessera.node.model;
 
+import java.net.URI;
 import java.util.Objects;
 
 /**
@@ -7,13 +8,17 @@ import java.util.Objects;
  */
 public class Party {
 
-    private final String url;
+    private final URI url;
 
-    public Party(final String url) {
+    public Party(final URI url) {
         this.url = url;
     }
 
-    public String getUrl() {
+    public Party(final String url) {
+        this(URI.create(url));
+    }
+
+    public URI getUrl() {
         return url;
     }
 

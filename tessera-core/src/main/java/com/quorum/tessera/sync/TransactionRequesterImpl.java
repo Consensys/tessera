@@ -25,9 +25,7 @@ public class TransactionRequesterImpl implements TransactionRequester {
     }
 
     @Override
-    public boolean requestAllTransactionsFromNode(final String uri) {
-
-        final URI target = URI.create(uri);
+    public boolean requestAllTransactionsFromNode(final URI target) {
 
         LOGGER.debug("Requesting transactions get resent for {}", target);
 

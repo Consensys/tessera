@@ -20,6 +20,10 @@ import static org.mockito.Mockito.*;
 
 public class SyncPollerTest {
 
+    private static final URI TARGET = URI.create("fakeurl.com");
+
+    private static final SyncableParty PARTY = new SyncableParty(new Party(TARGET), 0);
+
     private ExecutorService executorService;
 
     private ResendPartyStore resendPartyStore;
@@ -69,12 +73,9 @@ public class SyncPollerTest {
     @Test
     public void singlePartySubmitsSingleTask() {
 
-        final String targetUrl = "fakeurl.com";
-        final SyncableParty syncableParty = new SyncableParty(new Party(targetUrl), 0);
+        doReturn(true).when(transactionRequester).requestAllTransactionsFromNode(TARGET);
 
-        doReturn(true).when(transactionRequester).requestAllTransactionsFromNode(targetUrl);
-
-        doReturn(Optional.of(syncableParty), Optional.empty()).when(resendPartyStore).getNextParty();
+        doReturn(Optional.of(PARTY), Optional.empty()).when(resendPartyStore).getNextParty();
 
         syncPoller.run();
 
@@ -86,22 +87,19 @@ public class SyncPollerTest {
         final Runnable task = captor.getValue();
         task.run();
 
-        verify(transactionRequester).requestAllTransactionsFromNode(targetUrl);
+        verify(transactionRequester).requestAllTransactionsFromNode(TARGET);
         verify(partyInfoService, times(2)).getPartyInfo();
         verify(partyInfoParser).to(any());
-        verify(p2pClient).getPartyInfo(eq(URI.create(targetUrl)), any());
+        verify(p2pClient).getPartyInfo(eq(TARGET), any());
         verify(partyInfoService, times(2)).getPartyInfo();
     }
 
     @Test
     public void singlePartyTaskFailsAndNotifiesStore() {
 
-        final String targetUrl = "fakeurl.com";
-        final SyncableParty syncableParty = new SyncableParty(new Party(targetUrl), 0);
+        doReturn(false).when(transactionRequester).requestAllTransactionsFromNode(TARGET);
 
-        doReturn(false).when(transactionRequester).requestAllTransactionsFromNode(targetUrl);
-
-        doReturn(Optional.of(syncableParty), Optional.empty()).when(resendPartyStore).getNextParty();
+        doReturn(Optional.of(PARTY), Optional.empty()).when(resendPartyStore).getNextParty();
 
         syncPoller.run();
 
@@ -112,8 +110,8 @@ public class SyncPollerTest {
         final Runnable task = captor.getValue();
         task.run();
 
-        verify(transactionRequester).requestAllTransactionsFromNode(targetUrl);
-        verify(resendPartyStore).incrementFailedAttempt(syncableParty);
+        verify(transactionRequester).requestAllTransactionsFromNode(TARGET);
+        verify(resendPartyStore).incrementFailedAttempt(PARTY);
         verify(resendPartyStore).addUnseenParties(emptySet());
         verify(partyInfoService, times(2)).getPartyInfo();
     }
@@ -121,12 +119,9 @@ public class SyncPollerTest {
     @Test
     public void singlePartyTaskUpdatePartyInfoThrowsAndNotifiesStore() {
 
-        final String targetUrl = "fakeurl.com";
-        final SyncableParty syncableParty = new SyncableParty(new Party(targetUrl), 0);
-
         doThrow(new RuntimeException("Unable to connect")).when(p2pClient).getPartyInfo(any(URI.class), any());
 
-        doReturn(Optional.of(syncableParty), Optional.empty()).when(resendPartyStore).getNextParty();
+        doReturn(Optional.of(PARTY), Optional.empty()).when(resendPartyStore).getNextParty();
 
         syncPoller.run();
 
@@ -137,8 +132,8 @@ public class SyncPollerTest {
         final Runnable task = captor.getValue();
         task.run();
 
-        verify(transactionRequester, times(0)).requestAllTransactionsFromNode(targetUrl);
-        verify(resendPartyStore).incrementFailedAttempt(syncableParty);
+        verify(transactionRequester, times(0)).requestAllTransactionsFromNode(TARGET);
+        verify(resendPartyStore).incrementFailedAttempt(PARTY);
         verify(resendPartyStore).addUnseenParties(emptySet());
         verify(partyInfoService, times(2)).getPartyInfo();
     }
@@ -146,12 +141,9 @@ public class SyncPollerTest {
     @Test
     public void singlePartyTaskUpdatePartyInfoFailsAndNotifiesStore() {
 
-        final String targetUrl = "fakeurl.com";
-        final SyncableParty syncableParty = new SyncableParty(new Party(targetUrl), 0);
-
         doReturn(null).when(p2pClient).getPartyInfo(any(URI.class), any());
 
-        doReturn(Optional.of(syncableParty), Optional.empty()).when(resendPartyStore).getNextParty();
+        doReturn(Optional.of(PARTY), Optional.empty()).when(resendPartyStore).getNextParty();
 
         syncPoller.run();
 
@@ -162,8 +154,8 @@ public class SyncPollerTest {
         final Runnable task = captor.getValue();
         task.run();
 
-        verify(transactionRequester, times(0)).requestAllTransactionsFromNode(targetUrl);
-        verify(resendPartyStore).incrementFailedAttempt(syncableParty);
+        verify(transactionRequester, times(0)).requestAllTransactionsFromNode(TARGET);
+        verify(resendPartyStore).incrementFailedAttempt(PARTY);
         verify(resendPartyStore).addUnseenParties(emptySet());
         verify(partyInfoService, times(2)).getPartyInfo();
     }

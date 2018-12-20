@@ -116,7 +116,7 @@ public interface PartyInfoParser extends BinaryEncoder {
 
         final List<byte[]> parties = partyInfo.getParties()
                 .stream()
-                .map(p -> p.getUrl().getBytes(UTF_8))
+                .map(p -> p.getUrl().toString().getBytes(UTF_8))
                 .collect(Collectors.toList());
 
         final byte[] partiesBytes = encodeArray(parties);

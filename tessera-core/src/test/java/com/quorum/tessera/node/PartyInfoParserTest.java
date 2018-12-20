@@ -160,7 +160,7 @@ public class PartyInfoParserTest {
         byteBuffer.get(partyUrlData);
 
         String partyUrl = new String(partyUrlData);
-        assertThat(partyUrl).isEqualTo(partyInfo.getParties().iterator().next().getUrl());
+        assertThat(partyUrl).isEqualTo(partyInfo.getParties().iterator().next().getUrl().toString());
 
     }
 
