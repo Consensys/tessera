@@ -3,7 +3,6 @@ package com.quorum.tessera.config.keypairs;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.constraints.ValidBase64;
-import com.quorum.tessera.config.constraints.ValidInlineKeypair;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.nacl.NaclException;
 
@@ -12,15 +11,10 @@ import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlElement;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
-import com.quorum.tessera.encryption.PrivateKey;
 import javax.validation.constraints.Size;
 
-@ValidInlineKeypair
 public class InlineKeypair implements ConfigKeyPair {
 
-    @Size(min = 1)
-    @NotNull
-    @ValidBase64(message = "Invalid Base64 key provided")
     @XmlElement
     private final String publicKey;
 
@@ -28,7 +22,9 @@ public class InlineKeypair implements ConfigKeyPair {
     @XmlElement(name = "config")
     private final KeyDataConfig privateKeyConfig;
 
-    private String password = "";
+    private String password;
+
+    private String cachedValue;
 
     public InlineKeypair(final String publicKey, final KeyDataConfig privateKeyConfig) {
         this.publicKey = publicKey;
@@ -40,25 +36,39 @@ public class InlineKeypair implements ConfigKeyPair {
     }
 
     @Override
+    @Size(min = 1)
+    @NotNull
+    @ValidBase64(message = "Invalid Base64 key provided")
     public String getPublicKey() {
         return this.publicKey;
     }
 
     @Override
+    @NotNull
+    @Size(min = 1)
+    @ValidBase64(message = "Invalid Base64 key provided")
     @Pattern(regexp = "^((?!NACL_FAILURE).)*$", message = "Could not decrypt the private key with the provided password, please double check the passwords provided")
+    @Pattern(regexp = "^((?!MISSING_PASSWORD).)*$", message = "{ValidKeyDataConfig.message}")
     public String getPrivateKey() {
         final PrivateKeyData pkd = privateKeyConfig.getPrivateKeyData();
 
         if (privateKeyConfig.getType() == UNLOCKED) {
             return privateKeyConfig.getValue();
-        } else {
-            try {
-                PrivateKey privateKey = KeyEncryptorFactory.create().decryptPrivateKey(pkd, password);
-                return privateKey.encodeToBase64();
-            } catch (final NaclException ex) {
-                return "NACL_FAILURE";
+        }
+
+        if (this.cachedValue == null) {
+            if (password == null) {
+                this.cachedValue = "MISSING_PASSWORD";
+            } else {
+                try {
+                    this.cachedValue = KeyEncryptorFactory.create().decryptPrivateKey(pkd, password).encodeToBase64();
+                } catch (final NaclException ex) {
+                    this.cachedValue = "NACL_FAILURE";
+                }
             }
         }
+
+        return this.cachedValue;
     }
 
     @Override
