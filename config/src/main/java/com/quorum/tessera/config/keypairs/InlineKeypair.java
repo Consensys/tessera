@@ -48,7 +48,7 @@ public class InlineKeypair implements ConfigKeyPair {
     @Size(min = 1)
     @ValidBase64(message = "Invalid Base64 key provided")
     @Pattern(regexp = "^((?!NACL_FAILURE).)*$", message = "Could not decrypt the private key with the provided password, please double check the passwords provided")
-    @Pattern(regexp = "^((?!MISSING_PASSWORD).)*$", message = "{ValidKeyDataConfig.message}")
+    @Pattern(regexp = "^((?!MISSING_PASSWORD).)*$", message = "{InlineKeyData.missingPassword.message}")
     public String getPrivateKey() {
         final PrivateKeyData pkd = privateKeyConfig.getPrivateKeyData();
 
