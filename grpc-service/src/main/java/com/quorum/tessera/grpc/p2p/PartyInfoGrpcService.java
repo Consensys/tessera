@@ -1,14 +1,21 @@
 package com.quorum.tessera.grpc.p2p;
 
 import com.google.protobuf.ByteString;
-import com.quorum.tessera.grpc.p2p.PartyInfoMessage;
+import com.google.protobuf.Empty;
 import com.quorum.tessera.grpc.StreamObserverTemplate;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
+import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
+import com.quorum.tessera.node.model.Recipient;
 import io.grpc.stub.StreamObserver;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toMap;
 
 public class PartyInfoGrpcService extends PartyInfoGrpc.PartyInfoImplBase {
 
@@ -16,16 +23,15 @@ public class PartyInfoGrpcService extends PartyInfoGrpc.PartyInfoImplBase {
 
     private final PartyInfoService partyInfoService;
 
-    public PartyInfoGrpcService(final PartyInfoService partyInfoService,
-            final PartyInfoParser partyInfoParser) {
+    public PartyInfoGrpcService(final PartyInfoService partyInfoService, final PartyInfoParser partyInfoParser) {
         this.partyInfoService = requireNonNull(partyInfoService, "partyInfoService must not be null");
         this.partyInfoParser = requireNonNull(partyInfoParser, "partyInfoParser must not be null");
     }
 
     @Override
-    public void getPartyInfo(PartyInfoMessage request, StreamObserver<PartyInfoMessage> responseObserver) {
+    public void getPartyInfo(final PartyInfoMessage request, final StreamObserver<PartyInfoMessage> responseObserver) {
 
-        StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
+        final StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
         template.handle(() -> {
             
@@ -40,5 +46,28 @@ public class PartyInfoGrpcService extends PartyInfoGrpc.PartyInfoImplBase {
         });
     }
 
-  
+    @Override
+    public void getPartyInfoMessage(final Empty request, final StreamObserver<PartyInfoJson> responseObserver) {
+
+        final StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
+
+        template.handle(() -> {
+
+            final PartyInfo partyInfo = partyInfoService.getPartyInfo();
+            final Set<String> peers = partyInfo.getParties().stream().map(Party::getUrl).collect(Collectors.toSet());
+            final Map<String, String> keys = partyInfo.getRecipients().stream()
+                .collect(toMap(
+                    r -> r.getKey().encodeToBase64(),
+                    Recipient::getUrl)
+                );
+
+            return PartyInfoJson.newBuilder()
+                .setUrl(partyInfo.getUrl())
+                .addAllPeers(peers)
+                .putAllKeys(keys)
+                .build();
+
+        });
+    }
+
 }
