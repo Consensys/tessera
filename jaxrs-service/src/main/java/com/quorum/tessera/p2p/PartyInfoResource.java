@@ -2,7 +2,6 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
-import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -67,7 +66,13 @@ public class PartyInfoResource {
         final PartyInfo current = this.partyInfoService.getPartyInfo();
 
         final JsonArrayBuilder peersBuilder = Json.createArrayBuilder();
-        current.getParties().stream().map(Party::getUrl).forEach(peersBuilder::add);
+        current.getParties()
+            .stream()
+            .map(party -> Json
+                .createObjectBuilder()
+                .add("url", party.getUrl())
+                .build())
+            .forEach(peersBuilder::add);
 
         final JsonArrayBuilder recipientBuilder = Json.createArrayBuilder();
         current.getRecipients()

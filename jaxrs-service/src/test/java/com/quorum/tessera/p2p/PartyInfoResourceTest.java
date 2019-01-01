@@ -76,7 +76,7 @@ public class PartyInfoResourceTest {
     @Test
     public void partyInfoGet() {
 
-        final String partyInfoJson = "{\"url\":\"http://localhost:9001/\",\"peers\":[\"http://localhost:9006/\",\"http://localhost:9005/\"],\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\",\"url\":\"http://localhost:9001/\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\",\"url\":\"http://localhost:9002/\"}]}";
+        final String partyInfoJson = "{\"url\":\"http://localhost:9001/\",\"peers\":[{\"url\":\"http://localhost:9006/\"},{\"url\":\"http://localhost:9005/\"}],\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\",\"url\":\"http://localhost:9001/\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\",\"url\":\"http://localhost:9002/\"}]}";
 
         final PartyInfo partyInfo = new PartyInfo(
             "http://localhost:9001/",
