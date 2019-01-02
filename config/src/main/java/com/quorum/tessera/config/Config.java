@@ -6,7 +6,6 @@ import com.quorum.tessera.config.constraints.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
@@ -30,7 +29,6 @@ public class Config extends ConfigItem {
     private List<@Valid @ValidServerConfig ServerConfig> serverConfigs;
 
     @NotNull
-    @Size(min = 1, message = "At least 1 peer must be provided")
     @Valid
     @XmlElement(name = "peer", required = true)
     private List<Peer> peers;
