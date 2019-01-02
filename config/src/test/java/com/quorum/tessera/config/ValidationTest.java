@@ -51,70 +51,13 @@ public class ValidationTest {
     }
 
     @Test
-    public void keyDataConfigMissingPassword() {
-        PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), null);
-        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-
-        KeyData keyData = new KeyData();
-        keyData.setConfig(keyDataConfig);
-        keyData.setPublicKey("publicKey");
-        keyData.setPrivateKey("privateKey");
-
-        Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<KeyData> violation = violations.iterator().next();
-
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyDataConfig.message}");
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("config");
-    }
-
-    @Test
-    public void keyDataConfigNaclFailure() {
-        PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
-        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-
-        KeyData keyData = new KeyData();
-        keyData.setConfig(keyDataConfig);
-        keyData.setPrivateKey("NACL_FAILURE");
-        keyData.setPublicKey("publicKey");
-
-        Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<KeyData> violation = violations.iterator().next();
-
-        assertThat(violation.getMessageTemplate()).isEqualTo("Could not decrypt the private key with the provided password, please double check the passwords provided");
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("privateKey");
-    }
-
-    @Test
-    public void keyDataConfigInvalidBase64() {
-        PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
-        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-
-        KeyData keyData = new KeyData();
-        keyData.setConfig(keyDataConfig);
-        keyData.setPrivateKey("INVALID_BASE");
-        keyData.setPublicKey("publicKey");
-
-        Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<KeyData> violation = violations.iterator().next();
-
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidBase64.message}");
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("privateKey");
-    }
-
-    @Test
     public void inlineKeyPairNoPasswordProvided() {
         KeyDataConfig keyConfig = mock(KeyDataConfig.class);
         when(keyConfig.getType()).thenReturn(PrivateKeyType.LOCKED);
-        when(keyConfig.getValue()).thenReturn("");
+        when(keyConfig.getValue()).thenReturn(null);
 
         InlineKeypair spy = Mockito.spy(new InlineKeypair("validkey", keyConfig));
-        doReturn("validkey").when(spy).getPrivateKey();
+        doReturn("MISSING_PASSWORD").when(spy).getPrivateKey();
 
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(spy), null, null);
 
