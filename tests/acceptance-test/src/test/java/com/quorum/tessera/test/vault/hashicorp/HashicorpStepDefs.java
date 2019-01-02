@@ -87,7 +87,7 @@ public class HashicorpStepDefs implements En {
 
             // wait so that assertion is not evaluated before output is checked
             CountDownLatch startUpLatch = new CountDownLatch(1);
-            boolean started = startUpLatch.await(5, TimeUnit.SECONDS);
+            startUpLatch.await(5, TimeUnit.SECONDS);
 
             assertThat(isAddressAlreadyInUse).isFalse();
 
@@ -163,6 +163,9 @@ public class HashicorpStepDefs implements En {
         });
 
         When("Tessera is started", () -> {
+            //only needed when running outside of maven build process
+//            System.setProperty("application.jar", "/Users/chrishounsom/jpmc-tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
+
             final String jarfile = System.getProperty("application.jar");
 
             URL configFile = getClass().getResource("/vault/hashicorp-config.json");
@@ -192,7 +195,7 @@ public class HashicorpStepDefs implements En {
 
             tesseraProcess.set(
                 tesseraProcessBuilder.redirectErrorStream(true)
-                                        .start()
+                    .start()
             );
 
             executorService.submit(() -> {
@@ -262,6 +265,7 @@ public class HashicorpStepDefs implements En {
 
 
         Then("Tessera will retrieve the key pair from the vault", () -> {
+            //TODO Use GET partyinfo endpoint instead of POST
             final Client client = ClientBuilder.newClient();
             final URI uri = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
 

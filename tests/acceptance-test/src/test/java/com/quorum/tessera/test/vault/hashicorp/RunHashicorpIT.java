@@ -9,5 +9,5 @@ import org.junit.runner.RunWith;
     features = "classpath:features/vault/hashicorp.feature",
     plugin = {"pretty"}
 )
-public class RunHashicorpTest {
+public class RunHashicorpIT {
 }
