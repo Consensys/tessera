@@ -2,10 +2,10 @@ package com.quorum.tessera.grpc.p2p;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
+import com.google.protobuf.Timestamp;
 import com.quorum.tessera.grpc.StreamObserverTemplate;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
-import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
 import io.grpc.stub.StreamObserver;
@@ -54,12 +54,25 @@ public class PartyInfoGrpcService extends PartyInfoGrpc.PartyInfoImplBase {
         template.handle(() -> {
 
             final PartyInfo partyInfo = partyInfoService.getPartyInfo();
-            final Set<String> peers = partyInfo.getParties().stream().map(Party::getUrl).collect(Collectors.toSet());
-            final Map<String, String> keys = partyInfo.getRecipients().stream()
-                .collect(toMap(
-                    r -> r.getKey().encodeToBase64(),
-                    Recipient::getUrl)
-                );
+            final Set<Peer> peers = partyInfo.getParties()
+                .stream()
+                .map(party -> {
+                    final Peer.Builder builder = Peer.newBuilder().setUrl(party.getUrl());
+
+                    if (party.getLastContacted() != null) {
+                        final Timestamp timestamp = Timestamp.newBuilder()
+                            .setSeconds(party.getLastContacted().getEpochSecond())
+                            .build();
+
+                        builder.setUtcTimestamp(timestamp);
+                    }
+
+                    return builder.build();
+                }).collect(Collectors.toSet());
+
+            final Map<String, String> keys = partyInfo.getRecipients()
+                .stream()
+                .collect(toMap(r -> r.getKey().encodeToBase64(), Recipient::getUrl));
 
             return PartyInfoJson.newBuilder()
                 .setUrl(partyInfo.getUrl())

@@ -5,6 +5,7 @@ import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,6 +40,12 @@ public class PartyInfoStore {
     public synchronized void store(final PartyInfo newInfo) {
         recipients.addAll(newInfo.getRecipients());
         parties.addAll(newInfo.getParties());
+
+        //update the sender to have been seen recently
+        final Party sender = new Party(newInfo.getUrl());
+        sender.setLastContacted(Instant.now());
+        parties.remove(sender);
+        parties.add(sender);
     }
 
     /**

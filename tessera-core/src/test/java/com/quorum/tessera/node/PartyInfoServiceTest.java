@@ -32,8 +32,6 @@ public class PartyInfoServiceTest {
 
     private static final String URI = "http://localhost:8080";
 
-    private static final Set<Party> NEW_PARTIES = Stream.of(new Party("url1"), new Party("url2")).collect(toSet());
-
     private PartyInfoStore partyInfoStore;
 
     private ConfigService configService;

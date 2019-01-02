@@ -2,6 +2,7 @@ package com.quorum.tessera.grpc.p2p;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
+import com.google.protobuf.Timestamp;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
@@ -16,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.Instant;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,13 +92,17 @@ public class PartyInfoGrpcServiceTest {
         expectedKeys.put("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=", "http://localhost:9001/");
         expectedKeys.put("QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=", "http://localhost:9002/");
 
+        final Party partyWithoutTimestamp = new Party("http://localhost:9006/");
+        final Party partyWithTimestamp = new Party("http://localhost:9005/");
+        partyWithTimestamp.setLastContacted(Instant.parse("2019-01-02T15:03:22.875Z"));
+
         final PartyInfo partyInfo = new PartyInfo(
             "http://localhost:9001/",
             new HashSet<>(Arrays.asList(
                 new Recipient(PublicKey.from(Base64.getDecoder().decode("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")), "http://localhost:9001/"),
                 new Recipient(PublicKey.from(Base64.getDecoder().decode("QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=")), "http://localhost:9002/"))
             ),
-            new HashSet<>(Arrays.asList(new Party("http://localhost:9005/"), new Party("http://localhost:9006/")))
+            new HashSet<>(Arrays.asList(partyWithTimestamp, partyWithoutTimestamp))
         );
 
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
@@ -111,7 +117,13 @@ public class PartyInfoGrpcServiceTest {
 
         assertThat(response).isNotNull();
         assertThat(response.getUrl()).isEqualTo("http://localhost:9001/");
-        assertThat(response.getPeersList().iterator()).containsExactlyInAnyOrder("http://localhost:9006/", "http://localhost:9005/");
+        assertThat(response.getPeersList().iterator()).containsExactlyInAnyOrder(
+            Peer.newBuilder().setUrl("http://localhost:9006/")
+                .build(),
+            Peer.newBuilder().setUrl("http://localhost:9005/")
+                .setUtcTimestamp(Timestamp.newBuilder().setSeconds(1546441402).build())
+                .build()
+        );
         assertThat(response.getKeysMap()).containsAllEntriesOf(expectedKeys);
 
         verify(partyInfoService).getPartyInfo();
