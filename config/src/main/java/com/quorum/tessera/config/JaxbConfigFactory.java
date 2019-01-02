@@ -42,7 +42,7 @@ public class JaxbConfigFactory implements ConfigFactory {
                 } else if (config.getKeys().getPasswordFile() != null) {
                     this.createFile(config.getKeys().getPasswordFile());
                     Files.write(config.getKeys().getPasswordFile(), newPasswords, APPEND);
-                } else if (!newPasswords.stream().allMatch(""::equals)) {
+                } else if (!newPasswords.stream().allMatch(Objects::isNull)) {
                     final List<String> existingPasswords = config
                         .getKeys()
                         .getKeyData()

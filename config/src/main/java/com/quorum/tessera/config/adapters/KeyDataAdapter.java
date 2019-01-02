@@ -9,7 +9,9 @@ import java.util.Objects;
 public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
 
     public static final String NACL_FAILURE_TOKEN = "NACL_FAILURE";
-    
+
+    public static final String MISSING_PASSWORD_TOKEN = "MISSING_PASSWORD";
+
     @Override
     public ConfigKeyPair unmarshal(final KeyData keyData) {
 

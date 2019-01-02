@@ -41,7 +41,7 @@ public class KeyConfigurationAdapterTest {
         final ConfigKeyPair returned = configuration.getKeyData().get(0);
 
         //passwords are always non-null, set to empty string if not present or not needed
-        assertThat(returned.getPassword()).isEqualTo("");
+        assertThat(returned.getPassword()).isNull();
         assertThat(returned).isSameAs(keypair);
     }
 
@@ -58,7 +58,7 @@ public class KeyConfigurationAdapterTest {
         final ConfigKeyPair returned = configuration.getKeyData().get(0);
 
         //passwords are always non-null, set to empty string if not present or not needed
-        assertThat(returned.getPassword()).isEqualTo("");
+        assertThat(returned.getPassword()).isNull();
         assertThat(returned).isSameAs(keypair);
     }
 
@@ -89,7 +89,7 @@ public class KeyConfigurationAdapterTest {
 
         assertThat(configuration.getKeyData()).hasSize(1);
         final ConfigKeyPair returned = configuration.getKeyData().get(0);
-        assertThat(returned.getPassword()).isEqualTo("");
+        assertThat(returned.getPassword()).isNull();
 
     }
 
