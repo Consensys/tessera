@@ -31,7 +31,6 @@ public class FilesystemKeyPairTest {
         Path pubFile = Files.createTempFile(UUID.randomUUID().toString(), ".pub");
         Path privFile = Paths.get(getClass().getResource("/unlockedprivatekey.json").toURI());
 
-        pubFile.toFile().deleteOnExit();
         String pub = "public";
         Files.write(pubFile, pub.getBytes());
 
