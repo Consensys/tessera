@@ -1,8 +1,6 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.PathAdapter;
-import com.quorum.tessera.config.constraints.ValidBase64;
-import com.quorum.tessera.config.constraints.ValidKeyDataConfig;
 
 import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -14,13 +12,9 @@ import java.nio.file.Path;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyData extends ConfigItem {
 
-    @ValidKeyDataConfig
     @XmlElement
     private KeyDataConfig config;
 
-    @ValidBase64
-    @Pattern(regexp = "^((?!NACL_FAILURE).)*$",
-            message = "Could not decrypt the private key with the provided password, please double check the passwords provided")
     @XmlElement
     private String privateKey;
 
