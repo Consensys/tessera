@@ -8,10 +8,9 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -28,8 +27,7 @@ public class PartyInfoResource {
 
     private final PartyInfoService partyInfoService;
 
-    public PartyInfoResource(final PartyInfoService partyInfoService,
-                             final PartyInfoParser partyInfoParser) {
+    public PartyInfoResource(final PartyInfoService partyInfoService, final PartyInfoParser partyInfoParser) {
         this.partyInfoService = requireNonNull(partyInfoService, "partyInfoService must not be null");
         this.partyInfoParser = requireNonNull(partyInfoParser, "partyInfoParser must not be null");
     }
@@ -56,8 +54,45 @@ public class PartyInfoResource {
 
         final StreamingOutput streamingOutput = out -> out.write(encoded);
 
-        return Response.status(Response.Status.OK)
-            .entity(streamingOutput)
-            .build();
+        return Response.status(Response.Status.OK).entity(streamingOutput).build();
     }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Fetch network/peer information", produces = "public list of peers/publickey mappings")
+    @ApiResponses({@ApiResponse(code = 200, message = "Peer/Network information", response = PartyInfo.class)})
+    public Response getPartyInfo() {
+
+        final PartyInfo current = this.partyInfoService.getPartyInfo();
+
+        final JsonArrayBuilder peersBuilder = Json.createArrayBuilder();
+        current.getParties()
+            .stream()
+            .map(party -> Json
+                .createObjectBuilder()
+                .add("url", party.getUrl())
+                .build())
+            .forEach(peersBuilder::add);
+
+        final JsonArrayBuilder recipientBuilder = Json.createArrayBuilder();
+        current.getRecipients()
+            .stream()
+            .map(recipient -> Json
+                .createObjectBuilder()
+                .add("key", recipient.getKey().encodeToBase64())
+                .add("url", recipient.getUrl())
+                .build()
+            ).forEach(recipientBuilder::add);
+
+        final String output = Json
+            .createObjectBuilder()
+            .add("url", current.getUrl())
+            .add("peers", peersBuilder.build())
+            .add("keys", recipientBuilder.build())
+            .build()
+            .toString();
+
+        return Response.status(Response.Status.OK).entity(output).build();
+    }
+
 }

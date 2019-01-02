@@ -1,9 +1,13 @@
 package com.quorum.tessera.grpc.p2p;
 
 import com.google.protobuf.ByteString;
+import com.google.protobuf.Empty;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
+import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
+import com.quorum.tessera.node.model.Recipient;
 import io.grpc.stub.StreamObserver;
 import org.junit.After;
 import org.junit.Before;
@@ -11,6 +15,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -71,6 +77,44 @@ public class PartyInfoGrpcServiceTest {
         verify(partyInfoService).updatePartyInfo(partyInfo);
         verify(partyInfoParser).to(partyInfo);
 
+        verify(streamObserver).onCompleted();
+
+    }
+
+    @Test
+    public void partyInfoJsonGet() {
+
+        final StreamObserver<PartyInfoJson> streamObserver = mock(StreamObserver.class);
+
+        final Map<String, String> expectedKeys = new HashMap<>();
+        expectedKeys.put("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=", "http://localhost:9001/");
+        expectedKeys.put("QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=", "http://localhost:9002/");
+
+        final PartyInfo partyInfo = new PartyInfo(
+            "http://localhost:9001/",
+            new HashSet<>(Arrays.asList(
+                new Recipient(PublicKey.from(Base64.getDecoder().decode("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")), "http://localhost:9001/"),
+                new Recipient(PublicKey.from(Base64.getDecoder().decode("QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=")), "http://localhost:9002/"))
+            ),
+            new HashSet<>(Arrays.asList(new Party("http://localhost:9005/"), new Party("http://localhost:9006/")))
+        );
+
+        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+
+        ///
+
+        service.getPartyInfoMessage(Empty.getDefaultInstance(), streamObserver);
+
+        ArgumentCaptor<PartyInfoJson> responseCaptor = ArgumentCaptor.forClass(PartyInfoJson.class);
+        verify(streamObserver).onNext(responseCaptor.capture());
+        PartyInfoJson response = responseCaptor.getValue();
+
+        assertThat(response).isNotNull();
+        assertThat(response.getUrl()).isEqualTo("http://localhost:9001/");
+        assertThat(response.getPeersList().iterator()).containsExactlyInAnyOrder("http://localhost:9006/", "http://localhost:9005/");
+        assertThat(response.getKeysMap()).containsAllEntriesOf(expectedKeys);
+
+        verify(partyInfoService).getPartyInfo();
         verify(streamObserver).onCompleted();
 
     }
