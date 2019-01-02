@@ -4,22 +4,22 @@ import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.core.config.ConfigService;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.model.PartyInfo;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Response;
-import static org.assertj.core.api.Assertions.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import org.mockito.Mockito;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ConfigResourceTest {
 
@@ -43,32 +43,61 @@ public class ConfigResourceTest {
     }
 
     @Test
-    public void addPeerIsSucessful() {
+    public void addPeerIsSuccessful() {
 
-        List<Peer> peers = new ArrayList<>();
-        Mockito.doAnswer((inv) -> {
+        final Peer peer = new Peer("junit");
+        final List<Peer> peers = new ArrayList<>();
+
+        Mockito.doAnswer(inv -> {
             peers.add(new Peer(inv.getArgument(0)));
             return null;
         }).when(configService).addPeer(anyString());
         when(configService.getPeers()).thenReturn(peers);
 
-        Peer peer = new Peer("junit");
+        final Response response = configResource.addPeer(peer);
 
-        Response response = configResource.addPeer(peer);
         assertThat(response.getStatus()).isEqualTo(201);
         assertThat(response.getLocation().toString()).isEqualTo("config/peers/0");
         assertThat(peers).containsExactly(peer);
+
         verify(configService).addPeer(peer.getUrl());
-        verify(configService).getPeers();
+        verify(configService, times(2)).getPeers();
         verify(partyInfoService).updatePartyInfo(any(PartyInfo.class));
     }
 
     @Test
-    public void getPeerIsSucessful() {
-        Peer peer = new Peer("getPeerIsSucessfulUrl");
-        when(configService.getPeers()).thenReturn(Arrays.asList(peer));
+    public void addExistingPeerIsSuccessful() {
 
-        Response response = configResource.getPeer(0);
+        final Peer peer = new Peer("junit");
+        final List<Peer> peers = new ArrayList<>();
+
+        Mockito.doAnswer(inv -> {
+            peers.add(new Peer(inv.getArgument(0)));
+            return null;
+        }).when(configService).addPeer(anyString());
+        when(configService.getPeers()).thenReturn(peers);
+
+        final Response responseOne = configResource.addPeer(peer);
+        assertThat(responseOne.getStatus()).isEqualTo(201);
+        assertThat(responseOne.getLocation().toString()).isEqualTo("config/peers/0");
+        assertThat(peers).containsExactly(peer);
+
+        final Response responseTwo = configResource.addPeer(peer);
+        assertThat(responseTwo.getStatus()).isEqualTo(200);
+        assertThat(responseTwo.getLocation().toString()).isEqualTo("config/peers/0");
+        assertThat(peers).containsExactly(peer);
+
+        verify(configService).addPeer(peer.getUrl());
+        verify(configService, times(4)).getPeers();
+        verify(partyInfoService).updatePartyInfo(any(PartyInfo.class));
+    }
+
+    @Test
+    public void getPeerIsSuccessful() {
+        final Peer peer = new Peer("getPeerIsSucessfulUrl");
+        when(configService.getPeers()).thenReturn(singletonList(peer));
+
+        final Response response = configResource.getPeer(0);
 
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getEntity()).isEqualTo(peer);
@@ -78,22 +107,23 @@ public class ConfigResourceTest {
 
     @Test
     public void getPeerNotFound() {
-        Peer peer = new Peer("getPeerNoptFound");
-        when(configService.getPeers()).thenReturn(Arrays.asList(peer));
+        final Peer peer = new Peer("getPeerNoptFound");
+        when(configService.getPeers()).thenReturn(singletonList(peer));
 
-        try {
-            configResource.getPeer(2);
-            failBecauseExceptionWasNotThrown(NotFoundException.class);
-        } catch (NotFoundException ex) {
-            verify(configService).getPeers();
-        }
+        final Throwable throwable = catchThrowable(() -> this.configResource.getPeer(2));
+
+        assertThat(throwable).isInstanceOf(NotFoundException.class);
+
+        verify(configService).getPeers();
     }
 
     @Test
     public void getPeers() {
-        Peer peer = new Peer("somepeer");
-        when(configService.getPeers()).thenReturn(Arrays.asList(peer));
-        Response response = configResource.getPeers();
+        final Peer peer = new Peer("somepeer");
+        when(configService.getPeers()).thenReturn(singletonList(peer));
+
+        final Response response = configResource.getPeers();
+
         assertThat(response.getStatus()).isEqualTo(200);
         
         List<Peer> results = (List<Peer>) response.getEntity();
