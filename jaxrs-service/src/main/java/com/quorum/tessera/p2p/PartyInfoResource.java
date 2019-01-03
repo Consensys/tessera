@@ -66,9 +66,11 @@ public class PartyInfoResource {
 
         final PartyInfo current = this.partyInfoService.getPartyInfo();
 
+        //TODO: remove the filter when URIs don't need to end with a /
         final JsonArrayBuilder peersBuilder = Json.createArrayBuilder();
         current.getParties()
             .stream()
+            .filter(p -> p.getUrl().endsWith("/"))
             .map(party -> {
                 final JsonObjectBuilder builder = Json.createObjectBuilder();
                 builder.add("url", party.getUrl());

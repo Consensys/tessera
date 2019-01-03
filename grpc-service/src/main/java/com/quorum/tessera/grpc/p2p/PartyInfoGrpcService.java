@@ -56,6 +56,7 @@ public class PartyInfoGrpcService extends PartyInfoGrpc.PartyInfoImplBase {
             final PartyInfo partyInfo = partyInfoService.getPartyInfo();
             final Set<Peer> peers = partyInfo.getParties()
                 .stream()
+                .filter(p -> p.getUrl().endsWith("/"))
                 .map(party -> {
                     final Peer.Builder builder = Peer.newBuilder().setUrl(party.getUrl());
 
