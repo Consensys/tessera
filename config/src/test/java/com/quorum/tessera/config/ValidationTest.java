@@ -51,70 +51,13 @@ public class ValidationTest {
     }
 
     @Test
-    public void keyDataConfigMissingPassword() {
-        PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), null);
-        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-
-        KeyData keyData = new KeyData();
-        keyData.setConfig(keyDataConfig);
-        keyData.setPublicKey("publicKey");
-        keyData.setPrivateKey("privateKey");
-
-        Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<KeyData> violation = violations.iterator().next();
-
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyDataConfig.message}");
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("config");
-    }
-
-    @Test
-    public void keyDataConfigNaclFailure() {
-        PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
-        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-
-        KeyData keyData = new KeyData();
-        keyData.setConfig(keyDataConfig);
-        keyData.setPrivateKey("NACL_FAILURE");
-        keyData.setPublicKey("publicKey");
-
-        Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<KeyData> violation = violations.iterator().next();
-
-        assertThat(violation.getMessageTemplate()).isEqualTo("Could not decrypt the private key with the provided password, please double check the passwords provided");
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("privateKey");
-    }
-
-    @Test
-    public void keyDataConfigInvalidBase64() {
-        PrivateKeyData privateKeyData = new PrivateKeyData(null, "snonce", "asalt", "sbox", mock(ArgonOptions.class), "SECRET");
-        KeyDataConfig keyDataConfig = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-
-        KeyData keyData = new KeyData();
-        keyData.setConfig(keyDataConfig);
-        keyData.setPrivateKey("INVALID_BASE");
-        keyData.setPublicKey("publicKey");
-
-        Set<ConstraintViolation<KeyData>> violations = validator.validate(keyData);
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<KeyData> violation = violations.iterator().next();
-
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidBase64.message}");
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("privateKey");
-    }
-
-    @Test
     public void inlineKeyPairNoPasswordProvided() {
         KeyDataConfig keyConfig = mock(KeyDataConfig.class);
         when(keyConfig.getType()).thenReturn(PrivateKeyType.LOCKED);
-        when(keyConfig.getValue()).thenReturn("");
+        when(keyConfig.getValue()).thenReturn(null);
 
         InlineKeypair spy = Mockito.spy(new InlineKeypair("validkey", keyConfig));
-        doReturn("validkey").when(spy).getPrivateKey();
+        doReturn("MISSING_PASSWORD").when(spy).getPrivateKey();
 
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(spy), null, null);
 
@@ -255,7 +198,7 @@ public class ValidationTest {
     @Test
     public void azureKeyPairIdsAllowedCharacterSetIsAlphanumericAndDash() {
         String keyVaultId = "0123456789-abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        AzureVaultKeyPair keyPair = new AzureVaultKeyPair(keyVaultId, keyVaultId);
+        AzureVaultKeyPair keyPair = new AzureVaultKeyPair(keyVaultId, keyVaultId, null, null);
 
         Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(keyPair);
         assertThat(violations).hasSize(0);
@@ -264,7 +207,7 @@ public class ValidationTest {
     @Test
     public void azureKeyPairIdsDisallowedCharactersCreateViolation() {
         String keyVaultId = "invalid_@!£$%^~^&_id";
-        AzureVaultKeyPair keyPair = new AzureVaultKeyPair(keyVaultId, keyVaultId);
+        AzureVaultKeyPair keyPair = new AzureVaultKeyPair(keyVaultId, keyVaultId, null, null);
 
         Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(keyPair);
         assertThat(violations).hasSize(2);
@@ -275,8 +218,65 @@ public class ValidationTest {
     }
 
     @Test
+    public void azureKeyPairKeyVersionMustBe32CharsLong() {
+        String is32Chars = "12345678901234567890123456789012";
+        AzureVaultKeyPair keyPair = new AzureVaultKeyPair("id", "id", is32Chars, is32Chars);
+
+        Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(keyPair);
+        assertThat(violations).hasSize(0);
+    }
+
+    @Test
+    public void azureKeyPairKeyVersionLongerThan32CharsCreatesViolation() {
+        String is33Chars = "123456789012345678901234567890123";
+        AzureVaultKeyPair keyPair = new AzureVaultKeyPair("id", "id", is33Chars, is33Chars);
+
+        Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(keyPair);
+        assertThat(violations).hasSize(2);
+
+        assertThat(violations).extracting("messageTemplate")
+            .containsExactly("length must be 32 characters", "length must be 32 characters");
+    }
+
+    @Test
+    public void azureKeyPairKeyVersionShorterThan32CharsCreatesViolation() {
+        String is31Chars = "1234567890123456789012345678901";
+        AzureVaultKeyPair keyPair = new AzureVaultKeyPair("id", "id", is31Chars, is31Chars);
+
+        Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(keyPair);
+        assertThat(violations).hasSize(2);
+
+        assertThat(violations).extracting("messageTemplate")
+            .containsExactly("length must be 32 characters", "length must be 32 characters");
+    }
+
+    @Test
+    public void azureKeyPairOnlyPublicKeyVersionSetCreatesViolation() {
+        String is32Chars = "12345678901234567890123456789012";
+
+        AzureVaultKeyPair azureVaultKeyPair = new AzureVaultKeyPair("pubId", "privId", is32Chars, null);
+
+        Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(azureVaultKeyPair);
+        assertThat(violations).hasSize(1);
+
+        assertThat(violations.iterator().next().getMessage()).isEqualTo("Only one key version was provided for the Azure vault key pair.  Either set the version for both the public and private key, or leave both unset");
+    }
+
+    @Test
+    public void azureKeyPairOnlyPrivateKeyVersionSetCreatesViolation() {
+        String is32Chars = "12345678901234567890123456789012";
+
+        AzureVaultKeyPair azureVaultKeyPair = new AzureVaultKeyPair("pubId", "privId", null, is32Chars);
+
+        Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(azureVaultKeyPair);
+        assertThat(violations).hasSize(1);
+
+        assertThat(violations.iterator().next().getMessage()).isEqualTo("Only one key version was provided for the Azure vault key pair.  Either set the version for both the public and private key, or leave both unset");
+    }
+
+    @Test
     public void azureKeyPairProvidedWithoutKeyVaultConfigCreatesViolation() {
-        AzureVaultKeyPair keyPair = new AzureVaultKeyPair("publicVauldId", "privateVaultId");
+        AzureVaultKeyPair keyPair = new AzureVaultKeyPair("publicVauldId", "privateVaultId", null, null);
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null, null);
         Config config = new Config(null, null, null, keyConfiguration, null, null, false, false);
 
@@ -289,7 +289,7 @@ public class ValidationTest {
 
     @Test
     public void azureKeyPairProvidedWithHashicorpKeyVaultConfigCreatesViolation() {
-        AzureVaultKeyPair keyPair = new AzureVaultKeyPair("publicVauldId", "privateVaultId");
+        AzureVaultKeyPair keyPair = new AzureVaultKeyPair("publicVauldId", "privateVaultId", null, null);
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
         keyConfiguration.setKeyData(singletonList(keyPair));
@@ -382,7 +382,7 @@ public class ValidationTest {
 
     @Test
     public void azureVaultKeyPairProvidedButKeyVaultConfigHasNullUrlCreatesNotNullViolation() {
-        AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pubId", "privId");
+        AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pubId", "privId", null, null);
         AzureKeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig(null);
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), keyVaultConfig, null);
 

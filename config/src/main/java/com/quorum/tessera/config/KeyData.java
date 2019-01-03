@@ -1,8 +1,6 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.PathAdapter;
-import com.quorum.tessera.config.constraints.ValidBase64;
-import com.quorum.tessera.config.constraints.ValidKeyDataConfig;
 
 import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -14,13 +12,9 @@ import java.nio.file.Path;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyData extends ConfigItem {
 
-    @ValidKeyDataConfig
     @XmlElement
     private KeyDataConfig config;
 
-    @ValidBase64
-    @Pattern(regexp = "^((?!NACL_FAILURE).)*$",
-            message = "Could not decrypt the private key with the provided password, please double check the passwords provided")
     @XmlElement
     private String privateKey;
 
@@ -44,6 +38,12 @@ public class KeyData extends ConfigItem {
     private String azureVaultPrivateKeyId;
 
     @XmlElement
+    private String azureVaultPublicKeyVersion;
+
+    @XmlElement
+    private String azureVaultPrivateKeyVersion;
+
+    @XmlElement
     private String hashicorpVaultPublicKeyId;
 
     @XmlElement
@@ -58,7 +58,7 @@ public class KeyData extends ConfigItem {
     @XmlElement
     private String hashicorpVaultSecretVersion;
 
-    public KeyData(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName, String hashicorpVaultSecretVersion) {
+    public KeyData(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String azureVaultPublicKeyVersion, String azureVaultPrivateKeyVersion, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName, String hashicorpVaultSecretVersion) {
         this.config = config;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
@@ -66,6 +66,8 @@ public class KeyData extends ConfigItem {
         this.publicKeyPath = publicKeyPath;
         this.azureVaultPublicKeyId = azureVaultPublicKeyId;
         this.azureVaultPrivateKeyId = azureVaultPrivateKeyId;
+        this.azureVaultPublicKeyVersion = azureVaultPublicKeyVersion;
+        this.azureVaultPrivateKeyVersion = azureVaultPrivateKeyVersion;
         this.hashicorpVaultPublicKeyId = hashicorpVaultPublicKeyId;
         this.hashicorpVaultPrivateKeyId = hashicorpVaultPrivateKeyId;
         this.hashicorpVaultSecretEngineName = hashicorpVaultSecretEngineName;
@@ -103,6 +105,14 @@ public class KeyData extends ConfigItem {
 
     public String getAzureVaultPrivateKeyId() {
         return azureVaultPrivateKeyId;
+    }
+
+    public String getAzureVaultPublicKeyVersion() {
+        return azureVaultPublicKeyVersion;
+    }
+
+    public String getAzureVaultPrivateKeyVersion() {
+        return azureVaultPrivateKeyVersion;
     }
 
     public String getHashicorpVaultPublicKeyId() {
@@ -151,6 +161,14 @@ public class KeyData extends ConfigItem {
 
     public void setAzureVaultPrivateKeyId(String azureVaultPrivateKeyId) {
         this.azureVaultPrivateKeyId = azureVaultPrivateKeyId;
+    }
+
+    public void setAzureVaultPublicKeyVersion(String azureVaultPublicKeyVersion) {
+        this.azureVaultPublicKeyVersion = azureVaultPublicKeyVersion;
+    }
+
+    public void setAzureVaultPrivateKeyVersion(String azureVaultPrivateKeyVersion) {
+        this.azureVaultPrivateKeyVersion = azureVaultPrivateKeyVersion;
     }
 
     public void setHashicorpVaultPublicKeyId(String hashicorpVaultPublicKeyId) {

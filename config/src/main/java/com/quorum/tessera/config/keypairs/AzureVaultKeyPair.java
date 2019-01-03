@@ -1,9 +1,13 @@
 package com.quorum.tessera.config.keypairs;
 
+import com.quorum.tessera.config.constraints.ValidAzureVaultKeyPair;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlElement;
 
+@ValidAzureVaultKeyPair
 public class AzureVaultKeyPair implements ConfigKeyPair {
 
     @NotNull
@@ -18,9 +22,19 @@ public class AzureVaultKeyPair implements ConfigKeyPair {
             message = "Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)")
     private String privateKeyId;
 
-    public AzureVaultKeyPair(String publicKeyId, String privateKeyId) {
+    @XmlElement
+    @Size(min = 32, max = 32, message = "length must be 32 characters")
+    private String publicKeyVersion;
+
+    @XmlElement
+    @Size(min = 32, max = 32, message = "length must be 32 characters")
+    private String privateKeyVersion;
+
+    public AzureVaultKeyPair(String publicKeyId, String privateKeyId, String publicKeyVersion, String privateKeyVersion) {
         this.publicKeyId = publicKeyId;
         this.privateKeyId = privateKeyId;
+        this.publicKeyVersion = publicKeyVersion;
+        this.privateKeyVersion = privateKeyVersion;
     }
 
     public String getPublicKeyId() {
@@ -29,6 +43,14 @@ public class AzureVaultKeyPair implements ConfigKeyPair {
 
     public String getPrivateKeyId() {
         return this.privateKeyId;
+    }
+
+    public String getPublicKeyVersion() {
+        return publicKeyVersion;
+    }
+
+    public String getPrivateKeyVersion() {
+        return privateKeyVersion;
     }
 
     @Override

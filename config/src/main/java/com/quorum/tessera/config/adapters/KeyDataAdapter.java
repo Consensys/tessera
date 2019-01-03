@@ -9,7 +9,9 @@ import java.util.Objects;
 public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
 
     public static final String NACL_FAILURE_TOKEN = "NACL_FAILURE";
-    
+
+    public static final String MISSING_PASSWORD_TOKEN = "MISSING_PASSWORD";
+
     @Override
     public ConfigKeyPair unmarshal(final KeyData keyData) {
 
@@ -25,7 +27,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
 
         //case 3, the Azure Key Vault data is provided
         if(keyData.getAzureVaultPublicKeyId() != null && keyData.getAzureVaultPrivateKeyId() != null) {
-            return new AzureVaultKeyPair(keyData.getAzureVaultPublicKeyId(), keyData.getAzureVaultPrivateKeyId());
+            return new AzureVaultKeyPair(keyData.getAzureVaultPublicKeyId(), keyData.getAzureVaultPrivateKeyId(), keyData.getAzureVaultPublicKeyVersion(), keyData.getAzureVaultPrivateKeyVersion());
         }
 
         //case 4, the Hashicorp Vault data is provided
@@ -48,6 +50,8 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
             keyData.getPublicKeyPath(),
             keyData.getAzureVaultPublicKeyId(),
             keyData.getAzureVaultPrivateKeyId(),
+            keyData.getAzureVaultPublicKeyVersion(),
+            keyData.getAzureVaultPrivateKeyVersion(),
             keyData.getHashicorpVaultPublicKeyId(),
             keyData.getHashicorpVaultPrivateKeyId(),
             keyData.getHashicorpVaultSecretEngineName(),
@@ -82,6 +86,8 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
 
             keyData.setAzureVaultPublicKeyId(kp.getPublicKeyId());
             keyData.setAzureVaultPrivateKeyId(kp.getPrivateKeyId());
+            keyData.setAzureVaultPublicKeyVersion(kp.getPublicKeyVersion());
+            keyData.setAzureVaultPrivateKeyVersion(kp.getPrivateKeyVersion());
             return keyData;
         }
 
@@ -113,6 +119,8 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
                 kp.getPublicKeyPath(),
                 kp.getAzureVaultPrivateKeyId(),
                 kp.getAzureVaultPublicKeyId(),
+                kp.getAzureVaultPublicKeyVersion(),
+                kp.getAzureVaultPrivateKeyVersion(),
                 kp.getHashicorpVaultPrivateKeyId(),
                 kp.getHashicorpVaultPublicKeyId(),
                 kp.getHashicorpVaultSecretEngineName(),

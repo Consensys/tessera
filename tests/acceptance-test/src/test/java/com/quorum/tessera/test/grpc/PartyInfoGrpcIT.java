@@ -1,8 +1,10 @@
 package com.quorum.tessera.test.grpc;
 
 import com.google.protobuf.ByteString;
+import com.google.protobuf.Empty;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.grpc.p2p.PartyInfoGrpc;
+import com.quorum.tessera.grpc.p2p.PartyInfoJson;
 import com.quorum.tessera.grpc.p2p.PartyInfoMessage;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.model.Party;
@@ -15,13 +17,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.MalformedURLException;
 import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * After a few iterations of updatePartyInfo (performed by the PartyInfoPoller) all nodes should be aware of eachother.
+ * After a few iterations of updatePartyInfo (performed by the PartyInfoPoller) all nodes should be aware of each other.
  */
 public class PartyInfoGrpcIT {
 
@@ -72,7 +75,7 @@ public class PartyInfoGrpcIT {
     }
 
     @Test
-    public void checkNode1() throws MalformedURLException{
+    public void checkNode1() {
         PartyInfoMessage response = blockingStub1.getPartyInfo(request);
         assertThat(response).isNotNull();
         PartyInfo responsePartyInfo = partyInfoParser.from(response.getPartyInfo().toByteArray());
@@ -81,7 +84,7 @@ public class PartyInfoGrpcIT {
     }
 
     @Test
-    public void checkNode2() throws MalformedURLException{
+    public void checkNode2() {
         PartyInfoMessage response = blockingStub2.getPartyInfo(request);
         assertThat(response).isNotNull();
         PartyInfo responsePartyInfo = partyInfoParser.from(response.getPartyInfo().toByteArray());
@@ -90,7 +93,7 @@ public class PartyInfoGrpcIT {
     }
 
     @Test
-    public void checkNode3() throws MalformedURLException{
+    public void checkNode3() {
         PartyInfoMessage response = blockingStub3.getPartyInfo(request);
         assertThat(response).isNotNull();
         PartyInfo responsePartyInfo = partyInfoParser.from(response.getPartyInfo().toByteArray());
@@ -99,7 +102,7 @@ public class PartyInfoGrpcIT {
     }
 
     @Test
-    public void checkNode4() throws MalformedURLException{
+    public void checkNode4() {
         PartyInfoMessage response = blockingStub4.getPartyInfo(request);
         assertThat(response).isNotNull();
         PartyInfo responsePartyInfo = partyInfoParser.from(response.getPartyInfo().toByteArray());
@@ -109,18 +112,82 @@ public class PartyInfoGrpcIT {
 
     private void checkPartyInfoContents(PartyInfo partyInfo) {
         assertThat(partyInfo.getRecipients()).containsExactlyInAnyOrder(
-            new Recipient(PublicKey.from(Base64.decode("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")),"http://localhost:50520/"),
-            new Recipient(PublicKey.from(Base64.decode("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")),"http://localhost:50521/"),
-            new Recipient(PublicKey.from(Base64.decode("giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=")),"http://localhost:50522/"),
-            new Recipient(PublicKey.from(Base64.decode("jP4f+k/IbJvGyh0LklWoea2jQfmLwV53m9XoHVS4NSU=")),"http://localhost:50522/"),
-            new Recipient(PublicKey.from(Base64.decode("Tj8xg/HpsYmh7Te3UerzlLx1HgpWVOGq25ZgbwaPNVM=")),"http://localhost:50523/")
-            );
+            new Recipient(PublicKey.from(Base64.decode("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")), "http://localhost:50520/"),
+            new Recipient(PublicKey.from(Base64.decode("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")), "http://localhost:50521/"),
+            new Recipient(PublicKey.from(Base64.decode("giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=")), "http://localhost:50522/"),
+            new Recipient(PublicKey.from(Base64.decode("jP4f+k/IbJvGyh0LklWoea2jQfmLwV53m9XoHVS4NSU=")), "http://localhost:50522/"),
+            new Recipient(PublicKey.from(Base64.decode("Tj8xg/HpsYmh7Te3UerzlLx1HgpWVOGq25ZgbwaPNVM=")), "http://localhost:50523/")
+        );
         assertThat(partyInfo.getParties()).containsExactlyInAnyOrder(
             new Party("http://localhost:50520/"),
             new Party("http://localhost:50521/"),
             new Party("http://localhost:50522/"),
             new Party("http://localhost:50523/")
-            );
+        );
+    }
+
+    @Test
+    public void partyInfoGetNode1() {
+
+        final PartyInfoJson response = blockingStub1.getPartyInfoMessage(Empty.getDefaultInstance());
+
+        assertThat(response).isNotNull();
+
+        final Set<Party> peers = response.getPeersList().stream().map(Party::new).collect(Collectors.toSet());
+        final Set<Recipient> recipients = response.getKeysMap().entrySet()
+            .stream()
+            .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))
+            .collect(Collectors.toSet());
+
+        checkPartyInfoContents(new PartyInfo("", recipients, peers));
+    }
+
+    @Test
+    public void partyInfoGetNode2() {
+
+        final PartyInfoJson response = blockingStub2.getPartyInfoMessage(Empty.getDefaultInstance());
+
+        assertThat(response).isNotNull();
+
+        final Set<Party> peers = response.getPeersList().stream().map(Party::new).collect(Collectors.toSet());
+        final Set<Recipient> recipients = response.getKeysMap().entrySet()
+            .stream()
+            .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))
+            .collect(Collectors.toSet());
+
+        checkPartyInfoContents(new PartyInfo("", recipients, peers));
+    }
+
+    @Test
+    public void partyInfoGetNode3() {
+
+        final PartyInfoJson response = blockingStub3.getPartyInfoMessage(Empty.getDefaultInstance());
+
+        assertThat(response).isNotNull();
+
+        final Set<Party> peers = response.getPeersList().stream().map(Party::new).collect(Collectors.toSet());
+        final Set<Recipient> recipients = response.getKeysMap().entrySet()
+            .stream()
+            .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))
+            .collect(Collectors.toSet());
+
+        checkPartyInfoContents(new PartyInfo("", recipients, peers));
+    }
+
+    @Test
+    public void partyInfoGetNode4() {
+
+        final PartyInfoJson response = blockingStub4.getPartyInfoMessage(Empty.getDefaultInstance());
+
+        assertThat(response).isNotNull();
+
+        final Set<Party> peers = response.getPeersList().stream().map(Party::new).collect(Collectors.toSet());
+        final Set<Recipient> recipients = response.getKeysMap().entrySet()
+            .stream()
+            .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))
+            .collect(Collectors.toSet());
+
+        checkPartyInfoContents(new PartyInfo("", recipients, peers));
     }
 
 }
