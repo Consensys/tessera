@@ -25,7 +25,7 @@ install:
 - export PATH=$PATH:$PWD && popd
 
 script:
-- mvn install
+- mvn install -P acceptance-test,vault-acceptance-tests
 
 before_cache:
 - mvn dependency:purge-local-repository -Dinclude=com.quorum.tessera -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
