@@ -70,7 +70,6 @@
                     <includes>
                         <include>RestSuite</include>
                         <include>GrpcSuite</include>
-                        <include>RunHashicorpIT</include>
                     </includes>
                 </configuration>
                 <executions>
@@ -119,6 +118,28 @@
                 </property>
             </activation>
         </profile>
+
+        <profile>
+            <id>vault-acceptance-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>3.0.0-M1</version>
+
+                        <configuration>
+                            <includes>
+                                <include>RestSuite</include>
+                                <include>GrpcSuite</include>
+                                <include>RunHashicorpIT</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 
 </project>
