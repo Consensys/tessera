@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>com.quorum.tessera</groupId>
+        <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tessera</artifactId>
         <version>0.8-SNAPSHOT</version>
     </parent>
@@ -20,12 +20,12 @@
         </dependency>
 
         <dependency>
-            <groupId>com.quorum.tessera</groupId>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>config</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.quorum.tessera</groupId>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>jaxrs-client</artifactId>
         </dependency>
 
@@ -45,7 +45,7 @@
         </dependency>
         
         <dependency>
-            <groupId>com.quorum.tessera</groupId>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>test-util</artifactId>
         </dependency>
 
@@ -55,12 +55,12 @@
         </dependency>
       
         <dependency>
-            <groupId>com.quorum.tessera</groupId>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>key-generation</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.quorum.tessera</groupId>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>jersey-server</artifactId>
             <scope>test</scope>
         </dependency>
@@ -83,7 +83,7 @@
             </activation>
             <dependencies>       
                 <dependency>
-                    <groupId>com.quorum.tessera</groupId>
+                    <groupId>com.jpmorgan.quorum</groupId>
                     <artifactId>encryption-jnacl</artifactId>
                 </dependency>
             </dependencies>
@@ -92,7 +92,7 @@
             <id>kalium</id>
             <dependencies>       
                 <dependency>
-                    <groupId>com.quorum.tessera</groupId>
+                    <groupId>com.jpmorgan.quorum</groupId>
                     <artifactId>encryption-kalium</artifactId>
                 </dependency>
             </dependencies>

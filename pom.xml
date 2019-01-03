@@ -3,7 +3,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.quorum.tessera</groupId>
+    <groupId>com.jpmorgan.quorum</groupId>
     <artifactId>tessera</artifactId>
     <version>0.8-SNAPSHOT</version>
 
@@ -103,6 +103,9 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5.3</version>
                 <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
                     <goals>deploy</goals>
                 </configuration>
             </plugin>
@@ -318,154 +321,154 @@
         <dependencies>
             
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>encryption-api</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>argon2</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
             
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>config</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
             
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>config-cli</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>key-pair-converter</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>security</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
             
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>encryption-jnacl</artifactId>
                 <version>0.8-SNAPSHOT</version>
                 <scope>runtime</scope>
             </dependency>
                         
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>encryption-kalium</artifactId>
                 <version>0.8-SNAPSHOT</version>
                 <scope>runtime</scope>
             </dependency>
             
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>service-locator-api</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>service-locator-spring</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>server-api</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
             
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jersey-server</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc-server</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc-api</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>test-util</artifactId>
                 <version>0.8-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>shared</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-core</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc-service</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jaxrs-service</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>key-vault-api</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>azure-key-vault</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>hashicorp-key-vault</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>key-generation</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.quorum.tessera</groupId>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jaxrs-client</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
@@ -1072,7 +1075,27 @@
             </activation>
             <build>
                 <plugins>
-                    <!--                    <plugin>
+                    
+                    <plugin>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                    
+                    <plugin>
+                        <groupid>org.sonatype.plugins</groupid>
+                        <artifactid>nexus-staging-maven-plugin</artifactid>
+                        <version>1.6.8</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverid>ossrh</serverid>
+                            <nexusurl>https://oss.sonatype.org/</nexusurl>
+                            <autoreleaseafterclose>true</autoreleaseafterclose>
+                        </configuration>
+                    </plugin>
+                    
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>1.6</version>
@@ -1085,7 +1108,7 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>-->
+                    </plugin>
                     
                     
                     <plugin>
@@ -1115,7 +1138,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.4</version>
+                        <version>3.0.1</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -1127,6 +1150,17 @@
                     </plugin>
                 </plugins>
             </build>
+            
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+            </distributionManagement>
         </profile>
     </profiles>
     
@@ -1148,6 +1182,8 @@
             <url>git:releases://git@github.com:jpmorganchase/tessera.git</url>
         </repository>
 
+
+        
     </distributionManagement>
     
     <repositories>

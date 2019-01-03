@@ -7,7 +7,7 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>com.quorum.tessera</groupId>
+        <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tests</artifactId>
         <version>0.8-SNAPSHOT</version>
     </parent>
@@ -15,14 +15,14 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.quorum.tessera</groupId>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-app</artifactId>
             <classifier>app</classifier>
             <version>0.8-SNAPSHOT</version>
         </dependency>
    
         <dependency>
-            <groupId>com.quorum.tessera</groupId>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>test-util</artifactId>
         </dependency>
         
@@ -63,7 +63,7 @@
                     <skip>false</skip>
                     <rerunFailingTestsCount>3</rerunFailingTestsCount>
                     <systemPropertyVariables>
-                        <application.jar>${com.quorum.tessera:tessera-app:jar:app}</application.jar>
+                        <application.jar>${com.jpmorgan.quorum:tessera-app:jar:app}</application.jar>
                         <javax.xml.bind.JAXBContextFactory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.JAXBContextFactory>
                         <javax.xml.bind.context.factory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.context.factory>
                     </systemPropertyVariables>
