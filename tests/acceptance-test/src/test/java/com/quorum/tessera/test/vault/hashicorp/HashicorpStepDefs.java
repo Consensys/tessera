@@ -163,6 +163,8 @@ public class HashicorpStepDefs implements En {
         });
 
         When("Tessera is started", () -> {
+            Objects.requireNonNull(vaultToken);
+
             //only needed when running outside of maven build process
 //            System.setProperty("application.jar", "/Users/chrishounsom/jpmc-tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
 
@@ -262,7 +264,66 @@ public class HashicorpStepDefs implements En {
             startUpLatch.await(30, TimeUnit.SECONDS);
         });
 
+        When("Tessera keygen is used with the Hashicorp options provided", () -> {
+            Objects.requireNonNull(vaultToken);
 
+            //only needed when running outside of maven build process
+//            System.setProperty("application.jar", "/Users/chrishounsom/jpmc-tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
+
+            final String jarfile = System.getProperty("application.jar");
+
+            final URL logbackConfigFile = ProcessManager.class.getResource("/logback-node.xml");
+
+            List<String> args = Arrays.asList(
+                "java",
+                "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
+                "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
+                "-Ddebug=true",
+                "-jar",
+                jarfile,
+                "-keygen",
+                "-keygenvaulturl",
+                "http://127.0.0.1:8200",
+                "-keygenvaulttype",
+                "hashicorp",
+                "-filename",
+                "tessera/nodeA,tessera/nodeB",
+                "-keygenvaultsecretengine",
+                "secret"
+            );
+
+            System.out.println(String.join(" ", args));
+
+            ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);
+
+            Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
+            tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
+
+            tesseraProcess.set(
+                tesseraProcessBuilder.redirectErrorStream(true)
+                    .start()
+            );
+
+            executorService.submit(() -> {
+
+                try(BufferedReader reader = Stream.of(tesseraProcess.get().getInputStream())
+                    .map(InputStreamReader::new)
+                    .map(BufferedReader::new)
+                    .findAny().get()) {
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println(line);
+                    }
+
+                } catch (IOException ex) {
+                    throw new UncheckedIOException(ex);
+                }
+            });
+
+            CountDownLatch startUpLatch = new CountDownLatch(1);
+            startUpLatch.await(10, TimeUnit.SECONDS);
+        });
 
         Then("Tessera will retrieve the key pair from the vault", () -> {
             //TODO Use GET partyinfo endpoint instead of POST
@@ -291,6 +352,31 @@ public class HashicorpStepDefs implements En {
             Recipient recipient = receivedPartyInfo.getRecipients().iterator().next();
 
             assertThat(recipient.getKey().encodeToBase64()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+        });
+
+        Then("a new key pair {string} will be added to the vault", (String secretName) -> {
+            Objects.requireNonNull(vaultToken);
+
+            final URL getSecretUrl = UriBuilder.fromUri("http://127.0.0.1:8200")
+                .path("v1/secret/data/" + secretName)
+                .build()
+                .toURL();
+
+            HttpURLConnection getSecretUrlConnection = (HttpURLConnection) getSecretUrl.openConnection();
+            getSecretUrlConnection.setRequestProperty("X-Vault-Token", vaultToken);
+            getSecretUrlConnection.connect();
+
+            int getSecretResponseCode = getSecretUrlConnection.getResponseCode();
+            assertThat(getSecretResponseCode).isEqualTo(HttpURLConnection.HTTP_OK);
+
+            JsonReader jsonReader = Json.createReader(getSecretUrlConnection.getInputStream());
+
+            JsonObject getSecretObject = jsonReader.readObject();
+            JsonObject keyDataObject = getSecretObject.getJsonObject("data").getJsonObject("data");
+
+            assertThat(keyDataObject.size()).isEqualTo(2);
+            assertThat(keyDataObject.getString("publicKey")).isNotBlank();
+            assertThat(keyDataObject.getString("privateKey")).isNotBlank();
         });
 
         After(() -> {
