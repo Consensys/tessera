@@ -4,9 +4,6 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.HashicorpKeyVaultConfig;
 import com.quorum.tessera.config.keypairs.HashicorpVaultKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.node.PartyInfoParser;
-import com.quorum.tessera.node.model.PartyInfo;
-import com.quorum.tessera.node.model.Recipient;
 import com.quorum.tessera.test.ProcessManager;
 import com.quorum.tessera.test.util.ElUtil;
 import cucumber.api.java8.En;
@@ -16,18 +13,16 @@ import org.slf4j.LoggerFactory;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,6 +44,11 @@ public class HashicorpStepDefs implements En {
     public HashicorpStepDefs() {
         final AtomicReference<Process> vaultServerProcess = new AtomicReference<>();
         final AtomicReference<Process> tesseraProcess = new AtomicReference<>();
+
+        Before(() -> {
+            //only needed when running outside of maven build process
+//            System.setProperty("application.jar", "/Users/chris/jpmc-tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
+        });
 
         Given("the dev vault server has been started", () -> {
 
@@ -165,9 +165,6 @@ public class HashicorpStepDefs implements En {
         When("Tessera is started", () -> {
             Objects.requireNonNull(vaultToken);
 
-            //only needed when running outside of maven build process
-//            System.setProperty("application.jar", "/Users/chrishounsom/jpmc-tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
-
             final String jarfile = System.getProperty("application.jar");
 
             URL configFile = getClass().getResource("/vault/hashicorp-config.json");
@@ -267,9 +264,6 @@ public class HashicorpStepDefs implements En {
         When("Tessera keygen is used with the Hashicorp options provided", () -> {
             Objects.requireNonNull(vaultToken);
 
-            //only needed when running outside of maven build process
-//            System.setProperty("application.jar", "/Users/chrishounsom/jpmc-tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
-
             final String jarfile = System.getProperty("application.jar");
 
             final URL logbackConfigFile = ProcessManager.class.getResource("/logback-node.xml");
@@ -326,32 +320,25 @@ public class HashicorpStepDefs implements En {
         });
 
         Then("Tessera will retrieve the key pair from the vault", () -> {
-            //TODO Use GET partyinfo endpoint instead of POST
-            final Client client = ClientBuilder.newClient();
-            final URI uri = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
+            final URL partyInfoUrl = UriBuilder.fromUri("http://127.0.0.1")
+                .port(8080)
+                .path("partyinfo")
+                .build()
+                .toURL();
 
-            PartyInfoParser parser = PartyInfoParser.create();
+            HttpURLConnection partyInfoUrlConnection = (HttpURLConnection) partyInfoUrl.openConnection();
+            partyInfoUrlConnection.connect();
 
-            PartyInfo info = new PartyInfo("testUrl", Collections.emptySet(), Collections.emptySet());
+            int partyInfoResponseCode = partyInfoUrlConnection.getResponseCode();
+            assertThat(partyInfoResponseCode).isEqualTo(HttpURLConnection.HTTP_OK);
 
-            javax.ws.rs.core.Response response = client.target(uri)
-                .path("/partyinfo")
-                .request()
-                .post(Entity.entity(parser.to(info), MediaType.APPLICATION_OCTET_STREAM));
+            JsonReader jsonReader = Json.createReader(partyInfoUrlConnection.getInputStream());
 
-            assertThat(response.getStatus()).isEqualTo(200);
-            assertThat(response.hasEntity()).isTrue();
+            JsonObject partyInfoObject = jsonReader.readObject();
 
-            byte[] responseEntity = response.readEntity(byte[].class);
-
-            PartyInfo receivedPartyInfo = parser.from(responseEntity);
-
-            assertThat(receivedPartyInfo).isNotNull();
-            assertThat(receivedPartyInfo.getRecipients()).hasSize(1);
-
-            Recipient recipient = receivedPartyInfo.getRecipients().iterator().next();
-
-            assertThat(recipient.getKey().encodeToBase64()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+            assertThat(partyInfoObject).isNotNull();
+            assertThat(partyInfoObject.getJsonArray("keys")).hasSize(1);
+            assertThat(partyInfoObject.getJsonArray("keys").getJsonObject(0).getString("key")).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
         });
 
         Then("a new key pair {string} will be added to the vault", (String secretName) -> {
