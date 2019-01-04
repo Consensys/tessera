@@ -39,7 +39,7 @@ public class FilesystemKeyPairTest {
         InlineKeypair result = filesystemKeyPair.getInlineKeypair();
 
         KeyDataConfig privKeyDataConfig = new KeyDataConfig(
-            new PrivateKeyData("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=", null, null, null, null, null),
+            new PrivateKeyData("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=", null, null, null, null),
             PrivateKeyType.UNLOCKED
         );
 

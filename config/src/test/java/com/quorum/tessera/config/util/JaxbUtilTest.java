@@ -52,7 +52,7 @@ public class JaxbUtilTest {
     @Test
     public void marshallingOutputStream() throws Exception {
         final KeyDataConfig input = new KeyDataConfig(
-                new PrivateKeyData("VAL", null, null, null, null, null),
+                new PrivateKeyData("VAL", null, null, null, null),
                 PrivateKeyType.UNLOCKED
         );
         
@@ -118,7 +118,7 @@ public class JaxbUtilTest {
     public void marshalToString() {
 
         final KeyDataConfig input = new KeyDataConfig(
-                new PrivateKeyData("VAL", null, null, null, null, null),
+                new PrivateKeyData("VAL", null, null, null, null),
                 PrivateKeyType.UNLOCKED
         );
 
@@ -182,7 +182,7 @@ public class JaxbUtilTest {
     @Test
     public void marshallingProducesNonJaxbException() {
         final KeyDataConfig input = new KeyDataConfig(
-                new PrivateKeyData("VAL", null, null, null, null, null),
+                new PrivateKeyData("VAL", null, null, null, null),
                 PrivateKeyType.UNLOCKED
         );
 

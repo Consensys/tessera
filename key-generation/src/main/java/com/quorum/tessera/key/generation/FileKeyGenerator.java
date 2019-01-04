@@ -1,6 +1,9 @@
 package com.quorum.tessera.key.generation;
 
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.ArgonOptions;
+import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -14,11 +17,13 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import java.util.Objects;
 
+import static com.quorum.tessera.config.PrivateKeyType.LOCKED;
+import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 public class FileKeyGenerator implements KeyGenerator {
 
@@ -62,10 +67,9 @@ public class FileKeyGenerator implements KeyGenerator {
                         encryptedPrivateKey.getSnonce(),
                         encryptedPrivateKey.getAsalt(),
                         encryptedPrivateKey.getSbox(),
-                        encryptedPrivateKey.getArgonOptions(),
-                        null
+                        encryptedPrivateKey.getArgonOptions()
                     ),
-                    PrivateKeyType.LOCKED
+                    LOCKED
                 )
             );
 
@@ -75,12 +79,7 @@ public class FileKeyGenerator implements KeyGenerator {
             
             String keyData = Base64.getEncoder().encodeToString(generated.getPrivateKey().getKeyBytes());
 
-            finalKeys.setConfig(
-                new KeyDataConfig(
-                    new PrivateKeyData(keyData, null, null, null, null, null),
-                    PrivateKeyType.UNLOCKED
-                )
-            );
+            finalKeys.setConfig(new KeyDataConfig(new PrivateKeyData(keyData, null, null, null, null), UNLOCKED));
 
         }
 
@@ -101,8 +100,8 @@ public class FileKeyGenerator implements KeyGenerator {
         final Path publicKeyPath = parentPath.resolve(filename + ".pub");
         final Path privateKeyPath = parentPath.resolve(filename + ".key");
 
-        IOCallback.execute(() -> Files.write(publicKeyPath, publicKeyBase64.getBytes(UTF_8), StandardOpenOption.CREATE_NEW));
-        IOCallback.execute(() -> Files.write(privateKeyPath, privateKeyJson.getBytes(UTF_8), StandardOpenOption.CREATE_NEW));
+        IOCallback.execute(() -> Files.write(publicKeyPath, publicKeyBase64.getBytes(UTF_8), CREATE_NEW));
+        IOCallback.execute(() -> Files.write(privateKeyPath, privateKeyJson.getBytes(UTF_8), CREATE_NEW));
 
         LOGGER.info("Saved public key to {}", publicKeyPath.toAbsolutePath().toString());
         LOGGER.info("Saved private key to {}", privateKeyPath.toAbsolutePath().toString());

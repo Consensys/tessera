@@ -106,11 +106,11 @@ public class FileKeyGeneratorTest {
 
         final ArgonOptions argonOptions = new ArgonOptions("id", 1, 1, 1);
 
-        final PrivateKeyData encryptedPrivateKey = new PrivateKeyData(null, null, null, null, argonOptions, null);
+        final PrivateKeyData encryptedPrivateKey = new PrivateKeyData(null, null, null, null, argonOptions);
 
         doReturn(encryptedPrivateKey).when(keyEncryptor).encryptPrivateKey(any(PrivateKey.class), anyString(), eq(null));
 
-        final PrivateKeyData encryptedKey = new PrivateKeyData(null, "snonce", "salt", "sbox", argonOptions, "PASSWORD");
+        final PrivateKeyData encryptedKey = new PrivateKeyData(null, "snonce", "salt", "sbox", argonOptions);
 
         doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(PrivateKey.class), anyString(), eq(null));
 
@@ -168,7 +168,7 @@ public class FileKeyGeneratorTest {
 
         doReturn(keyPair).when(nacl).generateNewKeys();
 
-        doReturn(new PrivateKeyData("", "", "", "", new ArgonOptions("", 1, 1, 1), ""))
+        doReturn(new PrivateKeyData("", "", "", "", new ArgonOptions("", 1, 1, 1)))
                 .when(keyEncryptor)
                 .encryptPrivateKey(any(PrivateKey.class), anyString(), eq(null));
 
