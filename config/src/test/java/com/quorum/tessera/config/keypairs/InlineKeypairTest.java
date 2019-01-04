@@ -16,7 +16,7 @@ public class InlineKeypairTest {
         //so a locked key + missing password is picked up
 
         final KeyDataConfig privKeyDataConfig = new KeyDataConfig(
-            new PrivateKeyData("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=", null, null, null, null, null),
+            new PrivateKeyData("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=", null, null, null, null),
             PrivateKeyType.LOCKED
         );
 

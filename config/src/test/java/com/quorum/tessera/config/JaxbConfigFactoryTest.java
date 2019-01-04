@@ -28,7 +28,7 @@ public class JaxbConfigFactoryTest {
         this.sampleGeneratedKey = new InlineKeypair(
             "publickey",
             new KeyDataConfig(
-                new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 1, 1, 1), "pass"),
+                new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 1, 1, 1)),
                 PrivateKeyType.LOCKED
             )
         );
@@ -123,7 +123,7 @@ public class JaxbConfigFactoryTest {
 
         final ConfigKeyPair unlockedSampleGeneratedKey = new InlineKeypair(
             "publickey",
-            new KeyDataConfig(new PrivateKeyData("value", null, null, null, null, null), PrivateKeyType.UNLOCKED)
+            new KeyDataConfig(new PrivateKeyData("value", null, null, null, null), PrivateKeyType.UNLOCKED)
         );
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");

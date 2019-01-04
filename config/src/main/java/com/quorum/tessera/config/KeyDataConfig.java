@@ -1,7 +1,6 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.PrivateKeyTypeAdapter;
-import java.util.Optional;
 
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -9,6 +8,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Optional;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyDataConfig {
@@ -28,9 +28,8 @@ public class KeyDataConfig {
     }
 
     public KeyDataConfig() {
+
     }
-
-
 
     public PrivateKeyType getType() {
         return type;
@@ -68,12 +67,6 @@ public class KeyDataConfig {
         return Optional.ofNullable(privateKeyData)
                 .map(PrivateKeyData::getArgonOptions)
                 .orElse(null);   
-    }
-
-    public String getPassword() {
-        return Optional.ofNullable(privateKeyData)
-                .map(PrivateKeyData::getPassword)
-                .orElse(null);
     }
 
 }

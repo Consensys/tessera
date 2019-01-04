@@ -52,7 +52,7 @@ public class KeyUpdateParser implements Parser<Optional> {
 
             final KeyDataConfig updatedKey;
             if(newPassword.isEmpty()) {
-                final PrivateKeyData privateKeyData = new PrivateKeyData(privateKey.encodeToBase64(), null, null, null, null, null);
+                final PrivateKeyData privateKeyData = new PrivateKeyData(privateKey.encodeToBase64(), null, null, null, null);
                 updatedKey = new KeyDataConfig(privateKeyData, PrivateKeyType.UNLOCKED);
             } else {
                 final PrivateKeyData privateKeyData = keyEncryptor.encryptPrivateKey(privateKey, newPassword, argonOptions);

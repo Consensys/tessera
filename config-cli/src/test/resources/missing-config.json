@@ -17,7 +17,6 @@
             {
                 "privateKey": {
                     "value": "PRIVATEKEY",
-                    "password": "TOP_SECRET",
                     "argonOptions": {
                         "algorithm": "SHA",
                         "iterations": 1,

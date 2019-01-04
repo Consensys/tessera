@@ -123,7 +123,7 @@ public class KeyEncryptorTest {
         final ArgonOptions argonOptions = new ArgonOptions("i", 1, 1, 1);
 
         final PrivateKeyData lockedPrivateKey
-            = new PrivateKeyData("", "", "uZAfjmMwEepP8kzZCnmH6g==", "", argonOptions, password);
+            = new PrivateKeyData("", "", "uZAfjmMwEepP8kzZCnmH6g==", "", argonOptions);
 
         doReturn(new byte[]{1, 2, 3})
             .when(this.nacl)

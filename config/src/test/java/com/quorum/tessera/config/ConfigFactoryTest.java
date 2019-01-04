@@ -82,7 +82,7 @@ public class ConfigFactoryTest {
         final InlineKeypair keypair = new InlineKeypair(
             "publickey",
             new KeyDataConfig(
-                new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 10, 1048576, 4), "pass"),
+                new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 10, 1048576, 4)),
                 PrivateKeyType.LOCKED
             )
         );

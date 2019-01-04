@@ -22,22 +22,16 @@ public class PrivateKeyData extends ConfigItem {
     @XmlElement(name = "aopts")
     private ArgonOptions argonOptions;
 
-    @XmlElement
-    private String password;
-
-    public PrivateKeyData(String value, String snonce, String asalt, String sbox, ArgonOptions argonOptions, String password) {
+    public PrivateKeyData(String value, String snonce, String asalt, String sbox, ArgonOptions argonOptions) {
         this.value = value;
         this.snonce = snonce;
         this.asalt = asalt;
         this.sbox = sbox;
         this.argonOptions = argonOptions;
-        this.password = password;
     }
 
     public PrivateKeyData() {
     }
-
-
 
     public String getValue() {
         return value;
@@ -57,10 +51,6 @@ public class PrivateKeyData extends ConfigItem {
 
     public ArgonOptions getArgonOptions() {
         return argonOptions;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public void setValue(String value) {
@@ -83,9 +73,4 @@ public class PrivateKeyData extends ConfigItem {
         this.argonOptions = argonOptions;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    
 }

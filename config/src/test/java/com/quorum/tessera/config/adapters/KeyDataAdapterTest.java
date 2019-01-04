@@ -32,7 +32,7 @@ public class KeyDataAdapterTest {
 
     @Test
     public void marshallInlineKeys() {
-        final PrivateKeyData pkd = new PrivateKeyData("val", null, null, null, null, null);
+        final PrivateKeyData pkd = new PrivateKeyData("val", null, null, null, null);
         final ConfigKeyPair keys = new InlineKeypair("PUB", new KeyDataConfig(pkd, UNLOCKED));
         final KeyData expected = new KeyData();
 
@@ -140,7 +140,7 @@ public class KeyDataAdapterTest {
 
     @Test
     public void marshallLockedKeyNullifiesPrivateKey() {
-        final PrivateKeyData pkd = new PrivateKeyData("val", null, null, null, null, "password");
+        final PrivateKeyData pkd = new PrivateKeyData("val", null, null, null, null);
         final ConfigKeyPair keys = new InlineKeypair("PUB", new KeyDataConfig(pkd, UNLOCKED));
 
         final KeyData marshalledKey = adapter.marshal(keys);

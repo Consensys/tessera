@@ -184,7 +184,7 @@ public class KeyUpdateParserTest {
     public void unlockedKeyReturnedProperly() {
 
         final KeyDataConfig kdc = new KeyDataConfig(
-            new PrivateKeyData("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", null, null, null, null, null),
+            new PrivateKeyData("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", null, null, null, null),
             PrivateKeyType.UNLOCKED
         );
 
@@ -205,8 +205,7 @@ public class KeyUpdateParserTest {
                 "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
                 "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
                 "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                new ArgonOptions("id", 10, 1048576, 4),
-                null
+                new ArgonOptions("id", 10, 1048576, 4)
             ),
             PrivateKeyType.LOCKED
         );
@@ -227,8 +226,7 @@ public class KeyUpdateParserTest {
                 "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
                 "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
                 "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                new ArgonOptions("id", 10, 1048576, 4),
-                null
+                new ArgonOptions("id", 10, 1048576, 4)
             ),
             PrivateKeyType.LOCKED
         );
@@ -251,8 +249,7 @@ public class KeyUpdateParserTest {
                 "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
                 "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
                 "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                new ArgonOptions("id", 10, 1048576, 4),
-                null
+                new ArgonOptions("id", 10, 1048576, 4)
             ),
             PrivateKeyType.LOCKED
         );
