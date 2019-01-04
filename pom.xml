@@ -1120,6 +1120,7 @@
                                 <link>https://jax-rs.github.io/apidocs/2.0/</link>
                                 <link>https://docs.oracle.com/javaee/7/api/</link>
                             </links>
+                            <failOnError>false</failOnError>
                             <linksource>true</linksource>
                             <show>protected</show>
                             <source>1.8</source>
