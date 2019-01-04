@@ -1206,4 +1206,11 @@
         </pluginRepository>
     </pluginRepositories>
 
+    <developers>
+        <developer>
+            <name>Mark Lowe</name>
+            <email>melowe.quorum@gmail.com</email>
+        </developer>
+    </developers>
+
 </project>
