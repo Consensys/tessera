@@ -6,6 +6,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.grpc.p2p.PartyInfoGrpc;
 import com.quorum.tessera.grpc.p2p.PartyInfoJson;
 import com.quorum.tessera.grpc.p2p.PartyInfoMessage;
+import com.quorum.tessera.grpc.p2p.Peer;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
@@ -40,7 +41,7 @@ public class PartyInfoGrpcIT {
 
     private final PartyInfoParser partyInfoParser = PartyInfoParser.create();
 
-    private PartyInfo partyInfo = new PartyInfo("http://localhost:50520", Collections.emptySet(), Collections.emptySet());
+    private PartyInfo partyInfo = new PartyInfo("http://localhost:50520/", Collections.emptySet(), Collections.emptySet());
     private PartyInfoMessage request = PartyInfoMessage.newBuilder()
         .setPartyInfo(ByteString.copyFrom(partyInfoParser.to(partyInfo)))
         .build();
@@ -133,7 +134,11 @@ public class PartyInfoGrpcIT {
 
         assertThat(response).isNotNull();
 
-        final Set<Party> peers = response.getPeersList().stream().map(Party::new).collect(Collectors.toSet());
+        final Set<Party> peers = response.getPeersList()
+            .stream()
+            .map(Peer::getUrl)
+            .map(Party::new)
+            .collect(Collectors.toSet());
         final Set<Recipient> recipients = response.getKeysMap().entrySet()
             .stream()
             .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))
@@ -149,7 +154,11 @@ public class PartyInfoGrpcIT {
 
         assertThat(response).isNotNull();
 
-        final Set<Party> peers = response.getPeersList().stream().map(Party::new).collect(Collectors.toSet());
+        final Set<Party> peers = response.getPeersList()
+            .stream()
+            .map(Peer::getUrl)
+            .map(Party::new)
+            .collect(Collectors.toSet());
         final Set<Recipient> recipients = response.getKeysMap().entrySet()
             .stream()
             .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))
@@ -165,7 +174,11 @@ public class PartyInfoGrpcIT {
 
         assertThat(response).isNotNull();
 
-        final Set<Party> peers = response.getPeersList().stream().map(Party::new).collect(Collectors.toSet());
+        final Set<Party> peers = response.getPeersList()
+            .stream()
+            .map(Peer::getUrl)
+            .map(Party::new)
+            .collect(Collectors.toSet());
         final Set<Recipient> recipients = response.getKeysMap().entrySet()
             .stream()
             .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))
@@ -181,7 +194,11 @@ public class PartyInfoGrpcIT {
 
         assertThat(response).isNotNull();
 
-        final Set<Party> peers = response.getPeersList().stream().map(Party::new).collect(Collectors.toSet());
+        final Set<Party> peers = response.getPeersList()
+            .stream()
+            .map(Peer::getUrl)
+            .map(Party::new)
+            .collect(Collectors.toSet());
         final Set<Recipient> recipients = response.getKeysMap().entrySet()
             .stream()
             .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))

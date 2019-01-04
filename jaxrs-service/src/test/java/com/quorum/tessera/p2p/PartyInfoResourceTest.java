@@ -17,6 +17,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashSet;
@@ -76,7 +77,11 @@ public class PartyInfoResourceTest {
     @Test
     public void partyInfoGet() {
 
-        final String partyInfoJson = "{\"url\":\"http://localhost:9001/\",\"peers\":[{\"url\":\"http://localhost:9006/\"},{\"url\":\"http://localhost:9005/\"}],\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\",\"url\":\"http://localhost:9001/\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\",\"url\":\"http://localhost:9002/\"}]}";
+        final String partyInfoJson = "{\"url\":\"http://localhost:9001/\",\"peers\":[{\"url\":\"http://localhost:9006/\",\"lastContact\":null},{\"url\":\"http://localhost:9005/\",\"lastContact\":\"2019-01-02T15:03:22.875Z\"}],\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\",\"url\":\"http://localhost:9001/\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\",\"url\":\"http://localhost:9002/\"}]}";
+
+        final Party partyWithoutTimestamp = new Party("http://localhost:9006/");
+        final Party partyWithTimestamp = new Party("http://localhost:9005/");
+        partyWithTimestamp.setLastContacted(Instant.parse("2019-01-02T15:03:22.875Z"));
 
         final PartyInfo partyInfo = new PartyInfo(
             "http://localhost:9001/",
@@ -84,7 +89,7 @@ public class PartyInfoResourceTest {
                 new Recipient(PublicKey.from(Base64.getDecoder().decode("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")), "http://localhost:9001/"),
                 new Recipient(PublicKey.from(Base64.getDecoder().decode("QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=")), "http://localhost:9002/"))
             ),
-            new HashSet<>(Arrays.asList(new Party("http://localhost:9005/"), new Party("http://localhost:9006/")))
+            new HashSet<>(Arrays.asList(partyWithTimestamp, partyWithoutTimestamp))
         );
 
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
