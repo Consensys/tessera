@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiResponses;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -65,13 +66,21 @@ public class PartyInfoResource {
 
         final PartyInfo current = this.partyInfoService.getPartyInfo();
 
+        //TODO: remove the filter when URIs don't need to end with a /
         final JsonArrayBuilder peersBuilder = Json.createArrayBuilder();
         current.getParties()
             .stream()
-            .map(party -> Json
-                .createObjectBuilder()
-                .add("url", party.getUrl())
-                .build())
+            .filter(p -> p.getUrl().endsWith("/"))
+            .map(party -> {
+                final JsonObjectBuilder builder = Json.createObjectBuilder();
+                builder.add("url", party.getUrl());
+                if (party.getLastContacted() != null) {
+                    builder.add("lastContact", party.getLastContacted().toString());
+                } else {
+                    builder.addNull("lastContact");
+                }
+                return builder.build();
+            })
             .forEach(peersBuilder::add);
 
         final JsonArrayBuilder recipientBuilder = Json.createArrayBuilder();

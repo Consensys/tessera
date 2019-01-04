@@ -94,8 +94,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
                         argonResult.getOptions().getIterations(),
                         argonResult.getOptions().getMemory(),
                         argonResult.getOptions().getParallelism()
-                ),
-                null
+                )
         );
     }
 
