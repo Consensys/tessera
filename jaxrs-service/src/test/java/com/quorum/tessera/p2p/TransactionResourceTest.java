@@ -1,6 +1,5 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.api.model.DeleteRequest;
 import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendResponse;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -30,24 +29,6 @@ public class TransactionResourceTest {
     @After
     public void onTearDown() {
         verifyNoMoreInteractions(transactionManager);
-
-    }
-
-    @Test
-    public void deleteKey() {
-        Response result = transactionResource.deleteKey("somneKey");
-        assertThat(result.getStatus()).isEqualTo(204);
-
-        verify(transactionManager).delete(any(DeleteRequest.class));
-    }
-
-    @Test
-    public void delete() {
-        DeleteRequest deleteRequest = new DeleteRequest();
-
-        Response result = transactionResource.delete(deleteRequest);
-        assertThat(result.getStatus()).isEqualTo(200);
-        verify(transactionManager).delete(any(DeleteRequest.class));
 
     }
 
