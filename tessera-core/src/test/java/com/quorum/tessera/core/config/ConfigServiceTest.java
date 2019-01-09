@@ -92,4 +92,10 @@ public class ConfigServiceTest {
         verify(config).getP2PServerConfig();
         verify(serverConfig).getServerUri();
     }
+
+    @Test
+    public void getPublicKeys() {
+        configService.getPublicKeys();
+        verify(enclave).getPublicKeys();
+    }
 }
