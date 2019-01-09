@@ -72,7 +72,7 @@ public class TransactionResource {
     @POST
     @Path("push")
     @Consumes(APPLICATION_OCTET_STREAM)
-    public Response push(
+    public synchronized Response push(
             @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload
     ) {
 

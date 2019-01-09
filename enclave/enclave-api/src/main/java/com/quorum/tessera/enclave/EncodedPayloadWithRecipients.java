@@ -2,7 +2,6 @@ package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.encryption.PublicKey;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -17,7 +16,7 @@ public class EncodedPayloadWithRecipients {
 
     public EncodedPayloadWithRecipients(final EncodedPayload encodedPayload, final List<PublicKey> recipientKeys) {
         this.encodedPayload = encodedPayload;
-        this.recipientKeys = Collections.unmodifiableList(recipientKeys);
+        this.recipientKeys = recipientKeys;
     }
 
     public EncodedPayload getEncodedPayload() {

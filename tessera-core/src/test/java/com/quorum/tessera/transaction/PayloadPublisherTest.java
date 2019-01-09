@@ -77,13 +77,11 @@ public class PayloadPublisherTest {
 
         byte[] encodedBytes = "encodedBytes".getBytes();
         when(payloadEncoder.encode(any(EncodedPayloadWithRecipients.class))).thenReturn(encodedBytes);
-        when(payloadEncoder.forRecipient(encodedPayloadWithRecipients, RECIPIENT_KEY)).thenReturn(encodedPayloadWithRecipients);
 
         payloadPublisher.publishPayload(encodedPayloadWithRecipients, RECIPIENT_KEY);
 
         verify(partyInfoService).getURLFromRecipientKey(RECIPIENT_KEY);
         verify(payloadEncoder).encode(any(EncodedPayloadWithRecipients.class));
-        verify(payloadEncoder).forRecipient(encodedPayloadWithRecipients, RECIPIENT_KEY);
         verify(p2pClient).push(url, encodedBytes);
         verify(enclave).getPublicKeys();
     }

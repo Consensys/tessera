@@ -8,13 +8,13 @@ import java.util.Set;
 
 
 public interface Enclave {
-    
+
     PublicKey defaultPublicKey();
 
     Set<PublicKey> getForwardingKeys();
 
     Set<PublicKey> getPublicKeys();
-    
+
     EncodedPayloadWithRecipients encryptPayload(byte[] message,
                                                 PublicKey senderPublicKey,
                                                 List<PublicKey> recipientPublicKeys);
@@ -23,8 +23,16 @@ public interface Enclave {
                                                 List<PublicKey> recipientPublicKeys);
 
     RawTransaction encryptRawPayload(byte[] message, PublicKey sender);
-    
+
     byte[] unencryptTransaction(EncodedPayloadWithRecipients payloadWithRecipients, PublicKey providedKey);
-    
+
+    /**
+     * Creates a new recipient box for the payload, for which we must be the originator
+     * At least one recipient must already be available to be able to decrypt the master key
+     *
+     * @param payload      the payload to add a recipient to
+     * @param recipientKey the new recipient key to add
+     */
+    byte[] createNewRecipientBox(EncodedPayloadWithRecipients payload, PublicKey recipientKey);
 
 }

@@ -190,9 +190,28 @@ public class EnclaveClientTest {
         
         assertThat(result).isEqualTo(outcome);
       
-        verify(enclave)
-                .unencryptTransaction(any(EncodedPayloadWithRecipients.class),any(PublicKey.class));
+        verify(enclave).unencryptTransaction(any(EncodedPayloadWithRecipients.class),any(PublicKey.class));
         
+    }
+
+    @Test
+    public void createNewRecipientBox() {
+
+        EncodedPayloadWithRecipients payloadWithRecipients = Fixtures.createSample();
+
+        PublicKey providedKey = PublicKey.from("ProvidedKey".getBytes());
+
+        byte[] outcome = "SUCCESS".getBytes();
+
+        when(enclave.createNewRecipientBox(any(EncodedPayloadWithRecipients.class),any(PublicKey.class)))
+            .thenReturn(outcome);
+
+        byte[] result = enclaveClient.createNewRecipientBox(payloadWithRecipients, providedKey);
+
+        assertThat(result).isEqualTo(outcome);
+
+        verify(enclave).createNewRecipientBox(any(EncodedPayloadWithRecipients.class),any(PublicKey.class));
+
     }
 
 }

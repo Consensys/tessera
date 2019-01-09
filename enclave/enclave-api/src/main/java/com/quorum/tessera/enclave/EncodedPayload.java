@@ -3,7 +3,6 @@ package com.quorum.tessera.enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -27,13 +26,11 @@ public class EncodedPayload {
                           final Nonce cipherTextNonce,
                           final List<byte[]> recipientBoxes,
                           final Nonce recipientNonce) {
-
         this.senderKey = senderKey;
         this.cipherText = cipherText;
         this.cipherTextNonce = cipherTextNonce;
         this.recipientNonce = recipientNonce;
-
-        this.recipientBoxes = Collections.unmodifiableList(recipientBoxes);
+        this.recipientBoxes = recipientBoxes;
     }
 
     public PublicKey getSenderKey() {

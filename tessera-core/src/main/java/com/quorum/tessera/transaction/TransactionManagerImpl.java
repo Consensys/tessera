@@ -17,14 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.transaction.Transactional;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.Collections.singletonList;
 
 /**
  * Delegate/Mediator object to normalise calls/interactions between Enclave and
@@ -88,9 +87,9 @@ public class TransactionManagerImpl implements TransactionManager {
                 .of(recipients)
                 .map(PublicKey::from)
                 .collect(Collectors.toList());
-        
+
         recipientList.add(senderPublicKey);
-        
+
         recipientList.addAll(enclave.getForwardingKeys());
 
         final byte[] payload = sendRequest.getPayload();
@@ -110,7 +109,12 @@ public class TransactionManagerImpl implements TransactionManager {
 
         this.encryptedTransactionDAO.save(newTransaction);
 
-        recipientList.forEach(recipient -> payloadPublisher.publishPayload(encodedPayloadWithRecipients, recipient));
+
+
+        recipientList.forEach(recipient -> {
+            final EncodedPayloadWithRecipients payloadWithRecipients = payloadEncoder.forRecipient(encodedPayloadWithRecipients, recipient);
+            payloadPublisher.publishPayload(payloadWithRecipients, recipient);
+        });
 
         final byte[] key = transactionHash.getHashBytes();
 
@@ -166,61 +170,107 @@ public class TransactionManagerImpl implements TransactionManager {
         PublicKey recipientPublicKey = PublicKey.from(publicKeyData);
         if (request.getType() == ResendRequestType.ALL) {
 
-            final Collection<EncodedPayloadWithRecipients> payloads = encryptedTransactionDAO
-                    .retrieveAllTransactions()
-                    .stream()
-                    .map(EncryptedTransaction::getEncodedPayload)
-                    .map(payloadEncoder::decodePayloadWithRecipients)
-                    .filter(payload -> payload.getRecipientKeys().contains(recipientPublicKey))
-                    .collect(toList());
+            encryptedTransactionDAO
+                .retrieveAllTransactions()
+                .stream()
+                .map(EncryptedTransaction::getEncodedPayload)
+                .map(payloadEncoder::decodePayloadWithRecipients)
+                .filter(payload -> {
+                    final boolean isRecipient = payload.getRecipientKeys().contains(recipientPublicKey);
+                    final boolean isSender = Objects.equals(payload.getEncodedPayload().getSenderKey(), recipientPublicKey);
+                    return isRecipient || isSender;
+                }).forEach(payload -> {
+                    if (Objects.equals(payload.getEncodedPayload().getSenderKey(), recipientPublicKey)) {
+                        final PublicKey decryptedKey = searchForRecipientKey(payload).orElseThrow(RuntimeException::new);
+                        payload = new EncodedPayloadWithRecipients(payload.getEncodedPayload(), singletonList(decryptedKey));
+                    }
 
-            payloads.forEach(payload
-                    -> payload.getRecipientKeys().forEach(recipientKey
-                            -> payloadPublisher.publishPayload(payload, recipientKey)
-                    )
-            );
+                    payloadPublisher.publishPayload(payload, recipientPublicKey);
+                });
+
             return new ResendResponse();
         } else {
 
             final byte[] hashKey = base64Decoder.decode(request.getKey());
-            MessageHash messageHash = new MessageHash(hashKey);
+            final MessageHash messageHash = new MessageHash(hashKey);
 
-            EncryptedTransaction encryptedTransaction = encryptedTransactionDAO.retrieveByHash(messageHash)
-                    .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + messageHash + " was not found"));
+            final EncryptedTransaction encryptedTransaction = encryptedTransactionDAO
+                .retrieveByHash(messageHash)
+                .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + messageHash + " was not found"));
 
-            EncodedPayloadWithRecipients encodedPayloadWithRecipients
-                    = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
+            final EncodedPayloadWithRecipients encodedPayloadWithRecipients
+                = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
 
-            final EncodedPayloadWithRecipients formattedPayload
-                = payloadEncoder.forRecipient(encodedPayloadWithRecipients, recipientPublicKey);
+            final EncodedPayloadWithRecipients returnValue;
+            if (Objects.equals(encodedPayloadWithRecipients.getEncodedPayload().getSenderKey(), recipientPublicKey)) {
+                final PublicKey decryptedKey = searchForRecipientKey(encodedPayloadWithRecipients).orElseThrow(RuntimeException::new);
+                returnValue = new EncodedPayloadWithRecipients(encodedPayloadWithRecipients.getEncodedPayload(), singletonList(decryptedKey));
+            } else {
+                //this is our tx
+                returnValue = payloadEncoder.forRecipient(encodedPayloadWithRecipients, recipientPublicKey);
+            }
 
-            final byte[] encoded = payloadEncoder.encode(formattedPayload);
-
-            return new ResendResponse(encoded);
+            return new ResendResponse(payloadEncoder.encode(returnValue));
         }
     }
 
     @Override
     public MessageHash storePayload(byte[] payload) {
 
-        final EncodedPayloadWithRecipients encodedPayloadWithRecipients = payloadEncoder.decodePayloadWithRecipients(payload);
+        final EncodedPayloadWithRecipients newPayload = payloadEncoder.decodePayloadWithRecipients(payload);
 
-        final MessageHash transactionHash = Optional.of(encodedPayloadWithRecipients)
-                .map(EncodedPayloadWithRecipients::getEncodedPayload)
-                .map(EncodedPayload::getCipherText)
-                .map(messageHashFactory::createFromCipherText).get();
+        final MessageHash transactionHash = Optional.of(newPayload)
+            .map(EncodedPayloadWithRecipients::getEncodedPayload)
+            .map(EncodedPayload::getCipherText)
+            .map(messageHashFactory::createFromCipherText)
+            .get();
 
-        
-        byte[] encodedPayloadWithRecipientsBytes = this.payloadEncoder.encode(encodedPayloadWithRecipients);
-        final EncryptedTransaction newTransaction = new EncryptedTransaction(
-                transactionHash,
-                encodedPayloadWithRecipientsBytes
-        );
+        final PublicKey sender = newPayload.getEncodedPayload().getSenderKey();
+        if (enclave.getPublicKeys().contains(sender)) {
 
-        this.encryptedTransactionDAO.save(newTransaction);
+            //this is a tx which we created
+            final Optional<EncryptedTransaction> tx = this.encryptedTransactionDAO.retrieveByHash(transactionHash);
 
-        LOGGER.info("Stored payload with hash {}",transactionHash);
-        
+            if (tx.isPresent()) {
+
+                //we just need to add the recipient
+                final byte[] encodedPayload = tx.get().getEncodedPayload();
+                final EncodedPayloadWithRecipients existing = payloadEncoder.decodePayloadWithRecipients(encodedPayload);
+
+                if (!existing.getRecipientKeys().contains(newPayload.getRecipientKeys().get(0))) {
+                    //You could check that the provided information really does decrypt the payload
+                    //showing that this recipient really is one
+                    //but if someone sent us false information, then the "recipientBox" they sent us won't work for them
+                    //as much as it won't work for us, so it doesn't really matter
+                    existing.getRecipientKeys().add(newPayload.getRecipientKeys().get(0));
+                    existing.getEncodedPayload().getRecipientBoxes().add(newPayload.getEncodedPayload().getRecipientBoxes().get(0));
+
+                    tx.get().setEncodedPayload(payloadEncoder.encode(existing));
+
+                    this.encryptedTransactionDAO.save(tx.get());
+                }
+
+            } else {
+
+                //we need to recreate this
+                newPayload.getRecipientKeys().add(sender);
+                byte[] newbox = enclave.createNewRecipientBox(newPayload, sender);
+                newPayload.getEncodedPayload().getRecipientBoxes().add(newbox);
+
+                final byte[] encoded = payloadEncoder.encode(newPayload);
+
+                this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, encoded));
+
+            }
+
+        } else {
+
+            //this is a tx from someone else
+            this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, payload));
+            LOGGER.info("Stored payload with hash {}", transactionHash);
+
+        }
+
         return transactionHash;
     }
 

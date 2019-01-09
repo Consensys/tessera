@@ -10,7 +10,10 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class EnclaveTest {
@@ -288,10 +291,69 @@ public class EnclaveTest {
 
 
         verify(nacl).createMasterKey();
-        verify(nacl, times(1)).randomNonce();
+        verify(nacl).randomNonce();
         verify(nacl).sealAfterPrecomputation(message, cipherNonce, masterKey);
         verify(nacl).sealAfterPrecomputation(masterKeyBytes, cipherNonce, sharedKey);
         verify(nacl).computeSharedKey(senderPublicKey, senderPrivateKey);
         verify(keyManager).getPrivateKeyForPublicKey(senderPublicKey);
     }
+
+    @Test
+    public void createNewRecipientBoxWithNoRecipientList() {
+
+        final PublicKey publicKey = PublicKey.from(new byte[0]);
+        final EncodedPayloadWithRecipients payload = new EncodedPayloadWithRecipients(null, emptyList());
+
+        final Throwable throwable = catchThrowable(() -> enclave.createNewRecipientBox(payload, publicKey));
+
+        assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("No key or recipient-box to use");
+    }
+
+    @Test
+    public void createNewRecipientBoxWithExistingNoRecipientBoxes() {
+
+        final PublicKey publicKey = PublicKey.from(new byte[0]);
+        final EncodedPayloadWithRecipients payload = new EncodedPayloadWithRecipients(
+            new EncodedPayload(null, null, null, emptyList(), null), singletonList(publicKey)
+        );
+
+        final Throwable throwable = catchThrowable(() -> enclave.createNewRecipientBox(payload, publicKey));
+
+        assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("No key or recipient-box to use");
+    }
+
+    @Test
+    public void createNewRecipientBoxGivesBackSuccessfulEncryptedKey() {
+
+        final PublicKey publicKey = PublicKey.from("recipient".getBytes());
+        final PublicKey senderKey = PublicKey.from("sender".getBytes());
+        final PrivateKey privateKey = PrivateKey.from("sender-priv".getBytes());
+        final SharedKey recipientSenderShared = SharedKey.from("shared-one".getBytes());
+        final SharedKey senderShared = SharedKey.from("shared-two".getBytes());
+        final byte[] closedbox = "closed".getBytes();
+        final byte[] openbox = "open".getBytes();
+        final Nonce nonce = new Nonce("nonce".getBytes());
+
+        final EncodedPayloadWithRecipients payload = new EncodedPayloadWithRecipients(
+            new EncodedPayload(senderKey, null, null, singletonList(closedbox), nonce),
+            singletonList(publicKey)
+        );
+
+        when(nacl.computeSharedKey(publicKey, privateKey)).thenReturn(recipientSenderShared);
+        when(nacl.computeSharedKey(senderKey, privateKey)).thenReturn(senderShared);
+        when(nacl.openAfterPrecomputation(closedbox, nonce, recipientSenderShared)).thenReturn(openbox);
+        when(nacl.sealAfterPrecomputation(openbox, nonce, senderShared)).thenReturn("newbox".getBytes());
+        when(keyManager.getPrivateKeyForPublicKey(senderKey)).thenReturn(privateKey);
+
+        final byte[] newRecipientBox = enclave.createNewRecipientBox(payload, senderKey);
+
+        assertThat(newRecipientBox).containsExactly("newbox".getBytes());
+
+        verify(nacl).computeSharedKey(publicKey, privateKey);
+        verify(nacl).computeSharedKey(senderKey, privateKey);
+        verify(nacl).openAfterPrecomputation(closedbox, nonce, recipientSenderShared);
+        verify(nacl).sealAfterPrecomputation(openbox, nonce, senderShared);
+        verify(keyManager, times(2)).getPrivateKeyForPublicKey(senderKey);
+    }
+
 }

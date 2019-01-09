@@ -34,10 +34,9 @@ public class PayloadPublisherImpl implements PayloadPublisher {
     }
 
     @Override
-    public void publishPayload(final EncodedPayloadWithRecipients encodedPayloadWithRecipients,
-                               final PublicKey recipientKey) {
+    public void publishPayload(final EncodedPayloadWithRecipients payloadToSend, final PublicKey recipientKey) {
 
-        if(enclave.getPublicKeys().contains(recipientKey)) {
+        if (enclave.getPublicKeys().contains(recipientKey)) {
             //we are trying to send something to ourselves - don't do it
             LOGGER.debug("Trying to send message to ourselves with key {}, not publishing", recipientKey.encodeToBase64());
             return;
@@ -47,11 +46,10 @@ public class PayloadPublisherImpl implements PayloadPublisher {
 
         LOGGER.info("Publishing message to {}", targetUrl);
 
-        final EncodedPayloadWithRecipients toEncode
-            = payloadEncoder.forRecipient(encodedPayloadWithRecipients, recipientKey);
+        final byte[] encoded = payloadEncoder.encode(payloadToSend);
 
-        final byte[] encoded = payloadEncoder.encode(toEncode);
         p2pClient.push(targetUrl, encoded);
+
         LOGGER.info("Published to {}", targetUrl);
 
     }
