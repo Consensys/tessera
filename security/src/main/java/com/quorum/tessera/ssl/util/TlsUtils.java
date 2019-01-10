@@ -16,6 +16,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.*;
@@ -70,9 +71,11 @@ public interface TlsUtils {
         GeneralName[] subjectAlternativeNames = new GeneralName[] {
             new GeneralName(GeneralName.dNSName, LOCALHOST),
             new GeneralName(GeneralName.dNSName, HostnameUtil.create().getHostName()),
+            new GeneralName(GeneralName.dNSName, URI.create(address).getHost()),
             new GeneralName(GeneralName.iPAddress, LOCALHOST_IP),
             new GeneralName(GeneralName.iPAddress, LOCALHOST_IP_2),
-            new GeneralName(GeneralName.iPAddress, HostnameUtil.create().getHostIpAddress())
+            new GeneralName(GeneralName.iPAddress, HostnameUtil.create().getHostIpAddress()),
+            new GeneralName(GeneralName.iPAddress, URI.create(address).getHost())
         };
 
         builder.addExtension(
