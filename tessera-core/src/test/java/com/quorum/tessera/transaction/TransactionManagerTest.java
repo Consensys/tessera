@@ -286,9 +286,9 @@ public class TransactionManagerTest {
         when(payloadEncoder.decodePayloadWithRecipients(any(byte[].class))).thenReturn(encodedPayloadWithRecipients);
         
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedTransaction));
+            .thenReturn(Optional.of(encryptedTransaction));
         
-        byte[] expectedOutcome = "Encrytpted payload".getBytes();
+        byte[] expectedOutcome = "Encrypted payload".getBytes();
         
         when(enclave.unencryptTransaction(any(EncodedPayloadWithRecipients.class), any(PublicKey.class)))
                 .thenReturn(expectedOutcome);
@@ -300,10 +300,9 @@ public class TransactionManagerTest {
         
         assertThat(receiveResponse).isNotNull();
         
-        assertThat(receiveResponse.getPayload())
-                .isEqualTo(expectedOutcome);
+        assertThat(receiveResponse.getPayload()).isEqualTo(expectedOutcome);
         
-        verify(payloadEncoder, times(2)).decodePayloadWithRecipients(any(byte[].class));
+        verify(payloadEncoder).decodePayloadWithRecipients(any(byte[].class));
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(enclave, times(2)).unencryptTransaction(any(EncodedPayloadWithRecipients.class), any(PublicKey.class));
         verify(enclave).getPublicKeys();
@@ -385,7 +384,7 @@ public class TransactionManagerTest {
         
         MessageHash messageHash = new MessageHash(keyData);
         
-        EncryptedTransaction encryptedTransaction = new EncryptedTransaction(messageHash, keyData);
+        EncryptedTransaction encryptedTransaction = new EncryptedTransaction(messageHash, null);
         
         EncodedPayloadWithRecipients encodedPayloadWithRecipients = mock(EncodedPayloadWithRecipients.class);
         
@@ -396,24 +395,19 @@ public class TransactionManagerTest {
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
                 .thenReturn(Optional.of(encryptedTransaction));
         
-        byte[] expectedOutcome = "Encrytpted payload".getBytes();
+        byte[] expectedOutcome = "Encrypted payload".getBytes();
         
         when(enclave.unencryptTransaction(any(EncodedPayloadWithRecipients.class), any(PublicKey.class)))
                 .thenReturn(expectedOutcome);
         
         PublicKey publicKey = mock(PublicKey.class);
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
-        
-        try {
-            transactionManager.receive(receiveRequest);
-            failBecauseExceptionWasNotThrown(IllegalStateException.class);
-        } catch (IllegalStateException ex) {
-            verify(payloadEncoder, times(2)).decodePayloadWithRecipients(any(byte[].class));
-            verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
-            verify(enclave).unencryptTransaction(any(EncodedPayloadWithRecipients.class), any(PublicKey.class));
-            verify(enclave).getPublicKeys();
-        }
-        
+
+        final Throwable throwable = catchThrowable(() -> transactionManager.receive(receiveRequest));
+
+        assertThat(throwable).isInstanceOf(IllegalStateException.class);
+
+        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
     }
     
     @Test

@@ -3,9 +3,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>com.quorum.tessera</groupId>
+        <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tests</artifactId>
-        <version>0.7.3-SNAPSHOT</version>
+        <version>0.8-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -15,10 +15,10 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.quorum.tessera</groupId>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-app</artifactId>
             <classifier>app</classifier>
-            <version>0.7-SNAPSHOT</version>
+            <version>0.8-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -59,6 +59,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <skipTests>true</skipTests>
                     <generateReports>true</generateReports>
                     <testFilesIncluded>
                         <jMeterTestFile>send.jmx</jMeterTestFile>
@@ -73,7 +74,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.0.0-M1</version>
                 <configuration>
-                    <skip>false</skip>
+                     <skip>true</skip>
                     <rerunFailingTestsCount>0</rerunFailingTestsCount>
                 </configuration>
                 <executions>
@@ -95,7 +96,7 @@
 
             </plugin>
 
-            <plugin>
+<!--            <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>groovy-maven-plugin</artifactId>
                 <version>2.0</version>
@@ -108,7 +109,7 @@
                 </dependencies>
 
                 <configuration>
-                    <skip>false</skip>
+                    <skip>true</skip>
                 </configuration>
 
                 <executions>
@@ -119,8 +120,9 @@
                             <goal>execute</goal>
                         </goals>
                         <configuration>
+                            <skip>true</skip>
                             <properties>
-                                <jarfile>${com.quorum.tessera:tessera-app:jar:app}</jarfile>
+                                <jarfile>${com.jpmorgan.quorum:tessera-app:jar:app}</jarfile>
                                 <configFile>${project.build.testOutputDirectory}/config1.json</configFile>
                                 <pidFile>${project.build.directory}/node1.pid</pidFile>
                                 <logbackConfigFile>${project.build.testOutputDirectory}/logback-node1.xml</logbackConfigFile>
@@ -136,7 +138,7 @@
                         </goals>
                         <configuration>
                             <properties>
-                                <jarfile>${com.quorum.tessera:tessera-app:jar:app}</jarfile>
+                                <jarfile>${com.jpmorgan.quorum:tessera-app:jar:app}</jarfile>
                                 <configFile>${project.build.testOutputDirectory}/config2.json</configFile>
                                 <pidFile>${project.build.directory}/node2.pid</pidFile>
                                 <logbackConfigFile>${project.build.testOutputDirectory}/logback-node2.xml</logbackConfigFile>
@@ -174,7 +176,7 @@
                     </execution>
 
                 </executions>
-            </plugin>
+            </plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

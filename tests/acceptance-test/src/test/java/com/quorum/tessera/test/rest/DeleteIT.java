@@ -16,6 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DeleteIT {
 
+    private static final String COUNT_ALL = "select count(*) from ENCRYPTED_TRANSACTION where hash = ?";
+
     private final PartyHelper partyHelper = new RestPartyHelper();
 
     @Test
@@ -37,8 +39,7 @@ public class DeleteIT {
 
         final String encodedHash = URLEncoder.encode(sendResponse.getKey(), UTF_8.toString());
 
-        try(PreparedStatement statement 
-                = sender.getDatabaseConnection().prepareStatement("select count(*) from ENCRYPTED_TRANSACTION where hash = ?")) {
+        try(PreparedStatement statement = sender.getDatabaseConnection().prepareStatement(COUNT_ALL)) {
             statement.setBytes(1, Base64.getDecoder().decode(sendResponse.getKey()));
             try(ResultSet rs = statement.executeQuery()) {
                 assertThat(rs.next()).isTrue();
@@ -48,7 +49,7 @@ public class DeleteIT {
 
         Client client = RestUtils.buildClient();
         //delete it
-        final Response resp = client.target(sender.getP2PUri())
+        final Response resp = client.target(sender.getQ2TUri())
                 .path("transaction")
                 .path(encodedHash)
                 .request()
@@ -61,7 +62,7 @@ public class DeleteIT {
     }
 
     @Test
-    public void deleteTransactionThatDoesntExist() throws Exception {
+    public void deleteTransactionThatDoesntExist() {
 
         final String madeupHash = Base64.getUrlEncoder().encodeToString("madeup".getBytes());
 
@@ -69,7 +70,7 @@ public class DeleteIT {
 
         Party party = partyHelper.getParties().findAny().get();
 
-        final Response response = client.target(party.getP2PUri())
+        final Response response = client.target(party.getQ2TUri())
                 .path("transaction")
                 .path(madeupHash)
                 .request()

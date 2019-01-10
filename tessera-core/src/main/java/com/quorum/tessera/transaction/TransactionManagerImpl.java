@@ -12,16 +12,18 @@ import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.model.EncryptedRawTransaction;
 import com.quorum.tessera.transaction.model.EncryptedTransaction;
 import com.quorum.tessera.util.Base64Decoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import static java.util.stream.Collectors.toList;
 import java.util.stream.Stream;
-import javax.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Delegate/Mediator object to normalise calls/interactions between Enclave and
@@ -244,15 +246,15 @@ public class TransactionManagerImpl implements TransactionManager {
                 .retrieveByHash(hash)
                 .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
 
-        PublicKey recipientKey = to.map(PublicKey::from)
-                .orElse(searchForRecipientKey(encryptedTransaction)
-                        .orElseThrow(() -> new NoRecipientKeyFoundException("No suitable recipient keys found to decrypt payload for : " + hash))
-                );
-
         final EncodedPayloadWithRecipients payloadWithRecipients = Optional.of(encryptedTransaction)
                 .map(EncryptedTransaction::getEncodedPayload)
                 .map(payloadEncoder::decodePayloadWithRecipients)
                 .orElseThrow(() -> new IllegalStateException("Unable to decode previosuly encoded payload"));
+
+        PublicKey recipientKey = to.map(PublicKey::from)
+            .orElse(searchForRecipientKey(payloadWithRecipients)
+                .orElseThrow(() -> new NoRecipientKeyFoundException("No suitable recipient keys found to decrypt payload for : " + hash))
+            );
 
         byte[] payload = enclave.unencryptTransaction(payloadWithRecipients, recipientKey);
 
@@ -260,12 +262,9 @@ public class TransactionManagerImpl implements TransactionManager {
 
     }
 
-    private Optional<PublicKey> searchForRecipientKey(EncryptedTransaction encryptedTransaction) {
+    private Optional<PublicKey> searchForRecipientKey(final EncodedPayloadWithRecipients payloadWithRecipients) {
         for (final PublicKey potentialMatchingKey : enclave.getPublicKeys()) {
             try {
-
-                final EncodedPayloadWithRecipients payloadWithRecipients
-                        = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
                 enclave.unencryptTransaction(payloadWithRecipients, potentialMatchingKey);
                 return Optional.of(potentialMatchingKey);
             } catch (IndexOutOfBoundsException | NaclException ex) {

@@ -8,7 +8,7 @@
 
     <parent>
         <artifactId>tessera</artifactId>
-        <groupId>com.quorum.tessera</groupId>
+        <groupId>com.jpmorgan.quorum</groupId>
         <version>0.8-SNAPSHOT</version>
     </parent>
 
