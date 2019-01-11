@@ -4,6 +4,7 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public enum CliDelegate {
 
@@ -16,7 +17,8 @@ public enum CliDelegate {
     }
 
     public Config getConfig() {
-        return config;
+        return Optional.ofNullable(config)
+                .orElseThrow(() -> new IllegalStateException("Execute must me invoked before attempting to fetch config"));
     }
 
     public CliResult execute(String... args) throws Exception {

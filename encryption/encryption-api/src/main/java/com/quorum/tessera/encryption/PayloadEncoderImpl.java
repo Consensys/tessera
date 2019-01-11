@@ -1,9 +1,6 @@
-package com.quorum.tessera.transaction;
+package com.quorum.tessera.encryption;
 
-import com.quorum.tessera.encryption.EncodedPayload;
-import com.quorum.tessera.encryption.EncodedPayloadWithRecipients;
-import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.util.BinaryEncoder;
+
 import com.quorum.tessera.nacl.Nonce;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
