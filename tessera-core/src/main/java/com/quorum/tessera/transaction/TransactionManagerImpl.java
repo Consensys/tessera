@@ -6,6 +6,7 @@ import com.quorum.tessera.enclave.model.MessageHashFactory;
 import com.quorum.tessera.encryption.Enclave;
 import com.quorum.tessera.encryption.EncodedPayload;
 import com.quorum.tessera.encryption.EncodedPayloadWithRecipients;
+import com.quorum.tessera.encryption.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;

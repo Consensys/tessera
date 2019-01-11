@@ -68,5 +68,10 @@ public class CliDelegateTest {
             ex.getConstraintViolations().forEach(System.out::println);
         }
     }
+    
+    @Test(expected = IllegalStateException.class)
+    public void fetchWithoutExecution() {
+        instance.getConfig();
+    }
 
 }

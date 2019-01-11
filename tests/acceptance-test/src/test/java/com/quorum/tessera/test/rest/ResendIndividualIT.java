@@ -4,8 +4,8 @@ import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendRequestType;
 import com.quorum.tessera.encryption.EncodedPayloadWithRecipients;
 import static com.quorum.tessera.test.Fixtures.*;
-import com.quorum.tessera.transaction.PayloadEncoder;
-import com.quorum.tessera.transaction.PayloadEncoderImpl;
+import com.quorum.tessera.encryption.PayloadEncoder;
+import com.quorum.tessera.encryption.PayloadEncoderImpl;
 import org.junit.Before;
 import org.junit.Test;
 
