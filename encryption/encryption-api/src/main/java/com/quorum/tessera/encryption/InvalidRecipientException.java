@@ -1,5 +1,5 @@
 
-package com.quorum.tessera.transaction;
+package com.quorum.tessera.encryption;
 
 
 public class InvalidRecipientException extends RuntimeException {
