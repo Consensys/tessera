@@ -20,7 +20,7 @@
         </dependency>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>encryption-api</artifactId>
+            <artifactId>enclave-api</artifactId>
             <type>jar</type>
         </dependency>
         

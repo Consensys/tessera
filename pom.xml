@@ -370,10 +370,16 @@
                 <version>0.8-SNAPSHOT</version>
                 <scope>runtime</scope>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>service-locator-api</artifactId>
+                <version>0.8-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>enclave-api</artifactId>
                 <version>0.8-SNAPSHOT</version>
             </dependency>
 

@@ -12,7 +12,7 @@
 
     <bean id="keyConfig" factory-bean="config" factory-method="getKeys" />
 
-    <bean id="enclave" class="com.quorum.tessera.encryption.EnclaveImpl">
+    <bean id="enclave" class="com.quorum.tessera.enclave.EnclaveImpl">
         <constructor-arg ref="nacl" />
         <constructor-arg ref="keyManager" />
     </bean>
