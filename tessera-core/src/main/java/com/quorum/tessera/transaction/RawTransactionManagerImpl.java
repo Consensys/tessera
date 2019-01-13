@@ -2,11 +2,11 @@ package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.api.model.StoreRawRequest;
 import com.quorum.tessera.api.model.StoreRawResponse;
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.enclave.model.MessageHashFactory;
-import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.encryption.RawTransaction;
 import com.quorum.tessera.transaction.model.EncryptedRawTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

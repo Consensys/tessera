@@ -1,8 +1,8 @@
 package com.quorum.tessera.transaction.model;
 
+import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.encryption.RawTransaction;
 import com.quorum.tessera.nacl.Nonce;
 
 import javax.persistence.*;

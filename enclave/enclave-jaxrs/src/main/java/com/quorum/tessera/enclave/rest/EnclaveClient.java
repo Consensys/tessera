@@ -4,7 +4,7 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayloadWithRecipients;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.encryption.RawTransaction;
+import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.nacl.Nonce;
 
 import javax.json.JsonArray;

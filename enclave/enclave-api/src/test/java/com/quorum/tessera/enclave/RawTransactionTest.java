@@ -1,14 +1,17 @@
-package com.quorum.tessera.encryption;
+package com.quorum.tessera.enclave;
 
 import com.openpojo.reflection.filters.FilterClassName;
 import com.openpojo.validation.Validator;
 import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.rule.impl.EqualsAndHashCodeMatchRule;
 import com.openpojo.validation.test.impl.GetterTester;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
-import java.util.HashMap;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
+
+import java.util.HashMap;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RawTransactionTest {
 

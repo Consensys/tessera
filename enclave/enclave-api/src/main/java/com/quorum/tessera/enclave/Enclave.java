@@ -2,7 +2,6 @@
 package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.encryption.RawTransaction;
 
 import java.util.List;
 import java.util.Set;
