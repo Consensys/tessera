@@ -1,5 +1,6 @@
 package com.quorum.tessera.node;
 
+import com.quorum.tessera.encryption.BinaryEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
@@ -19,7 +20,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * A parser for PartyInfo node discovery information
  */
-public interface PartyInfoParser extends com.quorum.tessera.encryption.BinaryEncoder {
+public interface PartyInfoParser extends BinaryEncoder {
 
     /**
      * Decodes a set of PartyInfo to the format that is shared between nodes
