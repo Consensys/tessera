@@ -316,6 +316,7 @@
         <module>key-generation</module>
         <module>key-pair-converter</module>
         <module>ddls</module>
+        <module>enclave</module>
     </modules>
 
     <dependencyManagement>
