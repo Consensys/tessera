@@ -29,7 +29,7 @@ public class AdminConfigIT {
 
         Peer peer = new Peer(url);
 
-        Response response = client.target(party.getP2PUri())
+        Response response = client.target(party.getAdminUri())
             .path("config")
             .path("peers")
             .request(MediaType.APPLICATION_JSON)
