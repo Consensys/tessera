@@ -5,26 +5,36 @@
         "password": "",
         "url": "jdbc:h2:./target/h2/rest4;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE;AUTO_SERVER_PORT=9094"
     },
-    "serverConfigs":[
+    "serverConfigs": [
         {
-            "app":"Q2T",
+            "app": "Q2T",
             "enabled": true,
-            "serverSocket":{
-                "type":"INET",
+            "serverSocket": {
+                "type": "INET",
                 "port": 18083,
                 "hostName": "http://localhost"
             },
-            "communicationType" : "REST"
+            "communicationType": "REST"
         },
         {
-            "app":"P2P",
+            "app": "P2P",
             "enabled": true,
-            "serverSocket":{
-                "type":"INET",
+            "serverSocket": {
+                "type": "INET",
                 "port": 8083,
                 "hostName": "http://localhost"
             },
-            "communicationType" : "REST"
+            "communicationType": "REST"
+        },
+        {
+            "app": "ADMIN",
+            "enabled": true,
+            "serverSocket": {
+                "type": "INET",
+                "hostName": "http://localhost",
+                "port": 28083
+            },
+            "communicationType": "REST"
         }
     ],
     "peer": [

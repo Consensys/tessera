@@ -135,8 +135,7 @@
                             </info>
 
                             <locations>
-                                <location>com.quorum.tessera.p2p.ConfigResource</location>
-   
+                                <location>com.quorum.tessera.admin.ConfigResource</location>
                             </locations>
                             <templatePath>${basedir}/src/main/swagger/strapdown.html.hbs</templatePath>
                             <outputPath>${project.build.directory}/generated-resources/swagger/admin.html</outputPath>

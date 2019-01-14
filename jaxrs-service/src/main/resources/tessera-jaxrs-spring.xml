@@ -25,6 +25,13 @@
         </constructor-arg>
         <constructor-arg value="tessera-core-spring.xml" />
     </bean>
+
+    <bean id="adminJaxrsApplication" class="com.quorum.tessera.admin.AdminRestApp">
+        <constructor-arg>
+            <bean class="com.quorum.tessera.service.locator.ServiceLocator" factory-method="create" />
+        </constructor-arg>
+        <constructor-arg value="tessera-core-spring.xml" />
+    </bean>
     
     <!-- Resources -->
     <bean class="com.quorum.tessera.api.common.VersionResource"/>
@@ -47,7 +54,7 @@
         <constructor-arg ref="partyInfoParser" />
     </bean>
     
-    <bean class="com.quorum.tessera.p2p.ConfigResource">
+    <bean class="com.quorum.tessera.admin.ConfigResource">
         <constructor-arg ref="configService" />
         <constructor-arg ref="partyInfoService"/>
     </bean>
