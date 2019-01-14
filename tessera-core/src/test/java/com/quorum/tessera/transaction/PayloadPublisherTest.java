@@ -21,6 +21,11 @@ public class PayloadPublisherTest {
 
     private static final byte[] EMPTY = new byte[0];
 
+    private static final PublicKey RECIPIENT_KEY = PublicKey.from("RECIPIENT".getBytes());
+
+    private static final EncodedPayload INNER_PAYLOAD
+        = new EncodedPayload(PublicKey.from(EMPTY), EMPTY, new Nonce(EMPTY), singletonList(EMPTY), new Nonce(EMPTY));
+
     private PayloadPublisher payloadPublisher;
 
     private PayloadEncoder payloadEncoder;
@@ -33,14 +38,14 @@ public class PayloadPublisherTest {
 
     @Before
     public void onSetUp() {
-        payloadEncoder = mock(PayloadEncoder.class);
-        partyInfoService = mock(PartyInfoService.class);
-        p2pClient = mock(P2pClient.class);
-        enclave = mock(Enclave.class);
+        this.payloadEncoder = mock(PayloadEncoder.class);
+        this.partyInfoService = mock(PartyInfoService.class);
+        this.p2pClient = mock(P2pClient.class);
+        this.enclave = mock(Enclave.class);
 
         when(enclave.getPublicKeys()).thenReturn(Collections.emptySet());
 
-        payloadPublisher = new PayloadPublisherImpl(payloadEncoder, partyInfoService, p2pClient, enclave);
+        this.payloadPublisher = new PayloadPublisherImpl(payloadEncoder, partyInfoService, p2pClient, enclave);
     }
 
     @After
@@ -51,19 +56,12 @@ public class PayloadPublisherTest {
     @Test
     public void publishUsingOwnKey() {
 
-        PublicKey recipientKey = mock(PublicKey.class);
+        when(enclave.getPublicKeys()).thenReturn(Collections.singleton(RECIPIENT_KEY));
 
-        when(enclave.getPublicKeys()).thenReturn(Collections.singleton(recipientKey));
+        final EncodedPayloadWithRecipients encodedPayloadWithRecipients
+            = new EncodedPayloadWithRecipients(INNER_PAYLOAD, singletonList(RECIPIENT_KEY));
 
-        final EncodedPayload encodedPayload = new EncodedPayload(
-            PublicKey.from(EMPTY), EMPTY, new Nonce(EMPTY), singletonList(EMPTY), new Nonce(EMPTY)
-        );
-
-        final EncodedPayloadWithRecipients encodedPayloadWithRecipients = new EncodedPayloadWithRecipients(
-            encodedPayload, singletonList(recipientKey)
-        );
-
-        payloadPublisher.publishPayload(encodedPayloadWithRecipients, recipientKey);
+        payloadPublisher.publishPayload(encodedPayloadWithRecipients, RECIPIENT_KEY);
 
         verify(enclave).getPublicKeys();
     }
@@ -72,24 +70,20 @@ public class PayloadPublisherTest {
     public void publishUsingRemoteKey() {
 
         final String url = "SOMEURL";
-        PublicKey recipientKey = mock(PublicKey.class);
-        when(partyInfoService.getURLFromRecipientKey(recipientKey)).thenReturn(url);
+        when(partyInfoService.getURLFromRecipientKey(RECIPIENT_KEY)).thenReturn(url);
 
-        final EncodedPayload encodedPayload = new EncodedPayload(
-            PublicKey.from(EMPTY), EMPTY, new Nonce(EMPTY), singletonList(EMPTY), new Nonce(EMPTY)
-        );
-
-        final EncodedPayloadWithRecipients encodedPayloadWithRecipients = new EncodedPayloadWithRecipients(
-            encodedPayload, singletonList(recipientKey)
-        );
+        final EncodedPayloadWithRecipients encodedPayloadWithRecipients
+            = new EncodedPayloadWithRecipients(INNER_PAYLOAD, singletonList(RECIPIENT_KEY));
 
         byte[] encodedBytes = "encodedBytes".getBytes();
         when(payloadEncoder.encode(any(EncodedPayloadWithRecipients.class))).thenReturn(encodedBytes);
+        when(payloadEncoder.forRecipient(encodedPayloadWithRecipients, RECIPIENT_KEY)).thenReturn(encodedPayloadWithRecipients);
 
-        payloadPublisher.publishPayload(encodedPayloadWithRecipients, recipientKey);
+        payloadPublisher.publishPayload(encodedPayloadWithRecipients, RECIPIENT_KEY);
 
-        verify(partyInfoService).getURLFromRecipientKey(recipientKey);
+        verify(partyInfoService).getURLFromRecipientKey(RECIPIENT_KEY);
         verify(payloadEncoder).encode(any(EncodedPayloadWithRecipients.class));
+        verify(payloadEncoder).forRecipient(encodedPayloadWithRecipients, RECIPIENT_KEY);
         verify(p2pClient).push(url, encodedBytes);
         verify(enclave).getPublicKeys();
     }

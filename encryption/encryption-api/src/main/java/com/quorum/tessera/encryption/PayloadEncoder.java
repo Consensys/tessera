@@ -37,10 +37,17 @@ public interface PayloadEncoder {
      * @return the decoded payload
      */
     EncodedPayloadWithRecipients decodePayloadWithRecipients(byte[] input);
-    
-    
-    //TODO: 
-    EncodedPayloadWithRecipients decodePayloadWithRecipients(byte[] input, PublicKey recipient);
+
+
+    /**
+     * Strips a payload of any data that isn't relevant to the given recipient
+     * Used to format a payload before it is sent to the target node
+     *
+     * @param input the full payload from which data needs to be stripped
+     * @param recipient the recipient to retain information about
+     * @return a payload which contains a subset of data from the input, which is relevant to the recipient
+     */
+    EncodedPayloadWithRecipients forRecipient(EncodedPayloadWithRecipients input, PublicKey recipient);
 
     static PayloadEncoder create() {
         return new PayloadEncoderImpl();
