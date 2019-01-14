@@ -245,8 +245,9 @@ public class TransactionManagerTest {
         
         EncodedPayloadWithRecipients encodedPayloadWithRecipients = mock(EncodedPayloadWithRecipients.class);
         when(encodedPayloadWithRecipients.getEncodedPayload()).thenReturn(encodedPayload);
-        when(payloadEncoder.decodePayloadWithRecipients(encodedPayloadData, recipientKey))
-                .thenReturn(encodedPayloadWithRecipients);
+        when(payloadEncoder.decodePayloadWithRecipients(encodedPayloadData)).thenReturn(encodedPayloadWithRecipients);
+        when(payloadEncoder.forRecipient(encodedPayloadWithRecipients, recipientKey))
+            .thenReturn(encodedPayloadWithRecipients);
         
         when(payloadEncoder.encode(any(EncodedPayloadWithRecipients.class))).thenReturn(encodedOutcome);
         
@@ -263,7 +264,8 @@ public class TransactionManagerTest {
         assertThat(result.getPayload()).contains(encodedOutcome);
         
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
-        verify(payloadEncoder).decodePayloadWithRecipients(encodedPayloadData, recipientKey);
+        verify(payloadEncoder).decodePayloadWithRecipients(encodedPayloadData);
+        verify(payloadEncoder).forRecipient(encodedPayloadWithRecipients, recipientKey);
         verify(payloadEncoder).encode(any(EncodedPayloadWithRecipients.class));
     }
     

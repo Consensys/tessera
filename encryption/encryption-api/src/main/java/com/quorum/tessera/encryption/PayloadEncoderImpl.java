@@ -91,26 +91,26 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
     }
 
     @Override
-    public EncodedPayloadWithRecipients decodePayloadWithRecipients(byte[] input, PublicKey recipient) {
-        EncodedPayloadWithRecipients payloadWithRecipients = decodePayloadWithRecipients(input);
-        final EncodedPayload encodedPayload = payloadWithRecipients.getEncodedPayload();
+    public EncodedPayloadWithRecipients forRecipient(final EncodedPayloadWithRecipients input,
+                                                     final PublicKey recipient) {
+        final EncodedPayload encodedPayload = input.getEncodedPayload();
 
-        if (!payloadWithRecipients.getRecipientKeys().isEmpty() && !payloadWithRecipients.getRecipientKeys().contains(recipient)) {
+        if (!input.getRecipientKeys().contains(recipient)) {
             throw new InvalidRecipientException("Recipient " + recipient.encodeToBase64() + " is not a recipient of transaction ");
         }
 
-        final int recipientIndex = payloadWithRecipients.getRecipientKeys().indexOf(recipient);
+        final int recipientIndex = input.getRecipientKeys().indexOf(recipient);
         final byte[] recipientBox = encodedPayload.getRecipientBoxes().get(recipientIndex);
 
         return new EncodedPayloadWithRecipients(
-                new EncodedPayload(
-                        encodedPayload.getSenderKey(),
-                        encodedPayload.getCipherText(),
-                        encodedPayload.getCipherTextNonce(),
-                        singletonList(recipientBox),
-                        encodedPayload.getRecipientNonce()
-                ),
-                emptyList()
+            new EncodedPayload(
+                encodedPayload.getSenderKey(),
+                encodedPayload.getCipherText(),
+                encodedPayload.getCipherTextNonce(),
+                singletonList(recipientBox),
+                encodedPayload.getRecipientNonce()
+            ),
+            emptyList()
         );
     }
 
