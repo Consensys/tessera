@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 @RunWith(Cucumber.class)
 @CucumberOptions(
     features = "classpath:features/vault/hashicorp.feature",
-    plugin = {"pretty"}
+    plugin = {"usage"}
 )
 public class RunHashicorpIT {
 }
