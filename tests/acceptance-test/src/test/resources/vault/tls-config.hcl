@@ -9,3 +9,5 @@ listener "tcp" {
 	tls_require_and_verify_client_cert = "true"
 	tls_client_ca_file = "${clientCert}"
 }
+
+disable_mlock = "true"
