@@ -46,7 +46,7 @@ public class HashicorpStepDefs implements En {
 
         Before(() -> {
             //only needed when running outside of maven build process
-            System.setProperty("application.jar", "/Users/chrishounsom/jpmc-tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
+//            System.setProperty("application.jar", "/Users/yourname/jpmc-tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
 
             tempTesseraConfig = null;
         });
