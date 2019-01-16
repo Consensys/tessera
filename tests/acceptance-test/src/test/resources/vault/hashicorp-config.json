@@ -36,8 +36,8 @@
         "passwords": [],
         "hashicorpKeyVaultConfig": {
             "url": "https://localhost:8200",
-            "tlsKeyStorePath": "/tls/san2keystore.jks",
-            "tlsTrustStorePath": "/tls/san2truststore.jks"
+            "tlsKeyStorePath": "${clientKeystore}",
+            "tlsTrustStorePath": "${clientTruststore}"
         },
         "keyData": [
             {

@@ -38,6 +38,8 @@ public class HashicorpStepDefs implements En {
 
     private String unsealKey;
 
+    private Path tempTesseraConfig;
+
     public HashicorpStepDefs() {
         final AtomicReference<Process> vaultServerProcess = new AtomicReference<>();
         final AtomicReference<Process> tesseraProcess = new AtomicReference<>();
@@ -45,6 +47,8 @@ public class HashicorpStepDefs implements En {
         Before(() -> {
             //only needed when running outside of maven build process
             System.setProperty("application.jar", "/Users/chrishounsom/jpmc-tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
+
+            tempTesseraConfig = null;
         });
 
         Given("^the vault server has been started with TLS-enabled$", () -> {
@@ -53,9 +57,9 @@ public class HashicorpStepDefs implements En {
 
             Map<String, Object> params = new HashMap<>();
             params.put("vaultPath", vaultDir.toString());
-            params.put("vaultCert", getClass().getResource("/vault/tls/san1.crt").getFile());
-            params.put("vaultKey", getClass().getResource("/vault/tls/san1.key").getFile());
-            params.put("clientCert", getClass().getResource("/vault/tls/san2.crt").getFile());
+            params.put("vaultCert", getServerTlsCert());
+            params.put("vaultKey", getServerTlsKey());
+            params.put("clientCert", getClientTlsCert());
 
             Path configFile = ElUtil.createTempFileFromTemplate(getClass().getResource("/vault/tls-config.hcl"), params);
 
@@ -223,22 +227,22 @@ public class HashicorpStepDefs implements En {
         });
 
         Given("the configfile contains the correct vault configuration", () -> {
-            URL configFile = getClass().getResource("/vault/hashicorp-config.json");
+            createTempTesseraConfig();
 
-            final Config config = JaxbUtil.unmarshal(configFile.openStream(), Config.class);
+            final Config config = JaxbUtil.unmarshal(Files.newInputStream(tempTesseraConfig), Config.class);
 
             HashicorpKeyVaultConfig expectedVaultConfig = new HashicorpKeyVaultConfig();
             expectedVaultConfig.setUrl("https://localhost:8200");
-            expectedVaultConfig.setTlsKeyStorePath(Paths.get("/Users/chrishounsom/Desktop/san2keystore.jks"));
-            expectedVaultConfig.setTlsTrustStorePath(Paths.get("/Users/chrishounsom/Desktop/san2truststore.jks"));
+            expectedVaultConfig.setTlsKeyStorePath(Paths.get(getClientTlsKeystore()));
+            expectedVaultConfig.setTlsTrustStorePath(Paths.get(getClientTlsTruststore()));
 
             assertThat(config.getKeys().getHashicorpKeyVaultConfig()).isEqualToComparingFieldByField(expectedVaultConfig);
         });
 
         Given("the configfile contains the correct key data", () -> {
-            URL configFile = getClass().getResource("/vault/hashicorp-config.json");
+            createTempTesseraConfig();
 
-            final Config config = JaxbUtil.unmarshal(configFile.openStream(), Config.class);
+            final Config config = JaxbUtil.unmarshal(Files.newInputStream(tempTesseraConfig), Config.class);
 
             HashicorpVaultKeyPair expectedKeyData = new HashicorpVaultKeyPair("publicKey", "privateKey", "secret", "tessera", null);
 
@@ -251,7 +255,6 @@ public class HashicorpStepDefs implements En {
 
             final String jarfile = System.getProperty("application.jar");
 
-            URL configFile = getClass().getResource("/vault/hashicorp-config.json");
             Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "pidA.pid");
 
             final URL logbackConfigFile = ProcessManager.class.getResource("/logback-node.xml");
@@ -264,7 +267,7 @@ public class HashicorpStepDefs implements En {
                 "-jar",
                 jarfile,
                 "-configfile",
-                ElUtil.createAndPopulatePaths(configFile).toAbsolutePath().toString(),
+                tempTesseraConfig.toString(),
                 "-pidfile",
                 pid.toAbsolutePath().toString(),
                 "-jdbc.autoCreateTables", "true"
@@ -304,7 +307,7 @@ public class HashicorpStepDefs implements En {
                 }
             });
 
-            final Config config = JaxbUtil.unmarshal(configFile.openStream(), Config.class);
+            final Config config = JaxbUtil.unmarshal(Files.newInputStream(tempTesseraConfig), Config.class);
 
             final URL bindingUrl = UriBuilder.fromUri(config.getP2PServerConfig().getBindingUri()).path("upcheck").build().toURL();
 
@@ -375,9 +378,9 @@ public class HashicorpStepDefs implements En {
                 "-keygenvaultsecretengine",
                 "secret",
                 "-keygenvaultkeystore",
-                "/Users/chrishounsom/Desktop/san2keystore.jks",
+                getClientTlsKeystore(),
                 "-keygenvaulttruststore",
-                "/Users/chrishounsom/Desktop/san2truststore.jks"
+                getClientTlsTruststore()
             );
 
             System.out.println(String.join(" ", args));
@@ -477,35 +480,46 @@ public class HashicorpStepDefs implements En {
 
     private void setKeyStoreProperties() {
         System.setProperty("javax.net.ssl.keyStoreType", "jks");
-        System.setProperty("javax.net.ssl.keyStore", getClientKeystore());
+        System.setProperty("javax.net.ssl.keyStore", getClientTlsKeystore());
         System.setProperty("javax.net.ssl.keyStorePassword", "password");
         System.setProperty("javax.net.ssl.trustStoreType", "jks");
-        System.setProperty("javax.net.ssl.trustStore", getClientTruststore());
+        System.setProperty("javax.net.ssl.trustStore", getClientTlsTruststore());
         System.setProperty("javax.net.ssl.trustStorePassword", "password");
     }
 
-    private String getClientTlsCert() {
+    private void createTempTesseraConfig() {
+        if(tempTesseraConfig == null) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("clientKeystore", getClientTlsKeystore());
+            params.put("clientTruststore", getClientTlsTruststore());
 
-    }
-
-    private String getClientTlsKey() {
-
+            tempTesseraConfig = ElUtil.createTempFileFromTemplate(getClass().getResource("/vault/hashicorp-config.json"), params);
+            tempTesseraConfig.toFile().deleteOnExit();
+        }
     }
 
     private String getServerTlsCert() {
-
+        return getClass().getResource("/vault/tls/san1.crt").getFile();
     }
 
     private String getServerTlsKey() {
-
+        return getClass().getResource("/vault/tls/san1.key").getFile();
     }
 
-    private String getClientKeystore() {
-        return getClass().getResource("/vault/tls/san2keystore.jks").getFile()
+    private String getClientTlsCert() {
+        return getClass().getResource("/vault/tls/san2.crt").getFile();
     }
 
-    private String getClientTruststore() {
-        return getClass().getResource("/vault/tls/san2truststore.jks").getFile()
+    private String getClientTlsKey() {
+        return getClass().getResource("/vault/tls/san2.key").getFile();
+    }
+
+    private String getClientTlsKeystore() {
+        return getClass().getResource("/vault/tls/san2keystore.jks").getFile();
+    }
+
+    private String getClientTlsTruststore() {
+        return getClass().getResource("/vault/tls/san2truststore.jks").getFile();
     }
 
 }
