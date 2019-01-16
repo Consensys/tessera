@@ -7,8 +7,6 @@ import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.ProcessManager;
 import com.quorum.tessera.test.util.ElUtil;
 import cucumber.api.java8.En;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -34,17 +32,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class HashicorpStepDefs implements En {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HashicorpStepDefs.class);
-
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     private String vaultToken;
 
     private String unsealKey;
-
-    private String defaultTrustStore;
-
-    private String defaultKeyStore;
 
     public HashicorpStepDefs() {
         final AtomicReference<Process> vaultServerProcess = new AtomicReference<>();
@@ -52,50 +44,7 @@ public class HashicorpStepDefs implements En {
 
         Before(() -> {
             //only needed when running outside of maven build process
-//            System.setProperty("application.jar", "/Users/yourname/jpmc-tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
-        });
-
-        Given("the dev vault server has been started", () -> {
-
-            ProcessBuilder vaultServerProcessBuilder = new ProcessBuilder("vault", "server", "-dev");
-
-            vaultServerProcess.set(
-                vaultServerProcessBuilder.redirectErrorStream(true)
-                                          .start()
-            );
-
-            AtomicBoolean isAddressAlreadyInUse = new AtomicBoolean(false);
-
-            executorService.submit(() -> {
-                try(BufferedReader reader = Stream.of(vaultServerProcess.get().getInputStream())
-                                                  .map(InputStreamReader::new)
-                                                  .map(BufferedReader::new)
-                                                  .findAny().get()) {
-
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-                        if(line.matches("^Error.+address already in use")) {
-                            isAddressAlreadyInUse.set(true);
-                        }
-
-                        if(line.matches("^Root Token: .+$")) {
-                            String[] components = line.split(" ");
-                            vaultToken = components[components.length-1].trim();
-                        }
-                    }
-
-                } catch (IOException ex) {
-                    throw new UncheckedIOException(ex);
-                }
-            });
-
-            // wait so that assertion is not evaluated before output is checked
-            CountDownLatch startUpLatch = new CountDownLatch(1);
-            startUpLatch.await(5, TimeUnit.SECONDS);
-
-            assertThat(isAddressAlreadyInUse).isFalse();
-
+            System.setProperty("application.jar", "/Users/chrishounsom/jpmc-tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
         });
 
         Given("^the vault server has been started with TLS-enabled$", () -> {
@@ -135,12 +84,6 @@ public class HashicorpStepDefs implements En {
                         if(line.matches("^Error.+address already in use")) {
                             isAddressAlreadyInUse.set(true);
                         }
-
-                        //The root token is not included in the startup logs when using a non-dev server
-//                        if(line.matches("^Root Token: .+$")) {
-//                            String[] components = line.split(" ");
-//                            vaultToken = components[components.length-1].trim();
-//                        }
                     }
 
                 } catch (IOException ex) {
@@ -154,12 +97,7 @@ public class HashicorpStepDefs implements En {
 
             assertThat(isAddressAlreadyInUse).isFalse();
 
-            System.setProperty("javax.net.ssl.keyStoreType", "jks");
-            System.setProperty("javax.net.ssl.keyStore", "/Users/chrishounsom/Desktop/san2keystore.jks");
-            System.setProperty("javax.net.ssl.keyStorePassword", "password");
-            System.setProperty("javax.net.ssl.trustStoreType", "jks");
-            System.setProperty("javax.net.ssl.trustStore", "/Users/chrishounsom/Desktop/san2truststore.jks");
-            System.setProperty("javax.net.ssl.trustStorePassword", "password");
+            setKeyStoreProperties();
 
             //Initialise the vault
             final URL initUrl = UriBuilder.fromUri("https://localhost:8200").path("v1/sys/init").build().toURL();
@@ -221,12 +159,7 @@ public class HashicorpStepDefs implements En {
         });
 
         Given("the vault has a v2 kv secret engine", () -> {
-            System.setProperty("javax.net.ssl.keyStoreType", "jks");
-            System.setProperty("javax.net.ssl.keyStore", "/Users/chrishounsom/Desktop/san2keystore.jks");
-            System.setProperty("javax.net.ssl.keyStorePassword", "password");
-            System.setProperty("javax.net.ssl.trustStoreType", "jks");
-            System.setProperty("javax.net.ssl.trustStore", "/Users/chrishounsom/Desktop/san2truststore.jks");
-            System.setProperty("javax.net.ssl.trustStorePassword", "password");
+            setKeyStoreProperties();
 
             //Upgrade secret to v2
             final URL upgradeSecretUrl = UriBuilder.fromUri("https://localhost:8200").path("v1/sys/mounts/secret/tune").build().toURL();
@@ -250,12 +183,7 @@ public class HashicorpStepDefs implements En {
         Given("the vault contains a key pair", () -> {
             Objects.requireNonNull(vaultToken);
 
-            System.setProperty("javax.net.ssl.keyStoreType", "jks");
-            System.setProperty("javax.net.ssl.keyStore", "/Users/chrishounsom/Desktop/san2keystore.jks");
-            System.setProperty("javax.net.ssl.keyStorePassword", "password");
-            System.setProperty("javax.net.ssl.trustStoreType", "jks");
-            System.setProperty("javax.net.ssl.trustStore", "/Users/chrishounsom/Desktop/san2truststore.jks");
-            System.setProperty("javax.net.ssl.trustStorePassword", "password");
+            setKeyStoreProperties();
 
             //Set secret data
             final URL setSecretUrl = UriBuilder.fromUri("https://localhost:8200").path("v1/secret/data/tessera").build().toURL();
@@ -509,12 +437,7 @@ public class HashicorpStepDefs implements En {
         Then("a new key pair {string} will be added to the vault", (String secretName) -> {
             Objects.requireNonNull(vaultToken);
 
-            System.setProperty("javax.net.ssl.keyStoreType", "jks");
-            System.setProperty("javax.net.ssl.keyStore", "/Users/chrishounsom/Desktop/san2keystore.jks");
-            System.setProperty("javax.net.ssl.keyStorePassword", "password");
-            System.setProperty("javax.net.ssl.trustStoreType", "jks");
-            System.setProperty("javax.net.ssl.trustStore", "/Users/chrishounsom/Desktop/san2truststore.jks");
-            System.setProperty("javax.net.ssl.trustStorePassword", "password");
+            setKeyStoreProperties();
 
             final URL getSecretUrl = UriBuilder.fromUri("https://localhost:8200")
                 .path("v1/secret/data/" + secretName)
@@ -547,6 +470,15 @@ public class HashicorpStepDefs implements En {
                 tesseraProcess.get().destroy();
             }
         });
+    }
+
+    private void setKeyStoreProperties() {
+        System.setProperty("javax.net.ssl.keyStoreType", "jks");
+        System.setProperty("javax.net.ssl.keyStore", "/Users/chrishounsom/Desktop/san2keystore.jks");
+        System.setProperty("javax.net.ssl.keyStorePassword", "password");
+        System.setProperty("javax.net.ssl.trustStoreType", "jks");
+        System.setProperty("javax.net.ssl.trustStore", "/Users/chrishounsom/Desktop/san2truststore.jks");
+        System.setProperty("javax.net.ssl.trustStorePassword", "password");
     }
 
 }
