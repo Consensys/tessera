@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tessera</artifactId>
-        <version>0.8</version>
+        <version>0.9-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -54,7 +54,7 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>unix-socket-server</artifactId>
-            <version>0.8</version>
+            <version>0.9-SNAPSHOT</version>
             <scope>runtime</scope>
         </dependency>
 
