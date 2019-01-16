@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.jpmorgan.quorum</groupId>
+  <artifactId>key-vault</artifactId>
+  <versioning>
+    <release>0.8</release>
+    <versions>
+      <version>0.8</version>
+    </versions>
+    <lastUpdated>20190116145241</lastUpdated>
+  </versioning>
+</metadata>
