@@ -59,7 +59,7 @@ public class HashicorpStepDefs implements En {
             params.put("vaultPath", vaultDir.toString());
             params.put("vaultCert", getServerTlsCert());
             params.put("vaultKey", getServerTlsKey());
-            params.put("clientCert", getClientTlsCert());
+            params.put("clientCert", getClientCaTlsCert());
 
             Path configFile = ElUtil.createTempFileFromTemplate(getClass().getResource("/vault/tls-config.hcl"), params);
 
@@ -278,8 +278,8 @@ public class HashicorpStepDefs implements En {
 
             Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
             tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
-            tesseraEnvironment.put("HASHICORP_CLIENT_KEYSTORE_PWD", "password");
-            tesseraEnvironment.put("HASHICORP_CLIENT_TRUSTSTORE_PWD", "password");
+            tesseraEnvironment.put("HASHICORP_CLIENT_KEYSTORE_PWD", "testtest");
+            tesseraEnvironment.put("HASHICORP_CLIENT_TRUSTSTORE_PWD", "testtest");
 
             try {
                 tesseraProcess.set(
@@ -389,8 +389,8 @@ public class HashicorpStepDefs implements En {
 
             Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
             tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
-            tesseraEnvironment.put("HASHICORP_CLIENT_KEYSTORE_PWD", "password");
-            tesseraEnvironment.put("HASHICORP_CLIENT_TRUSTSTORE_PWD", "password");
+            tesseraEnvironment.put("HASHICORP_CLIENT_KEYSTORE_PWD", "testtest");
+            tesseraEnvironment.put("HASHICORP_CLIENT_TRUSTSTORE_PWD", "testtest");
 
             tesseraProcess.set(
                 tesseraProcessBuilder.redirectErrorStream(true)
@@ -481,10 +481,10 @@ public class HashicorpStepDefs implements En {
     private void setKeyStoreProperties() {
         System.setProperty("javax.net.ssl.keyStoreType", "jks");
         System.setProperty("javax.net.ssl.keyStore", getClientTlsKeystore());
-        System.setProperty("javax.net.ssl.keyStorePassword", "password");
+        System.setProperty("javax.net.ssl.keyStorePassword", "testtest");
         System.setProperty("javax.net.ssl.trustStoreType", "jks");
         System.setProperty("javax.net.ssl.trustStore", getClientTlsTruststore());
-        System.setProperty("javax.net.ssl.trustStorePassword", "password");
+        System.setProperty("javax.net.ssl.trustStorePassword", "testtest");
     }
 
     private void createTempTesseraConfig() {
@@ -499,27 +499,23 @@ public class HashicorpStepDefs implements En {
     }
 
     private String getServerTlsCert() {
-        return getClass().getResource("/vault/tls/san1.crt").getFile();
+        return getClass().getResource("/certificates/localhost-with-san-chain.pem").getFile();
     }
 
     private String getServerTlsKey() {
-        return getClass().getResource("/vault/tls/san1.key").getFile();
+        return getClass().getResource("/certificates/localhost-with-san.key").getFile();
     }
 
-    private String getClientTlsCert() {
-        return getClass().getResource("/vault/tls/san2.crt").getFile();
-    }
-
-    private String getClientTlsKey() {
-        return getClass().getResource("/vault/tls/san2.key").getFile();
+    private String getClientCaTlsCert() {
+        return getClass().getResource("/certificates/caRoot.pem").getFile();
     }
 
     private String getClientTlsKeystore() {
-        return getClass().getResource("/vault/tls/san2keystore.jks").getFile();
+        return getClass().getResource("/certificates/quorum-client-keystore.jks").getFile();
     }
 
     private String getClientTlsTruststore() {
-        return getClass().getResource("/vault/tls/san2truststore.jks").getFile();
+        return getClass().getResource("/certificates/truststore.jks").getFile();
     }
 
 }
