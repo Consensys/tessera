@@ -52,8 +52,7 @@ public class HashicorpStepDefs implements En {
         });
 
         Given("^the vault server has been started with TLS-enabled$", () -> {
-            Path vaultDir = Files.createTempDirectory("vault");
-            vaultDir.toFile().deleteOnExit();
+            Path vaultDir = Files.createDirectories(Paths.get("target/temp/" + UUID.randomUUID().toString() + "/vault"));
 
             Map<String, Object> params = new HashMap<>();
             params.put("vaultPath", vaultDir.toString());
