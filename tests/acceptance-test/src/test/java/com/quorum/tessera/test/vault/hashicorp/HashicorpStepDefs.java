@@ -52,7 +52,7 @@ public class HashicorpStepDefs implements En {
 
         Before(() -> {
             //only needed when running outside of maven build process
-//            System.setProperty("application.jar", "/Users/chris/jpmc-tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
+//            System.setProperty("application.jar", "/Users/yourname/jpmc-tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
         });
 
         Given("the dev vault server has been started", () -> {
@@ -175,7 +175,7 @@ public class HashicorpStepDefs implements En {
             }
 
             initUrlConnection.connect();
-            assertThat(initUrlConnection.getResponseCode()).isEqualTo(HttpURLConnection.HTTP_OK);
+            assertThat(initUrlConnection.getResponseCode()).isEqualTo(HttpsURLConnection.HTTP_OK);
 
             JsonReader initResponseReader = Json.createReader(initUrlConnection.getInputStream());
 
@@ -206,31 +206,65 @@ public class HashicorpStepDefs implements En {
             }
 
             unsealUrlConnection.connect();
-            assertThat(unsealUrlConnection.getResponseCode()).isEqualTo(HttpURLConnection.HTTP_OK);
+            assertThat(unsealUrlConnection.getResponseCode()).isEqualTo(HttpsURLConnection.HTTP_OK);
         });
 
         Given("the vault is initialised and unsealed", () -> {
             final URL initUrl = UriBuilder.fromUri("https://localhost:8200").path("v1/sys/health").build().toURL();
-            HttpURLConnection initUrlConnection = (HttpURLConnection) initUrl.openConnection();
+            HttpsURLConnection initUrlConnection = (HttpsURLConnection) initUrl.openConnection();
             initUrlConnection.connect();
 
             // See https://www.vaultproject.io/api/system/health.html for info on response codes for this endpoint
-            assertThat(initUrlConnection.getResponseCode()).as("check vault is initialized").isNotEqualTo(HttpURLConnection.HTTP_NOT_IMPLEMENTED);
+            assertThat(initUrlConnection.getResponseCode()).as("check vault is initialized").isNotEqualTo(HttpsURLConnection.HTTP_NOT_IMPLEMENTED);
             assertThat(initUrlConnection.getResponseCode()).as("check vault is unsealed").isNotEqualTo(503);
-            assertThat(initUrlConnection.getResponseCode()).isEqualTo(HttpURLConnection.HTTP_OK);
+            assertThat(initUrlConnection.getResponseCode()).isEqualTo(HttpsURLConnection.HTTP_OK);
+        });
+
+        Given("the vault has a v2 kv secret engine", () -> {
+            System.setProperty("javax.net.ssl.keyStoreType", "jks");
+            System.setProperty("javax.net.ssl.keyStore", "/Users/chrishounsom/Desktop/san2keystore.jks");
+            System.setProperty("javax.net.ssl.keyStorePassword", "password");
+            System.setProperty("javax.net.ssl.trustStoreType", "jks");
+            System.setProperty("javax.net.ssl.trustStore", "/Users/chrishounsom/Desktop/san2truststore.jks");
+            System.setProperty("javax.net.ssl.trustStorePassword", "password");
+
+            //Upgrade secret to v2
+            final URL upgradeSecretUrl = UriBuilder.fromUri("https://localhost:8200").path("v1/sys/mounts/secret/tune").build().toURL();
+            HttpsURLConnection upgradeSecretUrlConnection = (HttpsURLConnection) upgradeSecretUrl.openConnection();
+
+            upgradeSecretUrlConnection.setDoOutput(true);
+            upgradeSecretUrlConnection.setRequestMethod("POST");
+            upgradeSecretUrlConnection.setRequestProperty("X-Vault-Token", vaultToken);
+
+            upgradeSecretUrlConnection.connect();
+
+            String upgradeSecretData = "{\"options\": {\"version\": \"2\"}}";
+
+            try(OutputStreamWriter writer = new OutputStreamWriter(upgradeSecretUrlConnection.getOutputStream())) {
+                writer.write(upgradeSecretData);
+            }
+
+            assertThat(upgradeSecretUrlConnection.getResponseCode()).isEqualTo(HttpsURLConnection.HTTP_OK);
         });
 
         Given("the vault contains a key pair", () -> {
             Objects.requireNonNull(vaultToken);
 
-            final URL setSecretUrl = UriBuilder.fromUri("http://127.0.0.1:8200").path("v1/secret/data/tessera").build().toURL();
-            HttpURLConnection setSecretUrlConnection = (HttpURLConnection) setSecretUrl.openConnection();
+            System.setProperty("javax.net.ssl.keyStoreType", "jks");
+            System.setProperty("javax.net.ssl.keyStore", "/Users/chrishounsom/Desktop/san2keystore.jks");
+            System.setProperty("javax.net.ssl.keyStorePassword", "password");
+            System.setProperty("javax.net.ssl.trustStoreType", "jks");
+            System.setProperty("javax.net.ssl.trustStore", "/Users/chrishounsom/Desktop/san2truststore.jks");
+            System.setProperty("javax.net.ssl.trustStorePassword", "password");
+
+            //Set secret data
+            final URL setSecretUrl = UriBuilder.fromUri("https://localhost:8200").path("v1/secret/data/tessera").build().toURL();
+            HttpsURLConnection setSecretUrlConnection = (HttpsURLConnection) setSecretUrl.openConnection();
 
             setSecretUrlConnection.setDoOutput(true);
             setSecretUrlConnection.setRequestMethod("POST");
             setSecretUrlConnection.setRequestProperty("X-Vault-Token", vaultToken);
 
-            setSecretUrlConnection.connect();
 
             String setSecretData = "{\"data\": {\"publicKey\": \"/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=\", \"privateKey\": \"yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=\"}}";
 
@@ -238,15 +272,16 @@ public class HashicorpStepDefs implements En {
                 writer.write(setSecretData);
             }
 
-            assertThat(setSecretUrlConnection.getResponseCode()).isEqualTo(HttpURLConnection.HTTP_OK);
+            setSecretUrlConnection.connect();
+            assertThat(setSecretUrlConnection.getResponseCode()).isEqualTo(HttpsURLConnection.HTTP_OK);
 
-            final URL getSecretUrl = UriBuilder.fromUri("http://127.0.0.1:8200").path("v1/secret/data/tessera").build().toURL();
-            HttpURLConnection getSecretUrlConnection = (HttpURLConnection) getSecretUrl.openConnection();
+            final URL getSecretUrl = UriBuilder.fromUri("https://localhost:8200").path("v1/secret/data/tessera").build().toURL();
+            HttpsURLConnection getSecretUrlConnection = (HttpsURLConnection) getSecretUrl.openConnection();
             getSecretUrlConnection.setRequestProperty("X-Vault-Token", vaultToken);
             getSecretUrlConnection.connect();
 
             int getSecretResponseCode = getSecretUrlConnection.getResponseCode();
-            assertThat(getSecretResponseCode).isEqualTo(HttpURLConnection.HTTP_OK);
+            assertThat(getSecretResponseCode).isEqualTo(HttpsURLConnection.HTTP_OK);
 
             JsonReader jsonReader = Json.createReader(getSecretUrlConnection.getInputStream());
 
@@ -262,7 +297,9 @@ public class HashicorpStepDefs implements En {
             final Config config = JaxbUtil.unmarshal(configFile.openStream(), Config.class);
 
             HashicorpKeyVaultConfig expectedVaultConfig = new HashicorpKeyVaultConfig();
-            expectedVaultConfig.setUrl("http://127.0.0.1:8200");
+            expectedVaultConfig.setUrl("https://localhost:8200");
+            expectedVaultConfig.setTlsKeyStorePath(Paths.get("/Users/chrishounsom/Desktop/san2keystore.jks"));
+            expectedVaultConfig.setTlsTrustStorePath(Paths.get("/Users/chrishounsom/Desktop/san2truststore.jks"));
 
             assertThat(config.getKeys().getHashicorpKeyVaultConfig()).isEqualToComparingFieldByField(expectedVaultConfig);
         });
@@ -307,11 +344,17 @@ public class HashicorpStepDefs implements En {
 
             Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
             tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
+            tesseraEnvironment.put("HASHICORP_CLIENT_KEYSTORE_PWD", "password");
+            tesseraEnvironment.put("HASHICORP_CLIENT_TRUSTSTORE_PWD", "password");
 
-            tesseraProcess.set(
-                tesseraProcessBuilder.redirectErrorStream(true)
-                    .start()
-            );
+            try {
+                tesseraProcess.set(
+                    tesseraProcessBuilder.redirectErrorStream(true)
+                        .start()
+                );
+            } catch(NullPointerException ex) {
+                throw new NullPointerException("Check that application.jar property has been set");
+            }
 
             executorService.submit(() -> {
 
@@ -393,13 +436,17 @@ public class HashicorpStepDefs implements En {
                 jarfile,
                 "-keygen",
                 "-keygenvaulturl",
-                "http://127.0.0.1:8200",
+                "https://localhost:8200",
                 "-keygenvaulttype",
                 "hashicorp",
                 "-filename",
                 "tessera/nodeA,tessera/nodeB",
                 "-keygenvaultsecretengine",
-                "secret"
+                "secret",
+                "-keygenvaultkeystore",
+                "/Users/chrishounsom/Desktop/san2keystore.jks",
+                "-keygenvaulttruststore",
+                "/Users/chrishounsom/Desktop/san2truststore.jks"
             );
 
             System.out.println(String.join(" ", args));
@@ -408,6 +455,8 @@ public class HashicorpStepDefs implements En {
 
             Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
             tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
+            tesseraEnvironment.put("HASHICORP_CLIENT_KEYSTORE_PWD", "password");
+            tesseraEnvironment.put("HASHICORP_CLIENT_TRUSTSTORE_PWD", "password");
 
             tesseraProcess.set(
                 tesseraProcessBuilder.redirectErrorStream(true)
@@ -436,7 +485,7 @@ public class HashicorpStepDefs implements En {
         });
 
         Then("Tessera will retrieve the key pair from the vault", () -> {
-            final URL partyInfoUrl = UriBuilder.fromUri("http://127.0.0.1")
+            final URL partyInfoUrl = UriBuilder.fromUri("http://localhost")
                 .port(8080)
                 .path("partyinfo")
                 .build()
@@ -460,12 +509,19 @@ public class HashicorpStepDefs implements En {
         Then("a new key pair {string} will be added to the vault", (String secretName) -> {
             Objects.requireNonNull(vaultToken);
 
-            final URL getSecretUrl = UriBuilder.fromUri("http://127.0.0.1:8200")
+            System.setProperty("javax.net.ssl.keyStoreType", "jks");
+            System.setProperty("javax.net.ssl.keyStore", "/Users/chrishounsom/Desktop/san2keystore.jks");
+            System.setProperty("javax.net.ssl.keyStorePassword", "password");
+            System.setProperty("javax.net.ssl.trustStoreType", "jks");
+            System.setProperty("javax.net.ssl.trustStore", "/Users/chrishounsom/Desktop/san2truststore.jks");
+            System.setProperty("javax.net.ssl.trustStorePassword", "password");
+
+            final URL getSecretUrl = UriBuilder.fromUri("https://localhost:8200")
                 .path("v1/secret/data/" + secretName)
                 .build()
                 .toURL();
 
-            HttpURLConnection getSecretUrlConnection = (HttpURLConnection) getSecretUrl.openConnection();
+            HttpsURLConnection getSecretUrlConnection = (HttpsURLConnection) getSecretUrl.openConnection();
             getSecretUrlConnection.setRequestProperty("X-Vault-Token", vaultToken);
             getSecretUrlConnection.connect();
 
