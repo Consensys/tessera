@@ -4,7 +4,7 @@
 
 # <img src="TesseraLogo.png" width="150" height="150"/>
 
-> __Important: Database change__ <br/>A timestamp is now recorded with each encrypted transaction stored in the Tessera DB.  To update an existing DB to work with this version of Tessera, execute one of the provided [alter scripts](ddls/add-timestamp)
+> __Important: Release 0.8 Feature__ <br/>Tessera now supports pre-signed 'raw' transactions. Please refer to the API section of the [Tessera wiki](https://github.com/jpmorganchase/tessera/wiki/Interface-&-API/) for details of the updated API, and the [quorum.js](https://github.com/jpmorganchase/quorum.js/) repo for usage info. 
 
 Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/jpmorganchase/quorum/).
 
@@ -80,6 +80,8 @@ java -cp ojdbc7.jar:tessera-app.jar:. com.quorum.tessera.Launcher -configfile co
 ```
 
 [DDLs](ddls/create-table) have been provided to help with defining these databases.
+
+Since Tessera 0.7 a timestamp is recorded with each encrypted transaction stored in the Tessera DB.  To update an existing DB to work with Tessera 0.7+, execute one of the provided [alter scripts](ddls/add-timestamp).
 
 ## Configuration
 
