@@ -53,6 +53,9 @@ public class HashicorpStepDefs implements En {
 
             Map<String, Object> params = new HashMap<>();
             params.put("vaultPath", vaultDir.toString());
+            params.put("vaultCert", getClass().getResource("/vault/tls/san1.crt").getFile());
+            params.put("vaultKey", getClass().getResource("/vault/tls/san1.key").getFile());
+            params.put("clientCert", getClass().getResource("/vault/tls/san2.crt").getFile());
 
             Path configFile = ElUtil.createTempFileFromTemplate(getClass().getResource("/vault/tls-config.hcl"), params);
 
@@ -474,11 +477,35 @@ public class HashicorpStepDefs implements En {
 
     private void setKeyStoreProperties() {
         System.setProperty("javax.net.ssl.keyStoreType", "jks");
-        System.setProperty("javax.net.ssl.keyStore", "/Users/chrishounsom/Desktop/san2keystore.jks");
+        System.setProperty("javax.net.ssl.keyStore", getClientKeystore());
         System.setProperty("javax.net.ssl.keyStorePassword", "password");
         System.setProperty("javax.net.ssl.trustStoreType", "jks");
-        System.setProperty("javax.net.ssl.trustStore", "/Users/chrishounsom/Desktop/san2truststore.jks");
+        System.setProperty("javax.net.ssl.trustStore", getClientTruststore());
         System.setProperty("javax.net.ssl.trustStorePassword", "password");
+    }
+
+    private String getClientTlsCert() {
+
+    }
+
+    private String getClientTlsKey() {
+
+    }
+
+    private String getServerTlsCert() {
+
+    }
+
+    private String getServerTlsKey() {
+
+    }
+
+    private String getClientKeystore() {
+        return getClass().getResource("/vault/tls/san2keystore.jks").getFile()
+    }
+
+    private String getClientTruststore() {
+        return getClass().getResource("/vault/tls/san2truststore.jks").getFile()
     }
 
 }
