@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Party {
 
@@ -24,6 +25,7 @@ public class Party {
 
     private final URI p2pUri;
     private final URI q2tUri;
+    private final URI adminUri;
 
     private final Config config;
 
@@ -51,8 +53,13 @@ public class Party {
             .filter(sc -> sc.getApp() == AppType.Q2T)
             .findFirst()
             .get();
-
         this.q2tUri = q2tServerConfig.getServerUri();
+
+        Optional<ServerConfig> adminServerConfig = config.getServerConfigs()
+            .stream()
+            .filter(sc -> sc.getApp() == AppType.ADMIN)
+            .findFirst();
+        this.adminUri = adminServerConfig.map(ServerConfig::getServerUri).orElse(null);
         
         this.alias = Objects.requireNonNull(alias);
 
@@ -64,6 +71,10 @@ public class Party {
 
     public URI getP2PUri() {
         return p2pUri;
+    }
+
+    public URI getAdminUri() {
+        return adminUri;
     }
 
     public URI getQ2TUri() {

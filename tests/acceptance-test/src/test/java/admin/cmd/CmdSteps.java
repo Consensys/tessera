@@ -47,7 +47,7 @@ public class CmdSteps implements En {
         Then("a peer is added to party", () -> {
 
             Response response = Stream.of(subjectNode)
-                .map(Party::getP2PUri)
+                .map(Party::getAdminUri)
                 .map(client::target)
                 .map(t -> t.path("config"))
                 .map(t -> t.path("peers"))
