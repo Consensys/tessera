@@ -20,13 +20,25 @@
         <url>https://github.com/jpmorganchase/tessera</url>
         <connection>scm:git:git://github.com/jpmorganchase/tessera.git</connection>
         <developerConnection>scm:git:git@github.com:jpmorganchase/tessera.git</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
+
+    <description>
+        Tessera is a stateless Java system that is used to enable the encryption, 
+        decryption, and distribution of private transactions for Quorum.
+    </description>
 
     <ciManagement>
         <url>https://travis-ci.com/jpmorganchase/tessera</url>
     </ciManagement>
-    
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
     <properties>
         <jersey.version>2.27</jersey.version>
         <jetty.version>9.4.10.v20180503</jetty.version>
