@@ -382,7 +382,7 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>enclave-api</artifactId>
-                <version>0.8-SNAPSHOT</version>
+                <version>0.9-SNAPSHOT</version>
             </dependency>
 
             <dependency>
