@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
-        <artifactId>encryption</artifactId>
+        <artifactId>enclave</artifactId>
         <version>0.9-SNAPSHOT</version>
     </parent>
     <artifactId>enclave-jaxrs</artifactId>
