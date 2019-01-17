@@ -60,7 +60,7 @@ public class HashicorpStepDefs implements En {
             params.put("vaultKey", getServerTlsKey());
             params.put("clientCert", getClientCaTlsCert());
 
-            Path configFile = ElUtil.createTempFileFromTemplate(getClass().getResource("/vault/tls-config.hcl"), params);
+            Path configFile = ElUtil.createTempFileFromTemplate(getClass().getResource("/vault/hashicorp-tls-config.hcl"), params);
 
             List<String> args = Arrays.asList(
                 "vault",
@@ -175,14 +175,13 @@ public class HashicorpStepDefs implements En {
             upgradeSecretUrlConnection.setRequestMethod("POST");
             upgradeSecretUrlConnection.setRequestProperty("X-Vault-Token", vaultToken);
 
-            upgradeSecretUrlConnection.connect();
-
             String upgradeSecretData = "{\"options\": {\"version\": \"2\"}}";
 
             try(OutputStreamWriter writer = new OutputStreamWriter(upgradeSecretUrlConnection.getOutputStream())) {
                 writer.write(upgradeSecretData);
             }
 
+            upgradeSecretUrlConnection.connect();
             assertThat(upgradeSecretUrlConnection.getResponseCode()).isEqualTo(HttpsURLConnection.HTTP_OK);
         });
 
@@ -212,10 +211,9 @@ public class HashicorpStepDefs implements En {
             final URL getSecretUrl = UriBuilder.fromUri("https://localhost:8200").path("v1/secret/data/tessera").build().toURL();
             HttpsURLConnection getSecretUrlConnection = (HttpsURLConnection) getSecretUrl.openConnection();
             getSecretUrlConnection.setRequestProperty("X-Vault-Token", vaultToken);
-            getSecretUrlConnection.connect();
 
-            int getSecretResponseCode = getSecretUrlConnection.getResponseCode();
-            assertThat(getSecretResponseCode).isEqualTo(HttpsURLConnection.HTTP_OK);
+            getSecretUrlConnection.connect();
+            assertThat(getSecretUrlConnection.getResponseCode()).isEqualTo(HttpsURLConnection.HTTP_OK);
 
             JsonReader jsonReader = Json.createReader(getSecretUrlConnection.getInputStream());
 
@@ -492,7 +490,7 @@ public class HashicorpStepDefs implements En {
             params.put("clientKeystore", getClientTlsKeystore());
             params.put("clientTruststore", getClientTlsTruststore());
 
-            tempTesseraConfig = ElUtil.createTempFileFromTemplate(getClass().getResource("/vault/hashicorp-config.json"), params);
+            tempTesseraConfig = ElUtil.createTempFileFromTemplate(getClass().getResource("/vault/tessera-hashicorp-config.json"), params);
             tempTesseraConfig.toFile().deleteOnExit();
         }
     }
