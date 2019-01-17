@@ -23,10 +23,7 @@
         <tag>HEAD</tag>
     </scm>
 
-    <description>
-        Tessera is a stateless Java system that is used to enable the encryption, 
-        decryption, and distribution of private transactions for Quorum.
-    </description>
+    <description>Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for Quorum.</description>
 
     <ciManagement>
         <url>https://travis-ci.com/jpmorganchase/tessera</url>
