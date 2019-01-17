@@ -37,6 +37,10 @@ public class HashicorpStepDefs implements En {
     private String vaultToken;
 
     private String unsealKey;
+    
+    private String approleRoleId;
+    
+    private String approleSecretId;
 
     private Path tempTesseraConfig;
 
@@ -183,6 +187,93 @@ public class HashicorpStepDefs implements En {
 
             upgradeSecretUrlConnection.connect();
             assertThat(upgradeSecretUrlConnection.getResponseCode()).isEqualTo(HttpsURLConnection.HTTP_OK);
+        });
+
+        Given("the AppRole auth method is enabled at path {string}", (String approlePath) -> {
+
+            setKeyStoreProperties();
+
+            //Enable approle authentication
+            final URL enableApproleUrl = UriBuilder.fromUri("https://localhost:8200").path("v1/sys/auth/" + approlePath).build().toURL();
+            HttpsURLConnection enableApproleUrlConnection = (HttpsURLConnection) enableApproleUrl.openConnection();
+
+            enableApproleUrlConnection.setDoOutput(true);
+            enableApproleUrlConnection.setRequestMethod("POST");
+            enableApproleUrlConnection.setRequestProperty("X-Vault-Token", vaultToken);
+
+            String enableApproleData = "{\"type\": \"approle\"}";
+
+            try(OutputStreamWriter writer = new OutputStreamWriter(enableApproleUrlConnection.getOutputStream())) {
+                writer.write(enableApproleData);
+            }
+
+            enableApproleUrlConnection.connect();
+            assertThat(enableApproleUrlConnection.getResponseCode()).isEqualTo(HttpsURLConnection.HTTP_NO_CONTENT);
+
+            //Create a policy and assign to a new approle
+            final URL createPolicyUrl = UriBuilder.fromUri("https://localhost:8200").path("v1/sys/policy/simple-policy").build().toURL();
+            HttpsURLConnection createPolicyUrlConnection = (HttpsURLConnection) createPolicyUrl.openConnection();
+
+            createPolicyUrlConnection.setDoOutput(true);
+            createPolicyUrlConnection.setRequestMethod("POST");
+            createPolicyUrlConnection.setRequestProperty("X-Vault-Token", vaultToken);
+
+            String createPolicyData = "{ \"policy\": \"path \\\"secret/data/tessera*\\\" { capabilities = [\\\"create\\\", \\\"update\\\", \\\"read\\\"]}\" }";
+
+            try(OutputStreamWriter writer = new OutputStreamWriter(createPolicyUrlConnection.getOutputStream())) {
+                writer.write(createPolicyData);
+            }
+
+            createPolicyUrlConnection.connect();
+            assertThat(createPolicyUrlConnection.getResponseCode()).isEqualTo(HttpsURLConnection.HTTP_NO_CONTENT);
+
+            final URL createApproleUrl = UriBuilder.fromUri("https://localhost:8200").path("v1/auth/" + approlePath + "/role/simple-role").build().toURL();
+            HttpsURLConnection createApproleUrlConnection = (HttpsURLConnection) createApproleUrl.openConnection();
+
+            createApproleUrlConnection.setDoOutput(true);
+            createApproleUrlConnection.setRequestMethod("POST");
+            createApproleUrlConnection.setRequestProperty("X-Vault-Token", vaultToken);
+
+            String createApproleData = "{ \"policies\": [\"simple-policy\"] }";
+
+            try(OutputStreamWriter writer = new OutputStreamWriter(createApproleUrlConnection.getOutputStream())) {
+                writer.write(createApproleData);
+            }
+
+            createApproleUrlConnection.connect();
+            assertThat(createApproleUrlConnection.getResponseCode()).isEqualTo(HttpsURLConnection.HTTP_NO_CONTENT);
+
+            //Retrieve approle credentials
+            final URL getRoleIdUrl = UriBuilder.fromUri("https://localhost:8200").path("v1/auth/" + approlePath + "/role/simple-role/role-id").build().toURL();
+            HttpsURLConnection getRoleIdUrlConnection = (HttpsURLConnection) getRoleIdUrl.openConnection();
+
+            getRoleIdUrlConnection.setRequestProperty("X-Vault-Token", vaultToken);
+
+            getRoleIdUrlConnection.connect();
+            assertThat(getRoleIdUrlConnection.getResponseCode()).isEqualTo(HttpsURLConnection.HTTP_OK);
+
+            JsonReader jsonReader = Json.createReader(getRoleIdUrlConnection.getInputStream());
+            JsonObject getRoleIdObject = jsonReader.readObject().getJsonObject("data");
+
+            assertThat(getRoleIdObject.getString("role_id")).isNotEmpty();
+            approleRoleId = getRoleIdObject.getString("role_id");
+
+            final URL createSecretIdUrl = UriBuilder.fromUri("https://localhost:8200").path("v1/auth/" + approlePath + "/role/simple-role/secret-id").build().toURL();
+            HttpsURLConnection createSecretIdUrlConnection = (HttpsURLConnection) createSecretIdUrl.openConnection();
+
+            createSecretIdUrlConnection.setRequestMethod("POST");
+            createSecretIdUrlConnection.setRequestProperty("X-Vault-Token", vaultToken);
+
+            createSecretIdUrlConnection.connect();
+            assertThat(createSecretIdUrlConnection.getResponseCode()).isEqualTo(HttpsURLConnection.HTTP_OK);
+
+            JsonReader anotherJsonReader = Json.createReader(createSecretIdUrlConnection.getInputStream());
+            JsonObject createSecretIdObject = anotherJsonReader.readObject().getJsonObject("data");
+
+            assertThat(createSecretIdObject.getString("secret_id")).isNotEmpty();
+            approleSecretId = createSecretIdObject.getString("secret_id");
+
+            createTempTesseraConfigWithApprole(approlePath);
         });
 
         Given("the vault contains a key pair", () -> {
@@ -351,14 +442,13 @@ public class HashicorpStepDefs implements En {
             startUpLatch.await(30, TimeUnit.SECONDS);
         });
 
-        When("Tessera keygen is used with the Hashicorp options provided", () -> {
-            Objects.requireNonNull(vaultToken);
-
+        When("Tessera keygen is used with the Hashicorp options provided and {string} auth method at path {string}", (String authMethod, String approlePath) -> {
             final String jarfile = System.getProperty("application.jar");
 
             final URL logbackConfigFile = ProcessManager.class.getResource("/logback-node.xml");
 
-            List<String> args = Arrays.asList(
+            List<String> args = new ArrayList<>();
+            args.addAll(Arrays.asList(
                 "java",
                 "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
                 "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
@@ -378,16 +468,39 @@ public class HashicorpStepDefs implements En {
                 getClientTlsKeystore(),
                 "-keygenvaulttruststore",
                 getClientTlsTruststore()
-            );
+            ));
+
+            if("approle".equals(authMethod) && !Objects.isNull(approlePath) && !approlePath.isEmpty()) {
+                args.add("-keygenvaultapprole");
+                args.add(approlePath);
+            }
+
 
             System.out.println(String.join(" ", args));
 
             ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);
 
             Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
-            tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
+
             tesseraEnvironment.put("HASHICORP_CLIENT_KEYSTORE_PWD", "testtest");
             tesseraEnvironment.put("HASHICORP_CLIENT_TRUSTSTORE_PWD", "testtest");
+
+            if("token".equals(authMethod)) {
+
+                Objects.requireNonNull(vaultToken);
+                tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
+
+            } else if("approle".equals(authMethod)) {
+
+                Objects.requireNonNull(approleRoleId);
+                Objects.requireNonNull(approleSecretId);
+                tesseraEnvironment.put("HASHICORP_ROLE_ID", approleRoleId);
+                tesseraEnvironment.put("HASHICORP_SECRET_ID", approleSecretId);
+                tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
+
+            } else {
+                throw new IllegalArgumentException(authMethod + "is an unsupported auth type. Change your Cucumber feature to use \"token\" or \"approle\"");
+            }
 
             tesseraProcess.set(
                 tesseraProcessBuilder.redirectErrorStream(true)
@@ -491,6 +604,18 @@ public class HashicorpStepDefs implements En {
             params.put("clientTruststore", getClientTlsTruststore());
 
             tempTesseraConfig = ElUtil.createTempFileFromTemplate(getClass().getResource("/vault/tessera-hashicorp-config.json"), params);
+            tempTesseraConfig.toFile().deleteOnExit();
+        }
+    }
+
+    private void createTempTesseraConfigWithApprole(String approlePath) {
+        if(tempTesseraConfig == null) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("clientKeystore", getClientTlsKeystore());
+            params.put("clientTruststore", getClientTlsTruststore());
+            params.put("approlePath", approlePath);
+
+            tempTesseraConfig = ElUtil.createTempFileFromTemplate(getClass().getResource("/vault/tessera-hashicorp-approle-config.json"), params);
             tempTesseraConfig.toFile().deleteOnExit();
         }
     }
