@@ -17,6 +17,16 @@
             "communicationType" : "REST"
         },
         {
+            "app":"ADMIN",
+            "enabled": true,
+            "serverSocket":{
+                "type":"INET",
+                "port": 18090,
+                "hostName": "http://localhost"
+            },
+            "communicationType" : "REST"
+        },
+        {
             "app":"Q2T",
             "enabled": true,
             "serverSocket":{

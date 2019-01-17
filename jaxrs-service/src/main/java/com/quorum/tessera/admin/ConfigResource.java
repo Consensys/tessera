@@ -1,6 +1,7 @@
-package com.quorum.tessera.p2p;
+package com.quorum.tessera.admin;
 
 import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.config.apps.AdminApp;
 import com.quorum.tessera.core.config.ConfigService;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.model.Party;
@@ -22,7 +23,7 @@ import static java.util.Collections.singleton;
 @Path("/config")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class ConfigResource {
+public class ConfigResource implements AdminApp {
 
     private final ConfigService configService;
 

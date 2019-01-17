@@ -1,4 +1,4 @@
-package com.quorum.tessera.p2p;
+package com.quorum.tessera.admin;
 
 import com.quorum.tessera.service.locator.ServiceLocator;
 import org.junit.After;
@@ -7,18 +7,19 @@ import org.junit.Test;
 
 import static org.mockito.Mockito.*;
 
-public class P2PRestAppTest {
+public class AdminRestAppTest {
 
     private static final String contextName = "context";
 
     private ServiceLocator serviceLocator;
 
-    private P2PRestApp p2PRestApp;
+    private AdminRestApp adminRestApp;
 
     @Before
     public void setUp() {
-        serviceLocator = mock(ServiceLocator.class);
-        p2PRestApp = new P2PRestApp(serviceLocator, contextName);
+        this.serviceLocator = mock(ServiceLocator.class);
+
+        this.adminRestApp = new AdminRestApp(serviceLocator, contextName);
     }
 
     @After
@@ -28,7 +29,10 @@ public class P2PRestAppTest {
 
     @Test
     public void getSingletons() {
-        p2PRestApp.getSingletons();
+        this.adminRestApp.getSingletons();
+
         verify(serviceLocator).getServices(contextName);
     }
+
 }
+
