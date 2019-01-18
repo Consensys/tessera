@@ -1,22 +1,25 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.api.model.*;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.enclave.model.MessageHash;
-import com.quorum.tessera.encryption.*;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.model.EncryptedRawTransaction;
 import com.quorum.tessera.transaction.model.EncryptedTransaction;
-import java.util.Base64;
-import static org.assertj.core.api.Assertions.*;
+import com.quorum.tessera.util.Base64Decoder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Mockito.*;
-import com.quorum.tessera.util.Base64Decoder;
+
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class TransactionManagerTest {
     

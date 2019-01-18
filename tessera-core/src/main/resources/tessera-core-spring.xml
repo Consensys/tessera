@@ -71,7 +71,7 @@
         <constructor-arg value="5000"/>
     </bean>
 
-    <bean name="payloadEncoder" class="com.quorum.tessera.encryption.PayloadEncoderImpl"/>
+    <bean name="payloadEncoder" class="com.quorum.tessera.enclave.PayloadEncoderImpl"/>
 
     <bean id="partyInfoParser" class="com.quorum.tessera.node.PartyInfoParser" factory-method="create"/>
 
