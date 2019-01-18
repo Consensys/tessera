@@ -75,7 +75,7 @@ public class SqliteDataExporterTest {
         final String username = "sa";
         final String password = "pass";
 
-        final  Map<byte[], byte[]> singleLineData = new HashMap<>();
+        final Map<byte[], byte[]> singleLineData = new HashMap<>();
         singleLineData.put("HASH".getBytes(), "VALUE".getBytes());
 
         exporter.export(singleLineData, outputPath, username, password);

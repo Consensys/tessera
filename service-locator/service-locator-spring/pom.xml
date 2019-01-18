@@ -9,16 +9,16 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>com.quorum.tessera</groupId>
+        <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>service-locator</artifactId>
-        <version>0.7-SNAPSHOT</version>
+        <version>0.9-SNAPSHOT</version>
     </parent>
 
 
     <dependencies>
 
         <dependency>
-            <groupId>com.quorum.tessera</groupId>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>service-locator-api</artifactId>
         </dependency>
 

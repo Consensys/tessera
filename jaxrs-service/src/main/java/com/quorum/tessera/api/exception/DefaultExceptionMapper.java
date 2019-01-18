@@ -1,5 +1,6 @@
 package com.quorum.tessera.api.exception;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -16,9 +17,10 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
     public Response toResponse(Exception exception) {
         
         LOGGER.error("{}",exception.getMessage());
-        
+        LOGGER.debug(null,exception);
         return Response.status(Status.INTERNAL_SERVER_ERROR)
                 .entity(exception.getMessage())
+                .type(MediaType.TEXT_PLAIN)
                 .build();
     }
 }

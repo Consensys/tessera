@@ -4,7 +4,6 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.reflect.ReflectCallback;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -51,7 +50,16 @@ public interface OverrideUtil {
     });
 
     static Map<String, Class> buildConfigOptions() {
-        return fields(null, Config.class);
+        final Map<String, Class> fields = fields(null, Config.class);
+
+        //add key overrides separately as they cannot be determined from the type directly
+        fields.put("keys.keyData.privateKeyPath", Path.class);
+        fields.put("keys.keyData.config.data.aopts.parallelism", String.class);
+        fields.put("keys.keyData.config.data.aopts.memory", String.class);
+        fields.put("keys.keyData.config.data.aopts.iterations", String.class);
+        fields.put("keys.keyData.config.data.aopts.algorithm", String.class);
+
+        return fields;
     }
 
     static String resolveName(Field field) {
@@ -142,6 +150,10 @@ public interface OverrideUtil {
      * @param value
      */
     static void setValue(Object root, String path, String... value) {
+
+        if(root == null) {
+            return;
+        }
 
         final ListIterator<String> pathTokens = Arrays.asList(path.split("\\.")).listIterator();
 
@@ -256,12 +268,14 @@ public interface OverrideUtil {
 
     static <T> T createInstance(Class<T> type) {
 
+        if(type.isInterface()) {
+            return null;
+        }
+
         return ReflectCallback.execute(() -> {
-            Method factoryMethod = type.getDeclaredMethod("create");
-            factoryMethod.setAccessible(true);
-            final Object instance = factoryMethod.invoke(null);
+            final T instance = type.newInstance();
             initialiseNestedObjects(instance);
-            return (T) instance;
+            return instance;
         });
 
     }
@@ -271,6 +285,9 @@ public interface OverrideUtil {
     }
 
     static void initialiseNestedObjects(Object obj) {
+        if (obj == null) {
+            return;
+        }
         ReflectCallback.execute(() -> {
             Class type = obj.getClass();
             Field[] fields = type.getDeclaredFields();

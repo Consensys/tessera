@@ -2,11 +2,12 @@ package com.quorum.tessera.server;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
-import java.util.Set;
+
 import javax.ws.rs.core.Application;
+import java.util.Set;
 
 /**
- * Creates Grizzly and Jersey implementations of the {@link RestServer}
+ * Creates Grizzly and Jersey implementations of the {@link TesseraServer}
  */
 public class JerseyServerFactory implements TesseraServerFactory {
 
@@ -14,10 +15,12 @@ public class JerseyServerFactory implements TesseraServerFactory {
     public TesseraServer createServer(ServerConfig serverConfig, Set<Object> services) {
         Application application = services.stream()
                 .filter(Application.class::isInstance)
+                .filter(serverConfig.getApp().getIntf()::isInstance)
                 .findFirst()
                 .map(Application.class::cast)
                 .get();
-        return new JerseyServer(serverConfig,application);
+
+        return new JerseyServer(serverConfig, application);
     }
 
     @Override

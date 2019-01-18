@@ -1,334 +1,314 @@
 package com.quorum.tessera.config.adapters;
 
-import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
-import com.quorum.tessera.config.PrivateKeyType;
-import org.junit.Before;
+import com.quorum.tessera.config.keypairs.*;
 import org.junit.Test;
-import java.io.IOException;
-import java.nio.file.Files;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
-import com.quorum.tessera.io.FilesDelegate;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.Mockito.mock;
 
 public class KeyDataAdapterTest {
 
     private KeyDataAdapter adapter = new KeyDataAdapter();
 
-    @Before
-    public void onSetup() {
-        adapter = new KeyDataAdapter();
+    @Test
+    public void marshallDirectKeys() {
+        final ConfigKeyPair keys = new DirectKeyPair("PUB", "PRIV");
+        final KeyData expected = new KeyData();
+        expected.setPublicKey("PUB");
+        expected.setPrivateKey("PRIV");
+
+        final KeyData marshalledKey = adapter.marshal(keys);
+
+        assertThat(marshalledKey).isEqualToComparingFieldByField(expected);
     }
 
     @Test
-    public void marshallUnlockedKey() {
+    public void marshallInlineKeys() {
+        final PrivateKeyData pkd = new PrivateKeyData("val", null, null, null, null);
+        final ConfigKeyPair keys = new InlineKeypair("PUB", new KeyDataConfig(pkd, UNLOCKED));
+        final KeyData expected = new KeyData();
 
-        final KeyData keyData = new KeyData(new KeyDataConfig(null, UNLOCKED), "PRIV", "PUB", null, null);
+        expected.setPublicKey("PUB");
+        expected.setConfig(new KeyDataConfig(pkd, UNLOCKED));
 
-        final KeyData marshalledKey = adapter.marshal(keyData);
+        final KeyData marshalledKey = adapter.marshal(keys);
 
-        assertThat(marshalledKey.getPrivateKey()).isEqualTo("PRIV");
-        assertThat(marshalledKey.getPublicKey()).isEqualTo("PUB");
-        assertThat(marshalledKey.getConfig()).isEqualToComparingFieldByField(new KeyDataConfig(null, UNLOCKED));
-
+        assertThat(marshalledKey).isEqualToComparingFieldByFieldRecursively(expected);
     }
 
     @Test
-    public void marshallKeyWithoutConfiguration() {
-        final KeyData keyData = new KeyData(null, "PRIV", "PUB", null, null);
+    public void marshallFilesystemKeys() {
+        final Path path = mock(Path.class);
+        final FilesystemKeyPair keyPair = new FilesystemKeyPair(path, path);
 
-        final KeyData marshalledKey = adapter.marshal(keyData);
+        final KeyData expected = new KeyData();
+        expected.setPublicKeyPath(path);
+        expected.setPrivateKeyPath(path);
 
-        assertThat(marshalledKey.getPrivateKey()).isEqualTo("PRIV");
-        assertThat(marshalledKey.getPublicKey()).isEqualTo("PUB");
-        assertThat(marshalledKey.getConfig()).isNull();
-        assertThat(marshalledKey.getPrivateKeyPath()).isNull();
-        assertThat(marshalledKey.getPublicKeyPath()).isNull();
+        final KeyData result = adapter.marshal(keyPair);
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    public void marshallAzureKeys() {
+        final AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pubId", "privId", "pubVer", "privVer");
+
+        final KeyData expected = new KeyData();
+        expected.setAzureVaultPublicKeyId("pubId");
+        expected.setAzureVaultPrivateKeyId("privId");
+        expected.setAzureVaultPublicKeyVersion("pubVer");
+        expected.setAzureVaultPrivateKeyVersion("privVer");
+
+        final KeyData result = adapter.marshal(keyPair);
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    public void marshallHashicorpKeys() {
+        final HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretEngineName", "secretName", "0");
+
+        final KeyData expected = new KeyData();
+        expected.setHashicorpVaultPublicKeyId("pubId");
+        expected.setHashicorpVaultPrivateKeyId("privId");
+        expected.setHashicorpVaultSecretEngineName("secretEngineName");
+        expected.setHashicorpVaultSecretName("secretName");
+
+        final KeyData result = adapter.marshal(keyPair);
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    public void marshallUnsupportedKeys() {
+        final KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
+        final Path path = mock(Path.class);
+        //set a random selection of values that are not sufficient to make a complete key pair of any type
+        final UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, "priv", null, path, null, null, null, null, null, null, null, null, null, null);
+
+        final KeyData expected = new KeyData();
+        expected.setConfig(keyDataConfig);
+        expected.setPrivateKey("priv");
+        expected.setPrivateKeyPath(path);
+
+        final KeyData result = adapter.marshal(keyPair);
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    class UnknownKeyPair implements ConfigKeyPair {
+
+        @Override
+        public String getPublicKey() {
+            return null;
+        }
+
+        @Override
+        public String getPrivateKey() {
+            return null;
+        }
+
+        @Override
+        public void withPassword(String password) {
+            //do nothing
+        }
+
+        @Override
+        public String getPassword() {
+            return null;
+        }
+    }
+
+    @Test
+    public void marshallUnknownKeyPairType() {
+        final ConfigKeyPair keyPair = new UnknownKeyPair();
+
+        Throwable ex = catchThrowable(() -> adapter.marshal(keyPair));
+
+        assertThat(ex).isInstanceOf(UnsupportedOperationException.class);
+        assertThat(ex).hasMessage("The keypair type " + keyPair.getClass() + " is not allowed");
     }
 
     @Test
     public void marshallLockedKeyNullifiesPrivateKey() {
+        final PrivateKeyData pkd = new PrivateKeyData("val", null, null, null, null);
+        final ConfigKeyPair keys = new InlineKeypair("PUB", new KeyDataConfig(pkd, UNLOCKED));
 
-        final KeyData keyData = new KeyData(
-                new KeyDataConfig(new PrivateKeyData(null, null, null, null, null, null), PrivateKeyType.LOCKED),
-                "PRIV", "PUB", null, null
-        );
+        final KeyData marshalledKey = adapter.marshal(keys);
 
-        final KeyData marshalledKey = adapter.marshal(keyData);
-
-        assertThat(marshalledKey.getConfig()).isEqualToComparingFieldByField(keyData.getConfig());
-        assertThat(marshalledKey.getPublicKey()).isEqualTo("PUB");
         assertThat(marshalledKey.getPrivateKey()).isNull();
 
     }
 
     @Test
-    public void marshallKeysWithLiteralValues() {
+    public void unmarshallingDirectKeysGivesCorrectKeypair() {
+        final KeyData input = new KeyData();
+        input.setPublicKey("public");
+        input.setPrivateKey("private");
 
-        final KeyData keyData = new KeyData(null, "PRIV", "PUB", null, null);
-
-        final KeyData marshalled = adapter.unmarshal(keyData);
-
-        assertThat(marshalled).isEqualToComparingFieldByField(keyData);
-
-    }
-
-    @Test
-    public void marshallKeysWithUnlockedPrivateKey() {
-
-        final KeyData keyData = new KeyData(
-                new KeyDataConfig(
-                        new PrivateKeyData("LITERAL_PRIVATE", null, null, null, null, null),
-                        UNLOCKED
-                ),
-                null,
-                "PUB",
-                null,
-                null
-        );
-
-        final KeyData marshalled = adapter.unmarshal(keyData);
-
-        assertThat(marshalled.getPrivateKey()).isEqualTo("LITERAL_PRIVATE");
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(DirectKeyPair.class);
 
     }
 
     @Test
-    public void marshallKeysWithLockedPrivateKey() {
+    public void unmarshallingInlineKeysGivesCorrectKeypair() {
+        final KeyData input = new KeyData();
+        input.setPublicKey("public");
+        input.setConfig(new KeyDataConfig(null, null));
 
-        final KeyData keyData = new KeyData(
-                new KeyDataConfig(
-                        new PrivateKeyData(
-                                null,
-                                "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-                                "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-                                "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                                new ArgonOptions("id", 10, 1048576, 4),
-                                "q"
-                        ),
-                        PrivateKeyType.LOCKED
-                ),
-                null,
-                "PUB", null, null
-        );
-
-        final KeyData marshalled = adapter.unmarshal(keyData);
-
-        assertThat(marshalled.getPrivateKey()).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(InlineKeypair.class);
 
     }
 
     @Test
-    public void fileUnmarshallingSucceeds() throws IOException {
+    public void unmarshallingFilesystemKeysGivesCorrectKeypair() {
+        final KeyData input = new KeyData();
+        input.setPublicKeyPath(Paths.get("public"));
+        input.setPrivateKeyPath(Paths.get("private"));
 
-        final String publicKey = "publicKey";
-        final String privateKey = "{\"data\":{\"bytes\":\"Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=\"},\"type\":\"unlocked\"}";
-
-        final Path pub = Files.createTempFile("public", ".pub");
-        final Path priv = Files.createTempFile("private", ".key");
-
-        Files.write(pub, publicKey.getBytes(UTF_8));
-        Files.write(priv, privateKey.getBytes(UTF_8));
-
-        final KeyData keyData = new KeyData(null, null, null, priv, pub);
-
-        final KeyData resolved = this.adapter.unmarshal(keyData);
-
-        assertThat(resolved.getPublicKey()).isEqualTo(publicKey);
-        assertThat(resolved.getPrivateKey()).isEqualTo("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=");
-        assertThat(resolved.getConfig().getType()).isEqualTo(UNLOCKED);
-
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(FilesystemKeyPair.class);
     }
 
     @Test
-    public void bothPathsMustBeSetIfUsingKeyPathsPubReturnsAndDoesNotThrowError() {
+    public void unmarshallingAzureKeysWithNoVersionsGivesCorrectKeyPair() {
+        final KeyData input = new KeyData();
+        input.setAzureVaultPublicKeyId("pubId");
+        input.setAzureVaultPrivateKeyId("privId");
+        input.setAzureVaultPublicKeyVersion(null);
+        input.setAzureVaultPrivateKeyVersion(null);
 
-        final KeyData badConfig = new KeyData(null, null, null, Paths.get("sample"), null);
-
-        KeyData result = this.adapter.unmarshal(badConfig);
-        assertThat(result).isSameAs(badConfig);
-
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(AzureVaultKeyPair.class);
     }
 
     @Test
-    public void bothPathsMustBeSetIfUsingKeyPathsPrivReturnsAndDoesNotThrowError() {
+    public void unmarshallingAzureKeysWithVersionsGivesCorrectKeyPair() {
+        final KeyData input = new KeyData();
+        input.setAzureVaultPublicKeyId("pubId");
+        input.setAzureVaultPrivateKeyId("privId");
+        input.setAzureVaultPublicKeyVersion("pubVer");
+        input.setAzureVaultPrivateKeyVersion("privVer");
 
-        final KeyData badConfig = new KeyData(null, null, null, null, Paths.get("sample"));
-
-        KeyData result = this.adapter.unmarshal(badConfig);
-        assertThat(result).isSameAs(badConfig);
-
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(AzureVaultKeyPair.class);
     }
 
     @Test
-    public void decryptingPrivateKeyWithWrongPasswordErrorsReturnsAndDoesNotThrowError() {
-        final KeyData keyData = new KeyData(
-                new KeyDataConfig(
-                        new PrivateKeyData(
-                                null,
-                                "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-                                "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-                                "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                                new ArgonOptions("id", 10, 1048576, 4),
-                                "badpassword"
-                        ),
-                        PrivateKeyType.LOCKED
-                ),
-                null,
-                "PUB", null, null
-        );
+    public void unmarshallingHashicorpKeysGivesCorrectKeyPair() {
+        final KeyData input = new KeyData();
 
-        KeyData result = this.adapter.unmarshal(keyData);
-        assertThat(result.getPrivateKey()).startsWith("NACL_FAILURE");
+        input.setHashicorpVaultPublicKeyId("pubId");
+        input.setHashicorpVaultPrivateKeyId("privId");
+        input.setHashicorpVaultSecretEngineName("secretEngine");
+        input.setHashicorpVaultSecretName("secretName");
 
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
     }
 
     @Test
-    public void unmarshallingLockedWithNoPasswordFailsReturnsAndDoesNotThrowError() {
-        final KeyData keyData = new KeyData(
-                new KeyDataConfig(
-                        new PrivateKeyData(
-                                null,
-                                "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-                                "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-                                "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                                new ArgonOptions("id", 10, 1048576, 4),
-                                null
-                        ),
-                        PrivateKeyType.LOCKED
-                ),
-                null,
-                "PUB", null, null
-        );
+    public void unmarshallingPrivateOnlyGivesUnsupportedKeyPair() {
+        final KeyData input = new KeyData();
+        input.setPrivateKey("private");
 
-        KeyData result = this.adapter.unmarshal(keyData);
-        assertThat(result).isSameAs(keyData);
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
     }
 
     @Test
-    public void unmarshallingLockedWithNonExistentPublicKeyFileFailsReturnsAndDoesNotThrowError() {
+    public void unmarshallingPrivateConfigOnlyGivesUnsupportedKeyPair() {
+        final KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
+        final KeyData input = new KeyData();
+        input.setConfig(keyDataConfig);
 
-        FilesDelegate filesDelegate = mock(FilesDelegate.class);
-        adapter.setFilesDelegate(filesDelegate);
-
-        Path privateKeyPath = mock(Path.class);
-        Path publicKeyPath = mock(Path.class);
-        when(filesDelegate.notExists(publicKeyPath)).thenReturn(true);
-        when(filesDelegate.notExists(privateKeyPath)).thenReturn(false);
-
-        final KeyData keyData = new KeyData(
-                new KeyDataConfig(
-                        new PrivateKeyData(
-                                null,
-                                "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-                                "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-                                "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                                new ArgonOptions("id", 10, 1048576, 4),
-                                null
-                        ),
-                        PrivateKeyType.LOCKED
-                ),
-                null,
-                "PUB", privateKeyPath, publicKeyPath
-        );
-
-        KeyData result = this.adapter.unmarshal(keyData);
-        assertThat(result).isSameAs(keyData);
-
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
     }
 
     @Test
-    public void unmarshallingLockedWithNonExistentPrivateKeyFileFailsReturnsAndDoesNotThrowError() {
+    public void unmarshallingAzurePublicOnlyGivesUnsupportedKeyPair() {
+        final KeyData input = new KeyData();
+        input.setAzureVaultPublicKeyId("pubId");
 
-        FilesDelegate filesDelegate = mock(FilesDelegate.class);
-        adapter.setFilesDelegate(filesDelegate);
-
-        Path privateKeyPath = mock(Path.class);
-        Path publicKeyPath = mock(Path.class);
-        when(filesDelegate.notExists(publicKeyPath)).thenReturn(false);
-        when(filesDelegate.notExists(privateKeyPath)).thenReturn(true);
-
-        final KeyData keyData = new KeyData(
-                new KeyDataConfig(
-                        new PrivateKeyData(
-                                null,
-                                "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-                                "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-                                "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                                new ArgonOptions("id", 10, 1048576, 4),
-                                null
-                        ),
-                        PrivateKeyType.LOCKED
-                ),
-                null,
-                "PUB", privateKeyPath, publicKeyPath
-        );
-
-        KeyData result = this.adapter.unmarshal(keyData);
-        assertThat(result).isSameAs(keyData);
-
-
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
     }
 
     @Test
-    public void pathsSetDoesntReturnWholeConfig() {
-        final KeyData keyData = new KeyData(
-            new KeyDataConfig(
-                new PrivateKeyData(
-                    null,
-                    "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-                    "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-                    "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                    new ArgonOptions("id", 10, 1048576, 4),
-                    null
-                ),
-                PrivateKeyType.LOCKED
-            ),
-            null,
-            "PUB", Paths.get("priv"), Paths.get("pub")
-        );
+    public void unmarshallingAzurePrivateOnlyGivesUnsupportedKeyPair() {
+        final KeyData input = new KeyData();
+        input.setAzureVaultPrivateKeyId("privId");
 
-        final KeyData result = this.adapter.marshal(keyData);
-
-        assertThat(result.getPrivateKeyPath()).isEqualTo(Paths.get("priv"));
-        assertThat(result.getPublicKeyPath()).isEqualTo(Paths.get("pub"));
-        assertThat(result.getPrivateKey()).isNull();
-        assertThat(result.getPublicKey()).isNull();
-        assertThat(result.getConfig()).isNull();
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
     }
 
     @Test
-    public void pathsSetDoesntReturnWholeConfigPublicOnly() {
-        final KeyData keyData = new KeyData(
-            new KeyDataConfig(
-                new PrivateKeyData(
-                    null,
-                    "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-                    "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-                    "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                    new ArgonOptions("id", 10, 1048576, 4),
-                    null
-                ),
-                PrivateKeyType.LOCKED
-            ),
-            null,
-            "PUB", null, Paths.get("pub")
-        );
+    public void unmarshallingHashicorpPublicOnlyGivesUnsupprtedKeyPair() {
+        final KeyData input = new KeyData();
+        input.setHashicorpVaultPublicKeyId("pubId");
 
-        final KeyData result = this.adapter.marshal(keyData);
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
+    }
 
-        assertThat(result.getPrivateKeyPath()).isNull();
-        assertThat(result.getPublicKeyPath()).isEqualTo(Paths.get("pub"));
-        assertThat(result.getPrivateKey()).isNull();
-        assertThat(result.getPublicKey()).isNull();
-        assertThat(result.getConfig()).isNull();
+    @Test
+    public void unmarshallingHashicorpPrivateOnlyGivesUnsupprtedKeyPair() {
+        final KeyData input = new KeyData();
+        input.setHashicorpVaultPrivateKeyId("privId");
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingHashicorpSecretEngineNameOnlyGivesUnsupprtedKeyPair() {
+        final KeyData input = new KeyData();
+        input.setHashicorpVaultSecretEngineName("secretEngine");
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingHashicorpSecretNameOnlyGivesUnsupprtedKeyPair() {
+        final KeyData input = new KeyData();
+        input.setHashicorpVaultSecretName("secretName");
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingPublicPathOnlyGivesUnsupportedKeyPair() {
+        final Path path = mock(Path.class);
+        final KeyData input = new KeyData();
+        input.setPublicKeyPath(path);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingPrivatePathOnlyGivesUnsupportedKeyPair() {
+        final Path path = mock(Path.class);
+        final KeyData input = new KeyData();
+        input.setPrivateKeyPath(path);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
     }
 
 }

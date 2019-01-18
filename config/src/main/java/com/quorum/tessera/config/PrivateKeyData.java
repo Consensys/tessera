@@ -3,47 +3,34 @@ package com.quorum.tessera.config;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(factoryMethod = "create")
 public class PrivateKeyData extends ConfigItem {
 
     @XmlElement(name = "bytes")
-    @XmlSchemaType(name = "anyURI")
-    private final String value;
+    private String value;
 
     @XmlElement
-    @XmlSchemaType(name = "anyURI")
-    private final String snonce;
+    private String snonce;
 
     @XmlElement
-    @XmlSchemaType(name = "anyURI")
-    private final String asalt;
+    private String asalt;
 
     @XmlElement
-    @XmlSchemaType(name = "anyURI")
-    private final String sbox;
+    private String sbox;
 
     @XmlElement(name = "aopts")
-    private final ArgonOptions argonOptions;
+    private ArgonOptions argonOptions;
 
-    @XmlElement
-    @XmlSchemaType(name = "anyURI")
-    private final String password;
-
-    public PrivateKeyData(String value, String snonce, String asalt, String sbox, ArgonOptions argonOptions, String password) {
+    public PrivateKeyData(String value, String snonce, String asalt, String sbox, ArgonOptions argonOptions) {
         this.value = value;
         this.snonce = snonce;
         this.asalt = asalt;
         this.sbox = sbox;
         this.argonOptions = argonOptions;
-        this.password = password;
     }
 
-    private static PrivateKeyData create() {
-        return new PrivateKeyData(null, null, null, null, null, null);
+    public PrivateKeyData() {
     }
 
     public String getValue() {
@@ -66,8 +53,24 @@ public class PrivateKeyData extends ConfigItem {
         return argonOptions;
     }
 
-    public String getPassword() {
-        return password;
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public void setSnonce(String snonce) {
+        this.snonce = snonce;
+    }
+
+    public void setAsalt(String asalt) {
+        this.asalt = asalt;
+    }
+
+    public void setSbox(String sbox) {
+        this.sbox = sbox;
+    }
+
+    public void setArgonOptions(ArgonOptions argonOptions) {
+        this.argonOptions = argonOptions;
     }
 
 }

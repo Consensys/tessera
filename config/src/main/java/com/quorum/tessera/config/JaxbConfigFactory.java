@@ -1,5 +1,6 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 
 import java.io.IOException;
@@ -10,7 +11,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,7 +24,7 @@ public class JaxbConfigFactory implements ConfigFactory {
         .collect(Collectors.toSet());
     
     @Override
-    public Config create(final InputStream configData, final List<KeyData> newKeys) {
+    public Config create(final InputStream configData, final List<ConfigKeyPair> newKeys) {
 
         final Config config = JaxbUtil.unmarshal(configData, Config.class);
 
@@ -34,10 +34,7 @@ public class JaxbConfigFactory implements ConfigFactory {
             try {
                 final List<String> newPasswords = newKeys
                     .stream()
-                    .map(KeyData::getConfig)
-                    .map(KeyDataConfig::getPassword)
-                    .map(Optional::ofNullable)
-                    .map(pass -> pass.orElse(""))
+                    .map(ConfigKeyPair::getPassword)
                     .collect(Collectors.toList());
 
                 if (config.getKeys().getPasswords() != null) {
@@ -45,7 +42,7 @@ public class JaxbConfigFactory implements ConfigFactory {
                 } else if (config.getKeys().getPasswordFile() != null) {
                     this.createFile(config.getKeys().getPasswordFile());
                     Files.write(config.getKeys().getPasswordFile(), newPasswords, APPEND);
-                } else if (!newPasswords.stream().allMatch(""::equals)) {
+                } else if (!newPasswords.stream().allMatch(Objects::isNull)) {
                     final List<String> existingPasswords = config
                         .getKeys()
                         .getKeyData()
@@ -69,13 +66,14 @@ public class JaxbConfigFactory implements ConfigFactory {
         if(createdNewPasswordFile) {
             //return a new object with the password file set
             return new Config(
-                config.getJdbcConfig(),
-                config.getServerConfig(),
-                config.getPeers(),
-                new KeyConfiguration(Paths.get("passwords.txt"), null, config.getKeys().getKeyData()),
-                config.getAlwaysSendTo(),
-                config.getUnixSocketFile(),
-                config.isUseWhiteList()
+                    config.getJdbcConfig(),
+                    config.getServerConfigs(),
+                    config.getPeers(),
+                    new KeyConfiguration(Paths.get("passwords.txt"), null, config.getKeys().getKeyData(), config.getKeys().getAzureKeyVaultConfig(), config.getKeys().getHashicorpKeyVaultConfig()),
+                    config.getAlwaysSendTo(),
+                    config.getUnixSocketFile(),
+                    config.isUseWhiteList(),
+                    config.isDisablePeerDiscovery()
             );
         } else {
             //leave config untouched since it wasn't needed to make a new one

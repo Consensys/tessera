@@ -27,23 +27,26 @@ public class Launcher {
 
     public static void main(final String... args) throws Exception {
 
+        System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+        System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+        
         try {
             final CliResult cliResult = CliDelegate.instance().execute(args);
 
-            if (cliResult.isHelpOn()) {
+            if (cliResult.isSuppressStartup()) {
                 System.exit(0);
             } else if (cliResult.getStatus() != 0) {
                 System.exit(cliResult.getStatus());
             }
 
-            if (!cliResult.getConfig().isPresent() && cliResult.isKeyGenOn()) {
+            if (!cliResult.getConfig().isPresent() && cliResult.isSuppressStartup()) {
                 System.exit(cliResult.getStatus());
             }
 
             final Config config = cliResult.getConfig()
                     .orElseThrow(() -> new NoSuchElementException("No Config found. Tessera will not run"));
 
-            runWebServer(config.getServerConfig());
+            runWebServer(config);
 
             System.exit(0);
 
@@ -80,7 +83,7 @@ public class Launcher {
         return ex;
     }
 
-    private static void runWebServer(final ServerConfig serverConfig) throws Exception {
+    private static void runWebServer(final Config config) throws Exception {
 
         ServiceLocator serviceLocator = ServiceLocator.create();
 
@@ -89,19 +92,35 @@ public class Launcher {
         TesseraServerFactory restServerFactory = TesseraServerFactory.create(CommunicationType.REST);
 
         TesseraServerFactory grpcServerFactory = TesseraServerFactory.create(CommunicationType.GRPC);
-        
-        TesseraServer restServer = restServerFactory.createServer(serverConfig, services);
 
-        Optional<TesseraServer> grpcServer =
-            Optional.ofNullable(grpcServerFactory.createServer(serverConfig, services));
+        TesseraServerFactory unixSocketServerFactory = TesseraServerFactory.create(CommunicationType.UNIX_SOCKET);
+
+        //TODO - we should only need one netty factory that is able to deal with any type of ServerConfig
+        List<TesseraServer> servers = new ArrayList<>();
+        for(ServerConfig serverConfig : config.getServerConfigs()){
+            TesseraServer tesseraServer = null;
+            switch (serverConfig.getCommunicationType()){
+                case GRPC:
+                    tesseraServer = grpcServerFactory.createServer(serverConfig, services);
+                    break;
+                case REST:
+                    tesseraServer = restServerFactory.createServer(serverConfig, services);
+                    break;
+                case UNIX_SOCKET:
+                    tesseraServer = unixSocketServerFactory.createServer(serverConfig, services);
+                    break;
+            }
+            if (null != tesseraServer) {
+                servers.add(tesseraServer);
+            }
+        }
 
         CountDownLatch countDown = new CountDownLatch(1);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                restServer.stop();
-                if (grpcServer.isPresent()) {
-                    grpcServer.get().stop();
+                for (TesseraServer ts : servers){
+                    ts.stop();
                 }
             } catch (Exception ex) {
                 LOGGER.error(null, ex);
@@ -110,9 +129,8 @@ public class Launcher {
             }
         }));
 
-        restServer.start();
-        if (grpcServer.isPresent()) {
-            grpcServer.get().start();
+        for (TesseraServer ts : servers){
+            ts.start();
         }
 
         countDown.await();

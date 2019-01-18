@@ -52,7 +52,7 @@ final class SSLKeyStoreLoader {
 
         final KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
 
-        try (final InputStream in = Files.newInputStream(keyStoreFile)) {
+        try (InputStream in = Files.newInputStream(keyStoreFile)) {
             keyStore.load(in, keyStorePassword.toCharArray());
         }
 
@@ -87,7 +87,7 @@ final class SSLKeyStoreLoader {
     static TrustManager[] fromJksTrustStore(Path trustStoreFile, String trustStorePassword) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
         final KeyStore trustStore = KeyStore.getInstance(KEYSTORE_TYPE);
 
-        try (final InputStream in = Files.newInputStream(trustStoreFile)) {
+        try (InputStream in = Files.newInputStream(trustStoreFile)) {
             trustStore.load(in, trustStorePassword.toCharArray());
         }
 

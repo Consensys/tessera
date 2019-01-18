@@ -1,6 +1,10 @@
 package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.jaxrs.client.ClientFactory;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 public enum CliDelegate {
 
@@ -13,12 +17,21 @@ public enum CliDelegate {
     }
 
     public Config getConfig() {
-        return config;
+        return Optional.ofNullable(config)
+                .orElseThrow(() -> new IllegalStateException("Execute must me invoked before attempting to fetch config"));
     }
 
     public CliResult execute(String... args) throws Exception {
 
-        final CliAdapter cliAdapter = CliAdapter.create();
+        final List<String> argsList = Arrays.asList(args);
+            
+        final CliAdapter cliAdapter;
+        
+        if(argsList.contains("admin")) {
+            cliAdapter = new AdminCliAdapter(new ClientFactory());
+        } else {
+            cliAdapter = new DefaultCliAdapter();
+        }
 
         final CliResult result = cliAdapter.execute(args);
 

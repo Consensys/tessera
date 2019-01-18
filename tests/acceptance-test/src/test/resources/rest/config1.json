@@ -3,15 +3,43 @@
     "jdbc": {
         "username": "sa",
         "password": "",
-        "url": "jdbc:h2:./target/h2/rest1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
+        "url": "jdbc:h2:./target/h2/rest1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE;AUTO_SERVER_PORT=9090"
     },
-    "server": {
-        "port": 8080,
-        "hostName": "http://localhost"
-    },
+    "serverConfigs": [
+        {
+            "app": "Q2T",
+            "enabled": true,
+            "serverSocket": {
+                "type": "INET",
+                "hostName": "http://localhost",
+                "port": 18080
+            },
+            "communicationType": "REST"
+        },
+        {
+            "app": "P2P",
+            "enabled": true,
+            "serverSocket": {
+                "type": "INET",
+                "hostName": "http://localhost",
+                "port": 8080
+            },
+            "communicationType": "REST"
+        },
+        {
+            "app": "ADMIN",
+            "enabled": true,
+            "serverSocket": {
+                "type": "INET",
+                "hostName": "http://localhost",
+                "port": 28080
+            },
+            "communicationType": "REST"
+        }
+    ],
     "peer": [
         {
-            "url": "http://localhost:8081"
+            "url": "http://localhost:8081/"
         }
     ],
     "keys": {
@@ -23,6 +51,5 @@
             }
         ]
     },
-    "alwaysSendTo": [],
-    "unixSocketFile": "${unixSocketPath}"
+    "alwaysSendTo": []
 }

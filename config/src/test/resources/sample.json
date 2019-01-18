@@ -5,17 +5,53 @@
         "password": "tiger",
         "url": "foo:bar"
     },
-    "server": {
-        "hostName" : "http://bogus.com",
-        "port": 99,
-        "bindingAddress": "http://localhost:9001",
-        "influxConfig": {
-            "port": 1111,
-            "hostName": "localhost",
-            "dbName": "dummy",
-            "pushIntervalInSecs" : "10"
+    "serverConfigs":[
+        {
+            "app":"ThirdParty",
+            "enabled": true,
+            "serverSocket":{
+                "type":"INET",
+                "port": 8090,
+                "hostName": "http://localhost"
+            },
+            "communicationType" : "REST"
+        },
+        {
+            "app":"Q2T",
+            "enabled": true,
+            "serverSocket":{
+                "type":"UNIX",
+                "path":"/tmp/test.ipc"
+            },
+            "communicationType" : "REST"
+        },
+        {
+            "app":"P2P",
+            "enabled": true,
+            "serverSocket":{
+                "type":"INET",
+                "port": 8091,
+                "hostName": "http://localhost"
+            },
+            "sslConfig": {
+                "tls": "OFF",
+                "generateKeyStoreIfNotExisted": "false",
+                "serverKeyStore": "./ssl/server1-keystore",
+                "serverKeyStorePassword": "quorum",
+                "serverTrustStore": "./ssl/server-truststore",
+                "serverTrustStorePassword": "quorum",
+                "serverTrustMode": "CA",
+                "clientKeyStore": "./ssl/client1-keystore",
+                "clientKeyStorePassword": "quorum",
+                "clientTrustStore": "./ssl/client-truststore",
+                "clientTrustStorePassword": "quorum",
+                "clientTrustMode": "CA",
+                "knownClientsFile": "./ssl/knownClients1",
+                "knownServersFile": "./ssl/knownServers1"
+            },
+            "communicationType" : "REST"
         }
-    },
+    ],
     "peer": [
         {
             "url": "http://bogus1.com"
@@ -45,8 +81,7 @@
                     },
                     "type": "argon2sbox"
                 },
-                "privateKey": "PRIVATE_KEY",
-                "publicKey": "PUBLIC_KEY"
+                "publicKey": "UFVCTElDX0tFWQ=="
             }
         ]
     },

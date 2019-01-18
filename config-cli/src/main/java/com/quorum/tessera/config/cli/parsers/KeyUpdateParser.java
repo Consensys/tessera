@@ -5,10 +5,9 @@ import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keys.KeyEncryptor;
-import com.quorum.tessera.config.keys.KeysConverter;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.encryption.PrivateKey;
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.Base64;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
@@ -46,13 +46,13 @@ public class KeyUpdateParser implements Parser<Optional> {
             final Path keypath = privateKeyPath(commandLine);
 
             final KeyDataConfig keyDataConfig = JaxbUtil.unmarshal(Files.newInputStream(keypath), KeyDataConfig.class);
-            final Key privateKey = this.getExistingKey(keyDataConfig, passwords);
+            final PrivateKey privateKey = this.getExistingKey(keyDataConfig, passwords);
 
             final String newPassword = passwordReader.requestUserPassword();
 
             final KeyDataConfig updatedKey;
             if(newPassword.isEmpty()) {
-                final PrivateKeyData privateKeyData = new PrivateKeyData(privateKey.toString(), null, null, null, null, null);
+                final PrivateKeyData privateKeyData = new PrivateKeyData(privateKey.encodeToBase64(), null, null, null, null);
                 updatedKey = new KeyDataConfig(privateKeyData, PrivateKeyType.UNLOCKED);
             } else {
                 final PrivateKeyData privateKeyData = keyEncryptor.encryptPrivateKey(privateKey, newPassword, argonOptions);
@@ -67,19 +67,16 @@ public class KeyUpdateParser implements Parser<Optional> {
         return Optional.empty();
     }
 
-    Key getExistingKey(final KeyDataConfig kdc, final List<String> passwords) {
+    PrivateKey getExistingKey(final KeyDataConfig kdc, final List<String> passwords) {
 
         if (kdc.getType() == PrivateKeyType.UNLOCKED) {
-            return KeysConverter.convert(singletonList(kdc.getValue())).get(0);
+            byte[] privateKeyData = Base64.getDecoder().decode(kdc.getValue().getBytes(UTF_8));
+            return PrivateKey.from(privateKeyData);
         } else {
 
             for (final String pass : passwords) {
                 try {
-                    return keyEncryptor.decryptPrivateKey(
-                        new PrivateKeyData(
-                            null, kdc.getSnonce(), kdc.getAsalt(), kdc.getSbox(), kdc.getArgonOptions(), pass
-                        )
-                    );
+                    return PrivateKey.from(keyEncryptor.decryptPrivateKey(kdc.getPrivateKeyData(), pass).getKeyBytes());
                 } catch (final Exception e) {
                     LOGGER.debug("Password failed to decrypt. Trying next if available.");
                 }

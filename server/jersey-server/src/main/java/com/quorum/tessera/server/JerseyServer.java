@@ -8,7 +8,6 @@ import com.quorum.tessera.server.monitoring.MetricsResource;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
 import com.quorum.tessera.ssl.context.ServerSSLContextFactory;
 import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
 import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
@@ -51,7 +50,7 @@ public class JerseyServer implements TesseraServer {
 
     private final InfluxConfig influxConfig;
 
-    public JerseyServer(final ServerConfig serverConfig,final Application application) {
+    public JerseyServer(final ServerConfig serverConfig, final Application application) {
         this.uri = serverConfig.getBindingUri();
         this.application = Objects.requireNonNull(application);
         this.secure = serverConfig.isSsl();
@@ -65,7 +64,7 @@ public class JerseyServer implements TesseraServer {
 
         this.executor = newSingleThreadScheduledExecutor();
 
-        if(serverConfig.getInfluxConfig() != null) {
+        if (serverConfig.getInfluxConfig() != null) {
             this.influxConfig = serverConfig.getInfluxConfig();
         } else {
             this.influxConfig = null;
@@ -91,7 +90,7 @@ public class JerseyServer implements TesseraServer {
 
         final ResourceConfig config = ResourceConfig.forApplication(application);
         config.addProperties(initParams)
-              .register(MetricsResource.class);
+            .register(MetricsResource.class);
 
         if (this.secure) {
             this.server = GrizzlyHttpServerFactory.createHttpServer(
@@ -103,11 +102,6 @@ public class JerseyServer implements TesseraServer {
             );
         } else {
             this.server = GrizzlyHttpServerFactory.createHttpServer(uri, false);
-        }
-
-        //check if loopback was specified as binding address, if not add it
-        if(!uri.getHost().matches("^localhost$|^127(?:\\.[0-9]+){0,2}\\.[0-9]+$|^(?:0*:)*?:?0*1$")) {
-            this.server.addListener(new NetworkListener("localhost", "127.0.0.1", uri.getPort()));
         }
 
         final WebappContext ctx = new WebappContext("WebappContext");
@@ -123,7 +117,7 @@ public class JerseyServer implements TesseraServer {
         LOGGER.info("Started {}", uri);
         LOGGER.info("WADL {}/application.wadl", uri);
 
-        if(influxConfig != null) {
+        if (influxConfig != null) {
             startInfluxMonitoring();
         }
 
@@ -150,7 +144,7 @@ public class JerseyServer implements TesseraServer {
     public void stop() {
         LOGGER.info("Stopping Jersey server at {}", uri);
 
-        if(influxConfig != null) {
+        if (influxConfig != null) {
             this.executor.shutdown();
         }
 

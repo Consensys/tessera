@@ -1,6 +1,6 @@
 package com.quorum.tessera.node.model;
 
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.encryption.PublicKey;
 
 import java.util.Objects;
 
@@ -9,16 +9,16 @@ import java.util.Objects;
  */
 public class Recipient {
 
-    private final Key key;
+    private final PublicKey key;
     
     private final String url;
 
-    public Recipient(final Key key, final String url) {
+    public Recipient(final PublicKey key, final String url) {
         this.key = key;
         this.url = url;
     }
 
-    public Key getKey() {
+    public PublicKey getKey() {
         return key;
     }
 

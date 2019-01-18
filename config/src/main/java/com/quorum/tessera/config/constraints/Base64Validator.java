@@ -1,5 +1,6 @@
 package com.quorum.tessera.config.constraints;
 
+import static com.quorum.tessera.config.adapters.KeyDataAdapter.MISSING_PASSWORD_TOKEN;
 import static com.quorum.tessera.config.adapters.KeyDataAdapter.NACL_FAILURE_TOKEN;
 import java.util.Base64;
 import java.util.Objects;
@@ -19,7 +20,7 @@ public class Base64Validator implements ConstraintValidator<ValidBase64, String>
             return true;
         }
 
-        if(value.startsWith(NACL_FAILURE_TOKEN)) {
+        if(value.startsWith(NACL_FAILURE_TOKEN) || value.startsWith(MISSING_PASSWORD_TOKEN)) {
             return true;
         }
         

@@ -1,163 +1,133 @@
 package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.KeyDataConfig;
-import com.quorum.tessera.config.PrivateKeyData;
-import com.quorum.tessera.config.PrivateKeyType;
-import com.quorum.tessera.config.keys.KeyEncryptor;
-import com.quorum.tessera.config.keys.KeyEncryptorFactory;
-import com.quorum.tessera.io.FilesDelegate;
-import com.quorum.tessera.io.IOCallback;
-import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.nacl.NaclException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.quorum.tessera.config.keypairs.*;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import java.io.ByteArrayInputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Optional;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 import java.util.Objects;
 
-public class KeyDataAdapter extends XmlAdapter<KeyData, KeyData> {
-    
-    private FilesDelegate filesDelegate = FilesDelegate.create();
-    
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeyDataAdapter.class);
+public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
 
     public static final String NACL_FAILURE_TOKEN = "NACL_FAILURE";
-    
+
+    public static final String MISSING_PASSWORD_TOKEN = "MISSING_PASSWORD";
+
     @Override
-    public KeyData unmarshal(final KeyData keyData) {
+    public ConfigKeyPair unmarshal(final KeyData keyData) {
 
         //case 1, the keys are provided inline
-        if (keyData.hasKeys()) {
-            return keyData;
+        if (Objects.nonNull(keyData.getPrivateKey()) && Objects.nonNull(keyData.getPublicKey())) {
+            return new DirectKeyPair(keyData.getPublicKey(), keyData.getPrivateKey());
         }
 
         //case 2, the config is provided inline
-        if (keyData.getPublicKeyPath() == null && keyData.getPrivateKeyPath() == null) {
-            return unmarshalInline(keyData);
+        if (keyData.getPublicKey() != null && keyData.getConfig() != null) {
+            return new InlineKeypair(keyData.getPublicKey(), keyData.getConfig());
         }
 
-
-        if (keyData.getPublicKeyPath() == null || keyData.getPrivateKeyPath() == null 
-                || filesDelegate.notExists(keyData.getPublicKeyPath()) || filesDelegate.notExists(keyData.getPrivateKeyPath())) {
-            return keyData;
+        //case 3, the Azure Key Vault data is provided
+        if(keyData.getAzureVaultPublicKeyId() != null && keyData.getAzureVaultPrivateKeyId() != null) {
+            return new AzureVaultKeyPair(keyData.getAzureVaultPublicKeyId(), keyData.getAzureVaultPrivateKeyId(), keyData.getAzureVaultPublicKeyVersion(), keyData.getAzureVaultPrivateKeyVersion());
         }
 
-        //case 3, the keys are provided inside a file
-        return unmarshalFile(
-                keyData.getPublicKeyPath(),
-                keyData.getPrivateKeyPath(),
-                Optional.ofNullable(keyData.getConfig()).map(KeyDataConfig::getPassword).orElse(null)
+        //case 4, the Hashicorp Vault data is provided
+        if(keyData.getHashicorpVaultPublicKeyId() != null && keyData.getHashicorpVaultPrivateKeyId() != null
+            && keyData.getHashicorpVaultSecretEngineName() != null && keyData.getHashicorpVaultSecretName() != null) {
+            return new HashicorpVaultKeyPair(keyData.getHashicorpVaultPublicKeyId(), keyData.getHashicorpVaultPrivateKeyId(), keyData.getHashicorpVaultSecretEngineName(), keyData.getHashicorpVaultSecretName(), keyData.getHashicorpVaultSecretVersion());
+        }
+
+        //case 5, the keys are provided inside a file
+        if(keyData.getPublicKeyPath() != null && keyData.getPrivateKeyPath() != null) {
+            return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath());
+        }
+
+        //case 6, the key config specified is invalid
+        return new UnsupportedKeyPair(
+            keyData.getConfig(),
+            keyData.getPrivateKey(),
+            keyData.getPublicKey(),
+            keyData.getPrivateKeyPath(),
+            keyData.getPublicKeyPath(),
+            keyData.getAzureVaultPublicKeyId(),
+            keyData.getAzureVaultPrivateKeyId(),
+            keyData.getAzureVaultPublicKeyVersion(),
+            keyData.getAzureVaultPrivateKeyVersion(),
+            keyData.getHashicorpVaultPublicKeyId(),
+            keyData.getHashicorpVaultPrivateKeyId(),
+            keyData.getHashicorpVaultSecretEngineName(),
+            keyData.getHashicorpVaultSecretName(),
+            keyData.getHashicorpVaultSecretVersion()
         );
-    }
-
-    private KeyData unmarshalFile(final Path publicKeyPath, final Path privateKeyPath, final String password) {
-        final byte[] publicKey = IOCallback.execute(() -> Files.readAllBytes(publicKeyPath));
-        final String publicKeyString = new String(publicKey, UTF_8);
-
-        final byte[] privateKey = IOCallback.execute(() -> Files.readAllBytes(privateKeyPath));
-        final String privateKeyString = new String(privateKey, UTF_8);
-
-        final KeyDataConfig unmarshal
-                = JaxbUtil.unmarshal(new ByteArrayInputStream(privateKeyString.getBytes(UTF_8)), KeyDataConfig.class);
-
-        return this.unmarshalInline(
-                new KeyData(
-                        new KeyDataConfig(
-                                new PrivateKeyData(
-                                        unmarshal.getValue(),
-                                        unmarshal.getSnonce(),
-                                        unmarshal.getAsalt(),
-                                        unmarshal.getSbox(),
-                                        unmarshal.getArgonOptions(),
-                                        password
-                                ),
-                                unmarshal.getType()
-                        ),
-                        null,
-                        publicKeyString,
-                        privateKeyPath,
-                        publicKeyPath
-                )
-        );
-
-    }
-
-    private KeyData unmarshalInline(final KeyData keyData) {
-        if (keyData.getConfig().getType() == PrivateKeyType.UNLOCKED) {
-            return new KeyData(keyData.getConfig(), keyData.getConfig().getValue(), keyData.getPublicKey(), null, null);
-        }
-
-        if (keyData.getConfig().getPassword() == null) {
-            return keyData;
-        }
-
-        final KeyEncryptor kg = KeyEncryptorFactory.create();
-        final PrivateKeyData encryptedKey = keyData.getConfig().getPrivateKeyData();
-
-        String decryptedPrivateKey;
-        try {
-            decryptedPrivateKey = Objects.toString(kg.decryptPrivateKey(encryptedKey));
-        } catch (final NaclException ex) {
-            LOGGER.debug("Unable to decrypt private key : {}", ex.getMessage());
-            decryptedPrivateKey = NACL_FAILURE_TOKEN +": " + ex.getMessage();
-        }
-
-        //need to decrypt
-        return new KeyData(
-                keyData.getConfig(),
-                decryptedPrivateKey,
-                keyData.getPublicKey(),
-                keyData.getPrivateKeyPath(),
-                keyData.getPublicKeyPath()
-        );
-
     }
 
     @Override
-    public KeyData marshal(final KeyData keyData) {
+    public KeyData marshal(final ConfigKeyPair keyPair) {
 
-        if (keyData.getConfig() == null) {
+        KeyData keyData = new KeyData();
+
+        if(keyPair instanceof DirectKeyPair) {
+            DirectKeyPair kp = (DirectKeyPair) keyPair;
+
+            keyData.setPublicKey(kp.getPublicKey());
+            keyData.setPrivateKey(kp.getPrivateKey());
             return keyData;
         }
 
-        if(keyData.getPrivateKeyPath()!=null || keyData.getPublicKeyPath()!=null) {
-            return new KeyData(
-                null, null, null, keyData.getPrivateKeyPath(), keyData.getPublicKeyPath()
-            );
+        if(keyPair instanceof InlineKeypair) {
+            InlineKeypair kp = (InlineKeypair) keyPair;
+
+            keyData.setPublicKey(kp.getPublicKey());
+            keyData.setConfig(kp.getPrivateKeyConfig());
+            return keyData;
         }
 
-        if (keyData.getConfig().getType() != PrivateKeyType.UNLOCKED) {
-            return new KeyData(
-                    new KeyDataConfig(
-                            new PrivateKeyData(
-                                    null,
-                                    keyData.getConfig().getPrivateKeyData().getSnonce(),
-                                    keyData.getConfig().getPrivateKeyData().getAsalt(),
-                                    keyData.getConfig().getPrivateKeyData().getSbox(),
-                                    keyData.getConfig().getPrivateKeyData().getArgonOptions(),
-                                    null
-                            ),
-                            keyData.getConfig().getType()
-                    ),
-                    null,//TODO: 
-                    keyData.getPublicKey(),
-                    keyData.getPrivateKeyPath(),
-                    keyData.getPublicKeyPath()
-            );
+        if(keyPair instanceof AzureVaultKeyPair) {
+            AzureVaultKeyPair kp = (AzureVaultKeyPair) keyPair;
+
+            keyData.setAzureVaultPublicKeyId(kp.getPublicKeyId());
+            keyData.setAzureVaultPrivateKeyId(kp.getPrivateKeyId());
+            keyData.setAzureVaultPublicKeyVersion(kp.getPublicKeyVersion());
+            keyData.setAzureVaultPrivateKeyVersion(kp.getPrivateKeyVersion());
+            return keyData;
         }
 
-        return keyData;
-    }
+        if(keyPair instanceof HashicorpVaultKeyPair) {
+            HashicorpVaultKeyPair kp = (HashicorpVaultKeyPair) keyPair;
 
-    protected void setFilesDelegate(FilesDelegate filesDelegate) {
-        this.filesDelegate = filesDelegate;
-    }
+            keyData.setHashicorpVaultPublicKeyId(kp.getPublicKeyId());
+            keyData.setHashicorpVaultPrivateKeyId(kp.getPrivateKeyId());
+            keyData.setHashicorpVaultSecretEngineName(kp.getSecretEngineName());
+            keyData.setHashicorpVaultSecretName(kp.getSecretName());
+            return keyData;
+        }
 
+        if(keyPair instanceof FilesystemKeyPair) {
+            FilesystemKeyPair kp = (FilesystemKeyPair) keyPair;
+
+            keyData.setPublicKeyPath(kp.getPublicKeyPath());
+            keyData.setPrivateKeyPath(kp.getPrivateKeyPath());
+            return keyData;
+        }
+
+        if(keyPair instanceof UnsupportedKeyPair) {
+            UnsupportedKeyPair kp = (UnsupportedKeyPair) keyPair;
+            return new KeyData(
+                kp.getConfig(),
+                kp.getPrivateKey(),
+                kp.getPublicKey(),
+                kp.getPrivateKeyPath(),
+                kp.getPublicKeyPath(),
+                kp.getAzureVaultPrivateKeyId(),
+                kp.getAzureVaultPublicKeyId(),
+                kp.getAzureVaultPublicKeyVersion(),
+                kp.getAzureVaultPrivateKeyVersion(),
+                kp.getHashicorpVaultPrivateKeyId(),
+                kp.getHashicorpVaultPublicKeyId(),
+                kp.getHashicorpVaultSecretEngineName(),
+                kp.getHashicorpVaultSecretName(),
+                kp.getHashicorpVaultSecretVersion());
+        }
+
+        throw new UnsupportedOperationException("The keypair type " + keyPair.getClass() + " is not allowed");
+    }
 }

@@ -1,11 +1,11 @@
 package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.cli.parsers.ConfigurationParser;
 import com.quorum.tessera.config.cli.parsers.KeyGenerationParser;
 import com.quorum.tessera.config.cli.parsers.KeyUpdateParser;
 import com.quorum.tessera.config.cli.parsers.PidFileParser;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.PasswordReaderFactory;
 import org.apache.commons.cli.*;
@@ -59,7 +59,7 @@ public class DefaultCliAdapter implements CliAdapter {
             HelpFormatter formatter = new HelpFormatter();
             formatter.setWidth(200);
             formatter.printHelp("tessera -configfile <PATH> [-keygen <PATH>] [-pidfile <PATH>]", options);
-            return new CliResult(0, true, false, null);
+            return new CliResult(0, true, null);
         }
 
         try {
@@ -87,7 +87,9 @@ public class DefaultCliAdapter implements CliAdapter {
 
             new PidFileParser().parse(line);
 
-            return new CliResult(0, false, line.hasOption("keygen"), config);
+            boolean suppressStartup = line.hasOption("keygen") && Objects.isNull(config);
+
+            return new CliResult(0, suppressStartup, config);
 
         } catch (ParseException exp) {
             throw new CliException(exp.getMessage());
@@ -107,7 +109,7 @@ public class DefaultCliAdapter implements CliAdapter {
             return null;
         }
 
-        final List<KeyData> newKeys = new KeyGenerationParser().parse(commandLine);
+        final List<ConfigKeyPair> newKeys = new KeyGenerationParser().parse(commandLine);
 
         final Config config = new ConfigurationParser().withNewKeys(newKeys).parse(commandLine);
 
@@ -131,7 +133,6 @@ public class DefaultCliAdapter implements CliAdapter {
                 .argName("PATH")
                 .build());
 
-        //If keygen then we require the path to the private key config path
         options.addOption(
             Option.builder("keygen")
                 .desc("Use this option to generate public/private keypair")
@@ -140,8 +141,8 @@ public class DefaultCliAdapter implements CliAdapter {
 
         options.addOption(
             Option.builder("filename")
-                .desc("Path to private key config for generation of missing key files")
-                .hasArg(true)
+                .desc("Comma-separated list of paths to save generated key files. Can also be used with keyvault. Number of args equals number of key-pairs generated.")
+                .hasArgs()
                 .optionalArg(false)
                 .argName("PATH")
                 .build());
@@ -160,6 +161,60 @@ public class DefaultCliAdapter implements CliAdapter {
                 .hasArg(true)
                 .numberOfArgs(1)
                 .build());
+
+        options.addOption(
+            Option.builder("keygenvaulttype")
+                .desc("Type of key vault the generated key is to be saved in")
+                .hasArg()
+                .optionalArg(false)
+                .argName("KEYVAULTTYPE")
+                .build()
+        );
+
+        options.addOption(
+            Option.builder("keygenvaulturl")
+                .desc("Base url for key vault")
+                .hasArg()
+                .optionalArg(false)
+                .argName("STRING")
+                .build()
+        );
+
+        options.addOption(
+            Option.builder("keygenvaultapprole")
+                  .desc("AppRole path for Hashicorp Vault authentication (defaults to 'approle')")
+                  .hasArg()
+                  .optionalArg(false)
+                  .argName("STRING")
+                  .build()
+        );
+
+        options.addOption(
+            Option.builder("keygenvaultkeystore")
+                .desc("Path to JKS keystore for TLS Hashicorp Vault communication")
+                .hasArg()
+                .optionalArg(false)
+                .argName("PATH")
+                .build()
+        );
+
+        options.addOption(
+            Option.builder("keygenvaulttruststore")
+                  .desc("Path to JKS truststore for TLS Hashicorp Vault communication")
+                  .hasArg()
+                  .optionalArg(false)
+                  .argName("PATH")
+                  .build()
+        );
+
+        options.addOption(
+            Option.builder("keygenvaultsecretengine")
+                  .desc("Name of already enabled Hashicorp v2 kv secret engine")
+                  .hasArg()
+                  .optionalArg(false)
+                  .argName("STRING")
+                  .build()
+        );
 
         options.addOption(
             Option.builder("pidfile")

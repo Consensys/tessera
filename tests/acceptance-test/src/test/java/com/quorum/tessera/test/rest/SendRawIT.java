@@ -1,5 +1,6 @@
 package com.quorum.tessera.test.rest;
 
+import com.quorum.tessera.api.model.ReceiveResponse;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
@@ -7,47 +8,69 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import static com.quorum.tessera.test.Fixtures.*;
+import com.quorum.tessera.test.Party;
+import com.quorum.tessera.test.RestPartyHelper;
+import static com.quorum.tessera.test.rest.RawHeaderName.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import com.quorum.tessera.test.PartyHelper;
 
 public class SendRawIT {
 
-    private static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
-
     private static final String SEND_PATH = "/sendraw";
 
-    private static final String SENDER = "c11n-from";
-
-    private static final String RECIPIENTS = "c11n-to";
-
-    private static final String SENDER_KEY = "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=";
-
-    private static final String RECIPIENT_ONE = "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=";
-
-    private static final String RECIPIENT_TWO = "giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=";
+    private RestUtils restUtils = new RestUtils();
 
     private final Client client = ClientBuilder.newClient();
 
+    private static final byte[] TXN_DATA = "Zm9v".getBytes();
+
+    private PartyHelper partyHelper = new RestPartyHelper();
+    
     /**
      * Quorum sends transaction with singe public recipient key
      */
     @Test
     public void sendToSingleRecipient() {
 
-        final Response response = client.target(SERVER_URI)
-            .path(SEND_PATH)
-            .request()
-            .header(SENDER, SENDER_KEY)
-            .header(RECIPIENTS, RECIPIENT_ONE)
-            .post(Entity.entity("Zm9v".getBytes(), MediaType.APPLICATION_OCTET_STREAM));
+        Party sender = partyHelper.findByAlias("A");
+
+        Party recipient = partyHelper.findByAlias("D");
+
+        byte[] transactionData = restUtils.createTransactionData();
+
+        final Response response = restUtils.sendRaw(sender, transactionData, recipient);
 
         //validate result
-
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.readEntity(String.class)).isNotNull();
+
+        String persistedKey = response.readEntity(String.class);
+        assertThat(persistedKey).isNotNull();
+
+        URI location = response.getLocation();
+
+        final Response checkPersistedTxnResponse = client.target(location)
+            .request()
+            .get();
+
+        assertThat(checkPersistedTxnResponse.getStatus())
+            .isEqualTo(200);
+
+        ReceiveResponse receiveResponse
+            = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
+
+        assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
+
+        restUtils.findTransaction(persistedKey, sender, recipient).forEach(r -> {
+            assertThat(r.getStatus()).isEqualTo(200);
+        });
+
+        restUtils.findTransaction(persistedKey, partyHelper.findByAlias("C"), partyHelper.findByAlias("B")).forEach(r -> {
+            assertThat(r.getStatus()).isEqualTo(404);
+        });
 
     }
 
@@ -57,82 +80,156 @@ public class SendRawIT {
     @Test
     public void sendSingleTransactionToMultipleParties() {
 
-        final Response response = client.target(SERVER_URI)
-            .path(SEND_PATH)
-            .request()
-            .header(SENDER, SENDER_KEY)
-            .header(RECIPIENTS, RECIPIENT_ONE + "," + RECIPIENT_TWO)
-            .post(Entity.entity("Zm9v".getBytes(), MediaType.APPLICATION_OCTET_STREAM));
+        Party sender = partyHelper.findByAlias("A");
+        Party firstRecipient = partyHelper.findByAlias("B");
+        Party secondRecipient = partyHelper.findByAlias("D");
+
+        byte[] transactionData = restUtils.createTransactionData();
+
+        final Response response = restUtils.sendRaw(sender, transactionData, firstRecipient, secondRecipient);
 
         //validate result
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.readEntity(String.class)).isNotNull();
+
+        String persistedKey = response.readEntity(String.class);
+        assertThat(persistedKey).isNotNull();
+
+        URI location = response.getLocation();
+
+        final Response checkPersistedTxnResponse = client.target(location)
+            .request()
+            .get();
+
+        assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
+
+        ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
+
+        assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
+
+        restUtils.findTransaction(persistedKey, sender, firstRecipient, secondRecipient).forEach(r -> {
+            assertThat(r.getStatus()).isEqualTo(200);
+        });
+
+        restUtils.findTransaction(persistedKey, partyHelper.findByAlias("C")).forEach(r -> {
+            assertThat(r.getStatus()).isEqualTo(404);
+        });
+
     }
 
     @Test
     public void sendTransactionWithoutASender() {
 
-        final Response response = client.target(SERVER_URI)
+        URI uriToSendToWithoutPublicKey = partyHelper.findByAlias("A").getQ2TUri();
+        Party recipient = partyHelper.findByAlias("D");
+
+        byte[] transactionData = restUtils.createTransactionData();
+
+        final Response response = client.target(uriToSendToWithoutPublicKey)
             .path(SEND_PATH)
             .request()
-            .header(RECIPIENTS, RECIPIENT_ONE)
-            .post(Entity.entity("Zm9v".getBytes(), MediaType.APPLICATION_OCTET_STREAM));
+            .header(RECIPIENTS, recipient.getPublicKey())
+            .post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
 
         //validate result
-
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.readEntity(String.class)).isNotNull();
 
+        String persistedKey = response.readEntity(String.class);
+        assertThat(persistedKey).isNotNull();
+
+        URI location = response.getLocation();
+
+        final Response checkPersistedTxnResponse = client.target(location)
+            .request()
+            .get();
+
+        assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
+
+        ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
+
+        assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
+
+        restUtils.findTransaction(persistedKey, partyHelper.findByAlias("A"), recipient).forEach(r -> {
+            assertThat(r.getStatus()).isEqualTo(200);
+        });
+
+        restUtils.findTransaction(persistedKey, partyHelper.findByAlias("C"),partyHelper.findByAlias("B")).forEach(r -> {
+            assertThat(r.getStatus()).isEqualTo(404);
+        });
     }
 
     @Test
     public void sendTransactionWithEmptyRecipients() {
 
-        final Response response = client.target(SERVER_URI)
-            .path(SEND_PATH)
-            .request()
-            .header(SENDER, SENDER_KEY)
-            .header(RECIPIENTS, "")
-            .post(Entity.entity("Zm9v".getBytes(), MediaType.APPLICATION_OCTET_STREAM));
+        Party sender = partyHelper.findByAlias("A");
 
-        //validate result
+        byte[] txnData = restUtils.createTransactionData();
+
+        final Response response = restUtils.sendRaw(sender, txnData);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.readEntity(String.class)).isNotNull();
+
+        String persistedKey = response.readEntity(String.class);
+        assertThat(persistedKey).isNotNull();
+
+        URI location = response.getLocation();
+
+        final Response checkPersistedTxnResponse = client.target(location)
+            .request()
+            .get();
+
+        assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
+
+        ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
+
+        assertThat(receiveResponse.getPayload()).isEqualTo(txnData);
     }
 
+    /**
+     * In the case where no recipients are defined its is assumed that
+     */
     @Test
     public void sendTransactionWithMissingRecipients() {
 
-        final Response response = client.target(SERVER_URI)
-            .path(SEND_PATH)
-            .request()
-            .header(SENDER, SENDER_KEY)
-            .post(Entity.entity("Zm9v".getBytes(), MediaType.APPLICATION_OCTET_STREAM));
+        Party sender = partyHelper.findByAlias("A");
+
+        byte[] txnData = restUtils.createTransactionData();
+
+        final Response response = restUtils.sendRaw(sender, txnData);
 
         //validate result
-
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.readEntity(String.class)).isNotNull();
 
+        String persistedKey = response.readEntity(String.class);
+        assertThat(persistedKey).isNotNull();
+
+        URI location = response.getLocation();
+
+        final Response checkPersistedTxnResponse = client.target(location)
+            .request()
+            .get();
+
+        assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
+
+        ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
+
+        assertThat(receiveResponse.getPayload()).isEqualTo(txnData);
     }
 
     @Test
     public void missingPayloadFails() {
 
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(NODE1_Q2T_URI)
             .path(SEND_PATH)
             .request()
-            .header(SENDER, SENDER_KEY)
-            .header(RECIPIENTS, RECIPIENT_ONE)
+            .header(SENDER, PTY1_KEY)
+            .header(RECIPIENTS, PTY2_KEY)
             .post(Entity.entity(null, MediaType.APPLICATION_OCTET_STREAM));
 
         //validate result
-
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(400);
     }
@@ -143,12 +240,12 @@ public class SendRawIT {
     @Test
     public void sendUnknownPublicKey() {
 
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(NODE1_Q2T_URI)
             .path(SEND_PATH)
             .request()
-            .header(SENDER, SENDER_KEY)
+            .header(SENDER, PTY1_KEY)
             .header(RECIPIENTS, "8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=")
-            .post(Entity.entity("Zm9v".getBytes(), MediaType.APPLICATION_OCTET_STREAM));
+            .post(Entity.entity(TXN_DATA, MediaType.APPLICATION_OCTET_STREAM));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(400);

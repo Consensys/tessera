@@ -1,6 +1,6 @@
 package com.quorum.tessera.api.exception;
 
-import com.quorum.tessera.key.exception.KeyNotFoundException;
+import com.quorum.tessera.encryption.KeyNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +16,13 @@ public class KeyNotFoundExceptionMapper implements ExceptionMapper<KeyNotFoundEx
 
     @Override
     public Response toResponse(final KeyNotFoundException e) {
-        LOGGER.error("", e);
+        LOGGER.debug("", e);
+        LOGGER.warn(e.getMessage());
 
         //TODO: change to 404
         return Response.status(Response.Status.BAD_REQUEST)
             .entity(e.getMessage())
-            .header("Content-Type", MediaType.TEXT_PLAIN)
+            .type(MediaType.TEXT_PLAIN)
             .build();
     }
 }

@@ -1,108 +1,93 @@
 package com.quorum.tessera.test.rest;
 
+import com.quorum.tessera.api.model.ReceiveResponse;
+import com.quorum.tessera.api.model.SendResponse;
+import com.quorum.tessera.test.Party;
+import com.quorum.tessera.test.RestPartyHelper;
 import org.junit.Test;
 
-import javax.json.Json;
-import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import java.io.Reader;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import com.quorum.tessera.test.PartyHelper;
 
 /**
  * This tests that a node that hosts multiple sets of keys can send/receive
  * transactions for both keys
  */
+@RunWith(Parameterized.class)
 public class MultipleKeyNodeIT {
 
-    private static final URI SEND_SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
 
-    private static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8082).build();
+    
+    private static PartyHelper partyHelper = new RestPartyHelper();
 
     private final Client client = ClientBuilder.newClient();
 
+    private final Party recipient;
+
+    private String txHash;
+    
+    private RestUtils restUtils = new RestUtils();
+    
+    public MultipleKeyNodeIT(Party recipient) {
+        this.recipient = recipient;
+    }
+    
+    
+    @Before
+    public void onSetUp() {
+        
+        Party sender = partyHelper.findByAlias("A");
+
+        byte[] transactionData = restUtils.createTransactionData();
+        final SendResponse result = restUtils.sendRequestAssertSuccess(sender, transactionData, recipient);
+
+        assertThat(result.getKey()).isNotBlank();
+        
+        this.txHash = result.getKey();
+        
+    }
+    
     @Test
-    public void storePayloadOnFirstKey() throws UnsupportedEncodingException {
-
-        final String recipientPublicKey = "giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=";
-
-        final String txHash = this.sendNewPayload(recipientPublicKey);
-
+    public void thenTransactionHasBeenPersistedOnOtherNode() throws UnsupportedEncodingException {
+        
+        final byte[] transactionData = RestUtils.generateTransactionData();
+        
+        Party sender = partyHelper.findByAlias("A");
+        
         //retrieve the transaction
-        final Response retrieveResponse = this.client.target(SERVER_URI)
-            .path("/transaction/" + URLEncoder.encode(txHash, "UTF-8"))
-            .request()
-            .buildGet()
-            .invoke();
+        final Response retrieveResponse = this.client.target(sender.getPublicKey())
+                .path("transaction")
+                .path(URLEncoder.encode(txHash, "UTF-8"))
+                .request().get();
 
         assertThat(retrieveResponse).isNotNull();
         assertThat(retrieveResponse.getStatus()).isEqualTo(200);
 
-        final String result = retrieveResponse.readEntity(String.class);
-        final Reader reader = new StringReader(result);
-        final JsonObject jsonResult = Json.createReader(reader).readObject();
-        assertThat(jsonResult).containsKeys("payload");
-        assertThat(jsonResult.getString("payload")).isEqualTo("Zm9v");
+        final ReceiveResponse result = retrieveResponse.readEntity(ReceiveResponse.class);
+
+        assertThat(result.getPayload()).isEqualTo(transactionData);
 
     }
 
-    @Test
-    public void storePayloadOnSecondKey() throws UnsupportedEncodingException {
-
-        final String recipientPublicKey = "jP4f+k/IbJvGyh0LklWoea2jQfmLwV53m9XoHVS4NSU=";
-
-        final String txHash = this.sendNewPayload(recipientPublicKey);
-
-        //retrieve the transaction
-        final Response retrieveResponse = this.client.target(SERVER_URI)
-            .path("/transaction/" + URLEncoder.encode(txHash, "UTF-8"))
-            .request()
-            .buildGet()
-            .invoke();
-
-        assertThat(retrieveResponse).isNotNull();
-        assertThat(retrieveResponse.getStatus()).isEqualTo(200);
-
-        final String result = retrieveResponse.readEntity(String.class);
-        final Reader reader = new StringReader(result);
-        final JsonObject jsonResult = Json.createReader(reader).readObject();
-        assertThat(jsonResult).containsKeys("payload");
-        assertThat(jsonResult.getString("payload")).isEqualTo("Zm9v");
-
+    @Parameterized.Parameters
+    public static List<Party> recipients() {
+        return partyHelper.getParties()
+            .filter(p -> p.getAlias().equals("D"))
+            .filter(p -> p.getAlias().equals("C")).collect(Collectors.toList());
     }
-
-    private String sendNewPayload(final String recipientPublicKey) {
-
-        final String sendRequest = Json.createObjectBuilder()
-            .add("from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-            .add("to", Json.createArrayBuilder().add(recipientPublicKey))
-            .add("payload", "Zm9v").build().toString();
-
-        final Response response = this.client.target(SEND_SERVER_URI)
-            .path("/send")
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-
-        //validate result
-
-        final String result = response.readEntity(String.class);
-        final Reader reader = new StringReader(result);
-        final JsonObject jsonResult = Json.createReader(reader).readObject();
-        assertThat(jsonResult).containsKeys("key");
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(200);
-
-        return jsonResult.getString("key");
-    }
+    
+    
+    
 
 }

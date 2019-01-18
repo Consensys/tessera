@@ -1,28 +1,25 @@
 package com.quorum.tessera.test.rest;
 
+import com.quorum.tessera.api.model.SendRequest;
+import com.quorum.tessera.api.model.SendResponse;
+import static com.quorum.tessera.test.Fixtures.*;
+import com.quorum.tessera.test.Party;
+import com.quorum.tessera.test.RestPartyHelper;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.json.Json;
-import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import java.io.Reader;
-import java.io.StringReader;
 import java.net.URI;
-import java.util.Base64;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import com.quorum.tessera.test.PartyHelper;
 
 public class ReceiveRawIT {
 
-    private static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
-
-    private static final URI SECONDAERY_SERVER = UriBuilder.fromUri("http://127.0.0.1").port(8081).build();
+    private static final URI SERVER_URI = NODE1_Q2T_URI;
 
     private static final String RECEIVE_PATH = "/receiveraw";
 
@@ -30,37 +27,31 @@ public class ReceiveRawIT {
 
     private static final String C11N_KEY = "c11n-key";
 
-    private static final String SENDER_KEY = "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=";
+    private static final byte[] PAYLOAD = TXN_DATA;
+    
+    private PartyHelper partyHelper = new RestPartyHelper();
 
-    private static final String RECIPIENT_ONE = "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=";
-
-    private static final String PAYLOAD = "Zm9v";
-
-    private static final String RAW_PAYLOAD = new String(Base64.getDecoder().decode(PAYLOAD));
-
-    private static final Client client = ClientBuilder.newClient();
+    private Client client = ClientBuilder.newClient();
 
     private String hash;
 
     //Persist a single transaction that can be used later
     @Before
     public void init() {
-        final String sendRequest = Json.createObjectBuilder()
-            .add("from", SENDER_KEY)
-            .add("to", Json.createArrayBuilder().add(RECIPIENT_ONE))
-            .add("payload", PAYLOAD).build().toString();
+        
+        SendRequest sendRequest = new SendRequest();
+        sendRequest.setPayload(PAYLOAD);
+        sendRequest.setTo(PTY2_KEY);
+        sendRequest.setFrom(PTY1_KEY);
 
         final Response response = client.target(SERVER_URI)
             .path("/send")
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
-        final String result = response.readEntity(String.class);
-        final Reader reader = new StringReader(result);
+        final SendResponse result = response.readEntity(SendResponse.class);
 
-        final JsonObject jsonResult = Json.createReader(reader).readObject();
-
-        this.hash = jsonResult.getString("key");
+        this.hash = result.getKey();
 
     }
 
@@ -71,7 +62,7 @@ public class ReceiveRawIT {
             .path(RECEIVE_PATH)
             .request()
             .header(C11N_KEY, this.hash)
-            .header(C11N_TO, SENDER_KEY)
+            .header(C11N_TO, PTY1_KEY)
             .buildGet()
             .invoke();
 
@@ -82,7 +73,7 @@ public class ReceiveRawIT {
 
         final byte[] result = response.readEntity(byte[].class);
 
-        assertThat(new String(result)).isEqualTo(RAW_PAYLOAD);
+        assertThat(result).isEqualTo(PAYLOAD);
 
     }
 
@@ -103,17 +94,34 @@ public class ReceiveRawIT {
 
         final byte[] result = response.readEntity(byte[].class);
 
-        assertThat(new String(result)).isEqualTo(RAW_PAYLOAD);
+        assertThat(result).isEqualTo(PAYLOAD);
 
     }
 
     @Test
     public void fetchExistingTransactionNotUsingKeyOnRecipient() {
 
-        final Response response = client.target(SECONDAERY_SERVER)
+        Party sender = partyHelper.findByAlias("A");
+        
+        byte[] transactionPayload = new RestUtils().createTransactionData();
+
+        SendRequest sendRequest = new SendRequest();
+        sendRequest.setPayload(transactionPayload);
+        sendRequest.setFrom(sender.getPublicKey());
+        sendRequest.setTo(partyHelper.findByAlias("B").getPublicKey());
+        
+
+        final Response r = client.target(sender.getQ2TUri())
+            .path("/send")
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+
+        final SendResponse sendResponse = r.readEntity(SendResponse.class);
+
+        final Response response = client.target(partyHelper.findByAlias("B").getQ2TUri())
             .path(RECEIVE_PATH)
             .request()
-            .header(C11N_KEY, this.hash)
+            .header(C11N_KEY, sendResponse.getKey())
             .buildGet()
             .invoke();
 
@@ -124,18 +132,18 @@ public class ReceiveRawIT {
 
         final byte[] result = response.readEntity(byte[].class);
 
-        assertThat(new String(result)).isEqualTo(RAW_PAYLOAD);
+        assertThat(result).isEqualTo(transactionPayload);
 
     }
 
     @Test
     public void fetchExistingTransactionUsingRecipientKey() {
 
-        final Response response = client.target(SECONDAERY_SERVER)
+        final Response response = client.target(NODE2_Q2T_URI)
             .path(RECEIVE_PATH)
             .request()
             .header(C11N_KEY, this.hash)
-            .header(C11N_TO, RECIPIENT_ONE)
+            .header(C11N_TO, PTY2_KEY)
             .buildGet()
             .invoke();
 
@@ -146,12 +154,12 @@ public class ReceiveRawIT {
 
         final byte[] result = response.readEntity(byte[].class);
 
-        assertThat(new String(result)).isEqualTo(RAW_PAYLOAD);
+        assertThat(result).isEqualTo(PAYLOAD);
 
     }
 
     @Test
-    public void fetchNonexistantTransactionFails() {
+    public void fetchNonexistentTransactionFails() {
 
         final Response response = client.target(SERVER_URI)
             .path(RECEIVE_PATH)
@@ -167,7 +175,7 @@ public class ReceiveRawIT {
 
         final String result = response.readEntity(String.class);
         assertThat(result).isEqualTo("Message with hash invalidhashvalue was not found");
-
+  
     }
 
 }

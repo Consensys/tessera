@@ -7,10 +7,25 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>com.quorum.tessera</groupId>
+        <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>encryption</artifactId>
-        <version>0.7-SNAPSHOT</version>
+        <version>0.9-SNAPSHOT</version>
     </parent>
+    
+    <dependencies>
+        
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>service-locator-api</artifactId>
+            <type>jar</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <scope>test</scope>
+        </dependency>
 
+    </dependencies>
 
 </project>

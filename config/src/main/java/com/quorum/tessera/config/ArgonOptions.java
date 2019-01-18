@@ -6,31 +6,27 @@ import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
 
-@XmlType(factoryMethod = "create")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ArgonOptions extends ConfigItem {
 
     @Pattern(regexp = "^(id|i|d)$")
     @XmlAttribute(name = "variant")
-    private final String algorithm;
+    private String algorithm;
 
     @NotNull
     @XmlAttribute
-    private final Integer iterations;
+    private Integer iterations;
 
     @NotNull
     @XmlAttribute
-    private final Integer memory;
+    private Integer memory;
 
     @NotNull
     @XmlAttribute
     private Integer parallelism;
 
-    private static ArgonOptions create() {
-        return new ArgonOptions();
-    }
+
 
     public ArgonOptions(String algorithm, Integer iterations, Integer memory, Integer parallelism) {
         this.algorithm = Optional.ofNullable(algorithm).orElse("id");
@@ -39,8 +35,7 @@ public class ArgonOptions extends ConfigItem {
         this.parallelism = parallelism;
     }
 
-    private ArgonOptions() {
-        this(null, null, null, null);
+    public ArgonOptions() {
     }
 
     public String getAlgorithm() {
@@ -57,6 +52,22 @@ public class ArgonOptions extends ConfigItem {
 
     public Integer getParallelism() {
         return parallelism;
+    }
+
+    public void setAlgorithm(String algorithm) {
+        this.algorithm = algorithm;
+    }
+
+    public void setIterations(Integer iterations) {
+        this.iterations = iterations;
+    }
+
+    public void setMemory(Integer memory) {
+        this.memory = memory;
+    }
+
+    public void setParallelism(Integer parallelism) {
+        this.parallelism = parallelism;
     }
 
 }

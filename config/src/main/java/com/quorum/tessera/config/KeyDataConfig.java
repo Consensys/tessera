@@ -1,36 +1,34 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.PrivateKeyTypeAdapter;
-import java.util.Optional;
 
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Optional;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(factoryMethod = "create")
 public class KeyDataConfig {
 
     @NotNull
     @XmlElement(name = "data")
-    private final PrivateKeyData privateKeyData;
+    private PrivateKeyData privateKeyData;
 
     @NotNull
     @XmlAttribute
     @XmlJavaTypeAdapter(PrivateKeyTypeAdapter.class)
-    private final PrivateKeyType type;
+    private PrivateKeyType type;
 
     public KeyDataConfig(PrivateKeyData privateKeyData, PrivateKeyType type) {
         this.privateKeyData = privateKeyData;
         this.type = type;
     }
 
-    private static KeyDataConfig create() {
-        return new KeyDataConfig(null, null);
+    public KeyDataConfig() {
+
     }
 
     public PrivateKeyType getType() {
@@ -69,12 +67,6 @@ public class KeyDataConfig {
         return Optional.ofNullable(privateKeyData)
                 .map(PrivateKeyData::getArgonOptions)
                 .orElse(null);   
-    }
-
-    public String getPassword() {
-        return Optional.ofNullable(privateKeyData)
-                .map(PrivateKeyData::getPassword)
-                .orElse(null);
     }
 
 }

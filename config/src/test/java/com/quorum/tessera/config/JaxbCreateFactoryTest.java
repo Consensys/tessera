@@ -4,7 +4,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,11 +30,11 @@ public class JaxbCreateFactoryTest {
                 Config.class,
                 KeyData.class,
                 Peer.class,
-                ServerConfig.class,
                 SslConfig.class,
                 JdbcConfig.class,
                 KeyDataConfig.class,
-                PrivateKeyData.class
+                PrivateKeyData.class,
+                AzureKeyVaultConfig.class
         );
 
     }
@@ -43,10 +42,7 @@ public class JaxbCreateFactoryTest {
     @Test
     public void createDefault() throws Exception {
 
-        final Method factoryMethod = type.getDeclaredMethod("create");
-        factoryMethod.setAccessible(true);
-
-        final Object instance = factoryMethod.invoke(null);
+        final Object instance = type.newInstance();
 
         assertThat(instance).isNotNull();
 
@@ -57,20 +53,5 @@ public class JaxbCreateFactoryTest {
 
     }
 
-    @Test
-    public void ensureThatEqualsIncludesType() throws Exception {
-
-        final Method factoryMethod = ServerConfig.class.getDeclaredMethod("create");
-        factoryMethod.setAccessible(true);
-
-        Object firstObject = factoryMethod.invoke(null);
-
-        final Method anotherFactoryMethod = SslConfig.class.getDeclaredMethod("create");
-        anotherFactoryMethod.setAccessible(true);
-        Object secondObject = anotherFactoryMethod.invoke(null);
-
-        assertThat(firstObject).isNotEqualTo(secondObject);
-
-    }
 
 }

@@ -1,12 +1,9 @@
 package com.quorum.tessera.config.migration;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.migration.test.FixtureUtil;
 import com.quorum.tessera.test.util.ElUtil;
-import org.junit.Before;
 import org.junit.Test;
 
-import javax.json.JsonObject;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,12 +18,7 @@ import static org.mockito.Mockito.mock;
 
 public class TomlConfigFactoryTest {
 
-    private TomlConfigFactory tomlConfigFactory;
-
-    @Before
-    public void onSetup() {
-        tomlConfigFactory = new TomlConfigFactory();
-    }
+    private TomlConfigFactory tomlConfigFactory = new TomlConfigFactory();
 
     @Test
     public void createConfigFromSampleFile() throws IOException {
@@ -45,14 +37,14 @@ public class TomlConfigFactoryTest {
             Config result = tomlConfigFactory.create(configData, null).build();
             assertThat(result).isNotNull();
             assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("data", "myipcfile.ipc"));
-            assertThat(result.getServerConfig()).isNotNull();
-            assertThat(result.getServerConfig().getSslConfig()).isNotNull();
+            assertThat(result.getServer()).isNotNull();
+            assertThat(result.getServer().getSslConfig()).isNotNull();
 
-            SslConfig sslConfig = result.getServerConfig().getSslConfig();
+            SslConfig sslConfig = result.getServer().getSslConfig();
 
-            assertThat(result.getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
-            assertThat(result.getServerConfig().getPort()).isEqualTo(9001);
-            assertThat(result.getServerConfig().getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
+            assertThat(result.getServer().getHostName()).isEqualTo("http://127.0.0.1");
+            assertThat(result.getServer().getPort()).isEqualTo(9001);
+            assertThat(result.getServer().getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
 
             assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
@@ -69,7 +61,7 @@ public class TomlConfigFactoryTest {
 
         Config result = tomlConfigFactory.create(template, null).build();
 
-        assertThat(result.getServerConfig().getHostName()).isEqualTo("http://127.0.0.1");
+        assertThat(result.getServer().getHostName()).isEqualTo("http://127.0.0.1");
 
 
     }
@@ -96,10 +88,10 @@ public class TomlConfigFactoryTest {
             Config result = tomlConfigFactory.create(configData, null).build();
             assertThat(result).isNotNull();
             assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("data", "constellation.ipc"));
-            assertThat(result.getServerConfig()).isNotNull();
-            assertThat(result.getServerConfig().getSslConfig()).isNotNull();
+            assertThat(result.getServer()).isNotNull();
+            assertThat(result.getServer().getSslConfig()).isNotNull();
 
-            SslConfig sslConfig = result.getServerConfig().getSslConfig();
+            SslConfig sslConfig = result.getServer().getSslConfig();
 
             assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
@@ -148,66 +140,6 @@ public class TomlConfigFactoryTest {
     }
 
     @Test
-    public void createPrivateKeyData() throws Exception {
-
-        JsonObject keyDataConfigJson = FixtureUtil.createLockedPrivateKey();
-
-        Path privateKeyPath = Files.createTempFile("createPrivateKeyData", ".txt");
-        Files.write(privateKeyPath, keyDataConfigJson.toString().getBytes());
-
-        List<KeyDataConfig> result = TomlConfigFactory
-            .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
-
-        assertThat(result).hasSize(1);
-
-        KeyDataConfig keyConfig = result.get(0);
-
-        assertThat(keyConfig.getType()).isEqualTo(PrivateKeyType.LOCKED);
-
-        JsonObject privateKeyData = keyDataConfigJson.getJsonObject("data");
-
-        PrivateKeyData key = keyConfig.getPrivateKeyData();
-
-        assertThat(key.getPassword()).isEqualTo("Secret");
-        assertThat(key.getAsalt()).isEqualTo(privateKeyData.getString("asalt"));
-        assertThat(key.getSbox()).isEqualTo(privateKeyData.getString("sbox"));
-        assertThat(key.getSnonce()).isEqualTo(privateKeyData.getString("snonce"));
-
-        assertThat(key.getArgonOptions()).isNotNull();
-
-        JsonObject argonOptions = privateKeyData.getJsonObject("aopts");
-
-        assertThat(key.getArgonOptions().getIterations()).isEqualTo(argonOptions.getInt("iterations"));
-        assertThat(key.getArgonOptions().getMemory()).isEqualTo(argonOptions.getInt("memory"));
-        assertThat(key.getArgonOptions().getParallelism()).isEqualTo(argonOptions.getInt("parallelism"));
-        assertThat(key.getArgonOptions().getAlgorithm()).isEqualTo(argonOptions.getString("variant"));
-
-        Files.deleteIfExists(privateKeyPath);
-
-    }
-
-    @Test
-    public void createUnlockedPrivateKeyData() throws Exception {
-
-        JsonObject keyDataConfigJson = FixtureUtil.createUnlockedPrivateKey();
-
-        Path privateKeyPath = Files.createTempFile("createUnlockedPrivateKeyData", ".txt");
-        Files.write(privateKeyPath, keyDataConfigJson.toString().getBytes());
-
-        List<KeyDataConfig> result = TomlConfigFactory
-            .createPrivateKeyData(Arrays.asList(privateKeyPath.toString()), Arrays.asList("Secret"));
-
-        assertThat(result).hasSize(1);
-
-        KeyDataConfig keyConfig = result.get(0);
-
-        assertThat(keyConfig.getType()).isEqualTo(PrivateKeyType.UNLOCKED);
-
-        Files.deleteIfExists(privateKeyPath);
-
-    }
-
-    @Test
     public void createConfigFromNoPasswordsFile() throws IOException {
 
         try (InputStream configData = getClass().getResourceAsStream("/sample.conf")) {
@@ -226,7 +158,7 @@ public class TomlConfigFactoryTest {
             KeyConfiguration result = tomlConfigFactory.createKeyDataBuilder(configData).build();
             assertThat(result).isNotNull();
 
-            KeyConfiguration expected = new KeyConfiguration(null, null, Collections.emptyList());
+            KeyConfiguration expected = new KeyConfiguration(null, null, Collections.emptyList(), null, null);
             assertThat(result).isEqualTo(expected);
 
         }

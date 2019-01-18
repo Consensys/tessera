@@ -1,5 +1,6 @@
 package com.quorum.tessera.data.migration;
 
+import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
 import org.apache.commons.cli.MissingOptionException;
 import org.junit.After;
 import org.junit.Before;
@@ -36,9 +37,9 @@ public class CmdLineExecutorTest {
     public void onTearDown() throws IOException {
         if (Files.exists(outputPath)) {
             Files.walk(outputPath)
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
         }
     }
 
@@ -60,7 +61,7 @@ public class CmdLineExecutorTest {
 
         assertThat(throwable).isInstanceOf(MissingOptionException.class);
         assertThat(((MissingOptionException) throwable).getMissingOptions())
-            .containsExactlyInAnyOrder("storetype", "inputpath", "exporttype", "outputfile", "dbpass", "dbuser");
+                .containsExactlyInAnyOrder("storetype", "inputpath", "exporttype", "outputfile", "dbpass", "dbuser");
 
     }
 
@@ -150,8 +151,53 @@ public class CmdLineExecutorTest {
 
         final Throwable throwable = catchThrowable(constructor::newInstance);
         assertThat(throwable)
-            .isInstanceOf(InvocationTargetException.class)
-            .hasCauseExactlyInstanceOf(UnsupportedOperationException.class);
+                .isInstanceOf(InvocationTargetException.class)
+                .hasCauseExactlyInstanceOf(UnsupportedOperationException.class);
     }
 
+    @Test(expected = org.apache.commons.cli.MissingOptionException.class)
+    public void exportTypeJdbcNoDbConfigProvided() throws Exception {
+
+        final Path inputFile = Paths.get(getClass().getResource("/dir/").toURI());
+
+        final String[] args = new String[]{
+            "-storetype", "dir",
+            "-inputpath", inputFile.toString(),
+            "-outputfile", outputPath.toString(),
+            "-exporttype", "jdbc",
+            "-dbpass", "-dbuser"
+        };
+
+        CmdLineExecutor.execute(args);
+
+    }
+
+    @Test
+    public void exportTypeJdbc() throws Exception {
+
+        JDBCMockObjectFactory mockObjectFactory = new JDBCMockObjectFactory();
+
+        try {
+            mockObjectFactory.registerMockDriver();
+
+            String dbConfigPath = getClass().getResource("/dbconfig.properties").getFile();
+
+            final Path inputFile = Paths.get(getClass().getResource("/dir/").toURI());
+
+            final String[] args = new String[]{
+                "-storetype", "dir",
+                "-inputpath", inputFile.toString(),
+                "-outputfile", outputPath.toString(),
+                "-exporttype", "jdbc",
+                "-dbconfig", dbConfigPath,
+                "-dbpass", "-dbuser"
+            };
+
+            CmdLineExecutor.execute(args);
+
+            assertThat(outputPath).isNotNull();
+        } finally {
+            mockObjectFactory.restoreDrivers();
+        }
+    }
 }

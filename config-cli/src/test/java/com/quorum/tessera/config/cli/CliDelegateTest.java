@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.validation.ConstraintViolationException;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.assertj.core.api.Fail;
 import org.junit.Test;
 
 public class CliDelegateTest {
@@ -16,6 +17,15 @@ public class CliDelegateTest {
 
         assertThat(CliDelegate.instance()).isSameAs(instance);
 
+    }
+
+    @Test
+    public void createAdminInstance() throws Exception {
+
+        Path configFile = ElUtil.createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        CliResult result = instance.execute("admin", "-configfile", configFile.toString());
+
+        assertThat(result).isNotNull();
     }
 
     @Test
@@ -31,8 +41,8 @@ public class CliDelegateTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig().get()).isSameAs(instance.getConfig());
         assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.isHelpOn()).isFalse();
-        assertThat(result.isKeyGenOn()).isFalse();
+        assertThat(result.isSuppressStartup()).isFalse();
+ 
     }
 
     @Test
@@ -53,9 +63,15 @@ public class CliDelegateTest {
             );
 
             assertThat(result).isNotNull();
+            Fail.failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
             ex.getConstraintViolations().forEach(System.out::println);
         }
+    }
+    
+    @Test(expected = IllegalStateException.class)
+    public void fetchWithoutExecution() {
+        instance.getConfig();
     }
 
 }

@@ -4,7 +4,7 @@ import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.encryption.PrivateKey;
 import org.apache.commons.cli.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -183,14 +184,15 @@ public class KeyUpdateParserTest {
     public void unlockedKeyReturnedProperly() {
 
         final KeyDataConfig kdc = new KeyDataConfig(
-            new PrivateKeyData("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", null, null, null, null, null),
+            new PrivateKeyData("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", null, null, null, null),
             PrivateKeyType.UNLOCKED
         );
 
-        final Key key = this.parser.getExistingKey(kdc, emptyList());
+        final PrivateKey key = this.parser.getExistingKey(kdc, emptyList());
 
-        assertThat(key).isNotNull();
-        assertThat(key.toString()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+        String encodedKeyValue = Base64.getEncoder().encodeToString(key.getKeyBytes());
+        
+        assertThat(encodedKeyValue).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
 
     }
 
@@ -203,8 +205,7 @@ public class KeyUpdateParserTest {
                 "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
                 "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
                 "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                new ArgonOptions("id", 10, 1048576, 4),
-                null
+                new ArgonOptions("id", 10, 1048576, 4)
             ),
             PrivateKeyType.LOCKED
         );
@@ -225,16 +226,17 @@ public class KeyUpdateParserTest {
                 "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
                 "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
                 "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                new ArgonOptions("id", 10, 1048576, 4),
-                null
+                new ArgonOptions("id", 10, 1048576, 4)
             ),
             PrivateKeyType.LOCKED
         );
 
-        final Key key = this.parser.getExistingKey(kdc, singletonList("q"));
-
-        assertThat(key).isNotNull();
-        assertThat(key.toString()).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
+        final PrivateKey key = this.parser.getExistingKey(kdc, singletonList("q"));
+        
+        String encodedKeyValue = Base64.getEncoder().encodeToString(key.getKeyBytes());
+        
+        assertThat(encodedKeyValue).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
+        
 
     }
 
@@ -247,16 +249,18 @@ public class KeyUpdateParserTest {
                 "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
                 "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
                 "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc",
-                new ArgonOptions("id", 10, 1048576, 4),
-                null
+                new ArgonOptions("id", 10, 1048576, 4)
             ),
             PrivateKeyType.LOCKED
         );
 
-        final Key key = this.parser.getExistingKey(kdc, Arrays.asList("wrong", "q"));
+        final PrivateKey key = this.parser.getExistingKey(kdc, Arrays.asList("wrong", "q"));
 
         assertThat(key).isNotNull();
-        assertThat(key.toString()).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
+        
+         String encodedKeyValue = Base64.getEncoder().encodeToString(key.getKeyBytes());
+        
+        assertThat(encodedKeyValue).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
 
     }
 
@@ -298,6 +302,34 @@ public class KeyUpdateParserTest {
         assertThat(endingKey.getSbox()).isNotEqualTo(startingKey.getSbox());
         assertThat(endingKey.getSnonce()).isNotEqualTo(startingKey.getSnonce());
         assertThat(endingKey.getAsalt()).isNotEqualTo(startingKey.getAsalt());
+    }
+
+    @Test
+    public void keyGetsUpdatedToNoPassword() throws IOException, ParseException {
+        final KeyDataConfig startingKey = JaxbUtil.unmarshal(
+            getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class
+        );
+
+        when(passwordReader.requestUserPassword()).thenReturn("");
+
+        final Path key = Files.createTempFile("key", ".key");
+        Files.write(key, JaxbUtil.marshalToString(startingKey).getBytes());
+
+        final String[] args = new String[]{
+            "-updatepassword",
+            "--keys.keyData.privateKeyPath", key.toString(),
+            "--keys.passwords", "q"
+        };
+        final CommandLine commandLine = new DefaultParser().parse(options, args);
+
+        this.parser.parse(commandLine);
+
+        final KeyDataConfig endingKey = JaxbUtil.unmarshal(Files.newInputStream(key), KeyDataConfig.class);
+
+        assertThat(endingKey.getSbox()).isNotEqualTo(startingKey.getSbox());
+        assertThat(endingKey.getSnonce()).isNotEqualTo(startingKey.getSnonce());
+        assertThat(endingKey.getAsalt()).isNotEqualTo(startingKey.getAsalt());
+        assertThat(endingKey.getPrivateKeyData().getValue()).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
     }
 
 }

@@ -1,5 +1,6 @@
 package com.quorum.tessera.node.model;
 
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -9,12 +10,22 @@ public class Party {
 
     private final String url;
 
+    private Instant lastContacted;
+
     public Party(final String url) {
         this.url = url;
     }
 
     public String getUrl() {
         return url;
+    }
+
+    public Instant getLastContacted() {
+        return lastContacted;
+    }
+
+    public void setLastContacted(final Instant lastContacted) {
+        this.lastContacted = lastContacted;
     }
 
     @Override
@@ -25,6 +36,11 @@ public class Party {
     @Override
     public int hashCode() {
         return Objects.hash(url);
+    }
+
+    @Override
+    public String toString() {
+        return "Party{" + "url=" + url + '}';
     }
 
 }

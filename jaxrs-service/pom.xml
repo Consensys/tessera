@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.quorum.tessera</groupId>
+        <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tessera</artifactId>
-        <version>0.7-SNAPSHOT</version>
+        <version>0.9-SNAPSHOT</version>
     </parent>
     <artifactId>jaxrs-service</artifactId>
     <packaging>jar</packaging>
@@ -19,17 +19,22 @@
             <artifactId>swagger-annotations</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.quorum.tessera</groupId>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.quorum.tessera</groupId>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>service-locator-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.quorum.tessera</groupId>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>jaxrs-client</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -39,12 +44,12 @@
             <artifactId>javax.persistence-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.quorum.tessera</groupId>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>security</artifactId>
         </dependency>
         
         <dependency>
-            <groupId>com.quorum.tessera</groupId>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>jersey-server</artifactId>
             <scope>test</scope>
         </dependency>
@@ -82,13 +87,14 @@
                 </executions>
             </plugin>
             
-                        <plugin>
+            <plugin>
                 <groupId>com.github.kongchen</groupId>
                 <artifactId>swagger-maven-plugin</artifactId>
                 <version>3.1.7</version>
                 <configuration>
                     <apiSources>
                         <apiSource>
+                            
                             <schemes>
                                 <scheme>http</scheme>
                                 <scheme>https</scheme>
@@ -96,19 +102,99 @@
                             <host>localhost:8080</host>
                             <basePath>/</basePath>
                             <springmvc>false</springmvc>
-                            
                             <info>
+                                
                                 <title>Tessera rest</title>
                                 <version>${project.version}</version>
                             </info>
 
                             <locations>
-                                <location>com.quorum.tessera.api</location>
+                                <location>com.quorum.tessera.api.common</location>
+                                <location>com.quorum.tessera.q2t</location>
                             </locations>
                             <templatePath>${basedir}/src/main/swagger/strapdown.html.hbs</templatePath>
                             <outputPath>${project.build.directory}/generated-resources/swagger/swagger.html</outputPath>
                             <swaggerDirectory>${project.build.directory}/generated-resources/swagger</swaggerDirectory>
+                            <swaggerFileName>swagger</swaggerFileName>
                         </apiSource>
+                        
+                        
+                        <apiSource>
+                            
+                            <schemes>
+                                <scheme>http</scheme>
+                                <scheme>https</scheme>
+                            </schemes>
+                            <host>localhost:8080</host>
+                            <basePath>/</basePath>
+                            <springmvc>false</springmvc>
+                            <info>
+                                
+                                <title>Admin config resource</title>
+                                <version>${project.version}</version>
+                            </info>
+
+                            <locations>
+                                <location>com.quorum.tessera.admin.ConfigResource</location>
+                            </locations>
+                            <templatePath>${basedir}/src/main/swagger/strapdown.html.hbs</templatePath>
+                            <outputPath>${project.build.directory}/generated-resources/swagger/admin.html</outputPath>
+                            <swaggerDirectory>${project.build.directory}/generated-resources/swagger</swaggerDirectory>
+                            <swaggerFileName>admin</swaggerFileName>
+                        </apiSource>
+                        
+                        <apiSource>
+                            
+                            <schemes>
+                                <scheme>http</scheme>
+                                <scheme>https</scheme>
+                            </schemes>
+                            <host>localhost:8080</host>
+                            <basePath>/</basePath>
+                            <springmvc>false</springmvc>
+                            <info>
+                                
+                                <title>Peer to peer resources</title>
+                                <version>${project.version}</version>
+                            </info>
+
+                            <locations>
+                                <location>com.quorum.tessera.p2p.ApiResource</location>
+                                <location>com.quorum.tessera.p2p.PartyInfoResource</location>
+                                <location>com.quorum.tessera.p2p.TransactionResource</location>
+   
+                            </locations>
+                            <templatePath>${basedir}/src/main/swagger/strapdown.html.hbs</templatePath>
+                            <outputPath>${project.build.directory}/generated-resources/swagger/p2p.html</outputPath>
+                            <swaggerDirectory>${project.build.directory}/generated-resources/swagger</swaggerDirectory>
+                            <swaggerFileName>p2p</swaggerFileName>
+                        </apiSource>
+                        
+                        <apiSource>
+                            
+                            <schemes>
+                                <scheme>http</scheme>
+                                <scheme>https</scheme>
+                            </schemes>
+                            <host>localhost:8080</host>
+                            <basePath>/</basePath>
+                            <springmvc>false</springmvc>
+                            <info>
+                                
+                                <title>Third party resources</title>
+                                <version>${project.version}</version>
+                            </info>
+
+                            <locations>
+                                <location>com.quorum.tessera.thridparty</location>
+   
+                            </locations>
+                            <templatePath>${basedir}/src/main/swagger/strapdown.html.hbs</templatePath>
+                            <outputPath>${project.build.directory}/generated-resources/swagger/thirdpty.html</outputPath>
+                            <swaggerDirectory>${project.build.directory}/generated-resources/swagger</swaggerDirectory>
+                            <swaggerFileName>thirdpty</swaggerFileName>
+                        </apiSource>
+                        
                     </apiSources>
 
                 </configuration>

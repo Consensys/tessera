@@ -20,7 +20,7 @@ public class TransactionNotFoundExceptionMapper implements ExceptionMapper<Trans
 
         return Response.status(Response.Status.NOT_FOUND)
             .entity(e.getMessage())
-            .header("Content-Type", MediaType.TEXT_PLAIN)
+            .type(MediaType.TEXT_PLAIN)
             .build();
     }
 

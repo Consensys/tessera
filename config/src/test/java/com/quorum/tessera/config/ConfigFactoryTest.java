@@ -1,5 +1,6 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.keypairs.InlineKeypair;
 import com.quorum.tessera.test.util.ElUtil;
 import org.junit.Test;
 
@@ -40,23 +41,25 @@ public class ConfigFactoryTest {
         assertThat(config.getJdbcConfig().getUsername()).isEqualTo("scott");
         assertThat(config.getPeers()).hasSize(2);
         assertThat(config.getKeys().getKeyData()).hasSize(1);
+        assertThat(config.getKeys().getKeyData().get(0)).isInstanceOf(InlineKeypair.class);
 
-        final KeyData keyData = config.getKeys().getKeyData().get(0);
+        final KeyDataConfig keyDataConfig = ((InlineKeypair)config.getKeys().getKeyData().get(0)).getPrivateKeyConfig();
+        final PrivateKeyData privateKeyData = keyDataConfig.getPrivateKeyData();
 
-        assertThat(keyData.getConfig()).isNotNull();
+        assertThat(keyDataConfig).isNotNull();
 
-        assertThat(keyData.getConfig().getType()).isEqualTo(PrivateKeyType.LOCKED);
-        assertThat(keyData.getConfig().getPrivateKeyData()).isNotNull();
+        assertThat(keyDataConfig.getType()).isEqualTo(PrivateKeyType.LOCKED);
+        assertThat(privateKeyData).isNotNull();
 
-        assertThat(keyData.getConfig().getPrivateKeyData().getSnonce()).isEqualTo("x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC");
-        assertThat(keyData.getConfig().getPrivateKeyData().getAsalt()).isEqualTo("7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=");
-        assertThat(keyData.getConfig().getPrivateKeyData().getSbox()).isEqualTo("d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc");
+        assertThat(privateKeyData.getSnonce()).isEqualTo("x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC");
+        assertThat(privateKeyData.getAsalt()).isEqualTo("7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=");
+        assertThat(privateKeyData.getSbox()).isEqualTo("d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc");
 
-        assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions()).isNotNull();
-        assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions().getAlgorithm()).isEqualTo("id");
-        assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions().getIterations()).isEqualTo(10);
-        assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions().getParallelism()).isEqualTo(4);
-        assertThat(keyData.getConfig().getPrivateKeyData().getArgonOptions().getMemory()).isEqualTo(1048576);
+        assertThat(privateKeyData.getArgonOptions()).isNotNull();
+        assertThat(privateKeyData.getArgonOptions().getAlgorithm()).isEqualTo("id");
+        assertThat(privateKeyData.getArgonOptions().getIterations()).isEqualTo(10);
+        assertThat(privateKeyData.getArgonOptions().getParallelism()).isEqualTo(4);
+        assertThat(privateKeyData.getArgonOptions().getMemory()).isEqualTo(1048576);
     }
 
     @Test
@@ -76,15 +79,12 @@ public class ConfigFactoryTest {
 
         final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString()).toAbsolutePath();
 
-        final KeyData precreatedKey = new KeyData(
+        final InlineKeypair keypair = new InlineKeypair(
+            "publickey",
             new KeyDataConfig(
-                new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 10, 1048576, 4), "pass"),
+                new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 10, 1048576, 4)),
                 PrivateKeyType.LOCKED
-            ),
-            null,
-            null,
-            tempFolder.resolve(".key"),
-            tempFolder.resolve(".pub")
+            )
         );
 
         final ConfigFactory configFactory = ConfigFactory.create();
@@ -98,12 +98,13 @@ public class ConfigFactoryTest {
         InputStream configInputStream = ElUtil.process(getClass()
                 .getResourceAsStream("/sample-private-keygen.json"), params);
 
-        Config config = configFactory.create(configInputStream, singletonList(precreatedKey));
+        Config config = configFactory.create(configInputStream, singletonList(keypair));
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys().getKeyData()).hasSize(1);
+        assertThat(config.getKeys().getKeyData().get(0)).isInstanceOf(InlineKeypair.class);
 
-        KeyDataConfig keyDataConfig = config.getKeys().getKeyData().get(0).getConfig();
+        KeyDataConfig keyDataConfig = ((InlineKeypair)config.getKeys().getKeyData().get(0)).getPrivateKeyConfig();
 
         assertThat(keyDataConfig.getType()).isEqualTo(PrivateKeyType.LOCKED);
         assertThat(keyDataConfig.getPrivateKeyData()).isNotNull();

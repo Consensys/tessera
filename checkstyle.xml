@@ -12,6 +12,7 @@
         <property name="file" value="${checkstyle.suppressions.file}" />
     </module>
     
+
     <module name="TreeWalker">
         <module name="InterfaceTypeParameterName"/>
         <module name="MethodName"/>
@@ -27,10 +28,7 @@
         <module name="StaticVariableName"/>
         <module name="TypeName"/>
         <module name="RedundantModifier"/>
-        <module name="ModifierOrder">
-            
-        </module>
-        <module name="ParenPad"/>
+        <module name="ModifierOrder"/>
         <module name="EqualsHashCode"/>
         <module name="EmptyStatement"/>
         <module name="SimplifyBooleanExpression"/>
@@ -47,5 +45,42 @@
             <property name="allowMissingParamTags" value="true" />
             <property name="allowMissingThrowsTags" value="true" />
         </module>
+        <module name="EnumValueName"/>
+
+        <!-- Start: Whitespace -->
+
+        <module name="ParenPad"/>
+        <module name="GenericWhitespace"/>
+        <module name="TypecastParenPad"/>
+        <module name="SingleSpaceSeparator"/>
+
+        <!-- Make sure that method calls have no space between method name and left parenthesis -->
+        <module name="MethodParamPad">
+            <property name="option" value="nospace"/>
+            <property name="tokens" value="CTOR_DEF, LITERAL_NEW, METHOD_CALL, METHOD_DEF, SUPER_CTOR_CALL, ENUM_CONSTANT_DEF"/>
+        </module>
+
+        <!-- These separators (. @ ::) cannot appear at end of a line-->
+        <module name="SeparatorWrap">
+            <property name="tokens" value="DOT"/>
+            <property name="tokens" value="AT"/>
+            <property name="tokens" value="METHOD_REF"/>
+            <property name="option" value="nl"/>
+        </module>
+
+        <!-- These separators (, ;) cannot appear at start of a line-->
+        <module name="SeparatorWrap">
+            <property name="tokens" value="COMMA"/>
+            <property name="tokens" value="SEMI"/>
+            <property name="option" value="EOL"/>
+        </module>
+
+        <module name="NoLineWrap">
+            <property name="tokens" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/>
+        </module>
+
+        <!-- End: Whitespace -->
+
     </module>
+
 </module>

@@ -1,13 +1,16 @@
 package com.quorum.tessera.config.migration.test;
 
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.JdbcConfig;
+import com.quorum.tessera.config.KeyConfiguration;
+import com.quorum.tessera.config.SslAuthenticationMode;
+import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.builder.ConfigBuilder;
+import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 
 import javax.json.Json;
 import javax.json.JsonObject;
+import java.nio.file.Paths;
 import java.util.Collections;
-
-import static org.mockito.Mockito.mock;
 
 public class FixtureUtil {
 
@@ -58,7 +61,7 @@ public class FixtureUtil {
             .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
             .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
             .keyData(new KeyConfiguration(null, Collections.emptyList(),
-                Collections.singletonList(new KeyData(new KeyDataConfig(mock(PrivateKeyData.class), PrivateKeyType.LOCKED), null, null, null, null))));
+                Collections.singletonList(new FilesystemKeyPair(Paths.get("public"), Paths.get("private"))), null, null));
     }
 
     public static ConfigBuilder builderWithNullValues() {
@@ -88,7 +91,7 @@ public class FixtureUtil {
             .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
             .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
             .keyData(new KeyConfiguration(null, Collections.emptyList(),
-                Collections.singletonList(new KeyData(new KeyDataConfig(mock(PrivateKeyData.class), PrivateKeyType.LOCKED), null, null, null, null))));
+                Collections.singletonList(new FilesystemKeyPair(Paths.get("public"), Paths.get("private"))), null, null));
     }
     
     public static JsonObject createUnlockedPrivateKey() {

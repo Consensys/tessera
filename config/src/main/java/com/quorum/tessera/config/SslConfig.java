@@ -5,87 +5,85 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(factoryMethod = "create")
 public class SslConfig {
 
     @NotNull
     @XmlElement(required = true)
-    private final SslAuthenticationMode tls;
+    private SslAuthenticationMode tls;
 
     @XmlElement(defaultValue = "false")
-    private final boolean generateKeyStoreIfNotExisted;
+    private boolean generateKeyStoreIfNotExisted;
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path serverKeyStore;
+    private Path serverKeyStore;
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path serverTlsKeyPath;
+    private Path serverTlsKeyPath;
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path serverTlsCertificatePath;
+    private Path serverTlsCertificatePath;
 
     @XmlElement
-    private final String serverKeyStorePassword;
+    private String serverKeyStorePassword;
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path serverTrustStore;
-
-    @XmlElement
-    @XmlJavaTypeAdapter(value = PathAdapter.class)
-    private final List<Path> serverTrustCertificates;
-
-    @XmlElement
-    private final String serverTrustStorePassword;
-
-    @XmlElement
-    private final SslTrustMode serverTrustMode;
-
-    @XmlElement(type = String.class)
-    @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path clientKeyStore;
-
-    @XmlElement(type = String.class)
-    @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path clientTlsKeyPath;
-
-    @XmlElement(type = String.class)
-    @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path clientTlsCertificatePath;
-
-    @XmlElement
-    private final String clientKeyStorePassword;
-
-    @XmlElement(type = String.class)
-    @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path clientTrustStore;
+    private Path serverTrustStore;
 
     @XmlElement
     @XmlJavaTypeAdapter(value = PathAdapter.class)
-    private final List<Path> clientTrustCertificates;
+    private List<Path> serverTrustCertificates;
 
     @XmlElement
-    private final String clientTrustStorePassword;
+    private String serverTrustStorePassword;
 
     @XmlElement
-    private final SslTrustMode clientTrustMode;
+    private SslTrustMode serverTrustMode;
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path knownClientsFile;
+    private Path clientKeyStore;
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
-    private final Path knownServersFile;
+    private Path clientTlsKeyPath;
+
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private Path clientTlsCertificatePath;
+
+    @XmlElement
+    private String clientKeyStorePassword;
+
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private Path clientTrustStore;
+
+    @XmlElement
+    @XmlJavaTypeAdapter(value = PathAdapter.class)
+    private List<Path> clientTrustCertificates;
+
+    @XmlElement
+    private String clientTrustStorePassword;
+
+    @XmlElement
+    private SslTrustMode clientTrustMode;
+
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private Path knownClientsFile;
+
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private Path knownServersFile;
 
     public SslConfig(
             SslAuthenticationMode tls,
@@ -133,13 +131,9 @@ public class SslConfig {
 
     }
 
-    private SslConfig() {
-        this(null, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null,null,null,null,null);
+    public SslConfig() {
     }
 
-    private static SslConfig create() {
-        return new SslConfig();
-    }
 
     public SslAuthenticationMode getTls() {
         return tls;
@@ -219,6 +213,86 @@ public class SslConfig {
 
     public Path getClientTlsCertificatePath() {
         return clientTlsCertificatePath;
+    }
+
+    public void setTls(SslAuthenticationMode tls) {
+        this.tls = tls;
+    }
+
+    public void setGenerateKeyStoreIfNotExisted(boolean generateKeyStoreIfNotExisted) {
+        this.generateKeyStoreIfNotExisted = generateKeyStoreIfNotExisted;
+    }
+
+    public void setServerKeyStore(Path serverKeyStore) {
+        this.serverKeyStore = serverKeyStore;
+    }
+
+    public void setServerTlsKeyPath(Path serverTlsKeyPath) {
+        this.serverTlsKeyPath = serverTlsKeyPath;
+    }
+
+    public void setServerTlsCertificatePath(Path serverTlsCertificatePath) {
+        this.serverTlsCertificatePath = serverTlsCertificatePath;
+    }
+
+    public void setServerKeyStorePassword(String serverKeyStorePassword) {
+        this.serverKeyStorePassword = serverKeyStorePassword;
+    }
+
+    public void setServerTrustStore(Path serverTrustStore) {
+        this.serverTrustStore = serverTrustStore;
+    }
+
+    public void setServerTrustCertificates(List<Path> serverTrustCertificates) {
+        this.serverTrustCertificates = serverTrustCertificates;
+    }
+
+    public void setServerTrustStorePassword(String serverTrustStorePassword) {
+        this.serverTrustStorePassword = serverTrustStorePassword;
+    }
+
+    public void setServerTrustMode(SslTrustMode serverTrustMode) {
+        this.serverTrustMode = serverTrustMode;
+    }
+
+    public void setClientKeyStore(Path clientKeyStore) {
+        this.clientKeyStore = clientKeyStore;
+    }
+
+    public void setClientTlsKeyPath(Path clientTlsKeyPath) {
+        this.clientTlsKeyPath = clientTlsKeyPath;
+    }
+
+    public void setClientTlsCertificatePath(Path clientTlsCertificatePath) {
+        this.clientTlsCertificatePath = clientTlsCertificatePath;
+    }
+
+    public void setClientKeyStorePassword(String clientKeyStorePassword) {
+        this.clientKeyStorePassword = clientKeyStorePassword;
+    }
+
+    public void setClientTrustStore(Path clientTrustStore) {
+        this.clientTrustStore = clientTrustStore;
+    }
+
+    public void setClientTrustCertificates(List<Path> clientTrustCertificates) {
+        this.clientTrustCertificates = clientTrustCertificates;
+    }
+
+    public void setClientTrustStorePassword(String clientTrustStorePassword) {
+        this.clientTrustStorePassword = clientTrustStorePassword;
+    }
+
+    public void setClientTrustMode(SslTrustMode clientTrustMode) {
+        this.clientTrustMode = clientTrustMode;
+    }
+
+    public void setKnownClientsFile(Path knownClientsFile) {
+        this.knownClientsFile = knownClientsFile;
+    }
+
+    public void setKnownServersFile(Path knownServersFile) {
+        this.knownServersFile = knownServersFile;
     }
 
 }

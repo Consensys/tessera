@@ -1,11 +1,10 @@
 package com.quorum.tessera.node;
 
-import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.key.KeyManager;
-import com.quorum.tessera.key.exception.KeyNotFoundException;
-import com.quorum.tessera.nacl.Key;
+import com.quorum.tessera.core.config.ConfigService;
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.encryption.KeyNotFoundException;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
@@ -14,6 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -31,78 +32,57 @@ public class PartyInfoServiceTest {
 
     private static final String URI = "http://localhost:8080";
 
-    private static final Set<Party> NEW_PARTIES = Stream.of(new Party("url1"), new Party("url2")).collect(toSet());
-
     private PartyInfoStore partyInfoStore;
 
-    private Config configuration;
+    private ConfigService configService;
 
-    private KeyManager keyManager;
+    private Enclave enclave;
 
     private PartyInfoService partyInfoService;
 
     @Before
-    public void onSetUp() {
+    public void onSetUp() throws URISyntaxException {
 
         this.partyInfoStore = mock(PartyInfoStore.class);
-        this.configuration = mock(Config.class);
-        this.keyManager = mock(KeyManager.class);
+        this.enclave = mock(Enclave.class);
+        this.configService = mock(ConfigService.class);
 
-        final ServerConfig serverConfig = new ServerConfig("http://localhost", 8080, 50521, null, null,null, null);
-        doReturn(serverConfig).when(configuration).getServerConfig();
+        doReturn(new URI(URI)).when(configService).getServerUri();
 
         final Peer peer = new Peer("http://other-node.com:8080");
-        doReturn(singletonList(peer)).when(configuration).getPeers();
+        when(configService.getPeers()).thenReturn(singletonList(peer));
 
-        final Set<Key> ourKeys = new HashSet<>(
+        final Set<PublicKey> ourKeys = new HashSet<>(
             Arrays.asList(
-                new Key("some-key".getBytes()),
-                new Key("another-public-key".getBytes())
+                PublicKey.from("some-key".getBytes()),
+                PublicKey.from("another-public-key".getBytes())
             )
         );
-        doReturn(ourKeys).when(keyManager).getPublicKeys();
+        doReturn(ourKeys).when(enclave).getPublicKeys();
+
+        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configService, enclave);
     }
 
     @After
     public void after() {
-        verifyNoMoreInteractions(partyInfoStore, keyManager, configuration);
-    }
+        //Called in constructor
+        verify(enclave).getPublicKeys();
+        verify(configService).getServerUri();
+        verify(configService,atLeast(1)).getPeers();
+        verify(partyInfoStore, atLeast(1)).store(any(PartyInfo.class));
 
-    @Test
-    public void initialPartiesCorrectlyReadFromConfiguration() {
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
-
-        final PartyInfo partyInfo = new PartyInfo(URI, emptySet(), singleton(new Party("http://other-node.com:8080")));
-        doReturn(partyInfo).when(partyInfoStore).getPartyInfo();
-
-        final Set<Party> initialParties = partyInfoService.getPartyInfo().getParties();
-        final Set<Recipient> initialRecipients = partyInfoService.getPartyInfo().getRecipients();
-        final String ourUrl = partyInfoService.getPartyInfo().getUrl();
-
-        assertThat(initialParties).hasSize(1).containsExactly(new Party("http://other-node.com:8080"));
-        assertThat(initialRecipients).hasSize(0);
-        assertThat(ourUrl).isEqualTo(URI);
-
-        verify(partyInfoStore).store(any(PartyInfo.class));
-        verify(partyInfoStore, times(3)).getPartyInfo();
-        verify(keyManager).getPublicKeys();
-        verify(configuration).getPeers();
-        verify(configuration).getServerConfig();
-
-        //TODO: add a captor for verification
+        verifyNoMoreInteractions(partyInfoStore);
+        verifyNoMoreInteractions(enclave);
+        verifyNoMoreInteractions(configService);
     }
 
     @Test
     public void registeringPublicKeysUsesOurUrl() {
 
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
-
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
 
         verify(partyInfoStore).store(captor.capture());
-        verify(keyManager).getPublicKeys();
-        verify(configuration).getPeers();
-        verify(configuration).getServerConfig();
+        verify(enclave).getPublicKeys();
 
         final List<Recipient> allRegisteredKeys = captor
             .getAllValues()
@@ -114,51 +94,22 @@ public class PartyInfoServiceTest {
         assertThat(allRegisteredKeys)
             .hasSize(2)
             .containsExactlyInAnyOrder(
-                new Recipient(new Key("some-key".getBytes()), URI),
-                new Recipient(new Key("another-public-key".getBytes()), URI)
+                new Recipient(PublicKey.from("some-key".getBytes()), URI + "/"),
+                new Recipient(PublicKey.from("another-public-key".getBytes()), URI + "/")
             );
-    }
-
-    @Test
-    public void updatePartyInfoDelegatesToStore() {
-
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
-
-        final String secondParty = "http://other-node.com:8080";
-        final String thirdParty = "http://third-url.com:8080";
-
-        final PartyInfo secondNodePartyInfo = new PartyInfo(secondParty, emptySet(), emptySet());
-        final PartyInfo thirdNodePartyInfo = new PartyInfo(thirdParty, emptySet(), emptySet());
-
-        partyInfoService.updatePartyInfo(secondNodePartyInfo);
-        partyInfoService.updatePartyInfo(thirdNodePartyInfo);
-
-        verify(partyInfoStore).store(secondNodePartyInfo);
-        verify(partyInfoStore).store(thirdNodePartyInfo);
-        verify(partyInfoStore, times(3)).store(any(PartyInfo.class));
-        verify(partyInfoStore, times(2)).getPartyInfo();
-        verify(keyManager).getPublicKeys();
-        verify(configuration).getPeers();
-        verify(configuration).getServerConfig();
     }
 
     @Test
     public void getRecipientURLFromPartyInfoStore() {
 
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
-
-        final Recipient recipient = new Recipient(new Key("key".getBytes()), "someurl");
+        final Recipient recipient = new Recipient(PublicKey.from("key".getBytes()), "someurl");
         final PartyInfo partyInfo = new PartyInfo(URI, singleton(recipient), emptySet());
         doReturn(partyInfo).when(partyInfoStore).getPartyInfo();
 
-        final String result = partyInfoService.getURLFromRecipientKey(new Key("key".getBytes()));
+        final String result = partyInfoService.getURLFromRecipientKey(PublicKey.from("key".getBytes()));
         assertThat(result).isEqualTo("someurl");
 
-        verify(partyInfoStore).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
-        verify(keyManager).getPublicKeys();
-        verify(configuration).getPeers();
-        verify(configuration).getServerConfig();
     }
 
     @Test
@@ -166,80 +117,115 @@ public class PartyInfoServiceTest {
 
         doReturn(new PartyInfo("", emptySet(), emptySet())).when(partyInfoStore).getPartyInfo();
 
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
-
-        final Key failingKey = new Key("otherKey".getBytes());
+        final PublicKey failingKey = PublicKey.from("otherKey".getBytes());
         final Throwable throwable = catchThrowable(() -> partyInfoService.getURLFromRecipientKey(failingKey));
-        assertThat(throwable).isInstanceOf(KeyNotFoundException.class).hasMessage("Recipient not found");
+        assertThat(throwable).isInstanceOf(KeyNotFoundException.class).hasMessage("Recipient not found for key: "+ failingKey.encodeToBase64());
 
-        verify(partyInfoStore).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
-        verify(keyManager).getPublicKeys();
-        verify(configuration).getPeers();
-        verify(configuration).getServerConfig();
     }
 
     @Test
-    public void diffPartyInfoReturnsFullSetOnEmptyStore() {
-        doReturn(new PartyInfo("", emptySet(), emptySet())).when(partyInfoStore).getPartyInfo();
+    public void autoDiscoveryEnabledStoresAsIs() {
 
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
+        final PartyInfo incomingPartyInfo = mock(PartyInfo.class);
+        final PartyInfo outgoingPartyInfo = mock(PartyInfo.class);
 
-        final PartyInfo incomingInfo = new PartyInfo("", emptySet(), NEW_PARTIES);
+        when(configService.isDisablePeerDiscovery()).thenReturn(false);
+        when(partyInfoStore.getPartyInfo()).thenReturn(outgoingPartyInfo);
 
-        final Set<Party> unsavedParties = this.partyInfoService.findUnsavedParties(incomingInfo);
+        final PartyInfo result = this.partyInfoService.updatePartyInfo(incomingPartyInfo);
 
-        assertThat(unsavedParties)
-            .hasSize(2)
-            .containsExactlyInAnyOrder(NEW_PARTIES.toArray(new Party[0]));
+        assertThat(result).isSameAs(outgoingPartyInfo);
 
-        verify(partyInfoStore).store(any(PartyInfo.class));
+        verify(partyInfoStore, times(2)).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
-        verify(keyManager).getPublicKeys();
-        verify(configuration).getPeers();
-        verify(configuration).getServerConfig();
+        verify(configService).isDisablePeerDiscovery();
     }
 
     @Test
-    public void diffPartyInfoReturnsEmptySetOnFullStore() {
-        doReturn(new PartyInfo("", emptySet(), NEW_PARTIES)).when(partyInfoStore).getPartyInfo();
+    public void autoDiscoveryDisabledUnknownPeer() {
 
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
+        when(configService.isDisablePeerDiscovery()).thenReturn(true);
 
-        final PartyInfo incomingInfo = new PartyInfo("", emptySet(), NEW_PARTIES);
+        final PartyInfo forUpdate = new PartyInfo("SomeUnknownUri", emptySet(), emptySet());
 
-        final Set<Party> unsavedParties = this.partyInfoService.findUnsavedParties(incomingInfo);
+        final Throwable throwable = catchThrowable(() -> partyInfoService.updatePartyInfo(forUpdate));
 
-        assertThat(unsavedParties).isEmpty();
+        assertThat(throwable)
+            .isInstanceOf(AutoDiscoveryDisabledException.class)
+            .hasMessage("Peer SomeUnknownUri not found in known peer list");
 
-        verify(partyInfoStore).store(any(PartyInfo.class));
-        verify(partyInfoStore).getPartyInfo();
-        verify(keyManager).getPublicKeys();
-        verify(configuration).getPeers();
-        verify(configuration).getServerConfig();
+        verify(configService).isDisablePeerDiscovery();
+
     }
 
     @Test
-    public void diffPartyInfoReturnsNodesNotInStore() {
-        doReturn(new PartyInfo("", emptySet(), singleton(new Party("url1"))))
-            .when(partyInfoStore)
-            .getPartyInfo();
+    public void autoDiscoveryDisabledOnlyKnownKeysAdded() {
 
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configuration, keyManager);
+        when(configService.isDisablePeerDiscovery()).thenReturn(true);
 
-        final PartyInfo incomingInfo = new PartyInfo("", emptySet(), NEW_PARTIES);
+        Recipient known = new Recipient(PublicKey.from("known".getBytes()), "http://other-node.com:8080");
+        Recipient unknown = new Recipient(PublicKey.from("unknown".getBytes()), "http://unknown.com:8080");
 
-        final Set<Party> unsavedParties = this.partyInfoService.findUnsavedParties(incomingInfo);
+        final PartyInfo forUpdate = new PartyInfo(
+            "http://other-node.com:8080",
+            Stream.of(known, unknown).collect(toSet()),
+            emptySet()
+        );
 
-        assertThat(unsavedParties)
-            .hasSize(1)
-            .containsExactlyInAnyOrder(new Party("url2"));
+        partyInfoService.updatePartyInfo(forUpdate);
 
-        verify(partyInfoStore).store(any(PartyInfo.class));
+
+        verify(configService).isDisablePeerDiscovery();
+        verify(configService,times(2)).getPeers();
+
+        //check that the only added keys were from that node (and our own)
+        final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
+
         verify(partyInfoStore).getPartyInfo();
-        verify(keyManager).getPublicKeys();
-        verify(configuration).getPeers();
-        verify(configuration).getServerConfig();
+        verify(partyInfoStore, times(2)).store(captor.capture());
+
+        final List<Recipient> allRegisteredKeys = captor
+            .getAllValues()
+            .stream()
+            .map(PartyInfo::getRecipients)
+            .flatMap(Set::stream)
+            .collect(toList());
+
+        assertThat(allRegisteredKeys)
+            .hasSize(3)
+            .containsExactlyInAnyOrder(
+                new Recipient(PublicKey.from("some-key".getBytes()), URI + "/"),
+                new Recipient(PublicKey.from("another-public-key".getBytes()), URI + "/"),
+                new Recipient(PublicKey.from("known".getBytes()), "http://other-node.com:8080")
+            );
+
+    }
+
+    @Test
+    public void autoDiscoveryDisabledNoIncomingPeersAdded() {
+
+        when(configService.isDisablePeerDiscovery()).thenReturn(true);
+
+        final PartyInfo forUpdate = new PartyInfo(
+            "http://other-node.com:8080",
+            emptySet(),
+            Stream.of(new Party("known"), new Party("unknown")).collect(toSet())
+        );
+
+
+        partyInfoService.updatePartyInfo(forUpdate);
+
+        verify(configService).isDisablePeerDiscovery();
+        verify(configService,times(2)).getPeers();
+
+        //check that the only added keys were from that node (and our own)
+        final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
+
+        verify(partyInfoStore).getPartyInfo();
+        verify(partyInfoStore,times(2)).store(captor.capture());
+
+
     }
 
 }

@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.Optional;
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.json.JsonString;
 import javax.validation.ConstraintViolationException;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.MarshalException;
@@ -53,9 +52,10 @@ public class JaxbUtilTest {
     @Test
     public void marshallingOutputStream() throws Exception {
         final KeyDataConfig input = new KeyDataConfig(
-                new PrivateKeyData("VAL", null, null, null, null, null),
+                new PrivateKeyData("VAL", null, null, null, null),
                 PrivateKeyType.UNLOCKED
         );
+        
 
         try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
             JaxbUtil.marshal(input, bout);
@@ -118,7 +118,7 @@ public class JaxbUtilTest {
     public void marshalToString() {
 
         final KeyDataConfig input = new KeyDataConfig(
-                new PrivateKeyData("VAL", null, null, null, null, null),
+                new PrivateKeyData("VAL", null, null, null, null),
                 PrivateKeyType.UNLOCKED
         );
 
@@ -182,7 +182,7 @@ public class JaxbUtilTest {
     @Test
     public void marshallingProducesNonJaxbException() {
         final KeyDataConfig input = new KeyDataConfig(
-                new PrivateKeyData("VAL", null, null, null, null, null),
+                new PrivateKeyData("VAL", null, null, null, null),
                 PrivateKeyType.UNLOCKED
         );
 
@@ -214,17 +214,7 @@ public class JaxbUtilTest {
 
                     assertThat(result.getJsonObject("jdbc").getString("password")).isEqualTo(expectedMaskValue);
 
-                    JsonObject sslConfig = result.getJsonObject("server")
-                            .getJsonObject("sslConfig");
 
-                    sslConfig.entrySet().stream()
-                            .filter(entry -> entry.getKey().toLowerCase().contains("password"))
-                            .forEach(entry -> {
-
-                                JsonString v = (JsonString) entry.getValue();
-                                assertThat(v.getString()).isEqualTo(expectedMaskValue);
-
-                            });
 
                     assertThat(result.getJsonObject("keys").getJsonArray("keyData")
                             .getJsonObject(0).getString("privateKey"))
@@ -241,42 +231,19 @@ public class JaxbUtilTest {
     @Test
     public void marshalMaskedConfigDontDisplayPrivateKeyIfFileIsPresent() throws Exception {
 
-
-       
         final String expectedMaskValue = "*********";
         try (InputStream inputStream = getClass().getResourceAsStream("/mask-fixture-with-private-key-path.json")) {
-            
-            
-            
+
             final Config config = JaxbUtil.unmarshal(inputStream, Config.class);
 
-            try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
-                JaxbUtil.marshalMasked(config, bout);
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            JaxbUtil.marshalMasked(config, bout);
 
-                try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bout.toByteArray())) {
-                    JsonObject result = Json.createReader(byteArrayInputStream).readObject();
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bout.toByteArray());
+            JsonObject result = Json.createReader(byteArrayInputStream).readObject();
 
-                    assertThat(result.getJsonObject("jdbc").getString("password")).isEqualTo(expectedMaskValue);
+            assertThat(result.getJsonObject("jdbc").getString("password")).isEqualTo(expectedMaskValue);
 
-                    JsonObject sslConfig = result.getJsonObject("server")
-                            .getJsonObject("sslConfig");
-
-                    sslConfig.entrySet().stream()
-                            .filter(entry -> entry.getKey().toLowerCase().contains("password"))
-                            .forEach(entry -> {
-
-                                JsonString v = (JsonString) entry.getValue();
-                                assertThat(v.getString()).isEqualTo(expectedMaskValue);
-
-                            });
-
-                    assertThat(result.getJsonObject("keys").getJsonArray("keyData")
-                            .getJsonObject(0).containsKey("privateKey"))
-                            .isFalse();
-
-                }
-
-            }
         }
 
     }

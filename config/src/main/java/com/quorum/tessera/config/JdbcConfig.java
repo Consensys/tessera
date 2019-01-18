@@ -4,21 +4,25 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(factoryMethod = "create")
 public class JdbcConfig extends ConfigItem {
 
     @XmlElement
-    private final String username;
+    private String username;
 
     @XmlElement
-    private final String password;
+    private String password;
 
     @NotNull
     @XmlElement(required = true)
-    private final String url;
+    private String url;
+
+    /**
+     * Auto create tables if no exists
+     */
+    @XmlElement(defaultValue = "false")
+    private boolean autoCreateTables;
 
     public JdbcConfig(String username, String password, String url) {
         this.username = username;
@@ -26,11 +30,7 @@ public class JdbcConfig extends ConfigItem {
         this.url = url;
     }
 
-    private static JdbcConfig create() {
-        return new JdbcConfig();
-    }
-
-    private JdbcConfig() {
+    public JdbcConfig() {
         this(null, null, null);
     }
 
@@ -45,5 +45,25 @@ public class JdbcConfig extends ConfigItem {
     public String getUrl() {
         return url;
     }
-  
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public boolean isAutoCreateTables() {
+        return autoCreateTables;
+    }
+
+    public void setAutoCreateTables(boolean autoCreateTables) {
+        this.autoCreateTables = autoCreateTables;
+    }
+
 }

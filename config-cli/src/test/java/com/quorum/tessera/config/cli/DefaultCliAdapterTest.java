@@ -1,17 +1,16 @@
 package com.quorum.tessera.config.cli;
 
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.keys.KeyGenerator;
+import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keys.MockKeyGeneratorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.test.util.ElUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
@@ -21,6 +20,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -37,7 +37,7 @@ public class DefaultCliAdapterTest {
     @Before
     public void setUp() {
         MockKeyGeneratorFactory.reset();
-        this.cliDelegate = CliAdapter.create();
+        this.cliDelegate = new DefaultCliAdapter();
     }
     
     @After
@@ -54,8 +54,8 @@ public class DefaultCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.isHelpOn()).isTrue();
-        assertThat(result.isKeyGenOn()).isFalse();
+        assertThat(result.isSuppressStartup()).isTrue();
+
         
     }
     
@@ -67,8 +67,8 @@ public class DefaultCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.isHelpOn()).isTrue();
-        assertThat(result.isKeyGenOn()).isFalse();
+        assertThat(result.isSuppressStartup()).isTrue();
+
         
     }
     
@@ -81,7 +81,7 @@ public class DefaultCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.isHelpOn()).isFalse();
+        assertThat(result.isSuppressStartup()).isFalse();
     }
     
     @Test(expected = FileNotFoundException.class)
@@ -94,6 +94,7 @@ public class DefaultCliAdapterTest {
         cliDelegate.execute("-configfile");
     }
     
+    
     @Test
     public void withConstraintViolations() throws Exception {
         
@@ -103,23 +104,26 @@ public class DefaultCliAdapterTest {
             cliDelegate.execute("-configfile", configFile.toString());
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
-            assertThat(ex.getConstraintViolations()).hasSize(2);
+            assertThat(ex.getConstraintViolations()).isNotEmpty();
             
         }
         
     }
     
     @Test
-    public void keygen() throws Exception {
+    public void keygenWithConfig() throws Exception {
         
         KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
+
+        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
         
-        KeyData keyData = mock(KeyData.class);
-        KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
-        when(keyData.getConfig()).thenReturn(keyDataConfig);
-        
-        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keyData);
-        
+        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
+         Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+         
+        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+
         Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
         
         Map<String, Object> params = new HashMap<>();
@@ -137,9 +141,9 @@ public class DefaultCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
         assertThat(result.getConfig()).isNotNull();
-        assertThat(result.isHelpOn()).isFalse();
+        assertThat(result.isSuppressStartup()).isFalse();
         
-        verify(keyGenerator).generate(anyString(), eq(null));
+        verify(keyGenerator).generate(anyString(), eq(null), eq(null));
         verifyNoMoreInteractions(keyGenerator);
         
     }
@@ -150,7 +154,7 @@ public class DefaultCliAdapterTest {
         final CliResult result = cliDelegate.execute("-keygen");
         
         assertThat(result).isNotNull();
-        assertThat(result.isKeyGenOn()).isTrue();
+        assertThat(result.isSuppressStartup()).isTrue();
         
     }
 
@@ -168,7 +172,7 @@ public class DefaultCliAdapterTest {
     @Test
     public void outputWithoutKeygenOrConfig() {
 
-        final Throwable throwable = catchThrowable(() ->  cliDelegate.execute("-output","bogus"));
+        final Throwable throwable = catchThrowable(() -> cliDelegate.execute("-output","bogus"));
         assertThat(throwable)
             .isInstanceOf(CliException.class)
             .hasMessage("One or more: -configfile or -keygen or -updatepassword options are required.");
@@ -180,12 +184,15 @@ public class DefaultCliAdapterTest {
         
         KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
         
-        KeyData keyData = mock(KeyData.class);
-        KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
-        when(keyData.getConfig()).thenReturn(keyDataConfig);
+        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
         
-        when(keyGenerator.generate(anyString(), eq(null))).thenReturn(keyData);
-        
+        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
+         Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+         
+        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+
         Path generatedKey = Paths.get("/tmp/" + UUID.randomUUID().toString());
         
         Files.deleteIfExists(generatedKey);
@@ -270,12 +277,10 @@ public class DefaultCliAdapterTest {
                     configFile.toString());
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
-            assertThat(ex.getConstraintViolations()).hasSize(1);
-            
-            ConstraintViolation violation = ex.getConstraintViolations().iterator().next();
-            
-            assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyData.publicKeyPath.notExists}");
-            
+            assertThat(ex.getConstraintViolations())
+                .hasSize(2)
+                .extracting("messageTemplate")
+                .containsExactly("File does not exist", "File does not exist");
         }
         
     }
@@ -353,5 +358,44 @@ public class DefaultCliAdapterTest {
         verifyZeroInteractions(MockKeyGeneratorFactory.getMockKeyGenerator());
         System.setIn(oldIn);
     }
-    
+
+    @Test
+    public void suppressStartupForKeygenOption() throws Exception {
+        final CliResult cliResult = cliDelegate.execute("-keygen");
+
+        assertThat(cliResult.isSuppressStartup()).isTrue();
+    }
+
+    @Test
+    public void allowStartupForKeygenAndConfigfileOptions() throws Exception {
+        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
+        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        
+        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
+         Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+         
+        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+
+        final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+
+        final CliResult cliResult = cliDelegate.execute("-keygen", "-configfile", configFile.toString());
+
+        assertThat(cliResult.isSuppressStartup()).isFalse();
+    }
+
+    @Test
+    public void suppressStartupForKeygenAndVaultUrlAndConfigfileOptions() throws Exception {
+        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
+        final FilesystemKeyPair keypair = new FilesystemKeyPair(Paths.get(""), Paths.get(""));
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+
+        final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        final String vaultUrl = "https://test.vault.azure.net";
+
+        final CliResult cliResult = cliDelegate.execute("-keygen", "-keygenvaulttype", "AZURE", "-keygenvaulturl", vaultUrl, "-configfile", configFile.toString());
+
+        assertThat(cliResult.isSuppressStartup()).isTrue();
+    }
 }

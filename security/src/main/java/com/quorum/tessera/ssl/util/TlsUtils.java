@@ -91,7 +91,7 @@ public interface TlsUtils {
         keyStore.load(null, null);
         keyStore.setKeyEntry("tessera",privateKey, password.toCharArray(), new X509Certificate[]{certificate});
 
-        try(final OutputStream keyStoreFile = Files.newOutputStream(privateKeyFile)) {
+        try(OutputStream keyStoreFile = Files.newOutputStream(privateKeyFile)) {
             keyStore.store(keyStoreFile, password.toCharArray());
         }
     }

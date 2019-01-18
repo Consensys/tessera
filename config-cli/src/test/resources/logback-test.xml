@@ -9,12 +9,10 @@
         </encoder>
     </appender>
     
-
+    <logger name="org.hibernate.validator.internal" level="ERROR"/>
     <logger name="com.openpojo" level="ERROR" />
     <logger name="com.quorum.tessera.config.keys" level="ERROR" />
-    
-    <logger name="com.quorum.tessera.config.cli" level="TRACE" />
-    <logger name="com.openpojo" level="ERROR" />
+
     <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>

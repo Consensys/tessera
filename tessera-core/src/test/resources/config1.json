@@ -1,0 +1,45 @@
+{
+    "useWhiteList": false,
+    "jdbc": {
+        "username": "sa",
+        "password": "",
+        "url": "jdbc:h2:./target/h2/tessera1;AUTO_SERVER=TRUE;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
+    },
+    "server": {
+        "port": 8080,
+        "hostName": "http://localhost",
+        "communicationType" : "REST",
+        "sslConfig": {
+            "tls": "OFF",
+            "generateKeyStoreIfNotExisted": "true",
+            "serverKeyStore": "./target/server1-keystore",
+            "serverKeyStorePassword": "quorum",
+            "serverTrustStore": "./target/server-truststore",
+            "serverTrustStorePassword": "quorum",
+            "serverTrustMode": "TOFU",
+            "clientKeyStore": "./target/client1-keystore",
+            "clientKeyStorePassword": "quorum",
+            "clientTrustStore": "./target/client-truststore",
+            "clientTrustStorePassword": "quorum",
+            "clientTrustMode": "TOFU",
+            "knownClientsFile": "./target/knownClients1",
+            "knownServersFile": "./target/knownServers1"
+        }
+    },
+    "peer": [
+        {
+            "url": "http://localhost:8081"
+        }
+    ],
+    "alwaysSendTo": [],
+    "keys": {
+        "passwords": [],
+        "keyData": [
+            {
+                "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
+                "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM="
+            }
+        ]
+    },
+    "unixSocketFile": "/tmp/tm1.ipc"
+}

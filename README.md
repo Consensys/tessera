@@ -4,7 +4,7 @@
 
 # <img src="TesseraLogo.png" width="150" height="150"/>
 
-> __Important: Database change__ <br/>A timestamp is now recorded with each encrypted transaction stored in the Tessera DB.  To update an existing DB to work with this version of Tessera, execute one of the provided [alter scripts](ddls/add-timestamp)
+> __Important: Release 0.8 Feature__ <br/>Tessera now supports pre-signed 'raw' transactions. Please refer to the API section of the [Tessera wiki](https://github.com/jpmorganchase/tessera/wiki/Interface-&-API/) for details of the updated API, and the [quorum.js](https://github.com/jpmorganchase/quorum.js/) repo for usage info. 
 
 Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/jpmorganchase/quorum/).
 
@@ -47,7 +47,7 @@ Tessera can use either the [jnacl](https://github.com/neilalexander/jnacl) or [k
 
 Install libsodium as detailed on the [kalium project page](https://github.com/abstractj/kalium), then run
  
-`mvn install -P kalium,jersey`
+`mvn install -P kalium`
 
 
 ## Running Tessera
@@ -81,6 +81,8 @@ java -cp ojdbc7.jar:tessera-app.jar:. com.quorum.tessera.Launcher -configfile co
 
 [DDLs](ddls/create-table) have been provided to help with defining these databases.
 
+Since Tessera 0.7 a timestamp is recorded with each encrypted transaction stored in the Tessera DB.  To update an existing DB to work with Tessera 0.7+, execute one of the provided [alter scripts](ddls/add-timestamp).
+
 ## Configuration
 
 ### Config File
@@ -88,7 +90,7 @@ java -cp ojdbc7.jar:tessera-app.jar:. com.quorum.tessera.Launcher -configfile co
 A configuration file detailing database, server and network peer information must be provided using the `-configfile`
 command line property.
 
-An in-depth look at configuring Tessera can be found on the [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/Configuration) and includes details on all aspects of configuration including:
+An in-depth look at configuring Tessera can be found on the [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/Configuration-overview) and includes details on all aspects of configuration including:
 * Cryptographic key config:
     * Using existing private/public key pairs with Tessera
     * How to use Tessera to generate new key pairs 
@@ -97,7 +99,7 @@ An in-depth look at configuring Tessera can be found on the [Tessera Wiki](https
     * Choosing a trust mode
  
 ### Migrating from Constellation to Tessera
-Tessera is the service used to provide Quorum with the ability to support private transactions, replacing Constellation.  If you have previously been using Constellation, utilities are provided within Tessera to enable the migration of Constellation configuration and datastores to Tessera compatible formats.  Details on how to use these utilities can be found in the [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/Migrating-from-Constellation-to-Tessera).
+Tessera is the service used to provide Quorum with the ability to support private transactions, replacing Constellation.  If you have previously been using Constellation, utilities are provided within Tessera to enable the migration of Constellation configuration and datastores to Tessera compatible formats.  Details on how to use these utilities can be found in the [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/Migrating-from-Constellation).
 
 ## Further reading
 * The [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/) provides additional information on how Tessera works, migrating from Constellation to Tessera, configuration details, and more.

@@ -2,7 +2,8 @@ package com.quorum.tessera.config.cli.parsers;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
-import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.util.ConfigFileStore;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import org.apache.commons.cli.CommandLine;
 
@@ -21,9 +22,9 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 public class ConfigurationParser implements Parser<Config> {
 
-    private List<KeyData> newlyGeneratedKeys = Collections.emptyList();
+    private List<ConfigKeyPair> newlyGeneratedKeys = Collections.emptyList();
 
-    public ConfigurationParser withNewKeys(final List<KeyData> newKeys) {
+    public ConfigurationParser withNewKeys(final List<ConfigKeyPair> newKeys) {
         this.newlyGeneratedKeys = Objects.requireNonNull(newKeys);
         return this;
     }
@@ -35,7 +36,9 @@ public class ConfigurationParser implements Parser<Config> {
 
         Config config = null;
 
-        if (commandLine.hasOption("configfile")) {
+        final boolean isGeneratingWithKeyVault = commandLine.hasOption("keygen") && commandLine.hasOption("keygenvaulturl");
+
+        if (commandLine.hasOption("configfile") && !isGeneratingWithKeyVault) {
             final Path path = Paths.get(commandLine.getOptionValue("configfile"));
 
             if (!Files.exists(path)) {
@@ -50,6 +53,8 @@ public class ConfigurationParser implements Parser<Config> {
                 //we have generated new keys, so we need to output the new configuration
                 output(commandLine, config);
             }
+            
+            ConfigFileStore.create(path);
 
         }
 
