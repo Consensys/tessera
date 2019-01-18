@@ -50,7 +50,7 @@ public class HashicorpStepDefs implements En {
 
         Before(() -> {
             //only needed when running outside of maven build process
-//            System.setProperty("application.jar", "/Users/yourname/jpmc-tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
+//            System.setProperty("application.jar", "/Users/yourname/jpmc-tessera/tessera-app/target/tessera-app-0.9-SNAPSHOT-app.jar");
 
             tempTesseraConfig = null;
         });
@@ -323,11 +323,7 @@ public class HashicorpStepDefs implements En {
         });
 
         Given("^the configfile contains the correct vault configuration(| and custom approle configuration)", (String isCustomApprole) -> {
-            if(isCustomApprole.isEmpty()) {
-                createTempTesseraConfig();
-            } else {
-                createTempTesseraConfigWithApprole("different-approle");
-            }
+            createTempTesseraConfig();
 
             final Config config = JaxbUtil.unmarshal(Files.newInputStream(tempTesseraConfig), Config.class);
 
@@ -467,92 +463,6 @@ public class HashicorpStepDefs implements En {
             });
 
             startUpLatch.await(30, TimeUnit.SECONDS);
-        });
-
-        When("Tessera keygen is used with the Hashicorp options provided and {string} auth method at path {string}", (String authMethod, String approlePath) -> {
-            final String jarfile = System.getProperty("application.jar");
-
-            final URL logbackConfigFile = ProcessManager.class.getResource("/logback-node.xml");
-
-            List<String> args = new ArrayList<>();
-            args.addAll(Arrays.asList(
-                "java",
-                "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
-                "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
-                "-Ddebug=true",
-                "-jar",
-                jarfile,
-                "-keygen",
-                "-keygenvaulturl",
-                "https://localhost:8200",
-                "-keygenvaulttype",
-                "hashicorp",
-                "-filename",
-                "tessera/nodeA,tessera/nodeB",
-                "-keygenvaultsecretengine",
-                "secret",
-                "-keygenvaultkeystore",
-                getClientTlsKeystore(),
-                "-keygenvaulttruststore",
-                getClientTlsTruststore()
-            ));
-
-            if("approle".equals(authMethod) && !Objects.isNull(approlePath) && !approlePath.isEmpty()) {
-                args.add("-keygenvaultapprole");
-                args.add(approlePath);
-            }
-
-
-            System.out.println(String.join(" ", args));
-
-            ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);
-
-            Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
-
-            tesseraEnvironment.put("HASHICORP_CLIENT_KEYSTORE_PWD", "testtest");
-            tesseraEnvironment.put("HASHICORP_CLIENT_TRUSTSTORE_PWD", "testtest");
-
-            if("token".equals(authMethod)) {
-
-                Objects.requireNonNull(vaultToken);
-                tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
-
-            } else if("approle".equals(authMethod)) {
-
-                Objects.requireNonNull(approleRoleId);
-                Objects.requireNonNull(approleSecretId);
-                tesseraEnvironment.put("HASHICORP_ROLE_ID", approleRoleId);
-                tesseraEnvironment.put("HASHICORP_SECRET_ID", approleSecretId);
-                tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
-
-            } else {
-                throw new IllegalArgumentException(authMethod + "is an unsupported auth type. Change your Cucumber feature to use \"token\" or \"approle\"");
-            }
-
-            tesseraProcess.set(
-                tesseraProcessBuilder.redirectErrorStream(true)
-                    .start()
-            );
-
-            executorService.submit(() -> {
-
-                try(BufferedReader reader = Stream.of(tesseraProcess.get().getInputStream())
-                    .map(InputStreamReader::new)
-                    .map(BufferedReader::new)
-                    .findAny().get()) {
-
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-                    }
-
-                } catch (IOException ex) {
-                    throw new UncheckedIOException(ex);
-                }
-            });
-
-            CountDownLatch startUpLatch = new CountDownLatch(1);
-            startUpLatch.await(10, TimeUnit.SECONDS);
         });
 
         When("^Tessera keygen is run with the following CLI args and (token|approle) environment variables*$", (String authMethod, String cliArgs) -> {
