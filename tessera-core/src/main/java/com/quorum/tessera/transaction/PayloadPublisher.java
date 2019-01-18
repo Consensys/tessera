@@ -1,6 +1,6 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.encryption.EncodedPayloadWithRecipients;
+import com.quorum.tessera.enclave.EncodedPayloadWithRecipients;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 
