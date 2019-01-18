@@ -1,10 +1,10 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayloadWithRecipients;
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.enclave.RawTransaction;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
 
 import javax.json.JsonArray;
@@ -77,7 +77,7 @@ public class EnclaveClient implements Enclave {
     }
 
     @Override
-    public EncodedPayloadWithRecipients encryptPayload(byte[] message, PublicKey senderPublicKey, List<PublicKey> recipientPublicKeys) {
+    public EncodedPayload encryptPayload(byte[] message, PublicKey senderPublicKey, List<PublicKey> recipientPublicKeys) {
 
         EnclavePayload enclavePayload = new EnclavePayload();
         enclavePayload.setData(message);
@@ -93,11 +93,11 @@ public class EnclaveClient implements Enclave {
 
         byte[] result = response.readEntity(byte[].class);
 
-        return PayloadEncoder.create().decodePayloadWithRecipients(result);
+        return PayloadEncoder.create().decode(result);
     }
 
     @Override
-    public EncodedPayloadWithRecipients encryptPayload(RawTransaction rawTransaction, List<PublicKey> recipientPublicKeys) {
+    public EncodedPayload encryptPayload(RawTransaction rawTransaction, List<PublicKey> recipientPublicKeys) {
 
         EnclaveRawPayload enclaveRawPayload = new EnclaveRawPayload();
         enclaveRawPayload.setNonce(rawTransaction.getNonce().getNonceBytes());
@@ -119,7 +119,7 @@ public class EnclaveClient implements Enclave {
 
         byte[] body = response.readEntity(byte[].class);
 
-        return PayloadEncoder.create().decodePayloadWithRecipients(body);
+        return PayloadEncoder.create().decode(body);
 
     }
 
@@ -146,11 +146,11 @@ public class EnclaveClient implements Enclave {
     }
 
     @Override
-    public byte[] unencryptTransaction(EncodedPayloadWithRecipients payloadWithRecipients, PublicKey providedKey) {
+    public byte[] unencryptTransaction(EncodedPayload payload, PublicKey providedKey) {
 
         EnclaveUnencryptPayload dto = new EnclaveUnencryptPayload();
 
-        byte[] body = PayloadEncoder.create().encode(payloadWithRecipients);
+        byte[] body = PayloadEncoder.create().encode(payload);
 
         dto.setData(body);
         dto.setProvidedKey(providedKey.getKeyBytes());
