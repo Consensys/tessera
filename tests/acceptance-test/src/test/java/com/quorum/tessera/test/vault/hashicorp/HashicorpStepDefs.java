@@ -189,12 +189,16 @@ public class HashicorpStepDefs implements En {
             assertThat(upgradeSecretUrlConnection.getResponseCode()).isEqualTo(HttpsURLConnection.HTTP_OK);
         });
 
-        Given("^the AppRole auth method is enabled at the (?:default|custom (.+)) path$", (String approlePath) -> {
+        Given("^the AppRole auth method is enabled at (?:the|a) (default|custom) path$", (String approleType) -> {
 
             setKeyStoreProperties();
 
-            if(approlePath == null) {
+            String approlePath;
+
+            if("default".equals(approleType)) {
                 approlePath = "approle";
+            } else {
+                approlePath = "different-approle";
             }
 
             //Enable approle authentication
@@ -318,8 +322,12 @@ public class HashicorpStepDefs implements En {
             assertThat(keyDataObject.getString("privateKey")).isEqualTo("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
         });
 
-        Given("the configfile contains the correct vault configuration", () -> {
-            createTempTesseraConfig();
+        Given("^the configfile contains the correct vault configuration(| and custom approle configuration)", (String isCustomApprole) -> {
+            if(isCustomApprole.isEmpty()) {
+                createTempTesseraConfig();
+            } else {
+                createTempTesseraConfigWithApprole("different-approle");
+            }
 
             final Config config = JaxbUtil.unmarshal(Files.newInputStream(tempTesseraConfig), Config.class);
 
@@ -327,6 +335,10 @@ public class HashicorpStepDefs implements En {
             expectedVaultConfig.setUrl("https://localhost:8200");
             expectedVaultConfig.setTlsKeyStorePath(Paths.get(getClientTlsKeystore()));
             expectedVaultConfig.setTlsTrustStorePath(Paths.get(getClientTlsTruststore()));
+
+            if(!isCustomApprole.isEmpty()) {
+                expectedVaultConfig.setApprolePath("different-approle");
+            }
 
             assertThat(config.getKeys().getHashicorpKeyVaultConfig()).isEqualToComparingFieldByField(expectedVaultConfig);
         });
