@@ -189,9 +189,13 @@ public class HashicorpStepDefs implements En {
             assertThat(upgradeSecretUrlConnection.getResponseCode()).isEqualTo(HttpsURLConnection.HTTP_OK);
         });
 
-        Given("the AppRole auth method is enabled at path {string}", (String approlePath) -> {
+        Given("^the AppRole auth method is enabled at the (?:default|custom (.+)) path$", (String approlePath) -> {
 
             setKeyStoreProperties();
+
+            if(approlePath == null) {
+                approlePath = "approle";
+            }
 
             //Enable approle authentication
             final URL enableApproleUrl = UriBuilder.fromUri("https://localhost:8200").path("v1/sys/auth/" + approlePath).build().toURL();
@@ -338,36 +342,47 @@ public class HashicorpStepDefs implements En {
             assertThat(config.getKeys().getKeyData().get(0)).isEqualToComparingFieldByField(expectedKeyData);
         });
 
-        When("Tessera is started", () -> {
-            Objects.requireNonNull(vaultToken);
-
+        When("^Tessera is started with the following CLI args and (token|approle) environment variables*$", (String authMethod, String cliArgs) -> {
             final String jarfile = System.getProperty("application.jar");
 
+            final URL logbackConfigFile = ProcessManager.class.getResource("/logback-node.xml");
             Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "pidA.pid");
 
-            final URL logbackConfigFile = ProcessManager.class.getResource("/logback-node.xml");
+            String formattedArgs = String.format(cliArgs, tempTesseraConfig.toString(), pid.toAbsolutePath().toString());
 
-            List<String> args = Arrays.asList(
-                "java",
-                "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
-                "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
-                "-Ddebug=true",
-                "-jar",
-                jarfile,
-                "-configfile",
-                tempTesseraConfig.toString(),
-                "-pidfile",
-                pid.toAbsolutePath().toString(),
-                "-jdbc.autoCreateTables", "true"
+            List<String> args = new ArrayList<>();
+            args.addAll(
+                Arrays.asList(
+                    "java",
+                    "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
+                    "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
+                    "-Ddebug=true",
+                    "-jar",
+                    jarfile
+                )
             );
+            args.addAll(Arrays.asList(formattedArgs.split(" ")));
             System.out.println(String.join(" ", args));
 
             ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);
 
             Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
-            tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
             tesseraEnvironment.put("HASHICORP_CLIENT_KEYSTORE_PWD", "testtest");
             tesseraEnvironment.put("HASHICORP_CLIENT_TRUSTSTORE_PWD", "testtest");
+
+            if("token".equals(authMethod)) {
+
+                Objects.requireNonNull(vaultToken);
+                tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
+
+            } else {
+
+                Objects.requireNonNull(approleRoleId);
+                Objects.requireNonNull(approleSecretId);
+                tesseraEnvironment.put("HASHICORP_ROLE_ID", approleRoleId);
+                tesseraEnvironment.put("HASHICORP_SECRET_ID", approleSecretId);
+
+            }
 
             try {
                 tesseraProcess.set(
@@ -528,6 +543,76 @@ public class HashicorpStepDefs implements En {
             startUpLatch.await(10, TimeUnit.SECONDS);
         });
 
+        When("^Tessera keygen is run with the following CLI args and (token|approle) environment variables*$", (String authMethod, String cliArgs) -> {
+            final String jarfile = System.getProperty("application.jar");
+            final URL logbackConfigFile = ProcessManager.class.getResource("/logback-node.xml");
+
+            String formattedArgs = String.format(cliArgs, getClientTlsKeystore(), getClientTlsTruststore());
+
+            List<String> args = new ArrayList<>();
+            args.addAll(
+                Arrays.asList(
+                    "java",
+                    "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
+                    "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
+                    "-Ddebug=true",
+                    "-jar",
+                    jarfile
+                )
+            );
+            args.addAll(Arrays.asList(formattedArgs.split(" ")));
+            System.out.println(String.join(" ", args));
+
+            ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);
+
+            Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
+            tesseraEnvironment.put("HASHICORP_CLIENT_KEYSTORE_PWD", "testtest");
+            tesseraEnvironment.put("HASHICORP_CLIENT_TRUSTSTORE_PWD", "testtest");
+
+            if("token".equals(authMethod)) {
+
+                Objects.requireNonNull(vaultToken);
+                tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
+
+            } else {
+
+                Objects.requireNonNull(approleRoleId);
+                Objects.requireNonNull(approleSecretId);
+                tesseraEnvironment.put("HASHICORP_ROLE_ID", approleRoleId);
+                tesseraEnvironment.put("HASHICORP_SECRET_ID", approleSecretId);
+
+            }
+
+            try {
+                tesseraProcess.set(
+                    tesseraProcessBuilder.redirectErrorStream(true)
+                        .start()
+                );
+            } catch(NullPointerException ex) {
+                throw new NullPointerException("Check that application.jar property has been set");
+            }
+
+            executorService.submit(() -> {
+
+                try(BufferedReader reader = Stream.of(tesseraProcess.get().getInputStream())
+                    .map(InputStreamReader::new)
+                    .map(BufferedReader::new)
+                    .findAny().get()) {
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println(line);
+                    }
+
+                } catch (IOException ex) {
+                    throw new UncheckedIOException(ex);
+                }
+            });
+
+            CountDownLatch startUpLatch = new CountDownLatch(1);
+            startUpLatch.await(10, TimeUnit.SECONDS);
+        });
+
         Then("Tessera will retrieve the key pair from the vault", () -> {
             final URL partyInfoUrl = UriBuilder.fromUri("http://localhost")
                 .port(8080)
@@ -550,7 +635,7 @@ public class HashicorpStepDefs implements En {
             assertThat(partyInfoObject.getJsonArray("keys").getJsonObject(0).getString("key")).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
         });
 
-        Then("a new key pair {string} will be added to the vault", (String secretName) -> {
+        Then("^a new key pair (.+) will have been added to the vault$", (String secretName) -> {
             Objects.requireNonNull(vaultToken);
 
             setKeyStoreProperties();
