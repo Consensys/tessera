@@ -2,7 +2,7 @@ package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendRequestType;
-import com.quorum.tessera.enclave.EncodedPayloadWithRecipients;
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PayloadEncoderImpl;
 import org.junit.Before;
@@ -68,9 +68,9 @@ public class ResendIndividualIT {
         assertThat(response.getStatus()).isEqualTo(200);
 
         final byte[] returnValue = response.readEntity(byte[].class);
-        final EncodedPayloadWithRecipients payloadWithRecipients = ENCODER.decodePayloadWithRecipients(returnValue);
+        final EncodedPayload payload = ENCODER.decode(returnValue);
 
-        assertThat(payloadWithRecipients).isNotNull();
+        assertThat(payload).isNotNull();
     }
 
     @Test

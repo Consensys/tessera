@@ -3,7 +3,6 @@ package com.quorum.tessera.transaction;
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.EncodedPayloadWithRecipients;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.enclave.model.MessageHashFactory;
@@ -93,24 +92,20 @@ public class TransactionManagerImpl implements TransactionManager {
         
         recipientList.addAll(enclave.getForwardingKeys());
 
-        final byte[] payload = sendRequest.getPayload();
+        final byte[] raw = sendRequest.getPayload();
 
-        EncodedPayloadWithRecipients encodedPayloadWithRecipients
-                = enclave.encryptPayload(payload, senderPublicKey, recipientList);
+        final EncodedPayload payload = enclave.encryptPayload(raw, senderPublicKey, recipientList);
 
-        final MessageHash transactionHash = Optional.of(encodedPayloadWithRecipients)
-                .map(EncodedPayloadWithRecipients::getEncodedPayload)
+        final MessageHash transactionHash = Optional.of(payload)
                 .map(EncodedPayload::getCipherText)
                 .map(messageHashFactory::createFromCipherText).get();
 
-        final EncryptedTransaction newTransaction = new EncryptedTransaction(
-                transactionHash,
-                this.payloadEncoder.encode(encodedPayloadWithRecipients)
-        );
+        final EncryptedTransaction newTransaction
+            = new EncryptedTransaction(transactionHash, this.payloadEncoder.encode(payload));
 
         this.encryptedTransactionDAO.save(newTransaction);
 
-        recipientList.forEach(recipient -> payloadPublisher.publishPayload(encodedPayloadWithRecipients, recipient));
+        recipientList.forEach(recipient -> payloadPublisher.publishPayload(payload, recipient));
 
         final byte[] key = transactionHash.getHashBytes();
 
@@ -139,18 +134,16 @@ public class TransactionManagerImpl implements TransactionManager {
         EncryptedRawTransaction encryptedRawTransaction = encryptedRawTransactionDAO.retrieveByHash(messageHash)
             .orElseThrow(() -> new TransactionNotFoundException("Raw Transaction with hash " + messageHash + " was not found"));
 
-        EncodedPayloadWithRecipients encodedPayloadWithRecipients
+        final EncodedPayload payload
             = enclave.encryptPayload(encryptedRawTransaction.toRawTransaction(), recipientList);
 
 
-        final EncryptedTransaction newTransaction = new EncryptedTransaction(
-            messageHash,
-            this.payloadEncoder.encode(encodedPayloadWithRecipients)
-        );
+        final EncryptedTransaction newTransaction
+            = new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
 
         this.encryptedTransactionDAO.save(newTransaction);
 
-        recipientList.forEach(recipient -> payloadPublisher.publishPayload(encodedPayloadWithRecipients, recipient));
+        recipientList.forEach(recipient -> payloadPublisher.publishPayload(payload, recipient));
 
         final byte[] key = messageHash.getHashBytes();
 
@@ -166,11 +159,11 @@ public class TransactionManagerImpl implements TransactionManager {
         PublicKey recipientPublicKey = PublicKey.from(publicKeyData);
         if (request.getType() == ResendRequestType.ALL) {
 
-            final Collection<EncodedPayloadWithRecipients> payloads = encryptedTransactionDAO
+            final Collection<EncodedPayload> payloads = encryptedTransactionDAO
                     .retrieveAllTransactions()
                     .stream()
                     .map(EncryptedTransaction::getEncodedPayload)
-                    .map(payloadEncoder::decodePayloadWithRecipients)
+                    .map(payloadEncoder::decode)
                     .filter(payload -> payload.getRecipientKeys().contains(recipientPublicKey))
                     .collect(toList());
 
@@ -188,11 +181,9 @@ public class TransactionManagerImpl implements TransactionManager {
             EncryptedTransaction encryptedTransaction = encryptedTransactionDAO.retrieveByHash(messageHash)
                     .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + messageHash + " was not found"));
 
-            EncodedPayloadWithRecipients encodedPayloadWithRecipients
-                    = payloadEncoder.decodePayloadWithRecipients(encryptedTransaction.getEncodedPayload());
+            final EncodedPayload payload = payloadEncoder.decode(encryptedTransaction.getEncodedPayload());
 
-            final EncodedPayloadWithRecipients formattedPayload
-                = payloadEncoder.forRecipient(encodedPayloadWithRecipients, recipientPublicKey);
+            final EncodedPayload formattedPayload = payloadEncoder.forRecipient(payload, recipientPublicKey);
 
             final byte[] encoded = payloadEncoder.encode(formattedPayload);
 
@@ -201,21 +192,15 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    public MessageHash storePayload(byte[] payload) {
+    public MessageHash storePayload(byte[] input) {
 
-        final EncodedPayloadWithRecipients encodedPayloadWithRecipients = payloadEncoder.decodePayloadWithRecipients(payload);
+        final EncodedPayload payload = payloadEncoder.decode(input);
 
-        final MessageHash transactionHash = Optional.of(encodedPayloadWithRecipients)
-                .map(EncodedPayloadWithRecipients::getEncodedPayload)
+        final MessageHash transactionHash = Optional.of(payload)
                 .map(EncodedPayload::getCipherText)
                 .map(messageHashFactory::createFromCipherText).get();
 
-        
-        byte[] encodedPayloadWithRecipientsBytes = this.payloadEncoder.encode(encodedPayloadWithRecipients);
-        final EncryptedTransaction newTransaction = new EncryptedTransaction(
-                transactionHash,
-                encodedPayloadWithRecipientsBytes
-        );
+        final EncryptedTransaction newTransaction = new EncryptedTransaction(transactionHash, input);
 
         this.encryptedTransactionDAO.save(newTransaction);
 
@@ -250,26 +235,26 @@ public class TransactionManagerImpl implements TransactionManager {
                 .retrieveByHash(hash)
                 .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
 
-        final EncodedPayloadWithRecipients payloadWithRecipients = Optional.of(encryptedTransaction)
+        final EncodedPayload payload = Optional.of(encryptedTransaction)
                 .map(EncryptedTransaction::getEncodedPayload)
-                .map(payloadEncoder::decodePayloadWithRecipients)
+                .map(payloadEncoder::decode)
                 .orElseThrow(() -> new IllegalStateException("Unable to decode previosuly encoded payload"));
 
         PublicKey recipientKey = to.map(PublicKey::from)
-            .orElse(searchForRecipientKey(payloadWithRecipients)
+            .orElse(searchForRecipientKey(payload)
                 .orElseThrow(() -> new NoRecipientKeyFoundException("No suitable recipient keys found to decrypt payload for : " + hash))
             );
 
-        byte[] payload = enclave.unencryptTransaction(payloadWithRecipients, recipientKey);
+        byte[] response = enclave.unencryptTransaction(payload, recipientKey);
 
-        return new ReceiveResponse(payload);
+        return new ReceiveResponse(response);
 
     }
 
-    private Optional<PublicKey> searchForRecipientKey(final EncodedPayloadWithRecipients payloadWithRecipients) {
+    private Optional<PublicKey> searchForRecipientKey(final EncodedPayload payload) {
         for (final PublicKey potentialMatchingKey : enclave.getPublicKeys()) {
             try {
-                enclave.unencryptTransaction(payloadWithRecipients, potentialMatchingKey);
+                enclave.unencryptTransaction(payload, potentialMatchingKey);
                 return Optional.of(potentialMatchingKey);
             } catch (IndexOutOfBoundsException | NaclException ex) {
                 LOGGER.debug("Attempted payload decryption using wrong key, discarding.");
