@@ -10,7 +10,7 @@ import java.util.Objects;
  * The JPA entity that contains the transaction information
  * A simple key/value pair
  *
- * The key is the transaction hash, and the value an a fully encoded {@link EncodedPayloadWithRecipients}
+ * The key is the transaction hash, and the value an a fully encoded {@link com.quorum.tessera.enclave.EncodedPayload}
  */
 @Entity
 @Table(name = "ENCRYPTED_TRANSACTION")

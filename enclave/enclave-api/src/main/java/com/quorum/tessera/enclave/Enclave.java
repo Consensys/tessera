@@ -14,17 +14,14 @@ public interface Enclave {
     Set<PublicKey> getForwardingKeys();
 
     Set<PublicKey> getPublicKeys();
+    
+    EncodedPayload encryptPayload(byte[] message, PublicKey senderPublicKey, List<PublicKey> recipientPublicKeys);
 
-    EncodedPayloadWithRecipients encryptPayload(byte[] message,
-                                                PublicKey senderPublicKey,
-                                                List<PublicKey> recipientPublicKeys);
-
-    EncodedPayloadWithRecipients encryptPayload(RawTransaction rawTransaction,
-                                                List<PublicKey> recipientPublicKeys);
+    EncodedPayload encryptPayload(RawTransaction rawTransaction, List<PublicKey> recipientPublicKeys);
 
     RawTransaction encryptRawPayload(byte[] message, PublicKey sender);
 
-    byte[] unencryptTransaction(EncodedPayloadWithRecipients payloadWithRecipients, PublicKey providedKey);
+    byte[] unencryptTransaction(EncodedPayload payload, PublicKey providedKey);
 
     /**
      * Creates a new recipient box for the payload, for which we must be the originator

@@ -26,9 +26,10 @@ public class EnclaveTest {
 
     @Before
     public void onSetUp() {
-        nacl = mock(NaclFacade.class);
-        keyManager = mock(KeyManager.class);
-        enclave = new EnclaveImpl(nacl, keyManager);
+        this.nacl = mock(NaclFacade.class);
+        this.keyManager = mock(KeyManager.class);
+
+        this.enclave = new EnclaveImpl(nacl, keyManager);
     }
 
     @After
@@ -72,11 +73,10 @@ public class EnclaveTest {
 
         Nonce recipientNonce = mock(Nonce.class);
 
-        EncodedPayload encodedPayload
-                = new EncodedPayload(senderKey, cipherText, cipherTextNonce, Arrays.asList(recipientBox), recipientNonce);
-
-        EncodedPayloadWithRecipients payloadWithRecipients
-                = new EncodedPayloadWithRecipients(encodedPayload, Arrays.asList(recipientKey));
+        EncodedPayload payload = new EncodedPayload(
+            senderKey, cipherText, cipherTextNonce,
+            singletonList(recipientBox), recipientNonce, singletonList(recipientKey)
+        );
 
         when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(senderKey));
 
@@ -94,7 +94,7 @@ public class EnclaveTest {
 
         when(nacl.openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(MasterKey.class))).thenReturn(expectedOutcome);
 
-        byte[] result = enclave.unencryptTransaction(payloadWithRecipients, providedSenderKey);
+        byte[] result = enclave.unencryptTransaction(payload, providedSenderKey);
 
         assertThat(result).isNotNull().isSameAs(expectedOutcome);
 
@@ -122,11 +122,10 @@ public class EnclaveTest {
 
         Nonce recipientNonce = mock(Nonce.class);
 
-        EncodedPayload encodedPayload
-                = new EncodedPayload(senderKey, cipherText, cipherTextNonce, Arrays.asList(recipientBox), recipientNonce);
-
-        EncodedPayloadWithRecipients payloadWithRecipients
-                = new EncodedPayloadWithRecipients(encodedPayload, Arrays.asList(recipientKey));
+        EncodedPayload payload = new EncodedPayload(
+            senderKey, cipherText, cipherTextNonce,
+            singletonList(recipientBox), recipientNonce, singletonList(recipientKey)
+        );
 
         when(keyManager.getPublicKeys()).thenReturn(Collections.emptySet());
 
@@ -144,7 +143,7 @@ public class EnclaveTest {
 
         when(nacl.openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(MasterKey.class))).thenReturn(expectedOutcome);
 
-        byte[] result = enclave.unencryptTransaction(payloadWithRecipients, providedSenderKey);
+        byte[] result = enclave.unencryptTransaction(payload, providedSenderKey);
 
         assertThat(result).isNotNull().isSameAs(expectedOutcome);
 
@@ -184,14 +183,14 @@ public class EnclaveTest {
         byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
         when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey)).thenReturn(encryptedMasterKeys);
 
-        EncodedPayloadWithRecipients result = enclave.encryptPayload(message, senderPublicKey, Arrays.asList(recipientPublicKey));
+        EncodedPayload result = enclave.encryptPayload(message, senderPublicKey, Arrays.asList(recipientPublicKey));
 
         assertThat(result).isNotNull();
         assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
-        assertThat(result.getEncodedPayload().getCipherText()).isEqualTo(cipherText);
-        assertThat(result.getEncodedPayload().getCipherTextNonce()).isEqualTo(cipherNonce);
-        assertThat(result.getEncodedPayload().getSenderKey()).isEqualTo(senderPublicKey);
-        assertThat(result.getEncodedPayload().getRecipientBoxes()).containsExactly(encryptedMasterKeys);
+        assertThat(result.getCipherText()).isEqualTo(cipherText);
+        assertThat(result.getCipherTextNonce()).isEqualTo(cipherNonce);
+        assertThat(result.getSenderKey()).isEqualTo(senderPublicKey);
+        assertThat(result.getRecipientBoxes()).containsExactly(encryptedMasterKeys);
 
         verify(nacl).createMasterKey();
         verify(nacl, times(2)).randomNonce();
@@ -237,14 +236,14 @@ public class EnclaveTest {
         byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
         when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey)).thenReturn(encryptedMasterKeys);
 
-        EncodedPayloadWithRecipients result = enclave.encryptPayload(rawTransaction, Arrays.asList(recipientPublicKey));
+        EncodedPayload result = enclave.encryptPayload(rawTransaction, Arrays.asList(recipientPublicKey));
 
         assertThat(result).isNotNull();
         assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
-        assertThat(result.getEncodedPayload().getCipherText()).isEqualTo(cipherText);
-        assertThat(result.getEncodedPayload().getCipherTextNonce()).isEqualTo(cipherNonce);
-        assertThat(result.getEncodedPayload().getSenderKey()).isEqualTo(senderPublicKey);
-        assertThat(result.getEncodedPayload().getRecipientBoxes()).containsExactly(encryptedMasterKeys);
+        assertThat(result.getCipherText()).isEqualTo(cipherText);
+        assertThat(result.getCipherTextNonce()).isEqualTo(cipherNonce);
+        assertThat(result.getSenderKey()).isEqualTo(senderPublicKey);
+        assertThat(result.getRecipientBoxes()).containsExactly(encryptedMasterKeys);
 
         verify(nacl).randomNonce();
         verify(nacl).openAfterPrecomputation(encryptedKeyBytes, cipherNonce, sharedKeyForSender);
