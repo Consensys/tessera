@@ -213,8 +213,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final MessageHash transactionHash = Optional.of(payload)
             .map(EncodedPayload::getCipherText)
-            .map(messageHashFactory::createFromCipherText)
-            .get();
+            .map(messageHashFactory::createFromCipherText).get();
 
         final PublicKey sender = payload.getSenderKey();
         if (enclave.getPublicKeys().contains(sender)) {
