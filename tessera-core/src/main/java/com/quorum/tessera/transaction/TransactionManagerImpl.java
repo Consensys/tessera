@@ -143,8 +143,10 @@ public class TransactionManagerImpl implements TransactionManager {
 
         this.encryptedTransactionDAO.save(newTransaction);
 
-        //TODO
-        recipientList.forEach(recipient -> payloadPublisher.publishPayload(payload, recipient));
+        recipientList.forEach(recipient -> {
+            final EncodedPayload toPublish = payloadEncoder.forRecipient(payload, recipient);
+            payloadPublisher.publishPayload(toPublish, recipient);
+        });
 
         final byte[] key = messageHash.getHashBytes();
 
