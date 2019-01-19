@@ -301,7 +301,8 @@ public class EnclaveTest {
     public void createNewRecipientBoxWithNoRecipientList() {
 
         final PublicKey publicKey = PublicKey.from(new byte[0]);
-        final EncodedPayloadWithRecipients payload = new EncodedPayloadWithRecipients(null, emptyList());
+        final EncodedPayload payload = mock(EncodedPayload.class);
+        when(payload.getRecipientKeys()).thenReturn(emptyList());
 
         final Throwable throwable = catchThrowable(() -> enclave.createNewRecipientBox(payload, publicKey));
 
@@ -312,9 +313,8 @@ public class EnclaveTest {
     public void createNewRecipientBoxWithExistingNoRecipientBoxes() {
 
         final PublicKey publicKey = PublicKey.from(new byte[0]);
-        final EncodedPayloadWithRecipients payload = new EncodedPayloadWithRecipients(
-            new EncodedPayload(null, null, null, emptyList(), null), singletonList(publicKey)
-        );
+        final EncodedPayload payload
+            = new EncodedPayload(null, null, null, emptyList(), null, singletonList(publicKey));
 
         final Throwable throwable = catchThrowable(() -> enclave.createNewRecipientBox(payload, publicKey));
 
@@ -333,10 +333,8 @@ public class EnclaveTest {
         final byte[] openbox = "open".getBytes();
         final Nonce nonce = new Nonce("nonce".getBytes());
 
-        final EncodedPayloadWithRecipients payload = new EncodedPayloadWithRecipients(
-            new EncodedPayload(senderKey, null, null, singletonList(closedbox), nonce),
-            singletonList(publicKey)
-        );
+        final EncodedPayload payload
+            = new EncodedPayload(senderKey, null, null, singletonList(closedbox), nonce, singletonList(publicKey));
 
         when(nacl.computeSharedKey(publicKey, privateKey)).thenReturn(recipientSenderShared);
         when(nacl.computeSharedKey(senderKey, privateKey)).thenReturn(senderShared);

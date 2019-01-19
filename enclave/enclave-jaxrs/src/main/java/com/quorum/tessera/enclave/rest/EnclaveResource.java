@@ -157,11 +157,10 @@ public class EnclaveResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response createNewRecipientBox(EnclaveUnencryptPayload enclaveUnencryptPayload) {
 
-        EncodedPayloadWithRecipients payloadWithRecipients
-            = payloadEncoder.decodePayloadWithRecipients(enclaveUnencryptPayload.getData());
+        EncodedPayload payload = payloadEncoder.decode(enclaveUnencryptPayload.getData());
         PublicKey providedKey = PublicKey.from(enclaveUnencryptPayload.getProvidedKey());
 
-        byte[] response = enclave.createNewRecipientBox(payloadWithRecipients, providedKey);
+        byte[] response = enclave.createNewRecipientBox(payload, providedKey);
 
         final StreamingOutput streamingOutput = out -> out.write(response);
         return Response.ok(streamingOutput).build();

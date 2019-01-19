@@ -70,9 +70,9 @@ public class ResendIndividualIT {
         final byte[] returnValue = response.readEntity(byte[].class);
         final EncodedPayload payload = ENCODER.decode(returnValue);
 
-        assertThat(payloadWithRecipients).isNotNull();
-        assertThat(payloadWithRecipients.getRecipientKeys()).isEmpty();
-        assertThat(payloadWithRecipients.getEncodedPayload().getSenderKey().encodeToBase64()).isEqualTo(SENDER_KEY);
+        assertThat(payload).isNotNull();
+        assertThat(payload.getRecipientKeys()).isEmpty();
+        assertThat(payload.getSenderKey().encodeToBase64()).isEqualTo(SENDER_KEY);
     }
 
     @Test
@@ -91,11 +91,11 @@ public class ResendIndividualIT {
         assertThat(response.getStatus()).isEqualTo(200);
 
         final byte[] returnValue = response.readEntity(byte[].class);
-        final EncodedPayloadWithRecipients payloadWithRecipients = ENCODER.decodePayloadWithRecipients(returnValue);
+        final EncodedPayload payload = ENCODER.decode(returnValue);
 
-        assertThat(payloadWithRecipients).isNotNull();
-        assertThat(payloadWithRecipients.getRecipientKeys().get(0).encodeToBase64()).isEqualTo(RECIPIENT_KEY);
-        assertThat(payloadWithRecipients.getEncodedPayload().getSenderKey().encodeToBase64()).isEqualTo(SENDER_KEY);
+        assertThat(payload).isNotNull();
+        assertThat(payload.getRecipientKeys().get(0).encodeToBase64()).isEqualTo(RECIPIENT_KEY);
+        assertThat(payload.getSenderKey().encodeToBase64()).isEqualTo(SENDER_KEY);
     }
 
     @Test

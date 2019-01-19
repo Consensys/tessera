@@ -2,7 +2,7 @@ package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendRequestType;
-import com.quorum.tessera.enclave.EncodedPayloadWithRecipients;
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PayloadEncoderImpl;
 import com.quorum.tessera.test.RestPartyHelper;
@@ -163,10 +163,10 @@ public class ResendAllIT {
             try(ResultSet rs = statement.executeQuery()) {
                 assertThat(rs.next()).isTrue();
                 final byte[] output = rs.getBytes(1);
-                final EncodedPayloadWithRecipients payload = ENCODER.decodePayloadWithRecipients(output);
+                final EncodedPayload payload = ENCODER.decode(output);
                 assertThat(payload.getRecipientKeys()).hasSize(3);
-                assertThat(payload.getEncodedPayload().getSenderKey().encodeToBase64()).isEqualTo(PTY1_KEY);
-                assertThat(payload.getEncodedPayload().getRecipientBoxes()).hasSize(3);
+                assertThat(payload.getSenderKey().encodeToBase64()).isEqualTo(PTY1_KEY);
+                assertThat(payload.getRecipientBoxes()).hasSize(3);
             }
         }
 

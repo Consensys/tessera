@@ -1,11 +1,9 @@
-
 package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.encryption.PublicKey;
 
 import java.util.List;
 import java.util.Set;
-
 
 public interface Enclave {
 
@@ -14,7 +12,7 @@ public interface Enclave {
     Set<PublicKey> getForwardingKeys();
 
     Set<PublicKey> getPublicKeys();
-    
+
     EncodedPayload encryptPayload(byte[] message, PublicKey senderPublicKey, List<PublicKey> recipientPublicKeys);
 
     EncodedPayload encryptPayload(RawTransaction rawTransaction, List<PublicKey> recipientPublicKeys);
@@ -30,6 +28,6 @@ public interface Enclave {
      * @param payload      the payload to add a recipient to
      * @param recipientKey the new recipient key to add
      */
-    byte[] createNewRecipientBox(EncodedPayloadWithRecipients payload, PublicKey recipientKey);
+    byte[] createNewRecipientBox(EncodedPayload payload, PublicKey recipientKey);
 
 }

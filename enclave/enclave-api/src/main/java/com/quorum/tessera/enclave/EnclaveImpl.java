@@ -40,24 +40,19 @@ public class EnclaveImpl implements Enclave {
     }
 
     @Override
-    public byte[] createNewRecipientBox(EncodedPayloadWithRecipients payload, PublicKey publicKey) {
+    public byte[] createNewRecipientBox(final EncodedPayload payload, final PublicKey publicKey) {
 
-        if (payload.getRecipientKeys().isEmpty() || payload.getEncodedPayload().getRecipientBoxes().isEmpty()) {
+        if (payload.getRecipientKeys().isEmpty() || payload.getRecipientBoxes().isEmpty()) {
             throw new RuntimeException("No key or recipient-box to use");
         }
 
         final MasterKey master = this.getMasterKey(
-            payload.getRecipientKeys().get(0),
-            payload.getEncodedPayload().getSenderKey(),
-            payload.getEncodedPayload().getRecipientNonce(),
-            payload.getEncodedPayload().getRecipientBoxes().get(0)
+            payload.getRecipientKeys().get(0), payload.getSenderKey(),
+            payload.getRecipientNonce(), payload.getRecipientBoxes().get(0)
         );
 
         final List<byte[]> sealedMasterKeyList = this.buildRecipientMasterKeys(
-            payload.getEncodedPayload().getSenderKey(),
-            singletonList(publicKey),
-            payload.getEncodedPayload().getRecipientNonce(),
-            master
+            payload.getSenderKey(), singletonList(publicKey), payload.getRecipientNonce(), master
         );
 
         return sealedMasterKeyList.get(0);

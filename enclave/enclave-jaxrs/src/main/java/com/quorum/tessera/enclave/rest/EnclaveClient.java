@@ -164,7 +164,7 @@ public class EnclaveClient implements Enclave {
     }
 
     @Override
-    public byte[] createNewRecipientBox(final EncodedPayloadWithRecipients payload, final PublicKey recipientKey) {
+    public byte[] createNewRecipientBox(final EncodedPayload payload, final PublicKey recipientKey) {
 
         final byte[] body = PayloadEncoder.create().encode(payload);
 
