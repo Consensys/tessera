@@ -8,16 +8,14 @@ before_install:
     - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
     - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
 
-stages:
-  - name: deploy
-    if: branch = master
-#
-#jobs:
-#  include:
-#    - # require the branch name to be master (note for PRs this is the base branch name)
-#      if: branch = master
-#      jdk: 
-#        - oraclejdk8
+jobs:
+  include:
+    - # require the branch name to be master (note for PRs this is the base branch name)
+      if: branch = master
+      jdk:
+      - oraclejdk8
+      script: 
+      - mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
 
 jdk:
   - oraclejdk8
