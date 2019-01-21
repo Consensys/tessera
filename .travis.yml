@@ -15,7 +15,7 @@ jobs:
       jdk:
       - oraclejdk8
       script: 
-      - mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
+      - echo "DEPLOY STUFF"
 
 jdk:
   - oraclejdk8
@@ -46,7 +46,3 @@ before_cache:
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
-
-deploy:
-#- mvn clean deploy -Prelease -pl !ddls --settings .maven.xml -DskipTests=true
-- echo "deploy phase active"
