@@ -8,13 +8,6 @@ before_install:
     - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
     - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
 
-jobs:
-  include:
-    - # require the branch name to be master (note for PRs this is the base branch name)
-      if: branch = bogus_master
-      script: 
-      - mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
-
 jdk:
   - oraclejdk8
 #  - oraclejdk11
@@ -36,7 +29,10 @@ install:
 - export PATH=$PATH:$PWD && popd
 
 script:
-- mvn install -P acceptance-test,vault-acceptance-tests,jnacl
+  if: branch != master
+    - mvn install -P acceptance-test,vault-acceptance-tests,jnacl
+  if: branch = master
+    - mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
 
 before_cache:
 - mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
