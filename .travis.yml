@@ -8,20 +8,16 @@ before_install:
     - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
     - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
 
+jdk:
+ - oraclejdk8
+ #- oraclejdk11
+
 jobs:
  include:
  - stage: build
- jdk:
- - oraclejdk8
- script:
- - mvn install -P acceptance-test,vault-acceptance-tests,jnacl
- jdk:
- - oraclejdk11
  script:
  - mvn install -P acceptance-test,vault-acceptance-tests,jnacl
  - stage: deploy
- jdk:
- - oraclejdk8
  script:
  - mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
 
