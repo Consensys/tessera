@@ -29,10 +29,10 @@ install:
 - export PATH=$PATH:$PWD && popd
 
 jobs: 
-   include: 
+   include:
      script:
      - mvn install -P acceptance-test,vault-acceptance-tests,jnacl
-     if: not(branch = master) and type = pull_request 
+     if: not(branch = master) and type = pull_request
      script:
      - mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
      if: branch = master  and type = push
