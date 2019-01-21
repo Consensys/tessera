@@ -29,7 +29,6 @@ import java.util.stream.Stream;
  * @see {Base64Decoder}
  * @see {Enclave}
  */
-@Transactional
 public class TransactionManagerImpl implements TransactionManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class);
@@ -46,6 +45,8 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final Enclave enclave;
 
+    private final ResendManager resendManager;
+
     private final MessageHashFactory messageHashFactory = MessageHashFactory.create();
 
     public TransactionManagerImpl(
@@ -54,7 +55,8 @@ public class TransactionManagerImpl implements TransactionManager {
             EncryptedTransactionDAO encryptedTransactionDAO,
             PayloadPublisher payloadPublisher,
             Enclave enclave,
-            EncryptedRawTransactionDAO encryptedRawTransactionDAO) {
+            EncryptedRawTransactionDAO encryptedRawTransactionDAO,
+            ResendManager resendManager) {
 
         this.base64Decoder = Objects.requireNonNull(base64Decoder);
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
@@ -62,9 +64,11 @@ public class TransactionManagerImpl implements TransactionManager {
         this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
         this.enclave = Objects.requireNonNull(enclave);
         this.encryptedRawTransactionDAO = Objects.requireNonNull(encryptedRawTransactionDAO);
+        this.resendManager = Objects.requireNonNull(resendManager);
     }
 
     @Override
+    @Transactional
     public SendResponse send(SendRequest sendRequest) {
 
         final String sender = sendRequest.getFrom();
@@ -115,6 +119,7 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
+    @Transactional
     public SendResponse sendSignedTransaction(SendSignedRequest sendRequest) {
         final byte[][] recipients = Stream.of(sendRequest)
             .filter(sr -> Objects.nonNull(sr.getTo()))
@@ -156,6 +161,7 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
+    @Transactional
     public ResendResponse resend(ResendRequest request) {
 
         final byte[] publicKeyData = base64Decoder.decode(request.getPublicKey());
@@ -215,43 +221,9 @@ public class TransactionManagerImpl implements TransactionManager {
             .map(EncodedPayload::getCipherText)
             .map(messageHashFactory::createFromCipherText).get();
 
-        final PublicKey sender = payload.getSenderKey();
-        if (enclave.getPublicKeys().contains(sender)) {
+        if (enclave.getPublicKeys().contains(payload.getSenderKey())) {
 
-            //this is a tx which we created
-            final Optional<EncryptedTransaction> tx = this.encryptedTransactionDAO.retrieveByHash(transactionHash);
-
-            if (tx.isPresent()) {
-
-                //we just need to add the recipient
-                final byte[] encodedPayload = tx.get().getEncodedPayload();
-                final EncodedPayload existing = payloadEncoder.decode(encodedPayload);
-
-                if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
-                    //You could check that the provided information really does decrypt the payload
-                    //showing that this recipient really is one
-                    //but if someone sent us false information, then the "recipientBox" they sent us won't work for them
-                    //as much as it won't work for us, so it doesn't really matter
-                    existing.getRecipientKeys().add(payload.getRecipientKeys().get(0));
-                    existing.getRecipientBoxes().add(payload.getRecipientBoxes().get(0));
-
-                    tx.get().setEncodedPayload(payloadEncoder.encode(existing));
-
-                    this.encryptedTransactionDAO.save(tx.get());
-                }
-
-            } else {
-
-                //we need to recreate this
-                payload.getRecipientKeys().add(sender);
-                byte[] newbox = enclave.createNewRecipientBox(payload, sender);
-                payload.getRecipientBoxes().add(newbox);
-
-                final byte[] encoded = payloadEncoder.encode(payload);
-
-                this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, encoded));
-
-            }
+            this.resendManager.acceptOwnMessage(input);
 
         } else {
 
@@ -265,6 +237,7 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
+    @Transactional
     public void delete(DeleteRequest request) {
         final byte[] hashBytes = base64Decoder.decode(request.getKey());
         final MessageHash messageHash = new MessageHash(hashBytes);
@@ -275,6 +248,7 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
+    @Transactional
     public ReceiveResponse receive(ReceiveRequest request) {
         final byte[] key = base64Decoder.decode(request.getKey());
 

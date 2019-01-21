@@ -37,6 +37,8 @@ public class TransactionManagerTest {
     private EncryptedRawTransactionDAO encryptedRawTransactionDAO;
     
     private PayloadPublisher payloadPublisher;
+
+    private ResendManager resendManager;
     
     private Enclave enclave;
     
@@ -47,8 +49,10 @@ public class TransactionManagerTest {
         encryptedTransactionDAO = mock(EncryptedTransactionDAO.class);
         encryptedRawTransactionDAO = mock(EncryptedRawTransactionDAO.class);
         payloadPublisher = mock(PayloadPublisher.class);
+        this.resendManager = mock(ResendManager.class);
+
         transactionManager = new TransactionManagerImpl(Base64Decoder.create(), payloadEncoder, encryptedTransactionDAO,
-            payloadPublisher, enclave, encryptedRawTransactionDAO);
+            payloadPublisher, enclave, encryptedRawTransactionDAO, resendManager);
         
     }
     
@@ -179,105 +183,20 @@ public class TransactionManagerTest {
     }
     
     @Test
-    public void storePayloadAsSenderWhenTxIsntPresent() {
-
+    public void storePayloadWhenWeAreSender() {
         final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
 
         final byte[] input = "SOMEDATA".getBytes();
-        final EncodedPayload encodedPayload = new EncodedPayload(
-            senderKey, "CIPHERTEXT".getBytes(), null, new ArrayList<>(), null, new ArrayList<>()
-        );
-        final byte[] newEncryptedMasterKey = "newbox".getBytes();
+        final EncodedPayload encodedPayload
+            = new EncodedPayload(senderKey, "CIPHERTEXT".getBytes(), null, new ArrayList<>(), null, new ArrayList<>());
 
         when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
-        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.empty());
-        when(enclave.createNewRecipientBox(any(), any())).thenReturn(newEncryptedMasterKey);
-        when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
 
         transactionManager.storePayload(input);
 
-        assertThat(encodedPayload.getRecipientKeys()).containsExactly(senderKey);
-        assertThat(encodedPayload.getRecipientBoxes()).containsExactly(newEncryptedMasterKey);
-
-        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
-        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+        verify(resendManager).acceptOwnMessage(input);
         verify(payloadEncoder).decode(input);
-        verify(payloadEncoder).encode(any(EncodedPayload.class));
-        verify(enclave).getPublicKeys();
-        verify(enclave).createNewRecipientBox(any(), any());
-
-    }
-
-    @Test
-    public void storePayloadAsSenderWhenTxIsPresent() {
-
-        final byte[] incomingData = "incomingData".getBytes();
-
-        final byte[] storedData = "SOMEDATA".getBytes();
-        final EncryptedTransaction et = new EncryptedTransaction(null, storedData);
-        final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
-
-        final PublicKey recipientKey = PublicKey.from("RECIPIENT-KEY".getBytes());
-        final byte[] recipientBox = "BOX".getBytes();
-
-        final EncodedPayload encodedPayload = new EncodedPayload(
-            senderKey, "CIPHERTEXT".getBytes(), null, singletonList(recipientBox), null, singletonList(recipientKey)
-        );
-
-        final EncodedPayload existingEncodedPayload = new EncodedPayload(
-            senderKey, "CIPHERTEXT".getBytes(), null, new ArrayList<>(), null, new ArrayList<>()
-        );
-
-        when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
-        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
-        when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
-        when(payloadEncoder.decode(incomingData)).thenReturn(encodedPayload);
-        when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
-
-        transactionManager.storePayload(incomingData);
-
-        assertThat(encodedPayload.getRecipientKeys()).containsExactly(recipientKey);
-        assertThat(encodedPayload.getRecipientBoxes()).containsExactly(recipientBox);
-
-        verify(encryptedTransactionDAO).save(et);
-        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
-        verify(payloadEncoder).decode(storedData);
-        verify(payloadEncoder).decode(incomingData);
-        verify(payloadEncoder).encode(existingEncodedPayload);
-        verify(enclave).getPublicKeys();
-    }
-
-    @Test
-    public void storePayloadAsSenderWhenTxIsPresentAndRecipientExisted() {
-
-        final byte[] incomingData = "incomingData".getBytes();
-
-        final byte[] storedData = "SOMEDATA".getBytes();
-        final EncryptedTransaction et = new EncryptedTransaction(null, storedData);
-        final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
-
-        final PublicKey recipientKey = PublicKey.from("RECIPIENT-KEY".getBytes());
-        final byte[] recipientBox = "BOX".getBytes();
-
-        final EncodedPayload encodedPayload = new EncodedPayload(
-            senderKey, "CIPHERTEXT".getBytes(), null, singletonList(recipientBox), null, singletonList(recipientKey)
-        );
-
-        when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
-        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
-        when(payloadEncoder.decode(storedData)).thenReturn(encodedPayload);
-        when(payloadEncoder.decode(incomingData)).thenReturn(encodedPayload);
-        when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
-
-        transactionManager.storePayload(incomingData);
-
-        assertThat(encodedPayload.getRecipientKeys()).containsExactly(recipientKey);
-        assertThat(encodedPayload.getRecipientBoxes()).containsExactly(recipientBox);
-
-        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
-        verify(payloadEncoder).decode(storedData);
-        verify(payloadEncoder).decode(incomingData);
         verify(enclave).getPublicKeys();
     }
 
