@@ -30,7 +30,7 @@ install:
 
 script:
 #- mvn install -P acceptance-test,vault-acceptance-tests,jnacl
-- mvn clean deploy --settings .maven.xml -DskipTests=true -Prelease -pl shared
+- mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
 
 #before_cache:
 #- mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
