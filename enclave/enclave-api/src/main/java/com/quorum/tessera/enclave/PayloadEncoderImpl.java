@@ -14,16 +14,15 @@ import static java.util.stream.Collectors.toList;
 public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
 
     @Override
-    public byte[] encode(final EncodedPayloadWithRecipients outer) {
-        final EncodedPayload inner = outer.getEncodedPayload();
+    public byte[] encode(final EncodedPayload payload) {
 
-        final byte[] senderKey = encodeField(inner.getSenderKey().getKeyBytes());
-        final byte[] cipherText = encodeField(inner.getCipherText());
-        final byte[] nonce = encodeField(inner.getCipherTextNonce().getNonceBytes());
-        final byte[] recipientNonce = encodeField(inner.getRecipientNonce().getNonceBytes());
-        final byte[] recipients = encodeArray(inner.getRecipientBoxes());
+        final byte[] senderKey = encodeField(payload.getSenderKey().getKeyBytes());
+        final byte[] cipherText = encodeField(payload.getCipherText());
+        final byte[] nonce = encodeField(payload.getCipherTextNonce().getNonceBytes());
+        final byte[] recipientNonce = encodeField(payload.getRecipientNonce().getNonceBytes());
+        final byte[] recipients = encodeArray(payload.getRecipientBoxes());
         final byte[] recipientBytes
-            = encodeArray(outer.getRecipientKeys().stream().map(PublicKey::getKeyBytes).collect(toList()));
+            = encodeArray(payload.getRecipientKeys().stream().map(PublicKey::getKeyBytes).collect(toList()));
 
         return ByteBuffer
             .allocate(senderKey.length + cipherText.length + nonce.length + recipients.length + recipientNonce.length + recipientBytes.length)
@@ -37,7 +36,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
     }
 
     @Override
-    public EncodedPayloadWithRecipients decodePayloadWithRecipients(final byte[] input) {
+    public EncodedPayload decode(final byte[] input) {
         final ByteBuffer buffer = ByteBuffer.wrap(input);
 
         final long senderSize = buffer.getLong();
@@ -65,17 +64,12 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         final byte[] recipientNonce = new byte[Math.toIntExact(recipientNonceSize)];
         buffer.get(recipientNonce);
 
-        EncodedPayload payload = new EncodedPayload(
-            PublicKey.from(senderKey),
-            cipherText,
-            new Nonce(nonce),
-            recipientBoxes,
-            new Nonce(recipientNonce)
-        );
-
         //this means there are no recipients in the payload (which we receive when we are a participant)
         if (!buffer.hasRemaining()) {
-            return new EncodedPayloadWithRecipients(payload, emptyList());
+            return new EncodedPayload(
+                PublicKey.from(senderKey), cipherText, new Nonce(nonce),
+                recipientBoxes, new Nonce(recipientNonce), emptyList()
+            );
         }
 
         final long recipientLength = buffer.getLong();
@@ -88,30 +82,25 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
             recipientKeys.add(box);
         }
 
-        return new EncodedPayloadWithRecipients(payload, recipientKeys.stream().map(PublicKey::from).collect(toList()));
+        return new EncodedPayload(
+            PublicKey.from(senderKey), cipherText, new Nonce(nonce), recipientBoxes, new Nonce(recipientNonce),
+            recipientKeys.stream().map(PublicKey::from).collect(toList())
+        );
     }
 
     @Override
-    public EncodedPayloadWithRecipients forRecipient(final EncodedPayloadWithRecipients input,
-                                                     final PublicKey recipient) {
-        final EncodedPayload encodedPayload = input.getEncodedPayload();
+    public EncodedPayload forRecipient(final EncodedPayload payload, final PublicKey recipient) {
 
-        if (!input.getRecipientKeys().contains(recipient)) {
+        if (!payload.getRecipientKeys().contains(recipient)) {
             throw new InvalidRecipientException("Recipient " + recipient.encodeToBase64() + " is not a recipient of transaction ");
         }
 
-        final int recipientIndex = input.getRecipientKeys().indexOf(recipient);
-        final byte[] recipientBox = encodedPayload.getRecipientBoxes().get(recipientIndex);
+        final int recipientIndex = payload.getRecipientKeys().indexOf(recipient);
+        final byte[] recipientBox = payload.getRecipientBoxes().get(recipientIndex);
 
-        return new EncodedPayloadWithRecipients(
-            new EncodedPayload(
-                encodedPayload.getSenderKey(),
-                encodedPayload.getCipherText(),
-                encodedPayload.getCipherTextNonce(),
-                singletonList(recipientBox),
-                encodedPayload.getRecipientNonce()
-            ),
-            emptyList()
+        return new EncodedPayload(
+            payload.getSenderKey(), payload.getCipherText(), payload.getCipherTextNonce(),
+            singletonList(recipientBox), payload.getRecipientNonce(), emptyList()
         );
     }
 

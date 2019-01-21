@@ -3,7 +3,6 @@ package com.quorum.tessera.transaction;
 import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.EncodedPayloadWithRecipients;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
@@ -22,9 +21,6 @@ public class PayloadPublisherTest {
     private static final byte[] EMPTY = new byte[0];
 
     private static final PublicKey RECIPIENT_KEY = PublicKey.from("RECIPIENT".getBytes());
-
-    private static final EncodedPayload INNER_PAYLOAD
-        = new EncodedPayload(PublicKey.from(EMPTY), EMPTY, new Nonce(EMPTY), singletonList(EMPTY), new Nonce(EMPTY));
 
     private PayloadPublisher payloadPublisher;
 
@@ -58,10 +54,12 @@ public class PayloadPublisherTest {
 
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(RECIPIENT_KEY));
 
-        final EncodedPayloadWithRecipients encodedPayloadWithRecipients
-            = new EncodedPayloadWithRecipients(INNER_PAYLOAD, singletonList(RECIPIENT_KEY));
+        final EncodedPayload payload = new EncodedPayload(
+            PublicKey.from(EMPTY), EMPTY, new Nonce(EMPTY),
+            singletonList(EMPTY), new Nonce(EMPTY), singletonList(RECIPIENT_KEY)
+        );
 
-        payloadPublisher.publishPayload(encodedPayloadWithRecipients, RECIPIENT_KEY);
+        payloadPublisher.publishPayload(payload, RECIPIENT_KEY);
 
         verify(enclave).getPublicKeys();
     }
@@ -72,18 +70,20 @@ public class PayloadPublisherTest {
         final String url = "SOMEURL";
         when(partyInfoService.getURLFromRecipientKey(RECIPIENT_KEY)).thenReturn(url);
 
-        final EncodedPayloadWithRecipients encodedPayloadWithRecipients
-            = new EncodedPayloadWithRecipients(INNER_PAYLOAD, singletonList(RECIPIENT_KEY));
+        final EncodedPayload payload = new EncodedPayload(
+            PublicKey.from(EMPTY), EMPTY, new Nonce(EMPTY),
+            singletonList(EMPTY), new Nonce(EMPTY), singletonList(RECIPIENT_KEY)
+        );
 
         byte[] encodedBytes = "encodedBytes".getBytes();
-        when(payloadEncoder.encode(any(EncodedPayloadWithRecipients.class))).thenReturn(encodedBytes);
-        when(payloadEncoder.forRecipient(encodedPayloadWithRecipients, RECIPIENT_KEY)).thenReturn(encodedPayloadWithRecipients);
+        when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn(encodedBytes);
+        when(payloadEncoder.forRecipient(payload, RECIPIENT_KEY)).thenReturn(payload);
 
-        payloadPublisher.publishPayload(encodedPayloadWithRecipients, RECIPIENT_KEY);
+        payloadPublisher.publishPayload(payload, RECIPIENT_KEY);
 
         verify(partyInfoService).getURLFromRecipientKey(RECIPIENT_KEY);
-        verify(payloadEncoder).encode(any(EncodedPayloadWithRecipients.class));
-        verify(payloadEncoder).forRecipient(encodedPayloadWithRecipients, RECIPIENT_KEY);
+        verify(payloadEncoder).encode(any(EncodedPayload.class));
+        verify(payloadEncoder).forRecipient(payload, RECIPIENT_KEY);
         verify(p2pClient).push(url, encodedBytes);
         verify(enclave).getPublicKeys();
     }

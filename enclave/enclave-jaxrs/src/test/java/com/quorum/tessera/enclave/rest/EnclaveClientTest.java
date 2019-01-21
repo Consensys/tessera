@@ -1,7 +1,7 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayloadWithRecipients;
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.PublicKey;
@@ -99,12 +99,12 @@ public class EnclaveClientTest {
         PublicKey senderPublicKey = PublicKey.from("PublicKey".getBytes());
         List<PublicKey> recipientPublicKeys = Arrays.asList(PublicKey.from("RecipientPublicKey".getBytes()));
 
-        EncodedPayloadWithRecipients encodedPayload = Fixtures.createSample();
+        EncodedPayload encodedPayload = Fixtures.createSample();
 
         when(enclave.encryptPayload(message, senderPublicKey, recipientPublicKeys))
                 .thenReturn(encodedPayload);
 
-        EncodedPayloadWithRecipients result = enclaveClient.encryptPayload(message, senderPublicKey, recipientPublicKeys);
+        EncodedPayload result = enclaveClient.encryptPayload(message, senderPublicKey, recipientPublicKeys);
 
         assertThat(result).isNotNull();
 
@@ -132,12 +132,12 @@ public class EnclaveClientTest {
 
         RawTransaction rawTransaction = new RawTransaction(message, encryptedKey, nonce, senderPublicKey);
 
-        EncodedPayloadWithRecipients encodedPayload = Fixtures.createSample();
+        EncodedPayload encodedPayload = Fixtures.createSample();
 
         when(enclave.encryptPayload(any(RawTransaction.class), any(List.class)))
                 .thenReturn(encodedPayload);
 
-        EncodedPayloadWithRecipients result = enclaveClient.encryptPayload(rawTransaction, recipientPublicKeys);
+        EncodedPayload result = enclaveClient.encryptPayload(rawTransaction, recipientPublicKeys);
 
         assertThat(result).isNotNull();
 
@@ -177,21 +177,20 @@ public class EnclaveClientTest {
     @Test
     public void unencryptTransaction() throws Exception {
         
-        EncodedPayloadWithRecipients payloadWithRecipients = Fixtures.createSample();
+        EncodedPayload payload = Fixtures.createSample();
         
         PublicKey providedKey = PublicKey.from("ProvidedKey".getBytes());
 
         byte[] outcome = "SUCCESS".getBytes();
         
-        when(enclave.unencryptTransaction(any(EncodedPayloadWithRecipients.class),any(PublicKey.class)))
+        when(enclave.unencryptTransaction(any(EncodedPayload.class),any(PublicKey.class)))
                 .thenReturn(outcome);
         
-        byte[] result = enclaveClient.unencryptTransaction(payloadWithRecipients, providedKey);
+        byte[] result = enclaveClient.unencryptTransaction(payload, providedKey);
         
         assertThat(result).isEqualTo(outcome);
       
-        verify(enclave)
-                .unencryptTransaction(any(EncodedPayloadWithRecipients.class),any(PublicKey.class));
+        verify(enclave).unencryptTransaction(any(EncodedPayload.class),any(PublicKey.class));
         
     }
 
