@@ -244,7 +244,7 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncodedPayload payload = Optional.of(encryptedTransaction)
                 .map(EncryptedTransaction::getEncodedPayload)
                 .map(payloadEncoder::decode)
-                .orElseThrow(() -> new IllegalStateException("Unable to decode previosuly encoded payload"));
+                .orElseThrow(() -> new IllegalStateException("Unable to decode previously encoded payload"));
 
         PublicKey recipientKey = to.map(PublicKey::from)
             .orElse(searchForRecipientKey(payload)
