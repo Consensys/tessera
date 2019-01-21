@@ -2,7 +2,7 @@ package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayloadWithRecipients;
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.PartyInfoService;
@@ -34,8 +34,7 @@ public class PayloadPublisherImpl implements PayloadPublisher {
     }
 
     @Override
-    public void publishPayload(final EncodedPayloadWithRecipients encodedPayloadWithRecipients,
-                               final PublicKey recipientKey) {
+    public void publishPayload(final EncodedPayload payload, final PublicKey recipientKey) {
 
         if(enclave.getPublicKeys().contains(recipientKey)) {
             //we are trying to send something to ourselves - don't do it
@@ -47,8 +46,7 @@ public class PayloadPublisherImpl implements PayloadPublisher {
 
         LOGGER.info("Publishing message to {}", targetUrl);
 
-        final EncodedPayloadWithRecipients toEncode
-            = payloadEncoder.forRecipient(encodedPayloadWithRecipients, recipientKey);
+        final EncodedPayload toEncode = payloadEncoder.forRecipient(payload, recipientKey);
 
         final byte[] encoded = payloadEncoder.encode(toEncode);
         p2pClient.push(targetUrl, encoded);

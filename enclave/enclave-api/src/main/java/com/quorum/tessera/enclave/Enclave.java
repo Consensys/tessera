@@ -15,16 +15,13 @@ public interface Enclave {
 
     Set<PublicKey> getPublicKeys();
     
-    EncodedPayloadWithRecipients encryptPayload(byte[] message,
-                                                PublicKey senderPublicKey,
-                                                List<PublicKey> recipientPublicKeys);
+    EncodedPayload encryptPayload(byte[] message, PublicKey senderPublicKey, List<PublicKey> recipientPublicKeys);
 
-    EncodedPayloadWithRecipients encryptPayload(RawTransaction rawTransaction,
-                                                List<PublicKey> recipientPublicKeys);
+    EncodedPayload encryptPayload(RawTransaction rawTransaction, List<PublicKey> recipientPublicKeys);
 
     RawTransaction encryptRawPayload(byte[] message, PublicKey sender);
     
-    byte[] unencryptTransaction(EncodedPayloadWithRecipients payloadWithRecipients, PublicKey providedKey);
+    byte[] unencryptTransaction(EncodedPayload payload, PublicKey providedKey);
     
 
 }
