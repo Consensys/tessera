@@ -11,9 +11,9 @@ before_install:
 jobs:
   include:
     - # require the branch name to be master (note for PRs this is the base branch name)
-      if: branch = master
+      if: branch = bogus_master
       script: 
-      - echo "DEPLOY STUFF"
+      - mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
 
 jdk:
   - oraclejdk8
@@ -37,7 +37,6 @@ install:
 
 script:
 - mvn install -P acceptance-test,vault-acceptance-tests,jnacl
-#- mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
 
 before_cache:
 - mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
