@@ -11,21 +11,27 @@ before_install:
 jobs:
  include:
  - stage: build
- jdk:
- - oraclejdk8
- - oraclejdk11
+ script:
+ - mvn install -P acceptance-test,vault-acceptance-tests,jnacl
+ - stage: build_jdk11
  script:
  - mvn install -P acceptance-test,vault-acceptance-tests,jnacl
  - stage: deploy
- jdk:
-  - oraclejdk8
  script:
  - mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
 
 stages:
   - name: build
+    jdk:
+      - oraclejdk8
+    if: type = pull_request
+  - name: build_jdk11
+    jdk:
+      - oraclejdk11
     if: type = pull_request
   - name: deploy
+    jdk:
+      - oraclejdk8
     if: branch = master and type = push
 
 sudo: enabled
