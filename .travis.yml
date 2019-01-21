@@ -8,6 +8,15 @@ before_install:
     - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
     - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
 
+jobs: 
+   include:
+     script:
+     - mvn install -P acceptance-test,vault-acceptance-tests,jnacl
+     if: not(branch = master) and type = pull_request
+     script:
+     - mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
+     if: branch = master and type = push
+
 jdk:
   - oraclejdk8
 #  - oraclejdk11
@@ -28,14 +37,6 @@ install:
 - unzip /tmp/vault_1.0.1_linux_amd64.zip
 - export PATH=$PATH:$PWD && popd
 
-jobs: 
-   include:
-     script:
-     - mvn install -P acceptance-test,vault-acceptance-tests,jnacl
-     if: not(branch = master) and type = pull_request
-     script:
-     - mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
-     if: branch = master  and type = push
 
 before_cache:
 - mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
