@@ -1,7 +1,7 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayloadWithRecipients;
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
@@ -95,7 +95,7 @@ public class EnclaveApplicationTest {
     @Test
     public void encryptPayload() {
 
-        EncodedPayloadWithRecipients pay = createSample();
+        EncodedPayload pay = createSample();
 
         when(enclave.encryptPayload(any(byte[].class), any(PublicKey.class), anyList()
         )).thenReturn(pay);
