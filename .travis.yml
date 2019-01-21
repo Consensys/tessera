@@ -11,13 +11,13 @@ before_install:
 stages:
   - name: deploy
     if: branch = master
-
-jobs:
-  include:
-    - # require the branch name to be master (note for PRs this is the base branch name)
-      if: branch = master
-      jdk: 
-        - oraclejdk8
+#
+#jobs:
+#  include:
+#    - # require the branch name to be master (note for PRs this is the base branch name)
+#      if: branch = master
+#      jdk: 
+#        - oraclejdk8
 
 jdk:
   - oraclejdk8
