@@ -13,9 +13,6 @@ jobs:
  - stage: build
  script:
  - mvn install -P acceptance-test,vault-acceptance-tests,jnacl
- - stage: build_jdk11
- script:
- - mvn install -P acceptance-test,vault-acceptance-tests,jnacl
  - stage: deploy
  script:
  - mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
@@ -24,9 +21,6 @@ stages:
   - name: build
     jdk:
       - oraclejdk8
-    if: type = pull_request
-  - name: build_jdk11
-    jdk:
       - oraclejdk11
     if: type = pull_request
   - name: deploy
