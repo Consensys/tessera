@@ -1,7 +1,7 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayloadWithRecipients;
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.PublicKey;
@@ -85,7 +85,7 @@ public class EnclaveResource {
                 .map(PublicKey::from)
                 .collect(Collectors.toList());
 
-        EncodedPayloadWithRecipients outcome = enclave.encryptPayload(payload.getData(), senderKey, recipientPublicKeys);
+        EncodedPayload outcome = enclave.encryptPayload(payload.getData(), senderKey, recipientPublicKeys);
 
         byte[] response = payloadEncoder.encode(outcome);
         final StreamingOutput streamingOutput = out -> out.write(response);
@@ -109,7 +109,7 @@ public class EnclaveResource {
 
         RawTransaction rawTransaction = new RawTransaction(encryptedPayload, encryptedKey, nonce, from);
 
-        EncodedPayloadWithRecipients outcome = enclave.encryptPayload(rawTransaction, recipientPublicKeys);
+        EncodedPayload outcome = enclave.encryptPayload(rawTransaction, recipientPublicKeys);
 
         byte[] response = payloadEncoder.encode(outcome);
         final StreamingOutput streamingOutput = out -> out.write(response);
@@ -141,11 +141,10 @@ public class EnclaveResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response unencryptTransaction(EnclaveUnencryptPayload enclaveUnencryptPayload) {
 
-        EncodedPayloadWithRecipients payloadWithRecipients
-                = payloadEncoder.decodePayloadWithRecipients(enclaveUnencryptPayload.getData());
+        EncodedPayload payload = payloadEncoder.decode(enclaveUnencryptPayload.getData());
         PublicKey providedKey = PublicKey.from(enclaveUnencryptPayload.getProvidedKey());
 
-        byte[] response = enclave.unencryptTransaction(payloadWithRecipients, providedKey);
+        byte[] response = enclave.unencryptTransaction(payload, providedKey);
 
         final StreamingOutput streamingOutput = out -> out.write(response);
         return Response.ok(streamingOutput).build();
