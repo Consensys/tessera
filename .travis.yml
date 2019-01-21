@@ -19,7 +19,7 @@ jobs:
 
 stages:
   - name: build
-    if: branch != master and type = pull_request
+#    if: branch != master and type = pull_request
   - name: deploy
     if: branch = master and type = push
     
