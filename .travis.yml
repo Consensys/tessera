@@ -10,7 +10,7 @@ before_install:
 
 jdk:
   - oraclejdk8
-  - oraclejdk11
+ # - oraclejdk11
 
 sudo: enabled
 
