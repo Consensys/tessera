@@ -10,12 +10,12 @@ before_install:
 
 jobs:
  include:
+ -stage: test
+ script:
+ - echo "Ignore test"
  - stage: build
  jdk: 
    - oraclejdk8
- script:
- - mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
- jdk: 
    - oraclejdk11
  script:
  - mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
