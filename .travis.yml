@@ -8,10 +8,13 @@ env:
 #    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
 #    - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
 
+install: false
+
 jobs:
  include:
  - stage: install
- -
+ script:
+ - mvn -v
  - stage: build
  jdk: 
    - oraclejdk8
@@ -29,6 +32,7 @@ jobs:
  #- mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
 
 stages:
+  - name: install
   - name: build
     if: type = pull_request
   - name: deploy
