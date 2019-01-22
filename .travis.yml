@@ -12,8 +12,7 @@ jdk:
 #   - oraclejdk11
 
 script:
-#- mvn install -P acceptance-test,vault-acceptance-tests,jnacl
-- echo "Usual build stuff"
+- mvn install -P acceptance-test,vault-acceptance-tests,jnacl
  #- mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
 jobs:
   include:
