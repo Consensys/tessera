@@ -17,7 +17,7 @@ before_install:
 
 jobs:
  include:
-  if: true
+#  if: true
   script: mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
 
 sudo: enabled
