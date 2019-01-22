@@ -13,7 +13,7 @@ jdk:
 
 jobs:
   include:
-      if: head_branch = master
+      if: branch = master
       script:  mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
       before_install:
         - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
