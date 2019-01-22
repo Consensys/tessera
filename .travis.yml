@@ -15,13 +15,6 @@ jobs:
  include:
   if: true
   script:  mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
-  before_install:
-        - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
-        - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
-      
-#before_install:
-#    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
-#    - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
 
 sudo: enabled
 
@@ -32,6 +25,10 @@ notifications:
 cache:
   directories:
   - "$HOME/.m2"
+
+before_install:
+    - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+    - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
 
 install:
 - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
