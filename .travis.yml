@@ -26,12 +26,6 @@ jobs:
 #    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
 #    - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
 
-#stages:
-#  - name: build
-#    if: type = pull_request
-#  - name: deploy
-#    if: branch = master and type = push
-
 sudo: enabled
 
 notifications:
