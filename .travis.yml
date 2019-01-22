@@ -11,15 +11,13 @@ jdk:
    - oraclejdk8
 #   - oraclejdk11
 
-script:
-- mvn install -P acceptance-test,vault-acceptance-tests,jnacl
- #- mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
-#jobs:
-#  include:
-#      if: head_branch != master
-#      script:  echo "Head branch is not master"
-#      if: head_branch = master
-#      script: echo "Head branch is Master"
+jobs:
+  include:
+      if: head_branch = master
+      script:  mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
+      before_install:
+        - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
+        - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
       
 #before_install:
 #    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
