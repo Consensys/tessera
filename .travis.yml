@@ -14,12 +14,12 @@ jdk:
 script:
 - mvn install -P acceptance-test,vault-acceptance-tests,jnacl
  #- mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
-jobs:
-  include:
-      if: head_branch != master
-      script: echo "Head branch is not master"
-      if: head_branch = master
-      script: echo "Head branch is Master"
+#jobs:
+#  include:
+#      if: head_branch != master
+#      script:  echo "Head branch is not master"
+#      if: head_branch = master
+#      script: echo "Head branch is Master"
       
 #before_install:
 #    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
