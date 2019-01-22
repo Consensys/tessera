@@ -12,10 +12,10 @@ jdk:
 #   - oraclejdk11
 
 jobs:
-  include:
-     # if: branch = master
-      script:  mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
-      before_install:
+ include:
+  if: true
+  script:  mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
+  before_install:
         - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
         - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
       
