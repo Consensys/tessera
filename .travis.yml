@@ -18,9 +18,9 @@ script:
 jobs:
   include:
       if: head_branch != master
-      script: echo "No master"
+      script: echo "Head branch is not master"
       if: head_branch = master
-      script: echo "Its Master"
+      script: echo "Head branch is Master"
       
 #before_install:
 #    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
