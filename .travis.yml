@@ -36,7 +36,6 @@ jobs:
  #- mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
 
 stages:
-  - name: install
   - name: build
     if: type = pull_request
   - name: deploy
