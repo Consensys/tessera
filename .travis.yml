@@ -11,14 +11,13 @@ jdk:
    - oraclejdk8
 #   - oraclejdk11
 
-before_install:
-    - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
-    - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-
 jobs:
  include:
 #  if: true
-  script: mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
+  script: 
+  - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+  - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
+  - mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
 
 sudo: enabled
 
