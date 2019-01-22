@@ -17,10 +17,10 @@ script:
  #- mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
 jobs:
   include:
-      if: type = pull_request
-      script: echo "Pull request"
-      if: type = push
-      script: echo "Its a push to master"
+      if: branch != master
+      script: echo "No master"
+      if: branch = master
+      script: echo "Its Master"
       
 #before_install:
 #    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
