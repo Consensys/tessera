@@ -9,7 +9,7 @@ env:
 #    - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
 install:
   script: 
-  - echo "skipping install"
+  - mvn -v
 
 jobs:
  include:
