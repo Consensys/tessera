@@ -10,25 +10,27 @@ before_install:
 
 jobs:
  include:
- - stage: test
+ - stage: install
  script:
- - echo "Do test stuff"
+ - echo "Do Test stuff"
+ - mvn -v
  - stage: build
  jdk: 
    - oraclejdk8
    - oraclejdk11
  script:
- - echo "Do Build $JAVA_HOME"
+ - echo "Do Build"
+ - mvn -v
  #- mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
  - stage: deploy
  jdk: 
    - oraclejdk8
  script:
  - echo "Do deploy stuff $JAVA_HOME"
+ - mvn -v
  #- mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
 
 stages:
-  - name: test
   - name: build
     if: type = pull_request
   - name: deploy
