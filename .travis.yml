@@ -10,22 +10,25 @@ before_install:
 
 jobs:
  include:
- -stage: test
+ - stage: test
  script:
- - echo "Ignore test"
+ - echo "Do test stuff"
  - stage: build
  jdk: 
    - oraclejdk8
    - oraclejdk11
  script:
- - mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
+ - echo "Do Build $JAVA_HOME"
+ #- mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
  - stage: deploy
  jdk: 
    - oraclejdk8
  script:
- - mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
+ - echo "Do deploy stuff $JAVA_HOME"
+ #- mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
 
 stages:
+  - name: test
   - name: build
     if: type = pull_request
   - name: deploy
@@ -51,5 +54,5 @@ install:
 before_cache:
 - mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
 
-after_success:
-- bash <(curl -s https://codecov.io/bash)
+#after_success:
+#- bash <(curl -s https://codecov.io/bash)
