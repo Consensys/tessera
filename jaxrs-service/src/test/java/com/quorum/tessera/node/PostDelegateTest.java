@@ -38,7 +38,7 @@ public class PostDelegateTest {
     }
 
     @Test
-    public void doPostReturns200() {
+    public void doPostReturnsResponseDataIf200() {
 
         final byte[] responseData = "RESPONSE_DATA".getBytes();
         final Response response = mock(Response.class);
@@ -53,7 +53,7 @@ public class PostDelegateTest {
     }
 
     @Test
-    public void doPostReturns201() {
+    public void doPostReturnsResponseDataIf201() {
 
         final byte[] responseData = "RESPONSE_DATA".getBytes();
         final Response response = mock(Response.class);
