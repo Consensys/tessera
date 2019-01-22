@@ -7,10 +7,6 @@ env:
   global:
     - CODECOV_TOKEN="b5659ea0-f191-4e1d-9139-a8a31971c386"
 
-before_install:
-    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
-    - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
-
 jdk: 
    - oraclejdk8
 #   - oraclejdk11
@@ -26,7 +22,9 @@ jobs:
       if: type = push
       script: echo "Its a push to master"
       
-
+#before_install:
+#    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
+#    - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
 
 #stages:
 #  - name: build
