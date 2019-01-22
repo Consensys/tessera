@@ -11,9 +11,7 @@ env:
 jobs:
  include:
  - stage: install
- script:
- - echo "Do Test stuff"
- - mvn -v
+ -
  - stage: build
  jdk: 
    - oraclejdk8
@@ -31,7 +29,6 @@ jobs:
  #- mvn clean deploy -Prelease -pl shared --settings .maven.xml -DskipTests=true
 
 stages:
-  - name: install
   - name: build
     if: type = pull_request
   - name: deploy
