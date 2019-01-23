@@ -36,12 +36,11 @@ sudo: enabled
 
 jobs: 
   include: 
-    if: true
     script: echo "This"
-    if: false
+    if: 1 = 1
     script: echo "That"
+    if: 1 = 2
     
-
 
 #after_script:
 #- echo 'do release stuff'
