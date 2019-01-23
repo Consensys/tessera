@@ -112,6 +112,8 @@ public class ResendManagerTest {
         verify(payloadEncoder).decode(incomingData);
         verify(payloadEncoder).encode(existingEncodedPayload);
         verify(enclave).getPublicKeys();
+        verify(enclave).unencryptTransaction(encodedPayload, null);
+        verify(enclave).unencryptTransaction(existingEncodedPayload, null);
     }
 
     @Test
@@ -171,6 +173,44 @@ public class ResendManagerTest {
 
         verify(enclave).getPublicKeys();
         verify(payloadEncoder).decode(incomingData);
+    }
+
+    @Test
+    public void invalidPayloadFromMaliciousRecipient() {
+        final byte[] incomingData = "incomingData".getBytes();
+
+        final byte[] storedData = "SOMEDATA".getBytes();
+        final EncryptedTransaction et = new EncryptedTransaction(null, storedData);
+        final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
+
+        final PublicKey recipientKey = PublicKey.from("RECIPIENT-KEY".getBytes());
+        final byte[] recipientBox = "BOX".getBytes();
+
+        final EncodedPayload encodedPayload = new EncodedPayload(
+            senderKey, "CIPHERTEXT".getBytes(), null, singletonList(recipientBox), null, singletonList(recipientKey)
+        );
+
+        final EncodedPayload existingEncodedPayload = new EncodedPayload(
+            senderKey, "CIPHERTEXT".getBytes(), null, new ArrayList<>(), null, new ArrayList<>()
+        );
+
+        when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
+        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
+        when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
+        when(payloadEncoder.decode(incomingData)).thenReturn(encodedPayload);
+        when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
+        when(enclave.unencryptTransaction(existingEncodedPayload, null)).thenReturn("payload1".getBytes());
+
+        final Throwable throwable = catchThrowable(() -> resendManager.acceptOwnMessage(incomingData));
+
+        assertThat(throwable).isInstanceOf(IllegalArgumentException.class).hasMessage("Invalid payload provided");
+
+        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+        verify(payloadEncoder).decode(storedData);
+        verify(payloadEncoder).decode(incomingData);
+        verify(enclave).getPublicKeys();
+        verify(enclave).unencryptTransaction(encodedPayload, null);
+        verify(enclave).unencryptTransaction(existingEncodedPayload, null);
     }
 
 }

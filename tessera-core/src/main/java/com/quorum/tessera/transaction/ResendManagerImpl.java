@@ -9,6 +9,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.model.EncryptedTransaction;
 
 import javax.transaction.Transactional;
+import java.util.Arrays;
 import java.util.Optional;
 
 public class ResendManagerImpl implements ResendManager {
@@ -55,10 +56,15 @@ public class ResendManagerImpl implements ResendManager {
             final EncodedPayload existing = payloadEncoder.decode(encodedPayload);
 
             if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
-                //You could check that the provided information really does decrypt the payload
-                //showing that this recipient really is one
-                //but if someone sent us false information, then the "recipientBox" they sent us won't work for them
-                //as much as it won't work for us, so it doesn't really matter
+                final byte[] newDecrypted = enclave.unencryptTransaction(payload, null);
+                final byte[] oldDecrypted = enclave.unencryptTransaction(existing, null);
+                final boolean same = Arrays.equals(newDecrypted, oldDecrypted)
+                    && Arrays.equals(payload.getCipherText(), existing.getCipherText());
+
+                if (!same) {
+                    throw new IllegalArgumentException("Invalid payload provided");
+                }
+
                 existing.getRecipientKeys().add(payload.getRecipientKeys().get(0));
                 existing.getRecipientBoxes().add(payload.getRecipientBoxes().get(0));
 
