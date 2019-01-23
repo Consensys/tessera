@@ -29,15 +29,15 @@ install:
 - export PATH=$PATH:$PWD && popd
 
 script:
-- test $TRAVIS_EVENT_TYPE != 'api' AND $TRAVIS_JOB_NAME != 'release' && \
-    mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
+- test $TRAVIS_EVENT_TYPE != 'api' AND $TRAVIS_JOB_NAME != 'release' \
+    && mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
 
 after_script:
-- test $TRAVIS_EVENT_TYPE = 'api' AND $TRAVIS_JOB_NAME = 'release' && \
-    echo 'do release stuff'
+- test $TRAVIS_EVENT_TYPE = 'api' AND $TRAVIS_JOB_NAME = 'release' \
+    && echo 'do release stuff'
 
 before_cache:
-- mvn dependency:purge-local-repository -Dinclude=com.quorum.tessera -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
+- mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
