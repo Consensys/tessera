@@ -34,12 +34,11 @@ sudo: enabled
 # - mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
 #if: type != api
 
-jobs: 
-  include: 
-    script: echo "This"
-    if: 1 == 1
-    script: echo "That"
-    if: 1 == 2
+stages: 
+  - name: install
+    if: false
+  - name: deploy
+    if: false
     
 
 #after_script:
