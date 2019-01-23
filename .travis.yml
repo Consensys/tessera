@@ -40,8 +40,7 @@ sudo: enabled
 #  - name: deploy
 #    if: false
 #    
-install: 
-    script: mvn -v
+install: false
 #after_script:
 #- echo 'do release stuff'
 #if: type = api AND env(TRAVIS_JOB_NAME) = release
