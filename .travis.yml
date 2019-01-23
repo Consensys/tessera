@@ -1,8 +1,8 @@
 language: java
 
-env:
-  global:
-    - CODECOV_TOKEN="b5659ea0-f191-4e1d-9139-a8a31971c386"
+#env:
+#  global:
+#    - CODECOV_TOKEN="b5659ea0-f191-4e1d-9139-a8a31971c386"
 
 #jdk:
 #  - oraclejdk8
@@ -34,14 +34,13 @@ sudo: enabled
 # - mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
 #if: type != api
 
-stages: 
-  - name: install
-    if: false
-  - name: deploy
-    if: false
-    
-install: 
-  script: echo "build stuff"
+#stages: 
+#  - name: install
+#    if: false
+#  - name: deploy
+#    if: false
+#    
+install: true
 
 #after_script:
 #- echo 'do release stuff'
