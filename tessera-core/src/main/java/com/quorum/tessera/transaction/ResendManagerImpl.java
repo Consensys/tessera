@@ -34,6 +34,9 @@ public class ResendManagerImpl implements ResendManager {
 
         final EncodedPayload payload = payloadEncoder.decode(message);
 
+        //check the payload can be decrpyted to ensure it isn't rubbish being sent to us
+        final byte[] newDecrypted = enclave.unencryptTransaction(payload, null);
+
         final MessageHash transactionHash = Optional.of(payload)
             .map(EncodedPayload::getCipherText)
             .map(messageHashFactory::createFromCipherText)
@@ -56,7 +59,7 @@ public class ResendManagerImpl implements ResendManager {
             final EncodedPayload existing = payloadEncoder.decode(encodedPayload);
 
             if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
-                final byte[] newDecrypted = enclave.unencryptTransaction(payload, null);
+                //lets compare it against another message received before
                 final byte[] oldDecrypted = enclave.unencryptTransaction(existing, null);
                 final boolean same = Arrays.equals(newDecrypted, oldDecrypted)
                     && Arrays.equals(payload.getCipherText(), existing.getCipherText());

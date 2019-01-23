@@ -13,6 +13,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,6 +73,7 @@ public class ResendManagerTest {
         verify(payloadEncoder).encode(any(EncodedPayload.class));
         verify(enclave).getPublicKeys();
         verify(enclave).createNewRecipientBox(any(), any());
+        verify(enclave).unencryptTransaction(encodedPayload, null);
 
     }
 
@@ -147,6 +149,7 @@ public class ResendManagerTest {
         verify(payloadEncoder).decode(storedData);
         verify(payloadEncoder).decode(incomingData);
         verify(enclave).getPublicKeys();
+        verify(enclave).unencryptTransaction(encodedPayload, null);
     }
 
     @Test
@@ -173,6 +176,7 @@ public class ResendManagerTest {
 
         verify(enclave).getPublicKeys();
         verify(payloadEncoder).decode(incomingData);
+        verify(enclave).unencryptTransaction(encodedPayload, null);
     }
 
     @Test
@@ -211,6 +215,24 @@ public class ResendManagerTest {
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(encodedPayload, null);
         verify(enclave).unencryptTransaction(existingEncodedPayload, null);
+    }
+
+    @Test
+    public void undecryptablePayloadErrors() {
+        final byte[] incomingData = "incomingData".getBytes();
+
+        final EncodedPayload encodedPayload
+            = new EncodedPayload(mock(PublicKey.class), "CIPHERTEXT".getBytes(), null, emptyList(), null, emptyList());
+
+        when(payloadEncoder.decode(incomingData)).thenReturn(encodedPayload);
+        when(enclave.unencryptTransaction(encodedPayload, null)).thenThrow(IllegalArgumentException.class);
+
+        final Throwable throwable = catchThrowable(() -> resendManager.acceptOwnMessage(incomingData));
+
+        assertThat(throwable).isInstanceOf(IllegalArgumentException.class).hasMessage(null);
+
+        verify(payloadEncoder).decode(incomingData);
+        verify(enclave).unencryptTransaction(encodedPayload, null);
     }
 
 }
