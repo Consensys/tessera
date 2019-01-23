@@ -40,6 +40,8 @@ stages:
   - name: deploy
     if: false
     
+install: 
+  script: echo "build stuff"
 
 #after_script:
 #- echo 'do release stuff'
