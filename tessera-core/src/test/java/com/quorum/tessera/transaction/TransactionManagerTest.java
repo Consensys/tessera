@@ -8,6 +8,7 @@ import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.NaclException;
+import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.model.EncryptedRawTransaction;
 import com.quorum.tessera.transaction.model.EncryptedTransaction;
@@ -291,6 +292,7 @@ public class TransactionManagerTest {
         final PublicKey senderKey = PublicKey.from("PUBLICKEY".getBytes());
 
         when(payload.getSenderKey()).thenReturn(senderKey);
+        when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
         when(encryptedTransactionDAO.retrieveAllTransactions()).thenReturn(singletonList(tx));
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
         when(payload.getRecipientKeys()).thenReturn(new ArrayList<>());
@@ -302,7 +304,9 @@ public class TransactionManagerTest {
 
         final Throwable throwable = catchThrowable(() -> transactionManager.resend(resendRequest));
 
-        assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage(null);
+        assertThat(throwable)
+            .isInstanceOf(KeyNotFoundException.class)
+            .hasMessage("No key found as recipient of message Q0lQSEVSVEVYVA==");
 
         verify(encryptedTransactionDAO).retrieveAllTransactions();
         verify(payloadEncoder).decode(encodedData);

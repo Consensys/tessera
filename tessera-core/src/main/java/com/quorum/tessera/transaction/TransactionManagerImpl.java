@@ -8,6 +8,7 @@ import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.enclave.model.MessageHashFactory;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.NaclException;
+import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.model.EncryptedRawTransaction;
 import com.quorum.tessera.transaction.model.EncryptedTransaction;
@@ -179,7 +180,13 @@ public class TransactionManagerImpl implements TransactionManager {
                     return isRecipient || isSender;
                 }).forEach(payload -> {
                     if (Objects.equals(payload.getSenderKey(), recipientPublicKey)) {
-                        final PublicKey decryptedKey = searchForRecipientKey(payload).orElseThrow(RuntimeException::new);
+                        final PublicKey decryptedKey = searchForRecipientKey(payload).orElseThrow(
+                            () -> {
+                                final MessageHash hash = MessageHashFactory.create()
+                                    .createFromCipherText(payload.getCipherText());
+                                return new KeyNotFoundException("No key found as recipient of message " + hash);
+                            }
+                        );
                         payload.getRecipientKeys().add(decryptedKey);
                     }
 
