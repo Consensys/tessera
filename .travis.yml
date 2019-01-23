@@ -36,10 +36,11 @@ sudo: enabled
 
 jobs: 
   include: 
-    env: BUILD_TYPE=BUILD
     if: true
-    env: BUILD_TYPE=RELEASE
+    env: BUILD_TYPE=BUILD
     if: false
+    env: BUILD_TYPE=RELEASE
+    
 
 script: echo "Build type is $BUILD_TYPE"
 
