@@ -168,15 +168,19 @@ public class TransactionManagerImpl implements TransactionManager {
                     .filter(payload -> payload.getRecipientKeys().contains(recipientPublicKey))
                     .collect(toList());
 
-            try {
-                payloads.forEach(payload
-                        -> payload.getRecipientKeys().forEach(recipientKey
-                        -> payloadPublisher.publishPayload(payload, recipientKey)
-                    )
-                );
-            } catch(PublishPayloadException ex) {
-                LOGGER.warn("Unable to publish payload to recipient {} during resend", recipientPublicKey.encodeToBase64());
-            }
+            payloads.forEach(
+                payload -> {
+                    payload.getRecipientKeys().forEach(
+                        recipientKey -> {
+                            try {
+                                payloadPublisher.publishPayload(payload, recipientKey);
+                            } catch(PublishPayloadException ex) {
+                                LOGGER.warn("Unable to publish payload to recipient {} during resend", recipientPublicKey.encodeToBase64());
+                            }
+                        }
+                    );
+                }
+            );
 
             return new ResendResponse();
         } else {
