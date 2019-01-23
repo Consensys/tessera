@@ -338,7 +338,7 @@ public class TransactionManagerTest {
 
         verify(encryptedTransactionDAO).retrieveAllTransactions();
         verify(payloadEncoder, times(2)).decode(any(byte[].class));
-        verify(payloadPublisher, times(1)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+        verify(payloadPublisher, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
     }
 
     @Test

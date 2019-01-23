@@ -114,7 +114,6 @@ public class PayloadPublisherTest {
 
         verify(partyInfoService).getURLFromRecipientKey(RECIPIENT_KEY);
         verify(payloadEncoder).encode(any(EncodedPayload.class));
-        verify(payloadEncoder).forRecipient(payload, RECIPIENT_KEY);
         verify(p2pClient).push(url, encodedBytes);
         verify(enclave).getPublicKeys();
     }
