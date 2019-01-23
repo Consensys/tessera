@@ -40,8 +40,8 @@ sudo: enabled
 #  - name: deploy
 #    if: false
 #    
-install: true
--
+install: 
+- mvn install -DskipTests
 
 #after_script:
 #- echo 'do release stuff'
