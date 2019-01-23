@@ -19,9 +19,8 @@ cache:
   - "$HOME/.m2"
 
 before_install:
-    - test $TRAVIS_PULL_REQUEST = false && echo "not a pull request $TRAVIS_BRANCH"
-#    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
-#    - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
+    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
+    - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
 
 install:
 - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
@@ -30,11 +29,18 @@ install:
 - export PATH=$PATH:$PWD && popd
 
 script:
-#- mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
-    - echo "build stuff" && 0
+- test $TRAVIS_EVENT_TYPE != 'api' AND $TRAVIS_JOB_NAME != 'release' && \
+    mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
+
+after_script:
+- test $TRAVIS_EVENT_TYPE = 'api' AND $TRAVIS_JOB_NAME = 'release' && \
+    echo 'do release stuff'
 
 before_cache:
 - mvn dependency:purge-local-repository -Dinclude=com.quorum.tessera -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
+# Assume that a non pull request and branch is master is the merge to master
+- test $TRAVIS_PULL_REQUEST = false AND $TRAVIS_BRANCH = 'master'  \
+        && mvn deploy -pl !ddls -DskipTests=true
