@@ -9,6 +9,7 @@ import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
+import com.quorum.tessera.transaction.exception.PublishPayloadException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.model.EncryptedRawTransaction;
 import com.quorum.tessera.transaction.model.EncryptedTransaction;
@@ -18,10 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
@@ -40,7 +38,7 @@ public class TransactionManagerTest {
     private PayloadPublisher payloadPublisher;
 
     private ResendManager resendManager;
-    
+
     private Enclave enclave;
     
     @Before
@@ -74,7 +72,7 @@ public class TransactionManagerTest {
 
         String sender = Base64.getEncoder().encodeToString("SENDER".getBytes());
         String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
-        
+
         byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
         
         SendRequest sendRequest = new SendRequest();
@@ -180,7 +178,7 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
         verify(payloadEncoder).decode(input);
         verify(enclave).getPublicKeys();
-        
+
     }
     
     @Test
@@ -312,7 +310,37 @@ public class TransactionManagerTest {
         verify(payloadEncoder).decode(encodedData);
         verify(enclave).getPublicKeys();
     }
-    
+
+    @Test
+    public void resendAllPublishPayloadExceptionIsCaught() {
+        EncryptedTransaction someTransaction = new EncryptedTransaction(mock(MessageHash.class), "someTransaction".getBytes());
+        EncryptedTransaction someOtherTransaction = new EncryptedTransaction(mock(MessageHash.class), "someOtherTransaction".getBytes());
+
+        when(encryptedTransactionDAO.retrieveAllTransactions())
+            .thenReturn(Arrays.asList(someTransaction, someOtherTransaction));
+
+        EncodedPayload payload = mock(EncodedPayload.class);
+
+        when(payload.getRecipientKeys()).thenReturn(Arrays.asList(PublicKey.from("PUBLICKEY".getBytes()), PublicKey.from("ANOTHERPUBLICKEY".getBytes())));
+
+        when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
+
+        String publicKeyData = Base64.getEncoder().encodeToString("PUBLICKEY".getBytes());
+
+        ResendRequest resendRequest = new ResendRequest();
+        resendRequest.setPublicKey(publicKeyData);
+        resendRequest.setType(ResendRequestType.ALL);
+
+        doThrow(new PublishPayloadException("msg")).when(payloadPublisher).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+
+        ResendResponse result = transactionManager.resend(resendRequest);
+        assertThat(result).isNotNull();
+
+        verify(encryptedTransactionDAO).retrieveAllTransactions();
+        verify(payloadEncoder, times(2)).decode(any(byte[].class));
+        verify(payloadPublisher, times(1)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+    }
+
     @Test
     public void resendIndividualNoExistingTransactionFound() {
         

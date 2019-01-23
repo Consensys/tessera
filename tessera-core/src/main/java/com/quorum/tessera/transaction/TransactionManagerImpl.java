@@ -9,6 +9,7 @@ import com.quorum.tessera.enclave.model.MessageHashFactory;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
+import com.quorum.tessera.transaction.exception.PublishPayloadException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.model.EncryptedRawTransaction;
 import com.quorum.tessera.transaction.model.EncryptedTransaction;
@@ -190,7 +191,13 @@ public class TransactionManagerImpl implements TransactionManager {
                         payload.getRecipientKeys().add(decryptedKey);
                     }
 
-                    payloadPublisher.publishPayload(payload, recipientPublicKey);
+
+                    try {
+                        payloadPublisher.publishPayload(payload, recipientPublicKey);
+                    } catch (PublishPayloadException ex) {
+                        LOGGER.warn("Unable to publish payload to recipient {} during resend", recipientPublicKey.encodeToBase64());
+                    }
+
                 });
 
             return new ResendResponse();
@@ -274,7 +281,7 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncodedPayload payload = Optional.of(encryptedTransaction)
                 .map(EncryptedTransaction::getEncodedPayload)
                 .map(payloadEncoder::decode)
-                .orElseThrow(() -> new IllegalStateException("Unable to decode previosuly encoded payload"));
+                .orElseThrow(() -> new IllegalStateException("Unable to decode previously encoded payload"));
 
         PublicKey recipientKey = to.map(PublicKey::from)
             .orElse(searchForRecipientKey(payload)
