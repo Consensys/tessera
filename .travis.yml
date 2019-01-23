@@ -20,7 +20,6 @@ cache:
 
 before_install:
     - test $TRAVIS_PULL_REQUEST = false && echo "not a pull request $TRAVIS_BRANCH"
-    - test $TRAVIS_PULL_REQUEST = true && echo "is a pull request $TRAVIS_BRANCH"
 #    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
 #    - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
 
