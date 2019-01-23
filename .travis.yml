@@ -6,7 +6,7 @@ env:
 
 jdk:
   - oraclejdk8
-  - oraclejdk11
+ # - oraclejdk11
 
 sudo: enabled
 
@@ -19,8 +19,10 @@ cache:
   - "$HOME/.m2"
 
 before_install:
-    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
-    - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
+    - test $TRAVIS_PULL_REQUEST = false && echo "not a pull request $TRAVIS_BRANCH"
+    - test $TRAVIS_PULL_REQUEST = true && echo "is a pull request $TRAVIS_BRANCH"
+#    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
+#    - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
 
 install:
 - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
@@ -29,7 +31,8 @@ install:
 - export PATH=$PATH:$PWD && popd
 
 script:
-- mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
+#- mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
+    - echo "build stuff" && 0
 
 before_cache:
 - mvn dependency:purge-local-repository -Dinclude=com.quorum.tessera -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
