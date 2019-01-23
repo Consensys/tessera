@@ -29,11 +29,11 @@ install:
 - export PATH=$PATH:$PWD && popd
 
 script:
-- test $TRAVIS_EVENT_TYPE != 'api' -a $TRAVIS_JOB_NAME != 'release' \
+- test ($TRAVIS_EVENT_TYPE != 'api' AND $TRAVIS_JOB_NAME != 'release') \
     && mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
 
 after_script:
-- test $TRAVIS_EVENT_TYPE = 'api' -a $TRAVIS_JOB_NAME = 'release' \
+- test ($TRAVIS_EVENT_TYPE = 'api' AND $TRAVIS_JOB_NAME = 'release') \
     && echo 'do release stuff'
 
 before_cache:
@@ -42,5 +42,5 @@ before_cache:
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 # Assume that a non pull request and branch is master is the merge to master
-- test $TRAVIS_PULL_REQUEST = false -a $TRAVIS_BRANCH = 'master'  \
+- test ($TRAVIS_PULL_REQUEST = false AND $TRAVIS_BRANCH = 'master')  \
         && mvn deploy -pl !ddls -DskipTests=true
