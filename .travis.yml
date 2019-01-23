@@ -31,8 +31,10 @@ install:
 - export PATH=$PATH:$PWD && popd
 
 script:
- - mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
-if: type != api
+  - echo 'do build stuff'
+if: true
+# - mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
+#if: type != api
 
 after_script:
 - echo 'do release stuff'
