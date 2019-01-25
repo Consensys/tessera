@@ -8,6 +8,7 @@ import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.enclave.model.MessageHashFactory;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.NaclException;
+import com.quorum.tessera.transaction.exception.PublishPayloadException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.model.EncryptedRawTransaction;
 import com.quorum.tessera.transaction.model.EncryptedTransaction;
@@ -167,11 +168,16 @@ public class TransactionManagerImpl implements TransactionManager {
                     .filter(payload -> payload.getRecipientKeys().contains(recipientPublicKey))
                     .collect(toList());
 
-            payloads.forEach(payload
-                    -> payload.getRecipientKeys().forEach(recipientKey
-                            -> payloadPublisher.publishPayload(payload, recipientKey)
+            try {
+                payloads.forEach(payload
+                        -> payload.getRecipientKeys().forEach(recipientKey
+                        -> payloadPublisher.publishPayload(payload, recipientKey)
                     )
-            );
+                );
+            } catch(PublishPayloadException ex) {
+                LOGGER.warn("Unable to publish payload to recipient {} during resend", recipientPublicKey.encodeToBase64());
+            }
+
             return new ResendResponse();
         } else {
 
@@ -238,7 +244,7 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncodedPayload payload = Optional.of(encryptedTransaction)
                 .map(EncryptedTransaction::getEncodedPayload)
                 .map(payloadEncoder::decode)
-                .orElseThrow(() -> new IllegalStateException("Unable to decode previosuly encoded payload"));
+                .orElseThrow(() -> new IllegalStateException("Unable to decode previously encoded payload"));
 
         PublicKey recipientKey = to.map(PublicKey::from)
             .orElse(searchForRecipientKey(payload)

@@ -7,6 +7,7 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
 import com.quorum.tessera.node.PartyInfoService;
+import com.quorum.tessera.transaction.exception.PublishPayloadException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,8 @@ import org.junit.Test;
 import java.util.Collections;
 
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class PayloadPublisherTest {
@@ -79,7 +82,37 @@ public class PayloadPublisherTest {
         when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn(encodedBytes);
         when(payloadEncoder.forRecipient(payload, RECIPIENT_KEY)).thenReturn(payload);
 
+        when(p2pClient.push(url, encodedBytes)).thenReturn("response".getBytes());
+
         payloadPublisher.publishPayload(payload, RECIPIENT_KEY);
+
+        verify(partyInfoService).getURLFromRecipientKey(RECIPIENT_KEY);
+        verify(payloadEncoder).encode(any(EncodedPayload.class));
+        verify(payloadEncoder).forRecipient(payload, RECIPIENT_KEY);
+        verify(p2pClient).push(url, encodedBytes);
+        verify(enclave).getPublicKeys();
+    }
+
+    @Test
+    public void publishToTargetUnsuccessfulThrowsException() {
+        final String url = "SOMEURL";
+        when(partyInfoService.getURLFromRecipientKey(RECIPIENT_KEY)).thenReturn(url);
+
+        final EncodedPayload payload = new EncodedPayload(
+            PublicKey.from(EMPTY), EMPTY, new Nonce(EMPTY),
+            singletonList(EMPTY), new Nonce(EMPTY), singletonList(RECIPIENT_KEY)
+        );
+
+        byte[] encodedBytes = "encodedBytes".getBytes();
+        when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn(encodedBytes);
+        when(payloadEncoder.forRecipient(payload, RECIPIENT_KEY)).thenReturn(payload);
+
+        when(p2pClient.push(url, encodedBytes)).thenReturn(null);
+
+        Throwable ex = catchThrowable(() -> payloadPublisher.publishPayload(payload, RECIPIENT_KEY));
+
+        assertThat(ex).isExactlyInstanceOf(PublishPayloadException.class);
+        assertThat(ex.getMessage()).isEqualTo("Unable to push payload to recipient " + RECIPIENT_KEY.encodeToBase64());
 
         verify(partyInfoService).getURLFromRecipientKey(RECIPIENT_KEY);
         verify(payloadEncoder).encode(any(EncodedPayload.class));

@@ -242,7 +242,9 @@ public class ProcessManager {
 
 
     public static void main(String[] args) throws Exception {
-        System.setProperty("application.jar", "/Users/mark/Projects/tessera/tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
+        System.setProperty("application.jar", "/Users/mark/Projects/tessera/tessera-app/target/tessera-app-0.9-SNAPSHOT-app.jar");
+        System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+        System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
         ProcessManager pm = new ProcessManager(CommunicationType.REST);
         pm.startNodes();

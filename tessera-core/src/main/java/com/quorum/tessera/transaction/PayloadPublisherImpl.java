@@ -6,6 +6,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.PartyInfoService;
+import com.quorum.tessera.transaction.exception.PublishPayloadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,9 +50,13 @@ public class PayloadPublisherImpl implements PayloadPublisher {
         final EncodedPayload toEncode = payloadEncoder.forRecipient(payload, recipientKey);
 
         final byte[] encoded = payloadEncoder.encode(toEncode);
-        p2pClient.push(targetUrl, encoded);
-        LOGGER.info("Published to {}", targetUrl);
+        byte[] pushResponse = p2pClient.push(targetUrl, encoded);
 
+        if(pushResponse == null) {
+            throw new PublishPayloadException("Unable to push payload to recipient " + recipientKey.encodeToBase64());
+        }
+
+        LOGGER.info("Published to {}", targetUrl);
     }
 
 }
