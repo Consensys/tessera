@@ -191,7 +191,6 @@ public class TransactionManagerImpl implements TransactionManager {
                         payload.getRecipientKeys().add(decryptedKey);
                     }
 
-
                     try {
                         payloadPublisher.publishPayload(payload, recipientPublicKey);
                     } catch (PublishPayloadException ex) {
