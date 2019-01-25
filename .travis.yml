@@ -18,9 +18,9 @@ cache:
  directories:
  - "$HOME/.m2"
 
-before_install:
-   - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
-   - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
+#before_install:
+#   - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
+#   - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
 
 install:
 - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip

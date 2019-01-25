@@ -71,6 +71,31 @@ public class ResendIndividualIT {
         final EncodedPayload payload = ENCODER.decode(returnValue);
 
         assertThat(payload).isNotNull();
+        assertThat(payload.getRecipientKeys()).isEmpty();
+        assertThat(payload.getSenderKey().encodeToBase64()).isEqualTo(SENDER_KEY);
+    }
+
+    @Test
+    public void resendTransactionWhereKeyIsSender() {
+        final ResendRequest request = new ResendRequest();
+        request.setType(ResendRequestType.INDIVIDUAL);
+        request.setKey(this.hash);
+        request.setPublicKey(SENDER_KEY);
+
+        final Response response = client.target(NODE2_P2P_URI)
+            .path(RESEND_PATH)
+            .request()
+            .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(200);
+
+        final byte[] returnValue = response.readEntity(byte[].class);
+        final EncodedPayload payload = ENCODER.decode(returnValue);
+
+        assertThat(payload).isNotNull();
+        assertThat(payload.getRecipientKeys().get(0).encodeToBase64()).isEqualTo(RECIPIENT_KEY);
+        assertThat(payload.getSenderKey().encodeToBase64()).isEqualTo(SENDER_KEY);
     }
 
     @Test
@@ -113,7 +138,5 @@ public class ResendIndividualIT {
         assertThat(response.readEntity(String.class)).contains("Message with hash " + unknownHash + " was not found");
 
     }
-
-
 
 }

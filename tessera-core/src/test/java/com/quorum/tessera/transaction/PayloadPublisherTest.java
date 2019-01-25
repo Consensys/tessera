@@ -80,7 +80,6 @@ public class PayloadPublisherTest {
 
         byte[] encodedBytes = "encodedBytes".getBytes();
         when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn(encodedBytes);
-        when(payloadEncoder.forRecipient(payload, RECIPIENT_KEY)).thenReturn(payload);
 
         when(p2pClient.push(url, encodedBytes)).thenReturn("response".getBytes());
 
@@ -88,7 +87,6 @@ public class PayloadPublisherTest {
 
         verify(partyInfoService).getURLFromRecipientKey(RECIPIENT_KEY);
         verify(payloadEncoder).encode(any(EncodedPayload.class));
-        verify(payloadEncoder).forRecipient(payload, RECIPIENT_KEY);
         verify(p2pClient).push(url, encodedBytes);
         verify(enclave).getPublicKeys();
     }
@@ -116,7 +114,6 @@ public class PayloadPublisherTest {
 
         verify(partyInfoService).getURLFromRecipientKey(RECIPIENT_KEY);
         verify(payloadEncoder).encode(any(EncodedPayload.class));
-        verify(payloadEncoder).forRecipient(payload, RECIPIENT_KEY);
         verify(p2pClient).push(url, encodedBytes);
         verify(enclave).getPublicKeys();
     }

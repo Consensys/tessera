@@ -24,6 +24,11 @@
         <constructor-arg ref="enclave" />
     </bean>
 
+    <bean id="resendManager" class="com.quorum.tessera.transaction.ResendManagerImpl">
+        <constructor-arg ref="encryptedTransactionDAO" />
+        <constructor-arg ref="payloadEncoder" />
+        <constructor-arg ref="enclave" />
+    </bean>
 
     <bean id="transactionManager" class="com.quorum.tessera.transaction.TransactionManagerImpl">
         <constructor-arg>
@@ -34,6 +39,7 @@
         <constructor-arg ref="payloadPublisher" />
         <constructor-arg ref="enclave" />
         <constructor-arg ref="encryptedRawTransactionDAO" />
+        <constructor-arg ref="resendManager" />
     </bean>
 
     <bean id="p2pClientFactory" class="com.quorum.tessera.client.P2pClientFactory" factory-method="newFactory">

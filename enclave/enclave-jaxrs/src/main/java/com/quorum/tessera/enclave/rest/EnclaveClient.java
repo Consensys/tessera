@@ -163,4 +163,20 @@ public class EnclaveClient implements Enclave {
         return response.readEntity(byte[].class);
     }
 
+    @Override
+    public byte[] createNewRecipientBox(final EncodedPayload payload, final PublicKey recipientKey) {
+
+        final byte[] body = PayloadEncoder.create().encode(payload);
+
+        final EnclaveUnencryptPayload dto = new EnclaveUnencryptPayload();
+        dto.setData(body);
+        dto.setProvidedKey(recipientKey.getKeyBytes());
+
+        final Response response = client.target(uri)
+            .path("addRecipient")
+            .request()
+            .post(Entity.json(dto));
+
+        return response.readEntity(byte[].class);
+    }
 }
