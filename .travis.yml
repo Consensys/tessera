@@ -28,7 +28,7 @@ install:
 - unzip /tmp/vault_1.0.1_linux_amd64.zip
 - export PATH=$PATH:$PWD && popd
 
-script: mvn install -P acceptance-test,vault-acceptance-tests,jnacl -DskipTests=true
+script: mvn install -P acceptance-test,vault-acceptance-tests,jnacl
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
