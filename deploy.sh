@@ -10,6 +10,20 @@ echo "TRAVIS_BUILD_STAGE_NAME $TRAVIS_BUILD_STAGE_NAME"
 echo "TRAVIS_JDK_VERSION $TRAVIS_JDK_VERSION"
 echo "JDK_SWITCHER_DEFAULT $JDK_SWITCHER_DEFAULT"
 
+if [[ -z "${GPG_SECRET_KEYS}" ]]; then
+    echo "GPG_SECRET_KEYS environment variable not found "
+else 
+    #echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+    echo "GPG_SECRET_KEYS environment variable found"
+fi
+
+if [[ -z "${GPG_OWNERTRUST}" ]]; then
+    echo "GPG_OWNERTRUST environment variable not found"
+else 
+    #echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
+    echo "GPG_OWNERTRUST environment variable found"
+fi
+
 defaultJdk=${JDK_SWITCHER_DEFAULT:-"undefined"}
 travisJdk=${TRAVIS_JDK_VERSION:-"undefined"}
 
