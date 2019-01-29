@@ -44,6 +44,8 @@ public class RawTransactionManagerImpl implements RawTransactionManager {
 
         encryptedRawTransactionDAO.save(encryptedRawTransaction);
 
+        LOGGER.info("Stored raw payload with hash {}", hash);
+
         return new StoreRawResponse(encryptedRawTransaction.getHash().getHashBytes());
     }
 }

@@ -10,6 +10,7 @@ import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.test.util.ElUtil;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.assertj.core.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,9 +58,9 @@ public class ProcessManager {
         this.configFiles = Collections.unmodifiableMap(configs);
     }
 
-    public String findJarFilePath() {
-        return Objects.requireNonNull(System.getProperty("application.jar", null),
-                "System property application.jar is undefined.");
+    public String findJarFilePath(String jar) {
+        return Objects.requireNonNull(System.getProperty(jar, null),
+                "System property " + jar + " is undefined.");
     }
 
     public void startNodes() throws Exception {
@@ -98,7 +99,12 @@ public class ProcessManager {
     }
 
     public void start(String nodeAlias) throws Exception {
-        final String jarfile = findJarFilePath();
+        final String tesseraJar = findJarFilePath("application.jar");
+        final String sqliteJDBCjar = findJarFilePath("jdbc.sqlite.jar");
+        final String hsqlJDBCjar = findJarFilePath("jdbc.hsql.jar");
+        final String pathSeparator = System.getProperty("path.separator");
+
+        final String fullCP = Strings.join(hsqlJDBCjar, sqliteJDBCjar, tesseraJar).with(pathSeparator);
 
         URL configFile = configFiles.get(nodeAlias);
         Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "pid" + nodeAlias + ".pid");
@@ -111,8 +117,9 @@ public class ProcessManager {
                 "-Dnode.number=" + nodeAlias,
                 "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
                 "-Ddebug=true",
-                "-jar",
-                jarfile,
+                "-classpath",
+                fullCP,
+                "com.quorum.tessera.Launcher",
                 "-configfile",
                 ElUtil.createAndPopulatePaths(configFile).toAbsolutePath().toString(),
                 "-pidfile",
