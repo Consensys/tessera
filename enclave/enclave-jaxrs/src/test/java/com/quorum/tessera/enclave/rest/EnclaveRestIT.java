@@ -1,46 +1,34 @@
 package com.quorum.tessera.enclave.rest;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.util.jaxb.UnmarshallerBuilder;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
-import java.io.InputStream;
+import java.net.URL;
 import java.util.Set;
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamException;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-@Ignore
 @Configuration
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = EnclaveRestIT.class)
 @ImportResource(locations = "classpath:/tessera-enclave-jaxrs-spring.xml")
 public class EnclaveRestIT {
     
-    
-    @Bean
-    public Config config() throws JAXBException, XMLStreamException {
-        InputStream configFile = getClass().getResourceAsStream("/sample-config.xml");
-        return (Config) UnmarshallerBuilder.create()
-                .withXmlMediaType()
-                .withoutBeanValidation()
-                .build()
-                .unmarshal(configFile);
-
+    @BeforeClass
+    public static void onClass() throws Exception {
+        URL url = EnclaveRestIT.class.getResource("/sample-config.xml");
+        com.quorum.tessera.config.cli.CliDelegate.INSTANCE.execute("-configfile",url.getFile());
     }
-
+    
     @Inject
     private Enclave enclave;
 
