@@ -339,6 +339,7 @@
         <module>key-pair-converter</module>
         <module>ddls</module>
         <module>enclave</module>
+        <module>tessera-sync</module>
     </modules>
 
     <dependencyManagement>
@@ -582,7 +583,7 @@
                 <version>${spring.version}</version>
                 <scope>test</scope>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>
