@@ -1,0 +1,110 @@
+package com.jpmorgan.quorum.enclave.websockets;
+
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.RawTransaction;
+import com.quorum.tessera.encryption.PublicKey;
+import java.io.IOException;
+import java.net.URI;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.websocket.CloseReason;
+import javax.websocket.ContainerProvider;
+import javax.websocket.DeploymentException;
+import javax.websocket.Session;
+import javax.websocket.WebSocketContainer;
+
+public class EnclaveAdapter implements Enclave {
+
+    private WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+
+    private EnclaveClientEndpoint client = new EnclaveClientEndpoint();
+
+    private final URI serverUri;
+
+    private Session session;
+
+    private WebSocketTemplate webSocketTemplate;
+
+    public EnclaveAdapter(URI serverUri) {
+        this.serverUri = serverUri;
+    }
+
+    @PostConstruct
+    public void onConstruct() {
+        try{
+            session = container.connectToServer(client, serverUri);
+            webSocketTemplate = new WebSocketTemplate(session);
+        } catch (IOException | DeploymentException ex) {
+            throw new EnclaveCommunicationException(ex);
+        }
+    }
+
+    @PreDestroy
+    public void onDestroy() {
+        try{
+            session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Bye"));
+        } catch (IOException ex) {
+
+        }
+    }
+
+    @Override
+    public PublicKey defaultPublicKey() {
+
+        webSocketTemplate.execute(s -> {
+            EnclaveRequest request = EnclaveRequest.Builder.create()
+                    .withType(EnclaveRequestType.DEFAULT_PUBLIC_KEY)
+                    .build();
+            
+            s.getBasicRemote().sendObject(request);
+        });
+
+        return client.getDefaultKey();
+    }
+
+    @Override
+    public Set<PublicKey> getForwardingKeys() {
+        webSocketTemplate.execute(s -> {
+            EnclaveRequest request = EnclaveRequest.Builder.create()
+                    .withType(EnclaveRequestType.FORWARDING_KEYS)
+                    .build();
+
+            s.getBasicRemote().sendObject(request);
+        });
+        return client.getForwardingKeys();
+    }
+
+    @Override
+    public Set<PublicKey> getPublicKeys() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public EncodedPayload encryptPayload(byte[] message, PublicKey senderPublicKey, List<PublicKey> recipientPublicKeys) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public EncodedPayload encryptPayload(RawTransaction rawTransaction, List<PublicKey> recipientPublicKeys) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public RawTransaction encryptRawPayload(byte[] message, PublicKey sender) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public byte[] unencryptTransaction(EncodedPayload payload, PublicKey providedKey) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public byte[] createNewRecipientBox(EncodedPayload payload, PublicKey recipientKey) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+}
