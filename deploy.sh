@@ -50,8 +50,8 @@ fi
 # Use branch name, job name and event type to infer whether release or a snapshot deploy
 if [ "$TRAVIS_EVENT_TYPE" == "api" ] && [ "$TRAVIS_JOB_NAME" == "release" ]; then
     echo "Performing release build"
-    #TODO: should ideally extract the version number from the pom and use that in the release branch name
-    branch_name=`date +"release-%H%M%S-%d%m%y"`
+    release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
+    branch_name="release-${release_version}"
     mvn -B release:branch -DbranchName=${branch_name}
     mvn -B -DpushChanges=true release:prepare release:perform
     echo "TODO: The release branch must be manually merged back to master. (This could be automated in the future.)"
