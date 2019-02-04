@@ -51,7 +51,7 @@ if [ "$TRAVIS_EVENT_TYPE" == "api" ] && [ "$TRAVIS_JOB_NAME" == "release" ]; the
     #TODO: should ideally extract the version number from the pom and use that in the release branch name
     branch_name=`date +"release-%H%M%S-%d%m%y"`
     mvn -B release:branch -DbranchName=${branch_name}
-    mvn -B -DpushChanges=false release:prepare release:perform
+    mvn -B -DpushChanges=true release:prepare release:perform
     echo "TODO: The release branch must be manually merged back to master. (This could be automated in the future.)"
 
 elif [ "$TRAVIS_EVENT_TYPE" == "push" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
