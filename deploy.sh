@@ -14,16 +14,17 @@ if [[ -z "${GPG_SECRET_KEYS}" ]]; then
     echo "GPG_SECRET_KEYS environment variable not found"
     exit 1
 else 
-    #echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
     echo "GPG_SECRET_KEYS environment variable found"
+    echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+   
 fi
 
 if [[ -z "${GPG_OWNERTRUST}" ]]; then
     echo "GPG_OWNERTRUST environment variable not found"
     exit 1
 else
-    #echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
     echo "GPG_OWNERTRUST environment variable found"
+    echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
 fi
 
 defaultJdk=${JDK_SWITCHER_DEFAULT:-"undefined"}
