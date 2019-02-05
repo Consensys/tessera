@@ -35,7 +35,7 @@ public abstract class CodecAdapter<T> implements Encoder.Text<T>, Decoder.Text<T
 
         logger.info("Encoded {} to {}", object, encoded);
 
-        return encoded.add("requestType",getClass().getName()).build().toString();
+        return encoded.add("encodedBy",getClass().getSimpleName()).build().toString();
 
     }
 
@@ -64,7 +64,7 @@ public abstract class CodecAdapter<T> implements Encoder.Text<T>, Decoder.Text<T
                     continue;
                 }
                 String keyName = parser.getString();
-                if (!Objects.equals(keyName, "requestType")) {
+                if (!Objects.equals(keyName, "encodedBy")) {
                     continue;
                 }
                 parser.next();
