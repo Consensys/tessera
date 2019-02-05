@@ -52,13 +52,13 @@ if [ "$TRAVIS_EVENT_TYPE" == "api" ] && [ "$TRAVIS_JOB_NAME" == "release" ]; the
     echo "Performing release build"
     release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
     branch_name="release-${release_version}"
-    mvn -B release:branch -DbranchName=${branch_name}
-    mvn -B -DpushChanges=true release:prepare release:perform
+    mvn --settings .maven.xml -B release:branch -DbranchName=${branch_name}
+    mvn --settings .maven.xml -B -DpushChanges=true release:prepare release:perform
     echo "TODO: The release branch must be manually merged back to master. (This could be automated in the future.)"
 
 elif [ "$TRAVIS_EVENT_TYPE" == "push" ] && [ "$TRAVIS_BRANCH" == "deploy_stuff" ]; then
     echo "Deploying snapshot release to central"
-    mvn deploy -Dmaven.test.skip=true -P release 
+    mvn deploy --settings .maven.xml -Dmaven.test.skip=true -P release 
 fi
 
 exit 0
