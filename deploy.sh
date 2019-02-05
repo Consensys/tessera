@@ -14,16 +14,17 @@ if [[ -z "${GPG_SECRET_KEYS}" ]]; then
     echo "GPG_SECRET_KEYS environment variable not found"
     exit 1
 else 
-    #echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
     echo "GPG_SECRET_KEYS environment variable found"
+    echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+   
 fi
 
 if [[ -z "${GPG_OWNERTRUST}" ]]; then
     echo "GPG_OWNERTRUST environment variable not found"
     exit 1
 else
-    #echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
     echo "GPG_OWNERTRUST environment variable found"
+    echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
 fi
 
 defaultJdk=${JDK_SWITCHER_DEFAULT:-"undefined"}
@@ -52,13 +53,13 @@ if [ "$TRAVIS_EVENT_TYPE" == "api" ] && [ "$TRAVIS_JOB_NAME" == "release" ]; the
     echo "Performing release build"
     release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
     branch_name="release-${release_version}"
-    mvn -B release:branch -DbranchName=${branch_name}
-    mvn -B -DpushChanges=true release:prepare release:perform
+    mvn --settings .maven.xml -B release:branch -DbranchName=${branch_name}
+    mvn --settings .maven.xml -B -DpushChanges=true release:prepare release:perform
     echo "TODO: The release branch must be manually merged back to master. (This could be automated in the future.)"
 
 elif [ "$TRAVIS_EVENT_TYPE" == "push" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
     echo "Deploying snapshot release to central"
-    mvn deploy -P release
+    mvn deploy --settings .maven.xml -P release 
 fi
 
 exit 0
