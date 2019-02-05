@@ -11,7 +11,10 @@ import javax.websocket.OnOpen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ClientEndpoint(encoders = {EnclaveRequestCodec.class},decoders = {PublicKeySetCodec.class,PublicKeyCodec.class})
+@ClientEndpoint(
+        encoders = {EnclaveRequestCodec.class,EncodedPayloadCodec.class},
+        decoders={EnclaveRequestCodec.class,EncodedPayloadCodec.class}
+)
 public class EnclaveClientEndpoint {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveClientEndpoint.class);

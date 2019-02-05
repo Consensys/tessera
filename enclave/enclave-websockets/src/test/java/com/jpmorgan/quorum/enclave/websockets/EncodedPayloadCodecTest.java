@@ -45,7 +45,7 @@ public class EncodedPayloadCodecTest {
 
         JsonObject result = Json.createReader(new StringReader(data)).readObject();
 
-        assertThat(result).containsOnlyKeys("cipherText", "cipherTextNonce", "recipientBoxes", "recipientKeys", "recipientNonce", "senderKey");
+        assertThat(result).containsOnlyKeys("requestType","cipherText", "cipherTextNonce", "recipientBoxes", "recipientKeys", "recipientNonce", "senderKey");
 
         assertThat(result.getString("cipherText"))
                 .isEqualTo(Base64.getEncoder().encodeToString(cipherText));

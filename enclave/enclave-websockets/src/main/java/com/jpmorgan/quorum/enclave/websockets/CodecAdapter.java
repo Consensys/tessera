@@ -1,5 +1,11 @@
 package com.jpmorgan.quorum.enclave.websockets;
 
+import java.io.StringReader;
+import java.util.Objects;
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonObject;
+import javax.json.stream.JsonParser;
 import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EncodeException;
@@ -22,32 +28,52 @@ public abstract class CodecAdapter<T> implements Encoder.Text<T>, Decoder.Text<T
 
     @Override
     public final String encode(T object) throws EncodeException {
-        
+
         logger.info("Encoding {}", object);
 
-        String encoded = this.doEncode(object);
+        JsonObjectBuilder encoded = this.doEncode(object);
 
         logger.info("Encoded {} to {}", object, encoded);
 
-        return encoded;
+        return encoded.add("requestType",getClass().getName()).build().toString();
 
     }
 
     @Override
     public final T decode(String s) throws DecodeException {
+        
         logger.info("Decoding {}", s);
-        T decoded = this.doDecode(s);
+        JsonObject json = Json.createReader(new StringReader(s)).readObject();
+        T decoded = this.doDecode(json);
         logger.info("Decoded {} to {}", s, decoded);
         return decoded;
     }
 
-    public abstract String doEncode(T object) throws EncodeException;
+    public abstract JsonObjectBuilder doEncode(T object) throws EncodeException;
 
-    public abstract T doDecode(String s) throws DecodeException;
+    public abstract T doDecode(JsonObject s) throws DecodeException;
 
     @Override
-    public boolean willDecode(String s) {
-        return true;
+    public final boolean willDecode(String s) {
+        try (JsonParser parser = Json.createParser(new StringReader(s))){
+
+            while (parser.hasNext()) {
+                JsonParser.Event event = parser.next();
+
+                if (event != JsonParser.Event.KEY_NAME) {
+                    continue;
+                }
+                String keyName = parser.getString();
+                if (!Objects.equals(keyName, "requestType")) {
+                    continue;
+                }
+                parser.next();
+                String requestType = parser.getString();
+                return Objects.equals(requestType, getClass().getName());
+            }
+
+        }
+        return false;
     }
 
 }

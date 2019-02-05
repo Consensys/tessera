@@ -3,7 +3,6 @@ package com.jpmorgan.quorum.enclave.websockets;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.EncodedPayloadBuilder;
 import com.quorum.tessera.encryption.PublicKey;
-import java.io.StringReader;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
@@ -13,24 +12,20 @@ import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
-import javax.json.JsonReader;
 import javax.json.JsonString;
 import javax.websocket.DecodeException;
 import javax.websocket.EncodeException;
 
 public class EncodedPayloadCodec extends CodecAdapter<EncodedPayload> {
 
-
-    
     @Override
-    public String doEncode(EncodedPayload payload) throws EncodeException {
+    public JsonObjectBuilder doEncode(EncodedPayload payload) throws EncodeException {
 
         final Encoder base64Encoder = Base64.getEncoder();
 
         final JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
 
         final String cipherText = base64Encoder.encodeToString(payload.getCipherText());
-
         jsonBuilder.add("cipherText", cipherText);
 
         final String cipherTextNonce = base64Encoder.encodeToString(payload.getCipherTextNonce().getNonceBytes());
@@ -59,20 +54,14 @@ public class EncodedPayloadCodec extends CodecAdapter<EncodedPayload> {
         final String senderKey = base64Encoder.encodeToString(payload.getSenderKey().getKeyBytes());
 
         return jsonBuilder.add("recipientNonce", recipientNonce)
-                .add("senderKey", senderKey)
-                .build()
-                .toString();
+                .add("senderKey", senderKey);
 
     }
 
     @Override
-    public EncodedPayload doDecode(String data) throws DecodeException {
+    public EncodedPayload doDecode(JsonObject jsonObject) throws DecodeException {
 
         Decoder base64Decoder = Base64.getDecoder();
-
-        try (JsonReader jsonReader = Json.createReader(new StringReader(data))){
-
-            JsonObject jsonObject = jsonReader.readObject();
 
             byte[] cipherText = base64Decoder.decode(jsonObject.getString("cipherText"));
             
@@ -106,7 +95,9 @@ public class EncodedPayloadCodec extends CodecAdapter<EncodedPayload> {
                     .withRecipientNonce(recipientNonce)
                     .build();
 
-        }
     }
+
+
+
 
 }

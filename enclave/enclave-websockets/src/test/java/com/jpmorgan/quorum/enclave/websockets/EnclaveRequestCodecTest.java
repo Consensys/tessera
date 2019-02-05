@@ -1,10 +1,8 @@
 package com.jpmorgan.quorum.enclave.websockets;
 
 import com.quorum.tessera.encryption.PublicKey;
-import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Base64;
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,11 +26,9 @@ public class EnclaveRequestCodecTest {
                 .withArg(publicKey)
                 .withArg(Arrays.asList(publicKey))
                 .build();        
+
         
-        
-        String result = enclaveRequestCodec.doEncode(enclaveRequest);
-        
-        JsonObject json = Json.createReader(new StringReader(result)).readObject();
+        JsonObject json = enclaveRequestCodec.doEncode(enclaveRequest).build();
         
         
         assertThat(json.getString("type")).isEqualTo(EnclaveRequestType.ENCRYPT_PAYLOAD.name());
@@ -47,5 +43,7 @@ public class EnclaveRequestCodecTest {
 
     }
     
+    
+   
     
 }

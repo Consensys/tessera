@@ -1,7 +1,6 @@
 package com.jpmorgan.quorum.enclave.websockets;
 
 import com.quorum.tessera.encryption.PublicKey;
-import java.io.StringReader;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
@@ -11,19 +10,23 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
-import javax.json.JsonReader;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonString;
 import javax.websocket.DecodeException;
 import javax.websocket.EncodeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EnclaveRequestCodec extends CodecAdapter<EnclaveRequest> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveRequestCodec.class);
+    
     private static final Encoder BASE64_ENCODER = Base64.getEncoder();
     
     private static final Decoder BASE64_DECODER = Base64.getDecoder();
     
     @Override
-    public String doEncode(EnclaveRequest request) throws EncodeException {
+    public JsonObjectBuilder doEncode(EnclaveRequest request) throws EncodeException {
 
         EnclaveRequestType enclaveRequestType = request.getType();
 
@@ -66,17 +69,13 @@ public class EnclaveRequestCodec extends CodecAdapter<EnclaveRequest> {
 
         return Json.createObjectBuilder()
                 .add("type", request.getType().name())
-                .add("args", jsonArrayBuilder)
-                .build()
-                .toString();
+                .add("args", jsonArrayBuilder);
     }
 
     @Override
-    public EnclaveRequest doDecode(String s) throws DecodeException {
+    public EnclaveRequest doDecode(JsonObject json) throws DecodeException {
 
-        try (JsonReader jsonReader = Json.createReader(new StringReader(s))){
 
-            JsonObject json = jsonReader.readObject();
             EnclaveRequestType enclaveRequestType = EnclaveRequestType.valueOf(json.getString("type"));
 
             JsonArray args = json.getJsonArray("args");
@@ -116,8 +115,11 @@ public class EnclaveRequestCodec extends CodecAdapter<EnclaveRequest> {
             
             return requestBuilder.build();
 
-        }
     }
+
+
+
+
 
 
 }

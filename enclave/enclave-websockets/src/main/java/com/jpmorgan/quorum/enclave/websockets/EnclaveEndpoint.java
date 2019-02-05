@@ -16,8 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ServerEndpoint(value = "/enclave",
-        decoders = {EnclaveRequestCodec.class}, 
-        encoders = {PublicKeySetCodec.class, PublicKeyCodec.class})
+        encoders = {EnclaveRequestCodec.class,EncodedPayloadCodec.class},
+        decoders={EnclaveRequestCodec.class,EncodedPayloadCodec.class}
+)
 public class EnclaveEndpoint {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveEndpoint.class);
