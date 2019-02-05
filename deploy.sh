@@ -56,9 +56,9 @@ if [ "$TRAVIS_EVENT_TYPE" == "api" ] && [ "$TRAVIS_JOB_NAME" == "release" ]; the
     mvn -B -DpushChanges=true release:prepare release:perform
     echo "TODO: The release branch must be manually merged back to master. (This could be automated in the future.)"
 
-elif [ "$TRAVIS_EVENT_TYPE" == "push" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
+elif [ "$TRAVIS_EVENT_TYPE" == "push" ] && [ "$TRAVIS_BRANCH" == "deploy_stuff" ]; then
     echo "Deploying snapshot release to central"
-    mvn deploy -P release
+    mvn deploy -Dmaven.test.skip=true -P release 
 fi
 
 exit 0
