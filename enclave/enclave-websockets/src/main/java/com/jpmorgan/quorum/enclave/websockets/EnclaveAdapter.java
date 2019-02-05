@@ -62,7 +62,7 @@ public class EnclaveAdapter implements Enclave {
             s.getBasicRemote().sendObject(request);
         });
 
-        return client.getDefaultKey();
+        return client.pollForResult(PublicKey.class).get();
     }
 
     @Override
@@ -74,17 +74,38 @@ public class EnclaveAdapter implements Enclave {
 
             s.getBasicRemote().sendObject(request);
         });
-        return client.getForwardingKeys();
+        
+        return client.pollForResult(Set.class).get();
     }
 
     @Override
     public Set<PublicKey> getPublicKeys() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        webSocketTemplate.execute(s -> {
+            EnclaveRequest request = EnclaveRequest.Builder.create()
+                    .withType(EnclaveRequestType.PUBLIC_KEYS)
+                    .build();
+
+            s.getBasicRemote().sendObject(request);
+        });
+        
+        return client.pollForResult(Set.class).get();
     }
 
     @Override
     public EncodedPayload encryptPayload(byte[] message, PublicKey senderPublicKey, List<PublicKey> recipientPublicKeys) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        webSocketTemplate.execute(s -> {
+            EnclaveRequest request = EnclaveRequest.Builder.create()
+                    .withType(EnclaveRequestType.ENCRYPT_PAYLOAD)
+                    .withArg(message)
+                    .withArg(senderPublicKey)
+                    .withArg(recipientPublicKeys)
+                    .build();
+
+            s.getBasicRemote().sendObject(request);
+        });
+        
+        return client.pollForResult(EncodedPayload.class).get();
     }
 
     @Override

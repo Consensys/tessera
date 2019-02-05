@@ -1,8 +1,8 @@
 package com.jpmorgan.quorum.enclave.websockets;
 
-import com.quorum.tessera.encryption.PublicKey;
-import java.util.Set;
+import java.util.Optional;
 import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
 import javax.websocket.ClientEndpoint;
 import javax.websocket.Session;
 import javax.websocket.OnClose;
@@ -11,7 +11,7 @@ import javax.websocket.OnOpen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ClientEndpoint(encoders = {EnclaveRequestCodec.class}, decoders = {EnclaveResponseCodec.class})
+@ClientEndpoint(encoders = {EnclaveRequestCodec.class},decoders = {PublicKeySetCodec.class,PublicKeyCodec.class})
 public class EnclaveClientEndpoint {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveClientEndpoint.class);
@@ -24,36 +24,27 @@ public class EnclaveClientEndpoint {
     }
 
     @OnMessage
-    public void onResult(Session session, EnclaveResponse response) {
-
+    public <T> void onResult(Session session, T response) {
+        LOGGER.info("Response : {}",response);
         try{
-            result.put(response.getResult());
+            result.put(response);
         } catch (InterruptedException ex) {
             LOGGER.error(null, ex);
         }
     }
 
 
-
-    public PublicKey getDefaultKey() {
+    public <T> Optional<T> pollForResult(Class<T> type) {
         try{
-            return (PublicKey) result.take();
+            Object o = result.poll(20, TimeUnit.SECONDS);
+            return Optional.ofNullable(type.cast(o));
         } catch (InterruptedException ex) {
-            LOGGER.error(null, ex);
-        } finally {
-            result.clear();
+            return Optional.empty();
         }
-        return null;
+        
     }
+    
 
-    public Set<PublicKey> getForwardingKeys() {
-        try{
-            return (Set<PublicKey>) result.take();
-        } catch (InterruptedException ex) {
-            LOGGER.error(null, ex);
-        }
-        return null;
-    }
 
     @OnClose
     public void onClose(Session session) {

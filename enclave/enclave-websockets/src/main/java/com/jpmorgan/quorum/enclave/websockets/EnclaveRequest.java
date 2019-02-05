@@ -2,12 +2,10 @@ package com.jpmorgan.quorum.enclave.websockets;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class EnclaveRequest implements Serializable {
-
-
+    
     private EnclaveRequestType type;
 
     private List<?> args;
@@ -43,11 +41,11 @@ public class EnclaveRequest implements Serializable {
             return this;
         }
 
-        public Builder withArgs(Object... args) {
-            this.args.addAll(Arrays.asList(args));
+        public <T> Builder withArg(T arg) {
+            this.args.add(arg);
             return this;
         }
-
+        
         public EnclaveRequest build() {
             return new EnclaveRequest(type, args);
         }

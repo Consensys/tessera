@@ -1,9 +1,14 @@
 package com.jpmorgan.quorum.enclave.websockets;
 
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadBuilder;
 import com.quorum.tessera.encryption.PublicKey;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.glassfish.tyrus.server.Server;
@@ -62,6 +67,51 @@ public class EnclaveEndpointIT {
         Set<PublicKey> results = enclaveAdapter.getForwardingKeys();
 
         assertThat(results).containsExactly(publicKey);
+
+    }
+
+    @Test
+    public void publicKeys() throws Exception {
+
+        String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
+        PublicKey publicKey = PublicKey.from(Base64.getDecoder().decode(key));
+
+        when(MockEnclaveFactory.ENCLAVE.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
+
+        Set<PublicKey> results = enclaveAdapter.getPublicKeys();
+
+        assertThat(results).containsExactly(publicKey);
+
+    }
+
+    @Test
+    public void encryptPayload() throws Exception {
+
+        String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
+        PublicKey senderPublicKey = PublicKey.from(Base64.getDecoder().decode(key));
+
+        byte[] message = "SOME MESSAGE".getBytes();
+
+        PublicKey recipientPublicKey = PublicKey.from(Base64.getDecoder().decode(key));
+
+        List<PublicKey> recipientPublicKeys = new ArrayList<>();
+        recipientPublicKeys.add(recipientPublicKey);
+
+        EncodedPayload encodedPayload = EncodedPayloadBuilder.create()
+                        .withSenderKey(PublicKey.from("senderKey".getBytes()))
+                        .withCipherText("cipherText".getBytes())
+                        .withCipherTextNonce("cipherTextNonce".getBytes())
+                        .withRecipientBoxes(Arrays.asList("recipientBox".getBytes()))
+                        .withRecipientNonce("recipientNonce".getBytes())
+                        .withRecipientKeys(PublicKey.from("recipientKey".getBytes()))
+                        .build();
+
+        when(MockEnclaveFactory.ENCLAVE.encryptPayload(message, senderPublicKey, recipientPublicKeys)).thenReturn(encodedPayload);
+
+        EncodedPayload result = enclaveAdapter.encryptPayload(message,senderPublicKey,recipientPublicKeys);
+
+        assertThat(result).isNotNull();
+      
 
     }
 }
