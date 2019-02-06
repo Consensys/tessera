@@ -26,7 +26,7 @@ public class WebSocketTemplateTest {
     }
 
     @Test
-    public void sesionThrowsIOException() throws Exception {
+    public void sessionThrowsIOException() throws Exception {
 
         Session session = mock(Session.class);
         WebSocketCallback callback = mock(WebSocketCallback.class);
@@ -44,7 +44,7 @@ public class WebSocketTemplateTest {
     }
 
     @Test
-    public void sesionThrowsEncodeException() throws Exception {
+    public void sessionThrowsEncodeException() throws Exception {
 
         Session session = mock(Session.class);
         WebSocketCallback callback = mock(WebSocketCallback.class);
@@ -60,7 +60,7 @@ public class WebSocketTemplateTest {
     }
     
     @Test
-    public void sesionThrowsDeploymentException() throws Exception {
+    public void sessionThrowsDeploymentException() throws Exception {
 
         Session session = mock(Session.class);
         WebSocketCallback callback = mock(WebSocketCallback.class);
