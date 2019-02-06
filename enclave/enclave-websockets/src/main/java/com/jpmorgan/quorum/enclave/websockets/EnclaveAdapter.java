@@ -168,7 +168,15 @@ public class EnclaveAdapter implements Enclave {
 
     @Override
     public byte[] createNewRecipientBox(EncodedPayload payload, PublicKey recipientKey) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        webSocketTemplate.execute(s -> {
+            EnclaveRequest request = EnclaveRequest.Builder.create()
+                    .withType(EnclaveRequestType.CREATE_NEW_RECIPIENT_BOX)
+                    .withArg(payload)
+                    .withArg(recipientKey).build();  
+            s.getBasicRemote().sendObject(request);
+        });
+        
+        return client.pollForResult(ByteBuffer.class).get().array();  
     }
 
 }

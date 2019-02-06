@@ -188,5 +188,31 @@ public class EnclaveEndpointTest {
         
         assertThat(result).isEqualTo(outcome);
     }
+    
+    @Test
+    public void createBoxData() throws Exception {
+
+        
+        String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
+        PublicKey providedKey = PublicKey.from(Base64.getDecoder().decode(key));
+        
+        EncodedPayload encodedPayload = EncodedPayloadBuilder.create()
+                .withSenderKey(PublicKey.from("senderKey".getBytes()))
+                .withCipherText("cipherText".getBytes())
+                .withCipherTextNonce("cipherTextNonce".getBytes())
+                .withRecipientBoxes(Arrays.asList("recipientBox".getBytes()))
+                .withRecipientNonce("recipientNonce".getBytes())
+                .withRecipientKeys(PublicKey.from("recipientKey".getBytes()))
+                .build();
+        
+        byte[] outcome = "OUTCOME".getBytes();
+        
+        when(MockEnclaveFactory.ENCLAVE.createNewRecipientBox(any(EncodedPayload.class), any(PublicKey.class)))
+                .thenReturn(outcome);
+
+        byte[] result = enclaveAdapter.createNewRecipientBox(encodedPayload,providedKey);
+        
+        assertThat(result).isEqualTo(outcome);
+    }
 
 }

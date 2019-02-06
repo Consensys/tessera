@@ -114,6 +114,18 @@ public class EnclaveEndpoint {
             });
             return;
         }
+        
+        if(type == EnclaveRequestType.CREATE_NEW_RECIPIENT_BOX) {
+        
+            EncodedPayload payload = (EncodedPayload) request.getArgs().get(0);
+            PublicKey recipientKey = (PublicKey) request.getArgs().get(1);
+            
+            byte[] boxData =  enclave.createNewRecipientBox(payload, recipientKey);
+            webSocketTemplate.execute((s) -> {
+                s.getBasicRemote().sendBinary(ByteBuffer.wrap(boxData));
+            });
+            return;
+        }
 
         throw new UnsupportedOperationException(String.format("%s is not a supported request type ", type));
 
