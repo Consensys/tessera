@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 public class EnclaveAdapter implements Enclave {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveAdapter.class);
-    
+
     private final WebSocketContainer container;
 
     private EnclaveClientEndpoint client = new EnclaveClientEndpoint();
@@ -33,14 +33,14 @@ public class EnclaveAdapter implements Enclave {
     private WebSocketTemplate webSocketTemplate;
 
     public EnclaveAdapter(URI serverUri) {
-        this(ContainerProvider.getWebSocketContainer(),serverUri);
+        this(ContainerProvider.getWebSocketContainer(), serverUri);
     }
 
-    public EnclaveAdapter(WebSocketContainer container,URI serverUri) {
+    public EnclaveAdapter(WebSocketContainer container, URI serverUri) {
         this.serverUri = serverUri;
         this.container = container;
     }
-    
+
     @PostConstruct
     public void onConstruct() {
         try{
@@ -56,8 +56,8 @@ public class EnclaveAdapter implements Enclave {
         try{
             session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Bye"));
         } catch (IOException ex) {
-           LOGGER.warn("IOException while attempting to close remote session", ex.getMessage());
-           LOGGER.debug(null,ex);
+            LOGGER.warn("IOException while attempting to close remote session", ex.getMessage());
+            LOGGER.debug(null, ex);
         }
     }
 
@@ -68,7 +68,7 @@ public class EnclaveAdapter implements Enclave {
             EnclaveRequest request = EnclaveRequest.Builder.create()
                     .withType(EnclaveRequestType.DEFAULT_PUBLIC_KEY)
                     .build();
-            
+
             s.getBasicRemote().sendObject(request);
         });
 
@@ -84,7 +84,7 @@ public class EnclaveAdapter implements Enclave {
 
             s.getBasicRemote().sendObject(request);
         });
-        
+
         return client.pollForResult(Set.class).get();
     }
 
@@ -97,13 +97,13 @@ public class EnclaveAdapter implements Enclave {
 
             s.getBasicRemote().sendObject(request);
         });
-        
+
         return client.pollForResult(Set.class).get();
     }
 
     @Override
     public EncodedPayload encryptPayload(byte[] message, PublicKey senderPublicKey, List<PublicKey> recipientPublicKeys) {
-        
+
         webSocketTemplate.execute(s -> {
             EnclaveRequest request = EnclaveRequest.Builder.create()
                     .withType(EnclaveRequestType.ENCRYPT_PAYLOAD)
@@ -114,13 +114,13 @@ public class EnclaveAdapter implements Enclave {
 
             s.getBasicRemote().sendObject(request);
         });
-        
+
         return client.pollForResult(EncodedPayload.class).get();
     }
 
     @Override
     public EncodedPayload encryptPayload(RawTransaction rawTransaction, List<PublicKey> recipientPublicKeys) {
-        
+
         webSocketTemplate.execute(s -> {
             EnclaveRequest request = EnclaveRequest.Builder.create()
                     .withType(EnclaveRequestType.ENCRYPT_RAWTXN_PAYLOAD)
@@ -130,13 +130,24 @@ public class EnclaveAdapter implements Enclave {
 
             s.getBasicRemote().sendObject(request);
         });
-        
-        return client.pollForResult(EncodedPayload.class).get();        
+
+        return client.pollForResult(EncodedPayload.class).get();
     }
 
     @Override
     public RawTransaction encryptRawPayload(byte[] message, PublicKey sender) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+        webSocketTemplate.execute(s -> {
+            EnclaveRequest request = EnclaveRequest.Builder.create()
+                    .withType(EnclaveRequestType.ENCRYPT_RAW_PAYLOAD)
+                    .withArg(message)
+                    .withArg(sender)
+                    .build();
+
+            s.getBasicRemote().sendObject(request);
+
+        });
+        return client.pollForResult(RawTransaction.class).get();
     }
 
     @Override

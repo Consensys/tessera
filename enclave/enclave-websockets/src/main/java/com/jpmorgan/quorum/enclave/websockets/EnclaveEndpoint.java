@@ -87,6 +87,21 @@ public class EnclaveEndpoint {
             });
             return;
         }
+        
+        if(type == EnclaveRequestType.ENCRYPT_RAW_PAYLOAD) {
+            
+            byte[] message = (byte[]) request.getArgs().get(0);
+            
+            PublicKey from = (PublicKey) request.getArgs().get(1);
+            
+            RawTransaction txn = enclave.encryptRawPayload(message, from);
+            
+            webSocketTemplate.execute((s) -> {
+                s.getBasicRemote().sendObject(txn);
+            });
+            return;
+           
+        }
 
         throw new UnsupportedOperationException(String.format("%s is not a supported request type ", type));
 

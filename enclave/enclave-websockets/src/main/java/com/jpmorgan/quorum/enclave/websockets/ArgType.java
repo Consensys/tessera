@@ -6,6 +6,7 @@ public enum ArgType {
     PUBLIC_KEY,
     STRING,
     PUBLIC_KEY_LIST,
-    RAW_TRANSACTION
+    RAW_TRANSACTION,
+    ENCODED_PAYLOAD
     
 }

@@ -97,50 +97,78 @@ public class EnclaveEndpointTest {
         recipientPublicKeys.add(recipientPublicKey);
 
         EncodedPayload encodedPayload = EncodedPayloadBuilder.create()
-                        .withSenderKey(PublicKey.from("senderKey".getBytes()))
-                        .withCipherText("cipherText".getBytes())
-                        .withCipherTextNonce("cipherTextNonce".getBytes())
-                        .withRecipientBoxes(Arrays.asList("recipientBox".getBytes()))
-                        .withRecipientNonce("recipientNonce".getBytes())
-                        .withRecipientKeys(PublicKey.from("recipientKey".getBytes()))
-                        .build();
+                .withSenderKey(PublicKey.from("senderKey".getBytes()))
+                .withCipherText("cipherText".getBytes())
+                .withCipherTextNonce("cipherTextNonce".getBytes())
+                .withRecipientBoxes(Arrays.asList("recipientBox".getBytes()))
+                .withRecipientNonce("recipientNonce".getBytes())
+                .withRecipientKeys(PublicKey.from("recipientKey".getBytes()))
+                .build();
 
         when(MockEnclaveFactory.ENCLAVE.encryptPayload(message, senderPublicKey, recipientPublicKeys)).thenReturn(encodedPayload);
 
-        EncodedPayload result = enclaveAdapter.encryptPayload(message,senderPublicKey,recipientPublicKeys);
+        EncodedPayload result = enclaveAdapter.encryptPayload(message, senderPublicKey, recipientPublicKeys);
 
         assertThat(result).isNotNull();
-      
+
     }
-    
+
     @Test
-    public void encryptRowTxnPayload() throws Exception {
+    public void encryptRawTxnPayload() throws Exception {
 
         String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
         PublicKey senderPublicKey = PublicKey.from(Base64.getDecoder().decode(key));
 
         byte[] message = "SOME MESSAGE".getBytes();
 
-
         EncodedPayload encodedPayload = EncodedPayloadBuilder.create()
-                        .withSenderKey(PublicKey.from("senderKey".getBytes()))
-                        .withCipherText("cipherText".getBytes())
-                        .withCipherTextNonce("cipherTextNonce".getBytes())
-                        .withRecipientBoxes(Arrays.asList("recipientBox".getBytes()))
-                        .withRecipientNonce("recipientNonce".getBytes())
-                        .withRecipientKeys(PublicKey.from("recipientKey".getBytes()))
-                        .build();
-        
+                .withSenderKey(PublicKey.from("senderKey".getBytes()))
+                .withCipherText("cipherText".getBytes())
+                .withCipherTextNonce("cipherTextNonce".getBytes())
+                .withRecipientBoxes(Arrays.asList("recipientBox".getBytes()))
+                .withRecipientNonce("recipientNonce".getBytes())
+                .withRecipientKeys(PublicKey.from("recipientKey".getBytes()))
+                .build();
+
         RawTransaction txn = RawTransactionBuilder.create()
                 .withEncryptedPayload(message)
                 .withFrom(senderPublicKey).withEncryptedKey("PP".getBytes()).withNonce("nonce".getBytes()).build();
-        
+
         when(MockEnclaveFactory.ENCLAVE.encryptPayload(txn, Arrays.asList(senderPublicKey))).thenReturn(encodedPayload);
 
-        EncodedPayload result = enclaveAdapter.encryptPayload(txn,Arrays.asList(senderPublicKey));
+        EncodedPayload result = enclaveAdapter.encryptPayload(txn, Arrays.asList(senderPublicKey));
 
         assertThat(result).isNotNull();
-      
+
     }
-    
+
+    @Test
+    public void encryptRawPayload() throws Exception {
+
+        String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
+        PublicKey senderPublicKey = PublicKey.from(Base64.getDecoder().decode(key));
+
+        byte[] message = "SOME MESSAGE".getBytes();
+
+        EncodedPayload encodedPayload = EncodedPayloadBuilder.create()
+                .withSenderKey(PublicKey.from("senderKey".getBytes()))
+                .withCipherText("cipherText".getBytes())
+                .withCipherTextNonce("cipherTextNonce".getBytes())
+                .withRecipientBoxes(Arrays.asList("recipientBox".getBytes()))
+                .withRecipientNonce("recipientNonce".getBytes())
+                .withRecipientKeys(PublicKey.from("recipientKey".getBytes()))
+                .build();
+
+        RawTransaction txn = RawTransactionBuilder.create()
+                .withEncryptedPayload(message)
+                .withFrom(senderPublicKey).withEncryptedKey("PP".getBytes()).withNonce("nonce".getBytes()).build();
+
+        when(MockEnclaveFactory.ENCLAVE.encryptRawPayload(message, senderPublicKey)).thenReturn(txn);
+
+        RawTransaction result = enclaveAdapter.encryptRawPayload(message, senderPublicKey);
+
+        assertThat(result).isNotNull();
+
+    }
+
 }
