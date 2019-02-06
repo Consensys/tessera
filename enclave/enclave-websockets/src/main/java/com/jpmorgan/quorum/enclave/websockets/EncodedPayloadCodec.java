@@ -16,7 +16,7 @@ import javax.json.JsonString;
 import javax.websocket.DecodeException;
 import javax.websocket.EncodeException;
 
-public class EncodedPayloadCodec extends CodecAdapter<EncodedPayload> {
+public class EncodedPayloadCodec extends JsonCodec<EncodedPayload> {
 
     @Override
     public JsonObjectBuilder doEncode(EncodedPayload payload) throws EncodeException {

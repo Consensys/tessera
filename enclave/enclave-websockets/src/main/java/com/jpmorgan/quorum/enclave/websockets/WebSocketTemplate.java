@@ -20,9 +20,9 @@ public class WebSocketTemplate {
     
     public void execute(WebSocketCallback callback) {
         try{
-            LOGGER.info("Before {}",session.getId());
+            LOGGER.debug("Before {}",session.getId());
             callback.execute(session);
-            LOGGER.info("After {}",session.getId());
+            LOGGER.debug("After {}",session.getId());
         } catch (IOException | DeploymentException | EncodeException ex) {
            throw new WebSocketException(ex);
         }

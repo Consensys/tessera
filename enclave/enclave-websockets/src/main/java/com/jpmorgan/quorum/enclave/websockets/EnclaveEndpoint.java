@@ -16,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ServerEndpoint(value = "/enclave",
-        encoders = {EnclaveRequestCodec.class,EncodedPayloadCodec.class},
-        decoders={EnclaveRequestCodec.class,EncodedPayloadCodec.class}
+        decoders = {EnclaveRequestCodec.class, PublicKeyCodec.class,PublicKeySetCodec.class,EncodedPayloadCodec.class},
+        encoders = {EnclaveRequestCodec.class, PublicKeyCodec.class,PublicKeySetCodec.class,EncodedPayloadCodec.class}
 )
 public class EnclaveEndpoint {
 
@@ -38,7 +38,7 @@ public class EnclaveEndpoint {
         EnclaveRequestType type = request.getType();
 
         final WebSocketTemplate webSocketTemplate = new WebSocketTemplate(session);
-        
+
         if (type == EnclaveRequestType.DEFAULT_PUBLIC_KEY) {
             PublicKey publicKey = enclave.defaultPublicKey();
             webSocketTemplate.execute((WebSocketCallback) (Session session1) -> {
@@ -62,13 +62,13 @@ public class EnclaveEndpoint {
             });
             return;
         }
-        
-        if(type == EnclaveRequestType.ENCRYPT_PAYLOAD) {
-            
+
+        if (type == EnclaveRequestType.ENCRYPT_PAYLOAD) {
+
             byte[] message = (byte[]) request.getArgs().get(0);
             PublicKey senderPublicKey = (PublicKey) request.getArgs().get(1);
             List<PublicKey> recipientPublicKeys = (List<PublicKey>) request.getArgs().get(2);
-            
+
             EncodedPayload payload = enclave.encryptPayload(message, senderPublicKey, recipientPublicKeys);
             webSocketTemplate.execute((WebSocketCallback) (s) -> {
                 s.getBasicRemote().sendObject(payload);

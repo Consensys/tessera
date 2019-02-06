@@ -12,12 +12,10 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonString;
-import javax.websocket.DecodeException;
-import javax.websocket.EncodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EnclaveRequestCodec extends CodecAdapter<EnclaveRequest> {
+public class EnclaveRequestCodec extends JsonCodec<EnclaveRequest> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveRequestCodec.class);
     
@@ -26,7 +24,7 @@ public class EnclaveRequestCodec extends CodecAdapter<EnclaveRequest> {
     private static final Decoder BASE64_DECODER = Base64.getDecoder();
     
     @Override
-    public JsonObjectBuilder doEncode(EnclaveRequest request) throws EncodeException {
+    public JsonObjectBuilder doEncode(EnclaveRequest request) throws Exception {
 
         EnclaveRequestType enclaveRequestType = request.getType();
 
@@ -73,8 +71,7 @@ public class EnclaveRequestCodec extends CodecAdapter<EnclaveRequest> {
     }
 
     @Override
-    public EnclaveRequest doDecode(JsonObject json) throws DecodeException {
-
+    public EnclaveRequest doDecode(JsonObject json) throws Exception {
 
             EnclaveRequestType enclaveRequestType = EnclaveRequestType.valueOf(json.getString("type"));
 
@@ -107,19 +104,10 @@ public class EnclaveRequestCodec extends CodecAdapter<EnclaveRequest> {
                             .collect(Collectors.toList());
                     
                     requestBuilder.withArg(publicKeys);
-                }
-                
-                
+                }  
             }
-            
-            
+
             return requestBuilder.build();
-
     }
-
-
-
-
-
 
 }

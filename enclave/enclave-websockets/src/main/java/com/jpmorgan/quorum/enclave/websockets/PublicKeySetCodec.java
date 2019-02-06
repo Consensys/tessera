@@ -11,13 +11,11 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonString;
-import javax.websocket.DecodeException;
-import javax.websocket.EncodeException;
 
-public class PublicKeySetCodec extends CodecAdapter<Set<PublicKey>> {
+public class PublicKeySetCodec extends JsonCodec<Set<PublicKey>> {
 
     @Override
-    public JsonObjectBuilder doEncode(Set<PublicKey> object) throws EncodeException {
+    public JsonObjectBuilder doEncode(Set<PublicKey> object) throws Exception {
 
         Encoder base64Encoder = Base64.getEncoder();
 
@@ -34,7 +32,7 @@ public class PublicKeySetCodec extends CodecAdapter<Set<PublicKey>> {
     }
 
     @Override
-    public Set<PublicKey> doDecode(JsonObject json) throws DecodeException {
+    public Set<PublicKey> doDecode(JsonObject json) throws Exception {
 
         Decoder base64Decoder = Base64.getDecoder();
         Set result = new HashSet();

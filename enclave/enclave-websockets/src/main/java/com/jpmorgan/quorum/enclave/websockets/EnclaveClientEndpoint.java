@@ -12,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ClientEndpoint(
-        encoders = {EnclaveRequestCodec.class,EncodedPayloadCodec.class},
-        decoders={EnclaveRequestCodec.class,EncodedPayloadCodec.class}
+        decoders = {EnclaveRequestCodec.class,PublicKeyCodec.class,PublicKeySetCodec.class,EncodedPayloadCodec.class},
+        encoders = {EnclaveRequestCodec.class,PublicKeyCodec.class,PublicKeySetCodec.class,EncodedPayloadCodec.class}
 )
 public class EnclaveClientEndpoint {
 
@@ -39,7 +39,7 @@ public class EnclaveClientEndpoint {
 
     public <T> Optional<T> pollForResult(Class<T> type) {
         try{
-            Object o = result.poll(20, TimeUnit.SECONDS);
+            Object o = result.poll(2, TimeUnit.SECONDS);
             return Optional.ofNullable(type.cast(o));
         } catch (InterruptedException ex) {
             return Optional.empty();
