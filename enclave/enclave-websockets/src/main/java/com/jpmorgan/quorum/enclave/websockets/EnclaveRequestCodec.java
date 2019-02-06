@@ -29,10 +29,6 @@ public class EnclaveRequestCodec extends JsonCodec<EnclaveRequest> {
         EnclaveRequestType enclaveRequestType = request.getType();
 
         JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
-
-        if(enclaveRequestType.getParamTypes().size() != request.getArgs().size()) {
-            throw new IllegalStateException("Arg desciptors and and args differ in length");
-        }
         
         for (int i = 0; i < enclaveRequestType.getParamTypes().size(); i++) {
             Object value = request.getArgs().get(i);

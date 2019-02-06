@@ -15,10 +15,14 @@ import javax.websocket.ContainerProvider;
 import javax.websocket.DeploymentException;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EnclaveAdapter implements Enclave {
 
-    private WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveAdapter.class);
+    
+    private final WebSocketContainer container;
 
     private EnclaveClientEndpoint client = new EnclaveClientEndpoint();
 
@@ -29,9 +33,14 @@ public class EnclaveAdapter implements Enclave {
     private WebSocketTemplate webSocketTemplate;
 
     public EnclaveAdapter(URI serverUri) {
-        this.serverUri = serverUri;
+        this(ContainerProvider.getWebSocketContainer(),serverUri);
     }
 
+    public EnclaveAdapter(WebSocketContainer container,URI serverUri) {
+        this.serverUri = serverUri;
+        this.container = container;
+    }
+    
     @PostConstruct
     public void onConstruct() {
         try{
@@ -47,7 +56,8 @@ public class EnclaveAdapter implements Enclave {
         try{
             session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Bye"));
         } catch (IOException ex) {
-
+           LOGGER.warn("IOException while attempting to close remote session", ex.getMessage());
+           LOGGER.debug(null,ex);
         }
     }
 

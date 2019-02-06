@@ -19,9 +19,9 @@ import static org.mockito.Mockito.when;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EnclaveEndpointIT {
+public class EnclaveEndpointTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveEndpointIT.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveEndpointTest.class);
 
     private Server server;
 
@@ -53,7 +53,6 @@ public class EnclaveEndpointIT {
         PublicKey result = enclaveAdapter.defaultPublicKey();
 
         assertThat(result).isEqualTo(publicKey);
-
     }
 
     @Test
@@ -67,7 +66,6 @@ public class EnclaveEndpointIT {
         Set<PublicKey> results = enclaveAdapter.getForwardingKeys();
 
         assertThat(results).containsExactly(publicKey);
-
     }
 
     @Test
@@ -81,7 +79,6 @@ public class EnclaveEndpointIT {
         Set<PublicKey> results = enclaveAdapter.getPublicKeys();
 
         assertThat(results).containsExactly(publicKey);
-
     }
 
     @Test
@@ -112,6 +109,8 @@ public class EnclaveEndpointIT {
 
         assertThat(result).isNotNull();
       
-
     }
+    
+    
+    
 }

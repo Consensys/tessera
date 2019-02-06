@@ -7,7 +7,6 @@ import com.quorum.tessera.encryption.PublicKey;
 import java.util.List;
 import java.util.Set;
 import javax.websocket.OnClose;
-import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -85,9 +84,5 @@ public class EnclaveEndpoint {
         LOGGER.info("BYE");
     }
 
-    @OnError
-    public void onError(Session session, Throwable t) throws Throwable {
-        LOGGER.error(null, t);
-    }
 
 }

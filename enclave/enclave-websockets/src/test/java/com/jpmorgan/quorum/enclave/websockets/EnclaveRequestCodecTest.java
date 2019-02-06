@@ -75,5 +75,7 @@ public class EnclaveRequestCodecTest {
         List keys = (List) result.getArgs().get(2);
         assertThat(keys).containsExactly(publicKey);
     }
+    
+
 
 }
