@@ -7,7 +7,8 @@ public enum EnclaveRequestType {
     DEFAULT_PUBLIC_KEY,
     FORWARDING_KEYS,
     PUBLIC_KEYS,
-    ENCRYPT_PAYLOAD(ArgType.BYTE_ARRAY,ArgType.PUBLIC_KEY,ArgType.PUBLIC_KEY_LIST);
+    ENCRYPT_PAYLOAD(ArgType.BYTE_ARRAY,ArgType.PUBLIC_KEY,ArgType.PUBLIC_KEY_LIST),
+    ENCRYPT_RAWTXN_PAYLOAD(ArgType.RAW_TRANSACTION,ArgType.PUBLIC_KEY_LIST);
 
     private final List<ArgType> paramTypes;
     

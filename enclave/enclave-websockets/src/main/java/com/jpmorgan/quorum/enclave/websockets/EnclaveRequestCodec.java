@@ -1,5 +1,6 @@
 package com.jpmorgan.quorum.enclave.websockets;
 
+import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.Base64;
 import java.util.Base64.Decoder;
@@ -58,6 +59,13 @@ public class EnclaveRequestCodec extends JsonCodec<EnclaveRequest> {
                 jsonArrayBuilder.add(encodedKey);
                 continue;
             }
+            
+            if(type == ArgType.RAW_TRANSACTION) {
+                RawTransaction txn = RawTransaction.class.cast(value);
+                JsonObjectBuilder encoded = new RawTransactionCodec().doEncode(txn);
+                jsonArrayBuilder.add(encoded);
+                continue;
+            }
 
         }
 
@@ -101,6 +109,11 @@ public class EnclaveRequestCodec extends JsonCodec<EnclaveRequest> {
                     
                     requestBuilder.withArg(publicKeys);
                 }  
+                
+                if(type == ArgType.RAW_TRANSACTION) {
+                    RawTransaction txn = new RawTransactionCodec().doDecode(args.getJsonObject(i));
+                    requestBuilder.withArg(txn);
+                }
             }
 
             return requestBuilder.build();

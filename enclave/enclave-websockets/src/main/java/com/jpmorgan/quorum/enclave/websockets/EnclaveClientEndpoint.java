@@ -12,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ClientEndpoint(
-        decoders = {EnclaveRequestCodec.class,PublicKeyCodec.class,PublicKeySetCodec.class,EncodedPayloadCodec.class},
-        encoders = {EnclaveRequestCodec.class,PublicKeyCodec.class,PublicKeySetCodec.class,EncodedPayloadCodec.class}
+        decoders = {EnclaveRequestCodec.class,PublicKeyCodec.class,PublicKeySetCodec.class,EncodedPayloadCodec.class,RawTransactionCodec.class},
+        encoders = {EnclaveRequestCodec.class,PublicKeyCodec.class,PublicKeySetCodec.class,EncodedPayloadCodec.class,RawTransactionCodec.class}
 )
 public class EnclaveClientEndpoint {
 

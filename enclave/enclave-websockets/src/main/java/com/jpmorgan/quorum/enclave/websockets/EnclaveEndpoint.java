@@ -3,6 +3,7 @@ package com.jpmorgan.quorum.enclave.websockets;
 import static com.jpmorgan.quorum.enclave.websockets.EnclaveRequestType.PUBLIC_KEYS;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.List;
 import java.util.Set;
@@ -15,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ServerEndpoint(value = "/enclave",
-        decoders = {EnclaveRequestCodec.class, PublicKeyCodec.class,PublicKeySetCodec.class,EncodedPayloadCodec.class},
-        encoders = {EnclaveRequestCodec.class, PublicKeyCodec.class,PublicKeySetCodec.class,EncodedPayloadCodec.class}
+        decoders = {EnclaveRequestCodec.class, PublicKeyCodec.class, PublicKeySetCodec.class, EncodedPayloadCodec.class, RawTransactionCodec.class},
+        encoders = {EnclaveRequestCodec.class, PublicKeyCodec.class, PublicKeySetCodec.class, EncodedPayloadCodec.class, RawTransactionCodec.class}
 )
 public class EnclaveEndpoint {
 
@@ -75,6 +76,18 @@ public class EnclaveEndpoint {
             return;
         }
 
+        if (type == EnclaveRequestType.ENCRYPT_RAWTXN_PAYLOAD) {
+
+            RawTransaction txn = RawTransaction.class.cast(request.getArgs().get(0));
+            List<PublicKey> recipientPublicKeys = (List<PublicKey>) request.getArgs().get(1);
+
+            EncodedPayload payload = enclave.encryptPayload(txn, recipientPublicKeys);
+            webSocketTemplate.execute((WebSocketCallback) (s) -> {
+                s.getBasicRemote().sendObject(payload);
+            });
+            return;
+        }
+
         throw new UnsupportedOperationException(String.format("%s is not a supported request type ", type));
 
     }
@@ -83,6 +96,5 @@ public class EnclaveEndpoint {
     public void onClose(Session session) {
         LOGGER.info("BYE");
     }
-
 
 }

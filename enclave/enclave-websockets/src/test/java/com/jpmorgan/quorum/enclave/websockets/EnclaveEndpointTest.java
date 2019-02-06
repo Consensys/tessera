@@ -2,6 +2,8 @@ package com.jpmorgan.quorum.enclave.websockets;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.EncodedPayloadBuilder;
+import com.quorum.tessera.enclave.RawTransaction;
+import com.quorum.tessera.enclave.RawTransactionBuilder;
 import com.quorum.tessera.encryption.PublicKey;
 import java.net.URI;
 import java.util.ArrayList;
@@ -111,6 +113,34 @@ public class EnclaveEndpointTest {
       
     }
     
-    
+    @Test
+    public void encryptRowTxnPayload() throws Exception {
+
+        String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
+        PublicKey senderPublicKey = PublicKey.from(Base64.getDecoder().decode(key));
+
+        byte[] message = "SOME MESSAGE".getBytes();
+
+
+        EncodedPayload encodedPayload = EncodedPayloadBuilder.create()
+                        .withSenderKey(PublicKey.from("senderKey".getBytes()))
+                        .withCipherText("cipherText".getBytes())
+                        .withCipherTextNonce("cipherTextNonce".getBytes())
+                        .withRecipientBoxes(Arrays.asList("recipientBox".getBytes()))
+                        .withRecipientNonce("recipientNonce".getBytes())
+                        .withRecipientKeys(PublicKey.from("recipientKey".getBytes()))
+                        .build();
+        
+        RawTransaction txn = RawTransactionBuilder.create()
+                .withEncryptedPayload(message)
+                .withFrom(senderPublicKey).withEncryptedKey("PP".getBytes()).withNonce("nonce".getBytes()).build();
+        
+        when(MockEnclaveFactory.ENCLAVE.encryptPayload(txn, Arrays.asList(senderPublicKey))).thenReturn(encodedPayload);
+
+        EncodedPayload result = enclaveAdapter.encryptPayload(txn,Arrays.asList(senderPublicKey));
+
+        assertThat(result).isNotNull();
+      
+    }
     
 }

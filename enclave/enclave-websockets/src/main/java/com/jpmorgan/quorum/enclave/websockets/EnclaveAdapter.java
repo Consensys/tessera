@@ -120,7 +120,18 @@ public class EnclaveAdapter implements Enclave {
 
     @Override
     public EncodedPayload encryptPayload(RawTransaction rawTransaction, List<PublicKey> recipientPublicKeys) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        webSocketTemplate.execute(s -> {
+            EnclaveRequest request = EnclaveRequest.Builder.create()
+                    .withType(EnclaveRequestType.ENCRYPT_RAWTXN_PAYLOAD)
+                    .withArg(rawTransaction)
+                    .withArg(recipientPublicKeys)
+                    .build();
+
+            s.getBasicRemote().sendObject(request);
+        });
+        
+        return client.pollForResult(EncodedPayload.class).get();        
     }
 
     @Override

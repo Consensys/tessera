@@ -48,7 +48,7 @@ public class EnclaveRequest implements Serializable {
         
         public EnclaveRequest build() {
             if(type.getParamTypes().size() != args.size()) {
-                throw new IllegalStateException("Param types and args are not of equal length");
+                throw new IllegalStateException("Param types and args are not of equal length:" + type + " "+ args);
             }
             
             return new EnclaveRequest(type, args);
