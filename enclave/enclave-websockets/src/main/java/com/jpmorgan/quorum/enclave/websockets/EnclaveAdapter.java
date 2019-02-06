@@ -6,6 +6,7 @@ import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.PublicKey;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.PostConstruct;
@@ -152,7 +153,17 @@ public class EnclaveAdapter implements Enclave {
 
     @Override
     public byte[] unencryptTransaction(EncodedPayload payload, PublicKey providedKey) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        webSocketTemplate.execute(s -> {
+            EnclaveRequest request = EnclaveRequest.Builder.create()
+                    .withType(EnclaveRequestType.UNENCRYPT_TXN)
+                    .withArg(payload)
+                    .withArg(providedKey).build();
+            
+            
+            s.getBasicRemote().sendObject(request);
+        });
+        
+        return client.pollForResult(ByteBuffer.class).get().array();        
     }
 
     @Override

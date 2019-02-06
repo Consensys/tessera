@@ -17,6 +17,7 @@ import org.glassfish.tyrus.server.Server;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,15 +151,6 @@ public class EnclaveEndpointTest {
 
         byte[] message = "SOME MESSAGE".getBytes();
 
-        EncodedPayload encodedPayload = EncodedPayloadBuilder.create()
-                .withSenderKey(PublicKey.from("senderKey".getBytes()))
-                .withCipherText("cipherText".getBytes())
-                .withCipherTextNonce("cipherTextNonce".getBytes())
-                .withRecipientBoxes(Arrays.asList("recipientBox".getBytes()))
-                .withRecipientNonce("recipientNonce".getBytes())
-                .withRecipientKeys(PublicKey.from("recipientKey".getBytes()))
-                .build();
-
         RawTransaction txn = RawTransactionBuilder.create()
                 .withEncryptedPayload(message)
                 .withFrom(senderPublicKey).withEncryptedKey("PP".getBytes()).withNonce("nonce".getBytes()).build();
@@ -169,6 +161,32 @@ public class EnclaveEndpointTest {
 
         assertThat(result).isNotNull();
 
+    }
+
+    @Test
+    public void unencryptTransaction() throws Exception {
+
+        
+        String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
+        PublicKey providedKey = PublicKey.from(Base64.getDecoder().decode(key));
+        
+        EncodedPayload encodedPayload = EncodedPayloadBuilder.create()
+                .withSenderKey(PublicKey.from("senderKey".getBytes()))
+                .withCipherText("cipherText".getBytes())
+                .withCipherTextNonce("cipherTextNonce".getBytes())
+                .withRecipientBoxes(Arrays.asList("recipientBox".getBytes()))
+                .withRecipientNonce("recipientNonce".getBytes())
+                .withRecipientKeys(PublicKey.from("recipientKey".getBytes()))
+                .build();
+        
+        byte[] outcome = "OUTCOME".getBytes();
+        
+        when(MockEnclaveFactory.ENCLAVE.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
+                .thenReturn(outcome);
+
+        byte[] result = enclaveAdapter.unencryptTransaction(encodedPayload,providedKey);
+        
+        assertThat(result).isEqualTo(outcome);
     }
 
 }

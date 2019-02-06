@@ -5,6 +5,7 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.PublicKey;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
 import javax.websocket.OnClose;
@@ -101,6 +102,17 @@ public class EnclaveEndpoint {
             });
             return;
            
+        }
+        
+        if(type == EnclaveRequestType.UNENCRYPT_TXN) {
+          
+            EncodedPayload payload = (EncodedPayload) request.getArgs().get(0);
+            PublicKey providedKey = (PublicKey) request.getArgs().get(1);
+            byte[] txnData = enclave.unencryptTransaction(payload, providedKey);
+            webSocketTemplate.execute((s) -> {
+                s.getBasicRemote().sendBinary(ByteBuffer.wrap(txnData));
+            });
+            return;
         }
 
         throw new UnsupportedOperationException(String.format("%s is not a supported request type ", type));

@@ -39,7 +39,7 @@ public class EnclaveClientEndpoint {
 
     public <T> Optional<T> pollForResult(Class<T> type) {
         try{
-            Object o = result.poll(2, TimeUnit.SECONDS);
+            Object o = result.poll(2, TimeUnit.MINUTES);
             return Optional.ofNullable(type.cast(o));
         } catch (InterruptedException ex) {
             return Optional.empty();
