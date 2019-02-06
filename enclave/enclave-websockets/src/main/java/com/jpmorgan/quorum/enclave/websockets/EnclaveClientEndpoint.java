@@ -12,8 +12,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ClientEndpoint(
-        decoders = {EnclaveRequestCodec.class,PublicKeyCodec.class,PublicKeySetCodec.class,EncodedPayloadCodec.class,RawTransactionCodec.class},
-        encoders = {EnclaveRequestCodec.class,PublicKeyCodec.class,PublicKeySetCodec.class,EncodedPayloadCodec.class,RawTransactionCodec.class}
+        decoders = {
+            EnclaveRequestCodec.class, 
+            PublicKeyCodec.class, 
+            PublicKeySetCodec.class, 
+            EncodedPayloadCodec.class, 
+            RawTransactionCodec.class
+        },
+        encoders = {
+            EnclaveRequestCodec.class, 
+            PublicKeyCodec.class, 
+            PublicKeySetCodec.class, 
+            EncodedPayloadCodec.class, 
+            RawTransactionCodec.class
+        }
 )
 public class EnclaveClientEndpoint {
 
@@ -23,34 +35,26 @@ public class EnclaveClientEndpoint {
 
     @OnOpen
     public void onOpen(Session session) {
-        LOGGER.info("HELLO");
+        LOGGER.debug("HELLO {}", session.getId());
     }
 
     @OnMessage
     public <T> void onResult(Session session, T response) {
-        LOGGER.info("Response : {}",response);
-        try{
-            result.put(response);
-        } catch (InterruptedException ex) {
-            LOGGER.error(null, ex);
-        }
-    }
+        LOGGER.debug("Response : {}", response);
 
+        InterruptableCallback.execute(() -> {
+            result.put(response);
+            return true;
+        });
+    }
 
     public <T> Optional<T> pollForResult(Class<T> type) {
-        try{
-            Object o = result.poll(2, TimeUnit.MINUTES);
-            return Optional.ofNullable(type.cast(o));
-        } catch (InterruptedException ex) {
-            return Optional.empty();
-        }
-        
+        Object o = InterruptableCallback.execute(() -> result.poll(5, TimeUnit.SECONDS));
+        return Optional.ofNullable(type.cast(o));
     }
-    
-
 
     @OnClose
     public void onClose(Session session) {
-        LOGGER.info("CLOSE");
+        LOGGER.debug("Closing session {}", session.getId());
     }
 }

@@ -12,12 +12,14 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import javax.websocket.Session;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.glassfish.tyrus.server.Server;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -166,10 +168,9 @@ public class EnclaveEndpointTest {
     @Test
     public void unencryptTransaction() throws Exception {
 
-        
         String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
         PublicKey providedKey = PublicKey.from(Base64.getDecoder().decode(key));
-        
+
         EncodedPayload encodedPayload = EncodedPayloadBuilder.create()
                 .withSenderKey(PublicKey.from("senderKey".getBytes()))
                 .withCipherText("cipherText".getBytes())
@@ -178,24 +179,23 @@ public class EnclaveEndpointTest {
                 .withRecipientNonce("recipientNonce".getBytes())
                 .withRecipientKeys(PublicKey.from("recipientKey".getBytes()))
                 .build();
-        
+
         byte[] outcome = "OUTCOME".getBytes();
-        
+
         when(MockEnclaveFactory.ENCLAVE.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
                 .thenReturn(outcome);
 
-        byte[] result = enclaveAdapter.unencryptTransaction(encodedPayload,providedKey);
-        
+        byte[] result = enclaveAdapter.unencryptTransaction(encodedPayload, providedKey);
+
         assertThat(result).isEqualTo(outcome);
     }
-    
+
     @Test
     public void createBoxData() throws Exception {
 
-        
         String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
         PublicKey providedKey = PublicKey.from(Base64.getDecoder().decode(key));
-        
+
         EncodedPayload encodedPayload = EncodedPayloadBuilder.create()
                 .withSenderKey(PublicKey.from("senderKey".getBytes()))
                 .withCipherText("cipherText".getBytes())
@@ -204,15 +204,28 @@ public class EnclaveEndpointTest {
                 .withRecipientNonce("recipientNonce".getBytes())
                 .withRecipientKeys(PublicKey.from("recipientKey".getBytes()))
                 .build();
-        
+
         byte[] outcome = "OUTCOME".getBytes();
-        
+
         when(MockEnclaveFactory.ENCLAVE.createNewRecipientBox(any(EncodedPayload.class), any(PublicKey.class)))
                 .thenReturn(outcome);
 
-        byte[] result = enclaveAdapter.createNewRecipientBox(encodedPayload,providedKey);
-        
+        byte[] result = enclaveAdapter.createNewRecipientBox(encodedPayload, providedKey);
+
         assertThat(result).isEqualTo(outcome);
+    }
+
+    //An impossibel situation but for the last 0.01 coverage
+    @Test(expected = UnsupportedOperationException.class)
+    public void nullRequestType() {
+        EnclaveEndpoint enclaveEndpoint = new EnclaveEndpoint();
+        
+        Session session = mock(Session.class);
+        EnclaveRequest request = mock(EnclaveRequest.class);
+        when(request.getType()).thenReturn(null);
+        
+        enclaveEndpoint.onRequest(session, request);
+        
     }
 
 }

@@ -17,8 +17,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ServerEndpoint(value = "/enclave",
-        decoders = {EnclaveRequestCodec.class, PublicKeyCodec.class, PublicKeySetCodec.class, EncodedPayloadCodec.class, RawTransactionCodec.class},
-        encoders = {EnclaveRequestCodec.class, PublicKeyCodec.class, PublicKeySetCodec.class, EncodedPayloadCodec.class, RawTransactionCodec.class}
+        decoders = {
+            EnclaveRequestCodec.class, 
+            PublicKeyCodec.class, 
+            PublicKeySetCodec.class, 
+            EncodedPayloadCodec.class, 
+            RawTransactionCodec.class
+        },
+        encoders = {
+            EnclaveRequestCodec.class, 
+            PublicKeyCodec.class, 
+            PublicKeySetCodec.class, 
+            EncodedPayloadCodec.class, 
+            RawTransactionCodec.class
+        }
 )
 public class EnclaveEndpoint {
 
@@ -120,15 +132,13 @@ public class EnclaveEndpoint {
             EncodedPayload payload = (EncodedPayload) request.getArgs().get(0);
             PublicKey recipientKey = (PublicKey) request.getArgs().get(1);
             
-            byte[] boxData =  enclave.createNewRecipientBox(payload, recipientKey);
+            byte[] boxData = enclave.createNewRecipientBox(payload, recipientKey);
             webSocketTemplate.execute((s) -> {
                 s.getBasicRemote().sendBinary(ByteBuffer.wrap(boxData));
             });
             return;
         }
-
-        throw new UnsupportedOperationException(String.format("%s is not a supported request type ", type));
-
+        throw new UnsupportedOperationException(type + " is not supported");
     }
 
     @OnClose
