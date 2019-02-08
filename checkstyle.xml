@@ -54,6 +54,20 @@
         <module name="TypecastParenPad"/>
         <module name="SingleSpaceSeparator"/>
 
+        <module name="NoWhitespaceBefore">
+            <property name="tokens" value="COMMA, SEMI, POST_INC, POST_DEC, GENERIC_END, ELLIPSIS, METHOD_REF"/>
+            <property name="allowLineBreaks" value="false"/>
+        </module>
+        <module name="NoWhitespaceBefore">
+            <property name="tokens" value="DOT"/>
+            <property name="allowLineBreaks" value="true"/>
+        </module>
+
+        <module name="NoWhitespaceAfter">
+            <property name="tokens" value="AT, INC, DEC, UNARY_MINUS, UNARY_PLUS"/>
+            <property name="tokens" value="BNOT, LNOT, DOT, ARRAY_DECLARATOR, INDEX_OP, METHOD_REF"/>
+        </module>
+
         <!-- Make sure that method calls have no space between method name and left parenthesis -->
         <module name="MethodParamPad">
             <property name="option" value="nospace"/>

@@ -67,11 +67,8 @@ public class UnsupportedKeyPairValidator implements ConstraintValidator<ValidUns
         return isIncomplete(keyPair.getPublicKeyPath(), keyPair.getPrivateKeyPath());
     }
 
-    private boolean isIncomplete(Object ...args) {
-        if(areAnyNull(args) && areAnyNonNull(args)) {
-            return true;
-        }
-        return false;
+    private boolean isIncomplete(Object... args) {
+        return areAnyNull(args) && areAnyNonNull(args);
     }
 
     private boolean areAnyNull(Object... args) {
