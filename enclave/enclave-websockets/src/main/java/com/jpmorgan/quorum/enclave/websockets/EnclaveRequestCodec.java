@@ -3,19 +3,15 @@ package com.jpmorgan.quorum.enclave.websockets;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.PublicKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.json.*;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class EnclaveRequestCodec extends JsonCodec<EnclaveRequest> {
 
@@ -37,42 +33,37 @@ public class EnclaveRequestCodec extends JsonCodec<EnclaveRequest> {
 
             ArgType type = enclaveRequestType.getParamTypes().get(i);
 
-            if (type == ArgType.PUBLIC_KEY_LIST) {
-                JsonArrayBuilder nestedBuilder = Json.createArrayBuilder();
-                List<PublicKey> publicKeys = List.class.cast(value);
+            switch (type) {
+                case PUBLIC_KEY_LIST:
+                    JsonArrayBuilder nestedBuilder = Json.createArrayBuilder();
+                    List<PublicKey> publicKeys = List.class.cast(value);
 
-                publicKeys.forEach((k) -> {
-                    nestedBuilder.add(BASE64_ENCODER.encodeToString(k.getKeyBytes()));
-                });
-                jsonArrayBuilder.add(nestedBuilder);
-                continue;
-            }
+                    publicKeys.forEach(k -> nestedBuilder.add(BASE64_ENCODER.encodeToString(k.getKeyBytes())));
+                    jsonArrayBuilder.add(nestedBuilder);
+                    break;
 
-            if (type == ArgType.BYTE_ARRAY) {
-                String encodedValue = BASE64_ENCODER.encodeToString((byte[]) value);
-                jsonArrayBuilder.add(encodedValue);
-                continue;
-            }
+                case BYTE_ARRAY:
+                    String encodedValue = BASE64_ENCODER.encodeToString((byte[]) value);
+                    jsonArrayBuilder.add(encodedValue);
+                    break;
 
-            if (type == ArgType.PUBLIC_KEY) {
-                PublicKey publicKey = PublicKey.class.cast(value);
-                String encodedKey = BASE64_ENCODER.encodeToString(publicKey.getKeyBytes());
-                jsonArrayBuilder.add(encodedKey);
-                continue;
-            }
+                case PUBLIC_KEY:
+                    PublicKey publicKey = PublicKey.class.cast(value);
+                    String encodedKey = BASE64_ENCODER.encodeToString(publicKey.getKeyBytes());
+                    jsonArrayBuilder.add(encodedKey);
+                    break;
 
-            if (type == ArgType.RAW_TRANSACTION) {
-                RawTransaction txn = RawTransaction.class.cast(value);
-                JsonObjectBuilder encoded = new RawTransactionCodec().doEncode(txn);
-                jsonArrayBuilder.add(encoded);
-                continue;
-            }
+                case RAW_TRANSACTION:
+                    RawTransaction txn = RawTransaction.class.cast(value);
+                    JsonObjectBuilder encoded = new RawTransactionCodec().doEncode(txn);
+                    jsonArrayBuilder.add(encoded);
+                    break;
 
-            if (type == ArgType.ENCODED_PAYLOAD) {
-                EncodedPayload encodedPayload = EncodedPayload.class.cast(value);
-                JsonObjectBuilder encoded = new EncodedPayloadCodec().doEncode(encodedPayload);
-                jsonArrayBuilder.add(encoded);
-                continue;
+                case ENCODED_PAYLOAD:
+                    EncodedPayload encodedPayload = EncodedPayload.class.cast(value);
+                    JsonObjectBuilder encodedObject = new EncodedPayloadCodec().doEncode(encodedPayload);
+                    jsonArrayBuilder.add(encodedObject);
+                    break;
             }
 
         }
@@ -93,40 +84,40 @@ public class EnclaveRequestCodec extends JsonCodec<EnclaveRequest> {
                 .withType(enclaveRequestType);
 
         for (int i = 0; i < args.size(); i++) {
-            ArgType type = enclaveRequestType.getParamTypes().get(i);
-            if (type == ArgType.BYTE_ARRAY) {
-                String encodedValue = args.getString(i);
-                byte[] decodedValue = Base64.getDecoder().decode(encodedValue);
-                requestBuilder.withArg(decodedValue);
-            }
 
-            if (type == ArgType.PUBLIC_KEY) {
-                String encodedValue = args.getString(i);
-                byte[] decodedValue = Base64.getDecoder().decode(encodedValue);
-                requestBuilder.withArg(PublicKey.from(decodedValue));
-            }
+            final ArgType type = enclaveRequestType.getParamTypes().get(i);
 
-            if (type == ArgType.PUBLIC_KEY_LIST) {
+            switch(type) {
+                case BYTE_ARRAY:
+                    String encodedValue = args.getString(i);
+                    byte[] decodedValue = BASE64_DECODER.decode(encodedValue);
+                    requestBuilder.withArg(decodedValue);
+                    break;
 
-                List<PublicKey> publicKeys = args.getJsonArray(i).stream()
+                case PUBLIC_KEY:
+                    String encodedKey = args.getString(i);
+                    byte[] decodedKey = BASE64_DECODER.decode(encodedKey);
+                    requestBuilder.withArg(PublicKey.from(decodedKey));
+                    break;
+
+                case PUBLIC_KEY_LIST:
+                    List<PublicKey> publicKeys = args.getJsonArray(i).stream()
                         .map(JsonString.class::cast)
                         .map(JsonString::getString)
                         .map(BASE64_DECODER::decode)
                         .map(PublicKey::from)
                         .collect(Collectors.toList());
 
-                requestBuilder.withArg(publicKeys);
-            }
+                    requestBuilder.withArg(publicKeys);
+                    break;
 
-            if (type == ArgType.RAW_TRANSACTION) {
-                RawTransaction txn = new RawTransactionCodec().doDecode(args.getJsonObject(i));
-                requestBuilder.withArg(txn);
-            }
+                case RAW_TRANSACTION:
+                    requestBuilder.withArg(new RawTransactionCodec().doDecode(args.getJsonObject(i)));
+                    break;
 
-            if (type == ArgType.ENCODED_PAYLOAD) {
-                EncodedPayload encodedPayoad = new EncodedPayloadCodec().doDecode(args.getJsonObject(i));
-                requestBuilder.withArg(encodedPayoad);
-
+                case ENCODED_PAYLOAD:
+                    requestBuilder.withArg(new EncodedPayloadCodec().doDecode(args.getJsonObject(i)));
+                    break;
             }
         }
 

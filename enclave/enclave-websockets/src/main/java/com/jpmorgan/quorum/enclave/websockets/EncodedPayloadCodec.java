@@ -3,18 +3,15 @@ package com.jpmorgan.quorum.enclave.websockets;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.EncodedPayloadBuilder;
 import com.quorum.tessera.encryption.PublicKey;
+
+import javax.json.*;
+import javax.websocket.DecodeException;
+import javax.websocket.EncodeException;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonString;
-import javax.websocket.DecodeException;
-import javax.websocket.EncodeException;
 
 public class EncodedPayloadCodec extends JsonCodec<EncodedPayload> {
 
@@ -35,17 +32,17 @@ public class EncodedPayloadCodec extends JsonCodec<EncodedPayload> {
         final JsonArrayBuilder recipientBoxes = Json.createArrayBuilder();
 
         payload.getRecipientBoxes().stream()
-                .map(base64Encoder::encodeToString)
-                .forEach(recipientBoxes::add);
+            .map(base64Encoder::encodeToString)
+            .forEach(recipientBoxes::add);
 
         jsonBuilder.add("recipientBoxes", recipientBoxes);
 
         final JsonArrayBuilder recipientKeys = Json.createArrayBuilder();
 
         payload.getRecipientKeys().stream()
-                .map(PublicKey::getKeyBytes)
-                .map(base64Encoder::encodeToString)
-                .forEach(recipientKeys::add);
+            .map(PublicKey::getKeyBytes)
+            .map(base64Encoder::encodeToString)
+            .forEach(recipientKeys::add);
 
         jsonBuilder.add("recipientKeys", recipientKeys);
 
@@ -54,7 +51,7 @@ public class EncodedPayloadCodec extends JsonCodec<EncodedPayload> {
         final String senderKey = base64Encoder.encodeToString(payload.getSenderKey().getKeyBytes());
 
         return jsonBuilder.add("recipientNonce", recipientNonce)
-                .add("senderKey", senderKey);
+            .add("senderKey", senderKey);
 
     }
 
@@ -63,41 +60,39 @@ public class EncodedPayloadCodec extends JsonCodec<EncodedPayload> {
 
         Decoder base64Decoder = Base64.getDecoder();
 
-            byte[] cipherText = base64Decoder.decode(jsonObject.getString("cipherText"));
-            
-            byte[] cipherTextNonce = base64Decoder.decode(jsonObject.getString("cipherTextNonce"));
+        byte[] cipherText = base64Decoder.decode(jsonObject.getString("cipherText"));
 
-            List<byte[]> recipientBoxes = jsonObject.getJsonArray("recipientBoxes")
-                    .stream()
-                    .map(JsonString.class::cast)
-                    .map(JsonString::getString)
-                    .map(base64Decoder::decode)
-                    .collect(Collectors.toList());
+        byte[] cipherTextNonce = base64Decoder.decode(jsonObject.getString("cipherTextNonce"));
 
-            List<PublicKey> recipientKeys = jsonObject.getJsonArray("recipientKeys")
-                    .stream()
-                    .map(JsonString.class::cast)
-                    .map(JsonString::getString)
-                    .map(base64Decoder::decode)
-                    .map(PublicKey::from)
-                    .collect(Collectors.toList());
+        List<byte[]> recipientBoxes = jsonObject.getJsonArray("recipientBoxes")
+            .stream()
+            .map(JsonString.class::cast)
+            .map(JsonString::getString)
+            .map(base64Decoder::decode)
+            .collect(Collectors.toList());
 
-            byte[] recipientNonce = base64Decoder.decode(jsonObject.getString("recipientNonce"));
-            
-            PublicKey senderKey = PublicKey.from(base64Decoder.decode(jsonObject.getString("senderKey")));
-            
-            return EncodedPayloadBuilder.create()
-                    .withCipherText(cipherText)
-                    .withCipherTextNonce(cipherTextNonce)
-                    .withRecipientBoxes(recipientBoxes)
-                    .withRecipientKeys(recipientKeys.toArray(new PublicKey[0]))
-                    .withSenderKey(senderKey)
-                    .withRecipientNonce(recipientNonce)
-                    .build();
+        List<PublicKey> recipientKeys = jsonObject.getJsonArray("recipientKeys")
+            .stream()
+            .map(JsonString.class::cast)
+            .map(JsonString::getString)
+            .map(base64Decoder::decode)
+            .map(PublicKey::from)
+            .collect(Collectors.toList());
+
+        byte[] recipientNonce = base64Decoder.decode(jsonObject.getString("recipientNonce"));
+
+        PublicKey senderKey = PublicKey.from(base64Decoder.decode(jsonObject.getString("senderKey")));
+
+        return EncodedPayloadBuilder.create()
+            .withCipherText(cipherText)
+            .withCipherTextNonce(cipherTextNonce)
+            .withRecipientBoxes(recipientBoxes)
+            .withRecipientKeys(recipientKeys.toArray(new PublicKey[0]))
+            .withSenderKey(senderKey)
+            .withRecipientNonce(recipientNonce)
+            .build();
 
     }
-
-
 
 
 }

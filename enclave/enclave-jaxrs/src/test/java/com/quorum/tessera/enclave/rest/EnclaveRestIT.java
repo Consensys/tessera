@@ -1,11 +1,8 @@
 package com.quorum.tessera.enclave.rest;
 
+import com.quorum.tessera.config.cli.CliDelegate;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
-import java.net.URL;
-import java.util.Set;
-import javax.inject.Inject;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
@@ -17,18 +14,24 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.inject.Inject;
+import java.net.URL;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 @Configuration
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = EnclaveRestIT.class)
 @ImportResource(locations = "classpath:/tessera-enclave-jaxrs-spring.xml")
 public class EnclaveRestIT {
-    
+
     @BeforeClass
     public static void onClass() throws Exception {
         URL url = EnclaveRestIT.class.getResource("/sample-config.xml");
-        com.quorum.tessera.config.cli.CliDelegate.INSTANCE.execute("-configfile",url.getFile());
+        CliDelegate.INSTANCE.execute("-configfile", url.getFile());
     }
-    
+
     @Inject
     private Enclave enclave;
 
@@ -36,12 +39,8 @@ public class EnclaveRestIT {
 
     private EnclaveClient enclaveClient;
 
-    @Inject
-    private com.quorum.tessera.config.Config config;
-
     @Before
     public void setUp() throws Exception {
-
         jersey = Util.create(enclave);
         jersey.setUp();
 
@@ -51,7 +50,6 @@ public class EnclaveRestIT {
     @After
     public void tearDown() throws Exception {
         jersey.tearDown();
-
     }
 
     @Test
@@ -59,9 +57,7 @@ public class EnclaveRestIT {
         PublicKey result = enclaveClient.defaultPublicKey();
 
         assertThat(result).isNotNull();
-        assertThat(result.encodeToBase64())
-                .isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
-
+        assertThat(result.encodeToBase64()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
     }
 
     @Test
@@ -69,7 +65,6 @@ public class EnclaveRestIT {
         Set<PublicKey> result = enclaveClient.getForwardingKeys();
 
         assertThat(result).isEmpty();
-
     }
 
     @Test
@@ -77,8 +72,7 @@ public class EnclaveRestIT {
         Set<PublicKey> result = enclaveClient.getPublicKeys();
 
         assertThat(result).hasSize(1);
-        assertThat(result.iterator().next().encodeToBase64())
-                .isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+        assertThat(result.iterator().next().encodeToBase64()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
     }
 
 }

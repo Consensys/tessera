@@ -48,7 +48,7 @@ public class EnclaveEndpointTest {
     }
 
     @Test
-    public void defaultPublicKey() throws Exception {
+    public void defaultPublicKey() {
 
         String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
         PublicKey publicKey = PublicKey.from(Base64.getDecoder().decode(key));
@@ -61,7 +61,7 @@ public class EnclaveEndpointTest {
     }
 
     @Test
-    public void forwardingKeys() throws Exception {
+    public void forwardingKeys() {
 
         String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
         PublicKey publicKey = PublicKey.from(Base64.getDecoder().decode(key));
@@ -74,7 +74,7 @@ public class EnclaveEndpointTest {
     }
 
     @Test
-    public void publicKeys() throws Exception {
+    public void publicKeys() {
 
         String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
         PublicKey publicKey = PublicKey.from(Base64.getDecoder().decode(key));
@@ -87,7 +87,7 @@ public class EnclaveEndpointTest {
     }
 
     @Test
-    public void encryptPayload() throws Exception {
+    public void encryptPayload() {
 
         String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
         PublicKey senderPublicKey = PublicKey.from(Base64.getDecoder().decode(key));
@@ -117,7 +117,7 @@ public class EnclaveEndpointTest {
     }
 
     @Test
-    public void encryptRawTxnPayload() throws Exception {
+    public void encryptRawTxnPayload() {
 
         String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
         PublicKey senderPublicKey = PublicKey.from(Base64.getDecoder().decode(key));
@@ -146,7 +146,7 @@ public class EnclaveEndpointTest {
     }
 
     @Test
-    public void encryptRawPayload() throws Exception {
+    public void encryptRawPayload() {
 
         String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
         PublicKey senderPublicKey = PublicKey.from(Base64.getDecoder().decode(key));
@@ -166,7 +166,7 @@ public class EnclaveEndpointTest {
     }
 
     @Test
-    public void unencryptTransaction() throws Exception {
+    public void unencryptTransaction() {
 
         String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
         PublicKey providedKey = PublicKey.from(Base64.getDecoder().decode(key));
@@ -191,7 +191,7 @@ public class EnclaveEndpointTest {
     }
 
     @Test
-    public void createBoxData() throws Exception {
+    public void createBoxData() {
 
         String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
         PublicKey providedKey = PublicKey.from(Base64.getDecoder().decode(key));
@@ -215,17 +215,17 @@ public class EnclaveEndpointTest {
         assertThat(result).isEqualTo(outcome);
     }
 
-    //An impossibel situation but for the last 0.01 coverage
+    //An impossible situation but for the last 0.01 coverage
     @Test(expected = UnsupportedOperationException.class)
     public void nullRequestType() {
         EnclaveEndpoint enclaveEndpoint = new EnclaveEndpoint();
-        
+
         Session session = mock(Session.class);
         EnclaveRequest request = mock(EnclaveRequest.class);
         when(request.getType()).thenReturn(null);
-        
+
         enclaveEndpoint.onRequest(session, request);
-        
+
     }
 
 }
