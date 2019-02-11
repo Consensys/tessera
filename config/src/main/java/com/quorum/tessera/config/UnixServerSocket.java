@@ -20,7 +20,7 @@ public class UnixServerSocket extends ServerSocket {
         this.path = path;
     }
 
-    public UnixServerSocket(){
+    public UnixServerSocket() {
     }
 
     public String getPath() {
@@ -39,6 +39,5 @@ public class UnixServerSocket extends ServerSocket {
             throw new ConfigException(ex);
         }
     }
-    
-    
+
 }
