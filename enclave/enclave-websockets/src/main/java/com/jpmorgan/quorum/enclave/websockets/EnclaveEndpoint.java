@@ -53,7 +53,7 @@ public class EnclaveEndpoint {
         final WebSocketTemplate webSocketTemplate = new WebSocketTemplate(session);
 
         if (type == null) {
-            throw new UnsupportedOperationException("Unsupported operation") ;
+            throw new UnsupportedOperationException("Unsupported operation");
         }
 
         switch (type) {
