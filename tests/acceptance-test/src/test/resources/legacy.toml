@@ -98,7 +98,7 @@ alwayssendto = []
 ## one key isn't locked.)
 ##
 ## Default: Not set
-# passwords = "passwords"
+passwords = "passwords"
 
 ## Storage engine used to save payloads and related information. Options:
 ##   - bdb:path (BerkeleyDB)

@@ -115,7 +115,7 @@ public class ConfigMigrationSteps implements En {
                     Paths.get("data", "foo.pub").toAbsolutePath(),
                     Paths.get("data", "foo.key").toAbsolutePath())
             ));
-//            keys.setPasswords(Collections.singletonList("passwords"));
+            keys.setPasswordFile(Paths.get("data", "passwords").toAbsolutePath());
 
             final JdbcConfig jdbcConfig = new JdbcConfig();
             jdbcConfig.setUrl("jdbc:h2:mem:tessera");
