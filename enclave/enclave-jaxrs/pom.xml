@@ -132,6 +132,14 @@
                     <groupId>org.glassfish.web</groupId>
                     <artifactId>javax.el</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>javax.el</groupId>
+                    <artifactId>javax.el-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.glassfish.hk2.external</groupId>
+                    <artifactId>aopalliance-repackaged</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         
@@ -168,11 +176,13 @@
             <artifactId>key-pair-converter</artifactId>
             <scope>runtime</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
+        
 
     </dependencies>
     
@@ -233,10 +243,10 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.0.0-M2</version>
                 <executions>
                     <execution>
                         <goals>

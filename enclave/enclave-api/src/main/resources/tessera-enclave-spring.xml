@@ -17,7 +17,12 @@
         <constructor-arg ref="keyManager" />
     </bean>
 
+    <bean id="environmentVariableProvider" class="com.quorum.tessera.config.util.EnvironmentVariableProvider"/>
 
+    <bean name="keyPairConverter" class="com.quorum.tessera.keypairconverter.KeyPairConverter">
+        <constructor-arg ref="config"/>
+        <constructor-arg ref="environmentVariableProvider"/>
+    </bean>
 
     <bean name="keyManager" class="com.quorum.tessera.encryption.KeyManagerImpl">
         <constructor-arg>
@@ -27,6 +32,7 @@
                 </constructor-arg>
             </bean>
         </constructor-arg>
+
         <constructor-arg>
             <bean class="com.quorum.tessera.encryption.KeyFactory" factory-method="convert">
                 <constructor-arg>
@@ -36,12 +42,8 @@
         </constructor-arg>
     </bean>
 
-
-    
     <bean name="naclFactory" class="com.quorum.tessera.nacl.NaclFacadeFactory" factory-method="newFactory"/>
 
     <bean name="nacl" factory-bean="naclFactory" factory-method="create"/>
-
-    
 
 </beans>
