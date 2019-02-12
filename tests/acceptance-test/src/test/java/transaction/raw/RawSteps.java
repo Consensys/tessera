@@ -36,24 +36,30 @@ public class RawSteps implements En {
 
     private final Client client = RestUtils.buildClient();
 
+    private Party getSender(Collection<String> senderHolder){
+        return partyHelper.findByAlias(senderHolder.stream().findAny().get());
+    }
+
+    private Set<Party> getRecipientParties(Set<String> recipientAliases){
+        return recipientAliases.stream().map(partyHelper::findByAlias).collect(Collectors.toSet());
+    }
+
     public RawSteps() {
 
-        final Collection<Party> senderHolder = new ArrayList<>();
+        final Collection<String> senderHolder = new ArrayList<>();
 
-        final Set<Party> recipients = new HashSet<>();
+        final Set<String> recipients = new HashSet<>();
 
         final byte[] transactionData = restUtils.createTransactionData();
 
         final Set<String> storedHashes = new TreeSet<>();
 
         Given("^Sender party (.+)$", (String pty) -> {
-            Party sender = partyHelper.findByAlias(pty);
-            senderHolder.add(sender);
+            senderHolder.add(pty);
         });
 
         And("^Recipient part(?:y|ies) (.+)$", (String alias) -> {
             parseAliases(alias).stream()
-                .map(partyHelper::findByAlias)
                 .forEach(recipients::add);
 
             assertThat(recipients).isNotEmpty();
@@ -73,11 +79,11 @@ public class RawSteps implements En {
 
         When("^sender party receives transaction from Quorum peer$", () -> {
 
-            Party sender = senderHolder.stream().findAny().get();
+            Party sender = getSender(senderHolder);
 
             Response response = restUtils.sendRaw(sender,
                 transactionData,
-                recipients.toArray(new Party[0]));
+                getRecipientParties(recipients).toArray(new Party[0]));
 
             assertThat(response.getStatus()).isEqualTo(200);
 
@@ -89,12 +95,13 @@ public class RawSteps implements En {
         });
 
         When("sender party receives transaction with no sender key defined from Quorum peer", () -> {
-            Party sender = senderHolder.stream().findAny().get();
+            Party sender = getSender(senderHolder);
             
             final Response response = client.target(sender.getQ2TUri())
                 .path("sendraw")
                 .request()
                 .header(RECIPIENTS, recipients.stream()
+                    .map(partyHelper::findByAlias)
                     .map(Party::getPublicKey)
                     .collect(Collectors.joining(","))
                 )
@@ -119,7 +126,7 @@ public class RawSteps implements En {
 
             assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
 
-            restUtils.findTransaction(persistedKey, recipients).forEach(r -> {
+            restUtils.findTransaction(persistedKey, getRecipientParties(recipients)).forEach(r -> {
                 assertThat(r.getStatus()).isEqualTo(200);
             });
 
@@ -129,16 +136,16 @@ public class RawSteps implements En {
         });
 
         When("sender party receives transaction with no payload from Quorum peer", () -> {
-            Party sender = senderHolder.stream().findAny().get();
+            Party sender = getSender(senderHolder);
 
-            Response response = restUtils.sendRaw(sender, null, recipients);
+            Response response = restUtils.sendRaw(sender, null, getRecipientParties(recipients));
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isEqualTo(400);
         });
 
         When("sender party receives transaction with an unknown party from Quorum peer", () -> {
-            Party sender = senderHolder.stream().findAny().get();
+            Party sender = getSender(senderHolder);
 
             final Response response = client.target(sender.getQ2TUri())
                 .path("sendraw")
@@ -156,7 +163,7 @@ public class RawSteps implements En {
         });
 
         Then("^sender party stores the transaction$", () -> {
-            Party sender = senderHolder.iterator().next();
+            Party sender = getSender(senderHolder);
             try (PreparedStatement statement
                 = sender.getDatabaseConnection()
                     .prepareStatement("SELECT COUNT(*) FROM ENCRYPTED_TRANSACTION WHERE HASH = ?")) {
@@ -172,7 +179,7 @@ public class RawSteps implements En {
 
         Then("^forwards the transaction to recipient part(?:y|ies)$", () -> {
 
-            recipients.forEach(rec -> {
+            recipients.stream().map(partyHelper::findByAlias).forEach(rec -> {
                 String storedHash = storedHashes.stream().findAny().get();
                 Response response = restUtils.receiveRaw(storedHash, rec);
 
@@ -185,7 +192,7 @@ public class RawSteps implements En {
 
         Then("^.*does not forward transaction to any recipients?$", () -> {
             partyHelper.getParties()
-                .filter(p -> !senderHolder.contains(p))
+                .filter(p -> !senderHolder.contains(p.getAlias()))
                 .forEach(p -> {
                     String storedHash = storedHashes.stream().findAny().get();
                     Response response = restUtils.receiveRaw(storedHash, p);

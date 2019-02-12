@@ -41,14 +41,17 @@ public class ProcessManager {
 
     private final CommunicationType communicationType;
 
+    private final DBType dbType;
+
     private final URL logbackConfigFile = ProcessManager.class.getResource("/logback-node.xml");
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
-    public ProcessManager(CommunicationType communicationType) {
+    public ProcessManager(CommunicationType communicationType, DBType dbType) {
         this.communicationType = Objects.requireNonNull(communicationType);
+        this.dbType = Objects.requireNonNull(dbType);
 
-        String pathTemplate = "/" + communicationType.name().toLowerCase() + "/config%s.json";
+        String pathTemplate = "/" + communicationType.name().toLowerCase() + "/" + dbType.name().toLowerCase() + "/config%s.json";
         final Map<String, URL> configs = new HashMap<>();
         configs.put("A", getClass().getResource(String.format(pathTemplate, "1")));
         configs.put("B", getClass().getResource(String.format(pathTemplate, "2")));
@@ -64,6 +67,7 @@ public class ProcessManager {
     }
 
     public void startNodes() throws Exception {
+        System.setProperty("AcceptanceTestsDBType", this.dbType.name().toLowerCase());
         List<String> nodeAliases = Arrays.asList(configFiles.keySet().toArray(new String[0]));
         Collections.shuffle(nodeAliases);
 
@@ -72,7 +76,7 @@ public class ProcessManager {
         }
         // sleep a little before starting the tests (give the party info a chance to propagate)
         LOGGER.info("sleeping a little before allowing the tests to start (making sure the party info propagates in the cluster)");
-        Thread.sleep(5000);
+        Thread.sleep(10000);
     }
 
     public void stopNodes() throws Exception {
@@ -95,16 +99,17 @@ public class ProcessManager {
         Process process = processBuilder.start();
 
         int exitCode = process.waitFor();
-
     }
 
     public void start(String nodeAlias) throws Exception {
         final String tesseraJar = findJarFilePath("application.jar");
-        final String sqliteJDBCjar = findJarFilePath("jdbc.sqlite.jar");
-        final String hsqlJDBCjar = findJarFilePath("jdbc.hsql.jar");
-        final String pathSeparator = System.getProperty("path.separator");
 
-        final String fullCP = Strings.join(hsqlJDBCjar, sqliteJDBCjar, tesseraJar).with(pathSeparator);
+        String fullCP = tesseraJar;
+        if (dbType != DBType.H2){
+            final String jdbcJar = findJarFilePath("jdbc." + dbType.name().toLowerCase() + ".jar");
+            final String pathSeparator = System.getProperty("path.separator");
+            fullCP = Strings.join(tesseraJar, jdbcJar).with(pathSeparator);
+        }
 
         URL configFile = configFiles.get(nodeAlias);
         Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "pid" + nodeAlias + ".pid");
@@ -113,6 +118,7 @@ public class ProcessManager {
 
         List<String> args = Arrays.asList(
                 "java",
+                "-Dhsqldb.reconfig_logging=false",
                 "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
                 "-Dnode.number=" + nodeAlias,
                 "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
@@ -126,6 +132,7 @@ public class ProcessManager {
                 pid.toAbsolutePath().toString(),
                 "-jdbc.autoCreateTables", "true"
         );
+
         System.out.println(String.join(" ", args));
 
         ProcessBuilder processBuilder = new ProcessBuilder(args);
@@ -249,11 +256,12 @@ public class ProcessManager {
 
 
     public static void main(String[] args) throws Exception {
-        System.setProperty("application.jar", "/Users/mark/Projects/tessera/tessera-app/target/tessera-app-0.9-SNAPSHOT-app.jar");
+        System.setProperty("application.jar", "/home/nicolae/Develop/java/IJWorkspaces/tessera/tessera-app/target/tessera-app-0.9-SNAPSHOT-app.jar");
+        System.setProperty("jdbc.sqlite.jar", "/home/nicolae/.m2/repository/org/xerial/sqlite-jdbc/3.23.1/sqlite-jdbc-3.23.1.jar");
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
-        ProcessManager pm = new ProcessManager(CommunicationType.REST);
+        ProcessManager pm = new ProcessManager(CommunicationType.REST,DBType.SQLITE);
         pm.startNodes();
 
         System.in.read();
