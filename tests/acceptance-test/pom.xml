@@ -25,6 +25,14 @@
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>test-util</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>config-migration</artifactId>
+            <scope>runtime</scope>
+            <classifier>cli</classifier>
+            <version>0.9-SNAPSHOT</version>
+        </dependency>
         
         <dependency>
             <groupId>io.cucumber</groupId>
@@ -64,12 +72,14 @@
                     <rerunFailingTestsCount>3</rerunFailingTestsCount>
                     <systemPropertyVariables>
                         <application.jar>${com.jpmorgan.quorum:tessera-app:jar:app}</application.jar>
+                        <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                         <javax.xml.bind.JAXBContextFactory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.JAXBContextFactory>
                         <javax.xml.bind.context.factory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.context.factory>
                     </systemPropertyVariables>
                     <includes>
                         <include>RestSuite</include>
                         <include>GrpcSuite</include>
+                        <include>ConfigMigrationIT</include>
                     </includes>
                 </configuration>
                 <executions>
@@ -132,6 +142,7 @@
                             <includes>
                                 <include>RestSuite</include>
                                 <include>GrpcSuite</include>
+                                <include>ConfigMigrationIT</include>
                                 <include>RunHashicorpIT</include>
                             </includes>
                         </configuration>
