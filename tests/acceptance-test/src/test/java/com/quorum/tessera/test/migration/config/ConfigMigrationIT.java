@@ -15,6 +15,6 @@ public class ConfigMigrationIT {
     @BeforeClass
     public static void onSetup() {
         //    only needed when running outside of maven build process
-//        System.setProperty("config-migration-app.jar", "/Users/chrishounsom/jpmc-tessera/config-migration/target/config-migration-0.9-SNAPSHOT-cli.jar");
+//        System.setProperty("config-migration-app.jar", "/Users/chris/jpmc-tessera/config-migration/target/config-migration-0.9-SNAPSHOT-cli.jar");
     }
 }
