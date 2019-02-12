@@ -90,31 +90,6 @@
 
     <bean id="keyConfig" factory-bean="config" factory-method="getKeys" />
 
-
-    <bean id="environmentVariableProvider" class="com.quorum.tessera.config.util.EnvironmentVariableProvider"/>
-
-    <bean name="keyPairConverter" class="com.quorum.tessera.keypairconverter.KeyPairConverter">
-        <constructor-arg ref="config"/>
-        <constructor-arg ref="environmentVariableProvider"/>
-    </bean>
-
-    <bean name="keyManager" class="com.quorum.tessera.encryption.KeyManagerImpl">
-        <constructor-arg>
-            <bean factory-bean="keyPairConverter" factory-method="convert">
-                <constructor-arg>
-                    <bean factory-bean="keyConfig" factory-method="getKeyData"/>
-                </constructor-arg>
-            </bean>
-        </constructor-arg>
-        <constructor-arg>
-            <bean class="com.quorum.tessera.encryption.KeyFactory" factory-method="convert">
-                <constructor-arg>
-                    <bean factory-bean="config" factory-method="getAlwaysSendTo" />
-                </constructor-arg>
-            </bean>
-        </constructor-arg>
-    </bean>
-
     <bean id="cliDelegate" class="com.quorum.tessera.config.cli.CliDelegate" factory-method="instance"/>
 
     <bean id="config" factory-bean="cliDelegate" factory-method="getConfig"/>
