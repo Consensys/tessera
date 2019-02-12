@@ -71,6 +71,7 @@
                     <includes>
                         <include>RestSuite</include>
                         <include>GrpcSuite</include>
+                        <include>ConfigMigrationIT</include>
                     </includes>
                 </configuration>
                 <executions>
@@ -133,6 +134,7 @@
                             <includes>
                                 <include>RestSuite</include>
                                 <include>GrpcSuite</include>
+                                <include>ConfigMigrationIT</include>
                                 <include>RunHashicorpIT</include>
                             </includes>
                         </configuration>
