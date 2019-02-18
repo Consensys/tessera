@@ -14,7 +14,12 @@ public class WebSocketServerFactory implements TesseraServerFactory<Class<?>> {
     @Override
     public TesseraServer createServer(ServerConfig config, Set<Class<?>> services) {
 
-            Map<String, Object> properties = new HashMap<>();
+        Map<String, Object> properties = new HashMap<>();
+        
+        org.glassfish.tyrus.container.grizzly.server.GrizzlyServerContainer s = new org.glassfish.tyrus.container.grizzly.server.GrizzlyServerContainer();
+        s.createContainer(properties);
+        
+            
             
             String host = config.getBindingUri().getHost();
             int port = config.getBindingUri().getPort();

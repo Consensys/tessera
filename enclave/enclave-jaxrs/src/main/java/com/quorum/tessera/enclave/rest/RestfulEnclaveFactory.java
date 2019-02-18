@@ -1,6 +1,7 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
@@ -20,15 +21,16 @@ import javax.ws.rs.client.Client;
 import java.util.Collection;
 import java.util.Optional;
 
-public class DefaultEnclaveFactory implements EnclaveFactory<Config> {
+public class RestfulEnclaveFactory implements EnclaveFactory<Config> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultEnclaveFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestfulEnclaveFactory.class);
 
     @Override
     public Enclave create(Config config) {
         LOGGER.info("Creating enclave");
         Optional<ServerConfig> enclaveServerConfig = config.getServerConfigs().stream()
                 .filter(sc -> sc.getApp() == AppType.ENCLAVE)
+                .filter(sc -> sc.getCommunicationType() == CommunicationType.REST)
                 .findAny();
 
         if (enclaveServerConfig.isPresent()) {
