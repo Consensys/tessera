@@ -179,4 +179,17 @@ public class EnclaveAdapter implements Enclave {
         return client.pollForResult(ByteBuffer.class).get().array();  
     }
 
+    @Override
+    public com.quorum.tessera.service.Service.Status status() {
+        webSocketTemplate.execute(s -> {
+            EnclaveRequest request = EnclaveRequest.Builder.create()
+                    .withType(EnclaveRequestType.STATUS).build();
+            
+            
+            s.getBasicRemote().sendObject(request);
+        });
+        
+        return client.pollForResult(com.quorum.tessera.service.Service.Status.class).get();       
+    }
+    
 }

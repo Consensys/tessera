@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum EnclaveRequestType {
-    
+    STATUS,
     DEFAULT_PUBLIC_KEY,
     FORWARDING_KEYS,
     PUBLIC_KEYS,

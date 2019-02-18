@@ -3,6 +3,7 @@ package com.quorum.tessera.enclave.rest;
 import com.quorum.tessera.config.cli.CliDelegate;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.service.Service;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
@@ -73,6 +74,13 @@ public class EnclaveRestIT {
 
         assertThat(result).hasSize(1);
         assertThat(result.iterator().next().encodeToBase64()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+    }
+    
+    @Test
+    public void status() {
+        assertThat(enclaveClient.status())
+                .isEqualTo(Service.Status.STARTED);
+        
     }
 
 }

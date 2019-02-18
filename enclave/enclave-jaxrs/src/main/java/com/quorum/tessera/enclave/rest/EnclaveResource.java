@@ -12,7 +12,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -31,7 +30,7 @@ public class EnclaveResource {
     @GET
     @Path("ping")
     public String ping() {
-        return LocalDateTime.now().toString();
+        return enclave.status().name();
     }
 
     @Produces(MediaType.APPLICATION_OCTET_STREAM)

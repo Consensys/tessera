@@ -17,14 +17,16 @@ import org.slf4j.LoggerFactory;
             PublicKeyCodec.class, 
             PublicKeySetCodec.class, 
             EncodedPayloadCodec.class, 
-            RawTransactionCodec.class
+            RawTransactionCodec.class,
+            StatusCodec.class
         },
         encoders = {
             EnclaveRequestCodec.class, 
             PublicKeyCodec.class, 
             PublicKeySetCodec.class, 
             EncodedPayloadCodec.class, 
-            RawTransactionCodec.class
+            RawTransactionCodec.class,
+            StatusCodec.class
         }
 )
 public class EnclaveClientEndpoint {
@@ -57,4 +59,5 @@ public class EnclaveClientEndpoint {
     public void onClose(Session session) {
         LOGGER.debug("Closing session {}", session.getId());
     }
+
 }

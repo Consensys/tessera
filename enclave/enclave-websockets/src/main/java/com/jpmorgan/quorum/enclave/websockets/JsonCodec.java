@@ -86,7 +86,7 @@ public abstract class JsonCodec<T> implements Encoder.Text<T>, Decoder.Text<T> {
 
     @Override
     public final boolean willDecode(String s) {
-        logger.debug("Will decode {}",s);
+        logger.trace("Will decode {}",s);
         try (JsonParser parser = Json.createParser(new StringReader(s))){
 
             while (parser.hasNext()) {
@@ -101,9 +101,12 @@ public abstract class JsonCodec<T> implements Encoder.Text<T>, Decoder.Text<T> {
                 }
                 parser.next();
                 String encodedBy = parser.getString();
-                return Objects.equals(encodedBy, getClass().getSimpleName());
+                boolean willDecode = Objects.equals(encodedBy, getClass().getSimpleName());
+                if(willDecode) {
+                    logger.debug("willDecode: {}",s);
+                }
+                return willDecode;
             }
-
         }
         return false;
     }

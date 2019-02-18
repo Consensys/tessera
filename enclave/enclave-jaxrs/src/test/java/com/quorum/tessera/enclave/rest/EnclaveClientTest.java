@@ -6,6 +6,7 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.service.Service;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
@@ -36,7 +37,7 @@ public class EnclaveClientTest {
 
         jersey.setUp();
 
-        enclaveClient = new EnclaveClient(jersey.client(),jersey.target().getUri());
+        enclaveClient = new EnclaveClient(jersey.client(), jersey.target().getUri());
 
     }
 
@@ -173,25 +174,24 @@ public class EnclaveClientTest {
 
     }
 
-
     @Test
     public void unencryptTransaction() throws Exception {
-        
+
         EncodedPayload payload = Fixtures.createSample();
-        
+
         PublicKey providedKey = PublicKey.from("ProvidedKey".getBytes());
 
         byte[] outcome = "SUCCESS".getBytes();
-        
-        when(enclave.unencryptTransaction(any(EncodedPayload.class),any(PublicKey.class)))
+
+        when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
                 .thenReturn(outcome);
-        
+
         byte[] result = enclaveClient.unencryptTransaction(payload, providedKey);
-        
+
         assertThat(result).isEqualTo(outcome);
-      
-        verify(enclave).unencryptTransaction(any(EncodedPayload.class),any(PublicKey.class));
-        
+
+        verify(enclave).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
+
     }
 
     @Test
@@ -203,14 +203,32 @@ public class EnclaveClientTest {
 
         byte[] outcome = "SUCCESS".getBytes();
 
-        when(enclave.createNewRecipientBox(any(EncodedPayload.class),any(PublicKey.class))).thenReturn(outcome);
+        when(enclave.createNewRecipientBox(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(outcome);
 
         byte[] result = enclaveClient.createNewRecipientBox(payload, providedKey);
 
         assertThat(result).isEqualTo(outcome);
 
-        verify(enclave).createNewRecipientBox(any(EncodedPayload.class),any(PublicKey.class));
+        verify(enclave).createNewRecipientBox(any(EncodedPayload.class), any(PublicKey.class));
 
     }
 
+    @Test
+    public void statusStarted() {
+        when(enclave.status())
+                .thenReturn(Service.Status.STARTED);
+        assertThat(enclaveClient.status())
+                .isEqualTo(Service.Status.STARTED);
+        
+        verify(enclave).status();
+    }
+
+    @Test
+    public void statusStopped() {
+        when(enclave.status())
+                .thenThrow(RuntimeException.class);
+        assertThat(enclaveClient.status())
+                .isEqualTo(Service.Status.STOPPED);
+        verify(enclave).status();
+    }
 }

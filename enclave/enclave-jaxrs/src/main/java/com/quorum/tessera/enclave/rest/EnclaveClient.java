@@ -25,7 +25,7 @@ public class EnclaveClient implements Enclave {
 
     private final URI uri;
 
-    public EnclaveClient(Client client,URI uri) {
+    public EnclaveClient(Client client, URI uri) {
         this.client = Objects.requireNonNull(client);
         this.uri = Objects.requireNonNull(uri);
     }
@@ -109,7 +109,6 @@ public class EnclaveClient implements Enclave {
         );
         enclaveRawPayload.setEncryptedPayload(rawTransaction.getEncryptedPayload());
         enclaveRawPayload.setEncryptedKey(rawTransaction.getEncryptedKey());
-       
 
         Response response = client.target(uri)
                 .path("encrypt")
@@ -173,10 +172,23 @@ public class EnclaveClient implements Enclave {
         dto.setProvidedKey(recipientKey.getKeyBytes());
 
         final Response response = client.target(uri)
-            .path("addRecipient")
-            .request()
-            .post(Entity.json(dto));
+                .path("addRecipient")
+                .request()
+                .post(Entity.json(dto));
 
         return response.readEntity(byte[].class);
+    }
+
+    @Override
+    public Status status() {
+        
+        final Response response = client.target(uri)
+                .path("ping")
+                .request().get();
+        
+        if(response.getStatus() == 200) {
+            return Status.STARTED;
+        }
+        return Status.STOPPED;
     }
 }

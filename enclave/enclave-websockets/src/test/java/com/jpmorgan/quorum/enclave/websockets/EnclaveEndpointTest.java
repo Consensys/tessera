@@ -5,6 +5,7 @@ import com.quorum.tessera.enclave.EncodedPayloadBuilder;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.enclave.RawTransactionBuilder;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.service.Service;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -228,4 +229,17 @@ public class EnclaveEndpointTest {
 
     }
 
+    
+    @Test
+    public void status() {
+        
+        Service.Status status = Service.Status.STARTED;
+        
+        when(MockEnclaveFactory.ENCLAVE.status()).thenReturn(status);
+
+        Service.Status result = enclaveAdapter.status();
+
+        assertThat(result).isEqualTo(status);
+    }
+    
 }

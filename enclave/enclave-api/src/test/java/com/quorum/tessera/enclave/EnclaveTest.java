@@ -3,6 +3,7 @@ package com.quorum.tessera.enclave;
 import com.quorum.tessera.encryption.*;
 import com.quorum.tessera.nacl.NaclFacade;
 import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.service.Service;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,10 +31,14 @@ public class EnclaveTest {
         this.keyManager = mock(KeyManager.class);
 
         this.enclave = new EnclaveImpl(nacl, keyManager);
+        enclave.start();
+        assertThat(enclave.status()).isEqualTo(Service.Status.STARTED);
     }
 
     @After
     public void onTearDown() {
+        enclave.stop();
+        assertThat(enclave.status()).isEqualTo(Service.Status.STARTED);
         verifyNoMoreInteractions(nacl, keyManager);
     }
 

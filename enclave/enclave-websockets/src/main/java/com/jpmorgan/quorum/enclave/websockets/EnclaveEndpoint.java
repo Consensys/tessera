@@ -4,6 +4,7 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.service.Service.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,14 +23,16 @@ import java.util.Set;
             PublicKeyCodec.class, 
             PublicKeySetCodec.class, 
             EncodedPayloadCodec.class, 
-            RawTransactionCodec.class
+            RawTransactionCodec.class,
+            StatusCodec.class
         },
         encoders = {
             EnclaveRequestCodec.class, 
             PublicKeyCodec.class, 
             PublicKeySetCodec.class, 
             EncodedPayloadCodec.class, 
-            RawTransactionCodec.class
+            RawTransactionCodec.class,
+            StatusCodec.class
         }
 )
 public class EnclaveEndpoint {
@@ -57,11 +60,16 @@ public class EnclaveEndpoint {
         }
 
         switch (type) {
+            case STATUS:
+                Status status = enclave.status();    
+                webSocketTemplate.execute(s -> s.getBasicRemote().sendObject(enclave.status()));
+                break;
+                
             case DEFAULT_PUBLIC_KEY:
                 PublicKey publicKey = enclave.defaultPublicKey();
                 webSocketTemplate.execute(session1 -> session1.getBasicRemote().sendObject(publicKey));
                 break;
-
+                
             case FORWARDING_KEYS:
                 Set<PublicKey> forwardingKeys = enclave.getForwardingKeys();
                 webSocketTemplate.execute(s -> s.getBasicRemote().sendObject(forwardingKeys));
