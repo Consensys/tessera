@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * A factory for creating HTTP servers served over a Unix Domain Socket
  */
-public class UnixSocketServerFactory implements TesseraServerFactory {
+public class UnixSocketServerFactory implements TesseraServerFactory<Object> {
 
     @Override
     public TesseraServer createServer(final ServerConfig serverConfig, final Set<Object> services) {
