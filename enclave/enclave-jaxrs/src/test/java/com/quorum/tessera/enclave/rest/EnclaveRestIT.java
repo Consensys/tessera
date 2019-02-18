@@ -38,14 +38,14 @@ public class EnclaveRestIT {
 
     private JerseyTest jersey;
 
-    private EnclaveClient enclaveClient;
+    private RestfulEnclaveClient enclaveClient;
 
     @Before
     public void setUp() throws Exception {
         jersey = Util.create(enclave);
         jersey.setUp();
 
-        enclaveClient = new EnclaveClient(jersey.client(), jersey.target().getUri());
+        enclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri());
     }
 
     @After

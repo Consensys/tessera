@@ -1,6 +1,6 @@
 package com.quorum.tessera.enclave.rest;
 
-import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EnclaveClient;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.RawTransaction;
@@ -19,13 +19,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class EnclaveClient implements Enclave {
+public class RestfulEnclaveClient implements EnclaveClient {
 
     private final Client client;
 
     private final URI uri;
 
-    public EnclaveClient(Client client, URI uri) {
+    public RestfulEnclaveClient(Client client, URI uri) {
         this.client = Objects.requireNonNull(client);
         this.uri = Objects.requireNonNull(uri);
     }

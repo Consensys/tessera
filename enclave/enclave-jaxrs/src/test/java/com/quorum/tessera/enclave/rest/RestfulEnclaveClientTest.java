@@ -21,13 +21,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class EnclaveClientTest {
+public class RestfulEnclaveClientTest {
 
     private Enclave enclave;
 
     private JerseyTest jersey;
 
-    private EnclaveClient enclaveClient;
+    private RestfulEnclaveClient enclaveClient;
 
     @Before
     public void setUp() throws Exception {
@@ -37,7 +37,7 @@ public class EnclaveClientTest {
 
         jersey.setUp();
 
-        enclaveClient = new EnclaveClient(jersey.client(), jersey.target().getUri());
+        enclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri());
 
     }
 
