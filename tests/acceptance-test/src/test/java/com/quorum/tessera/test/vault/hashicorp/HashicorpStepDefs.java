@@ -362,7 +362,7 @@ public class HashicorpStepDefs implements En {
             args.addAll(
                 Arrays.asList(
                     "java",
-                    "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
+                    "-Dspring.profiles.active=disable-unixsocket",
                     "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
                     "-Ddebug=true",
                     "-jar",
@@ -475,7 +475,7 @@ public class HashicorpStepDefs implements En {
             args.addAll(
                 Arrays.asList(
                     "java",
-                    "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
+                    "-Dspring.profiles.active=disable-unixsocket",
                     "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
                     "-Ddebug=true",
                     "-jar",
