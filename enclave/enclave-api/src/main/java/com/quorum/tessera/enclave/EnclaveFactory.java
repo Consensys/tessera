@@ -15,6 +15,16 @@ import java.util.Optional;
 
 public interface EnclaveFactory {
 
+    static Enclave createServer(Config config) {
+        
+        KeyPairConverter keyPairConverter = new KeyPairConverter(config, new EnvironmentVariableProvider());
+        Collection<KeyPair> keys = keyPairConverter.convert(config.getKeys().getKeyData());
+
+        Collection<PublicKey> forwardKeys = com.quorum.tessera.encryption.KeyFactory.convert(config.getAlwaysSendTo());
+    
+        return new EnclaveImpl(NaclFacadeFactory.newFactory().create(), new KeyManagerImpl(keys, forwardKeys));
+    }
+    
     default Enclave create(Config config) {
             Optional<ServerConfig> enclaveServerConfig = config.getServerConfigs().stream()
                 .filter(sc -> sc.getApp() == AppType.ENCLAVE)
@@ -23,13 +33,8 @@ public interface EnclaveFactory {
         if (enclaveServerConfig.isPresent()) {
             return EnclaveClientFactory.create().create(config);
         }
+        return createServer(config);
 
-        KeyPairConverter keyPairConverter = new KeyPairConverter(config, new EnvironmentVariableProvider());
-        Collection<KeyPair> keys = keyPairConverter.convert(config.getKeys().getKeyData());
-
-        Collection<PublicKey> forwardKeys = com.quorum.tessera.encryption.KeyFactory.convert(config.getAlwaysSendTo());
-    
-        return new EnclaveImpl(NaclFacadeFactory.newFactory().create(), new KeyManagerImpl(keys, forwardKeys));
     }
 
     static EnclaveFactory create() {

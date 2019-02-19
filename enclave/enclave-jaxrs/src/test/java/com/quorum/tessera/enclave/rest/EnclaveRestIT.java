@@ -2,6 +2,7 @@ package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.config.cli.CliDelegate;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EnclaveImpl;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.Service;
 import org.glassfish.jersey.test.JerseyTest;
@@ -42,6 +43,7 @@ public class EnclaveRestIT {
 
     @Before
     public void setUp() throws Exception {
+        assertThat(enclave).isInstanceOf(EnclaveImpl.class);
         jersey = Util.create(enclave);
         jersey.setUp();
 
