@@ -44,24 +44,7 @@
             <artifactId>key-vault-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>azure-key-vault</artifactId>
-            <scope>runtime</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.activation</groupId>
-                    <artifactId>activation</artifactId>
-                </exclusion>
-            </exclusions>
 
-        </dependency>
-
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>hashicorp-key-vault</artifactId>
-            <scope>runtime</scope>
-        </dependency>
 
         <dependency>
             <groupId>javax.transaction</groupId>
