@@ -39,7 +39,7 @@ public class EnclaveEndpoint {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveEndpoint.class);
 
-    private Enclave enclave = EnclaveFactory.newFactory().create();
+    private final Enclave enclave = EnclaveHolder.INSTANCE.getEnclave();
 
     @OnOpen
     public void onOpen(final Session session) {

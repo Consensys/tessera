@@ -1,8 +1,6 @@
 package com.quorum.tessera.enclave.websockets;
 
-import com.quorum.tessera.enclave.websockets.EnclaveRequest;
-import com.quorum.tessera.enclave.websockets.EnclaveEndpoint;
-import com.quorum.tessera.enclave.websockets.EnclaveAdapter;
+import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.EncodedPayloadBuilder;
 import com.quorum.tessera.enclave.RawTransaction;
@@ -36,8 +34,13 @@ public class EnclaveEndpointTest {
 
     private EnclaveAdapter enclaveAdapter;
 
+    private Enclave enclave;
+    
     @Before
     public void onSetUp() throws Exception {
+        enclave = mock(Enclave.class);
+        EnclaveHolder.instance(enclave);
+        
         server = new Server("localhost", 8025, "/", null, EnclaveEndpoint.class);
         server.start();
 
@@ -57,7 +60,7 @@ public class EnclaveEndpointTest {
         String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
         PublicKey publicKey = PublicKey.from(Base64.getDecoder().decode(key));
 
-        when(MockEnclaveFactory.ENCLAVE.defaultPublicKey()).thenReturn(publicKey);
+        when(enclave.defaultPublicKey()).thenReturn(publicKey);
 
         PublicKey result = enclaveAdapter.defaultPublicKey();
 
@@ -70,7 +73,7 @@ public class EnclaveEndpointTest {
         String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
         PublicKey publicKey = PublicKey.from(Base64.getDecoder().decode(key));
 
-        when(MockEnclaveFactory.ENCLAVE.getForwardingKeys()).thenReturn(Collections.singleton(publicKey));
+        when(enclave.getForwardingKeys()).thenReturn(Collections.singleton(publicKey));
 
         Set<PublicKey> results = enclaveAdapter.getForwardingKeys();
 
@@ -83,7 +86,7 @@ public class EnclaveEndpointTest {
         String key = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
         PublicKey publicKey = PublicKey.from(Base64.getDecoder().decode(key));
 
-        when(MockEnclaveFactory.ENCLAVE.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
+        when(enclave.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
 
         Set<PublicKey> results = enclaveAdapter.getPublicKeys();
 
@@ -112,7 +115,7 @@ public class EnclaveEndpointTest {
                 .withRecipientKeys(PublicKey.from("recipientKey".getBytes()))
                 .build();
 
-        when(MockEnclaveFactory.ENCLAVE.encryptPayload(message, senderPublicKey, recipientPublicKeys)).thenReturn(encodedPayload);
+        when(enclave.encryptPayload(message, senderPublicKey, recipientPublicKeys)).thenReturn(encodedPayload);
 
         EncodedPayload result = enclaveAdapter.encryptPayload(message, senderPublicKey, recipientPublicKeys);
 
@@ -141,7 +144,7 @@ public class EnclaveEndpointTest {
                 .withEncryptedPayload(message)
                 .withFrom(senderPublicKey).withEncryptedKey("PP".getBytes()).withNonce("nonce".getBytes()).build();
 
-        when(MockEnclaveFactory.ENCLAVE.encryptPayload(txn, Arrays.asList(senderPublicKey))).thenReturn(encodedPayload);
+        when(enclave.encryptPayload(txn, Arrays.asList(senderPublicKey))).thenReturn(encodedPayload);
 
         EncodedPayload result = enclaveAdapter.encryptPayload(txn, Arrays.asList(senderPublicKey));
 
@@ -161,7 +164,7 @@ public class EnclaveEndpointTest {
                 .withEncryptedPayload(message)
                 .withFrom(senderPublicKey).withEncryptedKey("PP".getBytes()).withNonce("nonce".getBytes()).build();
 
-        when(MockEnclaveFactory.ENCLAVE.encryptRawPayload(message, senderPublicKey)).thenReturn(txn);
+        when(enclave.encryptRawPayload(message, senderPublicKey)).thenReturn(txn);
 
         RawTransaction result = enclaveAdapter.encryptRawPayload(message, senderPublicKey);
 
@@ -186,7 +189,7 @@ public class EnclaveEndpointTest {
 
         byte[] outcome = "OUTCOME".getBytes();
 
-        when(MockEnclaveFactory.ENCLAVE.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
+        when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
                 .thenReturn(outcome);
 
         byte[] result = enclaveAdapter.unencryptTransaction(encodedPayload, providedKey);
@@ -211,7 +214,7 @@ public class EnclaveEndpointTest {
 
         byte[] outcome = "OUTCOME".getBytes();
 
-        when(MockEnclaveFactory.ENCLAVE.createNewRecipientBox(any(EncodedPayload.class), any(PublicKey.class)))
+        when(enclave.createNewRecipientBox(any(EncodedPayload.class), any(PublicKey.class)))
                 .thenReturn(outcome);
 
         byte[] result = enclaveAdapter.createNewRecipientBox(encodedPayload, providedKey);
@@ -238,7 +241,7 @@ public class EnclaveEndpointTest {
         
         Service.Status status = Service.Status.STARTED;
         
-        when(MockEnclaveFactory.ENCLAVE.status()).thenReturn(status);
+        when(enclave.status()).thenReturn(status);
 
         Service.Status result = enclaveAdapter.status();
 

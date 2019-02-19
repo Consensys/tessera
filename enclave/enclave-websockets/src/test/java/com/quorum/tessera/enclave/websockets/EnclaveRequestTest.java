@@ -1,7 +1,5 @@
 package com.quorum.tessera.enclave.websockets;
 
-import com.quorum.tessera.enclave.websockets.EnclaveRequest;
-import com.quorum.tessera.enclave.websockets.EnclaveRequestType;
 import org.junit.Test;
 
 public class EnclaveRequestTest {

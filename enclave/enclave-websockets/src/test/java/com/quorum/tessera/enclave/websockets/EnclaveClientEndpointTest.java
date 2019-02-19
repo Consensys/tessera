@@ -1,6 +1,5 @@
 package com.quorum.tessera.enclave.websockets;
 
-import com.quorum.tessera.enclave.websockets.EnclaveClientEndpoint;
 import java.util.concurrent.Executors;
 import javax.websocket.Session;
 import static org.assertj.core.api.Assertions.assertThat;

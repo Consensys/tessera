@@ -21,12 +21,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>config</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>config-cli</artifactId>
+            <artifactId>enclave-server</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

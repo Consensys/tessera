@@ -1,6 +1,6 @@
 package com.quorum.tessera.enclave.websockets;
 
-import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EnclaveClient;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.PublicKey;
@@ -19,7 +19,7 @@ import javax.websocket.WebSocketContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EnclaveAdapter implements Enclave {
+public class EnclaveAdapter implements EnclaveClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveAdapter.class);
 

@@ -38,6 +38,10 @@
             <artifactId>server-api</artifactId>
         </dependency>  
         
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>config-cli</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.glassfish.tyrus</groupId>
@@ -54,4 +58,5 @@
         </dependency>
         
     </dependencies>
+    
 </project>

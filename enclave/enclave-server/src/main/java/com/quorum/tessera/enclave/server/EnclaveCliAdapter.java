@@ -1,4 +1,4 @@
-package com.quorum.tessera.enclave.rest;
+package com.quorum.tessera.enclave.server;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.cli.CliAdapter;

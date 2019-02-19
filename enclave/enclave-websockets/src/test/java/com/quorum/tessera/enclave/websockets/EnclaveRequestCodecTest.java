@@ -1,8 +1,5 @@
 package com.quorum.tessera.enclave.websockets;
 
-import com.quorum.tessera.enclave.websockets.EnclaveRequest;
-import com.quorum.tessera.enclave.websockets.EnclaveRequestCodec;
-import com.quorum.tessera.enclave.websockets.EnclaveRequestType;
 import com.quorum.tessera.encryption.PublicKey;
 import java.io.StringReader;
 import java.util.Arrays;

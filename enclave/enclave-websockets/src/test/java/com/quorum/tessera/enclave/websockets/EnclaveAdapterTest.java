@@ -1,8 +1,5 @@
 package com.quorum.tessera.enclave.websockets;
 
-import com.quorum.tessera.enclave.websockets.EnclaveAdapter;
-import com.quorum.tessera.enclave.websockets.EnclaveCommunicationException;
-import com.quorum.tessera.enclave.websockets.EnclaveClientEndpoint;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
