@@ -4,9 +4,9 @@ import com.quorum.tessera.config.Config;
 import java.util.ServiceLoader;
 
 
-public interface EnclaveClientFactory {
+public interface EnclaveClientFactory<T extends EnclaveClient> {
 
-    EnclaveClient create(Config config);
+    T create(Config config);
     
     static EnclaveClientFactory create() {
         return ServiceLoader.load(EnclaveClientFactory.class)

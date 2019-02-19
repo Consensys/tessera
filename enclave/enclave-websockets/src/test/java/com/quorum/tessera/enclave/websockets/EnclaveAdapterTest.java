@@ -23,7 +23,7 @@ public class EnclaveAdapterTest {
         when(container.connectToServer(any(EnclaveClientEndpoint.class), any(URI.class)))
                 .thenThrow(javax.websocket.DeploymentException.class);
         
-        EnclaveAdapter enclaveAdapter = new EnclaveAdapter(container, serverUri);
+        WebsocketEnclaveClient enclaveAdapter = new WebsocketEnclaveClient(container, serverUri);
         enclaveAdapter.onConstruct();
     }
     
@@ -35,7 +35,7 @@ public class EnclaveAdapterTest {
         when(container.connectToServer(any(EnclaveClientEndpoint.class), any(URI.class)))
                 .thenThrow(IOException.class);
         
-        EnclaveAdapter enclaveAdapter = new EnclaveAdapter(container, serverUri);
+        WebsocketEnclaveClient enclaveAdapter = new WebsocketEnclaveClient(container, serverUri);
         enclaveAdapter.onConstruct();
     }
     
@@ -49,7 +49,7 @@ public class EnclaveAdapterTest {
         when(container.connectToServer(any(EnclaveClientEndpoint.class), any(URI.class)))
                 .thenReturn(remoteSession);
         
-        EnclaveAdapter enclaveAdapter = new EnclaveAdapter(container, serverUri);
+        WebsocketEnclaveClient enclaveAdapter = new WebsocketEnclaveClient(container, serverUri);
         enclaveAdapter.onConstruct();
         
         verifyZeroInteractions(remoteSession);
@@ -84,7 +84,7 @@ public class EnclaveAdapterTest {
         when(container.connectToServer(any(EnclaveClientEndpoint.class), any(URI.class)))
                 .thenReturn(remoteSession);
         
-        EnclaveAdapter enclaveAdapter = new EnclaveAdapter(container, serverUri);
+        WebsocketEnclaveClient enclaveAdapter = new WebsocketEnclaveClient(container, serverUri);
         enclaveAdapter.onConstruct();
         
         verifyZeroInteractions(remoteSession);

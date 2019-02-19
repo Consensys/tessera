@@ -4,7 +4,6 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.enclave.EnclaveClient;
 import com.quorum.tessera.enclave.EnclaveClientFactory;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import java.util.Optional;
@@ -12,12 +11,12 @@ import javax.ws.rs.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RestfulEnclaveClientFactory implements EnclaveClientFactory {
+public class RestfulEnclaveClientFactory implements EnclaveClientFactory<RestfulEnclaveClient> {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(RestfulEnclaveClientFactory.class);
     
     @Override
-    public EnclaveClient create(Config config) {
+    public RestfulEnclaveClient create(Config config) {
         Optional<ServerConfig> enclaveServerConfig = config.getServerConfigs().stream()
                 .filter(sc -> sc.getApp() == AppType.ENCLAVE)
                 .filter(sc -> sc.getCommunicationType() == CommunicationType.REST)

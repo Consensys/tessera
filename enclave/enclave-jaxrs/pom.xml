@@ -141,7 +141,7 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>service-locator-spring</artifactId>
-            <scope>runtime</scope>   
+            <scope>runtime</scope>
         </dependency>
         
         <dependency>
@@ -177,7 +177,6 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
 
     </dependencies>
     
@@ -190,7 +189,7 @@
                 <configuration>
                     <minimizeJar>false</minimizeJar>
                     <shadedArtifactAttached>true</shadedArtifactAttached>
-                    <shadedClassifierName>app</shadedClassifierName>
+                    <shadedClassifierName>server</shadedClassifierName>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">

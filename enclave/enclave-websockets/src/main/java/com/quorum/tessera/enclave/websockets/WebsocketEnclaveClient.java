@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -19,9 +20,9 @@ import javax.websocket.WebSocketContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EnclaveAdapter implements EnclaveClient {
+public class WebsocketEnclaveClient implements EnclaveClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveAdapter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebsocketEnclaveClient.class);
 
     private final WebSocketContainer container;
 
@@ -33,13 +34,13 @@ public class EnclaveAdapter implements EnclaveClient {
 
     private WebSocketTemplate webSocketTemplate;
 
-    public EnclaveAdapter(URI serverUri) {
+    public WebsocketEnclaveClient(URI serverUri) {
         this(ContainerProvider.getWebSocketContainer(), serverUri);
     }
 
-    public EnclaveAdapter(WebSocketContainer container, URI serverUri) {
-        this.serverUri = serverUri;
-        this.container = container;
+    public WebsocketEnclaveClient(WebSocketContainer container, URI serverUri) {
+        this.serverUri = Objects.requireNonNull(serverUri);
+        this.container = Objects.requireNonNull(container);
     }
 
     @PostConstruct

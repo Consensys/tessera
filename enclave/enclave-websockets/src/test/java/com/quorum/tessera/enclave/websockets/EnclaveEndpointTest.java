@@ -32,7 +32,7 @@ public class EnclaveEndpointTest {
 
     private Server server;
 
-    private EnclaveAdapter enclaveAdapter;
+    private WebsocketEnclaveClient enclaveAdapter;
 
     private Enclave enclave;
     
@@ -44,7 +44,7 @@ public class EnclaveEndpointTest {
         server = new Server("localhost", 8025, "/", null, EnclaveEndpoint.class);
         server.start();
 
-        enclaveAdapter = new EnclaveAdapter(URI.create("ws://localhost:8025/enclave"));
+        enclaveAdapter = new WebsocketEnclaveClient(URI.create("ws://localhost:8025/enclave"));
         enclaveAdapter.onConstruct();
     }
 
