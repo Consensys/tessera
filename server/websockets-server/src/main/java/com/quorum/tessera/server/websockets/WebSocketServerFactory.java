@@ -15,23 +15,18 @@ public class WebSocketServerFactory implements TesseraServerFactory<Class<?>> {
     public TesseraServer createServer(ServerConfig config, Set<Class<?>> services) {
 
         Map<String, Object> properties = new HashMap<>();
-        
-        org.glassfish.tyrus.container.grizzly.server.GrizzlyServerContainer s = new org.glassfish.tyrus.container.grizzly.server.GrizzlyServerContainer();
-        s.createContainer(properties);
-        
-            
-            
-            String host = config.getBindingUri().getHost();
-            int port = config.getBindingUri().getPort();
-           
-            Server server = new Server(host, port, "/", properties, services);
-            
-            return new WebSocketServer(server);
+
+        String host = config.getBindingUri().getHost();
+        int port = config.getBindingUri().getPort();
+
+        Server server = new Server(host, port, "/", properties, services);
+
+        return new WebSocketServer(server);
     }
 
     @Override
     public CommunicationType communicationType() {
         return CommunicationType.WEB_SOCKET;
     }
-    
+
 }
