@@ -13,7 +13,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import org.mockito.invocation.InvocationOnMock;
 
-public class EnclaveAdapterTest {
+public class WebsocketEnclaveClientTest {
     
     @Test(expected = EnclaveCommunicationException.class)
     public void containerThrowsDeploymentException() throws Exception {
@@ -24,7 +24,7 @@ public class EnclaveAdapterTest {
                 .thenThrow(javax.websocket.DeploymentException.class);
         
         WebsocketEnclaveClient enclaveAdapter = new WebsocketEnclaveClient(container, serverUri);
-        enclaveAdapter.onConstruct();
+        enclaveAdapter.start();
     }
     
     @Test(expected = EnclaveCommunicationException.class)
@@ -36,7 +36,7 @@ public class EnclaveAdapterTest {
                 .thenThrow(IOException.class);
         
         WebsocketEnclaveClient enclaveAdapter = new WebsocketEnclaveClient(container, serverUri);
-        enclaveAdapter.onConstruct();
+        enclaveAdapter.start();
     }
     
     @Test
@@ -50,7 +50,7 @@ public class EnclaveAdapterTest {
                 .thenReturn(remoteSession);
         
         WebsocketEnclaveClient enclaveAdapter = new WebsocketEnclaveClient(container, serverUri);
-        enclaveAdapter.onConstruct();
+        enclaveAdapter.start();
         
         verifyZeroInteractions(remoteSession);
         
@@ -61,7 +61,7 @@ public class EnclaveAdapterTest {
             return closeReason;
         }).when(remoteSession).close(any(CloseReason.class));
         
-        enclaveAdapter.onDestroy();
+        enclaveAdapter.stop();
         
         assertThat(results).hasSize(1);
         
@@ -85,13 +85,13 @@ public class EnclaveAdapterTest {
                 .thenReturn(remoteSession);
         
         WebsocketEnclaveClient enclaveAdapter = new WebsocketEnclaveClient(container, serverUri);
-        enclaveAdapter.onConstruct();
+        enclaveAdapter.start();
         
         verifyZeroInteractions(remoteSession);
         
         doThrow(IOException.class).when(remoteSession).close(any(CloseReason.class));
         
-        enclaveAdapter.onDestroy();
+        enclaveAdapter.stop();
         
         verify(remoteSession).close(any(CloseReason.class));
         verifyNoMoreInteractions(remoteSession);

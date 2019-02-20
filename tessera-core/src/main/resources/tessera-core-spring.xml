@@ -17,6 +17,10 @@
         <constructor-arg ref="config" />
     </bean>
 
+    <bean class="com.quorum.tessera.service.ServiceContainer">
+        <constructor-arg ref="enclave" />
+    </bean>
+
 
     <bean id="payloadPublisher" class="com.quorum.tessera.transaction.PayloadPublisherImpl">
         <constructor-arg ref="payloadEncoder" />

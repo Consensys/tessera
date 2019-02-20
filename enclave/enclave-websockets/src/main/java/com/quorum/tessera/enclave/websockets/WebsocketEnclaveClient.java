@@ -10,8 +10,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.websocket.CloseReason;
 import javax.websocket.ContainerProvider;
 import javax.websocket.DeploymentException;
@@ -43,8 +41,8 @@ public class WebsocketEnclaveClient implements EnclaveClient {
         this.container = Objects.requireNonNull(container);
     }
 
-    @PostConstruct
-    public void onConstruct() {
+    @Override
+    public void start() {
         try{
             session = container.connectToServer(client, serverUri);
             webSocketTemplate = new WebSocketTemplate(session);
@@ -52,9 +50,9 @@ public class WebsocketEnclaveClient implements EnclaveClient {
             throw new EnclaveCommunicationException(ex);
         }
     }
-
-    @PreDestroy
-    public void onDestroy() {
+    
+    @Override
+    public void stop() {
         try{
             session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Bye"));
         } catch (IOException ex) {
@@ -192,5 +190,7 @@ public class WebsocketEnclaveClient implements EnclaveClient {
         
         return client.pollForResult(com.quorum.tessera.service.Service.Status.class).get();       
     }
+
+
     
 }

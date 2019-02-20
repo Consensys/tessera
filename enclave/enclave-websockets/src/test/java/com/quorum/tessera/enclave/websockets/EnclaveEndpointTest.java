@@ -45,12 +45,12 @@ public class EnclaveEndpointTest {
         server.start();
 
         enclaveAdapter = new WebsocketEnclaveClient(URI.create("ws://localhost:8025/enclave"));
-        enclaveAdapter.onConstruct();
+        enclaveAdapter.start();
     }
 
     @After
     public void onTearDown() {
-        enclaveAdapter.onDestroy();
+        enclaveAdapter.stop();
         server.stop();
     }
 

@@ -69,12 +69,12 @@ public class EnclaveWebsocketIT {
         WebsocketEnclaveClientFactory enclaveClientFactory = new WebsocketEnclaveClientFactory();
 
         enclaveClient = enclaveClientFactory.create(config);
-        enclaveClient.onConstruct();
+        enclaveClient.start();
     }
 
     @After
     public void tearDown() throws Exception {
-        enclaveClient.onDestroy();
+        enclaveClient.stop();
         server.stop();
     }
 
