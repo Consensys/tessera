@@ -104,6 +104,7 @@ public class ConfigResource implements AdminApp {
             throw new NotFoundException("No key pair found with public key " + base64PublicKey);
         }
 
+        //TODO use dedicated transport object instead?
         KeyData responseData = new KeyData();
         responseData.setPublicKey(base64PublicKey);
         responseData.setPrivateKey("REDACTED");
@@ -120,6 +121,7 @@ public class ConfigResource implements AdminApp {
             throw new NotFoundException("No key pairs found");
         }
 
+        //TODO use dedicated transport object instead?
         List<KeyData> keyPairData = publicKeys.stream()
             .map(PublicKey::encodeToBase64)
             .map(publicKey -> {
