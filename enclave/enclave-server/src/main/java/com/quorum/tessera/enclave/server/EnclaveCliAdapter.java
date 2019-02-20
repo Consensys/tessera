@@ -4,7 +4,7 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.cli.CliAdapter;
 import com.quorum.tessera.config.cli.CliException;
 import com.quorum.tessera.config.cli.CliResult;
-import com.quorum.tessera.config.util.jaxb.UnmarshallerBuilder;
+import com.quorum.tessera.config.util.JaxbUtil;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -29,9 +29,7 @@ public class EnclaveCliAdapter implements CliAdapter {
     public EnclaveCliAdapter() {
         this(new DefaultParser());
     }
-    
-    
-    
+
     @Override
     public CliResult execute(String... args) throws Exception {
 
@@ -59,12 +57,8 @@ public class EnclaveCliAdapter implements CliAdapter {
             final CommandLine line = parser.parse(options, args);
 
             String configfile = line.getOptionValue("configfile");
-
-            Config config = (Config) UnmarshallerBuilder.create()
-                    .withXmlMediaType()
-                    .withoutBeanValidation()
-                    .build()
-                    .unmarshal(Files.newInputStream(Paths.get(configfile)));
+            
+            Config config = JaxbUtil.unmarshal(Files.newInputStream(Paths.get(configfile)), Config.class);
             
             return new CliResult(0, false, config);
 

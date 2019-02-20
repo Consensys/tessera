@@ -30,7 +30,7 @@ public class EnclaveRestIT {
 
     @BeforeClass
     public static void onClass() throws Exception {
-        URL url = EnclaveRestIT.class.getResource("/sample-config.xml");
+        URL url = EnclaveRestIT.class.getResource("/sample-config.json");
         CliDelegate.INSTANCE.execute("-configfile", url.getFile());
     }
 

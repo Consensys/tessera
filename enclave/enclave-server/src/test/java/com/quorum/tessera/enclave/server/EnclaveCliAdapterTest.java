@@ -47,7 +47,7 @@ public class EnclaveCliAdapterTest {
     @Test
     public void withFile() throws Exception {
 
-        URI uri = getClass().getResource("/sample-config.xml").toURI();
+        URI uri = getClass().getResource("/sample-config.json").toURI();
 
         Path path = Paths.get(uri);
 

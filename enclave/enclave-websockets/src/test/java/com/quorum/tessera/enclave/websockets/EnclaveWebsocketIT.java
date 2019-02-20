@@ -40,7 +40,7 @@ public class EnclaveWebsocketIT {
 
     @BeforeClass
     public static void onClass() throws Exception {
-        URL url = EnclaveWebsocketIT.class.getResource("/sample-config.xml");
+        URL url = EnclaveWebsocketIT.class.getResource("/sample-config.json");
         CliDelegate.INSTANCE.execute("-configfile", url.getFile());
     }
 
