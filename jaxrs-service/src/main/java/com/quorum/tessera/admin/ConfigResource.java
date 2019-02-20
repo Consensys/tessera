@@ -1,6 +1,5 @@
 package com.quorum.tessera.admin;
 
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.apps.AdminApp;
 import com.quorum.tessera.core.config.ConfigService;
@@ -104,10 +103,8 @@ public class ConfigResource implements AdminApp {
             throw new NotFoundException("No key pair found with public key " + base64PublicKey);
         }
 
-        //TODO use dedicated transport object instead?
-        KeyData responseData = new KeyData();
+        PublicKeyResponse responseData = new PublicKeyResponse();
         responseData.setPublicKey(base64PublicKey);
-        responseData.setPrivateKey("REDACTED");
 
         return Response.ok(responseData).build();
     }
@@ -117,22 +114,16 @@ public class ConfigResource implements AdminApp {
     public Response getKeyPairs() {
         Set<PublicKey> publicKeys = configService.getPublicKeys();
 
-        if(publicKeys.isEmpty()) {
-            throw new NotFoundException("No key pairs found");
-        }
-
-        //TODO use dedicated transport object instead?
-        List<KeyData> keyPairData = publicKeys.stream()
+        List<PublicKeyResponse> responseData = publicKeys.stream()
             .map(PublicKey::encodeToBase64)
-            .map(publicKey -> {
-                KeyData kd = new KeyData();
-                kd.setPublicKey(publicKey);
-                kd.setPrivateKey("REDACTED");
-                return kd;
+            .map(key -> {
+                PublicKeyResponse pkr = new PublicKeyResponse();
+                pkr.setPublicKey(key);
+                return pkr;
             })
             .collect(Collectors.toList());
 
-        return Response.ok(new GenericEntity<List<KeyData>>(keyPairData){}).build();
+        return Response.ok(new GenericEntity<List<PublicKeyResponse>>(responseData){}).build();
     }
 
 }

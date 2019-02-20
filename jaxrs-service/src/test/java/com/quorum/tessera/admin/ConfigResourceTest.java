@@ -1,6 +1,5 @@
 package com.quorum.tessera.admin;
 
-import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.core.config.ConfigService;
 import com.quorum.tessera.encryption.PublicKey;
@@ -144,9 +143,8 @@ public class ConfigResourceTest {
         when(publicKeys.contains(publicKey)).thenReturn(true);
         when(configService.getPublicKeys()).thenReturn(publicKeys);
 
-        KeyData expected = new KeyData();
+        PublicKeyResponse expected = new PublicKeyResponse();
         expected.setPublicKey(base64Pub);
-        expected.setPrivateKey("REDACTED");
 
         Response response = configResource.getKeyPair(base64Pub);
 
@@ -187,37 +185,32 @@ public class ConfigResourceTest {
 
         when(configService.getPublicKeys()).thenReturn(publicKeys);
 
-        final List<KeyData> expected = new ArrayList<>();
-        KeyData kdA = new KeyData();
-        kdA.setPublicKey(keyA);
-        kdA.setPrivateKey("REDACTED");
+        final List<PublicKeyResponse> expected = new ArrayList<>();
+        PublicKeyResponse pkrA = new PublicKeyResponse();
+        pkrA.setPublicKey(keyA);
 
-        KeyData kdB = new KeyData();
-        kdB.setPublicKey(keyB);
-        kdB.setPrivateKey("REDACTED");
+        PublicKeyResponse pkrB = new PublicKeyResponse();
+        pkrB.setPublicKey(keyB);
 
-        expected.add(kdA);
-        expected.add(kdB);
+        expected.add(pkrA);
+        expected.add(pkrB);
 
         Response response = configResource.getKeyPairs();
 
         verify(configService).getPublicKeys();
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.getEntity()).isEqualTo(expected);
+        assertThat(response.getEntity()).isEqualToComparingFieldByFieldRecursively(expected);
     }
 
     @Test
-    public void getKeyPairsThrowsExceptionIfNoKeyPairs() {
-        Set<PublicKey> publicKeys = mock(Set.class);
-        when(publicKeys.isEmpty()).thenReturn(true);
+    public void getKeyPairsReturnsEmptyListIfNoKeyPairs() {
+        when(configService.getPublicKeys()).thenReturn(Collections.emptySet());
 
-        when(configService.getPublicKeys()).thenReturn(publicKeys);
-
-        Throwable ex = catchThrowable(() -> configResource.getKeyPairs());
+        Response response = configResource.getKeyPairs();
 
         verify(configService).getPublicKeys();
-        assertThat(ex).isNotNull();
-        assertThat(ex).isInstanceOf(NotFoundException.class);
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getEntity()).isEqualToComparingFieldByFieldRecursively(Collections.emptyList());
     }
 
 }
