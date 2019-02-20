@@ -107,7 +107,7 @@ public class ConfigResourceTest {
 
     @Test
     public void getPeerNotFound() {
-        final Peer peer = new Peer("getPeerNoptFound");
+        final Peer peer = new Peer("getPeerNotFound");
         when(configService.getPeers()).thenReturn(singletonList(peer));
 
         final Throwable throwable = catchThrowable(() -> this.configResource.getPeer(2));
