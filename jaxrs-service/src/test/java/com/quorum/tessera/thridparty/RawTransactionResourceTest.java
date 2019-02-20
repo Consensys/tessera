@@ -1,7 +1,7 @@
 package com.quorum.tessera.thridparty;
 
 import com.quorum.tessera.api.model.StoreRawRequest;
-import com.quorum.tessera.transaction.RawTransactionManager;
+import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,11 +16,11 @@ public class RawTransactionResourceTest {
 
     private RawTransactionResource transactionResource;
 
-    private RawTransactionManager transactionManager;
+    private TransactionManager transactionManager;
 
     @Before
     public void onSetup() {
-        transactionManager = mock(RawTransactionManager.class);
+        transactionManager = mock(TransactionManager.class);
         transactionResource = new RawTransactionResource(transactionManager);
     }
 

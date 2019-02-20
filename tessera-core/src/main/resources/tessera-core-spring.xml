@@ -17,10 +17,6 @@
         <constructor-arg ref="config" />
     </bean>
 
-    <bean id="rawTransactionManager" class="com.quorum.tessera.transaction.RawTransactionManagerImpl">
-        <constructor-arg ref="enclave" />
-        <constructor-arg ref="encryptedRawTransactionDAO" />
-    </bean>
 
     <bean id="payloadPublisher" class="com.quorum.tessera.transaction.PayloadPublisherImpl">
         <constructor-arg ref="payloadEncoder" />

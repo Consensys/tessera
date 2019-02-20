@@ -4,6 +4,7 @@ import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.enclave.model.MessageHashFactory;
 import com.quorum.tessera.encryption.PublicKey;
@@ -305,4 +306,21 @@ public class TransactionManagerImpl implements TransactionManager {
         return Optional.empty();
     }
 
+    @Override
+    public StoreRawResponse store(StoreRawRequest storeRequest) {
+        RawTransaction rawTransaction = enclave.encryptRawPayload(storeRequest.getPayload(),
+            storeRequest.getFrom().map(PublicKey::from).orElseGet(enclave::defaultPublicKey));
+        MessageHash hash = messageHashFactory.createFromCipherText(rawTransaction.getEncryptedPayload());
+
+        EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction(hash,
+            rawTransaction.getEncryptedPayload(),
+            rawTransaction.getEncryptedKey(),
+            rawTransaction.getNonce().getNonceBytes(),
+            rawTransaction.getFrom().getKeyBytes());
+
+        encryptedRawTransactionDAO.save(encryptedRawTransaction);
+
+        return new StoreRawResponse(encryptedRawTransaction.getHash().getHashBytes());
+    }
+    
 }
