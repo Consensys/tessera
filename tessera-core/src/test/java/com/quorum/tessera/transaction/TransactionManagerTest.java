@@ -10,6 +10,9 @@ import com.quorum.tessera.enclave.model.MessageHashFactory;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.service.Service;
+import com.quorum.tessera.service.Service.Status;
+import com.quorum.tessera.transaction.exception.EnclaveNotAvailableException;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.PublishPayloadException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
@@ -42,13 +45,16 @@ public class TransactionManagerTest {
     private ResendManager resendManager;
 
     private Enclave enclave;
-    
+
     private MessageHashFactory messageHashFactory = MessageHashFactory.create();
 
     @Before
     public void onSetUp() {
         payloadEncoder = mock(PayloadEncoder.class);
         enclave = mock(Enclave.class);
+
+        when(enclave.status()).thenReturn(Service.Status.STARTED);
+
         encryptedTransactionDAO = mock(EncryptedTransactionDAO.class);
         encryptedRawTransactionDAO = mock(EncryptedRawTransactionDAO.class);
         payloadPublisher = mock(PayloadPublisher.class);
@@ -94,6 +100,7 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
         verify(payloadPublisher, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
         verify(enclave).getForwardingKeys();
+        verify(enclave).status();
     }
 
     @Test
@@ -131,6 +138,7 @@ public class TransactionManagerTest {
         verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadPublisher).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
         verify(enclave).getForwardingKeys();
+        verify(enclave).status();
     }
 
     @Test
@@ -150,6 +158,7 @@ public class TransactionManagerTest {
         } catch (TransactionNotFoundException ex) {
             verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
             verify(enclave).getForwardingKeys();
+            verify(enclave).status();
         }
     }
 
@@ -182,6 +191,7 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
         verify(payloadEncoder).decode(input);
         verify(enclave).getPublicKeys();
+        verify(enclave).status();
 
     }
 
@@ -201,6 +211,7 @@ public class TransactionManagerTest {
         verify(resendManager).acceptOwnMessage(input);
         verify(payloadEncoder).decode(input);
         verify(enclave).getPublicKeys();
+        verify(enclave).status();
     }
 
     @Test
@@ -233,6 +244,7 @@ public class TransactionManagerTest {
         verify(payloadPublisher).publishPayload(any(EncodedPayload.class), eq(senderKey));
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(payload, recipientKey);
+        verify(enclave).status();
     }
 
     @Test
@@ -258,6 +270,7 @@ public class TransactionManagerTest {
 
         verify(encryptedTransactionDAO).retrieveAllTransactions();
         verify(payloadEncoder).decode(encodedData);
+        verify(enclave).status();
     }
 
     @Test
@@ -283,6 +296,7 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).retrieveAllTransactions();
         verify(payloadEncoder).decode(encodedData);
         verify(payloadPublisher).publishPayload(any(EncodedPayload.class), eq(recipientKey));
+        verify(enclave).status();
     }
 
     @Test
@@ -313,6 +327,7 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).retrieveAllTransactions();
         verify(payloadEncoder).decode(encodedData);
         verify(enclave).getPublicKeys();
+        verify(enclave).status();
     }
 
     @Test
@@ -346,6 +361,7 @@ public class TransactionManagerTest {
         verify(payloadPublisher).publishPayload(encodedPayload, publicKey);
         verify(payloadEncoder).decode(any(byte[].class));
         verify(encryptedTransactionDAO).retrieveAllTransactions();
+        verify(enclave).status();
 
     }
 
@@ -386,6 +402,7 @@ public class TransactionManagerTest {
         verify(payloadPublisher).publishPayload(otherEncodedPayload, publicKey);
         verify(payloadEncoder, times(2)).decode(any(byte[].class));
         verify(encryptedTransactionDAO).retrieveAllTransactions();
+        verify(enclave).status();
     }
 
     @Test
@@ -429,6 +446,7 @@ public class TransactionManagerTest {
         verify(payloadPublisher).publishPayload(otherEncodedPayload, publicKey);
         verify(payloadEncoder, times(2)).decode(any(byte[].class));
         verify(payloadPublisher, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+        verify(enclave).status();
     }
 
     @Test
@@ -452,6 +470,7 @@ public class TransactionManagerTest {
             failBecauseExceptionWasNotThrown(TransactionNotFoundException.class);
         } catch (TransactionNotFoundException ex) {
             verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+            verify(enclave).status();
         }
 
     }
@@ -492,6 +511,7 @@ public class TransactionManagerTest {
         verify(payloadEncoder).decode(encodedPayloadData);
         verify(payloadEncoder).forRecipient(encodedPayload, recipientKey);
         verify(payloadEncoder).encode(encodedPayload);
+        verify(enclave).status();
     }
 
     @Test
@@ -533,7 +553,7 @@ public class TransactionManagerTest {
         verify(payloadEncoder).encode(captor.capture());
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(any(), any());
-
+        verify(enclave).status();
         assertThat(captor.getValue().getRecipientKeys()).containsExactly(recipientKey);
     }
 
@@ -575,6 +595,7 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(enclave, times(2)).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
         verify(enclave).getPublicKeys();
+        verify(enclave).status();
     }
 
     @Test
@@ -598,6 +619,7 @@ public class TransactionManagerTest {
             failBecauseExceptionWasNotThrown(TransactionNotFoundException.class);
         } catch (TransactionNotFoundException ex) {
             verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+            verify(enclave).status();
         }
 
     }
@@ -636,6 +658,7 @@ public class TransactionManagerTest {
             verify(enclave).getPublicKeys();
             verify(enclave).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
             verify(payloadEncoder).decode(any(byte[].class));
+            verify(enclave).status();
         }
 
     }
@@ -673,6 +696,7 @@ public class TransactionManagerTest {
         assertThat(throwable).isInstanceOf(IllegalStateException.class);
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+        verify(enclave).status();
     }
 
     @Test
@@ -706,6 +730,7 @@ public class TransactionManagerTest {
             verify(enclave).getPublicKeys();
             verify(enclave).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
             verify(payloadEncoder).decode(any(byte[].class));
+            verify(enclave).status();
         }
 
     }
@@ -741,6 +766,7 @@ public class TransactionManagerTest {
             verify(enclave).getPublicKeys();
             verify(enclave).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
             verify(payloadEncoder).decode(any(byte[].class));
+            verify(enclave).status();
         }
 
     }
@@ -771,6 +797,7 @@ public class TransactionManagerTest {
             assertThat(et.getSender()).containsExactly(sender);
             return true;
         }));
+        verify(enclave).status();
     }
 
     @Test
@@ -792,6 +819,7 @@ public class TransactionManagerTest {
 
         verify(enclave).encryptRawPayload(eq(payload), eq(PublicKey.from(sender)));
         verify(enclave).defaultPublicKey();
+        verify(enclave).status();
         verify(encryptedRawTransactionDAO).save(argThat(et -> {
             assertThat(et.getEncryptedKey()).containsExactly("SomeKey".getBytes());
             assertThat(et.getEncryptedPayload()).containsExactly("CIPHERTEXT".getBytes());
@@ -800,5 +828,18 @@ public class TransactionManagerTest {
             assertThat(et.getSender()).containsExactly(sender);
             return true;
         }));
+    }
+
+    @Test
+    public void enclaveIsDown() {
+        when(enclave.status()).thenReturn(Status.STOPPED);
+        try{
+            transactionManager.send(new SendRequest());
+
+            failBecauseExceptionWasNotThrown(EnclaveNotAvailableException.class);
+        } catch (EnclaveNotAvailableException ex) {
+            verify(enclave).status();
+        }
+
     }
 }

@@ -9,6 +9,8 @@ import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.enclave.model.MessageHashFactory;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.NaclException;
+import com.quorum.tessera.service.Service;
+import com.quorum.tessera.transaction.exception.EnclaveNotAvailableException;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.PublishPayloadException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
@@ -73,7 +75,9 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     @Transactional
     public SendResponse send(SendRequest sendRequest) {
-
+        
+        validateEnclaveStatus();
+        
         final String sender = sendRequest.getFrom();
 
         final PublicKey senderPublicKey = Optional.ofNullable(sender)
@@ -124,6 +128,9 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     @Transactional
     public SendResponse sendSignedTransaction(SendSignedRequest sendRequest) {
+        
+        validateEnclaveStatus();
+        
         final byte[][] recipients = Stream.of(sendRequest)
             .filter(sr -> Objects.nonNull(sr.getTo()))
             .flatMap(s -> Stream.of(s.getTo()))
@@ -167,6 +174,8 @@ public class TransactionManagerImpl implements TransactionManager {
     @Transactional
     public ResendResponse resend(ResendRequest request) {
 
+        validateEnclaveStatus();
+        
         final byte[] publicKeyData = base64Decoder.decode(request.getPublicKey());
         PublicKey recipientPublicKey = PublicKey.from(publicKeyData);
         if (request.getType() == ResendRequestType.ALL) {
@@ -229,6 +238,8 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     public MessageHash storePayload(byte[] input) {
 
+        validateEnclaveStatus();
+        
         final EncodedPayload payload = payloadEncoder.decode(input);
 
         final MessageHash transactionHash = Optional.of(payload)
@@ -264,6 +275,9 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     @Transactional
     public ReceiveResponse receive(ReceiveRequest request) {
+        
+        validateEnclaveStatus();
+        
         final byte[] key = base64Decoder.decode(request.getKey());
 
         final Optional<byte[]> to = Optional
@@ -308,6 +322,9 @@ public class TransactionManagerImpl implements TransactionManager {
 
     @Override
     public StoreRawResponse store(StoreRawRequest storeRequest) {
+        
+        validateEnclaveStatus();
+        
         RawTransaction rawTransaction = enclave.encryptRawPayload(storeRequest.getPayload(),
             storeRequest.getFrom().map(PublicKey::from).orElseGet(enclave::defaultPublicKey));
         MessageHash hash = messageHashFactory.createFromCipherText(rawTransaction.getEncryptedPayload());
@@ -321,6 +338,16 @@ public class TransactionManagerImpl implements TransactionManager {
         encryptedRawTransactionDAO.save(encryptedRawTransaction);
 
         return new StoreRawResponse(encryptedRawTransaction.getHash().getHashBytes());
+    }
+    
+    /*
+    FIXME: This is a workaround for an issue with exception handing when proxying beans. 
+    This needs to be done using an invocationhandler or similar proxy that provides around advice.
+    */
+    private void validateEnclaveStatus() {
+        if(enclave.status() == Service.Status.STOPPED) {
+            throw new EnclaveNotAvailableException();
+        }
     }
     
 }
