@@ -145,7 +145,7 @@
     </bean>
 
     <!-- Node synchronization management-->
-    <beans profile="!disable-sync-poller">
+    <beans profile="enable-sync-poller">
 
         <bean name="resendPartyStore" class="com.quorum.tessera.sync.ResendPartyStoreImpl"/>
 
