@@ -6,6 +6,7 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.service.Service;
 
 import javax.json.Json;
 import javax.ws.rs.*;
@@ -15,6 +16,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.ws.rs.core.Response.Status;
 
 @Path("/")
 public class EnclaveResource {
@@ -29,8 +31,15 @@ public class EnclaveResource {
 
     @GET
     @Path("ping")
-    public String ping() {
-        return enclave.status().name();
+    public Response ping() {
+        Service.Status status = enclave.status();
+        Status httpStatus;
+        if(status == Service.Status.STARTED) {
+            httpStatus = Status.OK;
+        } else {
+            httpStatus = Status.SERVICE_UNAVAILABLE;
+        }
+        return Response.status(httpStatus).entity(status.name()).build();
     }
 
     @Produces(MediaType.APPLICATION_OCTET_STREAM)

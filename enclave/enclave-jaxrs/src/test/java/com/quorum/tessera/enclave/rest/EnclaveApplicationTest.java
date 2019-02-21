@@ -59,6 +59,17 @@ public class EnclaveApplicationTest {
     }
 
     @Test
+    public void pingServerDown() throws Exception {
+        
+        when(enclave.status()).thenReturn(Service.Status.STOPPED);
+        
+        Response response = jersey.target("ping").request().get();
+        assertThat(response.getStatus()).isEqualTo(503);
+        assertThat(response.readEntity(String.class)).isEqualTo(Service.Status.STOPPED.name());
+        verify(enclave).status();
+    } 
+    
+    @Test
     public void defaultKey() throws Exception {
 
         PublicKey publicKey = PublicKey.from("defaultKey".getBytes());
