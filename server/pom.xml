@@ -17,6 +17,7 @@
         <module>grpc-server</module>
         <module>server-api</module>
         <module>unix-socket-server</module>
+        <module>websockets-server</module>
     </modules>
     <build>
         <plugins>

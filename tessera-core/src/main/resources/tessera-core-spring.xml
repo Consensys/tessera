@@ -11,11 +11,16 @@
 
     <context:component-scan base-package="com.quorum.tessera"/>
 
+    <bean id="enclaveFactory" class="com.quorum.tessera.enclave.EnclaveFactory" factory-method="create" />
 
-    <bean id="rawTransactionManager" class="com.quorum.tessera.transaction.RawTransactionManagerImpl">
-        <constructor-arg ref="enclave" />
-        <constructor-arg ref="encryptedRawTransactionDAO" />
+    <bean id="enclave" factory-bean="enclaveFactory" factory-method="create">
+        <constructor-arg ref="config" />
     </bean>
+
+    <bean class="com.quorum.tessera.service.ServiceContainer">
+        <constructor-arg ref="enclave" />
+    </bean>
+
 
     <bean id="payloadPublisher" class="com.quorum.tessera.transaction.PayloadPublisherImpl">
         <constructor-arg ref="payloadEncoder" />
@@ -81,14 +86,6 @@
 
     <bean id="partyInfoParser" class="com.quorum.tessera.node.PartyInfoParser" factory-method="create"/>
 
-    <bean name="argon2" class="com.quorum.tessera.argon2.Argon2" factory-method="create"/>
-
-    <bean name="keyEncryptor" class="com.quorum.tessera.config.keys.KeyEncryptorImpl">
-        <constructor-arg ref="argon2"/>
-        <constructor-arg ref="nacl"/>
-    </bean>
-
-    <bean id="keyConfig" factory-bean="config" factory-method="getKeys" />
 
     <bean id="cliDelegate" class="com.quorum.tessera.config.cli.CliDelegate" factory-method="instance"/>
 

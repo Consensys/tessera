@@ -164,4 +164,9 @@ public class EnclaveImpl implements Enclave {
     public Set<PublicKey> getPublicKeys() {
         return keyManager.getPublicKeys();
     }
+
+    @Override
+    public Status status() {
+        return Status.STARTED;
+    }
 }

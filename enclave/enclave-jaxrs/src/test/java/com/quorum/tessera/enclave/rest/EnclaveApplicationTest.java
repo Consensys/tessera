@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.quorum.tessera.enclave.rest.Fixtures.createSample;
+import com.quorum.tessera.service.Service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -34,7 +35,7 @@ public class EnclaveApplicationTest {
     public void setUp() throws Exception {
 
         enclave = mock(Enclave.class);
-
+        when(enclave.status()).thenReturn(Service.Status.STARTED);
         jersey = Util.create(enclave);
 
         jersey.setUp();
@@ -54,9 +55,20 @@ public class EnclaveApplicationTest {
         Response response = jersey.target("ping").request().get();
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.readEntity(String.class)).isNotEmpty();
-
+        verify(enclave).status();
     }
 
+    @Test
+    public void pingServerDown() throws Exception {
+        
+        when(enclave.status()).thenReturn(Service.Status.STOPPED);
+        
+        Response response = jersey.target("ping").request().get();
+        assertThat(response.getStatus()).isEqualTo(503);
+        assertThat(response.readEntity(String.class)).isEqualTo(Service.Status.STOPPED.name());
+        verify(enclave).status();
+    } 
+    
     @Test
     public void defaultKey() throws Exception {
 
