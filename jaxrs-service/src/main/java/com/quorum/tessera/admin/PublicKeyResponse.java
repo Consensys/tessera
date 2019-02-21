@@ -10,11 +10,15 @@ class PublicKeyResponse {
     @XmlElement
     private String publicKey;
 
-    PublicKeyResponse() {
-
+    //No args constructor required for jaxb marshalling
+    private PublicKeyResponse() {
     }
 
-    void setPublicKey(String publicKey) {
+    PublicKeyResponse(String publicKey) {
         this.publicKey = publicKey;
+    }
+
+    String getPublicKey() {
+        return this.publicKey;
     }
 }

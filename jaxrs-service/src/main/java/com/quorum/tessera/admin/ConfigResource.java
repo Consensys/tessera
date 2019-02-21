@@ -103,8 +103,7 @@ public class ConfigResource implements AdminApp {
             throw new NotFoundException("No key pair found with public key " + base64PublicKey);
         }
 
-        PublicKeyResponse responseData = new PublicKeyResponse();
-        responseData.setPublicKey(base64PublicKey);
+        PublicKeyResponse responseData = new PublicKeyResponse(base64PublicKey);
 
         return Response.ok(responseData).build();
     }
@@ -116,11 +115,7 @@ public class ConfigResource implements AdminApp {
 
         List<PublicKeyResponse> responseData = publicKeys.stream()
             .map(PublicKey::encodeToBase64)
-            .map(key -> {
-                PublicKeyResponse pkr = new PublicKeyResponse();
-                pkr.setPublicKey(key);
-                return pkr;
-            })
+            .map(PublicKeyResponse::new)
             .collect(Collectors.toList());
 
         return Response.ok(new GenericEntity<List<PublicKeyResponse>>(responseData){}).build();

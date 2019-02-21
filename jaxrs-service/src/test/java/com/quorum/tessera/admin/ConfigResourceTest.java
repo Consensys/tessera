@@ -143,8 +143,7 @@ public class ConfigResourceTest {
         when(publicKeys.contains(publicKey)).thenReturn(true);
         when(configService.getPublicKeys()).thenReturn(publicKeys);
 
-        PublicKeyResponse expected = new PublicKeyResponse();
-        expected.setPublicKey(base64Pub);
+        PublicKeyResponse expected = new PublicKeyResponse(base64Pub);
 
         Response response = configResource.getKeyPair(base64Pub);
 
@@ -186,11 +185,9 @@ public class ConfigResourceTest {
         when(configService.getPublicKeys()).thenReturn(publicKeys);
 
         final List<PublicKeyResponse> expected = new ArrayList<>();
-        PublicKeyResponse pkrA = new PublicKeyResponse();
-        pkrA.setPublicKey(keyA);
+        PublicKeyResponse pkrA = new PublicKeyResponse(keyA);
 
-        PublicKeyResponse pkrB = new PublicKeyResponse();
-        pkrB.setPublicKey(keyB);
+        PublicKeyResponse pkrB = new PublicKeyResponse(keyB);
 
         expected.add(pkrA);
         expected.add(pkrB);
