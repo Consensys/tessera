@@ -5,12 +5,15 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.util.ConfigFileStore;
-import java.net.URI;
-import java.net.URISyntaxException;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.quorum.tessera.enclave.Enclave;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ConfigServiceTest {
@@ -21,11 +24,14 @@ public class ConfigServiceTest {
 
     private ConfigFileStore configFileStore;
 
+    private Enclave enclave;
+
     @Before
     public void onSetUp() {
         config = mock(Config.class);
         configFileStore = mock(ConfigFileStore.class);
-        configService = new ConfigServiceImpl(config, configFileStore);
+        enclave = mock(Enclave.class);
+        configService = new ConfigServiceImpl(config, enclave, configFileStore);
     }
 
     @After
@@ -85,5 +91,11 @@ public class ConfigServiceTest {
 
         verify(config).getP2PServerConfig();
         verify(serverConfig).getServerUri();
+    }
+
+    @Test
+    public void getPublicKeys() {
+        configService.getPublicKeys();
+        verify(enclave).getPublicKeys();
     }
 }
