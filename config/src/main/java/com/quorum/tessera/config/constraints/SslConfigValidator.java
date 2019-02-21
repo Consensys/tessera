@@ -1,6 +1,5 @@
 package com.quorum.tessera.config.constraints;
 
-
 import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.config.SslTrustMode;
@@ -12,55 +11,46 @@ import java.util.Objects;
 
 public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfig> {
 
-    private ValidSsl validSsl;
-
-    @Override
-    public void initialize(ValidSsl validSsl) {
-        this.validSsl = validSsl;
-    }
-
     @Override
     public boolean isValid(SslConfig sslConfig, ConstraintValidatorContext context) {
 
         context.disableDefaultConstraintViolation();
 
-        if (validSsl.checkSslValid()){
+        if (Objects.isNull(sslConfig)) {
+            return true;
+        }
 
-            if (Objects.isNull(sslConfig)) {
-                return true;
+        if (sslConfig.getTls() == SslAuthenticationMode.STRICT) {
+
+            if (!sslConfig.isGenerateKeyStoreIfNotExisted()) {
+
+                if (!isServerKeyStoreConfigValid(sslConfig, context) ||
+                    !isClientKeyStoreConfigValid(sslConfig, context)) {
+                    return false;
+                }
             }
 
-            if (sslConfig.getTls() == SslAuthenticationMode.STRICT) {
+            if (!isTrustModeConfigValid(sslConfig, context)) {
+                return false;
+            }
 
-                if (!sslConfig.isGenerateKeyStoreIfNotExisted()) {
+            if (!isServerConfigValidForWhiteListMode(sslConfig, context)) {
+                return false;
+            }
 
-                    if (!isServerKeyStoreConfigValid(sslConfig, context) ||
-                        !isClientKeyStoreConfigValid(sslConfig, context)) {
-                        return false;
-                    }
-                }
+            if (!isServerConfigValidForCAMode(sslConfig, context)) {
+                return false;
+            }
 
-                if (!isTrustModeConfigValid(sslConfig, context)) {
-                    return false;
-                }
+            if (!isClientConfigValidForWhiteListMode(sslConfig, context)) {
+                return false;
+            }
 
-                if (!isServerConfigValidForWhiteListMode(sslConfig, context)) {
-                    return false;
-                }
-
-                if (!isServerConfigValidForCAMode(sslConfig, context)) {
-                    return false;
-                }
-
-                if (!isClientConfigValidForWhiteListMode(sslConfig, context)) {
-                    return false;
-                }
-
-                if (!isClientConfigValidForCAMode(sslConfig, context)) {
-                    return false;
-                }
+            if (!isClientConfigValidForCAMode(sslConfig, context)) {
+                return false;
             }
         }
+
         return true;
     }
 
