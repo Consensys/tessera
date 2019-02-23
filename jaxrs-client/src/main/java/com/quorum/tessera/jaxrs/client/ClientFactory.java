@@ -49,13 +49,15 @@ public class ClientFactory {
     }
     
     /**
-     * Creates a new client, which may or may not be SSL enabled depending on
-     * the configuration
+     * Creates a new client, which may or may not be SSL enabled 
+     * or a unix socket enabled depending on
+     * the configuration.
      *
+     * @param config
+     * @return 
      * @see Client
      */
     public Client buildFrom(final ServerConfig config) {
-        //TODO: Remove buld time dependency. 
         if (UnixServerSocket.class.isInstance(config.getServerSocket())) {
             Configuration clientConfig = createUnixServerSocketConfig();
             Path unixfile = Paths.get(UnixServerSocket.class.cast(config.getServerSocket()).getPath());
