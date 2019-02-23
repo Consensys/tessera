@@ -13,10 +13,11 @@ public interface TesseraServerFactory<T> {
     TesseraServer createServer(ServerConfig config, Set<T> services);
 
     static TesseraServerFactory create(CommunicationType communicationType) {
+        CommunicationType ct = communicationType == CommunicationType.UNIX_SOCKET ? CommunicationType.REST : communicationType;
         List<TesseraServerFactory> all = new ArrayList<>();
         ServiceLoader.load(TesseraServerFactory.class).forEach(all::add);
         return all.stream()
-                .filter(f -> f.communicationType() == communicationType)
+                .filter(f -> f.communicationType() == ct)
                 .findFirst().get();
     }
 

@@ -18,6 +18,7 @@
         <module>server-api</module>
         <module>unix-socket-server</module>
         <module>websockets-server</module>
+        <module>jaxrs-client-unixsocket</module>
     </modules>
     <build>
         <plugins>

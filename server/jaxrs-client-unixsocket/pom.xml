@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.jpmorgan.quorum</groupId>
+        <artifactId>server</artifactId>
+        <version>0.9-SNAPSHOT</version>
+    </parent>
+    <artifactId>jaxrs-client-unixsocket</artifactId>
+    <packaging>jar</packaging>
+    <name>jaxrs-client-unixsocket</name>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.glassfish.grizzly</groupId>
+                <artifactId>grizzly-http-servlet</artifactId>
+                <version>2.4.3.1</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.sun.mail</groupId>
+                <artifactId>javax.mail</artifactId>
+                <version>1.6.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>9.4.9.v20180320</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-client</artifactId>
+                <version>9.4.9.v20180320</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>9.4.9.v20180320</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-unixsocket</artifactId>
+                <version>9.4.9.v20180320</version>
+                <type>jar</type>
+            </dependency>
+            
+
+        </dependencies>
+    </dependencyManagement>
+    
+    <dependencies>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-unixsocket</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>config</artifactId>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>jersey-server</artifactId>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+    
+    
+</project>
