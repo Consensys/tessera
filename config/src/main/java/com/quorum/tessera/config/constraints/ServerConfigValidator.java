@@ -11,13 +11,6 @@ public class ServerConfigValidator implements ConstraintValidator<ValidServerCon
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerConfigValidator.class);
 
-    private ValidServerConfig config;
-
-    @Override
-    public void initialize(ValidServerConfig a) {
-        this.config = a;
-    }
-
     @Override
     public boolean isValid(ServerConfig serverConfig, ConstraintValidatorContext constraintContext) {
 

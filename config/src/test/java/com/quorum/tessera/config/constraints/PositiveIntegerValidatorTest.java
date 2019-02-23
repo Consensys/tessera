@@ -55,9 +55,4 @@ public class PositiveIntegerValidatorTest {
         assertThat(validator.isValid("-10", context)).isFalse();
     }
 
-    @Test
-    public void initialize() {
-        ValidPositiveInteger constraintAnnotation = mock(ValidPositiveInteger.class);
-        validator.initialize(constraintAnnotation);
-    }
 }

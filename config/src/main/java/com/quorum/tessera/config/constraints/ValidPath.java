@@ -23,6 +23,5 @@ public @interface ValidPath {
     boolean checkExists() default false;
     
     boolean checkCanCreate() default false;
-
     
 }

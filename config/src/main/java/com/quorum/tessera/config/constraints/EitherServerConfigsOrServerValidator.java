@@ -11,13 +11,6 @@ public class EitherServerConfigsOrServerValidator implements ConstraintValidator
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EitherServerConfigsOrServerValidator.class);
 
-    private ValidEitherServerConfigsOrServer config;
-
-    @Override
-    public void initialize(ValidEitherServerConfigsOrServer a) {
-        this.config = a;
-    }
-
     @Override
     public boolean isValid(Config config, ConstraintValidatorContext constraintContext) {
         if (config == null) {
@@ -42,4 +35,5 @@ public class EitherServerConfigsOrServerValidator implements ConstraintValidator
 
         return true;
     }
+
 }

@@ -1,7 +1,6 @@
 package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.KeyConfiguration;
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.validation.ConstraintValidatorContext;
@@ -14,11 +13,6 @@ import static org.mockito.Mockito.mock;
 public class KeyConfigurationValidatorTest {
 
     private KeyConfigurationValidator validator = new KeyConfigurationValidator();
-
-    @Before
-    public void init() {
-        this.validator.initialize(mock(ValidKeyConfiguration.class));
-    }
 
     @Test
     public void bothNotSetIsValid() {

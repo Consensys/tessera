@@ -5,17 +5,9 @@ import javax.validation.ConstraintValidatorContext;
 
 public class PositiveIntegerValidator implements ConstraintValidator<ValidPositiveInteger, String> {
 
-
-    private ValidPositiveInteger validPositiveInteger;
-
-    @Override
-    public void initialize(ValidPositiveInteger constraintAnnotation) {
-        this.validPositiveInteger = constraintAnnotation;
-    }
-
     @Override
     public boolean isValid(String secretVersion, ConstraintValidatorContext constraintValidatorContext) {
-        if(secretVersion == null) {
+        if (secretVersion == null) {
             return true;
         }
 
@@ -23,14 +15,11 @@ public class PositiveIntegerValidator implements ConstraintValidator<ValidPositi
 
         try {
             i = Integer.valueOf(secretVersion);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return false;
         }
 
-        if(i < 0) {
-            return false;
-        }
-
-        return true;
+        return i >= 0;
     }
+
 }
