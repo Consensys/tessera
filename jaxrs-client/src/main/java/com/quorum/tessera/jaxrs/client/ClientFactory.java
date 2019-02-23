@@ -4,6 +4,8 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.UnixServerSocket;
 import com.quorum.tessera.jaxrs.unixsocket.JerseyUnixSocketConnectorProvider;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
@@ -41,8 +43,8 @@ public class ClientFactory {
 
             ClientConfig clientConfig = new ClientConfig();
             clientConfig.connectorProvider(connectorProvider);
-            
-            return ClientBuilder.newClient(clientConfig);
+            Path unixfile = Paths.get(UnixServerSocket.class.cast(config.getServerSocket()).getPath());
+            return ClientBuilder.newClient(clientConfig).property("unixfile", unixfile);
 
         } else if (config.isSsl()) {
             final SSLContext sslContext = sslContextFactory.from(
