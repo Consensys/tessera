@@ -41,6 +41,7 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>jaxrs-client-unixsocket</artifactId>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 </project>
