@@ -1,38 +1,26 @@
 package com.quorum.tessera.server;
 
+import com.jpmorgan.quorum.server.utils.ServerUtils;
 import com.quorum.tessera.config.InfluxConfig;
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.UnixServerSocket;
 import com.quorum.tessera.server.monitoring.InfluxDbClient;
 import com.quorum.tessera.server.monitoring.InfluxDbPublisher;
 import com.quorum.tessera.server.monitoring.MetricsResource;
-import com.quorum.tessera.ssl.context.SSLContextFactory;
-import com.quorum.tessera.ssl.context.ServerSSLContextFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Application;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 /**
@@ -48,33 +36,16 @@ public class JerseyServer implements TesseraServer {
 
     private final Application application;
 
-    private final SSLContext sslContext;
-
-    private final boolean secure;
-
     private final ScheduledExecutorService executor;
 
     private final InfluxConfig influxConfig;
 
-    private final UnixServerSocket unixServerSocket;
+    private final ServerConfig serverConfig;
 
     public JerseyServer(final ServerConfig serverConfig, final Application application) {
         this.uri = serverConfig.getBindingUri();
         this.application = Objects.requireNonNull(application);
-        this.secure = serverConfig.isSsl();
-
-        this.unixServerSocket = Optional.of(serverConfig)
-                .map(ServerConfig::getServerSocket)
-                .filter(s -> UnixServerSocket.class.isInstance(s))
-                .map(UnixServerSocket.class::cast)
-                .orElse(null);
-
-        if (this.secure) {
-            final SSLContextFactory sslContextFactory = ServerSSLContextFactory.create();
-            this.sslContext = sslContextFactory.from(uri.toString(), serverConfig.getSslConfig());
-        } else {
-            this.sslContext = null;
-        }
+        this.serverConfig = serverConfig;
 
         this.executor = newSingleThreadScheduledExecutor();
 
@@ -107,38 +78,7 @@ public class JerseyServer implements TesseraServer {
         config.addProperties(initParams)
                 .register(MetricsResource.class);
 
-        this.server = new Server();
-
-        if (Objects.nonNull(unixServerSocket)) {
-
-            HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory();
-            
-            org.eclipse.jetty.unixsocket.UnixSocketConnector connector = 
-                    new org.eclipse.jetty.unixsocket.UnixSocketConnector(server,httpConnectionFactory);
-            connector.setAcceptQueueSize(128);
-            
-            connector.setUnixSocket(unixServerSocket.getPath());
-
-            server.setConnectors(new Connector[]{connector});
-
-        } else if (this.secure) {
-            HttpConfiguration https = new HttpConfiguration();
-            https.addCustomizer(new SecureRequestCustomizer());
-
-            SslContextFactory sslContextFactory = new SslContextFactory();
-            sslContextFactory.setSslContext(sslContext);
-            ServerConnector connector = new ServerConnector(server,
-                    new SslConnectionFactory(sslContextFactory, "http/1.1"),
-                    new HttpConnectionFactory(https));
-            connector.setPort(uri.getPort());
-            server.setConnectors(new Connector[]{connector});
-
-        } else {
-            ServerConnector connector = new ServerConnector(server);
-            connector.setPort(uri.getPort());
-            server.setConnectors(new Connector[]{connector});
-
-        }
+        this.server = ServerUtils.buildWebServer(serverConfig);
 
         ServletContextHandler context = new ServletContextHandler(server, "/");
         ServletContainer servletContainer = new ServletContainer(config);
@@ -156,8 +96,6 @@ public class JerseyServer implements TesseraServer {
         if (influxConfig != null) {
             startInfluxMonitoring();
         }
-
-       // server.join();
 
     }
 
@@ -190,7 +128,7 @@ public class JerseyServer implements TesseraServer {
             try{
                 this.server.stop();
             } catch (Exception ex) {
-               LOGGER.warn(null, ex);
+                LOGGER.warn(null, ex);
             }
         }
 

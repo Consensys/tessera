@@ -1,11 +1,15 @@
 package com.quorum.tessera.enclave.websockets;
 
+import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.EncodedPayloadBuilder;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.enclave.RawTransactionBuilder;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.server.TesseraServer;
+import com.quorum.tessera.server.TesseraServerFactory;
 import com.quorum.tessera.service.Service;
 import java.net.URI;
 import java.util.ArrayList;
@@ -16,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 import javax.websocket.Session;
 import static org.assertj.core.api.Assertions.assertThat;
-import org.glassfish.tyrus.server.Server;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +33,9 @@ public class EnclaveEndpointTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveEndpointTest.class);
 
-    private Server server;
+    private TesseraServerFactory serverFactory = TesseraServerFactory.create(CommunicationType.WEB_SOCKET);
+    
+    private TesseraServer server;
 
     private WebsocketEnclaveClient enclaveAdapter;
 
@@ -41,7 +46,10 @@ public class EnclaveEndpointTest {
         enclave = mock(Enclave.class);
         EnclaveHolder.instance(enclave);
         
-        server = new Server("localhost", 8025, "/", null, EnclaveEndpoint.class);
+        ServerConfig serverConfig = new ServerConfig();
+       // serverConfig.setServerSocket(new InetServerSocket("http://localhost", 8025));
+        serverConfig.setBindingAddress("ws://localhost:8025");
+        server = serverFactory.createServer(serverConfig, Collections.singleton(EnclaveEndpoint.class));
         server.start();
 
         enclaveAdapter = new WebsocketEnclaveClient(URI.create("ws://localhost:8025/enclave"));
@@ -49,7 +57,7 @@ public class EnclaveEndpointTest {
     }
 
     @After
-    public void onTearDown() {
+    public void onTearDown() throws Exception {
         enclaveAdapter.stop();
         server.stop();
     }

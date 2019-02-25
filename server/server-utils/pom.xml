@@ -6,35 +6,36 @@
         <artifactId>server</artifactId>
         <version>0.9-SNAPSHOT</version>
     </parent>
-    <artifactId>websockets-server</artifactId>
+    <artifactId>server-utils</artifactId>
     <packaging>jar</packaging>
-    
     <dependencies>
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>server-api</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <type>jar</type>
         </dependency>
-
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>config</artifactId>
+            <type>jar</type>
         </dependency>
-
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>security</artifactId>
+            <type>jar</type>
         </dependency>
-        
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>server-utils</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-unixsocket</artifactId>
+            <type>jar</type>
         </dependency>
-        
         <dependency>
-            <groupId>org.eclipse.jetty.websocket</groupId>
-            <artifactId>javax-websocket-server-impl</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-unixsocket</artifactId>
+        </dependency>
     </dependencies>
-    
 </project>
