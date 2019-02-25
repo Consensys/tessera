@@ -321,6 +321,7 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
+    @Transactional
     public StoreRawResponse store(StoreRawRequest storeRequest) {
         
         validateEnclaveStatus();
