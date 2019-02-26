@@ -103,8 +103,8 @@
 
     <bean name="encryptedRawTransactionDAO" class="com.quorum.tessera.transaction.EncryptedRawTransactionDAOImpl"/>
 
-    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
-        <property name="url" value="#{ config.getJdbcConfig().getUrl() }" />
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
+        <property name="jdbcUrl" value="#{ config.getJdbcConfig().getUrl() }" />
         <property name="username" value="#{ config.getJdbcConfig().getUsername() }" />
         <property name="password" value="#{ config.getJdbcConfig().getPassword() }" />
     </bean>
