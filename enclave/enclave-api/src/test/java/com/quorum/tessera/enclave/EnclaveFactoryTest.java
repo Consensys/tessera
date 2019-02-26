@@ -29,7 +29,7 @@ public class EnclaveFactoryTest {
     public void create() {
         assertThat(enclaveFactory).isNotNull();
     }
- @Test
+    @Test
     public void createRemote() {
         final Config config = new Config();
 
@@ -94,5 +94,22 @@ public class EnclaveFactoryTest {
         assertThat(result).isInstanceOf(EnclaveImpl.class);
 
     }
+    
+    @Test
+    public void createLocalExplicitly() {
 
+        Config config = new Config();
+
+        KeyConfiguration keyConfiguration = new KeyConfiguration();
+        ConfigKeyPair pair = new DirectKeyPair("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+        keyConfiguration.setKeyData(Arrays.asList(pair));
+        config.setKeys(keyConfiguration);
+
+        config.setAlwaysSendTo(new ArrayList<>());
+
+        Enclave result = enclaveFactory.createLocal(config);
+
+        assertThat(result).isInstanceOf(EnclaveImpl.class);
+
+    }
 }

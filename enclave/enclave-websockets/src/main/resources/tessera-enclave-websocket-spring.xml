@@ -7,12 +7,12 @@
 
     <bean id="config" factory-bean="cliDelegate" factory-method="getConfig"/>
     
-    <bean id="enclave" class="com.quorum.tessera.enclave.EnclaveFactory" factory-method="createServer">
-        <constructor-arg ref="config" />
-    </bean>
+    <bean id="enclaveFactory" class="com.quorum.tessera.enclave.EnclaveFactory" factory-method="create" />
+
     
     <bean id="enclaveHolder" class="com.quorum.tessera.enclave.websockets.EnclaveHolder" factory-method="instance">
-        <constructor-arg ref="enclave" />
+        <constructor-arg ref="enclaveFactory" />
+        <constructor-arg ref="config" />
     </bean>
     
 </beans>

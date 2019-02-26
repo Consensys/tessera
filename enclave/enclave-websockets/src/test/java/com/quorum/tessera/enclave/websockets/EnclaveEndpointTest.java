@@ -1,8 +1,10 @@
 package com.quorum.tessera.enclave.websockets;
 
 import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.EncodedPayloadBuilder;
 import com.quorum.tessera.enclave.RawTransaction;
@@ -43,9 +45,14 @@ public class EnclaveEndpointTest {
     
     @Before
     public void onSetUp() throws Exception {
-        enclave = mock(Enclave.class);
-        EnclaveHolder.instance(enclave);
+        EnclaveFactory enclaveFactory = mock(EnclaveFactory.class);
         
+        enclave = mock(Enclave.class);
+        
+        Config config = mock(Config.class);
+        EnclaveHolder.instance(enclaveFactory,config);
+        when(enclaveFactory.createLocal(config)).thenReturn(enclave);
+
         ServerConfig serverConfig = new ServerConfig();
        // serverConfig.setServerSocket(new InetServerSocket("http://localhost", 8025));
         serverConfig.setBindingAddress("ws://localhost:8025");

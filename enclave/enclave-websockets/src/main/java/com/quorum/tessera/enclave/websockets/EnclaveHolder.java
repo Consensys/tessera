@@ -1,26 +1,28 @@
 package com.quorum.tessera.enclave.websockets;
 
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.enclave.Enclave;
-
+import com.quorum.tessera.enclave.EnclaveFactory;
 
 public enum EnclaveHolder {
     
     INSTANCE;
     
-    private Enclave enclave;
+   private EnclaveFactory enclaveFactory;
+   
+   private Config config;
     
-    public static EnclaveHolder instance(Enclave enclave) {
-          INSTANCE.setEnclave(enclave);
-          return INSTANCE;
-    }
 
-    private void setEnclave(Enclave enclave) {
-        this.enclave = enclave;
-    }
+    public static EnclaveHolder instance(EnclaveFactory enclaveFactory, Config config) {
 
+        INSTANCE.enclaveFactory = enclaveFactory;
+        INSTANCE.config = config;
+
+        return INSTANCE;
+    }
+ 
     public Enclave getEnclave() {
-        return enclave;
+        return enclaveFactory.createLocal(config);
     }
-
     
 }
