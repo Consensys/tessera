@@ -3,6 +3,8 @@ package com.quorum.tessera.jaxrs.client;
 
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.SslConfig;
+import com.quorum.tessera.config.UnixServerSocket;
+import com.quorum.tessera.jaxrs.unixsocket.JerseyUnixSocketConnectorProvider;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -13,6 +15,7 @@ import javax.ws.rs.client.Client;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -62,6 +65,16 @@ public class ClientFactoryTest {
         assertThat(client).isNotNull();
 
         verify(sslContextFactory).from(serverConfig.getServerUri().toString(),sslConfig);
+    }
+    
+    @Test
+    public void createUnixSocketClient() {
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setServerSocket(new UnixServerSocket("/tmp/bogus.socket"));
+        org.glassfish.jersey.client.JerseyClient result = (org.glassfish.jersey.client.JerseyClient) factory.buildFrom(serverConfig);
+        assertThat(result.getConfiguration().getProperty("unixfile")).isEqualTo(Paths.get("/tmp/bogus.socket"));
+        assertThat(result.getConfiguration().getConnectorProvider()).isInstanceOf(JerseyUnixSocketConnectorProvider.class);
+        
     }
     
      @Test

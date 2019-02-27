@@ -7,9 +7,11 @@ import com.quorum.tessera.encryption.PublicKey;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.websocket.CloseReason;
 import javax.websocket.ContainerProvider;
 import javax.websocket.DeploymentException;
@@ -85,7 +87,8 @@ public class WebsocketEnclaveClient implements EnclaveClient {
             s.getBasicRemote().sendObject(request);
         });
 
-        return client.pollForResult(Set.class).get();
+        PublicKey[] keys = client.pollForResult(PublicKey[].class).get();
+        return Arrays.stream(keys).collect(Collectors.toSet());
     }
 
     @Override
@@ -98,7 +101,8 @@ public class WebsocketEnclaveClient implements EnclaveClient {
             s.getBasicRemote().sendObject(request);
         });
 
-        return client.pollForResult(Set.class).get();
+        PublicKey[] keys = client.pollForResult(PublicKey[].class).get();
+        return Arrays.stream(keys).collect(Collectors.toSet());
     }
 
     @Override

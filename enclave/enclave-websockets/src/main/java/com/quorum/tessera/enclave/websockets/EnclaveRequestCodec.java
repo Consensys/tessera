@@ -3,8 +3,6 @@ package com.quorum.tessera.enclave.websockets;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.PublicKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.json.*;
 import java.util.Base64;
@@ -15,15 +13,12 @@ import java.util.stream.Collectors;
 
 public class EnclaveRequestCodec extends JsonCodec<EnclaveRequest> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveRequestCodec.class);
-
     private static final Encoder BASE64_ENCODER = Base64.getEncoder();
 
     private static final Decoder BASE64_DECODER = Base64.getDecoder();
 
     @Override
     public JsonObjectBuilder doEncode(EnclaveRequest request) throws Exception {
-
         EnclaveRequestType enclaveRequestType = request.getType();
 
         JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
@@ -124,4 +119,8 @@ public class EnclaveRequestCodec extends JsonCodec<EnclaveRequest> {
         return requestBuilder.build();
 
     }
+
+
+    
+    
 }

@@ -5,8 +5,6 @@ import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.cli.CliDelegate;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveImpl;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
@@ -44,8 +42,6 @@ public class EnclaveWebsocketIT {
         CliDelegate.INSTANCE.execute("-configfile", url.getFile());
     }
 
-    @Inject
-    private Enclave enclave;
 
     @Inject
     private Config config;
@@ -55,8 +51,6 @@ public class EnclaveWebsocketIT {
     @Before
     public void setUp() throws Exception {
 
-        assertThat(enclave).isInstanceOf(EnclaveImpl.class);
-        
         ServerConfig serverConfig = config.getServerConfigs().stream()
                 .filter(s -> s.getApp() == AppType.ENCLAVE)
                 .filter(s -> s.getCommunicationType() == CommunicationType.WEB_SOCKET)
