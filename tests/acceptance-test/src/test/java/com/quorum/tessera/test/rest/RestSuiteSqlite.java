@@ -26,9 +26,9 @@ import org.junit.runners.Suite;
     CucumberAdminIT.class,
     CucumberWhitelistIT.class
 })
-public class RestSuite {
+public class RestSuiteSqlite {
 
-    private static final ProcessManager PROCESS_MANAGER = new ProcessManager(CommunicationType.REST);
+    private static final ProcessManager PROCESS_MANAGER = new ProcessManager(CommunicationType.REST, DBType.SQLITE);
 
     @BeforeClass
     public static void onSetup() throws Exception {
