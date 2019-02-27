@@ -18,28 +18,19 @@ import java.util.List;
 import java.util.Set;
 
 @ServerEndpoint(value = "/enclave",
-        decoders = {
-            EnclaveRequestCodec.class, 
-            PublicKeyCodec.class, 
-            PublicKeySetCodec.class, 
-            EncodedPayloadCodec.class, 
-            RawTransactionCodec.class,
-            StatusCodec.class
-        },
-        encoders = {
-            EnclaveRequestCodec.class, 
-            PublicKeyCodec.class, 
-            PublicKeySetCodec.class, 
-            EncodedPayloadCodec.class, 
-            RawTransactionCodec.class,
-            StatusCodec.class
-        }
-)
+        encoders = {EnclaveResponseCodec.class},
+        decoders = {EnclaveRequestCodec.class})
 public class EnclaveEndpoint {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveEndpoint.class);
 
-    private final Enclave enclave = EnclaveHolder.INSTANCE.getEnclave();
+    private final ThreadLocal<Enclave> enclaveThreadLocal = new ThreadLocal<Enclave>() {
+        @Override
+        protected Enclave initialValue() {
+            return EnclaveHolder.INSTANCE.getEnclave();
+        }
+
+    };
 
     @OnOpen
     public void onOpen(final Session session) {
@@ -58,35 +49,41 @@ public class EnclaveEndpoint {
         if (type == null) {
             throw new UnsupportedOperationException("Unsupported operation");
         }
-
+        
+        Enclave enclave = enclaveThreadLocal.get();
         switch (type) {
             case STATUS:
-                Status status = enclave.status();    
-                webSocketTemplate.execute(s -> s.getBasicRemote().sendObject(enclave.status()));
+                Status status = enclave.status();
+                webSocketTemplate.execute(s -> s.getBasicRemote().sendObject(new EnclaveResponse(type, status)));
                 break;
-                
+
             case DEFAULT_PUBLIC_KEY:
                 PublicKey publicKey = enclave.defaultPublicKey();
-                webSocketTemplate.execute(session1 -> session1.getBasicRemote().sendObject(publicKey));
+                webSocketTemplate.execute(session1 -> session1.getBasicRemote().sendObject(new EnclaveResponse(type, publicKey)));
                 break;
-                
+
             case FORWARDING_KEYS:
                 Set<PublicKey> forwardingKeys = enclave.getForwardingKeys();
-                webSocketTemplate.execute(s -> s.getBasicRemote().sendObject(forwardingKeys));
+
+                webSocketTemplate.execute(s -> s.getBasicRemote().sendObject(
+                        new EnclaveResponse(type, forwardingKeys.toArray(new PublicKey[0]))));
                 break;
 
             case PUBLIC_KEYS:
                 Set<PublicKey> publicKeys = enclave.getPublicKeys();
-                webSocketTemplate.execute(s -> s.getBasicRemote().sendObject(publicKeys));
+                webSocketTemplate.execute(s -> s.getBasicRemote().sendObject(
+                        new EnclaveResponse(type, publicKeys.toArray(new PublicKey[0]))));
                 break;
 
             case ENCRYPT_PAYLOAD:
+
                 byte[] message = (byte[]) request.getArgs().get(0);
                 PublicKey senderPublicKey = (PublicKey) request.getArgs().get(1);
                 List<PublicKey> recipientPublicKeys = (List<PublicKey>) request.getArgs().get(2);
 
                 EncodedPayload payload = enclave.encryptPayload(message, senderPublicKey, recipientPublicKeys);
-                webSocketTemplate.execute((s) -> s.getBasicRemote().sendObject(payload));
+                webSocketTemplate.execute((s) -> s.getBasicRemote().sendObject(new EnclaveResponse(type, payload)));
+
                 break;
 
             case ENCRYPT_RAWTXN_PAYLOAD:
@@ -94,7 +91,7 @@ public class EnclaveEndpoint {
                 List<PublicKey> recipients = (List<PublicKey>) request.getArgs().get(1);
 
                 EncodedPayload encRawPayload = enclave.encryptPayload(txn, recipients);
-                webSocketTemplate.execute(s -> s.getBasicRemote().sendObject(encRawPayload));
+                webSocketTemplate.execute(s -> s.getBasicRemote().sendObject(new EnclaveResponse(type, encRawPayload)));
                 break;
 
             case ENCRYPT_RAW_PAYLOAD:
@@ -104,14 +101,14 @@ public class EnclaveEndpoint {
 
                 RawTransaction rawTransaction = enclave.encryptRawPayload(rawMessage, from);
 
-                webSocketTemplate.execute(s -> s.getBasicRemote().sendObject(rawTransaction));
+                webSocketTemplate.execute(s -> s.getBasicRemote().sendObject(new EnclaveResponse(type, rawTransaction)));
                 break;
 
             case UNENCRYPT_TXN:
                 EncodedPayload unencryptPayload = (EncodedPayload) request.getArgs().get(0);
                 PublicKey providedKey = (PublicKey) request.getArgs().get(1);
                 byte[] txnData = enclave.unencryptTransaction(unencryptPayload, providedKey);
-                webSocketTemplate.execute(s -> s.getBasicRemote().sendBinary(ByteBuffer.wrap(txnData)));
+                webSocketTemplate.execute(s -> s.getBasicRemote().sendObject(new EnclaveResponse(type, ByteBuffer.wrap(txnData))));
                 break;
 
             case CREATE_NEW_RECIPIENT_BOX:
@@ -119,7 +116,7 @@ public class EnclaveEndpoint {
                 PublicKey recipientKey = (PublicKey) request.getArgs().get(1);
 
                 byte[] boxData = enclave.createNewRecipientBox(createNewRecipientPayload, recipientKey);
-                webSocketTemplate.execute(s -> s.getBasicRemote().sendBinary(ByteBuffer.wrap(boxData)));
+                webSocketTemplate.execute(s -> s.getBasicRemote().sendObject(new EnclaveResponse(type, ByteBuffer.wrap(boxData))));
                 break;
         }
 

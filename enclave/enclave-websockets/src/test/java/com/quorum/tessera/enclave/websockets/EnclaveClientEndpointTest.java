@@ -30,9 +30,14 @@ public class EnclaveClientEndpointTest {
     public void onResult() {
 
         Session session = mock(Session.class);
-
+        
+        EnclaveResponse<Boolean> response = mock(EnclaveResponse.class);
+        when(response.getPayload()).thenReturn(Boolean.TRUE);
+        
         Executors.newSingleThreadExecutor().submit(() -> {
-            enclaveClientEndpoint.onResult(session, Boolean.TRUE);
+            
+            
+            enclaveClientEndpoint.onResult(session,response);
         });
         
         Boolean result = enclaveClientEndpoint.pollForResult(Boolean.class).get();

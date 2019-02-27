@@ -12,21 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ClientEndpoint(
+        encoders = {EnclaveRequestCodec.class},
         decoders = {
-            EnclaveRequestCodec.class, 
-            PublicKeyCodec.class, 
-            PublicKeySetCodec.class, 
-            EncodedPayloadCodec.class, 
-            RawTransactionCodec.class,
-            StatusCodec.class
-        },
-        encoders = {
-            EnclaveRequestCodec.class, 
-            PublicKeyCodec.class, 
-            PublicKeySetCodec.class, 
-            EncodedPayloadCodec.class, 
-            RawTransactionCodec.class,
-            StatusCodec.class
+            EnclaveResponseCodec.class
         }
 )
 public class EnclaveClientEndpoint {
@@ -41,11 +29,11 @@ public class EnclaveClientEndpoint {
     }
 
     @OnMessage
-    public <T> void onResult(Session session, T response) {
+    public <T> void onResult(Session session, EnclaveResponse<T> response) {
         LOGGER.debug("Response : {}", response);
 
         InterruptableCallback.execute(() -> {
-            result.put(response);
+            result.put(response.getPayload());
             return true;
         });
     }

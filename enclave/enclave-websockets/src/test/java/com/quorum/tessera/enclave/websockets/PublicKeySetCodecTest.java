@@ -1,11 +1,8 @@
 package com.quorum.tessera.enclave.websockets;
 
-import com.quorum.tessera.enclave.websockets.PublicKeySetCodec;
 import static com.quorum.tessera.enclave.websockets.JsonCodec.ENCODED_BY_KEY;
 import com.quorum.tessera.encryption.PublicKey;
 import java.io.StringReader;
-import java.util.Collections;
-import java.util.Set;
 import javax.json.Json;
 import javax.json.JsonObject;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,7 +18,7 @@ public class PublicKeySetCodecTest {
     public void encode() throws Exception {
 
 
-        Set<PublicKey> keys = Collections.singleton(publicKey);
+        PublicKey[] keys = {publicKey};
 
         String resultData = publicKeySetCodec.encode(keys);
 
@@ -43,7 +40,7 @@ public class PublicKeySetCodecTest {
                 .add("keys", Json.createArrayBuilder()
                         .add("U09NRUtFWURBVEE=")).build();
 
-        Set<PublicKey> result = publicKeySetCodec.decode(input.toString());
+        PublicKey[] result = publicKeySetCodec.decode(input.toString());
         assertThat(result).containsOnly(publicKey);
     }
 

@@ -15,6 +15,10 @@ import java.util.Optional;
 
 public interface EnclaveFactory {
 
+    default Enclave createLocal(Config config) {
+        return createServer(config);
+    }
+    
     static Enclave createServer(Config config) {
         
         KeyPairConverter keyPairConverter = new KeyPairConverter(config, new EnvironmentVariableProvider());

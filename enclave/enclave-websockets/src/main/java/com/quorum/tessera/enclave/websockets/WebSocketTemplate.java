@@ -24,6 +24,7 @@ public class WebSocketTemplate {
             callback.execute(session);
             LOGGER.debug("After {}",session.getId());
         } catch (IOException | DeploymentException | EncodeException ex) {
+            LOGGER.debug(null, ex);
            throw new WebSocketException(ex);
         }
     }
