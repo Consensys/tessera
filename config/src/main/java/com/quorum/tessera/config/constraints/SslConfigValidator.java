@@ -4,6 +4,7 @@ import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
+import com.quorum.tessera.config.util.EnvironmentVariableProviderFactory;
 import com.quorum.tessera.config.util.EnvironmentVariables;
 
 import javax.validation.ConstraintValidator;
@@ -13,7 +14,7 @@ import java.util.Objects;
 
 public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfig> {
 
-    private EnvironmentVariableProvider envVarProvider = new EnvironmentVariableProvider();
+    private EnvironmentVariableProviderFactory envVarProviderFactory = EnvironmentVariableProviderFactory.load();
 
     @Override
     public boolean isValid(SslConfig sslConfig, ConstraintValidatorContext context) {
@@ -151,6 +152,8 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
     }
 
     private boolean areBothNull(String envVar, String configPassword) {
+        EnvironmentVariableProvider envVarProvider = envVarProviderFactory.create();
+
         return !envVarProvider.hasEnv(envVar) && configPassword == null;
     }
 

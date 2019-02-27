@@ -3,6 +3,8 @@ package com.quorum.tessera.config.constraints;
 import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.config.SslTrustMode;
+import com.quorum.tessera.config.util.EnvironmentVariableProvider;
+import com.quorum.tessera.config.util.EnvironmentVariableProviderFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,8 +21,7 @@ import java.util.Arrays;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class SslConfigValidatorTest {
 
@@ -37,6 +38,8 @@ public class SslConfigValidatorTest {
 
     private SslConfigValidator validator;
 
+    private EnvironmentVariableProvider envVarProvider;
+
     @Before
     public void setUp() throws IOException {
         MockitoAnnotations.initMocks(this);
@@ -46,6 +49,9 @@ public class SslConfigValidatorTest {
         tmpFile = Paths.get(tmpDir.getRoot().getPath(), "tmpFile");
         Files.createFile(tmpFile);
         validator = new SslConfigValidator();
+
+        envVarProvider = EnvironmentVariableProviderFactory.load().create();
+        when(envVarProvider.hasEnv(anyString())).thenReturn(false);
     }
 
     @Test
@@ -135,6 +141,198 @@ public class SslConfigValidatorTest {
     }
 
     @Test
+    public void noServerKeyStorePasswordInConfigOrEnvVarsThenInvalid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+        sslConfig.setServerKeyStorePassword(null);
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(false);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        assertThat(result).isFalse();
+
+        final String msg = "Server keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context).buildConstraintViolationWithTemplate(msg);
+    }
+
+    @Test
+    public void serverKeyStorePasswordInConfigOnlyThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+        sslConfig.setServerKeyStorePassword("password");
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(false);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Server keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for some reason other than server keystore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void serverKeyStorePasswordInEnvVarsOnlyThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+        sslConfig.setServerKeyStorePassword(null);
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Server keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server keystore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void serverKeyStorePasswordInConfigAndEnvVarsThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+        sslConfig.setServerKeyStorePassword("password");
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Server keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server keystore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void noClientKeyStorePasswordInConfigOrEnvVarsThenInvalid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+        sslConfig.setServerKeyStorePassword("pwd");
+
+        sslConfig.setClientKeyStore(tmpFile);
+        sslConfig.setClientKeyStorePassword(null);
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(false);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        assertThat(result).isFalse();
+
+        final String msg = "Client keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context).buildConstraintViolationWithTemplate(msg);
+    }
+
+    @Test
+    public void clientKeyStorePasswordInConfigOnlyThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+        sslConfig.setServerKeyStorePassword("password");
+
+        sslConfig.setClientKeyStore(tmpFile);
+        sslConfig.setClientKeyStorePassword("password");
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(false);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Client keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for some reason other than server keystore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void clientKeyStorePasswordInEnvVarsOnlyThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+        sslConfig.setServerKeyStorePassword("pwd");
+
+        sslConfig.setClientKeyStore(tmpFile);
+        sslConfig.setClientKeyStorePassword(null);
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Client keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server keystore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void clientKeyStorePasswordInConfigAndEnvVarsThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+        sslConfig.setServerKeyStorePassword("password");
+
+        sslConfig.setClientKeyStore(tmpFile);
+        sslConfig.setClientKeyStorePassword("password");
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Server keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server keystore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
     public void testTrustModeNull() {
         SslConfig sslConfig = new SslConfig(
                 SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, null, tmpFile, "password", null, null, null, null, null, null, null,null,null,null,null
@@ -202,6 +400,193 @@ public class SslConfigValidatorTest {
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
     }
+
+    @Test
+    public void serverCaModeNoTrustStorePasswordInConfigOrEnvVarsThenInvalid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+        sslConfig.setServerTrustStorePassword(null);
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(false);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If server trust mode is CA, trust store must exist and not be null";
+        verify(context).buildConstraintViolationWithTemplate(msg);
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void serverCaModeTrustStorePassInConfigOnlyThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+        sslConfig.setServerTrustStorePassword("password");
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(false);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If server trust mode is CA, trust store must exist and not be null";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server truststore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void serverCaModeTrustStorePasswordInEnvVarsOnlyThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+        sslConfig.setServerTrustStorePassword(null);
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If server trust mode is CA, trust store must exist and not be null";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server truststore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void serverCaModeTrustStorePasswordInConfigAndEnvVarsThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+        sslConfig.setServerTrustStorePassword("password");
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If server trust mode is CA, trust store must exist and not be null";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server truststore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void clientCaModeNoTrustStorePasswordInConfigOrEnvVarsThenInvalid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+        sslConfig.setServerTrustStorePassword("password");
+
+        sslConfig.setClientTrustStore(tmpFile);
+        sslConfig.setClientTrustStorePassword(null);
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(false);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If client trust mode is CA, trust store must exist and not be null";
+        verify(context).buildConstraintViolationWithTemplate(msg);
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void clientCaModeTrustStorePassInConfigOnlyThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+        sslConfig.setServerTrustStorePassword("password");
+
+        sslConfig.setClientTrustStore(tmpFile);
+        sslConfig.setClientTrustStorePassword("password");
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(false);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If client trust mode is CA, trust store must exist and not be null";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    public void clientCaModeTrustStorePasswordInEnvVarsOnlyThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+        sslConfig.setServerTrustStorePassword("password");
+
+        sslConfig.setClientTrustStore(tmpFile);
+        sslConfig.setClientTrustStorePassword(null);
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If client trust mode is CA, trust store must exist and not be null";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    public void clientCaModeTrustStorePasswordInConfigAndEnvVarsThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+        sslConfig.setServerTrustStorePassword("password");
+
+        sslConfig.setClientTrustStore(tmpFile);
+        sslConfig.setClientTrustStorePassword("password");
+
+        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If client trust mode is CA, trust store must exist and not be null";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        assertThat(result).isTrue();
+    }
+
 
     @Test
     public void testNoKeyStoreFilesButPemFilesProvided() {
