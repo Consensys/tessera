@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Set;
 
-public interface TesseraServerFactory {
+public interface TesseraServerFactory<T> {
 
-    TesseraServer createServer(ServerConfig config, Set<Object> services);
+    TesseraServer createServer(ServerConfig config, Set<T> services);
 
     static TesseraServerFactory create(CommunicationType communicationType) {
         List<TesseraServerFactory> all = new ArrayList<>();

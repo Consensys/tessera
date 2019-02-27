@@ -7,8 +7,10 @@
 
     <bean id="config" factory-bean="cliDelegate" factory-method="getConfig"/>
 
-    <import resource="classpath:/tessera-enclave-spring.xml" />
-  
+    <bean id="enclave" class="com.quorum.tessera.enclave.EnclaveFactory" factory-method="createServer">
+        <constructor-arg ref="config" />
+    </bean>
+    
     <bean class="com.quorum.tessera.enclave.rest.EnclaveResource">
         <constructor-arg ref="enclave" />
     </bean>

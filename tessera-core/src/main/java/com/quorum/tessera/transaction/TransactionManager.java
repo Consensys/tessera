@@ -17,6 +17,8 @@ public interface TransactionManager {
     MessageHash storePayload(byte[] toByteArray);
 
     ReceiveResponse receive(ReceiveRequest request);
+    
+    StoreRawResponse store(StoreRawRequest storeRequest);
 
     
 }

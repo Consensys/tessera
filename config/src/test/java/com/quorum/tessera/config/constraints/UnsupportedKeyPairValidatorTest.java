@@ -12,19 +12,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class UnsupportedKeyPairValidatorTest {
-    private UnsupportedKeyPairValidator validator;
-    private ValidUnsupportedKeyPair validUnsupportedKeyPair;
+
+    private UnsupportedKeyPairValidator validator = new UnsupportedKeyPairValidator();
+
     private ConstraintValidatorContext context;
 
     private UnsupportedKeyPair keyPair;
 
-
     @Before
     public void setUp() {
-        this.validator = new UnsupportedKeyPairValidator();
-        this.validUnsupportedKeyPair = mock(ValidUnsupportedKeyPair.class);
-
-        validator.initialize(validUnsupportedKeyPair);
 
         this.context = mock(ConstraintValidatorContext.class);
         ConstraintValidatorContext.ConstraintViolationBuilder builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);

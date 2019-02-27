@@ -13,9 +13,23 @@
 
     <dependencies>
 
+        
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>key-pair-converter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>encryption-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>shared</artifactId>
         </dependency>
 
         <dependency>

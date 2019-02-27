@@ -1,11 +1,12 @@
 package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.service.Service;
 
 import java.util.List;
 import java.util.Set;
 
-public interface Enclave {
+public interface Enclave extends Service {
 
     PublicKey defaultPublicKey();
 
@@ -30,4 +31,12 @@ public interface Enclave {
      */
     byte[] createNewRecipientBox(EncodedPayload payload, PublicKey recipientKey);
 
+    @Override
+    default void start() {}
+
+    @Override
+    default void stop() {}
+
+    
+    
 }

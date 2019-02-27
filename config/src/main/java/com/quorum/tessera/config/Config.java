@@ -42,8 +42,8 @@ public class Config extends ConfigItem {
     private KeyConfiguration keys;
 
     @NotNull
-    @XmlElement(name = "alwaysSendTo", required = true)
-    private List<@ValidBase64 String> alwaysSendTo;
+    @XmlElement(name = "alwaysSendTo")
+    private List<@ValidBase64 String> alwaysSendTo = new ArrayList<>();
 
     @ValidPath(checkCanCreate = true)
     @XmlElement(required = true, type = String.class)

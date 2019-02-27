@@ -118,6 +118,7 @@ public class ProcessManager {
 
         List<String> args = Arrays.asList(
                 "java",
+                "-Dspring.profiles.active=disable-unixsocket",
                 "-Dhsqldb.reconfig_logging=false",
                 "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
                 "-Dnode.number=" + nodeAlias,

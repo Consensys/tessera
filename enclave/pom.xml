@@ -14,6 +14,8 @@
     <modules>
         <module>enclave-api</module>
         <module>enclave-jaxrs</module>
+        <module>enclave-websockets</module>
+        <module>enclave-server</module>
     </modules>
 
 

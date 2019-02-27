@@ -77,7 +77,7 @@ public class LegacyCliAdapter implements CliAdapter {
 
     static CliResult writeToOutputFile(Config config, Path outputPath) throws IOException {
 
-        System.out.printf("Saving config to  %s", outputPath);
+        System.out.printf("Saving config to %s", outputPath);
         System.out.println();
         JaxbUtil.marshalWithNoValidation(config, System.out);
         System.out.println();

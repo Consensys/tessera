@@ -30,9 +30,6 @@ public class SslConfigValidatorTest {
     private Path tmpFile;
 
     @Mock
-    private ValidSsl validSsl;
-
-    @Mock
     private ConstraintValidatorContext context;
 
     @Mock
@@ -49,16 +46,6 @@ public class SslConfigValidatorTest {
         tmpFile = Paths.get(tmpDir.getRoot().getPath(), "tmpFile");
         Files.createFile(tmpFile);
         validator = new SslConfigValidator();
-        when(validSsl.checkSslValid()).thenReturn(true);
-        validator.initialize(validSsl);
-    }
-
-    @Test
-    public void testNoCheckValidSsl() {
-        when(validSsl.checkSslValid()).thenReturn(false);
-        validator.initialize(validSsl);
-        SslConfig sslConfig = null;
-        assertThat(validator.isValid(sslConfig, context)).isTrue();
     }
 
     @Test

@@ -95,6 +95,18 @@
                     </dependencies>
                 </plugin>
 
+                <plugin>                
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>3.0.0-M1</version>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <javax.xml.bind.JAXBContextFactory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.JAXBContextFactory>
+                            <javax.xml.bind.context.factory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.context.factory>
+                        </systemPropertyVariables>
+                    </configuration>
+                </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
@@ -235,6 +247,7 @@
                                 <exclude>com/quorum/tessera/key/vault/azure/AzureKeyVaultClientDelegate*</exclude>
                                 <exclude>com/quorum/tessera/key/vault/hashicorp/KeyValueOperationsDelegateFactory*</exclude>
                                 <exclude>com/quorum/tessera/enclave/rest/Main*</exclude>
+                                <exclude>com/quorum/tessera/enclave/websockets/Main*</exclude>
                             </excludes>
                             
                             <rules>
@@ -327,6 +340,7 @@
         <module>key-pair-converter</module>
         <module>ddls</module>
         <module>enclave</module>
+        <module>tessera-sync</module>
     </modules>
 
     <dependencyManagement>
@@ -570,7 +584,7 @@
                 <version>${spring.version}</version>
                 <scope>test</scope>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>
@@ -600,9 +614,9 @@
             </dependency>
 
             <dependency>
-                <groupId>commons-dbcp</groupId>
-                <artifactId>commons-dbcp</artifactId>
-                <version>1.4</version>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>3.2.0</version>
                 <scope>runtime</scope>
             </dependency>
 
