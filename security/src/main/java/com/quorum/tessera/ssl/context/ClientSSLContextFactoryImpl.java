@@ -1,6 +1,8 @@
 package com.quorum.tessera.ssl.context;
 
 import com.quorum.tessera.config.SslConfig;
+import com.quorum.tessera.config.util.EnvironmentVariableProvider;
+import com.quorum.tessera.config.util.EnvironmentVariables;
 import com.quorum.tessera.ssl.context.model.SSLContextProperties;
 import com.quorum.tessera.ssl.exception.TesseraSecurityException;
 import com.quorum.tessera.ssl.strategy.TrustMode;
@@ -17,6 +19,8 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
 
     private static final String DEFAULT_KNOWN_SERVER_FILEPATH = "knownServers";
 
+    private static final EnvironmentVariableProvider envVarProvider = new EnvironmentVariableProvider();
+
     @Override
     public SSLContext from(String address, SslConfig sslConfig) {
 
@@ -30,11 +34,11 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
         final SSLContextProperties properties = new SSLContextProperties(
             address,
             sslConfig.getClientKeyStore(),
-            sslConfig.getClientKeyStorePassword(),
+            getClientKeyStorePassword(sslConfig),
             sslConfig.getClientTlsKeyPath(),
             sslConfig.getClientTlsCertificatePath(),
             sslConfig.getClientTrustStore(),
-            sslConfig.getClientTrustStorePassword(),
+            getClientTrustStorePassword(sslConfig),
             sslConfig.getClientTrustCertificates(),
             knownServersFile
         );
@@ -44,5 +48,25 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
         } catch (IOException | OperatorCreationException | GeneralSecurityException ex) {
             throw new TesseraSecurityException(ex);
         }
+    }
+
+    private String getClientKeyStorePassword(SslConfig sslConfig) {
+        String password = envVarProvider.getEnv(EnvironmentVariables.clientKeyStorePwd);
+
+        if(password == null) {
+            return sslConfig.getClientKeyStorePassword();
+        }
+
+        return password;
+    }
+
+    private String getClientTrustStorePassword(SslConfig sslConfig) {
+        String password = envVarProvider.getEnv(EnvironmentVariables.clientTrustStorePwd);
+
+        if(password == null) {
+            return sslConfig.getClientTrustStorePassword();
+        }
+
+        return password;
     }
 }

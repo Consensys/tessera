@@ -15,4 +15,10 @@ public class EnvironmentVariableProvider {
             .orElse(null);
     }
 
+    public boolean hasEnv(String name) {
+        Optional<String> env = Optional.ofNullable(System.getenv(name));
+
+        return env.isPresent();
+    }
+
 }

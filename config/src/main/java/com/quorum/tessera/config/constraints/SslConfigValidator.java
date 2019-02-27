@@ -3,6 +3,8 @@ package com.quorum.tessera.config.constraints;
 import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.config.SslTrustMode;
+import com.quorum.tessera.config.util.EnvironmentVariableProvider;
+import com.quorum.tessera.config.util.EnvironmentVariables;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -10,6 +12,8 @@ import java.nio.file.Files;
 import java.util.Objects;
 
 public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfig> {
+
+    private EnvironmentVariableProvider envVarProvider = new EnvironmentVariableProvider();
 
     @Override
     public boolean isValid(SslConfig sslConfig, ConstraintValidatorContext context) {
@@ -56,7 +60,7 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
 
     private boolean isServerKeyStoreConfigValid(SslConfig sslConfig, ConstraintValidatorContext context) {
         if (Objects.isNull(sslConfig.getServerKeyStore()) ||
-            Objects.isNull(sslConfig.getServerKeyStorePassword()) ||
+            areBothNull(EnvironmentVariables.serverKeyStorePwd, sslConfig.getServerKeyStorePassword()) ||
             Files.notExists(sslConfig.getServerKeyStore())) {
             if (Objects.isNull(sslConfig.getServerTlsKeyPath()) ||
                 Objects.isNull(sslConfig.getServerTlsCertificatePath()) ||
@@ -73,7 +77,7 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
 
     private boolean isClientKeyStoreConfigValid(SslConfig sslConfig, ConstraintValidatorContext context) {
         if (Objects.isNull(sslConfig.getClientKeyStore()) ||
-            Objects.isNull(sslConfig.getClientKeyStorePassword()) ||
+            areBothNull(EnvironmentVariables.clientKeyStorePwd, sslConfig.getClientKeyStorePassword()) ||
             Files.notExists(sslConfig.getClientKeyStore())) {
             if (Objects.isNull(sslConfig.getClientTlsKeyPath()) ||
                 Objects.isNull(sslConfig.getClientTlsCertificatePath()) ||
@@ -110,7 +114,7 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
     private boolean isServerConfigValidForCAMode(SslConfig sslConfig, ConstraintValidatorContext context) {
         if (sslConfig.getServerTrustMode() == SslTrustMode.CA) {
             if (Objects.isNull(sslConfig.getServerTrustStore()) ||
-                Objects.isNull(sslConfig.getServerTrustStorePassword()) ||
+                areBothNull(EnvironmentVariables.serverTrustStorePwd, sslConfig.getServerTrustStorePassword()) ||
                 Files.notExists(sslConfig.getServerTrustStore())) {
                 if (Objects.isNull(sslConfig.getServerTrustCertificates())) {
                     setMessage("Trust store config not valid. If server trust mode is CA, trust store must exist and not be null", context);
@@ -135,7 +139,7 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
     private boolean isClientConfigValidForCAMode(SslConfig sslConfig, ConstraintValidatorContext context) {
         if (sslConfig.getClientTrustMode() == SslTrustMode.CA) {
             if (Objects.isNull(sslConfig.getClientTrustStore()) ||
-                Objects.isNull(sslConfig.getClientTrustStorePassword()) ||
+                areBothNull(EnvironmentVariables.clientTrustStorePwd, sslConfig.getClientTrustStorePassword()) ||
                 Files.notExists(sslConfig.getClientTrustStore())) {
                 if (Objects.isNull(sslConfig.getClientTrustCertificates())) {
                     setMessage("Trust store config not valid. If client trust mode is CA, trust store must exist and not be null", context);
@@ -146,7 +150,9 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
         return true;
     }
 
-
+    private boolean areBothNull(String envVar, String configPassword) {
+        return !envVarProvider.hasEnv(envVar) && configPassword == null;
+    }
 
     private void setMessage(final String message, ConstraintValidatorContext context) {
         context
