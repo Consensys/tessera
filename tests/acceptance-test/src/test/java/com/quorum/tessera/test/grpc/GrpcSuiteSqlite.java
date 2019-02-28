@@ -8,6 +8,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import suite.ExecutionContext;
+import suite.SocketType;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -17,17 +19,23 @@ import org.junit.runners.Suite;
     CucumberGprcIT.class
 })
 public class GrpcSuiteSqlite {
-    
+
     private static final ProcessManager PROCESS_MANAGER = new ProcessManager(CommunicationType.GRPC, DBType.SQLITE);
-    
+
     @BeforeClass
     public static void onSetup() throws Exception {
+        ExecutionContext.Builder.create()
+                .with(CommunicationType.GRPC)
+                .with(DBType.SQLITE)
+                .with(SocketType.HTTP)
+                .build();
         PROCESS_MANAGER.startNodes();
     }
 
     @AfterClass
     public static void onTearDown() throws Exception {
         PROCESS_MANAGER.stopNodes();
+        ExecutionContext.destoryContext();
     }
 
 }

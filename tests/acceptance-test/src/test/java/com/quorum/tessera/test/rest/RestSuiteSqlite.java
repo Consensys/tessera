@@ -6,11 +6,13 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import suite.ExecutionContext;
+import suite.SocketType;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    DeleteIT.class,
     MultipleKeyNodeIT.class,
+    DeleteIT.class,
     PushIT.class,
     ReceiveIT.class,
     ReceiveRawIT.class,
@@ -32,14 +34,19 @@ public class RestSuiteSqlite {
 
     @BeforeClass
     public static void onSetup() throws Exception {
+        ExecutionContext.Builder.create()
+                .with(CommunicationType.REST)
+                .with(DBType.SQLITE)
+                .with(SocketType.HTTP)
+                .build();
+
         PROCESS_MANAGER.startNodes();
     }
 
     @AfterClass
     public static void onTearDown() throws Exception {
         PROCESS_MANAGER.stopNodes();
-
+        ExecutionContext.destoryContext();
     }
-    
-    
+
 }
