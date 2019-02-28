@@ -67,7 +67,6 @@ public class ProcessManager {
     }
 
     public void startNodes() throws Exception {
-        System.setProperty("AcceptanceTestsDBType", this.dbType.name().toLowerCase());
         List<String> nodeAliases = Arrays.asList(configFiles.keySet().toArray(new String[0]));
         Collections.shuffle(nodeAliases);
 
