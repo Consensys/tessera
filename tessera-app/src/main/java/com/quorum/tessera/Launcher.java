@@ -1,6 +1,7 @@
 package com.quorum.tessera;
 
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.cli.CliDelegate;
@@ -29,8 +30,8 @@ public class Launcher {
 
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
-        
-        try {
+
+        try{
             final CliResult cliResult = CliDelegate.instance().execute(args);
 
             if (cliResult.isSuppressStartup()) {
@@ -90,14 +91,27 @@ public class Launcher {
         Set<Object> services = serviceLocator.getServices("tessera-spring.xml");
 
         List<TesseraServer> servers = new ArrayList<>();
-        for(ServerConfig serverConfig : config.getServerConfigs()){
+        for (ServerConfig serverConfig : config.getServerConfigs()) {
             AppType appType = serverConfig.getApp().ENCLAVE;
-            if(appType == AppType.ENCLAVE) {
+            if (appType == AppType.ENCLAVE) {
                 //Enclave server config means the enclave server is remote. 
                 continue;
             }
-            TesseraServerFactory serverFactory = TesseraServerFactory.create(serverConfig.getCommunicationType());
             
+            CommunicationType commType = serverConfig.getCommunicationType();
+            CommunicationType communicationType;
+            if (commType == CommunicationType.UNIX_SOCKET) {
+
+                LOGGER.warn("UNIX_SOCKET communication type is deprecated it will "
+                        + "be removed for furture releases. "
+                        + "Use REST commnications type with UnixServerSocket serverSocket");
+                communicationType = CommunicationType.REST;
+            } else {
+                communicationType = commType;
+            }
+
+            TesseraServerFactory serverFactory = TesseraServerFactory.create(communicationType);
+
             TesseraServer tesseraServer = serverFactory.createServer(serverConfig, services);
             if (null != tesseraServer) {
                 servers.add(tesseraServer);
@@ -107,8 +121,8 @@ public class Launcher {
         CountDownLatch countDown = new CountDownLatch(1);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                for (TesseraServer ts : servers){
+            try{
+                for (TesseraServer ts : servers) {
                     ts.stop();
                 }
             } catch (Exception ex) {
@@ -118,7 +132,7 @@ public class Launcher {
             }
         }));
 
-        for (TesseraServer ts : servers){
+        for (TesseraServer ts : servers) {
             ts.start();
         }
 
