@@ -20,22 +20,22 @@ public class RawTransactionBuilder {
 
     private PublicKey from;
 
-    public RawTransactionBuilder withEncryptedPayload(byte[] encryptedPayload) {
+    public RawTransactionBuilder withEncryptedPayload(final byte[] encryptedPayload) {
         this.encryptedPayload = encryptedPayload;
         return this;
     }
 
-    public RawTransactionBuilder withEncryptedKey(byte[] encryptedKey) {
+    public RawTransactionBuilder withEncryptedKey(final byte[] encryptedKey) {
         this.encryptedKey = encryptedKey;
         return this;
     }
 
-    public RawTransactionBuilder withFrom(PublicKey from) {
+    public RawTransactionBuilder withFrom(final PublicKey from) {
         this.from = from;
         return this;
     }
 
-    public RawTransactionBuilder withNonce(byte[] nonce) {
+    public RawTransactionBuilder withNonce(final byte[] nonce) {
         this.nonce = nonce;
         return this;
     }
