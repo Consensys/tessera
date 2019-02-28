@@ -53,23 +53,24 @@ public class ServerSSLContextFactoryImpl implements ServerSSLContextFactory {
 
     // TODO - Package private for testing, refactor so this can be made private
     String getServerKeyStorePassword(SslConfig sslConfig) {
-        String password = envVarProvider.getEnv(EnvironmentVariables.serverKeyStorePwd);
-
-        if(password == null) {
-            return sslConfig.getServerKeyStorePassword();
-        }
-
-        return password;
+        return getPreferredPassword(sslConfig.getServerKeyStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.serverKeyStorePwd);
     }
 
     // TODO - Package private for testing, refactor so this can be made private
     String getServerTrustStorePassword(SslConfig sslConfig) {
-        String password = envVarProvider.getEnv(EnvironmentVariables.serverTrustStorePwd);
+        return getPreferredPassword(sslConfig.getServerTrustStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.serverTrustStorePwd);
+    }
 
-        if(password == null) {
-            return sslConfig.getServerTrustStorePassword();
+    // Return the prefixed env var value if set, else return the config value, else return the global env var value
+    private String getPreferredPassword(String configPassword, String envVarPrefix, String envVar) {
+        String password = envVarProvider.getEnv(envVarPrefix + "_" + envVar);
+
+        if(password != null) {
+            return password;
+        } else if(configPassword != null) {
+            return configPassword;
         }
 
-        return password;
+        return envVarProvider.getEnv(envVar);
     }
 }
