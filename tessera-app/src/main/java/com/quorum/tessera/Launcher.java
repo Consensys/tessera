@@ -1,5 +1,6 @@
 package com.quorum.tessera;
 
+import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.cli.CliDelegate;
@@ -87,11 +88,14 @@ public class Launcher {
         ServiceLocator serviceLocator = ServiceLocator.create();
 
         Set<Object> services = serviceLocator.getServices("tessera-spring.xml");
-        
-        
-        
+
         List<TesseraServer> servers = new ArrayList<>();
         for(ServerConfig serverConfig : config.getServerConfigs()){
+            AppType appType = serverConfig.getApp().ENCLAVE;
+            if(appType == AppType.ENCLAVE) {
+                //Enclave server config means the enclave server is remote. 
+                continue;
+            }
             TesseraServerFactory serverFactory = TesseraServerFactory.create(serverConfig.getCommunicationType());
             
             TesseraServer tesseraServer = serverFactory.createServer(serverConfig, services);
