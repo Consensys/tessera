@@ -92,7 +92,7 @@ public class Launcher {
 
         List<TesseraServer> servers = new ArrayList<>();
         for (ServerConfig serverConfig : config.getServerConfigs()) {
-            AppType appType = serverConfig.getApp().ENCLAVE;
+            AppType appType = serverConfig.getApp();
             if (appType == AppType.ENCLAVE) {
                 //Enclave server config means the enclave server is remote. 
                 continue;
