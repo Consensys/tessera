@@ -3,17 +3,29 @@ package com.quorum.tessera.test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+import suite.ExecutionContext;
 
 public class RestPartyHelper implements PartyHelper {
-
+    
+    private final ExecutionContext executionContext;
+    
     private final List<Party> parties = new ArrayList<>();
-    private String acceptanceTestsDBType = "";
+    
+    private final String acceptanceTestsDBType;
 
-    public RestPartyHelper() {
+    public RestPartyHelper(ExecutionContext executionContext) {
+        this.executionContext = executionContext;
+        this.acceptanceTestsDBType = executionContext.getDbType().name().toLowerCase();
     }
 
+    public RestPartyHelper() {
+        this(ExecutionContext.currentContext());
+    }
+    
+
+    
+    
     private void initParties(){
-        this.acceptanceTestsDBType = System.getProperty("AcceptanceTestsDBType", "h2");
         parties.clear();
 
         String prefix = "/rest/" + this.acceptanceTestsDBType + "/";
@@ -25,8 +37,7 @@ public class RestPartyHelper implements PartyHelper {
 
     @Override
     public Stream<Party> getParties() {
-        String spDbType = System.getProperty("AcceptanceTestsDBType", "h2");
-        if (!acceptanceTestsDBType.equals(spDbType)){
+        if(parties.isEmpty()) {
             initParties();
         }
         return parties.stream();
