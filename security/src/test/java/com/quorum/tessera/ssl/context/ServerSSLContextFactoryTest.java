@@ -2,8 +2,12 @@ package com.quorum.tessera.ssl.context;
 
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.config.SslTrustMode;
+import com.quorum.tessera.config.util.EnvironmentVariableProvider;
+import com.quorum.tessera.config.util.EnvironmentVariableProviderFactory;
+import com.quorum.tessera.config.util.EnvironmentVariables;
 import com.quorum.tessera.ssl.exception.TesseraSecurityException;
 import com.quorum.tessera.ssl.trust.TrustOnFirstUseManager;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.net.ssl.SSLContext;
@@ -17,6 +21,15 @@ import static org.mockito.Mockito.when;
 
 public class ServerSSLContextFactoryTest {
 
+    private EnvironmentVariableProvider envVarProvider;
+    
+    @Before
+    public void setUp() {
+        envVarProvider = EnvironmentVariableProviderFactory.load().create();
+        when(envVarProvider.getEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(null);
+        when(envVarProvider.getEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(null);
+    }
+    
     @Test
     public void createFromConfig() throws Exception {
         SslConfig config = mock(SslConfig.class);
@@ -58,6 +71,104 @@ public class ServerSSLContextFactoryTest {
             .extracting("knownHostsFile").asList().first().isEqualTo(Paths.get("knownClients"));
     }
 
+    @Test
+    public void getServerKeyStorePasswordOnlyConfigSetReturnsConfigValue() {
+        ServerSSLContextFactoryImpl factory = new ServerSSLContextFactoryImpl();
+
+        String password = "password";
+
+        SslConfig sslConfig = mock(SslConfig.class);
+        when(sslConfig.getServerKeyStorePassword()).thenReturn(password);
+
+        when(envVarProvider.getEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(null);
+
+        String result = factory.getServerKeyStorePassword(sslConfig);
+
+        assertThat(result).isEqualTo(password);
+    }
+
+    @Test
+    public void getServerKeyStorePasswordOnlyEnvSetReturnsEnvValue() {
+        ServerSSLContextFactoryImpl factory = new ServerSSLContextFactoryImpl();
+
+        String password = "password";
+
+        SslConfig sslConfig = mock(SslConfig.class);
+        when(sslConfig.getServerKeyStorePassword()).thenReturn(null);
+
+        when(envVarProvider.getEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(password);
+
+        String result = factory.getServerKeyStorePassword(sslConfig);
+
+        assertThat(result).isEqualTo(password);
+    }
+
+    @Test
+    public void getServerKeyStorePasswordEnvAndConfigSetReturnsEnvValue() {
+        ServerSSLContextFactoryImpl factory = new ServerSSLContextFactoryImpl();
+
+        String configPassword = "config";
+        String envPassword = "env";
+
+        SslConfig sslConfig = mock(SslConfig.class);
+        when(sslConfig.getServerKeyStorePassword()).thenReturn(configPassword);
+
+        when(envVarProvider.getEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(envPassword);
+
+        String result = factory.getServerKeyStorePassword(sslConfig);
+
+        assertThat(result).isEqualTo(envPassword);
+    }
+
+    @Test
+    public void getServerTrustStorePasswordOnlyConfigSetReturnsConfigValue() {
+        ServerSSLContextFactoryImpl factory = new ServerSSLContextFactoryImpl();
+
+        String password = "password";
+
+        SslConfig sslConfig = mock(SslConfig.class);
+        when(sslConfig.getServerTrustStorePassword()).thenReturn(password);
+
+        when(envVarProvider.getEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(null);
+
+        String result = factory.getServerTrustStorePassword(sslConfig);
+
+        assertThat(result).isEqualTo(password);
+    }
+
+    @Test
+    public void getServerTrustStorePasswordOnlyEnvSetReturnsEnvValue() {
+        ServerSSLContextFactoryImpl factory = new ServerSSLContextFactoryImpl();
+
+        String password = "password";
+
+        SslConfig sslConfig = mock(SslConfig.class);
+        when(sslConfig.getServerTrustStorePassword()).thenReturn(null);
+
+        when(envVarProvider.getEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(password);
+
+        String result = factory.getServerTrustStorePassword(sslConfig);
+
+        assertThat(result).isEqualTo(password);
+    }
+
+    @Test
+    public void getServerTrustStorePasswordEnvAndConfigSetReturnsEnvValue() {
+        ServerSSLContextFactoryImpl factory = new ServerSSLContextFactoryImpl();
+
+        String configPassword = "config";
+        String envPassword = "env";
+
+        SslConfig sslConfig = mock(SslConfig.class);
+        when(sslConfig.getServerTrustStorePassword()).thenReturn(configPassword);
+
+        when(envVarProvider.getEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(envPassword);
+
+        String result = factory.getServerTrustStorePassword(sslConfig);
+
+        assertThat(result).isEqualTo(envPassword);
+    }
+    
     @Test(expected = TesseraSecurityException.class)
     public void securityExceptionsAreThrownAsTesseraException() throws Exception {
         SslConfig config = mock(SslConfig.class);

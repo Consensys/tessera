@@ -2,6 +2,7 @@ package com.quorum.tessera.ssl.context;
 
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
+import com.quorum.tessera.config.util.EnvironmentVariableProviderFactory;
 import com.quorum.tessera.config.util.EnvironmentVariables;
 import com.quorum.tessera.ssl.context.model.SSLContextProperties;
 import com.quorum.tessera.ssl.exception.TesseraSecurityException;
@@ -19,7 +20,7 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
 
     private static final String DEFAULT_KNOWN_SERVER_FILEPATH = "knownServers";
 
-    private static final EnvironmentVariableProvider envVarProvider = new EnvironmentVariableProvider();
+    private static final EnvironmentVariableProvider envVarProvider = EnvironmentVariableProviderFactory.load().create();
 
     @Override
     public SSLContext from(String address, SslConfig sslConfig) {
@@ -50,7 +51,8 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
         }
     }
 
-    private String getClientKeyStorePassword(SslConfig sslConfig) {
+    // TODO - Package private for testing, refactor so this can be made private
+    String getClientKeyStorePassword(SslConfig sslConfig) {
         String password = envVarProvider.getEnv(EnvironmentVariables.clientKeyStorePwd);
 
         if(password == null) {
@@ -60,7 +62,8 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
         return password;
     }
 
-    private String getClientTrustStorePassword(SslConfig sslConfig) {
+    // TODO - Package private for testing, refactor so this can be made private
+    String getClientTrustStorePassword(SslConfig sslConfig) {
         String password = envVarProvider.getEnv(EnvironmentVariables.clientTrustStorePwd);
 
         if(password == null) {
