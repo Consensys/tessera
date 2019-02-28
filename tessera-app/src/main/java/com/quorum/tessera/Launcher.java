@@ -1,6 +1,5 @@
 package com.quorum.tessera;
 
-import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.cli.CliDelegate;
@@ -88,28 +87,14 @@ public class Launcher {
         ServiceLocator serviceLocator = ServiceLocator.create();
 
         Set<Object> services = serviceLocator.getServices("tessera-spring.xml");
-
-        TesseraServerFactory restServerFactory = TesseraServerFactory.create(CommunicationType.REST);
-
-        TesseraServerFactory grpcServerFactory = TesseraServerFactory.create(CommunicationType.GRPC);
-
-        TesseraServerFactory unixSocketServerFactory = TesseraServerFactory.create(CommunicationType.UNIX_SOCKET);
-
-        //TODO - we should only need one netty factory that is able to deal with any type of ServerConfig
+        
+        
+        
         List<TesseraServer> servers = new ArrayList<>();
         for(ServerConfig serverConfig : config.getServerConfigs()){
-            TesseraServer tesseraServer = null;
-            switch (serverConfig.getCommunicationType()){
-                case GRPC:
-                    tesseraServer = grpcServerFactory.createServer(serverConfig, services);
-                    break;
-                case REST:
-                    tesseraServer = restServerFactory.createServer(serverConfig, services);
-                    break;
-                case UNIX_SOCKET:
-                    tesseraServer = unixSocketServerFactory.createServer(serverConfig, services);
-                    break;
-            }
+            TesseraServerFactory serverFactory = TesseraServerFactory.create(serverConfig.getCommunicationType());
+            
+            TesseraServer tesseraServer = serverFactory.createServer(serverConfig, services);
             if (null != tesseraServer) {
                 servers.add(tesseraServer);
             }
