@@ -7,12 +7,16 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class RawTransaction {
+
     private final byte[] encryptedPayload;
+
     private final byte[] encryptedKey;
+
     private final Nonce nonce;
+
     private final PublicKey from;
 
-    public RawTransaction(byte[] encryptedPayload, byte[] encryptedKey, Nonce nonce, PublicKey from) {
+    public RawTransaction(final byte[] encryptedPayload, final byte[] encryptedKey, final Nonce nonce, final PublicKey from) {
         this.encryptedPayload = Objects.requireNonNull(encryptedPayload);
         this.encryptedKey = Objects.requireNonNull(encryptedKey);
         this.nonce = Objects.requireNonNull(nonce);
@@ -46,30 +50,17 @@ public class RawTransaction {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
+    public boolean equals(final Object obj) {
+        if (!(obj instanceof RawTransaction)) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
+
         final RawTransaction other = (RawTransaction) obj;
-        if (!Arrays.equals(this.encryptedPayload, other.encryptedPayload)) {
-            return false;
-        }
-        if (!Arrays.equals(this.encryptedKey, other.encryptedKey)) {
-            return false;
-        }
-        if (!Objects.equals(this.nonce, other.nonce)) {
-            return false;
-        }
-        if (!Objects.equals(this.from, other.from)) {
-            return false;
-        }
-        return true;
+
+        return Objects.equals(this.nonce, other.nonce) &&
+            Objects.equals(this.from, other.from) &&
+            Arrays.equals(this.encryptedKey, other.encryptedKey) &&
+            Arrays.equals(this.encryptedPayload, other.encryptedPayload);
     }
 
 }
