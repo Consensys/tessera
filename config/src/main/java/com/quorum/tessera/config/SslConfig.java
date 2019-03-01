@@ -1,6 +1,7 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.PathAdapter;
+
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -85,6 +86,9 @@ public class SslConfig {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path knownServersFile;
 
+    @XmlElement
+    private String environmentVariablePrefix;
+
     public SslConfig(
             SslAuthenticationMode tls,
             boolean generateKeyStoreIfNotExisted,
@@ -105,7 +109,8 @@ public class SslConfig {
             Path serverTlsKeyPath,
             Path serverTlsCertificatePath,
             Path clientTlsKeyPath,
-            Path clientTlsCertificatePath
+            Path clientTlsCertificatePath,
+            String environmentVariablePrefix
     ) {
 
         this.tls = tls;
@@ -128,6 +133,7 @@ public class SslConfig {
         this.serverTlsCertificatePath = serverTlsCertificatePath;
         this.clientTlsKeyPath = clientTlsKeyPath;
         this.clientTlsCertificatePath = clientTlsCertificatePath;
+        this.environmentVariablePrefix = environmentVariablePrefix;
 
     }
 
@@ -215,6 +221,10 @@ public class SslConfig {
         return clientTlsCertificatePath;
     }
 
+    public String getEnvironmentVariablePrefix() {
+        return environmentVariablePrefix;
+    }
+
     public void setTls(SslAuthenticationMode tls) {
         this.tls = tls;
     }
@@ -295,4 +305,7 @@ public class SslConfig {
         this.knownServersFile = knownServersFile;
     }
 
+    public void setEnvironmentVariablePrefix(String environmentVariablePrefix) {
+        this.environmentVariablePrefix = environmentVariablePrefix;
+    }
 }
