@@ -1,6 +1,5 @@
 package com.quorum.tessera.config.util;
 
-import java.util.Objects;
 import java.util.Optional;
 
 //Provide a mockable wrapper for environment variable retrieval
@@ -17,7 +16,7 @@ public class EnvironmentVariableProvider {
     }
 
     public boolean hasEnv(String name) {
-        return !Objects.isNull(System.getenv(name));
+        return Optional.ofNullable(System.getenv(name)).isPresent();
     }
 
 }

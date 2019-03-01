@@ -14,7 +14,7 @@ import java.util.Objects;
 
 public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfig> {
 
-    private EnvironmentVariableProviderFactory envVarProviderFactory = EnvironmentVariableProviderFactory.load();
+    private EnvironmentVariableProvider envVarProvider = EnvironmentVariableProviderFactory.load().create();
 
     @Override
     public boolean isValid(SslConfig sslConfig, ConstraintValidatorContext context) {
@@ -61,7 +61,7 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
 
     private boolean isServerKeyStoreConfigValid(SslConfig sslConfig, ConstraintValidatorContext context) {
         if (Objects.isNull(sslConfig.getServerKeyStore()) ||
-            areBothNull(EnvironmentVariables.serverKeyStorePwd, sslConfig.getServerKeyStorePassword()) ||
+            !isPasswordProvided(sslConfig.getServerKeyStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.serverKeyStorePwd) ||
             Files.notExists(sslConfig.getServerKeyStore())) {
             if (Objects.isNull(sslConfig.getServerTlsKeyPath()) ||
                 Objects.isNull(sslConfig.getServerTlsCertificatePath()) ||
@@ -78,7 +78,7 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
 
     private boolean isClientKeyStoreConfigValid(SslConfig sslConfig, ConstraintValidatorContext context) {
         if (Objects.isNull(sslConfig.getClientKeyStore()) ||
-            areBothNull(EnvironmentVariables.clientKeyStorePwd, sslConfig.getClientKeyStorePassword()) ||
+            !isPasswordProvided(sslConfig.getClientKeyStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.clientKeyStorePwd) ||
             Files.notExists(sslConfig.getClientKeyStore())) {
             if (Objects.isNull(sslConfig.getClientTlsKeyPath()) ||
                 Objects.isNull(sslConfig.getClientTlsCertificatePath()) ||
@@ -115,7 +115,7 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
     private boolean isServerConfigValidForCAMode(SslConfig sslConfig, ConstraintValidatorContext context) {
         if (sslConfig.getServerTrustMode() == SslTrustMode.CA) {
             if (Objects.isNull(sslConfig.getServerTrustStore()) ||
-                areBothNull(EnvironmentVariables.serverTrustStorePwd, sslConfig.getServerTrustStorePassword()) ||
+                !isPasswordProvided(sslConfig.getServerTrustStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.serverTrustStorePwd) ||
                 Files.notExists(sslConfig.getServerTrustStore())) {
                 if (Objects.isNull(sslConfig.getServerTrustCertificates())) {
                     setMessage("Trust store config not valid. If server trust mode is CA, trust store must exist and not be null", context);
@@ -140,7 +140,7 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
     private boolean isClientConfigValidForCAMode(SslConfig sslConfig, ConstraintValidatorContext context) {
         if (sslConfig.getClientTrustMode() == SslTrustMode.CA) {
             if (Objects.isNull(sslConfig.getClientTrustStore()) ||
-                areBothNull(EnvironmentVariables.clientTrustStorePwd, sslConfig.getClientTrustStorePassword()) ||
+                !isPasswordProvided(sslConfig.getClientTrustStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.clientTrustStorePwd) ||
                 Files.notExists(sslConfig.getClientTrustStore())) {
                 if (Objects.isNull(sslConfig.getClientTrustCertificates())) {
                     setMessage("Trust store config not valid. If client trust mode is CA, trust store must exist and not be null", context);
@@ -151,10 +151,8 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
         return true;
     }
 
-    private boolean areBothNull(String envVar, String configPassword) {
-        EnvironmentVariableProvider envVarProvider = envVarProviderFactory.create();
-
-        return !envVarProvider.hasEnv(envVar) && configPassword == null;
+    private boolean isPasswordProvided(String configPassword, String envVarPrefix, String envVar) {
+        return configPassword != null || envVarProvider.hasEnv(envVar) || envVarProvider.hasEnv(envVarPrefix + "_" + envVar);
     }
 
     private void setMessage(final String message, ConstraintValidatorContext context) {

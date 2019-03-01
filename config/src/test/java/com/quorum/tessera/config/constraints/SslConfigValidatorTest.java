@@ -5,6 +5,7 @@ import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.config.util.EnvironmentVariableProviderFactory;
+import com.quorum.tessera.config.util.EnvironmentVariables;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,16 +63,15 @@ public class SslConfigValidatorTest {
 
     @Test
     public void testSslConfigNotNullButTlsOff() {
-        SslConfig sslConfig = new SslConfig(
-                SslAuthenticationMode.OFF, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null,null,null,null,null
-        );
+        SslConfig sslConfig = new SslConfig();
+        sslConfig.setTls(SslAuthenticationMode.OFF);
         assertThat(validator.isValid(sslConfig, context)).isTrue();
     }
 
     @Test
     public void testTlsAllowKeyStoreGeneration() {
         SslConfig sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT, true, null, null, null, null, SslTrustMode.NONE, null, null, null, null, SslTrustMode.NONE, null, null, null, null,null,null,null,null
+            SslAuthenticationMode.STRICT, true, null, null, null, null, SslTrustMode.NONE, null, null, null, null, SslTrustMode.NONE, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isTrue();
     }
@@ -79,62 +79,62 @@ public class SslConfigValidatorTest {
     @Test
     public void testKeyStoreConfigInvalid() {
         SslConfig sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, Paths.get("somefile"), "somepassword", null, null, null, Paths.get("somefile"), null, null, null, null, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, Paths.get("somefile"), "somepassword", null, null, null, Paths.get("somefile"), null, null, null, null, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, null, null, null, null, Paths.get("somefile"), null, null, null, null, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, null, null, null, null, Paths.get("somefile"), null, null, null, null, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, null, null, null, null, null, null, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, null, null, null, null, null, null, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, null, Paths.get("somefile"), "password", null, null, null, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, null, Paths.get("somefile"), "password", null, null, null, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, null, tmpFile, null, null, null, null, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, null, tmpFile, null, null, null, null, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT, false, tmpFile, null, null, null, null, tmpFile, null, null, null, null, null, null, null, null,Paths.get("someFile"),null,null,null
+            SslAuthenticationMode.STRICT, false, tmpFile, null, null, null, null, tmpFile, null, null, null, null, null, null, null, null,Paths.get("someFile"),null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT, false, tmpFile, null, null, null, null, tmpFile, null, null, null, null, null, null, null, null,Paths.get("someFile"),Paths.get("someFile"),null,null
+            SslAuthenticationMode.STRICT, false, tmpFile, null, null, null, null, tmpFile, null, null, null, null, null, null, null, null,Paths.get("someFile"),Paths.get("someFile"),null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT, false, tmpFile, null, null, null, null, tmpFile, null, null, null, null, null, null, null, null, tmpFile,Paths.get("someFile"),null,null
+            SslAuthenticationMode.STRICT, false, tmpFile, null, null, null, null, tmpFile, null, null, null, null, null, null, null, null, tmpFile,Paths.get("someFile"),null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT, false, tmpFile, null, null, null, null, tmpFile, null, null, null, null, null, null, null, null, tmpFile, tmpFile, Paths.get("someFile"),null
+            SslAuthenticationMode.STRICT, false, tmpFile, null, null, null, null, tmpFile, null, null, null, null, null, null, null, null, tmpFile, tmpFile, Paths.get("someFile"),null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT, false, tmpFile, null, null, null, null, tmpFile, null, null, null, null, null, null, null, null, tmpFile, tmpFile, Paths.get("someFile"),Paths.get("someFile")
+            SslAuthenticationMode.STRICT, false, tmpFile, null, null, null, null, tmpFile, null, null, null, null, null, null, null, null, tmpFile, tmpFile, Paths.get("someFile"),Paths.get("someFile"),null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT, false, tmpFile, null, null, null, null, tmpFile, null, null, null, null, null, null, null, null, tmpFile, tmpFile, tmpFile, Paths.get("someFile")
+            SslAuthenticationMode.STRICT, false, tmpFile, null, null, null, null, tmpFile, null, null, null, null, null, null, null, null, tmpFile, tmpFile, tmpFile, Paths.get("someFile"),null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
@@ -147,8 +147,8 @@ public class SslConfigValidatorTest {
         sslConfig.setTls(SslAuthenticationMode.STRICT);
         sslConfig.setGenerateKeyStoreIfNotExisted(false);
         sslConfig.setServerKeyStore(tmpFile);
-        sslConfig.setServerKeyStorePassword(null);
 
+        sslConfig.setServerKeyStorePassword(null);
         when(envVarProvider.hasEnv(anyString())).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
@@ -168,9 +168,10 @@ public class SslConfigValidatorTest {
         sslConfig.setTls(SslAuthenticationMode.STRICT);
         sslConfig.setGenerateKeyStoreIfNotExisted(false);
         sslConfig.setServerKeyStore(tmpFile);
-        sslConfig.setServerKeyStorePassword("password");
 
-        when(envVarProvider.hasEnv(anyString())).thenReturn(false);
+        sslConfig.setServerKeyStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -185,15 +186,16 @@ public class SslConfigValidatorTest {
     }
 
     @Test
-    public void serverKeyStorePasswordInEnvVarsOnlyThenValid() {
+    public void serverKeyStorePasswordInGlobalEnvVarOnlyThenValid() {
         final SslConfig sslConfig = new SslConfig();
 
         sslConfig.setTls(SslAuthenticationMode.STRICT);
         sslConfig.setGenerateKeyStoreIfNotExisted(false);
         sslConfig.setServerKeyStore(tmpFile);
-        sslConfig.setServerKeyStorePassword(null);
 
-        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+        sslConfig.setServerKeyStorePassword(null);
+        when(envVarProvider.hasEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -208,15 +210,17 @@ public class SslConfigValidatorTest {
     }
 
     @Test
-    public void serverKeyStorePasswordInConfigAndEnvVarsThenValid() {
+    public void serverKeyStorePasswordInPrefixedEnvVarOnlyThenValid() {
         final SslConfig sslConfig = new SslConfig();
 
         sslConfig.setTls(SslAuthenticationMode.STRICT);
         sslConfig.setGenerateKeyStoreIfNotExisted(false);
         sslConfig.setServerKeyStore(tmpFile);
-        sslConfig.setServerKeyStorePassword("password");
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
 
-        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+        sslConfig.setServerKeyStorePassword(null);
+        when(envVarProvider.hasEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -229,6 +233,106 @@ public class SslConfigValidatorTest {
         verify(context).buildConstraintViolationWithTemplate(anyString());
         assertThat(result).isFalse();
     }
+
+    @Test
+    public void serverKeyStorePasswordInConfigAndGlobalEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+
+        sslConfig.setServerKeyStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(false);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Server keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server keystore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void serverKeyStorePasswordInConfigAndPrefixedEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
+
+        sslConfig.setServerKeyStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Server keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server keystore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void serverKeyStorePasswordInGlobalAndPrefixedEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
+
+        sslConfig.setServerKeyStorePassword(null);
+        when(envVarProvider.hasEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Server keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server keystore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void serverKeyStorePasswordInConfigAndGlobalAndPrefixedEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
+
+        sslConfig.setServerKeyStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Server keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server keystore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
 
     @Test
     public void noClientKeyStorePasswordInConfigOrEnvVarsThenInvalid() {
@@ -240,8 +344,8 @@ public class SslConfigValidatorTest {
         sslConfig.setServerKeyStorePassword("pwd");
 
         sslConfig.setClientKeyStore(tmpFile);
-        sslConfig.setClientKeyStorePassword(null);
 
+        sslConfig.setClientKeyStorePassword(null);
         when(envVarProvider.hasEnv(anyString())).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
@@ -264,9 +368,10 @@ public class SslConfigValidatorTest {
         sslConfig.setServerKeyStorePassword("password");
 
         sslConfig.setClientKeyStore(tmpFile);
-        sslConfig.setClientKeyStorePassword("password");
 
-        when(envVarProvider.hasEnv(anyString())).thenReturn(false);
+        sslConfig.setClientKeyStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.clientKeyStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientKeyStorePwd)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -281,7 +386,7 @@ public class SslConfigValidatorTest {
     }
 
     @Test
-    public void clientKeyStorePasswordInEnvVarsOnlyThenValid() {
+    public void clientKeyStorePasswordInGlobalEnvVarOnlyThenValid() {
         final SslConfig sslConfig = new SslConfig();
 
         sslConfig.setTls(SslAuthenticationMode.STRICT);
@@ -290,9 +395,10 @@ public class SslConfigValidatorTest {
         sslConfig.setServerKeyStorePassword("pwd");
 
         sslConfig.setClientKeyStore(tmpFile);
-        sslConfig.setClientKeyStorePassword(null);
 
-        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+        sslConfig.setClientKeyStorePassword(null);
+        when(envVarProvider.hasEnv(EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientKeyStorePwd)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -307,22 +413,131 @@ public class SslConfigValidatorTest {
     }
 
     @Test
-    public void clientKeyStorePasswordInConfigAndEnvVarsThenValid() {
+    public void clientKeyStorePasswordInPrefixedEnvVarOnlyThenValid() {
         final SslConfig sslConfig = new SslConfig();
 
         sslConfig.setTls(SslAuthenticationMode.STRICT);
         sslConfig.setGenerateKeyStoreIfNotExisted(false);
         sslConfig.setServerKeyStore(tmpFile);
-        sslConfig.setServerKeyStorePassword("password");
-
+        sslConfig.setServerKeyStorePassword("pwd");
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
         sslConfig.setClientKeyStore(tmpFile);
-        sslConfig.setClientKeyStorePassword("password");
 
-        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+        sslConfig.setClientKeyStorePassword(null);
+        when(envVarProvider.hasEnv(EnvironmentVariables.clientKeyStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
-        final String msg = "Server keystore configuration not valid. " +
+        final String msg = "Client keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server keystore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void clientKeyStorePasswordInConfigAndGlobalEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+        sslConfig.setServerKeyStorePassword("pwd");
+
+        sslConfig.setClientKeyStore(tmpFile);
+
+        sslConfig.setClientKeyStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientKeyStorePwd)).thenReturn(false);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Client keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server keystore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void clientKeyStorePasswordInConfigAndPrefixedEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+        sslConfig.setServerKeyStorePassword("pwd");
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
+        sslConfig.setClientKeyStore(tmpFile);
+
+        sslConfig.setClientKeyStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.clientKeyStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Client keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server keystore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void clientKeyStorePasswordInGlobalAndPrefixedEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+        sslConfig.setServerKeyStorePassword("pwd");
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
+        sslConfig.setClientKeyStore(tmpFile);
+
+        sslConfig.setClientKeyStorePassword(null);
+        when(envVarProvider.hasEnv(EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Client keystore configuration not valid. " +
+            "Please ensure keystore file exists or keystore password not null, " +
+            "otherwise please set keystore generation flag to true to have keystore created";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server keystore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void clientKeyStorePasswordInConfigAndGlobalAndPrefixedEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(false);
+        sslConfig.setServerKeyStore(tmpFile);
+        sslConfig.setServerKeyStorePassword("pwd");
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
+        sslConfig.setClientKeyStore(tmpFile);
+
+        sslConfig.setClientKeyStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Client keystore configuration not valid. " +
             "Please ensure keystore file exists or keystore password not null, " +
             "otherwise please set keystore generation flag to true to have keystore created";
         verify(context, never()).buildConstraintViolationWithTemplate(msg);
@@ -335,12 +550,12 @@ public class SslConfigValidatorTest {
     @Test
     public void testTrustModeNull() {
         SslConfig sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, null, tmpFile, "password", null, null, null, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, null, tmpFile, "password", null, null, null, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, SslTrustMode.CA, tmpFile, "password", null, null, null, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, SslTrustMode.CA, tmpFile, "password", null, null, null, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
     }
@@ -348,22 +563,22 @@ public class SslConfigValidatorTest {
     @Test
     public void testTrustModeWhiteListButKnownHostsFileNotExisted() {
         SslConfig sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, SslTrustMode.WHITELIST, tmpFile, "password", null, null, SslTrustMode.WHITELIST, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, SslTrustMode.WHITELIST, tmpFile, "password", null, null, SslTrustMode.WHITELIST, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, SslTrustMode.WHITELIST, tmpFile, "password", null, null, SslTrustMode.WHITELIST, Paths.get("somefile"), null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, SslTrustMode.WHITELIST, tmpFile, "password", null, null, SslTrustMode.WHITELIST, Paths.get("somefile"), null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, SslTrustMode.WHITELIST, tmpFile, "password", null, null, SslTrustMode.WHITELIST, tmpFile, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, SslTrustMode.WHITELIST, tmpFile, "password", null, null, SslTrustMode.WHITELIST, tmpFile, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, SslTrustMode.WHITELIST, tmpFile, "password", null, null, SslTrustMode.WHITELIST, tmpFile, Paths.get("some"),null,null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, SslTrustMode.WHITELIST, tmpFile, "password", null, null, SslTrustMode.WHITELIST, tmpFile, Paths.get("some"),null,null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
     }
@@ -371,32 +586,32 @@ public class SslConfigValidatorTest {
     @Test
     public void testTrustModeCAButTrustStoreConfigInvalid() {
         SslConfig sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, SslTrustMode.CA, tmpFile, "password", null, null, SslTrustMode.NONE, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", null, null, SslTrustMode.CA, tmpFile, "password", null, null, SslTrustMode.NONE, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", tmpFile, null, SslTrustMode.CA, tmpFile, "password", null, null, SslTrustMode.NONE, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", tmpFile, null, SslTrustMode.CA, tmpFile, "password", null, null, SslTrustMode.NONE, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", Paths.get("somefile"), "password", SslTrustMode.CA, tmpFile, "password", null, null, SslTrustMode.NONE, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", Paths.get("somefile"), "password", SslTrustMode.CA, tmpFile, "password", null, null, SslTrustMode.NONE, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", tmpFile, "p", SslTrustMode.CA, tmpFile, "password", null, null, SslTrustMode.CA, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", tmpFile, "p", SslTrustMode.CA, tmpFile, "password", null, null, SslTrustMode.CA, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", tmpFile, null, SslTrustMode.CA, tmpFile, "password", tmpFile, null, SslTrustMode.CA, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", tmpFile, null, SslTrustMode.CA, tmpFile, "password", tmpFile, null, SslTrustMode.CA, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
 
         sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT, false, tmpFile, "password", Paths.get("somefile"), "password", SslTrustMode.CA, tmpFile, "password", Paths.get("somefile"), "p", SslTrustMode.CA, null, null, null, null,null,null,null,null
+                SslAuthenticationMode.STRICT, false, tmpFile, "password", Paths.get("somefile"), "password", SslTrustMode.CA, tmpFile, "password", Paths.get("somefile"), "p", SslTrustMode.CA, null, null, null, null,null,null,null,null,null
         );
         assertThat(validator.isValid(sslConfig, context)).isFalse();
     }
@@ -410,8 +625,8 @@ public class SslConfigValidatorTest {
         sslConfig.setServerTrustMode(SslTrustMode.CA);
         sslConfig.setClientTrustMode(SslTrustMode.CA);
         sslConfig.setServerTrustStore(tmpFile);
-        sslConfig.setServerTrustStorePassword(null);
 
+        sslConfig.setServerTrustStorePassword(null);
         when(envVarProvider.hasEnv(anyString())).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
@@ -423,7 +638,7 @@ public class SslConfigValidatorTest {
     }
 
     @Test
-    public void serverCaModeTrustStorePassInConfigOnlyThenValid() {
+    public void serverCaModeTrustStorePasswordInConfigOnlyThenValid() {
         final SslConfig sslConfig = new SslConfig();
 
         sslConfig.setTls(SslAuthenticationMode.STRICT);
@@ -431,9 +646,10 @@ public class SslConfigValidatorTest {
         sslConfig.setServerTrustMode(SslTrustMode.CA);
         sslConfig.setClientTrustMode(SslTrustMode.CA);
         sslConfig.setServerTrustStore(tmpFile);
-        sslConfig.setServerTrustStorePassword("password");
 
-        when(envVarProvider.hasEnv(anyString())).thenReturn(false);
+        sslConfig.setServerTrustStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -446,7 +662,7 @@ public class SslConfigValidatorTest {
     }
 
     @Test
-    public void serverCaModeTrustStorePasswordInEnvVarsOnlyThenValid() {
+    public void serverCaModeTrustStorePasswordInGlobalEnvVarOnlyThenValid() {
         final SslConfig sslConfig = new SslConfig();
 
         sslConfig.setTls(SslAuthenticationMode.STRICT);
@@ -454,9 +670,10 @@ public class SslConfigValidatorTest {
         sslConfig.setServerTrustMode(SslTrustMode.CA);
         sslConfig.setClientTrustMode(SslTrustMode.CA);
         sslConfig.setServerTrustStore(tmpFile);
+
         sslConfig.setServerTrustStorePassword(null);
-
-        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -469,7 +686,7 @@ public class SslConfigValidatorTest {
     }
 
     @Test
-    public void serverCaModeTrustStorePasswordInConfigAndEnvVarsThenValid() {
+    public void serverCaModeTrustStorePasswordInPrefixedEnvVarOnlyThenValid() {
         final SslConfig sslConfig = new SslConfig();
 
         sslConfig.setTls(SslAuthenticationMode.STRICT);
@@ -477,9 +694,110 @@ public class SslConfigValidatorTest {
         sslConfig.setServerTrustMode(SslTrustMode.CA);
         sslConfig.setClientTrustMode(SslTrustMode.CA);
         sslConfig.setServerTrustStore(tmpFile);
-        sslConfig.setServerTrustStorePassword("password");
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
 
-        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+        sslConfig.setServerTrustStorePassword(null);
+        when(envVarProvider.hasEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If server trust mode is CA, trust store must exist and not be null";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server truststore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void serverCaModeTrustStorePasswordInConfigAndGlobalEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+
+        sslConfig.setServerTrustStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(false);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If server trust mode is CA, trust store must exist and not be null";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server truststore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void serverCaModeTrustStorePasswordInConfigAndPrefixedEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
+
+        sslConfig.setServerTrustStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If server trust mode is CA, trust store must exist and not be null";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server truststore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void serverCaModeTrustStorePasswordInGlobalAndPrefixedEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
+
+        sslConfig.setServerTrustStorePassword(null);
+        when(envVarProvider.hasEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If server trust mode is CA, trust store must exist and not be null";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        // validation then fails for reasons other than server truststore config
+        verify(context).buildConstraintViolationWithTemplate(anyString());
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void serverCaModeTrustStorePasswordInConfigAndGlobalAndPrefixedEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
+
+        sslConfig.setServerTrustStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -501,10 +819,9 @@ public class SslConfigValidatorTest {
         sslConfig.setClientTrustMode(SslTrustMode.CA);
         sslConfig.setServerTrustStore(tmpFile);
         sslConfig.setServerTrustStorePassword("password");
-
         sslConfig.setClientTrustStore(tmpFile);
-        sslConfig.setClientTrustStorePassword(null);
 
+        sslConfig.setClientTrustStorePassword(null);
         when(envVarProvider.hasEnv(anyString())).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
@@ -516,7 +833,7 @@ public class SslConfigValidatorTest {
     }
 
     @Test
-    public void clientCaModeTrustStorePassInConfigOnlyThenValid() {
+    public void clientCaModeTrustStorePasswordInConfigOnlyThenValid() {
         final SslConfig sslConfig = new SslConfig();
 
         sslConfig.setTls(SslAuthenticationMode.STRICT);
@@ -525,11 +842,11 @@ public class SslConfigValidatorTest {
         sslConfig.setClientTrustMode(SslTrustMode.CA);
         sslConfig.setServerTrustStore(tmpFile);
         sslConfig.setServerTrustStorePassword("password");
-
         sslConfig.setClientTrustStore(tmpFile);
-        sslConfig.setClientTrustStorePassword("password");
 
-        when(envVarProvider.hasEnv(anyString())).thenReturn(false);
+        sslConfig.setClientTrustStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.clientTrustStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientTrustStorePwd)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -540,7 +857,7 @@ public class SslConfigValidatorTest {
     }
 
     @Test
-    public void clientCaModeTrustStorePasswordInEnvVarsOnlyThenValid() {
+    public void clientCaModeTrustStorePasswordInGlobalEnvVarOnlyThenValid() {
         final SslConfig sslConfig = new SslConfig();
 
         sslConfig.setTls(SslAuthenticationMode.STRICT);
@@ -549,11 +866,11 @@ public class SslConfigValidatorTest {
         sslConfig.setClientTrustMode(SslTrustMode.CA);
         sslConfig.setServerTrustStore(tmpFile);
         sslConfig.setServerTrustStorePassword("password");
-
         sslConfig.setClientTrustStore(tmpFile);
+
         sslConfig.setClientTrustStorePassword(null);
-
-        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientTrustStorePwd)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -564,7 +881,7 @@ public class SslConfigValidatorTest {
     }
 
     @Test
-    public void clientCaModeTrustStorePasswordInConfigAndEnvVarsThenValid() {
+    public void clientCaModeTrustStorePasswordInPrefixedEnvVarOnlyThenValid() {
         final SslConfig sslConfig = new SslConfig();
 
         sslConfig.setTls(SslAuthenticationMode.STRICT);
@@ -573,11 +890,12 @@ public class SslConfigValidatorTest {
         sslConfig.setClientTrustMode(SslTrustMode.CA);
         sslConfig.setServerTrustStore(tmpFile);
         sslConfig.setServerTrustStorePassword("password");
-
         sslConfig.setClientTrustStore(tmpFile);
-        sslConfig.setClientTrustStorePassword("password");
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
 
-        when(envVarProvider.hasEnv(anyString())).thenReturn(true);
+        sslConfig.setClientTrustStorePassword(null);
+        when(envVarProvider.hasEnv(EnvironmentVariables.clientTrustStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -587,11 +905,109 @@ public class SslConfigValidatorTest {
         assertThat(result).isTrue();
     }
 
+    @Test
+    public void clientCaModeTrustStorePasswordInConfigAndGlobalEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+        sslConfig.setServerTrustStorePassword("password");
+        sslConfig.setClientTrustStore(tmpFile);
+
+        sslConfig.setClientTrustStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientTrustStorePwd)).thenReturn(false);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If client trust mode is CA, trust store must exist and not be null";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    public void clientCaModeTrustStorePasswordInConfigAndPrefixedEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+        sslConfig.setServerTrustStorePassword("password");
+        sslConfig.setClientTrustStore(tmpFile);
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
+
+        sslConfig.setClientTrustStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.clientTrustStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If client trust mode is CA, trust store must exist and not be null";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    public void clientCaModeTrustStorePasswordInGlobalAndPrefixedEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+        sslConfig.setServerTrustStorePassword("password");
+        sslConfig.setClientTrustStore(tmpFile);
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
+
+        sslConfig.setClientTrustStorePassword(null);
+        when(envVarProvider.hasEnv(EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If client trust mode is CA, trust store must exist and not be null";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    public void clientCaModeTrustStorePasswordInConfigAndGlobalAndPrefixedEnvVarThenValid() {
+        final SslConfig sslConfig = new SslConfig();
+
+        sslConfig.setTls(SslAuthenticationMode.STRICT);
+        sslConfig.setGenerateKeyStoreIfNotExisted(true);
+        sslConfig.setServerTrustMode(SslTrustMode.CA);
+        sslConfig.setClientTrustMode(SslTrustMode.CA);
+        sslConfig.setServerTrustStore(tmpFile);
+        sslConfig.setServerTrustStorePassword("password");
+        sslConfig.setClientTrustStore(tmpFile);
+        sslConfig.setEnvironmentVariablePrefix("PREFIX");
+
+        sslConfig.setClientTrustStorePassword("password");
+        when(envVarProvider.hasEnv(EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
+
+        final boolean result = validator.isValid(sslConfig, context);
+
+        final String msg = "Trust store config not valid. If client trust mode is CA, trust store must exist and not be null";
+        verify(context, never()).buildConstraintViolationWithTemplate(msg);
+
+        assertThat(result).isTrue();
+    }
 
     @Test
     public void testNoKeyStoreFilesButPemFilesProvided() {
         SslConfig sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT, false, null, null, null, null, SslTrustMode.CA, null, null, null, null, SslTrustMode.CA, null, null, Arrays.asList(tmpFile), Arrays.asList(tmpFile), tmpFile,tmpFile,tmpFile,tmpFile
+            SslAuthenticationMode.STRICT, false, null, null, null, null, SslTrustMode.CA, null, null, null, null, SslTrustMode.CA, null, null, Arrays.asList(tmpFile), Arrays.asList(tmpFile), tmpFile,tmpFile,tmpFile,tmpFile,null
         );
         assertThat(validator.isValid(sslConfig, context)).isTrue();
     }
@@ -599,7 +1015,7 @@ public class SslConfigValidatorTest {
     @Test
     public void testValidSsl() {
         SslConfig sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT, false, tmpFile, "pw", tmpFile, "pw", SslTrustMode.CA, tmpFile, "pw", tmpFile, "pw", SslTrustMode.CA, tmpFile, tmpFile, Arrays.asList(tmpFile), Arrays.asList(tmpFile), tmpFile,tmpFile,tmpFile,tmpFile
+            SslAuthenticationMode.STRICT, false, tmpFile, "pw", tmpFile, "pw", SslTrustMode.CA, tmpFile, "pw", tmpFile, "pw", SslTrustMode.CA, tmpFile, tmpFile, Arrays.asList(tmpFile), Arrays.asList(tmpFile), tmpFile,tmpFile,tmpFile,tmpFile,null
         );
         assertThat(validator.isValid(sslConfig, context)).isTrue();
     }
