@@ -31,6 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import suite.ExecutionContext;
+import suite.SocketType;
 
 public class ProcessManager {
 
@@ -49,14 +50,16 @@ public class ProcessManager {
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     
     public ProcessManager(ExecutionContext executionContext) {
-        this(executionContext.getCommunicationType(),executionContext.getDbType());
+        this(executionContext.getCommunicationType(),executionContext.getDbType(),executionContext.getSocketType());
     }
     
-    private ProcessManager(CommunicationType communicationType, DBType dbType) {
+    private ProcessManager(CommunicationType communicationType, DBType dbType,SocketType socketType) {
         this.communicationType = Objects.requireNonNull(communicationType);
         this.dbType = Objects.requireNonNull(dbType);
-
-        String pathTemplate = "/" + communicationType.name().toLowerCase() + "/" + dbType.name().toLowerCase() + "/config%s.json";
+        
+        String pathTemplate = "/" + communicationType.name().toLowerCase() +"/"+ socketType.name().toLowerCase() 
+                +"/" + dbType.name().toLowerCase() + "/config%s.json";
+        
         final Map<String, URL> configs = new HashMap<>();
         configs.put("A", getClass().getResource(String.format(pathTemplate, "1")));
         configs.put("B", getClass().getResource(String.format(pathTemplate, "2")));
@@ -264,7 +267,7 @@ public class ProcessManager {
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
-        ProcessManager pm = new ProcessManager(CommunicationType.REST,DBType.SQLITE);
+        ProcessManager pm = new ProcessManager(CommunicationType.REST,DBType.SQLITE,SocketType.HTTP);
         pm.startNodes();
 
         System.in.read();
