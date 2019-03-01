@@ -16,7 +16,7 @@ public class EnvironmentVariableProvider {
     }
 
     public boolean hasEnv(String name) {
-        return Optional.ofNullable(System.getenv(name)).isPresent();
+        return Optional.ofNullable(getEnv(name)).isPresent();
     }
 
 }

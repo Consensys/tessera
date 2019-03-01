@@ -80,8 +80,8 @@ public class ServerSSLContextFactoryTest {
         SslConfig sslConfig = mock(SslConfig.class);
 
         when(sslConfig.getServerKeyStorePassword()).thenReturn(password);
-        when(envVarProvider.getEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(null);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(null);
+        when(envVarProvider.getEnv(EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(null);
 
         String result = factory.getServerKeyStorePassword(sslConfig);
 
@@ -96,8 +96,8 @@ public class ServerSSLContextFactoryTest {
         SslConfig sslConfig = mock(SslConfig.class);
 
         when(sslConfig.getServerKeyStorePassword()).thenReturn(null);
-        when(envVarProvider.getEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(password);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(null);
+        when(envVarProvider.getEnv(EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(password);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(null);
 
         String result = factory.getServerKeyStorePassword(sslConfig);
 
@@ -113,8 +113,8 @@ public class ServerSSLContextFactoryTest {
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getServerKeyStorePassword()).thenReturn(null);
-        when(envVarProvider.getEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(null);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(password);
+        when(envVarProvider.getEnv(EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(password);
 
         String result = factory.getServerKeyStorePassword(sslConfig);
 
@@ -131,8 +131,8 @@ public class ServerSSLContextFactoryTest {
         SslConfig sslConfig = mock(SslConfig.class);
 
         when(sslConfig.getServerKeyStorePassword()).thenReturn(configVal);
-        when(envVarProvider.getEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(null);
+        when(envVarProvider.getEnv(EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(globalEnvVal);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(null);
 
         String result = factory.getServerKeyStorePassword(sslConfig);
 
@@ -150,8 +150,8 @@ public class ServerSSLContextFactoryTest {
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getServerKeyStorePassword()).thenReturn(configVal);
-        when(envVarProvider.getEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(null);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnv(EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(prefixedEnvVal);
 
         String result = factory.getServerKeyStorePassword(sslConfig);
 
@@ -169,8 +169,8 @@ public class ServerSSLContextFactoryTest {
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getServerKeyStorePassword()).thenReturn(null);
-        when(envVarProvider.getEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnv(EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(globalEnvVal);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(prefixedEnvVal);
 
         String result = factory.getServerKeyStorePassword(sslConfig);
 
@@ -189,8 +189,8 @@ public class ServerSSLContextFactoryTest {
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getServerKeyStorePassword()).thenReturn(configVal);
-        when(envVarProvider.getEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnv(EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(globalEnvVal);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(prefixedEnvVal);
 
         String result = factory.getServerKeyStorePassword(sslConfig);
 
@@ -206,8 +206,8 @@ public class ServerSSLContextFactoryTest {
         SslConfig sslConfig = mock(SslConfig.class);
 
         when(sslConfig.getServerTrustStorePassword()).thenReturn(password);
-        when(envVarProvider.getEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(null);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(null);
+        when(envVarProvider.getEnv(EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(null);
 
         String result = factory.getServerTrustStorePassword(sslConfig);
 
@@ -223,8 +223,8 @@ public class ServerSSLContextFactoryTest {
         SslConfig sslConfig = mock(SslConfig.class);
 
         when(sslConfig.getServerTrustStorePassword()).thenReturn(null);
-        when(envVarProvider.getEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(password);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(null);
+        when(envVarProvider.getEnv(EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(password);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(null);
 
         String result = factory.getServerTrustStorePassword(sslConfig);
 
@@ -241,8 +241,8 @@ public class ServerSSLContextFactoryTest {
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getServerTrustStorePassword()).thenReturn(null);
-        when(envVarProvider.getEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(null);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(password);
+        when(envVarProvider.getEnv(EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(password);
 
         String result = factory.getServerTrustStorePassword(sslConfig);
 
@@ -259,8 +259,8 @@ public class ServerSSLContextFactoryTest {
         SslConfig sslConfig = mock(SslConfig.class);
 
         when(sslConfig.getServerTrustStorePassword()).thenReturn(configVal);
-        when(envVarProvider.getEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(null);
+        when(envVarProvider.getEnv(EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(globalEnvVal);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(null);
 
         String result = factory.getServerTrustStorePassword(sslConfig);
 
@@ -278,8 +278,8 @@ public class ServerSSLContextFactoryTest {
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getServerTrustStorePassword()).thenReturn(configVal);
-        when(envVarProvider.getEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(null);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnv(EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(prefixedEnvVal);
 
         String result = factory.getServerTrustStorePassword(sslConfig);
 
@@ -297,8 +297,8 @@ public class ServerSSLContextFactoryTest {
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getServerTrustStorePassword()).thenReturn(null);
-        when(envVarProvider.getEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnv(EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(globalEnvVal);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(prefixedEnvVal);
 
         String result = factory.getServerTrustStorePassword(sslConfig);
 
@@ -317,8 +317,8 @@ public class ServerSSLContextFactoryTest {
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getServerTrustStorePassword()).thenReturn(configVal);
-        when(envVarProvider.getEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnv(EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(globalEnvVal);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(prefixedEnvVal);
 
         String result = factory.getServerTrustStorePassword(sslConfig);
 

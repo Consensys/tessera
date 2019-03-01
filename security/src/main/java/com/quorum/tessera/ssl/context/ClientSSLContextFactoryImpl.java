@@ -53,12 +53,12 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
 
     // TODO - Package private for testing, refactor so this can be made private
     String getClientKeyStorePassword(SslConfig sslConfig) {
-        return getPreferredPassword(sslConfig.getClientKeyStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.clientKeyStorePwd);
+        return getPreferredPassword(sslConfig.getClientKeyStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.CLIENT_KEYSTORE_PWD);
     }
 
     // TODO - Package private for testing, refactor so this can be made private
     String getClientTrustStorePassword(SslConfig sslConfig) {
-        return getPreferredPassword(sslConfig.getClientTrustStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.clientTrustStorePwd);
+        return getPreferredPassword(sslConfig.getClientTrustStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.CLIENT_TRUSTSTORE_PWD);
     }
 
     // Return the prefixed env var value if set, else return the config value, else return the global env var value

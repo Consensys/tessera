@@ -61,7 +61,7 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
 
     private boolean isServerKeyStoreConfigValid(SslConfig sslConfig, ConstraintValidatorContext context) {
         if (Objects.isNull(sslConfig.getServerKeyStore()) ||
-            !isPasswordProvided(sslConfig.getServerKeyStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.serverKeyStorePwd) ||
+            !isPasswordProvided(sslConfig.getServerKeyStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.SERVER_KEYSTORE_PWD) ||
             Files.notExists(sslConfig.getServerKeyStore())) {
             if (Objects.isNull(sslConfig.getServerTlsKeyPath()) ||
                 Objects.isNull(sslConfig.getServerTlsCertificatePath()) ||
@@ -78,7 +78,7 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
 
     private boolean isClientKeyStoreConfigValid(SslConfig sslConfig, ConstraintValidatorContext context) {
         if (Objects.isNull(sslConfig.getClientKeyStore()) ||
-            !isPasswordProvided(sslConfig.getClientKeyStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.clientKeyStorePwd) ||
+            !isPasswordProvided(sslConfig.getClientKeyStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.CLIENT_KEYSTORE_PWD) ||
             Files.notExists(sslConfig.getClientKeyStore())) {
             if (Objects.isNull(sslConfig.getClientTlsKeyPath()) ||
                 Objects.isNull(sslConfig.getClientTlsCertificatePath()) ||
@@ -115,7 +115,7 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
     private boolean isServerConfigValidForCAMode(SslConfig sslConfig, ConstraintValidatorContext context) {
         if (sslConfig.getServerTrustMode() == SslTrustMode.CA) {
             if (Objects.isNull(sslConfig.getServerTrustStore()) ||
-                !isPasswordProvided(sslConfig.getServerTrustStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.serverTrustStorePwd) ||
+                !isPasswordProvided(sslConfig.getServerTrustStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.SERVER_TRUSTSTORE_PWD) ||
                 Files.notExists(sslConfig.getServerTrustStore())) {
                 if (Objects.isNull(sslConfig.getServerTrustCertificates())) {
                     setMessage("Trust store config not valid. If server trust mode is CA, trust store must exist and not be null", context);
@@ -140,7 +140,7 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
     private boolean isClientConfigValidForCAMode(SslConfig sslConfig, ConstraintValidatorContext context) {
         if (sslConfig.getClientTrustMode() == SslTrustMode.CA) {
             if (Objects.isNull(sslConfig.getClientTrustStore()) ||
-                !isPasswordProvided(sslConfig.getClientTrustStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.clientTrustStorePwd) ||
+                !isPasswordProvided(sslConfig.getClientTrustStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.CLIENT_TRUSTSTORE_PWD) ||
                 Files.notExists(sslConfig.getClientTrustStore())) {
                 if (Objects.isNull(sslConfig.getClientTrustCertificates())) {
                     setMessage("Trust store config not valid. If client trust mode is CA, trust store must exist and not be null", context);

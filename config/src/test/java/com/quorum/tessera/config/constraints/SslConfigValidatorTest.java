@@ -170,8 +170,8 @@ public class SslConfigValidatorTest {
         sslConfig.setServerKeyStore(tmpFile);
 
         sslConfig.setServerKeyStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(false);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -194,8 +194,8 @@ public class SslConfigValidatorTest {
         sslConfig.setServerKeyStore(tmpFile);
 
         sslConfig.setServerKeyStorePassword(null);
-        when(envVarProvider.hasEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -219,8 +219,8 @@ public class SslConfigValidatorTest {
         sslConfig.setEnvironmentVariablePrefix("PREFIX");
 
         sslConfig.setServerKeyStorePassword(null);
-        when(envVarProvider.hasEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(false);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -243,8 +243,8 @@ public class SslConfigValidatorTest {
         sslConfig.setServerKeyStore(tmpFile);
 
         sslConfig.setServerKeyStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -268,8 +268,8 @@ public class SslConfigValidatorTest {
         sslConfig.setEnvironmentVariablePrefix("PREFIX");
 
         sslConfig.setServerKeyStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(false);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -293,8 +293,8 @@ public class SslConfigValidatorTest {
         sslConfig.setEnvironmentVariablePrefix("PREFIX");
 
         sslConfig.setServerKeyStorePassword(null);
-        when(envVarProvider.hasEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -318,8 +318,8 @@ public class SslConfigValidatorTest {
         sslConfig.setEnvironmentVariablePrefix("PREFIX");
 
         sslConfig.setServerKeyStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.SERVER_KEYSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -370,8 +370,8 @@ public class SslConfigValidatorTest {
         sslConfig.setClientKeyStore(tmpFile);
 
         sslConfig.setClientKeyStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.clientKeyStorePwd)).thenReturn(false);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientKeyStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -397,8 +397,8 @@ public class SslConfigValidatorTest {
         sslConfig.setClientKeyStore(tmpFile);
 
         sslConfig.setClientKeyStorePassword(null);
-        when(envVarProvider.hasEnv(EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientKeyStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -424,8 +424,8 @@ public class SslConfigValidatorTest {
         sslConfig.setClientKeyStore(tmpFile);
 
         sslConfig.setClientKeyStorePassword(null);
-        when(envVarProvider.hasEnv(EnvironmentVariables.clientKeyStorePwd)).thenReturn(false);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -451,8 +451,8 @@ public class SslConfigValidatorTest {
         sslConfig.setClientKeyStore(tmpFile);
 
         sslConfig.setClientKeyStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientKeyStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -478,8 +478,8 @@ public class SslConfigValidatorTest {
         sslConfig.setClientKeyStore(tmpFile);
 
         sslConfig.setClientKeyStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.clientKeyStorePwd)).thenReturn(false);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -505,8 +505,8 @@ public class SslConfigValidatorTest {
         sslConfig.setClientKeyStore(tmpFile);
 
         sslConfig.setClientKeyStorePassword(null);
-        when(envVarProvider.hasEnv(EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -532,8 +532,8 @@ public class SslConfigValidatorTest {
         sslConfig.setClientKeyStore(tmpFile);
 
         sslConfig.setClientKeyStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientKeyStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -648,8 +648,8 @@ public class SslConfigValidatorTest {
         sslConfig.setServerTrustStore(tmpFile);
 
         sslConfig.setServerTrustStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(false);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -672,8 +672,8 @@ public class SslConfigValidatorTest {
         sslConfig.setServerTrustStore(tmpFile);
 
         sslConfig.setServerTrustStorePassword(null);
-        when(envVarProvider.hasEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -697,8 +697,8 @@ public class SslConfigValidatorTest {
         sslConfig.setEnvironmentVariablePrefix("PREFIX");
 
         sslConfig.setServerTrustStorePassword(null);
-        when(envVarProvider.hasEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(false);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -721,8 +721,8 @@ public class SslConfigValidatorTest {
         sslConfig.setServerTrustStore(tmpFile);
 
         sslConfig.setServerTrustStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -746,8 +746,8 @@ public class SslConfigValidatorTest {
         sslConfig.setEnvironmentVariablePrefix("PREFIX");
 
         sslConfig.setServerTrustStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(false);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -771,8 +771,8 @@ public class SslConfigValidatorTest {
         sslConfig.setEnvironmentVariablePrefix("PREFIX");
 
         sslConfig.setServerTrustStorePassword(null);
-        when(envVarProvider.hasEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -796,8 +796,8 @@ public class SslConfigValidatorTest {
         sslConfig.setEnvironmentVariablePrefix("PREFIX");
 
         sslConfig.setServerTrustStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.serverTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.SERVER_TRUSTSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -845,8 +845,8 @@ public class SslConfigValidatorTest {
         sslConfig.setClientTrustStore(tmpFile);
 
         sslConfig.setClientTrustStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.clientTrustStorePwd)).thenReturn(false);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientTrustStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -869,8 +869,8 @@ public class SslConfigValidatorTest {
         sslConfig.setClientTrustStore(tmpFile);
 
         sslConfig.setClientTrustStorePassword(null);
-        when(envVarProvider.hasEnv(EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientTrustStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -894,8 +894,8 @@ public class SslConfigValidatorTest {
         sslConfig.setEnvironmentVariablePrefix("PREFIX");
 
         sslConfig.setClientTrustStorePassword(null);
-        when(envVarProvider.hasEnv(EnvironmentVariables.clientTrustStorePwd)).thenReturn(false);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -918,8 +918,8 @@ public class SslConfigValidatorTest {
         sslConfig.setClientTrustStore(tmpFile);
 
         sslConfig.setClientTrustStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientTrustStorePwd)).thenReturn(false);
+        when(envVarProvider.hasEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(false);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -943,8 +943,8 @@ public class SslConfigValidatorTest {
         sslConfig.setEnvironmentVariablePrefix("PREFIX");
 
         sslConfig.setClientTrustStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.clientTrustStorePwd)).thenReturn(false);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(false);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -968,8 +968,8 @@ public class SslConfigValidatorTest {
         sslConfig.setEnvironmentVariablePrefix("PREFIX");
 
         sslConfig.setClientTrustStorePassword(null);
-        when(envVarProvider.hasEnv(EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
@@ -993,8 +993,8 @@ public class SslConfigValidatorTest {
         sslConfig.setEnvironmentVariablePrefix("PREFIX");
 
         sslConfig.setClientTrustStorePassword("password");
-        when(envVarProvider.hasEnv(EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
-        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.clientTrustStorePwd)).thenReturn(true);
+        when(envVarProvider.hasEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(true);
+        when(envVarProvider.hasEnv(sslConfig.getEnvironmentVariablePrefix() + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(true);
 
         final boolean result = validator.isValid(sslConfig, context);
 
