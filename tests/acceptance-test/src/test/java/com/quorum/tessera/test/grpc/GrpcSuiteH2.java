@@ -7,12 +7,16 @@ import com.quorum.tessera.test.ProcessManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import suite.ExecutionContext;
 import suite.SocketType;
+import suite.TestSuite;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@RunWith(TestSuite.class)
+@TestSuite.TestConfig(
+        communicationType = CommunicationType.GRPC,
+        dbType = DBType.H2,
+        socketType = SocketType.HTTP)
+
+@TestSuite.SuiteClasses({
     SendGrpcIT.class,
     PartyInfoGrpcIT.class,
     TesseraGrpcIT.class,
@@ -24,18 +28,12 @@ public class GrpcSuiteH2 {
 
     @BeforeClass
     public static void onSetup() throws Exception {
-        ExecutionContext.Builder.create()
-                .with(CommunicationType.GRPC)
-                .with(DBType.H2)
-                .with(SocketType.HTTP)
-                .build();
         PROCESS_MANAGER.startNodes();
     }
 
     @AfterClass
     public static void onTearDown() throws Exception {
         PROCESS_MANAGER.stopNodes();
-        ExecutionContext.destoryContext();
     }
 
 }

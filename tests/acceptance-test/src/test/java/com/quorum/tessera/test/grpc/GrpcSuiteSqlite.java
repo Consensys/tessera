@@ -8,10 +8,14 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import suite.ExecutionContext;
 import suite.SocketType;
+import suite.TestSuite;
 
-@RunWith(Suite.class)
+@RunWith(TestSuite.class)
+@TestSuite.TestConfig(
+        communicationType = CommunicationType.GRPC,
+        dbType = DBType.SQLITE,
+        socketType = SocketType.HTTP)
 @Suite.SuiteClasses({
     SendGrpcIT.class,
     PartyInfoGrpcIT.class,
@@ -24,18 +28,12 @@ public class GrpcSuiteSqlite {
 
     @BeforeClass
     public static void onSetup() throws Exception {
-        ExecutionContext.Builder.create()
-                .with(CommunicationType.GRPC)
-                .with(DBType.SQLITE)
-                .with(SocketType.HTTP)
-                .build();
         PROCESS_MANAGER.startNodes();
     }
 
     @AfterClass
     public static void onTearDown() throws Exception {
         PROCESS_MANAGER.stopNodes();
-        ExecutionContext.destoryContext();
     }
 
 }
