@@ -3,7 +3,6 @@ package com.quorum.tessera.test.rest;
 import com.quorum.tessera.api.model.SendResponse;
 import org.junit.Test;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 import java.net.URLEncoder;
 import java.util.Base64;
@@ -47,9 +46,8 @@ public class DeleteIT {
             }
         }
 
-        Client client = sender.getRestClient();
         //delete it
-        final Response resp = client.target(sender.getQ2TUri())
+        final Response resp = sender.getRestClientWebTarget()
                 .path("transaction")
                 .path(encodedHash)
                 .request()
@@ -69,7 +67,7 @@ public class DeleteIT {
 
         Party party = partyHelper.getParties().findAny().get();
 
-        final Response response = party.getRestClient().target(party.getQ2TUri())
+        final Response response = party.getRestClientWebTarget()
                 .path("transaction")
                 .path(madeupHash)
                 .request()

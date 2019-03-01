@@ -94,11 +94,11 @@
                     </systemPropertyVariables>
                     <includes>
                         <include>RestSuiteUnixH2</include>
-                        <!--                        <include>RestSuiteH2</include>
+                        <include>RestSuiteH2</include>
                         <include>RestSuiteSqlite</include>
                         <include>GrpcSuiteH2</include>
                         <include>GrpcSuiteSqlite</include>
-                        <include>ConfigMigrationIT</include>-->
+                        <include>ConfigMigrationIT</include>
                     </includes>
                 </configuration>
                 <executions>

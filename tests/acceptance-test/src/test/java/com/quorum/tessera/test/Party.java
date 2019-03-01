@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
 
 public class Party {
 
@@ -102,8 +102,20 @@ public class Party {
         }
     }
 
-    public Client getRestClient() {
-        return new ClientFactory().buildFrom(config.getServerConfigs().stream().filter(s -> s.getApp() == AppType.Q2T).findAny().get());
+    
+    
+    public WebTarget getRestClientWebTarget() {
+        ServerConfig serverConfig = config.getServerConfigs().stream()
+                .filter(s -> s.getApp() == AppType.Q2T)
+                .findAny().get();
+
+        if(UnixServerSocket.class.isInstance(serverConfig.getServerSocket())) {
+            return new ClientFactory().buildFrom(serverConfig)
+                    .target("http://localhost:8267/");
+        }
+        
+        return new ClientFactory().buildFrom(serverConfig)
+                .target(serverConfig.getServerUri());
     }
     
     public Integer getGrpcPort() {

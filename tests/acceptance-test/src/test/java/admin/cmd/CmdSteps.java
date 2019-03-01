@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
@@ -24,7 +25,7 @@ public class CmdSteps implements En {
     public CmdSteps() {
 
         Party subjectNode = partyHelper.getParties().findAny().get();
-        Client client = subjectNode.getRestClient();
+        Client client = ClientBuilder.newClient();
         Given("any node is running", () -> {
             assertThat(Stream.of(subjectNode)
                 .map(Party::getP2PUri)

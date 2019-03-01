@@ -29,7 +29,6 @@ public class RestSteps implements En {
 
     private final RestUtils restUtils = new RestUtils();
     
-    private Client client = ClientBuilder.newClient();
 
     private PartyHelper partyHelper = PartyHelper.create();
     
@@ -62,7 +61,7 @@ public class RestSteps implements En {
         });
 
         And("^all parties are running$", () -> {
-            
+            Client client = ClientBuilder.newClient();
             assertThat(partyHelper.getParties()
                 .map(Party::getP2PUri)
                 .map(client::target)
@@ -75,7 +74,7 @@ public class RestSteps implements En {
 
         When("^a request is made against the node", () -> {
             Optional<URI> uri = Optional.of(new URI("http://localhost:" + portHolder.get(0)));
-
+            Client client = ClientBuilder.newClient();
             responseCodes.add(
                 uri
                     .map(client::target)
@@ -96,7 +95,7 @@ public class RestSteps implements En {
             sendRequest.setTo("8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=");
             sendRequest.setPayload(txnData);
 
-            final Response response = client.target(sender.getQ2TUri())
+            final Response response = sender.getRestClientWebTarget()
                 .path("send")
                 .request()
                 .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -120,7 +119,7 @@ public class RestSteps implements En {
                 )
                 .build().toString();
 
-            Response response = client.target(sender.getQ2TUri()).path("send")
+            Response response = sender.getRestClientWebTarget().path("send")
                 .request()
                 .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
@@ -141,7 +140,7 @@ public class RestSteps implements En {
 
             sendRequest.setTo(recipientArray);
 
-            Response response = client.target(sender.getQ2TUri()).path("send")
+            Response response = sender.getRestClientWebTarget().path("send")
                 .request().post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
             assertThat(response.getStatus()).isEqualTo(201);

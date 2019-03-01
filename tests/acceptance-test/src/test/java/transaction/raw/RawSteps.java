@@ -99,8 +99,8 @@ public class RawSteps implements En {
 
         When("sender party receives transaction with no sender key defined from Quorum peer", () -> {
             Party sender = getSender(senderHolder);
-            Client client = sender.getRestClient();
-            final Response response = client.target(sender.getQ2TUri())
+
+            final Response response = sender.getRestClientWebTarget()
                 .path("sendraw")
                 .request()
                 .header(RECIPIENTS, recipients.stream()
@@ -118,7 +118,7 @@ public class RawSteps implements En {
             storedHashes.add(persistedKey);
 
             URI location = response.getLocation();
-
+            Client client = ClientBuilder.newClient();
             final Response checkPersistedTxnResponse = client.target(location)
                 .request()
                 .get();
@@ -150,7 +150,7 @@ public class RawSteps implements En {
         When("sender party receives transaction with an unknown party from Quorum peer", () -> {
             Party sender = getSender(senderHolder);
 
-            final Response response = sender.getRestClient().target(sender.getQ2TUri())
+            final Response response = sender.getRestClientWebTarget()
                 .path("sendraw")
                 .request()
                 .header(SENDER, sender.getPublicKey())
