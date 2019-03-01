@@ -20,7 +20,9 @@ public interface PartyHelper {
             .orElseThrow(() -> new RuntimeException("No party found with publicKey " + publicKey));
 
     }
-
     
+    static PartyHelper create() {
+        return new DefaultPartyHelper();
+    }
 
 }

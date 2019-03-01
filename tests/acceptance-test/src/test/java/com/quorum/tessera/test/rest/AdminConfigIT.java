@@ -2,7 +2,6 @@ package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.RestPartyHelper;
 import java.net.URI;
 import java.util.UUID;
 import javax.ws.rs.client.Client;
@@ -18,7 +17,7 @@ public class AdminConfigIT {
 
     private final Client client = ClientBuilder.newClient();
 
-    private final PartyHelper partyHelper = new RestPartyHelper();
+    private final PartyHelper partyHelper = PartyHelper.create();
 
     @Test
     public void addPeer() {

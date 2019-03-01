@@ -17,7 +17,6 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import com.quorum.tessera.test.PartyHelper;
-import com.quorum.tessera.test.RestPartyHelper;
 import java.util.Arrays;
 
 
@@ -28,7 +27,7 @@ import java.util.Arrays;
 @RunWith(Parameterized.class)
 public class MultipleKeyNodeIT {
 
-    private PartyHelper partyHelper = new RestPartyHelper();
+    private PartyHelper partyHelper = PartyHelper.create();
 
     private final Client client = ClientBuilder.newClient();
 

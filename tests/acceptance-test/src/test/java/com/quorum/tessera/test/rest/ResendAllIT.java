@@ -5,7 +5,6 @@ import com.quorum.tessera.api.model.ResendRequestType;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PayloadEncoderImpl;
-import com.quorum.tessera.test.RestPartyHelper;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
@@ -23,6 +22,7 @@ import java.sql.SQLException;
 import java.util.Base64;
 
 import static com.quorum.tessera.test.Fixtures.*;
+import com.quorum.tessera.test.PartyHelper;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -157,7 +157,7 @@ public class ResendAllIT {
         assertThat(resendRequestNode3.getStatus()).isEqualTo(200);
 
         final String fetch = "SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION WHERE HASH = ?";
-        final Connection databaseConnection = new RestPartyHelper().findByPublicKey(PTY1_KEY).getDatabaseConnection();
+        final Connection databaseConnection = PartyHelper.create().findByPublicKey(PTY1_KEY).getDatabaseConnection();
         try(PreparedStatement statement = databaseConnection.prepareStatement(fetch)) {
             statement.setBytes(1, Base64.getDecoder().decode(hash));
             try(ResultSet rs = statement.executeQuery()) {

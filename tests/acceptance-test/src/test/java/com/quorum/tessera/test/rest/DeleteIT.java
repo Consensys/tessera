@@ -18,7 +18,7 @@ public class DeleteIT {
 
     private static final String COUNT_ALL = "select count(*) from ENCRYPTED_TRANSACTION where hash = ?";
 
-    private final PartyHelper partyHelper = new RestPartyHelper();
+    private final PartyHelper partyHelper = PartyHelper.create();
 
     @Test
     public void deleteTransactionThatExists() throws Exception {

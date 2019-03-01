@@ -3,7 +3,6 @@ package transaction.raw;
 import com.quorum.tessera.api.model.ReceiveResponse;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
-import com.quorum.tessera.test.RestPartyHelper;
 import static com.quorum.tessera.test.rest.RawHeaderName.RECIPIENTS;
 import static com.quorum.tessera.test.rest.RawHeaderName.SENDER;
 import com.quorum.tessera.test.rest.RestUtils;
@@ -32,7 +31,7 @@ public class RawSteps implements En {
 
     private RestUtils restUtils = new RestUtils();
 
-    private PartyHelper partyHelper = new RestPartyHelper();
+    private PartyHelper partyHelper = PartyHelper.create();
 
     private final Client client = RestUtils.buildClient();
 

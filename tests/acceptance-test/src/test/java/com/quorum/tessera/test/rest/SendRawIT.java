@@ -11,7 +11,6 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import static com.quorum.tessera.test.Fixtures.*;
 import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.RestPartyHelper;
 import static com.quorum.tessera.test.rest.RawHeaderName.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,7 +26,7 @@ public class SendRawIT {
 
     private static final byte[] TXN_DATA = "Zm9v".getBytes();
 
-    private PartyHelper partyHelper = new RestPartyHelper();
+    private PartyHelper partyHelper = PartyHelper.create();
     
     /**
      * Quorum sends transaction with singe public recipient key

@@ -4,7 +4,6 @@ import com.quorum.tessera.api.model.ReceiveResponse;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.RestPartyHelper;
 import cucumber.api.java8.En;
 
 import java.net.URI;
@@ -32,7 +31,7 @@ public class RestSteps implements En {
     
     private Client client = ClientBuilder.newClient();
 
-    private PartyHelper partyHelper = new RestPartyHelper();
+    private PartyHelper partyHelper = PartyHelper.create();
     
     public RestSteps() {
 

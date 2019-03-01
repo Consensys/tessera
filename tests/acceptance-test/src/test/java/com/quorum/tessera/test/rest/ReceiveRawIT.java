@@ -4,7 +4,6 @@ import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
 import static com.quorum.tessera.test.Fixtures.*;
 import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.RestPartyHelper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +28,7 @@ public class ReceiveRawIT {
 
     private static final byte[] PAYLOAD = TXN_DATA;
     
-    private PartyHelper partyHelper = new RestPartyHelper();
+    private PartyHelper partyHelper = PartyHelper.create();
 
     private Client client = ClientBuilder.newClient();
 
