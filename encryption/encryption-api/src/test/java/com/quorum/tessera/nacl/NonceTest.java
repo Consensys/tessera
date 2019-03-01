@@ -1,35 +1,25 @@
 package com.quorum.tessera.nacl;
 
+import com.openpojo.reflection.impl.PojoClassFactory;
+import com.openpojo.validation.ValidatorBuilder;
+import com.openpojo.validation.test.impl.GetterTester;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Objects;
-
+import static nl.jqno.equalsverifier.Warning.STRICT_INHERITANCE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class NonceTest {
 
     @Test
-    public void differentClassesAreNotEqual() {
-        final Object nonce = new Nonce("test".getBytes());
-        final boolean isEqual = Objects.equals(nonce, "test");
+    public void pojo() {
+        EqualsVerifier.configure().suppress(STRICT_INHERITANCE).forClass(Nonce.class).verify();
 
-        assertThat(isEqual).isFalse();
-    }
+        ValidatorBuilder.create()
+            .with(new GetterTester())
+            .build()
+            .validate(PojoClassFactory.getPojoClass(Nonce.class));
 
-    @Test
-    public void sameObjectIsEqual() {
-        final Nonce nonce = new Nonce(new byte[]{});
-
-        assertThat(nonce).isEqualTo(nonce);
-    }
-
-    @Test
-    public void differentObjectsWithSameBytesAreEqual() {
-        final Nonce nonce1 = new Nonce(new byte[]{5, 6, 7});
-        final Nonce nonce2 = new Nonce(new byte[]{5, 6, 7});
-
-        assertThat(nonce1).isEqualTo(nonce2);
     }
 
     @Test
@@ -39,14 +29,6 @@ public class NonceTest {
         final String toString = nonce.toString();
 
         assertThat(toString).isEqualTo("[5, 6, 7]");
-    }
-
-    @Test
-    public void hashCodeIsHashcodeOfArray() {
-        final byte[] nonceBytes = new byte[]{5, 6, 7};
-        final Nonce nonce = new Nonce(nonceBytes);
-
-        assertThat(nonce.hashCode()).isEqualTo(Arrays.hashCode(nonceBytes));
     }
 
 }

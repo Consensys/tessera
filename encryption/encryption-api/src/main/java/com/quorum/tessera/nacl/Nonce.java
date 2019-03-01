@@ -24,7 +24,7 @@ public class Nonce {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(getNonceBytes());
+        return Arrays.hashCode(nonceBytes);
     }
 
     @Override

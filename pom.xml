@@ -875,6 +875,12 @@
                 <version>3.12.0</version>
             </dependency>
 
+            <dependency>
+                <groupId>nl.jqno.equalsverifier</groupId>
+                <artifactId>equalsverifier</artifactId>
+                <version>3.1.5</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -940,6 +946,12 @@
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.moxy</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.jqno.equalsverifier</groupId>
+            <artifactId>equalsverifier</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
