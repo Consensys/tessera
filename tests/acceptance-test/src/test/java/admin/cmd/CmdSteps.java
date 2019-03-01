@@ -20,12 +20,11 @@ public class CmdSteps implements En {
 
     private final RestUtils restUtils = new RestUtils();
 
-    private Client client = RestUtils.buildClient();
 
     public CmdSteps() {
 
         Party subjectNode = partyHelper.getParties().findAny().get();
-
+        Client client = subjectNode.getRestClient();
         Given("any node is running", () -> {
             assertThat(Stream.of(subjectNode)
                 .map(Party::getP2PUri)

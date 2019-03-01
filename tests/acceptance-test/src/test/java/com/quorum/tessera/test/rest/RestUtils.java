@@ -13,8 +13,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
@@ -24,11 +22,7 @@ import transaction.utils.Utils;
 
 public class RestUtils {
 
-    private Client client = buildClient();
 
-    public static Client buildClient() {
-        return ClientBuilder.newClient();
-    }
 
     public Response sendRaw(Party sender, byte[] transactionData, Set<Party> recipients) {
         return sendRaw(sender, transactionData, recipients.toArray(new Party[0]));
@@ -42,8 +36,8 @@ public class RestUtils {
         String recipientString = Stream.of(recipients)
             .map(Party::getPublicKey)
             .collect(Collectors.joining(","));
-
-        Invocation.Builder invocationBuilder = client.target(sender.getQ2TUri())
+        
+        Invocation.Builder invocationBuilder = sender.getRestClient().target(sender.getQ2TUri())
             .path("sendraw")
             .request()
             .header(SENDER, sender.getPublicKey());
@@ -61,7 +55,7 @@ public class RestUtils {
         String encodedId = urlEncode(transactionId);
 
         return Stream.of(party)
-            .map(p -> client.target(p.getQ2TUri()))
+            .map(p -> p.getRestClient().target(p.getQ2TUri()))
             .map(target -> target.path("transaction"))
             .map(target -> target.path(encodedId))
             .map(target -> target.request().get());
@@ -96,7 +90,7 @@ public class RestUtils {
         sendRequest.setTo(recipientArray);
         sendRequest.setPayload(transactionData);
 
-        final Response response = this.client.target(sender.getQ2TUri())
+        final Response response = sender.getRestClient().target(sender.getQ2TUri())
             .path("send")
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -128,7 +122,7 @@ public class RestUtils {
         sendRequest.setTo(recipientArray);
         sendRequest.setPayload(transactionData);
 
-        return this.client.target(sender.getQ2TUri())
+        return sender.getRestClient().target(sender.getQ2TUri())
             .path("send")
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -141,7 +135,7 @@ public class RestUtils {
 
     public Response receiveRaw(String transactionKey, Party party, Party... recipients) {
 
-        return client.target(party.getQ2TUri())
+        return party.getRestClient().target(party.getQ2TUri())
             .path("receiveraw")
             .request()
             .header(C11N_KEY, transactionKey)

@@ -8,13 +8,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import static org.assertj.core.api.Assertions.assertThat;
 import com.quorum.tessera.test.PartyHelper;
+import javax.ws.rs.client.ClientBuilder;
 
 public class ReceiveRawIT {
 
@@ -37,6 +37,8 @@ public class ReceiveRawIT {
     //Persist a single transaction that can be used later
     @Before
     public void init() {
+        
+        partyHelper.findByAlias("A").getQ2TUri();
         
         SendRequest sendRequest = new SendRequest();
         sendRequest.setPayload(PAYLOAD);

@@ -11,7 +11,7 @@
             "enabled": true,
             "serverSocket": {
                 "type": "UNIX",
-                "path": "file:/tmp/q2t-rest-unix-2.ipc"
+                "path": "/tmp/q2t-rest-unix-2.ipc"
             },
             "communicationType": "REST"
         },

@@ -47,7 +47,7 @@ public class DeleteIT {
             }
         }
 
-        Client client = RestUtils.buildClient();
+        Client client = sender.getRestClient();
         //delete it
         final Response resp = client.target(sender.getQ2TUri())
                 .path("transaction")
@@ -66,11 +66,10 @@ public class DeleteIT {
 
         final String madeupHash = Base64.getUrlEncoder().encodeToString("madeup".getBytes());
 
-        Client client = RestUtils.buildClient();
 
         Party party = partyHelper.getParties().findAny().get();
 
-        final Response response = client.target(party.getQ2TUri())
+        final Response response = party.getRestClient().target(party.getQ2TUri())
                 .path("transaction")
                 .path(madeupHash)
                 .request()

@@ -2,6 +2,7 @@ package com.quorum.tessera.test;
 
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.jaxrs.client.ClientFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import javax.ws.rs.client.Client;
 
 public class Party {
 
@@ -53,6 +55,7 @@ public class Party {
             .filter(sc -> sc.getApp() == AppType.Q2T)
             .findFirst()
             .get();
+
         this.q2tUri = q2tServerConfig.getServerUri();
 
         Optional<ServerConfig> adminServerConfig = config.getServerConfigs()
@@ -99,6 +102,10 @@ public class Party {
         }
     }
 
+    public Client getRestClient() {
+        return new ClientFactory().buildFrom(config.getServerConfigs().stream().filter(s -> s.getApp() == AppType.Q2T).findAny().get());
+    }
+    
     public Integer getGrpcPort() {
         return config.getP2PServerConfig().getServerUri().getPort();
     }

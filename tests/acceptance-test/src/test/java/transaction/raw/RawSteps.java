@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
@@ -33,7 +34,6 @@ public class RawSteps implements En {
 
     private PartyHelper partyHelper = PartyHelper.create();
 
-    private final Client client = RestUtils.buildClient();
 
     private Party getSender(Collection<String> senderHolder){
         return partyHelper.findByAlias(senderHolder.stream().findAny().get());
@@ -53,6 +53,8 @@ public class RawSteps implements En {
 
         final Set<String> storedHashes = new TreeSet<>();
 
+       
+        
         Given("^Sender party (.+)$", (String pty) -> {
             senderHolder.add(pty);
         });
@@ -66,6 +68,8 @@ public class RawSteps implements En {
 
         And("^all parties are running$", () -> {
 
+            Client client = ClientBuilder.newClient();
+            
             assertThat(partyHelper.getParties()
                 .map(Party::getP2PUri)
                 .map(client::target)
@@ -95,7 +99,7 @@ public class RawSteps implements En {
 
         When("sender party receives transaction with no sender key defined from Quorum peer", () -> {
             Party sender = getSender(senderHolder);
-            
+            Client client = sender.getRestClient();
             final Response response = client.target(sender.getQ2TUri())
                 .path("sendraw")
                 .request()
@@ -146,7 +150,7 @@ public class RawSteps implements En {
         When("sender party receives transaction with an unknown party from Quorum peer", () -> {
             Party sender = getSender(senderHolder);
 
-            final Response response = client.target(sender.getQ2TUri())
+            final Response response = sender.getRestClient().target(sender.getQ2TUri())
                 .path("sendraw")
                 .request()
                 .header(SENDER, sender.getPublicKey())
