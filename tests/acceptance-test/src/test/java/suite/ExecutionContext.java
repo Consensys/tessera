@@ -31,7 +31,7 @@ public class ExecutionContext {
         return socketType;
     }
 
-    public static class Builder {
+    static class Builder {
 
         private DBType dbType;
 
@@ -61,33 +61,33 @@ public class ExecutionContext {
             return this;
         }
 
-        public ExecutionContext build() {
-            
+        protected void createAndSetupContext() {
+
             Stream.of(dbType, communicationType, socketType)
                     .forEach(Objects::requireNonNull);
-            
+
             ExecutionContext executionContext = new ExecutionContext(dbType, communicationType, socketType);
-            
-            if(THREAD_SCOPE.get() != null) throw new IllegalStateException("Context has already been created");
-            
+
+            if (THREAD_SCOPE.get() != null) {
+                throw new IllegalStateException("Context has already been created");
+            }
+
             THREAD_SCOPE.set(executionContext);
-            
-            return executionContext;
         }
 
-    }   
-    
-    private static final ThreadLocal<ExecutionContext> THREAD_SCOPE = new ThreadLocal<ExecutionContext>();
-    
-    public static ExecutionContext currentContext() {
-        if(Objects.isNull(THREAD_SCOPE.get())) 
-            throw new IllegalStateException("Execution context has not been initialised");
-        return THREAD_SCOPE.get();
-    }
-    
-    public static void destoryContext() {
-        THREAD_SCOPE.remove();
     }
 
+    private static final ThreadLocal<ExecutionContext> THREAD_SCOPE = new ThreadLocal<ExecutionContext>();
+
+    public static ExecutionContext currentContext() {
+        if (Objects.isNull(THREAD_SCOPE.get())) {
+            throw new IllegalStateException("Execution context has not been initialised");
+        }
+        return THREAD_SCOPE.get();
+    }
+
+    protected static void destoryContext() {
+        THREAD_SCOPE.remove();
+    }
 
 }

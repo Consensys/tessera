@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+import suite.ExecutionContext;
 
 public class ProcessManager {
 
@@ -46,8 +47,12 @@ public class ProcessManager {
     private final URL logbackConfigFile = ProcessManager.class.getResource("/logback-node.xml");
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
-
-    public ProcessManager(CommunicationType communicationType, DBType dbType) {
+    
+    public ProcessManager(ExecutionContext executionContext) {
+        this(executionContext.getCommunicationType(),executionContext.getDbType());
+    }
+    
+    private ProcessManager(CommunicationType communicationType, DBType dbType) {
         this.communicationType = Objects.requireNonNull(communicationType);
         this.dbType = Objects.requireNonNull(dbType);
 
@@ -61,7 +66,7 @@ public class ProcessManager {
         this.configFiles = Collections.unmodifiableMap(configs);
     }
 
-    public String findJarFilePath(String jar) {
+    private String findJarFilePath(String jar) {
         return Objects.requireNonNull(System.getProperty(jar, null),
                 "System property " + jar + " is undefined.");
     }
@@ -100,7 +105,7 @@ public class ProcessManager {
         int exitCode = process.waitFor();
     }
 
-    public void start(String nodeAlias) throws Exception {
+    private void start(String nodeAlias) throws Exception {
         final String tesseraJar = findJarFilePath("application.jar");
 
         String fullCP = tesseraJar;
@@ -117,9 +122,7 @@ public class ProcessManager {
 
         List<String> args = Arrays.asList(
                 "java",
-                "-Dspring.profiles.active=disable-unixsocket",
                 "-Dhsqldb.reconfig_logging=false",
-                "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
                 "-Dnode.number=" + nodeAlias,
                 "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
                 "-Ddebug=true",
@@ -239,7 +242,7 @@ public class ProcessManager {
 
     }
 
-    public void kill(String nodeAlias) throws Exception {
+    private void kill(String nodeAlias) throws Exception {
 
         FilesDelegate fileDelegate = FilesDelegate.create();
         Path pidFile = pids.remove(nodeAlias);
