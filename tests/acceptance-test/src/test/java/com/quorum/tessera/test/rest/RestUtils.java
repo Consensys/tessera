@@ -134,7 +134,6 @@ public class RestUtils {
     private static final String C11N_KEY = "c11n-key";
 
     public Response receiveRaw(String transactionKey, Party party, Party... recipients) {
-
         return party.getRestClientWebTarget()
             .path("receiveraw")
             .request()

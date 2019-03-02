@@ -34,12 +34,11 @@ public class RawSteps implements En {
 
     private PartyHelper partyHelper = PartyHelper.create();
 
-
-    private Party getSender(Collection<String> senderHolder){
+    private Party getSender(Collection<String> senderHolder) {
         return partyHelper.findByAlias(senderHolder.stream().findAny().get());
     }
 
-    private Set<Party> getRecipientParties(Set<String> recipientAliases){
+    private Set<Party> getRecipientParties(Set<String> recipientAliases) {
         return recipientAliases.stream().map(partyHelper::findByAlias).collect(Collectors.toSet());
     }
 
@@ -53,15 +52,13 @@ public class RawSteps implements En {
 
         final Set<String> storedHashes = new TreeSet<>();
 
-       
-        
         Given("^Sender party (.+)$", (String pty) -> {
             senderHolder.add(pty);
         });
 
         And("^Recipient part(?:y|ies) (.+)$", (String alias) -> {
             parseAliases(alias).stream()
-                .forEach(recipients::add);
+                    .forEach(recipients::add);
 
             assertThat(recipients).isNotEmpty();
         });
@@ -69,15 +66,15 @@ public class RawSteps implements En {
         And("^all parties are running$", () -> {
 
             Client client = ClientBuilder.newClient();
-            
+
             assertThat(partyHelper.getParties()
-                .map(Party::getP2PUri)
-                .map(client::target)
-                .map(t -> t.path("upcheck"))
-                .map(WebTarget::request)
-                .map(Invocation.Builder::get)
-                .allMatch(r -> r.getStatus() == 200))
-                .isTrue();
+                    .map(Party::getP2PUri)
+                    .map(client::target)
+                    .map(t -> t.path("upcheck"))
+                    .map(WebTarget::request)
+                    .map(Invocation.Builder::get)
+                    .allMatch(r -> r.getStatus() == 200))
+                    .isTrue();
         });
 
         When("^sender party receives transaction from Quorum peer$", () -> {
@@ -85,8 +82,8 @@ public class RawSteps implements En {
             Party sender = getSender(senderHolder);
 
             Response response = restUtils.sendRaw(sender,
-                transactionData,
-                getRecipientParties(recipients).toArray(new Party[0]));
+                    transactionData,
+                    getRecipientParties(recipients).toArray(new Party[0]));
 
             assertThat(response.getStatus()).isEqualTo(200);
 
@@ -101,14 +98,14 @@ public class RawSteps implements En {
             Party sender = getSender(senderHolder);
 
             final Response response = sender.getRestClientWebTarget()
-                .path("sendraw")
-                .request()
-                .header(RECIPIENTS, recipients.stream()
-                    .map(partyHelper::findByAlias)
-                    .map(Party::getPublicKey)
-                    .collect(Collectors.joining(","))
-                )
-                .post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
+                    .path("sendraw")
+                    .request()
+                    .header(RECIPIENTS, recipients.stream()
+                            .map(partyHelper::findByAlias)
+                            .map(Party::getPublicKey)
+                            .collect(Collectors.joining(","))
+                    )
+                    .post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isEqualTo(200);
@@ -118,19 +115,21 @@ public class RawSteps implements En {
             storedHashes.add(persistedKey);
 
             URI location = response.getLocation();
-            Client client = ClientBuilder.newClient();
-            final Response checkPersistedTxnResponse = client.target(location)
-                .request()
-                .get();
 
-            assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
+            recipients.stream().map(partyHelper::findByAlias).map(Party::getRestClient).forEach(client -> {
+                final Response checkPersistedTxnResponse = client.target(location)
+                        .request()
+                        .get();
 
-            ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
+                assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
-            assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
+                ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
 
-            restUtils.findTransaction(persistedKey, getRecipientParties(recipients)).forEach(r -> {
-                assertThat(r.getStatus()).isEqualTo(200);
+                assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
+
+                restUtils.findTransaction(persistedKey, getRecipientParties(recipients)).forEach(r -> {
+                    assertThat(r.getStatus()).isEqualTo(200);
+                });
             });
 
             restUtils.findTransaction(persistedKey, partyHelper.findByAlias("C"), partyHelper.findByAlias("B")).forEach(r -> {
@@ -151,11 +150,11 @@ public class RawSteps implements En {
             Party sender = getSender(senderHolder);
 
             final Response response = sender.getRestClientWebTarget()
-                .path("sendraw")
-                .request()
-                .header(SENDER, sender.getPublicKey())
-                .header(RECIPIENTS, "8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=")
-                .post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
+                    .path("sendraw")
+                    .request()
+                    .header(SENDER, sender.getPublicKey())
+                    .header(RECIPIENTS, "8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=")
+                    .post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isEqualTo(400);
@@ -168,16 +167,16 @@ public class RawSteps implements En {
         Then("^sender party stores the transaction$", () -> {
             Party sender = getSender(senderHolder);
             try (PreparedStatement statement
-                = sender.getDatabaseConnection()
-                    .prepareStatement("SELECT COUNT(*) FROM ENCRYPTED_TRANSACTION WHERE HASH = ?")) {
-                    statement.setBytes(1, Base64.getDecoder().decode(storedHashes.iterator().next()));
+                    = sender.getDatabaseConnection()
+                            .prepareStatement("SELECT COUNT(*) FROM ENCRYPTED_TRANSACTION WHERE HASH = ?")){
+                        statement.setBytes(1, Base64.getDecoder().decode(storedHashes.iterator().next()));
 
-                    try (ResultSet results = statement.executeQuery()) {
-                        assertThat(results.next()).isTrue();
-                        assertThat(results.getLong(1)).isEqualTo(1);
+                        try (ResultSet results = statement.executeQuery()){
+                            assertThat(results.next()).isTrue();
+                            assertThat(results.getLong(1)).isEqualTo(1);
+                        }
+
                     }
-
-                }
         });
 
         Then("^forwards the transaction to recipient part(?:y|ies)$", () -> {
@@ -195,12 +194,12 @@ public class RawSteps implements En {
 
         Then("^.*does not forward transaction to any recipients?$", () -> {
             partyHelper.getParties()
-                .filter(p -> !senderHolder.contains(p.getAlias()))
-                .forEach(p -> {
-                    String storedHash = storedHashes.stream().findAny().get();
-                    Response response = restUtils.receiveRaw(storedHash, p);
-                    assertThat(response.getStatus()).isEqualTo(404);
-                });
+                    .filter(p -> !senderHolder.contains(p.getAlias()))
+                    .forEach(p -> {
+                        String storedHash = storedHashes.stream().findAny().get();
+                        Response response = restUtils.receiveRaw(storedHash, p);
+                        assertThat(response.getStatus()).isEqualTo(404);
+                    });
 
         });
     }

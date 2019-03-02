@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 
 public class Party {
@@ -32,13 +33,13 @@ public class Party {
     private final Config config;
 
     private final String alias;
-    
+
     private final Path configFilePath;
-    
-    public Party(String publicKey, URL configUrl,String alias) {
+
+    public Party(String publicKey, URL configUrl, String alias) {
         this.publicKey = Objects.requireNonNull(publicKey);
 
-        try (InputStream inputStream = configUrl.openStream()) {
+        try (InputStream inputStream = configUrl.openStream()){
             this.configFilePath = Paths.get(configUrl.toURI());
             this.config = JaxbUtil.unmarshal(inputStream, Config.class);
         } catch (IOException ex) {
@@ -46,24 +47,24 @@ public class Party {
         } catch (URISyntaxException ex) {
             throw new RuntimeException(ex);
         }
-        
+
         ServerConfig p2pServerConfig = config.getP2PServerConfig();
         this.p2pUri = p2pServerConfig.getServerUri();
 
         ServerConfig q2tServerConfig = config.getServerConfigs()
-            .stream()
-            .filter(sc -> sc.getApp() == AppType.Q2T)
-            .findFirst()
-            .get();
+                .stream()
+                .filter(sc -> sc.getApp() == AppType.Q2T)
+                .findFirst()
+                .get();
 
         this.q2tUri = q2tServerConfig.getServerUri();
 
         Optional<ServerConfig> adminServerConfig = config.getServerConfigs()
-            .stream()
-            .filter(sc -> sc.getApp() == AppType.ADMIN)
-            .findFirst();
+                .stream()
+                .filter(sc -> sc.getApp() == AppType.ADMIN)
+                .findFirst();
         this.adminUri = adminServerConfig.map(ServerConfig::getServerUri).orElse(null);
-        
+
         this.alias = Objects.requireNonNull(alias);
 
     }
@@ -95,33 +96,42 @@ public class Party {
         String url = jdbcConfig.getUrl();
         String username = jdbcConfig.getUsername();
         String password = jdbcConfig.getPassword();
-        try {
+        try{
             return DriverManager.getConnection(url, username, password);
         } catch (SQLException ex) {
             throw new UncheckedSQLException(ex);
         }
     }
 
-    
-    
+    public Client getRestClient() {
+        ServerConfig serverConfig = config.getServerConfigs().stream()
+                .filter(s -> s.getApp() == AppType.Q2T)
+                .findAny().get();
+
+        if (UnixServerSocket.class.isInstance(serverConfig.getServerSocket())) {
+            return new ClientFactory().buildFrom(serverConfig);
+        }
+
+        return new ClientFactory().buildFrom(serverConfig);
+    }
+
     public WebTarget getRestClientWebTarget() {
         ServerConfig serverConfig = config.getServerConfigs().stream()
                 .filter(s -> s.getApp() == AppType.Q2T)
                 .findAny().get();
 
-        if(UnixServerSocket.class.isInstance(serverConfig.getServerSocket())) {
-            return new ClientFactory().buildFrom(serverConfig)
+        if (UnixServerSocket.class.isInstance(serverConfig.getServerSocket())) {
+            return getRestClient()
                     .target("http://localhost:8267/");
         }
-        
-        return new ClientFactory().buildFrom(serverConfig)
-                .target(serverConfig.getServerUri());
+
+        return getRestClient().target(serverConfig.getServerUri());
     }
-    
+
     public Integer getGrpcPort() {
         return config.getP2PServerConfig().getServerUri().getPort();
     }
-    
+
     public String getAlias() {
         return alias;
     }
@@ -142,7 +152,5 @@ public class Party {
     public List<Peer> getConfiguredPeers() {
         return Collections.unmodifiableList(config.getPeers());
     }
-    
-    
 
 }
