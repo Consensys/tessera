@@ -5,11 +5,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import javax.ws.rs.ProcessingException;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.glassfish.jersey.client.ClientRequest;
 import org.glassfish.jersey.client.ClientResponse;
@@ -55,6 +56,15 @@ public class JerseyUnixSocketConnector implements Connector {
         URI uri = request.getUri();
         Request clientRequest = httpClient.newRequest(uri)
                 .method(httpMethod);
+        
+        MultivaluedMap<String,Object> headers = request.getHeaders();
+        
+        headers.keySet().stream().forEach(name -> {
+           headers.get(name).forEach(value -> {
+               clientRequest.header(name, Objects.toString(value));
+           });
+           
+        });
 
         if (request.hasEntity()) {
             final long length = request.getLengthLong();
@@ -63,10 +73,9 @@ public class JerseyUnixSocketConnector implements Connector {
 
             request.setStreamProvider((int contentLength) -> bout);
             request.writeEntity();
-
-            MediaType mediaType = request.getMediaType();
+            
             ContentProvider content = new BytesContentProvider(bout.toByteArray());
-            clientRequest.content(content, mediaType.toString());
+            clientRequest.content(content);
 
         }
         final ContentResponse contentResponse = clientRequest.send();

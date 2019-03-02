@@ -100,4 +100,23 @@ public class JerseyServerIT {
         SamplePayload deleted = result3.readEntity(SamplePayload.class);
         assertThat(deleted.getValue()).isEqualTo("Hellow");
     }
+
+    @Test
+    public void raw() throws Exception {
+
+        ClientConfig config = new ClientConfig();
+        config.connectorProvider(new JerseyUnixSocketConnectorProvider());
+        Response result = ClientBuilder.newClient(config)
+                .property("unixfile", unixfile)
+                .target(URI.create("http://localhost:88"))
+                .path("sendraw")
+                .request()
+                .header("c11n-from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+                .header("c11n-to", "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
+                .post(Entity.entity("PAYLOAD".getBytes(), MediaType.APPLICATION_OCTET_STREAM_TYPE));
+
+        assertThat(result.getStatus()).isEqualTo(201);
+        
+
+    }
 }
