@@ -10,7 +10,6 @@ import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.test.util.ElUtil;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.assertj.core.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,12 +109,14 @@ public class ProcessManager {
 
     private void start(String nodeAlias) throws Exception {
         final String tesseraJar = findJarFilePath("application.jar");
-
-        String fullCP = tesseraJar;
+        String enclaveJar = findJarFilePath("enclave.jaxrs.jar");
+        final String fullCP;
+         final String pathSeparator = System.getProperty("path.separator");
         if (dbType != DBType.H2){
             final String jdbcJar = findJarFilePath("jdbc." + dbType.name().toLowerCase() + ".jar");
-            final String pathSeparator = System.getProperty("path.separator");
-            fullCP = Strings.join(tesseraJar, jdbcJar).with(pathSeparator);
+            fullCP = String.join(pathSeparator,tesseraJar,enclaveJar,jdbcJar);
+        } else {
+            fullCP = String.join(pathSeparator,tesseraJar,enclaveJar);
         }
 
         URL configFile = configFiles.get(nodeAlias);
