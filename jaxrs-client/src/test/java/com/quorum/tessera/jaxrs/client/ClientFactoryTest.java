@@ -70,9 +70,11 @@ public class ClientFactoryTest {
     @Test
     public void createUnixSocketClient() {
         ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setServerSocket(new UnixServerSocket("/tmp/bogus.socket"));
+        serverConfig.setServerSocket(new UnixServerSocket("unix:/tmp/bogus.socket"));
         org.glassfish.jersey.client.JerseyClient result = (org.glassfish.jersey.client.JerseyClient) factory.buildFrom(serverConfig);
-        assertThat(result.getConfiguration().getProperty("unixfile")).isEqualTo(Paths.get("/tmp/bogus.socket"));
+        assertThat(result.getConfiguration().getProperty("unixfile")).isNotNull().isInstanceOf(URI.class);
+         assertThat(result.getConfiguration().getProperty("unixfile").toString()).isEqualTo("unix:/tmp/bogus.socket");
+        
         assertThat(result.getConfiguration().getConnectorProvider()).isInstanceOf(JerseyUnixSocketConnectorProvider.class);
         
     }
