@@ -8,6 +8,7 @@ import com.quorum.tessera.server.JerseyServer;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -21,17 +22,19 @@ import org.junit.Test;
 
 public class JerseyServerIT {
 
-    private Path unixfile = Paths.get("/tmp/bogus.sock");
+    private URI unixfile = URI.create("unix:/tmp/bogus.sock");
 
     private JerseyServer server;
 
     @Before
     public void onSetUp() throws Exception {
+
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setCommunicationType(CommunicationType.REST);
-
+        
         //InetServerSocket serverSocket = new InetServerSocket("http://localhost", 8080);
-        UnixServerSocket serverSocket = new UnixServerSocket(unixfile.toString());
+        Path unixPath = Paths.get(unixfile);
+        UnixServerSocket serverSocket = new UnixServerSocket(unixPath.toString());
 
         serverConfig.setServerSocket(serverSocket);
         Application sample = new SampleApplication();
@@ -48,11 +51,7 @@ public class JerseyServerIT {
     @Test
     public void ping() {
 
-        ClientConfig config = new ClientConfig();
-        config.connectorProvider(new JerseyUnixSocketConnectorProvider());
-
-        Response result = ClientBuilder.newClient(config)
-                .property("unixfile", unixfile)
+        Response result = newClient(unixfile)
                 .target(URI.create("http://localhost:88"))
                 .path("ping")
                 .request()
@@ -65,15 +64,11 @@ public class JerseyServerIT {
     @Test
     public void create() {
 
-        ClientConfig config = new ClientConfig();
-        config.connectorProvider(new JerseyUnixSocketConnectorProvider());
-
         SamplePayload payload = new SamplePayload();
         payload.setValue("Hellow");
 
-        Response result = ClientBuilder.newClient(config)
-                .property("unixfile", unixfile)
-                .target(URI.create("http://localhost:88"))
+        Response result = newClient(unixfile)
+                .target(unixfile)
                 .path("create")
                 .request()
                 .post(Entity.entity(payload, MediaType.APPLICATION_JSON));
@@ -81,8 +76,7 @@ public class JerseyServerIT {
         assertThat(result.getStatus()).isEqualTo(201);
         assertThat(result.getLocation()).isNotNull();
 
-        Response result2 = ClientBuilder.newClient(config)
-                .property("unixfile", unixfile)
+        Response result2 = newClient(unixfile)
                 .target(result.getLocation())
                 .request(MediaType.APPLICATION_JSON)
                 .get();
@@ -91,9 +85,8 @@ public class JerseyServerIT {
         assertThat(p).isNotNull();
         assertThat(p.getValue()).isEqualTo("Hellow");
 
-        Response result3 = ClientBuilder.newClient(config)
-                .property("unixfile", unixfile)
-                .target(URI.create("http://localhost:88"))
+        Response result3 = newClient(unixfile)
+                .target(unixfile)
                 .path(p.getId()).request().delete();
 
         assertThat(result3.getStatus()).isEqualTo(200);
@@ -106,9 +99,8 @@ public class JerseyServerIT {
 
         ClientConfig config = new ClientConfig();
         config.connectorProvider(new JerseyUnixSocketConnectorProvider());
-        Response result = ClientBuilder.newClient(config)
-                .property("unixfile", unixfile)
-                .target(URI.create("http://localhost:88"))
+        Response result = newClient(unixfile)
+                .target(unixfile)
                 .path("sendraw")
                 .request()
                 .header("c11n-from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
@@ -116,7 +108,33 @@ public class JerseyServerIT {
                 .post(Entity.entity("PAYLOAD".getBytes(), MediaType.APPLICATION_OCTET_STREAM_TYPE));
 
         assertThat(result.getStatus()).isEqualTo(201);
-        
 
+    }
+
+    @Test
+    public void param() throws Exception {
+        // URL.setURLStreamHandlerFactory(new UnixSocketURLStreamHandlerFactory());
+        ClientConfig config = new ClientConfig();
+        config.connectorProvider(new JerseyUnixSocketConnectorProvider());
+
+
+        Response result = newClient(unixfile)
+                .target(unixfile)
+                .path("param")
+                .queryParam("queryParam", "QueryParamValue")
+                .request()
+                .header("headerParam", "HeaderParamValue")
+                .get();
+
+        assertThat(result.getStatus()).isEqualTo(200);
+
+    }
+    
+    private static Client newClient(URI unixfile) {
+        ClientConfig config = new ClientConfig();
+        config.connectorProvider(new JerseyUnixSocketConnectorProvider());
+
+        return ClientBuilder.newClient(config)
+                .property("unixfile", unixfile);
     }
 }

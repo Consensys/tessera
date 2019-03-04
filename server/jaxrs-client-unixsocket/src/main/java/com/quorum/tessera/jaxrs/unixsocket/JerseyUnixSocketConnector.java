@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -12,6 +13,7 @@ import java.util.concurrent.Future;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import org.glassfish.jersey.client.ClientRequest;
 import org.glassfish.jersey.client.ClientResponse;
 import org.glassfish.jersey.client.spi.AsyncConnectorCallback;
@@ -29,8 +31,13 @@ public class JerseyUnixSocketConnector implements Connector {
 
     private HttpClient httpClient;
 
-    public JerseyUnixSocketConnector(Path unixfile) {
-        httpClient = new HttpClient(new HttpClientTransportOverUnixSockets(unixfile.toString()), null);
+    private URI unixfile;
+
+    public JerseyUnixSocketConnector(URI unixfile) {
+        this.unixfile = unixfile;
+        String unixFilePath = Paths.get(unixfile).toFile().getAbsolutePath();
+                
+        httpClient = new HttpClient(new HttpClientTransportOverUnixSockets(unixFilePath), null);
         try{
             httpClient.start();
         } catch (Exception ex) {
@@ -52,30 +59,40 @@ public class JerseyUnixSocketConnector implements Connector {
     private ClientResponse doApply(ClientRequest request) throws Exception {
 
         HttpMethod httpMethod = HttpMethod.valueOf(request.getMethod());
-
         URI uri = request.getUri();
+        Path basePath = Paths.get(unixfile);
+        if(uri.getScheme().startsWith("unix")) {
+            uri = UriBuilder.fromUri(uri)
+                    .scheme("http")
+                    .host("localhost")
+                    .port(99)
+                    .replacePath(uri.getPath().replaceFirst(basePath.toString(),""))
+                    .build();
+        }
+
         Request clientRequest = httpClient.newRequest(uri)
                 .method(httpMethod);
-        
-        MultivaluedMap<String,Object> headers = request.getHeaders();
-        
+
+        MultivaluedMap<String, Object> headers = request.getHeaders();
+
         headers.keySet().stream().forEach(name -> {
-           headers.get(name).forEach(value -> {
-               clientRequest.header(name, Objects.toString(value));
-           });
-           
+            headers.get(name).forEach(value -> {
+                clientRequest.header(name, Objects.toString(value));
+            });
+
         });
 
         if (request.hasEntity()) {
             final long length = request.getLengthLong();
 
-            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            try (ByteArrayOutputStream bout = new ByteArrayOutputStream()){
 
-            request.setStreamProvider((int contentLength) -> bout);
-            request.writeEntity();
-            
-            ContentProvider content = new BytesContentProvider(bout.toByteArray());
-            clientRequest.content(content);
+                request.setStreamProvider((int contentLength) -> bout);
+                request.writeEntity();
+
+                ContentProvider content = new BytesContentProvider(bout.toByteArray());
+                clientRequest.content(content);
+            }
 
         }
         final ContentResponse contentResponse = clientRequest.send();
@@ -86,9 +103,10 @@ public class JerseyUnixSocketConnector implements Connector {
         final Response.StatusType status = Statuses.from(statusCode, reason);
 
         ClientResponse response = new ClientResponse(status, request);
-        contentResponse.getHeaders().stream().forEach(header -> {
-            response.headers(header.getName(), header.getValues());
-        });
+        contentResponse.getHeaders().stream()
+                .forEach(header -> {
+                    response.headers(header.getName(), (Object[]) header.getValues());
+                });
 
         response.setEntityStream(new ByteArrayInputStream(contentResponse.getContent()));
         return response;

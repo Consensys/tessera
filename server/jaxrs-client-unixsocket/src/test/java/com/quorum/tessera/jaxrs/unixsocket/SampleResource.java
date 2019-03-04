@@ -14,6 +14,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
@@ -81,5 +82,19 @@ public class SampleResource {
                 .build();
 
         return Response.created(location).build();
+    }
+    
+    @Path("param")
+    @GET
+    public Response withparam(
+            @HeaderParam("headerParam") String headerParam,
+            @QueryParam("queryParam") String qparam) {
+
+        System.out.println("headerParam: "+ headerParam);
+        System.out.println("QueryParam: "+ qparam);
+
+        return Response.ok()
+                .build();
+    
     }
 }
