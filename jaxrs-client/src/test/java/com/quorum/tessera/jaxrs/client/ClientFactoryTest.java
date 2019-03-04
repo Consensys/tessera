@@ -15,7 +15,6 @@ import javax.ws.rs.client.Client;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Paths;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.*;
