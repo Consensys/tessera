@@ -4,6 +4,7 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.UnixServerSocket;
 import com.quorum.tessera.ssl.context.ServerSSLContextFactory;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.Optional;
 import javax.net.ssl.SSLContext;
 import org.eclipse.jetty.server.Connector;
@@ -37,8 +38,9 @@ public class ServerUtils {
 
             UnixSocketConnector connector = new UnixSocketConnector(server, httpConnectionFactory);
             connector.setAcceptQueueSize(128);
-
-            connector.setUnixSocket(unixServerSocket.getPath());
+            
+            String path = Paths.get(unixServerSocket.getServerUri()).toAbsolutePath().toString();
+            connector.setUnixSocket(path);
 
             server.setConnectors(new Connector[]{connector});
 

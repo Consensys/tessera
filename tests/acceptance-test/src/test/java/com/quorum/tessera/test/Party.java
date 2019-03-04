@@ -119,12 +119,6 @@ public class Party {
         ServerConfig serverConfig = config.getServerConfigs().stream()
                 .filter(s -> s.getApp() == AppType.Q2T)
                 .findAny().get();
-
-        if (UnixServerSocket.class.isInstance(serverConfig.getServerSocket())) {
-            return getRestClient()
-                    .target("http://localhost:8267/");
-        }
-
         return getRestClient().target(serverConfig.getServerUri());
     }
 
