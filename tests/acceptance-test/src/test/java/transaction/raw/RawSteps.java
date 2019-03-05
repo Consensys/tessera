@@ -116,21 +116,28 @@ public class RawSteps implements En {
 
             URI location = response.getLocation();
 
-            recipients.stream().map(partyHelper::findByAlias).map(Party::getRestClient).forEach(client -> {
-                final Response checkPersistedTxnResponse = client.target(location)
-                        .request()
-                        .get();
+            recipients.stream()
+                    .map(partyHelper::findByAlias)
+                    .map(Party::getRestClient)
+                    .forEach(client -> {
+                        
+                        final Response checkPersistedTxnResponse = client.target(location)
+                                .request()
+                                .get();
 
-                assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
+                        assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
-                ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
+                        ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
 
-                assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
+                        assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
 
-                restUtils.findTransaction(persistedKey, getRecipientParties(recipients)).forEach(r -> {
-                    assertThat(r.getStatus()).isEqualTo(200);
-                });
-            });
+                        restUtils.findTransaction(persistedKey, getRecipientParties(recipients))
+                                .forEach(r -> {
+                            assertThat(r.getStatus())
+                                    .describedAs("find transaction for "+ recipients)
+                                    .isEqualTo(200);
+                        });
+                    });
 
             restUtils.findTransaction(persistedKey, partyHelper.findByAlias("C"), partyHelper.findByAlias("B")).forEach(r -> {
                 assertThat(r.getStatus()).isEqualTo(404);
