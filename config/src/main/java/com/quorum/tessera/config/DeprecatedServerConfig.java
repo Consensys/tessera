@@ -113,7 +113,8 @@ public class DeprecatedServerConfig extends ConfigItem {
         q2tConfig.setEnabled(true);
         q2tConfig.setApp(AppType.Q2T);
         q2tConfig.setCommunicationType(CommunicationType.UNIX_SOCKET);
-        q2tConfig.setServerSocket(new UnixServerSocket(String.valueOf(unixSocketFile)));
+        String uriValue = "unix:"+ String.valueOf(unixSocketFile);
+        q2tConfig.setServerSocket(new UnixServerSocket(uriValue));
 
         ServerConfig p2pConfig = new ServerConfig();
         p2pConfig.setEnabled(true);

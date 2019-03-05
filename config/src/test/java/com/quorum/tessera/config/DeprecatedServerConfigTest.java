@@ -26,7 +26,7 @@ public class DeprecatedServerConfigTest {
         assertThat(results).hasSize(2);
         ServerConfig q2t = results.get(0);
         assertThat(q2t.getCommunicationType()).isEqualTo(CommunicationType.UNIX_SOCKET);
-        assertThat(q2t.getServerSocket().getServerUri()).isEqualTo(URI.create("unixSocketFile"));
+        assertThat(q2t.getServerSocket().getServerUri()).isEqualTo(URI.create("unix:unixSocketFile"));
         assertThat(q2t.isEnabled()).isTrue();
         assertThat(q2t.getApp()).isEqualTo(AppType.Q2T);
 
@@ -54,7 +54,7 @@ public class DeprecatedServerConfigTest {
         assertThat(results).hasSize(2);
         ServerConfig q2t = results.get(0);
         assertThat(q2t.getCommunicationType()).isEqualTo(CommunicationType.UNIX_SOCKET);
-        assertThat(q2t.getServerSocket().getServerUri()).isEqualTo(URI.create("unixSocketFile"));
+        assertThat(q2t.getServerSocket().getServerUri()).isEqualTo(URI.create("unix:unixSocketFile"));
         assertThat(q2t.isEnabled()).isTrue();
         assertThat(q2t.getApp()).isEqualTo(AppType.Q2T);
 
@@ -82,7 +82,7 @@ public class DeprecatedServerConfigTest {
         assertThat(results).hasSize(2);
         ServerConfig q2t = results.get(0);
         assertThat(q2t.getCommunicationType()).isEqualTo(CommunicationType.UNIX_SOCKET);
-        assertThat(q2t.getServerSocket().getServerUri()).isEqualTo(URI.create("unixSocketFile"));
+        assertThat(q2t.getServerSocket().getServerUri()).isEqualTo(URI.create("unix:unixSocketFile"));
         assertThat(q2t.isEnabled()).isTrue();
         assertThat(q2t.getApp()).isEqualTo(AppType.Q2T);
 

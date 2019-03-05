@@ -1,6 +1,7 @@
 package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.Config;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +22,7 @@ public class EitherServerConfigsOrServerValidator implements ConstraintValidator
             LOGGER.debug("One of server/serverConfigs must be provided.");
             constraintContext.disableDefaultConstraintViolation();
             constraintContext.buildConstraintViolationWithTemplate("One of server/serverConfigs must be provided.")
-                .addConstraintViolation();
+                    .addConstraintViolation();
             return false;
         }
 
@@ -29,7 +30,15 @@ public class EitherServerConfigsOrServerValidator implements ConstraintValidator
             LOGGER.debug("Either one of server/serverConfigs can be configured (not both).");
             constraintContext.disableDefaultConstraintViolation();
             constraintContext.buildConstraintViolationWithTemplate("Either one of server/serverConfigs can be configured (not both).")
-                .addConstraintViolation();
+                    .addConstraintViolation();
+            return false;
+        }
+
+        if (Objects.nonNull(config.getServer()) && Objects.isNull(config.getUnixSocketFile())) {
+            LOGGER.debug("Unix socket file must be configured is using depreacetd server config");
+            constraintContext.disableDefaultConstraintViolation();
+            constraintContext.buildConstraintViolationWithTemplate("Unix socket file must be configured is using depreacetd server config. Check config.unixSocketFile")
+                    .addConstraintViolation();
             return false;
         }
 
