@@ -6,6 +6,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ServerConfigTest {
 
@@ -38,18 +40,18 @@ public class ServerConfigTest {
 
     @Test
     public void sslNotNullButTlsFlagOff() {
-        final SslConfig sslConfig = new SslConfig(
-            SslAuthenticationMode.OFF, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null
-        );
+        final SslConfig sslConfig = mock(SslConfig.class);
+        when(sslConfig.getTls()).thenReturn(SslAuthenticationMode.OFF);
+
         ServerConfig serverConfig = new ServerConfig(AppType.P2P, true, new InetServerSocket("somedomain", 8989), CommunicationType.REST, sslConfig, null, null);
         assertThat(serverConfig.isSsl()).isFalse();
     }
 
     @Test
     public void tlsFlagOn() {
-        final SslConfig sslConfig = new SslConfig(
-            SslAuthenticationMode.STRICT, false, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null
-        );
+        final SslConfig sslConfig = mock(SslConfig.class);
+        when(sslConfig.getTls()).thenReturn(SslAuthenticationMode.STRICT);
+
         ServerConfig serverConfig = new ServerConfig(AppType.P2P, true, new InetServerSocket("somedomain", 8989), CommunicationType.REST, sslConfig, null, null);
         assertThat(serverConfig.isSsl()).isTrue();
     }
