@@ -1,6 +1,7 @@
 package com.quorum.tessera.test;
 
 import com.google.protobuf.Empty;
+import com.quorum.tessera.Launcher;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -8,6 +9,7 @@ import com.quorum.tessera.grpc.p2p.TesseraGrpc;
 import com.quorum.tessera.grpc.p2p.UpCheckMessage;
 import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.test.util.ElUtil;
+import exec.ExecArgsBuilder;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.slf4j.Logger;
@@ -47,18 +49,18 @@ public class ProcessManager {
     private final URL logbackConfigFile = ProcessManager.class.getResource("/logback-node.xml");
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
-    
+
     public ProcessManager(ExecutionContext executionContext) {
-        this(executionContext.getCommunicationType(),executionContext.getDbType(),executionContext.getSocketType());
+        this(executionContext.getCommunicationType(), executionContext.getDbType(), executionContext.getSocketType());
     }
-    
-    private ProcessManager(CommunicationType communicationType, DBType dbType,SocketType socketType) {
+
+    private ProcessManager(CommunicationType communicationType, DBType dbType, SocketType socketType) {
         this.communicationType = Objects.requireNonNull(communicationType);
         this.dbType = Objects.requireNonNull(dbType);
-        
-        String pathTemplate = "/" + communicationType.name().toLowerCase() +"/"+ socketType.name().toLowerCase() 
-                +"/" + dbType.name().toLowerCase() + "/config%s.json";
-        
+
+        String pathTemplate = "/" + communicationType.name().toLowerCase() + "/" + socketType.name().toLowerCase()
+                + "/" + dbType.name().toLowerCase() + "/config%s.json";
+
         final Map<String, URL> configs = new HashMap<>();
         configs.put("A", getClass().getResource(String.format(pathTemplate, "1")));
         configs.put("B", getClass().getResource(String.format(pathTemplate, "2")));
@@ -91,7 +93,7 @@ public class ProcessManager {
 
         pids.values().stream()
                 .flatMap(p -> {
-                    try {
+                    try{
                         return Files.readAllLines(p).stream();
                     } catch (IOException ex) {
                         throw new UncheckedIOException(ex);
@@ -108,37 +110,33 @@ public class ProcessManager {
     }
 
     private void start(String nodeAlias) throws Exception {
+        
         final String tesseraJar = findJarFilePath("application.jar");
-        String enclaveJar = findJarFilePath("enclave.jaxrs.jar");
-        final String fullCP;
-         final String pathSeparator = System.getProperty("path.separator");
-        if (dbType != DBType.H2){
-            final String jdbcJar = findJarFilePath("jdbc." + dbType.name().toLowerCase() + ".jar");
-            fullCP = String.join(pathSeparator,tesseraJar,enclaveJar,jdbcJar);
-        } else {
-            fullCP = String.join(pathSeparator,tesseraJar,enclaveJar);
-        }
+        final String enclaveJar = findJarFilePath("enclave.jaxrs.jar");
 
-        URL configFile = configFiles.get(nodeAlias);
-        Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "pid" + nodeAlias + ".pid");
+        final URL configFile = configFiles.get(nodeAlias);
+       
+        final Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "pid" + nodeAlias + ".pid");
 
         pids.put(nodeAlias, pid);
 
-        List<String> args = Arrays.asList(
-                "java",
-                "-Dhsqldb.reconfig_logging=false",
-                "-Dnode.number=" + nodeAlias,
-                "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
-                "-Ddebug=true",
-                "-classpath",
-                fullCP,
-                "com.quorum.tessera.Launcher",
-                "-configfile",
-                ElUtil.createAndPopulatePaths(configFile).toAbsolutePath().toString(),
-                "-pidfile",
-                pid.toAbsolutePath().toString(),
-                "-jdbc.autoCreateTables", "true"
-        );
+        ExecArgsBuilder argsBuilder = new ExecArgsBuilder()
+                .withJvmArg("-Dhsqldb.reconfig_logging=false")
+                .withJvmArg("-Ddebug=true")
+                .withJvmArg("-Dnode.number="+ nodeAlias)
+                .withMainClass(Launcher.class)
+                .withPidFile(pid)
+                .withConfigFile(ElUtil.createAndPopulatePaths(configFile))
+                .withJvmArg("-Dlogback.configurationFile="+logbackConfigFile.getFile())
+                .withClassPathItem(Paths.get(tesseraJar))
+                .withClassPathItem(Paths.get(enclaveJar))
+                .withArg("-jdbc.autoCreateTables", "true");
+        
+        if (dbType != DBType.H2) {
+            final String jdbcJar = findJarFilePath("jdbc." + dbType.name().toLowerCase() + ".jar");
+            argsBuilder.withClassPathItem(Paths.get(jdbcJar));
+        }
+        List<String> args = argsBuilder.build();
 
         System.out.println(String.join(" ", args));
 
@@ -148,10 +146,10 @@ public class ProcessManager {
 
         executorService.submit(() -> {
 
-            try(BufferedReader reader = Stream.of(process.getInputStream())
+            try (BufferedReader reader = Stream.of(process.getInputStream())
                     .map(InputStreamReader::new)
                     .map(BufferedReader::new)
-                    .findAny().get()) {
+                    .findAny().get()){
 
                 String line = null;
                 while ((line = reader.readLine()) != null) {
@@ -184,7 +182,7 @@ public class ProcessManager {
             executorService.submit(() -> {
 
                 while (true) {
-                    try {
+                    try{
 
                         UpCheckMessage result = TesseraGrpc.newBlockingStub(channel).getUpCheck(Empty.getDefaultInstance());
 
@@ -193,7 +191,7 @@ public class ProcessManager {
                         startUpLatch.countDown();
                         return;
                     } catch (Exception ex) {
-                        try {
+                        try{
                             TimeUnit.MILLISECONDS.sleep(200L);
                         } catch (InterruptedException ex1) {
                         }
@@ -206,7 +204,7 @@ public class ProcessManager {
             executorService.submit(() -> {
 
                 while (true) {
-                    try {
+                    try{
                         HttpURLConnection conn = (HttpURLConnection) bindingUrl.openConnection();
                         conn.connect();
 
@@ -215,7 +213,7 @@ public class ProcessManager {
                         startUpLatch.countDown();
                         return;
                     } catch (IOException ex) {
-                        try {
+                        try{
                             TimeUnit.MILLISECONDS.sleep(200L);
                         } catch (InterruptedException ex1) {
                         }
@@ -232,7 +230,7 @@ public class ProcessManager {
         }
 
         executorService.submit(() -> {
-            try {
+            try{
                 int exitCode = process.waitFor();
                 if (0 != exitCode) {
                     System.err.println("Node " + nodeId + " exited with code " + exitCode);
@@ -261,14 +259,13 @@ public class ProcessManager {
         int exitCode = process.waitFor();
     }
 
-
     public static void main(String[] args) throws Exception {
         System.setProperty("application.jar", "/home/nicolae/Develop/java/IJWorkspaces/tessera/tessera-app/target/tessera-app-0.9-SNAPSHOT-app.jar");
         System.setProperty("jdbc.sqlite.jar", "/home/nicolae/.m2/repository/org/xerial/sqlite-jdbc/3.23.1/sqlite-jdbc-3.23.1.jar");
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
-        ProcessManager pm = new ProcessManager(CommunicationType.REST,DBType.SQLITE,SocketType.HTTP);
+        ProcessManager pm = new ProcessManager(CommunicationType.REST, DBType.SQLITE, SocketType.HTTP);
         pm.startNodes();
 
         System.in.read();
