@@ -121,7 +121,6 @@ public class ProcessManager {
         pids.put(nodeAlias, pid);
 
         ExecArgsBuilder argsBuilder = new ExecArgsBuilder()
-                .withJvmArg("-Dhsqldb.reconfig_logging=false")
                 .withJvmArg("-Ddebug=true")
                 .withJvmArg("-Dnode.number="+ nodeAlias)
                 .withMainClass(Launcher.class)
@@ -131,6 +130,10 @@ public class ProcessManager {
                 .withClassPathItem(Paths.get(tesseraJar))
                 .withClassPathItem(Paths.get(enclaveJar))
                 .withArg("-jdbc.autoCreateTables", "true");
+        
+        if(dbType == DBType.HSQL) {
+            argsBuilder.withJvmArg("-Dhsqldb.reconfig_logging=false");
+        }
         
         if (dbType != DBType.H2) {
             final String jdbcJar = findJarFilePath("jdbc." + dbType.name().toLowerCase() + ".jar");
