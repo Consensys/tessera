@@ -5,7 +5,6 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
-import com.quorum.tessera.encryption.KeyFactory;
 import com.quorum.tessera.encryption.KeyManagerImpl;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PublicKey;
@@ -30,7 +29,7 @@ public interface EnclaveFactory {
         final KeyPairConverter keyPairConverter = new KeyPairConverter(config, new EnvironmentVariableProvider());
         final Collection<KeyPair> keys = keyPairConverter.convert(config.getKeys().getKeyData());
 
-        final Collection<PublicKey> forwardKeys = KeyFactory.convert(config.getAlwaysSendTo());
+        final Collection<PublicKey> forwardKeys = keyPairConverter.convert(config.getAlwaysSendTo());
 
         return new EnclaveImpl(NaclFacadeFactory.newFactory().create(), new KeyManagerImpl(keys, forwardKeys));
     }

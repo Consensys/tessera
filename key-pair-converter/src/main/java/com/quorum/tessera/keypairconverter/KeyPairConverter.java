@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.keypairconverter;
 
 import com.quorum.tessera.config.Config;
@@ -18,8 +17,9 @@ import com.quorum.tessera.key.vault.KeyVaultServiceFactory;
 
 import java.util.Base64;
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-
 
 public class KeyPairConverter {
 
@@ -34,16 +34,16 @@ public class KeyPairConverter {
 
     public Collection<KeyPair> convert(Collection<ConfigKeyPair> configKeyPairs) {
         return configKeyPairs
-                .stream()
-                .map(this::convert)
-                .collect(Collectors.toList());
+            .stream()
+            .map(this::convert)
+            .collect(Collectors.toList());
     }
 
     private KeyPair convert(ConfigKeyPair configKeyPair) {
         String base64PublicKey;
         String base64PrivateKey;
 
-        if(configKeyPair instanceof AzureVaultKeyPair) {
+        if (configKeyPair instanceof AzureVaultKeyPair) {
 
             KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(KeyVaultType.AZURE);
 
@@ -56,8 +56,7 @@ public class KeyPairConverter {
 
             base64PublicKey = keyVaultService.getSecret(getPublicKeyData);
             base64PrivateKey = keyVaultService.getSecret(getPrivateKeyData);
-        }
-        else if(configKeyPair instanceof HashicorpVaultKeyPair) {
+        } else if (configKeyPair instanceof HashicorpVaultKeyPair) {
 
             KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(KeyVaultType.HASHICORP);
 
@@ -70,8 +69,7 @@ public class KeyPairConverter {
 
             base64PublicKey = keyVaultService.getSecret(getPublicKeyData);
             base64PrivateKey = keyVaultService.getSecret(getPrivateKeyData);
-        }
-        else {
+        } else {
 
             base64PublicKey = configKeyPair.getPublicKey();
             base64PrivateKey = configKeyPair.getPrivateKey();
@@ -82,6 +80,14 @@ public class KeyPairConverter {
             PublicKey.from(Base64.getDecoder().decode(base64PublicKey.trim())),
             PrivateKey.from(Base64.getDecoder().decode(base64PrivateKey.trim()))
         );
+    }
+
+    public List<PublicKey> convert(List<String> values) {
+        return Objects.requireNonNull(values, "Key values cannot be null")
+            .stream()
+            .map(v -> Base64.getDecoder().decode(v))
+            .map(PublicKey::from)
+            .collect(Collectors.toList());
     }
 
 }
