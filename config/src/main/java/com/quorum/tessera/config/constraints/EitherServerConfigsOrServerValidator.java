@@ -35,9 +35,9 @@ public class EitherServerConfigsOrServerValidator implements ConstraintValidator
         }
 
         if (Objects.nonNull(config.getServer()) && Objects.isNull(config.getUnixSocketFile())) {
-            LOGGER.debug("Unix socket file must be configured is using depreacetd server config");
+            LOGGER.debug("Unix socket file must be configured is using deprecated server config");
             constraintContext.disableDefaultConstraintViolation();
-            constraintContext.buildConstraintViolationWithTemplate("Unix socket file must be configured is using depreacetd server config. Check config.unixSocketFile")
+            constraintContext.buildConstraintViolationWithTemplate("Unix socket file must be configured is using deprecated server config. Check config.unixSocketFile")
                     .addConstraintViolation();
             return false;
         }
