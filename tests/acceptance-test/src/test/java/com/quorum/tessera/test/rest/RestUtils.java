@@ -58,7 +58,8 @@ public class RestUtils {
             .map(p -> p.getRestClientWebTarget())
             .map(target -> target.path("transaction"))
             .map(target -> target.path(encodedId))
-            .map(target -> target.request().get());
+            .map(target -> target.request()
+            .get());
 
     }
 
