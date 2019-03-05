@@ -23,5 +23,6 @@
             }
         ]
     },
-    "alwaysSendTo": []
+    "alwaysSendTo": [],
+    "unixSocketFile": "/tmp/whitelist-rest-http-h2.ipc"
 }
