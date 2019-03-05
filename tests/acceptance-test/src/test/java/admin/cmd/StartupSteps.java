@@ -57,16 +57,14 @@ public class StartupSteps implements En {
             assertThat(results).hasSize(1);
             ExecutionResult result = results.get(0);
             assertThat(result.getExitCode()).isNotEqualTo(0);
-            assertThat(result.getOutput()).hasSize(3);
+            assertThat(result.getOutput()).hasSize(2);
             
             assertThat(result.getOutput())
                     .anyMatch(m -> m.startsWith("Config validation issue: keys.keyData[0].privateKey"));
             
             assertThat(result.getOutput())
                     .anyMatch(m -> m.startsWith("Config validation issue: keys.keyData[0].publicKey"));
-            
-            assertThat(result.getOutput())
-                    .anyMatch(m -> m.startsWith("Config validation issue:  Unix socket file must be configured is using deprecated server config. Check config.unixSocketFile"));
+
         });
 
     }
