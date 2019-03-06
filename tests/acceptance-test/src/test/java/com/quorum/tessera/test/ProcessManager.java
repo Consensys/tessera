@@ -1,37 +1,36 @@
 package com.quorum.tessera.test;
 
-import com.google.protobuf.Empty;
 import com.quorum.tessera.Launcher;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.grpc.p2p.TesseraGrpc;
-import com.quorum.tessera.grpc.p2p.UpCheckMessage;
 import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.test.util.ElUtil;
 import exec.ExecArgsBuilder;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.UriBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import suite.ExecutionContext;
+import suite.PartyInfoChecker;
+import suite.ServerStatusCheck;
+import suite.ServerStatusCheckExecutor;
 import suite.SocketType;
 
 public class ProcessManager {
@@ -80,11 +79,35 @@ public class ProcessManager {
         Collections.shuffle(nodeAliases);
 
         for (String nodeAlias : nodeAliases) {
+            LOGGER.info("Starting {}", nodeAlias);
             start(nodeAlias);
+            LOGGER.info("Started {}", nodeAlias);
         }
-        // sleep a little before starting the tests (give the party info a chance to propagate)
-        LOGGER.info("sleeping a little before allowing the tests to start (making sure the party info propagates in the cluster)");
-        Thread.sleep(10000);
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        LOGGER.info("Creating party info check thread");
+        PartyInfoChecker partyInfoChecker = PartyInfoChecker.create(communicationType);
+        
+        executorService.submit(() -> {
+
+            while (true) {
+               
+                LOGGER.info("Check party info");
+                if (partyInfoChecker.hasSynced()) {
+                    countDownLatch.countDown();
+                    break;
+                }
+                try{
+                    System.out.println("Sleep for 3 secs");
+                    TimeUnit.SECONDS.sleep(3);
+                } catch (InterruptedException ex) {
+                }
+
+            }
+        }).get(3, TimeUnit.MINUTES);
+
+        countDownLatch.await(3, TimeUnit.MINUTES);
     }
 
     public void stopNodes() throws Exception {
@@ -110,31 +133,33 @@ public class ProcessManager {
     }
 
     private void start(String nodeAlias) throws Exception {
-        
+
         final String tesseraJar = findJarFilePath("application.jar");
         final String enclaveJar = findJarFilePath("enclave.jaxrs.jar");
 
         final URL configFile = configFiles.get(nodeAlias);
-       
+
+        final Config config = JaxbUtil.unmarshal(configFile.openStream(), Config.class);
+
         final Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "pid" + nodeAlias + ".pid");
 
         pids.put(nodeAlias, pid);
 
         ExecArgsBuilder argsBuilder = new ExecArgsBuilder()
                 .withJvmArg("-Ddebug=true")
-                .withJvmArg("-Dnode.number="+ nodeAlias)
+                .withJvmArg("-Dnode.number=" + nodeAlias)
                 .withMainClass(Launcher.class)
                 .withPidFile(pid)
                 .withConfigFile(ElUtil.createAndPopulatePaths(configFile))
-                .withJvmArg("-Dlogback.configurationFile="+logbackConfigFile.getFile())
+                .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile.getFile())
                 .withClassPathItem(Paths.get(tesseraJar))
-                .withClassPathItem(Paths.get(enclaveJar))
+                //  .withClassPathItem(Paths.get(enclaveJar))
                 .withArg("-jdbc.autoCreateTables", "true");
-        
-        if(dbType == DBType.HSQL) {
+
+        if (dbType == DBType.HSQL) {
             argsBuilder.withJvmArg("-Dhsqldb.reconfig_logging=false");
         }
-        
+
         if (dbType != DBType.H2) {
             final String jdbcJar = findJarFilePath("jdbc." + dbType.name().toLowerCase() + ".jar");
             argsBuilder.withClassPathItem(Paths.get(jdbcJar));
@@ -166,70 +191,31 @@ public class ProcessManager {
 
         final String nodeId = nodeAlias;
 
-        final Config config = JaxbUtil.unmarshal(configFile.openStream(), Config.class);
+        List<ServerStatusCheckExecutor> serverStatusCheckList = config.getServerConfigs().stream()
+                .map(ServerStatusCheck::create)
+                .map(ServerStatusCheckExecutor::new)
+                .collect(Collectors.toList());
 
-        final URL bindingUrl = UriBuilder.fromUri(config.getP2PServerConfig().getBindingUri()).path("upcheck").build().toURL();
+        serverStatusCheckList.forEach(s -> {
+            LOGGER.info("Created {}", s);
 
-        CountDownLatch startUpLatch = new CountDownLatch(1);
+        });
 
-        if (communicationType == CommunicationType.GRPC) {
-            URL grpcUrl = UriBuilder.fromUri(config.getP2PServerConfig().getBindingUri())
-                    .path("upcheck")
-                    .build().toURL();
+        CountDownLatch startUpLatch = new CountDownLatch(serverStatusCheckList.size());
 
-            ManagedChannel channel = ManagedChannelBuilder
-                    .forAddress(grpcUrl.getHost(), grpcUrl.getPort())
-                    .usePlaintext()
-                    .build();
+        executorService.invokeAll(serverStatusCheckList).forEach(f -> {
+            try{
+                f.get(30, TimeUnit.SECONDS);
+                startUpLatch.countDown();
+            } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+                ex.printStackTrace();
+            }
+        });
 
-            executorService.submit(() -> {
-
-                while (true) {
-                    try{
-
-                        UpCheckMessage result = TesseraGrpc.newBlockingStub(channel).getUpCheck(Empty.getDefaultInstance());
-
-                        System.out.println(grpcUrl + " started. " + result.getUpCheck());
-
-                        startUpLatch.countDown();
-                        return;
-                    } catch (Exception ex) {
-                        try{
-                            TimeUnit.MILLISECONDS.sleep(200L);
-                        } catch (InterruptedException ex1) {
-                        }
-                    }
-                }
-
-            });
-        } else {
-
-            executorService.submit(() -> {
-
-                while (true) {
-                    try{
-                        HttpURLConnection conn = (HttpURLConnection) bindingUrl.openConnection();
-                        conn.connect();
-
-                        System.out.println(bindingUrl + " started." + conn.getResponseCode());
-
-                        startUpLatch.countDown();
-                        return;
-                    } catch (IOException ex) {
-                        try{
-                            TimeUnit.MILLISECONDS.sleep(200L);
-                        } catch (InterruptedException ex1) {
-                        }
-                    }
-                }
-
-            });
-        }
-
-        boolean started = startUpLatch.await(30, TimeUnit.SECONDS);
+        boolean started = startUpLatch.await(2, TimeUnit.MINUTES);
 
         if (!started) {
-            System.err.println(bindingUrl + " Not started. ");
+            System.err.println(" Not started. " + communicationType);
         }
 
         executorService.submit(() -> {
@@ -242,8 +228,6 @@ public class ProcessManager {
                 ex.printStackTrace();
             }
         });
-
-        startUpLatch.await(30, TimeUnit.SECONDS);
 
     }
 

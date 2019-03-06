@@ -26,9 +26,7 @@ import transaction.utils.Utils;
 
 public class RestSteps implements En {
 
-
     private final RestUtils restUtils = new RestUtils();
-    
 
     private PartyHelper partyHelper = PartyHelper.create();
     

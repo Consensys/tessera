@@ -86,10 +86,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.0.0-M1</version>
+                <version>3.0.0-M3</version>
                 <configuration>
                     <skip>false</skip>
-                    <rerunFailingTestsCount>2</rerunFailingTestsCount>
+                    <rerunFailingTestsCount>3</rerunFailingTestsCount>
                     <systemPropertyVariables>
                         <application.jar>${com.jpmorgan.quorum:tessera-app:jar:app}</application.jar>
                         <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
