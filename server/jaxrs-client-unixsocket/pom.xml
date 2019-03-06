@@ -47,6 +47,11 @@
                 <type>jar</type>
             </dependency>
             
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jnr-unixsocket</artifactId>
+                <version>0.21</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -82,6 +87,7 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
+
     </dependencies>
     
     
