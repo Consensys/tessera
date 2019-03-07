@@ -12,6 +12,9 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
+import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_ID;
+import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_SECRET;
+
 public class AzureKeyVaultClientCredentials extends KeyVaultCredentials {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AzureKeyVaultClientCredentials.class);
@@ -37,7 +40,7 @@ public class AzureKeyVaultClientCredentials extends KeyVaultCredentials {
     @Override
     public String doAuthenticate(String authorization, String resource, String scope) {
         if(clientId == null || clientSecret == null) {
-            throw new AzureCredentialNotSetException("AZURE_CLIENT_ID and AZURE_CLIENT_SECRET environment variables must be set");
+            throw new AzureCredentialNotSetException(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
         }
         try {
             if(Objects.isNull(authenticationContext)) {

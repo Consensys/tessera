@@ -9,7 +9,7 @@ import static org.mockito.Mockito.*;
 
 public class ThirdPartyTest {
 
-    private static final String contextName = "context";
+    private static final String CONTEXT_NAME = "context";
 
     private ServiceLocator serviceLocator;
 
@@ -18,7 +18,7 @@ public class ThirdPartyTest {
     @Before
     public void setUp() {
         serviceLocator = mock(ServiceLocator.class);
-        thirdParty = new ThirdPartyRestApp(serviceLocator, contextName);
+        thirdParty = new ThirdPartyRestApp(serviceLocator, CONTEXT_NAME);
     }
 
     @After
@@ -29,6 +29,6 @@ public class ThirdPartyTest {
     @Test
     public void getSingletons() {
         thirdParty.getSingletons();
-        verify(serviceLocator).getServices(contextName);
+        verify(serviceLocator).getServices(CONTEXT_NAME);
     }
 }

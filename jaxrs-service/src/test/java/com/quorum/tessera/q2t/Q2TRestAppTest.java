@@ -9,7 +9,7 @@ import static org.mockito.Mockito.*;
 
 public class Q2TRestAppTest {
 
-    private static final String contextName = "context";
+    private static final String CONTEXT_NAME = "context";
 
     private ServiceLocator serviceLocator;
 
@@ -18,7 +18,7 @@ public class Q2TRestAppTest {
     @Before
     public void setUp() {
         serviceLocator = mock(ServiceLocator.class);
-        q2TRestApp = new Q2TRestApp(serviceLocator, contextName);
+        q2TRestApp = new Q2TRestApp(serviceLocator, CONTEXT_NAME);
     }
 
     @After
@@ -29,6 +29,6 @@ public class Q2TRestAppTest {
     @Test
     public void getSingletons() {
         q2TRestApp.getSingletons();
-        verify(serviceLocator).getServices(contextName);
+        verify(serviceLocator).getServices(CONTEXT_NAME);
     }
 }
