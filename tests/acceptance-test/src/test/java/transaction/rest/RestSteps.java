@@ -181,13 +181,19 @@ public class RestSteps implements En {
         });
 
         Then("^forwards the transaction to recipient part(?:y|ies)$", () -> {
-
+            
+            
+            
             recipients.forEach(rec -> {
-                String storedHash = storedHashes.iterator().next();
+                
+                final String storedHash = storedHashes.iterator().next();
+                
                 Response response = restUtils.findTransaction(storedHash,rec)
                     .findAny().get();
 
-                assertThat(response.getStatus()).isEqualTo(200);
+                assertThat(response.getStatus())
+                        .describedAs(Objects.toString(response))
+                        .isEqualTo(200);
 
                 ReceiveResponse receiveResponse = response.readEntity(ReceiveResponse.class);
 
