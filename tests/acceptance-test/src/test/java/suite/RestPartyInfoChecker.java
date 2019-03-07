@@ -33,12 +33,12 @@ public class RestPartyInfoChecker implements PartyInfoChecker {
             ServerConfig p2pConfig = p.getConfig().getP2PServerConfig();
             Client client = new ClientFactory().buildFrom(p2pConfig);
 
-            LOGGER.info("Request party info for {}", p);
+            LOGGER.debug("Request party info for {}", p);
             Response response = client.target(p2pConfig.getServerUri())
                     .path("partyinfo")
                     .request()
                     .get();
-            LOGGER.info("Requested party info for {}", p);
+            LOGGER.debug("Requested party info for {}", p);
             JsonObject result = response.readEntity(JsonObject.class);
             results[i] = result.getJsonArray("peers").size() == partyHelper.getParties().count();
         }
