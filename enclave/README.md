@@ -2,35 +2,7 @@
 
 Some deployments may wish to restrict physical access to private keys enclave can run as as standalone server and tessera instances can connect to the enclave server. There are two server options rest or websockets. 
 
-`java -jar enclave-websockets-[version]-server.jar -configfile enclave-ws-config.json`
 
-enclave-ws-config.json
-```
-{
-    "useWhiteList": false,
-    "disablePeerDiscovery": false,
-    "serverConfigs": [{
-            "app": "ENCLAVE",
-            "enabled": true,
-            "serverSocket": {
-                "type": "INET",
-                "hostName": "ws://somedomain",
-                "port": 8080
-            },
-            "communicationType": "WEB_SOCKET",
-            "bindingAddress": "ws://0.0.0.0:8080"
-        }],
-    "keys": {
-        "keyData": [{
-                "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
-                "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-            }]
-    },
-    "alwaysSendTo": []
-}
-```
-
-or 
 
 `java -jar enclave-jaxrs-[version]-server.jar -configfile enclave-rest-config.json`
 
@@ -42,11 +14,7 @@ enclave-rest-config.json
     "serverConfigs": [{
             "app": "ENCLAVE",
             "enabled": true,
-            "serverSocket": {
-                "type": "INET",
-                "hostName": "http://somedomain",
-                "port": 8080
-            },
+            "serverAddress":"http://somedomain:8080",
             "communicationType": "REST",
             "bindingAddress": "http://0.0.0.0:8080"
         }],
