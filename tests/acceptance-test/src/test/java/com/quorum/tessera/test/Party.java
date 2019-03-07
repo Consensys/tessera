@@ -108,10 +108,6 @@ public class Party {
                 .filter(s -> s.getApp() == AppType.Q2T)
                 .findAny().get();
 
-        if (UnixServerSocket.class.isInstance(serverConfig.getServerSocket())) {
-            return new ClientFactory().buildFrom(serverConfig);
-        }
-
         return new ClientFactory().buildFrom(serverConfig);
     }
 

@@ -114,16 +114,17 @@ public class DeprecatedServerConfig extends ConfigItem {
         q2tConfig.setApp(AppType.Q2T);
         q2tConfig.setCommunicationType(CommunicationType.UNIX_SOCKET);
         String uriValue = "unix:"+ String.valueOf(unixSocketFile);
-        q2tConfig.setServerSocket(new UnixServerSocket(uriValue));
+        q2tConfig.setServerAddress(uriValue);
 
         ServerConfig p2pConfig = new ServerConfig();
         p2pConfig.setEnabled(true);
         p2pConfig.setApp(AppType.P2P);
+
         if (server.getCommunicationType() == CommunicationType.GRPC) {
-            p2pConfig.setServerSocket(new InetServerSocket(server.getHostName(), server.getGrpcPort()));
+            p2pConfig.setServerAddress(server.getHostName() +":"+ server.getGrpcPort());
             p2pConfig.setCommunicationType(CommunicationType.GRPC);
         } else {
-            p2pConfig.setServerSocket(new InetServerSocket(server.getHostName(), server.getPort()));
+            p2pConfig.setServerAddress(server.getHostName() +":"+ server.getPort());
             p2pConfig.setCommunicationType(CommunicationType.REST);
         }
         p2pConfig.setInfluxConfig(server.getInfluxConfig());

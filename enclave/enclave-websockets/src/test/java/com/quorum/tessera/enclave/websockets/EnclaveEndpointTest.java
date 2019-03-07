@@ -54,8 +54,8 @@ public class EnclaveEndpointTest {
         when(enclaveFactory.createLocal(config)).thenReturn(enclave);
 
         ServerConfig serverConfig = new ServerConfig();
-       // serverConfig.setServerSocket(new InetServerSocket("http://localhost", 8025));
         serverConfig.setBindingAddress("ws://localhost:8025");
+        serverConfig.setServerAddress("ws://localhost:8025");
         server = serverFactory.createServer(serverConfig, Collections.singleton(EnclaveEndpoint.class));
         server.start();
 

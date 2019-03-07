@@ -3,7 +3,6 @@ package suite;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.UnixServerSocket;
 import com.quorum.tessera.io.IOCallback;
 import java.net.URL;
 import javax.ws.rs.core.UriBuilder;
@@ -21,8 +20,8 @@ public interface ServerStatusCheck {
 
         if (communicationType == CommunicationType.REST) {
 
-            if (UnixServerSocket.class.isInstance(serverConfig.getServerSocket())) {
-                return new UnixSocketServerStatusCheck(serverConfig.getServerSocket().getServerUri());
+            if (serverConfig.isUnixSocket()) {
+                return new UnixSocketServerStatusCheck(serverConfig.getServerUri());
             } else {
                 final URL httpURL = IOCallback.execute(()
                         -> UriBuilder.fromUri(serverConfig.getServerUri())
@@ -33,7 +32,7 @@ public interface ServerStatusCheck {
         }
         
         if(communicationType == CommunicationType.UNIX_SOCKET) {
-             return new UnixSocketServerStatusCheck(serverConfig.getServerSocket().getServerUri());
+             return new UnixSocketServerStatusCheck(serverConfig.getServerUri());
         }
 
         if (communicationType == CommunicationType.GRPC) {

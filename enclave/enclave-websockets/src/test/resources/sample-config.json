@@ -4,11 +4,7 @@
     "serverConfigs": [{
             "app": "ENCLAVE",
             "enabled": true,
-            "serverSocket": {
-                "type": "INET",
-                "hostName": "ws://localhost",
-                "port": 8080
-            },
+            "serverAddress": "ws://localhost:8080",
             "communicationType": "WEB_SOCKET",
             "bindingAddress": "ws://0.0.0.0:8080"
         }],

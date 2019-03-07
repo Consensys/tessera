@@ -9,31 +9,19 @@
         {
             "app": "Q2T",
             "enabled": true,
-            "serverSocket": {
-                "type": "INET",
-                "port": 18082,
-                "hostName": "http://localhost"
-            },
+            "serverAddress": "http://localhost:18082",
             "communicationType": "REST"
         },
         {
             "app": "P2P",
             "enabled": true,
-            "serverSocket": {
-                "type": "INET",
-                "port": 8082,
-                "hostName": "http://localhost"
-            },
+            "serverAddress": "http://localhost:8082",
             "communicationType": "REST"
         },
         {
             "app": "ADMIN",
             "enabled": true,
-            "serverSocket": {
-                "type": "INET",
-                "hostName": "http://localhost",
-                "port": 28082
-            },
+            "serverAddress": "http://localhost:28082",
             "communicationType": "REST"
         }
     ],

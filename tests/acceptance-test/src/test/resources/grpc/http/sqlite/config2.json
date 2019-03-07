@@ -5,26 +5,18 @@
         "password": "",
         "url": "jdbc:sqlite:target/sqlite-grpc2.db"
     },
-    "serverConfigs":[
+    "serverConfigs": [
         {
-            "app":"Q2T",
+            "app": "Q2T",
             "enabled": true,
-            "serverSocket":{
-                "type":"INET",
-                "port": 51521,
-                "hostName": "http://localhost"
-            },
-            "communicationType" : "GRPC"
+            "serverAddress": "http://localhost:51521",
+            "communicationType": "GRPC"
         },
         {
-            "app":"P2P",
+            "app": "P2P",
             "enabled": true,
-            "serverSocket":{
-                "type":"INET",
-                "port": 50521,
-                "hostName": "http://localhost"
-            },
-            "communicationType" : "GRPC"
+            "serverAddress": "http://localhost:50521",
+            "communicationType": "GRPC"
         }
     ],
     "peer": [

@@ -3,7 +3,6 @@ package com.quorum.tessera.jaxrs.unixsocket;
 import com.quorum.tessera.config.CommunicationType;
 
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.UnixServerSocket;
 import com.quorum.tessera.server.JerseyServer;
 import java.net.URI;
 import java.nio.file.Path;
@@ -34,9 +33,8 @@ public class JerseyServerIT {
         
         //InetServerSocket serverSocket = new InetServerSocket("http://localhost", 8080);
         Path unixPath = Paths.get(unixfile);
-        UnixServerSocket serverSocket = new UnixServerSocket(unixPath.toString());
 
-        serverConfig.setServerSocket(serverSocket);
+        serverConfig.setServerAddress(unixfile.toString());
         Application sample = new SampleApplication();
         server = new JerseyServer(serverConfig, sample);
 

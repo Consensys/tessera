@@ -24,7 +24,6 @@ public class OpenPojoTest {
             pc -> !pc.getClazz().isAssignableFrom(ObjectFactory.class),
             pc -> !pc.getClazz().isAssignableFrom(JaxbConfigFactory.class),
             pc -> !pc.getClazz().isAssignableFrom(ConfigException.class),
-            pc -> !pc.getClazz().isAssignableFrom(ServerSocket.class),
             pc -> !pc.getClazz().getName().contains(ConfigItem.class.getName()),
             pc -> !pc.getClazz().getSimpleName().contains("Test")
         };

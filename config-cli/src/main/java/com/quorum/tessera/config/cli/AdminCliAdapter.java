@@ -93,8 +93,8 @@ public class AdminCliAdapter implements CliAdapter {
                 .orElse("http");
         
         Integer port = Optional.of(serverConfig)
-                .map(ServerConfig::getServerSocket)
-                .map(ss -> ((InetServerSocket)ss).getPort())
+                .map(ServerConfig::getServerUri)
+                .map(URI::getPort)
                 .orElse(80);
  
         URI uri = UriBuilder.fromUri(serverConfig.getBindingUri())

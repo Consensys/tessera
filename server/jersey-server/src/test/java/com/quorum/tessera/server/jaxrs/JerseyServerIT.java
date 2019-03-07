@@ -1,7 +1,6 @@
 package com.quorum.tessera.server.jaxrs;
 
 import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.InetServerSocket;
 
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.server.JerseyServer;
@@ -26,9 +25,7 @@ public class JerseyServerIT {
     public void onSetUp() throws Exception {
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setCommunicationType(CommunicationType.REST);
-
-        InetServerSocket serverSocket = new InetServerSocket("http://localhost", 8080);
-        serverConfig.setServerSocket(serverSocket);
+        serverConfig.setServerAddress("http://localhost:8080");
         Application sample = new SampleApplication();
         server = new JerseyServer(serverConfig, sample);
 

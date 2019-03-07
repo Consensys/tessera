@@ -3,10 +3,7 @@
     <serverConfigs>
         <app>ENCLAVE</app>
         <enabled>true</enabled>
-        <serverSocket xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="INET">
-            <hostName>ws://localhost</hostName>
-            <port>8080</port>
-        </serverSocket>
+        <serverAddress>ws://localhost:8080</serverAddress>
         <communicationType>WEB_SOCKET</communicationType>
         <bindingAddress>ws://0.0.0.0:8080</bindingAddress>
     </serverConfigs>
