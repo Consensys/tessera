@@ -26,8 +26,12 @@ import org.eclipse.jetty.client.util.BytesContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.unixsocket.client.HttpClientTransportOverUnixSockets;
 import org.glassfish.jersey.message.internal.Statuses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JerseyUnixSocketConnector implements Connector {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JerseyUnixSocketConnector.class);
 
     private HttpClient httpClient;
 
@@ -36,7 +40,7 @@ public class JerseyUnixSocketConnector implements Connector {
     public JerseyUnixSocketConnector(URI unixfile) {
         this.unixfile = unixfile;
         String unixFilePath = Paths.get(unixfile).toFile().getAbsolutePath();
-                
+
         httpClient = new HttpClient(new HttpClientTransportOverUnixSockets(unixFilePath), null);
         try{
             httpClient.start();
@@ -59,15 +63,27 @@ public class JerseyUnixSocketConnector implements Connector {
     private ClientResponse doApply(ClientRequest request) throws Exception {
 
         HttpMethod httpMethod = HttpMethod.valueOf(request.getMethod());
-        URI uri = request.getUri();
+        final URI originalUri = request.getUri();
+        final URI uri;
         Path basePath = Paths.get(unixfile);
-        if(uri.getScheme().startsWith("unix")) {
-            uri = UriBuilder.fromUri(uri)
+
+        if (originalUri.getScheme().startsWith("unix")) {
+            
+            String path = originalUri.getRawPath()
+                    .replaceFirst(basePath.toString(), "");
+
+            LOGGER.trace("Extracted path {} from {}",path, originalUri.getRawPath());
+
+            uri = UriBuilder.fromUri(originalUri)
+                    .replacePath(path)
                     .scheme("http")
-                    .host("localhost")
                     .port(99)
-                    .replacePath(uri.getPath().replaceFirst(basePath.toString(),""))
+                    .host("localhost")
                     .build();
+                        
+            LOGGER.trace("Created psuedo uri {} for originalUri {}", uri, originalUri);
+        } else {
+            uri = originalUri;
         }
 
         Request clientRequest = httpClient.newRequest(uri)
@@ -99,6 +115,8 @@ public class JerseyUnixSocketConnector implements Connector {
 
         int statusCode = contentResponse.getStatus();
         String reason = contentResponse.getReason();
+
+        LOGGER.trace("uri {}, method: {},statusCode:{},reason: {} ", uri, httpMethod, statusCode, reason);
 
         final Response.StatusType status = Statuses.from(statusCode, reason);
 
