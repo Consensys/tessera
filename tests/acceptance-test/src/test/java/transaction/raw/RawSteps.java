@@ -131,11 +131,19 @@ public class RawSteps implements En {
 
                         assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
 
-                        restUtils.findTransaction(persistedKey, getRecipientParties(recipients))
+                        final Set<Party> recipientParties = getRecipientParties(recipients);
+                        
+                        
+                        List<Response> responses = restUtils.findTransaction(persistedKey,recipientParties)
+                                .collect(Collectors.toList());
+
+                        responses
                                 .forEach(r -> {
+                                    
                             assertThat(r.getStatus())
-                                    .describedAs("find transaction for "+ recipients)
+                                    .describedAs("find transaction for "+ recipients +". "+ r)
                                     .isEqualTo(200);
+                            
                         });
                     });
 
