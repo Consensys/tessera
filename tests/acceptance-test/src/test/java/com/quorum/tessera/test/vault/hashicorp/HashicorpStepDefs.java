@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
+import static com.quorum.tessera.config.util.EnvironmentVariables.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HashicorpStepDefs implements En {
@@ -375,20 +376,20 @@ public class HashicorpStepDefs implements En {
             ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);
 
             Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
-            tesseraEnvironment.put("HASHICORP_CLIENT_KEYSTORE_PWD", "testtest");
-            tesseraEnvironment.put("HASHICORP_CLIENT_TRUSTSTORE_PWD", "testtest");
+            tesseraEnvironment.put(HASHICORP_CLIENT_KEYSTORE_PWD, "testtest");
+            tesseraEnvironment.put(HASHICORP_CLIENT_TRUSTSTORE_PWD, "testtest");
 
             if("token".equals(authMethod)) {
 
                 Objects.requireNonNull(vaultToken);
-                tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
+                tesseraEnvironment.put(HASHICORP_TOKEN, vaultToken);
 
             } else {
 
                 Objects.requireNonNull(approleRoleId);
                 Objects.requireNonNull(approleSecretId);
-                tesseraEnvironment.put("HASHICORP_ROLE_ID", approleRoleId);
-                tesseraEnvironment.put("HASHICORP_SECRET_ID", approleSecretId);
+                tesseraEnvironment.put(HASHICORP_ROLE_ID, approleRoleId);
+                tesseraEnvironment.put(HASHICORP_SECRET_ID, approleSecretId);
 
             }
 
@@ -488,20 +489,20 @@ public class HashicorpStepDefs implements En {
             ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);
 
             Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
-            tesseraEnvironment.put("HASHICORP_CLIENT_KEYSTORE_PWD", "testtest");
-            tesseraEnvironment.put("HASHICORP_CLIENT_TRUSTSTORE_PWD", "testtest");
+            tesseraEnvironment.put(HASHICORP_CLIENT_KEYSTORE_PWD, "testtest");
+            tesseraEnvironment.put(HASHICORP_CLIENT_TRUSTSTORE_PWD, "testtest");
 
             if("token".equals(authMethod)) {
 
                 Objects.requireNonNull(vaultToken);
-                tesseraEnvironment.put("HASHICORP_TOKEN", vaultToken);
+                tesseraEnvironment.put(HASHICORP_TOKEN, vaultToken);
 
             } else {
 
                 Objects.requireNonNull(approleRoleId);
                 Objects.requireNonNull(approleSecretId);
-                tesseraEnvironment.put("HASHICORP_ROLE_ID", approleRoleId);
-                tesseraEnvironment.put("HASHICORP_SECRET_ID", approleSecretId);
+                tesseraEnvironment.put(HASHICORP_ROLE_ID, approleRoleId);
+                tesseraEnvironment.put(HASHICORP_SECRET_ID, approleSecretId);
 
             }
 

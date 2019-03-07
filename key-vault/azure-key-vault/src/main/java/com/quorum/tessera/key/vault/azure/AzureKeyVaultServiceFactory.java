@@ -9,21 +9,21 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 
-public class AzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
+import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_ID;
+import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_SECRET;
 
-    private static final String clientIdEnvVar = "AZURE_CLIENT_ID";
-    private static final String clientSecretEnvVar = "AZURE_CLIENT_SECRET";
+public class AzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
 
     @Override
     public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider) {
         Objects.requireNonNull(config);
         Objects.requireNonNull(envProvider);
 
-        String clientId = envProvider.getEnv(clientIdEnvVar);
-        String clientSecret = envProvider.getEnv(clientSecretEnvVar);
+        String clientId = envProvider.getEnv(AZURE_CLIENT_ID);
+        String clientSecret = envProvider.getEnv(AZURE_CLIENT_SECRET);
 
         if(clientId == null || clientSecret == null) {
-            throw new AzureCredentialNotSetException(clientIdEnvVar + " and " + clientSecretEnvVar + " environment variables must be set");
+            throw new AzureCredentialNotSetException(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
         }
 
         AzureKeyVaultConfig keyVaultConfig = Optional.ofNullable(config.getKeys())

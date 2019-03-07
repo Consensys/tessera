@@ -9,7 +9,7 @@ import static org.mockito.Mockito.*;
 
 public class P2PRestAppTest {
 
-    private static final String contextName = "context";
+    private static final String CONTEXT_NAME = "context";
 
     private ServiceLocator serviceLocator;
 
@@ -18,7 +18,7 @@ public class P2PRestAppTest {
     @Before
     public void setUp() {
         serviceLocator = mock(ServiceLocator.class);
-        p2PRestApp = new P2PRestApp(serviceLocator, contextName);
+        p2PRestApp = new P2PRestApp(serviceLocator, CONTEXT_NAME);
     }
 
     @After
@@ -29,6 +29,6 @@ public class P2PRestAppTest {
     @Test
     public void getSingletons() {
         p2PRestApp.getSingletons();
-        verify(serviceLocator).getServices(contextName);
+        verify(serviceLocator).getServices(CONTEXT_NAME);
     }
 }

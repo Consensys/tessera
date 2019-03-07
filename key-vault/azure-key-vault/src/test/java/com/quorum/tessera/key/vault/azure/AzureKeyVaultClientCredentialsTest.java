@@ -11,6 +11,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_ID;
+import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_SECRET;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -118,7 +120,7 @@ public class AzureKeyVaultClientCredentialsTest {
         final Throwable ex = catchThrowable(() -> credentials.doAuthenticate(goodUrl, null, null));
 
         assertThat(ex).isInstanceOf(RuntimeException.class)
-            .hasMessageContaining("AZURE_CLIENT_ID and AZURE_CLIENT_SECRET environment variables must be set");
+            .hasMessageContaining(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
     }
 
     @Test
@@ -129,7 +131,7 @@ public class AzureKeyVaultClientCredentialsTest {
         final Throwable ex = catchThrowable(() -> credentials.doAuthenticate(goodUrl, null, null));
 
         assertThat(ex).isInstanceOf(RuntimeException.class)
-            .hasMessageContaining("AZURE_CLIENT_ID and AZURE_CLIENT_SECRET environment variables must be set");
+            .hasMessageContaining(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
     }
 
     @Test
@@ -140,7 +142,7 @@ public class AzureKeyVaultClientCredentialsTest {
         final Throwable ex = catchThrowable(() -> credentials.doAuthenticate(goodUrl, null, null));
 
         assertThat(ex).isInstanceOf(RuntimeException.class)
-            .hasMessageContaining("AZURE_CLIENT_ID and AZURE_CLIENT_SECRET environment variables must be set");
+            .hasMessageContaining(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
     }
 
     @Test
