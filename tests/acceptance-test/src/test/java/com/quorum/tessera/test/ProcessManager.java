@@ -99,7 +99,7 @@ public class ProcessManager {
                     break;
                 }
                 try{
-                    System.out.println("Sleep for 3 secs");
+                    LOGGER.info("Party info not synced yet. Sleep for 3 secs");
                     TimeUnit.SECONDS.sleep(3);
                 } catch (InterruptedException ex) {
                 }
