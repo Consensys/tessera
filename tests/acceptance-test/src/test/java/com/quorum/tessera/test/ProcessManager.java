@@ -166,7 +166,8 @@ public class ProcessManager {
         }
         List<String> args = argsBuilder.build();
 
-        System.out.println(String.join(" ", args));
+        
+        LOGGER.info("Exec : {}", String.join(" ", args));
 
         ProcessBuilder processBuilder = new ProcessBuilder(args);
         processBuilder.redirectErrorStream(true);
@@ -181,7 +182,7 @@ public class ProcessManager {
 
                 String line = null;
                 while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
+                    LOGGER.info("Exec line : {}", line);
                 }
 
             } catch (IOException ex) {
@@ -208,24 +209,25 @@ public class ProcessManager {
                 f.get(30, TimeUnit.SECONDS);
                 startUpLatch.countDown();
             } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-                ex.printStackTrace();
+               LOGGER.debug(null,ex);
+               LOGGER.error("Exception message {}",ex.getMessage());
             }
         });
 
         boolean started = startUpLatch.await(2, TimeUnit.MINUTES);
 
         if (!started) {
-            System.err.println(" Not started. " + communicationType);
+            LOGGER.error("Not started {}",communicationType);
         }
 
         executorService.submit(() -> {
             try{
                 int exitCode = process.waitFor();
                 if (0 != exitCode) {
-                    System.err.println("Node " + nodeId + " exited with code " + exitCode);
+                     LOGGER.error("Node {} exited with code {}",nodeId, exitCode);
                 }
             } catch (InterruptedException ex) {
-                ex.printStackTrace();
+                LOGGER.warn(ex.getMessage());
             }
         });
 
