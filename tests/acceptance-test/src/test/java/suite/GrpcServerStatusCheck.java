@@ -40,10 +40,10 @@ public class GrpcServerStatusCheck implements ServerStatusCheck {
             if (appType == AppType.Q2T) {
 
                 CallOptions callOptions = APITransactionGrpc.newBlockingStub(channel)
-                        .getCallOptions()
-                        .withWaitForReady();
+                        .getCallOptions();
                 
                 LOGGER.info("{} callOptions result {} ", appType, callOptions);
+               return true;
             }
 
 
@@ -54,8 +54,7 @@ public class GrpcServerStatusCheck implements ServerStatusCheck {
                 LOGGER.info("{} Upcheck result {} ", appType, result.getUpCheck());
 
                 CallOptions callOptions = P2PTransactionGrpc.newBlockingStub(channel)
-                        .getCallOptions()
-                        .withWaitForReady();
+                        .getCallOptions();
                 
                 LOGGER.info("{} callOptions result {} ", appType, callOptions);
 
