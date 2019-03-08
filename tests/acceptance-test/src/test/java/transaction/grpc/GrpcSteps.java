@@ -113,7 +113,9 @@ public class GrpcSteps implements En {
                 failBecauseExceptionWasNotThrown(io.grpc.StatusRuntimeException.class);
             } catch (io.grpc.StatusRuntimeException ex) {
                 //FIXME: Should be invalid arg
-                assertThat(ex.getStatus()).isEqualTo(io.grpc.Status.UNKNOWN);
+                assertThat(ex.getStatus())
+                        .describedAs("Expected  io.grpc.Status.UNKNOWN staus. recieved: "+ ex.getStatus())
+                        .isEqualTo(io.grpc.Status.UNKNOWN);
             }
 
         });
