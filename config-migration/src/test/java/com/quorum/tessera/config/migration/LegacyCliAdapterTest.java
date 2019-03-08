@@ -5,6 +5,7 @@ import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
 import com.quorum.tessera.config.cli.CliResult;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
+import com.quorum.tessera.io.SystemAdapter;
 import com.quorum.tessera.test.util.ElUtil;
 import java.io.File;
 import java.io.IOException;
@@ -490,9 +491,10 @@ public class LegacyCliAdapterTest {
     @Test
     public void passwordOverrideProvidedButNoKeyDataOverrideProvidedThenPrintMessageToConsole() {
         final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
-        final PrintStream originalErr = System.err;
-
-        System.setErr(new PrintStream(errContent));
+        final PrintStream errStream = new PrintStream(errContent);
+    
+        MockSystemAdapter systemAdapter = (MockSystemAdapter) SystemAdapter.INSTANCE;
+        systemAdapter.setErrPrintStream(errStream);
 
         CommandLine line = mock(CommandLine.class);
         when(line.getOptionValue("passwords")).thenReturn("override/path");
@@ -500,10 +502,10 @@ public class LegacyCliAdapterTest {
         ConfigBuilder configBuilder = ConfigBuilder.create();
 
         LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
+      
+        assertThat(errContent.toString())
+                .isEqualTo("Info: Public/Private key data not provided in overrides.  Overriden password file has not been added to config.\n");
 
-        assertThat(errContent.toString()).isEqualTo("Info: Public/Private key data not provided in overrides.  Overriden password file has not been added to config.\n");
-
-        System.setErr(originalErr);
     }
 
     @Test

@@ -1,1 +1,1 @@
-com.quorum.tessera.config.cli.NoopSystemAdapter
+com.quorum.tessera.io.NoopSystemAdapter
