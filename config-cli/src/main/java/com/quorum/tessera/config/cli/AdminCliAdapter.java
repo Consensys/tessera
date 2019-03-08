@@ -23,7 +23,7 @@ import org.apache.commons.cli.Options;
  * Cli Adapter to be used for runtime updates
  */
 public class AdminCliAdapter implements CliAdapter {
-    
+
     private final ClientFactory clientFactory;
 
     public AdminCliAdapter(final ClientFactory clientFactory) {
@@ -70,7 +70,7 @@ public class AdminCliAdapter implements CliAdapter {
 
         final CommandLine line = new DefaultParser().parse(options, args);
         if(!line.hasOption("addpeer")) {
-            System.out.println("No peer defined");
+            sys().out().println("No peer defined");
             return new CliResult(1, true, null);
         }
 
@@ -111,13 +111,13 @@ public class AdminCliAdapter implements CliAdapter {
 
         if(response.getStatus() == Response.Status.CREATED.getStatusCode()) {
 
-            System.out.printf("Peer %s added.",response.getLocation());
-            System.out.println();
+            sys().out().printf("Peer %s added.",response.getLocation());
+            sys().out().println();
             
             return new CliResult(0, true, null);
         }
         
-        System.err.println("Unable to create peer");
+        sys().err().println("Unable to create peer");
         
         return new CliResult(1, true, null);
     }
