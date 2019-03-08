@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
     glue = "admin.cmd",
     features = "classpath:features/admin.feature",
     monochrome = true,
-    plugin = {"usage"}
+    plugin = {"progress"}
 )
 public class CucumberAdminIT {
 

@@ -113,7 +113,9 @@ public class PartyInfoGrpcIT {
 
     private void checkPartyInfoContents(PartyInfo partyInfo) {
         
-        String description = partyInfo.getRecipients().stream().map(Recipient::getUrl).collect(Collectors.joining(","));
+        String description = partyInfo.getRecipients().stream()
+                .map(PartyInfoGrpcIT::printRecipient)
+                .collect(Collectors.joining(","));
         
         assertThat(partyInfo.getRecipients())
                 .describedAs("Recipients: "+ description)
@@ -132,6 +134,11 @@ public class PartyInfoGrpcIT {
         );
     }
 
+    
+    private static String printRecipient(Recipient recipient) {
+        return "Recipient[key: "+ recipient.getKey().encodeToBase64() +",url: "+ recipient.getUrl() +"]";
+    }
+    
     @Test
     public void partyInfoGetNode1() {
 
