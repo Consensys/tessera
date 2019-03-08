@@ -112,7 +112,12 @@ public class PartyInfoGrpcIT {
     }
 
     private void checkPartyInfoContents(PartyInfo partyInfo) {
-        assertThat(partyInfo.getRecipients()).containsExactlyInAnyOrder(
+        
+        String description = partyInfo.getRecipients().stream().map(Recipient::getUrl).collect(Collectors.joining(","));
+        
+        assertThat(partyInfo.getRecipients())
+                .describedAs("Recipients: "+ description)
+                .containsExactlyInAnyOrder(
             new Recipient(PublicKey.from(Base64.decode("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")), "http://localhost:50520/"),
             new Recipient(PublicKey.from(Base64.decode("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")), "http://localhost:50521/"),
             new Recipient(PublicKey.from(Base64.decode("giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=")), "http://localhost:50522/"),

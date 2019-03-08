@@ -101,8 +101,6 @@
                         <include>RestSuiteUnixH2</include>
                         <include>RestSuiteH2</include>
                         <include>RestSuiteSqlite</include>
-                        <include>GrpcSuiteH2</include>
-                        <include>GrpcSuiteSqlite</include>
                         <include>ConfigMigrationIT</include>
                     </includes>
                 </configuration>
@@ -163,6 +161,25 @@
                         <configuration>
                             <includes>
                                 <include>RunHashicorpIT</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>grpc-acceptance-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <rerunFailingTestsCount>3</rerunFailingTestsCount>
+                            <includes>
+                                <include>GrpcSuiteH2</include>
+                                <include>GrpcSuiteSqlite</include>
                             </includes>
                         </configuration>
                     </plugin>

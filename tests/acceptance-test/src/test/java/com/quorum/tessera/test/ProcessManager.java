@@ -223,9 +223,7 @@ public class ProcessManager {
         executorService.submit(() -> {
             try{
                 int exitCode = process.waitFor();
-                if (0 != exitCode) {
-                     LOGGER.warn("Node {} exited with code {}",nodeId, exitCode);
-                }
+                LOGGER.info("Node {} exited with code {}",nodeId, exitCode);
             } catch (InterruptedException ex) {
                 LOGGER.warn(ex.getMessage());
             }
