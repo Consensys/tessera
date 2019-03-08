@@ -60,4 +60,13 @@ public class SystemAdapterTest {
         
     }
     
+    @Test
+    public void executeNoop() {
+        NoopSystemAdapter instance = new NoopSystemAdapter();
+        instance.out().print(this);
+        assertThat(instance.err()).isNotSameAs(System.err);
+        assertThat(instance.out()).isNotSameAs(System.out);
+    
+    }
+    
 }
