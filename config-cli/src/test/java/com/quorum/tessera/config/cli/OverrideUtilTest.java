@@ -337,7 +337,6 @@ public class OverrideUtilTest {
 
         Config config = OverrideUtil.createInstance(Config.class);
 
-        JaxbUtil.marshalWithNoValidation(config, System.out);
 
         OverrideUtil.setValue(config, "keys.keyData.publicKey", "PUBLICKEY");
         OverrideUtil.setValue(config, "keys.keyData.privateKey", "PRIVATEKEY");
@@ -361,8 +360,6 @@ public class OverrideUtilTest {
     public void defineAlwaysSendToWithOverridesOnly() throws Exception {
 
         Config config = OverrideUtil.createInstance(Config.class);
-
-        JaxbUtil.marshalWithNoValidation(config, System.out);
 
         OverrideUtil.setValue(config, "alwaysSendTo", "ONE", "TWO");
 
