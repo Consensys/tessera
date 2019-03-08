@@ -6,10 +6,15 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 
 import javax.ws.rs.core.Application;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 public class Util {
 
     public static JerseyTest create(Enclave enclave) {
+
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+
         return new JerseyTest() {
             @Override
             protected Application configure() {
