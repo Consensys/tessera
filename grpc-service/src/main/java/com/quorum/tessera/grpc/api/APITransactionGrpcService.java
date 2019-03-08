@@ -1,7 +1,6 @@
 package com.quorum.tessera.grpc.api;
 
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Empty;
 import com.quorum.tessera.grpc.StreamObserverTemplate;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.grpc.stub.StreamObserver;
@@ -17,8 +16,6 @@ import java.util.Set;
 
 public class APITransactionGrpcService extends APITransactionGrpc.APITransactionImplBase{
 
-    private static final String UPCHECK_RESPONSE = "I'm up!";
-    
     private static final Logger LOGGER = LoggerFactory.getLogger(APITransactionGrpcService.class);
 
     private final Validator validator = Validation.byDefaultProvider()
@@ -74,17 +71,6 @@ public class APITransactionGrpcService extends APITransactionGrpc.APITransaction
                     .build();
         });
 
-    }
-
-    @Override
-    public void getUpCheck(Empty request, StreamObserver<UpCheckMessage> responseObserver) {
-        StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
-
-        template.handle(() -> {
-            return UpCheckMessage.newBuilder()
-                    .setUpCheck(UPCHECK_RESPONSE)
-                    .build();
-        });
     }
     
     
