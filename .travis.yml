@@ -25,6 +25,7 @@ install:
 - export PATH=$PATH:$PWD && popd
 
 script: 
+    - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging 
     - mvn install -P disable-acceptance-test,jnacl,reduce-logging 
     - mvn verify -pl tests/acceptance-test -P reduce-logging
     - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging
@@ -33,8 +34,8 @@ script:
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 
-before_cache:
-- mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
+#before_cache:
+#- mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
 
 deploy:
     provider: script
