@@ -2,10 +2,9 @@ package suite;
 
 import com.google.protobuf.Empty;
 import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.grpc.p2p.P2PTransactionGrpc;
+import com.quorum.tessera.grpc.api.APITransactionGrpc;
 import com.quorum.tessera.grpc.p2p.TesseraGrpc;
 import com.quorum.tessera.grpc.p2p.UpCheckMessage;
-import io.grpc.CallOptions;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.net.URL;
@@ -19,8 +18,6 @@ public class GrpcServerStatusCheck implements ServerStatusCheck {
     private final AppType appType;
     
     private final URL url;
-    
-
 
     public GrpcServerStatusCheck(URL url,AppType appType) {
         this.url = url;
@@ -36,8 +33,10 @@ public class GrpcServerStatusCheck implements ServerStatusCheck {
                 .build();
         
         try{
+            
             if(appType == AppType.Q2T) {
-              CallOptions result = P2PTransactionGrpc.newBlockingStub(channel).getCallOptions();
+                com.quorum.tessera.grpc.api.UpCheckMessage result = APITransactionGrpc.newBlockingStub(channel)
+                      .getUpCheck(Empty.getDefaultInstance());
               LOGGER.info("{} Upcheck result {} ",appType,result);
               return true;
             }

@@ -224,7 +224,7 @@ public class ProcessManager {
             try{
                 int exitCode = process.waitFor();
                 if (0 != exitCode) {
-                     LOGGER.error("Node {} exited with code {}",nodeId, exitCode);
+                     LOGGER.warn("Node {} exited with code {}",nodeId, exitCode);
                 }
             } catch (InterruptedException ex) {
                 LOGGER.warn(ex.getMessage());

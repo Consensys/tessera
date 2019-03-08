@@ -11,6 +11,8 @@ service APITransaction {
     rpc Send (SendRequest) returns (SendResponse) { }
 
     rpc Receive (ReceiveRequest) returns (ReceiveResponse) { }
+    
+    rpc GetUpCheck (google.protobuf.Empty) returns (UpCheckMessage) {}
 }
 
 message SendRequest {
@@ -30,4 +32,8 @@ message ReceiveRequest {
 
 message ReceiveResponse {
     bytes payload = 1;
+}
+
+message UpCheckMessage {
+    string upCheck = 1;
 }
