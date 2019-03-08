@@ -81,7 +81,7 @@ public class APITransactionGrpcService extends APITransactionGrpc.APITransaction
         StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
         template.handle(() -> {
-            return com.quorum.tessera.grpc.p2p.UpCheckMessage.newBuilder()
+            return UpCheckMessage.newBuilder()
                     .setUpCheck(UPCHECK_RESPONSE)
                     .build();
         });

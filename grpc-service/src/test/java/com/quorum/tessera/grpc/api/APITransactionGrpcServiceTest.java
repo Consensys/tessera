@@ -1,6 +1,7 @@
 package com.quorum.tessera.grpc.api;
 
 import com.google.protobuf.ByteString;
+import com.google.protobuf.Empty;
 import com.quorum.tessera.transaction.TransactionManagerImpl;
 import io.grpc.stub.StreamObserver;
 import org.junit.After;
@@ -23,6 +24,9 @@ public class APITransactionGrpcServiceTest {
     private StreamObserver<ReceiveResponse> receiveResponseObserver;
 
     @Mock
+    private StreamObserver<UpCheckMessage> upcheckResponseObserver;
+    
+    @Mock
     private TransactionManagerImpl enclaveMediator;
 
     private APITransactionGrpcService service;
@@ -37,7 +41,7 @@ public class APITransactionGrpcServiceTest {
     public void onTearDown() {
         verifyNoMoreInteractions(
                 sendResponseObserver,
-                receiveResponseObserver);
+                receiveResponseObserver,upcheckResponseObserver);
     }
 
     @Test
@@ -142,5 +146,16 @@ public class APITransactionGrpcServiceTest {
 
         verify(receiveResponseObserver).onError(any());
 
+    }
+    
+    @Test
+    public void getStatus() {
+        
+        service.getUpCheck(Empty.getDefaultInstance(), upcheckResponseObserver);
+        
+        verify(upcheckResponseObserver).onNext(any());
+
+        verify(upcheckResponseObserver).onCompleted();
+        
     }
 }
