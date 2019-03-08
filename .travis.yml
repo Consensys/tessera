@@ -25,7 +25,7 @@ install:
 - export PATH=$PATH:$PWD && popd
 
 script: 
-    - mvn test -P disable-acceptance-test,jnacl,reduce-logging 
+    - mvn install -P disable-acceptance-test,jnacl,reduce-logging 
     - mvn verify -pl tests/acceptance-test -P reduce-logging
     - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging
     - mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging
