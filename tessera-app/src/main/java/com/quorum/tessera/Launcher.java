@@ -98,17 +98,7 @@ public class Launcher {
                 continue;
             }
             
-            CommunicationType commType = serverConfig.getCommunicationType();
-            CommunicationType communicationType;
-            if (commType == CommunicationType.UNIX_SOCKET) {
-
-                LOGGER.warn("UNIX_SOCKET communication type is deprecated it will "
-                        + "be removed for furture releases. "
-                        + "Use REST commnications type with UnixServerSocket serverSocket");
-                communicationType = CommunicationType.REST;
-            } else {
-                communicationType = commType;
-            }
+            CommunicationType communicationType = serverConfig.getCommunicationType();
 
             TesseraServerFactory serverFactory = TesseraServerFactory.create(communicationType);
 

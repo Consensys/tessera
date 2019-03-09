@@ -30,10 +30,6 @@ public interface ServerStatusCheck {
             }
 
         }
-        
-        if(communicationType == CommunicationType.UNIX_SOCKET) {
-             return new UnixSocketServerStatusCheck(serverConfig.getServerUri());
-        }
 
         if (communicationType == CommunicationType.GRPC) {
             URL grpcUrl = IOCallback.execute(() -> UriBuilder.fromUri(serverConfig.getBindingUri())

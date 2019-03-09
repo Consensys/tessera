@@ -13,8 +13,7 @@ public enum AppType {
     P2P(P2PApp.class,
         new HashSet<>(Arrays.asList(CommunicationType.GRPC, CommunicationType.REST))),
     Q2T(Q2TApp.class,
-        // TODO UNIX_SOCKET will be removed when we will have a netty server configurable for both unix/inet sockets
-        new HashSet<>(Arrays.asList(CommunicationType.GRPC, CommunicationType.REST, CommunicationType.UNIX_SOCKET))
+        new HashSet<>(Arrays.asList(CommunicationType.GRPC, CommunicationType.REST))
         ),
     @XmlEnumValue("ThirdParty")
     THIRD_PARTY(ThirdPartyApp.class,
