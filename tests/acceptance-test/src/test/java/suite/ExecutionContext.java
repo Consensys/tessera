@@ -31,7 +31,7 @@ public class ExecutionContext {
         return socketType;
     }
 
-    static class Builder {
+    public static class Builder {
 
         private DBType dbType;
 
@@ -61,12 +61,20 @@ public class ExecutionContext {
             return this;
         }
 
+        public ExecutionContext build() {
+            Stream.of(dbType, communicationType, socketType)
+                    .forEach(Objects::requireNonNull);
+
+            ExecutionContext executionContext = new ExecutionContext(dbType, communicationType, socketType);
+            return executionContext;
+        }
+        
         protected void createAndSetupContext() {
 
             Stream.of(dbType, communicationType, socketType)
                     .forEach(Objects::requireNonNull);
 
-            ExecutionContext executionContext = new ExecutionContext(dbType, communicationType, socketType);
+            ExecutionContext executionContext = build();
 
             if (THREAD_SCOPE.get() != null) {
                 throw new IllegalStateException("Context has already been created");

@@ -43,6 +43,8 @@ public class ProcessManager {
 
     private final CommunicationType communicationType;
 
+    private final ExecutionContext executionContext;
+
     private final DBType dbType;
 
     private final URL logbackConfigFile = ProcessManager.class.getResource("/logback-node.xml");
@@ -50,14 +52,12 @@ public class ProcessManager {
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     public ProcessManager(ExecutionContext executionContext) {
-        this(executionContext.getCommunicationType(), executionContext.getDbType(), executionContext.getSocketType());
-    }
+        this.executionContext = executionContext;
 
-    private ProcessManager(CommunicationType communicationType, DBType dbType, SocketType socketType) {
-        this.communicationType = Objects.requireNonNull(communicationType);
-        this.dbType = Objects.requireNonNull(dbType);
+        this.communicationType = executionContext.getCommunicationType();
+        this.dbType = executionContext.getDbType();
 
-        String pathTemplate = "/" + communicationType.name().toLowerCase() + "/" + socketType.name().toLowerCase()
+        String pathTemplate = "/" + communicationType.name().toLowerCase() + "/" + executionContext.getSocketType().name().toLowerCase()
                 + "/" + dbType.name().toLowerCase() + "/config%s.json";
 
         final Map<String, URL> configs = new HashMap<>();
@@ -68,6 +68,7 @@ public class ProcessManager {
         configs.put("E", getClass().getResource(String.format(pathTemplate, "-whitelist")));
         this.configFiles = Collections.unmodifiableMap(configs);
     }
+
 
     private String findJarFilePath(String jar) {
         return Objects.requireNonNull(System.getProperty(jar, null),
@@ -88,11 +89,11 @@ public class ProcessManager {
 
         LOGGER.info("Creating party info check thread");
         PartyInfoChecker partyInfoChecker = PartyInfoChecker.create(communicationType);
-        
+
         executorService.submit(() -> {
 
             while (true) {
-               
+
                 LOGGER.info("Check party info");
                 if (partyInfoChecker.hasSynced()) {
                     countDownLatch.countDown();
@@ -144,10 +145,16 @@ public class ProcessManager {
         final Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "pid" + nodeAlias + ".pid");
 
         pids.put(nodeAlias, pid);
+        
+        String nodeId = String.join("-", communicationType.name().toLowerCase(),
+                executionContext.getSocketType().name().toLowerCase(),
+                dbType.name().toLowerCase(),
+                nodeAlias);
+
 
         ExecArgsBuilder argsBuilder = new ExecArgsBuilder()
                 .withJvmArg("-Ddebug=true")
-                .withJvmArg("-Dnode.number=" + nodeAlias)
+                .withJvmArg("-Dnode.number=" + nodeId)
                 .withMainClass(Launcher.class)
                 .withPidFile(pid)
                 .withConfigFile(ElUtil.createAndPopulatePaths(configFile))
@@ -166,7 +173,6 @@ public class ProcessManager {
         }
         List<String> args = argsBuilder.build();
 
-        
         LOGGER.info("Exec : {}", String.join(" ", args));
 
         ProcessBuilder processBuilder = new ProcessBuilder(args);
@@ -182,15 +188,13 @@ public class ProcessManager {
 
                 String line = null;
                 while ((line = reader.readLine()) != null) {
-                    LOGGER.info("Exec line : {}", line);
+                    LOGGER.info("Exec line {} : {}", nodeAlias, line);
                 }
 
             } catch (IOException ex) {
                 throw new UncheckedIOException(ex);
             }
         });
-
-        final String nodeId = nodeAlias;
 
         List<ServerStatusCheckExecutor> serverStatusCheckList = config.getServerConfigs().stream()
                 .map(ServerStatusCheck::create)
@@ -209,21 +213,21 @@ public class ProcessManager {
                 f.get(30, TimeUnit.SECONDS);
                 startUpLatch.countDown();
             } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-               LOGGER.debug(null,ex);
-               LOGGER.error("Exception message {}",ex.getMessage());
+                LOGGER.debug(null, ex);
+                LOGGER.error("Exception message {}", ex.getMessage());
             }
         });
 
         boolean started = startUpLatch.await(2, TimeUnit.MINUTES);
 
         if (!started) {
-            LOGGER.error("Not started {}",communicationType);
+            LOGGER.error("Not started {}", communicationType);
         }
 
         executorService.submit(() -> {
             try{
                 int exitCode = process.waitFor();
-                LOGGER.info("Node {} exited with code {}",nodeId, exitCode);
+                LOGGER.info("Node {} exited with code {}", nodeId, exitCode);
             } catch (InterruptedException ex) {
                 LOGGER.warn(ex.getMessage());
             }
@@ -252,7 +256,10 @@ public class ProcessManager {
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
-        ProcessManager pm = new ProcessManager(CommunicationType.REST, DBType.SQLITE, SocketType.HTTP);
+        ProcessManager pm = new ProcessManager(ExecutionContext.Builder.create()
+                .with(CommunicationType.REST)
+                .with(DBType.H2)
+                .with(SocketType.HTTP).build());
         pm.startNodes();
 
         System.in.read();

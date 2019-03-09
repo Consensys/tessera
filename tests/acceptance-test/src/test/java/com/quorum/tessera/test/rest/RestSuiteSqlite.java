@@ -28,7 +28,7 @@ import suite.TestSuite;
     CucumberRestIT.class,
     CucumberRawIT.class,
     CucumberAdminIT.class,
-    CucumberWhitelistIT.class
+   // CucumberWhitelistIT.class
 })
 public class RestSuiteSqlite {
 

@@ -3,6 +3,7 @@ package suite;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.test.DBType;
 import com.quorum.tessera.test.ProcessManager;
+import config.ConfigGenerator;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -48,6 +49,9 @@ public class TestSuite extends Suite {
                 .with(testConfig.dbType())
                 .with(testConfig.socketType())
                 .createAndSetupContext();
+
+        ConfigGenerator configGenerator = new ConfigGenerator();
+        configGenerator.generateConfigs(ExecutionContext.currentContext());
 
         ProcessManager processManager = new ProcessManager(ExecutionContext.currentContext());
 

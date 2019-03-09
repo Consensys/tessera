@@ -3,7 +3,8 @@ package com.quorum.tessera.test.rest;
 import com.quorum.tessera.api.model.ReceiveResponse;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
-import static com.quorum.tessera.test.Fixtures.*;
+import com.quorum.tessera.test.Party;
+import com.quorum.tessera.test.PartyHelper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,6 +17,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -28,22 +30,36 @@ public class ReceiveIT {
     
     private static final Client client = ClientBuilder.newClient();
     
+    private byte[] transactionData = UUID.randomUUID().toString().getBytes();
+    
     private String encodedHash;
     
     private String encodedSender;
     
     private String encodedRecipientOne;
 
+    private PartyHelper partyHelper = PartyHelper.create();
+    
+    private Party partyOne;
+    
+    private Party partyTwo;
+    
+    private Party partyThee;
+    
     //Persist a single transaction that can be used later
     @Before
     public void init() throws UnsupportedEncodingException {
         
-        SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(PTY1_KEY);
-        sendRequest.setTo(PTY2_KEY);
-        sendRequest.setPayload(TXN_DATA);
+        partyOne = partyHelper.findByAlias("A");
+        partyTwo = partyHelper.findByAlias("B");
+        partyThee = partyHelper.findByAlias("C");
         
-        final Response response = client.target(NODE1_Q2T_URI)
+        SendRequest sendRequest = new SendRequest();
+        sendRequest.setFrom(partyOne.getPublicKey());
+        sendRequest.setTo(partyTwo.getPublicKey());
+        sendRequest.setPayload(transactionData);
+        
+        final Response response = client.target(partyOne.getQ2TUri())
                 .path("/send")
                 .request()
                 .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -55,15 +71,15 @@ public class ReceiveIT {
         final String hash = result.getKey();
         
         this.encodedHash = URLEncoder.encode(hash, UTF_8.toString());
-        this.encodedSender = URLEncoder.encode(PTY1_KEY, UTF_8.toString());
-        this.encodedRecipientOne = URLEncoder.encode(PTY2_KEY, UTF_8.toString());
+        this.encodedSender = URLEncoder.encode(partyOne.getPublicKey(), UTF_8.toString());
+        this.encodedRecipientOne = URLEncoder.encode(partyThee.getPublicKey(), UTF_8.toString());
         
     }
     
     @Test
     public void fetchExistingTransactionUsingOwnKey() {
         
-        final Response response = client.target(NODE1_Q2T_URI)
+        final Response response = client.target(partyOne.getQ2TUri())
                 .path(RECEIVE_PATH + "/" + this.encodedHash)
                 .request()
                 .buildGet()
@@ -77,14 +93,14 @@ public class ReceiveIT {
         final ReceiveResponse result = response.readEntity(ReceiveResponse.class);
         
         assertThat(result.getPayload())
-                .isEqualTo(TXN_DATA);
+                .isEqualTo(transactionData);
         
     }
     
     @Test
     public void fetchExistingTransactionUsingRecipientKey() throws Exception {
         
-        final Response response = client.target(NODE1_Q2T_URI)
+        final Response response = client.target(partyOne.getQ2TUri())
                 .path(RECEIVE_PATH)
                 .path(encodedHash)
                 .request()
@@ -98,14 +114,14 @@ public class ReceiveIT {
         final ReceiveResponse result = response.readEntity(ReceiveResponse.class);
         
         assertThat(result.getPayload())
-                .isEqualTo(TXN_DATA);
+                .isEqualTo(transactionData);
         
     }
     
     @Test
     public void fetchExistingTransactionNotUsingKey() throws UnsupportedEncodingException {
         
-        final Response response = client.target(NODE1_Q2T_URI)
+        final Response response = client.target(partyOne.getQ2TUri())
                 .path(RECEIVE_PATH)
                 .path(encodedHash)
                 .request()
@@ -119,14 +135,14 @@ public class ReceiveIT {
         final ReceiveResponse result = response.readEntity(ReceiveResponse.class);
         
         assertThat(result.getPayload())
-                .isEqualTo(TXN_DATA);
+                .isEqualTo(transactionData);
         
     }
     
     @Test
     public void fetchNonexistantTransactionFails() {
         
-        final Response response = client.target(NODE1_Q2T_URI)
+        final Response response = client.target(partyOne.getQ2TUri())
                 .path(RECEIVE_PATH)
                 .path("invalidhashvalue")
                 .request()

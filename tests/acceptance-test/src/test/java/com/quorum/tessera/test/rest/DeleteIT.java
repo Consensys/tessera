@@ -26,7 +26,8 @@ public class DeleteIT {
         Party sender = partyHelper.getParties().findAny().get();
 
         Party recipient = partyHelper.getParties()
-                .filter(p -> !p.getPublicKey().equals(sender.getPublicKey())).findAny().get();
+                .filter(p -> !p.getPublicKey().equals(sender.getPublicKey()))
+                .findAny().get();
 
         RestUtils utils = new RestUtils();
         byte[] txnData = utils.createTransactionData();

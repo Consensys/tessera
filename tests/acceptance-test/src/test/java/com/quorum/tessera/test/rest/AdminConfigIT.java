@@ -32,7 +32,8 @@ public class AdminConfigIT {
             .path("config")
             .path("peers")
             .request(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON).put(Entity.entity(peer, MediaType.APPLICATION_JSON));
+            .accept(MediaType.APPLICATION_JSON)
+            .put(Entity.entity(peer, MediaType.APPLICATION_JSON));
 
 
         assertThat(response.getStatus()).isEqualTo(201);

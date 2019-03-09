@@ -73,7 +73,7 @@ public class RawSteps implements En {
                     .map(t -> t.path("upcheck"))
                     .map(WebTarget::request)
                     .map(Invocation.Builder::get)
-                    .allMatch(r -> r.getStatus() == 200))
+                    .allMatch(r -> r.getStatus() == 200)).describedAs("All serers are up ")
                     .isTrue();
         });
 
@@ -185,7 +185,6 @@ public class RawSteps implements En {
                     = sender.getDatabaseConnection()
                             .prepareStatement("SELECT COUNT(*) FROM ENCRYPTED_TRANSACTION WHERE HASH = ?")){
                         statement.setBytes(1, Base64.getDecoder().decode(storedHashes.iterator().next()));
-
                         try (ResultSet results = statement.executeQuery()){
                             assertThat(results.next()).isTrue();
                             assertThat(results.getLong(1)).isEqualTo(1);
