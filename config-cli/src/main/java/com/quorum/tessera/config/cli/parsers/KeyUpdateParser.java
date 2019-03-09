@@ -8,6 +8,7 @@ import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.io.SystemAdapter;
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +62,7 @@ public class KeyUpdateParser implements Parser<Optional> {
 
             //write the key to file
             Files.write(keypath, JaxbUtil.marshalToString(updatedKey).getBytes(UTF_8));
-            System.out.println("Private key at " + keypath.toString() + " updated.");
+            SystemAdapter.INSTANCE.out().println("Private key at " + keypath.toString() + " updated.");
         }
 
         return Optional.empty();
