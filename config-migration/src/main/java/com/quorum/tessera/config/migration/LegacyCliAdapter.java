@@ -47,10 +47,12 @@ public class LegacyCliAdapter implements CliAdapter {
             String header = "Generate Tessera JSON config file from a Constellation TOML config file";
             HelpFormatter formatter = new HelpFormatter();
 
-            formatter.printHelp(new PrintWriter(sys().out()),
+            PrintWriter pw = new PrintWriter(sys().out());
+            formatter.printHelp(pw,
                     200, "tessera-config-migration",
                     header, options, formatter.getLeftPadding(),
                     formatter.getDescPadding(), null, false);
+            pw.flush();
 
             final int exitCode = argsList.isEmpty() ? 1 : 0;
             return new CliResult(exitCode, true, null);

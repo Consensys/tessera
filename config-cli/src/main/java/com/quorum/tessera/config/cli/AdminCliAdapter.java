@@ -64,12 +64,13 @@ public class AdminCliAdapter implements CliAdapter {
 
         if (argsList.contains("help") || argsList.isEmpty()) {
             HelpFormatter formatter = new HelpFormatter();
-
-            formatter.printHelp(new PrintWriter(sys().out()),
+            PrintWriter pw = new PrintWriter(sys().out());
+            formatter.printHelp(pw,
                     200, "tessera admin",
                     null, options, formatter.getLeftPadding(),
                     formatter.getDescPadding(), null, false);
-
+            pw.flush();
+            
             return new CliResult(0, true, null);
         }
 
