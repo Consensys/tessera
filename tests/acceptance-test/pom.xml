@@ -63,7 +63,7 @@
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
-
+ 
     </dependencies>
 
     <build>
@@ -98,6 +98,7 @@
                         <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
+                        <include>RestSuiteHSQL</include>
                         <include>RestSuiteUnixH2</include>
                         <include>RestSuiteH2</include>
                         <include>RestSuiteSqlite</include>

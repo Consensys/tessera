@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import suite.ExecutionContext;
+import suite.NodeId;
 import suite.SocketType;
 
 public class ConfigGenerator {
@@ -110,8 +111,7 @@ public class ConfigGenerator {
 
         AtomicInteger port = new AtomicInteger(50520);
 
-        String nodeId = executionContext.getCommunicationType().name().toLowerCase()
-                + "-" + executionContext.getSocketType().name().toLowerCase();
+        String nodeId = NodeId.generate(executionContext);
 
         Config first = new ConfigBuilder()
                 .withNodeId(nodeId)

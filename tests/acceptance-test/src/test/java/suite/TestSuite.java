@@ -4,6 +4,7 @@ import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.test.DBType;
 import com.quorum.tessera.test.ProcessManager;
 import config.ConfigGenerator;
+import db.DatabaseServer;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -50,6 +51,10 @@ public class TestSuite extends Suite {
                 .with(testConfig.socketType())
                 .createAndSetupContext();
 
+        String nodeId = NodeId.generate(ExecutionContext.currentContext());
+        DatabaseServer databaseServer = testConfig.dbType().createDatabaseServer(nodeId);
+        databaseServer.start();
+        
         ConfigGenerator configGenerator = new ConfigGenerator();
         configGenerator.generateConfigs(ExecutionContext.currentContext());
 
@@ -70,9 +75,11 @@ public class TestSuite extends Suite {
             Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
             notifier.fireTestFailure(new Failure(de, ex));
         }
-
-        ExecutionContext.destoryContext();
-
+        try {
+            ExecutionContext.destoryContext();
+        } finally {
+            databaseServer.stop();
+        }
     }
 
 }
