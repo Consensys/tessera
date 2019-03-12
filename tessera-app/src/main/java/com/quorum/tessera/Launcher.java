@@ -1,5 +1,6 @@
 package com.quorum.tessera;
 
+import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
@@ -29,8 +30,8 @@ public class Launcher {
 
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
-        
-        try {
+
+        try{
             final CliResult cliResult = CliDelegate.instance().execute(args);
 
             if (cliResult.isSuppressStartup()) {
@@ -89,27 +90,19 @@ public class Launcher {
 
         Set<Object> services = serviceLocator.getServices("tessera-spring.xml");
 
-        TesseraServerFactory restServerFactory = TesseraServerFactory.create(CommunicationType.REST);
-
-        TesseraServerFactory grpcServerFactory = TesseraServerFactory.create(CommunicationType.GRPC);
-
-        TesseraServerFactory unixSocketServerFactory = TesseraServerFactory.create(CommunicationType.UNIX_SOCKET);
-
-        //TODO - we should only need one netty factory that is able to deal with any type of ServerConfig
         List<TesseraServer> servers = new ArrayList<>();
-        for(ServerConfig serverConfig : config.getServerConfigs()){
-            TesseraServer tesseraServer = null;
-            switch (serverConfig.getCommunicationType()){
-                case GRPC:
-                    tesseraServer = grpcServerFactory.createServer(serverConfig, services);
-                    break;
-                case REST:
-                    tesseraServer = restServerFactory.createServer(serverConfig, services);
-                    break;
-                case UNIX_SOCKET:
-                    tesseraServer = unixSocketServerFactory.createServer(serverConfig, services);
-                    break;
+        for (ServerConfig serverConfig : config.getServerConfigs()) {
+            AppType appType = serverConfig.getApp();
+            if (appType == AppType.ENCLAVE) {
+                //Enclave server config means the enclave server is remote. 
+                continue;
             }
+            
+            CommunicationType communicationType = serverConfig.getCommunicationType();
+
+            TesseraServerFactory serverFactory = TesseraServerFactory.create(communicationType);
+
+            TesseraServer tesseraServer = serverFactory.createServer(serverConfig, services);
             if (null != tesseraServer) {
                 servers.add(tesseraServer);
             }
@@ -118,8 +111,8 @@ public class Launcher {
         CountDownLatch countDown = new CountDownLatch(1);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                for (TesseraServer ts : servers){
+            try{
+                for (TesseraServer ts : servers) {
                     ts.stop();
                 }
             } catch (Exception ex) {
@@ -129,7 +122,7 @@ public class Launcher {
             }
         }));
 
-        for (TesseraServer ts : servers){
+        for (TesseraServer ts : servers) {
             ts.start();
         }
 

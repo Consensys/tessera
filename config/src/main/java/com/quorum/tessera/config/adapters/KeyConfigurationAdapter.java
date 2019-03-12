@@ -2,6 +2,7 @@ package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.io.SystemAdapter;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class KeyConfigurationAdapter extends XmlAdapter<KeyConfiguration, KeyCon
             } catch (final IOException ex) {
                 //dont do anything, if any keys are locked validation will complain that
                 //locked keys were provided without passwords
-                System.err.println("Could not read the password file");
+                SystemAdapter.INSTANCE.err().println("Could not read the password file");
             }
         }
 

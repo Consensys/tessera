@@ -28,15 +28,7 @@ public class ServerConfigValidator implements ConstraintValidator<ValidServerCon
             return false;
 
         }
-
-        if (!serverConfig.getApp().getAllowedSocketTypes().contains(serverConfig.getServerSocket().getClass())) {
-            LOGGER.debug("Invalid serverSocket type specified for serverConfig with app " + serverConfig.getApp());
-            constraintContext.disableDefaultConstraintViolation();
-            constraintContext.buildConstraintViolationWithTemplate("Invalid serverSocket type specified for " +
-                "serverConfig with app " + serverConfig.getApp())
-                .addConstraintViolation();
-            return false;
-        }
+        
 
         return true;
     }

@@ -1,9 +1,11 @@
 package com.quorum.tessera.config;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
+import static org.mockito.Mockito.mock;
 
 public class ConfigTest {
 
@@ -82,7 +84,9 @@ public class ConfigTest {
     @Test
     public void areServerConfigsNull() {
         Config config = new Config();
-
+        Path unixServerPath = mock(Path.class);
+        config.setUnixSocketFile(unixServerPath);
+        
         assertThat(config.getServerConfigs()).isEmpty();
         assertThat(config.isServerConfigsNull()).isTrue();
 

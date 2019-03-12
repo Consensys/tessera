@@ -3,7 +3,6 @@ package com.quorum.tessera.enclave.websockets;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.InetServerSocket;
 import com.quorum.tessera.config.ServerConfig;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
@@ -20,7 +19,7 @@ public class WebsocketEnclaveClientFactoryTest {
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(AppType.ENCLAVE);
         serverConfig.setCommunicationType(CommunicationType.WEB_SOCKET);
-        serverConfig.setServerSocket(new InetServerSocket("ws:/foo", 99));
+        serverConfig.setServerAddress("ws:/foo:99");
         
         Config config = new Config();
         config.setServerConfigs(Arrays.asList(serverConfig));
@@ -35,7 +34,7 @@ public class WebsocketEnclaveClientFactoryTest {
 
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setCommunicationType(CommunicationType.WEB_SOCKET);
-        serverConfig.setServerSocket(new InetServerSocket("ws:/foo", 99));
+        serverConfig.setServerAddress("ws:/foo:99");
         
         Config config = new Config();
         config.setServerConfigs(Arrays.asList(serverConfig));
@@ -48,7 +47,7 @@ public class WebsocketEnclaveClientFactoryTest {
 
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(AppType.ENCLAVE);
-        serverConfig.setServerSocket(new InetServerSocket("ws:/foo", 99));
+        serverConfig.setServerAddress("ws:/foo:99");
 
         Config config = new Config();
         config.setServerConfigs(Arrays.asList(serverConfig));

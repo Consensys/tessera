@@ -1,5 +1,6 @@
 package com.quorum.tessera.config.util;
 
+import com.quorum.tessera.io.SystemAdapter;
 import java.util.Objects;
 
 /**
@@ -23,20 +24,24 @@ public interface PasswordReader {
 
         for(;;) {
 
-            System.out.println("Enter a password if you want to lock the private key or leave blank");
+            sys().out().println("Enter a password if you want to lock the private key or leave blank");
             final String password = this.readPasswordFromConsole();
 
-            System.out.println("Please re-enter the password (or lack of) to confirm");
+            sys().out().println("Please re-enter the password (or lack of) to confirm");
             final String passwordCheck = this.readPasswordFromConsole();
 
             if(Objects.equals(password, passwordCheck)) {
                 return password;
             } else {
-                System.out.println("Passwords did not match, try again...");
+                sys().out().println("Passwords did not match, try again...");
             }
 
         }
 
+    }
+    
+    static SystemAdapter sys() {
+        return SystemAdapter.INSTANCE;
     }
 
 }

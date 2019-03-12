@@ -9,53 +9,7 @@
     <artifactId>jaxrs-client-unixsocket</artifactId>
     <packaging>jar</packaging>
     <name>jaxrs-client-unixsocket</name>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.glassfish.grizzly</groupId>
-                <artifactId>grizzly-http-servlet</artifactId>
-                <version>2.4.3.1</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>com.sun.mail</groupId>
-                <artifactId>javax.mail</artifactId>
-                <version>1.6.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-server</artifactId>
-                <version>9.4.9.v20180320</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-client</artifactId>
-                <version>9.4.9.v20180320</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-servlet</artifactId>
-                <version>9.4.9.v20180320</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-unixsocket</artifactId>
-                <version>9.4.9.v20180320</version>
-                <type>jar</type>
-            </dependency>
-            
-            <dependency>
-                <groupId>com.github.jnr</groupId>
-                <artifactId>jnr-unixsocket</artifactId>
-                <version>0.21</version>
-            </dependency>
 
-        </dependencies>
-    </dependencyManagement>
-    
     <dependencies>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -85,6 +39,13 @@
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>jersey-server</artifactId>
             <scope>test</scope>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>shared</artifactId>
+            <scope>runtime</scope>
             <type>jar</type>
         </dependency>
 

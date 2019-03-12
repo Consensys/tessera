@@ -1,12 +1,10 @@
 package com.quorum.tessera.jaxrs.client;
 
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.UnixServerSocket;
 import com.quorum.tessera.reflect.ReflectCallback;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
 import java.lang.reflect.Method;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
 import java.util.Arrays;
 
 import javax.net.ssl.SSLContext;
@@ -58,9 +56,10 @@ public class ClientFactory {
      * @see Client
      */
     public Client buildFrom(final ServerConfig config) {
-        if (UnixServerSocket.class.isInstance(config.getServerSocket())) {
+  
+        if (config.isUnixSocket()) {
             Configuration clientConfig = createUnixServerSocketConfig();
-            Path unixfile = Paths.get(UnixServerSocket.class.cast(config.getServerSocket()).getPath());
+            URI unixfile = config.getServerUri();
             return ClientBuilder.newClient(clientConfig)
                     .property("unixfile", unixfile);
 

@@ -5,12 +5,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import javax.ws.rs.ProcessingException;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import org.glassfish.jersey.client.ClientRequest;
 import org.glassfish.jersey.client.ClientResponse;
 import org.glassfish.jersey.client.spi.AsyncConnectorCallback;
@@ -23,13 +26,22 @@ import org.eclipse.jetty.client.util.BytesContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.unixsocket.client.HttpClientTransportOverUnixSockets;
 import org.glassfish.jersey.message.internal.Statuses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JerseyUnixSocketConnector implements Connector {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JerseyUnixSocketConnector.class);
+
     private HttpClient httpClient;
 
-    public JerseyUnixSocketConnector(Path unixfile) {
-        httpClient = new HttpClient(new HttpClientTransportOverUnixSockets(unixfile.toString()), null);
+    private URI unixfile;
+
+    public JerseyUnixSocketConnector(URI unixfile) {
+        this.unixfile = unixfile;
+        String unixFilePath = Paths.get(unixfile).toFile().getAbsolutePath();
+
+        httpClient = new HttpClient(new HttpClientTransportOverUnixSockets(unixFilePath), null);
         try{
             httpClient.start();
         } catch (Exception ex) {
@@ -51,22 +63,52 @@ public class JerseyUnixSocketConnector implements Connector {
     private ClientResponse doApply(ClientRequest request) throws Exception {
 
         HttpMethod httpMethod = HttpMethod.valueOf(request.getMethod());
+        final URI originalUri = request.getUri();
+        final URI uri;
+        Path basePath = Paths.get(unixfile);
 
-        URI uri = request.getUri();
+        if (originalUri.getScheme().startsWith("unix")) {
+            
+            String path = originalUri.getRawPath()
+                    .replaceFirst(basePath.toString(), "");
+
+            LOGGER.trace("Extracted path {} from {}",path, originalUri.getRawPath());
+
+            uri = UriBuilder.fromUri(originalUri)
+                    .replacePath(path)
+                    .scheme("http")
+                    .port(99)
+                    .host("localhost")
+                    .build();
+                        
+            LOGGER.trace("Created psuedo uri {} for originalUri {}", uri, originalUri);
+        } else {
+            uri = originalUri;
+        }
+
         Request clientRequest = httpClient.newRequest(uri)
                 .method(httpMethod);
+
+        MultivaluedMap<String, Object> headers = request.getHeaders();
+
+        headers.keySet().stream().forEach(name -> {
+            headers.get(name).forEach(value -> {
+                clientRequest.header(name, Objects.toString(value));
+            });
+
+        });
 
         if (request.hasEntity()) {
             final long length = request.getLengthLong();
 
-            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            try (ByteArrayOutputStream bout = new ByteArrayOutputStream()){
 
-            request.setStreamProvider((int contentLength) -> bout);
-            request.writeEntity();
+                request.setStreamProvider((int contentLength) -> bout);
+                request.writeEntity();
 
-            MediaType mediaType = request.getMediaType();
-            ContentProvider content = new BytesContentProvider(bout.toByteArray());
-            clientRequest.content(content, mediaType.toString());
+                ContentProvider content = new BytesContentProvider(bout.toByteArray());
+                clientRequest.content(content);
+            }
 
         }
         final ContentResponse contentResponse = clientRequest.send();
@@ -74,12 +116,15 @@ public class JerseyUnixSocketConnector implements Connector {
         int statusCode = contentResponse.getStatus();
         String reason = contentResponse.getReason();
 
+        LOGGER.trace("uri {}, method: {},statusCode:{},reason: {} ", uri, httpMethod, statusCode, reason);
+
         final Response.StatusType status = Statuses.from(statusCode, reason);
 
         ClientResponse response = new ClientResponse(status, request);
-        contentResponse.getHeaders().stream().forEach(header -> {
-            response.headers(header.getName(), header.getValues());
-        });
+        contentResponse.getHeaders().stream()
+                .forEach(header -> {
+                    response.headers(header.getName(), (Object[]) header.getValues());
+                });
 
         response.setEntityStream(new ByteArrayInputStream(contentResponse.getContent()));
         return response;

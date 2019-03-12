@@ -17,21 +17,14 @@ public interface TesseraServerFactory<T> {
     Logger LOGGER = LoggerFactory.getLogger(TesseraServerFactory.class);
     
     static TesseraServerFactory create(CommunicationType communicationType) {
-        final CommunicationType ct;
-        if(communicationType == CommunicationType.UNIX_SOCKET) {
-           LOGGER.warn("UNIX_SOCKET communication type is deprecated it will "
-                   + "be removed for furture releases. "
-                   + "Use REST commnications type with UnixServerSocket serverSocket");
-           ct = CommunicationType.REST;
-        } else {
-            ct = communicationType;
-        }
 
         List<TesseraServerFactory> all = new ArrayList<>();
         ServiceLoader.load(TesseraServerFactory.class).forEach(all::add);
+
         return all.stream()
-                .filter(f -> f.communicationType() == ct)
-                .findFirst().get();
+                .filter(f -> f.communicationType() == communicationType)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No server factory found for "+ communicationType));
     }
 
     CommunicationType communicationType();

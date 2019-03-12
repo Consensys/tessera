@@ -1,10 +1,9 @@
 package com.jpmorgan.quorum.server.utils;
 
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.UnixServerSocket;
 import com.quorum.tessera.ssl.context.ServerSSLContextFactory;
 import java.net.URI;
-import java.util.Optional;
+import java.nio.file.Paths;
 import javax.net.ssl.SSLContext;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -22,23 +21,15 @@ public class ServerUtils {
         Server server = new Server();
         URI uri = serverConfig.getBindingUri();
 
-        if (Optional.of(serverConfig)
-                .map(ServerConfig::getServerSocket)
-                .filter(s -> UnixServerSocket.class.isInstance(s))
-                .map(UnixServerSocket.class::cast)
-                .isPresent()) {
-
-            UnixServerSocket unixServerSocket = Optional.of(serverConfig)
-                    .map(ServerConfig::getServerSocket)
-                    .filter(s -> UnixServerSocket.class.isInstance(s))
-                    .map(UnixServerSocket.class::cast).get();
+        if (serverConfig.isUnixSocket()) {
 
             HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory();
 
             UnixSocketConnector connector = new UnixSocketConnector(server, httpConnectionFactory);
             connector.setAcceptQueueSize(128);
-
-            connector.setUnixSocket(unixServerSocket.getPath());
+            
+            String path = Paths.get(serverConfig.getServerUri()).toAbsolutePath().toString();
+            connector.setUnixSocket(path);
 
             server.setConnectors(new Connector[]{connector});
 

@@ -4,7 +4,6 @@ import com.quorum.tessera.api.model.ReceiveResponse;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.RestPartyHelper;
 import cucumber.api.java8.En;
 
 import java.net.URI;
@@ -27,12 +26,9 @@ import transaction.utils.Utils;
 
 public class RestSteps implements En {
 
-
     private final RestUtils restUtils = new RestUtils();
-    
-    private Client client = ClientBuilder.newClient();
 
-    private PartyHelper partyHelper = new RestPartyHelper();
+    private PartyHelper partyHelper = PartyHelper.create();
     
     public RestSteps() {
 
@@ -63,7 +59,7 @@ public class RestSteps implements En {
         });
 
         And("^all parties are running$", () -> {
-            
+            Client client = ClientBuilder.newClient();
             assertThat(partyHelper.getParties()
                 .map(Party::getP2PUri)
                 .map(client::target)
@@ -76,7 +72,7 @@ public class RestSteps implements En {
 
         When("^a request is made against the node", () -> {
             Optional<URI> uri = Optional.of(new URI("http://localhost:" + portHolder.get(0)));
-
+            Client client = ClientBuilder.newClient();
             responseCodes.add(
                 uri
                     .map(client::target)
@@ -97,7 +93,7 @@ public class RestSteps implements En {
             sendRequest.setTo("8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=");
             sendRequest.setPayload(txnData);
 
-            final Response response = client.target(sender.getQ2TUri())
+            final Response response = sender.getRestClientWebTarget()
                 .path("send")
                 .request()
                 .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -121,7 +117,7 @@ public class RestSteps implements En {
                 )
                 .build().toString();
 
-            Response response = client.target(sender.getQ2TUri()).path("send")
+            Response response = sender.getRestClientWebTarget().path("send")
                 .request()
                 .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
@@ -142,7 +138,7 @@ public class RestSteps implements En {
 
             sendRequest.setTo(recipientArray);
 
-            Response response = client.target(sender.getQ2TUri()).path("send")
+            Response response = sender.getRestClientWebTarget().path("send")
                 .request().post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
             assertThat(response.getStatus()).isEqualTo(201);
@@ -185,13 +181,19 @@ public class RestSteps implements En {
         });
 
         Then("^forwards the transaction to recipient part(?:y|ies)$", () -> {
-
+            
+            
+            
             recipients.forEach(rec -> {
-                String storedHash = storedHashes.iterator().next();
+                
+                final String storedHash = storedHashes.iterator().next();
+                
                 Response response = restUtils.findTransaction(storedHash,rec)
                     .findAny().get();
 
-                assertThat(response.getStatus()).isEqualTo(200);
+                assertThat(response.getStatus())
+                        .describedAs(Objects.toString(response))
+                        .isEqualTo(200);
 
                 ReceiveResponse receiveResponse = response.readEntity(ReceiveResponse.class);
 

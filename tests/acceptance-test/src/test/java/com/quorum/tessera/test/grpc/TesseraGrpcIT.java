@@ -3,6 +3,8 @@ package com.quorum.tessera.test.grpc;
 import com.google.protobuf.Empty;
 import com.quorum.tessera.grpc.p2p.TesseraGrpc;
 import com.quorum.tessera.grpc.p2p.VersionMessage;
+import com.quorum.tessera.test.Party;
+import com.quorum.tessera.test.PartyHelper;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,7 +29,9 @@ public class TesseraGrpcIT {
 
     @Before
     public void onSetUp() {
-        channel = ManagedChannelBuilder.forAddress("127.0.0.1", 50520)
+        Party anyParty = PartyHelper.create().getParties().findAny().get();
+        
+        channel = ManagedChannelBuilder.forAddress(anyParty.getP2PUri().getHost(), anyParty.getP2PUri().getPort())
             .usePlaintext()
             .build();
 

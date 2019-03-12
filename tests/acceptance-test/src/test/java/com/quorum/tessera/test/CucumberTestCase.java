@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.test;
 
 import cucumber.api.CucumberOptions;
@@ -9,7 +8,7 @@ import org.junit.runner.RunWith;
 @CucumberOptions(
     features = "classpath:features/transaction.feature",
     monochrome = true,
-    plugin = {"usage"}
+    plugin = {"progress"}
 )
 public abstract class CucumberTestCase {
     

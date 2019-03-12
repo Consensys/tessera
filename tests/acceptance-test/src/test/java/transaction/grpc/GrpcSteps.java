@@ -8,7 +8,6 @@ import com.quorum.tessera.grpc.api.ReceiveResponse;
 import com.quorum.tessera.grpc.api.SendRequest;
 import com.quorum.tessera.grpc.api.SendResponse;
 import com.quorum.tessera.grpc.p2p.TesseraGrpc;
-import com.quorum.tessera.test.GrpcPartyHelper;
 import com.quorum.tessera.test.Party;
 import cucumber.api.java8.En;
 import io.grpc.ManagedChannel;
@@ -30,7 +29,7 @@ import transaction.utils.Utils;
 
 public class GrpcSteps implements En {
 
-    private PartyHelper partyFactory = new GrpcPartyHelper();
+    private PartyHelper partyFactory = PartyHelper.create();
 
     public GrpcSteps() {
 
@@ -114,7 +113,9 @@ public class GrpcSteps implements En {
                 failBecauseExceptionWasNotThrown(io.grpc.StatusRuntimeException.class);
             } catch (io.grpc.StatusRuntimeException ex) {
                 //FIXME: Should be invalid arg
-                assertThat(ex.getStatus()).isEqualTo(io.grpc.Status.UNKNOWN);
+                assertThat(ex.getStatus())
+                        .describedAs("Expected  io.grpc.Status.UNKNOWN staus. recieved: "+ ex.getStatus())
+                        .isEqualTo(io.grpc.Status.UNKNOWN);
             }
 
         });

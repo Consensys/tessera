@@ -34,7 +34,7 @@ public class EnclaveFactoryTest {
         serverConfig.setEnabled(true);
         serverConfig.setApp(AppType.ENCLAVE);
         serverConfig.setCommunicationType(CommunicationType.REST);
-        serverConfig.setServerSocket(new InetServerSocket("http://bogus", 9898));
+        serverConfig.setServerAddress("http://bogus:9898");
 
         config.setServerConfigs(singletonList(serverConfig));
 
@@ -53,7 +53,7 @@ public class EnclaveFactoryTest {
             ServerConfig serverConfig = new ServerConfig();
             serverConfig.setApp(t);
             serverConfig.setCommunicationType(CommunicationType.REST);
-            serverConfig.setServerSocket(new InetServerSocket("http://bogus", 9898));
+            serverConfig.setServerAddress("http://bogus:9898");
 
             config.setServerConfigs(singletonList(serverConfig));
 

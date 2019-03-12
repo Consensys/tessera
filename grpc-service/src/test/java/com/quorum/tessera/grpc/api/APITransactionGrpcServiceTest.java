@@ -21,7 +21,7 @@ public class APITransactionGrpcServiceTest {
 
     @Mock
     private StreamObserver<ReceiveResponse> receiveResponseObserver;
-
+    
     @Mock
     private TransactionManagerImpl enclaveMediator;
 
@@ -143,4 +143,6 @@ public class APITransactionGrpcServiceTest {
         verify(receiveResponseObserver).onError(any());
 
     }
+    
+
 }

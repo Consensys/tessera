@@ -3,6 +3,7 @@ package com.quorum.tessera.config.cli;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.cli.parsers.ConfigurationParser;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -23,13 +24,13 @@ import org.apache.commons.cli.Options;
  * Cli Adapter to be used for runtime updates
  */
 public class AdminCliAdapter implements CliAdapter {
-    
+
     private final ClientFactory clientFactory;
 
     public AdminCliAdapter(final ClientFactory clientFactory) {
         this.clientFactory = Objects.requireNonNull(clientFactory);
     }
-    
+
     /**
      *
      * @param args
@@ -63,14 +64,19 @@ public class AdminCliAdapter implements CliAdapter {
 
         if (argsList.contains("help") || argsList.isEmpty()) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.setWidth(200);
-            formatter.printHelp("tessera admin", options);
+            PrintWriter pw = new PrintWriter(sys().out());
+            formatter.printHelp(pw,
+                    200, "tessera admin",
+                    null, options, formatter.getLeftPadding(),
+                    formatter.getDescPadding(), null, false);
+            pw.flush();
+            
             return new CliResult(0, true, null);
         }
 
         final CommandLine line = new DefaultParser().parse(options, args);
-        if(!line.hasOption("addpeer")) {
-            System.out.println("No peer defined");
+        if (!line.hasOption("addpeer")) {
+            sys().out().println("No peer defined");
             return new CliResult(1, true, null);
         }
 
@@ -78,25 +84,25 @@ public class AdminCliAdapter implements CliAdapter {
 
         //TODO revisit - maybe the admin stuff should be reached via unix socket - in order to avoid security concerns
         ServerConfig serverConfig = config.getServerConfigs().stream()
-            .filter(c -> c.getApp() == AppType.ADMIN)
-            .findFirst().orElse(config.getServerConfigs().stream().findAny().get());
+                .filter(c -> c.getApp() == AppType.ADMIN)
+                .findFirst().orElse(config.getServerConfigs().stream().findAny().get());
 
         Client restClient = clientFactory.buildFrom(serverConfig);
 
         String peerUrl = line.getOptionValue("addpeer");
-    
+
         final Peer peer = new Peer(peerUrl);
 
         String scheme = Optional.of(serverConfig)
                 .map(ServerConfig::getBindingUri)
                 .map(URI::getScheme)
                 .orElse("http");
-        
+
         Integer port = Optional.of(serverConfig)
-                .map(ServerConfig::getServerSocket)
-                .map(ss -> ((InetServerSocket)ss).getPort())
+                .map(ServerConfig::getServerUri)
+                .map(URI::getPort)
                 .orElse(80);
- 
+
         URI uri = UriBuilder.fromUri(serverConfig.getBindingUri())
                 .port(port)
                 .scheme(scheme)
@@ -107,18 +113,18 @@ public class AdminCliAdapter implements CliAdapter {
                 .path("peers")
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .put(Entity.entity(peer, MediaType.APPLICATION_JSON)); 
+                .put(Entity.entity(peer, MediaType.APPLICATION_JSON));
 
-        if(response.getStatus() == Response.Status.CREATED.getStatusCode()) {
+        if (response.getStatus() == Response.Status.CREATED.getStatusCode()) {
 
-            System.out.printf("Peer %s added.",response.getLocation());
-            System.out.println();
-            
+            sys().out().printf("Peer %s added.", response.getLocation());
+            sys().out().println();
+
             return new CliResult(0, true, null);
         }
-        
-        System.err.println("Unable to create peer");
-        
+
+        sys().err().println("Unable to create peer");
+
         return new CliResult(1, true, null);
     }
 

@@ -24,13 +24,18 @@ install:
 - unzip /tmp/vault_1.0.1_linux_amd64.zip
 - export PATH=$PATH:$PWD && popd
 
-script: mvn install -P acceptance-test,vault-acceptance-tests,jnacl
+script: 
+    - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
+    - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
+    - mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+    - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
+    - mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging || travis_terminate 1
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 
-before_cache:
-- mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
+#before_cache:
+#- mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
 
 deploy:
     provider: script

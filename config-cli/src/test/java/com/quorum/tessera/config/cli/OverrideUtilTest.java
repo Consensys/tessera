@@ -53,6 +53,7 @@ public class OverrideUtilTest {
             "unixSocketFile",
             "useWhiteList",
             "disablePeerDiscovery",
+            "serverConfigs.serverAddress",
             "serverConfigs.sslConfig.serverTrustStore",
             "serverConfigs.influxConfig.dbName",
             "serverConfigs.sslConfig.knownClientsFile",
@@ -336,7 +337,6 @@ public class OverrideUtilTest {
 
         Config config = OverrideUtil.createInstance(Config.class);
 
-        JaxbUtil.marshalWithNoValidation(config, System.out);
 
         OverrideUtil.setValue(config, "keys.keyData.publicKey", "PUBLICKEY");
         OverrideUtil.setValue(config, "keys.keyData.privateKey", "PRIVATEKEY");
@@ -360,8 +360,6 @@ public class OverrideUtilTest {
     public void defineAlwaysSendToWithOverridesOnly() throws Exception {
 
         Config config = OverrideUtil.createInstance(Config.class);
-
-        JaxbUtil.marshalWithNoValidation(config, System.out);
 
         OverrideUtil.setValue(config, "alwaysSendTo", "ONE", "TWO");
 

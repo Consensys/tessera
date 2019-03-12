@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.dao;
 
 import com.quorum.tessera.transaction.EncryptedRawTransactionDAO;
@@ -45,16 +44,20 @@ public abstract class JpaConfig {
         localContainerEntityManagerFactoryBean.setDataSource(dataSource);
         localContainerEntityManagerFactoryBean.setJpaDialect(new EclipseLinkJpaDialect());
         localContainerEntityManagerFactoryBean.setJpaVendorAdapter(new EclipseLinkJpaVendorAdapter());
-        
-        localContainerEntityManagerFactoryBean.setJpaPropertyMap(new HashMap<String, String>() {{
-            put("eclipselink.weaving", "false");
-          //  put("eclipselink.logging.level.sql","FINE");
-           // put("eclipselink.logging.parameters","true");
-            put("javax.persistence.schema-generation.database.action", "create");
-            put("javax.persistence.schema-generation.scripts.action", "create");
-            put("javax.persistence.schema-generation.scripts.create-target","target/"+ getCreateScriptName());
-        }});
-       
+
+        localContainerEntityManagerFactoryBean.setJpaPropertyMap(new HashMap<String, String>() {
+            {
+
+                put("eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
+                put("eclipselink.weaving", "false");
+                //  put("eclipselink.logging.level.sql","FINE");
+                // put("eclipselink.logging.parameters","true");
+                put("javax.persistence.schema-generation.database.action", "create");
+                put("javax.persistence.schema-generation.scripts.action", "create");
+                put("javax.persistence.schema-generation.scripts.create-target", "target/" + getCreateScriptName());
+            }
+        });
+
         /*
             <property name="jpaVendorAdapter">
                 <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
@@ -63,15 +66,13 @@ public abstract class JpaConfig {
                     <property name="databasePlatform" value="org.eclipse.persistence.platform.database.H2Platform"/>
                 </bean>
             </property>
-        */
-
+         */
         return localContainerEntityManagerFactoryBean;
 
     }
 
-    
     public final String getCreateScriptName() {
-        return String.join(".", getClass().getSimpleName(),"ddl");
+        return String.join(".", getClass().getSimpleName(), "ddl");
     }
-    
+
 }

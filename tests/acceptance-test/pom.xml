@@ -23,6 +23,12 @@
    
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>enclave-jaxrs</artifactId>
+            <version>0.9-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>test-util</artifactId>
         </dependency>
 
@@ -57,7 +63,7 @@
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
-
+ 
     </dependencies>
 
     <build>
@@ -80,23 +86,22 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.0.0-M1</version>
                 <configuration>
+                    
                     <skip>false</skip>
-                    <rerunFailingTestsCount>3</rerunFailingTestsCount>
+                    <rerunFailingTestsCount>0</rerunFailingTestsCount>
                     <systemPropertyVariables>
                         <application.jar>${com.jpmorgan.quorum:tessera-app:jar:app}</application.jar>
                         <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
                         <jdbc.sqlite.jar>${org.xerial:sqlite-jdbc:jar}</jdbc.sqlite.jar>
+                        <enclave.jaxrs.jar>${com.jpmorgan.quorum:enclave-jaxrs:jar}</enclave.jaxrs.jar>
                         <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
-                        <javax.xml.bind.JAXBContextFactory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.JAXBContextFactory>
-                        <javax.xml.bind.context.factory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.context.factory>
                     </systemPropertyVariables>
                     <includes>
+                        <include>RestSuiteHSQL</include>
+                        <include>RestSuiteUnixH2</include>
                         <include>RestSuiteH2</include>
                         <include>RestSuiteSqlite</include>
-                        <include>GrpcSuiteH2</include>
-                        <include>GrpcSuiteSqlite</include>
                         <include>ConfigMigrationIT</include>
                     </includes>
                 </configuration>
@@ -154,14 +159,28 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>3.0.0-M1</version>
-
                         <configuration>
                             <includes>
-                                <include>RestSuite</include>
-                                <include>GrpcSuite</include>
-                                <include>ConfigMigrationIT</include>
                                 <include>RunHashicorpIT</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>grpc-acceptance-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <rerunFailingTestsCount>3</rerunFailingTestsCount>
+                            <includes>
+                                <include>GrpcSuiteH2</include>
+                                <include>GrpcSuiteSqlite</include>
                             </includes>
                         </configuration>
                     </plugin>

@@ -3,7 +3,6 @@ package com.quorum.tessera.enclave.rest;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.InetServerSocket;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.enclave.EnclaveClient;
 import java.util.Arrays;
@@ -21,7 +20,8 @@ public class RestfulEnclaveClientFactoryTest {
         final ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(AppType.ENCLAVE);
         serverConfig.setCommunicationType(CommunicationType.REST);
-        serverConfig.setServerSocket(new InetServerSocket("bogushost", 99));
+        
+        serverConfig.setServerAddress("http://bogushost:99");
         List<ServerConfig> serverConfigs = Arrays.asList(serverConfig);
         config.setServerConfigs(serverConfigs);
 
@@ -37,7 +37,7 @@ public class RestfulEnclaveClientFactoryTest {
         final ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(AppType.ENCLAVE);
 
-        serverConfig.setServerSocket(new InetServerSocket("bogushost", 99));
+        serverConfig.setServerAddress("http://bogushost:99");
         List<ServerConfig> serverConfigs = Arrays.asList(serverConfig);
         config.setServerConfigs(serverConfigs);
 
@@ -51,7 +51,7 @@ public class RestfulEnclaveClientFactoryTest {
         final ServerConfig serverConfig = new ServerConfig();
         serverConfig.setCommunicationType(CommunicationType.REST);
 
-        serverConfig.setServerSocket(new InetServerSocket("bogushost", 99));
+        serverConfig.setServerAddress("http://bogushost:99");
         List<ServerConfig> serverConfigs = Arrays.asList(serverConfig);
         config.setServerConfigs(serverConfigs);
 
