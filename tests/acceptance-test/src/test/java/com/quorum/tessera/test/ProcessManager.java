@@ -7,6 +7,7 @@ import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.test.util.ElUtil;
 import exec.ExecArgsBuilder;
+import exec.ExecUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +15,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,11 +28,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import suite.EnclaveType;
 import suite.ExecutionContext;
 import suite.PartyInfoChecker;
 import suite.ServerStatusCheck;
 import suite.ServerStatusCheckExecutor;
 import suite.SocketType;
+import suite.Utils;
 
 public class ProcessManager {
 
@@ -59,15 +61,7 @@ public class ProcessManager {
         this.dbType = executionContext.getDbType();
 
         this.configFiles = executionContext.getConfigs().stream()
-                .collect(Collectors.toMap(c -> c.getAlias().name(), c -> toURL(c.getPath())));
-    }
-
-    static URL toURL(Path path) {
-        try{
-            return path.toUri().toURL();
-        } catch (MalformedURLException ex) {
-            throw new UncheckedIOException(ex);
-        }
+                .collect(Collectors.toMap(c -> c.getAlias().name(), c -> Utils.toUrl(c.getPath())));
     }
 
     private String findJarFilePath(String jar) {
@@ -91,24 +85,28 @@ public class ProcessManager {
         PartyInfoChecker partyInfoChecker = PartyInfoChecker.create(communicationType);
 
         executorService.submit(() -> {
-
+            
             while (true) {
 
                 LOGGER.info("Check party info");
                 if (partyInfoChecker.hasSynced()) {
+                    LOGGER.info("Party info propagated");
                     countDownLatch.countDown();
                     break;
-                }
-                try{
-                    LOGGER.info("Party info not synced yet. Sleep for 3 secs");
-                    TimeUnit.SECONDS.sleep(3);
-                } catch (InterruptedException ex) {
+                } else {
+                    try{
+                        LOGGER.info("Party info not synced yet. Sleep for 3 secs");
+                        TimeUnit.SECONDS.sleep(3);
+                    } catch (InterruptedException ex) {
+                    }
                 }
 
             }
         }).get(3, TimeUnit.MINUTES);
 
-        countDownLatch.await(3, TimeUnit.MINUTES);
+        if (!countDownLatch.await(3, TimeUnit.MINUTES)) {
+            throw new RuntimeException("Unable to sync party info");
+        }
     }
 
     public void stopNodes() throws Exception {
@@ -145,12 +143,13 @@ public class ProcessManager {
         final Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "pid" + nodeAlias + ".pid");
 
         pids.put(nodeAlias, pid);
-        
+
         String nodeId = String.join("-", communicationType.name().toLowerCase(),
                 executionContext.getSocketType().name().toLowerCase(),
                 dbType.name().toLowerCase(),
+                "enclave",
+                executionContext.getEnclaveType().name().toLowerCase(),
                 nodeAlias);
-
 
         ExecArgsBuilder argsBuilder = new ExecArgsBuilder()
                 .withJvmArg("-Ddebug=true")
@@ -160,8 +159,11 @@ public class ProcessManager {
                 .withConfigFile(ElUtil.createAndPopulatePaths(configFile))
                 .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile.getFile())
                 .withClassPathItem(Paths.get(tesseraJar))
-                //  .withClassPathItem(Paths.get(enclaveJar))
                 .withArg("-jdbc.autoCreateTables", "true");
+
+        if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
+            argsBuilder.withClassPathItem(Paths.get(enclaveJar));
+        }
 
         if (dbType == DBType.HSQL) {
             argsBuilder.withJvmArg("-Dhsqldb.reconfig_logging=false");
@@ -242,12 +244,8 @@ public class ProcessManager {
         fileDelegate.lines(pidFile);
 
         String pid = Files.lines(pidFile).findFirst().get();
+        ExecUtils.kill(pid);
 
-        List<String> args = Arrays.asList("kill", pid);
-        ProcessBuilder processBuilder = new ProcessBuilder(args);
-        Process process = processBuilder.start();
-
-        int exitCode = process.waitFor();
     }
 
     public static void main(String[] args) throws Exception {
@@ -259,7 +257,9 @@ public class ProcessManager {
         ProcessManager pm = new ProcessManager(ExecutionContext.Builder.create()
                 .with(CommunicationType.REST)
                 .with(DBType.H2)
-                .with(SocketType.HTTP).build());
+                .with(SocketType.HTTP)
+                .build());
+        
         pm.startNodes();
 
         System.in.read();

@@ -67,7 +67,8 @@ public class ConfigGenerator {
         List<Config> configs = createConfigs(executionContext);
         
         List<ConfigDescriptor> configList = new ArrayList<>();
-        for (int i = 0; i < (configs.size() - 1); i++) {
+        
+        for (int i = 0; i < configs.size(); i++) {
             Config config = configs.get(i);
             
             String filename = String.format("config%d.json", (i + 1));
@@ -80,18 +81,7 @@ public class ConfigGenerator {
                 throw new UncheckedIOException(ex);
             }
         }
-
-//Special case
-        Config whiteListConfig = configs.get(4);
-        String filename = String.format("config%s.json", "-whitelist");
-        Path ouputFile = path.resolve(filename);
-        try (OutputStream out = Files.newOutputStream(ouputFile)){
-            JaxbUtil.marshalWithNoValidation(whiteListConfig, out);
-            configList.add(new ConfigDescriptor(NodeAlias.values()[4], ouputFile, whiteListConfig));
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
-        }
-        
+  
         return configList;
 
     }
@@ -137,11 +127,6 @@ public class ConfigGenerator {
                 }
             });
 
-            put(5, new TreeMap<String, String>() {
-                {
-                    put("WxsJ4souK0mptNx1UGw6hb1WNNIbPhLPvW9GoaXau3Q=", "YbOOFA4mwSSdGH6aFfGl2M7N1aiPOj5nHpD7GzJKSiA=");
-                }
-            });
         }
     };
 
@@ -201,24 +186,8 @@ public class ConfigGenerator {
         third.addPeer(new Peer(fourth.getP2PServerConfig().getServerAddress()));
         fourth.addPeer(new Peer(first.getP2PServerConfig().getServerAddress()));
 
-        ConfigBuilder whiteListConfigBuilder = new ConfigBuilder()
-                .withNodeId(nodeId + "whitelist")
-                .withNodeNumbber(5)
-                .withQ2TSocketType(SocketType.UNIX)
-                .withExecutionContext(executionContext)
-                .withP2pPort(7000)
-                .withPeer("http://localhost:8000")
-                .withKeys(keyLookUp.get(5));
 
-        if(executionContext.getCommunicationType() == CommunicationType.REST) {
-            whiteListConfigBuilder.withQ2TSocketType(SocketType.UNIX);
-        } else {
-            whiteListConfigBuilder.withQt2Port(7001);
-        }
-        Config whiteListConfig = whiteListConfigBuilder.build();
-        whiteListConfig.setUseWhiteList(true);
-
-        return Arrays.asList(first, second, third, fourth, whiteListConfig);
+        return Arrays.asList(first, second, third, fourth);
     }
 
     public static void main(String[] args) throws URISyntaxException {

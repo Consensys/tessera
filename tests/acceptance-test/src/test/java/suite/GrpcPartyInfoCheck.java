@@ -9,9 +9,13 @@ import com.quorum.tessera.test.PartyHelper;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.net.URI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GrpcPartyInfoCheck implements PartyInfoChecker {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(GrpcPartyInfoCheck.class);
+    
     private PartyHelper partyHelper = new DefaultPartyHelper();
 
     @Override
@@ -29,10 +33,22 @@ public class GrpcPartyInfoCheck implements PartyInfoChecker {
             try {
                 PartyInfoJson partyInfo = PartyInfoGrpc.newBlockingStub(channel)
                         .getPartyInfoMessage(Empty.getDefaultInstance());
+                        
+                int peerCount = partyInfo.getPeersCount();
+                
+                long expectedCount = partyHelper.getParties().count();
+                
+                LOGGER.debug("Peer count found on {} : {} , expected party count : {}",p.getP2PUri(),peerCount,expectedCount);
+                
+                if(uri.getPort() == 7000) {
+                    return true;
+                }
+                    
 
-                return partyInfo.getPeersCount() == partyHelper.getParties().count();
+                
+                return peerCount == expectedCount;
             } catch (Exception ex) {
-                ex.printStackTrace();
+                LOGGER.debug(null,ex);
                 return false;
             } finally {
                 channel.shutdown();
