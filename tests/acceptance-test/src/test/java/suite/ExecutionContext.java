@@ -17,7 +17,7 @@ public class ExecutionContext {
     
     private final EnclaveType enclaveType;
     
-    private final List<ConfigGenerator.ConfigDescriptor> configs;
+    private List<ConfigGenerator.ConfigDescriptor> configs;
     
     private ExecutionContext(DBType dbType, 
             CommunicationType communicationType, 
@@ -27,9 +27,14 @@ public class ExecutionContext {
         this.communicationType = communicationType;
         this.socketType = socketType;
         this.enclaveType = enclaveType;
-        this.configs = new ConfigGenerator().generateConfigs(this);
     }
 
+    public void setConfigs(List<ConfigGenerator.ConfigDescriptor> configs) {
+        this.configs = configs;
+    }
+    
+    
+    
     public DBType getDbType() {
         return dbType;
     }
@@ -100,16 +105,23 @@ public class ExecutionContext {
         
         protected ExecutionContext createAndSetupContext() {
 
+            
+            
             Stream.of(dbType, communicationType, socketType,enclaveType)
                     .forEach(Objects::requireNonNull);
 
+
             ExecutionContext executionContext = build();
 
+            List<ConfigGenerator.ConfigDescriptor> configs = new ConfigGenerator().generateConfigs(executionContext);
+            executionContext.setConfigs(configs);
+            
             if (THREAD_SCOPE.get() != null) {
                 throw new IllegalStateException("Context has already been created");
             }
 
             THREAD_SCOPE.set(executionContext);
+            
             return executionContext;
         }
 

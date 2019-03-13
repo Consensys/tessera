@@ -29,8 +29,7 @@ import suite.TestSuite;
     AdminConfigIT.class,
     CucumberRestIT.class,
     CucumberRawIT.class,
-    CucumberAdminIT.class,
-    CucumberWhitelistIT.class
+    CucumberAdminIT.class
 })
 public class RestSuiteHSQL {
     

@@ -97,11 +97,14 @@
                         <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
-<!--                        <include>RestSuiteUnixH2</include>-->
-<!--                       <include>RestSuiteRemoteEnclaveH2</include>-->
+                       <include>CucumberWhitelistIT</include>
+                        <include>RestSuiteH2</include>
+                        
+                        <include>RestSuiteUnixH2</include>
+                       <include>RestSuiteRemoteEnclaveH2</include>
                         <include>RestSuiteHSQL</include>
                         <include>RestSuiteUnixH2</include>
-                        <include>RestSuiteH2</include>
+                        
                         <include>RestSuiteSqlite</include>
                         <include>ConfigMigrationIT</include>
                     </includes>
@@ -178,10 +181,10 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <rerunFailingTestsCount>3</rerunFailingTestsCount>
+                            <rerunFailingTestsCount>0</rerunFailingTestsCount>
                             <includes>
                                 <include>GrpcSuiteH2</include>
-                                <include>GrpcSuiteSqlite</include>
+<!--                                <include>GrpcSuiteSqlite</include>-->
                             </includes>
                         </configuration>
                     </plugin>

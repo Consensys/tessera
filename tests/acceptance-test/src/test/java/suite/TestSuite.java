@@ -29,8 +29,7 @@ public class TestSuite extends Suite {
         CommunicationType communicationType();
 
         SocketType socketType();
-        
-        
+
         EnclaveType enclaveType() default EnclaveType.LOCAL;
     }
 
@@ -41,50 +40,50 @@ public class TestSuite extends Suite {
     @Override
     public void run(RunNotifier notifier) {
 
-        ProcessConfig testConfig = Arrays.stream(getRunnerAnnotations())
-                .filter(ProcessConfig.class::isInstance)
-                .map(ProcessConfig.class::cast)
-                .findAny()
-                .orElseThrow(() -> new AssertionError("No Test config found"));
-
-       ExecutionContext executionContext = ExecutionContext.Builder.create()
-                .with(testConfig.communicationType())
-                .with(testConfig.dbType())
-                .with(testConfig.socketType())
-                .with(testConfig.enclaveType())
-                .createAndSetupContext();
-
-        String nodeId = NodeId.generate(executionContext);
-        DatabaseServer databaseServer = testConfig.dbType().createDatabaseServer(nodeId);
-        databaseServer.start();
-        
-        if(executionContext.getEnclaveType() == EnclaveType.REMOTE) {
-            
-        }
-        
-        
-
-        ProcessManager processManager = new ProcessManager(executionContext);
-
-        try {
-            processManager.startNodes();
-        } catch (Exception ex) {
-            Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
-            notifier.fireTestFailure(new Failure(de, ex));
-        }
-
-        super.run(notifier);
-
         try{
-            processManager.stopNodes();
-        } catch (Exception ex) {
+            ProcessConfig testConfig = Arrays.stream(getRunnerAnnotations())
+                    .filter(ProcessConfig.class::isInstance)
+                    .map(ProcessConfig.class::cast)
+                    .findAny()
+                    .orElseThrow(() -> new AssertionError("No Test config found"));
+
+            ExecutionContext executionContext = ExecutionContext.Builder.create()
+                    .with(testConfig.communicationType())
+                    .with(testConfig.dbType())
+                    .with(testConfig.socketType())
+                    .with(testConfig.enclaveType())
+                    .createAndSetupContext();
+
+            String nodeId = NodeId.generate(executionContext);
+            DatabaseServer databaseServer = testConfig.dbType().createDatabaseServer(nodeId);
+            databaseServer.start();
+
+            ProcessManager processManager = new ProcessManager(executionContext);
+
+            try{
+                processManager.startNodes();
+            } catch (Exception ex) {
+                Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
+                notifier.fireTestFailure(new Failure(de, ex));
+            }
+
+            super.run(notifier);
+
+            try{
+                processManager.stopNodes();
+            } catch (Exception ex) {
+                Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
+                notifier.fireTestFailure(new Failure(de, ex));
+            }
+            try{
+                ExecutionContext.destoryContext();
+            } finally {
+                databaseServer.stop();
+            }
+        } catch (Throwable ex) {
+            ex.printStackTrace();
             Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
             notifier.fireTestFailure(new Failure(de, ex));
-        }
-        try {
-            ExecutionContext.destoryContext();
-        } finally {
-            databaseServer.stop();
         }
     }
 
