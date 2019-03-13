@@ -18,11 +18,13 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import transaction.utils.Utils;
 
 public class RestUtils {
 
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestUtils.class);
 
     public Response sendRaw(Party sender, byte[] transactionData, Set<Party> recipients) {
         return sendRaw(sender, transactionData, recipients.toArray(new Party[0]));
@@ -37,11 +39,17 @@ public class RestUtils {
             .map(Party::getPublicKey)
             .collect(Collectors.joining(","));
         
+        
+        LOGGER.debug("Sending txn  to {}",recipientString);
+        
         Invocation.Builder invocationBuilder = sender.getRestClientWebTarget()
             .path("sendraw")
             .request()
             .header(SENDER, sender.getPublicKey());
 
+        
+        
+        
         Optional.of(recipientString)
             .filter(s -> !Objects.equals("", s))
             .ifPresent(s -> invocationBuilder.header(RECIPIENTS, s));

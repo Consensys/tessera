@@ -60,14 +60,16 @@ public class RestSteps implements En {
 
         And("^all parties are running$", () -> {
             Client client = ClientBuilder.newClient();
-            assertThat(partyHelper.getParties()
-                .map(Party::getP2PUri)
-                .map(client::target)
-                .map(t -> t.path("upcheck"))
-                .map(WebTarget::request)
-                .map(Invocation.Builder::get)
-                .allMatch(r -> r.getStatus() == 200))
-                .isTrue();
+            
+            partyHelper.getParties().forEach(p -> {
+              Response response = client.target(p.getP2PUri()).path("upcheck").request().get();
+              
+              assertThat(response.getStatus())
+                      .describedAs("P2P upcheck failed or party "+ p.getAlias())
+                      .isEqualTo(200);
+                
+            });
+            
         });
 
         When("^a request is made against the node", () -> {

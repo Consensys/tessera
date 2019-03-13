@@ -13,35 +13,69 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import suite.ExecutionContext;
+import suite.NodeAlias;
 import suite.NodeId;
 import suite.SocketType;
 
 public class ConfigGenerator {
+    
+    public static class ConfigDescriptor {
+        
+        private NodeAlias alias;
+        
+        private Path path;
+        
+        private Config config;
 
-    public void generateConfigs(ExecutionContext executionContext) {
+        public ConfigDescriptor(NodeAlias alias, Path path, Config config) {
+            this.alias = alias;
+            this.path = path;
+            this.config = config;
+        }
 
-        Path path = calclatePath(executionContext);
+        public NodeAlias getAlias() {
+            return alias;
+        }
+
+        public Path getPath() {
+            return path;
+        }
+
+        public Config getConfig() {
+            return config;
+        }
+
+    }
+    
+
+    public List<ConfigDescriptor> generateConfigs(ExecutionContext executionContext) {
+
+        Path path = calculatePath(executionContext);
         try{
             Files.createDirectories(path);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
         List<Config> configs = createConfigs(executionContext);
-
+        
+        List<ConfigDescriptor> configList = new ArrayList<>();
         for (int i = 0; i < (configs.size() - 1); i++) {
             Config config = configs.get(i);
-
+            
             String filename = String.format("config%d.json", (i + 1));
             Path ouputFile = path.resolve(filename);
 
             try (OutputStream out = Files.newOutputStream(ouputFile)){
                 JaxbUtil.marshalWithNoValidation(config, out);
+                configList.add(new ConfigDescriptor(NodeAlias.values()[i], ouputFile, config));
             } catch (IOException ex) {
                 throw new UncheckedIOException(ex);
             }
@@ -53,19 +87,23 @@ public class ConfigGenerator {
         Path ouputFile = path.resolve(filename);
         try (OutputStream out = Files.newOutputStream(ouputFile)){
             JaxbUtil.marshalWithNoValidation(whiteListConfig, out);
+            configList.add(new ConfigDescriptor(NodeAlias.values()[4], ouputFile, whiteListConfig));
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
+        
+        return configList;
 
     }
 
-    public Path calclatePath(ExecutionContext executionContext) {
+    public static Path calculatePath(ExecutionContext executionContext) {
         try{
-            URI baseUri = getClass().getResource("/").toURI();
+            URI baseUri = ConfigGenerator.class.getResource("/").toURI();
             return Paths.get(baseUri)
                     .resolve(executionContext.getCommunicationType().name().toLowerCase())
                     .resolve(executionContext.getSocketType().name().toLowerCase())
-                    .resolve(executionContext.getDbType().name().toLowerCase());
+                    .resolve(executionContext.getDbType().name().toLowerCase())
+                    .resolve("enclave-"+ executionContext.getEnclaveType().name().toLowerCase());
         } catch (URISyntaxException ex) {
             throw new RuntimeException(ex);
         }
@@ -73,19 +111,19 @@ public class ConfigGenerator {
 
     private Map<Integer, Map<String, String>> keyLookUp = new HashMap<Integer, Map<String, String>>() {
         {
-            put(1, new HashMap<String, String>() {
+            put(1, new TreeMap<String, String>() {
                 {
                     put("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
                 }
             });
 
-            put(2, new HashMap<String, String>() {
+            put(2, new TreeMap<String, String>() {
                 {
                     put("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=", "fF5UOlKKIwuaNrZ8+KU4WO+pxOYu8tNMQncyxbsSC6U=");
                 }
             });
 
-            put(3, new HashMap<String, String>() {
+            put(3, new TreeMap<String, String>() {
                 {
                     put("giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=", "ygQVE998+w/C+rU/4CVgyhSAJf63YLKufbkqihcpjVI=");
                     put("jP4f+k/IbJvGyh0LklWoea2jQfmLwV53m9XoHVS4NSU=", "rVtozM4nTmiwGAtOfYBNWO+CZgubzhIdPwGLZn3HrMU=");
@@ -93,13 +131,13 @@ public class ConfigGenerator {
                 }
             });
 
-            put(4, new HashMap<String, String>() {
+            put(4, new TreeMap<String, String>() {
                 {
                     put("Tj8xg/HpsYmh7Te3UerzlLx1HgpWVOGq25ZgbwaPNVM=", "q2UeGA4o9g4rpn4+VdCELQVsbqTTBS0HCpcL/dgal24=");
                 }
             });
 
-            put(5, new HashMap<String, String>() {
+            put(5, new TreeMap<String, String>() {
                 {
                     put("WxsJ4souK0mptNx1UGw6hb1WNNIbPhLPvW9GoaXau3Q=", "YbOOFA4mwSSdGH6aFfGl2M7N1aiPOj5nHpD7GzJKSiA=");
                 }
@@ -195,7 +233,7 @@ public class ConfigGenerator {
                 .with(SocketType.UNIX)
                 .build();
 
-        Path path = new ConfigGenerator().calclatePath(executionContext);
+        Path path = new ConfigGenerator().calculatePath(executionContext);
 
         List<Config> configs = new ConfigGenerator().createConfigs(executionContext);
 

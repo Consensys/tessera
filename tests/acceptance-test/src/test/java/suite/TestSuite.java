@@ -3,7 +3,6 @@ package suite;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.test.DBType;
 import com.quorum.tessera.test.ProcessManager;
-import config.ConfigGenerator;
 import db.DatabaseServer;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -30,6 +29,9 @@ public class TestSuite extends Suite {
         CommunicationType communicationType();
 
         SocketType socketType();
+        
+        
+        EnclaveType enclaveType() default EnclaveType.LOCAL;
     }
 
     public TestSuite(Class<?> klass, RunnerBuilder builder) throws InitializationError {
@@ -45,20 +47,24 @@ public class TestSuite extends Suite {
                 .findAny()
                 .orElseThrow(() -> new AssertionError("No Test config found"));
 
-        ExecutionContext.Builder.create()
+       ExecutionContext executionContext = ExecutionContext.Builder.create()
                 .with(testConfig.communicationType())
                 .with(testConfig.dbType())
                 .with(testConfig.socketType())
+                .with(testConfig.enclaveType())
                 .createAndSetupContext();
 
-        String nodeId = NodeId.generate(ExecutionContext.currentContext());
+        String nodeId = NodeId.generate(executionContext);
         DatabaseServer databaseServer = testConfig.dbType().createDatabaseServer(nodeId);
         databaseServer.start();
         
-        ConfigGenerator configGenerator = new ConfigGenerator();
-        configGenerator.generateConfigs(ExecutionContext.currentContext());
+        if(executionContext.getEnclaveType() == EnclaveType.REMOTE) {
+            
+        }
+        
+        
 
-        ProcessManager processManager = new ProcessManager(ExecutionContext.currentContext());
+        ProcessManager processManager = new ProcessManager(executionContext);
 
         try {
             processManager.startNodes();

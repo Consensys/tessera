@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,18 +58,17 @@ public class ProcessManager {
         this.communicationType = executionContext.getCommunicationType();
         this.dbType = executionContext.getDbType();
 
-        String pathTemplate = "/" + communicationType.name().toLowerCase() + "/" + executionContext.getSocketType().name().toLowerCase()
-                + "/" + dbType.name().toLowerCase() + "/config%s.json";
-
-        final Map<String, URL> configs = new HashMap<>();
-        configs.put("A", getClass().getResource(String.format(pathTemplate, "1")));
-        configs.put("B", getClass().getResource(String.format(pathTemplate, "2")));
-        configs.put("C", getClass().getResource(String.format(pathTemplate, "3")));
-        configs.put("D", getClass().getResource(String.format(pathTemplate, "4")));
-        configs.put("E", getClass().getResource(String.format(pathTemplate, "-whitelist")));
-        this.configFiles = Collections.unmodifiableMap(configs);
+        this.configFiles = executionContext.getConfigs().stream()
+                .collect(Collectors.toMap(c -> c.getAlias().name(), c -> toURL(c.getPath())));
     }
 
+    static URL toURL(Path path) {
+        try{
+            return path.toUri().toURL();
+        } catch (MalformedURLException ex) {
+            throw new UncheckedIOException(ex);
+        }
+    }
 
     private String findJarFilePath(String jar) {
         return Objects.requireNonNull(System.getProperty(jar, null),
