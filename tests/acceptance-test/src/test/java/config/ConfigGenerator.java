@@ -108,10 +108,10 @@ public class ConfigGenerator {
 
             ServerConfig serverConfig = new ServerConfig();
             serverConfig.setApp(AppType.ENCLAVE);
-            serverConfig.setBindingAddress("http://0.0.0.0:"+ enclavePort);
+          //  serverConfig.setBindingAddress("http://0.0.0.0:"+ enclavePort);
             serverConfig.setServerAddress("http://localhost:"+ enclavePort);
             serverConfig.setCommunicationType(CommunicationType.REST);
-
+            serverConfig.setEnabled(true);
             enclaveConfig.setServerConfigs(Arrays.asList(serverConfig));
 
             enclaveConfig.setKeys(new KeyConfiguration());
@@ -189,14 +189,14 @@ public class ConfigGenerator {
     public List<Config> createConfigs(ExecutionContext executionContext) {
 
         AtomicInteger port = new AtomicInteger(50520);
-        Integer enclavePort = port.incrementAndGet();
+        Integer enclavePort = port.intValue();
         String nodeId = NodeId.generate(executionContext);
 
         Config first = new ConfigBuilder()
                 .withNodeId(nodeId)
                 .withNodeNumbber(1)
                 .withExecutionContext(executionContext)
-                .withQt2Port(port.intValue())
+                .withQt2Port(port.incrementAndGet())
                 .withP2pPort(port.incrementAndGet())
                 .withAdminPort(port.incrementAndGet())
                 .withEnclavePort(enclavePort)

@@ -18,7 +18,7 @@
     <logger name="com.quorum.tessera.q2t.TransactionResource" level="DEBUG" />
     <logger name="com.quorum.tessera.transaction" level="DEBUG" />
     
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="FILE"/>
     </root>
 
