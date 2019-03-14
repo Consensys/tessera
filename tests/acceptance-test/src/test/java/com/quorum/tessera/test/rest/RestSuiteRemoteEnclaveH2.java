@@ -17,8 +17,17 @@ import suite.TestSuite;
         enclaveType = EnclaveType.REMOTE)
 
 @Suite.SuiteClasses({
+    MultipleKeyNodeIT.class,
+    DeleteIT.class,
+    PushIT.class,
+    ReceiveIT.class,
+    ReceiveRawIT.class,
+    ResendAllIT.class,
+    ResendIndividualIT.class,
+    SendIT.class,
+    SendRawIT.class,
     CucumberRestIT.class,
-    CucumberRawIT.class,
+    CucumberRawIT.class
 })
 public class RestSuiteRemoteEnclaveH2 {
 

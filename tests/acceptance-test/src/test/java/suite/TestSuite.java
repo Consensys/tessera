@@ -56,9 +56,10 @@ public class TestSuite extends Suite {
                     .with(testConfig.enclaveType())
                     .createAndSetupContext();
 
-            if(executionContext.getEnclaveType() == EnclaveType.REMOTE) {  
+            EnclaveExecManager enclaveExecManager = null;
+            if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
                 ConfigGenerator.ConfigDescriptor enclaveConfigDescriptor = executionContext.getEnclaveConfig().get();
-                EnclaveExecManager enclaveExecManager = new EnclaveExecManager(enclaveConfigDescriptor);
+                enclaveExecManager = new EnclaveExecManager(enclaveConfigDescriptor);
                 enclaveExecManager.start();
             }
 
@@ -82,7 +83,10 @@ public class TestSuite extends Suite {
             } catch (Exception ex) {
                 Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
                 notifier.fireTestFailure(new Failure(de, ex));
+            } finally {
+                if(enclaveExecManager != null) enclaveExecManager.stop();
             }
+
             try{
                 ExecutionContext.destoryContext();
             } finally {

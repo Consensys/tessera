@@ -9,7 +9,9 @@ import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.ProcessManager;
 import config.ConfigGenerator;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,33 +23,42 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import suite.ServerStatusCheck;
 import suite.ServerStatusCheckExecutor;
 
 public class EnclaveExecManager {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveExecManager.class);
+    
     private ConfigGenerator.ConfigDescriptor configDescriptor;
 
     public EnclaveExecManager(ConfigGenerator.ConfigDescriptor configDescriptor) {
         this.configDescriptor = configDescriptor;
     }
 
+    private final Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "enclave.pid");
+    
     private final URL logbackConfigFile = ProcessManager.class.getResource("/logback-enclave.xml");
     
     public Process start() {
-
+        
         Path enclaveServerJar = Paths.get(System.getProperty("enclave.jaxrs.server.jar", "../../enclave/enclave-jaxrs/target/enclave-jaxrs-0.9-SNAPSHOT-server.jar"));
-
+        
         ServerConfig serverConfig = configDescriptor.getConfig().getServerConfigs().get(0);
         
         List<String> cmd = new ExecArgsBuilder()
+                .withPidFile(pid)
                 .withJvmArg("-Dnode.number=enclave")
                 .withJvmArg("-Dlogback.configurationFile="+ logbackConfigFile)
                 .withExecutableJarFile(enclaveServerJar)
                 .withConfigFile(configDescriptor.getPath())
                 .build();
 
+        LOGGER.info("Starting enclave");
+        
         Process process = ExecUtils.start(cmd);
 
         ServerStatusCheckExecutor serverStatusCheckExecutor = new ServerStatusCheckExecutor(ServerStatusCheck.create(serverConfig));
@@ -62,10 +73,27 @@ public class EnclaveExecManager {
             throw new IllegalStateException("Enclave server not started");
         }
 
+        LOGGER.info("Started enclave");
+        
         return process;
 
     }
 
+    public void stop() {
+        
+        try{
+            String p = Files.lines(pid).findFirst().orElse(null);
+            if(p == null) return;
+            LOGGER.info("Stopping {}",p);
+            ExecUtils.kill(p);
+   
+        } catch (IOException ex) {
+           throw new UncheckedIOException(ex);
+        }
+        
+    }
+    
+    
     public static void main(String[] args) throws Exception {
 
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");

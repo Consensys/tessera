@@ -109,7 +109,7 @@
                     </systemPropertyVariables>
                     <includes>
                         
-                        <!--                        <include>RestSuiteRemoteEnclaveH2</include>-->
+                        <include>RestSuiteRemoteEnclaveH2</include>
 
 
                         <include>CucumberWhitelistIT</include>
