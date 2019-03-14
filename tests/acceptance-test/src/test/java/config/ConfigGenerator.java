@@ -1,8 +1,13 @@
 package config;
 
+import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
 import java.io.IOException;
@@ -18,23 +23,29 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import suite.EnclaveType;
 import suite.ExecutionContext;
 import suite.NodeAlias;
 import suite.NodeId;
 import suite.SocketType;
 
 public class ConfigGenerator {
-    
-    public static class ConfigDescriptor {
-        
-        private NodeAlias alias;
-        
-        private Path path;
-        
-        private Config config;
 
+    public static class ConfigDescriptor {
+
+        private NodeAlias alias;
+
+        private Path path;
+
+        private Config config;
+        
+
+        
         public ConfigDescriptor(NodeAlias alias, Path path, Config config) {
             this.alias = alias;
             this.path = path;
@@ -53,8 +64,11 @@ public class ConfigGenerator {
             return config;
         }
 
+        public boolean isEnclave() {
+            return alias == NodeAlias.ENCLAVE;
+        }
+
     }
-    
 
     public List<ConfigDescriptor> generateConfigs(ExecutionContext executionContext) {
 
@@ -65,12 +79,12 @@ public class ConfigGenerator {
             throw new UncheckedIOException(ex);
         }
         List<Config> configs = createConfigs(executionContext);
-        
+
         List<ConfigDescriptor> configList = new ArrayList<>();
-        
+
         for (int i = 0; i < configs.size(); i++) {
             Config config = configs.get(i);
-            
+
             String filename = String.format("config%d.json", (i + 1));
             Path ouputFile = path.resolve(filename);
 
@@ -81,7 +95,49 @@ public class ConfigGenerator {
                 throw new UncheckedIOException(ex);
             }
         }
-  
+
+        if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
+            
+            final Integer enclavePort = configs.stream().findAny()
+                    .get().getServerConfigs().stream()
+                    .filter(s -> s.getApp() == AppType.ENCLAVE)
+                    .map(s -> s.getServerUri())
+                    .map(URI::getPort).findAny().get();
+            
+            final Config enclaveConfig = new Config();
+
+            ServerConfig serverConfig = new ServerConfig();
+            serverConfig.setApp(AppType.ENCLAVE);
+            serverConfig.setBindingAddress("http://0.0.0.0:"+ enclavePort);
+            serverConfig.setServerAddress("http://localhost:"+ enclavePort);
+            serverConfig.setCommunicationType(CommunicationType.REST);
+
+            enclaveConfig.setServerConfigs(Arrays.asList(serverConfig));
+
+            enclaveConfig.setKeys(new KeyConfiguration());
+            
+            List<ConfigKeyPair> keys = keyLookUp.values().stream()
+                    .map(Map::entrySet)
+                    .flatMap(Set::stream)
+                    .map(e -> new DirectKeyPair(e.getKey(), e.getValue()))
+                    .collect(Collectors.toList());
+            
+            enclaveConfig.getKeys().setKeyData(keys);
+   
+            
+            String filename = "enclave.json";
+            Path ouputFile = path.resolve(filename);
+
+            try (OutputStream out = Files.newOutputStream(ouputFile)){
+                JaxbUtil.marshalWithNoValidation(enclaveConfig, out);
+                configList.add(new ConfigDescriptor(NodeAlias.ENCLAVE, ouputFile, enclaveConfig));
+            } catch (IOException ex) {
+                throw new UncheckedIOException(ex);
+            }
+            
+        }
+        
+
         return configList;
 
     }
@@ -93,13 +149,13 @@ public class ConfigGenerator {
                     .resolve(executionContext.getCommunicationType().name().toLowerCase())
                     .resolve(executionContext.getSocketType().name().toLowerCase())
                     .resolve(executionContext.getDbType().name().toLowerCase())
-                    .resolve("enclave-"+ executionContext.getEnclaveType().name().toLowerCase());
+                    .resolve("enclave-" + executionContext.getEnclaveType().name().toLowerCase());
         } catch (URISyntaxException ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    private Map<Integer, Map<String, String>> keyLookUp = new HashMap<Integer, Map<String, String>>() {
+    private Map<Integer, SortedMap<String, String>> keyLookUp = new HashMap<Integer, SortedMap<String, String>>() {
         {
             put(1, new TreeMap<String, String>() {
                 {
@@ -133,7 +189,7 @@ public class ConfigGenerator {
     public List<Config> createConfigs(ExecutionContext executionContext) {
 
         AtomicInteger port = new AtomicInteger(50520);
-
+        Integer enclavePort = port.incrementAndGet();
         String nodeId = NodeId.generate(executionContext);
 
         Config first = new ConfigBuilder()
@@ -143,6 +199,7 @@ public class ConfigGenerator {
                 .withQt2Port(port.intValue())
                 .withP2pPort(port.incrementAndGet())
                 .withAdminPort(port.incrementAndGet())
+                .withEnclavePort(enclavePort)
                 .withKeys(keyLookUp.get(1))
                 .build();
 
@@ -153,6 +210,7 @@ public class ConfigGenerator {
                 .withQt2Port(port.incrementAndGet())
                 .withP2pPort(port.incrementAndGet())
                 .withAdminPort(port.incrementAndGet())
+                .withEnclavePort(enclavePort)
                 .withKeys(keyLookUp.get(2))
                 .build();
 
@@ -163,11 +221,8 @@ public class ConfigGenerator {
                 .withQt2Port(port.incrementAndGet())
                 .withP2pPort(port.incrementAndGet())
                 .withAdminPort(port.incrementAndGet())
-                .withAlwaysSendTo(first.getKeys()
-                        .getKeyData().stream()
-                        .findFirst()
-                        .get()
-                        .getPublicKey())
+                .withEnclavePort(enclavePort)
+                .withAlwaysSendTo(keyLookUp.get(1).keySet().iterator().next())
                 .withKeys(keyLookUp.get(3))
                 .build();
 
@@ -178,6 +233,7 @@ public class ConfigGenerator {
                 .withQt2Port(port.incrementAndGet())
                 .withP2pPort(port.incrementAndGet())
                 .withAdminPort(port.incrementAndGet())
+                .withEnclavePort(enclavePort)
                 .withKeys(keyLookUp.get(4))
                 .build();
 
@@ -185,7 +241,6 @@ public class ConfigGenerator {
         second.addPeer(new Peer(third.getP2PServerConfig().getServerAddress()));
         third.addPeer(new Peer(fourth.getP2PServerConfig().getServerAddress()));
         fourth.addPeer(new Peer(first.getP2PServerConfig().getServerAddress()));
-
 
         return Arrays.asList(first, second, third, fourth);
     }

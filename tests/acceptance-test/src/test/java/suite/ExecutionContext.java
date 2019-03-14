@@ -5,6 +5,8 @@ import com.quorum.tessera.test.DBType;
 import config.ConfigGenerator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ExecutionContext {
@@ -32,9 +34,7 @@ public class ExecutionContext {
     public void setConfigs(List<ConfigGenerator.ConfigDescriptor> configs) {
         this.configs = configs;
     }
-    
-    
-    
+
     public DBType getDbType() {
         return dbType;
     }
@@ -52,9 +52,12 @@ public class ExecutionContext {
     }
 
     public List<ConfigGenerator.ConfigDescriptor> getConfigs() {
-        return configs;
+        return configs.stream().filter(c -> !c.isEnclave()).collect(Collectors.toList());
     }
 
+    public Optional<ConfigGenerator.ConfigDescriptor> getEnclaveConfig() {
+        return configs.stream().filter(ConfigGenerator.ConfigDescriptor::isEnclave).findAny();
+    }
 
     public static class Builder {
 
@@ -98,18 +101,14 @@ public class ExecutionContext {
                     .forEach(Objects::requireNonNull);
             
             ExecutionContext executionContext = new ExecutionContext(dbType, communicationType, socketType,enclaveType);
-            
-            
+
             return executionContext;
         }
         
         protected ExecutionContext createAndSetupContext() {
 
-            
-            
             Stream.of(dbType, communicationType, socketType,enclaveType)
                     .forEach(Objects::requireNonNull);
-
 
             ExecutionContext executionContext = build();
 

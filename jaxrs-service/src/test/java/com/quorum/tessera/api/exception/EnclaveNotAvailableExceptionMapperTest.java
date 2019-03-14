@@ -1,6 +1,6 @@
 package com.quorum.tessera.api.exception;
 
-import com.quorum.tessera.transaction.exception.EnclaveNotAvailableException;
+import com.quorum.tessera.enclave.EnclaveNotAvailableException;
 import javax.ws.rs.core.Response;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;

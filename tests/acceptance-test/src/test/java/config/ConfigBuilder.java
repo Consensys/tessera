@@ -7,7 +7,9 @@ import com.quorum.tessera.config.JdbcConfig;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
+import com.quorum.tessera.config.keypairs.PublicKeyOnlyKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
 import java.util.ArrayList;
@@ -15,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import suite.EnclaveType;
 import suite.ExecutionContext;
 import suite.SocketType;
 
@@ -25,6 +29,8 @@ public class ConfigBuilder {
     private Integer p2pPort;
 
     private Integer adminPort;
+
+    private Integer enclavePort;
 
     private ExecutionContext executionContext;
 
@@ -75,6 +81,11 @@ public class ConfigBuilder {
         return this;
     }
 
+    public ConfigBuilder withEnclavePort(Integer enclavePort) {
+        this.enclavePort = enclavePort;
+        return this;
+    }
+
     public ConfigBuilder withNodeNumbber(Integer nodeNumber) {
         this.nodeNumber = nodeNumber;
         return this;
@@ -109,7 +120,7 @@ public class ConfigBuilder {
         q2tServerConfig.setEnabled(true);
         q2tServerConfig.setCommunicationType(executionContext.getCommunicationType());
 
-        if (executionContext.getCommunicationType() == CommunicationType.REST 
+        if (executionContext.getCommunicationType() == CommunicationType.REST
                 && (q2tSocketType != null || executionContext.getSocketType() == SocketType.UNIX)) {
             q2tServerConfig.setServerAddress(String.format("unix:/tmp/q2t-rest-unix-%d.ipc", nodeNumber));
         } else {
@@ -139,18 +150,42 @@ public class ConfigBuilder {
 
             servers.add(adminServerConfig);
         }
+
+        if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
+            ServerConfig enclaveServerConfig = new ServerConfig();
+            enclaveServerConfig.setApp(AppType.ENCLAVE);
+            enclaveServerConfig.setEnabled(true);
+            enclaveServerConfig.setBindingAddress("http://0.0.0.0:" + enclavePort);
+            enclaveServerConfig.setServerAddress("http://localhost:" + enclavePort);
+            enclaveServerConfig.setCommunicationType(CommunicationType.REST);
+
+            servers.add(enclaveServerConfig);
+
+        }
+
         config.setServerConfigs(servers);
 
         peerUrls.stream()
                 .map(Peer::new).forEach(config::addPeer);
 
         config.setKeys(new KeyConfiguration());
-        config.getKeys().setKeyData(new ArrayList<>());
 
-        keys.entrySet().stream().map(e -> new DirectKeyPair(e.getKey(), e.getValue())).forEach(v -> {
-            config.getKeys().getKeyData().add(v);
-        });
+        final List<ConfigKeyPair> pairs;
+        if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
 
+            pairs = keys.entrySet().stream()
+                    .map(e -> new PublicKeyOnlyKeyPair(e.getKey()))
+                    .collect(Collectors.toList());
+
+        } else {
+
+            pairs = keys.entrySet().stream()
+                    .map(e -> new DirectKeyPair(e.getKey(), e.getValue()))
+                    .collect(Collectors.toList());
+        }
+        
+        config.getKeys().setKeyData(pairs);
+        
         config.setAlwaysSendTo(alwaysSendTo);
 
         return config;
@@ -164,7 +199,7 @@ public class ConfigBuilder {
         ExecutionContext executionContext = ExecutionContext.Builder.create()
                 .with(CommunicationType.REST)
                 .with(DBType.H2)
-                .with(SocketType.UNIX)
+                .with(SocketType.UNIX).with(EnclaveType.REMOTE)
                 .build();
 
         Config config = new ConfigBuilder()
@@ -175,6 +210,7 @@ public class ConfigBuilder {
                 .withKeys("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=")
                 .withQt2Port(999)
                 .withP2pPort(888)
+                .withEnclavePort(989)
                 .build();
 
         JaxbUtil.marshalWithNoValidation(config, System.out);

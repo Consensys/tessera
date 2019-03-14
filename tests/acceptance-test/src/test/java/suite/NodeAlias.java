@@ -2,5 +2,5 @@ package suite;
 
 
 public enum NodeAlias {
-    A,B,C,D,E;
+    A,B,C,D,ENCLAVE;
 }
