@@ -4,6 +4,7 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.cli.CliAdapter;
 import com.quorum.tessera.config.cli.CliException;
 import com.quorum.tessera.config.cli.CliResult;
+import com.quorum.tessera.config.cli.parsers.PidFileParser;
 import com.quorum.tessera.config.util.JaxbUtil;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -43,8 +44,16 @@ public class EnclaveCliAdapter implements CliAdapter {
                         .numberOfArgs(1)
                         .argName("PATH")
                         .build());
-
         
+        options.addOption(
+                Option.builder("pidfile")
+                        .desc("Path to pid file")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("PATH")
+                        .build());
+
         final List<String> argsList = Arrays.asList(args);
         if (argsList.contains("help") || argsList.isEmpty()) {
             HelpFormatter formatter = new HelpFormatter();
@@ -53,13 +62,13 @@ public class EnclaveCliAdapter implements CliAdapter {
             return new CliResult(0, true, null);
         }
 
-        try {
+        try{
             final CommandLine line = parser.parse(options, args);
-
+            new PidFileParser().parse(line);
             String configfile = line.getOptionValue("configfile");
-            
+
             Config config = JaxbUtil.unmarshal(Files.newInputStream(Paths.get(configfile)), Config.class);
-            
+
             return new CliResult(0, false, config);
 
         } catch (ParseException exp) {
