@@ -26,7 +26,14 @@
             <artifactId>enclave-jaxrs</artifactId>
             <version>0.9-SNAPSHOT</version>
         </dependency>
-
+   
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>enclave-jaxrs</artifactId>
+            <version>0.9-SNAPSHOT</version>
+            <classifier>server</classifier>
+        </dependency>
+        
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>test-util</artifactId>
@@ -89,19 +96,26 @@
                 <configuration>
                     <skip>false</skip>
                     <rerunFailingTestsCount>0</rerunFailingTestsCount>
+                    
                     <systemPropertyVariables>
                         <application.jar>${com.jpmorgan.quorum:tessera-app:jar:app}</application.jar>
                         <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
                         <jdbc.sqlite.jar>${org.xerial:sqlite-jdbc:jar}</jdbc.sqlite.jar>
                         <enclave.jaxrs.jar>${com.jpmorgan.quorum:enclave-jaxrs:jar}</enclave.jaxrs.jar>
+                        
+                        <enclave.jaxrs.server.jar>${com.jpmorgan.quorum:enclave-jaxrs:jar:server}</enclave.jaxrs.server.jar>
+
                         <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
-                       <include>CucumberWhitelistIT</include>
+                        
+                        <!--                        <include>RestSuiteRemoteEnclaveH2</include>-->
+
+
+                        <include>CucumberWhitelistIT</include>
                         <include>RestSuiteH2</include>
                         
                         <include>RestSuiteUnixH2</include>
-                       <include>RestSuiteRemoteEnclaveH2</include>
                         <include>RestSuiteHSQL</include>
                         <include>RestSuiteUnixH2</include>
                         
@@ -184,7 +198,7 @@
                             <rerunFailingTestsCount>0</rerunFailingTestsCount>
                             <includes>
                                 <include>GrpcSuiteH2</include>
-<!--                                <include>GrpcSuiteSqlite</include>-->
+                                <include>GrpcSuiteSqlite</include>
                             </includes>
                         </configuration>
                     </plugin>

@@ -3,7 +3,9 @@ package suite;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.test.DBType;
 import com.quorum.tessera.test.ProcessManager;
+import config.ConfigGenerator;
 import db.DatabaseServer;
+import exec.EnclaveExecManager;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -53,6 +55,12 @@ public class TestSuite extends Suite {
                     .with(testConfig.socketType())
                     .with(testConfig.enclaveType())
                     .createAndSetupContext();
+
+            if(executionContext.getEnclaveType() == EnclaveType.REMOTE) {  
+                ConfigGenerator.ConfigDescriptor enclaveConfigDescriptor = executionContext.getEnclaveConfig().get();
+                EnclaveExecManager enclaveExecManager = new EnclaveExecManager(enclaveConfigDescriptor);
+                enclaveExecManager.start();
+            }
 
             String nodeId = NodeId.generate(executionContext);
             DatabaseServer databaseServer = testConfig.dbType().createDatabaseServer(nodeId);

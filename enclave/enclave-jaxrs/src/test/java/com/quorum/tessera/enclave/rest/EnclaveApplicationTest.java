@@ -9,14 +9,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.json.JsonArray;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.quorum.tessera.enclave.rest.Fixtures.createSample;
 import com.quorum.tessera.service.Service;
@@ -69,40 +65,6 @@ public class EnclaveApplicationTest {
         verify(enclave).status();
     } 
     
-    @Test
-    public void defaultKey() throws Exception {
-
-        PublicKey publicKey = PublicKey.from("defaultKey".getBytes());
-
-        when(enclave.defaultPublicKey()).thenReturn(publicKey);
-
-        Response response = jersey.target("default").request().get();
-        assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.readEntity(String.class)).isEqualTo("defaultKey");
-        verify(enclave).defaultPublicKey();
-
-    }
-
-    @Test
-    public void publicKeys() throws Exception {
-
-        Set<PublicKey> keys = Stream.of("publicKey", "publicKey2")
-                .map(String::getBytes)
-                .map(PublicKey::from)
-                .collect(Collectors.toSet());
-
-        when(enclave.getPublicKeys())
-                .thenReturn(keys);
-
-        Response response = jersey.target("public").request().get();
-        assertThat(response.getStatus()).isEqualTo(200);
-
-        JsonArray result = response.readEntity(JsonArray.class);
-
-        assertThat(result).hasSize(2);
-
-        verify(enclave).getPublicKeys();
-    }
 
     @Test
     public void encryptPayload() {

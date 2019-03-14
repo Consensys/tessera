@@ -1,6 +1,7 @@
 package com.quorum.tessera.test;
 
 import com.quorum.tessera.Launcher;
+import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -162,7 +163,7 @@ public class ProcessManager {
                 .withArg("-jdbc.autoCreateTables", "true");
 
         if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
-            argsBuilder.withClassPathItem(Paths.get(enclaveJar));
+            argsBuilder.withClassPathItem(Paths.get(enclaveJar)); 
         }
 
         if (dbType == DBType.HSQL) {
@@ -199,6 +200,7 @@ public class ProcessManager {
         });
 
         List<ServerStatusCheckExecutor> serverStatusCheckList = config.getServerConfigs().stream()
+                .filter(s -> s.getApp() != AppType.ENCLAVE)
                 .map(ServerStatusCheck::create)
                 .map(ServerStatusCheckExecutor::new)
                 .collect(Collectors.toList());
@@ -247,6 +249,9 @@ public class ProcessManager {
         ExecUtils.kill(pid);
 
     }
+    
+
+    
 
     public static void main(String[] args) throws Exception {
         System.setProperty("application.jar", "/home/nicolae/Develop/java/IJWorkspaces/tessera/tessera-app/target/tessera-app-0.9-SNAPSHOT-app.jar");

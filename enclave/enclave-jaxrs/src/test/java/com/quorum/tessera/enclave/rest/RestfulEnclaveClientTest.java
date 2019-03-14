@@ -1,5 +1,8 @@
 package com.quorum.tessera.enclave.rest;
 
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.KeyConfiguration;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
@@ -13,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -29,15 +31,27 @@ public class RestfulEnclaveClientTest {
 
     private RestfulEnclaveClient enclaveClient;
 
+
     @Before
     public void setUp() throws Exception {
         enclave = mock(Enclave.class);
-
+        when(enclave.status()).thenReturn(Service.Status.STARTED);
+        
         jersey = Util.create(enclave);
 
         jersey.setUp();
 
-        enclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri());
+        Config config = new Config();
+        
+        config.setAlwaysSendTo(java.util.Arrays.asList("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="));
+        
+        config.setKeys(new KeyConfiguration());
+        ConfigKeyPair keyPair = mock(ConfigKeyPair.class);
+        when(keyPair.getPublicKey()).thenReturn("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+
+        config.getKeys().setKeyData(Arrays.asList(keyPair));
+        
+        enclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri(),config);
 
     }
 
@@ -50,45 +64,36 @@ public class RestfulEnclaveClientTest {
     @Test
     public void defaultPublicKey() {
 
-        PublicKey key = PublicKey.from("HELLOW".getBytes());
-
-        when(enclave.defaultPublicKey()).thenReturn(key);
-
         PublicKey result = enclaveClient.defaultPublicKey();
+        assertThat(result).isNotNull();
+        assertThat(result.encodeToBase64()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
 
-        assertThat(result).isEqualTo(key);
-
-        verify(enclave).defaultPublicKey();
 
     }
 
     @Test
     public void getPublicKeys() {
 
-        PublicKey key = PublicKey.from("HELLOW".getBytes());
-
-        when(enclave.getPublicKeys()).thenReturn(Collections.singleton(key));
-
         Set<PublicKey> result = enclaveClient.getPublicKeys();
 
-        assertThat(result).containsExactly(key);
+        assertThat(result).hasSize(1);
+        
+         assertThat(result.iterator().next().encodeToBase64())
+                 .isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
 
-        verify(enclave).getPublicKeys();
 
     }
 
     @Test
     public void getForwardingKeys() {
 
-        PublicKey key = PublicKey.from("HELLOW".getBytes());
-
-        when(enclave.getForwardingKeys()).thenReturn(Collections.singleton(key));
 
         Set<PublicKey> result = enclaveClient.getForwardingKeys();
 
-        assertThat(result).containsExactly(key);
-
-        verify(enclave).getForwardingKeys();
+        assertThat(result).hasSize(1);
+        
+         assertThat(result.iterator().next().encodeToBase64())
+                 .isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
 
     }
 
@@ -115,6 +120,7 @@ public class RestfulEnclaveClientTest {
         assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
         verify(enclave).encryptPayload(message, senderPublicKey, recipientPublicKeys);
+        verify(enclave).status();
 
     }
 
@@ -148,7 +154,7 @@ public class RestfulEnclaveClientTest {
         assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
         verify(enclave).encryptPayload(any(RawTransaction.class), any(List.class));
-
+        verify(enclave).status();
     }
 
     @Test
@@ -171,7 +177,7 @@ public class RestfulEnclaveClientTest {
         assertThat(result).isEqualTo(rawTransaction);
 
         verify(enclave).encryptRawPayload(message, senderPublicKey);
-
+        verify(enclave).status();
     }
 
     @Test
@@ -191,7 +197,7 @@ public class RestfulEnclaveClientTest {
         assertThat(result).isEqualTo(outcome);
 
         verify(enclave).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
-
+        verify(enclave).status();
     }
 
     @Test
@@ -210,7 +216,7 @@ public class RestfulEnclaveClientTest {
         assertThat(result).isEqualTo(outcome);
 
         verify(enclave).createNewRecipientBox(any(EncodedPayload.class), any(PublicKey.class));
-
+        verify(enclave).status();
     }
 
     @Test
@@ -219,7 +225,7 @@ public class RestfulEnclaveClientTest {
                 .thenReturn(Service.Status.STARTED);
         assertThat(enclaveClient.status())
                 .isEqualTo(Service.Status.STARTED);
-        
+
         verify(enclave).status();
     }
 
