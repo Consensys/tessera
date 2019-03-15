@@ -34,7 +34,6 @@ public class Config extends ConfigItem {
     private List<Peer> peers;
 
     @Valid
-    @NotNull
     @XmlElement(required = true)
     @ValidKeyConfiguration
     @ValidKeyVaultConfiguration

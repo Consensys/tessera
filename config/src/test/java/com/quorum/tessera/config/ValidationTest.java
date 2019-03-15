@@ -357,17 +357,7 @@ public class ValidationTest {
         assertThat(violations).hasSize(0);
     }
 
-    @Test
-    public void keyConfigurationIsNullCreatesNotNullViolation() {
-        Config config = new Config(null, null, null, null, null, null, false, false);
 
-        Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
-
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<Config> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
-    }
 
     @Test
     public void azureVaultConfigWithNoUrlCreatesNullViolation() {
