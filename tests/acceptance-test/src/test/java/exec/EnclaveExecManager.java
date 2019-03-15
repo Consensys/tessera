@@ -7,7 +7,6 @@ import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.test.ProcessManager;
 import config.ConfigDescriptor;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,7 +42,7 @@ public class EnclaveExecManager {
     }
 
 
-    private final URL logbackConfigFile = ProcessManager.class.getResource("/logback-enclave.xml");
+    private final URL logbackConfigFile = NodeExecManager.class.getResource("/logback-enclave.xml");
     
     public Process start() {
         
@@ -59,7 +58,7 @@ public class EnclaveExecManager {
                 .withConfigFile(configDescriptor.getEnclavePath())
                 .build();
 
-        LOGGER.info("Starting enclave");
+        LOGGER.info("Starting enclave {}",configDescriptor.getAlias());
         
         Process process = ExecUtils.start(cmd);
 
@@ -75,7 +74,7 @@ public class EnclaveExecManager {
             throw new IllegalStateException("Enclave server not started");
         }
 
-        LOGGER.info("Started enclave");
+        LOGGER.info("Started enclave {}",configDescriptor.getAlias());
         
         return process;
 
@@ -86,7 +85,7 @@ public class EnclaveExecManager {
         try{
             String p = Files.lines(pid).findFirst().orElse(null);
             if(p == null) return;
-            LOGGER.info("Stopping {}",p);
+            LOGGER.info("Stopping {}, Pid: {}",configDescriptor.getAlias(),p);
             ExecUtils.kill(p);
    
         } catch (IOException ex) {
