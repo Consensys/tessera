@@ -8,7 +8,7 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.ProcessManager;
-import config.ConfigGenerator;
+import config.ConfigDescriptor;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
@@ -33,14 +33,16 @@ public class EnclaveExecManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveExecManager.class);
     
-    private ConfigGenerator.ConfigDescriptor configDescriptor;
-
-    public EnclaveExecManager(ConfigGenerator.ConfigDescriptor configDescriptor) {
+    private ConfigDescriptor configDescriptor;
+    
+    private Path pid;
+    
+    public EnclaveExecManager(ConfigDescriptor configDescriptor) {
         this.configDescriptor = configDescriptor;
+        this.pid = Paths.get(System.getProperty("java.io.tmpdir"), "enclave"+ configDescriptor.getAlias().name() +".pid");
     }
 
-    private final Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "enclave.pid");
-    
+
     private final URL logbackConfigFile = ProcessManager.class.getResource("/logback-enclave.xml");
     
     public Process start() {

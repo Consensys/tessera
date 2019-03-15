@@ -3,7 +3,7 @@ package suite;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.test.DBType;
 import com.quorum.tessera.test.ProcessManager;
-import config.ConfigGenerator;
+import config.ConfigDescriptor;
 import db.DatabaseServer;
 import exec.EnclaveExecManager;
 import java.lang.annotation.ElementType;
@@ -43,7 +43,7 @@ public class TestSuite extends Suite {
 
     @Override
     public void run(RunNotifier notifier) {
-
+        final List<EnclaveExecManager> enclaveExecManagerList = new ArrayList<>();
         try{
             ProcessConfig testConfig = Arrays.stream(getRunnerAnnotations())
                     .filter(ProcessConfig.class::isInstance)
@@ -58,11 +58,10 @@ public class TestSuite extends Suite {
                     .with(testConfig.enclaveType())
                     .createAndSetupContext();
 
-            final List<EnclaveExecManager> enclaveExecManagerList = new ArrayList<>();
             if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
 
-                List<ConfigGenerator.ConfigDescriptor> enclaveConfigDescriptors = executionContext.getEnclaveConfigs();
-                for (ConfigGenerator.ConfigDescriptor enclaveConfigDescriptor : enclaveConfigDescriptors) {
+                List<ConfigDescriptor> enclaveConfigDescriptors = executionContext.getConfigs();
+                for (ConfigDescriptor enclaveConfigDescriptor : enclaveConfigDescriptors) {
                     EnclaveExecManager enclaveExecManager = new EnclaveExecManager(enclaveConfigDescriptor);
                     enclaveExecManager.start();
                     enclaveExecManagerList.add(enclaveExecManager);
@@ -99,10 +98,16 @@ public class TestSuite extends Suite {
                 databaseServer.stop();
             }
         } catch (Throwable ex) {
+            
             ex.printStackTrace();
             Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
             notifier.fireTestFailure(new Failure(de, ex));
+            
+        } finally {
+            enclaveExecManagerList.forEach(EnclaveExecManager::stop);
+        
         }
+            
     }
 
 }
