@@ -11,7 +11,9 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
@@ -56,11 +58,15 @@ public class TestSuite extends Suite {
                     .with(testConfig.enclaveType())
                     .createAndSetupContext();
 
-            EnclaveExecManager enclaveExecManager = null;
+            final List<EnclaveExecManager> enclaveExecManagerList = new ArrayList<>();
             if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
-                ConfigGenerator.ConfigDescriptor enclaveConfigDescriptor = executionContext.getEnclaveConfig().get();
-                enclaveExecManager = new EnclaveExecManager(enclaveConfigDescriptor);
-                enclaveExecManager.start();
+
+                List<ConfigGenerator.ConfigDescriptor> enclaveConfigDescriptors = executionContext.getEnclaveConfigs();
+                for (ConfigGenerator.ConfigDescriptor enclaveConfigDescriptor : enclaveConfigDescriptors) {
+                    EnclaveExecManager enclaveExecManager = new EnclaveExecManager(enclaveConfigDescriptor);
+                    enclaveExecManager.start();
+                    enclaveExecManagerList.add(enclaveExecManager);
+                }
             }
 
             String nodeId = NodeId.generate(executionContext);
@@ -84,7 +90,7 @@ public class TestSuite extends Suite {
                 Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
                 notifier.fireTestFailure(new Failure(de, ex));
             } finally {
-                if(enclaveExecManager != null) enclaveExecManager.stop();
+                enclaveExecManagerList.forEach(EnclaveExecManager::stop);
             }
 
             try{

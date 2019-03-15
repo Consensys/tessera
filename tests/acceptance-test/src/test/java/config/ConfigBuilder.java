@@ -9,7 +9,6 @@ import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
-import com.quorum.tessera.config.keypairs.PublicKeyOnlyKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
 import java.util.ArrayList;
@@ -170,19 +169,9 @@ public class ConfigBuilder {
 
         config.setKeys(new KeyConfiguration());
 
-        final List<ConfigKeyPair> pairs;
-        if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
-
-            pairs = keys.entrySet().stream()
-                    .map(e -> new PublicKeyOnlyKeyPair(e.getKey()))
-                    .collect(Collectors.toList());
-
-        } else {
-
-            pairs = keys.entrySet().stream()
+        final List<ConfigKeyPair> pairs = keys.entrySet().stream()
                     .map(e -> new DirectKeyPair(e.getKey(), e.getValue()))
                     .collect(Collectors.toList());
-        }
         
         config.getKeys().setKeyData(pairs);
         

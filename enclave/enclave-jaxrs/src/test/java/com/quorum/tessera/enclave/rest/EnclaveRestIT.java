@@ -1,9 +1,6 @@
 package com.quorum.tessera.enclave.rest;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.cli.CliDelegate;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveImpl;
 import com.quorum.tessera.encryption.PublicKey;
@@ -21,12 +18,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.inject.Inject;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @Configuration
 @RunWith(SpringRunner.class)
@@ -47,23 +41,16 @@ public class EnclaveRestIT {
 
     private RestfulEnclaveClient enclaveClient;
 
-    private Config config;
-    
+
     @Before
     public void setUp() throws Exception {
         assertThat(enclave).isInstanceOf(EnclaveImpl.class);
         jersey = Util.create(enclave);
         jersey.setUp();
         
-        config = new Config();
-        config.setKeys(new KeyConfiguration());
-        
-        ConfigKeyPair keyPair = mock(ConfigKeyPair.class);
-        when(keyPair.getPublicKey()).thenReturn("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
-        config.getKeys().setKeyData(Arrays.asList(keyPair));
-        
-        
-        enclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri(),config);
+
+
+        enclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri());
     }
 
     @After

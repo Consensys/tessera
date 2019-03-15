@@ -5,7 +5,6 @@ import com.quorum.tessera.test.DBType;
 import config.ConfigGenerator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,8 +54,8 @@ public class ExecutionContext {
         return configs.stream().filter(c -> !c.isEnclave()).collect(Collectors.toList());
     }
 
-    public Optional<ConfigGenerator.ConfigDescriptor> getEnclaveConfig() {
-        return configs.stream().filter(ConfigGenerator.ConfigDescriptor::isEnclave).findAny();
+    public List<ConfigGenerator.ConfigDescriptor> getEnclaveConfigs() {
+        return configs.stream().filter(c -> c.isEnclave()).collect(Collectors.toList());
     }
 
     public static class Builder {
