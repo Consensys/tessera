@@ -52,7 +52,7 @@ public class EnclaveExecManager {
        
         List<String> cmd = new ExecArgsBuilder()
                 .withPidFile(pid)
-                .withJvmArg("-Dnode.number=enclave-"+ configDescriptor.getAlias().name().toLowerCase())
+                .withJvmArg("-Dnode.number="+configDescriptor.getAlias().name().toLowerCase())
                 .withJvmArg("-Dlogback.configurationFile="+ logbackConfigFile)
                 .withExecutableJarFile(enclaveServerJar)
                 .withConfigFile(configDescriptor.getEnclavePath())
