@@ -26,8 +26,12 @@ import suite.TestSuite;
     ResendIndividualIT.class,
     SendIT.class,
     SendRawIT.class,
+    P2PRestAppIT.class,
+    TransactionForwardingIT.class,
+    AdminConfigIT.class,
     CucumberRestIT.class,
-    CucumberRawIT.class
+    CucumberRawIT.class,
+    CucumberAdminIT.class
 })
 public class RestSuiteRemoteEnclaveH2 {
 
