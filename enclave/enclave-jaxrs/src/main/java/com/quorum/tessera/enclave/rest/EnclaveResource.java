@@ -15,6 +15,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.json.Json;
 import javax.ws.rs.core.Response.Status;
 
 @Path("/")
@@ -33,7 +34,7 @@ public class EnclaveResource {
     public Response ping() {
         Service.Status status = enclave.status();
         Status httpStatus;
-        if(status == Service.Status.STARTED) {
+        if (status == Service.Status.STARTED) {
             httpStatus = Status.OK;
         } else {
             httpStatus = Status.SERVICE_UNAVAILABLE;
@@ -41,6 +42,43 @@ public class EnclaveResource {
         return Response.status(httpStatus).entity(status.name()).build();
     }
 
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @GET
+    @Path("default")
+    public Response defaultPublicKey() {
+        final StreamingOutput streamingOutput = out -> out.write(enclave.defaultPublicKey().getKeyBytes());
+        return Response.ok(streamingOutput)
+                .build();
+    }
+
+    @GET
+    @Produces("application/json")
+    @Path("forwarding")
+    public Response getForwardingKeys() {
+
+        List<String> body = enclave.getForwardingKeys()
+                .stream()
+                .map(PublicKey::encodeToBase64)
+                .collect(Collectors.toList());
+
+        return Response.ok(Json.createArrayBuilder(body).build().toString(), MediaType.APPLICATION_JSON_TYPE)
+                .build();
+
+    }
+
+    @GET
+    @Produces("application/json")
+    @Path("public")
+    public Response getPublicKeys() {
+
+        List<String> body = enclave.getPublicKeys()
+                .stream()
+                .map(PublicKey::encodeToBase64)
+                .collect(Collectors.toList());
+
+        return Response.ok(Json.createArrayBuilder(body).build().toString(), MediaType.APPLICATION_JSON_TYPE)
+                .build();
+    }
 
     @POST
     @Path("encrypt")

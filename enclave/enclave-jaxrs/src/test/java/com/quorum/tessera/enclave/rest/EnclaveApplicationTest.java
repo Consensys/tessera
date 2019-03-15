@@ -1,7 +1,5 @@
 package com.quorum.tessera.enclave.rest;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
@@ -42,9 +40,7 @@ public class EnclaveApplicationTest {
 
         jersey.setUp();
 
-        Config config = JaxbUtil.unmarshal(getClass().getResourceAsStream("/sample-config.json"), Config.class);
-
-        restfulEnclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri(), config);
+        restfulEnclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri());
 
     }
 
@@ -112,7 +108,7 @@ public class EnclaveApplicationTest {
         assertThat(results.get(0)).isEqualTo(message);
 
         verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
-        verify(enclave).status();
+
     }
 
     @Test
@@ -152,6 +148,6 @@ public class EnclaveApplicationTest {
                 .isEqualTo(payload.getRecipientKeys());
         
         verify(enclave).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
-        verify(enclave).status();
+
     }
 }

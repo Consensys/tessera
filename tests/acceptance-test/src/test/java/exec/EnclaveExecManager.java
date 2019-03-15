@@ -48,7 +48,7 @@ public class EnclaveExecManager {
         Path enclaveServerJar = Paths.get(System.getProperty("enclave.jaxrs.server.jar", "../../enclave/enclave-jaxrs/target/enclave-jaxrs-0.9-SNAPSHOT-server.jar"));
         
         ServerConfig serverConfig = configDescriptor.getConfig().getServerConfigs().get(0);
-        
+       
         List<String> cmd = new ExecArgsBuilder()
                 .withPidFile(pid)
                 .withJvmArg("-Dnode.number=enclave")
