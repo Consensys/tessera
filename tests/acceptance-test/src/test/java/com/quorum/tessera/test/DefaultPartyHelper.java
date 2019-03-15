@@ -20,15 +20,17 @@ public class DefaultPartyHelper implements PartyHelper {
     public DefaultPartyHelper() {
         
         ExecutionContext executionContext = ExecutionContext.currentContext();
-
+        
+        if(executionContext.getConfigs().isEmpty()) throw new IllegalStateException("No parties found");
+        
         for(ConfigGenerator.ConfigDescriptor c : executionContext.getConfigs()) {
             
-            String key = c.getConfig().getKeys().getKeyData().stream().findFirst().get().getPublicKey();
+            String key = c.getKey().getPublicKey();
             URL file = Utils.toUrl(c.getPath());
             String alias = c.getAlias().name();
             
             parties.add(new Party(key, file, alias));
-            LOGGER.trace("Key: {}, File: {}, Alias: {}",key,file,alias);
+            LOGGER.info("Key: {}, File: {}, Alias: {}",key,file,alias);
         }
 
     }

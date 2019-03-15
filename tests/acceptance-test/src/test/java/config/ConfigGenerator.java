@@ -5,6 +5,7 @@ import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
 import java.io.IOException;
@@ -17,9 +18,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,10 +43,16 @@ public class ConfigGenerator {
 
         private Config config;
 
-        public ConfigDescriptor(NodeAlias alias, Path path, Config config) {
+        private Config enclaveConfig;
+        
+        private Path enclavePath;
+
+        public ConfigDescriptor(NodeAlias alias, Path path, Config config, Config enclaveConfig, Path enclavePath) {
             this.alias = alias;
             this.path = path;
             this.config = config;
+            this.enclaveConfig = enclaveConfig;
+            this.enclavePath = enclavePath;
         }
 
         public NodeAlias getAlias() {
@@ -58,8 +67,24 @@ public class ConfigGenerator {
             return config;
         }
 
+        public Optional<Config> getEnclaveConfig() {
+            return Optional.ofNullable(enclaveConfig);
+        }
+
+        public Path getEnclavePath() {
+            return enclavePath;
+        }
+
         public boolean isEnclave() {
-            return alias == NodeAlias.ENCLAVE;
+            return getEnclaveConfig().isPresent();
+        }
+        
+        public ConfigKeyPair getKey() {
+            if(isEnclave()) {
+                return enclaveConfig.getKeys().getKeyData().get(0);
+            } else {
+                return config.getKeys().getKeyData().get(0);
+            }
         }
 
     }
@@ -72,34 +97,22 @@ public class ConfigGenerator {
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
-        
-        List<Config> configs = new ArrayList<>(createConfigs(executionContext));
-          List<ConfigDescriptor> configList = new ArrayList<>();
-          
-        if(executionContext.getEnclaveType() == EnclaveType.REMOTE) {
-            List<Config> enclaveConfigs = configs.stream().map(this::createEnclaveConfig)
+
+        List<Config> configs = createConfigs(executionContext);
+
+        List<Config> enclaveConfigs;
+        if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
+            enclaveConfigs = configs.stream().map(this::createEnclaveConfig)
                     .collect(Collectors.toList());
-            
-            //Remove keys
             configs.forEach(c -> c.setKeys(null));
-            
-        for (int i = 0; i < enclaveConfigs.size(); i++) {
-            Config enclaveConfig = enclaveConfigs.get(i);
-
-            String filename = String.format("enclave%d.json", (i + 1));
-            Path ouputFile = path.resolve(filename);
-
-            try (OutputStream out = Files.newOutputStream(ouputFile)){
-                JaxbUtil.marshalWithNoValidation(enclaveConfig, out);
-                configList.add(new ConfigDescriptor(NodeAlias.ENCLAVE, ouputFile, enclaveConfig));
-            } catch (IOException ex) {
-                throw new UncheckedIOException(ex);
-            }
+        } else {
+            enclaveConfigs = Collections.EMPTY_LIST;
         }
-            
-        }
-
-        for (int i = 0; i < configs.size(); i++) {
+        //Remove keys
+        List<ConfigDescriptor> configList = new ArrayList<>();
+        
+        for (NodeAlias alias : NodeAlias.values()) {
+            int i = alias.ordinal();
             Config config = configs.get(i);
 
             String filename = String.format("config%d.json", (i + 1));
@@ -107,17 +120,35 @@ public class ConfigGenerator {
 
             try (OutputStream out = Files.newOutputStream(ouputFile)){
                 JaxbUtil.marshalWithNoValidation(config, out);
-                configList.add(new ConfigDescriptor(NodeAlias.values()[i], ouputFile, config));
+                
             } catch (IOException ex) {
                 throw new UncheckedIOException(ex);
             }
+            Config enclaveConfig;
+            Path enclaveOuputFile;
+            if(!enclaveConfigs.isEmpty()) {
+                enclaveConfig = enclaveConfigs.get(i);
+                String enclaveFilename = String.format("enclave%d.json", (i + 1));
+                enclaveOuputFile = path.resolve(enclaveFilename);
+                try (OutputStream enclaveout = Files.newOutputStream(enclaveOuputFile)){
+                    JaxbUtil.marshalWithNoValidation(enclaveConfig, enclaveout);
+
+                } catch (IOException ex) {
+                    throw new UncheckedIOException(ex);
+                }
+            } else {
+                enclaveConfig = null;
+                enclaveOuputFile = null;
+            }
+            
+            configList.add(new ConfigDescriptor(alias, ouputFile, config, enclaveConfig,enclaveOuputFile));
         }
 
         return configList;
 
     }
 
-    public Config createEnclaveConfig(Config config) {
+    Config createEnclaveConfig(Config config) {
 
         final Config enclaveConfig = new Config();
 
@@ -130,7 +161,7 @@ public class ConfigGenerator {
 
         enclaveConfig.setKeys(config.getKeys());
         enclaveConfig.setAlwaysSendTo(config.getAlwaysSendTo());
-        
+
         return enclaveConfig;
 
     }
@@ -195,7 +226,6 @@ public class ConfigGenerator {
                 .withKeys(keyLookUp.get(1))
                 .build();
 
-        
         Config second = new ConfigBuilder()
                 .withNodeId(nodeId)
                 .withNodeNumbber(2)
@@ -247,13 +277,15 @@ public class ConfigGenerator {
                 .create()
                 .with(CommunicationType.REST)
                 .with(DBType.H2)
-                .with(SocketType.UNIX)
+                .with(SocketType.UNIX).with(EnclaveType.REMOTE)
                 .build();
 
         Path path = new ConfigGenerator().calculatePath(executionContext);
 
         List<Config> configs = new ConfigGenerator().createConfigs(executionContext);
-
+        
+        
+        
         for (int i = 1; i <= configs.size(); i++) {
             String filename = String.format("config%d.json", i);
             Path ouputFile = path.resolve(filename);
