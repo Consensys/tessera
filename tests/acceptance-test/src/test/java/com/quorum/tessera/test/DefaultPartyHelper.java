@@ -1,6 +1,6 @@
 package com.quorum.tessera.test;
 
-import config.ConfigGenerator;
+import config.ConfigDescriptor;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,16 +21,18 @@ public class DefaultPartyHelper implements PartyHelper {
         
         ExecutionContext executionContext = ExecutionContext.currentContext();
         
-        if(executionContext.getConfigs().isEmpty()) throw new IllegalStateException("No parties found");
+        if(executionContext.getConfigs().isEmpty()) {
+            LOGGER.error("No parties found");
+            throw new IllegalStateException("No parties found");
+        }
         
-        for(ConfigGenerator.ConfigDescriptor c : executionContext.getConfigs()) {
-            
+        for(ConfigDescriptor c : executionContext.getConfigs()) {
             String key = c.getKey().getPublicKey();
             URL file = Utils.toUrl(c.getPath());
             String alias = c.getAlias().name();
             
             parties.add(new Party(key, file, alias));
-            LOGGER.info("Key: {}, File: {}, Alias: {}",key,file,alias);
+            LOGGER.trace("Key: {}, File: {}, Alias: {}",key,file,alias);
         }
 
     }

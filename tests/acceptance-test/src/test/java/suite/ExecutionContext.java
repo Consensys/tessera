@@ -2,10 +2,10 @@ package suite;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.test.DBType;
+import config.ConfigDescriptor;
 import config.ConfigGenerator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ExecutionContext {
@@ -18,7 +18,7 @@ public class ExecutionContext {
 
     private final EnclaveType enclaveType;
 
-    private List<ConfigGenerator.ConfigDescriptor> configs;
+    private List<ConfigDescriptor> configs;
 
     private ExecutionContext(DBType dbType,
             CommunicationType communicationType,
@@ -30,9 +30,7 @@ public class ExecutionContext {
         this.enclaveType = enclaveType;
     }
 
-    public void setConfigs(List<ConfigGenerator.ConfigDescriptor> configs) {
-        this.configs = configs;
-    }
+
 
     public DBType getDbType() {
         return dbType;
@@ -50,12 +48,9 @@ public class ExecutionContext {
         return enclaveType;
     }
 
-    public List<ConfigGenerator.ConfigDescriptor> getConfigs() {
-        return configs.stream().filter(c -> !c.isEnclave()).collect(Collectors.toList());
-    }
 
-    public List<ConfigGenerator.ConfigDescriptor> getEnclaveConfigs() {
-        return configs.stream().filter(c -> c.isEnclave()).collect(Collectors.toList());
+    public List<ConfigDescriptor> getConfigs() {
+        return configs;
     }
 
 
@@ -112,9 +107,11 @@ public class ExecutionContext {
 
             ExecutionContext executionContext = build();
 
-            List<ConfigGenerator.ConfigDescriptor> configs = new ConfigGenerator().generateConfigs(executionContext);
-            if(configs.isEmpty()) throw new IllegalStateException("Empty configs");
-            executionContext.setConfigs(configs);
+            List<ConfigDescriptor> configs = new ConfigGenerator().generateConfigs(executionContext);
+            
+            //FIXME: YUk
+            executionContext.configs = configs;
+
 
             if (THREAD_SCOPE.get() != null) {
                 throw new IllegalStateException("Context has already been created");
@@ -122,7 +119,7 @@ public class ExecutionContext {
 
             THREAD_SCOPE.set(executionContext);
 
-            return executionContext;
+            return THREAD_SCOPE.get();
         }
 
     }
