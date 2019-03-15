@@ -15,13 +15,13 @@ public class ExecutionContext {
     private final CommunicationType communicationType;
 
     private final SocketType socketType;
-    
+
     private final EnclaveType enclaveType;
-    
+
     private List<ConfigGenerator.ConfigDescriptor> configs;
-    
-    private ExecutionContext(DBType dbType, 
-            CommunicationType communicationType, 
+
+    private ExecutionContext(DBType dbType,
+            CommunicationType communicationType,
             SocketType socketType,
             EnclaveType enclaveType) {
         this.dbType = dbType;
@@ -58,6 +58,7 @@ public class ExecutionContext {
         return configs.stream().filter(c -> c.isEnclave()).collect(Collectors.toList());
     }
 
+
     public static class Builder {
 
         private DBType dbType;
@@ -67,7 +68,7 @@ public class ExecutionContext {
         private SocketType socketType;
 
         private EnclaveType enclaveType;
-        
+
         private Builder() {
         }
 
@@ -89,37 +90,38 @@ public class ExecutionContext {
             this.communicationType = communicationType;
             return this;
         }
-        
+
         public Builder with(EnclaveType enclaveType) {
             this.enclaveType = enclaveType;
             return this;
         }
-        
+
         public ExecutionContext build() {
-            Stream.of(dbType, communicationType, socketType,enclaveType)
+            Stream.of(dbType, communicationType, socketType, enclaveType)
                     .forEach(Objects::requireNonNull);
-            
-            ExecutionContext executionContext = new ExecutionContext(dbType, communicationType, socketType,enclaveType);
+
+            ExecutionContext executionContext = new ExecutionContext(dbType, communicationType, socketType, enclaveType);
 
             return executionContext;
         }
-        
+
         protected ExecutionContext createAndSetupContext() {
 
-            Stream.of(dbType, communicationType, socketType,enclaveType)
+            Stream.of(dbType, communicationType, socketType, enclaveType)
                     .forEach(Objects::requireNonNull);
 
             ExecutionContext executionContext = build();
 
             List<ConfigGenerator.ConfigDescriptor> configs = new ConfigGenerator().generateConfigs(executionContext);
+            if(configs.isEmpty()) throw new IllegalStateException("Empty configs");
             executionContext.setConfigs(configs);
-            
+
             if (THREAD_SCOPE.get() != null) {
                 throw new IllegalStateException("Context has already been created");
             }
 
             THREAD_SCOPE.set(executionContext);
-            
+
             return executionContext;
         }
 

@@ -47,14 +47,14 @@ public class EnclaveExecManager {
         
         Path enclaveServerJar = Paths.get(System.getProperty("enclave.jaxrs.server.jar", "../../enclave/enclave-jaxrs/target/enclave-jaxrs-0.9-SNAPSHOT-server.jar"));
         
-        ServerConfig serverConfig = configDescriptor.getConfig().getServerConfigs().get(0);
+        ServerConfig serverConfig = configDescriptor.getEnclaveConfig().get().getServerConfigs().get(0);
        
         List<String> cmd = new ExecArgsBuilder()
                 .withPidFile(pid)
-                .withJvmArg("-Dnode.number=enclave")
+                .withJvmArg("-Dnode.number=enclave-"+ configDescriptor.getAlias().name().toLowerCase())
                 .withJvmArg("-Dlogback.configurationFile="+ logbackConfigFile)
                 .withExecutableJarFile(enclaveServerJar)
-                .withConfigFile(configDescriptor.getPath())
+                .withConfigFile(configDescriptor.getEnclavePath())
                 .build();
 
         LOGGER.info("Starting enclave");
