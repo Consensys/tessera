@@ -2,7 +2,7 @@ package suite;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.test.DBType;
-import com.quorum.tessera.test.ProcessManager;
+import exec.NodeExecManager;
 import config.ConfigDescriptor;
 import db.DatabaseServer;
 import exec.EnclaveExecManager;
@@ -72,7 +72,7 @@ public class TestSuite extends Suite {
             DatabaseServer databaseServer = testConfig.dbType().createDatabaseServer(nodeId);
             databaseServer.start();
 
-            ProcessManager processManager = new ProcessManager(executionContext);
+            NodeExecManager processManager = new NodeExecManager(executionContext);
 
             try{
                 processManager.startNodes();

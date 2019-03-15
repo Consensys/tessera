@@ -110,17 +110,13 @@
                     <includes>
                         
                         <include>RestSuiteRemoteEnclaveH2</include>
-
-
-                        <!--                        <include>CucumberWhitelistIT</include>
+                        <include>CucumberWhitelistIT</include>
                         <include>RestSuiteH2</include>
-                        
                         <include>RestSuiteUnixH2</include>
                         <include>RestSuiteHSQL</include>
                         <include>RestSuiteUnixH2</include>
-                        
                         <include>RestSuiteSqlite</include>
-                        <include>ConfigMigrationIT</include>-->
+                        <include>ConfigMigrationIT</include>
                     </includes>
                 </configuration>
                 <executions>

@@ -1,4 +1,4 @@
-package com.quorum.tessera.test;
+package exec;
 
 import com.quorum.tessera.Launcher;
 import com.quorum.tessera.config.AppType;
@@ -6,9 +6,8 @@ import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.io.FilesDelegate;
+import com.quorum.tessera.test.DBType;
 import com.quorum.tessera.test.util.ElUtil;
-import exec.ExecArgsBuilder;
-import exec.ExecUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +36,9 @@ import suite.ServerStatusCheckExecutor;
 import suite.SocketType;
 import suite.Utils;
 
-public class ProcessManager {
+public class NodeExecManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NodeExecManager.class);
 
     private final Map<String, Path> pids = new HashMap<>();
 
@@ -51,11 +50,11 @@ public class ProcessManager {
 
     private final DBType dbType;
 
-    private final URL logbackConfigFile = ProcessManager.class.getResource("/logback-node.xml");
+    private final URL logbackConfigFile = NodeExecManager.class.getResource("/logback-node.xml");
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
-    public ProcessManager(ExecutionContext executionContext) {
+    public NodeExecManager(ExecutionContext executionContext) {
         this.executionContext = executionContext;
 
         this.communicationType = executionContext.getCommunicationType();
@@ -75,9 +74,9 @@ public class ProcessManager {
         Collections.shuffle(nodeAliases);
 
         for (String nodeAlias : nodeAliases) {
-            LOGGER.info("Starting {}", nodeAlias);
+            LOGGER.info("Starting Node {}", nodeAlias);
             start(nodeAlias);
-            LOGGER.info("Started {}", nodeAlias);
+            LOGGER.info("Started Node {}", nodeAlias);
         }
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -259,7 +258,7 @@ public class ProcessManager {
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
-        ProcessManager pm = new ProcessManager(ExecutionContext.Builder.create()
+        NodeExecManager pm = new NodeExecManager(ExecutionContext.Builder.create()
                 .with(CommunicationType.REST)
                 .with(DBType.H2)
                 .with(SocketType.HTTP)
