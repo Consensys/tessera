@@ -8,9 +8,7 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import config.ConfigDescriptor;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,42 +22,47 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import suite.ExecutionContext;
 
 import suite.ServerStatusCheck;
 import suite.ServerStatusCheckExecutor;
 
-public class EnclaveExecManager {
+public class EnclaveExecManager implements ExecManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveExecManager.class);
-    
-    private ConfigDescriptor configDescriptor;
-    
-    private Path pid;
-    
+
+    private final ConfigDescriptor configDescriptor;
+
+    private final Path pid;
+
+    private final String nodeId;
+
     public EnclaveExecManager(ConfigDescriptor configDescriptor) {
         this.configDescriptor = configDescriptor;
-        this.pid = Paths.get(System.getProperty("java.io.tmpdir"), "enclave"+ configDescriptor.getAlias().name() +".pid");
+        this.pid = Paths.get(System.getProperty("java.io.tmpdir"), "enclave" + configDescriptor.getAlias().name() + ".pid");
+        this.nodeId = suite.NodeId.generate(ExecutionContext.currentContext(),
+                configDescriptor.getAlias());
     }
 
-
     private final URL logbackConfigFile = NodeExecManager.class.getResource("/logback-enclave.xml");
-    
-    public Process start() {
-        
+
+    @Override
+    public Process doStart() throws Exception {
+
         Path enclaveServerJar = Paths.get(System.getProperty("enclave.jaxrs.server.jar", "../../enclave/enclave-jaxrs/target/enclave-jaxrs-0.9-SNAPSHOT-server.jar"));
-        
+
         ServerConfig serverConfig = configDescriptor.getEnclaveConfig().get().getServerConfigs().get(0);
-       
+
         List<String> cmd = new ExecArgsBuilder()
                 .withPidFile(pid)
-                .withJvmArg("-Dnode.number="+configDescriptor.getAlias().name().toLowerCase())
-                .withJvmArg("-Dlogback.configurationFile="+ logbackConfigFile)
+                .withJvmArg("-Dnode.number=" + nodeId)
+                .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
                 .withExecutableJarFile(enclaveServerJar)
                 .withConfigFile(configDescriptor.getEnclavePath())
                 .build();
 
-        LOGGER.info("Starting enclave {}",configDescriptor.getAlias());
-        
+        LOGGER.info("Starting enclave {}", configDescriptor.getAlias());
+
         Process process = ExecUtils.start(cmd);
 
         ServerStatusCheckExecutor serverStatusCheckExecutor = new ServerStatusCheckExecutor(ServerStatusCheck.create(serverConfig));
@@ -74,27 +77,24 @@ public class EnclaveExecManager {
             throw new IllegalStateException("Enclave server not started");
         }
 
-        LOGGER.info("Started enclave {}",configDescriptor.getAlias());
-        
+        LOGGER.info("Started enclave {}", configDescriptor.getAlias());
+
         return process;
 
     }
 
-    public void stop() {
-        
-        try{
-            String p = Files.lines(pid).findFirst().orElse(null);
-            if(p == null) return;
-            LOGGER.info("Stopping {}, Pid: {}",configDescriptor.getAlias(),p);
-            ExecUtils.kill(p);
-   
-        } catch (IOException ex) {
-           throw new UncheckedIOException(ex);
+    @Override
+    public void doStop() throws Exception {
+
+        String p = Files.lines(pid).findFirst().orElse(null);
+        if (p == null) {
+            return;
         }
-        
+        LOGGER.info("Stopping Enclave : {}, Pid: {}", nodeId, p);
+        ExecUtils.kill(p);
+
     }
-    
-    
+
     public static void main(String[] args) throws Exception {
 
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
@@ -115,7 +115,7 @@ public class EnclaveExecManager {
 
         Path configFile = Paths.get("target", UUID.randomUUID().toString() + ".json");
 
-        try (OutputStream out = Files.newOutputStream(configFile)){
+        try (OutputStream out = Files.newOutputStream(configFile)) {
             JaxbUtil.marshalWithNoValidation(enclaveConfig, out);
         }
 

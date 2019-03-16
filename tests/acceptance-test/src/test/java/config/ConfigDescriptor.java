@@ -14,7 +14,8 @@ public class ConfigDescriptor {
     private final Config config;
     private final Config enclaveConfig;
     private final Path enclavePath;
-
+    
+    
     public ConfigDescriptor(NodeAlias alias, Path path, Config config, Config enclaveConfig, Path enclavePath) {
         this.alias = alias;
         this.path = path;
