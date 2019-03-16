@@ -2,10 +2,10 @@ package suite;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.test.DBType;
-import exec.NodeExecManager;
-import config.ConfigDescriptor;
 import db.DatabaseServer;
 import exec.EnclaveExecManager;
+import exec.ExecManager;
+import exec.NodeExecManager;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -43,8 +43,8 @@ public class TestSuite extends Suite {
 
     @Override
     public void run(RunNotifier notifier) {
-        final List<EnclaveExecManager> enclaveExecManagerList = new ArrayList<>();
-        try{
+        final List<ExecManager> executors = new ArrayList<>();
+        try {
             ProcessConfig testConfig = Arrays.stream(getRunnerAnnotations())
                     .filter(ProcessConfig.class::isInstance)
                     .map(ProcessConfig.class::cast)
@@ -60,54 +60,41 @@ public class TestSuite extends Suite {
 
             if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
 
-                List<ConfigDescriptor> enclaveConfigDescriptors = executionContext.getConfigs();
-                for (ConfigDescriptor enclaveConfigDescriptor : enclaveConfigDescriptors) {
-                    EnclaveExecManager enclaveExecManager = new EnclaveExecManager(enclaveConfigDescriptor);
-                    enclaveExecManager.start();
-                    enclaveExecManagerList.add(enclaveExecManager);
-                }
+                executionContext.getConfigs().stream()
+                        .map(EnclaveExecManager::new)
+                        .forEach(exec -> {
+                            exec.start();
+                            executors.add(exec);
+                        });
             }
 
             String nodeId = NodeId.generate(executionContext);
             DatabaseServer databaseServer = testConfig.dbType().createDatabaseServer(nodeId);
             databaseServer.start();
 
-            NodeExecManager processManager = new NodeExecManager(executionContext);
-
-            try{
-                processManager.startNodes();
-            } catch (Exception ex) {
-                Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
-                notifier.fireTestFailure(new Failure(de, ex));
-            }
+            executionContext.getConfigs().stream()
+                    .map(NodeExecManager::new)
+                    .forEach(exec -> {
+                        exec.start();
+                        executors.add(exec);
+                    });
 
             super.run(notifier);
 
-            try{
-                processManager.stopNodes();
-            } catch (Exception ex) {
-                Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
-                notifier.fireTestFailure(new Failure(de, ex));
-            } finally {
-                enclaveExecManagerList.forEach(EnclaveExecManager::stop);
-            }
-
-            try{
+            try {
                 ExecutionContext.destoryContext();
             } finally {
                 databaseServer.stop();
             }
         } catch (Throwable ex) {
-            
-            ex.printStackTrace();
             Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
             notifier.fireTestFailure(new Failure(de, ex));
-            
+
         } finally {
-            enclaveExecManagerList.forEach(EnclaveExecManager::stop);
-        
+            executors.forEach(ExecManager::stop);
+
         }
-            
+
     }
 
 }
