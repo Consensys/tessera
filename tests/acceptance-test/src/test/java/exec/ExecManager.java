@@ -1,6 +1,11 @@
 package exec;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public interface ExecManager {
+
+    Logger LOGGER = LoggerFactory.getLogger(ExecManager.class);
 
     Process doStart() throws Exception;
 
@@ -10,7 +15,8 @@ public interface ExecManager {
         try {
             return doStart();
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            LOGGER.error("", ex);
+            throw new ExecException(ex);
         }
     }
 
@@ -18,7 +24,7 @@ public interface ExecManager {
         try {
             this.doStop();
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            LOGGER.warn("{}", ex.getMessage());
         }
 
     }
