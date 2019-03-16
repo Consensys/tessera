@@ -69,9 +69,9 @@ public class EnclaveExecManager implements ExecManager {
 
         ExecutorService executorService = Executors.newCachedThreadPool();
 
-        Future<Boolean> future = ExecCallback.doExecute(() -> executorService.submit(serverStatusCheckExecutor));
+        Future<Boolean> future = executorService.submit(serverStatusCheckExecutor);
 
-        Boolean result = ExecCallback.doExecute(() -> future.get(30, TimeUnit.SECONDS));
+        Boolean result = future.get(30, TimeUnit.SECONDS);
 
         if (!result) {
             throw new IllegalStateException("Enclave server not started");

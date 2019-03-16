@@ -50,130 +50,133 @@ public class WhitelistSteps implements En {
     private final URL logbackConfigFile = WhitelistSteps.class.getResource("/logback-node.xml");
 
     public WhitelistSteps() {
-        
-        final Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "whitelist.pid");
-        FilesDelegate.create().deleteIfExists(pid);
-      
-        FilesDelegate.create()
-                .createFile(pid);
-        
-        pid.toFile().deleteOnExit();
-       
-        ExecutorService executorService = Executors.newCachedThreadPool();
 
+        try {
+            final Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "whitelist.pid");
+            FilesDelegate.create().deleteIfExists(pid);
 
-        Given("Node at port {int}", (Integer port) -> {
+            FilesDelegate.create()
+                    .createFile(pid);
 
-            ExecutionContext executionContext = ExecutionContext.Builder.create()
-                    .with(CommunicationType.REST)
-                    .with(DBType.H2)
-                    .with(EnclaveType.LOCAL)
-                    .with(SocketType.HTTP)
-                    .build();
+            pid.toFile().deleteOnExit();
 
-            ConfigBuilder whiteListConfigBuilder = new ConfigBuilder()
-                    .withNodeId("whitelist")
-                    .withNodeNumbber(5)
-                    .withQ2TSocketType(SocketType.HTTP)
-                    .withExecutionContext(executionContext)
-                    .withP2pPort(port)
-                    .withPeer("http://localhost:7000")
-                    .withKeys("WxsJ4souK0mptNx1UGw6hb1WNNIbPhLPvW9GoaXau3Q=", "YbOOFA4mwSSdGH6aFfGl2M7N1aiPOj5nHpD7GzJKSiA=");
+            ExecutorService executorService = Executors.newCachedThreadPool();
 
-            Config whiteListConfig = whiteListConfigBuilder.build();
-            whiteListConfig.setUseWhiteList(true);
+            Given("Node at port {int}", (Integer port) -> {
 
-            Path configFile = Paths.get("target")
-                    .resolve("white-list-config.json");
+                ExecutionContext executionContext = ExecutionContext.Builder.create()
+                        .with(CommunicationType.REST)
+                        .with(DBType.H2)
+                        .with(EnclaveType.LOCAL)
+                        .with(SocketType.HTTP)
+                        .build();
 
-            try (OutputStream out = Files.newOutputStream(configFile)){
-                JaxbUtil.marshalWithNoValidation(whiteListConfig, out);
-            } catch (IOException ex) {
-                throw new UncheckedIOException(ex);
-            }
+                ConfigBuilder whiteListConfigBuilder = new ConfigBuilder()
+                        .withNodeId("whitelist")
+                        .withNodeNumbber(5)
+                        .withQ2TSocketType(SocketType.HTTP)
+                        .withExecutionContext(executionContext)
+                        .withP2pPort(port)
+                        .withPeer("http://localhost:7000")
+                        .withKeys("WxsJ4souK0mptNx1UGw6hb1WNNIbPhLPvW9GoaXau3Q=", "YbOOFA4mwSSdGH6aFfGl2M7N1aiPOj5nHpD7GzJKSiA=");
 
-            URL configUrl = Utils.toUrl(configFile);
+                Config whiteListConfig = whiteListConfigBuilder.build();
+                whiteListConfig.setUseWhiteList(true);
 
-            final Party party = new Party("WxsJ4souK0mptNx1UGw6hb1WNNIbPhLPvW9GoaXau3Q=", configUrl, "W");
+                Path configFile = Paths.get("target")
+                        .resolve("white-list-config.json");
 
-            List<String> cmd = new ExecArgsBuilder()
-                    .withMainClass(Launcher.class)
-                    .withClassPathItem(Paths.get(jarPath))
-                    .withConfigFile(configFile)
-                    .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
-                    .withJvmArg("-Dnode.number=whitelist")
-                    .withPidFile(pid)
-                    .build();
-            
-            ProcessBuilder processBuilder = new ProcessBuilder(cmd);
-            processBuilder.redirectErrorStream(true);
-
-            Process process = processBuilder.start();
-
-            executorService.submit(() -> {
-                try (BufferedReader reader = Stream.of(process.getInputStream())
-                        .map(InputStreamReader::new)
-                        .map(BufferedReader::new)
-                        .findAny().get()){
-
-                    String line = null;
-                    while ((line = reader.readLine()) != null) {
-                        LOGGER.info("Exec line Whitelist : {}", line);
-                    }
-
+                try (OutputStream out = Files.newOutputStream(configFile)) {
+                    JaxbUtil.marshalWithNoValidation(whiteListConfig, out);
                 } catch (IOException ex) {
                     throw new UncheckedIOException(ex);
                 }
+
+                URL configUrl = Utils.toUrl(configFile);
+
+                final Party party = new Party("WxsJ4souK0mptNx1UGw6hb1WNNIbPhLPvW9GoaXau3Q=", configUrl, "W");
+
+                List<String> cmd = new ExecArgsBuilder()
+                        .withMainClass(Launcher.class)
+                        .withClassPathItem(Paths.get(jarPath))
+                        .withConfigFile(configFile)
+                        .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
+                        .withJvmArg("-Dnode.number=whitelist")
+                        .withPidFile(pid)
+                        .build();
+
+                ProcessBuilder processBuilder = new ProcessBuilder(cmd);
+                processBuilder.redirectErrorStream(true);
+
+                Process process = processBuilder.start();
+
+                executorService.submit(() -> {
+                    try (BufferedReader reader = Stream.of(process.getInputStream())
+                            .map(InputStreamReader::new)
+                            .map(BufferedReader::new)
+                            .findAny().get()) {
+
+                        String line = null;
+                        while ((line = reader.readLine()) != null) {
+                            LOGGER.info("Exec line Whitelist : {}", line);
+                        }
+
+                    } catch (IOException ex) {
+                        throw new UncheckedIOException(ex);
+                    }
+                });
+
+                executorService.submit(() -> {
+                    try {
+                        process.waitFor();
+                    } catch (InterruptedException ex) {
+
+                    }
+                });
+
+                CountDownLatch startUpLatch = new CountDownLatch(1);
+
+                ServerStatusCheck serverStatusCheck = ServerStatusCheck
+                        .create(whiteListConfig.getServerConfigs().stream()
+                                .filter(s -> s.getApp() == AppType.P2P)
+                                .findAny()
+                                .get());
+
+                Boolean started = executorService.submit(new ServerStatusCheckExecutor(serverStatusCheck))
+                        .get(20, TimeUnit.SECONDS);
+
+                assertThat(started).isTrue();
+
             });
 
-            executorService.submit(() -> {
-                try{
-                    process.waitFor();
-                } catch (InterruptedException ex) {
+            List<Response> responseHolder = new ArrayList<>();
+            When("a request is made against the node", () -> {
 
-                }
+                Client client = ClientBuilder.newClient();
+                Response response = client
+                        .target("http://localhost:7000")
+                        .path("upcheck")
+                        .request()
+                        .get();
+
+                responseHolder.add(response);
+
             });
 
-            CountDownLatch startUpLatch = new CountDownLatch(1);
-    
-           ServerStatusCheck serverStatusCheck = ServerStatusCheck
-                    .create(whiteListConfig.getServerConfigs().stream()
-                            .filter(s -> s.getApp() == AppType.P2P)
-                            .findAny()
-                            .get());
-                    
-            Boolean started = executorService.submit(new ServerStatusCheckExecutor(serverStatusCheck))
-                    .get(20, TimeUnit.SECONDS);
-                
-            assertThat(started).isTrue();
+            Then("the response code is UNAUTHORIZED", () -> {
+                assertThat(responseHolder.get(0).getStatus()).isEqualTo(401);
+            });
 
-
-        });
-
-        List<Response> responseHolder = new ArrayList<>();
-        When("a request is made against the node", () -> {
-
-            Client client = ClientBuilder.newClient();
-            Response response = client
-                    .target("http://localhost:7000")
-                    .path("upcheck")
-                    .request()
-                    .get();
-
-            responseHolder.add(response);
-
-        });
-
-        Then("the response code is UNAUTHORIZED", () -> {
-            assertThat(responseHolder.get(0).getStatus()).isEqualTo(401);
-        });
-
-
-        try{
             Files.lines(pid).findAny()
-                    .ifPresent(ExecUtils::kill);
+                    .ifPresent(p -> {
+                        try {
+                            ExecUtils.kill(p);
+                        } catch (IOException | InterruptedException ex) {
+                        }
+
+                    });
         } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
+            throw new RuntimeException(ex);
         }
     }
 
