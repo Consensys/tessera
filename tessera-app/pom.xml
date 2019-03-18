@@ -20,6 +20,12 @@
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>enclave-jaxrs</artifactId>
+            <version>0.9-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>config-cli</artifactId>
         </dependency>
 
