@@ -24,10 +24,8 @@ import suite.TestSuite;
     SendRawIT.class,
     P2PRestAppIT.class,
     TransactionForwardingIT.class,
-    AdminConfigIT.class,
     CucumberRestIT.class,
-    CucumberRawIT.class,
-    CucumberAdminIT.class
+    CucumberRawIT.class
 })
 public class RestSuiteSqlite {
 
