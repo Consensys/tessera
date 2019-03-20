@@ -13,6 +13,10 @@ public class NodeId {
     
     
     public static String generate(ExecutionContext executionContext,NodeAlias alias) {
+        if(executionContext.isAdmin()) {
+            return "admin";
+        }
+        
         return Stream.of(
                 executionContext.getCommunicationType(),
                 executionContext.getSocketType(),

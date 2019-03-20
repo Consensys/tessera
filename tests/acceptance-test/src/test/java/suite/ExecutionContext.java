@@ -20,14 +20,17 @@ public class ExecutionContext {
 
     private List<ConfigDescriptor> configs;
 
+    private boolean admin;
+    
     private ExecutionContext(DBType dbType,
             CommunicationType communicationType,
             SocketType socketType,
-            EnclaveType enclaveType) {
+            EnclaveType enclaveType,boolean admin) {
         this.dbType = dbType;
         this.communicationType = communicationType;
         this.socketType = socketType;
         this.enclaveType = enclaveType;
+        this.admin = admin;
     }
 
 
@@ -51,6 +54,10 @@ public class ExecutionContext {
 
     public List<ConfigDescriptor> getConfigs() {
         return configs;
+    }
+
+    public boolean isAdmin() {
+        return admin;
     }
 
 
@@ -91,11 +98,18 @@ public class ExecutionContext {
             return this;
         }
 
+        private boolean admin;
+        
+        public Builder withAdmin(boolean admin) {
+            this.admin = admin;
+            return this;
+        }
+        
         public ExecutionContext build() {
             Stream.of(dbType, communicationType, socketType, enclaveType)
                     .forEach(Objects::requireNonNull);
 
-            ExecutionContext executionContext = new ExecutionContext(dbType, communicationType, socketType, enclaveType);
+            ExecutionContext executionContext = new ExecutionContext(dbType, communicationType, socketType, enclaveType,admin);
 
             return executionContext;
         }
