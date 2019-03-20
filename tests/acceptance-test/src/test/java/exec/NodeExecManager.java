@@ -11,8 +11,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -24,8 +22,6 @@ import suite.ServerStatusCheck;
 import suite.ServerStatusCheckExecutor;
 
 public class NodeExecManager implements ExecManager {
-
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeExecManager.class);
 
@@ -93,7 +89,7 @@ public class NodeExecManager implements ExecManager {
 
         CountDownLatch startUpLatch = new CountDownLatch(serverStatusCheckList.size());
 
-        executorService.invokeAll(serverStatusCheckList).forEach(f -> {
+        executorService().invokeAll(serverStatusCheckList).forEach(f -> {
             try {
                 f.get(30, TimeUnit.SECONDS);
                 startUpLatch.countDown();
@@ -109,7 +105,7 @@ public class NodeExecManager implements ExecManager {
             LOGGER.error("Not started {}", pid);
         }
 
-        executorService.submit(() -> {
+        executorService().submit(() -> {
             try {
                 int exitCode = process.waitFor();
                 LOGGER.info("Node {} exited with code {}", nodeId, exitCode);
