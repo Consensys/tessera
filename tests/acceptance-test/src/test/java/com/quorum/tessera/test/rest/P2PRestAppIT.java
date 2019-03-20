@@ -35,12 +35,12 @@ public class P2PRestAppIT {
                 .findFirst()
                 .get();
         
-        LOGGER.info("Begin test: {}", testName.getMethodName());
+        LOGGER.debug("Begin test: {}", testName.getMethodName());
     }
 
     @After
     public void afterTest() {
-        LOGGER.info("After test: {}", testName.getMethodName());
+        LOGGER.debug("After test: {}", testName.getMethodName());
     }
 
     @Ignore
