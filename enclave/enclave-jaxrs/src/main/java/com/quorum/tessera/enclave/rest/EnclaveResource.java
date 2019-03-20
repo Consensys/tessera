@@ -14,6 +14,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.json.Json;
 import javax.ws.rs.core.Response.Status;
@@ -150,7 +151,9 @@ public class EnclaveResource {
     public Response unencryptTransaction(EnclaveUnencryptPayload enclaveUnencryptPayload) {
 
         EncodedPayload payload = payloadEncoder.decode(enclaveUnencryptPayload.getData());
-        PublicKey providedKey = PublicKey.from(enclaveUnencryptPayload.getProvidedKey());
+        PublicKey providedKey = Optional.ofNullable(enclaveUnencryptPayload.getProvidedKey())
+            .map(PublicKey::from)
+            .orElse(null);
 
         byte[] response = enclave.unencryptTransaction(payload, providedKey);
 
