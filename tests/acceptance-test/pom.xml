@@ -24,13 +24,11 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>enclave-jaxrs</artifactId>
-            <version>0.9-SNAPSHOT</version>
         </dependency>
    
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>enclave-jaxrs</artifactId>
-            <version>0.9-SNAPSHOT</version>
             <classifier>server</classifier>
         </dependency>
         
@@ -108,15 +106,19 @@
                         <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
-                        <include>AdminRestSuite</include>
+<!--                        <include>AdminRestSuite</include>-->
                         <include>RestSuiteRemoteEnclaveH2</include>
-                        <include>CucumberWhitelistIT</include>
+                         <include>RestSuiteH2</include>
+                        <!--
+                       <include>CucumberWhitelistIT</include>
+                     
                         <include>RestSuiteH2</include>
+                        
                         <include>RestSuiteUnixH2</include>
                         <include>RestSuiteHSQL</include>
                         <include>RestSuiteUnixH2</include>
                         <include>RestSuiteSqlite</include>
-                        <include>ConfigMigrationIT</include>
+                        <include>ConfigMigrationIT</include>-->
                     </includes>
                 </configuration>
                 <executions>
