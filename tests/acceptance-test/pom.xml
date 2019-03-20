@@ -108,7 +108,7 @@
                         <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
-                        
+                        <include>AdminRestSuite</include>
                         <include>RestSuiteRemoteEnclaveH2</include>
                         <include>CucumberWhitelistIT</include>
                         <include>RestSuiteH2</include>
