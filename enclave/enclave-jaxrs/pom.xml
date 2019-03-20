@@ -19,11 +19,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>enclave-api</artifactId>
         </dependency>
-       <dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>enclave-server</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -171,7 +170,6 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>config-cli</artifactId>
-            <version>0.9-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
     </dependencies>
@@ -187,7 +185,6 @@
                     <shadedArtifactAttached>true</shadedArtifactAttached>
                     <shadedClassifierName>server</shadedClassifierName>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
-                    <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                             <mainClass>com.quorum.tessera.enclave.rest.Main</mainClass>
