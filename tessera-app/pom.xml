@@ -41,6 +41,18 @@
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>enclave-jaxrs</artifactId>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.jpmorgan.quorum</groupId>
+                    <artifactId>enclave-server</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>grpc-service</artifactId>
             <scope>runtime</scope>
         </dependency>
