@@ -30,6 +30,7 @@
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>enclave-jaxrs</artifactId>
             <classifier>server</classifier>
+            <version>0.9-SNAPSHOT</version>
         </dependency>
         
         <dependency>
