@@ -62,7 +62,6 @@ public class SendGrpcIT {
         SendResponse result = blockingStub1.send(request);
 
         assertThat(result).isNotNull();
-        result.getAllFields().forEach((k, v) -> System.out.println(k + " " + v));
         assertThat(result.getKey()).isNotNull().isNotBlank();
 
         // confirm that the message has been propagated to the target tessera (config2.json)
@@ -76,7 +75,6 @@ public class SendGrpcIT {
         ReceiveResponse receiveResponse = blockingStub2.receive(receiveRequest);
 
         assertThat(receiveResponse).isNotNull();
-        receiveResponse.getAllFields().forEach((k, v) -> System.out.println(k + " " + v));
         assertThat(receiveResponse.getPayload()).isNotNull().isEqualTo(payload);
     }
 
@@ -92,7 +90,6 @@ public class SendGrpcIT {
         SendResponse result = blockingStub1.send(request);
 
         assertThat(result).isNotNull();
-        result.getAllFields().forEach((k, v) -> System.out.println(k + " " + v));
         assertThat(result.getKey()).isNotNull().isNotBlank();
 
     }
@@ -107,7 +104,6 @@ public class SendGrpcIT {
         SendResponse result = blockingStub1.send(request);
 
         assertThat(result).isNotNull();
-        result.getAllFields().forEach((k, v) -> System.out.println(k + " " + v));
         assertThat(result.getKey()).isNotNull().isNotBlank();
 
     }
