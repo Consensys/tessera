@@ -1,14 +1,13 @@
 package com.quorum.tessera;
 
-import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.cli.CliDelegate;
+import com.quorum.tessera.config.cli.CliException;
 import com.quorum.tessera.config.cli.CliResult;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
 import com.quorum.tessera.service.locator.ServiceLocator;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +15,7 @@ import javax.json.JsonException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 /**
  * The main entry point for the application. This just starts up the application
@@ -31,35 +30,29 @@ public class Launcher {
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
-        try{
+        try {
             final CliResult cliResult = CliDelegate.instance().execute(args);
 
             if (cliResult.isSuppressStartup()) {
                 System.exit(0);
-            } else if (cliResult.getStatus() != 0) {
-                System.exit(cliResult.getStatus());
             }
 
-            if (!cliResult.getConfig().isPresent() && cliResult.isSuppressStartup()) {
+            if (cliResult.getStatus() != 0) {
                 System.exit(cliResult.getStatus());
             }
 
             final Config config = cliResult.getConfig()
-                    .orElseThrow(() -> new NoSuchElementException("No Config found. Tessera will not run"));
+                .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
 
             runWebServer(config);
 
-            System.exit(0);
-
         } catch (final ConstraintViolationException ex) {
-            Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
-
-            for (ConstraintViolation<?> violation : violations) {
+            for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
                 System.out.println("Config validation issue: " + violation.getPropertyPath() + " " + violation.getMessage());
             }
             System.exit(1);
-        } catch (com.quorum.tessera.config.ConfigException ex) {
-            Throwable cause = resolveRootCause(ex);
+        } catch (final ConfigException ex) {
+            final Throwable cause = ExceptionUtils.getRootCause(ex);
 
             if (JsonException.class.isInstance(cause)) {
                 System.err.println("Invalid json, error is " + cause.getMessage());
@@ -67,21 +60,14 @@ public class Launcher {
                 System.err.println(Objects.toString(cause));
             }
             System.exit(3);
-        } catch (com.quorum.tessera.config.cli.CliException ex) {
+        } catch (final CliException ex) {
             System.err.println(ex.getMessage());
             System.exit(4);
-        } catch (Throwable ex) {
-
+        } catch (final Throwable ex) {
             Optional.ofNullable(ex.getMessage()).ifPresent(System.err::println);
             System.exit(2);
         }
-    }
 
-    private static Throwable resolveRootCause(Throwable ex) {
-        if (Objects.nonNull(ex.getCause())) {
-            return resolveRootCause(ex.getCause());
-        }
-        return ex;
     }
 
     private static void runWebServer(final Config config) throws Exception {
@@ -90,35 +76,20 @@ public class Launcher {
 
         Set<Object> services = serviceLocator.getServices("tessera-spring.xml");
 
-        List<TesseraServer> servers = new ArrayList<>();
-        for (ServerConfig serverConfig : config.getServerConfigs()) {
-            AppType appType = serverConfig.getApp();
-            if (appType == AppType.ENCLAVE) {
-                //Enclave server config means the enclave server is remote. 
-                continue;
-            }
-            
-            CommunicationType communicationType = serverConfig.getCommunicationType();
-
-            TesseraServerFactory serverFactory = TesseraServerFactory.create(communicationType);
-
-            TesseraServer tesseraServer = serverFactory.createServer(serverConfig, services);
-            if (null != tesseraServer) {
-                servers.add(tesseraServer);
-            }
-        }
-
-        CountDownLatch countDown = new CountDownLatch(1);
+        final List<TesseraServer> servers = config.getServerConfigs()
+            .stream()
+            .filter(server -> !AppType.ENCLAVE.equals(server.getApp()))
+            .map(conf -> TesseraServerFactory.create(conf.getCommunicationType()).createServer(conf, services))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try{
+            try {
                 for (TesseraServer ts : servers) {
                     ts.stop();
                 }
             } catch (Exception ex) {
                 LOGGER.error(null, ex);
-            } finally {
-                countDown.countDown();
             }
         }));
 
@@ -126,7 +97,6 @@ public class Launcher {
             ts.start();
         }
 
-        countDown.await();
     }
 
 }
