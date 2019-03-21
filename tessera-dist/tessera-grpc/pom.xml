@@ -14,8 +14,6 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-launcher</artifactId>
-            <version>0.9-SNAPSHOT</version>
-            <type>jar</type>
         </dependency>
         
         <dependency>
@@ -101,7 +99,6 @@
             <artifactId>jul-to-slf4j</artifactId>
         </dependency>
 
-  
     </dependencies>
     
     <build>
@@ -109,9 +106,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <configuration>
-                    <shadedClassifierName>app</shadedClassifierName>
-                </configuration>
                 <executions>
                     <execution>
                         <phase>package</phase>

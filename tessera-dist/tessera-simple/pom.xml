@@ -7,15 +7,17 @@
         <version>0.9-SNAPSHOT</version>
     </parent>
     <artifactId>tessera-simple</artifactId>
+    <name>tessera-simple</name>
+
     <packaging>jar</packaging>
     
     <dependencies>
+        
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-launcher</artifactId>
-            <version>0.9-SNAPSHOT</version>
-            <type>jar</type>
         </dependency>
+        
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>encryption-jnacl</artifactId>
@@ -113,9 +115,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <configuration>
-                    <shadedClassifierName>app</shadedClassifierName>
-                </configuration>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -127,5 +126,4 @@
             </plugin>
         </plugins>
     </build>
-    <name>tessera-simple</name>
 </project>
