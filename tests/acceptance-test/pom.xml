@@ -30,7 +30,6 @@
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>enclave-jaxrs</artifactId>
             <classifier>server</classifier>
-            <version>0.9-SNAPSHOT</version>
         </dependency>
         
         <dependency>
@@ -101,25 +100,20 @@
                         <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
                         <jdbc.sqlite.jar>${org.xerial:sqlite-jdbc:jar}</jdbc.sqlite.jar>
                         <enclave.jaxrs.jar>${com.jpmorgan.quorum:enclave-jaxrs:jar}</enclave.jaxrs.jar>
-                        
                         <enclave.jaxrs.server.jar>${com.jpmorgan.quorum:enclave-jaxrs:jar:server}</enclave.jaxrs.server.jar>
-
                         <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
-<!--                        <include>AdminRestSuite</include>-->
+                        <include>AdminRestSuite</include>
                         <include>RestSuiteRemoteEnclaveH2</include>
-                         <include>RestSuiteH2</include>
-                        <!--
-                       <include>CucumberWhitelistIT</include>
-                     
                         <include>RestSuiteH2</include>
-                        
+                        <include>CucumberWhitelistIT</include>
+                        <include>RestSuiteH2</include>
                         <include>RestSuiteUnixH2</include>
                         <include>RestSuiteHSQL</include>
                         <include>RestSuiteUnixH2</include>
                         <include>RestSuiteSqlite</include>
-                        <include>ConfigMigrationIT</include>-->
+                        <include>ConfigMigrationIT</include>
                     </includes>
                 </configuration>
                 <executions>
