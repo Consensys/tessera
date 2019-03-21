@@ -45,6 +45,7 @@ public class ServerUtils {
 
             SslContextFactory sslContextFactory = new SslContextFactory();
             sslContextFactory.setSslContext(sslContext);
+            sslContextFactory.setNeedClientAuth(true);
             ServerConnector connector = new ServerConnector(server,
                     new SslConnectionFactory(sslContextFactory, "http/1.1"),
                     new HttpConnectionFactory(https));
