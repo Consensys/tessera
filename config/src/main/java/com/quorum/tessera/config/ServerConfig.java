@@ -1,5 +1,6 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.constraints.ValidServerAddress;
 import com.quorum.tessera.config.constraints.ValidSsl;
 
 import javax.validation.Valid;
@@ -14,7 +15,6 @@ import java.util.Objects;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ServerConfig extends ConfigItem {
 
-    //TODO validate that the server socket type and the communication type match the AppType
     @NotNull
     @XmlElement(required = true)
     private AppType app;
@@ -22,7 +22,6 @@ public class ServerConfig extends ConfigItem {
     @NotNull
     @XmlElement(required = true)
     private boolean enabled;
-
 
     @XmlElement
     private CommunicationType communicationType;
@@ -36,9 +35,15 @@ public class ServerConfig extends ConfigItem {
     @XmlElement
     private InfluxConfig influxConfig;
 
+    @ValidServerAddress(
+            message = "Binding Address is invalid",
+            isBindingAddress = true,
+            supportedSchemes = {"http","https"}
+    )
     @XmlElement
     private String bindingAddress;
 
+    @ValidServerAddress(message = "Server Address is invalid")
     @NotNull
     @XmlElement
     private String serverAddress;
