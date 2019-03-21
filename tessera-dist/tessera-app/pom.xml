@@ -7,12 +7,19 @@
 
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
-        <artifactId>tessera</artifactId>
+        <artifactId>tessera-dist</artifactId>
         <version>0.9-SNAPSHOT</version>
     </parent>
 
     <dependencies>
-
+        
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>tessera-launcher</artifactId>
+            <version>0.9-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>argon2</artifactId>
@@ -146,43 +153,8 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.0</version>
                 <configuration>
-                    <minimizeJar>false</minimizeJar>
-                    <shadedArtifactAttached>true</shadedArtifactAttached>
                     <shadedClassifierName>app</shadedClassifierName>
-                    <createDependencyReducedPom>false</createDependencyReducedPom>
-                    <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>com.quorum.tessera.Launcher</mainClass>
-                            <manifestEntries>
-                                <Tessera-Version>${project.version}</Tessera-Version>
-                            </manifestEntries>
-                        </transformer>
-
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                            <resource>META-INF/spring.handlers</resource>
-                        </transformer>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                            <resource>META-INF/spring.schemas</resource>
-                        </transformer>
-
-                    </transformers>
-
-                    <filters>
-                        <filter>
-                            <artifact>*:*</artifact>
-                            <excludes>
-                                <exclude>META-INF/*.SF</exclude>
-                                <exclude>META-INF/*.DSA</exclude>
-                                <exclude>META-INF/*.RSA</exclude>
-                                <exclude>META-INF/maven/**</exclude>
-                            </excludes>
-
-                        </filter>
-                    </filters>
                 </configuration>
                 <executions>
                     <execution>
@@ -194,13 +166,6 @@
                 </executions>
             </plugin>
             
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <failIfNoTests>false</failIfNoTests>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 

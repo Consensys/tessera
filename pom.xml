@@ -320,7 +320,6 @@
     </build>
 
     <modules>
-        <module>tessera-app</module>
         <module>argon2</module>
         <module>config</module>
         <module>config-cli</module>
@@ -344,6 +343,7 @@
         <module>ddls</module>
         <module>enclave</module>
         <module>tessera-sync</module>
+        <module>tessera-dist</module>
     </modules>
 
     <dependencyManagement>
