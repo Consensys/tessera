@@ -5,6 +5,9 @@ import com.quorum.tessera.api.model.ResendRequestType;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PayloadEncoderImpl;
+import com.quorum.tessera.test.Party;
+import com.quorum.tessera.test.PartyHelper;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
@@ -20,14 +23,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Base64;
-
-import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.PartyHelper;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import java.util.Arrays;
 import java.util.UUID;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Before;
 
 public class ResendAllIT {
 
@@ -119,17 +118,11 @@ public class ResendAllIT {
     public void transactionsAreReconstructedFromMultipleParties() throws UnsupportedEncodingException, SQLException {
         //setup (sending in a tx)
 
-        String anyOtherPartyKey = partyHelper.getParties().filter(p -> !Arrays.asList(partyOne, partyTwo)
-                .contains(p))
-                .findAny()
-                .get()
-                .getPublicKey();
-
         Response sendRawResponse = client.target(partyOne.getQ2TUri())
                 .path("/sendraw")
                 .request()
                 .header("c11n-from", partyOne.getPublicKey())
-                .header("c11n-to", partyTwo.getPublicKey() + "," + anyOtherPartyKey)
+                .header("c11n-to", partyTwo.getPublicKey() + "," + partyThree.getPublicKey())
                 .post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
 
         URI location = sendRawResponse.getLocation();
