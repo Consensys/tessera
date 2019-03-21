@@ -2,6 +2,7 @@ package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EnclaveException;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.RawTransaction;
@@ -301,7 +302,7 @@ public class TransactionManagerImpl implements TransactionManager {
             try {
                 enclave.unencryptTransaction(payload, potentialMatchingKey);
                 return Optional.of(potentialMatchingKey);
-            } catch (IndexOutOfBoundsException | NaclException ex) {
+            } catch (EnclaveException | IndexOutOfBoundsException | NaclException ex) {
                 LOGGER.debug("Attempted payload decryption using wrong key, discarding.");
             }
         }
