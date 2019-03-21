@@ -28,7 +28,7 @@ public class DefaultExceptionMapper implements ExceptionMapper<Throwable> {
     
     private static Throwable findCause(Throwable ex) {
         if(ex.getCause() != null) {
-            return ex.getCause();
+            return findCause(ex.getCause());
         }
         return ex;
     }
