@@ -31,15 +31,13 @@ enclave-rest-config.json
 Tessera applications need to be configured to connect to it's corresponding server instance. When tessera loads it's configuration file if it discovers a server config with apptype ENCLAVE it creates a client that connects to the enclave server instance. 
 
 ```
-"serverConfigs": [{
-    "app": "ENCLAVE",
-    "enabled": true,
-    "serverSocket": {
-        "type": "INET",
-        "hostName": "http|ws://somedomain",
-        "port": 8080
-    },
-    "communicationType": "REST|WEB_SOCKET"
+"serverConfigs" : [ {
+    "app" : "ENCLAVE",
+    "enabled" : true,
+    "communicationType" : "REST",
+    "bindingAddress" : "http://0.0.0.0:8080",
+    "serverAddress" : "http://somedomain:8080"
+} ],
 ... 
 ```
 
