@@ -419,6 +419,13 @@
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>enclave-jaxrs</artifactId>
+                <version>0.9-SNAPSHOT</version>
+                <classifier>server</classifier>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>service-locator-spring</artifactId>
                 <version>0.9-SNAPSHOT</version>
             </dependency>
