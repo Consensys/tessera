@@ -192,6 +192,7 @@
                             <includes>
                                 <include>GrpcSuiteH2</include>
                                 <include>GrpcSuiteSqlite</include>
+                                <include>GrpcSuiteHSQL</include>
                             </includes>
                         </configuration>
                     </plugin>

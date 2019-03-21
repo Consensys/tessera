@@ -14,6 +14,9 @@ import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
@@ -22,27 +25,27 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 
 public class TestSuite extends Suite {
-    
+
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     @Inherited
     public @interface ProcessConfig {
-        
+
         DBType dbType();
-        
+
         CommunicationType communicationType();
-        
+
         SocketType socketType();
-        
+
         EnclaveType enclaveType() default EnclaveType.LOCAL;
-        
+
         boolean admin() default false;
     }
-    
+
     public TestSuite(Class<?> klass, RunnerBuilder builder) throws InitializationError {
         super(klass, builder);
     }
-    
+
     @Override
     public void run(RunNotifier notifier) {
         final List<ExecManager> executors = new ArrayList<>();
@@ -52,7 +55,7 @@ public class TestSuite extends Suite {
                 .map(ProcessConfig.class::cast)
                 .findAny()
                 .orElseThrow(() -> new AssertionError("No Test config found"));
-            
+
             ExecutionContext executionContext = ExecutionContext.Builder.create()
                 .with(testConfig.communicationType())
                 .with(testConfig.dbType())
@@ -60,9 +63,9 @@ public class TestSuite extends Suite {
                 .with(testConfig.enclaveType())
                 .withAdmin(testConfig.admin())
                 .createAndSetupContext();
-            
+
             if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
-                
+
                 executionContext.getConfigs().stream()
                     .map(EnclaveExecManager::new)
                     .forEach(exec -> {
@@ -70,20 +73,38 @@ public class TestSuite extends Suite {
                         executors.add(exec);
                     });
             }
-            
+
             String nodeId = NodeId.generate(executionContext);
             DatabaseServer databaseServer = testConfig.dbType().createDatabaseServer(nodeId);
             databaseServer.start();
-            
+
             executionContext.getConfigs().stream()
                 .map(NodeExecManager::new)
                 .forEach(exec -> {
                     exec.start();
                     executors.add(exec);
                 });
+
+            PartyInfoChecker partyInfoChecker = PartyInfoChecker.create(executionContext.getCommunicationType());
+
+            CountDownLatch partyInfoSyncLatch = new CountDownLatch(1);
+            Executors.newSingleThreadExecutor().submit(() -> {
+                while (!partyInfoChecker.hasSynced()) {
+                    try {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException ex) {
+                    }
+                }
+                partyInfoSyncLatch.countDown();
+            });
+
+            if(!partyInfoSyncLatch.await(2, TimeUnit.MINUTES)) {
+                Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
+                notifier.fireTestFailure(new Failure(de,new IllegalStateException("Unable to sync party info nodes")));
+            }
             
             super.run(notifier);
-            
+
             try {
                 ExecutionContext.destoryContext();
             } finally {
@@ -92,12 +113,12 @@ public class TestSuite extends Suite {
         } catch (Throwable ex) {
             Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
             notifier.fireTestFailure(new Failure(de, ex));
-            
+
         } finally {
             executors.forEach(ExecManager::stop);
-            
+
         }
-        
+
     }
-    
+
 }
