@@ -28,8 +28,6 @@ public class RestfulEnclaveClientFactory implements EnclaveClientFactory<Restful
 
         Client client = clientFactory.buildFrom(serverConfig);
         LOGGER.info("Creating remoted enclave for {}", serverConfig.getServerUri());
-        
-        
         return new RestfulEnclaveClient(client, serverConfig.getServerUri());
     }
     

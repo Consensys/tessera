@@ -41,7 +41,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
             .get();
 
         validateResponseIsOk(response);
-        
+
         byte[] data = response.readEntity(byte[].class);
 
         return PublicKey.from(data);
@@ -56,7 +56,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
             .get();
 
         validateResponseIsOk(response);
-        
+
         JsonArray results = response.readEntity(JsonArray.class);
 
         return IntStream.range(0, results.size())
@@ -74,7 +74,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
             .get();
 
         validateResponseIsOk(response);
-        
+
         JsonArray results = response.readEntity(JsonArray.class);
 
         return IntStream.range(0, results.size())
@@ -100,7 +100,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
             .post(Entity.json(enclavePayload));
 
         validateResponseIsOk(response);
-        
+
         byte[] result = response.readEntity(byte[].class);
 
         return PayloadEncoder.create().decode(result);
@@ -127,7 +127,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
             .post(Entity.json(enclaveRawPayload));
 
         validateResponseIsOk(response);
-        
+
         byte[] body = response.readEntity(byte[].class);
 
         return PayloadEncoder.create().decode(body);
@@ -148,7 +148,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
             .post(Entity.json(enclavePayload));
 
         validateResponseIsOk(response);
-        
+
         EnclaveRawPayload enclaveRawPayload = response.readEntity(EnclaveRawPayload.class);
 
         byte[] encryptedPayload = enclaveRawPayload.getEncryptedPayload();
@@ -194,7 +194,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
             .request()
             .post(Entity.json(dto));
 
-        
+
         validateResponseIsOk(response);
 
         return response.readEntity(byte[].class);

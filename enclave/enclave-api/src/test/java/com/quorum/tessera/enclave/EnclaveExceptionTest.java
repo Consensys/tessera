@@ -11,7 +11,6 @@ public class EnclaveExceptionTest {
         EnclaveException enclaveException = new EnclaveException(cause);
 
         assertThat(enclaveException.getCause()).isSameAs(cause);
-
     }
 
     @Test

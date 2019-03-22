@@ -13,4 +13,5 @@ public interface EnclaveClient extends Enclave {
             throw new EnclaveNotAvailableException();
         }
     }
+
 }

@@ -48,7 +48,7 @@ public class EnclaveEndpointTest {
         EnclaveFactory enclaveFactory = mock(EnclaveFactory.class);
         
         enclave = mock(Enclave.class);
-     
+
         Config config = mock(Config.class);
         EnclaveHolder.instance(enclaveFactory,config);
         when(enclaveFactory.createLocal(config)).thenReturn(enclave);

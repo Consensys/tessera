@@ -41,14 +41,11 @@ public class EnclaveRestIT {
 
     private RestfulEnclaveClient enclaveClient;
 
-
     @Before
     public void setUp() throws Exception {
         assertThat(enclave).isInstanceOf(EnclaveImpl.class);
         jersey = Util.create(enclave);
         jersey.setUp();
-        
-
 
         enclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri());
     }
