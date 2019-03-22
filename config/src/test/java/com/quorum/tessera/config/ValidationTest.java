@@ -357,8 +357,6 @@ public class ValidationTest {
         assertThat(violations).hasSize(0);
     }
 
-
-
     @Test
     public void azureVaultConfigWithNoUrlCreatesNullViolation() {
         AzureKeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig(null);
