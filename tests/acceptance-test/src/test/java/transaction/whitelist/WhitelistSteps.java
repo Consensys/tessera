@@ -5,41 +5,31 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.test.DBType;
-import com.quorum.tessera.test.Party;
 import config.ConfigBuilder;
 import cucumber.api.java8.En;
 import exec.ExecArgsBuilder;
 import exec.ExecUtils;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import suite.*;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Response;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import suite.EnclaveType;
-import suite.ExecutionContext;
-import suite.ServerStatusCheck;
-import suite.ServerStatusCheckExecutor;
-import suite.SocketType;
-import suite.Utils;
 
 public class WhitelistSteps implements En {
 
@@ -52,39 +42,32 @@ public class WhitelistSteps implements En {
     public WhitelistSteps() {
 
         try {
-            final Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "whitelist.pid");
-            FilesDelegate.create().deleteIfExists(pid);
-
-            FilesDelegate.create()
-                    .createFile(pid);
-
-            pid.toFile().deleteOnExit();
+            final Path pid = Files.createTempFile("whitelist", ".pid");
 
             ExecutorService executorService = Executors.newCachedThreadPool();
 
             Given("Node at port {int}", (Integer port) -> {
 
                 ExecutionContext executionContext = ExecutionContext.Builder.create()
-                        .with(CommunicationType.REST)
-                        .with(DBType.H2)
-                        .with(EnclaveType.LOCAL)
-                        .with(SocketType.HTTP)
-                        .build();
+                    .with(CommunicationType.REST)
+                    .with(DBType.H2)
+                    .with(EnclaveType.LOCAL)
+                    .with(SocketType.HTTP)
+                    .build();
 
                 ConfigBuilder whiteListConfigBuilder = new ConfigBuilder()
-                        .withNodeId("whitelist")
-                        .withNodeNumbber(5)
-                        .withQ2TSocketType(SocketType.HTTP)
-                        .withExecutionContext(executionContext)
-                        .withP2pPort(port)
-                        .withPeer("http://localhost:7000")
-                        .withKeys("WxsJ4souK0mptNx1UGw6hb1WNNIbPhLPvW9GoaXau3Q=", "YbOOFA4mwSSdGH6aFfGl2M7N1aiPOj5nHpD7GzJKSiA=");
+                    .withNodeId("whitelist")
+                    .withNodeNumbber(5)
+                    .withQ2TSocketType(SocketType.HTTP)
+                    .withExecutionContext(executionContext)
+                    .withP2pPort(port)
+                    .withPeer("http://localhost:7000")
+                    .withKeys("WxsJ4souK0mptNx1UGw6hb1WNNIbPhLPvW9GoaXau3Q=", "YbOOFA4mwSSdGH6aFfGl2M7N1aiPOj5nHpD7GzJKSiA=");
 
                 Config whiteListConfig = whiteListConfigBuilder.build();
                 whiteListConfig.setUseWhiteList(true);
 
-                Path configFile = Paths.get("target")
-                        .resolve("white-list-config.json");
+                Path configFile = Paths.get("target").resolve("white-list-config.json");
 
                 try (OutputStream out = Files.newOutputStream(configFile)) {
                     JaxbUtil.marshalWithNoValidation(whiteListConfig, out);
@@ -92,18 +75,14 @@ public class WhitelistSteps implements En {
                     throw new UncheckedIOException(ex);
                 }
 
-                URL configUrl = Utils.toUrl(configFile);
-
-                final Party party = new Party("WxsJ4souK0mptNx1UGw6hb1WNNIbPhLPvW9GoaXau3Q=", configUrl, "W");
-
                 List<String> cmd = new ExecArgsBuilder()
-                        .withMainClass(Launcher.class)
-                        .withClassPathItem(Paths.get(jarPath))
-                        .withConfigFile(configFile)
-                        .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
-                        .withJvmArg("-Dnode.number=whitelist")
-                        .withPidFile(pid)
-                        .build();
+                    .withMainClass(Launcher.class)
+                    .withClassPathItem(Paths.get(jarPath))
+                    .withConfigFile(configFile)
+                    .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
+                    .withJvmArg("-Dnode.number=whitelist")
+                    .withPidFile(pid)
+                    .build();
 
                 ProcessBuilder processBuilder = new ProcessBuilder(cmd);
                 processBuilder.redirectErrorStream(true);
@@ -112,11 +91,11 @@ public class WhitelistSteps implements En {
 
                 executorService.submit(() -> {
                     try (BufferedReader reader = Stream.of(process.getInputStream())
-                            .map(InputStreamReader::new)
-                            .map(BufferedReader::new)
-                            .findAny().get()) {
+                        .map(InputStreamReader::new)
+                        .map(BufferedReader::new)
+                        .findAny().get()) {
 
-                        String line = null;
+                        String line;
                         while ((line = reader.readLine()) != null) {
                             LOGGER.info("Exec line Whitelist : {}", line);
                         }
@@ -134,16 +113,14 @@ public class WhitelistSteps implements En {
                     }
                 });
 
-                CountDownLatch startUpLatch = new CountDownLatch(1);
-
                 ServerStatusCheck serverStatusCheck = ServerStatusCheck
-                        .create(whiteListConfig.getServerConfigs().stream()
-                                .filter(s -> s.getApp() == AppType.P2P)
-                                .findAny()
-                                .get());
+                    .create(whiteListConfig.getServerConfigs().stream()
+                        .filter(s -> s.getApp() == AppType.P2P)
+                        .findAny()
+                        .get());
 
                 Boolean started = executorService.submit(new ServerStatusCheckExecutor(serverStatusCheck))
-                        .get(20, TimeUnit.SECONDS);
+                    .get(20, TimeUnit.SECONDS);
 
                 assertThat(started).isTrue();
 
@@ -154,10 +131,10 @@ public class WhitelistSteps implements En {
 
                 Client client = ClientBuilder.newClient();
                 Response response = client
-                        .target("http://localhost:7000")
-                        .path("upcheck")
-                        .request()
-                        .get();
+                    .target("http://localhost:7000")
+                    .path("upcheck")
+                    .request()
+                    .get();
 
                 responseHolder.add(response);
 
@@ -167,15 +144,17 @@ public class WhitelistSteps implements En {
                 assertThat(responseHolder.get(0).getStatus()).isEqualTo(401);
             });
 
-            Files.lines(pid).findAny()
+            Then("the node is stopped", () -> {
+                Files.lines(pid).findAny()
                     .ifPresent(p -> {
                         try {
                             ExecUtils.kill(p);
                         } catch (IOException | InterruptedException ex) {
                         }
-
                     });
-        } catch (IOException ex) {
+            });
+
+        } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
