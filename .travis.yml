@@ -30,6 +30,7 @@ script:
     - mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
     - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
     - mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging || travis_terminate 1
+    - mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
