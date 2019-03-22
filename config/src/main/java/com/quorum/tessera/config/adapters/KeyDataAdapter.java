@@ -40,11 +40,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
         if(keyData.getPublicKeyPath() != null && keyData.getPrivateKeyPath() != null) {
             return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath());
         }
-        
-        if(Objects.nonNull(keyData.getPublicKey()) && Objects.isNull(keyData.getPrivateKey())) {
-            return new PublicKeyOnlyKeyPair(keyData.getPublicKey());
-        }
-        
+
         //case 6, the key config specified is invalid
         return new UnsupportedKeyPair(
             keyData.getConfig(),
@@ -67,15 +63,8 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
     @Override
     public KeyData marshal(final ConfigKeyPair keyPair) {
 
-        final KeyData keyData = new KeyData();
-        
-        if(PublicKeyOnlyKeyPair.class.isInstance(keyPair)) {
-            PublicKeyOnlyKeyPair pair = PublicKeyOnlyKeyPair.class.cast(keyPair);
-            keyData.setPublicKey(pair.getPublicKey());
-            return keyData;
-        }
-        
-        
+        KeyData keyData = new KeyData();
+
         if(keyPair instanceof DirectKeyPair) {
             DirectKeyPair kp = (DirectKeyPair) keyPair;
 

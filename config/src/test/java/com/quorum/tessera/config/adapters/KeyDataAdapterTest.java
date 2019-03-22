@@ -31,18 +31,6 @@ public class KeyDataAdapterTest {
     }
 
     @Test
-    public void marshallPublicKeyOnlyKeyPairKey() {
-        final ConfigKeyPair keys = new PublicKeyOnlyKeyPair("PUB");
-
-        final KeyData expected = new KeyData();
-        expected.setPublicKey("PUB");
-
-        final KeyData marshalledKey = adapter.marshal(keys);
-
-        assertThat(marshalledKey).isEqualToComparingFieldByField(expected);
-    }
-
-    @Test
     public void marshallInlineKeys() {
         final PrivateKeyData pkd = new PrivateKeyData("val", null, null, null, null);
         final ConfigKeyPair keys = new InlineKeypair("PUB", new KeyDataConfig(pkd, UNLOCKED));
@@ -169,16 +157,6 @@ public class KeyDataAdapterTest {
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(DirectKeyPair.class);
-
-    }
-
-    @Test
-    public void unmarshallingPublicOnlyKeysGivesCorrectKeypair() {
-        final KeyData input = new KeyData();
-        input.setPublicKey("public");
-
-        final ConfigKeyPair result = this.adapter.unmarshal(input);
-        assertThat(result).isInstanceOf(PublicKeyOnlyKeyPair.class);
 
     }
 
