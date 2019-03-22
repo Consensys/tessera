@@ -10,12 +10,4 @@ public class EnclaveException extends RuntimeException {
         super(message);
     }
 
-    public EnclaveException(final String message, final Throwable cause) {
-        super(message, cause);
-    }
-
-    public EnclaveException(final Throwable cause) {
-        super(cause);
-    }
-
 }

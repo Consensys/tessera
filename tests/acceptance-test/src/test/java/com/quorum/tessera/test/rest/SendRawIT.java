@@ -167,7 +167,6 @@ public class SendRawIT {
         final Response response = restUtils.sendRaw(sender, txnData);
 
         assertThat(response).isNotNull();
-
         assertThat(response.getStatus()).isEqualTo(200);
 
         String persistedKey = response.readEntity(String.class);
