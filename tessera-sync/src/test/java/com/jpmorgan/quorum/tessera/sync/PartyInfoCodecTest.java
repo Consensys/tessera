@@ -72,7 +72,7 @@ public class PartyInfoCodecTest {
     }
 
     @Test
-    public void destoryDoesNothing() {
+    public void destroyDoesNothing() {
         codec.destroy();
         verifyZeroInteractions(parser);
     }

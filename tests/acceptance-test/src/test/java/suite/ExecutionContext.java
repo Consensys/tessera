@@ -147,7 +147,7 @@ public class ExecutionContext {
         return THREAD_SCOPE.get();
     }
 
-    protected static void destoryContext() {
+    protected static void destroyContext() {
         THREAD_SCOPE.remove();
     }
 

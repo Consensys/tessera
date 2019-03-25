@@ -17,7 +17,7 @@ public class JsonCodecTest {
     private JsonCodec jsonCodec = new MockJsonCodec();
 
     @Test
-    public void initAndDestory() {
+    public void initAndDestroy() {
         EndpointConfig endpointConfig = mock(EndpointConfig.class);
         jsonCodec.init(endpointConfig);
         jsonCodec.destroy();
