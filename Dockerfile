@@ -9,6 +9,6 @@ RUN cd /tessera && mvn clean -Dmaven.repo.local=/tessera/.m2/repository -DskipTe
 # Create docker image with only distribution jar
 FROM openjdk:8-jre-alpine
 
-COPY --from=builder /tessera/tessera-app/target/*-app.jar /tessera/tessera-app.jar
+COPY --from=builder /tessera/tessera-dist/tessera-app/target/*-app.jar /tessera/tessera-app.jar
 
 ENTRYPOINT ["java", "-jar", "/tessera/tessera-app.jar"]
