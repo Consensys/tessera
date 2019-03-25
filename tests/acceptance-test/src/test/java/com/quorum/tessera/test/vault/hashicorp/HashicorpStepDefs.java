@@ -4,7 +4,7 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.HashicorpKeyVaultConfig;
 import com.quorum.tessera.config.keypairs.HashicorpVaultKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.test.ProcessManager;
+import exec.NodeExecManager;
 import com.quorum.tessera.test.util.ElUtil;
 import cucumber.api.java8.En;
 
@@ -354,7 +354,7 @@ public class HashicorpStepDefs implements En {
         When("^Tessera is started with the following CLI args and (token|approle) environment variables*$", (String authMethod, String cliArgs) -> {
             final String jarfile = System.getProperty("application.jar");
 
-            final URL logbackConfigFile = ProcessManager.class.getResource("/logback-node.xml");
+            final URL logbackConfigFile = NodeExecManager.class.getResource("/logback-node.xml");
             Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "pidA.pid");
 
             String formattedArgs = String.format(cliArgs, tempTesseraConfig.toString(), pid.toAbsolutePath().toString());
@@ -468,7 +468,7 @@ public class HashicorpStepDefs implements En {
 
         When("^Tessera keygen is run with the following CLI args and (token|approle) environment variables*$", (String authMethod, String cliArgs) -> {
             final String jarfile = System.getProperty("application.jar");
-            final URL logbackConfigFile = ProcessManager.class.getResource("/logback-node.xml");
+            final URL logbackConfigFile = NodeExecManager.class.getResource("/logback-node.xml");
 
             String formattedArgs = String.format(cliArgs, getClientTlsKeystore(), getClientTlsTruststore());
 

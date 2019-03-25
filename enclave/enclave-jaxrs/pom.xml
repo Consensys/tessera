@@ -155,16 +155,6 @@
             <artifactId>jersey-hk2</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.sun.xml.fastinfoset</groupId>
-                    <artifactId>FastInfoset</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
@@ -177,7 +167,11 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>config-cli</artifactId>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     
     <build>

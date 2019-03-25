@@ -320,7 +320,6 @@
     </build>
 
     <modules>
-        <module>tessera-app</module>
         <module>argon2</module>
         <module>config</module>
         <module>config-cli</module>
@@ -344,6 +343,7 @@
         <module>ddls</module>
         <module>enclave</module>
         <module>tessera-sync</module>
+        <module>tessera-dist</module>
     </modules>
 
     <dependencyManagement>
@@ -409,6 +409,19 @@
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>enclave-api</artifactId>
                 <version>0.9-SNAPSHOT</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>enclave-jaxrs</artifactId>
+                <version>0.9-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>enclave-jaxrs</artifactId>
+                <version>0.9-SNAPSHOT</version>
+                <classifier>server</classifier>
             </dependency>
 
             <dependency>

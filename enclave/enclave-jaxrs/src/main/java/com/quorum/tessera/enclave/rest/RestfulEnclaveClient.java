@@ -1,11 +1,13 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.enclave.EnclaveClient;
+import com.quorum.tessera.enclave.EnclaveException;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.service.Service;
 
 import javax.json.JsonArray;
 import javax.ws.rs.client.Client;
@@ -34,9 +36,11 @@ public class RestfulEnclaveClient implements EnclaveClient {
     public PublicKey defaultPublicKey() {
 
         Response response = client.target(uri)
-                .path("default")
-                .request()
-                .get();
+            .path("default")
+            .request()
+            .get();
+
+        validateResponseIsOk(response);
 
         byte[] data = response.readEntity(byte[].class);
 
@@ -47,33 +51,37 @@ public class RestfulEnclaveClient implements EnclaveClient {
     public Set<PublicKey> getForwardingKeys() {
 
         Response response = client.target(uri)
-                .path("forwarding")
-                .request()
-                .get();
+            .path("forwarding")
+            .request()
+            .get();
+
+        validateResponseIsOk(response);
 
         JsonArray results = response.readEntity(JsonArray.class);
 
         return IntStream.range(0, results.size())
-                .mapToObj(i -> results.getString(i))
-                .map(s -> Base64.getDecoder().decode(s))
-                .map(PublicKey::from)
-                .collect(Collectors.toSet());
+            .mapToObj(i -> results.getString(i))
+            .map(s -> Base64.getDecoder().decode(s))
+            .map(PublicKey::from)
+            .collect(Collectors.toSet());
     }
 
     @Override
     public Set<PublicKey> getPublicKeys() {
         Response response = client.target(uri)
-                .path("public")
-                .request()
-                .get();
+            .path("public")
+            .request()
+            .get();
+
+        validateResponseIsOk(response);
 
         JsonArray results = response.readEntity(JsonArray.class);
 
         return IntStream.range(0, results.size())
-                .mapToObj(i -> results.getString(i))
-                .map(s -> Base64.getDecoder().decode(s))
-                .map(PublicKey::from)
-                .collect(Collectors.toSet());
+            .mapToObj(i -> results.getString(i))
+            .map(s -> Base64.getDecoder().decode(s))
+            .map(PublicKey::from)
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -83,13 +91,15 @@ public class RestfulEnclaveClient implements EnclaveClient {
         enclavePayload.setData(message);
         enclavePayload.setSenderKey(senderPublicKey.getKeyBytes());
         enclavePayload.setRecipientPublicKeys(recipientPublicKeys.stream()
-                .map(PublicKey::getKeyBytes)
-                .collect(Collectors.toList()));
+            .map(PublicKey::getKeyBytes)
+            .collect(Collectors.toList()));
 
         Response response = client.target(uri)
-                .path("encrypt")
-                .request()
-                .post(Entity.json(enclavePayload));
+            .path("encrypt")
+            .request()
+            .post(Entity.json(enclavePayload));
+
+        validateResponseIsOk(response);
 
         byte[] result = response.readEntity(byte[].class);
 
@@ -103,18 +113,20 @@ public class RestfulEnclaveClient implements EnclaveClient {
         enclaveRawPayload.setNonce(rawTransaction.getNonce().getNonceBytes());
         enclaveRawPayload.setFrom(rawTransaction.getFrom().getKeyBytes());
         enclaveRawPayload.setRecipientPublicKeys(
-                recipientPublicKeys.stream()
-                        .map(PublicKey::getKeyBytes)
-                        .collect(Collectors.toList())
+            recipientPublicKeys.stream()
+                .map(PublicKey::getKeyBytes)
+                .collect(Collectors.toList())
         );
         enclaveRawPayload.setEncryptedPayload(rawTransaction.getEncryptedPayload());
         enclaveRawPayload.setEncryptedKey(rawTransaction.getEncryptedKey());
 
         Response response = client.target(uri)
-                .path("encrypt")
-                .path("raw")
-                .request()
-                .post(Entity.json(enclaveRawPayload));
+            .path("encrypt")
+            .path("raw")
+            .request()
+            .post(Entity.json(enclaveRawPayload));
+
+        validateResponseIsOk(response);
 
         byte[] body = response.readEntity(byte[].class);
 
@@ -130,10 +142,12 @@ public class RestfulEnclaveClient implements EnclaveClient {
         enclavePayload.setSenderKey(sender.getKeyBytes());
 
         Response response = client.target(uri)
-                .path("encrypt")
-                .path("toraw")
-                .request()
-                .post(Entity.json(enclavePayload));
+            .path("encrypt")
+            .path("toraw")
+            .request()
+            .post(Entity.json(enclavePayload));
+
+        validateResponseIsOk(response);
 
         EnclaveRawPayload enclaveRawPayload = response.readEntity(EnclaveRawPayload.class);
 
@@ -152,12 +166,16 @@ public class RestfulEnclaveClient implements EnclaveClient {
         byte[] body = PayloadEncoder.create().encode(payload);
 
         dto.setData(body);
-        dto.setProvidedKey(providedKey.getKeyBytes());
 
+        if (providedKey != null) {
+            dto.setProvidedKey(providedKey.getKeyBytes());
+        }
         Response response = client.target(uri)
-                .path("unencrypt")
-                .request()
-                .post(Entity.json(dto));
+            .path("unencrypt")
+            .request()
+            .post(Entity.json(dto));
+
+        validateResponseIsOk(response);
 
         return response.readEntity(byte[].class);
     }
@@ -172,27 +190,38 @@ public class RestfulEnclaveClient implements EnclaveClient {
         dto.setProvidedKey(recipientKey.getKeyBytes());
 
         final Response response = client.target(uri)
-                .path("addRecipient")
-                .request()
-                .post(Entity.json(dto));
+            .path("addRecipient")
+            .request()
+            .post(Entity.json(dto));
+
+
+        validateResponseIsOk(response);
 
         return response.readEntity(byte[].class);
     }
 
     @Override
-    public Status status() {
-        
+    public Service.Status status() {
+
         final Response response = client.target(uri)
-                .path("ping")
-                .request().get();
-        
-        if(response.getStatus() == 200) {
-            return Status.STARTED;
+            .path("ping")
+            .request().get();
+
+        if (response.getStatus() == 200) {
+            return Service.Status.STARTED;
         }
-        return Status.STOPPED;
+        return Service.Status.STOPPED;
     }
 
+    private static void validateResponseIsOk(Response response) {
+        if (response.getStatus() != 200) {
+            Response.StatusType statusInfo = response.getStatusInfo();
+            String message = String.format("Remote enclave instance threw an error %d  %s",
+                statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
 
-    
-    
+            throw new EnclaveException(message);
+        }
+
+    }
+
 }

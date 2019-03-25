@@ -358,18 +358,6 @@ public class ValidationTest {
     }
 
     @Test
-    public void keyConfigurationIsNullCreatesNotNullViolation() {
-        Config config = new Config(null, null, null, null, null, null, false, false);
-
-        Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
-
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<Config> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
-    }
-
-    @Test
     public void azureVaultConfigWithNoUrlCreatesNullViolation() {
         AzureKeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig(null);
 
