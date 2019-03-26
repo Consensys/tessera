@@ -42,8 +42,7 @@ public class EnclaveExecManager implements ExecManager {
     public EnclaveExecManager(ConfigDescriptor configDescriptor) {
         this.configDescriptor = configDescriptor;
         this.pid = Paths.get(System.getProperty("java.io.tmpdir"), "enclave" + configDescriptor.getAlias().name() + ".pid");
-        this.nodeId = suite.NodeId.generate(ExecutionContext.currentContext(),
-                configDescriptor.getAlias());
+        this.nodeId = suite.NodeId.generate(ExecutionContext.currentContext(), configDescriptor.getAlias());
     }
 
     private final URL logbackConfigFile = EnclaveExecManager.class.getResource("/logback-enclave.xml");
@@ -80,7 +79,6 @@ public class EnclaveExecManager implements ExecManager {
         LOGGER.info("Started enclave {}", configDescriptor.getAlias());
 
         return process;
-
     }
 
     @Override
@@ -92,7 +90,6 @@ public class EnclaveExecManager implements ExecManager {
         }
         LOGGER.info("Stopping Enclave : {}, Pid: {}", nodeId, p);
         ExecUtils.kill(p);
-
     }
 
     public static void main(String[] args) throws Exception {
