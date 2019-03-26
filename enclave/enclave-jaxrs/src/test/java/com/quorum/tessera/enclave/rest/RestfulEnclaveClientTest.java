@@ -8,6 +8,7 @@ import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
 import com.quorum.tessera.service.Service;
+import com.quorum.tessera.service.Service.Status;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
@@ -17,6 +18,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
@@ -227,11 +233,34 @@ public class RestfulEnclaveClientTest {
 
     @Test
     public void statusStopped() {
+
         when(enclave.status())
             .thenThrow(RuntimeException.class);
         assertThat(enclaveClient.status())
             .isEqualTo(Service.Status.STOPPED);
         verify(enclave).status();
+    }
+
+    @Test
+    public void enclaveUnavialable() throws Exception {
+
+        ExecutorService executorService = mock(ExecutorService.class);
+
+        Future<?> future = mock(Future.class);
+
+        doReturn(future)
+            .when(executorService).submit(any(Callable.class));
+        
+        doThrow(TimeoutException.class)
+            .when(future).get(anyLong(), any(TimeUnit.class));
+
+        RestfulEnclaveClient restfulEnclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri(), executorService);
+
+        Status result = restfulEnclaveClient.status();
+
+        assertThat(result)
+            .isEqualTo(Service.Status.STOPPED);
+
     }
 
     @Test
@@ -243,9 +272,9 @@ public class RestfulEnclaveClientTest {
         try {
             enclaveClient.defaultPublicKey();
             failBecauseExceptionWasNotThrown(EnclaveException.class);
-        } catch(EnclaveException ex) {
+        } catch (EnclaveException ex) {
             verify(enclave).defaultPublicKey();
-            
+
         }
 
     }
