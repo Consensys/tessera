@@ -1,5 +1,6 @@
 package com.quorum.tessera.service;
 
+import com.quorum.tessera.service.Service.Status;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -48,11 +49,15 @@ public class ServiceContainer implements Runnable {
     @Override
     public void run() {
         LOGGER.trace("Check status {}",service);
-        if (service.status() == Service.Status.STOPPED) {
+        Status status = service.status();
+        LOGGER.trace("{} Status is {}",service,status);
+
+        if (status == Service.Status.STOPPED) {
+            LOGGER.warn("Service {} not stopped attempt to restart.",service);
             try {
-                LOGGER.trace("Starting service {}",service);
+                LOGGER.debug("Starting service {}",service);
                 service.start();
-                LOGGER.trace("Started service {}",service);
+                LOGGER.debug("Started service {}",service);
             } catch (Throwable ex) {
                 LOGGER.trace(null, ex);
                 LOGGER.warn("Exception thrown : {} While starting service {}",

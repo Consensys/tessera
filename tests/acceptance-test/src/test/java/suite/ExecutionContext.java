@@ -21,19 +21,17 @@ public class ExecutionContext {
     private List<ConfigDescriptor> configs;
 
     private boolean admin;
-    
+
     private ExecutionContext(DBType dbType,
-            CommunicationType communicationType,
-            SocketType socketType,
-            EnclaveType enclaveType,boolean admin) {
+        CommunicationType communicationType,
+        SocketType socketType,
+        EnclaveType enclaveType, boolean admin) {
         this.dbType = dbType;
         this.communicationType = communicationType;
         this.socketType = socketType;
         this.enclaveType = enclaveType;
         this.admin = admin;
     }
-
-
 
     public DBType getDbType() {
         return dbType;
@@ -51,7 +49,6 @@ public class ExecutionContext {
         return enclaveType;
     }
 
-
     public List<ConfigDescriptor> getConfigs() {
         return configs;
     }
@@ -59,7 +56,6 @@ public class ExecutionContext {
     public boolean isAdmin() {
         return admin;
     }
-
 
     public static class Builder {
 
@@ -99,33 +95,45 @@ public class ExecutionContext {
         }
 
         private boolean admin;
-        
+
         public Builder withAdmin(boolean admin) {
             this.admin = admin;
             return this;
         }
-        
+
         public ExecutionContext build() {
             Stream.of(dbType, communicationType, socketType, enclaveType)
-                    .forEach(Objects::requireNonNull);
+                .forEach(Objects::requireNonNull);
 
-            ExecutionContext executionContext = new ExecutionContext(dbType, communicationType, socketType, enclaveType,admin);
+            ExecutionContext executionContext = new ExecutionContext(dbType, communicationType, socketType, enclaveType, admin);
 
             return executionContext;
         }
 
-        protected ExecutionContext createAndSetupContext() {
+        public ExecutionContext buildAndStoreContext() {
+
+            ExecutionContext executionContext = build();
+
+            if (THREAD_SCOPE.get() != null) {
+                throw new IllegalStateException("Context has already been created");
+            }
+
+            THREAD_SCOPE.set(executionContext);
+
+            return THREAD_SCOPE.get();
+        }
+
+        public ExecutionContext createAndSetupContext() {
 
             Stream.of(dbType, communicationType, socketType, enclaveType)
-                    .forEach(Objects::requireNonNull);
+                .forEach(Objects::requireNonNull);
 
             ExecutionContext executionContext = build();
 
             List<ConfigDescriptor> configs = new ConfigGenerator().generateConfigs(executionContext);
-            
+
             //FIXME: YUk
             executionContext.configs = configs;
-
 
             if (THREAD_SCOPE.get() != null) {
                 throw new IllegalStateException("Context has already been created");
@@ -147,7 +155,8 @@ public class ExecutionContext {
         return THREAD_SCOPE.get();
     }
 
-    protected static void destroyContext() {
+
+    public static void destroyContext() {
         THREAD_SCOPE.remove();
     }
 
