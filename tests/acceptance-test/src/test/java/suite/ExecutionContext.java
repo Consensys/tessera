@@ -156,7 +156,7 @@ public class ExecutionContext {
     }
 
 
-    public static void destoryContext() {
+    public static void destroyContext() {
         THREAD_SCOPE.remove();
     }
 
