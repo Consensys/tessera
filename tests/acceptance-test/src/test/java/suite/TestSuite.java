@@ -106,7 +106,7 @@ public class TestSuite extends Suite {
             super.run(notifier);
 
             try {
-                ExecutionContext.destoryContext();
+                ExecutionContext.destroyContext();
             } finally {
                 databaseServer.stop();
             }

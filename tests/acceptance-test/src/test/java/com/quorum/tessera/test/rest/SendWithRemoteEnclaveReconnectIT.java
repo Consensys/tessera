@@ -149,7 +149,7 @@ public class SendWithRemoteEnclaveReconnectIT {
 
         enclaveExecManager.stop();
         
-        ExecutionContext.destoryContext();
+        ExecutionContext.destroyContext();
     }
 
     @Test
