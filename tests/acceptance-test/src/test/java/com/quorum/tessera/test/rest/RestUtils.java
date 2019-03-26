@@ -38,8 +38,8 @@ public class RestUtils {
         String recipientString = Stream.of(recipients)
             .map(Party::getPublicKey)
             .collect(Collectors.joining(","));
-        
-        
+
+
         LOGGER.debug("Sending txn  to {}",recipientString);
         
         Invocation.Builder invocationBuilder = sender.getRestClientWebTarget()
@@ -47,9 +47,9 @@ public class RestUtils {
             .request()
             .header(SENDER, sender.getPublicKey());
 
-        
-        
-        
+
+
+
         Optional.of(recipientString)
             .filter(s -> !Objects.equals("", s))
             .ifPresent(s -> invocationBuilder.header(RECIPIENTS, s));
@@ -63,11 +63,10 @@ public class RestUtils {
         String encodedId = urlEncode(transactionId);
 
         return Stream.of(party)
-            .map(p -> p.getRestClientWebTarget())
+            .map(Party::getRestClientWebTarget)
             .map(target -> target.path("transaction"))
             .map(target -> target.path(encodedId))
-            .map(target -> target.request()
-            .get());
+            .map(target -> target.request().get());
 
     }
 
@@ -115,8 +114,7 @@ public class RestUtils {
     }
 
     public Response send(Party sender, byte[] transactionData, Set<Party> recipients) {
-        return send(sender, transactionData,
-            recipients.toArray(new Party[recipients.size()]));
+        return send(sender, transactionData, recipients.toArray(new Party[0]));
     }
 
     public Response send(Party sender, byte[] transactionData, Party... recipients) {

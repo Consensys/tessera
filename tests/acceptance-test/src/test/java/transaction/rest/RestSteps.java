@@ -4,25 +4,23 @@ import com.quorum.tessera.api.model.ReceiveResponse;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.test.Party;
+import com.quorum.tessera.test.PartyHelper;
+import com.quorum.tessera.test.rest.RestUtils;
 import cucumber.api.java8.En;
+import transaction.utils.Utils;
 
-import java.net.URI;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.*;
-import java.util.stream.Collectors;
 import javax.json.Json;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import com.quorum.tessera.test.PartyHelper;
-import com.quorum.tessera.test.rest.RestUtils;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import transaction.utils.Utils;
 
 public class RestSteps implements En {
 
@@ -33,8 +31,6 @@ public class RestSteps implements En {
     public RestSteps() {
 
         final Collection<Party> senderHolder = new ArrayList<>();
-
-        final List<String> portHolder = new ArrayList<>();
         
         final Collection<String> responseCodes = new ArrayList<>();
 
@@ -47,8 +43,6 @@ public class RestSteps implements En {
         Given("^Sender party (.+)$", (String pty) -> {
             senderHolder.add(partyHelper.findByAlias(pty));
         });
-
-        Given("^Node at port (.+)$", (String port) -> portHolder.add(port));
 
         And("^Recipient part(?:y|ies) (.+)$", (String alias) -> {
             parseAliases(alias).stream()
@@ -70,21 +64,6 @@ public class RestSteps implements En {
                 
             });
             
-        });
-
-        When("^a request is made against the node", () -> {
-            Optional<URI> uri = Optional.of(new URI("http://localhost:" + portHolder.get(0)));
-            Client client = ClientBuilder.newClient();
-            responseCodes.add(
-                uri
-                    .map(client::target)
-                    .map(t -> t.path("upcheck"))
-                    .map(WebTarget::request)
-                    .map(Invocation.Builder::get)
-                    .map(Response::getStatus)
-                    .get()
-                    .toString()
-            );
         });
 
         When("sender party receives transaction with an unknown party from Quorum peer", () -> {
