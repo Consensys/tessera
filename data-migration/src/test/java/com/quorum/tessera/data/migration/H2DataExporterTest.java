@@ -10,13 +10,13 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -63,6 +63,14 @@ public class H2DataExporterTest {
 
         try (Connection conn = DriverManager.getConnection(connectionString)) {
             try (ResultSet rs = conn.prepareStatement("SELECT * FROM ENCRYPTED_TRANSACTION").executeQuery()) {
+
+                ResultSetMetaData metaData = rs.getMetaData();
+                List<String> columnNames = IntStream.range(1,metaData.getColumnCount() + 1)
+                    .mapToObj(i -> JdbcCallback.execute(() -> metaData.getColumnName(i)))
+                    .collect(Collectors.toList());
+
+                assertThat(columnNames).containsExactlyInAnyOrder("HASH","ENCODED_PAYLOAD","TIMESTAMP");
+
                 while (rs.next()) {
                     assertThat(rs.getBytes("HASH")).isEqualTo("HASH".getBytes());
                     assertThat(rs.getBytes("ENCODED_PAYLOAD")).isEqualTo("VALUE".getBytes());
@@ -91,6 +99,14 @@ public class H2DataExporterTest {
 
         try (Connection conn = DriverManager.getConnection(connectionString, username, password)) {
             try (ResultSet rs = conn.prepareStatement("SELECT * FROM ENCRYPTED_TRANSACTION").executeQuery()) {
+
+                ResultSetMetaData metaData = rs.getMetaData();
+                List<String> columnNames = IntStream.range(1,metaData.getColumnCount() + 1)
+                    .mapToObj(i -> JdbcCallback.execute(() -> metaData.getColumnName(i)))
+                    .collect(Collectors.toList());
+
+                assertThat(columnNames).containsExactlyInAnyOrder("HASH","ENCODED_PAYLOAD","TIMESTAMP");
+
                 while (rs.next()) {
                     assertThat(rs.getBytes("HASH")).isEqualTo("HASH".getBytes());
                     assertThat(rs.getBytes("ENCODED_PAYLOAD")).isEqualTo("VALUE".getBytes());
