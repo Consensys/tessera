@@ -4,11 +4,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -155,7 +152,11 @@ public class CmdLineExecutor {
             String jdbcUrl = Objects.requireNonNull(properties.getProperty("jdbcUrl",null),
                     "No jdbcUrl value defined in config file. ");
 
-            dataExporter = new JdbcDataExporter(jdbcUrl, insertRow, createTable);
+            Path sqlFile = Files.createTempFile(UUID.randomUUID().toString(),".txt");
+
+            Files.write(sqlFile,Arrays.asList(createTable));
+
+            dataExporter = new JdbcDataExporter(jdbcUrl, insertRow, sqlFile.toUri().toURL());
 
         } else {
             dataExporter = DataExporterFactory.create(exportType);
