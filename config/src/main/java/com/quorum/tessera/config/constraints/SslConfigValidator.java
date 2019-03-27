@@ -2,6 +2,7 @@ package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.SslConfig;
+import com.quorum.tessera.config.SslConfigType;
 import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.config.util.EnvironmentVariableProviderFactory;
@@ -60,6 +61,9 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
     }
 
     private boolean isServerKeyStoreConfigValid(SslConfig sslConfig, ConstraintValidatorContext context) {
+        if (SslConfigType.CLIENT_ONLY == sslConfig.getSslConfigType()) {
+            return true;
+        }
         if (Objects.isNull(sslConfig.getServerKeyStore()) ||
             !isPasswordProvided(sslConfig.getServerKeyStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.SERVER_KEYSTORE_PWD) ||
             Files.notExists(sslConfig.getServerKeyStore())) {
@@ -77,6 +81,9 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
     }
 
     private boolean isClientKeyStoreConfigValid(SslConfig sslConfig, ConstraintValidatorContext context) {
+        if (SslConfigType.SERVER_ONLY == sslConfig.getSslConfigType()) {
+            return true;
+        }
         if (Objects.isNull(sslConfig.getClientKeyStore()) ||
             !isPasswordProvided(sslConfig.getClientKeyStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.CLIENT_KEYSTORE_PWD) ||
             Files.notExists(sslConfig.getClientKeyStore())) {
@@ -94,7 +101,9 @@ public class SslConfigValidator implements ConstraintValidator<ValidSsl,SslConfi
     }
 
     private boolean isTrustModeConfigValid(SslConfig sslConfig, ConstraintValidatorContext context) {
-        if (Objects.isNull(sslConfig.getServerTrustMode()) || Objects.isNull(sslConfig.getClientTrustMode())) {
+        if ((Objects.isNull(sslConfig.getServerTrustMode()) && sslConfig.getSslConfigType() != SslConfigType.CLIENT_ONLY)
+            ||
+            (Objects.isNull(sslConfig.getClientTrustMode()) && sslConfig.getSslConfigType() != SslConfigType.SERVER_ONLY)) {
             setMessage("Trust mode does not have valid value. Please check server/client trust mode config", context);
             return false;
         }
