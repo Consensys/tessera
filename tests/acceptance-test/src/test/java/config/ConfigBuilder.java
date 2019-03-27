@@ -1,21 +1,14 @@
 package config;
 
-import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.JdbcConfig;
-import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.stream.Collectors;
 import suite.EnclaveType;
 import suite.ExecutionContext;
@@ -154,8 +147,33 @@ public class ConfigBuilder {
             ServerConfig enclaveServerConfig = new ServerConfig();
             enclaveServerConfig.setApp(AppType.ENCLAVE);
             enclaveServerConfig.setEnabled(true);
-            enclaveServerConfig.setBindingAddress("http://0.0.0.0:" + enclavePort);
-            enclaveServerConfig.setServerAddress("http://localhost:" + enclavePort);
+            Path certDir = Paths.get("src","test","resources", "certificates");
+            SslConfig sslConfig = new SslConfig(
+                SslAuthenticationMode.STRICT,
+                false,
+                Paths.get(certDir.toString(),"enclave-keystore.jks"),
+                "testtest",
+                Paths.get(certDir.toString(),"client-keystore.jks"),
+                "testtest",
+                SslTrustMode.CA,
+                Paths.get(certDir.toString(),"client-keystore.jks"),
+                "testtest",
+                Paths.get(certDir.toString(),"enclave-keystore.jks"),
+                "testtest",
+                SslTrustMode.CA,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            );
+            enclaveServerConfig.setBindingAddress("https://0.0.0.0:" + enclavePort);
+            enclaveServerConfig.setServerAddress("https://localhost:" + enclavePort);
+            enclaveServerConfig.setSslConfig(sslConfig);
             enclaveServerConfig.setCommunicationType(CommunicationType.REST);
 
             servers.add(enclaveServerConfig);
