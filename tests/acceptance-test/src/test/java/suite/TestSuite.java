@@ -3,6 +3,7 @@ package suite;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.test.DBType;
 import db.DatabaseServer;
+import db.SetupDatabase;
 import exec.EnclaveExecManager;
 import exec.ExecManager;
 import exec.NodeExecManager;
@@ -78,6 +79,9 @@ public class TestSuite extends Suite {
             DatabaseServer databaseServer = testConfig.dbType().createDatabaseServer(nodeId);
             databaseServer.start();
 
+            SetupDatabase setupDatabase = new SetupDatabase(executionContext);
+            setupDatabase.setUp();
+
             executionContext.getConfigs().stream()
                 .map(NodeExecManager::new)
                 .forEach(exec -> {
@@ -107,8 +111,10 @@ public class TestSuite extends Suite {
 
             try {
                 ExecutionContext.destroyContext();
+                setupDatabase.dropAll();
             } finally {
                 databaseServer.stop();
+
             }
         } catch (Throwable ex) {
             Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
