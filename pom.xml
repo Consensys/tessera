@@ -342,7 +342,7 @@
         <module>key-pair-converter</module>
         <module>ddls</module>
         <module>enclave</module>
-        <module>tessera-sync</module>
+
         <module>tessera-dist</module>
     </modules>
 
@@ -1257,6 +1257,14 @@
                 </repository>
             </distributionManagement>
         </profile>
+
+        <profile>
+            <id>work-in-progress</id>
+            <modules>
+                <module>tessera-sync</module>
+            </modules>
+        </profile>
+
     </profiles>
     
     <distributionManagement>

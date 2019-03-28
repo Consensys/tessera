@@ -18,6 +18,10 @@ public interface TesseraServerFactory<T> {
     
     static TesseraServerFactory create(CommunicationType communicationType) {
 
+        if(communicationType == CommunicationType.WEB_SOCKET) {
+            throw new UnsupportedOperationException("Websockets are not supported yet");
+        }
+
         List<TesseraServerFactory> all = new ArrayList<>();
         ServiceLoader.load(TesseraServerFactory.class).forEach(all::add);
 
