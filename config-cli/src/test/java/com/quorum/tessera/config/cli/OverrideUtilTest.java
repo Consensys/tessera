@@ -83,6 +83,7 @@ public class OverrideUtilTest {
             "serverConfigs.sslConfig.tls",
             "serverConfigs.sslConfig.knownServersFile",
             "serverConfigs.sslConfig.environmentVariablePrefix",
+            "serverConfigs.sslConfig.sslConfigType",
             "server.hostName",
             "server.sslConfig.knownServersFile",
             "server.sslConfig.clientTrustStorePassword",
@@ -112,7 +113,8 @@ public class OverrideUtilTest {
             "server.sslConfig.clientTrustMode",
             "server.influxConfig.pushIntervalInSecs",
             "server.sslConfig.serverKeyStorePassword",
-            "server.sslConfig.environmentVariablePrefix"
+            "server.sslConfig.environmentVariablePrefix",
+            "server.sslConfig.sslConfigType"
         );
 
         final Map<String, Class> results = OverrideUtil.buildConfigOptions();

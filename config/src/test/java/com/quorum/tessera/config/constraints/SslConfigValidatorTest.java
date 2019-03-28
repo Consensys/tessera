@@ -2,6 +2,7 @@ package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.SslConfig;
+import com.quorum.tessera.config.SslConfigType;
 import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.config.util.EnvironmentVariableProviderFactory;
@@ -1018,5 +1019,35 @@ public class SslConfigValidatorTest {
             SslAuthenticationMode.STRICT, false, tmpFile, "pw", tmpFile, "pw", SslTrustMode.CA, tmpFile, "pw", tmpFile, "pw", SslTrustMode.CA, tmpFile, tmpFile, Arrays.asList(tmpFile), Arrays.asList(tmpFile), tmpFile,tmpFile,tmpFile,tmpFile,null
         );
         assertThat(validator.isValid(sslConfig, context)).isTrue();
+    }
+
+    @Test
+    public void testValidSslServerOnly() {
+        SslConfig sslConfig = new SslConfig(
+            SslAuthenticationMode.STRICT, false, tmpFile, "pw", tmpFile, "pw", SslTrustMode.CA, tmpFile, null, null, null, null, tmpFile, null, Arrays.asList(tmpFile), null, tmpFile,tmpFile,null,null,null
+        );
+        sslConfig.setSslConfigType(SslConfigType.SERVER_ONLY);
+        assertThat(validator.isValid(sslConfig, context)).isTrue();
+
+        SslConfig secondSslConfig = new SslConfig(
+            SslAuthenticationMode.STRICT, false, null, null, null, null, null, tmpFile, "pw", tmpFile, "pw", SslTrustMode.CA, null, tmpFile, null, Arrays.asList(tmpFile), null,null,tmpFile,tmpFile,null
+        );
+        secondSslConfig.setSslConfigType(SslConfigType.SERVER_ONLY);
+        assertThat(validator.isValid(secondSslConfig, context)).isFalse();
+    }
+
+    @Test
+    public void testValidSslClientOnly() {
+        SslConfig sslConfig = new SslConfig(
+            SslAuthenticationMode.STRICT, false, null, null, null, null, null, tmpFile, "pw", tmpFile, "pw", SslTrustMode.CA, null, tmpFile, null, Arrays.asList(tmpFile), null,null,tmpFile,tmpFile,null
+        );
+        sslConfig.setSslConfigType(SslConfigType.CLIENT_ONLY);
+        assertThat(validator.isValid(sslConfig, context)).isTrue();
+
+        SslConfig secondSslConfig = new SslConfig(
+            SslAuthenticationMode.STRICT, false, tmpFile, "pw", tmpFile, "pw", SslTrustMode.CA, tmpFile, null, null, null, null, tmpFile, null, Arrays.asList(tmpFile), null, tmpFile,tmpFile,null,null,null
+        );
+        secondSslConfig.setSslConfigType(SslConfigType.CLIENT_ONLY);
+        assertThat(validator.isValid(secondSslConfig, context)).isFalse();
     }
 }
