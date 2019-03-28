@@ -57,8 +57,8 @@ public class NodeExecManager implements ExecManager {
                 .withPidFile(pid)
                 .withConfigFile(configDescriptor.getPath())
                 .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile.getFile())
-                .withClassPathItem(nodeServerJar)
-                .withArg("-jdbc.autoCreateTables", "true");
+                .withClassPathItem(nodeServerJar);
+                //.withArg("-jdbc.autoCreateTables", "true");
 
         if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
             Path enclaveJar = Paths.get(System.getProperty("enclave.jaxrs.jar", "../../enclave/enclave-jaxrs/target/enclave-jaxrs-0.9-SNAPSHOT.jar"));

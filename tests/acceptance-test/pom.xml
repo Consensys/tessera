@@ -60,6 +60,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>ddls</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-junit</artifactId>
             <version>4.0.1</version>
@@ -98,6 +103,23 @@
                         <goals>
                             <goal>properties</goal>
                         </goals>
+                    </execution>
+
+                    <execution>
+                        <id>unpack-ddls</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.jpmorgan.quorum</groupId>
+                                    <artifactId>ddls</artifactId>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.testOutputDirectory}/ddls</outputDirectory>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
