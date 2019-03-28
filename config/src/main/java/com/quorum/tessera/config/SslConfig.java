@@ -89,6 +89,9 @@ public class SslConfig {
     @XmlElement
     private String environmentVariablePrefix;
 
+    @XmlElement
+    private SslConfigType sslConfigType;
+
     public SslConfig(
             SslAuthenticationMode tls,
             boolean generateKeyStoreIfNotExisted,
@@ -134,7 +137,6 @@ public class SslConfig {
         this.clientTlsKeyPath = clientTlsKeyPath;
         this.clientTlsCertificatePath = clientTlsCertificatePath;
         this.environmentVariablePrefix = environmentVariablePrefix;
-
     }
 
     public SslConfig() {
@@ -307,5 +309,13 @@ public class SslConfig {
 
     public void setEnvironmentVariablePrefix(String environmentVariablePrefix) {
         this.environmentVariablePrefix = environmentVariablePrefix;
+    }
+
+    public SslConfigType getSslConfigType() {
+        return sslConfigType;
+    }
+
+    public void setSslConfigType(SslConfigType sslConfigType) {
+        this.sslConfigType = sslConfigType;
     }
 }
