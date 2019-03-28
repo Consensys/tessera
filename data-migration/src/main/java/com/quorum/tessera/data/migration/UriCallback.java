@@ -12,8 +12,8 @@ public interface UriCallback<T> {
         try {
             return callback.doExecute();
         } catch (IOException e) {
-           throw new UncheckedIOException(e);
-        } catch(URISyntaxException ex) {
+            throw new UncheckedIOException(e);
+        } catch (URISyntaxException ex) {
             throw new UncheckedIOException(new IOException(ex.getMessage()));
         }
 

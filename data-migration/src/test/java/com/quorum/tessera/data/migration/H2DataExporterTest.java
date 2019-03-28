@@ -1,12 +1,13 @@
 package com.quorum.tessera.data.migration;
 
-import java.io.File;
-
 import org.h2.jdbc.JdbcSQLException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,9 +21,6 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-
-import org.junit.Rule;
-import org.junit.rules.TestName;
 
 public class H2DataExporterTest {
 

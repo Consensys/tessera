@@ -79,10 +79,8 @@ public class TestSuite extends Suite {
             DatabaseServer databaseServer = testConfig.dbType().createDatabaseServer(nodeId);
             databaseServer.start();
 
-
             SetupDatabase setupDatabase = new SetupDatabase(executionContext);
             setupDatabase.setUp();
-
 
             executionContext.getConfigs().stream()
                 .map(NodeExecManager::new)

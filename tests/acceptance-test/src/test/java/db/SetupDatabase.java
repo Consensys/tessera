@@ -27,27 +27,27 @@ public class SetupDatabase {
 
     public void setUp() throws Exception {
 
-       URL ddl = executionContext.getDbType().getDdl();
+        URL ddl = executionContext.getDbType().getDdl();
 
-       List<Connection> connections = getConnections();
+        List<Connection> connections = getConnections();
 
-       List<String> lines = Files.readAllLines(Paths.get(ddl.toURI()));
+        List<String> lines = Files.readAllLines(Paths.get(ddl.toURI()));
 
-        for(Connection connection : connections) {
+        for (Connection connection : connections) {
 
-            try(Statement statement = connection.createStatement()) {
-                for(String line : lines) {
-                    LOGGER.trace("Create table SQL : {}",line);
+            try (Statement statement = connection.createStatement()) {
+                for (String line : lines) {
+                    LOGGER.trace("Create table SQL : {}", line);
                     statement.execute(line);
                 }
             }
         }
 
-
-        for(Connection connection : connections) {
+        for (Connection connection : connections) {
             try {
                 connection.close();
-            } catch(SQLException ex) {}
+            } catch (SQLException ex) {
+            }
 
         }
 
@@ -59,7 +59,7 @@ public class SetupDatabase {
             .map(Config::getJdbcConfig)
             .map(j -> {
                 try {
-                    LOGGER.info("{}",j.getUrl());
+                    LOGGER.info("{}", j.getUrl());
                     return DriverManager.getConnection(j.getUrl(), j.getUsername(), j.getPassword());
                 } catch (SQLException ex) {
                     throw new UncheckedSQLException(ex);
@@ -72,25 +72,26 @@ public class SetupDatabase {
 
     public void dropAll() throws Exception {
         List<Connection> connections = getConnections();
-        for(Connection connection : connections) {
-          DatabaseMetaData metaData = connection.getMetaData();
-          List<String> tableNames = new ArrayList<>();
-           try(ResultSet rs = metaData.getTables(null,null,"%",null)) {
+        for (Connection connection : connections) {
+            DatabaseMetaData metaData = connection.getMetaData();
+            List<String> tableNames = new ArrayList<>();
+            try (ResultSet rs = metaData.getTables(null, null, "%", null)) {
 
-               while(rs.next()) {
-                   tableNames.add(rs.getString(3));
-               }
-           }
+                while (rs.next()) {
+                    tableNames.add(rs.getString(3));
+                }
+            }
 
-          String dropStatement = "DROP TABLE %s";
+            String dropStatement = "DROP TABLE %s";
 
-            try(Statement statement = connection.createStatement()) {
-                for(String tableName : tableNames) {
-                    String line = String.format(dropStatement,tableName);
-                    LOGGER.trace("Drop table SQL : {}",line);
+            try (Statement statement = connection.createStatement()) {
+                for (String tableName : tableNames) {
+                    String line = String.format(dropStatement, tableName);
+                    LOGGER.trace("Drop table SQL : {}", line);
                     try {
                         statement.execute(line);
-                    } catch(SQLException ex) {}
+                    } catch (SQLException ex) {
+                    }
                 }
 
             }
@@ -98,14 +99,14 @@ public class SetupDatabase {
 
         }
 
-        for(Connection connection : connections) {
+        for (Connection connection : connections) {
             try {
                 connection.close();
-            } catch(SQLException ex) {}
+            } catch (SQLException ex) {
+            }
 
         }
 
     }
-
 
 }

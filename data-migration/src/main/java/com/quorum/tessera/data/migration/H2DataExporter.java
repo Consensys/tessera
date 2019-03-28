@@ -17,11 +17,11 @@ public class H2DataExporter implements DataExporter {
 
         final String connectionString = "jdbc:h2:" + output.toString();
 
-        URL sqlFile = getClass().getResource("/ddls/h2-ddl.sql");
+        final URL sqlFile = getClass().getResource("/ddls/h2-ddl.sql");
 
-        JdbcDataExporter jdbcDataExporter = new JdbcDataExporter(connectionString,INSERT_ROW,sqlFile);
+        final JdbcDataExporter jdbcDataExporter = new JdbcDataExporter(connectionString, INSERT_ROW, sqlFile);
 
-        jdbcDataExporter.export(data,output,username,password);
+        jdbcDataExporter.export(data, output, username, password);
 
     }
 

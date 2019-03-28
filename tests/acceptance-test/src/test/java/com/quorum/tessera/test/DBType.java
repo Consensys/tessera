@@ -37,5 +37,4 @@ public enum DBType {
         return new DatabaseServer() {};
     }
 
-
 }
