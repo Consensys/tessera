@@ -6,7 +6,6 @@ import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
