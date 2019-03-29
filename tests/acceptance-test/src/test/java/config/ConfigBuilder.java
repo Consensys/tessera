@@ -147,18 +147,17 @@ public class ConfigBuilder {
             ServerConfig enclaveServerConfig = new ServerConfig();
             enclaveServerConfig.setApp(AppType.ENCLAVE);
             enclaveServerConfig.setEnabled(true);
-            Path certDir = Paths.get("src","test","resources", "certificates");
             SslConfig sslConfig = new SslConfig(
                 SslAuthenticationMode.STRICT,
                 false,
-                Paths.get(certDir.toString(),"enclave-keystore.jks"),
+                Paths.get(getClass().getResource("/certificates/localhost-with-san-keystore.jks").getFile()),
                 "testtest",
-                Paths.get(certDir.toString(),"client-keystore.jks"),
+                Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
                 "testtest",
                 SslTrustMode.CA,
-                Paths.get(certDir.toString(),"client-keystore.jks"),
+                Paths.get(getClass().getResource("/certificates/quorum-client-keystore.jks").getFile()),
                 "testtest",
-                Paths.get(certDir.toString(),"enclave-keystore.jks"),
+                Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
                 "testtest",
                 SslTrustMode.CA,
                 null,
