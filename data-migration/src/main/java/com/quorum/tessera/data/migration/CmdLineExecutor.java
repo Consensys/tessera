@@ -1,21 +1,14 @@
 package com.quorum.tessera.data.migration;
 
+import org.apache.commons.cli.*;
+
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.MissingOptionException;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
+import java.util.*;
+
+import static java.util.Collections.singletonList;
 
 public class CmdLineExecutor {
 
@@ -49,7 +42,7 @@ public class CmdLineExecutor {
                         .required()
                         .build());
 
-        
+
 
         options.addOption(
                 Option.builder()
@@ -61,7 +54,7 @@ public class CmdLineExecutor {
                         .argName("TYPE")
                         .required()
                         .build());
-        
+
         options.addOption(
                 Option.builder()
                         .longOpt("dbconfig")
@@ -148,14 +141,18 @@ public class CmdLineExecutor {
 
             String insertRow = Objects.requireNonNull(properties.getProperty("insertRow",null),
                     "No insertRow value defined in config file. ");
-            
+
             String createTable = Objects.requireNonNull(properties.getProperty("createTable",null),
                     "No createTable value defined in config file. ");
-            
+
             String jdbcUrl = Objects.requireNonNull(properties.getProperty("jdbcUrl",null),
                     "No jdbcUrl value defined in config file. ");
 
-            dataExporter = new JdbcDataExporter(jdbcUrl, insertRow, createTable);
+            Path sqlFile = Files.createTempFile(UUID.randomUUID().toString(), ".txt");
+
+            Files.write(sqlFile, singletonList(createTable));
+
+            dataExporter = new JdbcDataExporter(jdbcUrl, insertRow, sqlFile.toUri().toURL());
 
         } else {
             dataExporter = DataExporterFactory.create(exportType);
