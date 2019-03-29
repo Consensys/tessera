@@ -1,7 +1,6 @@
 package com.quorum.tessera.config.adapters;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -16,7 +15,6 @@ public class PathAdapter extends XmlAdapter<String,Path> {
 
         return Optional.ofNullable(input)
             .map(Paths::get)
-            .filter(Files::exists)
             .orElse(null);
     }
 
