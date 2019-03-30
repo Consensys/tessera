@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.runner.Description;
@@ -92,7 +93,8 @@ public class TestSuite extends Suite {
             PartyInfoChecker partyInfoChecker = PartyInfoChecker.create(executionContext.getCommunicationType());
 
             CountDownLatch partyInfoSyncLatch = new CountDownLatch(1);
-            Executors.newSingleThreadExecutor().submit(() -> {
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.submit(() -> {
                 while (!partyInfoChecker.hasSynced()) {
                     try {
                         Thread.sleep(1000L);
@@ -106,6 +108,7 @@ public class TestSuite extends Suite {
                 Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
                 notifier.fireTestFailure(new Failure(de,new IllegalStateException("Unable to sync party info nodes")));
             }
+            executorService.shutdown();
             
             super.run(notifier);
 

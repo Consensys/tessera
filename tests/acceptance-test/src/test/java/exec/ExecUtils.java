@@ -19,7 +19,7 @@ public class ExecUtils {
 
         LOGGER.info("Executing {}", String.join(" ", cmd));
 
-        ExecutorService executorService = Executors.newCachedThreadPool();
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
         ProcessBuilder processBuilder = new ProcessBuilder(cmd);
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
@@ -48,8 +48,12 @@ public class ExecUtils {
                 LOGGER.warn(ex.getMessage());
             }
         });
-        
-        return process;
+
+        try {
+            return process;
+        } finally {
+            executorService.shutdown();
+        }
 
     }
 
