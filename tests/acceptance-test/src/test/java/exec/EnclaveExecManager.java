@@ -30,7 +30,7 @@ import suite.ServerStatusCheckExecutor;
 
 public class EnclaveExecManager implements ExecManager {
 
-    private final ExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveExecManager.class);
 
@@ -65,7 +65,7 @@ public class EnclaveExecManager implements ExecManager {
 
         LOGGER.info("Starting enclave {}", configDescriptor.getAlias());
 
-        Process process = ExecUtils.start(cmd);
+        Process process = ExecUtils.start(cmd,executorService);
 
         ServerStatusCheckExecutor serverStatusCheckExecutor = new ServerStatusCheckExecutor(ServerStatusCheck.create(serverConfig));
 
@@ -90,7 +90,12 @@ public class EnclaveExecManager implements ExecManager {
             return;
         }
         LOGGER.info("Stopping Enclave : {}, Pid: {}", nodeId, p);
-        ExecUtils.kill(p);
+        try {
+            ExecUtils.kill(p);
+        } finally {
+            executorService.shutdown();
+        }
+
     }
 
     public static void main(String[] args) throws Exception {

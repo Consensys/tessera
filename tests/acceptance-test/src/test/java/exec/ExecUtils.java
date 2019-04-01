@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,11 +14,10 @@ public class ExecUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecUtils.class);
 
-    public static Process start(List<String> cmd) throws IOException {
+    public static Process start(List<String> cmd,ExecutorService executorService) throws IOException {
 
         LOGGER.info("Executing {}", String.join(" ", cmd));
 
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
         ProcessBuilder processBuilder = new ProcessBuilder(cmd);
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
@@ -49,11 +47,7 @@ public class ExecUtils {
             }
         });
 
-        try {
-            return process;
-        } finally {
-            executorService.shutdown();
-        }
+        return process;
 
     }
 

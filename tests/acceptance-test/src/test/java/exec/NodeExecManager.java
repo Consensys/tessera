@@ -20,7 +20,7 @@ import suite.ServerStatusCheckExecutor;
 
 public class NodeExecManager implements ExecManager {
 
-    private final ExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
     
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeExecManager.class);
 
@@ -73,7 +73,7 @@ public class NodeExecManager implements ExecManager {
 
         LOGGER.info("Exec : {}", String.join(" ", args));
 
-        final Process process = ExecUtils.start(args);
+        final Process process = ExecUtils.start(args,executorService);
 
         List<ServerStatusCheckExecutor> serverStatusCheckList = configDescriptor.getConfig().getServerConfigs().stream()
                 .filter(s -> s.getApp() != AppType.ENCLAVE)
@@ -124,7 +124,11 @@ public class NodeExecManager implements ExecManager {
             return;
         }
         LOGGER.info("Stopping Node: {}, Pid: {}", nodeId, p);
-        ExecUtils.kill(p);
+        try {
+            ExecUtils.kill(p);
+        } finally {
+            executorService.shutdown();
+        }
 
     }
 }
