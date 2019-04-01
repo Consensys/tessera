@@ -36,7 +36,8 @@ jobs:
       - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
     - stage: Acceptance Tests
     script:
-        - mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+      - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
+      - mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
     - stage: Vault Acceptance Tests
     install:
       - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
@@ -44,13 +45,16 @@ jobs:
       - unzip /tmp/vault_1.0.1_linux_amd64.zip
       - export PATH=$PATH:$PWD && popd
     script:
-        - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
+      - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
+      - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
     - stage: GRPC Only Acceptance Tests
       script:
-        - mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging || travis_terminate 1
+      - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
+      - mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging || travis_terminate 1
     - stage: Simple Only Acceptance Tests
     script:
-        - mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1
+      - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
+      - mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1
 
 
 #install:
