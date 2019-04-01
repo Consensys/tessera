@@ -23,10 +23,14 @@ public interface ServerStatusCheck {
             if (serverConfig.isUnixSocket()) {
                 return new UnixSocketServerStatusCheck(serverConfig.getServerUri());
             } else {
-                final URL httpURL = IOCallback.execute(()
-                        -> UriBuilder.fromUri(serverConfig.getServerUri())
-                                .path("upcheck").build().toURL());
-                return new HttpServerStatusCheck(httpURL);
+                final URL url = IOCallback.execute(()
+                    -> UriBuilder.fromUri(serverConfig.getServerUri())
+                    .path("upcheck").build().toURL());
+                if (serverConfig.isSsl()) {
+                    return new HttpsServerStatusCheck(url, serverConfig.getSslConfig());
+                } else {
+                    return new HttpServerStatusCheck(url);
+                }
             }
 
         }
