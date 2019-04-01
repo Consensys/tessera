@@ -4,9 +4,9 @@ env:
   global:
     - CODECOV_TOKEN="b5659ea0-f191-4e1d-9139-a8a31971c386"
 
-jdk:
-  - oraclejdk8
-  - oraclejdk11
+#jdk:
+#  - oraclejdk8
+#  - oraclejdk11
 
 sudo: enabled
 
@@ -48,9 +48,19 @@ jobs:
     jdk:
       - oraclejdk8
       - oraclejdk11
+    install:
+      - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
+      - mkdir -p vault/bin && pushd $_
+      - unzip /tmp/vault_1.0.1_linux_amd64.zip
+      - export PATH=$PATH:$PWD && popd
+    jdk:
+      - oraclejdk8
+      - oraclejdk11
     script:
         - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
         - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
+    after_success:
+      - bash <(curl -s https://codecov.io/bash)
     - stage: GRPC Only Acceptance Tests
     jdk:
     - oraclejdk8
@@ -66,11 +76,12 @@ jobs:
         - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
         - mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1
 
-install:
-  - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
-  - mkdir -p vault/bin && pushd $_
-  - unzip /tmp/vault_1.0.1_linux_amd64.zip
-  - export PATH=$PATH:$PWD && popd
+
+#install:
+#  - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
+#  - mkdir -p vault/bin && pushd $_
+#  - unzip /tmp/vault_1.0.1_linux_amd64.zip
+#  - export PATH=$PATH:$PWD && popd
 
 
 
