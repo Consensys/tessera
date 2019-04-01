@@ -19,6 +19,7 @@ cache:
     - "$HOME/.m2"
 
 stages:
+  - name: Test
   - name: Acceptance Tests
   - name: Vault Acceptance Tests
   - name: GRPC Only Acceptance Tests
@@ -30,7 +31,7 @@ stages:
 
 jobs:
   include:
-    - stage: test
+    - stage: Test
     jdk:
     - oraclejdk8
     - oraclejdk11
