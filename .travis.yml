@@ -19,7 +19,6 @@ cache:
     - "$HOME/.m2"
 
 stages:
-  - name: Test
   - name: Acceptance Tests
   - name: Vault Acceptance Tests
   - name: GRPC Only Acceptance Tests
@@ -31,13 +30,12 @@ stages:
 
 jobs:
   include:
-    - stage: Test
+    - stage: test
     script:
       - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
       - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
     - stage: Acceptance Tests
     script:
-        - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
         - mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
     - stage: Vault Acceptance Tests
     install:
@@ -46,17 +44,12 @@ jobs:
       - unzip /tmp/vault_1.0.1_linux_amd64.zip
       - export PATH=$PATH:$PWD && popd
     script:
-        - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
         - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
-    after_success:
-      - bash <(curl -s https://codecov.io/bash)
     - stage: GRPC Only Acceptance Tests
       script:
-        - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
         - mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging || travis_terminate 1
     - stage: Simple Only Acceptance Tests
     script:
-        - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
         - mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1
 
 
