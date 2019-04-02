@@ -9,6 +9,7 @@ jdk:
   - oraclejdk11
 
 matrix:
+  include:
 #Default
   - name: "Acceptance Tests"
     env: TEST_PROFILE="reduce-logging"
