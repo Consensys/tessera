@@ -11,19 +11,19 @@ jdk:
 matrix:
   include:
 #Default
-    - name: "Acceptance Tests"
+  - name: "Acceptance Tests"
     env:
     - TEST_PROFILE='reduce-logging'
 #Vault
-    - name: "Vault Acceptance Tests"
+  - name: "Vault Acceptance Tests"
     env:
     - TEST_PROFILE='vault-acceptance-tests,reduce-logging'
 #GRPC
-    - name: "GRPC Only Acceptance Tests"
+  - name: "GRPC Only Acceptance Tests"
     env:
     - TEST_PROFILE='grpc-acceptance-tests,reduce-logging'
     #Simple
-    - name: "Simple Only Acceptance Tests"
+  - name: "Simple Only Acceptance Tests"
     env:
     - TEST_PROFILE='simple-acceptance-tests,reduce-logging'
 
