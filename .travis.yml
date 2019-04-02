@@ -18,6 +18,11 @@ matrix:
   - name: "Vault Acceptance Tests"
     env:
     - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
+    install:
+    - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
+    - mkdir -p vault/bin && pushd $_
+    - unzip /tmp/vault_1.0.1_linux_amd64.zip
+    - export PATH=$PATH:$PWD && popd
 #GRPC
   - name: "GRPC Only Acceptance Tests"
     env:
