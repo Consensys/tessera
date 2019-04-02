@@ -4,15 +4,21 @@ env:
   global:
     - CODECOV_TOKEN="b5659ea0-f191-4e1d-9139-a8a31971c386"
 
+jdk:
+  - oraclejdk8
+  - oraclejdk11
+
 matrix:
   include:
 #Default
     - env:
     - TEST_PROFILE='reduce-logging'
 #Vault
-    - env:
+    - jdk: oraclejdk8
+    env:
     - TEST_PROFILE='vault-acceptance-tests,reduce-logging'
 #GRPC
+    - jdk: oraclejdk8
     - env:
     - TEST_PROFILE='grpc-acceptance-tests,reduce-logging'
       install:
@@ -24,9 +30,6 @@ matrix:
     - env:
     - TEST_PROFILE='simple-acceptance-tests,reduce-logging'
 
-jdk:
-  - oraclejdk8
-  - oraclejdk11
 
 sudo: enabled
 
