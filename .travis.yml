@@ -32,21 +32,12 @@ stages:
 jobs:
   include:
       - stage: Test
-      jdk:
-        - oraclejdk8
-        - oraclejdk11
         script:
           - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
       - stage: Acceptance Tests
-      jdk:
-        - oraclejdk8
-        - oraclejdk11
         script:
           - mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
       - stage: Vault Acceptance Tests
-      jdk:
-        - oraclejdk8
-        - oraclejdk11
         script:
           - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
         install:
@@ -55,15 +46,9 @@ jobs:
           - unzip /tmp/vault_1.0.1_linux_amd64.zip
           - export PATH=$PATH:$PWD && popd
       - stage: GRPC Only Acceptance Tests
-      jdk:
-        - oraclejdk8
-        - oraclejdk11
         script:
           - mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging || travis_terminate 1
       - stage: Simple Only Acceptance Tests
-      jdk:
-        - oraclejdk8
-        - oraclejdk11
         script:
           - mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1
       - stage: deploy:
