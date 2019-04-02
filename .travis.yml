@@ -64,8 +64,8 @@ jobs:
      on:
        all_branches: true
 
-#script:
-#    - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
+script:
+    - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
 #    - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
 #    - mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
 #    - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
