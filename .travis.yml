@@ -19,7 +19,7 @@ cache:
     - "$HOME/.m2"
 
 stages:
-  - name: Test
+#  - name: Test
   - name: Acceptance Tests
   - name: Vault Acceptance Tests
   - name: GRPC Only Acceptance Tests
@@ -31,9 +31,9 @@ stages:
 
 jobs:
   include:
-      - stage: Test
-        script:
-          - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
+#      - stage: Test
+#        script:
+#          - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
       - stage: Acceptance Tests
         script:
           - mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
