@@ -13,27 +13,15 @@ matrix:
 #Default
   - name: "Acceptance Tests"
     env: TEST_PROFILE="reduce-logging"
-    jdk:
-      - oraclejdk8
-      - oraclejdk11
 #Vault
   - name: "Vault Acceptance Tests"
     env: TEST_PROFILE="vault-acceptance-tests,reduce-logging"
-    jdk:
-      - oraclejdk8
-      - oraclejdk11
 #GRPC
   - name: "GRPC Only Acceptance Tests"
     env: TEST_PROFILE="grpc-acceptance-tests,reduce-logging"
-    jdk:
-      - oraclejdk8
-      - oraclejdk11
     #Simple
   - name: "Simple Only Acceptance Tests"
     env: TEST_PROFILE="simple-acceptance-tests,reduce-logging"
-    jdk:
-      - oraclejdk8
-      - oraclejdk11
 
 sudo: enabled
 
@@ -51,12 +39,13 @@ cache:
   directories:
     - "$HOME/.m2"
 
-script:
-  - mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
+#script:
+#  - mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
 
-#stages:
-#  - name: Test
-#  - name: Acceptance Tests
+stages:
+  - name: Test
+  - name: Acceptance Tests
+
 #  - name: Vault Acceptance Tests
 #  - name: GRPC Only Acceptance Tests
 #  - name: Simple Only Acceptance Tests
@@ -64,6 +53,12 @@ script:
 
 #before_script:
 #  - mvn -v
+
+jobs:
+  include:
+    - jdk:
+    - stage: Acceptance Tests
+    - mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
 
 #jobs:
 #  include:
