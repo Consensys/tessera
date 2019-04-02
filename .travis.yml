@@ -52,7 +52,7 @@ cache:
     - "$HOME/.m2"
 
 script:
-  - mvn verify -pl tests/acceptance-test -P env $TEST_PROFILE || travis_terminate 1
+  - mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
 
 #stages:
 #  - name: Test
