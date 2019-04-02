@@ -10,32 +10,21 @@ jdk:
 
 matrix:
   include:
-      #Default
-    - name: "Acceptance Tests"
-      env:
-      - CMD="mvn verify -pl tests/acceptance-test -P reduce-logging"
-      #Vault
-    - name: "Vault Acceptance Tests"
-      env:
-      - CMD="mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging"
-      install:
-        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
-        - mkdir -p vault/bin && pushd $_
-        - unzip /tmp/vault_1.0.1_linux_amd64.zip
-        - export PATH=$PATH:$PWD && popd
-      #GRPC
-    - name: "GRPC Only Acceptance Tests"
-      env:
-      - CMD="mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging"
-      #Simple
-    - name: "Simple Only Acceptance Tests"
-      env:
-      - CMD="mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging"
-
-
-script: $CMD || travis_terminate 1
+#Default
+  - name: "Acceptance Tests"
+    env: TEST_PROFILE="reduce-logging"
+#Vault
+  - name: "Vault Acceptance Tests"
+    env: TEST_PROFILE="vault-acceptance-tests,reduce-logging"
+#GRPC
+  - name: "GRPC Only Acceptance Tests"
+    env: TEST_PROFILE="grpc-acceptance-tests,reduce-logging"
+#Simple
+  - name: "Simple Only Acceptance Tests"
+    env: TEST_PROFILE="simple-acceptance-tests,reduce-logging"
 
 sudo: enabled
+
 
 
 notifications:
@@ -46,13 +35,12 @@ cache:
   directories:
     - "$HOME/.m2"
 
-#script:
-#  - mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
+script:
+  - mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
 
-stages:
-  - name: Test
+#stages:
+#  - name: Test
 #  - name: Acceptance Tests
-
 #  - name: Vault Acceptance Tests
 #  - name: GRPC Only Acceptance Tests
 #  - name: Simple Only Acceptance Tests
@@ -61,11 +49,8 @@ stages:
 #before_script:
 #  - mvn -v
 
-jobs:
-  include:
-  script:
-  - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
-
+#jobs:
+#  include:
 #      - stage: Acceptance Tests
 #        script:
 #          - mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
