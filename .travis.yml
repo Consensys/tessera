@@ -6,7 +6,7 @@ env:
 
 jdk:
   - oraclejdk8
-#  - oraclejdk11
+  - oraclejdk11
 
 sudo: enabled
 
@@ -26,14 +26,11 @@ stages:
   - name: Simple Only Acceptance Tests
   - name: Deploy
 
-before_script:
-  - mvn -v
+#before_script:
+#  - mvn -v
 
 jobs:
   include:
-      - stage: Test
-        script:
-          - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
       - stage: Acceptance Tests
         script:
           - mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
@@ -51,16 +48,6 @@ jobs:
       - stage: Simple Only Acceptance Tests
         script:
           - mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1
-      - stage: deploy:
-            provider: script
-            script: bash deploy.sh
-            skip_cleanup: true
-            on:
-              all_branches: true
-
-
-
-
 
 #script:
 #    - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
@@ -76,4 +63,9 @@ after_success:
 #before_cache:
 #- mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
 
-
+deploy:
+  provider: script
+  script: bash deploy.sh
+  skip_cleanup: true
+  on:
+    all_branches: true
