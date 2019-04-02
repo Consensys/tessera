@@ -19,6 +19,7 @@ cache:
     - "$HOME/.m2"
 
 stages:
+  - name: Test
   - name: Acceptance Tests
   - name: Vault Acceptance Tests
   - name: GRPC Only Acceptance Tests
@@ -29,7 +30,7 @@ before_script:
 
 jobs:
   include:
-    - stage: test
+    - stage: Test
       script:
         - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
         - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
