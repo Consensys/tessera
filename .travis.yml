@@ -28,9 +28,19 @@ matrix:
       env:
         - TEST_PROFILE="simple-acceptance-tests,reduce-logging"
     #Vault
-    - name: "Vault Acceptance Tests"
+    - name: "Vault Acceptance Tests Java 8"
       env:
         - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
+      jdk:  oraclejdk8
+      install:
+        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
+        - mkdir -p vault/bin && pushd $_
+        - unzip /tmp/vault_1.0.1_linux_amd64.zip
+        - export PATH=$PATH:$PWD && popd
+    - name: "Vault Acceptance Tests Java 11"
+      env:
+        - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
+      jdk:  oraclejdk11
       install:
         - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
         - mkdir -p vault/bin && pushd $_
