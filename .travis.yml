@@ -9,7 +9,6 @@ jdk:
   - oraclejdk11
 
 matrix:
-  include:
 #Default
   - name: "Acceptance Tests"
     env: TEST_PROFILE="reduce-logging"
@@ -19,11 +18,15 @@ matrix:
 #GRPC
   - name: "GRPC Only Acceptance Tests"
     env: TEST_PROFILE="grpc-acceptance-tests,reduce-logging"
-    #Simple
+#Simple
   - name: "Simple Only Acceptance Tests"
     env: TEST_PROFILE="simple-acceptance-tests,reduce-logging"
 
 sudo: enabled
+
+script:
+  - mvn install -DskipTests -P disable-acceptance-test,jnacl,reduce-logging || travis_terminate 1
+  - mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
 
 install:
     - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
@@ -42,9 +45,9 @@ cache:
 #script:
 #  - mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
 
-stages:
-  - name: Test
-  - name: Acceptance Tests
+#stages:
+#  - name: Test
+#  - name: Acceptance Tests
 
 #  - name: Vault Acceptance Tests
 #  - name: GRPC Only Acceptance Tests
@@ -54,10 +57,6 @@ stages:
 #before_script:
 #  - mvn -v
 
-jobs:
-  include:
-    - stage: Acceptance Tests
-    - mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
 #jobs:
 #  include:
 #      - stage: Acceptance Tests
