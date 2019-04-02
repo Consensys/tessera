@@ -12,16 +12,20 @@ matrix:
   include:
 #Default
   - name: "Acceptance Tests"
-    env: TEST_PROFILE="reduce-logging"
+    env:
+    - TEST_PROFILE="reduce-logging"
 #Vault
   - name: "Vault Acceptance Tests"
-    env: TEST_PROFILE="vault-acceptance-tests,reduce-logging"
+    env:
+    - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
 #GRPC
   - name: "GRPC Only Acceptance Tests"
-    env: TEST_PROFILE="grpc-acceptance-tests,reduce-logging"
+    env:
+    - TEST_PROFILE="grpc-acceptance-tests,reduce-logging"
 #Simple
   - name: "Simple Only Acceptance Tests"
-    env: TEST_PROFILE="simple-acceptance-tests,reduce-logging"
+    env:
+     - TEST_PROFILE="simple-acceptance-tests,reduce-logging"
 
 sudo: enabled
 
@@ -36,7 +40,8 @@ cache:
     - "$HOME/.m2"
 
 script:
-  - mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
+  - if [ -z $TEST_PROFILE ]; then mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1 fi
+  - if [ !-z $TEST_PROFILE ]; then mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1 fi
 
 #stages:
 #  - name: Test
