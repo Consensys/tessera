@@ -10,14 +10,14 @@ jdk:
 
 matrix:
   include:
-    - name: "Test"
-      env: CMD="mvn install -pl \!tests/acceptance-test -P reduce-logging"
       #Default
     - name: "Acceptance Tests"
-      env: CMD="mvn verify -pl tests/acceptance-test -P reduce-logging"
+      env:
+      - CMD="mvn verify -pl tests/acceptance-test -P reduce-logging"
       #Vault
     - name: "Vault Acceptance Tests"
-      env: CMD="mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging"
+      env:
+      - CMD="mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging"
       install:
         - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
         - mkdir -p vault/bin && pushd $_
@@ -25,10 +25,12 @@ matrix:
         - export PATH=$PATH:$PWD && popd
       #GRPC
     - name: "GRPC Only Acceptance Tests"
-      env: CMD="mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging"
+      env:
+      - CMD="mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging"
       #Simple
     - name: "Simple Only Acceptance Tests"
-      env: CMD="mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging"
+      env:
+      - CMD="mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging"
 
 
 script: $CMD || travis_terminate 1
@@ -47,8 +49,8 @@ cache:
 #script:
 #  - mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
 
-#stages:
-#  - name: Test
+stages:
+  - name: Test
 #  - name: Acceptance Tests
 
 #  - name: Vault Acceptance Tests
@@ -59,8 +61,11 @@ cache:
 #before_script:
 #  - mvn -v
 
-#jobs:
-#  include:
+jobs:
+  include:
+  script:
+  - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
+
 #      - stage: Acceptance Tests
 #        script:
 #          - mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
