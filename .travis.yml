@@ -56,10 +56,8 @@ stages:
 
 jobs:
   include:
-    - jdk:
     - stage: Acceptance Tests
     - mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
-
 #jobs:
 #  include:
 #      - stage: Acceptance Tests
