@@ -11,9 +11,14 @@ jdk:
 matrix:
   include:
 #Default
-  - name: "Acceptance Tests"
+  - name: "Acceptance Tests Java 8"
     env:
     - TEST_PROFILE="reduce-logging"
+    jdk:  oraclejdk8
+  - name: "Acceptance Tests Java 11"
+    env:
+      - TEST_PROFILE="reduce-logging"
+    jdk:  oraclejdk11
 #Vault
   - name: "Vault Acceptance Tests"
     env:
