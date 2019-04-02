@@ -11,16 +11,20 @@ jdk:
 matrix:
   include:
 #Default
-    - env:
+    - name: "Acceptance Tests"
+    env:
     - TEST_PROFILE='reduce-logging'
 #Vault
-    - env:
+    - name: "Vault Acceptance Tests"
+    env:
     - TEST_PROFILE='vault-acceptance-tests,reduce-logging'
 #GRPC
-    - env:
+    - name: "GRPC Only Acceptance Tests"
+    env:
     - TEST_PROFILE='grpc-acceptance-tests,reduce-logging'
     #Simple
-    - env:
+    - name: "Simple Only Acceptance Tests"
+    env:
     - TEST_PROFILE='simple-acceptance-tests,reduce-logging'
 
 sudo: enabled
@@ -40,7 +44,7 @@ cache:
     - "$HOME/.m2"
 
 script:
-  - mvn verify -pl tests/acceptance-test -P ${TEST_PROFILE} || travis_terminate 1
+  - mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
 
 #stages:
 #  - name: Test
