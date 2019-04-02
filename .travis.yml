@@ -14,24 +14,22 @@ matrix:
     - env:
     - TEST_PROFILE='reduce-logging'
 #Vault
-    - jdk: oraclejdk8
-    env:
+    - env:
     - TEST_PROFILE='vault-acceptance-tests,reduce-logging'
 #GRPC
-    - jdk: oraclejdk8
     - env:
     - TEST_PROFILE='grpc-acceptance-tests,reduce-logging'
-      install:
-        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
-        - mkdir -p vault/bin && pushd $_
-        - unzip /tmp/vault_1.0.1_linux_amd64.zip
-        - export PATH=$PATH:$PWD && popd
     #Simple
     - env:
     - TEST_PROFILE='simple-acceptance-tests,reduce-logging'
 
-
 sudo: enabled
+
+install:
+    - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
+    - mkdir -p vault/bin && pushd $_
+    - unzip /tmp/vault_1.0.1_linux_amd64.zip
+    - export PATH=$PATH:$PWD && popd
 
 notifications:
   slack:
