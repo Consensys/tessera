@@ -12,20 +12,28 @@ matrix:
   include:
 #Default
   - name: "Acceptance Tests"
-    env:
-    - TEST_PROFILE='reduce-logging'
+    env: TEST_PROFILE="reduce-logging"
+    jdk:
+      - oraclejdk8
+      - oraclejdk11
 #Vault
   - name: "Vault Acceptance Tests"
-    env:
-    - TEST_PROFILE='vault-acceptance-tests,reduce-logging'
+    env: TEST_PROFILE="vault-acceptance-tests,reduce-logging"
+    jdk:
+      - oraclejdk8
+      - oraclejdk11
 #GRPC
   - name: "GRPC Only Acceptance Tests"
-    env:
-    - TEST_PROFILE='grpc-acceptance-tests,reduce-logging'
+    env: TEST_PROFILE="grpc-acceptance-tests,reduce-logging"
+    jdk:
+      - oraclejdk8
+      - oraclejdk11
     #Simple
   - name: "Simple Only Acceptance Tests"
-    env:
-    - TEST_PROFILE='simple-acceptance-tests,reduce-logging'
+    env: TEST_PROFILE="simple-acceptance-tests,reduce-logging"
+    jdk:
+      - oraclejdk8
+      - oraclejdk11
 
 sudo: enabled
 
