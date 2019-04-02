@@ -37,6 +37,7 @@ matrix:
         - mkdir -p vault/bin && pushd $_
         - unzip /tmp/vault_1.0.1_linux_amd64.zip
         - export PATH=$PATH:$PWD && popd
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
     - name: "Vault Acceptance Tests Java 11"
       env:
         - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
@@ -46,6 +47,7 @@ matrix:
         - mkdir -p vault/bin && pushd $_
         - unzip /tmp/vault_1.0.1_linux_amd64.zip
         - export PATH=$PATH:$PWD && popd
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 
 sudo: enabled
 
