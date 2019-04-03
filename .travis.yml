@@ -67,19 +67,16 @@ script: env
 #    fi
 
 after_success:
-  - echo "${TRAVIS_JOB_NAME} sucesss"
+  - export TEST_RESULT_COUNTER=$(($TEST_RESULT_COUNTER+1))
 #  - bash <(curl -s https://codecov.io/bash)
 
 
 
 deploy:
   provider: script
-  script: echo travis_result
+  script: echo "COUNTER IS $TEST_RESULT_COUNTER"
   skip_cleanup: true
   on:
     all_branches: true
-
-
-
-
+    condition: $TEST_RESULT_COUNTER = 8
 
