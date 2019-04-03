@@ -71,9 +71,24 @@ script:
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
-deploy:
-  provider: script
-  script: bash deploy.sh
-  skip_cleanup: true
-  on:
-    all_branches: true
+stages:
+  - name: Test
+  - name: Integration Tests
+  - name: Deploy
+
+jobs:
+  include:
+    - stage: Test
+      script: mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
+    - stage: Integration Tests
+      script: mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
+    - stage: Deploy
+        provider: script
+        script: bash deploy.sh
+        skip_cleanup: true
+        on:
+          all_branches: true
+
+
+
+
