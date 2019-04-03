@@ -67,7 +67,7 @@ script: env
 #    fi
 
 after_success:
-  - echo "$TRAVIS_JOB_NAME sucesss"
+  - echo "${TRAVIS_JOB_NAME} sucesss"
 #  - bash <(curl -s https://codecov.io/bash)
 
 
