@@ -3,51 +3,57 @@ language: java
 env:
   global:
     - CODECOV_TOKEN="b5659ea0-f191-4e1d-9139-a8a31971c386"
+  matrix:
+    - TRAVIS_JOB_NAME="Acceptance Tests" TEST_PROFILE="reduce-logging"
+    - TRAVIS_JOB_NAME="GRPC Only Acceptance Tests" TEST_PROFILE="grpc-acceptance-tests,reduce-logging"
+    - TRAVIS_JOB_NAME="Simple Only Acceptance Tests" TEST_PROFILE="simple-acceptance-tests,reduce-logging"
+    - TRAVIS_JOB_NAME="Vault Acceptance Tests Java" TEST_PROFILE="vault-acceptance-tests,reduce-logging"
 
 jdk:
   - oraclejdk8
   - oraclejdk11
 
-matrix:
-  include:
-    #Default
-    - name: "Acceptance Tests Java 11"
-      env:
-        - TEST_PROFILE="reduce-logging"
-      jdk:  oraclejdk11
-    - name: "Acceptance Tests Java 8"
-      env:
-        - TEST_PROFILE="reduce-logging"
-      jdk:  oraclejdk8
-    #GRPC
-    - name: "GRPC Only Acceptance Tests"
-      env:
-        - TEST_PROFILE="grpc-acceptance-tests,reduce-logging"
-    #Simple
-    - name: "Simple Only Acceptance Tests"
-      env:
-        - TEST_PROFILE="simple-acceptance-tests,reduce-logging"
-    #Vault
-    - name: "Vault Acceptance Tests Java 8"
-      env:
-        - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
-      jdk:  oraclejdk8
-      install:
-        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
-        - mkdir -p vault/bin && pushd $_
-        - unzip /tmp/vault_1.0.1_linux_amd64.zip
-        - export PATH=$PATH:$PWD && popd
-        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-    - name: "Vault Acceptance Tests Java 11"
-      env:
-        - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
-      jdk:  oraclejdk11
-      install:
-        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
-        - mkdir -p vault/bin && pushd $_
-        - unzip /tmp/vault_1.0.1_linux_amd64.zip
-        - export PATH=$PATH:$PWD && popd
-        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+
+#matrix:
+#  include:
+#    #Default
+#    - name: "Acceptance Tests Java 11"
+#      env:
+#        - TEST_PROFILE="reduce-logging"
+#      jdk:  oraclejdk11
+#    - name: "Acceptance Tests Java 8"
+#      env:
+#        - TEST_PROFILE="reduce-logging"
+#      jdk:  oraclejdk8
+#    #GRPC
+#    - name: "GRPC Only Acceptance Tests"
+#      env:
+#        - TEST_PROFILE="grpc-acceptance-tests,reduce-logging"
+#    #Simple
+#    - name: "Simple Only Acceptance Tests"
+#      env:
+#        - TEST_PROFILE="simple-acceptance-tests,reduce-logging"
+#    #Vault
+#    - name: "Vault Acceptance Tests Java 8"
+#      env:
+#        - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
+#      jdk:  oraclejdk8
+#      install:
+#        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
+#        - mkdir -p vault/bin && pushd $_
+#        - unzip /tmp/vault_1.0.1_linux_amd64.zip
+#        - export PATH=$PATH:$PWD && popd
+#        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+#    - name: "Vault Acceptance Tests Java 11"
+#      env:
+#        - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
+#      jdk:  oraclejdk11
+#      install:
+#        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
+#        - mkdir -p vault/bin && pushd $_
+#        - unzip /tmp/vault_1.0.1_linux_amd64.zip
+#        - export PATH=$PATH:$PWD && popd
+#        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 
 sudo: enabled
 
@@ -67,17 +73,19 @@ script: env
 #    fi
 
 after_success:
-  - export TRAVIS_TEST_RESULT=$(($TRAVIS_TEST_RESULT+1))
-  - echo $TRAVIS_TEST_RESULT
-#  - bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash)
 
+jobs:
+  include:
+    - stage: test
+    - stage: integration test
+    - stage: deploy
 
 
 deploy:
   provider: script
-  script: echo "COUNTER IS $TRAVIS_TEST_RESULT"
+  script: echo "DEPLOY STUFF"
   skip_cleanup: true
   on:
     all_branches: true
-    condition: $TRAVIS_TEST_RESULT = 8
 
