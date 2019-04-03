@@ -61,12 +61,12 @@ cache:
   directories:
     - "$HOME/.m2"
 
-script:
-  - if [[ -z "${TEST_PROFILE}" ]]; then
-    mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1;
-    else
-    mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1;
-    fi
+#script:
+#  - if [[ -z "${TEST_PROFILE}" ]]; then
+#    mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1;
+#    else
+#    mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1;
+#    fi
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
@@ -83,11 +83,11 @@ jobs:
     - stage: Integration Tests
       script: mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
     - stage: Deploy
-        provider: script
-        script: bash deploy.sh
-        skip_cleanup: true
-        on:
-          all_branches: true
+      provider: script
+      script: bash deploy.sh
+      skip_cleanup: true
+      on:
+        all_branches: true
 
 
 
