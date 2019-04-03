@@ -59,14 +59,12 @@ cache:
   directories:
     - "$HOME/.m2"
 
-script:
-  - if [[ -z "${TEST_PROFILE}" ]]; then
-    env;
-    #mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1;
-    else
-    env;
-    #mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1;
-    fi
+script: env
+#  - if [[ -z "${TEST_PROFILE}" ]]; then
+#    mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1;
+#    else
+#    mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1;
+#    fi
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
