@@ -69,19 +69,10 @@ script:
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
-jobs:
- include:
-   - stage: deploy
-#   provider: script
-#   script: bash deploy.sh
-#   skip_cleanup: true
-#   on:
-#     all_branches: true
-
 
 deploy:
   provider: script
-  script: bash deploy.sh
+  script: echo travis_result
   skip_cleanup: true
   on:
     all_branches: true
