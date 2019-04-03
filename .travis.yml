@@ -68,6 +68,7 @@ script: env
 
 after_success:
   - export TEST_RESULT_COUNTER=$(($TEST_RESULT_COUNTER+1))
+  - echo $TEST_RESULT_COUNTER
 #  - bash <(curl -s https://codecov.io/bash)
 
 
