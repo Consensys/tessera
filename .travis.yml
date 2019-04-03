@@ -74,10 +74,10 @@ jobs:
   include:
     - script:
       - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
-      - mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1;
-      - mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging || travis_terminate 1;
-      - mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1;
-      - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1;
+      - mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+      - mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging || travis_terminate 1
+      - mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1
+      - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
       install:
       - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
       - mkdir -p vault/bin && pushd $_
