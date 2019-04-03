@@ -72,21 +72,18 @@ after_success:
 
 jobs:
   include:
-    - script: mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
-    - stage: Acceptance Tests
-      script:
+    - script:
+      - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
       - mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1;
       - mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging || travis_terminate 1;
       - mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1;
-    - stage: Vault Acceptance tests
+      - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1;
       install:
       - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
       - mkdir -p vault/bin && pushd $_
       - unzip /tmp/vault_1.0.1_linux_amd64.zip
       - export PATH=$PATH:$PWD && popd
       - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-      script:
-        - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1;
     - stage: deploy
 
 deploy:
