@@ -67,7 +67,9 @@ script: env
 #    fi
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - echo "$TRAVIS_JOB_NAME sucesss"
+#  - bash <(curl -s https://codecov.io/bash)
+
 
 
 deploy:
