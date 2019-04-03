@@ -3,11 +3,6 @@ language: java
 env:
   global:
     - CODECOV_TOKEN="b5659ea0-f191-4e1d-9139-a8a31971c386"
-  matrix:
-    - TRAVIS_JOB_NAME="Acceptance Tests" TEST_PROFILE="reduce-logging"
-    - TRAVIS_JOB_NAME="GRPC Only Acceptance Tests" TEST_PROFILE="grpc-acceptance-tests,reduce-logging"
-    - TRAVIS_JOB_NAME="Simple Only Acceptance Tests" TEST_PROFILE="simple-acceptance-tests,reduce-logging"
-    - TRAVIS_JOB_NAME="Vault Acceptance Tests Java" TEST_PROFILE="vault-acceptance-tests,reduce-logging"
 
 jdk:
   - oraclejdk8
@@ -77,10 +72,22 @@ after_success:
 
 jobs:
   include:
-    - stage: test
-    - stage: integration test
+    - script: mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
+    - stage: Acceptance Tests
+      script:
+      - mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1;
+      - mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging || travis_terminate 1;
+      - mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1;
+    - stage: Vault Acceptance tests
+      install:
+      - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
+      - mkdir -p vault/bin && pushd $_
+      - unzip /tmp/vault_1.0.1_linux_amd64.zip
+      - export PATH=$PATH:$PWD && popd
+      - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      script:
+        - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1;
     - stage: deploy
-
 
 deploy:
   provider: script
