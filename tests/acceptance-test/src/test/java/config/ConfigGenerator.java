@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import suite.EnclaveType;
 import suite.ExecutionContext;
@@ -157,17 +156,17 @@ public class ConfigGenerator {
 
     public List<Config> createConfigs(ExecutionContext executionContext) {
 
-        AtomicInteger port = new AtomicInteger(50520);
+        PortUtil port = new PortUtil(50520);
         String nodeId = NodeId.generate(executionContext);
 
         Config first = new ConfigBuilder()
                 .withNodeId(nodeId)
                 .withNodeNumbber(1)
                 .withExecutionContext(executionContext)
-                .withQt2Port(port.incrementAndGet())
-                .withP2pPort(port.incrementAndGet())
-                .withAdminPort(port.incrementAndGet())
-                .withEnclavePort(port.incrementAndGet())
+                .withQt2Port(port.nextPort())
+                .withP2pPort(port.nextPort())
+                .withAdminPort(port.nextPort())
+                .withEnclavePort(port.nextPort())
                 .withKeys(keyLookUp.get(1))
                 .build();
 
@@ -175,10 +174,10 @@ public class ConfigGenerator {
                 .withNodeId(nodeId)
                 .withNodeNumbber(2)
                 .withExecutionContext(executionContext)
-                .withQt2Port(port.incrementAndGet())
-                .withP2pPort(port.incrementAndGet())
-                .withAdminPort(port.incrementAndGet())
-                .withEnclavePort(port.incrementAndGet())
+                .withQt2Port(port.nextPort())
+                .withP2pPort(port.nextPort())
+                .withAdminPort(port.nextPort())
+                .withEnclavePort(port.nextPort())
                 .withKeys(keyLookUp.get(2))
                 .build();
 
@@ -186,10 +185,10 @@ public class ConfigGenerator {
                 .withNodeId(nodeId)
                 .withNodeNumbber(3)
                 .withExecutionContext(executionContext)
-                .withQt2Port(port.incrementAndGet())
-                .withP2pPort(port.incrementAndGet())
-                .withAdminPort(port.incrementAndGet())
-                .withEnclavePort(port.incrementAndGet())
+                .withQt2Port(port.nextPort())
+                .withP2pPort(port.nextPort())
+                .withAdminPort(port.nextPort())
+                .withEnclavePort(port.nextPort())
                 .withAlwaysSendTo(keyLookUp.get(1).keySet().iterator().next())
                 .withKeys(keyLookUp.get(3))
                 .build();
@@ -198,10 +197,10 @@ public class ConfigGenerator {
                 .withNodeId(nodeId)
                 .withNodeNumbber(4)
                 .withExecutionContext(executionContext)
-                .withQt2Port(port.incrementAndGet())
-                .withP2pPort(port.incrementAndGet())
-                .withAdminPort(port.incrementAndGet())
-                .withEnclavePort(port.incrementAndGet())
+                .withQt2Port(port.nextPort())
+                .withP2pPort(port.nextPort())
+                .withAdminPort(port.nextPort())
+                .withEnclavePort(port.nextPort())
                 .withKeys(keyLookUp.get(4))
                 .build();
 
@@ -236,5 +235,7 @@ public class ConfigGenerator {
         }
 
     }
+
+
 
 }

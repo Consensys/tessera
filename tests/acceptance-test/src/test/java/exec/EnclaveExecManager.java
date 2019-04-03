@@ -65,13 +65,13 @@ public class EnclaveExecManager implements ExecManager {
 
         LOGGER.info("Starting enclave {}", configDescriptor.getAlias());
 
-        Process process = ExecUtils.start(cmd);
+        Process process = ExecUtils.start(cmd,executorService);
 
         ServerStatusCheckExecutor serverStatusCheckExecutor = new ServerStatusCheckExecutor(ServerStatusCheck.create(serverConfig));
 
         Future<Boolean> future = executorService.submit(serverStatusCheckExecutor);
 
-        Boolean result = future.get(30, TimeUnit.SECONDS);
+        Boolean result = future.get(2, TimeUnit.MINUTES);
 
         if (!result) {
             throw new IllegalStateException("Enclave server not started");
@@ -90,7 +90,12 @@ public class EnclaveExecManager implements ExecManager {
             return;
         }
         LOGGER.info("Stopping Enclave : {}, Pid: {}", nodeId, p);
-        ExecUtils.kill(p);
+        try {
+            ExecUtils.kill(p);
+        } finally {
+            executorService.shutdown();
+        }
+
     }
 
     public static void main(String[] args) throws Exception {

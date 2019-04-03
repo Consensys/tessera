@@ -9,12 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +73,7 @@ public class NodeExecManager implements ExecManager {
 
         LOGGER.info("Exec : {}", String.join(" ", args));
 
-        final Process process = ExecUtils.start(args);
+        final Process process = ExecUtils.start(args,executorService);
 
         List<ServerStatusCheckExecutor> serverStatusCheckList = configDescriptor.getConfig().getServerConfigs().stream()
                 .filter(s -> s.getApp() != AppType.ENCLAVE)
@@ -129,7 +124,11 @@ public class NodeExecManager implements ExecManager {
             return;
         }
         LOGGER.info("Stopping Node: {}, Pid: {}", nodeId, p);
-        ExecUtils.kill(p);
+        try {
+            ExecUtils.kill(p);
+        } finally {
+            executorService.shutdown();
+        }
 
     }
 }
