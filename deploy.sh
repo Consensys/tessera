@@ -60,6 +60,7 @@ if [ "$TRAVIS_EVENT_TYPE" == "api" ] && [ "$TRAVIS_JOB_NAME" == "release" ]; the
 elif [ "$TRAVIS_EVENT_TYPE" == "push" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
     #echo "Deploying snapshot release to central"
     #mvn deploy --settings .maven.xml -P release
+    exit 0
 fi
 
 exit 0
