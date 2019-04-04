@@ -15,6 +15,7 @@ matrix:
       env:
         - TEST_PROFILE="reduce-logging"
       before_install:
+        - echo "Java home is ${JAVA_HOME}"
         - rm "${JAVA_HOME}/lib/security/cacerts"
         - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
       jdk:  oraclejdk11
@@ -45,6 +46,7 @@ matrix:
       env:
         - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
       before_install:
+        - echo "Java home is ${JAVA_HOME}"
         - rm "${JAVA_HOME}/lib/security/cacerts"
         - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
       jdk:  oraclejdk11
