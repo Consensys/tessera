@@ -8,6 +8,52 @@ jdk:
   - oraclejdk8
   - oraclejdk11
 
+
+matrix:
+  include:
+    - jdk: oraclejdk11
+      before_install:
+        - rm "${JAVA_HOME}/lib/security/cacerts"
+        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
+    #Default
+    - name: "Acceptance Tests Java 11"
+      env:
+        - TEST_PROFILE="reduce-logging"
+      jdk:  oraclejdk11
+    - name: "Acceptance Tests Java 8"
+      env:
+        - TEST_PROFILE="reduce-logging"
+      jdk:  oraclejdk8
+    #GRPC
+    - name: "GRPC Only Acceptance Tests"
+      env:
+        - TEST_PROFILE="grpc-acceptance-tests,reduce-logging"
+    #Simple
+    - name: "Simple Only Acceptance Tests"
+      env:
+        - TEST_PROFILE="simple-acceptance-tests,reduce-logging"
+    #Vault
+    - name: "Vault Acceptance Tests Java 8"
+      env:
+        - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
+      jdk:  oraclejdk8
+      install:
+        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
+        - mkdir -p vault/bin && pushd $_
+        - unzip /tmp/vault_1.0.1_linux_amd64.zip
+        - export PATH=$PATH:$PWD && popd
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+    - name: "Vault Acceptance Tests Java 11"
+      env:
+        - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
+      jdk:  oraclejdk11
+      install:
+        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
+        - mkdir -p vault/bin && pushd $_
+        - unzip /tmp/vault_1.0.1_linux_amd64.zip
+        - export PATH=$PATH:$PWD && popd
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+
 sudo: enabled
 
 notifications:
