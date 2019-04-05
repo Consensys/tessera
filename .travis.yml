@@ -10,6 +10,9 @@ jdk:
 
 matrix:
   include:
+    - if: type != pull_request
+      install: true
+      script: echo "Skipping"
     #Default
     - if: type = pull_request
       name: "Acceptance Tests Java 11"
