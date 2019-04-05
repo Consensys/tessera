@@ -11,15 +11,54 @@ jdk:
 matrix:
   include:
     #Default
-    - if: branch = deploy_once
-      name: "branch = deploy_once"
+    - if: type = pull_request
+      name: "Acceptance Tests Java 11"
+      env:
+        - TEST_PROFILE="reduce-logging"
+      jdk:  oraclejdk11
+    - if: type = pull_request
+      name: "Acceptance Tests Java 8"
+      env:
+        - TEST_PROFILE="reduce-logging"
+      jdk:  oraclejdk8
     #GRPC
-    - if: type = push
-      name: "type = push"
+    - if: type = pull_request
+      name: "GRPC Only Acceptance Tests"
+      env:
+        - TEST_PROFILE="grpc-acceptance-tests,reduce-logging"
     #Simple
     - if: type = pull_request
-      name: "type = pull_request"
-
+      name: "Simple Only Acceptance Tests"
+      env:
+        - TEST_PROFILE="simple-acceptance-tests,reduce-logging"
+    #Vault
+    - if: type = pull_request
+      name: "Vault Acceptance Tests Java 8"
+      env:
+          - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
+      jdk:  oraclejdk8
+      install:
+        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
+        - mkdir -p vault/bin && pushd $_
+        - unzip /tmp/vault_1.0.1_linux_amd64.zip
+        - export PATH=$PATH:$PWD && popd
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+    - if: type = pull_request
+      name: "Vault Acceptance Tests Java 11"
+      env:
+        - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
+      jdk:  oraclejdk11
+      install:
+        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
+        - mkdir -p vault/bin && pushd $_
+        - unzip /tmp/vault_1.0.1_linux_amd64.zip
+        - export PATH=$PATH:$PWD && popd
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+    - if: branch = master AND type = push
+      name: "Deploy to central"
+      script: mvn deploy --settings .maven.xml -P release
+    - if: type = api AND env(TRAVIS_JOB_NAME) = release
+      script: echo "Release"
 sudo: enabled
 
 
@@ -33,15 +72,11 @@ cache:
     - "$HOME/.m2"
 
 script:
-  - echo "TRAVIS_BRANCH $TRAVIS_BRANCH"
-  - echo "JAVA_HOME $JAVA_HOME"
-  - echo "TRAVIS_EVENT_TYPE $TRAVIS_EVENT_TYPE"
-  - echo "TRAVIS_JOB_NAME $TRAVIS_JOB_NAME"
-  - echo "TRAVIS_PULL_REQUEST $TRAVIS_PULL_REQUEST"
-  - echo "TRAVIS_BUILD_NUMBER $TRAVIS_BUILD_NUMBER"
-  - echo "TRAVIS_BUILD_STAGE_NAME $TRAVIS_BUILD_STAGE_NAME"
-  - echo "TRAVIS_JDK_VERSION $TRAVIS_JDK_VERSION"
-  - echo "JDK_SWITCHER_DEFAULT $JDK_SWITCHER_DEFAULT"
+  - if [[ -z "${TEST_PROFILE}" ]]; then
+    mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1;
+    else
+    mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1;
+    fi
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
