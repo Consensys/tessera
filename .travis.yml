@@ -81,7 +81,7 @@ matrix:
         - branch_name="release-${release_version}"
         - mvn --settings .maven.xml -B release:branch -DbranchName=$branch_name
         - mvn --settings .maven.xml -B -DpushChanges=true release:prepare release:perform -DdryRun=true
-        - echo "TODO: The release branch must be manually merged back to master. (This could be automated in the future.)"
+        - echo "TODO: The release branch must be manually merged back to master."
       jdk:  oraclejdk8
 
 sudo: enabled
