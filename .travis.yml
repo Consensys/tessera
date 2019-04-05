@@ -16,59 +16,46 @@ matrix:
     #Default
     - if: type = pull_request
       name: "Acceptance Tests Java 11"
-      env:
-        - TEST_PROFILE="reduce-logging"
       jdk:  oraclejdk11
-      script: mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
     - if: type = pull_request
       name: "Acceptance Tests Java 8"
-      env:
-        - TEST_PROFILE="reduce-logging"
       jdk:  oraclejdk8
-      script: mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
     #GRPC
     - if: type = pull_request
       name: "GRPC Only Acceptance Tests"
-      env:
-        - TEST_PROFILE="grpc-acceptance-tests,reduce-logging"
-      script: mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging || travis_terminate 1
     #Simple
     - if: type = pull_request
       name: "Simple Only Acceptance Tests"
-      env:
-        - TEST_PROFILE="simple-acceptance-tests,reduce-logging"
-      script: mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1
     #Vault
     - if: type = pull_request
       name: "Vault Acceptance Tests Java 8"
-      env:
-          - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
       jdk:  oraclejdk8
-      install:
+      before_install:
         - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
         - mkdir -p vault/bin && pushd $_
         - unzip /tmp/vault_1.0.1_linux_amd64.zip
         - export PATH=$PATH:$PWD && popd
-        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-      script: mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
     - if: type = pull_request
       name: "Vault Acceptance Tests Java 11"
-      env:
-        - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
       jdk:  oraclejdk11
-      install:
+      before_install:
         - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
         - mkdir -p vault/bin && pushd $_
         - unzip /tmp/vault_1.0.1_linux_amd64.zip
         - export PATH=$PATH:$PWD && popd
-        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-      script: mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
     - if: branch = master AND type = push
       name: "Deploy to central"
       script: mvn deploy --settings .maven.xml -P release
     - if: type = api AND env(TRAVIS_JOB_NAME) = release AND env(JDK_SWITCHER_DEFAULT) == env(TRAVIS_JDK_VERSION)
       script: echo "perform release"
       jdk:  oraclejdk8
+
 sudo: enabled
 
 notifications:
