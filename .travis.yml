@@ -8,11 +8,11 @@ install: true
 
 matrix:
   include:
-    - if: type = push AND branch != master
-      name: "Default build"
-      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
-      script: mvn -v
-      jdk:  oraclejdk8
+#    - if: type = push AND branch != master
+#      name: "Default build"
+#      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+#      script: mvn -v
+#      jdk:  oraclejdk8
     - if: type = pull_request
       name: "Unit Tests Java 8"
       jdk:  oraclejdk11
@@ -71,7 +71,7 @@ matrix:
       name: "Deploy to central"
       jdk:  oraclejdk8
       script: mvn deploy --settings .maven.xml -P release
-    - if: type = api AND env(TRAVIS_JOB_NAME) = 'release'
+    - if: type = api
       name: "Perform release"
       script: echo "perform release $TRAVIS_JOB_NAME"
       jdk:  oraclejdk8
