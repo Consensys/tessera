@@ -11,59 +11,57 @@ matrix:
     - if: type = pull_request
       name: "Unit Tests Java 8"
       jdk:  oraclejdk11
-      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
-      script: mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
+      install: &build_no_checks
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+      script: &build_with_unittests
+        - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
     - if: type = pull_request
       name: "Unit Tests Java 11"
       jdk:  oraclejdk11
-      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
-      script: mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
+      install: *build_no_checks
+      script: *build_with_unittests
     #Default
-    - if: type = pull_request
-      name: "Acceptance Tests Java 11"
-      jdk:  oraclejdk11
-      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
-      before_install:
-        - rm "${JAVA_HOME}/lib/security/cacerts"
-        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
-      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+#    - if: type = pull_request
+#      name: "Acceptance Tests Java 11"
+#      jdk:  oraclejdk11
+#      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+#      before_install:
+#        - rm "${JAVA_HOME}/lib/security/cacerts"
+#        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
+#      install: *build_no_checks
     - if: type = pull_request
       name: "Acceptance Tests Java 8"
       jdk:  oraclejdk8
       script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
-      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+      install: *build_no_checks
     #GRPC
     - if: type = pull_request
       name: "GRPC Only Acceptance Tests"
       jdk:  oraclejdk8
       script: mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging || travis_terminate 1
-      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+      install: *build_no_checks
     #Simple
     - if: type = pull_request
       name: "Simple Only Acceptance Tests"
       jdk:  oraclejdk8
       script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1
-      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+      install: *build_no_checks
     #Vault
     - if: type = pull_request
       name: "Vault Acceptance Tests Java 8"
       jdk:  oraclejdk8
-      before_install:
+      before_install: &install_hashicorp
         - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
         - mkdir -p vault/bin && pushd $_
         - unzip /tmp/vault_1.0.1_linux_amd64.zip
         - export PATH=$PATH:$PWD && popd
-      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+      install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
     - if: type = pull_request
       name: "Vault Acceptance Tests Java 11"
       jdk:  oraclejdk11
-      before_install:
-        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
-        - mkdir -p vault/bin && pushd $_
-        - unzip /tmp/vault_1.0.1_linux_amd64.zip
-        - export PATH=$PATH:$PWD && popd
-      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+      before_install: *install_hashicorp
+      install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
     - if: branch = master AND type = push
       name: "Deploy to central"
