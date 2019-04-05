@@ -62,7 +62,7 @@ matrix:
         - export PATH=$PATH:$PWD && popd
       install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
-    - if: branch = deploy_once AND type = push
+    - if: branch = master AND type = push
       name: "Deploy to central"
       jdk:  oraclejdk8
       script:
