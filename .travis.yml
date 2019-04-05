@@ -76,7 +76,10 @@ matrix:
       script:
         - echo "perform release $TRAVIS_JOB_NAME"
         - release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
-        - echo "release_version $release_version"
+        - branch_name="release-${release_version}"
+       # - mvn --settings .maven.xml -B release:branch -DbranchName=$branch_name
+        - echo "branch name ${branch_name}"
+        - mvn --settings .maven.xml -B -DpushChanges=true release:prepare release:perform -DdryRun=true
       jdk:  oraclejdk8
 
 sudo: enabled
