@@ -16,24 +16,20 @@ matrix:
       env:
         - TEST_PROFILE="reduce-logging"
       jdk:  oraclejdk11
-    - if: NOT branch = deploy_once AND type = push
-      name: "Acceptance Tests Java 8"
+    - name: "Acceptance Tests Java 8"
       env:
         - TEST_PROFILE="reduce-logging"
       jdk:  oraclejdk8
     #GRPC
-    - if: NOT branch = deploy_once AND type = push
-      name: "GRPC Only Acceptance Tests"
+    - name: "GRPC Only Acceptance Tests"
       env:
         - TEST_PROFILE="grpc-acceptance-tests,reduce-logging"
     #Simple
-    - if: NOT branch = deploy_once AND type = push
-      name: "Simple Only Acceptance Tests"
+    - name: "Simple Only Acceptance Tests"
       env:
         - TEST_PROFILE="simple-acceptance-tests,reduce-logging"
     #Vault
-    - if: NOT branch = deploy_once AND type = push
-      name: "Vault Acceptance Tests Java 8"
+    - name: "Vault Acceptance Tests Java 8"
       env:
           - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
       jdk:  oraclejdk8
@@ -43,8 +39,7 @@ matrix:
         - unzip /tmp/vault_1.0.1_linux_amd64.zip
         - export PATH=$PATH:$PWD && popd
         - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-    - if: NOT branch = deploy_once AND type = push
-      name: "Vault Acceptance Tests Java 11"
+    - name: "Vault Acceptance Tests Java 11"
       env:
         - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
       jdk:  oraclejdk11
