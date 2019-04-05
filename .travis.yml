@@ -65,7 +65,10 @@ matrix:
     - if: branch = deploy_once AND type = push
       name: "Deploy to central"
       jdk:  oraclejdk8
-      script: mvn deploy --settings .maven.xml -P release
+      script:
+        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
+        - mvn deploy --settings .maven.xml -P release
     - if: type = api
       name: "Perform release"
       script:
