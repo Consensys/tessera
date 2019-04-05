@@ -52,9 +52,9 @@ matrix:
     - if: branch = master AND type = push
       name: "Deploy to central"
       script: mvn deploy --settings .maven.xml -P release
-    - if: type = api AND name = release
+    - if: type = api
       name: "Perform release"
-      script: echo "perform release"
+      script: echo "perform release $TRAVIS_JOB_NAME"
       jdk:  oraclejdk8
 
 sudo: enabled
