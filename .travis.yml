@@ -8,8 +8,6 @@ jdk:
   - oraclejdk8
   - oraclejdk11
 
-install: true
-
 matrix:
   include:
     #Default
@@ -60,7 +58,9 @@ matrix:
       name: "Deploy to central"
       script: mvn deploy --settings .maven.xml -P release
     - if: type = api AND env(TRAVIS_JOB_NAME) = release
+      install: true
       script: echo "Release"
+      jdk:  oraclejdk8
 sudo: enabled
 
 
