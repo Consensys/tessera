@@ -4,12 +4,11 @@ env:
   global:
     - CODECOV_TOKEN="b5659ea0-f191-4e1d-9139-a8a31971c386"
 
-jdk:
-  - oraclejdk8
-  - oraclejdk11
+#jdk:
+#  - oraclejdk8
+#  - oraclejdk11
 
-install:
-  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+install: true
 
 matrix:
   include:
@@ -18,18 +17,24 @@ matrix:
       name: "Acceptance Tests Java 11"
       jdk:  oraclejdk11
       script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
     - if: type = pull_request
       name: "Acceptance Tests Java 8"
       jdk:  oraclejdk8
       script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
     #GRPC
     - if: type = pull_request
       name: "GRPC Only Acceptance Tests"
+      jdk:  oraclejdk8
       script: mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging || travis_terminate 1
+      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
     #Simple
     - if: type = pull_request
       name: "Simple Only Acceptance Tests"
+      jdk:  oraclejdk8
       script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1
+      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
     #Vault
     - if: type = pull_request
       name: "Vault Acceptance Tests Java 8"
@@ -39,6 +44,7 @@ matrix:
         - mkdir -p vault/bin && pushd $_
         - unzip /tmp/vault_1.0.1_linux_amd64.zip
         - export PATH=$PATH:$PWD && popd
+      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
     - if: type = pull_request
       name: "Vault Acceptance Tests Java 11"
@@ -48,11 +54,13 @@ matrix:
         - mkdir -p vault/bin && pushd $_
         - unzip /tmp/vault_1.0.1_linux_amd64.zip
         - export PATH=$PATH:$PWD && popd
+      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
     - if: branch = master AND type = push
       name: "Deploy to central"
+      jdk:  oraclejdk8
       script: mvn deploy --settings .maven.xml -P release
-    - if: type = api
+    - if: type = api AND env(TRAVIS_JOB_NAME) = release
       name: "Perform release"
       script: echo "perform release $TRAVIS_JOB_NAME"
       jdk:  oraclejdk8
