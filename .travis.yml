@@ -4,14 +4,20 @@ env:
   global:
     - CODECOV_TOKEN="b5659ea0-f191-4e1d-9139-a8a31971c386"
 
-#jdk:
-#  - oraclejdk8
-#  - oraclejdk11
-
 install: true
 
 matrix:
   include:
+    - if: type = pull_request
+      name: "Unit Tests Java 8"
+      jdk:  oraclejdk11
+      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+      script: mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
+    - if: type = pull_request
+      name: "Unit Tests Java 11"
+      jdk:  oraclejdk11
+      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+      script: mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
     #Default
     - if: type = pull_request
       name: "Acceptance Tests Java 11"
@@ -60,7 +66,7 @@ matrix:
       name: "Deploy to central"
       jdk:  oraclejdk8
       script: mvn deploy --settings .maven.xml -P release
-    - if: type = api AND env(TRAVIS_JOB_NAME) = release
+    - if: type = api AND env(TRAVIS_JOB_NAME) = 'release'
       name: "Perform release"
       script: echo "perform release $TRAVIS_JOB_NAME"
       jdk:  oraclejdk8
@@ -75,12 +81,6 @@ cache:
   directories:
     - "$HOME/.m2"
 
-#script:
-#  - if [[ -z "${TEST_PROFILE}" ]]; then
-#    mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1;
-#    else
-#    mvn verify -pl tests/acceptance-test -P $TEST_PROFILE || travis_terminate 1;
-#    fi
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
