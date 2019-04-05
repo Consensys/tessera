@@ -8,11 +8,6 @@ install: true
 
 matrix:
   include:
-    - if: type = push AND branch != master
-      name: "Default build"
-      install: mvn -v
-      script: mvn -v
-      jdk:  oraclejdk8
 #    - if: type = pull_request
 #      name: "Unit Tests Java 8"
 #      jdk:  oraclejdk11
@@ -67,19 +62,18 @@ matrix:
 #        - export PATH=$PATH:$PWD && popd
 #      install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
 #      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
-#    - if: branch = master AND type = push
-#      name: "Deploy to central"
-#      jdk:  oraclejdk8
-#      script: mvn deploy --settings .maven.xml -P release
+    - if: branch = deploy_once AND type = push
+      name: "Deploy to central"
+      jdk:  oraclejdk8
+      script: mvn deploy --settings .maven.xml -P release
     - if: type = api
       name: "Perform release"
       script:
-        - echo "perform release $TRAVIS_JOB_NAME"
         - release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
         - branch_name="release-${release_version}"
-       # - mvn --settings .maven.xml -B release:branch -DbranchName=$branch_name
-        - echo "branch name ${branch_name}"
+        - mvn --settings .maven.xml -B release:branch -DbranchName=$branch_name
         - mvn --settings .maven.xml -B -DpushChanges=true release:prepare release:perform -DdryRun=true
+        - echo "TODO: The release branch must be manually merged back to master. (This could be automated in the future.)"
       jdk:  oraclejdk8
 
 sudo: enabled
