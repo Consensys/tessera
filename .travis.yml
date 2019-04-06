@@ -10,7 +10,7 @@ matrix:
   include:
     - if: type = pull_request
       name: "Unit Tests Java 8"
-      jdk:  oraclejdk11
+      jdk:  oraclejdk8
       install: &build_no_checks
         - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
       script: &build_with_unittests
