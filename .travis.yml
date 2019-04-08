@@ -14,6 +14,10 @@ matrix:
     - name: "Acceptance Tests Java 11"
       env:
         - TEST_PROFILE="reduce-logging"
+      before_install:
+        - echo "Java home is ${JAVA_HOME}"
+        - rm "${JAVA_HOME}/lib/security/cacerts"
+        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
       jdk:  oraclejdk11
     - name: "Acceptance Tests Java 8"
       env:
@@ -41,6 +45,10 @@ matrix:
     - name: "Vault Acceptance Tests Java 11"
       env:
         - TEST_PROFILE="vault-acceptance-tests,reduce-logging"
+      before_install:
+        - echo "Java home is ${JAVA_HOME}"
+        - rm "${JAVA_HOME}/lib/security/cacerts"
+        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
       jdk:  oraclejdk11
       install:
         - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
