@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UnsupportedKeyPair.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">config</a> &gt; <a href="index.source.html" class="el_package">com.quorum.tessera.config.keypairs</a> &gt; <span class="el_source">UnsupportedKeyPair.java</span></div><h1>UnsupportedKeyPair.java</h1><pre class="source lang-java linenums">package com.quorum.tessera.config.keypairs;
+
+import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.adapters.PathAdapter;
+import com.quorum.tessera.config.constraints.ValidUnsupportedKeyPair;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.nio.file.Path;
+
+@ValidUnsupportedKeyPair
+public class UnsupportedKeyPair implements ConfigKeyPair {
+
+    @XmlElement
+    private KeyDataConfig config;
+
+    @XmlElement
+    private String privateKey;
+
+    @XmlElement
+    private String publicKey;
+
+    @XmlElement
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private Path privateKeyPath;
+
+    @XmlElement
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private Path publicKeyPath;
+
+    @XmlElement
+    private String azureVaultPublicKeyId;
+
+    @XmlElement
+    private String azureVaultPrivateKeyId;
+
+    @XmlElement
+    private String azureVaultPublicKeyVersion;
+
+    @XmlElement
+    private String azureVaultPrivateKeyVersion;
+
+    @XmlElement
+    private String hashicorpVaultPublicKeyId;
+
+    @XmlElement
+    private String hashicorpVaultPrivateKeyId;
+
+    @XmlElement
+    private String hashicorpVaultSecretEngineName;
+
+    @XmlElement
+    private String hashicorpVaultSecretName;
+
+    @XmlElement
+    private String hashicorpVaultSecretVersion;
+
+<span class="fc" id="L58">    public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String azureVaultPublicKeyVersion, String azureVaultPrivateKeyVersion, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName, String hashicorpVaultSecretVersion) {</span>
+<span class="fc" id="L59">        this.config = config;</span>
+<span class="fc" id="L60">        this.privateKey = privateKey;</span>
+<span class="fc" id="L61">        this.publicKey = publicKey;</span>
+<span class="fc" id="L62">        this.privateKeyPath = privateKeyPath;</span>
+<span class="fc" id="L63">        this.publicKeyPath = publicKeyPath;</span>
+<span class="fc" id="L64">        this.azureVaultPublicKeyId = azureVaultPublicKeyId;</span>
+<span class="fc" id="L65">        this.azureVaultPrivateKeyId = azureVaultPrivateKeyId;</span>
+<span class="fc" id="L66">        this.azureVaultPublicKeyVersion = azureVaultPublicKeyVersion;</span>
+<span class="fc" id="L67">        this.azureVaultPrivateKeyVersion = azureVaultPrivateKeyVersion;</span>
+<span class="fc" id="L68">        this.hashicorpVaultPublicKeyId = hashicorpVaultPublicKeyId;</span>
+<span class="fc" id="L69">        this.hashicorpVaultPrivateKeyId = hashicorpVaultPrivateKeyId;</span>
+<span class="fc" id="L70">        this.hashicorpVaultSecretEngineName = hashicorpVaultSecretEngineName;</span>
+<span class="fc" id="L71">        this.hashicorpVaultSecretName = hashicorpVaultSecretName;</span>
+<span class="fc" id="L72">        this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;</span>
+<span class="fc" id="L73">    }</span>
+
+<span class="fc" id="L75">    public UnsupportedKeyPair() {</span>
+
+<span class="fc" id="L77">    }</span>
+
+    @Override
+    public String getPublicKey() {
+<span class="fc" id="L81">        return this.publicKey;</span>
+    }
+
+    @Override
+    public String getPrivateKey() {
+<span class="fc" id="L86">        return this.privateKey;</span>
+    }
+
+    public Path getPublicKeyPath() {
+<span class="fc" id="L90">        return publicKeyPath;</span>
+    }
+
+    public Path getPrivateKeyPath() {
+<span class="fc" id="L94">        return privateKeyPath;</span>
+    }
+
+    public KeyDataConfig getConfig() {
+<span class="fc" id="L98">        return config;</span>
+    }
+
+    public String getAzureVaultPublicKeyId() {
+<span class="fc" id="L102">        return azureVaultPublicKeyId;</span>
+    }
+
+    public String getAzureVaultPrivateKeyId() {
+<span class="fc" id="L106">        return azureVaultPrivateKeyId;</span>
+    }
+
+    public String getAzureVaultPublicKeyVersion() {
+<span class="fc" id="L110">        return azureVaultPublicKeyVersion;</span>
+    }
+
+    public String getAzureVaultPrivateKeyVersion() {
+<span class="fc" id="L114">        return azureVaultPrivateKeyVersion;</span>
+    }
+
+    public String getHashicorpVaultPublicKeyId() {
+<span class="fc" id="L118">        return hashicorpVaultPublicKeyId;</span>
+    }
+
+    public String getHashicorpVaultPrivateKeyId() {
+<span class="fc" id="L122">        return hashicorpVaultPrivateKeyId;</span>
+    }
+
+    public String getHashicorpVaultSecretEngineName() {
+<span class="fc" id="L126">        return hashicorpVaultSecretEngineName;</span>
+    }
+
+    public String getHashicorpVaultSecretName() {
+<span class="fc" id="L130">        return hashicorpVaultSecretName;</span>
+    }
+
+    public String getHashicorpVaultSecretVersion() {
+<span class="fc" id="L134">        return hashicorpVaultSecretVersion;</span>
+    }
+
+    @Override
+    public void withPassword(String password) {
+        //do nothing as password not used with this keypair type
+<span class="fc" id="L140">    }</span>
+
+    @Override
+    public String getPassword() {
+<span class="fc" id="L144">        return null;</span>
+    }
+
+    public void setConfig(KeyDataConfig config) {
+<span class="fc" id="L148">        this.config = config;</span>
+<span class="fc" id="L149">    }</span>
+
+    public void setPrivateKey(String privateKey) {
+<span class="fc" id="L152">        this.privateKey = privateKey;</span>
+<span class="fc" id="L153">    }</span>
+
+    public void setPublicKey(String publicKey) {
+<span class="fc" id="L156">        this.publicKey = publicKey;</span>
+<span class="fc" id="L157">    }</span>
+
+    public void setPrivateKeyPath(Path privateKeyPath) {
+<span class="fc" id="L160">        this.privateKeyPath = privateKeyPath;</span>
+<span class="fc" id="L161">    }</span>
+
+    public void setPublicKeyPath(Path publicKeyPath) {
+<span class="fc" id="L164">        this.publicKeyPath = publicKeyPath;</span>
+<span class="fc" id="L165">    }</span>
+
+    public void setAzureVaultPublicKeyId(String azureVaultPublicKeyId) {
+<span class="fc" id="L168">        this.azureVaultPublicKeyId = azureVaultPublicKeyId;</span>
+<span class="fc" id="L169">    }</span>
+
+    public void setAzureVaultPrivateKeyId(String azureVaultPrivateKeyId) {
+<span class="fc" id="L172">        this.azureVaultPrivateKeyId = azureVaultPrivateKeyId;</span>
+<span class="fc" id="L173">    }</span>
+
+    public void setAzureVaultPublicKeyVersion(String azureVaultPublicKeyVersion) {
+<span class="fc" id="L176">        this.azureVaultPublicKeyVersion = azureVaultPublicKeyVersion;</span>
+<span class="fc" id="L177">    }</span>
+
+    public void setAzureVaultPrivateKeyVersion(String azureVaultPrivateKeyVersion) {
+<span class="fc" id="L180">        this.azureVaultPrivateKeyVersion = azureVaultPrivateKeyVersion;</span>
+<span class="fc" id="L181">    }</span>
+
+    public void setHashicorpVaultPublicKeyId(String hashicorpVaultPublicKeyId) {
+<span class="fc" id="L184">        this.hashicorpVaultPublicKeyId = hashicorpVaultPublicKeyId;</span>
+<span class="fc" id="L185">    }</span>
+
+    public void setHashicorpVaultPrivateKeyId(String hashicorpVaultPrivateKeyId) {
+<span class="fc" id="L188">        this.hashicorpVaultPrivateKeyId = hashicorpVaultPrivateKeyId;</span>
+<span class="fc" id="L189">    }</span>
+
+    public void setHashicorpVaultSecretEngineName(String hashicorpVaultSecretEngineName) {
+<span class="fc" id="L192">        this.hashicorpVaultSecretEngineName = hashicorpVaultSecretEngineName;</span>
+<span class="fc" id="L193">    }</span>
+
+    public void setHashicorpVaultSecretName(String hashicorpVaultSecretName) {
+<span class="fc" id="L196">        this.hashicorpVaultSecretName = hashicorpVaultSecretName;</span>
+<span class="fc" id="L197">    }</span>
+
+    public void setHashicorpVaultSecretVersion(String hashicorpVaultSecretVersion) {
+<span class="fc" id="L200">        this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;</span>
+<span class="fc" id="L201">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

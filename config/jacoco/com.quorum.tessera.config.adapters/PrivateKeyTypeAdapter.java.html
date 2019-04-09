@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrivateKeyTypeAdapter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">config</a> &gt; <a href="index.source.html" class="el_package">com.quorum.tessera.config.adapters</a> &gt; <span class="el_source">PrivateKeyTypeAdapter.java</span></div><h1>PrivateKeyTypeAdapter.java</h1><pre class="source lang-java linenums">package com.quorum.tessera.config.adapters;
+
+import com.quorum.tessera.config.PrivateKeyType;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.util.HashMap;
+import java.util.Map;
+
+<span class="fc" id="L9">public class PrivateKeyTypeAdapter extends XmlAdapter&lt;String, PrivateKeyType&gt; {</span>
+
+<span class="fc" id="L11">    private static final Map&lt;String, PrivateKeyType&gt; MAPPING = new HashMap&lt;String, PrivateKeyType&gt;() {</span>
+        {
+<span class="fc" id="L13">            put(&quot;unlocked&quot;, PrivateKeyType.UNLOCKED);</span>
+<span class="fc" id="L14">            put(&quot;argon2sbox&quot;, PrivateKeyType.LOCKED);</span>
+<span class="fc" id="L15">        }</span>
+    };
+
+    @Override
+    public PrivateKeyType unmarshal(final String v) {
+<span class="fc" id="L20">        return MAPPING.get(v);</span>
+    }
+
+    @Override
+    public String marshal(final PrivateKeyType v) {
+<span class="fc" id="L25">        return MAPPING</span>
+<span class="fc" id="L26">            .entrySet()</span>
+<span class="fc" id="L27">            .stream()</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">            .filter(e -&gt; e.getValue() == v)</span>
+<span class="fc" id="L29">            .map(Map.Entry::getKey)</span>
+<span class="fc" id="L30">            .findAny()</span>
+<span class="fc" id="L31">            .orElse(null);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KeyEncryptorImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">config</a> &gt; <a href="index.source.html" class="el_package">com.quorum.tessera.config.keys</a> &gt; <span class="el_source">KeyEncryptorImpl.java</span></div><h1>KeyEncryptorImpl.java</h1><pre class="source lang-java linenums">package com.quorum.tessera.config.keys;
+
+import com.quorum.tessera.argon2.Argon2;
+import com.quorum.tessera.argon2.ArgonResult;
+import com.quorum.tessera.config.ArgonOptions;
+import com.quorum.tessera.config.PrivateKeyData;
+import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.encryption.SharedKey;
+import com.quorum.tessera.nacl.NaclFacade;
+import com.quorum.tessera.nacl.Nonce;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Objects;
+
+/**
+ * An implementation of {@link KeyEncryptor} that uses Argon2
+ * &lt;p&gt;
+ * The password is hashed using the generated/provided salt to generate a 32
+ * byte hash This hash is then used as the symmetric key to encrypt the private
+ * key
+ */
+public class KeyEncryptorImpl implements KeyEncryptor {
+
+<span class="fc" id="L28">    private static final Logger LOGGER = LoggerFactory.getLogger(KeyEncryptorImpl.class);</span>
+
+    private final Argon2 argon2;
+
+    private final NaclFacade nacl;
+
+<span class="fc" id="L34">    private final Base64.Decoder decoder = Base64.getDecoder();</span>
+
+<span class="fc" id="L36">    private final Base64.Encoder encoder = Base64.getEncoder();</span>
+
+<span class="fc" id="L38">    private final SecureRandom secureRandom = new SecureRandom();</span>
+
+<span class="fc" id="L40">    public KeyEncryptorImpl(final Argon2 argon2, final NaclFacade nacl) {</span>
+<span class="fc" id="L41">        this.argon2 = Objects.requireNonNull(argon2);</span>
+<span class="fc" id="L42">        this.nacl = Objects.requireNonNull(nacl);</span>
+<span class="fc" id="L43">    }</span>
+
+    @Override
+    public PrivateKeyData encryptPrivateKey(final PrivateKey privateKey, final String password, final ArgonOptions argonOptions) {
+
+<span class="fc" id="L48">        LOGGER.info(&quot;Encrypting a private key&quot;);</span>
+
+<span class="fc" id="L50">        LOGGER.debug(&quot;Encrypting private key {} using password {}&quot;, privateKey, password);</span>
+
+<span class="fc" id="L52">        final byte[] salt = new byte[KeyEncryptor.SALTLENGTH];</span>
+<span class="fc" id="L53">        this.secureRandom.nextBytes(salt);</span>
+
+<span class="fc" id="L55">        LOGGER.debug(&quot;Generated the random salt {}&quot;, Arrays.toString(salt));</span>
+
+        final ArgonResult argonResult;
+
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (argonOptions == null) {</span>
+<span class="fc" id="L60">            argonResult = this.argon2.hash(password, salt);</span>
+        } else {
+<span class="fc" id="L62">            argonResult = this.argon2.hash(</span>
+                    new com.quorum.tessera.argon2.ArgonOptions(
+<span class="fc" id="L64">                            argonOptions.getAlgorithm(),</span>
+<span class="fc" id="L65">                            argonOptions.getIterations(),</span>
+<span class="fc" id="L66">                            argonOptions.getMemory(),</span>
+<span class="fc" id="L67">                            argonOptions.getParallelism()</span>
+                    ),
+                    password,
+                    salt
+            );
+        }
+
+<span class="fc" id="L74">        final Nonce nonce = this.nacl.randomNonce();</span>
+<span class="fc" id="L75">        LOGGER.debug(&quot;Generated the random nonce {}&quot;, nonce);</span>
+
+<span class="fc" id="L77">        final byte[] encryptedKey = this.nacl.sealAfterPrecomputation(</span>
+<span class="fc" id="L78">                privateKey.getKeyBytes(), nonce, SharedKey.from(argonResult.getHash())</span>
+        );
+
+<span class="fc" id="L81">        LOGGER.info(&quot;Private key encrypted&quot;);</span>
+
+<span class="fc" id="L83">        final String snonce = this.encoder.encodeToString(nonce.getNonceBytes());</span>
+<span class="fc" id="L84">        final String asalt = this.encoder.encodeToString(salt);</span>
+<span class="fc" id="L85">        final String sbox = this.encoder.encodeToString(encryptedKey);</span>
+
+<span class="fc" id="L87">        return new PrivateKeyData(</span>
+                null,
+                snonce,
+                asalt,
+                sbox,
+                new ArgonOptions(
+<span class="fc" id="L93">                        argonResult.getOptions().getAlgorithm(),</span>
+<span class="fc" id="L94">                        argonResult.getOptions().getIterations(),</span>
+<span class="fc" id="L95">                        argonResult.getOptions().getMemory(),</span>
+<span class="fc" id="L96">                        argonResult.getOptions().getParallelism()</span>
+                )
+        );
+    }
+
+    @Override
+    public PrivateKey decryptPrivateKey(final PrivateKeyData privateKey, final String password) {
+
+<span class="fc" id="L104">        LOGGER.info(&quot;Decrypting private key&quot;);</span>
+<span class="fc" id="L105">        LOGGER.debug(&quot;Decrypting private key {} using password {}&quot;, privateKey.getValue(), password);</span>
+
+<span class="fc" id="L107">        final byte[] salt = this.decoder.decode(privateKey.getAsalt());</span>
+
+<span class="fc" id="L109">        final ArgonResult argonResult = this.argon2.hash(</span>
+                new com.quorum.tessera.argon2.ArgonOptions(
+<span class="fc" id="L111">                        privateKey.getArgonOptions().getAlgorithm(),</span>
+<span class="fc" id="L112">                        privateKey.getArgonOptions().getIterations(),</span>
+<span class="fc" id="L113">                        privateKey.getArgonOptions().getMemory(),</span>
+<span class="fc" id="L114">                        privateKey.getArgonOptions().getParallelism()</span>
+                ),
+                password,
+                salt
+        );
+
+<span class="fc" id="L120">        final byte[] originalKey = this.nacl.openAfterPrecomputation(</span>
+<span class="fc" id="L121">                this.decoder.decode(privateKey.getSbox()),</span>
+<span class="fc" id="L122">                new Nonce(this.decoder.decode(privateKey.getSnonce())),</span>
+<span class="fc" id="L123">                SharedKey.from(argonResult.getHash())</span>
+        );
+
+<span class="fc" id="L126">        PrivateKey outcome = PrivateKey.from(originalKey);</span>
+
+<span class="fc" id="L128">        LOGGER.info(&quot;Decrypted private key&quot;);</span>
+<span class="fc" id="L129">        LOGGER.debug(&quot;Decrypted private key {}&quot;, outcome.encodeToBase64());</span>
+
+<span class="fc" id="L131">        return outcome;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

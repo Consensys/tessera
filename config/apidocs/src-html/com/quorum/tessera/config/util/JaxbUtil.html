@@ -1,0 +1,224 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package com.quorum.tessera.config.util;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import com.quorum.tessera.io.IOCallback;<a name="line.3"></a>
+<span class="sourceLineNo">004</span>import com.quorum.tessera.config.*;<a name="line.4"></a>
+<span class="sourceLineNo">005</span>import com.quorum.tessera.config.util.jaxb.MarshallerBuilder;<a name="line.5"></a>
+<span class="sourceLineNo">006</span>import com.quorum.tessera.config.util.jaxb.UnmarshallerBuilder;<a name="line.6"></a>
+<span class="sourceLineNo">007</span>import java.io.ByteArrayOutputStream;<a name="line.7"></a>
+<span class="sourceLineNo">008</span><a name="line.8"></a>
+<span class="sourceLineNo">009</span>import javax.xml.bind.JAXBException;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import javax.xml.bind.Marshaller;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import javax.xml.bind.Unmarshaller;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import javax.xml.transform.stream.StreamSource;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.io.InputStream;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import java.io.OutputStream;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import java.io.StringReader;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import java.io.StringWriter;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import java.util.Objects;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import java.util.Optional;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import javax.validation.ConstraintViolationException;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import javax.xml.transform.Transformer;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import javax.xml.transform.TransformerFactory;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import javax.xml.transform.stream.StreamResult;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>public final class JaxbUtil {<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>    public static final Class[] JAXB_CLASSES = new Class[]{<a name="line.26"></a>
+<span class="sourceLineNo">027</span>        Config.class,<a name="line.27"></a>
+<span class="sourceLineNo">028</span>        KeyDataConfig.class,<a name="line.28"></a>
+<span class="sourceLineNo">029</span>        PrivateKeyData.class,<a name="line.29"></a>
+<span class="sourceLineNo">030</span>        ArgonOptions.class,<a name="line.30"></a>
+<span class="sourceLineNo">031</span>        JdbcConfig.class,<a name="line.31"></a>
+<span class="sourceLineNo">032</span>        KeyData.class,<a name="line.32"></a>
+<span class="sourceLineNo">033</span>        Peer.class,<a name="line.33"></a>
+<span class="sourceLineNo">034</span>        PrivateKeyType.class,<a name="line.34"></a>
+<span class="sourceLineNo">035</span>        ServerConfig.class,<a name="line.35"></a>
+<span class="sourceLineNo">036</span>        DeprecatedServerConfig.class,<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        SslAuthenticationMode.class,<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        SslConfig.class,<a name="line.38"></a>
+<span class="sourceLineNo">039</span>        SslTrustMode.class<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    };<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>    private JaxbUtil() {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    }<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>    public static &lt;T&gt; T unmarshal(InputStream inputStream, Class&lt;T&gt; type) {<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>        try {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>            return UnmarshallerBuilder.create()<a name="line.48"></a>
+<span class="sourceLineNo">049</span>                    .build().unmarshal(new StreamSource(inputStream), type).getValue();<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        } catch (JAXBException ex) {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>            throw new ConfigException(ex);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        }<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    }<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>    public static void marshal(Object object, OutputStream outputStream) {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        try {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>            MarshallerBuilder.create().build()<a name="line.57"></a>
+<span class="sourceLineNo">058</span>                    .marshal(object, outputStream);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        } catch (Throwable ex) {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>            Optional&lt;ConstraintViolationException&gt; validationException = unwrapConstraintViolationException(ex);<a name="line.60"></a>
+<span class="sourceLineNo">061</span>            if (validationException.isPresent()) {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                throw validationException.get();<a name="line.62"></a>
+<span class="sourceLineNo">063</span>            }<a name="line.63"></a>
+<span class="sourceLineNo">064</span>            throw new ConfigException(ex);<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        }<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>    }<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span>    public static void marshalWithNoValidation(Object object, OutputStream outputStream) {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        try {<a name="line.70"></a>
+<span class="sourceLineNo">071</span>            MarshallerBuilder.create()<a name="line.71"></a>
+<span class="sourceLineNo">072</span>                    .withoutBeanValidation()<a name="line.72"></a>
+<span class="sourceLineNo">073</span>                    .build()<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                    .marshal(object, outputStream);<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>        } catch (JAXBException ex) {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>            throw new ConfigException(ex);<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        }<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    }<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>    public static String marshalToString(Object object) {<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        return IOCallback.execute(() -&gt; {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>            try (OutputStream out = new ByteArrayOutputStream()) {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                marshal(object, out);<a name="line.84"></a>
+<span class="sourceLineNo">085</span>                return out.toString();<a name="line.85"></a>
+<span class="sourceLineNo">086</span>            }<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        });<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    }<a name="line.88"></a>
+<span class="sourceLineNo">089</span><a name="line.89"></a>
+<span class="sourceLineNo">090</span>    public static String marshalToStringNoValidation(Object object) {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        return IOCallback.execute(() -&gt; {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>            try (OutputStream out = new ByteArrayOutputStream()) {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>                marshalWithNoValidation(object, out);<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                return out.toString();<a name="line.94"></a>
+<span class="sourceLineNo">095</span>            }<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        });<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    }<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>    protected static Optional&lt;ConstraintViolationException&gt; unwrapConstraintViolationException(Throwable ex) {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        return Optional.of(ex)<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                .map(Throwable::getCause)<a name="line.101"></a>
+<span class="sourceLineNo">102</span>                .filter(Objects::nonNull)<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                .filter(ConstraintViolationException.class::isInstance)<a name="line.103"></a>
+<span class="sourceLineNo">104</span>                .map(ConstraintViolationException.class::cast);<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>    public static void marshalMasked(Config object, OutputStream outputStream) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">109</span>        XmlProcessingCallback.execute(() -&gt; {<a name="line.109"></a>
+<span class="sourceLineNo">110</span><a name="line.110"></a>
+<span class="sourceLineNo">111</span>            Marshaller marshaller = MarshallerBuilder.create()<a name="line.111"></a>
+<span class="sourceLineNo">112</span>                    .withXmlMediaType()<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                    .withoutBeanValidation()<a name="line.113"></a>
+<span class="sourceLineNo">114</span>                    .build();<a name="line.114"></a>
+<span class="sourceLineNo">115</span><a name="line.115"></a>
+<span class="sourceLineNo">116</span>            String xmlData;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>            try (StringWriter writer = new StringWriter()) {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                marshaller.marshal(object, writer);<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                xmlData = writer.toString();<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            }<a name="line.120"></a>
+<span class="sourceLineNo">121</span><a name="line.121"></a>
+<span class="sourceLineNo">122</span>            StreamSource xmlSource = new StreamSource(new StringReader(xmlData));<a name="line.122"></a>
+<span class="sourceLineNo">123</span>            try (StringWriter writer = new StringWriter()) {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>                StreamResult xmlResult = new StreamResult(writer);<a name="line.124"></a>
+<span class="sourceLineNo">125</span>                createMaskingXslTransformer().transform(xmlSource, xmlResult);<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                writer.flush();<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>                Unmarshaller unmarshaller = UnmarshallerBuilder.create()<a name="line.128"></a>
+<span class="sourceLineNo">129</span>                        .withXmlMediaType()<a name="line.129"></a>
+<span class="sourceLineNo">130</span>                        .withoutBeanValidation()<a name="line.130"></a>
+<span class="sourceLineNo">131</span>                        .build();<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>                Config masked = (Config) unmarshaller.unmarshal(new StringReader(writer.toString()));<a name="line.133"></a>
+<span class="sourceLineNo">134</span><a name="line.134"></a>
+<span class="sourceLineNo">135</span>                marshalWithNoValidation(masked, outputStream);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                return null;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            }<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>        });<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>    }<a name="line.141"></a>
+<span class="sourceLineNo">142</span><a name="line.142"></a>
+<span class="sourceLineNo">143</span>    private static Transformer createMaskingXslTransformer() {<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        return XmlProcessingCallback.execute(() -&gt; {<a name="line.144"></a>
+<span class="sourceLineNo">145</span>            try (InputStream inputStream = JaxbUtil.class.getResourceAsStream("/xsl/mask-config.xsl")) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                return TransformerFactory.newInstance().newTransformer(new StreamSource(inputStream));<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            }<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        });<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>    }<a name="line.150"></a>
+<span class="sourceLineNo">151</span><a name="line.151"></a>
+<span class="sourceLineNo">152</span>}<a name="line.152"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>
