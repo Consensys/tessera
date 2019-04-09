@@ -1093,6 +1093,7 @@
                     <linksource>true</linksource>
                     <show>public</show>
                     <source>1.8</source>
+                    <failOnError>false</failOnError>
 
                 </configuration>
                 <reportSets>
