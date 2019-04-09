@@ -1382,6 +1382,26 @@
             <name>Mark Lowe</name>
             <email>melowe.quorum@gmail.com</email>
         </developer>
+        <developer>
+            <name>Peter Fox</name>
+            <email>peter.rd.fox@gmail.com</email>
+        </developer>
+        <developer>
+            <name>Nam Truong</name>
+            <email>nam.p.truong@gmail.com</email>
+        </developer>
+        <developer>
+            <name>Satpal Sandhu</name>
+            <email>quorum@satpal.co.uk</email>
+        </developer>
+        <developer>
+            <name>Chris Hounsom</name>
+            <email>chrishounsom@icloud.com</email>
+        </developer>
+        <developer>
+            <name>Nicolae Leonte</name>
+            <email>nicolae.leonte.go@gmail.com</email>
+        </developer>
     </developers>
 
 </project>
