@@ -1382,6 +1382,10 @@
             <name>Mark Lowe</name>
             <email>melowe.quorum@gmail.com</email>
         </developer>
+        <developer>
+            <name>Peter Fox</name>
+            <email>peter.rd.fox@gmail.com</email>
+        </developer>
     </developers>
 
 </project>
