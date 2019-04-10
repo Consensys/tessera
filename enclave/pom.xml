@@ -15,7 +15,6 @@
         <module>enclave-api</module>
         <module>enclave-jaxrs</module>
         <module>enclave-server</module>
-        <module>enclave-vault-dist</module>
     </modules>
     <profiles>
         <profile>
