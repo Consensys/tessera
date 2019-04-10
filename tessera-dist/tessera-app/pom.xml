@@ -132,7 +132,6 @@
                     <artifactId>activation</artifactId>
                 </exclusion>
             </exclusions>
-
         </dependency>
 
         <dependency>
