@@ -35,7 +35,8 @@
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+
+            <url>LICENSE</url>
         </license>
     </licenses>
 
@@ -50,6 +51,7 @@
         <eclipselink.version>2.7.3</eclipselink.version>
         <grpc.version>1.14.0</grpc.version>
         <h2.version>1.4.197</h2.version>
+        <owasp.plugin.version>5.0.0-M2</owasp.plugin.version>
     </properties>
 
     <build>
@@ -145,22 +147,6 @@
 
                     </configuration>
 
-<!--                    <dependencies>-->
-
-<!--                        <dependency>-->
-<!--                            <groupId>org.ow2.asm</groupId>-->
-<!--                            <artifactId>asm</artifactId>-->
-<!--                            <version>7.1</version>-->
-<!--                        </dependency>-->
-
-
-<!--                        <dependency>-->
-<!--                            <groupId>org.dom4j</groupId>-->
-<!--                            <artifactId>dom4j</artifactId>-->
-<!--                            <version>2.1.1</version>-->
-<!--                        </dependency>-->
-
-<!--                    </dependencies>-->
                 </plugin>
 
             </plugins>
@@ -1082,10 +1068,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.1.0</version>
 
                 <configuration>
-                    <aggregate>true</aggregate>
                     <links>
                         <link>https://docs.oracle.com/javase/8/docs/api/</link>
                         <link>https://docs.oracle.com/javaee/7/api/</link>
@@ -1093,6 +1078,7 @@
                     <linksource>true</linksource>
                     <show>public</show>
                     <source>1.8</source>
+                    <failOnError>false</failOnError>
 
                 </configuration>
                 <reportSets>
@@ -1130,12 +1116,48 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>3.10.0</version>
+                <configuration>
+                    <linkXRef>true</linkXRef>
+                </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
                 <version>2.5</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changes-plugin</artifactId>
+                <version>2.12.1</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>changes-report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>${owasp.plugin.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
             </plugin>
 
         </plugins>
@@ -1345,30 +1367,30 @@
         </site>
 
         <snapshotRepository>
-            <id>tessera-snapshot-repo</id>
-            <url>git:snapshots://git@github.com:jpmorganchase/tessera.git</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
 
         <repository>
-            <id>tessera-release-repo</id>
-            <url>git:releases://git@github.com:jpmorganchase/tessera.git</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
 
 
     </distributionManagement>
 
-    <repositories>
-        <repository>
-            <id>tessera-repo</id>
-            <url>https://raw.github.com/jpmorganchase/tessera/releases</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>tessera-repo</id>-->
+<!--            <url>https://raw.github.com/jpmorganchase/tessera/releases</url>-->
+<!--            <snapshots>-->
+<!--                <enabled>false</enabled>-->
+<!--            </snapshots>-->
+<!--            <releases>-->
+<!--                <enabled>true</enabled>-->
+<!--            </releases>-->
+<!--        </repository>-->
+<!--    </repositories>-->
 
     <pluginRepositories>
         <pluginRepository>
