@@ -69,7 +69,7 @@ matrix:
       script:
         - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
         - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-        - mvn deploy --settings .maven.xml -P release -q
+        - mvn deploy --settings .maven.xml -P release -q  || travis_terminate 1
     - if: type = api
       name: "Perform release"
       script:
@@ -77,8 +77,8 @@ matrix:
         - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
         - release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
         - branch_name="release-${release_version}"
-        - mvn --settings .maven.xml -B release:branch -DbranchName=$branch_name
-        - mvn --settings .maven.xml -B -DpushChanges=true release:prepare release:perform  -q
+        - mvn --settings .maven.xml -B release:branch -DbranchName=$branch_name  || travis_terminate 1
+        - mvn --settings .maven.xml -B -DpushChanges=true release:prepare release:perform  -q  || travis_terminate 1
         - echo "TODO: The release branch must be manually merged back to master."
       jdk:  oraclejdk8
 
