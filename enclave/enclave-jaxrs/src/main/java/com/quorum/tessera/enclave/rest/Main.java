@@ -4,6 +4,7 @@ import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.cli.CliDelegate;
+import com.quorum.tessera.config.cli.CliResult;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import java.util.Set;
@@ -21,7 +22,11 @@ public class Main {
 
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
-        CliDelegate.INSTANCE.execute(args);
+        CliResult cliResult = CliDelegate.INSTANCE.execute(args);
+        if(!cliResult.getConfig().isPresent()) {
+            System.exit(cliResult.getStatus());
+        }
+        
         ServiceLocator serviceLocator = ServiceLocator.create();
  
         Set<Object> services = serviceLocator.getServices("tessera-enclave-jaxrs-spring.xml");
