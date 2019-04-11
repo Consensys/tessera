@@ -1,6 +1,9 @@
 package com.quorum.tessera.ssl.context;
 
 import com.quorum.tessera.config.SslConfig;
+import com.quorum.tessera.config.util.EnvironmentVariableProvider;
+import com.quorum.tessera.config.util.EnvironmentVariableProviderFactory;
+import com.quorum.tessera.config.util.EnvironmentVariables;
 import com.quorum.tessera.ssl.context.model.SSLContextProperties;
 import com.quorum.tessera.ssl.exception.TesseraSecurityException;
 import com.quorum.tessera.ssl.strategy.TrustMode;
@@ -17,6 +20,8 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
 
     private static final String DEFAULT_KNOWN_SERVER_FILEPATH = "knownServers";
 
+    private static final EnvironmentVariableProvider envVarProvider = EnvironmentVariableProviderFactory.load().create();
+
     @Override
     public SSLContext from(String address, SslConfig sslConfig) {
 
@@ -30,11 +35,11 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
         final SSLContextProperties properties = new SSLContextProperties(
             address,
             sslConfig.getClientKeyStore(),
-            sslConfig.getClientKeyStorePassword(),
+            getClientKeyStorePassword(sslConfig),
             sslConfig.getClientTlsKeyPath(),
             sslConfig.getClientTlsCertificatePath(),
             sslConfig.getClientTrustStore(),
-            sslConfig.getClientTrustStorePassword(),
+            getClientTrustStorePassword(sslConfig),
             sslConfig.getClientTrustCertificates(),
             knownServersFile
         );
@@ -45,4 +50,28 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
             throw new TesseraSecurityException(ex);
         }
     }
+
+    // TODO - Package private for testing, refactor so this can be made private
+    String getClientKeyStorePassword(SslConfig sslConfig) {
+        return getPreferredPassword(sslConfig.getClientKeyStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.CLIENT_KEYSTORE_PWD);
+    }
+
+    // TODO - Package private for testing, refactor so this can be made private
+    String getClientTrustStorePassword(SslConfig sslConfig) {
+        return getPreferredPassword(sslConfig.getClientTrustStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.CLIENT_TRUSTSTORE_PWD);
+    }
+
+    // Return the prefixed env var value if set, else return the config value, else return the global env var value
+    private String getPreferredPassword(String configPassword, String envVarPrefix, String envVar) {
+        String password = envVarProvider.getEnv(envVarPrefix + "_" + envVar);
+
+        if(password != null) {
+            return password;
+        } else if(configPassword != null) {
+            return configPassword;
+        }
+
+        return envVarProvider.getEnv(envVar);
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.constraints.ValidServerAddress;
 import com.quorum.tessera.config.constraints.ValidSsl;
 
 import javax.validation.Valid;
@@ -14,7 +15,6 @@ import java.util.Objects;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ServerConfig extends ConfigItem {
 
-    //TODO validate that the server socket type and the communication type match the AppType
     @NotNull
     @XmlElement(required = true)
     private AppType app;
@@ -22,11 +22,6 @@ public class ServerConfig extends ConfigItem {
     @NotNull
     @XmlElement(required = true)
     private boolean enabled;
-
-    @NotNull
-    @XmlElement(required = true)
-    @Valid
-    private ServerSocket serverSocket;
 
     @XmlElement
     private CommunicationType communicationType;
@@ -40,19 +35,29 @@ public class ServerConfig extends ConfigItem {
     @XmlElement
     private InfluxConfig influxConfig;
 
+    @ValidServerAddress(
+            message = "Binding Address is invalid",
+            isBindingAddress = true,
+            supportedSchemes = {"http","https"}
+    )
     @XmlElement
     private String bindingAddress;
 
+    @ValidServerAddress(message = "Server Address is invalid")
+    @NotNull
+    @XmlElement
+    private String serverAddress;
+    
     public ServerConfig(final AppType app,
                         final boolean enabled,
-                        final ServerSocket serverSocket,
+                        final String serverAddress,
                         final CommunicationType communicationType,
                         final SslConfig sslConfig,
                         final InfluxConfig influxConfig,
                         final String bindingAddress) {
         this.app = app;
         this.enabled = enabled;
-        this.serverSocket = serverSocket;
+        this.serverAddress = serverAddress;
         this.communicationType = communicationType;
         this.sslConfig = sslConfig;
         this.influxConfig = influxConfig;
@@ -62,11 +67,15 @@ public class ServerConfig extends ConfigItem {
     public ServerConfig(){}
 
     public String getBindingAddress() {
-        return this.bindingAddress == null ? this.getServerUri().toString() : this.bindingAddress;
+        return this.bindingAddress == null ? this.serverAddress: this.bindingAddress;
     }
 
     public URI getServerUri() {
-        return serverSocket.getServerUri();
+        try {
+        return URI.create(serverAddress);
+        } catch(java.lang.IllegalArgumentException ex) {
+            throw new ConfigException(ex);
+        }
     }
 
     public boolean isSsl() {
@@ -97,14 +106,6 @@ public class ServerConfig extends ConfigItem {
         this.enabled = enabled;
     }
 
-    public ServerSocket getServerSocket() {
-        return serverSocket;
-    }
-
-    public void setServerSocket(ServerSocket serverSocket) {
-        this.serverSocket = serverSocket;
-    }
-
     public CommunicationType getCommunicationType() {
         return communicationType;
     }
@@ -132,4 +133,18 @@ public class ServerConfig extends ConfigItem {
     public void setBindingAddress(String bindingAddress) {
         this.bindingAddress = bindingAddress;
     }
+
+    public String getServerAddress() {
+        return serverAddress;
+    }
+
+    public void setServerAddress(String serverAddress) {
+        this.serverAddress = serverAddress;
+    }
+    
+    public boolean isUnixSocket() {
+        return Objects.equals(getServerUri().getScheme(), "unix");
+    }
+    
+    
 }

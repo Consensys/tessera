@@ -52,6 +52,10 @@ public class HashicorpKeyVaultService implements KeyVaultService {
 
         KeyValueOperationsDelegate keyValueOperationsDelegate = keyValueOperationsDelegateFactory.create(hashicorpSetSecretData.getSecretEngineName());
 
-        return keyValueOperationsDelegate.set(hashicorpSetSecretData);
+        try {
+            return keyValueOperationsDelegate.set(hashicorpSetSecretData);
+        } catch(NullPointerException ex) {
+            throw new HashicorpVaultException("Unable to save generated secret to vault.  Ensure that the secret engine being used is a v2 kv secret engine");
+        }
     }
 }

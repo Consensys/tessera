@@ -127,7 +127,7 @@ public class ValidationTest {
 
         List<String> alwaysSendTo = singletonList("BOGUS");
 
-        Config config = new Config(null, null, null, null, alwaysSendTo, null, false,false);
+        Config config = new Config(null, null, null, null, alwaysSendTo, null, false, false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "alwaysSendTo");
 
@@ -145,7 +145,7 @@ public class ValidationTest {
 
         List<String> alwaysSendTo = singletonList(value);
 
-        Config config = new Config(null, null, null, null, alwaysSendTo, null, false,false);
+        Config config = new Config(null, null, null, null, alwaysSendTo, null, false, false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "alwaysSendTo");
 
@@ -174,7 +174,7 @@ public class ValidationTest {
         assertThat(violation2.getMessageTemplate()).isEqualTo("File does not exist");
 
         final List<String> paths = Arrays.asList(
-            violation1.getPropertyPath().toString(), violation2.getPropertyPath().toString()
+                violation1.getPropertyPath().toString(), violation2.getPropertyPath().toString()
         );
         assertThat(paths).containsExactlyInAnyOrder("keyData[0].publicKeyPath", "keyData[0].privateKeyPath");
     }
@@ -213,8 +213,8 @@ public class ValidationTest {
         assertThat(violations).hasSize(2);
 
         assertThat(violations).extracting("messageTemplate")
-                                .containsExactly("Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)",
-                                    "Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)");
+                .containsExactly("Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)",
+                        "Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)");
     }
 
     @Test
@@ -235,7 +235,7 @@ public class ValidationTest {
         assertThat(violations).hasSize(2);
 
         assertThat(violations).extracting("messageTemplate")
-            .containsExactly("length must be 32 characters", "length must be 32 characters");
+                .containsExactly("length must be 32 characters", "length must be 32 characters");
     }
 
     @Test
@@ -247,7 +247,7 @@ public class ValidationTest {
         assertThat(violations).hasSize(2);
 
         assertThat(violations).extracting("messageTemplate")
-            .containsExactly("length must be 32 characters", "length must be 32 characters");
+                .containsExactly("length must be 32 characters", "length must be 32 characters");
     }
 
     @Test
@@ -358,18 +358,6 @@ public class ValidationTest {
     }
 
     @Test
-    public void keyConfigurationIsNullCreatesNotNullViolation() {
-        Config config = new Config(null, null, null, null, null, null, false, false);
-
-        Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
-
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<Config> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
-    }
-
-    @Test
     public void azureVaultConfigWithNoUrlCreatesNullViolation() {
         AzureKeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig(null);
 
@@ -418,4 +406,28 @@ public class ValidationTest {
         assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
         assertThat(violation.getPropertyPath().toString()).isEqualTo("hashicorpKeyVaultConfig.url");
     }
+
+    @Test
+    public void serverAddressValidations() {
+
+        String[] invalidAddresses = {"/foo/bar","foo@bar.com,:/fff.ll","file:/tmp/valid.somename"};
+
+        ServerConfig config = new ServerConfig();
+        for (String sample : invalidAddresses) {
+            config.setServerAddress(sample);
+            Set<ConstraintViolation<ServerConfig>> validresult = validator.validateProperty(config, "serverAddress");
+            assertThat(validresult).hasSize(1);
+        }
+
+        
+
+        String[] validSamples = {"unix:/foo/bar.ipc","http://localhost:8080","https://somestrangedomain.com:8080"};
+        for (String sample : validSamples) {
+            config.setServerAddress(sample);
+            Set<ConstraintViolation<ServerConfig>> validresult = validator.validateProperty(config, "serverAddress");
+            assertThat(validresult).isEmpty();
+        }
+
+    }
+
 }

@@ -4,13 +4,13 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Model representation of a JSON body on incoming HTTP requests
- *
- * Used when a request is received to resend existing transactions
- * Contains
- * - the public key who is a recipient
- * - the resend type, whether to send a single transaction or all transactions for the give key
- * - the transaction hash to resend if the request single is singular
+ * Model representation of a JSON body on incoming HTTP requests.
+ * Used when a request is received to resend existing transactions. Contains:
+ * <ul>
+ *     <li>the public key who is a recipient</li>
+ *     <li>the resend type, whether to send a single transaction or all transactions for the given key</li>
+ *     <li>the transaction hash to resend in the case the resend type is for an individual transaction</li>
+ * </ul>
  */
 @ApiModel
 public class ResendRequest {

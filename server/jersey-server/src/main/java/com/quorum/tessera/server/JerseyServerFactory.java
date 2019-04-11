@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * Creates Grizzly and Jersey implementations of the {@link TesseraServer}
  */
-public class JerseyServerFactory implements TesseraServerFactory {
+public class JerseyServerFactory implements TesseraServerFactory<Object> {
 
     @Override
     public TesseraServer createServer(ServerConfig serverConfig, Set<Object> services) {

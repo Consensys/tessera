@@ -1,11 +1,12 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.client.P2pClient;
-import com.quorum.tessera.encryption.Enclave;
-import com.quorum.tessera.encryption.EncodedPayloadWithRecipients;
-import com.quorum.tessera.encryption.PayloadEncoder;
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.PartyInfoService;
+import com.quorum.tessera.transaction.exception.PublishPayloadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,10 +35,9 @@ public class PayloadPublisherImpl implements PayloadPublisher {
     }
 
     @Override
-    public void publishPayload(final EncodedPayloadWithRecipients encodedPayloadWithRecipients,
-                               final PublicKey recipientKey) {
+    public void publishPayload(final EncodedPayload payload, final PublicKey recipientKey) {
 
-        if(enclave.getPublicKeys().contains(recipientKey)) {
+        if (enclave.getPublicKeys().contains(recipientKey)) {
             //we are trying to send something to ourselves - don't do it
             LOGGER.debug("Trying to send message to ourselves with key {}, not publishing", recipientKey.encodeToBase64());
             return;
@@ -47,13 +47,15 @@ public class PayloadPublisherImpl implements PayloadPublisher {
 
         LOGGER.info("Publishing message to {}", targetUrl);
 
-        final EncodedPayloadWithRecipients toEncode
-            = payloadEncoder.forRecipient(encodedPayloadWithRecipients, recipientKey);
+        final byte[] encoded = payloadEncoder.encode(payload);
 
-        final byte[] encoded = payloadEncoder.encode(toEncode);
-        p2pClient.push(targetUrl, encoded);
+        byte[] pushResponse = p2pClient.push(targetUrl, encoded);
+
+        if(pushResponse == null) {
+            throw new PublishPayloadException("Unable to push payload to recipient " + recipientKey.encodeToBase64());
+        }
+
         LOGGER.info("Published to {}", targetUrl);
-
     }
 
 }

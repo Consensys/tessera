@@ -145,4 +145,16 @@ public class HashicorpKeyVaultServiceTest {
         assertThat(result).isEqualTo(metadata);
     }
 
+    @Test
+    public void setSecretIfNullPointerExceptionThenHashicorpExceptionThrown() {
+        HashicorpSetSecretData setSecretData = mock(HashicorpSetSecretData.class);
+
+        when(delegate.set(any(HashicorpSetSecretData.class))).thenThrow(new NullPointerException());
+
+        Throwable ex = catchThrowable(() -> keyVaultService.setSecret(setSecretData));
+
+        assertThat(ex).isExactlyInstanceOf(HashicorpVaultException.class);
+        assertThat(ex.getMessage()).isEqualTo("Unable to save generated secret to vault.  Ensure that the secret engine being used is a v2 kv secret engine");
+    }
+
 }

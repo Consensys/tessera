@@ -1,5 +1,6 @@
 package com.quorum.tessera.config.cli;
 
+import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import java.util.Arrays;
@@ -30,7 +31,8 @@ public enum CliDelegate {
         if(argsList.contains("admin")) {
             cliAdapter = new AdminCliAdapter(new ClientFactory());
         } else {
-            cliAdapter = new DefaultCliAdapter();
+            cliAdapter = ServiceLoaderUtil.load(CliAdapter.class)
+                    .orElse(new DefaultCliAdapter());
         }
 
         final CliResult result = cliAdapter.execute(args);

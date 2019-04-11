@@ -4,7 +4,6 @@ import com.quorum.tessera.api.model.ReceiveResponse;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
 import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.RestPartyHelper;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
@@ -33,7 +32,7 @@ public class SendIT {
 
     private RestUtils utils = new RestUtils();
 
-    private PartyHelper partyHelper = new RestPartyHelper();
+    private PartyHelper partyHelper = PartyHelper.create();
 
     /**
      * Quorum sends transaction with single public recipient key

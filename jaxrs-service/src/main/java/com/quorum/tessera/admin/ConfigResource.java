@@ -3,19 +3,23 @@ package com.quorum.tessera.admin;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.apps.AdminApp;
 import com.quorum.tessera.core.config.ConfigService;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
-import javax.ws.rs.core.GenericEntity;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -83,6 +87,38 @@ public class ConfigResource implements AdminApp {
 
         return Response.ok(new GenericEntity<List<Peer>>(peers) {
         }).build();
+    }
+
+    @GET
+    @Path("/keypairs/{publicKey}")
+    public Response getKeyPair(@PathParam("publicKey") String base64PublicKey) {
+
+        Base64.Decoder base64Decoder = Base64.getDecoder();
+
+        PublicKey publicKey = PublicKey.from(base64Decoder.decode(base64PublicKey));
+
+        Set<PublicKey> publicKeys = configService.getPublicKeys();
+
+        if(!publicKeys.contains(publicKey)) {
+            throw new NotFoundException("No key pair found with public key " + base64PublicKey);
+        }
+
+        PublicKeyResponse responseData = new PublicKeyResponse(base64PublicKey);
+
+        return Response.ok(responseData).build();
+    }
+
+    @GET
+    @Path("/keypairs")
+    public Response getKeyPairs() {
+        Set<PublicKey> publicKeys = configService.getPublicKeys();
+
+        List<PublicKeyResponse> responseData = publicKeys.stream()
+            .map(PublicKey::encodeToBase64)
+            .map(PublicKeyResponse::new)
+            .collect(Collectors.toList());
+
+        return Response.ok(new GenericEntity<List<PublicKeyResponse>>(responseData){}).build();
     }
 
 }

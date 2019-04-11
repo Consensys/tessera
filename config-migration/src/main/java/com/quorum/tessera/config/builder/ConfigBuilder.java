@@ -250,7 +250,8 @@ public class ConfigBuilder {
                 toPath(workDir, sslServerTlsKeyPath),
                 toPath(workDir, sslServerTlsCertificatePath),
                 toPath(workDir, sslClientTlsKeyPath),
-                toPath(workDir, sslClientTlsCertificatePath)
+                toPath(workDir, sslClientTlsCertificatePath),
+                null
         );
 
 

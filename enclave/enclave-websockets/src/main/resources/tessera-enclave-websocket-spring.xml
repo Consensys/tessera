@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="cliDelegate" class="com.quorum.tessera.config.cli.CliDelegate" factory-method="instance"/>
+
+    <bean id="config" factory-bean="cliDelegate" factory-method="getConfig"/>
+    
+    <bean id="enclaveFactory" class="com.quorum.tessera.enclave.EnclaveFactory" factory-method="create" />
+
+    
+    <bean id="enclaveHolder" class="com.quorum.tessera.enclave.websockets.EnclaveHolder" factory-method="instance">
+        <constructor-arg ref="enclaveFactory" />
+        <constructor-arg ref="config" />
+    </bean>
+    
+</beans>
+

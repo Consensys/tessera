@@ -1,11 +1,13 @@
 package admin.cmd;
 
 import com.quorum.tessera.test.Party;
+import exec.ExecArgsBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -22,15 +24,12 @@ public class Utils {
 
     public static ExecutionResult start(Party party) throws IOException, InterruptedException {
 
-        List<String> args = Arrays.asList(
-                "java",
-                "-Dspring.profiles.active=disable-unixsocket,disable-sync-poller",
-                "-Dnode.number=" + party.getAlias(),
-                "-jar",
-                jarPath,
-                "-configfile",
-                party.getConfigFilePath().toString()
-        );
+        List<String> args = new ExecArgsBuilder()
+                .withJvmArg(String.format("-Dnode.number=%S", party.getAlias()))
+                .withExecutableJarFile(Paths.get(jarPath))
+                .withConfigFile(party.getConfigFilePath())
+                .build();
+
 
         ExecutorService executorService = Executors.newCachedThreadPool();
 

@@ -1,11 +1,11 @@
 package com.quorum.tessera.data.migration;
 
+import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.nio.file.Paths;
+import java.sql.*;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -15,12 +15,12 @@ public class JdbcDataExporter implements DataExporter {
 
     private final String insertRow;
 
-    private final String createTable;
+    private final List<String> createTables;
 
-    public JdbcDataExporter(String jdbcUrl, String insertRow, String createTable) {
+    public JdbcDataExporter(String jdbcUrl, String insertRow, URL ddl) {
         this.jdbcUrl = jdbcUrl;
         this.insertRow = insertRow;
-        this.createTable = createTable;
+        this.createTables = UriCallback.execute(() -> Files.readAllLines(Paths.get(ddl.toURI())));
     }
 
     @Override
@@ -29,7 +29,9 @@ public class JdbcDataExporter implements DataExporter {
         try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 
             try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(createTable);
+                for (String createTable : createTables) {
+                    stmt.executeUpdate(createTable);
+                }
             }
 
             try (PreparedStatement insertStatement = conn.prepareStatement(insertRow)) {

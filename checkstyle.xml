@@ -11,7 +11,10 @@
     <module name="SuppressionFilter">
         <property name="file" value="${checkstyle.suppressions.file}" />
     </module>
-    
+
+    <!-- Miscellaneous -->
+    <module name="NewlineAtEndOfFile"/> <!-- Hinted to by the .editorconfig file-->
+    <module name="UniqueProperties"/>
 
     <module name="TreeWalker">
         <module name="InterfaceTypeParameterName"/>
@@ -47,12 +50,30 @@
         </module>
         <module name="EnumValueName"/>
 
-        <!-- Start: Whitespace -->
+    </module>
 
+    <!-- Whitespace -->
+    <module name="TreeWalker" >
         <module name="ParenPad"/>
         <module name="GenericWhitespace"/>
         <module name="TypecastParenPad"/>
         <module name="SingleSpaceSeparator"/>
+
+        <!--Cannot have any whitespace before this token-->
+        <module name="NoWhitespaceBefore">
+            <property name="tokens" value="COMMA, SEMI, POST_INC, POST_DEC, GENERIC_END, ELLIPSIS, METHOD_REF"/>
+            <property name="allowLineBreaks" value="false"/>
+        </module>
+        <!--Can only have whitespace before this token if it's first token on line-->
+        <module name="NoWhitespaceBefore">
+            <property name="tokens" value="DOT"/>
+            <property name="allowLineBreaks" value="true"/>
+        </module>
+
+        <!--No whitespace directly after this token-->
+        <module name="NoWhitespaceAfter">
+            <property name="tokens" value="AT, INC, DEC, UNARY_MINUS, UNARY_PLUS, BNOT, LNOT, DOT, ARRAY_DECLARATOR, INDEX_OP, METHOD_REF"/>
+        </module>
 
         <!-- Make sure that method calls have no space between method name and left parenthesis -->
         <module name="MethodParamPad">
@@ -62,16 +83,12 @@
 
         <!-- These separators (. @ ::) cannot appear at end of a line-->
         <module name="SeparatorWrap">
-            <property name="tokens" value="DOT"/>
-            <property name="tokens" value="AT"/>
-            <property name="tokens" value="METHOD_REF"/>
+            <property name="tokens" value="DOT, AT, METHOD_REF"/>
             <property name="option" value="nl"/>
         </module>
-
         <!-- These separators (, ;) cannot appear at start of a line-->
         <module name="SeparatorWrap">
-            <property name="tokens" value="COMMA"/>
-            <property name="tokens" value="SEMI"/>
+            <property name="tokens" value="COMMA, SEMI"/>
             <property name="option" value="EOL"/>
         </module>
 
@@ -79,8 +96,38 @@
             <property name="tokens" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/>
         </module>
 
-        <!-- End: Whitespace -->
+        <!-- Cannot be the first token on the line -->
+        <module name="OperatorWrap">
+            <property name="option" value="eol"/>
 
+            <property name="tokens" value="TYPE_EXTENSION_AND, SR, BSR, SL, BXOR, BOR, BAND"/>
+            <property name="tokens" value="SR_ASSIGN, BSR_ASSIGN, SL_ASSIGN, BXOR_ASSIGN, BOR_ASSIGN, BAND_ASSIGN"/>
+
+            <!--<property name="tokens" value="PLUS"/>--> <!-- TODO: uncomment -->
+            <property name="tokens" value="DIV, MINUS, STAR, MOD"/>
+            <property name="tokens" value="PLUS_ASSIGN, DIV_ASSIGN, MINUS_ASSIGN, STAR_ASSIGN, MOD_ASSIGN"/>
+            <property name="tokens" value="LITERAL_INSTANCEOF, METHOD_REF, QUESTION, COLON"/>
+            <property name="tokens" value="GE, GT, LE, LT"/>
+            <!--<property name="tokens" value="LOR, LAND"/>--> <!-- TODO: uncomment -->
+            <property name="tokens" value="EQUAL, NOT_EQUAL"/>
+        </module>
+        <!-- Cannot be last token on the line-->
+        <module name="OperatorWrap">
+            <property name="option" value="nl"/>
+
+            <!--<property name="tokens" value="ASSIGN"/>--> <!-- TODO: uncomment -->
+
+            <property name="tokens" value="TYPE_EXTENSION_AND, SR, BSR, SL, BXOR, BOR, BAND"/>
+            <property name="tokens" value="SR_ASSIGN, BSR_ASSIGN, SL_ASSIGN, BXOR_ASSIGN, BOR_ASSIGN, BAND_ASSIGN"/>
+
+            <!--<property name="tokens" value="PLUS"/>--> <!-- TODO: uncomment -->
+            <property name="tokens" value="DIV, MINUS, STAR, MOD"/>
+            <property name="tokens" value="PLUS_ASSIGN, DIV_ASSIGN, MINUS_ASSIGN, STAR_ASSIGN, MOD_ASSIGN"/>
+            <property name="tokens" value="LITERAL_INSTANCEOF, METHOD_REF, QUESTION, COLON"/>
+            <property name="tokens" value="GE, GT, LE, LT"/>
+            <!--<property name="tokens" value="LOR, LAND"/>--> <!-- TODO: uncomment -->
+            <property name="tokens" value="EQUAL, NOT_EQUAL"/>
+        </module>
     </module>
 
 </module>

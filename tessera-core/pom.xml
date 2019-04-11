@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tessera</artifactId>
-        <version>0.8</version>
+        <version>0.9-SNAPSHOT</version>
     </parent>
     <artifactId>tessera-core</artifactId>
     <packaging>jar</packaging>
@@ -20,7 +20,7 @@
         </dependency>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>encryption-api</artifactId>
+            <artifactId>enclave-api</artifactId>
             <type>jar</type>
         </dependency>
         
@@ -44,24 +44,7 @@
             <artifactId>key-vault-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>azure-key-vault</artifactId>
-            <scope>runtime</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.activation</groupId>
-                    <artifactId>activation</artifactId>
-                </exclusion>
-            </exclusions>
 
-        </dependency>
-
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>hashicorp-key-vault</artifactId>
-            <scope>runtime</scope>
-        </dependency>
 
         <dependency>
             <groupId>javax.transaction</groupId>
@@ -115,8 +98,8 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
             <scope>runtime</scope>
         </dependency>
         

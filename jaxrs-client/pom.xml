@@ -4,10 +4,20 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tessera</artifactId>
-        <version>0.8</version>
+        <version>0.9-SNAPSHOT</version>
     </parent>
     <artifactId>jaxrs-client</artifactId>
     <packaging>jar</packaging>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>jaxrs-client-unixsocket</artifactId>
+                <version>0.9-SNAPSHOT</version>
+            </dependency>  
+        </dependencies>
+    </dependencyManagement>
+    
     <dependencies>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
@@ -26,6 +36,12 @@
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>jersey-server</artifactId>
             <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>jaxrs-client-unixsocket</artifactId>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 </project>

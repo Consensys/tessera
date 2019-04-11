@@ -25,7 +25,7 @@ public @interface ValidBase64 {
     @Target(value = {METHOD, FIELD, ANNOTATION_TYPE, PARAMETER, TYPE_USE})
     @Retention(value = RUNTIME)
     @Documented
-    public @interface List {
+    @interface List {
         ValidBase64[] value();
     }
 

@@ -1,24 +1,15 @@
 package com.quorum.tessera.server;
 
+import com.jpmorgan.quorum.server.utils.ServerUtils;
 import com.quorum.tessera.config.InfluxConfig;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.server.monitoring.InfluxDbClient;
 import com.quorum.tessera.server.monitoring.InfluxDbPublisher;
 import com.quorum.tessera.server.monitoring.MetricsResource;
-import com.quorum.tessera.ssl.context.SSLContextFactory;
-import com.quorum.tessera.ssl.context.ServerSSLContextFactory;
-import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.servlet.ServletRegistration;
-import org.glassfish.grizzly.servlet.WebappContext;
-import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-
-import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Application;
 import java.net.URI;
 import java.util.HashMap;
@@ -28,39 +19,33 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.glassfish.jersey.servlet.ServletContainer;
 
 /**
- * Implementation of a RestServer using Jersey and Grizzly.
+ * Implementation of a RestServer using Jersey and Jetty.
  */
 public class JerseyServer implements TesseraServer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JerseyServer.class);
 
-    private HttpServer server;
+    private org.eclipse.jetty.server.Server server;
 
     private final URI uri;
 
     private final Application application;
 
-    private final SSLContext sslContext;
-
-    private final boolean secure;
-
     private final ScheduledExecutorService executor;
 
     private final InfluxConfig influxConfig;
 
+    private final ServerConfig serverConfig;
+
     public JerseyServer(final ServerConfig serverConfig, final Application application) {
         this.uri = serverConfig.getBindingUri();
         this.application = Objects.requireNonNull(application);
-        this.secure = serverConfig.isSsl();
-
-        if (this.secure) {
-            final SSLContextFactory sslContextFactory = ServerSSLContextFactory.create();
-            this.sslContext = sslContextFactory.from(uri.toString(), serverConfig.getSslConfig());
-        } else {
-            this.sslContext = null;
-        }
+        this.serverConfig = serverConfig;
 
         this.executor = newSingleThreadScheduledExecutor();
 
@@ -89,26 +74,17 @@ public class JerseyServer implements TesseraServer {
         initParams.put("jersey.config.server.monitoring.statistics.mbeans.enabled", "true");
 
         final ResourceConfig config = ResourceConfig.forApplication(application);
+
         config.addProperties(initParams)
-            .register(MetricsResource.class);
+                .register(MetricsResource.class);
 
-        if (this.secure) {
-            this.server = GrizzlyHttpServerFactory.createHttpServer(
-                uri,
-                new ResourceConfig(),
-                true,
-                new SSLEngineConfigurator(sslContext).setClientMode(false).setNeedClientAuth(true),
-                false
-            );
-        } else {
-            this.server = GrizzlyHttpServerFactory.createHttpServer(uri, false);
-        }
+        this.server = ServerUtils.buildWebServer(serverConfig);
 
-        final WebappContext ctx = new WebappContext("WebappContext");
-        final ServletRegistration registration = ctx.addServlet("ServletContainer", new ServletContainer(config));
-        registration.addMapping("/*");
+        ServletContextHandler context = new ServletContextHandler(server, "/");
+        ServletContainer servletContainer = new ServletContainer(config);
+        ServletHolder jerseyServlet = new ServletHolder(servletContainer);
 
-        ctx.deploy(this.server);
+        context.addServlet(jerseyServlet, "/*");
 
         LOGGER.info("Starting {}", uri);
 
@@ -128,7 +104,7 @@ public class JerseyServer implements TesseraServer {
         Runnable publisher = new InfluxDbPublisher(influxDbClient);
 
         final Runnable exceptionSafePublisher = () -> {
-            try {
+            try{
                 publisher.run();
             } catch (final Throwable ex) {
                 LOGGER.error("Error when executing action {}", publisher.getClass().getSimpleName());
@@ -149,7 +125,11 @@ public class JerseyServer implements TesseraServer {
         }
 
         if (Objects.nonNull(this.server)) {
-            this.server.shutdown();
+            try{
+                this.server.stop();
+            } catch (Exception ex) {
+                LOGGER.warn(null, ex);
+            }
         }
 
         LOGGER.info("Stopped Jersey server at {}", uri);

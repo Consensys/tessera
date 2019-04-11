@@ -5,11 +5,14 @@ import com.quorum.tessera.config.constraints.ValidPath;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class HashicorpKeyVaultConfig extends ConfigItem implements KeyVaultConfig {
 
     @Valid

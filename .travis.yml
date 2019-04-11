@@ -4,9 +4,83 @@ env:
   global:
     - CODECOV_TOKEN="b5659ea0-f191-4e1d-9139-a8a31971c386"
 
-jdk:
-  - oraclejdk8
-#  - oraclejdk11
+install: true
+
+matrix:
+  include:
+    - if: type = pull_request
+      name: "Unit Tests Java 8"
+      jdk:  oraclejdk8
+      install: &build_no_checks
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+      script: &build_with_unittests
+        - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
+    - if: type = pull_request
+      name: "Unit Tests Java 11"
+      jdk:  oraclejdk11
+      install: *build_no_checks
+      script: *build_with_unittests
+    #Default
+#    - if: type = pull_request
+#      name: "Acceptance Tests Java 11"
+#      jdk:  oraclejdk11
+#      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+#      before_install:
+#        - rm "${JAVA_HOME}/lib/security/cacerts"
+#        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
+#      install: *build_no_checks
+    - if: type = pull_request
+      name: "Acceptance Tests Java 8"
+      jdk:  oraclejdk8
+      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+      install: *build_no_checks
+    #GRPC
+    - if: type = pull_request
+      name: "GRPC Only Acceptance Tests"
+      jdk:  oraclejdk8
+      script: mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging || travis_terminate 1
+      install: *build_no_checks
+    #Simple
+    - if: type = pull_request
+      name: "Simple Only Acceptance Tests"
+      jdk:  oraclejdk8
+      script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1
+      install: *build_no_checks
+    #Vault
+    - if: type = pull_request
+      name: "Vault Acceptance Tests Java 8"
+      jdk:  oraclejdk8
+      before_install: &install_hashicorp
+        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
+        - mkdir -p vault/bin && pushd $_
+        - unzip /tmp/vault_1.0.1_linux_amd64.zip
+        - export PATH=$PATH:$PWD && popd
+      install: *build_no_checks
+      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
+    - if: type = pull_request
+      name: "Vault Acceptance Tests Java 11"
+      jdk:  oraclejdk11
+      before_install: *install_hashicorp
+      install: *build_no_checks
+      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
+    - if: branch = master AND type = push
+      name: "Deploy to central"
+      jdk:  oraclejdk8
+      script:
+        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
+        - mvn deploy --settings .maven.xml -P release
+    - if: type = api
+      name: "Perform release"
+      script:
+        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
+        - release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
+        - branch_name="release-${release_version}"
+        - mvn --settings .maven.xml -B release:branch -DbranchName=$branch_name
+        - mvn --settings .maven.xml -B -DpushChanges=true release:prepare release:perform
+        - echo "TODO: The release branch must be manually merged back to master."
+      jdk:  oraclejdk8
 
 sudo: enabled
 
@@ -16,19 +90,8 @@ notifications:
 
 cache:
   directories:
-  - "$HOME/.m2"
-
-install:
-- wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
-- mkdir -p vault/bin && pushd $_
-- unzip /tmp/vault_1.0.1_linux_amd64.zip
-- export PATH=$PATH:$PWD && popd
-
-script:
-- mvn install -P acceptance-test,vault-acceptance-tests,jnacl
-
-before_cache:
-- mvn dependency:purge-local-repository -Dinclude=com.quorum.tessera -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
+    - "$HOME/.m2"
 
 after_success:
-- bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash)
+

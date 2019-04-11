@@ -6,8 +6,6 @@ import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.keypairs.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
@@ -16,13 +14,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class KeyVaultConfigurationValidatorTest {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeyVaultConfigurationValidatorTest.class);
 
     private ConstraintValidatorContext context;
     private KeyVaultConfigurationValidator validator;
@@ -35,8 +29,6 @@ public class KeyVaultConfigurationValidatorTest {
         when(context.buildConstraintViolationWithTemplate(any(String.class))).thenReturn(builder);
 
         validator = new KeyVaultConfigurationValidator();
-        ValidKeyVaultConfiguration validKeyVaultConfiguration = mock(ValidKeyVaultConfiguration.class);
-        validator.initialize(validKeyVaultConfiguration);
     }
 
     @Test
@@ -315,7 +307,7 @@ public class KeyVaultConfigurationValidatorTest {
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
-    
+
     @Test
     public void azureConfigWithHashicorpKeyPairIsInvalid() {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);

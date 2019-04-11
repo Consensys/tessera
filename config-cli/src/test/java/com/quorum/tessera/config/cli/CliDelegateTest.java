@@ -7,9 +7,13 @@ import javax.validation.ConstraintViolationException;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.assertj.core.api.Fail;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CliDelegateTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CliDelegateTest.class);
+    
     private final CliDelegate instance = CliDelegate.INSTANCE;
 
     @Test
@@ -65,7 +69,7 @@ public class CliDelegateTest {
             assertThat(result).isNotNull();
             Fail.failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
-            ex.getConstraintViolations().forEach(System.out::println);
+            ex.getConstraintViolations().forEach(v -> LOGGER.info("{}",v));
         }
     }
     

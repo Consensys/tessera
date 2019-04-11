@@ -9,13 +9,6 @@ import javax.validation.ConstraintValidatorContext;
 
 public class KeyVaultConfigurationValidator implements ConstraintValidator<ValidKeyVaultConfiguration, KeyConfiguration> {
 
-    private ValidKeyVaultConfiguration annotation;
-
-    @Override
-    public void initialize(ValidKeyVaultConfiguration annotation) {
-        this.annotation = annotation;
-    }
-
     @Override
     public boolean isValid(KeyConfiguration keyConfiguration, ConstraintValidatorContext cvc) {
 

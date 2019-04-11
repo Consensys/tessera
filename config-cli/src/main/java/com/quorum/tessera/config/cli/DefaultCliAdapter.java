@@ -17,6 +17,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 public class DefaultCliAdapter implements CliAdapter {
@@ -57,8 +58,12 @@ public class DefaultCliAdapter implements CliAdapter {
         final List<String> argsList = Arrays.asList(args);
         if (argsList.contains("help") || argsList.isEmpty()) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.setWidth(200);
-            formatter.printHelp("tessera -configfile <PATH> [-keygen <PATH>] [-pidfile <PATH>]", options);
+            PrintWriter pw = new PrintWriter(sys().out());
+            formatter.printHelp(pw, 
+                    200, "tessera -configfile <PATH> [-keygen <PATH>] [-pidfile <PATH>]", 
+                    null, options, formatter.getLeftPadding(), 
+                    formatter.getDescPadding(), null, false);
+            pw.flush();
             return new CliResult(0, true, null);
         }
 

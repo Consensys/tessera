@@ -38,9 +38,9 @@ public class PostDelegateTest {
     }
 
     @Test
-    public void doPost() {
+    public void doPostReturnsResponseDataIf200() {
 
-        final byte[] responseData = "I LOVE SPARROWS!".getBytes();
+        final byte[] responseData = "RESPONSE_DATA".getBytes();
         final Response response = mock(Response.class);
 
         when(response.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
@@ -49,6 +49,21 @@ public class PostDelegateTest {
 
         final byte[] data = "BOGUS".getBytes();
         final byte[] result = delegate.doPost("http://bogus.com", ApiPath.PARTYINFO, data);
+        assertThat(result).isSameAs(responseData);
+    }
+
+    @Test
+    public void doPostReturnsResponseDataIf201() {
+
+        final byte[] responseData = "RESPONSE_DATA".getBytes();
+        final Response response = mock(Response.class);
+
+        when(response.getStatus()).thenReturn(Response.Status.CREATED.getStatusCode());
+        when(response.readEntity(byte[].class)).thenReturn(responseData);
+        when(builder.post(any(Entity.class))).thenReturn(response);
+
+        final byte[] data = "BOGUS".getBytes();
+        final byte[] result = delegate.doPost("http://bogus.com", ApiPath.PUSH, data);
         assertThat(result).isSameAs(responseData);
     }
 

@@ -1,6 +1,7 @@
 package com.quorum.tessera.client;
 
 import com.quorum.tessera.api.model.ResendRequest;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -37,7 +38,8 @@ public class PostDelegate {
             .request()
             .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM_TYPE));
 
-        if (Response.Status.OK.getStatusCode() != response.getStatus()) {
+        if (Response.Status.OK.getStatusCode() != response.getStatus() &&
+            Response.Status.CREATED.getStatusCode() != response.getStatus()) {
             return null;
         }
 

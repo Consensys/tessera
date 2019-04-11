@@ -2,7 +2,7 @@ package com.quorum.tessera.node;
 
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.core.config.ConfigService;
-import com.quorum.tessera.encryption.Enclave;
+import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.model.Party;

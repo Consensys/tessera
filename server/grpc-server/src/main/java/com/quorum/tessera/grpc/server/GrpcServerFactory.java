@@ -12,7 +12,7 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.Set;
 
-public class GrpcServerFactory implements TesseraServerFactory {
+public class GrpcServerFactory implements TesseraServerFactory<Object> {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GrpcServerFactory.class);
 
 

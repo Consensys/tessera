@@ -5,6 +5,7 @@ import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.config.util.ConfigFileStore;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.io.SystemAdapter;
 import org.apache.commons.cli.CommandLine;
 
 import java.io.FileNotFoundException;
@@ -70,7 +71,7 @@ public class ConfigurationParser implements Parser<Config> {
                 JaxbUtil.marshal(config, out);
             }
         } else {
-            JaxbUtil.marshal(config, System.out);
+            JaxbUtil.marshal(config, SystemAdapter.INSTANCE.out());
         }
 
     }

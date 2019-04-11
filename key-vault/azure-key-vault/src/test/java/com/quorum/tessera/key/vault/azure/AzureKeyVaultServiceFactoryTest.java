@@ -6,6 +6,8 @@ import com.quorum.tessera.key.vault.KeyVaultService;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_ID;
+import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_SECRET;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -41,33 +43,33 @@ public class AzureKeyVaultServiceFactoryTest {
     public void clientIdEnvironmentVariableNotSetThrowsException() {
         Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
 
-        when(envProvider.getEnv("AZURE_CLIENT_ID")).thenReturn(null);
-        when(envProvider.getEnv("AZURE_CLIENT_SECRET")).thenReturn("secret");
+        when(envProvider.getEnv(AZURE_CLIENT_ID)).thenReturn(null);
+        when(envProvider.getEnv(AZURE_CLIENT_SECRET)).thenReturn("secret");
 
         assertThat(ex).isInstanceOf(AzureCredentialNotSetException.class);
-        assertThat(ex.getMessage()).isEqualTo("AZURE_CLIENT_ID and AZURE_CLIENT_SECRET environment variables must be set");
+        assertThat(ex.getMessage()).isEqualTo(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
     }
 
     @Test
     public void clientSecretEnvironmentVariableNotSetThrowsException() {
         Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
 
-        when(envProvider.getEnv("AZURE_CLIENT_ID")).thenReturn("id");
-        when(envProvider.getEnv("AZURE_CLIENT_SECRET")).thenReturn(null);
+        when(envProvider.getEnv(AZURE_CLIENT_ID)).thenReturn("id");
+        when(envProvider.getEnv(AZURE_CLIENT_SECRET)).thenReturn(null);
 
         assertThat(ex).isInstanceOf(AzureCredentialNotSetException.class);
-        assertThat(ex.getMessage()).isEqualTo("AZURE_CLIENT_ID and AZURE_CLIENT_SECRET environment variables must be set");
+        assertThat(ex.getMessage()).isEqualTo(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
     }
 
     @Test
     public void bothClientIdAndClientSecretEnvironmentVariablesNotSetThrowsException() {
         Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
 
-        when(envProvider.getEnv("AZURE_CLIENT_ID")).thenReturn(null);
-        when(envProvider.getEnv("AZURE_CLIENT_SECRET")).thenReturn(null);
+        when(envProvider.getEnv(AZURE_CLIENT_ID)).thenReturn(null);
+        when(envProvider.getEnv(AZURE_CLIENT_SECRET)).thenReturn(null);
 
         assertThat(ex).isInstanceOf(AzureCredentialNotSetException.class);
-        assertThat(ex.getMessage()).isEqualTo("AZURE_CLIENT_ID and AZURE_CLIENT_SECRET environment variables must be set");
+        assertThat(ex.getMessage()).isEqualTo(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
     }
 
     @Test

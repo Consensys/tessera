@@ -5,44 +5,30 @@
         "password": "tiger",
         "url": "foo:bar"
     },
-    "serverConfigs":[
+    "serverConfigs": [
         {
-            "app":"ThirdParty",
+            "app": "ThirdParty",
             "enabled": true,
-            "serverSocket":{
-                "type":"INET",
-                "port": 8090,
-                "hostName": "http://localhost"
-            },
-            "communicationType" : "REST"
+            "serverAddress": "http://localhost:8090",
+
+            "communicationType": "REST"
         },
         {
-            "app":"ADMIN",
+            "app": "ADMIN",
             "enabled": true,
-            "serverSocket":{
-                "type":"INET",
-                "port": 18090,
-                "hostName": "http://localhost"
-            },
-            "communicationType" : "REST"
+            "serverAddress": "http://localhost:18090",
+            "communicationType": "REST"
         },
         {
-            "app":"Q2T",
+            "app": "Q2T",
             "enabled": true,
-            "serverSocket":{
-                "type":"UNIX",
-                "path":"/tmp/test.ipc"
-            },
-            "communicationType" : "REST"
+            "serverAddress": "unix:/tmp/test.ipc",
+            "communicationType": "REST"
         },
         {
-            "app":"P2P",
+            "app": "P2P",
             "enabled": true,
-            "serverSocket":{
-                "type":"INET",
-                "port": 8091,
-                "hostName": "http://localhost"
-            },
+            "serverAddress": "http://localhost:8091",
             "sslConfig": {
                 "tls": "OFF",
                 "generateKeyStoreIfNotExisted": "false",
@@ -59,7 +45,7 @@
                 "knownClientsFile": "./ssl/knownClients1",
                 "knownServersFile": "./ssl/knownServers1"
             },
-            "communicationType" : "REST"
+            "communicationType": "REST"
         }
     ],
     "peer": [

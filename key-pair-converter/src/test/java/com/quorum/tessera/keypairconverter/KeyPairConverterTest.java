@@ -147,4 +147,18 @@ public class KeyPairConverterTest {
         KeyPair resultKeyPair = result.iterator().next();
         assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
     }
+
+    @Test
+    public void createFromStrings() {
+        final List<String> inputs = Arrays.asList("KEYONE", "KEYTWO");
+
+        final PublicKey[] expectedOutputs = new PublicKey[]{
+            PublicKey.from(new byte[]{40, 70, 14, 52}), PublicKey.from(new byte[]{40, 70, 19, 88})
+        };
+
+        final List<PublicKey> keys = this.converter.convert(inputs);
+
+        assertThat(keys).hasSize(2).containsExactlyInAnyOrder(expectedOutputs);
+    }
+
 }

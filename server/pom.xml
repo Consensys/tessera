@@ -6,18 +6,98 @@
     <artifactId>server</artifactId>
     <packaging>pom</packaging>
 
+    <properties>
+        <jetty.version>9.4.14.v20181114</jetty.version>
+    </properties>
+
     <parent>
         <artifactId>tessera</artifactId>
         <groupId>com.jpmorgan.quorum</groupId>
-        <version>0.8</version>
+        <version>0.9-SNAPSHOT</version>
     </parent>
 
     <modules>
         <module>jersey-server</module>
         <module>grpc-server</module>
         <module>server-api</module>
-        <module>unix-socket-server</module>
+        <module>jaxrs-client-unixsocket</module>
+        <module>server-utils</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>work-in-progress</id>
+            <modules>
+                <module>websockets-server</module>
+            </modules>
+        </profile>
+    </profiles>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>server-utils</artifactId>
+                <version>0.9-SNAPSHOT</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.glassfish.grizzly</groupId>
+                <artifactId>grizzly-http-servlet</artifactId>
+                <version>2.4.3.1</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.sun.mail</groupId>
+                <artifactId>javax.mail</artifactId>
+                <version>1.6.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-client</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-unixsocket</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jnr-unixsocket</artifactId>
+                <version>0.21</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>javax-websocket-server-impl</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>javax-websocket-client-impl</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
     <build>
         <plugins>
             <plugin>

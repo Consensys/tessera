@@ -9,7 +9,7 @@ import static org.mockito.Mockito.*;
 
 public class AdminRestAppTest {
 
-    private static final String contextName = "context";
+    private static final String CONTEXT_NAME = "context";
 
     private ServiceLocator serviceLocator;
 
@@ -19,7 +19,7 @@ public class AdminRestAppTest {
     public void setUp() {
         this.serviceLocator = mock(ServiceLocator.class);
 
-        this.adminRestApp = new AdminRestApp(serviceLocator, contextName);
+        this.adminRestApp = new AdminRestApp(serviceLocator, CONTEXT_NAME);
     }
 
     @After
@@ -31,7 +31,7 @@ public class AdminRestAppTest {
     public void getSingletons() {
         this.adminRestApp.getSingletons();
 
-        verify(serviceLocator).getServices(contextName);
+        verify(serviceLocator).getServices(CONTEXT_NAME);
     }
 
 }

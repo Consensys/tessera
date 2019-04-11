@@ -11,13 +11,6 @@ public class ServerConfigValidator implements ConstraintValidator<ValidServerCon
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerConfigValidator.class);
 
-    private ValidServerConfig config;
-
-    @Override
-    public void initialize(ValidServerConfig a) {
-        this.config = a;
-    }
-
     @Override
     public boolean isValid(ServerConfig serverConfig, ConstraintValidatorContext constraintContext) {
 
@@ -35,15 +28,7 @@ public class ServerConfigValidator implements ConstraintValidator<ValidServerCon
             return false;
 
         }
-
-        if (!serverConfig.getApp().getAllowedSocketTypes().contains(serverConfig.getServerSocket().getClass())) {
-            LOGGER.debug("Invalid serverSocket type specified for serverConfig with app " + serverConfig.getApp());
-            constraintContext.disableDefaultConstraintViolation();
-            constraintContext.buildConstraintViolationWithTemplate("Invalid serverSocket type specified for " +
-                "serverConfig with app " + serverConfig.getApp())
-                .addConstraintViolation();
-            return false;
-        }
+        
 
         return true;
     }

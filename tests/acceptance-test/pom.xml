@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tests</artifactId>
-        <version>0.8</version>
+        <version>0.9-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -18,14 +18,52 @@
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-app</artifactId>
             <classifier>app</classifier>
-            <version>0.8</version>
+            <version>0.9-SNAPSHOT</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>tessera-simple</artifactId>
+            <classifier>app</classifier>
+            <version>0.9-SNAPSHOT</version>
         </dependency>
    
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>test-util</artifactId>
+            <artifactId>tessera-grpc</artifactId>
+            <classifier>app</classifier>
+            <version>0.9-SNAPSHOT</version>
+        </dependency>
+   
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>enclave-jaxrs</artifactId>
+        </dependency>
+   
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>enclave-jaxrs</artifactId>
+            <classifier>server</classifier>
         </dependency>
         
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>test-util</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>config-migration</artifactId>
+            <scope>runtime</scope>
+            <classifier>cli</classifier>
+            <version>0.9-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>ddls</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-junit</artifactId>
@@ -36,6 +74,20 @@
             <artifactId>cucumber-java8</artifactId>
             <version>4.0.1</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>test</scope>
+        </dependency>
+ 
     </dependencies>
 
     <build>
@@ -52,24 +104,55 @@
                             <goal>properties</goal>
                         </goals>
                     </execution>
+
+                    <execution>
+                        <id>unpack-ddls</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.jpmorgan.quorum</groupId>
+                                    <artifactId>ddls</artifactId>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.testOutputDirectory}/ddls</outputDirectory>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.0.0-M1</version>
                 <configuration>
                     <skip>false</skip>
-                    <rerunFailingTestsCount>3</rerunFailingTestsCount>
+                    <rerunFailingTestsCount>0</rerunFailingTestsCount>
+                    
                     <systemPropertyVariables>
                         <application.jar>${com.jpmorgan.quorum:tessera-app:jar:app}</application.jar>
-                        <javax.xml.bind.JAXBContextFactory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.JAXBContextFactory>
-                        <javax.xml.bind.context.factory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.context.factory>
+                        <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
+                        <jdbc.sqlite.jar>${org.xerial:sqlite-jdbc:jar}</jdbc.sqlite.jar>
+                        <enclave.jaxrs.jar>${com.jpmorgan.quorum:enclave-jaxrs:jar}</enclave.jaxrs.jar>
+                        <enclave.jaxrs.server.jar>${com.jpmorgan.quorum:enclave-jaxrs:jar:server}</enclave.jaxrs.server.jar>
+                        <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
-                        <include>RestSuite</include>
-                        <include>GrpcSuite</include>
+                        <include>AdminRestSuite</include>
+                        <include>RestSuiteRemoteEnclaveH2</include>
+                        <include>RestSuiteH2</include>
+                        <include>CucumberWhitelistIT</include>
+                        <include>RestSuiteH2</include>
+                        <include>RestSuiteUnixH2</include>
+                        <include>RestSuiteHSQL</include>
+                        <include>RestSuiteUnixH2</include>
+                        <include>RestSuiteSqlite</include>
+                        <include>ConfigMigrationIT</include>
+                        <include>GrpcSuiteH2</include>
+                        <include>GrpcSuiteSqlite</include>
+                        <include>GrpcSuiteHSQL</include>
                     </includes>
                 </configuration>
                 <executions>
@@ -126,13 +209,69 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>3.0.0-M1</version>
-
                         <configuration>
                             <includes>
-                                <include>RestSuite</include>
-                                <include>GrpcSuite</include>
                                 <include>RunHashicorpIT</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+
+
+        <profile>
+            <id>grpc-acceptance-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <application.jar>${com.jpmorgan.quorum:tessera-grpc:jar:app}</application.jar>
+                                <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
+                                <jdbc.sqlite.jar>${org.xerial:sqlite-jdbc:jar}</jdbc.sqlite.jar>
+                            </systemPropertyVariables>
+                            <rerunFailingTestsCount>0</rerunFailingTestsCount>
+                            <includes>
+                                <include>GrpcSuiteH2</include>
+                                <include>GrpcSuiteSqlite</include>
+                                <include>GrpcSuiteHSQL</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>simple-acceptance-tests</id>
+
+            <build>
+               
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <application.jar>${com.jpmorgan.quorum:tessera-simple:jar:app}</application.jar>
+                                <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
+                                <jdbc.sqlite.jar>${org.xerial:sqlite-jdbc:jar}</jdbc.sqlite.jar>
+                            </systemPropertyVariables>
+                            <rerunFailingTestsCount>0</rerunFailingTestsCount>
+                            <includes>
+                                <include>AdminRestSuite</include>
+                                <include>RestSuiteH2</include>
+                                <include>CucumberWhitelistIT</include>
+                                <include>RestSuiteH2</include>
+                                <include>RestSuiteUnixH2</include>
+                                <include>RestSuiteHSQL</include>
+                                <include>RestSuiteUnixH2</include>
+                                <include>RestSuiteSqlite</include>
+                                <include>ConfigMigrationIT</include>
                             </includes>
                         </configuration>
                     </plugin>
