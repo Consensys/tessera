@@ -72,6 +72,8 @@ matrix:
         - mvn deploy --settings .maven.xml -P release -q  || travis_terminate 1
     - if: type = api
       name: "Perform release"
+      before_script:
+        - echo -e "Host github.com\n\tHostName github.com\n\tUser git\n\tIdentityFile ~/.ssh/id_rsa\n" >> ~/.ssh/config
       script:
         - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
         - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
@@ -79,7 +81,7 @@ matrix:
         - branch_name="release-${release_version}"
         - git checkout -b $branch_name  || travis_terminate 1
         - mvn --settings .maven.xml -B -DpushChanges=true release:prepare || travis_terminate 1
-        - mvn --settings .maven.xml -B -DpushChanges=true release:perform -q || travis_terminate 1
+        - mvn --settings .maven.xml -B -DpushChanges=true release:perform || travis_terminate 1
         - echo "TODO: The release branch $branch_name must be manually merged back to master."
       jdk:  oraclejdk8
 

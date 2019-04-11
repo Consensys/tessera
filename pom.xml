@@ -175,7 +175,7 @@
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <useReleaseProfile>false</useReleaseProfile>
-                    <releaseProfiles>release</releaseProfiles>
+                    <releaseProfiles>release,reduce-logging</releaseProfiles>
                     <goals>deploy</goals>
                 </configuration>
             </plugin>
