@@ -21,14 +21,14 @@ matrix:
       install: *build_no_checks
       script: *build_with_unittests
     #Default
-#    - if: type = pull_request
-#      name: "Acceptance Tests Java 11"
-#      jdk:  oraclejdk11
-#      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
-#      before_install:
-#        - rm "${JAVA_HOME}/lib/security/cacerts"
-#        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
-#      install: *build_no_checks
+    #    - if: type = pull_request
+    #      name: "Acceptance Tests Java 11"
+    #      jdk:  oraclejdk11
+    #      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+    #      before_install:
+    #        - rm "${JAVA_HOME}/lib/security/cacerts"
+    #        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
+    #      install: *build_no_checks
     - if: type = pull_request
       name: "Acceptance Tests Java 8"
       jdk:  oraclejdk8
@@ -69,7 +69,7 @@ matrix:
       script:
         - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
         - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-        - mvn deploy --settings .maven.xml -P release -q
+        - mvn deploy --settings .maven.xml -P release -q  || travis_terminate 1
     - if: type = api
       name: "Perform release"
       script:
@@ -77,9 +77,10 @@ matrix:
         - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
         - release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
         - branch_name="release-${release_version}"
-        - mvn --settings .maven.xml -B release:branch -DbranchName=$branch_name
-        - mvn --settings .maven.xml -B -DpushChanges=true release:prepare release:perform  -q
-        - echo "TODO: The release branch must be manually merged back to master."
+        - git branch -c $branch_name  || travis_terminate 1
+        - git checkout -c $branch_name  || travis_terminate 1
+        - mvn --settings .maven.xml -B -DpushChanges=true release:prepare release:perform  -q  || travis_terminate 1
+        - echo "TODO: The release branch $branch_name must be manually merged back to master."
       jdk:  oraclejdk8
 
 sudo: enabled
