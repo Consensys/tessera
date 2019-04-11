@@ -4,7 +4,7 @@
 
 # <img src="TesseraLogo.png" width="150" height="150"/>
 
-> __Important: Release 0.8 Feature__ <br/>Tessera now supports pre-signed 'raw' transactions. Please refer to the API section of the [Tessera wiki](https://github.com/jpmorganchase/tessera/wiki/Interface-&-API/) for details of the updated API, and the [quorum.js](https://github.com/jpmorganchase/quorum.js/) repo for usage info. 
+> __Important: Release 0.9 Feature__ <br/>Tessera now supports remote enclaves for increased security. Please refer to the [wiki](https://github.com/jpmorganchase/tessera/wiki/What-is-an-Enclave%3F) for details. 
 
 Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/jpmorganchase/quorum/).
 
