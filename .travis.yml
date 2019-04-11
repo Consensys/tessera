@@ -77,8 +77,7 @@ matrix:
         - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
         - release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
         - branch_name="release-${release_version}"
-        - git branch -c $branch_name  || travis_terminate 1
-        - git checkout -c $branch_name  || travis_terminate 1
+        - git checkout -b $branch_name  || travis_terminate 1
         - mvn --settings .maven.xml -B -DpushChanges=true release:prepare release:perform  -q  || travis_terminate 1
         - echo "TODO: The release branch $branch_name must be manually merged back to master."
       jdk:  oraclejdk8
