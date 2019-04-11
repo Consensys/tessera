@@ -20,7 +20,7 @@
         <url>https://github.com/jpmorganchase/tessera</url>
         <connection>scm:git:git://github.com/jpmorganchase/tessera.git</connection>
         <developerConnection>scm:git:git@github.com:jpmorganchase/tessera.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>marktest</tag>
     </scm>
 
     <description>Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution
