@@ -9,7 +9,7 @@
     <parent>
         <artifactId>tessera</artifactId>
         <groupId>com.jpmorgan.quorum</groupId>
-        <version>0.9</version>
+        <version>0.10-SNAPSHOT</version>
     </parent>
 
     <modules>
