@@ -1,5 +1,9 @@
 package com.quorum.tessera.nio.unix;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.DirectoryStream;
@@ -7,18 +11,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 public class UnixSocketFileSystemProviderTest {
 
@@ -38,15 +37,11 @@ public class UnixSocketFileSystemProviderTest {
     }
 
     @Test
-    public void loadInstance() throws Exception {
+    public void loadInstance() {
 
         URI unixUri = URI.create("unix:/somepath.socket");
 
         assertThat("file").isEqualTo(Paths.get(unixUri).toUri().getScheme());
-    }
-
-    public static List<FileSystemProvider> installedProviders() {
-        return FileSystemProvider.installedProviders();
     }
 
     @Test
@@ -239,7 +234,7 @@ public class UnixSocketFileSystemProviderTest {
         verify(delegate).getFileAttributeView(path, type);
 
     }
-    
+
     @Test
     public void readAttributes() throws IOException {
         Path path = mock(Path.class);
@@ -261,8 +256,8 @@ public class UnixSocketFileSystemProviderTest {
         Path path = mock(Path.class);
         String attribute = UUID.randomUUID().toString();
         Object value = mock(Object.class);
-        provider.setAttribute(path, attribute,value);
-        verify(delegate).setAttribute(path, attribute,value);
+        provider.setAttribute(path, attribute, value);
+        verify(delegate).setAttribute(path, attribute, value);
     }
 
 }

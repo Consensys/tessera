@@ -7,15 +7,7 @@ import java.net.URI;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.AccessMode;
-import java.nio.file.CopyOption;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileStore;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.LinkOption;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
@@ -26,7 +18,6 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * Implementation of FileSystemProvider that handles URIs with unix scheme
- *
  */
 public class UnixSocketFileSystemProvider extends FileSystemProvider {
 
@@ -45,10 +36,18 @@ public class UnixSocketFileSystemProvider extends FileSystemProvider {
         return "unix";
     }
 
-    private static URI convert(URI uri) {
-        return UriCallback.execute(() -> {
-            return new URI("file",uri.getUserInfo(),uri.getHost(),uri.getPort(),uri.getPath(),uri.getQuery(),uri.getFragment());
-        });
+    private static URI convert(final URI uri) {
+        return UriCallback.execute(
+            () -> new URI(
+                "file",
+                uri.getUserInfo(),
+                uri.getHost(),
+                uri.getPort(),
+                uri.getPath(),
+                uri.getQuery(),
+                uri.getFragment()
+            )
+        );
 
     }
 

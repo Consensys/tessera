@@ -10,6 +10,7 @@ import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Set;
 import java.util.stream.Stream;
+
 /**
  * <p>
  *  Delegates calls to nio Files functions unchecking IOExceptions
@@ -27,7 +28,6 @@ public interface FilesDelegate {
     default boolean deleteIfExists(Path path) {
         return IOCallback.execute(() -> Files.deleteIfExists(path));
     }
-
 
     default Path createFile(Path path, FileAttribute... attributes) {
 

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 
-
 public interface UriCallback<T> {
     
     T doExecute() throws URISyntaxException;
@@ -16,4 +15,5 @@ public interface UriCallback<T> {
              throw new UncheckedIOException(new IOException(ex));
         }
     }
+
 }

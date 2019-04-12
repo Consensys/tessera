@@ -1,34 +1,36 @@
 package com.quorum.tessera.service;
 
 import com.quorum.tessera.service.Service.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ServiceContainer implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceContainer.class);
 
-    private Service service;
+    private final Service service;
 
-    private ScheduledExecutorService executorService;
+    private final ScheduledExecutorService executorService;
 
-    private long initialDelay;
+    private final long initialDelay;
 
-    private long period;
+    private final long period;
 
-    public ServiceContainer(Service service) {
+    public ServiceContainer(final Service service) {
         this(service, Executors.newScheduledThreadPool(1), 1000L, 1000L);
     }
 
-    public ServiceContainer(Service service,
-            ScheduledExecutorService executorService,
-            long initialDelay, long period) {
+    public ServiceContainer(final Service service,
+                            final ScheduledExecutorService executorService,
+                            final long initialDelay,
+                            final long period) {
         this.service = service;
         this.executorService = executorService;
         this.initialDelay = initialDelay;
@@ -48,22 +50,21 @@ public class ServiceContainer implements Runnable {
 
     @Override
     public void run() {
-        LOGGER.trace("Check status {}",service);
+        LOGGER.trace("Check status {}", service);
         Status status = service.status();
-        LOGGER.trace("{} Status is {}",service,status);
+        LOGGER.trace("{} Status is {}", service, status);
 
         if (status == Service.Status.STOPPED) {
-            LOGGER.warn("Service {} not stopped attempt to restart.",service);
+            LOGGER.warn("Service {} not stopped attempt to restart.", service);
             try {
-                LOGGER.debug("Starting service {}",service);
+                LOGGER.debug("Starting service {}", service);
                 service.start();
-                LOGGER.debug("Started service {}",service);
+                LOGGER.debug("Started service {}", service);
             } catch (Throwable ex) {
                 LOGGER.trace(null, ex);
-                LOGGER.warn("Exception thrown : {} While starting service {}",
-                        Optional.ofNullable(ex.getCause()).orElse(ex).getMessage(),service);
+                LOGGER.warn("Exception thrown : {} While starting service {}", Optional.ofNullable(ex.getCause()).orElse(ex).getMessage(), service);
             }
         }
     }
-    
+
 }
