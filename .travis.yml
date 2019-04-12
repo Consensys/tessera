@@ -25,9 +25,6 @@ matrix:
       name: "Acceptance Tests Java 11"
       jdk:  oraclejdk11
       script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
-      before_install:
-        - rm "${JAVA_HOME}/lib/security/cacerts"
-        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
       install: *build_no_checks
     - if: type = pull_request
       name: "Acceptance Tests Java 8"
@@ -85,13 +82,11 @@ matrix:
         - echo "TODO: The release branch $branch_name must be manually merged back to master."
       jdk:  oraclejdk8
     - if: branch = travis_changes AND type = push
-      name: "Acceptance Tests Java 11"
-      jdk:  oraclejdk11
-      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+      name: "Deploy site"
+      jdk:  oraclejdk8
+      script: mvn site-deploy -P reduce-logging || travis_terminate 1
       install: *build_no_checks
-      script: *build_with_unittests
 
-        
 sudo: enabled
 
 notifications:
