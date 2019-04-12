@@ -84,7 +84,11 @@ matrix:
     - if: branch = travis_changes AND type = push
       name: "Deploy site"
       jdk:  oraclejdk8
-      script: mvn site-deploy -P reduce-logging || travis_terminate 1
+      before_install:
+        - echo -e "machine github.com\n  login $CI_USER_TOKEN" > ~/.netrc
+      script: 
+          - git checkout -b marktest
+          - git push
       install: *build_no_checks
 
 sudo: enabled
