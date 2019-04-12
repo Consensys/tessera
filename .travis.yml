@@ -89,7 +89,7 @@ matrix:
       script: 
           - git checkout -b marktest
           - git push
-      install: *build_no_checks
+      install: echo "install"
 
 sudo: enabled
 
