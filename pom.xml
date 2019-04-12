@@ -149,7 +149,7 @@
 
                 </plugin>
                 
-                <plugin>
+<!--                <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
                     <version>${owasp.plugin.version}</version>
@@ -160,7 +160,7 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin>
+                </plugin>-->
 
             </plugins>
 
@@ -169,10 +169,10 @@
 
         <plugins>
 
-            <plugin>
+<!--            <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-            </plugin>
+            </plugin>-->
             
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
