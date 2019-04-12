@@ -51,7 +51,7 @@
         <grpc.version>1.14.0</grpc.version>
         <h2.version>1.4.199</h2.version>
         <owasp.plugin.version>5.0.0-M2</owasp.plugin.version>
-        <logback.version>1.1.10</logback.version>
+        <logback.version>1.2.3</logback.version>
     </properties>
 
     <build>
@@ -945,17 +945,6 @@
 
     <dependencies>
 
-        <!-- Needed for JavaDoc plugin -->
-        <!--        <dependency>
-            <groupId>javax.interceptor</groupId>
-            <artifactId>javax.interceptor-api</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-        </dependency>-->
-
         <!-- Testing -->
 
         <dependency>
@@ -1160,6 +1149,11 @@
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
                 <version>${owasp.plugin.version}</version>
+                <configuration>
+                    <name>OWASP Depencency check</name>
+                    <skipTestScope>true</skipTestScope>
+                    <enableExperimental>true</enableExperimental>
+                </configuration>
                 <reportSets>
                     <reportSet>
                         <reports>
