@@ -87,8 +87,7 @@ matrix:
       before_install:
         - echo -e "machine github.com\n  login $CI_USER_TOKEN" > ~/.netrc
       script: 
-          - git checkout -b marktest
-          - git push origin marktest
+          - mvn site-deploy
       install: echo "install"
 
 sudo: enabled
