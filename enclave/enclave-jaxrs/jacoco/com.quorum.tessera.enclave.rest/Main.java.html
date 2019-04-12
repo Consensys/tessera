@@ -4,6 +4,7 @@ import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.cli.CliDelegate;
+import com.quorum.tessera.config.cli.CliResult;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import java.util.Set;
@@ -13,56 +14,60 @@ import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-<span class="nc" id="L16">public class Main {</span>
+<span class="nc" id="L17">public class Main {</span>
 
-<span class="nc" id="L18">    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);</span>
+<span class="nc" id="L19">    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);</span>
     
     public static void main(String[] args) throws Exception {
 
-<span class="nc" id="L22">        System.setProperty(&quot;javax.xml.bind.JAXBContextFactory&quot;, &quot;org.eclipse.persistence.jaxb.JAXBContextFactory&quot;);</span>
-<span class="nc" id="L23">        System.setProperty(&quot;javax.xml.bind.context.factory&quot;, &quot;org.eclipse.persistence.jaxb.JAXBContextFactory&quot;);</span>
-<span class="nc" id="L24">        CliDelegate.INSTANCE.execute(args);</span>
-<span class="nc" id="L25">        ServiceLocator serviceLocator = ServiceLocator.create();</span>
+<span class="nc" id="L23">        System.setProperty(&quot;javax.xml.bind.JAXBContextFactory&quot;, &quot;org.eclipse.persistence.jaxb.JAXBContextFactory&quot;);</span>
+<span class="nc" id="L24">        System.setProperty(&quot;javax.xml.bind.context.factory&quot;, &quot;org.eclipse.persistence.jaxb.JAXBContextFactory&quot;);</span>
+<span class="nc" id="L25">        CliResult cliResult = CliDelegate.INSTANCE.execute(args);</span>
+<span class="nc bnc" id="L26" title="All 2 branches missed.">        if(!cliResult.getConfig().isPresent()) {</span>
+<span class="nc" id="L27">            System.exit(cliResult.getStatus());</span>
+        }
+        
+<span class="nc" id="L30">        ServiceLocator serviceLocator = ServiceLocator.create();</span>
  
-<span class="nc" id="L27">        Set&lt;Object&gt; services = serviceLocator.getServices(&quot;tessera-enclave-jaxrs-spring.xml&quot;);</span>
+<span class="nc" id="L32">        Set&lt;Object&gt; services = serviceLocator.getServices(&quot;tessera-enclave-jaxrs-spring.xml&quot;);</span>
 
-<span class="nc" id="L29">        TesseraServerFactory restServerFactory = TesseraServerFactory.create(CommunicationType.REST);</span>
+<span class="nc" id="L34">        TesseraServerFactory restServerFactory = TesseraServerFactory.create(CommunicationType.REST);</span>
 
-<span class="nc" id="L31">        EnclaveResource enclaveResource = services.stream()</span>
-<span class="nc" id="L32">                .filter(EnclaveResource.class::isInstance)</span>
-<span class="nc" id="L33">                .map(EnclaveResource.class::cast)</span>
-<span class="nc" id="L34">                .findAny().get();</span>
+<span class="nc" id="L36">        EnclaveResource enclaveResource = services.stream()</span>
+<span class="nc" id="L37">                .filter(EnclaveResource.class::isInstance)</span>
+<span class="nc" id="L38">                .map(EnclaveResource.class::cast)</span>
+<span class="nc" id="L39">                .findAny().get();</span>
 
-<span class="nc" id="L36">        final EnclaveApplication application = new EnclaveApplication(enclaveResource);</span>
+<span class="nc" id="L41">        final EnclaveApplication application = new EnclaveApplication(enclaveResource);</span>
 
-<span class="nc" id="L38">        Config config = services.stream()</span>
-<span class="nc" id="L39">                .filter(Config.class::isInstance)</span>
-<span class="nc" id="L40">                .map(Config.class::cast)</span>
-<span class="nc" id="L41">                .findAny().get();</span>
+<span class="nc" id="L43">        Config config = services.stream()</span>
+<span class="nc" id="L44">                .filter(Config.class::isInstance)</span>
+<span class="nc" id="L45">                .map(Config.class::cast)</span>
+<span class="nc" id="L46">                .findAny().get();</span>
 
-<span class="nc" id="L43">        final ServerConfig serverConfig = config.getServerConfigs().iterator().next();</span>
+<span class="nc" id="L48">        final ServerConfig serverConfig = config.getServerConfigs().iterator().next();</span>
 
-<span class="nc" id="L45">        TesseraServer server = restServerFactory.createServer(serverConfig, Collections.singleton(application));</span>
+<span class="nc" id="L50">        TesseraServer server = restServerFactory.createServer(serverConfig, Collections.singleton(application));</span>
 
-<span class="nc" id="L47">        server.start();</span>
+<span class="nc" id="L52">        server.start();</span>
         
-<span class="nc" id="L49">        CountDownLatch latch = new CountDownLatch(1);</span>
+<span class="nc" id="L54">        CountDownLatch latch = new CountDownLatch(1);</span>
         
-<span class="nc" id="L51">        Runtime.getRuntime().addShutdownHook(new Thread(() -&gt; {</span>
+<span class="nc" id="L56">        Runtime.getRuntime().addShutdownHook(new Thread(() -&gt; {</span>
             
             try{
-<span class="nc" id="L54">                server.stop();</span>
-<span class="nc" id="L55">            } catch (Exception ex) {</span>
-<span class="nc" id="L56">                LOGGER.error(null, ex);</span>
-<span class="nc" id="L57">            } finally {</span>
+<span class="nc" id="L59">                server.stop();</span>
+<span class="nc" id="L60">            } catch (Exception ex) {</span>
+<span class="nc" id="L61">                LOGGER.error(null, ex);</span>
+<span class="nc" id="L62">            } finally {</span>
                 
-<span class="nc" id="L59">            }</span>
-<span class="nc" id="L60">        }));</span>
+<span class="nc" id="L64">            }</span>
+<span class="nc" id="L65">        }));</span>
         
-<span class="nc" id="L62">        latch.await();</span>
+<span class="nc" id="L67">        latch.await();</span>
 
 
-<span class="nc" id="L65">    }</span>
+<span class="nc" id="L70">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
