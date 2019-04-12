@@ -21,14 +21,14 @@ matrix:
       install: *build_no_checks
       script: *build_with_unittests
     #Default
-    #    - if: type = pull_request
-    #      name: "Acceptance Tests Java 11"
-    #      jdk:  oraclejdk11
-    #      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
-    #      before_install:
-    #        - rm "${JAVA_HOME}/lib/security/cacerts"
-    #        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
-    #      install: *build_no_checks
+    - if: type = pull_request
+      name: "Acceptance Tests Java 11"
+      jdk:  oraclejdk11
+      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+      before_install:
+        - rm "${JAVA_HOME}/lib/security/cacerts"
+        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
+      install: *build_no_checks
     - if: type = pull_request
       name: "Acceptance Tests Java 8"
       jdk:  oraclejdk8
@@ -88,9 +88,6 @@ matrix:
       name: "Acceptance Tests Java 11"
       jdk:  oraclejdk11
       script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
-      before_install:
-        - rm "${JAVA_HOME}/lib/security/cacerts"
-        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
       install: *build_no_checks
       script: *build_with_unittests
 
