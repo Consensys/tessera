@@ -81,14 +81,14 @@ matrix:
         - mvn --settings .maven.xml -B -DpushChanges=true release:perform || travis_terminate 1
         - echo "TODO: The release branch $branch_name must be manually merged back to master."
       jdk:  oraclejdk8
-    - if: branch = travis_changes AND type = push
-      name: "Deploy site"
-      jdk:  oraclejdk8
-      before_install:
-        - echo -e "machine github.com\n  login $CI_USER_TOKEN" > ~/.netrc
-      script: 
-          - mvn site-deploy
-      install: echo "install"
+#    - if: branch = travis_changes AND type = push
+#      name: "Deploy site"
+#      jdk:  oraclejdk8
+#      before_install:
+#        - echo -e "machine github.com\n  login $CI_USER_TOKEN" > ~/.netrc
+#      script: 
+#          - mvn site-deploy
+#      install: echo "install"
 
 sudo: enabled
 
