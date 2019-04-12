@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.jpmorgan.quorum</groupId>
     <artifactId>tessera</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.10-SNAPSHOT</version>
 
     <name>tessera</name>
     <packaging>pom</packaging>
@@ -175,7 +174,7 @@
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <useReleaseProfile>false</useReleaseProfile>
-                    <releaseProfiles>release</releaseProfiles>
+                    <releaseProfiles>release,reduce-logging</releaseProfiles>
                     <goals>deploy</goals>
                 </configuration>
             </plugin>
@@ -401,179 +400,179 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>encryption-api</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>argon2</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>config</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>config-cli</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>key-pair-converter</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>security</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>encryption-jnacl</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
                 <scope>runtime</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>encryption-kalium</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
                 <scope>runtime</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>service-locator-api</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>enclave-api</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>enclave-jaxrs</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>enclave-jaxrs</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
                 <classifier>server</classifier>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>service-locator-spring</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>server-api</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jersey-server</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc-server</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc-api</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>test-util</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>shared</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-core</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc-service</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jaxrs-service</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>key-vault-api</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>azure-key-vault</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>hashicorp-key-vault</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>key-generation</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jaxrs-client</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>ddls</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -1176,7 +1175,7 @@
                                 <logback.configurationFile>${session.executionRootDirectory}/logback-build.xml
                                 </logback.configurationFile>
                             </systemPropertyVariables>
-                            >
+                            &gt;
                         </configuration>
                     </plugin>
                     <plugin>
@@ -1187,7 +1186,7 @@
                                 <logback.configurationFile>${session.executionRootDirectory}/logback-build.xml
                                 </logback.configurationFile>
                             </systemPropertyVariables>
-                            >
+                            &gt;
                         </configuration>
                     </plugin>
                 </plugins>

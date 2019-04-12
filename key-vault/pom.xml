@@ -3,7 +3,7 @@
     <parent>
         <artifactId>tessera</artifactId>
         <groupId>com.jpmorgan.quorum</groupId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.10-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -56,6 +56,12 @@
 
                             </filter>
                         </filters>
+                        <artifactSet>
+                            <excludes>
+                                <exclude>ch.qos.logback:logback-classic</exclude>
+                                <exclude>ch.qos.logback:logback-core</exclude>
+                            </excludes>
+                        </artifactSet>
                     </configuration>
                 </plugin>
             </plugins>
