@@ -30,9 +30,7 @@ public interface FilesDelegate {
     }
 
     default Path createFile(Path path, FileAttribute... attributes) {
-
         return IOCallback.execute(() -> Files.createFile(path, attributes));
-
     }
 
     default InputStream newInputStream(Path path, OpenOption... options) {
@@ -55,8 +53,7 @@ public interface FilesDelegate {
         return IOCallback.execute(() -> Files.write(path, bytes, options));
     }
 
-    default Path setPosixFilePermissions(Path path,
-            Set<PosixFilePermission> perms) {
+    default Path setPosixFilePermissions(Path path, Set<PosixFilePermission> perms) {
         return IOCallback.execute(() -> Files.setPosixFilePermissions(path, perms));
     }
 

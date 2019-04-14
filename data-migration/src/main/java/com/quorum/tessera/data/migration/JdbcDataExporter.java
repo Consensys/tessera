@@ -1,7 +1,7 @@
 package com.quorum.tessera.data.migration;
 
 import com.quorum.tessera.io.IOCallback;
-import com.quorum.tessera.nio.unix.UriCallback;
+import com.quorum.tessera.io.UriCallback;
 
 import java.net.URL;
 import java.nio.file.Files;

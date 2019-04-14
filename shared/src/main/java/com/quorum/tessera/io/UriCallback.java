@@ -1,18 +1,25 @@
-package com.quorum.tessera.nio.unix;
+package com.quorum.tessera.io;
+
+import com.quorum.tessera.reflect.ReflectCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 
 public interface UriCallback<T> {
-    
+
+    Logger LOGGER = LoggerFactory.getLogger(ReflectCallback.class);
+
     T doExecute() throws URISyntaxException;
-    
+
     static <T> T execute(UriCallback<T> callback) {
-        try{
+        try {
             return callback.doExecute();
         } catch (URISyntaxException ex) {
-             throw new UncheckedIOException(new IOException(ex));
+            LOGGER.error(null, ex);
+            throw new UncheckedIOException(new IOException(ex));
         }
     }
 

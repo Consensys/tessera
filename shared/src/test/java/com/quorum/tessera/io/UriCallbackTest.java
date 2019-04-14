@@ -1,9 +1,9 @@
-package com.quorum.tessera.nio.unix;
+package com.quorum.tessera.io;
+
+import org.junit.Test;
 
 import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
-
-import org.junit.Test;
 
 public class UriCallbackTest {
 
