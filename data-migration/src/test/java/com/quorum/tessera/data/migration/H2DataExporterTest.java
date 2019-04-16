@@ -1,6 +1,5 @@
 package com.quorum.tessera.data.migration;
 
-import org.h2.jdbc.JdbcSQLException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -21,6 +20,7 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import org.h2.jdbc.JdbcSQLInvalidAuthorizationSpecException;
 
 public class H2DataExporterTest {
 
@@ -133,7 +133,7 @@ public class H2DataExporterTest {
 
         final Throwable throwable = catchThrowable(() -> DriverManager.getConnection(connectionString, null, null));
 
-        assertThat(throwable).isInstanceOf(JdbcSQLException.class);
+        assertThat(throwable).isInstanceOf(JdbcSQLInvalidAuthorizationSpecException.class);
 
     }
 
