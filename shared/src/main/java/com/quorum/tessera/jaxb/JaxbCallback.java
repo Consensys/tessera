@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.jaxb;
 
 import javax.xml.bind.DataBindingException;
@@ -6,11 +5,9 @@ import javax.xml.bind.JAXBException;
 
 @FunctionalInterface
 public interface JaxbCallback<T> {
-    
-    
-    T doExecute() throws JAXBException,DataBindingException;
-    
-    
+
+    T doExecute() throws JAXBException;
+
     static <T> T execute(JaxbCallback<T> callback) {
         try {
             return callback.doExecute();
@@ -18,5 +15,5 @@ public interface JaxbCallback<T> {
             throw new DataBindingException(ex);
         }
     }
-    
+
 }
