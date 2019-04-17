@@ -1,23 +1,22 @@
 package com.quorum.tessera.jaxrs.unixsocket;
 
 import com.quorum.tessera.config.CommunicationType;
-
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.server.JerseyServer;
-import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import org.glassfish.jersey.client.ClientConfig;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.URI;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.glassfish.jersey.client.ClientConfig;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 public class JerseyServerIT {
 
@@ -30,9 +29,6 @@ public class JerseyServerIT {
 
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setCommunicationType(CommunicationType.REST);
-        
-        //InetServerSocket serverSocket = new InetServerSocket("http://localhost", 8080);
-        Path unixPath = Paths.get(unixfile);
 
         serverConfig.setServerAddress(unixfile.toString());
         Application sample = new SampleApplication();
@@ -42,7 +38,7 @@ public class JerseyServerIT {
     }
 
     @After
-    public void onTearDown() throws Exception {
+    public void onTearDown() {
         server.stop();
     }
 
@@ -93,7 +89,7 @@ public class JerseyServerIT {
     }
 
     @Test
-    public void raw() throws Exception {
+    public void raw() {
 
         ClientConfig config = new ClientConfig();
         config.connectorProvider(new JerseyUnixSocketConnectorProvider());
@@ -110,11 +106,10 @@ public class JerseyServerIT {
     }
 
     @Test
-    public void param() throws Exception {
+    public void param() {
         // URL.setURLStreamHandlerFactory(new UnixSocketURLStreamHandlerFactory());
         ClientConfig config = new ClientConfig();
         config.connectorProvider(new JerseyUnixSocketConnectorProvider());
-
 
         Response result = newClient(unixfile)
                 .target(unixfile)
@@ -132,7 +127,6 @@ public class JerseyServerIT {
         ClientConfig config = new ClientConfig();
         config.connectorProvider(new JerseyUnixSocketConnectorProvider());
 
-        return ClientBuilder.newClient(config)
-                .property("unixfile", unixfile);
+        return ClientBuilder.newClient(config).property("unixfile", unixfile);
     }
 }

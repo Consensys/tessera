@@ -24,6 +24,5 @@ public class SamplePayload {
     public void setId(String id) {
         this.id = id;
     }
-    
-    
+
 }

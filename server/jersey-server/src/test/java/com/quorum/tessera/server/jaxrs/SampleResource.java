@@ -29,8 +29,7 @@ public class SampleResource {
         System.out.println("PING");
         return "HEllow";
     }
-    
-    
+
     @Produces(MediaType.APPLICATION_JSON)
     @GET
     @Path("find/{id}")
