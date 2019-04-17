@@ -15,6 +15,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 public class MetricsEnquirerTest {
+
     @Mock
     private MBeanServer mBeanServer;
 
@@ -116,7 +117,6 @@ public class MetricsEnquirerTest {
             new MBeanAttributeInfo(attributeName2, "type", "desc", true, false, false)
         };
 
-
         MBeanInfo mBeanInfo1 = new MBeanInfo(null, null, mBeanAttributes1, null, null, null);
         MBeanInfo mBeanInfo2 = new MBeanInfo(null, null, mBeanAttributes2, null, null, null);
 
@@ -151,7 +151,6 @@ public class MetricsEnquirerTest {
             new MBeanAttributeInfo(attributeName2, "type", "desc", true, false, false),
             new MBeanAttributeInfo(attributeName3, "type", "desc", true, false, false)
         };
-
 
         MBeanInfo mBeanInfo1 = new MBeanInfo(null, null, mBeanAttributes1, null, null, null);
         MBeanInfo mBeanInfo2 = new MBeanInfo(null, null, mBeanAttributes2, null, null, null);
