@@ -26,8 +26,6 @@ public class ArgonOptions extends ConfigItem {
     @XmlAttribute
     private Integer parallelism;
 
-
-
     public ArgonOptions(String algorithm, Integer iterations, Integer memory, Integer parallelism) {
         this.algorithm = Optional.ofNullable(algorithm).orElse("id");
         this.iterations = iterations;
@@ -36,6 +34,7 @@ public class ArgonOptions extends ConfigItem {
     }
 
     public ArgonOptions() {
+
     }
 
     public String getAlgorithm() {

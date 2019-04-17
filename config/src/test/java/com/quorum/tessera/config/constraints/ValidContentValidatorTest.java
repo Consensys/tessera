@@ -136,6 +136,5 @@ public class ValidContentValidatorTest {
         assertThat(validator.isValid(path, context)).isFalse();
 
     }
-    
 
 }

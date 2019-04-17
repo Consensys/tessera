@@ -70,6 +70,4 @@ public class ServerConfigValidatorTest {
         verify(cvc).buildConstraintViolationWithTemplate(anyString());
     }
 
-
-
 }
