@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.jaxb;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -12,9 +11,8 @@ public class SomeObject {
         return someValue;
     }
 
-    public void setSomeValue(String someValue) {
+    public void setSomeValue(final String someValue) {
         this.someValue = someValue;
     }
-    
-    
+
 }

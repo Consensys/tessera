@@ -1,13 +1,15 @@
 package com.quorum.tessera.service;
 
 import com.quorum.tessera.service.Service.Status;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ServiceContainerTest {
@@ -20,9 +22,10 @@ public class ServiceContainerTest {
 
     @Before
     public void onSetup() {
-        service = mock(Service.class);
-        executorService = mock(ScheduledExecutorService.class);
-        serviceContainer = new ServiceContainer(service, executorService, 10L, 10L);
+        this.service = mock(Service.class);
+        this.executorService = mock(ScheduledExecutorService.class);
+
+        this.serviceContainer = new ServiceContainer(service, executorService, 10L, 10L);
     }
 
     @After
@@ -33,12 +36,14 @@ public class ServiceContainerTest {
     @Test
     public void start() {
         serviceContainer.start();
+
         verify(executorService).scheduleAtFixedRate(serviceContainer, 10L, 10L, TimeUnit.MILLISECONDS);
     }
 
     @Test
     public void stop() {
         serviceContainer.stop();
+
         verify(executorService).shutdown();
         verify(service).stop();
     }
@@ -46,7 +51,9 @@ public class ServiceContainerTest {
     @Test
     public void runWithServiceWithStoppedStatus() {
         when(service.status()).thenReturn(Service.Status.STOPPED);
+
         serviceContainer.run();
+
         verify(service).start();
         verify(service).status();
     }
@@ -54,18 +61,20 @@ public class ServiceContainerTest {
     @Test
     public void runWithServiceWithNOnStoppedStatus() {
 
-        Stream.of(Status.values()).filter(s -> s != Status.STOPPED).forEach(s -> {
-            when(service.status()).thenReturn(s);
-            serviceContainer.run();
+        Stream.of(Status.values())
+            .filter(s -> s != Status.STOPPED)
+            .forEach(s -> {
+                when(service.status()).thenReturn(s);
+                serviceContainer.run();
+            });
 
-        });
         verify(service, times(Status.values().length - 1)).status();
-
     }
 
     @Test
-    public void constructDefaultInstance() throws Exception {
-        ServiceContainer sc = new ServiceContainer(service);
+    public void constructDefaultInstance() {
+        final ServiceContainer sc = new ServiceContainer(service);
+
         assertThat(sc).isNotNull();
     }
 
@@ -73,7 +82,9 @@ public class ServiceContainerTest {
     public void serviceErrorsAreIgnored() {
         when(service.status()).thenReturn(Service.Status.STOPPED);
         doThrow(RuntimeException.class).when(service).start();
+
         serviceContainer.run();
+
         verify(service).start();
         verify(service).status();
     }

@@ -1,5 +1,8 @@
 package com.quorum.tessera.data.migration;
 
+import com.quorum.tessera.io.IOCallback;
+import com.quorum.tessera.io.UriCallback;
+
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,9 +21,11 @@ public class JdbcDataExporter implements DataExporter {
     private final List<String> createTables;
 
     public JdbcDataExporter(String jdbcUrl, String insertRow, URL ddl) {
+        final Path uri = UriCallback.execute(() -> Paths.get(ddl.toURI()));
+
         this.jdbcUrl = jdbcUrl;
         this.insertRow = insertRow;
-        this.createTables = UriCallback.execute(() -> Files.readAllLines(Paths.get(ddl.toURI())));
+        this.createTables = IOCallback.execute(() -> Files.readAllLines(uri));
     }
 
     @Override

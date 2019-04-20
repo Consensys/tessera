@@ -18,12 +18,14 @@
             <artifactId>tessera-app</artifactId>
             <classifier>app</classifier>
             <version>0.10-SNAPSHOT</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>2.4.5</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

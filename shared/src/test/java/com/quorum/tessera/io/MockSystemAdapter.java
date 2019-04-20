@@ -2,7 +2,6 @@ package com.quorum.tessera.io;
 
 import java.io.PrintStream;
 
-
 public class MockSystemAdapter implements SystemAdapter {
     
     private PrintStream outPrintStream;

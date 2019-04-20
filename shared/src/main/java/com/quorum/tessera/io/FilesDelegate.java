@@ -10,6 +10,7 @@ import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Set;
 import java.util.stream.Stream;
+
 /**
  * <p>
  *  Delegates calls to nio Files functions unchecking IOExceptions
@@ -28,11 +29,8 @@ public interface FilesDelegate {
         return IOCallback.execute(() -> Files.deleteIfExists(path));
     }
 
-
     default Path createFile(Path path, FileAttribute... attributes) {
-
         return IOCallback.execute(() -> Files.createFile(path, attributes));
-
     }
 
     default InputStream newInputStream(Path path, OpenOption... options) {
@@ -55,8 +53,7 @@ public interface FilesDelegate {
         return IOCallback.execute(() -> Files.write(path, bytes, options));
     }
 
-    default Path setPosixFilePermissions(Path path,
-            Set<PosixFilePermission> perms) {
+    default Path setPosixFilePermissions(Path path, Set<PosixFilePermission> perms) {
         return IOCallback.execute(() -> Files.setPosixFilePermissions(path, perms));
     }
 

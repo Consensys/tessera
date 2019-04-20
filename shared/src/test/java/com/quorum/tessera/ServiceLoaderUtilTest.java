@@ -1,27 +1,28 @@
-
 package com.quorum.tessera;
 
-import com.acme.Bogus;
-import com.acme.VeryBogus;
-import java.util.Optional;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.acme.DefaultTestService;
+import com.acme.TestService;
 import org.junit.Test;
 
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ServiceLoaderUtilTest {
-    
+
     @Test
     public void noServiceFound() {
-        Optional<ServiceLoaderUtilTest> result = ServiceLoaderUtil.load(ServiceLoaderUtilTest.class);
+        final Optional<ServiceLoaderUtilTest> result = ServiceLoaderUtil.load(ServiceLoaderUtilTest.class);
+
         assertThat(result).isNotPresent();
     }
-    
+
     @Test
     public void serviceFound() {
-        Optional<Bogus> result = ServiceLoaderUtil.load(Bogus.class);
+        final Optional<TestService> result = ServiceLoaderUtil.load(TestService.class);
+
         assertThat(result).isPresent();
-        assertThat(result.get()).isInstanceOf(VeryBogus.class);
-        
+        assertThat(result).get().isInstanceOf(DefaultTestService.class);
     }
-    
+
 }
