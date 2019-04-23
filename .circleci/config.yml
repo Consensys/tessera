@@ -12,7 +12,7 @@ jobs:
 
       - restore_cache:
           key: tessera-{{ checksum "pom.xml" }}
-      
+      - run: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
       - run: mvn dependency:go-offline
       
       - save_cache:
@@ -20,4 +20,5 @@ jobs:
             - ~/.m2
           key: tessera-{{ checksum "pom.xml" }}
       
-      - run: mvn install
+      - run: mvn install -pl \!tests/acceptance-test
+      - run: mvn verify -pl tests/acceptance-test
