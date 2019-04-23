@@ -65,7 +65,6 @@ public class ConfigBuilderTest {
         assertThat(result.getServer().getInfluxConfig()).isNull();
     }
 
-
     @Test
     public void alwaysSendToFileNotFoundPrintsErrorMessageToTerminal() {
         List<String> alwaysSendTo = new ArrayList<>();

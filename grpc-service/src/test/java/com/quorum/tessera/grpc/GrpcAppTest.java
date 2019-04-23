@@ -23,7 +23,6 @@ public class GrpcAppTest {
 
     private ServiceLocator serviceLocator;
 
-
     private GrpcApp grpcApp;
 
     @Before

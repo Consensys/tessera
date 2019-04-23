@@ -2,8 +2,8 @@ package com.quorum.tessera.config.migration;
 
 import com.quorum.tessera.io.NoopSystemAdapter;
 import com.quorum.tessera.io.SystemAdapter;
-import java.io.PrintStream;
 
+import java.io.PrintStream;
 
 public class MockSystemAdapter implements SystemAdapter {
 
@@ -14,6 +14,7 @@ public class MockSystemAdapter implements SystemAdapter {
     public MockSystemAdapter(NoopSystemAdapter defualtInstance) {
         this(defualtInstance.out(),defualtInstance.err());
     }
+
     public MockSystemAdapter() {
         this(new NoopSystemAdapter());
     }
@@ -40,4 +41,5 @@ public class MockSystemAdapter implements SystemAdapter {
     public PrintStream err() {
         return errPrintStream;
     }
+
 }

@@ -29,7 +29,6 @@ import java.util.Optional;
 
 public class LegacyCliAdapter implements CliAdapter {
 
-
     private final FilesDelegate fileDelegate = FilesDelegate.create();
 
     private final TomlConfigFactory configFactory;

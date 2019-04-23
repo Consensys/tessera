@@ -6,6 +6,7 @@ import com.quorum.tessera.grpc.GrpcApp;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
 import io.grpc.ServerBuilder;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
@@ -13,8 +14,8 @@ import java.util.Optional;
 import java.util.Set;
 
 public class GrpcServerFactory implements TesseraServerFactory<Object> {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GrpcServerFactory.class);
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(GrpcServerFactory.class);
 
     @Override
     public TesseraServer createServer(ServerConfig serverConfig, Set<Object> services) {
@@ -37,7 +38,6 @@ public class GrpcServerFactory implements TesseraServerFactory<Object> {
         }
 
         return null;
-
     }
 
     @Override

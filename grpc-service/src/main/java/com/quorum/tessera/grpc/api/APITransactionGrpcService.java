@@ -72,6 +72,5 @@ public class APITransactionGrpcService extends APITransactionGrpc.APITransaction
         });
 
     }
-    
-    
+
 }
