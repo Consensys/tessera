@@ -1,5 +1,6 @@
 package com.quorum.tessera.data.migration;
 
+import java.io.ByteArrayInputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -8,6 +9,7 @@ import org.junit.rules.TestName;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
@@ -52,8 +54,8 @@ public class H2DataExporterTest {
 
         Path outputpath = Files.createTempFile("exportSingleLine", ".db");
 
-        Map<byte[], byte[]> singleLineData = new HashMap<>();
-        singleLineData.put("HASH".getBytes(), "VALUE".getBytes());
+        Map<byte[], InputStream> singleLineData = new HashMap<>();
+        singleLineData.put("HASH".getBytes(), new ByteArrayInputStream("VALUE".getBytes()));
 
         exporter.export(singleLineData, outputpath, null, null);
 
@@ -88,8 +90,8 @@ public class H2DataExporterTest {
 
         final Path outputpath = Files.createTempFile("exportSingleLine", ".db");
 
-        final Map<byte[], byte[]> singleLineData = new HashMap<>();
-        singleLineData.put("HASH".getBytes(), "VALUE".getBytes());
+        final Map<byte[], InputStream> singleLineData = new HashMap<>();
+        singleLineData.put("HASH".getBytes(), new ByteArrayInputStream("VALUE".getBytes()));
 
         exporter.export(singleLineData, outputpath, username, password);
 
@@ -124,8 +126,8 @@ public class H2DataExporterTest {
 
         final Path outputpath = Files.createTempFile("exportSingleLine", ".db");
 
-        final Map<byte[], byte[]> singleLineData = new HashMap<>();
-        singleLineData.put("HASH".getBytes(), "VALUE".getBytes());
+        final Map<byte[], InputStream> singleLineData = new HashMap<>();
+        singleLineData.put("HASH".getBytes(), new ByteArrayInputStream("VALUE".getBytes()));
 
         exporter.export(singleLineData, outputpath, username, password);
 
