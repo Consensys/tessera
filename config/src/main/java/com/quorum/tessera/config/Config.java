@@ -185,8 +185,5 @@ public class Config extends ConfigItem {
     public void setDisablePeerDiscovery(boolean disablePeerDiscovery) {
         this.disablePeerDiscovery = disablePeerDiscovery;
     }
-    
-    
-    
-    
+
 }

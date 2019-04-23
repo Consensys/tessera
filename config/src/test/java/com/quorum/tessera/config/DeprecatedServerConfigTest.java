@@ -37,7 +37,6 @@ public class DeprecatedServerConfigTest {
         assertThat(p2p.getApp()).isEqualTo(AppType.P2P);
     }
 
-
     @Test
     public void createConfigsFromDeprecatedServerConfigWithCommTypeGRPC() {
 

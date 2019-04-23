@@ -8,7 +8,6 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class KeyReadingTest {
 
     @Test
@@ -87,7 +86,6 @@ public class KeyReadingTest {
 
     }
 
-
     @Test
     public void wrongPasswordsProvided() throws IOException {
 
@@ -99,7 +97,5 @@ public class KeyReadingTest {
         assertThat(config.getKeys().getKeyData()).hasSize(1);
         assertThat(config.getKeys().getKeyData().get(0).getPrivateKey()).startsWith("NACL_FAILURE");
     }
-
-
 
 }

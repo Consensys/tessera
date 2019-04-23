@@ -1,23 +1,19 @@
 package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.io.FilesDelegate;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import org.junit.Test;
 
 import javax.validation.ConstraintValidatorContext;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PathValidatorTest {
 
@@ -76,7 +72,7 @@ public class PathValidatorTest {
     }
 
     @Test
-    public void nullPathReturnsTrue() throws IOException {
+    public void nullPathReturnsTrue() {
 
         ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
@@ -113,13 +109,13 @@ public class PathValidatorTest {
     }
 
     @Test
-    public void checkCannotCreateFile() throws IOException {
+    public void checkCannotCreateFile() {
 
         ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
-        
+
         when(context.buildConstraintViolationWithTemplate(anyString()))
-                .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
-                
+            .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
+
         ValidPath validPath = mock(ValidPath.class);
         when(validPath.checkCanCreate()).thenReturn(true);
         when(validPath.checkExists()).thenReturn(Boolean.FALSE);
@@ -129,31 +125,29 @@ public class PathValidatorTest {
         Path path = mock(Path.class);
 
         FilesDelegate filesDelegate = mock(FilesDelegate.class);
-        
+
         when(filesDelegate.notExists(path)).thenReturn(Boolean.TRUE);
         when(filesDelegate.createFile(path)).thenThrow(UncheckedIOException.class);
         when(filesDelegate.deleteIfExists(path)).thenThrow(UncheckedIOException.class);//final block coverage
-        
+
         pathValidator.setFilesDelegate(filesDelegate);
-        
+
         assertThat(pathValidator.isValid(path, context)).isFalse();
 
         verify(context).disableDefaultConstraintViolation();
         verify(context).buildConstraintViolationWithTemplate(anyString());
-        
-        verifyNoMoreInteractions(context);
-       
 
+        verifyNoMoreInteractions(context);
     }
-    
+
     @Test
-    public void checkCannotCreateFileExistingFile() throws IOException {
+    public void checkCannotCreateFileExistingFile() {
 
         ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
-        
+
         when(context.buildConstraintViolationWithTemplate(anyString()))
-                .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
-                
+            .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
+
         ValidPath validPath = mock(ValidPath.class);
         when(validPath.checkCanCreate()).thenReturn(true);
         when(validPath.checkExists()).thenReturn(Boolean.FALSE);
@@ -163,26 +157,24 @@ public class PathValidatorTest {
         Path path = mock(Path.class);
 
         FilesDelegate filesDelegate = mock(FilesDelegate.class);
-        
+
         when(filesDelegate.notExists(path)).thenReturn(Boolean.FALSE);
-        
+
         pathValidator.setFilesDelegate(filesDelegate);
-        
+
         assertThat(pathValidator.isValid(path, context)).isTrue();
 
         verifyNoMoreInteractions(context);
-       
-
     }
-    
-        @Test
-    public void checkCannotCreateFileDontCheck() throws IOException {
+
+    @Test
+    public void checkCannotCreateFileDontCheck() {
 
         ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
-        
+
         when(context.buildConstraintViolationWithTemplate(anyString()))
-                .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
-                
+            .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
+
         ValidPath validPath = mock(ValidPath.class);
         when(validPath.checkCanCreate()).thenReturn(false);
         when(validPath.checkExists()).thenReturn(false);
@@ -192,15 +184,13 @@ public class PathValidatorTest {
         Path path = mock(Path.class);
 
         FilesDelegate filesDelegate = mock(FilesDelegate.class);
-        
+
         when(filesDelegate.notExists(path)).thenReturn(Boolean.TRUE);
-        
+
         pathValidator.setFilesDelegate(filesDelegate);
-        
+
         assertThat(pathValidator.isValid(path, context)).isTrue();
 
         verifyNoMoreInteractions(context);
-       
-
     }
 }

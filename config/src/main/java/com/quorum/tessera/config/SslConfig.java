@@ -140,8 +140,8 @@ public class SslConfig {
     }
 
     public SslConfig() {
-    }
 
+    }
 
     public SslAuthenticationMode getTls() {
         return tls;
