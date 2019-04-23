@@ -3,6 +3,7 @@ package com.quorum.tessera.sync;
 import com.quorum.tessera.client.P2pClient;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
+import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.sync.model.SyncableParty;
 import org.slf4j.Logger;
@@ -10,7 +11,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 /**
  * A poller that will contact all outstanding parties that need to have
@@ -54,7 +57,14 @@ public class SyncPoller implements Runnable {
     @Override
     public void run() {
 
-        this.resendPartyStore.addUnseenParties(partyInfoService.getPartyInfo().getParties());
+        final PartyInfo partyInfo = partyInfoService.getPartyInfo();
+        final Set<Party> unseenParties = partyInfo
+                .getParties()
+                .stream()
+                .filter(p -> !p.getUrl().equals(partyInfo.getUrl()))
+                .collect(Collectors.toSet());
+        LOGGER.debug("Unseen parties {}", unseenParties);
+        this.resendPartyStore.addUnseenParties(unseenParties);
 
         Optional<SyncableParty> nextPartyToSend = this.resendPartyStore.getNextParty();
 
