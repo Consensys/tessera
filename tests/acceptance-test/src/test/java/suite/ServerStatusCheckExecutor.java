@@ -18,6 +18,7 @@ public class ServerStatusCheckExecutor implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
+        LOGGER.info("Connecting {}",serverStatusCheck);
         do {
             LOGGER.debug("Unable to connect try again in 1 sec. {}",serverStatusCheck);
             TimeUnit.SECONDS.sleep(1);

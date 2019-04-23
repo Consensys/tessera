@@ -32,6 +32,8 @@ public class HttpsServerStatusCheck implements ServerStatusCheck {
 
             return true;
         } catch (IOException ex) {
+            LOGGER.warn(ex.getMessage());
+            LOGGER.debug(null, ex);
             return false;
         } finally {
             if (httpsConnection != null) {
