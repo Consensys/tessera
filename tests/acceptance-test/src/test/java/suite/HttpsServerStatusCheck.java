@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class HttpsServerStatusCheck implements ServerStatusCheck {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(HttpsServerStatusCheck.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpsServerStatusCheck.class);
     
     private final URL url;
 
