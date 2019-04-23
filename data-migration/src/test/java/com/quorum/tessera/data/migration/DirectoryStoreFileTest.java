@@ -44,7 +44,7 @@ public class DirectoryStoreFileTest {
         Path largeFile = Paths.get(directory.toAbsolutePath().toString(), "loadLarge");
 
         try (java.io.BufferedWriter writer = Files.newBufferedWriter(largeFile)) {
-            IntStream.range(1, 5000000)
+            IntStream.range(1, 50000000)
                 .mapToObj(i -> UUID.randomUUID())
                 .map(UUID::toString)
                 .map(String::getBytes)
