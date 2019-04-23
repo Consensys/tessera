@@ -1,7 +1,9 @@
 package com.quorum.tessera.data.migration;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -18,9 +20,9 @@ import org.bouncycastle.util.encoders.Hex;
 public class BdbDumpFile implements StoreLoader {
 
     @Override
-    public Map<byte[], byte[]> load(Path inputFile) throws IOException {
+    public Map<byte[], InputStream> load(Path inputFile) throws IOException {
 
-        Map<byte[], byte[]> results = new HashMap<>();
+        Map<byte[], InputStream> results = new HashMap<>();
 
         try (BufferedReader reader = Files.newBufferedReader(inputFile)) {
 
@@ -38,8 +40,11 @@ public class BdbDumpFile implements StoreLoader {
 
                 final String value = reader.readLine();
                 
-                
-                results.put(Base64.getDecoder().decode(Hex.decode(key)), Hex.decode(value));
+                InputStream inputStream = Optional.of(value)
+                    .map(Hex::decode)
+                    .map(ByteArrayInputStream::new)
+                    .get();
+                results.put(Base64.getDecoder().decode(Hex.decode(key)), inputStream);
             }
             return Collections.unmodifiableMap(results);
 

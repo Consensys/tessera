@@ -2,6 +2,7 @@ package com.quorum.tessera.data.migration;
 
 import com.quorum.tessera.io.FilesDelegate;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -15,7 +16,7 @@ public class DirectoryStoreFile implements StoreLoader {
     private final FilesDelegate fileDelegate = FilesDelegate.create();
     
     @Override
-    public Map<byte[], byte[]> load(Path directory) throws IOException {
+    public Map<byte[], InputStream> load(Path directory) throws IOException {
 
         Optional.ofNullable(directory)
                 .filter(p -> p.toFile().isDirectory())
@@ -24,7 +25,7 @@ public class DirectoryStoreFile implements StoreLoader {
         try (Stream<Path> stream = Files.list(directory)) {
             return stream.collect(Collectors.toMap(
                     p -> new Base32().decode(p.toFile().getName()),
-                    p -> fileDelegate.readAllBytes(p)));
+                    p -> fileDelegate.newInputStream(p)));
         }
     }
 
