@@ -2,6 +2,8 @@ package com.quorum.tessera.data.migration;
 
 import com.mockrunner.jdbc.BasicJDBCTestCaseAdapter;
 import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import org.junit.After;
 import org.junit.Test;
 
@@ -36,8 +38,8 @@ public class JdbcDataExporterTest extends BasicJDBCTestCaseAdapter{
 
         JdbcDataExporter exporter = new JdbcDataExporter("jdbc:bogus","insert stuff",sqlFile.toUri().toURL());
 
-        Map<byte[],byte[]> data = new HashMap<byte[],byte[]>() {{
-            put("ONE".getBytes(),"TWO".getBytes());
+        Map<byte[],InputStream> data = new HashMap<byte[],InputStream>() {{
+            put("ONE".getBytes(),new ByteArrayInputStream("TWO".getBytes()));
         }};
 
         Path output = mock(Path.class);
