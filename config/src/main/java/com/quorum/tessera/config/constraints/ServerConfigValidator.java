@@ -26,9 +26,7 @@ public class ServerConfigValidator implements ConstraintValidator<ValidServerCon
                 serverConfig.getCommunicationType() + "' specified for serverConfig with app " + serverConfig.getApp())
                 .addConstraintViolation();
             return false;
-
         }
-        
 
         return true;
     }

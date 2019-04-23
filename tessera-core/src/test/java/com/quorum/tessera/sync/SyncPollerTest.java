@@ -11,10 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import static java.util.Collections.emptySet;
@@ -94,25 +91,6 @@ public class SyncPollerTest {
         verify(partyInfoService, times(2)).getPartyInfo();
     }
 
-    @Test
-    public void localUrlIsExcludedFromPoll() {
-
-        final String targetUrl = "localurl.com";
-        final String syncableUrl = "syncable.com";
-        final Party localParty = new Party(targetUrl);
-        final Party syncableParty = new Party(syncableUrl);
-        final Set<Party> parties = new HashSet<>(Arrays.asList(localParty, syncableParty));
-        when(partyInfoService.getPartyInfo())
-            .thenReturn(new PartyInfo("localurl.com", emptySet(), parties));
-        
-        doReturn(Optional.empty()).when(resendPartyStore).getNextParty();
-
-        syncPoller.run();
-        
-        verify(resendPartyStore, times(1)).addUnseenParties(new HashSet<>(Arrays.asList(syncableParty)));
-        verify(resendPartyStore, times(1)).getNextParty();
-    }
-    
     @Test
     public void singlePartyTaskFailsAndNotifiesStore() {
 

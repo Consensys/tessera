@@ -5,8 +5,11 @@ import com.quorum.tessera.config.KeyVaultType;
 import java.util.Map;
 
 public class HashicorpSetSecretData implements SetSecretData {
+
     private final String secretEngineName;
+
     private final String secretName;
+
     private final Map<String, Object> nameValuePairs;
 
     public HashicorpSetSecretData(String secretEngineName, String secretName, Map<String, Object> nameValuePairs) {
@@ -31,4 +34,5 @@ public class HashicorpSetSecretData implements SetSecretData {
     public KeyVaultType getType() {
         return KeyVaultType.HASHICORP;
     }
+
 }

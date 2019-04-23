@@ -36,9 +36,9 @@ public class ServerConfig extends ConfigItem {
     private InfluxConfig influxConfig;
 
     @ValidServerAddress(
-            message = "Binding Address is invalid",
-            isBindingAddress = true,
-            supportedSchemes = {"http","https"}
+        message = "Binding Address is invalid",
+        isBindingAddress = true,
+        supportedSchemes = {"http", "https"}
     )
     @XmlElement
     private String bindingAddress;
@@ -47,7 +47,7 @@ public class ServerConfig extends ConfigItem {
     @NotNull
     @XmlElement
     private String serverAddress;
-    
+
     public ServerConfig(final AppType app,
                         final boolean enabled,
                         final String serverAddress,
@@ -64,16 +64,18 @@ public class ServerConfig extends ConfigItem {
         this.bindingAddress = bindingAddress;
     }
 
-    public ServerConfig(){}
+    public ServerConfig() {
+
+    }
 
     public String getBindingAddress() {
-        return this.bindingAddress == null ? this.serverAddress: this.bindingAddress;
+        return this.bindingAddress == null ? this.serverAddress : this.bindingAddress;
     }
 
     public URI getServerUri() {
         try {
-        return URI.create(serverAddress);
-        } catch(java.lang.IllegalArgumentException ex) {
+            return URI.create(serverAddress);
+        } catch (IllegalArgumentException ex) {
             throw new ConfigException(ex);
         }
     }
@@ -141,10 +143,9 @@ public class ServerConfig extends ConfigItem {
     public void setServerAddress(String serverAddress) {
         this.serverAddress = serverAddress;
     }
-    
+
     public boolean isUnixSocket() {
         return Objects.equals(getServerUri().getScheme(), "unix");
     }
-    
-    
+
 }

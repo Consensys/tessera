@@ -19,6 +19,7 @@ import static org.mockito.Mockito.*;
 public class KeyVaultConfigurationValidatorTest {
 
     private ConstraintValidatorContext context;
+
     private KeyVaultConfigurationValidator validator;
 
     @Before

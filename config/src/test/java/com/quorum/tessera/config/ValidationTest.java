@@ -419,8 +419,6 @@ public class ValidationTest {
             assertThat(validresult).hasSize(1);
         }
 
-        
-
         String[] validSamples = {"unix:/foo/bar.ipc","http://localhost:8080","https://somestrangedomain.com:8080"};
         for (String sample : validSamples) {
             config.setServerAddress(sample);
