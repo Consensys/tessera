@@ -39,7 +39,7 @@ public class DirectoryStoreFileTest {
         Path largeFile = Paths.get(directory.toAbsolutePath().toString(), "loadLarge");
 
         Random random = new Random();
-        byte[] data = new byte[Integer.MAX_VALUE - 8];
+        byte[] data = new byte[33554432];
         random.nextBytes(data);
         Files.write(largeFile, data);
 
