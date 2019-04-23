@@ -26,7 +26,6 @@ import java.util.Date;
 
 public interface TlsUtils {
 
-
     String ENCRYPTION = "RSA";
     String COMMON_NAME_STRING = "CN=";
     String SIGNATURE_ALGORITHM = "SHA512WithRSAEncryption";
@@ -101,6 +100,5 @@ public interface TlsUtils {
         return new TlsUtils() {
         };
     }
-
 
 }

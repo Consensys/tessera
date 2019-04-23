@@ -6,13 +6,21 @@ import java.util.List;
 public class SSLContextProperties {
 
     private String address;
+
     private Path keyStore;
+
     private String keyStorePassword;
+
     private Path key;
+
     private Path certificate;
+
     private Path trustStore;
+
     private String trustStorePassword;
+
     private List<Path> trustedCertificates;
+
     private Path knownHosts;
 
     public SSLContextProperties(String address,
@@ -70,4 +78,5 @@ public class SSLContextProperties {
     public Path getKnownHosts() {
         return knownHosts;
     }
+
 }

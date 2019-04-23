@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 public class ServerSSLContextFactoryTest {
 
     private EnvironmentVariableProvider envVarProvider;
+
     private String envVarPrefix = "PREFIX";
     
     @Before

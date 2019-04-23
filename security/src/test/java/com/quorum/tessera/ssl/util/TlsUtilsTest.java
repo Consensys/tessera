@@ -19,7 +19,9 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 public class TlsUtilsTest {
 
     private static final String FILE = "test-keystore";
+
     private static final String PASSWORD ="quorum";
+
     private static final String ALIAS = "tessera";
 
     Path privateKeyFile = Paths.get(FILE);
