@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.api.filter;
 
 import java.lang.annotation.ElementType;
@@ -11,5 +10,5 @@ import javax.ws.rs.NameBinding;
 @Retention(value = RetentionPolicy.RUNTIME)
 @NameBinding
 public @interface DomainFilter {
-    
+
 }

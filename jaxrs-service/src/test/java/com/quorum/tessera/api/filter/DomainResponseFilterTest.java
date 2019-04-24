@@ -102,7 +102,7 @@ public class DomainResponseFilterTest {
 
     }
     
-        @Test
+    @Test
     public void ignoreEmptyOrigin() throws Exception {
 
         when(uriInfo.getBaseUri()).thenReturn(new URI("bogus.com"));
