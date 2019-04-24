@@ -4,6 +4,7 @@ jobs:
     working_directory: ~/tessera
     docker:
       - image: maven:3.5-jdk-8
+        cmd: ["/bin/bash"]
     steps:
       - checkout
       - run:
