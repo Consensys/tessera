@@ -11,7 +11,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
+import java.util.Set;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -90,9 +94,11 @@ public class JaxbConfigFactoryTest {
 
     @Test
     public void cantAppendToPasswordFileThrowsError() throws IOException {
-        Path path = Paths.get("newPasses.txt");
-        Files.createFile(path);
-        path.toFile().setWritable(false);
+        FileAttribute<Set<PosixFilePermission>> fileAttributes = PosixFilePermissions
+            .asFileAttribute(PosixFilePermissions.fromString("-r--r--r--"));
+
+        final Path path = Files.createFile(Paths.get("newPasses.txt"),fileAttributes);
+
         assertThat(path.toFile().canWrite()).isFalse();
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddToFile.json");
