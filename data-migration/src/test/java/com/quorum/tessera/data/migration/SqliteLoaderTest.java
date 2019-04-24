@@ -1,6 +1,7 @@
 package com.quorum.tessera.data.migration;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -37,7 +38,7 @@ public class SqliteLoaderTest {
 
         dbfilePath = Files.createTempFile("sample", ".db");
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbfilePath);
-             Statement statement = conn.createStatement();) {
+            Statement statement = conn.createStatement();) {
             statement.execute("CREATE TABLE payload (key LONGVARBINARY,bytes LONGVARBINARY)");
             try (PreparedStatement insertStatement = conn.prepareStatement("INSERT INTO payload (key,bytes) values (?,?)")) {
                 for (Entry<String, String> entry : fixtures.entrySet()) {
@@ -60,15 +61,17 @@ public class SqliteLoaderTest {
     @Test
     public void load() throws IOException {
 
-        Map<byte[], byte[]> results = loader.load(dbfilePath);
+        Map<byte[], InputStream> results = loader.load(dbfilePath);
 
         assertThat(results).hasSize(fixtures.size());
 
         Map<String, String> resultz = results.entrySet().stream()
-            .collect(Collectors.toMap(entry -> new String(entry.getKey()), entry -> new String(entry.getValue())));
+            .collect(Collectors.toMap(entry -> new String(entry.getKey()), entry -> new String(Utils.toByteArray(entry.getValue()))));
 
         assertThat(resultz).containsAllEntriesOf(fixtures);
 
     }
+
+
 
 }
