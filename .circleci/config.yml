@@ -20,4 +20,4 @@ jobs:
           key: tessera-{{ checksum "pom.xml" }}
       - run:
           name: Unit tests
-          command: mvn verify -pl \!tests/acceptance-test -B
+          command: mvn clean install -pl \!tests/acceptance-test -B
