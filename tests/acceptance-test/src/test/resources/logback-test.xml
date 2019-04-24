@@ -14,8 +14,8 @@
     <logger name="io.grpc" level="INFO" />
     <logger name="io.netty" level="INFO" />
     
-    <logger name="suite.GrpcPartyInfoCheck" level="DEBUG" />
-  <logger name="suite.RestPartyInfoChecker" level="DEBUG" />
+    <logger name="suite.GrpcPartyInfoCheck" level="INFO" />
+  <logger name="suite.RestPartyInfoChecker" level="INFO" />
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>

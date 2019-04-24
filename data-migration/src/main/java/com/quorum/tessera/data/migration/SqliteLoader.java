@@ -1,6 +1,8 @@
 package com.quorum.tessera.data.migration;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,7 +15,7 @@ import java.util.Map;
 public class SqliteLoader implements StoreLoader {
 
     @Override
-    public Map<byte[], byte[]> load(Path input) throws IOException {
+    public Map<byte[], InputStream> load(Path input) throws IOException {
 
         final String url = "jdbc:sqlite:" + input.toString();
 
@@ -23,11 +25,11 @@ public class SqliteLoader implements StoreLoader {
                     Statement statement = conn.createStatement();
                     ResultSet results = statement.executeQuery("SELECT * FROM payload")) {
 
-                Map<byte[], byte[]> loadedData = new HashMap<>();
+                Map<byte[], InputStream> loadedData = new HashMap<>();
                 while (results.next()) {
 
                     byte[] key = results.getBytes("key");
-                    byte[] value = results.getBytes("bytes");
+                    InputStream value = new ByteArrayInputStream(results.getBytes("bytes"));
 
                     loadedData.put(key, value);
 

@@ -169,9 +169,9 @@ public class ConfigBuilder {
                 null,
                 null
             );
-            enclaveServerConfig.setBindingAddress("https://0.0.0.0:" + enclavePort);
-            enclaveServerConfig.setServerAddress("https://localhost:" + enclavePort);
-            enclaveServerConfig.setSslConfig(sslConfig);
+            enclaveServerConfig.setBindingAddress("http://0.0.0.0:" + enclavePort);
+            enclaveServerConfig.setServerAddress("http://localhost:" + enclavePort);
+           // enclaveServerConfig.setSslConfig(sslConfig);
             enclaveServerConfig.setCommunicationType(CommunicationType.REST);
 
             servers.add(enclaveServerConfig);

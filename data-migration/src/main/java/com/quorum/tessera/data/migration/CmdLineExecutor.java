@@ -113,7 +113,7 @@ public class CmdLineExecutor {
         final StoreLoader storeLoader = StoreLoader.create(storeType);
 
         final Path inputpath = Paths.get(line.getOptionValue("inputpath"));
-        final Map<byte[], byte[]> data = storeLoader.load(inputpath);
+        final Map<byte[], InputStream> data = storeLoader.load(inputpath);
 
         final String username = line.getOptionValue("dbuser");
         final String password = line.getOptionValue("dbpass");
