@@ -1,11 +1,12 @@
 package com.quorum.tessera.data.migration;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Map;
 
 public class MockDataExporter implements DataExporter {
 
-    private Map<byte[], byte[]> results;
+    private Map<byte[], InputStream> results;
 
     private Path path;
 
@@ -14,14 +15,14 @@ public class MockDataExporter implements DataExporter {
     private String password;
 
     @Override
-    public void export(Map<byte[], byte[]> data, Path path, String username, String password) {
+    public void export(Map<byte[], InputStream> data, Path path, String username, String password) {
         this.results = data;
         this.path = path;
         this.username = username;
         this.password = password;
     }
 
-    public Map<byte[], byte[]> getResults() {
+    public Map<byte[], InputStream> getResults() {
         return results;
     }
 

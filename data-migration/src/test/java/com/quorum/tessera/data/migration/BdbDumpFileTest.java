@@ -1,6 +1,7 @@
 package com.quorum.tessera.data.migration;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,7 +17,7 @@ public class BdbDumpFileTest {
 
         Path inputFile = Paths.get(getClass().getResource("/bdb/bdb-sample.txt").toURI());
 
-        Map<byte[], byte[]> results = new BdbDumpFile().load(inputFile);
+        Map<byte[], InputStream> results = new BdbDumpFile().load(inputFile);
 
         assertThat(results).hasSize(12);
 
@@ -29,7 +30,7 @@ public class BdbDumpFileTest {
 
         Path inputFile = Paths.get(getClass().getResource("/bdb/single-entry.txt").toURI());
 
-        Map<byte[], byte[]> results = new BdbDumpFile().load(inputFile);
+        Map<byte[], InputStream> results = new BdbDumpFile().load(inputFile);
 
         assertThat(results).hasSize(1);
 

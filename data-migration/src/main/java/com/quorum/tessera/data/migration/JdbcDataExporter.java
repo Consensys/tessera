@@ -2,6 +2,7 @@ package com.quorum.tessera.data.migration;
 
 import com.quorum.tessera.io.IOCallback;
 import com.quorum.tessera.io.UriCallback;
+import java.io.InputStream;
 
 import java.net.URL;
 import java.nio.file.Files;
@@ -29,7 +30,7 @@ public class JdbcDataExporter implements DataExporter {
     }
 
     @Override
-    public void export(Map<byte[], byte[]> data, Path output, String username, String password) throws SQLException {
+    public void export(Map<byte[], InputStream> data, Path output, String username, String password) throws SQLException {
 
         try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 
@@ -40,9 +41,9 @@ public class JdbcDataExporter implements DataExporter {
             }
 
             try (PreparedStatement insertStatement = conn.prepareStatement(insertRow)) {
-                for (Entry<byte[], byte[]> values : data.entrySet()) {
+                for (Entry<byte[], InputStream> values : data.entrySet()) {
                     insertStatement.setBytes(1, values.getKey());
-                    insertStatement.setBytes(2, values.getValue());
+                    insertStatement.setBinaryStream(2, values.getValue());
                     insertStatement.execute();
                 }
             }

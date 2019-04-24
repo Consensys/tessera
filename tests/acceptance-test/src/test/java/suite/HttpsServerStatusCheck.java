@@ -7,9 +7,13 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.net.URL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HttpsServerStatusCheck implements ServerStatusCheck {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpsServerStatusCheck.class);
+    
     private final URL url;
 
     private final SslConfig sslConfig;
@@ -32,6 +36,8 @@ public class HttpsServerStatusCheck implements ServerStatusCheck {
 
             return true;
         } catch (IOException ex) {
+            LOGGER.warn("url: {}, message: {}",url,ex.getMessage());
+            LOGGER.debug(null, ex);
             return false;
         } finally {
             if (httpsConnection != null) {

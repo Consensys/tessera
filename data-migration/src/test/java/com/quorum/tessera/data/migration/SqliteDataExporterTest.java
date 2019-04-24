@@ -1,5 +1,6 @@
 package com.quorum.tessera.data.migration;
 
+import java.io.ByteArrayInputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -8,6 +9,7 @@ import org.junit.rules.TestName;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
@@ -47,8 +49,8 @@ public class SqliteDataExporterTest {
     @Test
     public void exportSingleLine() throws SQLException, IOException {
 
-        Map<byte[], byte[]> singleLineData = new HashMap<>();
-        singleLineData.put("HASH".getBytes(), "VALUE".getBytes());
+        Map<byte[], InputStream> singleLineData = new HashMap<>();
+        singleLineData.put("HASH".getBytes(), new ByteArrayInputStream("VALUE".getBytes()));
 
         exporter.export(singleLineData, outputPath, null, null);
 
@@ -82,8 +84,8 @@ public class SqliteDataExporterTest {
         final String username = "sa";
         final String password = "pass";
 
-        final Map<byte[], byte[]> singleLineData = new HashMap<>();
-        singleLineData.put("HASH".getBytes(), "VALUE".getBytes());
+        final Map<byte[], InputStream> singleLineData = new HashMap<>();
+        singleLineData.put("HASH".getBytes(), new ByteArrayInputStream("VALUE".getBytes()));
 
         exporter.export(singleLineData, outputPath, username, password);
 
