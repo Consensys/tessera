@@ -2,9 +2,12 @@ version: 2
 jobs:
   build:
     working_directory: ~/tessera
+    environment:
+      - MAVEN_OPTS: -Xmx256m
     docker:
       - image: maven:3.5-jdk-8
         cmd: ["/bin/bash"]
+
     steps:
       - checkout
       - run:
