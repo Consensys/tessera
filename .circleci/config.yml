@@ -19,6 +19,3 @@ jobs:
           paths:
             - ~/.m2
           key: tessera-{{ checksum "pom.xml" }}
-      
-      - run: mvn install -pl \!tests/acceptance-test
-      - run: mvn verify -pl tests/acceptance-test
