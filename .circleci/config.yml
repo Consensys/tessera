@@ -6,7 +6,6 @@ jobs:
       - MAVEN_OPTS: -Xmx512m
     docker:
       - image: maven:3.5-jdk-8
-      - user: mrbenn
 
     steps:
       - checkout
