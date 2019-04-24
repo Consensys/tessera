@@ -48,13 +48,17 @@ public class ServerConfig extends ConfigItem {
     @XmlElement
     private String serverAddress;
 
+    @XmlElement
+    private String corsDomains;
+
     public ServerConfig(final AppType app,
                         final boolean enabled,
                         final String serverAddress,
                         final CommunicationType communicationType,
                         final SslConfig sslConfig,
                         final InfluxConfig influxConfig,
-                        final String bindingAddress) {
+                        final String bindingAddress,
+                        final String corsDomains) {
         this.app = app;
         this.enabled = enabled;
         this.serverAddress = serverAddress;
@@ -62,6 +66,7 @@ public class ServerConfig extends ConfigItem {
         this.sslConfig = sslConfig;
         this.influxConfig = influxConfig;
         this.bindingAddress = bindingAddress;
+        this.corsDomains = corsDomains;
     }
 
     public ServerConfig() {
@@ -148,4 +153,11 @@ public class ServerConfig extends ConfigItem {
         return Objects.equals(getServerUri().getScheme(), "unix");
     }
 
+    public String getCorsDomains() {
+        return corsDomains;
+    }
+
+    public void setCorsDomains(String corsDomains) {
+        this.corsDomains = corsDomains;
+    }
 }

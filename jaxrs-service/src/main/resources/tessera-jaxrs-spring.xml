@@ -83,7 +83,10 @@
         <constructor-arg ref="configService"/>
     </bean>
 
-    <bean class="com.quorum.tessera.api.filter.DomainResponseFilter"/>
+    <!--We need an instance of this filter for each rest application so that we can inject the relevant ServerConfig
+        to each of them. Thus - the scope for this bean is prototype. The down side is that a number of instances may
+        be created while not all of them will be used (ex: looping over all service locator beans)-->
+    <bean class="com.quorum.tessera.api.filter.DomainResponseFilter" scope="prototype"/>
 
     <bean class="com.quorum.tessera.api.exception.DefaultExceptionMapper"/>
     <bean class="com.quorum.tessera.api.exception.DecodingExceptionMapper"/>

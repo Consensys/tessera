@@ -53,6 +53,7 @@ public class OverrideUtilTest {
             "unixSocketFile",
             "useWhiteList",
             "disablePeerDiscovery",
+            "serverConfigs.corsDomains",
             "serverConfigs.serverAddress",
             "serverConfigs.sslConfig.serverTrustStore",
             "serverConfigs.influxConfig.dbName",

@@ -1,5 +1,6 @@
 package com.quorum.tessera.p2p;
 
+import com.quorum.tessera.api.filter.DomainFilter;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.model.PartyInfo;
@@ -59,6 +60,7 @@ public class PartyInfoResource {
     }
 
     @GET
+    @DomainFilter
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Fetch network/peer information", produces = "public list of peers/publickey mappings")
     @ApiResponses({@ApiResponse(code = 200, message = "Peer/Network information", response = PartyInfo.class)})

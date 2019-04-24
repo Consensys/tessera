@@ -72,6 +72,8 @@ public class JerseyServer implements TesseraServer {
         initParams.put("jersey.config.server.monitoring.statistics.enabled", "true");
         initParams.put("jersey.config.server.monitoring.enabled", "true");
         initParams.put("jersey.config.server.monitoring.statistics.mbeans.enabled", "true");
+        //custom properties
+        initParams.put("tessera.serverConfig", serverConfig);
 
         final ResourceConfig config = ResourceConfig.forApplication(application);
 

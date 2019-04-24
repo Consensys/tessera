@@ -1,5 +1,6 @@
 package com.quorum.tessera.api.common;
 
+import com.quorum.tessera.api.filter.DomainFilter;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ApiOperation;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Provides endpoints to determine versioning information
  */
+@DomainFilter
 @Path("/version")
 public class VersionResource {
 
