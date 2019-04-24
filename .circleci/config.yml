@@ -1,11 +1,19 @@
-version: 2
-jobs:
-  build:
-    working_directory: ~/tessera
+version: 2.1
+#jobs:
+#  build:
+#    working_directory: ~/tessera
+#
+#    docker:
+#      - image: circleci/openjdk:8-jdk-browsers
+#
+#    steps:
+#      - checkout
+#      - run: mvn -v
+dependencies:
+  override:
+    - mvn -DskipTests clean install dependency:resolve-plugins dependency:go-offline
 
-    docker:
-      - image: circleci/openjdk:8-jdk-browsers
+test:
+  override:
+    - mvn -o surefire:test
 
-    steps:
-      - checkout
-      - run: mvn -v
