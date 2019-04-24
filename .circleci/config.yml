@@ -6,9 +6,7 @@ jobs:
       - MAVEN_OPTS: -Xmx256m
     docker:
       - image: maven:3.5-jdk-8
-
-    cmd:
-      - /bin/bash
+      - cmd: /bin/bash
 
     steps:
       - checkout
