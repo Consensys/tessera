@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -89,15 +90,16 @@ public class JaxbConfigFactoryTest {
 
     @Test
     public void cantAppendToPasswordFileThrowsError() throws IOException {
-
-        Files.createFile(Paths.get("newPasses.txt"));
-        Paths.get("newPasses.txt").toFile().setWritable(false);
+        Path path = Paths.get("newPasses.txt");
+        Files.createFile(path);
+        path.toFile().setWritable(false);
+        assertThat(path.toFile().canWrite()).isFalse();
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddToFile.json");
 
         final Throwable throwable = catchThrowable(() -> factory.create(inputStream, singletonList(sampleGeneratedKey)));
 
-        assertThat(throwable).isNotNull();
+        assertThat(throwable).hasMessage("Could not store new passwords: newPasses.txt");
     }
 
     @Test
