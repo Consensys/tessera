@@ -1,19 +1,13 @@
-version: 2.1
-#jobs:
-#  build:
-#    working_directory: ~/tessera
-#
-#    docker:
-#      - image: circleci/openjdk:8-jdk-browsers
-#
-#    steps:
-#      - checkout
-#      - run: mvn -v
-dependencies:
-  override:
-    - mvn -DskipTests clean install dependency:resolve-plugins dependency:go-offline
+version: 2
+jobs:
+  build:
+    working_directory: ~/tessera
 
-test:
-  override:
-    - mvn -o surefire:test
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
 
+    steps:
+      - checkout
+      - run: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+      - run: mvn dependency:go-offline
+      - run: mvn install -pl \!tests/acceptance-test -B -o
