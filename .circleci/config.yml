@@ -1,7 +1,6 @@
 version: 2
 jobs:
   build:
-    
     working_directory: ~/tessera
 
     docker:
@@ -9,11 +8,4 @@ jobs:
 
     steps:
       - checkout
-
-      - restore_cache:
-          key: tessera-{{ checksum "pom.xml" }}
       - run: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: tessera-{{ checksum "pom.xml" }}
