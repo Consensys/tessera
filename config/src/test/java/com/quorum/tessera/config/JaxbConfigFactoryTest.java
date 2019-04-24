@@ -11,9 +11,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -94,10 +94,12 @@ public class JaxbConfigFactoryTest {
 
     @Test
     public void cantAppendToPasswordFileThrowsError() throws IOException {
-        FileAttribute<Set<PosixFilePermission>> fileAttributes = PosixFilePermissions
-            .asFileAttribute(PosixFilePermissions.fromString("-r--r--r--"));
 
-        final Path path = Files.createFile(Paths.get("newPasses.txt"),fileAttributes);
+        Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
+        perms.add(PosixFilePermission.OWNER_READ);
+        perms.add(PosixFilePermission.GROUP_READ);
+        perms.add(PosixFilePermission.OTHERS_READ);
+        final Path path = Files.createFile(Paths.get("newPasses.txt"),PosixFilePermissions.asFileAttribute(perms));
 
         assertThat(path.toFile().canWrite()).isFalse();
 
