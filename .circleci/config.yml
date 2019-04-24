@@ -12,9 +12,15 @@ jobs:
 
     steps:
       - checkout
+      - restore_cache:
+          key: tessera-{{ checksum "pom.xml" }}
       - run:
           name: Create local repo
           command: mvn install dependency:resolve-plugins dependency:go-offline -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B -q
+      - save_cache:
+          paths:
+          - ~/.m2
+          key: tessera-{{ checksum "pom.xml" }}
       - run:
           name: Unit tests
           command: mvn verify -pl !tests/acceptance-test -o -B
