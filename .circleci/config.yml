@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/tessera
     docker:
-      - image: circleci/openjdk:8-jdk-browsers
+      - image: maven:3.5-jdk-8
     steps:
       - checkout
       - run:
