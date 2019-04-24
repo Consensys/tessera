@@ -1,5 +1,6 @@
 package com.quorum.tessera.q2t;
 
+import com.quorum.tessera.api.filter.DomainFilter;
 import com.quorum.tessera.api.filter.Logged;
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -32,6 +33,7 @@ import static javax.ws.rs.core.MediaType.*;
  * - creating new transactions and distributing them - deleting transactions -
  * fetching transactions - resending old transactions
  */
+@DomainFilter
 @Logged
 @Path("/")
 public class TransactionResource {
