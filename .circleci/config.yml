@@ -6,13 +6,14 @@ jobs:
       - MAVEN_OPTS: -Xmx256m
     docker:
       - image: maven:3.5-jdk-8
-        cmd: ["/bin/bash"]
+        cmd:
+          - /bin/bash
 
     steps:
       - checkout
       - run:
           name: Create local repo
-          command: mvn install dependency:resolve-plugins dependency:go-offline -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+          command: mvn install dependency:resolve-plugins dependency:go-offline -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B -q
       - run:
           name: Unit tests
           command: mvn verify -pl !tests/acceptance-test -o -B
