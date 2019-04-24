@@ -9,8 +9,7 @@ jobs:
 
     steps:
       - checkout
-      - restore_cache:
-          key: tessera-{{ checksum "pom.xml" }}
+  JaxbConfigFactoryTest
       - run:
           name: Create local repo
           command: mvn install dependency:resolve-plugins dependency:go-offline -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B -q
