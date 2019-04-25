@@ -6,7 +6,9 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.MultivaluedMap;
-
+/*
+https://docs.oracle.com/javaee/7/api/javax/ws/rs/NameBinding.html
+ */
 @DomainFilter
 public class DomainResponseFilter implements ContainerResponseFilter {
 
