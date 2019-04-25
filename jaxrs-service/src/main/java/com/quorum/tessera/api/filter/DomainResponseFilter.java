@@ -5,11 +5,9 @@ import java.util.Objects;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
-import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.core.MultivaluedMap;
 
 @DomainFilter
-@PreMatching
 public class DomainResponseFilter implements ContainerResponseFilter {
 
     @Override
