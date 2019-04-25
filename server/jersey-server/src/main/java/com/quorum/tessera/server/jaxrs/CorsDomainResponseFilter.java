@@ -30,15 +30,14 @@ public class CorsDomainResponseFilter implements ContainerResponseFilter {
 
         final String origin = requestContext.getHeaderString("Origin");
 
-        LOGGER.info("Origin header value {}", origin);
-
         if (Objects.nonNull(origin) && !Objects.equals(origin, "")) {
 
             MultivaluedMap<String, Object> headers = responseContext.getHeaders();
 
             headers.add("Access-Control-Allow-Origin", origin);
             headers.add("Access-Control-Allow-Credentials", "true");
-            headers.add("Access-Control-Request-Headers", requestContext.getHeaderString("Access-Control-Request-Headers"));
+            headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
+            headers.add("Access-Control-Allow-Headers", "origin, content-type, accept, authorization");
 
         }
     }

@@ -52,8 +52,7 @@ public class JerseyServerIT {
         
         MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
         headers.add("Origin", "*.acme.com");
-        headers.add("Access-Control-Request-Headers","FOO,BAR");
-        
+
         Response result = ClientBuilder.newClient()
             .target(serverUri)
             .path("ping")
@@ -66,9 +65,6 @@ public class JerseyServerIT {
 
         assertThat(result.getHeaderString("Access-Control-Allow-Credentials"))
             .isEqualTo("true");
-
-        assertThat(result.getHeaderString("Access-Control-Request-Headers"))
-            .isEqualTo("FOO,BAR");
 
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.readEntity(String.class)).isEqualTo("HEllow");
