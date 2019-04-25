@@ -9,11 +9,9 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.container.PreMatching;
 
-/*
-https://docs.oracle.com/javaee/7/api/javax/ws/rs/NameBinding.html
- */
-@Logged
+@PreMatching
 public class LoggingFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingFilter.class);
