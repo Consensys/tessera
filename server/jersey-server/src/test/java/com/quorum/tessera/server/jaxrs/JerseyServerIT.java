@@ -5,6 +5,7 @@ import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.server.JerseyServer;
 import java.net.URI;
+import java.util.Arrays;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -26,6 +27,7 @@ public class JerseyServerIT {
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setCommunicationType(CommunicationType.REST);
         serverConfig.setServerAddress("http://localhost:8080");
+        serverConfig.setCorsDomains(Arrays.asList("*.acme.com"));
         Application sample = new SampleApplication();
         server = new JerseyServer(serverConfig, sample);
 

@@ -1,6 +1,7 @@
-package com.quorum.tessera.api.filter;
+package com.quorum.tessera.server.jaxrs;
 
 import java.net.URI;
+import java.util.Collections;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -15,9 +16,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class DomainResponseFilterTest {
+public class CorsDomainResponseFilterTest {
 
-    private DomainResponseFilter domainResponseFilter;
+    private CorsDomainResponseFilter domainResponseFilter;
 
     private ContainerRequestContext requestContext;
 
@@ -27,7 +28,7 @@ public class DomainResponseFilterTest {
 
     @Before
     public void setUp() {
-        domainResponseFilter = new DomainResponseFilter();
+        domainResponseFilter = new CorsDomainResponseFilter(Collections.EMPTY_LIST);
         requestContext = mock(ContainerRequestContext.class);
         responseContext = mock(ContainerResponseContext.class);
         uriInfo = mock(UriInfo.class);

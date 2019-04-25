@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -48,6 +49,9 @@ public class ServerConfig extends ConfigItem {
     @XmlElement
     private String serverAddress;
 
+    @XmlElement
+    private List<String> corsDomains;
+    
     public ServerConfig(final AppType app,
                         final boolean enabled,
                         final String serverAddress,
@@ -146,6 +150,14 @@ public class ServerConfig extends ConfigItem {
 
     public boolean isUnixSocket() {
         return Objects.equals(getServerUri().getScheme(), "unix");
+    }
+
+    public List<String> getCorsDomains() {
+        return corsDomains;
+    }
+
+    public void setCorsDomains(List<String> corsDomains) {
+        this.corsDomains = corsDomains;
     }
 
 }

@@ -77,13 +77,10 @@
         </constructor-arg>
     </bean>
 
-    <bean class="com.quorum.tessera.api.filter.LoggingFilter"/>
 
     <bean class="com.quorum.tessera.api.filter.IPWhitelistFilter">
         <constructor-arg ref="configService"/>
     </bean>
-
-    <bean class="com.quorum.tessera.api.filter.DomainResponseFilter"/>
 
     <bean class="com.quorum.tessera.api.exception.DefaultExceptionMapper"/>
     <bean class="com.quorum.tessera.api.exception.DecodingExceptionMapper"/>

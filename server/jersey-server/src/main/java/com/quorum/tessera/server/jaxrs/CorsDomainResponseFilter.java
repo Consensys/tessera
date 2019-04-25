@@ -1,17 +1,28 @@
-package com.quorum.tessera.api.filter;
+package com.quorum.tessera.server.jaxrs;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.MultivaluedMap;
-/*
-https://docs.oracle.com/javaee/7/api/javax/ws/rs/NameBinding.html
- */
-@DomainFilter
-public class DomainResponseFilter implements ContainerResponseFilter {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+
+public class CorsDomainResponseFilter implements ContainerResponseFilter {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(CorsDomainResponseFilter.class);
+    
+    private final List<String> tokens;
+
+    public CorsDomainResponseFilter(List<String> tokens) {
+        this.tokens = Objects.requireNonNull(tokens);
+        LOGGER.info("Create filter with tokens {}",String.join(",", tokens));
+    }
+
+    
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
 
@@ -28,7 +39,7 @@ public class DomainResponseFilter implements ContainerResponseFilter {
             headers.add("Access-Control-Allow-Headers", 
                 requestContext.getHeaderString("Access-Control-Request-Headers"));
         }
-
     }
+    
 
 }

@@ -54,6 +54,7 @@ public class OverrideUtilTest {
             "useWhiteList",
             "disablePeerDiscovery",
             "serverConfigs.serverAddress",
+            "serverConfigs.corsDomains",
             "serverConfigs.sslConfig.serverTrustStore",
             "serverConfigs.influxConfig.dbName",
             "serverConfigs.sslConfig.knownClientsFile",
