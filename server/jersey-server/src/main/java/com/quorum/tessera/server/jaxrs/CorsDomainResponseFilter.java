@@ -10,19 +10,17 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class CorsDomainResponseFilter implements ContainerResponseFilter {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CorsDomainResponseFilter.class);
-    
+
     private final List<String> tokens;
 
     public CorsDomainResponseFilter(List<String> tokens) {
         this.tokens = Objects.requireNonNull(tokens);
-        LOGGER.info("Create filter with tokens {}",String.join(",", tokens));
+        LOGGER.info("Create filter with tokens {}", String.join(",", tokens));
     }
 
-    
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
 
@@ -32,14 +30,17 @@ public class CorsDomainResponseFilter implements ContainerResponseFilter {
 
         final String origin = requestContext.getHeaderString("Origin");
 
+        LOGGER.info("Origin header value {}", origin);
+
         if (Objects.nonNull(origin) && !Objects.equals(origin, "")) {
+
             MultivaluedMap<String, Object> headers = responseContext.getHeaders();
+
             headers.add("Access-Control-Allow-Origin", origin);
             headers.add("Access-Control-Allow-Credentials", "true");
-            headers.add("Access-Control-Allow-Headers", 
-                requestContext.getHeaderString("Access-Control-Request-Headers"));
+            headers.add("Access-Control-Request-Headers", requestContext.getHeaderString("Access-Control-Request-Headers"));
+
         }
     }
-    
 
 }

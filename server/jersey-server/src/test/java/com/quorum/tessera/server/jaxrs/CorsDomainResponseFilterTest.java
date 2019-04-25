@@ -69,18 +69,19 @@ public class CorsDomainResponseFilterTest {
         when(requestContext.getHeaderString("Origin")).thenReturn("bogus.com");
 
         when(requestContext.getHeaderString("Access-Control-Request-Headers"))
-            .thenReturn("Some Headers");
+            .thenReturn("SomeHeaders");
 
         domainResponseFilter.filter(requestContext, responseContext);
 
         assertThat(headers)
             .containsKeys(
                 "Access-Control-Allow-Origin",
-                "Access-Control-Allow-Credentials", "Access-Control-Allow-Headers");
+                "Access-Control-Allow-Credentials", 
+                "Access-Control-Request-Headers");
 
         assertThat(headers.get("Access-Control-Allow-Origin")).containsExactly("bogus.com");
         assertThat(headers.get("Access-Control-Allow-Credentials")).containsExactly("true");
-        assertThat(headers.get("Access-Control-Allow-Headers")).containsExactly("Some Headers");
+        assertThat(headers.get("Access-Control-Request-Headers")).containsExactly("SomeHeaders");
 
         verify(requestContext).getUriInfo();
         verify(requestContext).getHeaderString("Origin");
