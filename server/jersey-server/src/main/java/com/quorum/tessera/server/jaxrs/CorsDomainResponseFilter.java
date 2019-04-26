@@ -2,6 +2,7 @@ package com.quorum.tessera.server.jaxrs;
 
 import com.quorum.tessera.config.CrossDomainConfig;
 import java.io.IOException;
+import java.util.Objects;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -15,19 +16,15 @@ public class CorsDomainResponseFilter implements ContainerResponseFilter {
 
     private final OriginMatchUtil originMatchUtil;
     
-    private CrossDomainConfig corsConfig;
+    private final CrossDomainConfig corsConfig;
 
     public CorsDomainResponseFilter(CrossDomainConfig corsConfig) {
-        this.corsConfig = corsConfig;
+        this.corsConfig = Objects.requireNonNull(corsConfig);
         this.originMatchUtil = new OriginMatchUtil(corsConfig.getAllowedOrigins());
     }
 
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
-
-        if ("unixsocket".equals(requestContext.getUriInfo().getBaseUri().toString())) {
-            return;
-        }
 
         final String origin = requestContext.getHeaderString("Origin");
         
