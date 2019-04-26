@@ -93,4 +93,13 @@ public class OriginMatchUtilTest {
         OriginMatchUtil matcher = new OriginMatchUtil(tokens);
         assertThat(matcher.matches(origin)).isTrue();
     }
+    
+            @Test
+    public void withDifferentCases2() {
+        List<String> tokens = Arrays.asList("http://bogus.com:989");
+        String origin = "HTTP://BOGUS.cOm:989";
+
+        OriginMatchUtil matcher = new OriginMatchUtil(tokens);
+        assertThat(matcher.matches(origin)).isTrue();
+    }
 }

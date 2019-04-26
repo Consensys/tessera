@@ -25,7 +25,7 @@ public class OriginMatchUtil {
             return false;
         }
 
-        Predicate<String> subdomainMatch = s -> origin.matches(s);
+        Predicate<String> subdomainMatch = s -> origin.toLowerCase().matches(s);
         Predicate<String> matchingCritera = wildcardMatch.or(subdomainMatch);
 
         return tokens.stream().anyMatch(matchingCritera);
