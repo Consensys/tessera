@@ -18,6 +18,7 @@ As described in the [README](https://github.com/jpmorganchase/tessera), an alias
 The Tessera, Config Migration Utility and Data Migration Utility JARs can each be downloaded from the [releases page](https://github.com/jpmorganchase/tessera/releases), or they can be built from source using Maven (see the [README](https://github.com/jpmorganchase/tessera) for details on how to do this).
 
 ### File Paths
+
 File paths are often referenced in this wiki as:
 ```
 /path/to/file
