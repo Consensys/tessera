@@ -10,12 +10,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.Collections.unmodifiableSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Stores a list of all discovered nodes and public keys
  */
 public class PartyInfoStore {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoStore.class);
+    
     private final String advertisedUrl;
 
     private final Set<Recipient> recipients;
@@ -33,11 +37,21 @@ public class PartyInfoStore {
     }
 
     /**
-     * Merge an incoming {@link PartyInfo} into the current one, adding any
-     * new keys or parties to the current store
+     * Merge an incoming {@link PartyInfo} into the current one, adding any new
+     * keys or parties to the current store
+     *
      * @param newInfo the incoming information that may contain new nodes/keys
      */
     public synchronized void store(final PartyInfo newInfo) {
+
+        PartyInfo existingPartyInfo = getPartyInfo();
+
+        PartyInfoRecipientUpdateCheck partyInfoRecipientUpdateCheck = new PartyInfoRecipientUpdateCheck(existingPartyInfo,newInfo);
+        if(!partyInfoRecipientUpdateCheck.validateKeysToUrls()) {
+            LOGGER.warn("Attempt is being made to update existing key with new url. Terminating party info update.");
+            return;
+        }
+                
         recipients.addAll(newInfo.getRecipients());
         parties.addAll(newInfo.getParties());
 
