@@ -48,6 +48,9 @@ public class ServerConfig extends ConfigItem {
     @XmlElement
     private String serverAddress;
 
+    @XmlElement(name = "cors")
+    private CrossDomainConfig crossDomainConfig;
+    
     public ServerConfig(final AppType app,
                         final boolean enabled,
                         final String serverAddress,
@@ -147,5 +150,15 @@ public class ServerConfig extends ConfigItem {
     public boolean isUnixSocket() {
         return Objects.equals(getServerUri().getScheme(), "unix");
     }
+
+    public CrossDomainConfig getCrossDomainConfig() {
+        return crossDomainConfig;
+    }
+
+    public void setCrossDomainConfig(CrossDomainConfig crossDomainConfig) {
+        this.crossDomainConfig = crossDomainConfig;
+    }
+
+
 
 }

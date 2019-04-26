@@ -3,25 +3,26 @@ package com.quorum.tessera.server;
 import com.jpmorgan.quorum.server.utils.ServerUtils;
 import com.quorum.tessera.config.InfluxConfig;
 import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.server.jaxrs.CorsDomainResponseFilter;
+import com.quorum.tessera.server.jaxrs.LoggingFilter;
 import com.quorum.tessera.server.monitoring.InfluxDbClient;
 import com.quorum.tessera.server.monitoring.InfluxDbPublisher;
 import com.quorum.tessera.server.monitoring.MetricsResource;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.bridge.SLF4JBridgeHandler;
-import javax.ws.rs.core.Application;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
+import javax.ws.rs.core.Application;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 /**
  * Implementation of a RestServer using Jersey and Jetty.
@@ -76,7 +77,12 @@ public class JerseyServer implements TesseraServer {
         final ResourceConfig config = ResourceConfig.forApplication(application);
 
         config.addProperties(initParams)
-                .register(MetricsResource.class);
+            .register(MetricsResource.class)
+            .register(LoggingFilter.class);
+
+        if (serverConfig.getCrossDomainConfig() != null) {
+            config.register(new CorsDomainResponseFilter(serverConfig.getCrossDomainConfig()));
+        }
 
         this.server = ServerUtils.buildWebServer(serverConfig);
 
@@ -104,7 +110,7 @@ public class JerseyServer implements TesseraServer {
         Runnable publisher = new InfluxDbPublisher(influxDbClient);
 
         final Runnable exceptionSafePublisher = () -> {
-            try{
+            try {
                 publisher.run();
             } catch (final Throwable ex) {
                 LOGGER.error("Error when executing action {}", publisher.getClass().getSimpleName());
@@ -125,7 +131,7 @@ public class JerseyServer implements TesseraServer {
         }
 
         if (Objects.nonNull(this.server)) {
-            try{
+            try {
                 this.server.stop();
             } catch (Exception ex) {
                 LOGGER.warn(null, ex);
