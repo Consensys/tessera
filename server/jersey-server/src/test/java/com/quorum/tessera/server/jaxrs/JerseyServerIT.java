@@ -1,6 +1,7 @@
 package com.quorum.tessera.server.jaxrs;
 
 import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.config.CrossDomainConfig;
 
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -32,7 +33,10 @@ public class JerseyServerIT {
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setCommunicationType(CommunicationType.REST);
         serverConfig.setServerAddress("http://localhost:8080");
-        serverConfig.setCorsDomains(Arrays.asList("*.acme.com", "*.other.com"));
+        
+        CrossDomainConfig crossDomainConfig = new CrossDomainConfig();
+        crossDomainConfig.setAllowedOrigins(Arrays.asList("*.acme.com", "*.other.com"));
+        serverConfig.setCrossDomainConfig(crossDomainConfig);
 
         JaxbUtil.marshalWithNoValidation(serverConfig, System.out);
 

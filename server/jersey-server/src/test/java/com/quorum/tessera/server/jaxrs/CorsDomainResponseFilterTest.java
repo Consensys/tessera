@@ -1,7 +1,8 @@
 package com.quorum.tessera.server.jaxrs;
 
+import com.quorum.tessera.config.CrossDomainConfig;
 import java.net.URI;
-import java.util.Collections;
+import java.util.Arrays;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -18,6 +19,8 @@ import static org.mockito.Mockito.when;
 
 public class CorsDomainResponseFilterTest {
 
+    private static final String SOME_ORIGIN = "http://bogus.com";
+    
     private CorsDomainResponseFilter domainResponseFilter;
 
     private ContainerRequestContext requestContext;
@@ -28,7 +31,11 @@ public class CorsDomainResponseFilterTest {
 
     @Before
     public void setUp() {
-        domainResponseFilter = new CorsDomainResponseFilter(Collections.EMPTY_LIST);
+        
+        CrossDomainConfig crossDomainConfig = new CrossDomainConfig();
+        crossDomainConfig.setAllowedOrigins(Arrays.asList(SOME_ORIGIN));
+        
+        domainResponseFilter = new CorsDomainResponseFilter(crossDomainConfig);
         requestContext = mock(ContainerRequestContext.class);
         responseContext = mock(ContainerResponseContext.class);
         uriInfo = mock(UriInfo.class);
@@ -62,11 +69,11 @@ public class CorsDomainResponseFilterTest {
 
         when(responseContext.getHeaders()).thenReturn(headers);
 
-        when(uriInfo.getBaseUri()).thenReturn(new URI("http://bogus.com/"));
+        when(uriInfo.getBaseUri()).thenReturn(new URI(SOME_ORIGIN));
 
         when(requestContext.getUriInfo()).thenReturn(uriInfo);
 
-        when(requestContext.getHeaderString("Origin")).thenReturn("bogus.com");
+        when(requestContext.getHeaderString("Origin")).thenReturn(SOME_ORIGIN);
 
 
         domainResponseFilter.filter(requestContext, responseContext);
@@ -78,11 +85,12 @@ public class CorsDomainResponseFilterTest {
                 "Access-Control-Allow-Methods",
                 "Access-Control-Allow-Headers");
 
-        assertThat(headers.get("Access-Control-Allow-Origin")).containsExactly("bogus.com");
+        assertThat(headers.get("Access-Control-Allow-Origin")).containsExactly(SOME_ORIGIN);
         assertThat(headers.get("Access-Control-Allow-Credentials")).containsExactly("true");
 
         verify(requestContext).getUriInfo();
         verify(requestContext).getHeaderString("Origin");
+        verify(requestContext).getHeaderString("Access-Control-Request-Headers");
         verify(responseContext).getHeaders();
     }
 
@@ -104,7 +112,7 @@ public class CorsDomainResponseFilterTest {
     @Test
     public void ignoreEmptyOrigin() throws Exception {
 
-        when(uriInfo.getBaseUri()).thenReturn(new URI("bogus.com"));
+        when(uriInfo.getBaseUri()).thenReturn(new URI(SOME_ORIGIN));
 
         when(requestContext.getUriInfo()).thenReturn(uriInfo);
         when(requestContext.getHeaderString("Origin")).thenReturn("");

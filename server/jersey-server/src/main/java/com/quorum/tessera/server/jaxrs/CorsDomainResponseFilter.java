@@ -1,8 +1,7 @@
 package com.quorum.tessera.server.jaxrs;
 
+import com.quorum.tessera.config.CrossDomainConfig;
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -14,11 +13,13 @@ public class CorsDomainResponseFilter implements ContainerResponseFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CorsDomainResponseFilter.class);
 
-    private final List<String> tokens;
+    private final OriginMatchUtil originMatchUtil;
+    
+    private CrossDomainConfig corsConfig;
 
-    public CorsDomainResponseFilter(List<String> tokens) {
-        this.tokens = Objects.requireNonNull(tokens);
-        LOGGER.info("Create filter with tokens {}", String.join(",", tokens));
+    public CorsDomainResponseFilter(CrossDomainConfig corsConfig) {
+        this.corsConfig = corsConfig;
+        this.originMatchUtil = new OriginMatchUtil(corsConfig.getAllowedOrigins());
     }
 
     @Override
@@ -29,15 +30,23 @@ public class CorsDomainResponseFilter implements ContainerResponseFilter {
         }
 
         final String origin = requestContext.getHeaderString("Origin");
-
-        if (Objects.nonNull(origin) && !Objects.equals(origin, "")) {
+        
+        if (originMatchUtil.matches(origin)) {
 
             MultivaluedMap<String, Object> headers = responseContext.getHeaders();
 
             headers.add("Access-Control-Allow-Origin", origin);
-            headers.add("Access-Control-Allow-Credentials", "true");
-            headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
-            headers.add("Access-Control-Allow-Headers", "origin, content-type, accept, authorization");
+            headers.add("Access-Control-Allow-Credentials", corsConfig.getAllowCredentials().toString());
+            headers.add("Access-Control-Allow-Methods", String.join(",", corsConfig.getAllowedMethods()));
+            
+            final String allowedHeaders;
+            if(corsConfig.getAllowedHeaders() != null) {
+                allowedHeaders = String.join(",",corsConfig.getAllowedHeaders());
+            } else {
+                allowedHeaders = requestContext.getHeaderString("Access-Control-Request-Headers"); 
+            }
+            
+            headers.add("Access-Control-Allow-Headers", allowedHeaders);
 
         }
     }

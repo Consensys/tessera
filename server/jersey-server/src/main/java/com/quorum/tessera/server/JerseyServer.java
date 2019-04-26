@@ -80,8 +80,8 @@ public class JerseyServer implements TesseraServer {
             .register(MetricsResource.class)
             .register(LoggingFilter.class);
 
-        if (serverConfig.getCorsDomains() != null) {
-            config.register(new CorsDomainResponseFilter(serverConfig.getCorsDomains()));
+        if (serverConfig.getCrossDomainConfig() != null) {
+            config.register(new CorsDomainResponseFilter(serverConfig.getCrossDomainConfig()));
         }
 
         this.server = ServerUtils.buildWebServer(serverConfig);
