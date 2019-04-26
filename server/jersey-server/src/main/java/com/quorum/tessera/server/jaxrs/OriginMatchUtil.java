@@ -13,6 +13,7 @@ public class OriginMatchUtil {
 
     public OriginMatchUtil(List<String> tokens) {
         this.tokens = tokens.stream()
+            .map(String::toLowerCase)
             .map(s -> ("\\Q" + s + "\\E"))
             .map(s -> s.replace("*", "\\E.*\\Q"))
             .collect(Collectors.toList());

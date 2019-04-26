@@ -75,4 +75,22 @@ public class OriginMatchUtilTest {
         OriginMatchUtil matcher = new OriginMatchUtil(tokens);
         assertThat(matcher.matches(origin)).isFalse();
     }
+
+    @Test
+    public void withSamePorts() {
+        List<String> tokens = Arrays.asList("http://bogus.com:989");
+        String origin = "http://bogus.com:989";
+
+        OriginMatchUtil matcher = new OriginMatchUtil(tokens);
+        assertThat(matcher.matches(origin)).isTrue();
+    }
+    
+        @Test
+    public void withDifferentCases() {
+        List<String> tokens = Arrays.asList("HTTP://BOGUS.cOm:989");
+        String origin = "http://bogus.com:989";
+
+        OriginMatchUtil matcher = new OriginMatchUtil(tokens);
+        assertThat(matcher.matches(origin)).isTrue();
+    }
 }
