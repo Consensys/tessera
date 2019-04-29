@@ -27,7 +27,6 @@ public class SSLKeyStoreLoaderTest {
 
     private Path invalidPemFile;
 
-
     @Before
     public void setUp() throws URISyntaxException, IOException {
         key = Paths.get(getClass().getResource("/key.pem").toURI());
@@ -59,4 +58,5 @@ public class SSLKeyStoreLoaderTest {
                 .hasMessageContaining("NO CERTIFICATE FOUND IN FILE");
         }
     }
+
 }
