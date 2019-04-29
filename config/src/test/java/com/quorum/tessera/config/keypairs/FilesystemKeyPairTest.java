@@ -5,6 +5,8 @@ import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,8 +38,6 @@ public class FilesystemKeyPairTest {
 
         FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile);
 
-        InlineKeypair result = filesystemKeyPair.getInlineKeypair();
-
         KeyDataConfig privKeyDataConfig = new KeyDataConfig(
             new PrivateKeyData("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=", null, null, null, null),
             PrivateKeyType.UNLOCKED
@@ -45,7 +45,34 @@ public class FilesystemKeyPairTest {
 
         InlineKeypair expected = new InlineKeypair(pub, privKeyDataConfig);
 
-        assertThat(result).isEqualToComparingFieldByFieldRecursively(expected);
+        assertThat(filesystemKeyPair.getInlineKeypair()).isEqualToComparingFieldByFieldRecursively(expected);
+        assertThat(filesystemKeyPair.getPublicKey()).isEqualTo(pub);
+        assertThat(filesystemKeyPair.getPrivateKey()).isEqualTo("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=");
+    }
+
+    @Test
+    public void setPasswordIsRetrievable() throws IOException, URISyntaxException {
+        final Path pubFile = Files.createTempFile(UUID.randomUUID().toString(), ".pub");
+        final Path privFile = Paths.get(getClass().getResource("/unlockedprivatekey.json").toURI());
+
+        final String pub = "public";
+        Files.write(pubFile, pub.getBytes());
+
+        final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile);
+        filesystemKeyPair.withPassword("password");
+
+        assertThat(filesystemKeyPair.getPassword()).isEqualTo("password");
+    }
+
+    @Test
+    public void setPasswordIsRetrievableOnNullInlineKey() throws IOException, URISyntaxException {
+        final Path pubFile = Files.createTempFile(UUID.randomUUID().toString(), ".pub").resolveSibling("nonexistantkey");
+        final Path privFile = Paths.get(getClass().getResource("/unlockedprivatekey.json").toURI());
+
+        final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile);
+        filesystemKeyPair.withPassword("password");
+
+        assertThat(filesystemKeyPair.getPassword()).isEqualTo("password");
     }
 
 }
