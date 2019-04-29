@@ -1,6 +1,7 @@
 package com.quorum.tessera.data.migration;
 
 import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
+import com.sun.management.UnixOperatingSystemMXBean;
 import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.io.IOUtils;
@@ -11,8 +12,6 @@ import org.junit.rules.TestName;
 
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
-import java.lang.management.OperatingSystemMXBean;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -169,10 +168,16 @@ public class CmdLineExecutorTest {
 
         //this code snippet fetches the number of file descriptors we can use
         //some will already be used, but opening more doesn't hurt since that is what we are testing
-        final OperatingSystemMXBean osMxBean = ManagementFactory.getOperatingSystemMXBean();
-        final Method getMaxFileDescriptorCountField = osMxBean.getClass().getDeclaredMethod("getMaxFileDescriptorCount");
-        getMaxFileDescriptorCountField.setAccessible(true);
-        final Long descriptorCount = (Long)getMaxFileDescriptorCountField.invoke(osMxBean);
+        if (!(ManagementFactory.getOperatingSystemMXBean() instanceof UnixOperatingSystemMXBean)) {
+            //we skip this test on Windows and other unsupported OS's
+            //the point of the test is to show we don't keep file descriptors open when not needed
+            //which is independent of the OS we are running on
+            return;
+        }
+
+        final UnixOperatingSystemMXBean osMxBean
+            = (UnixOperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
+        final long descriptorCount = osMxBean.getMaxFileDescriptorCount();
 
         for(int i = 0; i < descriptorCount; i++) {
             final String filename = new Base32().encodeToString(String.valueOf(i).getBytes());
