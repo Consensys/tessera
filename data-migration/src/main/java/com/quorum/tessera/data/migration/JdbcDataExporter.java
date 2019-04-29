@@ -1,6 +1,7 @@
 package com.quorum.tessera.data.migration;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.sql.*;
 import java.util.List;
@@ -36,9 +37,11 @@ public class JdbcDataExporter implements DataExporter {
             try (PreparedStatement insertStatement = conn.prepareStatement(insertRow)) {
                 DataEntry next;
                 while ((next = loader.nextEntry()) != null) {
-                    insertStatement.setBytes(1, next.getKey());
-                    insertStatement.setBinaryStream(2, next.getValue());
-                    insertStatement.execute();
+                    try (InputStream data = next.getValue()) {
+                        insertStatement.setBytes(1, next.getKey());
+                        insertStatement.setBinaryStream(2, data);
+                        insertStatement.execute();
+                    }
                 }
             }
 
