@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 
 public class CertificateUtilTest {
 
-
     @Test
     public void testGenerateThumbPrint() throws CertificateException {
 
@@ -38,4 +37,5 @@ public class CertificateUtilTest {
                 .hasMessageContaining("Cannot generate thumbprint for this certificate");
         }
     }
+
 }

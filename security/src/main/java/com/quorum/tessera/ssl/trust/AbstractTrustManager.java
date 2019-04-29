@@ -19,6 +19,7 @@ abstract class AbstractTrustManager implements X509TrustManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTrustManager.class);
 
     private Path knownHostsFile;
+
     private Map<String, String> certificates;
 
     AbstractTrustManager(final Path knownHostsFile) throws IOException {
