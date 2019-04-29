@@ -22,13 +22,12 @@ public class ConfigFileStoreTest {
 
     @Before
     public void onSetUp() throws Exception {
-        path = Files.createTempFile(UUID.randomUUID().toString(), ".junit");
-        path.toFile().deleteOnExit();
+        this.path = Files.createTempFile(UUID.randomUUID().toString(), ".junit");
 
         final URL sampleConfig = getClass().getResource("/sample.json");
         try (InputStream in = sampleConfig.openStream()) {
             Config initialConfig = JaxbUtil.unmarshal(in, Config.class);
-            JaxbUtil.marshal(initialConfig, Files.newOutputStream(path));
+            JaxbUtil.marshalWithNoValidation(initialConfig, Files.newOutputStream(path));
         }
 
         configFileStore = ConfigFileStore.create(path);

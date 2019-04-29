@@ -1,6 +1,5 @@
 package com.quorum.tessera.config;
 
-import com.quorum.tessera.config.adapters.KeyConfigurationAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.*;
 
@@ -37,7 +36,6 @@ public class Config extends ConfigItem {
     @XmlElement(required = true)
     @ValidKeyConfiguration
     @ValidKeyVaultConfiguration
-    @XmlJavaTypeAdapter(KeyConfigurationAdapter.class)
     private KeyConfiguration keys;
 
     @NotNull
