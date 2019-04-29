@@ -1,21 +1,22 @@
-package com.quorum.tessera.config;
+package com.quorum.tessera.config.keys;
 
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.cli.DefaultCliAdapter;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import org.junit.Test;
-
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class KeyReadingTest {
 
-    @Test
-    public void publicPrivateInlineUnlocked() throws IOException {
+    private DefaultCliAdapter adapter = new DefaultCliAdapter();
 
-        final Config config = JaxbUtil.unmarshal(
-            getClass().getResource("/keytests/pubPrivInlineUnlocked.json").openStream(), Config.class
-        );
+    @Test
+    public void publicPrivateInlineUnlocked() {
+        final Config config
+            = JaxbUtil.unmarshal(getClass().getResourceAsStream("/keytests/pubPrivInlineUnlocked.json"), Config.class);
+        adapter.updateKeyPasswords(config);
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys()).isNotNull();
@@ -26,11 +27,10 @@ public class KeyReadingTest {
     }
 
     @Test
-    public void publicPrivateInlineLocked() throws IOException {
-
-        final Config config = JaxbUtil.unmarshal(
-            getClass().getResource("/keytests/pubPrivInlineLocked.json").openStream(), Config.class
-        );
+    public void publicPrivateInlineLocked() {
+        final Config config
+            = JaxbUtil.unmarshal(getClass().getResourceAsStream("/keytests/pubPrivInlineLocked.json"), Config.class);
+        adapter.updateKeyPasswords(config);
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys()).isNotNull();
@@ -41,11 +41,10 @@ public class KeyReadingTest {
     }
 
     @Test
-    public void passwordsInFile() throws IOException {
-
-        final Config config = JaxbUtil.unmarshal(
-            getClass().getResource("/keytests/pubPrivPasswordsFile.json").openStream(), Config.class
-        );
+    public void passwordsInFile() {
+        final Config config
+            = JaxbUtil.unmarshal(getClass().getResourceAsStream("/keytests/pubPrivPasswordsFile.json"), Config.class);
+        adapter.updateKeyPasswords(config);
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys()).isNotNull();
@@ -57,11 +56,11 @@ public class KeyReadingTest {
     }
 
     @Test
-    public void pubPrivUsingPassLocked() throws IOException {
-
+    public void pubPrivUsingPassLocked() {
         final Config config = JaxbUtil.unmarshal(
-            getClass().getResource("/keytests/pubPrivUsingPathsLocked.json").openStream(), Config.class
+            getClass().getResourceAsStream("/keytests/pubPrivUsingPathsLocked.json"), Config.class
         );
+        adapter.updateKeyPasswords(config);
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys()).isNotNull();
@@ -72,11 +71,12 @@ public class KeyReadingTest {
     }
 
     @Test
-    public void pubPrivUsingPassUnlocked() throws IOException {
+    public void pubPrivUsingPassUnlocked() {
 
         final Config config = JaxbUtil.unmarshal(
-            getClass().getResource("/keytests/pubPrivUsingPathsUnlocked.json").openStream(), Config.class
+            getClass().getResourceAsStream("/keytests/pubPrivUsingPathsUnlocked.json"), Config.class
         );
+        adapter.updateKeyPasswords(config);
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys()).isNotNull();
@@ -87,13 +87,12 @@ public class KeyReadingTest {
     }
 
     @Test
-    public void wrongPasswordsProvided() throws IOException {
+    public void wrongPasswordsProvided() {
+        final Config config
+            = JaxbUtil.unmarshal(getClass().getResourceAsStream("/keytests/passwordsWrong.json"), Config.class);
+        adapter.updateKeyPasswords(config);
 
-        final Config config = JaxbUtil.unmarshal(
-            getClass().getResource("/keytests/passwordsWrong.json").openStream(), Config.class
-        );
-
-        //a null response indicates an error occured
+        //a null response indicates an error occurred
         assertThat(config.getKeys().getKeyData()).hasSize(1);
         assertThat(config.getKeys().getKeyData().get(0).getPrivateKey()).startsWith("NACL_FAILURE");
     }
