@@ -6,13 +6,16 @@ public class Main {
         throw new UnsupportedOperationException("");
     }
     
-    public static void main(String... args) throws Exception {
+    public static void main(final String... args) {
+
         try {
-            System.exit(CmdLineExecutor.execute(args));
-        } catch (Exception ex) {
+            final int result = new CmdLineExecutor().execute(args);
+            System.exit(result);
+        } catch (final Exception ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
         }
+
     }
     
 }

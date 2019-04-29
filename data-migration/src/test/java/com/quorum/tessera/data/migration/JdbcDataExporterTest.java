@@ -1,54 +1,47 @@
 package com.quorum.tessera.data.migration;
 
 import com.mockrunner.jdbc.BasicJDBCTestCaseAdapter;
-import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import org.junit.After;
+import com.mockrunner.mock.jdbc.MockPreparedStatement;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
-import java.nio.file.Files;
+import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.List;
 
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class JdbcDataExporterTest extends BasicJDBCTestCaseAdapter{
+public class JdbcDataExporterTest extends BasicJDBCTestCaseAdapter {
 
-    private final JDBCMockObjectFactory mockObjectFactory = new JDBCMockObjectFactory();
-    
     @Test
-    public void onSetUp() {
-        mockObjectFactory.registerMockDriver();
-    }
-    
-    @After
-    public void onTearDown(){
-        mockObjectFactory.restoreDrivers();
-    }
-    
-    @Test
-    public void doStuff() throws Exception {
-        Path sqlFile = Files.createTempFile(UUID.randomUUID().toString(),".txt");
+    public void runAnExportAndVerifyRunStatements() throws Exception {
+        final String createStatement = "CREATE TEST TABLE";
+        final String insertStatement = "INSERT INTO TABLE(?, ?)";
 
-        Files.write(sqlFile, Arrays.asList("create stuff"));
+        final JdbcDataExporter exporter = new JdbcDataExporter("jdbc:bogus", insertStatement, singletonList(createStatement));
 
-        JdbcDataExporter exporter = new JdbcDataExporter("jdbc:bogus","insert stuff",sqlFile.toUri().toURL());
+        final StoreLoader mockLoader = new MockDataLoader(singletonMap("HASH", "VALUE"));
 
-        Map<byte[],InputStream> data = new HashMap<byte[],InputStream>() {{
-            put("ONE".getBytes(),new ByteArrayInputStream("TWO".getBytes()));
-        }};
+        final Path output = mock(Path.class);
 
-        Path output = mock(Path.class);
-        
-        exporter.export(data, output, "someone", "pw");
+        exporter.export(mockLoader, output, "username", "password");
+
+        final List<String> executedSQLStatements = super.getExecutedSQLStatements();
+        assertThat(executedSQLStatements).hasSize(2).containsExactly(createStatement, insertStatement);
+
+        final List<MockPreparedStatement> preparedStatements = super.getPreparedStatements();
+        assertThat(preparedStatements).hasSize(1);
+        assertThat(preparedStatements.get(0).getSQL()).isEqualTo("INSERT INTO TABLE(?, ?)");
+
+        final byte[] key = (byte[])super.getPreparedStatementParameter(preparedStatements.get(0), 1);
+        final InputStream value = (InputStream) super.getPreparedStatementParameter(preparedStatements.get(0), 2);
+        assertThat(new String(key)).isEqualTo("HASH");
+        assertThat(new String(IOUtils.toByteArray(value))).isEqualTo("VALUE");
 
         verifyAllStatementsClosed();
-        verifyAllStatementsClosed();
-
     }
 
 }

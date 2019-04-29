@@ -2,13 +2,14 @@ package com.quorum.tessera.data.migration;
 
 public interface DataExporterFactory {
 
-    static DataExporter create(ExportType exportType) {
+    static DataExporter create(final ExportType exportType) {
         if (exportType == ExportType.H2) {
             return new H2DataExporter();
         } else if (exportType == ExportType.SQLITE) {
             return new SqliteDataExporter();
-        } 
-        throw new UnsupportedOperationException(""+ exportType);
+        }
+
+        throw new UnsupportedOperationException("" + exportType);
     }
 
 }

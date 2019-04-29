@@ -1,77 +1,56 @@
 package com.quorum.tessera.data.migration;
 
-import java.io.ByteArrayInputStream;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SqliteDataExporterTest {
 
+    private static final String QUERY = "SELECT * FROM ENCRYPTED_TRANSACTION";
+
     private SqliteDataExporter exporter;
 
-    private Path outputPath;
-
-    @Rule
-    public TestName testName = new TestName();
-
     @Before
-    public void onSetUp() throws IOException {
-        exporter = new SqliteDataExporter();
-        outputPath = Files.createTempFile(testName.getMethodName(), ".db");
-
-    }
-
-    @After
-    public void onTearDown() throws IOException {
-        Files.walk(outputPath)
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
+    public void onSetUp() {
+        this.exporter = new SqliteDataExporter();
     }
 
     @Test
     public void exportSingleLine() throws SQLException, IOException {
 
-        Map<byte[], InputStream> singleLineData = new HashMap<>();
-        singleLineData.put("HASH".getBytes(), new ByteArrayInputStream("VALUE".getBytes()));
+        final Path outputPath = Files.createTempFile("exportSingleLine", ".db");
 
-        exporter.export(singleLineData, outputPath, null, null);
+        final StoreLoader mockLoader = new MockDataLoader(singletonMap("HASH", "VALUE"));
 
-        String connectionString = "jdbc:sqlite:" + outputPath;
+        exporter.export(mockLoader, outputPath, null, null);
 
-        try (Connection conn = DriverManager.getConnection(connectionString)) {
-            try (ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM ENCRYPTED_TRANSACTION")) {
+        final String connectionString = "jdbc:sqlite:" + outputPath;
 
-                ResultSetMetaData metaData = rs.getMetaData();
-                List<String> columnNames = IntStream.range(1,metaData.getColumnCount() + 1)
-                    .mapToObj(i -> JdbcCallback.execute(() -> metaData.getColumnName(i)))
-                    .collect(Collectors.toList());
+        try (Connection conn = DriverManager.getConnection(connectionString);
+             ResultSet rs = conn.createStatement().executeQuery(QUERY)) {
 
-                assertThat(columnNames).containsExactlyInAnyOrder("HASH","ENCODED_PAYLOAD","TIMESTAMP");
+            final ResultSetMetaData metaData = rs.getMetaData();
+            final List<String> columnNames = IntStream
+                .range(1, metaData.getColumnCount() + 1)
+                .mapToObj(i -> JdbcCallback.execute(() -> metaData.getColumnName(i)))
+                .collect(Collectors.toList());
 
-                while (rs.next()) {
-                    assertThat(rs.getString("TIMESTAMP")).isNull();
-                    assertThat(rs.getString("HASH")).isEqualTo("HASH");
-                    assertThat(rs.getString("ENCODED_PAYLOAD")).isEqualTo("VALUE");
-                }
+            assertThat(columnNames).containsExactlyInAnyOrder("HASH", "ENCODED_PAYLOAD", "TIMESTAMP");
 
+            while (rs.next()) {
+                assertThat(rs.getString("TIMESTAMP")).isNull();
+                assertThat(rs.getString("HASH")).isEqualTo("HASH");
+                assertThat(rs.getString("ENCODED_PAYLOAD")).isEqualTo("VALUE");
             }
 
         }
@@ -79,34 +58,34 @@ public class SqliteDataExporterTest {
     }
 
     @Test
-    public void exportSingleLineWithUsernameAndPassword() throws SQLException {
+    public void exportSingleLineWithUsernameAndPassword() throws SQLException, IOException {
+
+        final Path outputPath = Files.createTempFile("exportSingleLine", ".db");
 
         final String username = "sa";
         final String password = "pass";
 
-        final Map<byte[], InputStream> singleLineData = new HashMap<>();
-        singleLineData.put("HASH".getBytes(), new ByteArrayInputStream("VALUE".getBytes()));
+        final StoreLoader mockLoader = new MockDataLoader(singletonMap("HASH", "VALUE"));
 
-        exporter.export(singleLineData, outputPath, username, password);
+        exporter.export(mockLoader, outputPath, username, password);
 
-        String connectionString = "jdbc:sqlite:" + outputPath;
+        final String connectionString = "jdbc:sqlite:" + outputPath;
 
-        try (Connection conn = DriverManager.getConnection(connectionString, username, password)) {
-            try (ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM ENCRYPTED_TRANSACTION")) {
+        try (Connection conn = DriverManager.getConnection(connectionString, username, password);
+             ResultSet rs = conn.createStatement().executeQuery(QUERY)) {
 
-                ResultSetMetaData metaData = rs.getMetaData();
-                List<String> columnNames = IntStream.range(1,metaData.getColumnCount() + 1)
-                    .mapToObj(i -> JdbcCallback.execute(() -> metaData.getColumnName(i)))
-                    .collect(Collectors.toList());
+            final ResultSetMetaData metaData = rs.getMetaData();
+            final List<String> columnNames = IntStream
+                .range(1, metaData.getColumnCount() + 1)
+                .mapToObj(i -> JdbcCallback.execute(() -> metaData.getColumnName(i)))
+                .collect(Collectors.toList());
 
-                assertThat(columnNames).containsExactlyInAnyOrder("HASH","ENCODED_PAYLOAD","TIMESTAMP");
+            assertThat(columnNames).containsExactlyInAnyOrder("HASH", "ENCODED_PAYLOAD", "TIMESTAMP");
 
-                while (rs.next()) {
-                    assertThat(rs.getString("TIMESTAMP")).isNull();
-                    assertThat(rs.getString("HASH")).isEqualTo("HASH");
-                    assertThat(rs.getString("ENCODED_PAYLOAD")).isEqualTo("VALUE");
-                }
-
+            while (rs.next()) {
+                assertThat(rs.getString("TIMESTAMP")).isNull();
+                assertThat(rs.getString("HASH")).isEqualTo("HASH");
+                assertThat(rs.getString("ENCODED_PAYLOAD")).isEqualTo("VALUE");
             }
 
         }
