@@ -83,9 +83,6 @@ public class CmdLineExecutorTest {
         assertThat(((MissingOptionException) throwable).getMissingOptions()).containsExactlyInAnyOrder("inputpath");
     }
 
-
-
-
     @Test
     public void bdbStoreType() throws Exception {
         final Path inputFile = Paths.get(getClass().getResource("/bdb/single-entry.txt").toURI());
