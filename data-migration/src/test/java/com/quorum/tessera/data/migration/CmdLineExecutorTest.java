@@ -2,11 +2,17 @@ package com.quorum.tessera.data.migration;
 
 import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
 import org.apache.commons.cli.MissingOptionException;
+import org.apache.commons.codec.binary.Base32;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
+import java.io.InputStream;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -153,4 +159,36 @@ public class CmdLineExecutorTest {
         }
 
     }
+
+    //This tests that even with a lot of files, the file descriptor limit isn't hit
+    @Test
+    public void directoryStoreAndSqliteWithLotsOfFilesWorks() throws Exception {
+        final Path descriptorTestFolder = Files.createTempDirectory("descriptorTest");
+        final InputStream dataStream = getClass().getResourceAsStream("/dir/2JRLWGXFSDJUYUKADO7VFO3INL27WUXB2YDR5FCI3REQDTJGX6FULIDCIMYDV4H23PFUECWFYBMTIUTNY2ESAFMQADFCFUYBHBBJT4I=");
+        final byte[] data = IOUtils.toByteArray(dataStream);
+
+        //this code snippet fetches the number of file descriptors we can use
+        //some will already be used, but opening more doesn't hurt since that is what we are testing
+        final OperatingSystemMXBean osMxBean = ManagementFactory.getOperatingSystemMXBean();
+        final Method getMaxFileDescriptorCountField = osMxBean.getClass().getDeclaredMethod("getMaxFileDescriptorCount");
+        getMaxFileDescriptorCountField.setAccessible(true);
+        final Long descriptorCount = (Long)getMaxFileDescriptorCountField.invoke(osMxBean);
+
+        for(int i = 0; i < descriptorCount; i++) {
+            final String filename = new Base32().encodeToString(String.valueOf(i).getBytes());
+            final Path newFile = descriptorTestFolder.resolve(filename);
+            Files.write(newFile, data);
+        }
+
+        final String[] args = new String[]{
+            "-storetype", "dir",
+            "-inputpath", descriptorTestFolder.toString(),
+            "-outputfile", outputPath.toString(),
+            "-exporttype", "sqlite",
+            "-dbpass", "-dbuser"
+        };
+
+        executor.execute(args);
+    }
+
 }

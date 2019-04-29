@@ -5,6 +5,7 @@ import com.quorum.tessera.io.UriCallback;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,9 +40,11 @@ public class SqliteDataExporter implements DataExporter {
             try (PreparedStatement insertStatement = conn.prepareStatement(INSERT_ROW)) {
                 DataEntry next;
                 while ((next = loader.nextEntry()) != null) {
-                    insertStatement.setBytes(1, next.getKey());
-                    insertStatement.setBytes(2, IOUtils.toByteArray(next.getValue()));
-                    insertStatement.execute();
+                    try (InputStream data = next.getValue()) {
+                        insertStatement.setBytes(1, next.getKey());
+                        insertStatement.setBytes(2, IOUtils.toByteArray(data));
+                        insertStatement.execute();
+                    }
                 }
             }
 
