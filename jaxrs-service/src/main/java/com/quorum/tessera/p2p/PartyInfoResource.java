@@ -1,5 +1,6 @@
 package com.quorum.tessera.p2p;
 
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.model.PartyInfo;
@@ -8,16 +9,23 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import java.io.StringReader;
+import java.util.Base64;
+import java.util.Objects;
+import java.util.Optional;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
+import javax.json.JsonObject;
 import javax.ws.rs.*;
+import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-
+import com.quorum.tessera.enclave.Enclave;
 import static java.util.Objects.requireNonNull;
-
+import java.util.UUID;
+import javax.ws.rs.client.Entity;
 /**
  * Defines endpoints for requesting node discovery (partyinfo) information
  */
@@ -28,9 +36,19 @@ public class PartyInfoResource {
 
     private final PartyInfoService partyInfoService;
 
-    public PartyInfoResource(final PartyInfoService partyInfoService, final PartyInfoParser partyInfoParser) {
+    private Client restClient;
+    
+    private Enclave enclave;
+    
+    public PartyInfoResource(
+        final PartyInfoService partyInfoService, 
+        final PartyInfoParser partyInfoParser,
+        Client restClient,
+        Enclave enclave) {
         this.partyInfoService = requireNonNull(partyInfoService, "partyInfoService must not be null");
         this.partyInfoParser = requireNonNull(partyInfoParser, "partyInfoParser must not be null");
+        this.restClient = requireNonNull(restClient);
+        this.enclave = requireNonNull(enclave);
     }
 
     /**
@@ -49,7 +67,36 @@ public class PartyInfoResource {
 
         final PartyInfo partyInfo = partyInfoParser.from(payload);
 
+        //Start validatio stuff
+        PublicKey myKey = partyInfo.getRecipients()
+            .stream()
+            .filter(r -> r.getUrl().equals(partyInfo.getUrl())).findAny().get().getKey();
+        
+        byte[] someData = UUID.randomUUID().toString().getBytes();
+        
+        String controlHash = Base64.getEncoder().encodeToString(enclave.encryptRawPayload(someData, myKey).getEncryptedPayload());
+        
+        String encodedData = Base64.getEncoder().encodeToString(someData);
+            
+        JsonObject validationRequest = Json.createObjectBuilder()
+            .add("data", encodedData)
+            .build();
+            
+        String validationHash = restClient.target(partyInfo.getUrl())
+            .path("partyinfo")
+            .path("validate")
+            .request()
+            .post(Entity.text(validationRequest.toString()))
+            .readEntity(String.class);
+        
+        if(!Objects.equals(validationHash, controlHash)) {
+            throw new SecurityException("Invalid node registration");
+        }
+
+        //End validation stuff
+
         final PartyInfo updatedPartyInfo = partyInfoService.updatePartyInfo(partyInfo);
+
 
         final byte[] encoded = partyInfoParser.to(updatedPartyInfo);
 
@@ -104,4 +151,25 @@ public class PartyInfoResource {
         return Response.status(Response.Status.OK).entity(output).build();
     }
 
+    @POST
+    @Path("validate")
+    public Response validate(String requeststr) {
+
+        JsonObject request = Json.createReader(new StringReader(requeststr)).readObject();
+
+        byte[] dataToEncrypt = Optional.of(request)
+            .map(j -> j.getString("data"))
+            .map(Base64.getDecoder()::decode).get();
+        
+        
+        PublicKey sender = enclave.defaultPublicKey();
+        
+       byte[] result = enclave.encryptRawPayload(dataToEncrypt, sender).getEncryptedPayload();
+       
+       String encodedResult = Base64.getEncoder().encodeToString(result);
+       
+       return Response.ok(encodedResult,MediaType.TEXT_PLAIN).build();
+  
+    }
+    
 }
