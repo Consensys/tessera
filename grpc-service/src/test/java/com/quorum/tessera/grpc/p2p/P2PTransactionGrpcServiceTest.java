@@ -40,10 +40,7 @@ public class P2PTransactionGrpcServiceTest {
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(
-                deleteResponseObserver,
-                pushResponseObserver,
-                resendResponseObserver);
+        verifyNoMoreInteractions(deleteResponseObserver, pushResponseObserver, resendResponseObserver);
     }
 
     @Test
@@ -117,7 +114,5 @@ public class P2PTransactionGrpcServiceTest {
         verify(deleteResponseObserver).onError(any());
 
     }
-
-
 
 }

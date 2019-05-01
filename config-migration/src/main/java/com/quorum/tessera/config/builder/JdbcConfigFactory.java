@@ -1,16 +1,14 @@
-
 package com.quorum.tessera.config.builder;
 
 import com.quorum.tessera.config.JdbcConfig;
-import java.util.Optional;
 
+import java.util.Optional;
 
 public interface JdbcConfigFactory {
 
     static JdbcConfig fromLegacyStorageString(String storage) {
         
-        Optional.ofNullable(storage)
-                .orElseThrow(IllegalArgumentException::new);
+        Optional.ofNullable(storage).orElseThrow(IllegalArgumentException::new);
         
         if(storage.startsWith("jdbc")) {
             return new JdbcConfig(null, null, storage);
@@ -25,13 +23,6 @@ public interface JdbcConfigFactory {
         }
 
         throw new UnsupportedOperationException(String.format("%s is not a supported storage option.", storage));
-        
-        
-        
     }
-    
-    
-    
 
-    
 }

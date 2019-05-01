@@ -1,9 +1,12 @@
 package com.quorum.tessera.grpc.p2p;
 
+import org.junit.Test;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import static org.assertj.core.api.Assertions.*;
-import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 public class ConvertorTest {
 
@@ -33,7 +36,6 @@ public class ConvertorTest {
         assertThat(result).isNotNull();
         assertThat(result.getKey()).isEqualTo(key);
     }
-
 
     @Test
     public void toModelResendRequest() {

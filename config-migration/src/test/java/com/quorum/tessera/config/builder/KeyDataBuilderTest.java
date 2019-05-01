@@ -30,7 +30,6 @@ public class KeyDataBuilderTest {
             Files.createTempFile("buildThreeLocked3", ".txt")
         );
 
-
         final byte[] privateKeyData = FixtureUtil.createLockedPrivateKey().toString().getBytes();
         for (Path p : privateKeyPaths) {
             Files.write(p, privateKeyData);
@@ -78,7 +77,6 @@ public class KeyDataBuilderTest {
                 Files.createTempFile("buildThreeLocked2", ".txt"),
                 Files.createTempFile("buildThreeLocked3", ".txt")
         );
-
         
         final byte[] privateKeyData = FixtureUtil.createLockedPrivateKey().toString().getBytes();
         for (Path p : privateKeyPaths) {
@@ -91,7 +89,6 @@ public class KeyDataBuilderTest {
         
         Path passwordsFile = Files.createTempFile("buildThreeLockedPasswordsFile", ".txt");
         Files.write(passwordsFile, privateKeyPasswords);
-        
         
         List<ConfigKeyPair> result = KeyDataBuilder.create()
                 .withPrivateKeys(privateKeys)

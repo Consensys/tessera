@@ -62,8 +62,6 @@ public class TomlConfigFactoryTest {
         Config result = tomlConfigFactory.create(template, null).build();
 
         assertThat(result.getServer().getHostName()).isEqualTo("http://127.0.0.1");
-
-
     }
 
     @Test
@@ -83,7 +81,6 @@ public class TomlConfigFactoryTest {
         Path passwordFile = Files.createTempFile("password", ".txt");
         InputStream template = getClass().getResourceAsStream("/sample.conf");
 
-
         try (InputStream configData = template) {
             Config result = tomlConfigFactory.create(configData, null).build();
             assertThat(result).isNotNull();
@@ -100,7 +97,6 @@ public class TomlConfigFactoryTest {
 
         Files.deleteIfExists(passwordFile);
     }
-
 
     @Test
     public void createConfigFromSampleFileAndAddedPasswordsFile() throws IOException {
