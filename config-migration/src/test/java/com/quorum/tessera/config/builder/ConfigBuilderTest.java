@@ -5,10 +5,10 @@ import com.quorum.tessera.config.DeprecatedServerConfig;
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.SystemErrRule;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +16,9 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigBuilderTest {
+
+    @Rule
+    public SystemErrRule systemErrRule = new SystemErrRule().enableLog();
 
     private final ConfigBuilder builderWithValidValues = FixtureUtil.builderWithValidValues();
 
@@ -71,20 +74,11 @@ public class ConfigBuilderTest {
         alwaysSendTo.add("doesntexist.txt");
         alwaysSendTo.add("alsodoesntexist.txt");
 
-        final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
-        final PrintStream originalErr = System.err;
-
-        System.setErr(new PrintStream(errContent));
-
         final ConfigBuilder builder = builderWithValidValues.alwaysSendTo(alwaysSendTo);
         builder.build();
 
-        assertThat(errContent.toString()).isEqualTo(
-            "Error reading alwayssendto file: doesntexist.txt\nError reading alwayssendto file: alsodoesntexist.txt\n"
-        );
-
-        System.setErr(originalErr);
-
+        assertThat(systemErrRule.getLog())
+            .isEqualTo("Error reading alwayssendto file: doesntexist.txt\nError reading alwayssendto file: alsodoesntexist.txt\n");
     }
 
     @Test

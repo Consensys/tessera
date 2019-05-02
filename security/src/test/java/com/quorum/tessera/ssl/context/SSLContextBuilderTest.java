@@ -144,9 +144,6 @@ public class SSLContextBuilderTest {
         assertThat(otherContextBuilder.forCASignedCertificates().build()).isNotNull();
 
         assertThat(Files.exists(nonExistedFile)).isTrue();
-
-        Files.deleteIfExists(nonExistedFile);
-
     }
 
     @Test

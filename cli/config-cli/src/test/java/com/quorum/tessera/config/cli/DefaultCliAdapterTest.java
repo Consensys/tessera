@@ -10,7 +10,6 @@ import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.test.util.ElUtil;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -20,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import javax.validation.ConstraintViolationException;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -46,12 +44,6 @@ public class DefaultCliAdapterTest {
     public void setUp() {
         MockKeyGeneratorFactory.reset();
         this.cliDelegate = new DefaultCliAdapter();
-    }
-
-    @After
-    public void tearDown() throws IOException {
-        Files.deleteIfExists(Paths.get("/tmp/anotherPrivateKey.key").toAbsolutePath());
-        Files.deleteIfExists(Paths.get("/tmp/anotherPublicKey.key").toAbsolutePath());
     }
 
     @Test
@@ -201,7 +193,7 @@ public class DefaultCliAdapterTest {
         FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
         when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
 
-        Path generatedKey = Paths.get("/tmp/" + UUID.randomUUID().toString());
+        Path generatedKey = Files.createTempFile(UUID.randomUUID().toString(), ".tmp");
 
         Files.deleteIfExists(generatedKey);
         assertThat(Files.exists(generatedKey)).isFalse();
@@ -216,37 +208,26 @@ public class DefaultCliAdapterTest {
         Path configFile = createAndPopulatePaths(getClass().getResource("/keygen-sample.json"));
 
         CliResult result = cliDelegate.execute(
-                "-keygen",
-                keyConfigPath.toString(),
-                "-filename",
-                tempKeyFile.toAbsolutePath().toString(),
-                "-output",
-                generatedKey.toFile().getPath(),
-                "-configfile",
-                configFile.toString()
+            "-keygen", keyConfigPath.toString(),
+            "-filename", tempKeyFile.toAbsolutePath().toString(),
+            "-output", generatedKey.toFile().getPath(),
+            "-configfile", configFile.toString()
         );
 
         assertThat(result).isNotNull();
         assertThat(Files.exists(generatedKey)).isTrue();
 
         try {
-            CliResult anotherResult = cliDelegate.execute(
-                    "-keygen",
-                    keyConfigPath.toString(),
-                    "-filename",
-                    UUID.randomUUID().toString(),
-                    "-output",
-                    generatedKey.toFile().getPath(),
-                    "-configfile",
-                    configFile.toString()
+            cliDelegate.execute(
+                "-keygen", keyConfigPath.toString(),
+                "-filename", UUID.randomUUID().toString(),
+                "-output", generatedKey.toFile().getPath(),
+                "-configfile", configFile.toString()
             );
             failBecauseExceptionWasNotThrown(Exception.class);
         } catch (Exception ex) {
             assertThat(ex).isInstanceOf(FileAlreadyExistsException.class);
         }
-
-        Files.deleteIfExists(generatedKey);
-        assertThat(Files.exists(generatedKey)).isFalse();
 
     }
 
