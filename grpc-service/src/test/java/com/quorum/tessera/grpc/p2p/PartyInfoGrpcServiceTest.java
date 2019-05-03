@@ -74,7 +74,6 @@ public class PartyInfoGrpcServiceTest {
         assertThat(response).isNotNull();
         assertThat(response.getPartyInfo().toByteArray()).isEqualTo(resultData);
 
-
         verify(partyInfoParser).from(data);
         verify(partyInfoService).updatePartyInfo(partyInfo);
         verify(partyInfoParser).to(partyInfo);

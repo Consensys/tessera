@@ -27,14 +27,12 @@ public class Convertor {
             .setType(resendRequestType).build();
     }
 
-
     public static DeleteRequest toModel(com.quorum.tessera.grpc.p2p.DeleteRequest grpcRequest) {
         DeleteRequest request = new DeleteRequest();
         request.setKey(grpcRequest.getKey());
 
         return request;
     }
-
 
     public static com.quorum.tessera.api.model.ResendRequest toModel(com.quorum.tessera.grpc.p2p.ResendRequest grpcObject) {
         com.quorum.tessera.api.model.ResendRequest resendRequest = new ResendRequest();
@@ -49,4 +47,5 @@ public class Convertor {
 
         return resendRequest;
     }
+
 }
