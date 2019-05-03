@@ -1,7 +1,8 @@
 package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.RawTransaction;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
@@ -13,26 +14,24 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.json.Json;
-import javax.json.JsonObject;
 import javax.json.JsonReader;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.StringReader;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class PartyInfoResourceTest {
@@ -44,90 +43,25 @@ public class PartyInfoResourceTest {
     private PartyInfoParser partyInfoParser;
 
     private Enclave enclave;
-    
+
     private Client restClient;
-    
+
+    private PayloadEncoder payloadEncoder;
+
     @Before
     public void onSetup() {
         this.partyInfoService = mock(PartyInfoService.class);
         this.partyInfoParser = mock(PartyInfoParser.class);
         this.enclave = mock(Enclave.class);
         this.restClient = mock(Client.class);
+        this.payloadEncoder = mock(PayloadEncoder.class);
+        this.partyInfoResource = new PartyInfoResource(partyInfoService, partyInfoParser, restClient, enclave, payloadEncoder);
 
-        
-        
-        this.partyInfoResource = new PartyInfoResource(partyInfoService, partyInfoParser,restClient,enclave);
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(partyInfoService, partyInfoParser,restClient,enclave);
-    }
-
-    @Test
-    public void partyInfoPost() throws IOException {
-
-        byte[] encryptedResponse = "Beware of the hooded mackerel".getBytes();
-
-        PublicKey key = PublicKey.from("SOMEKEYDATA".getBytes());
-                
-        WebTarget webTarget = mock(WebTarget.class);
-        Builder builder = mock(Builder.class);
-        when(builder.post(any())).thenReturn(Response.ok()
-            .entity(Base64.getEncoder().encode(encryptedResponse))
-            .build());
-        when(restClient.target(anyString())).thenReturn(webTarget);
-        when(webTarget.path(anyString())).thenReturn(webTarget);
-        when(webTarget.request()).thenReturn(builder);
-
-        Response r = mock(Response.class);
-        when(r.readEntity(String.class))
-            .thenReturn(Base64.getEncoder().encodeToString(encryptedResponse));
-
-        when(builder.post(any(Entity.class)))
-            .thenReturn(r);
-        
-        
-        byte[] data = "{}".getBytes();
-
-        RawTransaction txn = mock(RawTransaction.class);
-        when(txn.getEncryptedPayload()).thenReturn(encryptedResponse);
-        when(enclave.encryptRawPayload(any(),any())).thenReturn(txn);
-
-
-        PartyInfo partyInfo = mock(PartyInfo.class);
-        when(partyInfo.getUrl()).thenReturn("http://junit.com");
-
-        Recipient recipient = mock(Recipient.class);
-
-        when(recipient.getUrl()).thenReturn("http://junit.com");
-        when(recipient.getKey()).thenReturn(key);
-
-        when(partyInfo.getRecipients()).thenReturn(Collections.singleton(recipient));
-
-        when(partyInfoParser.from(data)).thenReturn(partyInfo);
-        when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(partyInfo);
-
-        byte[] resultData = "Returned Party Info Data".getBytes();
-
-        when(partyInfoParser.to(partyInfo)).thenReturn(resultData);
-
-        Response response = partyInfoResource.partyInfo(data);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(200);
-
-        StreamingOutput o = (StreamingOutput) response.getEntity();
-        o.write(mock(OutputStream.class));
-
-        assertThat(o).isNotNull();
-
-        verify(partyInfoParser).from(data);
-        verify(partyInfoService).updatePartyInfo(partyInfo);
-        verify(partyInfoParser).to(partyInfo);
-
-        verify(restClient).target(anyString());
-        verify(enclave).encryptRawPayload(any(),any());
+        verifyNoMoreInteractions(partyInfoService, partyInfoParser, restClient, enclave, payloadEncoder);
     }
 
     @Test
@@ -165,95 +99,229 @@ public class PartyInfoResourceTest {
     }
 
     @Test
-    public void validate() {
+    public void partyInfo() throws Exception {
 
-        PublicKey sender = PublicKey.from("SOMEKEYDATA".getBytes());
+        String url = "http://www.bogus.com";
 
-        byte[] someData = "SOMEDATA".getBytes();
-        String encodedData = Base64.getEncoder().encodeToString(someData);
+        PublicKey myKey = PublicKey.from("myKey".getBytes());
 
-        JsonObject jsonObject = Json.createObjectBuilder()
-            .add("sender",sender.encodeToBase64())
-            .add("data",encodedData).build();
+        PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
 
+        String message = "I love sparrows";
 
-        RawTransaction txn = mock(RawTransaction.class);
-        when(txn.getEncryptedPayload()).thenReturn("SOME_ENCRYPTED_DATA".getBytes());
+        byte[] payload = message.getBytes();
 
-        when(enclave.encryptRawPayload(someData,sender)).thenReturn(txn);
+        Recipient recipient = new Recipient(recipientKey, url);
 
-        Response response = partyInfoResource.validate(jsonObject.toString());
+        Set<Recipient> recipientList = Collections.singleton(recipient);
 
-        assertThat(response.getStatus()).isEqualTo(200);
+        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET);
 
+        when(partyInfoParser.from(payload)).thenReturn(partyInfo);
 
-        assertThat(response.getEntity()).isEqualTo(Base64.getEncoder().encodeToString("SOME_ENCRYPTED_DATA".getBytes()));
+        when(enclave.defaultPublicKey()).thenReturn(myKey);
 
-        verify(enclave).encryptRawPayload(someData,sender);
+        when(partyInfoParser.to(partyInfo)).thenReturn(payload);
+
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+
+        List<String> uuidList = new ArrayList<>();
+        doAnswer((invocation) -> {
+            byte[] d = invocation.getArgument(0);
+            uuidList.add(new String(d));
+            return encodedPayload;
+        }).when(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+
+        when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
+
+        WebTarget webTarget = mock(WebTarget.class);
+        when(restClient.target(url)).thenReturn(webTarget);
+        when(webTarget.path(anyString())).thenReturn(webTarget);
+        Invocation.Builder invocationBuilder = mock(Invocation.Builder.class);
+        when(webTarget.request()).thenReturn(invocationBuilder);
+
+        Response response = mock(Response.class);
+        when(response.getStatus()).thenReturn(200);
+
+        doAnswer((invocation) -> uuidList.get(0)).when(response).readEntity(String.class);
+
+        when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
+
+        when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(partyInfo);
+
+        Response result = partyInfoResource.partyInfo(payload);
+
+        assertThat(result.getStatus()).isEqualTo(200);
+
+        verify(partyInfoParser).from(payload);
+        verify(partyInfoParser).to(partyInfo);
+        verify(enclave).defaultPublicKey();
+        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+        verify(payloadEncoder).encode(encodedPayload);
+        verify(restClient).target(url);
+        verify(partyInfoService).updatePartyInfo(partyInfo);
 
     }
 
     @Test
-    public void partyInfoPostInvalidNode() throws IOException {
+    public void validate() throws Exception {
 
+        String message = "I love sparrows";
 
-        byte[] encryptedResponse = "Beware of the hooded mackerel".getBytes();
+        byte[] payload = message.getBytes();
 
-        PublicKey key = PublicKey.from("SOMEKEYDATA".getBytes());
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
-        WebTarget webTarget = mock(WebTarget.class);
-        Builder builder = mock(Builder.class);
-        when(builder.post(any())).thenReturn(Response.ok()
-            .entity(Base64.getEncoder().encode(encryptedResponse))
-            .build());
-        when(restClient.target(anyString())).thenReturn(webTarget);
-        when(webTarget.path(anyString())).thenReturn(webTarget);
-        when(webTarget.request()).thenReturn(builder);
+        when(payloadEncoder.decode(payload)).thenReturn(encodedPayload);
 
-        Response r = mock(Response.class);
-        when(r.readEntity(String.class))
-            .thenReturn(Base64.getEncoder().encodeToString("OTHER".getBytes()));
+        PublicKey myKey = PublicKey.from("myKey".getBytes());
 
-        when(builder.post(any(Entity.class)))
-            .thenReturn(r);
+        when(enclave.defaultPublicKey()).thenReturn(myKey);
+        when(enclave.unencryptTransaction(encodedPayload, myKey)).thenReturn(message.getBytes());
 
+        Response result = partyInfoResource.validate(payload);
 
-        byte[] data = "{}".getBytes();
+        assertThat(result.getStatus()).isEqualTo(200);
+        assertThat(result.getEntity()).isEqualTo(message);
 
-        RawTransaction txn = mock(RawTransaction.class);
-        when(txn.getEncryptedPayload()).thenReturn(encryptedResponse);
-        when(enclave.encryptRawPayload(any(),any())).thenReturn(txn);
-
-
-        PartyInfo partyInfo = mock(PartyInfo.class);
-        when(partyInfo.getUrl()).thenReturn("http://junit.com");
-
-        Recipient recipient = mock(Recipient.class);
-
-        when(recipient.getUrl()).thenReturn("http://junit.com");
-        when(recipient.getKey()).thenReturn(key);
-
-        when(partyInfo.getRecipients()).thenReturn(Collections.singleton(recipient));
-
-        when(partyInfoParser.from(data)).thenReturn(partyInfo);
-        when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(partyInfo);
-
-        byte[] resultData = "Returned Party Info Data".getBytes();
-
-        when(partyInfoParser.to(partyInfo)).thenReturn(resultData);
-
-        try {
-            partyInfoResource.partyInfo(data);
-            failBecauseExceptionWasNotThrown(SecurityException.class);
-        } catch(SecurityException ex) {
-
-            verify(partyInfoParser).from(data);
-
-            verify(restClient).target(anyString());
-            verify(enclave).encryptRawPayload(any(),any());
-        }
-
+        verify(payloadEncoder).decode(payload);
+        verify(enclave).defaultPublicKey();
+        verify(enclave).unencryptTransaction(encodedPayload, myKey);
 
     }
 
+    @Test
+    public void partyInfoDupedUrl() throws Exception {
+
+        String url = "http://www.bogus.com";
+
+        PublicKey myKey = PublicKey.from("myKey".getBytes());
+
+        PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+        PublicKey otherRecipientKey = PublicKey.from("otherRecipientKey".getBytes());
+
+        String message = "I love sparrows";
+
+        byte[] payload = message.getBytes();
+
+        Recipient recipient = new Recipient(recipientKey, url);
+        Recipient otherrecipient = new Recipient(otherRecipientKey, url);
+
+        Set<Recipient> recipientList = new HashSet<>(Arrays.asList(recipient, otherrecipient));
+
+        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET);
+
+        when(partyInfoParser.from(payload)).thenReturn(partyInfo);
+
+        when(enclave.defaultPublicKey()).thenReturn(myKey);
+
+        try {
+            partyInfoResource.partyInfo(payload);
+            failBecauseExceptionWasNotThrown(IllegalStateException.class);
+        } catch (IllegalStateException ex) {
+            verify(partyInfoParser).from(payload);
+            verify(enclave).defaultPublicKey();
+        }
+
+    }
+
+    @Test
+    public void partyInfoNoRecipientWithPartInfoUrl() throws Exception {
+
+        String url = "http://www.bogus.com";
+
+        PublicKey myKey = PublicKey.from("myKey".getBytes());
+
+        PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+
+        String message = "I love sparrows";
+
+        byte[] payload = message.getBytes();
+
+        Recipient recipient = new Recipient(recipientKey, "http://other.com");
+
+        Set<Recipient> recipientList = Collections.singleton(recipient);
+
+        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET);
+
+        when(partyInfoParser.from(payload)).thenReturn(partyInfo);
+
+        when(enclave.defaultPublicKey()).thenReturn(myKey);
+
+        try {
+            partyInfoResource.partyInfo(payload);
+            failBecauseExceptionWasNotThrown(IllegalStateException.class);
+        } catch (NoSuchElementException ex) {
+            verify(partyInfoParser).from(payload);
+            verify(enclave).defaultPublicKey();
+        }
+
+    }
+
+    @Test
+    public void constructWithMinimalArgs() {
+        PartyInfoResource instance = new PartyInfoResource(partyInfoService, partyInfoParser, restClient, enclave);
+
+        assertThat(instance).isNotNull();
+
+    }
+
+    @Test
+    public void partyInfoVaidateNodeFails() throws Exception {
+
+        String url = "http://www.bogus.com";
+
+        PublicKey myKey = PublicKey.from("myKey".getBytes());
+
+        PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+
+        String message = "I love sparrows";
+
+        byte[] payload = message.getBytes();
+
+        Recipient recipient = new Recipient(recipientKey, url);
+
+        Set<Recipient> recipientList = Collections.singleton(recipient);
+
+        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET);
+
+        when(partyInfoParser.from(payload)).thenReturn(partyInfo);
+
+        when(enclave.defaultPublicKey()).thenReturn(myKey);
+
+        when(partyInfoParser.to(partyInfo)).thenReturn(payload);
+
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+
+        when(enclave.encryptPayload(any(byte[].class), any(PublicKey.class), anyList())).thenReturn(encodedPayload);
+
+        when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
+
+        WebTarget webTarget = mock(WebTarget.class);
+        when(restClient.target(url)).thenReturn(webTarget);
+        when(webTarget.path(anyString())).thenReturn(webTarget);
+        Invocation.Builder invocationBuilder = mock(Invocation.Builder.class);
+        when(webTarget.request()).thenReturn(invocationBuilder);
+
+        Response response = mock(Response.class);
+        when(response.getStatus()).thenReturn(200);
+
+        doAnswer((invocation) -> "BADRESPONSE").when(response).readEntity(String.class);
+
+        when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
+
+        when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(partyInfo);
+
+        try {
+            partyInfoResource.partyInfo(payload);
+            failBecauseExceptionWasNotThrown(SecurityException.class);
+        } catch (SecurityException ex) {
+            verify(partyInfoParser).from(payload);
+            verify(enclave).defaultPublicKey();
+            verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+            verify(payloadEncoder).encode(encodedPayload);
+            verify(restClient).target(url);
+        }
+
+    }
 }
