@@ -9,6 +9,7 @@ import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
+import java.io.OutputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +31,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.StreamingOutput;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -149,9 +151,16 @@ public class PartyInfoResourceTest {
 
         when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(partyInfo);
 
+
+        
         Response result = partyInfoResource.partyInfo(payload);
 
         assertThat(result.getStatus()).isEqualTo(200);
+        //Work around for jacoco's lambda coverage
+        StreamingOutput o = (StreamingOutput) result.getEntity();
+        o.write(mock(OutputStream.class));
+        assertThat(o).isNotNull();
+
 
         verify(partyInfoParser).from(payload);
         verify(partyInfoParser).to(partyInfo);
