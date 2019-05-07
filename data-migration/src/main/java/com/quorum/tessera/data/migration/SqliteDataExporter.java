@@ -2,16 +2,23 @@ package com.quorum.tessera.data.migration;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.sql.*;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class SqliteDataExporter implements DataExporter {
 
     private static final String INSERT_ROW = "INSERT INTO ENCRYPTED_TRANSACTION (HASH, ENCODED_PAYLOAD) VALUES (?, ?)";
+
+    private static final String CREATE_TABLE_RESOURCE = "/ddls/sqlite-ddl.sql";
 
     @Override
     public void export(final StoreLoader loader,
@@ -21,9 +28,11 @@ public class SqliteDataExporter implements DataExporter {
 
         final String connectionString = "jdbc:sqlite:" + output.toString();
 
-        final byte[] sqlData = IOUtils.resourceToByteArray("/ddls/sqlite-ddl.sql");
-        final String dataAsString = new String(sqlData, UTF_8);
-        final String[] createTableStatements = dataAsString.split("\n");
+        final List<String> createTableStatements = Stream.of(getClass().getResourceAsStream(CREATE_TABLE_RESOURCE))
+            .map(InputStreamReader::new)
+            .map(BufferedReader::new)
+            .flatMap(BufferedReader::lines)
+            .collect(Collectors.toList());
 
         try (Connection conn = DriverManager.getConnection(connectionString, username, password)) {
 

@@ -1,14 +1,13 @@
 package com.quorum.tessera.data.migration;
 
-import org.apache.commons.io.IOUtils;
-
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class H2DataExporter implements DataExporter {
 
@@ -24,9 +23,11 @@ public class H2DataExporter implements DataExporter {
 
         final String connectionString = "jdbc:h2:" + output.toString();
 
-        final byte[] data = IOUtils.resourceToByteArray(CREATE_TABLE_RESOURCE);
-        final String dataAsString = new String(data, UTF_8);
-        final List<String> createTableStatements = Arrays.asList(dataAsString.split("\n"));
+        final List<String> createTableStatements = Stream.of(getClass().getResourceAsStream(CREATE_TABLE_RESOURCE))
+            .map(InputStreamReader::new)
+            .map(BufferedReader::new)
+            .flatMap(BufferedReader::lines)
+            .collect(Collectors.toList());
 
         final JdbcDataExporter jdbcDataExporter
             = new JdbcDataExporter(connectionString, INSERT_ROW, createTableStatements);
