@@ -193,8 +193,8 @@ public class PartyInfoResource {
     public Response validate(byte[] payloadData) {
 
         EncodedPayload payload = payloadEncoder.decode(payloadData);
-
-        PublicKey mykey = enclave.defaultPublicKey();
+        
+        PublicKey mykey = payload.getRecipientKeys().iterator().next();
 
         byte[] result = enclave.unencryptTransaction(payload, mykey);
 
