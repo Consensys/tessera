@@ -137,6 +137,27 @@ public class PartyInfoStoreTest {
 
     }
     
+    @Test
+    public void attemptToUpdateReciepentWithExistingKeyWithNewUrlIsIgnored() {
+        
+        final PublicKey testKey = PublicKey.from("some-key".getBytes());
 
+        final Set<Recipient> ourKeys = singleton(new Recipient(testKey, uri));
+
+        final PartyInfo initial = new PartyInfo(uri, ourKeys, emptySet());
+
+        partyInfoStore.store(initial);
+        
+        
+        final Set<Recipient> newRecipients = singleton(new Recipient(testKey, "http://other.com"));
+        final PartyInfo updated = new PartyInfo(uri, newRecipients, emptySet());
+        
+        partyInfoStore.store(updated);
+
+        final Set<Recipient> retrievedRecipients = partyInfoStore.getPartyInfo().getRecipients();
+
+        assertThat(retrievedRecipients).hasSize(1)
+            .containsExactly(new Recipient(testKey, uri));
+    }
 
 }
