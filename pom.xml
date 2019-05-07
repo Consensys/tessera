@@ -51,6 +51,7 @@
         <grpc.version>1.14.0</grpc.version>
         <h2.version>1.4.199</h2.version>
         <owasp.plugin.version>5.0.0-M2</owasp.plugin.version>
+        <bouncycastle.version>1.61</bouncycastle.version>
         <logback.version>1.2.3</logback.version>
     </properties>
 
@@ -652,7 +653,13 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk15on</artifactId>
-                <version>1.61</version>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
             </dependency>
 
             <dependency>
