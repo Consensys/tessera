@@ -1,21 +1,22 @@
 package com.quorum.tessera.data.migration;
 
-import com.quorum.tessera.io.IOCallback;
-import com.quorum.tessera.io.UriCallback;
 import org.apache.commons.io.IOUtils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.Files;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.*;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SqliteDataExporter implements DataExporter {
 
     private static final String INSERT_ROW = "INSERT INTO ENCRYPTED_TRANSACTION (HASH, ENCODED_PAYLOAD) VALUES (?, ?)";
+
+    private static final String CREATE_TABLE_RESOURCE = "/ddls/sqlite-ddl.sql";
 
     @Override
     public void export(final StoreLoader loader,
@@ -25,14 +26,16 @@ public class SqliteDataExporter implements DataExporter {
 
         final String connectionString = "jdbc:sqlite:" + output.toString();
 
-        final URI sqlFile = UriCallback.execute(() -> getClass().getResource("/ddls/sqlite-ddl.sql").toURI());
-
-        final List<String> createTables = IOCallback.execute(() -> Files.readAllLines(Paths.get(sqlFile)));
+        final List<String> createTableStatements = Stream.of(getClass().getResourceAsStream(CREATE_TABLE_RESOURCE))
+            .map(InputStreamReader::new)
+            .map(BufferedReader::new)
+            .flatMap(BufferedReader::lines)
+            .collect(Collectors.toList());
 
         try (Connection conn = DriverManager.getConnection(connectionString, username, password)) {
 
             try (Statement stmt = conn.createStatement()) {
-                for (final String createTable : createTables) {
+                for (final String createTable : createTableStatements) {
                     stmt.executeUpdate(createTable);
                 }
             }
