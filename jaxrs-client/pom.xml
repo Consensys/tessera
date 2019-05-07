@@ -8,16 +8,7 @@
     </parent>
     <artifactId>jaxrs-client</artifactId>
     <packaging>jar</packaging>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>jaxrs-client-unixsocket</artifactId>
-                <version>0.10-SNAPSHOT</version>
-            </dependency>  
-        </dependencies>
-    </dependencyManagement>
-    
+
     <dependencies>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>

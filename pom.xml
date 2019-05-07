@@ -53,6 +53,7 @@
         <owasp.plugin.version>5.0.0-M2</owasp.plugin.version>
         <bouncycastle.version>1.61</bouncycastle.version>
         <logback.version>1.2.3</logback.version>
+        <jackson.version>2.9.7</jackson.version>
     </properties>
 
     <build>
@@ -150,7 +151,7 @@
 
                 </plugin>
                 
-<!--                <plugin>
+                <!--                <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
                     <version>${owasp.plugin.version}</version>
@@ -170,7 +171,7 @@
 
         <plugins>
 
-<!--            <plugin>
+            <!--            <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
             </plugin>-->
@@ -363,6 +364,9 @@
                                 <requireMavenVersion>
                                     <version>3.5</version>
                                 </requireMavenVersion>
+                                <banDuplicatePomDependencyVersions/>
+<!--                                <reactorModuleConvergence/>-->
+                                <dependencyConvergence/>
                             </rules>
                         </configuration>
                     </execution>
@@ -583,6 +587,12 @@
                 <version>0.10-SNAPSHOT</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>jaxrs-client-unixsocket</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency> 
+            
             <dependency>
                 <groupId>org.glassfish.jersey</groupId>
                 <artifactId>jersey-bom</artifactId>
@@ -896,6 +906,11 @@
                 <artifactId>googleapis-common-protos</artifactId>
                 <version>0.0.3</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>3.5.1</version>
+            </dependency>
 
             <dependency>
                 <groupId>io.grpc</groupId>
@@ -908,6 +923,12 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
                 <version>4.1.27.Final</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.8.5</version>
             </dependency>
 
 
@@ -941,6 +962,186 @@
                 <version>3.1.5</version>
             </dependency>
 
+
+            
+            <dependency>
+                <groupId>org.glassfish.grizzly</groupId>
+                <artifactId>grizzly-http-servlet</artifactId>
+                <version>2.4.3.1</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.sun.mail</groupId>
+                <artifactId>javax.mail</artifactId>
+                <version>1.6.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-client</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-unixsocket</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jnr-unixsocket</artifactId>
+                <version>0.22</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>javax-websocket-server-impl</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>javax-websocket-client-impl</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            
+            
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jnr-constants</artifactId>
+                <version>0.9.12</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jnr-posix</artifactId>
+                <version>3.0.49</version>
+            </dependency>   
+              
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jnr-enxio</artifactId>
+                <version>0.20</version>
+            </dependency>  
+            
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jnr-ffi</artifactId>
+                <version>2.1.9</version>
+            </dependency>  
+
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jffi</artifactId>
+                <version>1.2.17</version>
+            </dependency>  
+            
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jffi</artifactId>
+                <version>1.2.17</version>
+                <classifier>native</classifier>
+            </dependency>    
+            
+
+            <dependency>
+                <groupId>org.glassfish.grizzly</groupId>
+                <artifactId>grizzly-http-server</artifactId>
+                <version>2.4.3.1</version>
+                <scope>test</scope>
+            </dependency>     
+            
+            
+            <!-- keyvault deps --> 
+            
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>2.9.7</version>
+            </dependency>
+
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.7</version>
+            </dependency>
+            
+
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.12</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>3.12.0</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.squareup.okio</groupId>
+                <artifactId>okio</artifactId>
+                <version>1.15.0</version>
+            </dependency>  
+            
+            <dependency>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>azure-keyvault</artifactId>
+                <version>1.1.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>adal4j</artifactId>
+                <version>1.6.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.microsoft.rest</groupId>
+                <artifactId>client-runtime</artifactId>
+                <version>1.6.1</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>io.reactivex</groupId>
+                <artifactId>rxjava</artifactId>
+                <version>1.3.8</version>
+            </dependency>
+            
+            
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>5.0.4</version>
+            </dependency>
+            
         </dependencies>
     </dependencyManagement>
 
