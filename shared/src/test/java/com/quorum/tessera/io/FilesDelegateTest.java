@@ -1,5 +1,8 @@
 package com.quorum.tessera.io;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,9 +16,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Before;
-import org.junit.Test;
 
 public class FilesDelegateTest {
 
@@ -48,7 +50,7 @@ public class FilesDelegateTest {
     }
 
     @Test
-    public void createFile() throws Exception {
+    public void createFile() {
         Path toBeCreated = Paths.get(UUID.randomUUID().toString());
 
         Path result = filesDelegate.createFile(toBeCreated);
@@ -129,7 +131,6 @@ public class FilesDelegateTest {
 
         Path result = filesDelegate.setPosixFilePermissions(somefile, perms);
         assertThat(Files.getPosixFilePermissions(result)).containsAll(perms);
-        
 
     }
 

@@ -8,7 +8,6 @@ import com.openpojo.validation.rule.impl.NoPublicFieldsExceptStaticFinalRule;
 import com.openpojo.validation.test.impl.GetterTester;
 import org.junit.Test;
 
-
 public class SSLContextPropertiesTest {
 
     @Test
@@ -24,4 +23,5 @@ public class SSLContextPropertiesTest {
         pojoValidator.validateRecursively("com.quorum.tessera.ssl.context.model");
 
     }
+
 }

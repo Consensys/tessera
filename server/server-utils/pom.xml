@@ -9,33 +9,29 @@
     <artifactId>server-utils</artifactId>
     <packaging>jar</packaging>
     <dependencies>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <type>jar</type>
-        </dependency>
+        
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>config</artifactId>
             <type>jar</type>
         </dependency>
+        
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>security</artifactId>
             <type>jar</type>
         </dependency>
+        
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-unixsocket</artifactId>
             <type>jar</type>
         </dependency>
+        
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-unixsocket</artifactId>
-        </dependency>
+
     </dependencies>
 </project>

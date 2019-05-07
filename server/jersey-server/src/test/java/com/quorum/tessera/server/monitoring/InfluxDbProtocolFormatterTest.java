@@ -23,7 +23,6 @@ public class InfluxDbProtocolFormatterTest {
         this.mockUri = new URI("http://localhost:8080");
     }
 
-
     @Test
     public void noArgResourceResponseCorrectlyFormatted() {
         mockMetrics.add(new MBeanResourceMetric("GET->upCheck()#a10a4f8d", "AverageTime[ms]_total", "100"));

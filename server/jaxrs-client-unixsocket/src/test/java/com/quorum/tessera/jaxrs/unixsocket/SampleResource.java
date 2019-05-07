@@ -1,25 +1,18 @@
 package com.quorum.tessera.jaxrs.unixsocket;
 
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
+
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 @Path("/")
 public class SampleResource {
@@ -65,8 +58,6 @@ public class SampleResource {
         return Response.ok(deleted).build();
     }
 
-
-
     @POST
     @Path("sendraw")
     @Consumes(APPLICATION_OCTET_STREAM)
@@ -93,8 +84,7 @@ public class SampleResource {
         System.out.println("headerParam: "+ headerParam);
         System.out.println("QueryParam: "+ qparam);
 
-        return Response.ok()
-                .build();
-    
+        return Response.ok().build();
     }
+
 }

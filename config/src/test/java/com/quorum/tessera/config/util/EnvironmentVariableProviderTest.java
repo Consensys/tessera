@@ -5,7 +5,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class EnvironmentVariableProviderTest {
 
     private EnvironmentVariableProvider provider;
@@ -32,4 +31,5 @@ public class EnvironmentVariableProviderTest {
         //returns false as env variables not set in test environment
         assertThat(provider.hasEnv("env")).isFalse();
     }
+
 }

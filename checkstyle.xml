@@ -128,6 +128,13 @@
             <!--<property name="tokens" value="LOR, LAND"/>--> <!-- TODO: uncomment -->
             <property name="tokens" value="EQUAL, NOT_EQUAL"/>
         </module>
+
+<!--        <module name="EmptyLineSeparator">-->
+<!--            <property name="allowNoEmptyLineBetweenFields" value="false"/>-->
+<!--            <property name="allowMultipleEmptyLines" value="false" />-->
+<!--            <property name="allowMultipleEmptyLinesInsideClassMembers" value="false"/>-->
+<!--        </module>-->
+
     </module>
 
 </module>

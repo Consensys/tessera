@@ -32,10 +32,8 @@ public class InfluxConfig extends ConfigItem {
     }
 
     public InfluxConfig() {
-        this(null,null,null,null);
+        this(null, null, null, null);
     }
-
-
 
     public String getHostName() {
         return hostName;
@@ -68,6 +66,5 @@ public class InfluxConfig extends ConfigItem {
     public void setDbName(String dbName) {
         this.dbName = dbName;
     }
-    
-    
+
 }

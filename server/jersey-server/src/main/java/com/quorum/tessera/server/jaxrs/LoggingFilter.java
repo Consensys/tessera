@@ -1,4 +1,4 @@
-package com.quorum.tessera.api.filter;
+package com.quorum.tessera.server.jaxrs;
 
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -10,10 +10,6 @@ import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.UriInfo;
 
-/*
-https://docs.oracle.com/javaee/7/api/javax/ws/rs/NameBinding.html
- */
-@Logged
 public class LoggingFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingFilter.class);

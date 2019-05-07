@@ -254,8 +254,6 @@ public class ConfigBuilder {
                 null
         );
 
-
-
         //TODO must add P2P and Q2T server configs. Maybe ThirdParty too - in disabled state.
         //serverHostname, serverPort, 50521, CommunicationType.REST, sslConfig, null, null, null
         final DeprecatedServerConfig serverConfig = new DeprecatedServerConfig();
@@ -273,24 +271,17 @@ public class ConfigBuilder {
             peerList = null;
         }
 
-
-        final List<String> forwardingKeys;
+        final List<String> forwardingKeys = new ArrayList<>();
         if(alwaysSendTo != null) {
-            List<String> keyList = new ArrayList<>();
 
             for(String keyPath : alwaysSendTo) {
                 try {
                     List<String> keysFromFile = Files.readAllLines(toPath(workDir, keyPath));
-                    keyList.addAll(keysFromFile);
+                    forwardingKeys.addAll(keysFromFile);
                 } catch (IOException e) {
                     System.err.println("Error reading alwayssendto file: " + e.getMessage());
                 }
             }
-
-            forwardingKeys = keyList.stream()
-                .collect(Collectors.toList());
-        } else {
-            forwardingKeys = Collections.emptyList();
         }
 
         Config config = new Config();

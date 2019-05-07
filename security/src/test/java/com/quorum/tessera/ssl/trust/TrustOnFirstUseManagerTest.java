@@ -5,8 +5,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
@@ -18,12 +16,10 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.*;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 
 public class TrustOnFirstUseManagerTest {
 
@@ -32,22 +28,21 @@ public class TrustOnFirstUseManagerTest {
 
     private TrustOnFirstUseManager trustManager;
 
-    Path knownHosts;
+    private Path knownHosts;
 
-    @Mock
-    X509Certificate certificate;
+    private X509Certificate certificate;
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        knownHosts = Paths.get(tmpDir.getRoot().getPath(), "parent", "knownHosts");
+        this.certificate = mock(X509Certificate.class);
+
+        this.knownHosts = Paths.get(tmpDir.getRoot().getPath(), "parent", "knownHosts");
     }
 
     @After
     public void after() {
         verifyNoMoreInteractions(certificate);
     }
-
 
     @Test
     public void testAddThumbPrintToKnownHostsList() throws CertificateException, IOException {
@@ -162,7 +157,6 @@ public class TrustOnFirstUseManagerTest {
         verify(certificate, times(3)).getEncoded();
         verify(certificate, times(3)).getSubjectX500Principal();
 
-
     }
 
     @Test
@@ -170,4 +164,5 @@ public class TrustOnFirstUseManagerTest {
         trustManager = new TrustOnFirstUseManager(knownHosts);
         assertThat(trustManager.getAcceptedIssuers()).isEmpty();
     }
+
 }

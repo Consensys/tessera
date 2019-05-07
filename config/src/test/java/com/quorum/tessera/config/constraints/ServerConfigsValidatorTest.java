@@ -21,7 +21,9 @@ public class ServerConfigsValidatorTest {
     private List<ServerConfig> serverConfigs;
 
     private ServerConfig p2pServerConfig;
+
     private ServerConfig q2tServerConfig;
+
     private ServerConfig thirdPartyServerConfig;
 
     private ConstraintValidatorContext cvc;

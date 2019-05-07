@@ -6,9 +6,6 @@
     <artifactId>server</artifactId>
     <packaging>pom</packaging>
 
-    <properties>
-        <jetty.version>9.4.14.v20181114</jetty.version>
-    </properties>
 
     <parent>
         <artifactId>tessera</artifactId>

@@ -2,6 +2,7 @@ package com.quorum.tessera.config.util;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.io.IOCallback;
+
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,15 +19,15 @@ public interface ConfigFileStore {
 
         @Override
         public void save(Config config) {
-            
+
             IOCallback.execute(() -> {
                 Path temp = Files.createTempFile(UUID.randomUUID().toString(), ".tmp");
-                try(OutputStream fout = Files.newOutputStream(temp)){
+                try (OutputStream fout = Files.newOutputStream(temp)) {
                     JaxbUtil.marshalWithNoValidation(config, fout);
                 }
-                Files.copy(temp, path,StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(temp, path, StandardCopyOption.REPLACE_EXISTING);
                 return null;
-            });  
+            });
         }
     }
 
@@ -34,14 +35,11 @@ public interface ConfigFileStore {
         Store.INSTANCE.path = path;
         return Store.INSTANCE;
     }
-    
-    
+
     static ConfigFileStore get() {
         return Store.INSTANCE;
     }
-    
-    void save(Config config);
-    
 
+    void save(Config config);
 
 }

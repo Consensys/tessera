@@ -77,7 +77,6 @@
         </constructor-arg>
     </bean>
 
-    <bean class="com.quorum.tessera.api.filter.LoggingFilter"/>
 
     <bean class="com.quorum.tessera.api.filter.IPWhitelistFilter">
         <constructor-arg ref="configService"/>

@@ -32,7 +32,6 @@ public class WhiteListTrustManagerTest {
     @Mock
     X509Certificate certificate;
 
-
     @Before
     public void setUp() throws IOException, CertificateException {
         MockitoAnnotations.initMocks(this);
@@ -41,8 +40,7 @@ public class WhiteListTrustManagerTest {
         when(certificate.getSubjectX500Principal()).thenReturn(cn);
         knownHosts = Files.createTempFile("test", "knownHosts");
 
-        try (BufferedWriter writer = Files.newBufferedWriter(knownHosts, StandardOpenOption.APPEND))
-        {
+        try (BufferedWriter writer = Files.newBufferedWriter(knownHosts, StandardOpenOption.APPEND)) {
             writer.write("someaddress somethumbprint");
             writer.newLine();
             writer.write("localhost" + " " + CertificateUtil.create().thumbPrint(certificate));

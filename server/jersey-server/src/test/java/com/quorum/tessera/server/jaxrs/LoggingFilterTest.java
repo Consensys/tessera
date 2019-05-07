@@ -1,6 +1,5 @@
-package com.quorum.tessera.api.filter;
+package com.quorum.tessera.server.jaxrs;
 
-import com.quorum.tessera.api.filter.LoggingFilter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

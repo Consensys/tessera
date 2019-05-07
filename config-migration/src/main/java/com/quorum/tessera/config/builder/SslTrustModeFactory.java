@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.config.builder;
 
 import com.quorum.tessera.config.SslTrustMode;
@@ -6,11 +5,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public interface SslTrustModeFactory {
     
-     Map<String, SslTrustMode> TRUST_MODE_LOOKUP = 
-             Collections.unmodifiableMap(new HashMap<String, SslTrustMode>() {
+     Map<String, SslTrustMode> TRUST_MODE_LOOKUP = Collections.unmodifiableMap(new HashMap<String, SslTrustMode>() {
         {
             put("ca", SslTrustMode.CA);
             put("tofu", SslTrustMode.TOFU);
@@ -24,6 +21,5 @@ public interface SslTrustModeFactory {
     static SslTrustMode resolveByLegacyValue(String value) {
         return TRUST_MODE_LOOKUP.getOrDefault(value, SslTrustMode.NONE);
     }
-    
-    
+
 }

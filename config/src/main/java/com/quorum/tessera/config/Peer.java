@@ -27,7 +27,5 @@ public class Peer extends ConfigItem {
     public void setUrl(String url) {
         this.url = url;
     }
-    
-    
 
 }

@@ -1,6 +1,4 @@
-
 package com.quorum.tessera.reflect;
-
 
 public class ReflectException extends RuntimeException {
 

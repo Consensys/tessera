@@ -28,6 +28,6 @@ public class NoopSystemAdapter implements SystemAdapter {
             });
         }
     
-    };
+    }
     
 }

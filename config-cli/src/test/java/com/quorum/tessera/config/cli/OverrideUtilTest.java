@@ -54,6 +54,10 @@ public class OverrideUtilTest {
             "useWhiteList",
             "disablePeerDiscovery",
             "serverConfigs.serverAddress",
+            "serverConfigs.cors.allowedOrigins",
+            "serverConfigs.cors.allowCredentials",
+            "serverConfigs.cors.allowedHeaders",
+            "serverConfigs.cors.allowedMethods",
             "serverConfigs.sslConfig.serverTrustStore",
             "serverConfigs.influxConfig.dbName",
             "serverConfigs.sslConfig.knownClientsFile",
@@ -120,8 +124,8 @@ public class OverrideUtilTest {
         final Map<String, Class> results = OverrideUtil.buildConfigOptions();
 
         assertThat(results.keySet())
-                .filteredOn(s -> !s.contains("$jacocoData"))
-                .containsExactlyInAnyOrderElementsOf(expected);
+            .filteredOn(s -> !s.contains("$jacocoData"))
+            .containsExactlyInAnyOrderElementsOf(expected);
 
         assertThat(results.get("serverConfigs.sslConfig.knownClientsFile")).isEqualTo(Path.class);
         assertThat(results.get("keys.passwords")).isEqualTo(String[].class);
@@ -209,9 +213,9 @@ public class OverrideUtilTest {
     @Test
     public void toArrayType() {
         assertThat(OverrideUtil.toArrayType(String.class))
-                .isEqualTo(String[].class);
+            .isEqualTo(String[].class);
         assertThat(OverrideUtil.toArrayType(Path.class))
-                .isEqualTo(Path[].class);
+            .isEqualTo(Path[].class);
     }
 
     @Test
@@ -241,7 +245,7 @@ public class OverrideUtilTest {
         assertThat(OverrideUtil.convertTo(Boolean.class, "true")).isTrue();
 
         assertThat(OverrideUtil.convertTo(SslAuthenticationMode.class, "STRICT"))
-                .isEqualTo(SslAuthenticationMode.STRICT);
+            .isEqualTo(SslAuthenticationMode.STRICT);
 
         assertThat(OverrideUtil.convertTo(String.class, null)).isNull();
 
@@ -320,7 +324,7 @@ public class OverrideUtilTest {
     @Test
     public void setValuePreservePreDefined() throws Exception {
         final Config config;
-        try(InputStream data = getClass().getResourceAsStream("/sample-config.json")) {
+        try (InputStream data = getClass().getResourceAsStream("/sample-config.json")) {
             config = JaxbUtil.unmarshal(data, Config.class);
         }
 
@@ -339,11 +343,10 @@ public class OverrideUtilTest {
 
         Config config = OverrideUtil.createInstance(Config.class);
 
-
         OverrideUtil.setValue(config, "keys.keyData.publicKey", "PUBLICKEY");
         OverrideUtil.setValue(config, "keys.keyData.privateKey", "PRIVATEKEY");
         //UNmarshlling to COnfig to 
-        try(ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+        try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
             JaxbUtil.marshalWithNoValidation(config, bout);
             Config result = JaxbUtil.unmarshal(new ByteArrayInputStream(bout.toByteArray()), Config.class);
             assertThat(result.getKeys()).isNotNull();
@@ -365,7 +368,7 @@ public class OverrideUtilTest {
 
         OverrideUtil.setValue(config, "alwaysSendTo", "ONE", "TWO");
 
-        try(ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+        try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
             JaxbUtil.marshalWithNoValidation(config, bout);
 
             Config result = JaxbUtil.unmarshal(new ByteArrayInputStream(bout.toByteArray()), Config.class);

@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.data.migration;
 
 import java.sql.SQLException;

@@ -5,7 +5,6 @@ import com.quorum.tessera.api.model.ResendRequest;
 
 import java.util.Objects;
 
-
 class GrpcP2pClient implements P2pClient {
     
     private final GrpcClientFactory grpcClientFactory;
@@ -33,6 +32,5 @@ class GrpcP2pClient implements P2pClient {
         com.quorum.tessera.grpc.p2p.ResendRequest grpcObj = Convertor.toGrpc(request);
         return grpcClientFactory.getClient(targetUrl).makeResendRequest(grpcObj);
     }
-    
-    
+
 }

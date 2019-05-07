@@ -1,14 +1,13 @@
-
 package com.quorum.tessera.grpc;
 
-import com.quorum.tessera.transaction.TransactionManagerImpl;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
-import static org.mockito.Mockito.mock;
+import com.quorum.tessera.transaction.TransactionManagerImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
+import static org.mockito.Mockito.mock;
 
 @Configuration
 @ImportResource(locations="classpath:tessera-grpc-spring.xml")

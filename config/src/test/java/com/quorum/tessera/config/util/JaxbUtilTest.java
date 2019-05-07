@@ -5,6 +5,7 @@ import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,7 +32,7 @@ public class JaxbUtilTest {
     public void unmarshalLocked() {
 
         final KeyDataConfig result = JaxbUtil.unmarshal(
-                getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class
+            getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class
         );
 
         assertThat(result).isNotNull();
@@ -52,10 +53,9 @@ public class JaxbUtilTest {
     @Test
     public void marshallingOutputStream() throws Exception {
         final KeyDataConfig input = new KeyDataConfig(
-                new PrivateKeyData("VAL", null, null, null, null),
-                PrivateKeyType.UNLOCKED
+            new PrivateKeyData("VAL", null, null, null, null),
+            PrivateKeyType.UNLOCKED
         );
-        
 
         try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
             JaxbUtil.marshal(input, bout);
@@ -81,8 +81,8 @@ public class JaxbUtilTest {
         final Throwable throwable = catchThrowable(() -> JaxbUtil.marshal(ex, out));
 
         assertThat(throwable)
-                .isInstanceOf(ConfigException.class)
-                .hasCauseExactlyInstanceOf(MarshalException.class);
+            .isInstanceOf(ConfigException.class)
+            .hasCauseExactlyInstanceOf(MarshalException.class);
     }
 
     @Test
@@ -110,7 +110,7 @@ public class JaxbUtilTest {
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
             assertThat(ex)
-                    .isInstanceOf(ConstraintViolationException.class);
+                .isInstanceOf(ConstraintViolationException.class);
         }
     }
 
@@ -118,8 +118,8 @@ public class JaxbUtilTest {
     public void marshalToString() {
 
         final KeyDataConfig input = new KeyDataConfig(
-                new PrivateKeyData("VAL", null, null, null, null),
-                PrivateKeyType.UNLOCKED
+            new PrivateKeyData("VAL", null, null, null, null),
+            PrivateKeyType.UNLOCKED
         );
 
         String resultData = JaxbUtil.marshalToString(input);
@@ -139,8 +139,8 @@ public class JaxbUtilTest {
     public void marshalDOntValidateString() {
 
         final KeyDataConfig input = new KeyDataConfig(
-                null,
-                null
+            null,
+            null
         );
 
         String resultData = JaxbUtil.marshalToStringNoValidation(input);
@@ -159,20 +159,20 @@ public class JaxbUtilTest {
         final Throwable throwable = catchThrowable(() -> JaxbUtil.marshalWithNoValidation(ex, out));
 
         assertThat(throwable)
-                .isInstanceOf(ConfigException.class)
-                .hasCauseExactlyInstanceOf(MarshalException.class);
+            .isInstanceOf(ConfigException.class)
+            .hasCauseExactlyInstanceOf(MarshalException.class);
     }
 
     @Test
     public void unwrapConstraintViolationException() {
 
         ConstraintViolationException validationException
-                = new ConstraintViolationException(Collections.emptySet());
+            = new ConstraintViolationException(Collections.emptySet());
 
         Throwable exception = new Exception(validationException);
 
         Optional<ConstraintViolationException> result
-                = JaxbUtil.unwrapConstraintViolationException(exception);
+            = JaxbUtil.unwrapConstraintViolationException(exception);
 
         assertThat(result).isPresent();
         assertThat(result.get()).isSameAs(validationException);
@@ -182,8 +182,8 @@ public class JaxbUtilTest {
     @Test
     public void marshallingProducesNonJaxbException() {
         final KeyDataConfig input = new KeyDataConfig(
-                new PrivateKeyData("VAL", null, null, null, null),
-                PrivateKeyType.UNLOCKED
+            new PrivateKeyData("VAL", null, null, null, null),
+            PrivateKeyType.UNLOCKED
         );
 
         IOException exception = new IOException("What you talking about willis?");
@@ -194,8 +194,8 @@ public class JaxbUtilTest {
         final Throwable throwable = catchThrowable(() -> JaxbUtil.marshal(input, out));
 
         assertThat(throwable)
-                .isInstanceOf(ConfigException.class)
-                .hasCauseExactlyInstanceOf(javax.xml.bind.MarshalException.class);
+            .isInstanceOf(ConfigException.class)
+            .hasCauseExactlyInstanceOf(javax.xml.bind.MarshalException.class);
 
     }
 
@@ -214,11 +214,9 @@ public class JaxbUtilTest {
 
                     assertThat(result.getJsonObject("jdbc").getString("password")).isEqualTo(expectedMaskValue);
 
-
-
                     assertThat(result.getJsonObject("keys").getJsonArray("keyData")
-                            .getJsonObject(0).getString("privateKey"))
-                            .isEqualTo(expectedMaskValue);
+                        .getJsonObject(0).getString("privateKey"))
+                        .isEqualTo(expectedMaskValue);
 
                 }
 
@@ -227,7 +225,6 @@ public class JaxbUtilTest {
 
     }
 
-    
     @Test
     public void marshalMaskedConfigDontDisplayPrivateKeyIfFileIsPresent() throws Exception {
 
@@ -247,7 +244,7 @@ public class JaxbUtilTest {
         }
 
     }
-    
+
     @Test(expected = ConfigException.class)
     public void marshalMaskedConfigThrowsJAXBException() throws Exception {
         Config config = mock(Config.class);

@@ -76,8 +76,8 @@ public class KeyData extends ConfigItem {
     }
 
     public KeyData() {
-    }
 
+    }
 
     public String getPrivateKey() {
         return privateKey;
@@ -190,4 +190,5 @@ public class KeyData extends ConfigItem {
     public void setHashicorpVaultSecretVersion(String hashicorpVaultSecretVersion) {
         this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;
     }
+
 }

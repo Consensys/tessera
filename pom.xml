@@ -20,7 +20,7 @@
         <url>https://github.com/jpmorganchase/tessera</url>
         <connection>scm:git:git://github.com/jpmorganchase/tessera.git</connection>
         <developerConnection>scm:git:git@github.com:jpmorganchase/tessera.git</developerConnection>
-        <tag>tessera-0.9</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <description>Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution
@@ -41,7 +41,7 @@
 
     <properties>
         <jersey.version>2.27</jersey.version>
-        <jetty.version>9.4.10.v20180503</jetty.version>
+        <jetty.version>9.4.17.v20190418</jetty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -49,9 +49,10 @@
         <slf4j.version>1.7.5</slf4j.version>
         <eclipselink.version>2.7.3</eclipselink.version>
         <grpc.version>1.14.0</grpc.version>
-        <h2.version>1.4.197</h2.version>
+        <h2.version>1.4.199</h2.version>
         <owasp.plugin.version>5.0.0-M2</owasp.plugin.version>
         <bouncycastle.version>1.61</bouncycastle.version>
+        <logback.version>1.2.3</logback.version>
     </properties>
 
     <build>
@@ -148,6 +149,19 @@
                     </configuration>
 
                 </plugin>
+                
+<!--                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>${owasp.plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>-->
 
             </plugins>
 
@@ -156,18 +170,11 @@
 
         <plugins>
 
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
+<!--            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+            </plugin>-->
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -751,14 +758,14 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.0.13</version>
+                <version>${logback.version}</version>
                 <scope>runtime</scope>
             </dependency>
 
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>1.0.13</version>
+                <version>${logback.version}</version>
                 <scope>runtime</scope>
             </dependency>
 
@@ -929,30 +936,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.microsoft.azure</groupId>
-                <artifactId>azure-keyvault</artifactId>
-                <version>1.1.2</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.microsoft.azure</groupId>
-                <artifactId>adal4j</artifactId>
-                <version>1.6.3</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.vault</groupId>
-                <artifactId>spring-vault-core</artifactId>
-                <version>2.1.1.RELEASE</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.squareup.okhttp3</groupId>
-                <artifactId>okhttp</artifactId>
-                <version>3.12.0</version>
-            </dependency>
-
-            <dependency>
                 <groupId>nl.jqno.equalsverifier</groupId>
                 <artifactId>equalsverifier</artifactId>
                 <version>3.1.5</version>
@@ -962,17 +945,6 @@
     </dependencyManagement>
 
     <dependencies>
-
-        <!-- Needed for JavaDoc plugin -->
-        <!--        <dependency>
-            <groupId>javax.interceptor</groupId>
-            <artifactId>javax.interceptor-api</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-        </dependency>-->
 
         <!-- Testing -->
 
@@ -1013,7 +985,6 @@
             <artifactId>logback-core</artifactId>
             <scope>runtime</scope>
         </dependency>
-
 
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -1116,6 +1087,27 @@
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <version>3.1.11</version>
+                <configuration>
+                    <effort>Max</effort>
+                    <threshold>Low</threshold>
+                    <failOnError>false</failOnError>
+                    <relaxed>false</relaxed>
+                    <includeTests>false</includeTests>
+
+                    <includeFilterFile>${session.executionRootDirectory}/spotbugs-include.xml</includeFilterFile>
+                    <excludeFilterFile>${session.executionRootDirectory}/spotbugs-exclude.xml</excludeFilterFile>
+
+                    <plugins>
+                        <plugin>
+                            <groupId>com.h3xstream.findsecbugs</groupId>
+                            <artifactId>findsecbugs-plugin</artifactId>
+                            <version>1.9.0</version>
+                        </plugin>
+                    </plugins>
+
+
+                </configuration>
+
             </plugin>
 
             <plugin>
@@ -1151,12 +1143,17 @@
                     </reportSet>
                 </reportSets>
             </plugin>
-
+            
 
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
                 <version>${owasp.plugin.version}</version>
+                <configuration>
+                    
+                    <name>owasp depencency check</name>
+                    <skipTestScope>true</skipTestScope>
+                </configuration>
                 <reportSets>
                     <reportSet>
                         <reports>
@@ -1182,7 +1179,6 @@
                                 <logback.configurationFile>${session.executionRootDirectory}/logback-build.xml
                                 </logback.configurationFile>
                             </systemPropertyVariables>
-                            &gt;
                         </configuration>
                     </plugin>
                     <plugin>
@@ -1193,7 +1189,6 @@
                                 <logback.configurationFile>${session.executionRootDirectory}/logback-build.xml
                                 </logback.configurationFile>
                             </systemPropertyVariables>
-                            &gt;
                         </configuration>
                     </plugin>
                 </plugins>
@@ -1343,16 +1338,6 @@
                 </plugins>
             </build>
 
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                </snapshotRepository>
-                <repository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-            </distributionManagement>
         </profile>
 
         <profile>
@@ -1384,19 +1369,6 @@
 
 
     </distributionManagement>
-
-<!--    <repositories>-->
-<!--        <repository>-->
-<!--            <id>tessera-repo</id>-->
-<!--            <url>https://raw.github.com/jpmorganchase/tessera/releases</url>-->
-<!--            <snapshots>-->
-<!--                <enabled>false</enabled>-->
-<!--            </snapshots>-->
-<!--            <releases>-->
-<!--                <enabled>true</enabled>-->
-<!--            </releases>-->
-<!--        </repository>-->
-<!--    </repositories>-->
 
     <pluginRepositories>
         <pluginRepository>

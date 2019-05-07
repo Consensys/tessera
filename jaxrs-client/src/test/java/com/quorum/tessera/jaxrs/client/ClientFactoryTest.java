@@ -1,6 +1,5 @@
 package com.quorum.tessera.jaxrs.client;
 
-
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.jaxrs.unixsocket.JerseyUnixSocketConnectorProvider;

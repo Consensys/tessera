@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 public class ClientSSLContextFactoryTest {
 
     private EnvironmentVariableProvider envVarProvider;
+
     private String envVarPrefix = "PREFIX";
 
     @Before
@@ -324,7 +325,6 @@ public class ClientSSLContextFactoryTest {
 
         assertThat(result).isEqualTo(prefixedEnvVal);
     }
-
 
     @Test(expected = TesseraSecurityException.class)
     public void securityExceptionsAreThrownAsTesseraException() throws Exception {
