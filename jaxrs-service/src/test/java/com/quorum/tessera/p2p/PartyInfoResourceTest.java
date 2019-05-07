@@ -162,9 +162,9 @@ public class PartyInfoResourceTest {
         verify(partyInfoParser).from(payload);
         verify(partyInfoParser).to(partyInfo);
         verify(enclave).defaultPublicKey();
-        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
-        verify(payloadEncoder).encode(encodedPayload);
-        verify(restClient).target(url);
+        verify(enclave,times(2)).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+        verify(payloadEncoder,times(2)).encode(encodedPayload);
+        verify(restClient,times(2)).target(url);
         verify(partyInfoService).updatePartyInfo(any(PartyInfo.class));
 
     }
@@ -177,10 +177,12 @@ public class PartyInfoResourceTest {
         byte[] payload = message.getBytes();
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
-        PublicKey myKey = PublicKey.from("myKey".getBytes());
-        when(encodedPayload.getRecipientKeys()).thenReturn(Arrays.asList(myKey));
+
         when(payloadEncoder.decode(payload)).thenReturn(encodedPayload);
 
+        PublicKey myKey = PublicKey.from("myKey".getBytes());
+
+        when(enclave.defaultPublicKey()).thenReturn(myKey);
         when(enclave.unencryptTransaction(encodedPayload, myKey)).thenReturn(message.getBytes());
 
         Response result = partyInfoResource.validate(payload);
@@ -189,6 +191,7 @@ public class PartyInfoResourceTest {
         assertThat(result.getEntity()).isEqualTo(message);
 
         verify(payloadEncoder).decode(payload);
+        verify(enclave).defaultPublicKey();
         verify(enclave).unencryptTransaction(encodedPayload, myKey);
 
     }
@@ -214,44 +217,15 @@ public class PartyInfoResourceTest {
         PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET);
 
         when(partyInfoParser.from(payload)).thenReturn(partyInfo);
-        
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
-                    
+
         when(enclave.defaultPublicKey()).thenReturn(myKey);
-        when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
 
-        
-        List<String> uuidList = new ArrayList<>();
-        doAnswer((invocation) -> {
-            byte[] d = invocation.getArgument(0);
-            uuidList.add(new String(d));
-            return encodedPayload;
-        }).when(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
-
-        when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
-
-        WebTarget webTarget = mock(WebTarget.class);
-        when(restClient.target(url)).thenReturn(webTarget);
-        when(webTarget.path(anyString())).thenReturn(webTarget);
-        Invocation.Builder invocationBuilder = mock(Invocation.Builder.class);
-        when(webTarget.request()).thenReturn(invocationBuilder);
-
-        Response response = mock(Response.class);
-        when(response.getStatus()).thenReturn(200);
-
-        doAnswer((invocation) -> uuidList.get(0)).when(response).readEntity(String.class);
-
-        when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
-        
         try {
             partyInfoResource.partyInfo(payload);
             failBecauseExceptionWasNotThrown(SecurityException.class);
         } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);
             verify(enclave).defaultPublicKey();
-            verify(payloadEncoder).encode(encodedPayload);
-            verify(restClient).target(url);
-            verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
         }
 
     }

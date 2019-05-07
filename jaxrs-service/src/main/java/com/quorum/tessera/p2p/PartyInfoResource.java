@@ -23,8 +23,10 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.node.model.Recipient;
 import java.util.Arrays;
 import static java.util.Objects.requireNonNull;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.ws.rs.client.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +90,7 @@ public class PartyInfoResource {
         final PartyInfo partyInfo = partyInfoParser.from(payload);
 
         //Start validation stuff
-        final PublicKey sender = enclave.defaultPublicKey();
+        PublicKey sender = enclave.defaultPublicKey();
 
         final String url = partyInfo.getUrl();
 
@@ -96,7 +98,7 @@ public class PartyInfoResource {
 
         Predicate<Recipient> isValidRecipientKey = r -> {
 
-            final PublicKey key = r.getKey();
+            PublicKey key = r.getKey();
             final EncodedPayload encodedPayload = enclave.encryptPayload(dataToEncrypt.getBytes(), sender, Arrays.asList(key));
 
             byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
@@ -111,18 +113,24 @@ public class PartyInfoResource {
             return Objects.equals(unencodedValidationData, dataToEncrypt);
 
         };
-        
-        Predicate<Recipient> isCurrentUrl = r -> r.getUrl().equalsIgnoreCase(url);
 
         //Validate caller and treat no valid certs as security issue.  
         partyInfo.getRecipients()
             .stream()
-            .filter(isValidRecipientKey.and(isCurrentUrl))
+            .filter(r -> r.getUrl().equals(url))
+            .filter(isValidRecipientKey)
             .findFirst()
             .orElseThrow(() -> new SecurityException("No key found for url " + url));
 
+        final Set<Recipient> recipients = partyInfo.getRecipients()
+            .stream()
+            .filter(isValidRecipientKey)
+            .collect(Collectors.toSet());
+
+        final PartyInfo modifiedPartyInfo = new PartyInfo(url, recipients, partyInfo.getParties());
+
         //End validation stuff
-        final PartyInfo updatedPartyInfo = partyInfoService.updatePartyInfo(partyInfo);
+        final PartyInfo updatedPartyInfo = partyInfoService.updatePartyInfo(modifiedPartyInfo);
 
         final byte[] encoded = partyInfoParser.to(updatedPartyInfo);
 
