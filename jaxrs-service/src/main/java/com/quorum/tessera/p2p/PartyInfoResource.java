@@ -23,7 +23,10 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.node.model.Recipient;
 import java.util.Arrays;
 import static java.util.Objects.requireNonNull;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.ws.rs.client.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,34 +92,45 @@ public class PartyInfoResource {
         //Start validation stuff
         PublicKey sender = enclave.defaultPublicKey();
 
-        String url = partyInfo.getUrl();
-        PublicKey key = partyInfo.getRecipients().stream()
-            .filter(r -> url.equalsIgnoreCase(r.getUrl()))
-            .reduce((l, r) -> {
-                throw new IllegalStateException("Found multiple recipients for url " + url);
-            }).map(Recipient::getKey)
-            .get();
+        final String url = partyInfo.getUrl();
 
         final String dataToEncrypt = UUID.randomUUID().toString();
 
-        final EncodedPayload encodedPayload = enclave.encryptPayload(dataToEncrypt.getBytes(), sender, Arrays.asList(key));
+        Predicate<Recipient> isValidRecipientKey = r -> {
 
-        byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
+            PublicKey key = r.getKey();
+            final EncodedPayload encodedPayload = enclave.encryptPayload(dataToEncrypt.getBytes(), sender, Arrays.asList(key));
 
-        String unencodedValidationData = restClient.target(partyInfo.getUrl())
-            .path("partyinfo")
-            .path("validate")
-            .request()
-            .post(Entity.entity(encodedPayloadData, MediaType.APPLICATION_OCTET_STREAM))
-            .readEntity(String.class);
+            byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
 
-        if (!Objects.equals(unencodedValidationData, dataToEncrypt)) {
-            LOGGER.trace("{} does not equal {}", dataToEncrypt, unencodedValidationData);
-            throw new SecurityException("Invalid node registration");
-        }
+            String unencodedValidationData = restClient.target(url)
+                .path("partyinfo")
+                .path("validate")
+                .request()
+                .post(Entity.entity(encodedPayloadData, MediaType.APPLICATION_OCTET_STREAM))
+                .readEntity(String.class);
+
+            return Objects.equals(unencodedValidationData, dataToEncrypt);
+
+        };
+
+        //Validate caller and treat no valid certs as security issue.  
+        partyInfo.getRecipients()
+            .stream()
+            .filter(r -> r.getUrl().equals(url))
+            .filter(isValidRecipientKey)
+            .findFirst()
+            .orElseThrow(() -> new SecurityException("No key found for url " + url));
+
+        final Set<Recipient> recipients = partyInfo.getRecipients()
+            .stream()
+            .filter(isValidRecipientKey)
+            .collect(Collectors.toSet());
+
+        final PartyInfo modifiedPartyInfo = new PartyInfo(url, recipients, partyInfo.getParties());
+
         //End validation stuff
-
-        final PartyInfo updatedPartyInfo = partyInfoService.updatePartyInfo(partyInfo);
+        final PartyInfo updatedPartyInfo = partyInfoService.updatePartyInfo(modifiedPartyInfo);
 
         final byte[] encoded = partyInfoParser.to(updatedPartyInfo);
 

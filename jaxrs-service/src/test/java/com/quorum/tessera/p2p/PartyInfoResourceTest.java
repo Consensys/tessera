@@ -25,7 +25,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -149,10 +148,8 @@ public class PartyInfoResourceTest {
 
         when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
 
-        when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(partyInfo);
+        when(partyInfoService.updatePartyInfo(any(PartyInfo.class))).thenReturn(partyInfo);
 
-
-        
         Response result = partyInfoResource.partyInfo(payload);
 
         assertThat(result.getStatus()).isEqualTo(200);
@@ -165,10 +162,10 @@ public class PartyInfoResourceTest {
         verify(partyInfoParser).from(payload);
         verify(partyInfoParser).to(partyInfo);
         verify(enclave).defaultPublicKey();
-        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
-        verify(payloadEncoder).encode(encodedPayload);
-        verify(restClient).target(url);
-        verify(partyInfoService).updatePartyInfo(partyInfo);
+        verify(enclave,times(2)).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+        verify(payloadEncoder,times(2)).encode(encodedPayload);
+        verify(restClient,times(2)).target(url);
+        verify(partyInfoService).updatePartyInfo(any(PartyInfo.class));
 
     }
 
@@ -199,40 +196,6 @@ public class PartyInfoResourceTest {
 
     }
 
-    @Test
-    public void partyInfoDupedUrl() throws Exception {
-
-        String url = "http://www.bogus.com";
-
-        PublicKey myKey = PublicKey.from("myKey".getBytes());
-
-        PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
-        PublicKey otherRecipientKey = PublicKey.from("otherRecipientKey".getBytes());
-
-        String message = "I love sparrows";
-
-        byte[] payload = message.getBytes();
-
-        Recipient recipient = new Recipient(recipientKey, url);
-        Recipient otherrecipient = new Recipient(otherRecipientKey, url);
-
-        Set<Recipient> recipientList = new HashSet<>(Arrays.asList(recipient, otherrecipient));
-
-        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET);
-
-        when(partyInfoParser.from(payload)).thenReturn(partyInfo);
-
-        when(enclave.defaultPublicKey()).thenReturn(myKey);
-
-        try {
-            partyInfoResource.partyInfo(payload);
-            failBecauseExceptionWasNotThrown(IllegalStateException.class);
-        } catch (IllegalStateException ex) {
-            verify(partyInfoParser).from(payload);
-            verify(enclave).defaultPublicKey();
-        }
-
-    }
 
     @Test
     public void partyInfoNoRecipientWithPartInfoUrl() throws Exception {
@@ -259,8 +222,8 @@ public class PartyInfoResourceTest {
 
         try {
             partyInfoResource.partyInfo(payload);
-            failBecauseExceptionWasNotThrown(IllegalStateException.class);
-        } catch (NoSuchElementException ex) {
+            failBecauseExceptionWasNotThrown(SecurityException.class);
+        } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);
             verify(enclave).defaultPublicKey();
         }
