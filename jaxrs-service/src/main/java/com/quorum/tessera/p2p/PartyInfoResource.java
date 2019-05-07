@@ -1,33 +1,33 @@
 package com.quorum.tessera.p2p;
 
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.PartyInfoParser;
 import com.quorum.tessera.node.PartyInfoService;
 import com.quorum.tessera.node.model.PartyInfo;
+import com.quorum.tessera.node.model.Recipient;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.util.Objects;
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import javax.ws.rs.*;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.node.model.Recipient;
 import java.util.Arrays;
+import java.util.Objects;
 import static java.util.Objects.requireNonNull;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.ws.rs.*;
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,11 +114,12 @@ public class PartyInfoResource {
 
         };
 
+        Predicate<Recipient> isSendingUrl = r -> r.getUrl().equalsIgnoreCase(url);
+        
         //Validate caller and treat no valid certs as security issue.  
         partyInfo.getRecipients()
             .stream()
-            .filter(r -> r.getUrl().equals(url))
-            .filter(isValidRecipientKey)
+            .filter(isValidRecipientKey.and(isSendingUrl))
             .findFirst()
             .orElseThrow(() -> new SecurityException("No key found for url " + url));
 

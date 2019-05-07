@@ -176,13 +176,13 @@ public class PartyInfoResourceTest {
 
         byte[] payload = message.getBytes();
 
+        PublicKey myKey = PublicKey.from("myKey".getBytes());
+        
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
+        when(encodedPayload.getRecipientKeys()).thenReturn(Collections.singletonList(myKey));
+        
         when(payloadEncoder.decode(payload)).thenReturn(encodedPayload);
 
-        PublicKey myKey = PublicKey.from("myKey".getBytes());
-
-        when(enclave.defaultPublicKey()).thenReturn(myKey);
         when(enclave.unencryptTransaction(encodedPayload, myKey)).thenReturn(message.getBytes());
 
         Response result = partyInfoResource.validate(payload);
@@ -191,42 +191,7 @@ public class PartyInfoResourceTest {
         assertThat(result.getEntity()).isEqualTo(message);
 
         verify(payloadEncoder).decode(payload);
-        verify(enclave).defaultPublicKey();
         verify(enclave).unencryptTransaction(encodedPayload, myKey);
-
-    }
-
-
-    @Test
-    public void partyInfoNoRecipientWithPartInfoUrl() throws Exception {
-
-        String url = "http://www.bogus.com";
-
-        PublicKey myKey = PublicKey.from("myKey".getBytes());
-
-        PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
-
-        String message = "I love sparrows";
-
-        byte[] payload = message.getBytes();
-
-        Recipient recipient = new Recipient(recipientKey, "http://other.com");
-
-        Set<Recipient> recipientList = Collections.singleton(recipient);
-
-        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET);
-
-        when(partyInfoParser.from(payload)).thenReturn(partyInfo);
-
-        when(enclave.defaultPublicKey()).thenReturn(myKey);
-
-        try {
-            partyInfoResource.partyInfo(payload);
-            failBecauseExceptionWasNotThrown(SecurityException.class);
-        } catch (SecurityException ex) {
-            verify(partyInfoParser).from(payload);
-            verify(enclave).defaultPublicKey();
-        }
 
     }
 
