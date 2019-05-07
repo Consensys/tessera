@@ -1,17 +1,13 @@
 package com.quorum.tessera.data.migration;
 
-import com.quorum.tessera.io.IOCallback;
-import com.quorum.tessera.io.UriCallback;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.*;
-import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class SqliteDataExporter implements DataExporter {
 
@@ -25,14 +21,14 @@ public class SqliteDataExporter implements DataExporter {
 
         final String connectionString = "jdbc:sqlite:" + output.toString();
 
-        final URI sqlFile = UriCallback.execute(() -> getClass().getResource("/ddls/sqlite-ddl.sql").toURI());
-
-        final List<String> createTables = IOCallback.execute(() -> Files.readAllLines(Paths.get(sqlFile)));
+        final byte[] sqlData = IOUtils.resourceToByteArray("/ddls/sqlite-ddl.sql");
+        final String dataAsString = new String(sqlData, UTF_8);
+        final String[] createTableStatements = dataAsString.split("\n");
 
         try (Connection conn = DriverManager.getConnection(connectionString, username, password)) {
 
             try (Statement stmt = conn.createStatement()) {
-                for (final String createTable : createTables) {
+                for (final String createTable : createTableStatements) {
                     stmt.executeUpdate(createTable);
                 }
             }
