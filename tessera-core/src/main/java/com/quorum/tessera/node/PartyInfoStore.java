@@ -43,15 +43,7 @@ public class PartyInfoStore {
      * @param newInfo the incoming information that may contain new nodes/keys
      */
     public synchronized void store(final PartyInfo newInfo) {
-
-        PartyInfo existingPartyInfo = getPartyInfo();
-
-        PartyInfoRecipientUpdateCheck partyInfoRecipientUpdateCheck = new PartyInfoRecipientUpdateCheck(existingPartyInfo,newInfo);
-        if(!partyInfoRecipientUpdateCheck.validateKeysToUrls()) {
-            LOGGER.warn("Attempt is being made to update existing key with new url. Terminating party info update.");
-            return;
-        }
-                
+   
         recipients.addAll(newInfo.getRecipients());
         parties.addAll(newInfo.getParties());
 
