@@ -378,13 +378,17 @@
                                     <version>3.5</version>
                                 </requireMavenVersion>
                                 <banDuplicatePomDependencyVersions/>
-                                <!--                                <reactorModuleConvergence/>-->
+                                <!--                                
+                                    <reactorModuleConvergence/>
+                                -->
                                 <dependencyConvergence/>
+                                
                                 <banVulnerable implementation="org.sonatype.ossindex.maven.enforcer.BanVulnerableDependencies">
                                     <excludeVulnerabilityIds>
                                         33fe5e62-2998-4820-aebc-68e348539b22
                                     </excludeVulnerabilityIds>
                                 </banVulnerable>
+                                
                                 <banDuplicateClasses>
                                     <scopes>
                                         <scope>compile</scope>
