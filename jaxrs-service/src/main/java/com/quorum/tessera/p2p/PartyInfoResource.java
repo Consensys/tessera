@@ -103,14 +103,20 @@ public class PartyInfoResource {
 
             byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
 
-            String unencodedValidationData = restClient.target(url)
+            Response response = restClient.target(url)
                 .path("partyinfo")
                 .path("validate")
                 .request()
-                .post(Entity.entity(encodedPayloadData, MediaType.APPLICATION_OCTET_STREAM))
-                .readEntity(String.class);
-
-            return Objects.equals(unencodedValidationData, dataToEncrypt);
+                .post(Entity.entity(encodedPayloadData, MediaType.APPLICATION_OCTET_STREAM));
+            
+            String unencodedValidationData = response.readEntity(String.class);
+            
+            boolean isValid = Objects.equals(unencodedValidationData, dataToEncrypt);
+            if(!isValid) {
+                LOGGER.warn("Invalid key found {} recipient will be ignored.",url);
+            }
+            
+            return isValid;
 
         };
 
