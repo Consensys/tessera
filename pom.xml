@@ -353,6 +353,19 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>3.0.0-M2</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.sonatype.ossindex.maven</groupId>
+                        <artifactId>ossindex-maven-enforcer-rules</artifactId>
+                        <version>3.0.4</version>
+                    </dependency>
+                    
+                    <dependency>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>extra-enforcer-rules</artifactId>
+                        <version>1.2</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>enforce-versions</id>
@@ -365,8 +378,23 @@
                                     <version>3.5</version>
                                 </requireMavenVersion>
                                 <banDuplicatePomDependencyVersions/>
-<!--                                <reactorModuleConvergence/>-->
+                                <!--                                <reactorModuleConvergence/>-->
                                 <dependencyConvergence/>
+                                <banVulnerable implementation="org.sonatype.ossindex.maven.enforcer.BanVulnerableDependencies">
+                                    <excludeVulnerabilityIds>
+                                        33fe5e62-2998-4820-aebc-68e348539b22
+                                    </excludeVulnerabilityIds>
+                                </banVulnerable>
+                                <banDuplicateClasses>
+                                    <scopes>
+                                        <scope>compile</scope>
+                                        <scope>runtime</scope>
+                                    </scopes>
+                                    <findAllDuplicates>true</findAllDuplicates>
+                                    <ignoreClasses>
+                                        <ignoreClass>com.google.*</ignoreClass>
+                                    </ignoreClasses>
+                                </banDuplicateClasses>
                             </rules>
                         </configuration>
                     </execution>
@@ -918,7 +946,20 @@
                 <version>${grpc.version}</version>
                 <scope>test</scope>
             </dependency>
-
+            
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>24.1.1-jre</version>
+            </dependency>
+        
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>2.1.3</version>
+            </dependency>
+        
+        
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
