@@ -395,6 +395,8 @@
                                         <ignoreClass>com.google.*</ignoreClass>
                                     </ignoreClasses>
                                 </banDuplicateClasses>
+
+                                <banCircularDependencies/>
                             </rules>
                         </configuration>
                     </execution>
