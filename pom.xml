@@ -51,6 +51,7 @@
         <grpc.version>1.14.0</grpc.version>
         <h2.version>1.4.199</h2.version>
         <owasp.plugin.version>5.0.0-M2</owasp.plugin.version>
+        <bouncycastle.version>1.61</bouncycastle.version>
         <logback.version>1.2.3</logback.version>
         <bouncycastle.version>1.61</bouncycastle.version>
     </properties>
@@ -985,7 +986,6 @@
             <artifactId>logback-core</artifactId>
             <scope>runtime</scope>
         </dependency>
-
 
         <dependency>
             <groupId>org.slf4j</groupId>

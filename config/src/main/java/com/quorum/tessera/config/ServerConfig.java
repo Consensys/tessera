@@ -159,6 +159,4 @@ public class ServerConfig extends ConfigItem {
         this.crossDomainConfig = crossDomainConfig;
     }
 
-
-
 }

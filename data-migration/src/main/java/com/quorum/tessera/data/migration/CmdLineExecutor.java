@@ -99,7 +99,6 @@ public class CmdLineExecutor {
                 .required()
                 .build());
 
-
         options.addOption(
             Option.builder()
                 .longOpt("exporttype")

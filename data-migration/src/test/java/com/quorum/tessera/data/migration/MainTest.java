@@ -21,4 +21,10 @@ public class MainTest {
         Main.main();
     }
 
+    @Test
+    public void outputDebugInformationWithNullCause() {
+        expectedSystemExit.expectSystemExitWithStatus(1);
+        Main.main("debug");
+    }
+
 }
