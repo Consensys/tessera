@@ -162,6 +162,7 @@
                         <include>GrpcSuiteH2</include>
                         <include>GrpcSuiteSqlite</include>
                         <include>GrpcSuiteHSQL</include>
+                        <include>P2pTestSuite</include>
                     </includes>
                 </configuration>
                 <executions>

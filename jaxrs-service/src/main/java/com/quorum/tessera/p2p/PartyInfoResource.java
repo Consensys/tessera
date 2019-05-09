@@ -97,26 +97,34 @@ public class PartyInfoResource {
         final String dataToEncrypt = UUID.randomUUID().toString();
 
         Predicate<Recipient> isValidRecipientKey = r -> {
+            try {
+                PublicKey key = r.getKey();
+                final EncodedPayload encodedPayload = enclave.encryptPayload(dataToEncrypt.getBytes(), sender, Arrays.asList(key));
 
-            PublicKey key = r.getKey();
-            final EncodedPayload encodedPayload = enclave.encryptPayload(dataToEncrypt.getBytes(), sender, Arrays.asList(key));
+                byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
 
-            byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
+                Response response = restClient.target(url)
+                    .path("partyinfo")
+                    .path("validate")
+                    .request()
+                    .post(Entity.entity(encodedPayloadData, MediaType.APPLICATION_OCTET_STREAM));
 
-            Response response = restClient.target(url)
-                .path("partyinfo")
-                .path("validate")
-                .request()
-                .post(Entity.entity(encodedPayloadData, MediaType.APPLICATION_OCTET_STREAM));
-            
-            String unencodedValidationData = response.readEntity(String.class);
-            
-            boolean isValid = Objects.equals(unencodedValidationData, dataToEncrypt);
-            if(!isValid) {
-                LOGGER.warn("Invalid key found {} recipient will be ignored.",url);
+                String unencodedValidationData = response.readEntity(String.class);
+
+                boolean isValid = Objects.equals(unencodedValidationData, dataToEncrypt);
+                if (!isValid) {
+                    LOGGER.warn("Invalid key found {} recipient will be ignored.", url);
+                }
+
+                return isValid;
+                //Assume any all exceptions to mean invalid. enclave bubbles up nacl array out of
+                // bounds when calculating shared key from invalid data
+            } catch(Exception ex) {
+                LOGGER.debug(null,ex);
+                return false;
+
             }
-            
-            return isValid;
+
 
         };
 

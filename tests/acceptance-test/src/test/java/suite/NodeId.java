@@ -1,14 +1,19 @@
 package suite;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import java.util.ArrayList;
+import java.util.List;
 
 public class NodeId {
  
     public static String generate(ExecutionContext executionContext) {
-        return executionContext.getCommunicationType().name().toLowerCase()
-                + "-" + executionContext.getSocketType().name().toLowerCase();
+
+        List<String> tokens = new ArrayList<>();
+        executionContext.getPrefix()
+            .ifPresent(v -> tokens.add(v));
+        tokens.add(executionContext.getCommunicationType().name().toLowerCase());
+        tokens.add(executionContext.getSocketType().name().toLowerCase());
+
+        return String.join("-",tokens);
     }
     
     
@@ -16,15 +21,15 @@ public class NodeId {
         if(executionContext.isAdmin()) {
             return "admin";
         }
-        
-        return Stream.of(
-                executionContext.getCommunicationType(),
-                executionContext.getSocketType(),
-                executionContext.getEnclaveType(),
-                alias)
-                .map(Enum::name)
-                .map(String::toLowerCase)
-                .collect(Collectors.joining("-"));
+        List<String> tokens = new ArrayList<>();
+        executionContext.getPrefix()
+            .ifPresent(v -> tokens.add(v));
+        tokens.add(executionContext.getCommunicationType().name().toLowerCase());
+        tokens.add(executionContext.getSocketType().name().toLowerCase());
+        tokens.add(executionContext.getEnclaveType().name().toLowerCase());
+        tokens.add(alias.name().toLowerCase());
+
+        return String.join("-",tokens);
     }
     
 }
