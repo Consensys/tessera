@@ -125,7 +125,7 @@ public class PartyInfoResource {
         //Validate caller and treat no valid certs as security issue.  
         partyInfo.getRecipients()
             .stream()
-            .filter(isValidRecipientKey.and(isSendingUrl))
+            .filter(isSendingUrl.and(isValidRecipientKey))
             .findFirst()
             .orElseThrow(() -> new SecurityException("No key found for url " + url));
 
