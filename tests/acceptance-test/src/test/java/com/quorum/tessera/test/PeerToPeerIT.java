@@ -119,7 +119,7 @@ public class PeerToPeerIT {
             .request()
             .post(Entity.entity(output, MediaType.APPLICATION_OCTET_STREAM));
 
-        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getStatus()).isEqualTo(500);
 
     }
 
