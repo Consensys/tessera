@@ -98,12 +98,13 @@ public class PartyInfoResource {
 
         Predicate<Recipient> isValidRecipientKey = r -> {
             try {
+
                 PublicKey key = r.getKey();
                 final EncodedPayload encodedPayload = enclave.encryptPayload(dataToEncrypt.getBytes(), sender, Arrays.asList(key));
 
                 byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
 
-                Response response = restClient.target(url)
+                Response response = restClient.target(r.getUrl())
                     .path("partyinfo")
                     .path("validate")
                     .request()
@@ -113,7 +114,7 @@ public class PartyInfoResource {
 
                 boolean isValid = Objects.equals(unencodedValidationData, dataToEncrypt);
                 if (!isValid) {
-                    LOGGER.warn("Invalid key found {} recipient will be ignored.", url);
+                    LOGGER.warn("Invalid key found {} recipient will be ignored.", r.getUrl());
                 }
 
                 return isValid;
