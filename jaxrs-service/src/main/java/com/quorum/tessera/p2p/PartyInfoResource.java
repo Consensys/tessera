@@ -12,13 +12,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.util.Arrays;
-import java.util.Objects;
-import static java.util.Objects.requireNonNull;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
@@ -28,8 +24,14 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Defines endpoints for requesting node discovery (partyinfo) information
@@ -90,19 +92,20 @@ public class PartyInfoResource {
         final PartyInfo partyInfo = partyInfoParser.from(payload);
 
         //Start validation stuff
-        PublicKey sender = enclave.defaultPublicKey();
+        final PublicKey sender = enclave.defaultPublicKey();
 
         final String url = partyInfo.getUrl();
 
         final String dataToEncrypt = UUID.randomUUID().toString();
 
-        Predicate<Recipient> isValidRecipientKey = r -> {
+        final Predicate<Recipient> isValidRecipientKey = r -> {
+
             try {
 
-                PublicKey key = r.getKey();
+                final PublicKey key = r.getKey();
                 final EncodedPayload encodedPayload = enclave.encryptPayload(dataToEncrypt.getBytes(), sender, Arrays.asList(key));
 
-                byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
+                final byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
 
                 Response response = restClient.target(r.getUrl())
                     .path("partyinfo")
@@ -126,24 +129,21 @@ public class PartyInfoResource {
 
             }
 
-
         };
 
-        Predicate<Recipient> isSendingUrl = r -> r.getUrl().equalsIgnoreCase(url);
+        final Predicate<Recipient> isSendingUrl = r -> r.getUrl().equalsIgnoreCase(url);
         
-        //Validate caller and treat no valid certs as security issue.  
-        partyInfo.getRecipients()
-            .stream()
-            .filter(isSendingUrl.and(isValidRecipientKey))
-            .findFirst()
-            .orElseThrow(() -> new SecurityException("No key found for url " + url));
-
+        //Validate caller and treat no valid certs as security issue.
         final Set<Recipient> recipients = partyInfo.getRecipients()
             .stream()
-            .filter(isValidRecipientKey)
+            .filter(isSendingUrl.and(isValidRecipientKey))
             .collect(Collectors.toSet());
 
-        final PartyInfo modifiedPartyInfo = new PartyInfo(url, recipients, partyInfo.getParties());
+        if(recipients.isEmpty()) {
+            new SecurityException("No key found for url " + url);
+        }
+
+        final PartyInfo modifiedPartyInfo = new PartyInfo(url,recipients,partyInfo.getParties());
 
         //End validation stuff
         final PartyInfo updatedPartyInfo = partyInfoService.updatePartyInfo(modifiedPartyInfo);

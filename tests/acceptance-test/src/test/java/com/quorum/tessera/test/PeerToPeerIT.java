@@ -88,9 +88,9 @@ public class PeerToPeerIT {
 
 
     /*
-    If the sending node has an invalid key we expect
-    a 500 so not to expose any reason for the failure
-    to the malevolent party
+    If the sending node has an invalid key we 200 as the secondary key
+    should no be validated.
+
      */
     @Test
     public void malicousNodeHasInvalidKey() throws Exception {
@@ -119,7 +119,7 @@ public class PeerToPeerIT {
             .request()
             .post(Entity.entity(output, MediaType.APPLICATION_OCTET_STREAM));
 
-        assertThat(response.getStatus()).isEqualTo(500);
+        assertThat(response.getStatus()).isEqualTo(200);
 
     }
 
