@@ -140,7 +140,7 @@ public class PartyInfoResource {
             .collect(Collectors.toSet());
 
         if(recipients.isEmpty()) {
-            new SecurityException("No key found for url " + url);
+            throw new SecurityException("No key found for url " + url);
         }
 
         final PartyInfo modifiedPartyInfo = new PartyInfo(url,recipients,partyInfo.getParties());

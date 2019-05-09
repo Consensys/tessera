@@ -162,9 +162,9 @@ public class PartyInfoResourceTest {
         verify(partyInfoParser).from(payload);
         verify(partyInfoParser).to(partyInfo);
         verify(enclave).defaultPublicKey();
-        verify(enclave,times(2)).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
-        verify(payloadEncoder,times(2)).encode(encodedPayload);
-        verify(restClient,times(2)).target(url);
+        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+        verify(payloadEncoder).encode(encodedPayload);
+        verify(restClient).target(url);
         verify(partyInfoService).updatePartyInfo(any(PartyInfo.class));
 
     }
@@ -204,7 +204,7 @@ public class PartyInfoResourceTest {
     }
 
     @Test
-    public void partyInfoVaidateNodeFails() throws Exception {
+    public void partyInfoValidateNodeFails() throws Exception {
 
         String url = "http://www.bogus.com";
 
