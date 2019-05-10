@@ -1,8 +1,9 @@
 package com.quorum.tessera.server.monitoring;
 
+import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.InfluxConfig;
 
-import javax.management.*;
+import javax.management.MBeanServer;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -23,20 +24,23 @@ public class InfluxDbClient {
 
     private final String hostName;
 
+    private final AppType appType;
+
     private final MBeanServer mbs;
 
-    public InfluxDbClient(URI uri, InfluxConfig influxConfig) {
+    public InfluxDbClient(URI uri, InfluxConfig influxConfig, AppType appType) {
         this.uri = uri;
         this.port = influxConfig.getPort();
         this.hostName = influxConfig.getHostName();
         this.dbName = influxConfig.getDbName();
+        this.appType = appType;
 
         this.mbs = ManagementFactory.getPlatformMBeanServer();
     }
 
     public Response postMetrics() {
         MetricsEnquirer metricsEnquirer = new MetricsEnquirer(mbs);
-        List<MBeanMetric> metrics = metricsEnquirer.getMBeanMetrics();
+        List<MBeanMetric> metrics = metricsEnquirer.getMBeanMetrics(appType);
 
         InfluxDbProtocolFormatter formatter = new InfluxDbProtocolFormatter();
         String formattedMetrics = formatter.format(metrics, uri);
