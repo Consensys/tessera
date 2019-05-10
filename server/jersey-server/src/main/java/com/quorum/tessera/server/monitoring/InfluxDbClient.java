@@ -43,7 +43,7 @@ public class InfluxDbClient {
         List<MBeanMetric> metrics = metricsEnquirer.getMBeanMetrics(appType);
 
         InfluxDbProtocolFormatter formatter = new InfluxDbProtocolFormatter();
-        String formattedMetrics = formatter.format(metrics, uri);
+        String formattedMetrics = formatter.format(metrics, uri, appType);
 
         Client client = ClientBuilder.newClient();
         WebTarget influxTarget = client
