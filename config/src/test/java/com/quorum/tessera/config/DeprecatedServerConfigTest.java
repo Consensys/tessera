@@ -18,6 +18,8 @@ public class DeprecatedServerConfigTest {
         deprecatedServerConfig.setHostName("somehost");
         deprecatedServerConfig.setPort(99);
         deprecatedServerConfig.setCommunicationType(CommunicationType.REST);
+        InfluxConfig influxConfig = new InfluxConfig();
+        deprecatedServerConfig.setInfluxConfig(influxConfig);
 
         Path unixSocketFile = Paths.get("unixSocketFile");
 
@@ -29,12 +31,14 @@ public class DeprecatedServerConfigTest {
         assertThat(q2t.getServerUri()).isEqualTo(URI.create("unix:unixSocketFile"));
         assertThat(q2t.isEnabled()).isTrue();
         assertThat(q2t.getApp()).isEqualTo(AppType.Q2T);
+        assertThat(q2t.getInfluxConfig()).isEqualTo(influxConfig);
 
         ServerConfig p2p = results.get(1);
         assertThat(p2p.getCommunicationType()).isEqualTo(CommunicationType.REST);
         assertThat(p2p.getServerUri()).isEqualTo(URI.create("somehost:99"));
         assertThat(p2p.isEnabled()).isTrue();
         assertThat(p2p.getApp()).isEqualTo(AppType.P2P);
+        assertThat(p2p.getInfluxConfig()).isEqualTo(influxConfig);
     }
 
     @Test
