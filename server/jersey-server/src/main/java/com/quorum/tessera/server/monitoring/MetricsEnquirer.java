@@ -52,14 +52,11 @@ public class MetricsEnquirer {
             case ADMIN:
                 type = "AdminRestApp";
                 break;
-//            case ENCLAVE:
-                // TODO Enclave
-//                break;
             case THIRD_PARTY:
                 type = "ThirdPartyRestApp";
                 break;
             default:
-                throw new RuntimeException("Unsupported AppType for Jersey metrics");
+                throw new MonitoringNotSupportedException(appType);
         }
 
         String pattern = String.format("org.glassfish.jersey:type=%s,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*", type);
