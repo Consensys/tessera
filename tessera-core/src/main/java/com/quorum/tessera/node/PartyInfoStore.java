@@ -1,6 +1,7 @@
 package com.quorum.tessera.node;
 
 import com.quorum.tessera.core.config.ConfigService;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
@@ -10,6 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.Collections.unmodifiableSet;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +25,7 @@ public class PartyInfoStore {
     
     private final String advertisedUrl;
 
-    private final Set<Recipient> recipients;
+    private final Map<PublicKey,Recipient> recipients;
 
     private final Set<Party> parties;
 
@@ -31,7 +34,7 @@ public class PartyInfoStore {
         //TODO: remove the extra "/" when we deprecate backwards compatibility
         this.advertisedUrl = configService.getServerUri().toString() + "/";
 
-        this.recipients = new HashSet<>();
+        this.recipients = new HashMap<>();
         this.parties = new HashSet<>();
         this.parties.add(new Party(this.advertisedUrl));
     }
@@ -44,15 +47,10 @@ public class PartyInfoStore {
      */
     public synchronized void store(final PartyInfo newInfo) {
 
-        PartyInfo existingPartyInfo = getPartyInfo();
-
-        PartyInfoRecipientUpdateCheck partyInfoRecipientUpdateCheck = new PartyInfoRecipientUpdateCheck(existingPartyInfo,newInfo);
-        if(!partyInfoRecipientUpdateCheck.validateKeysToUrls()) {
-            LOGGER.warn("Attempt is being made to update existing key with new url. Terminating party info update.");
-            return;
+        for(Recipient recipient : newInfo.getRecipients()) {
+            recipients.put(recipient.getKey(), recipient);
         }
-                
-        recipients.addAll(newInfo.getRecipients());
+
         parties.addAll(newInfo.getParties());
 
         //update the sender to have been seen recently
@@ -70,7 +68,7 @@ public class PartyInfoStore {
     public synchronized PartyInfo getPartyInfo() {
         return new PartyInfo(
             advertisedUrl,
-            unmodifiableSet(new HashSet<>(recipients)),
+            unmodifiableSet(new HashSet<>(recipients.values())),
             unmodifiableSet(new HashSet<>(parties))
         );
     }

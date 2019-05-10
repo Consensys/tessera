@@ -19,6 +19,7 @@
     <logger name="com.quorum.tessera.transaction" level="DEBUG" />
     <logger name="com.quorum.tessera.api.filter" level="DEBUG" />
     <logger name="com.quorum.tessera.api.exception" level="DEBUG" />
+
     <root level="INFO">
         <appender-ref ref="FILE"/>
     </root>

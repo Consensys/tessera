@@ -15,14 +15,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 import suite.EnclaveType;
 import suite.ExecutionContext;
@@ -113,7 +106,10 @@ public class ConfigGenerator {
     public static Path calculatePath(ExecutionContext executionContext) {
         try{
             URI baseUri = ConfigGenerator.class.getResource("/").toURI();
-            return Paths.get(baseUri)
+
+            return executionContext.getPrefix()
+                .map(v -> Paths.get(baseUri).resolve(v))
+                .orElse(Paths.get(baseUri))
                     .resolve(executionContext.getCommunicationType().name().toLowerCase())
                     .resolve(executionContext.getSocketType().name().toLowerCase())
                     .resolve(executionContext.getDbType().name().toLowerCase())
@@ -221,7 +217,8 @@ public class ConfigGenerator {
                 .create()
                 .with(CommunicationType.REST)
                 .with(DBType.H2)
-                .with(SocketType.UNIX).with(EnclaveType.REMOTE)
+                .with(SocketType.UNIX).with(EnclaveType.LOCAL)
+                .prefix("p2p")
                 .build();
 
         Path path = new ConfigGenerator().calculatePath(executionContext);

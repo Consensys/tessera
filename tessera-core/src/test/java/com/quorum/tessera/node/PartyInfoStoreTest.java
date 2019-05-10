@@ -138,7 +138,7 @@ public class PartyInfoStoreTest {
     }
     
     @Test
-    public void attemptToUpdateReciepentWithExistingKeyWithNewUrlIsIgnored() {
+    public void attemptToUpdateReciepentWithExistingKeyWithNewUrlIsUpdated() {
         
         final PublicKey testKey = PublicKey.from("some-key".getBytes());
 
@@ -157,7 +157,7 @@ public class PartyInfoStoreTest {
         final Set<Recipient> retrievedRecipients = partyInfoStore.getPartyInfo().getRecipients();
 
         assertThat(retrievedRecipients).hasSize(1)
-            .containsExactly(new Recipient(testKey, uri));
+            .containsExactly(new Recipient(testKey, "http://other.com"));
     }
 
 }
