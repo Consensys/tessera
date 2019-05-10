@@ -1454,7 +1454,7 @@
         <profile>
             <id>java11</id>
             <activation>
-                <jdk>11</jdk>
+                <jdk>[9,12)</jdk>
             </activation>
             <build>
                 <plugins>
@@ -1463,7 +1463,8 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <version>3.8.0</version>
                         <configuration>
-                            <release>11</release>
+                            <source>8</source>
+                            <target>${java.vm.specification.version}</target>
                         </configuration>
                         <dependencies>
                             <dependency>

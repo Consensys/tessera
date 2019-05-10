@@ -8,6 +8,9 @@
     </parent>
     <artifactId>tessera-dist</artifactId>
     <packaging>pom</packaging>
+    <properties>
+        <dist.classfier>app</dist.classfier>
+    </properties>
     <modules>
         <module>tessera-launcher</module>
         <module>tessera-app</module>
@@ -35,7 +38,7 @@
                         <minimizeJar>false</minimizeJar>
                         <shadedArtifactAttached>true</shadedArtifactAttached>
                         <createDependencyReducedPom>false</createDependencyReducedPom>
-                        <shadedClassifierName>app</shadedClassifierName>
+                        <shadedClassifierName>${dist.classfier}</shadedClassifierName>
 
                         <transformers>
                             
@@ -82,4 +85,16 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <profiles>
+        <profile>
+            <id>afterjdk9</id>
+            <activation>
+                <jdk>[9,11)</jdk>
+            </activation>
+            <properties>
+                <dist.classfier>jdk${java.vm.specification.version}_app</dist.classfier>
+            </properties>
+        </profile>
+    </profiles>
 </project>
