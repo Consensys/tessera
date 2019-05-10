@@ -1,16 +1,19 @@
 package com.quorum.tessera.server.monitoring;
 
+import com.quorum.tessera.config.AppType;
+
 import java.util.List;
 
 public class PrometheusProtocolFormatter {
 
-    public String format(final List<MBeanMetric> metrics) {
+    public String format(final List<MBeanMetric> metrics, AppType appType) {
         StringBuilder formattedMetrics = new StringBuilder();
 
         for (final MBeanMetric metric : metrics) {
             final MBeanResourceMetric resourceMetric = (MBeanResourceMetric) metric;
 
             formattedMetrics.append("tessera_")
+                .append(appType + "_")
                 .append(sanitize(resourceMetric.getResourceMethod()))
                 .append("_")
                 .append(sanitize(resourceMetric.getName()))
