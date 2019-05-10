@@ -12,7 +12,7 @@ matrix:
       name: "Unit Tests Java 8"
       jdk:  oraclejdk8
       install: &build_no_checks
-        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B -pl \!tests/acceptance-test
       script: &build_with_unittests
         - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
     - if: type = pull_request
