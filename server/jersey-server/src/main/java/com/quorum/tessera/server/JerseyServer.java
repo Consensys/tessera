@@ -130,10 +130,10 @@ public class JerseyServer implements TesseraServer {
     }
 
     private boolean supportsMonitoring(AppType appType) {
-        return  AppType.P2P.equals(appType) ||
-                AppType.Q2T.equals(appType) ||
-                AppType.ADMIN.equals(appType) ||
-                AppType.THIRD_PARTY.equals(appType);
+        return AppType.P2P.equals(appType) ||
+               AppType.Q2T.equals(appType) ||
+               AppType.ADMIN.equals(appType) ||
+               AppType.THIRD_PARTY.equals(appType);
     }
 
     @Override
