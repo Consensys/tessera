@@ -149,8 +149,31 @@ public class MetricsEnquirerTest {
     }
 
     @Test
-    public void oneMBeanOneMetricUnsupportedApp() {
+    public void oneMBeanOneMetricEnclaveApp() throws MalformedObjectNameException, IntrospectionException, ReflectionException, AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+        ObjectName mBeanName = new ObjectName("domain", "key", "value");
+        names.add(mBeanName);
+
         AppType appType = AppType.ENCLAVE;
+        ObjectName objName = new ObjectName("org.glassfish.jersey:type=EnclaveApplication,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
+
+        when(mBeanServer.queryNames(objName, null)).thenReturn(names);
+
+        String attributeName = "name_total";
+        MBeanAttributeInfo[] mBeanAttributes = {new MBeanAttributeInfo(attributeName, "type", "desc", true, false, false)};
+        MBeanInfo mBeanInfo = new MBeanInfo(null, null, mBeanAttributes, null, null, null);
+
+        when(mBeanServer.getMBeanInfo(mBeanName)).thenReturn(mBeanInfo);
+        when(mBeanServer.getAttribute(any(ObjectName.class), any(String.class))).thenReturn(1);
+
+        List<MBeanMetric> metrics = metricsEnquirer.getMBeanMetrics(appType);
+
+        assertThat(metrics.size()).isEqualTo(1);
+        assertThat(metrics.get(0).getName()).isEqualTo("name_total");
+    }
+
+    @Test
+    public void oneMBeanOneMetricUnsupportedApp() {
+        AppType appType = null;
 
         Throwable ex = catchThrowable(() -> metricsEnquirer.getMBeanMetrics(appType));
 

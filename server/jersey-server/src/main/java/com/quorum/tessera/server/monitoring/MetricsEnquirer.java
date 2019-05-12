@@ -55,6 +55,9 @@ public class MetricsEnquirer {
             case THIRD_PARTY:
                 type = "ThirdPartyRestApp";
                 break;
+            case ENCLAVE:
+                type = "EnclaveApplication";
+                break;
             default:
                 throw new MonitoringNotSupportedException(appType);
         }

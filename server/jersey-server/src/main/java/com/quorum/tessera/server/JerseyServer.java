@@ -9,7 +9,6 @@ import com.quorum.tessera.server.jaxrs.LoggingFilter;
 import com.quorum.tessera.server.monitoring.InfluxDbClient;
 import com.quorum.tessera.server.monitoring.InfluxDbPublisher;
 import com.quorum.tessera.server.monitoring.MetricsResource;
-import com.quorum.tessera.server.monitoring.MonitoringNotSupportedException;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -109,10 +108,6 @@ public class JerseyServer implements TesseraServer {
     }
 
     private void startInfluxMonitoring() {
-        if(!supportsMonitoring(type)) {
-            throw new MonitoringNotSupportedException(type);
-        }
-
         InfluxDbClient influxDbClient = new InfluxDbClient(uri, influxConfig, type);
         Runnable publisher = new InfluxDbPublisher(influxDbClient);
 
@@ -127,13 +122,6 @@ public class JerseyServer implements TesseraServer {
 
         final long delayInSecs = influxConfig.getPushIntervalInSecs();
         this.executor.scheduleWithFixedDelay(exceptionSafePublisher, delayInSecs, delayInSecs, TimeUnit.SECONDS);
-    }
-
-    private boolean supportsMonitoring(AppType appType) {
-        return AppType.P2P.equals(appType) ||
-               AppType.Q2T.equals(appType) ||
-               AppType.ADMIN.equals(appType) ||
-               AppType.THIRD_PARTY.equals(appType);
     }
 
     @Override
