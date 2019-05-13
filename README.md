@@ -51,7 +51,7 @@ Install libsodium as detailed on the [kalium project page](https://github.com/ab
 
 
 ## Running Tessera
-`java -jar tessera-dist/tessera-app/target/tessera-app-${version}-app.jar -configfile config.json`
+`java -jar tessera-dist/tessera-app/target/tessera-app-${version}-app.jar -configfile /path/to/config.json`
 
 > See the [`tessera-dist` README](tessera-dist) for info on the different distributions available.
 
