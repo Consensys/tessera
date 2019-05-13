@@ -14,7 +14,8 @@ public class InfluxDbProtocolFormatter {
             MBeanResourceMetric resourceMetric = (MBeanResourceMetric) metric;
 
             formattedMetrics.append("tessera_")
-                            .append(appType + "_")
+                            .append(appType)
+                            .append("_")
                             .append(sanitize(resourceMetric.getResourceMethod()))
                             .append(",")
                             .append("instance=")

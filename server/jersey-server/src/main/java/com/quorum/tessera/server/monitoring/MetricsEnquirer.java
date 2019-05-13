@@ -41,7 +41,7 @@ public class MetricsEnquirer {
     }
 
     private Set<ObjectName> getTesseraResourceMBeanNames(AppType appType) throws MalformedObjectNameException {
-        String type = "";
+        final String type;
         switch(appType) {
             case P2P:
                 type = "P2PRestApp";
