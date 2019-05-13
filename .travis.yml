@@ -12,9 +12,9 @@ matrix:
       name: "Unit Tests Java 8"
       jdk:  oraclejdk8
       install: &build_no_checks
-        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B -pl \!tests/acceptance-test dependency:go-offline
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
       script: &build_with_unittests
-        - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
+        - mvn install -pl \!tests/acceptance-test -P reduce-logging -o || travis_terminate 1
     - if: type = pull_request
       name: "Unit Tests Java 11"
       jdk:  oraclejdk11
@@ -38,13 +38,13 @@ matrix:
     - if: type = pull_request
       name: "GRPC Only Acceptance Tests"
       jdk:  oraclejdk8
-      script: mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging  -o || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging -o || travis_terminate 1
       install: *build_no_checks
     #Simple
     - if: type = pull_request
       name: "Simple Only Acceptance Tests"
       jdk:  oraclejdk8
-      script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging  -o || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging -o || travis_terminate 1
       install: *build_no_checks
     #Vault
     - if: type = pull_request
