@@ -90,7 +90,7 @@
         <profile>
             <id>afterjdk9</id>
             <activation>
-                <jdk>[9,11)</jdk>
+                <jdk>[9,12)</jdk>
             </activation>
             <properties>
                 <dist.classfier>jdk${java.vm.specification.version}_app</dist.classfier>
