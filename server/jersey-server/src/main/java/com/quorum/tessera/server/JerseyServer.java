@@ -1,6 +1,7 @@
 package com.quorum.tessera.server;
 
 import com.jpmorgan.quorum.server.utils.ServerUtils;
+import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.InfluxConfig;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.server.jaxrs.CorsDomainResponseFilter;
@@ -8,14 +9,6 @@ import com.quorum.tessera.server.jaxrs.LoggingFilter;
 import com.quorum.tessera.server.monitoring.InfluxDbClient;
 import com.quorum.tessera.server.monitoring.InfluxDbPublisher;
 import com.quorum.tessera.server.monitoring.MetricsResource;
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import javax.ws.rs.core.Application;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -23,6 +16,16 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+
+import javax.ws.rs.core.Application;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 /**
  * Implementation of a RestServer using Jersey and Jetty.
@@ -43,18 +46,17 @@ public class JerseyServer implements TesseraServer {
 
     private final ServerConfig serverConfig;
 
+    private final AppType type;
+
     public JerseyServer(final ServerConfig serverConfig, final Application application) {
-        this.uri = serverConfig.getBindingUri();
+        this.uri = serverConfig.getServerUri();
         this.application = Objects.requireNonNull(application);
         this.serverConfig = serverConfig;
 
         this.executor = newSingleThreadScheduledExecutor();
 
-        if (serverConfig.getInfluxConfig() != null) {
-            this.influxConfig = serverConfig.getInfluxConfig();
-        } else {
-            this.influxConfig = null;
-        }
+        this.influxConfig = serverConfig.getInfluxConfig();
+        this.type = serverConfig.getApp();
     }
 
     @Override
@@ -106,7 +108,7 @@ public class JerseyServer implements TesseraServer {
     }
 
     private void startInfluxMonitoring() {
-        InfluxDbClient influxDbClient = new InfluxDbClient(this.uri, influxConfig);
+        InfluxDbClient influxDbClient = new InfluxDbClient(uri, influxConfig, type);
         Runnable publisher = new InfluxDbPublisher(influxDbClient);
 
         final Runnable exceptionSafePublisher = () -> {
