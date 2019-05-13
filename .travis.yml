@@ -12,7 +12,7 @@ matrix:
       name: "Unit Tests Java 8"
       jdk:  oraclejdk8
       install: &build_no_checks
-        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B -pl \!tests/acceptance-test
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B -pl \!tests/acceptance-test dependency:go-offline
       script: &build_with_unittests
         - mvn install -pl \!tests/acceptance-test -P reduce-logging || travis_terminate 1
     - if: type = pull_request
@@ -32,19 +32,19 @@ matrix:
     - if: type = pull_request
       name: "Acceptance Tests Java 8"
       jdk:  oraclejdk8
-      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -P reduce-logging -o || travis_terminate 1
       install: *build_no_checks
     #GRPC
     - if: type = pull_request
       name: "GRPC Only Acceptance Tests"
       jdk:  oraclejdk8
-      script: mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging  -o || travis_terminate 1
       install: *build_no_checks
     #Simple
     - if: type = pull_request
       name: "Simple Only Acceptance Tests"
       jdk:  oraclejdk8
-      script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging  -o || travis_terminate 1
       install: *build_no_checks
     #Vault
     - if: type = pull_request
@@ -56,13 +56,13 @@ matrix:
         - unzip /tmp/vault_1.0.1_linux_amd64.zip
         - export PATH=$PATH:$PWD && popd
       install: *build_no_checks
-      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
     - if: type = pull_request
       name: "Vault Acceptance Tests Java 11"
       jdk:  oraclejdk11
       before_install: *install_hashicorp
       install: *build_no_checks
-      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
     - if: branch = master AND type = push
       name: "Deploy to central"
       jdk:  oraclejdk8
@@ -99,9 +99,9 @@ notifications:
   slack:
     secure: TeWK06kSrpdvMY/TNocbNYy0gJ9+jP9ygjzBtgsMRmm0kbBpzg34eZJyWMU/sf5x6taWAVOGW1jfG4+kfLUqG7CrqcRUihqK3x1DOJQS/BlT2IhJkED4dtwEw7xTkRTxPkghwMAXjJZImnh7ORS1HCJByEs5kedThh/Vr1HDaWJ+KctGLhE3LudyYikxZEWYVbexHZ5o8QbFGwmTYNHLaKAIGZbvt8wDoE+yJOftCqmCh2aJ4YBzYSW9wmxxf3tu75Azni9Am1wiCu+Q5NhljtZwbx6QopkHxbM0DdohOwQQ1g2lPni8dZYdw/obvVQOKLNjkTWU3LvtiWrwiAKp/w5czeL5nkQiFxcAcyTqCRXNh3J1RD1k9H4OBLo2N+5o6dhnNUZt24PZFsNMzR+ygmNq7WvAqQpC5ixppND//8tg25234dXafdL8KmWMFuTepQem2H9Yo8zr16v+VC7MEUyh5ta67xqhFGluIDEySgxMX389r0bU1dXsqhc/K131ty6AcV8FWEGToguvxL+Sj8RhBk5F2B+QOtUzl/5iqlGhqpWcVkoQjiCPJbcLHlHbt6fiUNEpVVjxa2kNrTNZ/5GS6eZoVr5OT1tc3lY5ZUA40yk0Pk63mYB30yMl/wtbbQl/g/0OpcJW20+ZT3971dIt6PMFg3b+n1xSZgTNvIY=
 
-cache:
-  directories:
-    - "$HOME/.m2"
+cache: false
+#  directories:
+#    - "$HOME/.m2"
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
