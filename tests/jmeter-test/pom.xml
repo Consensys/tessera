@@ -16,8 +16,7 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-app</artifactId>
-            <classifier>app</classifier>
-            <version>0.10-SNAPSHOT</version>
+            <classifier>${tesssra.app.classifer}</classifier>
             <scope>test</scope>
         </dependency>
 
