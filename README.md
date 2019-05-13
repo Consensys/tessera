@@ -51,11 +51,13 @@ Install libsodium as detailed on the [kalium project page](https://github.com/ab
 
 
 ## Running Tessera
-`java -jar tessera-app/target/tessera-app-${version}-app.jar -configfile config.json`
+`java -jar tessera-dist/tessera-app/target/tessera-app-${version}-app.jar -configfile config.json`
+
+> See the [`tessera-dist` README](tessera-dist) for info on the different distributions available.
 
 Once Tessera has been configured and built, you may want to copy the .jar to another location, create an alias and add it to your PATH:
 
-`alias tessera="java -jar /path/to/application-${version}-app.jar"`
+`alias tessera="java -jar /path/to/tessera-app-${version}-app.jar"`
 
 You will then be able to more concisely use the Tessera CLI commands, such as:
 
