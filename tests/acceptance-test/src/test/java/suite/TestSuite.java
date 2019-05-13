@@ -40,6 +40,8 @@ public class TestSuite extends Suite {
         EnclaveType enclaveType() default EnclaveType.LOCAL;
 
         boolean admin() default false;
+
+        String prefix() default "";
     }
 
     public TestSuite(Class<?> klass, RunnerBuilder builder) throws InitializationError {
@@ -62,6 +64,7 @@ public class TestSuite extends Suite {
                 .with(testConfig.socketType())
                 .with(testConfig.enclaveType())
                 .withAdmin(testConfig.admin())
+                .prefix(testConfig.prefix())
                 .createAndSetupContext();
 
             if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {

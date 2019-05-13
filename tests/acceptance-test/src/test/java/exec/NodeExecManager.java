@@ -41,7 +41,7 @@ public class NodeExecManager implements ExecManager {
     @Override
     public Process doStart() throws Exception {
 
-        Path nodeServerJar = Paths.get(System.getProperty("application.jar", "../../tessera-app/target/tessrea-app-0.9-SNAPSHOT-app.jar"));
+        Path nodeServerJar = Paths.get(System.getProperty("application.jar", "../../tessera-app/target/tessrea-app-0.10-SNAPSHOT-app.jar"));
 
         ExecutionContext executionContext = ExecutionContext.currentContext();
 
@@ -56,7 +56,7 @@ public class NodeExecManager implements ExecManager {
                 //.withArg("-jdbc.autoCreateTables", "true");
 
         if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
-            Path enclaveJar = Paths.get(System.getProperty("enclave.jaxrs.jar", "../../enclave/enclave-jaxrs/target/enclave-jaxrs-0.9-SNAPSHOT.jar"));
+            Path enclaveJar = Paths.get(System.getProperty("enclave.jaxrs.jar", "../../enclave/enclave-jaxrs/target/enclave-jaxrs-0.10-SNAPSHOT.jar"));
            // argsBuilder.withClassPathItem(enclaveJar);
         }
 

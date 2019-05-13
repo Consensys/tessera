@@ -6,6 +6,7 @@ import config.ConfigDescriptor;
 import config.ConfigGenerator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class ExecutionContext {
@@ -22,15 +23,18 @@ public class ExecutionContext {
 
     private boolean admin;
 
+    private String prefix;
+
     private ExecutionContext(DBType dbType,
         CommunicationType communicationType,
         SocketType socketType,
-        EnclaveType enclaveType, boolean admin) {
+        EnclaveType enclaveType, boolean admin,String prefix) {
         this.dbType = dbType;
         this.communicationType = communicationType;
         this.socketType = socketType;
         this.enclaveType = enclaveType;
         this.admin = admin;
+        this.prefix = prefix;
     }
 
     public DBType getDbType() {
@@ -57,6 +61,10 @@ public class ExecutionContext {
         return admin;
     }
 
+    public Optional<String> getPrefix() {
+        return Optional.ofNullable(prefix);
+    }
+
     public static class Builder {
 
         private DBType dbType;
@@ -66,6 +74,8 @@ public class ExecutionContext {
         private SocketType socketType;
 
         private EnclaveType enclaveType;
+
+        private String prefix;
 
         private Builder() {
         }
@@ -94,6 +104,11 @@ public class ExecutionContext {
             return this;
         }
 
+        public Builder prefix(String prefix) {
+            this.prefix = Objects.equals("",prefix) ? null : prefix;
+            return this;
+        }
+
         private boolean admin;
 
         public Builder withAdmin(boolean admin) {
@@ -105,7 +120,7 @@ public class ExecutionContext {
             Stream.of(dbType, communicationType, socketType, enclaveType)
                 .forEach(Objects::requireNonNull);
 
-            ExecutionContext executionContext = new ExecutionContext(dbType, communicationType, socketType, enclaveType, admin);
+            ExecutionContext executionContext = new ExecutionContext(dbType, communicationType, socketType, enclaveType, admin,prefix);
 
             return executionContext;
         }
