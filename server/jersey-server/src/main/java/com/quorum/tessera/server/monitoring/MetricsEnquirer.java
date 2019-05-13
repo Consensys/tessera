@@ -1,5 +1,7 @@
 package com.quorum.tessera.server.monitoring;
 
+import com.quorum.tessera.config.AppType;
+
 import javax.management.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,12 +16,12 @@ public class MetricsEnquirer {
         this.mBeanServer = mBeanServer;
     }
 
-    public List<MBeanMetric> getMBeanMetrics() {
+    public List<MBeanMetric> getMBeanMetrics(AppType appType) {
         List<MBeanMetric> mBeanMetrics = new ArrayList<>();
 
         Set<ObjectName> mBeanNames;
         try {
-            mBeanNames = getTesseraResourceMBeanNames();
+            mBeanNames = getTesseraResourceMBeanNames(appType);
 
             for(ObjectName mBeanName : mBeanNames) {
                 List<MBeanMetric> temp;
@@ -38,8 +40,29 @@ public class MetricsEnquirer {
         return Collections.unmodifiableList(mBeanMetrics);
     }
 
-    private Set<ObjectName> getTesseraResourceMBeanNames() throws MalformedObjectNameException {
-        String pattern = "org.glassfish.jersey:type=Tessera,subType=Resources,resource=com.quorum.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*";
+    private Set<ObjectName> getTesseraResourceMBeanNames(AppType appType) throws MalformedObjectNameException {
+        final String type;
+        switch(appType) {
+            case P2P:
+                type = "P2PRestApp";
+                break;
+            case Q2T:
+                type = "Q2TRestApp";
+                break;
+            case ADMIN:
+                type = "AdminRestApp";
+                break;
+            case THIRD_PARTY:
+                type = "ThirdPartyRestApp";
+                break;
+            case ENCLAVE:
+                type = "EnclaveApplication";
+                break;
+            default:
+                throw new MonitoringNotSupportedException(appType);
+        }
+
+        String pattern = String.format("org.glassfish.jersey:type=%s,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*", type);
         return Collections.unmodifiableSet(this.mBeanServer.queryNames(new ObjectName(pattern), null));
     }
 

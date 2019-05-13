@@ -1,6 +1,8 @@
 package com.quorum.tessera.server.monitoring;
 
-import javax.management.*;
+import com.quorum.tessera.config.AppType;
+
+import javax.management.MBeanServer;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -23,14 +25,20 @@ public class MetricsResource {
     @Produces("text/plain")
     public Response getMetrics() {
         MetricsEnquirer metricsEnquirer = new MetricsEnquirer(mbs);
-        List<MBeanMetric> metrics = metricsEnquirer.getMBeanMetrics();
+        final StringBuilder formattedMetrics = new StringBuilder();
 
-        PrometheusProtocolFormatter formatter = new PrometheusProtocolFormatter();
-        String formattedMetrics = formatter.format(metrics);
+        // TODO Each app server has a /metrics endpoint but currently each endpoint returns the metrics for all servers.  Would be better to lock this down e.g. <p2puri>/metrics only returns the p2p metrics
+        for (AppType type : AppType.values()) {
+            List<MBeanMetric> metrics = metricsEnquirer.getMBeanMetrics(type);
+            PrometheusProtocolFormatter formatter = new PrometheusProtocolFormatter();
+
+            formattedMetrics.append(formatter.format(metrics, type))
+                            .append("\n");
+        }
 
         return Response.status(Response.Status.OK)
             .header("Content-Type", TEXT_PLAIN)
-            .entity(formattedMetrics)
+            .entity(formattedMetrics.toString().trim())
             .build();
     }
 }
