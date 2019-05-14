@@ -1,20 +1,26 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.constraints.ValidServerAddress;
+import com.quorum.tessera.config.constraints.ValidSsl;
+
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import java.net.URI;
+import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class InfluxConfig extends ConfigItem {
 
+    @ValidServerAddress(
+        message = "Server Address is invalid",
+        supportedSchemes = {"http", "https"}
+    )
     @NotNull
-    @XmlElement(required = true)
-    private String hostName;
-
-    @NotNull
-    @XmlElement(required = true)
-    private Integer port;
+    @XmlElement
+    private String serverAddress;
 
     @NotNull
     @XmlElement(required = true)
@@ -24,23 +30,29 @@ public class InfluxConfig extends ConfigItem {
     @XmlElement(required = true)
     private String dbName;
 
-    public InfluxConfig(String hostName, Integer port, Long pushIntervalInSecs, String dbName) {
-        this.hostName = hostName;
-        this.port = port;
-        this.dbName = dbName;
-        this.pushIntervalInSecs = pushIntervalInSecs;
-    }
+    @Valid
+    @XmlElement
+    @ValidSsl
+    private SslConfig sslConfig;
 
     public InfluxConfig() {
-        this(null, null, null, null);
+
     }
 
-    public String getHostName() {
-        return hostName;
+    public boolean isSsl() {
+        return Objects.nonNull(sslConfig) && sslConfig.getTls() == SslAuthenticationMode.STRICT;
     }
 
-    public Integer getPort() {
-        return port;
+    public URI getServerUri() {
+        try {
+            return URI.create(serverAddress);
+        } catch (IllegalArgumentException ex) {
+            throw new ConfigException(ex);
+        }
+    }
+
+    public String getServerAddress() {
+        return serverAddress;
     }
 
     public Long getPushIntervalInSecs() {
@@ -51,12 +63,12 @@ public class InfluxConfig extends ConfigItem {
         return dbName;
     }
 
-    public void setHostName(String hostName) {
-        this.hostName = hostName;
+    public SslConfig getSslConfig() {
+        return sslConfig;
     }
 
-    public void setPort(Integer port) {
-        this.port = port;
+    public void setServerAddress(String serverAddress) {
+        this.serverAddress = serverAddress;
     }
 
     public void setPushIntervalInSecs(Long pushIntervalInSecs) {
@@ -67,4 +79,7 @@ public class InfluxConfig extends ConfigItem {
         this.dbName = dbName;
     }
 
+    public void setSslConfig(SslConfig sslConfig) {
+        this.sslConfig = sslConfig;
+    }
 }
