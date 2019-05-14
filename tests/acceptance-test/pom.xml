@@ -12,29 +12,28 @@
         <version>0.10-SNAPSHOT</version>
     </parent>
 
+
+
     <dependencies>
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-app</artifactId>
-            <classifier>app</classifier>
-            <version>0.10-SNAPSHOT</version>
+            <classifier>${tesssra.app.classifer}</classifier>
              <scope>test</scope>
         </dependency>
         
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-simple</artifactId>
-            <classifier>app</classifier>
-            <version>0.10-SNAPSHOT</version>
+            <classifier>${tesssra.app.classifer}</classifier>
              <scope>test</scope>
         </dependency>
    
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-grpc</artifactId>
-            <classifier>app</classifier>
-            <version>0.10-SNAPSHOT</version>
+            <classifier>${tesssra.app.classifer}</classifier>
              <scope>test</scope>
         </dependency>
    
@@ -47,7 +46,7 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>enclave-jaxrs</artifactId>
-            <classifier>server</classifier>
+            <classifier>${enclave.server.classifer}</classifier>
              <scope>test</scope>
         </dependency>
         
@@ -134,6 +133,51 @@
             </plugin>
 
             <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-all</artifactId>
+                        <version>2.4.8</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <source>
+
+                        def classifier = project.properties['tesssra.app.classifer']
+
+                        def arts = project.artifacts
+                                .findAll{item -> item.getGroupId().equals('com.jpmorgan.quorum')}
+
+
+                        def dep = arts
+                            .find{item -> item.getArtifactId().equals('tessera-app') and item.getClassifier().equals(classifier)}
+
+
+                        project.properties.setProperty('application.jar', dep.getFile().getPath())
+
+                        def eclassifier = project.properties['enclave.server.classifer']
+
+                        def enclaveArt = arts
+                            .find{item -> item.getArtifactId().equals('enclave-jaxrs') and item.getClassifier().equals(eclassifier)}
+
+                        project.properties.setProperty('enclave.jaxrs.server.jar',enclaveArt.getFile().getPath())
+                    </source>
+
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
@@ -141,17 +185,18 @@
                     <rerunFailingTestsCount>0</rerunFailingTestsCount>
                     
                     <systemPropertyVariables>
-                        <application.jar>${com.jpmorgan.quorum:tessera-app:jar:app}</application.jar>
+                        <application.jar>${application.jar}</application.jar>
                         <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
                         <jdbc.sqlite.jar>${org.xerial:sqlite-jdbc:jar}</jdbc.sqlite.jar>
                         <enclave.jaxrs.jar>${com.jpmorgan.quorum:enclave-jaxrs:jar}</enclave.jaxrs.jar>
-                        <enclave.jaxrs.server.jar>${com.jpmorgan.quorum:enclave-jaxrs:jar:server}</enclave.jaxrs.server.jar>
+                        <enclave.jaxrs.server.jar>${enclave.jaxrs.server.jar}</enclave.jaxrs.server.jar>
                         <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
                         <include>AdminRestSuite</include>
                         <include>RestSuiteRemoteEnclaveH2</include>
                         <include>RestSuiteH2</include>
+                        <include>RestSuiteUnixH2</include>
                         <include>CucumberWhitelistIT</include>
                         <include>RestSuiteH2</include>
                         <include>RestSuiteUnixH2</include>
@@ -195,6 +240,9 @@
     </build>
 
     <profiles>
+
+
+
         <profile>
             <id>acceptance-test</id>
             <activation>
