@@ -2,8 +2,11 @@ package com.quorum.tessera.server.monitoring;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.InfluxConfig;
+import com.quorum.tessera.ssl.context.ClientSSLContextFactory;
+import com.quorum.tessera.ssl.context.SSLContextFactory;
 
 import javax.management.MBeanServer;
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -16,23 +19,17 @@ import java.util.List;
 
 public class InfluxDbClient {
 
-    private final URI uri;
+    private final URI tesseraAppUri;
 
-    private final int port;
-
-    private final String dbName;
-
-    private final String hostName;
+    private final InfluxConfig influxConfig;
 
     private final AppType appType;
 
     private final MBeanServer mbs;
 
-    public InfluxDbClient(URI uri, InfluxConfig influxConfig, AppType appType) {
-        this.uri = uri;
-        this.port = influxConfig.getPort();
-        this.hostName = influxConfig.getHostName();
-        this.dbName = influxConfig.getDbName();
+    public InfluxDbClient(URI tesseraAppUri, InfluxConfig influxConfig, AppType appType) {
+        this.tesseraAppUri = tesseraAppUri;
+        this.influxConfig = influxConfig;
         this.appType = appType;
 
         this.mbs = ManagementFactory.getPlatformMBeanServer();
@@ -43,13 +40,26 @@ public class InfluxDbClient {
         List<MBeanMetric> metrics = metricsEnquirer.getMBeanMetrics(appType);
 
         InfluxDbProtocolFormatter formatter = new InfluxDbProtocolFormatter();
-        String formattedMetrics = formatter.format(metrics, uri, appType);
+        String formattedMetrics = formatter.format(metrics, tesseraAppUri, appType);
 
-        Client client = ClientBuilder.newClient();
+        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+
+        if(influxConfig.isSsl()) {
+            final SSLContextFactory sslContextFactory = ClientSSLContextFactory.create();
+            final SSLContext sslContext = sslContextFactory.from(
+                influxConfig.getServerUri().toString(),
+                influxConfig.getSslConfig()
+            );
+
+            clientBuilder.sslContext(sslContext);
+        }
+
+        Client client = clientBuilder.build();
+
         WebTarget influxTarget = client
-            .target(hostName + ":" + port)
+            .target(influxConfig.getServerAddress())
             .path("write")
-            .queryParam("db", dbName);
+            .queryParam("db", influxConfig.getDbName());
 
         return influxTarget
             .request(MediaType.TEXT_PLAIN)
