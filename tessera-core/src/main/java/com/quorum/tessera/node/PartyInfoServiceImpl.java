@@ -8,6 +8,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.node.model.Party;
 import com.quorum.tessera.node.model.PartyInfo;
 import com.quorum.tessera.node.model.Recipient;
+import com.quorum.tessera.util.URLNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
         this.configService = Objects.requireNonNull(configService);
 
-        final String advertisedUrl = configService.getServerUri() + "/";
+        final String advertisedUrl = URLNormalizer.create().normalize(configService.getServerUri().toString());
 
 
         final Set<Party> initialParties = configService

@@ -13,6 +13,8 @@ import java.util.Set;
 import static java.util.Collections.unmodifiableSet;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.quorum.tessera.util.URLNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +34,7 @@ public class PartyInfoStore {
     public PartyInfoStore(final ConfigService configService) {
 
         //TODO: remove the extra "/" when we deprecate backwards compatibility
-        this.advertisedUrl = configService.getServerUri().toString() + "/";
+        this.advertisedUrl = URLNormalizer.create().normalize(configService.getServerUri().toString());
 
         this.recipients = new HashMap<>();
         this.parties = new HashSet<>();

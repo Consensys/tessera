@@ -1,5 +1,7 @@
 package com.quorum.tessera.node.model;
 
+import com.quorum.tessera.util.URLNormalizer;
+
 import java.time.Instant;
 import java.util.Objects;
 
@@ -13,7 +15,7 @@ public class Party {
     private Instant lastContacted;
 
     public Party(final String url) {
-        this.url = url;
+        this.url = URLNormalizer.create().normalize(url);
     }
 
     public String getUrl() {

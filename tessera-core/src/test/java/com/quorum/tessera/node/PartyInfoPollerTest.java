@@ -17,9 +17,9 @@ import static org.mockito.Mockito.*;
 
 public class PartyInfoPollerTest {
 
-    private static final String OWN_URL = "http://own.com:8080";
+    private static final String OWN_URL = "http://own.com:8080/";
 
-    private static final String TARGET_URL = "http://bogus.com:9878";
+    private static final String TARGET_URL = "http://bogus.com:9878/";
 
     private static final byte[] RESPONSE = "BOGUS".getBytes();
 
@@ -60,9 +60,7 @@ public class PartyInfoPollerTest {
         partyInfoPoller.run();
 
         verify(partyInfoService).getPartyInfo();
-        verify(partyInfoService).updatePartyInfo(updatedPartyInfo);
 
-        verify(partyInfoParser).from(RESPONSE);
         verify(partyInfoParser).to(partyInfo);
 
         verify(p2pClient).getPartyInfo(TARGET_URL, RESPONSE);
@@ -150,7 +148,6 @@ public class PartyInfoPollerTest {
         verify(p2pClient).getPartyInfo(TARGET_URL, RESPONSE);
 
         verify(partyInfoService).getPartyInfo();
-        verify(partyInfoService, never()).updatePartyInfo(updatedPartyInfo);
         verify(partyInfoParser, never()).from(RESPONSE);
         verify(partyInfoParser).to(partyInfo);
     }
