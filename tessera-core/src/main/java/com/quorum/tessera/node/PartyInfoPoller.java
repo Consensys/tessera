@@ -35,8 +35,15 @@ public class PartyInfoPoller implements Runnable {
      * Iterates over all known parties and contacts them for the current state
      * of their known node discovery list
      * <p>
-     * It then updates this nodes list of data with any new information
-     * collected
+     * For Tessera 0.9 backwards, after contacting the known parties,
+     * this poller then updates this nodes list of data with any new information collected.
+     *
+     * This behaviour is now deprecated since the /partyinfo API call now has been made more strict
+     * with node validation to prevent exploiting the API to attack the Tessera network.
+     *
+     * This call is merely to let its parties know about this node existence,
+     * any recipients that want to be added to this node's PartyInfo will need to make their own partyinfo call
+     * and validation
      */
     @Override
     public void run() {
