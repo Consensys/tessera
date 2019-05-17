@@ -44,7 +44,7 @@ public class SyncPollerTest {
         this.partyInfoService = mock(PartyInfoService.class);
         this.partyInfoParser = mock(PartyInfoParser.class);
         this.p2pClient = mock(P2pClient.class);
-        doReturn(new byte[]{}).when(p2pClient).getPartyInfo(anyString(), any());
+        doReturn(true).when(p2pClient).sendPartyInfo(anyString(), any());
         when(partyInfoService.getPartyInfo()).thenReturn(new PartyInfo("myurl", emptySet(), emptySet()));
 
         this.syncPoller = new SyncPoller(executorService, resendPartyStore, transactionRequester, partyInfoService, partyInfoParser, p2pClient);
@@ -90,7 +90,7 @@ public class SyncPollerTest {
         verify(transactionRequester).requestAllTransactionsFromNode(targetUrl);
         verify(partyInfoService, times(2)).getPartyInfo();
         verify(partyInfoParser).to(any());
-        verify(p2pClient).getPartyInfo(eq(targetUrl), any());
+        verify(p2pClient).sendPartyInfo(eq(targetUrl), any());
         verify(partyInfoService, times(2)).getPartyInfo();
     }
 
@@ -144,7 +144,7 @@ public class SyncPollerTest {
         final String targetUrl = "fakeurl.com";
         final SyncableParty syncableParty = new SyncableParty(new Party(targetUrl), 0);
 
-        doThrow(new RuntimeException("Unable to connect")).when(p2pClient).getPartyInfo(anyString(), any());
+        doThrow(new RuntimeException("Unable to connect")).when(p2pClient).sendPartyInfo(anyString(), any());
 
         doReturn(Optional.of(syncableParty), Optional.empty()).when(resendPartyStore).getNextParty();
 
@@ -169,7 +169,7 @@ public class SyncPollerTest {
         final String targetUrl = "fakeurl.com";
         final SyncableParty syncableParty = new SyncableParty(new Party(targetUrl), 0);
 
-        doReturn(null).when(p2pClient).getPartyInfo(anyString(), any());
+        doReturn(false).when(p2pClient).sendPartyInfo(anyString(), any());
 
         doReturn(Optional.of(syncableParty), Optional.empty()).when(resendPartyStore).getNextParty();
 

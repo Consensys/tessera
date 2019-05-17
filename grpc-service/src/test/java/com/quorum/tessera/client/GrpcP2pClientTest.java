@@ -43,9 +43,9 @@ public class GrpcP2pClientTest {
     @Test
     public void getPartyInfo() {
         byte[] data = "DATA".getBytes();
-        p2pClient.getPartyInfo(targetUrl, data);
+        p2pClient.sendPartyInfo(targetUrl, data);
         verify(grpcClientFactory).getClient(targetUrl);
-        verify(grpcClient).getPartyInfo(data);
+        verify(grpcClient).sendPartyInfo(data);
 
     }
 

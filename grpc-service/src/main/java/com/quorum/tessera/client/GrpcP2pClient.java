@@ -23,8 +23,8 @@ class GrpcP2pClient implements P2pClient {
     }
 
     @Override
-    public byte[] getPartyInfo(String targetUrl, byte[] data) {
-        return grpcClientFactory.getClient(targetUrl).getPartyInfo(data);
+    public boolean sendPartyInfo(String targetUrl, byte[] data) {
+        return Objects.nonNull(grpcClientFactory.getClient(targetUrl).sendPartyInfo(data));
     }
 
     @Override
