@@ -51,10 +51,7 @@ public class PartyInfoPoller implements Runnable {
             .stream()
             .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
             .map(Party::getUrl)
-            .map(url -> pollSingleParty(url, encodedPartyInfo))
-            .filter(Objects::nonNull)
-            .map(partyInfoParser::from)
-            .forEach(partyInfoService::updatePartyInfo);
+            .forEach(url -> pollSingleParty(url, encodedPartyInfo));
 
         LOGGER.debug("Polled {}. PartyInfo : {}", getClass().getSimpleName(), partyInfo);
     }

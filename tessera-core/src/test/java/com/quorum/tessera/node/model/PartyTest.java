@@ -14,4 +14,10 @@ public class PartyTest {
 
     }
 
+    @Test
+    public void urlIsNormalized() {
+        final Party party = new Party("http://someurl.com");
+        assertThat(party.getUrl()).isEqualTo("http://someurl.com/");
+    }
+
 }

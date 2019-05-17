@@ -34,7 +34,10 @@ public class GrpcPartyInfoCheck implements PartyInfoChecker {
                 PartyInfoJson partyInfo = PartyInfoGrpc.newBlockingStub(channel)
                         .getPartyInfoMessage(Empty.getDefaultInstance());
                         
-                int peerCount = partyInfo.getPeersCount();
+                int peerCount = (int) partyInfo.getPeersList()
+                    .stream()
+                    .filter(peer -> peer.hasUtcTimestamp())
+                    .count();
                 
                 long expectedCount = partyHelper.getParties().count();
                 

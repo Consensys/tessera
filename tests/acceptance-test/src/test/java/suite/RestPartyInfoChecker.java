@@ -41,8 +41,14 @@ public class RestPartyInfoChecker implements PartyInfoChecker {
 
             LOGGER.debug("Requested party info for {} . {}", p.getAlias(), response.getStatus());
             if (response.getStatus() == 200) {
-                JsonObject result = response.readEntity(JsonObject.class);
-                final int peerCount = result.getJsonArray("peers").size();
+                final JsonObject result = response.readEntity(JsonObject.class);
+                final int peerCount = (int)
+                    result.getJsonArray("peers")
+                        .stream()
+                        .map(val -> (JsonObject) val)
+                        .filter(peer -> !peer.isNull("lastContact"))
+                        .count();
+
                 LOGGER.debug("Found {} peers of {} on {}", peerCount,parties.size(), p.getAlias());
                 results[i] = peerCount == parties.size();
             } else {

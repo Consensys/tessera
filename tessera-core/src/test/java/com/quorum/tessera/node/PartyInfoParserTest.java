@@ -154,9 +154,9 @@ public class PartyInfoParserTest {
         assertThat(partyCount).isEqualTo(1L);
 
         long partyUrlLength = byteBuffer.getLong();
-        assertThat(partyUrlLength).isEqualTo(21L);
+        assertThat(partyUrlLength).isEqualTo(22L);
 
-        byte[] partyUrlData = new byte[21];
+        byte[] partyUrlData = new byte[22];
         byteBuffer.get(partyUrlData);
 
         String partyUrl = new String(partyUrlData);
