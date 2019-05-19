@@ -70,19 +70,16 @@ public class PartyInfoPoller implements Runnable {
      *
      * @param url              the target URL to call
      * @param encodedPartyInfo the encoded current party information
-     * @return the encoded partyinfo from the target node, or null is the node
-     * could not be reached
      */
-    private byte[] pollSingleParty(final String url, final byte[] encodedPartyInfo) {
+    private void pollSingleParty(final String url, final byte[] encodedPartyInfo) {
 
         try {
-            return p2pClient.getPartyInfo(url, encodedPartyInfo);
+            p2pClient.sendPartyInfo(url, encodedPartyInfo);
         } catch (final Exception ex) {
 
             if (ConnectException.class.isInstance(ex.getCause())) {
                 LOGGER.warn("Server error {} when connecting to {}", ex.getMessage(), url);
                 LOGGER.debug(null, ex);
-                return null;
             } else {
                 LOGGER.error("Error thrown while executing poller. ", ex);
                 throw ex;

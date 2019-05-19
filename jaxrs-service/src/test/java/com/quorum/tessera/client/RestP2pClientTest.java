@@ -30,7 +30,7 @@ public class RestP2pClientTest {
         String url = "someurl";
         byte[] someData = "somedata".getBytes();
 
-        p2pClient.getPartyInfo(url, someData);
+        p2pClient.sendPartyInfo(url, someData);
 
         verify(postDelegate).doPost(url, ApiPath.PARTYINFO, someData);
     }

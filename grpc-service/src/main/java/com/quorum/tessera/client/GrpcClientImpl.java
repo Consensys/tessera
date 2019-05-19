@@ -36,7 +36,7 @@ final class GrpcClientImpl implements GrpcClient {
     }
 
     @Override
-    public byte[] getPartyInfo(final byte[] data) {
+    public byte[] sendPartyInfo(final byte[] data) {
         final PartyInfoMessage request = PartyInfoMessage.newBuilder()
             .setPartyInfo(ByteString.copyFrom(data))
             .build();

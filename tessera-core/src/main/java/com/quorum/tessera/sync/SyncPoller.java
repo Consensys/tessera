@@ -75,7 +75,7 @@ public class SyncPoller implements Runnable {
 
             final Runnable action = () -> {
 
-                // perform a getPartyInfo in order to ensure that the target tessera has the current tessera as a recipient
+                // perform a sendPartyInfo in order to ensure that the target tessera has the current tessera as a recipient
                 boolean allSucceeded = updatePartyInfo(url);
 
                 if (allSucceeded) {
@@ -102,7 +102,7 @@ public class SyncPoller implements Runnable {
             final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
             // we deliberately discard the response as we do not want to fully duplicate the PartyInfoPoller
-            return null != p2pClient.getPartyInfo(url, encodedPartyInfo);
+            return p2pClient.sendPartyInfo(url, encodedPartyInfo);
         } catch (final Exception ex) {
             LOGGER.warn("Server error {} when connecting to {}", ex.getMessage(), url);
             LOGGER.debug(null, ex);
