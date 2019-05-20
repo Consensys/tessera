@@ -1,13 +1,10 @@
 package com.quorum.tessera.cli;
 
 import com.quorum.tessera.test.util.ElUtil;
-import org.assertj.core.api.Fail;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.ConstraintViolationException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,64 +17,31 @@ public class CliDelegateTest {
 
     @Test
     public void createInstance() {
-
         assertThat(CliDelegate.instance()).isSameAs(instance);
-
     }
 
     @Test
-    public void createAdminInstance() throws Exception {
-
+    public void adminCliOptionCreatesAdminInstance() throws Exception {
         Path configFile = ElUtil.createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         CliResult result = instance.execute("admin", "-configfile", configFile.toString());
 
         assertThat(result).isNotNull();
+        // MockAdminCliAdapter should be loaded by ServiceLoader and returns status 101
+        assertThat(result.getStatus()).isEqualTo(101);
     }
 
     @Test
-    public void withValidConfig() throws Exception {
-
+    public void standardCliOptionsCreatesConfigInstance() throws Exception {
         Path configFile = ElUtil.createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-
-        CliResult result = instance.execute(
-                "-configfile",
-                configFile.toString());
+        CliResult result = instance.execute("-configfile", configFile.toString());
 
         assertThat(result).isNotNull();
-        assertThat(result.getConfig()).isPresent();
-        assertThat(result.getConfig().get()).isSameAs(instance.getConfig());
-        assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.isSuppressStartup()).isFalse();
-
-    }
-
-    @Test
-    public void withEmptyConfigOverrideAll() throws Exception {
-
-        Path unixSocketFile = Files.createTempFile("unixSocketFile", ".ipc");
-        unixSocketFile.toFile().deleteOnExit();
-
-        Path configFile = Files.createTempFile("withEmptyConfigOverrideAll", ".json");
-        configFile.toFile().deleteOnExit();
-        Files.write(configFile, "{}".getBytes());
-        try {
-            CliResult result = instance.execute(
-                    "-configfile",
-                    configFile.toString(),
-                    "--unixSocketFile",
-                    unixSocketFile.toString()
-            );
-
-            assertThat(result).isNotNull();
-            Fail.failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
-        } catch (ConstraintViolationException ex) {
-            ex.getConstraintViolations().forEach(v -> LOGGER.info("{}",v));
-        }
+        // MockDefaultCliAdapter should be loaded by ServiceLoader and returns status 100
+        assertThat(result.getStatus()).isEqualTo(100);
     }
 
     @Test(expected = IllegalStateException.class)
     public void fetchWithoutExecution() {
         instance.getConfig();
     }
-
 }

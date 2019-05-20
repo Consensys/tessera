@@ -13,11 +13,12 @@ import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.test.util.ElUtil;
-import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintViolationException;
 import java.io.ByteArrayInputStream;
@@ -41,6 +42,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class DefaultCliAdapterTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCliAdapterTest.class);
 
     private DefaultCliAdapter cliDelegate;
 
@@ -66,10 +69,10 @@ public class DefaultCliAdapterTest {
 
         final CliResult result = cliDelegate.execute("help");
 
-        Assertions.assertThat(result).isNotNull();
-        Assertions.assertThat(result.getConfig()).isNotPresent();
-        Assertions.assertThat(result.getStatus()).isEqualTo(0);
-        Assertions.assertThat(result.isSuppressStartup()).isTrue();
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isNotPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.isSuppressStartup()).isTrue();
     }
 
     @Test
@@ -77,10 +80,10 @@ public class DefaultCliAdapterTest {
 
         final CliResult result = cliDelegate.execute();
 
-        Assertions.assertThat(result).isNotNull();
-        Assertions.assertThat(result.getConfig()).isNotPresent();
-        Assertions.assertThat(result.getStatus()).isEqualTo(0);
-        Assertions.assertThat(result.isSuppressStartup()).isTrue();
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isNotPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.isSuppressStartup()).isTrue();
     }
 
     @Test
@@ -89,10 +92,10 @@ public class DefaultCliAdapterTest {
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         CliResult result = cliDelegate.execute("-configfile", configFile.toString());
 
-        Assertions.assertThat(result).isNotNull();
-        Assertions.assertThat(result.getConfig()).isPresent();
-        Assertions.assertThat(result.getStatus()).isEqualTo(0);
-        Assertions.assertThat(result.isSuppressStartup()).isFalse();
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.isSuppressStartup()).isFalse();
     }
 
     @Test(expected = FileNotFoundException.class)
@@ -148,10 +151,10 @@ public class DefaultCliAdapterTest {
                 "-configfile",
                 configFilePath.toString());
 
-        Assertions.assertThat(result).isNotNull();
-        Assertions.assertThat(result.getStatus()).isEqualTo(0);
-        Assertions.assertThat(result.getConfig()).isNotNull();
-        Assertions.assertThat(result.isSuppressStartup()).isFalse();
+        assertThat(result).isNotNull();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.getConfig()).isNotNull();
+        assertThat(result.isSuppressStartup()).isFalse();
 
         verify(keyGenerator).generate(anyString(), eq(null), eq(null));
         verifyNoMoreInteractions(keyGenerator);
@@ -163,8 +166,8 @@ public class DefaultCliAdapterTest {
 
         final CliResult result = cliDelegate.execute("-keygen");
 
-        Assertions.assertThat(result).isNotNull();
-        Assertions.assertThat(result.isSuppressStartup()).isTrue();
+        assertThat(result).isNotNull();
+        assertThat(result.isSuppressStartup()).isTrue();
 
     }
 
@@ -175,7 +178,7 @@ public class DefaultCliAdapterTest {
             cliDelegate.execute("-filename");
             failBecauseExceptionWasNotThrown(CliException.class);
         } catch (CliException ex) {
-            Assertions.assertThat(ex).hasMessage("Missing argument for option: filename");
+            assertThat(ex).hasMessage("Missing argument for option: filename");
         }
     }
 
@@ -228,7 +231,7 @@ public class DefaultCliAdapterTest {
                 configFile.toString()
         );
 
-        Assertions.assertThat(result).isNotNull();
+        assertThat(result).isNotNull();
         assertThat(Files.exists(generatedKey)).isTrue();
 
         try {
@@ -264,10 +267,10 @@ public class DefaultCliAdapterTest {
                 "somename"
         );
 
-        Assertions.assertThat(result).isNotNull();
-        Assertions.assertThat(result.getConfig()).isPresent();
-        Assertions.assertThat(result.getConfig().get().getJdbcConfig().getUsername()).isEqualTo("somename");
-        Assertions.assertThat(result.getConfig().get().getJdbcConfig().getPassword()).isEqualTo("tiger");
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig().get().getJdbcConfig().getUsername()).isEqualTo("somename");
+        assertThat(result.getConfig().get().getJdbcConfig().getPassword()).isEqualTo("tiger");
 
     }
 
@@ -296,6 +299,30 @@ public class DefaultCliAdapterTest {
     }
 
     @Test
+    public void withEmptyConfigOverrideAll() throws Exception {
+
+        Path unixSocketFile = Files.createTempFile("unixSocketFile", ".ipc");
+        unixSocketFile.toFile().deleteOnExit();
+
+        Path configFile = Files.createTempFile("withEmptyConfigOverrideAll", ".json");
+        configFile.toFile().deleteOnExit();
+        Files.write(configFile, "{}".getBytes());
+        try {
+            CliResult result = cliDelegate.execute(
+                "-configfile",
+                configFile.toString(),
+                "--unixSocketFile",
+                unixSocketFile.toString()
+            );
+
+            assertThat(result).isNotNull();
+            failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
+        } catch (ConstraintViolationException ex) {
+            ex.getConstraintViolations().forEach(v -> LOGGER.info("{}",v));
+        }
+    }
+
+    @Test
     public void overrideAlwaysSendTo() throws Exception {
 
         String alwaysSendToKey = "giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=";
@@ -309,10 +336,10 @@ public class DefaultCliAdapterTest {
                 alwaysSendToKey
         );
 
-        Assertions.assertThat(result).isNotNull();
-        Assertions.assertThat(result.getConfig()).isPresent();
-        Assertions.assertThat(result.getConfig().get().getAlwaysSendTo()).hasSize(2);
-        Assertions.assertThat(result.getConfig().get().getAlwaysSendTo()).containsExactly("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",alwaysSendToKey);
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig().get().getAlwaysSendTo()).hasSize(2);
+        assertThat(result.getConfig().get().getAlwaysSendTo()).containsExactly("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",alwaysSendToKey);
 
     }
 
@@ -330,10 +357,10 @@ public class DefaultCliAdapterTest {
                 "yetanotherpeer"
         );
 
-        Assertions.assertThat(result).isNotNull();
-        Assertions.assertThat(result.getConfig()).isPresent();
-        Assertions.assertThat(result.getConfig().get().getPeers()).hasSize(4);
-        Assertions.assertThat(result.getConfig().get().getPeers().stream()
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig().get().getPeers()).hasSize(4);
+        assertThat(result.getConfig().get().getPeers().stream()
                 .map(Peer::getUrl))
                 .containsExactlyInAnyOrder("anotherpeer","yetanotherpeer","http://bogus1.com","http://bogus2.com");
 
@@ -363,7 +390,7 @@ public class DefaultCliAdapterTest {
             "-keygen"
         );
 
-        Assertions.assertThat(result).isNotNull();
+        assertThat(result).isNotNull();
 
         Mockito.verifyZeroInteractions(MockKeyGeneratorFactory.getMockKeyGenerator());
         System.setIn(oldIn);
@@ -373,7 +400,7 @@ public class DefaultCliAdapterTest {
     public void suppressStartupForKeygenOption() throws Exception {
         final CliResult cliResult = cliDelegate.execute("-keygen");
 
-        Assertions.assertThat(cliResult.isSuppressStartup()).isTrue();
+        assertThat(cliResult.isSuppressStartup()).isTrue();
     }
 
     @Test
@@ -392,7 +419,7 @@ public class DefaultCliAdapterTest {
 
         final CliResult cliResult = cliDelegate.execute("-keygen", "-configfile", configFile.toString());
 
-        Assertions.assertThat(cliResult.isSuppressStartup()).isFalse();
+        assertThat(cliResult.isSuppressStartup()).isFalse();
     }
 
     @Test
@@ -406,10 +433,8 @@ public class DefaultCliAdapterTest {
 
         final CliResult cliResult = cliDelegate.execute("-keygen", "-keygenvaulttype", "AZURE", "-keygenvaulturl", vaultUrl, "-configfile", configFile.toString());
 
-        Assertions.assertThat(cliResult.isSuppressStartup()).isTrue();
+        assertThat(cliResult.isSuppressStartup()).isTrue();
     }
-
-    /////////
 
     @Test
     public void emptyPasswordsReturnsSameKeys() {
