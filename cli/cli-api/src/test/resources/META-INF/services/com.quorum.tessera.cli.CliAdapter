@@ -1,2 +1,1 @@
-com.quorum.tessera.cli.MockDefaultCliAdapter
-com.quorum.tessera.cli.MockAdminCliAdapter
+com.quorum.tessera.cli.MockCliAdapter
