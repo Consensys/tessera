@@ -30,6 +30,11 @@ public class AdminCliAdapter implements CliAdapter {
 
     private final ClientFactory clientFactory;
 
+    // For service loader
+    public AdminCliAdapter() {
+        this(new ClientFactory());
+    }
+
     public AdminCliAdapter(final ClientFactory clientFactory) {
         this.clientFactory = Objects.requireNonNull(clientFactory);
     }

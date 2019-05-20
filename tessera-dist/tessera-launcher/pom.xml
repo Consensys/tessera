@@ -11,7 +11,7 @@
     <dependencies>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>config-cli</artifactId>
+            <artifactId>cli-api</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>

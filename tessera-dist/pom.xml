@@ -41,7 +41,7 @@
                         <shadedClassifierName>${dist.classfier}</shadedClassifierName>
 
                         <transformers>
-                            
+
                             <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                 <mainClass>com.quorum.tessera.Launcher</mainClass>
                                 <manifestEntries>
@@ -81,7 +81,7 @@
                         <failIfNoTests>false</failIfNoTests>
                     </configuration>
                 </plugin>
-                
+
             </plugins>
         </pluginManagement>
     </build>
