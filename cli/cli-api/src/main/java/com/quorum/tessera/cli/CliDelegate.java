@@ -16,7 +16,7 @@ public enum CliDelegate {
 
     public Config getConfig() {
         return Optional.ofNullable(config)
-                .orElseThrow(() -> new IllegalStateException("Execute must me invoked before attempting to fetch config"));
+                .orElseThrow(() -> new IllegalStateException("Execute must be invoked before attempting to fetch config"));
     }
 
     public CliResult execute(String... args) throws Exception {
