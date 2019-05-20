@@ -3,6 +3,7 @@ package com.quorum.tessera.config.cli;
 import com.quorum.tessera.cli.CliAdapter;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.cli.parsers.ConfigurationParser;
 import com.quorum.tessera.cli.parsers.PidFileParser;
 import com.quorum.tessera.config.Config;
@@ -37,6 +38,11 @@ public class DefaultCliAdapter implements CliAdapter {
         .ignoreXmlConfiguration()
         .buildValidatorFactory()
         .getValidator();
+
+    @Override
+    public CliType getType() {
+        return CliType.CONFIG;
+    }
 
     @Override
     public CliResult execute(String... args) throws Exception {

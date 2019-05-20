@@ -2,6 +2,7 @@ package com.quorum.tessera.admin.cli;
 
 import com.quorum.tessera.cli.CliAdapter;
 import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.cli.parsers.ConfigurationParser;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
@@ -31,6 +32,11 @@ public class AdminCliAdapter implements CliAdapter {
 
     public AdminCliAdapter(final ClientFactory clientFactory) {
         this.clientFactory = Objects.requireNonNull(clientFactory);
+    }
+
+    @Override
+    public CliType getType() {
+        return CliType.ADMIN;
     }
 
     /**

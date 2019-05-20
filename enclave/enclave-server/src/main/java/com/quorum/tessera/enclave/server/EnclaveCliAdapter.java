@@ -3,6 +3,7 @@ package com.quorum.tessera.enclave.server;
 import com.quorum.tessera.cli.CliAdapter;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.cli.parsers.PidFileParser;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -24,6 +25,11 @@ public class EnclaveCliAdapter implements CliAdapter {
 
     public EnclaveCliAdapter() {
         this(new DefaultParser());
+    }
+
+    @Override
+    public CliType getType() {
+        return CliType.ENCLAVE;
     }
 
     @Override

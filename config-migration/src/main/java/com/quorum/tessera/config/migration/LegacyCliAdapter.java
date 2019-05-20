@@ -2,6 +2,7 @@ package com.quorum.tessera.config.migration;
 
 import com.quorum.tessera.cli.CliAdapter;
 import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.SslAuthenticationMode;
@@ -35,6 +36,11 @@ public class LegacyCliAdapter implements CliAdapter {
 
     public LegacyCliAdapter() {
         this.configFactory = new TomlConfigFactory();
+    }
+
+    @Override
+    public CliType getType() {
+        return CliType.CONFIG_MIGRATION;
     }
 
     @Override

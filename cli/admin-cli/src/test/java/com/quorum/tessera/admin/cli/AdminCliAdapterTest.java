@@ -1,10 +1,12 @@
 package com.quorum.tessera.admin.cli;
 
 import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.test.util.ElUtil;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,10 +55,15 @@ public class AdminCliAdapterTest {
         adminCliAdapter = new AdminCliAdapter(clientFactory);
     }
 
+    @After
     public void onTearDown() {
         verifyNoMoreInteractions(invocationBuilder);
     }
 
+    @Test
+    public void getType() {
+        assertThat(adminCliAdapter.getType()).isEqualTo(CliType.ADMIN);
+    }
 
     @Test
     public void help() throws Exception {

@@ -2,6 +2,7 @@ package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyDataConfig;
@@ -53,6 +54,11 @@ public class DefaultCliAdapterTest {
     public void tearDown() throws IOException {
         Files.deleteIfExists(Paths.get("/tmp/anotherPrivateKey.key").toAbsolutePath());
         Files.deleteIfExists(Paths.get("/tmp/anotherPublicKey.key").toAbsolutePath());
+    }
+
+    @Test
+    public void getType() {
+        assertThat(cliDelegate.getType()).isEqualTo(CliType.CONFIG);
     }
 
     @Test
