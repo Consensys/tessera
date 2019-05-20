@@ -1,5 +1,7 @@
 package com.quorum.tessera.config.migration;
 
+import com.quorum.tessera.cli.CliAdapter;
+import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.SslAuthenticationMode;
@@ -7,8 +9,6 @@ import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
 import com.quorum.tessera.config.builder.SslTrustModeFactory;
-import com.quorum.tessera.config.cli.CliAdapter;
-import com.quorum.tessera.config.cli.CliResult;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.io.SystemAdapter;
