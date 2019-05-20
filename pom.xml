@@ -150,7 +150,7 @@
                     </configuration>
 
                 </plugin>
-                
+
                 <!--                <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
@@ -170,8 +170,8 @@
 
 
         <plugins>
-            
-            
+
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -188,7 +188,7 @@
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
             </plugin>-->
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -372,7 +372,7 @@
                         <artifactId>ossindex-maven-enforcer-rules</artifactId>
                         <version>3.0.4</version>
                     </dependency>
-                    
+
                     <dependency>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>extra-enforcer-rules</artifactId>
@@ -391,17 +391,17 @@
                                     <version>3.5</version>
                                 </requireMavenVersion>
                                 <banDuplicatePomDependencyVersions/>
-                                <!--                                
+                                <!--
                                     <reactorModuleConvergence/>
                                 -->
                                 <dependencyConvergence/>
-                                
+
                                 <banVulnerable implementation="org.sonatype.ossindex.maven.enforcer.BanVulnerableDependencies">
                                     <excludeVulnerabilityIds>
                                         33fe5e62-2998-4820-aebc-68e348539b22
                                     </excludeVulnerabilityIds>
                                 </banVulnerable>
-                                
+
                                 <banDuplicateClasses>
                                     <scopes>
                                         <scope>compile</scope>
@@ -429,7 +429,7 @@
     <modules>
         <module>argon2</module>
         <module>config</module>
-        <module>config-cli</module>
+        <module>cli</module>
         <module>tests</module>
         <module>security</module>
         <module>service-locator</module>
@@ -476,7 +476,19 @@
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>cli-api</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>config-cli</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>admin-cli</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
 
@@ -638,8 +650,8 @@
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jaxrs-client-unixsocket</artifactId>
                 <version>0.10-SNAPSHOT</version>
-            </dependency> 
-            
+            </dependency>
+
             <dependency>
                 <groupId>org.glassfish.jersey</groupId>
                 <artifactId>jersey-bom</artifactId>
@@ -789,8 +801,8 @@
                 <scope>runtime</scope>
             </dependency>
 
-            <!-- 
-              Logging          
+            <!--
+              Logging
             -->
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -826,7 +838,7 @@
                 <scope>runtime</scope>
             </dependency>
 
-            <!-- 
+            <!--
                 APIs
             -->
             <dependency>
@@ -965,26 +977,26 @@
                 <version>${grpc.version}</version>
                 <scope>test</scope>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>24.1.1-jre</version>
             </dependency>
-        
+
             <dependency>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_annotations</artifactId>
                 <version>2.1.3</version>
             </dependency>
-        
-        
+
+
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
                 <version>4.1.27.Final</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
@@ -1027,7 +1039,7 @@
                 <artifactId>grizzly-http-servlet</artifactId>
                 <version>2.4.3.1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.sun.mail</groupId>
                 <artifactId>javax.mail</artifactId>
@@ -1040,7 +1052,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-        
+
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
@@ -1065,87 +1077,87 @@
                 <version>${jetty.version}</version>
                 <type>jar</type>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.github.jnr</groupId>
                 <artifactId>jnr-unixsocket</artifactId>
                 <version>0.22</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.eclipse.jetty.websocket</groupId>
                 <artifactId>javax-websocket-server-impl</artifactId>
                 <version>${jetty.version}</version>
                 <type>jar</type>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.eclipse.jetty.websocket</groupId>
                 <artifactId>javax-websocket-client-impl</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
-            
-            
+
+
             <dependency>
                 <groupId>com.github.jnr</groupId>
                 <artifactId>jnr-constants</artifactId>
                 <version>0.9.12</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.github.jnr</groupId>
                 <artifactId>jnr-posix</artifactId>
                 <version>3.0.49</version>
-            </dependency>   
-              
+            </dependency>
+
             <dependency>
                 <groupId>com.github.jnr</groupId>
                 <artifactId>jnr-enxio</artifactId>
                 <version>0.20</version>
-            </dependency>  
-            
+            </dependency>
+
             <dependency>
                 <groupId>com.github.jnr</groupId>
                 <artifactId>jnr-ffi</artifactId>
                 <version>2.1.9</version>
-            </dependency>  
+            </dependency>
 
             <dependency>
                 <groupId>com.github.jnr</groupId>
                 <artifactId>jffi</artifactId>
                 <version>1.2.17</version>
-            </dependency>  
-            
+            </dependency>
+
             <dependency>
                 <groupId>com.github.jnr</groupId>
                 <artifactId>jffi</artifactId>
                 <version>1.2.17</version>
                 <classifier>native</classifier>
-            </dependency>    
-            
+            </dependency>
+
 
             <dependency>
                 <groupId>org.glassfish.grizzly</groupId>
                 <artifactId>grizzly-http-server</artifactId>
                 <version>2.4.3.1</version>
                 <scope>test</scope>
-            </dependency>     
-            
-            
-            <!-- keyvault deps --> 
-            
+            </dependency>
+
+
+            <!-- keyvault deps -->
+
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
@@ -1157,7 +1169,7 @@
                 <artifactId>joda-time</artifactId>
                 <version>2.7</version>
             </dependency>
-            
+
 
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -1170,13 +1182,13 @@
                 <artifactId>okhttp</artifactId>
                 <version>3.12.0</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.squareup.okio</groupId>
                 <artifactId>okio</artifactId>
                 <version>1.15.0</version>
-            </dependency>  
-            
+            </dependency>
+
             <dependency>
                 <groupId>com.microsoft.azure</groupId>
                 <artifactId>azure-keyvault</artifactId>
@@ -1194,20 +1206,20 @@
                 <artifactId>client-runtime</artifactId>
                 <version>1.6.1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>io.reactivex</groupId>
                 <artifactId>rxjava</artifactId>
                 <version>1.3.8</version>
             </dependency>
-            
-            
+
+
             <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
                 <version>5.0.4</version>
             </dependency>
-            
+
         </dependencies>
     </dependencyManagement>
 
@@ -1410,14 +1422,14 @@
                     </reportSet>
                 </reportSets>
             </plugin>
-            
+
 
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
                 <version>${owasp.plugin.version}</version>
                 <configuration>
-                    
+
                     <name>owasp depencency check</name>
                     <skipTestScope>true</skipTestScope>
                 </configuration>
