@@ -9,15 +9,6 @@
 
     <artifactId>azure-key-vault</artifactId>
 
-    <dependencyManagement>
-        <dependencies>
-
-
-            
-
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
 
         <dependency>
