@@ -1,12 +1,8 @@
 package com.quorum.tessera.cli;
 
-import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.jaxrs.client.ClientFactory;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public enum CliDelegate {
 
@@ -27,14 +23,13 @@ public enum CliDelegate {
 
         final List<String> argsList = Arrays.asList(args);
 
-        final CliAdapter cliAdapter;
+        List<CliAdapter> providers = new ArrayList<>();
+        ServiceLoader.load(CliAdapter.class).forEach(providers::add);
 
-        if(argsList.contains("admin")) {
-            cliAdapter = new AdminCliAdapter(new ClientFactory());
-        } else {
-            cliAdapter = ServiceLoaderUtil.load(CliAdapter.class)
-                    .orElse(new DefaultCliAdapter());
-        }
+        final CliAdapter cliAdapter = providers.stream()
+            .filter(p -> (argsList.contains("admin")) == (p.getType() == CliType.ADMIN))
+            .findFirst()
+            .orElseThrow(() -> new CliException("No valid implementation of CliAdapter found on the classpath"));
 
         final CliResult result = cliAdapter.execute(args);
 

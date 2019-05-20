@@ -1,9 +1,11 @@
 package com.quorum.tessera;
 
-import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.cli.CliDelegate;
-import com.quorum.tessera.config.cli.CliException;
-import com.quorum.tessera.config.cli.CliResult;
+import com.quorum.tessera.cli.CliDelegate;
+import com.quorum.tessera.cli.CliException;
+import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
 import com.quorum.tessera.service.locator.ServiceLocator;
