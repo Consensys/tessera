@@ -8,8 +8,8 @@
     </parent>
     <artifactId>enclave-websockets</artifactId>
     <packaging>jar</packaging>
-    
-    
+
+
     <dependencies>
         <dependency>
             <groupId>org.glassfish</groupId>
@@ -22,7 +22,7 @@
             <version>7.0</version>
             <type>jar</type>
         </dependency>-->
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>enclave-api</artifactId>
@@ -35,26 +35,25 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>config</artifactId>
-        </dependency>    
-        
+        </dependency>
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>server-api</artifactId>
-        </dependency>  
-        
+        </dependency>
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>websockets-server</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
-        </dependency>  
-        
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>config-cli</artifactId>
         </dependency>
 
-        
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>cli-api</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -65,20 +64,20 @@
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>6.0.2.Final</version>
             <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>service-locator-spring</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
@@ -103,14 +102,14 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
-        
-        
-        
+
+
+
     </dependencies>
-    
+
     <build>
         <plugins>
-            
+
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -118,7 +117,7 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -169,12 +168,12 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -189,5 +188,5 @@
             </plugin>
         </plugins>
     </build>
-    
+
 </project>
