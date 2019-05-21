@@ -6,7 +6,6 @@ import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.test.util.ElUtil;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,11 +54,6 @@ public class AdminCliAdapterTest {
         adminCliAdapter = new AdminCliAdapter(clientFactory);
     }
 
-    @After
-    public void onTearDown() {
-        verifyNoMoreInteractions(invocationBuilder);
-    }
-
     @Test
     public void getType() {
         assertThat(adminCliAdapter.getType()).isEqualTo(CliType.ADMIN);
@@ -94,8 +88,6 @@ public class AdminCliAdapterTest {
         assertThat(result.getStatus()).isEqualTo(0);
 
         verify(invocationBuilder).put(entity);
-
-
     }
 
     @Test
@@ -117,7 +109,5 @@ public class AdminCliAdapterTest {
         assertThat(result.getStatus()).isEqualTo(1);
 
         verify(invocationBuilder).put(entity);
-
-
     }
 }
