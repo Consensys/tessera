@@ -60,13 +60,28 @@ public class AdminCliAdapterTest {
     }
 
     @Test
+    public void defaultConstructor() {
+        AdminCliAdapter def = new AdminCliAdapter();
+        AdminCliAdapter arg = new AdminCliAdapter(new ClientFactory());
+
+        assertThat(def).isEqualToComparingFieldByFieldRecursively(arg);
+    }
+
+    @Test
     public void help() throws Exception {
         //new CliResult(0, true, false, null);
         CliResult result = adminCliAdapter.execute("help");
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.isSuppressStartup()).isTrue();
+    }
 
+    @Test
+    public void noArgsSameAsHelp() throws Exception {
+        CliResult result = adminCliAdapter.execute();
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isNotPresent();
+        assertThat(result.isSuppressStartup()).isTrue();
     }
 
     @Test
@@ -109,5 +124,14 @@ public class AdminCliAdapterTest {
         assertThat(result.getStatus()).isEqualTo(1);
 
         verify(invocationBuilder).put(entity);
+    }
+
+    @Test
+    public void noPeerProvidedReturnsNonZeroStatus() throws Exception {
+        CliResult result = adminCliAdapter.execute("-configfile", "/path/to/file");
+        assertThat(result).isNotNull();
+        assertThat(result.getStatus()).isEqualTo(1);
+        assertThat(result.getConfig()).isNotPresent();
+        assertThat(result.isSuppressStartup()).isTrue();
     }
 }
