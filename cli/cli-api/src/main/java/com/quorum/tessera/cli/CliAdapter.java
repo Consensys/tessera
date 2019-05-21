@@ -11,5 +11,4 @@ public interface CliAdapter {
     default SystemAdapter sys() {
         return SystemAdapter.INSTANCE;
     }
-
 }

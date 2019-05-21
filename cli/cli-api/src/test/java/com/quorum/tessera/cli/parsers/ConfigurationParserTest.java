@@ -76,5 +76,4 @@ public class ConfigurationParserTest {
         assertThat(throwable).isInstanceOf(FileNotFoundException.class);
     }
 
-
 }
