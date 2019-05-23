@@ -208,6 +208,7 @@
                         <include>GrpcSuiteSqlite</include>
                         <include>GrpcSuiteHSQL</include>
                         <include>P2pTestSuite</include>
+                        <include>CATrustModeIT</include>
                     </includes>
                 </configuration>
                 <executions>
