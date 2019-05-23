@@ -90,12 +90,6 @@
 
         <!-- Test dependencies -->
         <dependency>
-            <groupId>com.github.stefanbirkner</groupId>
-            <artifactId>system-rules</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>com.mockrunner</groupId>
             <artifactId>mockrunner-jdbc</artifactId>
             <scope>test</scope>

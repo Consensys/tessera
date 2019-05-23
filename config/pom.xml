@@ -31,18 +31,18 @@
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>test-util</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>shared</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>argon2</artifactId>
@@ -52,7 +52,7 @@
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>encryption-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>encryption-jnacl</artifactId>
@@ -61,7 +61,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
