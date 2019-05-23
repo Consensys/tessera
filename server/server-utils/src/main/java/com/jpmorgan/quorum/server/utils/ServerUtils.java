@@ -43,7 +43,7 @@ public class ServerUtils {
             SSLContext sslContext = ServerSSLContextFactory.create()
                     .from(uri.toString(), serverConfig.getSslConfig());
 
-            SslContextFactory sslContextFactory = new SslContextFactory();
+            SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
             sslContextFactory.setSslContext(sslContext);
             sslContextFactory.setNeedClientAuth(true);
             ServerConnector connector = new ServerConnector(server,
