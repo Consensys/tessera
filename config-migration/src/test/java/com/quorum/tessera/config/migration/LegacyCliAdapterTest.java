@@ -1,18 +1,21 @@
 package com.quorum.tessera.config.migration;
 
+import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
-import com.quorum.tessera.config.cli.CliResult;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
 import com.quorum.tessera.io.SystemAdapter;
 import com.quorum.tessera.test.util.ElUtil;
-import java.io.File;
-import java.io.IOException;
 import org.apache.commons.cli.CommandLine;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,8 +24,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.After;
-import org.junit.Before;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
@@ -50,11 +51,16 @@ public class LegacyCliAdapterTest {
     public void onTearDown() throws IOException {
 
         Files.deleteIfExists(Paths.get("tessera-config.json"));
-        
+
         Files.walk(dataDirectory)
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
                 .forEach(File::delete);
+    }
+
+    @Test
+    public void getType() {
+        assertThat(instance.getType()).isEqualTo(CliType.CONFIG_MIGRATION);
     }
 
     @Test
@@ -492,7 +498,7 @@ public class LegacyCliAdapterTest {
     public void passwordOverrideProvidedButNoKeyDataOverrideProvidedThenPrintMessageToConsole() {
         final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
         final PrintStream errStream = new PrintStream(errContent);
-    
+
         MockSystemAdapter systemAdapter = (MockSystemAdapter) SystemAdapter.INSTANCE;
         systemAdapter.setErrPrintStream(errStream);
 
@@ -502,7 +508,7 @@ public class LegacyCliAdapterTest {
         ConfigBuilder configBuilder = ConfigBuilder.create();
 
         LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
-      
+
         assertThat(errContent.toString())
                 .isEqualTo("Info: Public/Private key data not provided in overrides.  Overriden password file has not been added to config.\n");
 

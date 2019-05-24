@@ -8,14 +8,14 @@
     </parent>
     <artifactId>tessera-grpc</artifactId>
     <packaging>jar</packaging>
-    
+
     <dependencies>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-launcher</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>argon2</artifactId>
@@ -24,20 +24,7 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>config-cli</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.glassfish.jersey.core</groupId>
-                    <artifactId>jersey-client</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.ws.rs</groupId>
-                    <artifactId>javax.ws.rs-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.jpmorgan.quorum</groupId>
-                    <artifactId>jaxrs-client</artifactId>
-                </exclusion>
-            </exclusions>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -100,7 +87,7 @@
         </dependency>
 
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>

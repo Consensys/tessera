@@ -1,6 +1,6 @@
 package com.quorum.tessera.config.migration;
 
-import com.quorum.tessera.config.cli.CliResult;
+import com.quorum.tessera.cli.CliResult;
 
 public class Main {
 

@@ -1,23 +1,19 @@
 package com.quorum.tessera.enclave.server;
 
+import com.quorum.tessera.cli.CliAdapter;
+import com.quorum.tessera.cli.CliException;
+import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
+import com.quorum.tessera.cli.parsers.PidFileParser;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.cli.CliAdapter;
-import com.quorum.tessera.config.cli.CliException;
-import com.quorum.tessera.config.cli.CliResult;
-import com.quorum.tessera.config.cli.parsers.PidFileParser;
 import com.quorum.tessera.config.util.JaxbUtil;
+import org.apache.commons.cli.*;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 
 public class EnclaveCliAdapter implements CliAdapter {
 
@@ -29,6 +25,11 @@ public class EnclaveCliAdapter implements CliAdapter {
 
     public EnclaveCliAdapter() {
         this(new DefaultParser());
+    }
+
+    @Override
+    public CliType getType() {
+        return CliType.ENCLAVE;
     }
 
     @Override
@@ -44,7 +45,7 @@ public class EnclaveCliAdapter implements CliAdapter {
                         .numberOfArgs(1)
                         .argName("PATH")
                         .build());
-        
+
         options.addOption(
                 Option.builder("pidfile")
                         .desc("Path to pid file")

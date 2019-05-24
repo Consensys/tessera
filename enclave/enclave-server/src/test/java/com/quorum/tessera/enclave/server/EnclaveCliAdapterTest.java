@@ -1,16 +1,19 @@
 package com.quorum.tessera.enclave.server;
 
+import com.quorum.tessera.cli.CliException;
+import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.cli.CliException;
-import com.quorum.tessera.config.cli.CliResult;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.ParseException;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.ParseException;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Before;
-import org.junit.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -23,6 +26,11 @@ public class EnclaveCliAdapterTest {
     public void onSetUp() {
 
         enclaveCliAdapter = new EnclaveCliAdapter();
+    }
+
+    @Test
+    public void getType() {
+        assertThat(enclaveCliAdapter.getType()).isEqualTo(CliType.ENCLAVE);
     }
 
     @Test
