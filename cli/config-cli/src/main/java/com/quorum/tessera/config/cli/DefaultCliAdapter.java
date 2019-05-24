@@ -1,19 +1,20 @@
 package com.quorum.tessera.config.cli;
 
+import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.cli.CliAdapter;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
+import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
+import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
 import com.quorum.tessera.cli.parsers.ConfigurationParser;
 import com.quorum.tessera.cli.parsers.PidFileParser;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.cli.parsers.KeyGenerationParser;
 import com.quorum.tessera.config.cli.parsers.KeyUpdateParser;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.PasswordReaderFactory;
-import com.quorum.tessera.io.SystemAdapter;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,20 +25,27 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class DefaultCliAdapter implements CliAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCliAdapter.class);
+
+    private final KeyPasswordResolver keyPasswordResolver;
 
     private final Validator validator = Validation.byDefaultProvider()
         .configure()
         .ignoreXmlConfiguration()
         .buildValidatorFactory()
         .getValidator();
+
+    public DefaultCliAdapter() {
+        this(ServiceLoaderUtil.load(KeyPasswordResolver.class).orElse(new CliKeyPasswordResolver()));
+    }
+
+    public DefaultCliAdapter(final KeyPasswordResolver keyPasswordResolver) {
+        this.keyPasswordResolver = Objects.requireNonNull(keyPasswordResolver);
+    }
 
     @Override
     public CliType getType() {
@@ -98,7 +106,7 @@ public class DefaultCliAdapter implements CliAdapter {
                     }
                 });
 
-                this.updateKeyPasswords(config);
+                keyPasswordResolver.resolveKeyPasswords(config);
 
                 final Set<ConstraintViolation<Config>> violations = validator.validate(config);
                 if (!violations.isEmpty()) {
@@ -139,37 +147,6 @@ public class DefaultCliAdapter implements CliAdapter {
         }
 
         return config;
-    }
-
-    //@VisibleForTesting - annotation doesn't exist (and didn't want to import it)
-    //TODO: make not visible
-    public void updateKeyPasswords(final Config config) {
-        final KeyConfiguration input = config.getKeys();
-        if (input == null) {
-            //invalid config, but gets picked up by validation later
-            return;
-        }
-
-        final List<String> allPasswords = new ArrayList<>();
-        if (input.getPasswords() != null) {
-            allPasswords.addAll(input.getPasswords());
-        } else if (input.getPasswordFile() != null) {
-            try {
-                allPasswords.addAll(Files.readAllLines(input.getPasswordFile(), StandardCharsets.UTF_8));
-            } catch (final IOException ex) {
-                //dont do anything, if any keys are locked validation will complain that
-                //locked keys were provided without passwords
-                SystemAdapter.INSTANCE.err().println("Could not read the password file");
-            }
-        }
-
-        IntStream
-            .range(0, input.getKeyData().size())
-            .forEachOrdered(i -> {
-                if(i < allPasswords.size()) {
-                    input.getKeyData().get(i).withPassword(allPasswords.get(i));
-                }
-            });
     }
 
     private Options buildBaseOptions() {

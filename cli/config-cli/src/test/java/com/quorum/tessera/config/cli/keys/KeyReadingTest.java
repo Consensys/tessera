@@ -1,22 +1,35 @@
 package com.quorum.tessera.config.cli.keys;
 
+import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.cli.DefaultCliAdapter;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.config.util.PasswordReader;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class KeyReadingTest {
 
-    private DefaultCliAdapter adapter = new DefaultCliAdapter();
+    private PasswordReader passwordReader;
+
+    private CliKeyPasswordResolver adapter;
+
+    @Before
+    public void init() {
+        this.passwordReader = mock(PasswordReader.class);
+
+        this.adapter = new CliKeyPasswordResolver(passwordReader);
+    }
 
     @Test
     public void publicPrivateInlineUnlocked() {
         final Config config
             = JaxbUtil.unmarshal(getClass().getResourceAsStream("/keytests/pubPrivInlineUnlocked.json"), Config.class);
-        adapter.updateKeyPasswords(config);
+        adapter.resolveKeyPasswords(config);
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys()).isNotNull();
@@ -30,7 +43,7 @@ public class KeyReadingTest {
     public void publicPrivateInlineLocked() {
         final Config config
             = JaxbUtil.unmarshal(getClass().getResourceAsStream("/keytests/pubPrivInlineLocked.json"), Config.class);
-        adapter.updateKeyPasswords(config);
+        adapter.resolveKeyPasswords(config);
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys()).isNotNull();
@@ -44,7 +57,7 @@ public class KeyReadingTest {
     public void passwordsInFile() {
         final Config config
             = JaxbUtil.unmarshal(getClass().getResourceAsStream("/keytests/pubPrivPasswordsFile.json"), Config.class);
-        adapter.updateKeyPasswords(config);
+        adapter.resolveKeyPasswords(config);
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys()).isNotNull();
@@ -60,7 +73,7 @@ public class KeyReadingTest {
         final Config config = JaxbUtil.unmarshal(
             getClass().getResourceAsStream("/keytests/pubPrivUsingPathsLocked.json"), Config.class
         );
-        adapter.updateKeyPasswords(config);
+        adapter.resolveKeyPasswords(config);
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys()).isNotNull();
@@ -76,7 +89,7 @@ public class KeyReadingTest {
         final Config config = JaxbUtil.unmarshal(
             getClass().getResourceAsStream("/keytests/pubPrivUsingPathsUnlocked.json"), Config.class
         );
-        adapter.updateKeyPasswords(config);
+        adapter.resolveKeyPasswords(config);
 
         assertThat(config).isNotNull();
         assertThat(config.getKeys()).isNotNull();
@@ -88,9 +101,11 @@ public class KeyReadingTest {
 
     @Test
     public void wrongPasswordsProvided() {
+        when(passwordReader.readPasswordFromConsole()).thenReturn("invalid");
+
         final Config config
             = JaxbUtil.unmarshal(getClass().getResourceAsStream("/keytests/passwordsWrong.json"), Config.class);
-        adapter.updateKeyPasswords(config);
+        adapter.resolveKeyPasswords(config);
 
         //a null response indicates an error occurred
         assertThat(config.getKeys().getKeyData()).hasSize(1);
