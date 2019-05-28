@@ -15,7 +15,7 @@
         {
             "app": "Q2T",
             "enabled": true,
-            "serverAddress": "unix:/tmp/test.ipc",
+            "serverAddress": "unix:tm.ipc",
             "communicationType": "REST"
         },
         {
@@ -23,20 +23,7 @@
             "enabled": true,
             "serverAddress": "http://localhost:8091",
             "sslConfig": {
-                "tls": "OFF",
-                "generateKeyStoreIfNotExisted": "false",
-                "serverKeyStore": "./ssl/server1-keystore",
-                "serverKeyStorePassword": "quorum",
-                "serverTrustStore": "./ssl/server-truststore",
-                "serverTrustStorePassword": "quorum",
-                "serverTrustMode": "CA",
-                "clientKeyStore": "./ssl/client1-keystore",
-                "clientKeyStorePassword": "quorum",
-                "clientTrustStore": "./ssl/client-truststore",
-                "clientTrustStorePassword": "quorum",
-                "clientTrustMode": "CA",
-                "knownClientsFile": "./ssl/knownClients1",
-                "knownServersFile": "./ssl/knownServers1"
+                "tls": "OFF"
             },
             "communicationType": "REST"
         }
@@ -60,6 +47,5 @@
     },
     "alwaysSendTo": [
         "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-    ],
-    "unixSocketFile": "tm.ipc"
+    ]
 }

@@ -36,30 +36,28 @@ public class TomlConfigFactoryTest {
         try (InputStream configData = ElUtil.process(template, params)) {
             Config result = tomlConfigFactory.create(configData, null).build();
             assertThat(result).isNotNull();
-            assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("data", "myipcfile.ipc"));
-            assertThat(result.getServer()).isNotNull();
-            assertThat(result.getServer().getSslConfig()).isNotNull();
 
-            SslConfig sslConfig = result.getServer().getSslConfig();
+            final ServerConfig q2tConfig = result.getServerConfigs().stream().filter(ServerConfig::isUnixSocket).findAny().get();
+            assertThat(q2tConfig.getServerAddress()).isEqualTo("unix:data/myipcfile.ipc");
 
-            assertThat(result.getServer().getHostName()).isEqualTo("http://127.0.0.1");
-            assertThat(result.getServer().getPort()).isEqualTo(9001);
-            assertThat(result.getServer().getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
+            assertThat(result.getP2PServerConfig()).isNotNull();
+            assertThat(result.getP2PServerConfig().getServerAddress()).isEqualTo("http://127.0.0.1:9001");
+            assertThat(result.getP2PServerConfig().getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
 
+            final SslConfig sslConfig = result.getP2PServerConfig().getSslConfig();
+            assertThat(sslConfig).isNotNull();
             assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
-
         }
     }
 
     @Test
     public void urlPortNotSetInConfig() {
-
         InputStream template = getClass().getResourceAsStream("/sample-all-values-urlport-not-present.conf");
 
         Config result = tomlConfigFactory.create(template, null).build();
 
-        assertThat(result.getServer().getHostName()).isEqualTo("http://127.0.0.1");
+        assertThat(result.getP2PServerConfig().getServerAddress()).isEqualTo("http://127.0.0.1");
     }
 
     @Test
@@ -76,24 +74,21 @@ public class TomlConfigFactoryTest {
     @Test
     public void createConfigFromSampleFileOnly() throws IOException {
 
-        Path passwordFile = Files.createTempFile("password", ".txt");
-        InputStream template = getClass().getResourceAsStream("/sample.conf");
-
-        try (InputStream configData = template) {
-            Config result = tomlConfigFactory.create(configData, null).build();
+        try (InputStream configData = getClass().getResourceAsStream("/sample.conf")) {
+            final Config result = tomlConfigFactory.create(configData, null).build();
             assertThat(result).isNotNull();
-            assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("data", "constellation.ipc"));
-            assertThat(result.getServer()).isNotNull();
-            assertThat(result.getServer().getSslConfig()).isNotNull();
 
-            SslConfig sslConfig = result.getServer().getSslConfig();
+            final ServerConfig q2tConfig = result.getServerConfigs().stream().filter(ServerConfig::isUnixSocket).findAny().get();
+            assertThat(q2tConfig.getServerAddress()).isEqualTo("unix:data/constellation.ipc");
+
+            assertThat(result.getP2PServerConfig()).isNotNull();
+            assertThat(result.getP2PServerConfig().getSslConfig()).isNotNull();
+
+            final SslConfig sslConfig = result.getP2PServerConfig().getSslConfig();
 
             assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
-
         }
-
-        Files.deleteIfExists(passwordFile);
     }
 
     @Test
@@ -122,7 +117,6 @@ public class TomlConfigFactoryTest {
 
             }
         }
-
     }
 
     @Test(expected = UnsupportedOperationException.class)

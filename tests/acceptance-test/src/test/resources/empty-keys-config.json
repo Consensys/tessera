@@ -5,10 +5,23 @@
         "password": "",
         "url": "jdbc:h2:./target/h2/rest1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE;AUTO_SERVER_PORT=9090"
     },
-    "server": {
-        "port": 8989,
-        "hostName": "http://localhost"
-    },
+    "serverConfigs": [
+        {
+            "app": "Q2T",
+            "enabled": true,
+            "serverAddress": "unix:/tmp/empty-keys.ipc",
+            "communicationType": "REST"
+        },
+        {
+            "app": "P2P",
+            "enabled": true,
+            "serverAddress": "http://localhost:8989",
+            "sslConfig": {
+                "tls": "OFF"
+            },
+            "communicationType": "REST"
+        }
+    ],
     "peer": [
         {
             "url": "http://localhost:8990/"
@@ -23,6 +36,5 @@
             }
         ]
     },
-    "alwaysSendTo": [],
-    "unixSocketFile": "/tmp/empty-keys.ipc"
+    "alwaysSendTo": []
 }
