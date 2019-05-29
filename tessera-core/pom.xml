@@ -23,7 +23,16 @@
             <artifactId>enclave-api</artifactId>
             <type>jar</type>
         </dependency>
-
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>tessera-partyinfo</artifactId>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>tessera-admin</artifactId>
+            <type>jar</type>
+        </dependency>
         <dependency>
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>

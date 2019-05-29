@@ -52,5 +52,11 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>tessera-partyinfo</artifactId>
+            <type>jar</type>
+        </dependency>
+
     </dependencies>
 </project>

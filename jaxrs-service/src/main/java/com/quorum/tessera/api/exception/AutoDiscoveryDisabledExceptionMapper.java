@@ -1,6 +1,6 @@
 package com.quorum.tessera.api.exception;
 
-import com.quorum.tessera.node.AutoDiscoveryDisabledException;
+import com.quorum.tessera.partyinfo.AutoDiscoveryDisabledException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;

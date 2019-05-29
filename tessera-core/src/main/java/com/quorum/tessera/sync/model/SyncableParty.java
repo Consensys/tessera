@@ -1,6 +1,6 @@
 package com.quorum.tessera.sync.model;
 
-import com.quorum.tessera.node.model.Party;
+import com.quorum.tessera.partyinfo.model.Party;
 
 /**
  * A SyncableParty is a {@link Party} that is to be contacted for transaction

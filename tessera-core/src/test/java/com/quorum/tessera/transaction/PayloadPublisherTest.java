@@ -1,12 +1,12 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.client.P2pClient;
+import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
-import com.quorum.tessera.node.PartyInfoService;
+import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.transaction.exception.PublishPayloadException;
 import org.junit.After;
 import org.junit.Before;

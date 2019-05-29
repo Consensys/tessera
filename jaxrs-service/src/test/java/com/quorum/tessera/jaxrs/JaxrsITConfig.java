@@ -1,13 +1,13 @@
 
 package com.quorum.tessera.jaxrs;
 
+import com.quorum.tessera.partyinfo.PartyInfoParser;
+import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.JdbcConfig;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.transaction.TransactionManagerImpl;
-import com.quorum.tessera.node.PartyInfoParser;
-import com.quorum.tessera.node.PartyInfoService;
 import java.nio.file.Path;
 import java.util.Collections;
 import static org.mockito.Mockito.mock;

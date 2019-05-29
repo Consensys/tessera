@@ -1,7 +1,7 @@
 package com.quorum.tessera.client;
 
+import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.api.model.ApiPath;
-import com.quorum.tessera.api.model.ResendRequest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,10 +1,11 @@
 package com.quorum.tessera.admin;
 
+import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.core.config.ConfigService;
+
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.node.PartyInfoService;
-import com.quorum.tessera.node.model.PartyInfo;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
