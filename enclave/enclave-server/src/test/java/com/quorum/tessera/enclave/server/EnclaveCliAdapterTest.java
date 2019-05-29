@@ -3,6 +3,7 @@ package com.quorum.tessera.enclave.server;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
+import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
 import com.quorum.tessera.config.Config;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.ParseException;
@@ -24,8 +25,7 @@ public class EnclaveCliAdapterTest {
 
     @Before
     public void onSetUp() {
-
-        enclaveCliAdapter = new EnclaveCliAdapter();
+        this.enclaveCliAdapter = new EnclaveCliAdapter();
     }
 
     @Test
@@ -43,13 +43,11 @@ public class EnclaveCliAdapterTest {
 
     @Test
     public void help() throws Exception {
-
         CliResult result = enclaveCliAdapter.execute("bogus", "help");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(0);
-
     }
 
     @Test
@@ -77,16 +75,13 @@ public class EnclaveCliAdapterTest {
 
     @Test(expected = CliException.class)
     public void parserThrowsException() throws Exception {
-
         CommandLineParser parser = mock(CommandLineParser.class);
+        KeyPasswordResolver resolver = mock(KeyPasswordResolver.class);
 
-        doThrow(ParseException.class)
-                .when(parser)
-                .parse(any(), any());
+        doThrow(ParseException.class).when(parser).parse(any(), any());
 
-        EnclaveCliAdapter otherEnclaveCliAdapter = new EnclaveCliAdapter(parser);
+        EnclaveCliAdapter otherEnclaveCliAdapter = new EnclaveCliAdapter(parser, resolver);
 
         otherEnclaveCliAdapter.execute("-configfile", "somename");
-
     }
 }
