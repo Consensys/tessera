@@ -1,9 +1,9 @@
 package com.quorum.tessera.enclave.server;
 
-import com.quorum.tessera.cli.CliAdapter;
-import com.quorum.tessera.cli.CliException;
-import com.quorum.tessera.cli.CliResult;
-import com.quorum.tessera.cli.CliType;
+import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.cli.*;
+import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
+import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
 import com.quorum.tessera.cli.parsers.PidFileParser;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -19,12 +19,18 @@ public class EnclaveCliAdapter implements CliAdapter {
 
     private final CommandLineParser parser;
 
-    public EnclaveCliAdapter(CommandLineParser parser) {
+    private final KeyPasswordResolver keyPasswordResolver;
+
+    public EnclaveCliAdapter(final CommandLineParser parser, final KeyPasswordResolver keyPasswordResolver) {
         this.parser = Objects.requireNonNull(parser);
+        this.keyPasswordResolver = Objects.requireNonNull(keyPasswordResolver);
     }
 
     public EnclaveCliAdapter() {
-        this(new DefaultParser());
+        this(
+            new DefaultParser(),
+            ServiceLoaderUtil.load(KeyPasswordResolver.class).orElse(new CliKeyPasswordResolver())
+        );
     }
 
     @Override
@@ -63,12 +69,14 @@ public class EnclaveCliAdapter implements CliAdapter {
             return new CliResult(0, true, null);
         }
 
-        try{
+        try {
             final CommandLine line = parser.parse(options, args);
             new PidFileParser().parse(line);
             String configfile = line.getOptionValue("configfile");
 
             Config config = JaxbUtil.unmarshal(Files.newInputStream(Paths.get(configfile)), Config.class);
+
+            keyPasswordResolver.resolveKeyPasswords(config);
 
             return new CliResult(0, false, config);
 
