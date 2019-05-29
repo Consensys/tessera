@@ -108,7 +108,9 @@
                         </configuration>
                     </execution>
              
-                    <execution>
+<!-- FIXME: Work out why alter table lines break. using static file in create-table for now               
+
+      <execution>
                         <id>hsql-generate</id>
                         <phase>process-resources</phase>
                         <configuration>
@@ -123,7 +125,7 @@
                         <goals>
                             <goal>execute</goal>
                         </goals>
-                    </execution>
+                    </execution>-->
                     
                     <execution>
                         <id>sqlite-generate</id>
