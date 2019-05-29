@@ -203,7 +203,7 @@ public class CliKeyPasswordResolverTest {
         this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair);
 
         assertThat(systemOutRule.getLog())
-            .containsOnlyOnce("Password for key 0 missing on invalid.\nEnter a password for the key");
+            .containsOnlyOnce("Password for key[0] missing or invalid.\nAttempt 1 of 2. Enter a password for the key");
     }
 
     @Test
@@ -227,7 +227,7 @@ public class CliKeyPasswordResolverTest {
         this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair);
 
         assertThat(systemOutRule.getLog())
-            .containsOnlyOnce("Password for key 0 missing on invalid.\nEnter a password for the key");
+            .containsOnlyOnce("Password for key[0] missing or invalid.\nAttempt 1 of 2. Enter a password for the key");
     }
 
     @Test
@@ -251,8 +251,9 @@ public class CliKeyPasswordResolverTest {
         this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair);
 
         //work around for checking string appears twice in message
-        final String expectedMessage = "Password for key 0 missing on invalid.\nEnter a password for the key";
-        assertThat(systemOutRule.getLog().split(expectedMessage)).hasSize(3);
+        assertThat(systemOutRule.getLog())
+            .containsOnlyOnce("Password for key[0] missing or invalid.\nAttempt 1 of 2. Enter a password for the key")
+            .containsOnlyOnce("Password for key[0] missing or invalid.\nAttempt 2 of 2. Enter a password for the key");
     }
 
 }

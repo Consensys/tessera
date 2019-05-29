@@ -64,8 +64,8 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
 
         //decrypt the keys, either using provided passwords or read from CLI
         IntStream
-            .rangeClosed(1, input.getKeyData().size())
-            .forEachOrdered(keyNumber -> getSingleKeyPassword(keyNumber, input.getKeyData().get(keyNumber-1)));
+            .range(0, input.getKeyData().size())
+            .forEachOrdered(keyNumber -> getSingleKeyPassword(keyNumber, input.getKeyData().get(keyNumber)));
     }
 
     //TODO: make private
@@ -92,8 +92,9 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
             int currentAttemptNumber = MAX_PASSWORD_ATTEMPTS;
             while (currentAttemptNumber > 0) {
                 if (StringUtils.isEmpty(keyPair.getPassword()) || keyPair.getPrivateKey() == null || keyPair.getPrivateKey().contains("NACL_FAILURE")) {
-                    System.out.println("Password for key " + keyNumber + " missing on invalid.");
-                    System.out.println("Enter a password for the key");
+                    final String attemptOutput = "Attempt " + (MAX_PASSWORD_ATTEMPTS-currentAttemptNumber+1) + " of " + MAX_PASSWORD_ATTEMPTS + ".";
+                    System.out.println("Password for key[" + keyNumber + "] missing or invalid.");
+                    System.out.println(attemptOutput + " Enter a password for the key");
                     final String pass = passwordReader.readPasswordFromConsole();
                     keyPair.withPassword(pass);
                 }
