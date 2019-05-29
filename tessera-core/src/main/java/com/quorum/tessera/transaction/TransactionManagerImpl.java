@@ -1,11 +1,7 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.api.model.*;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveException;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.enclave.RawTransaction;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.enclave.model.MessageHashFactory;
 import com.quorum.tessera.encryption.PublicKey;
@@ -183,6 +179,9 @@ public class TransactionManagerImpl implements TransactionManager {
                     final boolean isSender = Objects.equals(payload.getSenderKey(), recipientPublicKey);
                     return isRecipient || isSender;
                 }).forEach(payload -> {
+
+                    final EncodedPayload prunedPayload;
+
                     if (Objects.equals(payload.getSenderKey(), recipientPublicKey)) {
                         final PublicKey decryptedKey = searchForRecipientKey(payload).orElseThrow(
                             () -> {
@@ -192,10 +191,15 @@ public class TransactionManagerImpl implements TransactionManager {
                             }
                         );
                         payload.getRecipientKeys().add(decryptedKey);
+
+                        // This payload does not need to be pruned as it was not sent by this node and so does not contain any other node's data
+                        prunedPayload = payload;
+                    } else {
+                        prunedPayload = payloadEncoder.forRecipient(payload, recipientPublicKey);
                     }
 
                     try {
-                        payloadPublisher.publishPayload(payload, recipientPublicKey);
+                        payloadPublisher.publishPayload(prunedPayload, recipientPublicKey);
                     } catch (PublishPayloadException ex) {
                         LOGGER.warn("Unable to publish payload to recipient {} during resend", recipientPublicKey.encodeToBase64());
                     }
@@ -276,7 +280,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final MessageHash hash = new MessageHash(key);
         LOGGER.info("Lookup transaction {}",hash);
-        
+
         final EncryptedTransaction encryptedTransaction = encryptedTransactionDAO
                 .retrieveByHash(hash)
                 .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
@@ -327,7 +331,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         return new StoreRawResponse(encryptedRawTransaction.getHash().getHashBytes());
     }
-    
 
-    
+
+
 }
