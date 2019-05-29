@@ -19,6 +19,12 @@
 
     <build>
 
+        <resources>
+            <resource>
+                <directory>create-table</directory>
+            </resource>
+        </resources>
+        
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -96,7 +102,7 @@
                                 <javax.persistence.jdbc.url>jdbc:h2:mem:</javax.persistence.jdbc.url>
                                 <javax.persistence.jdbc.user>sa</javax.persistence.jdbc.user>
                                 <javax.persistence.jdbc.password></javax.persistence.jdbc.password>
-                                <javax.persistence.schema-generation.scripts.create-target>${project.build.outputDirectory}/create-table/h2-ddl.sql</javax.persistence.schema-generation.scripts.create-target>
+                                <javax.persistence.schema-generation.scripts.create-target>${project.build.outputDirectory}/h2-ddl.sql</javax.persistence.schema-generation.scripts.create-target>
                             </properties>
 
                         </configuration>
@@ -110,7 +116,7 @@
                                 <javax.persistence.jdbc.url>jdbc:hsqldb:mem:mydb</javax.persistence.jdbc.url>
                                 <javax.persistence.jdbc.user>sa</javax.persistence.jdbc.user>
                                 <javax.persistence.jdbc.password></javax.persistence.jdbc.password>
-                                <javax.persistence.schema-generation.scripts.create-target>${project.build.outputDirectory}/create-table/hsql-ddl.sql</javax.persistence.schema-generation.scripts.create-target>
+                                <javax.persistence.schema-generation.scripts.create-target>${project.build.outputDirectory}/hsql-ddl.sql</javax.persistence.schema-generation.scripts.create-target>
                             </properties>
 
                         </configuration>
@@ -124,10 +130,10 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <properties>
-                                <javax.persistence.jdbc.url>jdbc:sqlite:memory:</javax.persistence.jdbc.url>
+                                <javax.persistence.jdbc.url>jdbc:sqlite::memory:</javax.persistence.jdbc.url>
                                 <javax.persistence.jdbc.user>sa</javax.persistence.jdbc.user>
                                 <javax.persistence.jdbc.password></javax.persistence.jdbc.password>
-                                <javax.persistence.schema-generation.scripts.create-target>${project.build.outputDirectory}/create-table/sqlite-ddl.sql</javax.persistence.schema-generation.scripts.create-target>
+                                <javax.persistence.schema-generation.scripts.create-target>${project.build.outputDirectory}/sqlite-ddl.sql</javax.persistence.schema-generation.scripts.create-target>
                             </properties>
 
                         </configuration>
@@ -175,7 +181,7 @@
                                         <javax.persistence.jdbc.url>jdbc:mysql://localhost/test</javax.persistence.jdbc.url>
                                         <javax.persistence.jdbc.user>sa</javax.persistence.jdbc.user>
                                         <javax.persistence.jdbc.password></javax.persistence.jdbc.password>
-                                        <javax.persistence.schema-generation.scripts.create-target>${project.build.outputDirectory}/create-table/mysql-ddl.sql</javax.persistence.schema-generation.scripts.create-target>
+                                        <javax.persistence.schema-generation.scripts.create-target>${project.build.outputDirectory}/mysql-ddl.sql</javax.persistence.schema-generation.scripts.create-target>
                                     </properties>
 
                                 </configuration>
@@ -215,7 +221,7 @@
                                         <javax.persistence.jdbc.url>jdbc:postgresql://localhost/test</javax.persistence.jdbc.url>
                                         <javax.persistence.jdbc.user>someone</javax.persistence.jdbc.user>
                                         <javax.persistence.jdbc.password></javax.persistence.jdbc.password>
-                                        <javax.persistence.schema-generation.scripts.create-target>${project.build.outputDirectory}/create-table/postgresql-ddl.sql</javax.persistence.schema-generation.scripts.create-target>
+                                        <javax.persistence.schema-generation.scripts.create-target>${project.build.outputDirectory}/postgresql-ddl.sql</javax.persistence.schema-generation.scripts.create-target>
                                     </properties>
 
                                 </configuration>
@@ -256,7 +262,7 @@
                                         <javax.persistence.jdbc.url>jdbc:oracle:thin:@localhost:1521:xe</javax.persistence.jdbc.url>
                                         <javax.persistence.jdbc.user>someone</javax.persistence.jdbc.user>
                                         <javax.persistence.jdbc.password></javax.persistence.jdbc.password>
-                                        <javax.persistence.schema-generation.scripts.create-target>${project.build.outputDirectory}/create-table/oracle-ddl.sql</javax.persistence.schema-generation.scripts.create-target>
+                                        <javax.persistence.schema-generation.scripts.create-target>${project.build.outputDirectory}/oracle-ddl.sql</javax.persistence.schema-generation.scripts.create-target>
                                     </properties>
 
                                 </configuration>
