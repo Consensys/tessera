@@ -2,7 +2,6 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.keypairs.*;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -13,7 +12,8 @@ import java.util.*;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ValidationTest {
 
@@ -48,26 +48,6 @@ public class ValidationTest {
         assertThat(violations).hasSize(3);
         assertThat(options.getAlgorithm()).isEqualTo("id");
 
-    }
-
-    @Test
-    public void inlineKeyPairNoPasswordProvided() {
-        KeyDataConfig keyConfig = mock(KeyDataConfig.class);
-        when(keyConfig.getType()).thenReturn(PrivateKeyType.LOCKED);
-        when(keyConfig.getValue()).thenReturn(null);
-
-        InlineKeypair spy = Mockito.spy(new InlineKeypair("validkey", keyConfig));
-        doReturn("MISSING_PASSWORD").when(spy).getPrivateKey();
-
-        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(spy), null, null);
-
-        Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
-
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
-
-        assertThat(violation.getMessage()).isEqualTo("A locked key was provided without a password.\n Please ensure the same number of passwords are provided as there are keys and remember to include empty passwords for unlocked keys");
     }
 
     @Test
