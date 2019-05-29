@@ -16,7 +16,7 @@
     
     <logger name="suite.GrpcPartyInfoCheck" level="INFO" />
   <logger name="suite.RestPartyInfoChecker" level="INFO" />
-    <root level="ALL">
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
 
