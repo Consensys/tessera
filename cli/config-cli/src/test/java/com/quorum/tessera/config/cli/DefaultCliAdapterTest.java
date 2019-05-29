@@ -3,12 +3,9 @@ package com.quorum.tessera.config.cli;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.cli.keys.MockKeyGeneratorFactory;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.key.generation.KeyGenerator;
@@ -35,8 +32,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.quorum.tessera.test.util.ElUtil.createAndPopulatePaths;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -434,103 +429,6 @@ public class DefaultCliAdapterTest {
         final CliResult cliResult = cliDelegate.execute("-keygen", "-keygenvaulttype", "AZURE", "-keygenvaulturl", vaultUrl, "-configfile", configFile.toString());
 
         assertThat(cliResult.isSuppressStartup()).isTrue();
-    }
-
-    @Test
-    public void emptyPasswordsReturnsSameKeys() {
-
-        //null paths since we won't actually be reading them
-        final ConfigKeyPair keypair = new FilesystemKeyPair(null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(null, emptyList(), singletonList(keypair), null, null);
-        final Config config = new Config();
-        config.setKeys(keyConfig);
-
-        this.cliDelegate.updateKeyPasswords(config);
-
-        assertThat(keyConfig.getKeyData()).hasSize(1);
-        final ConfigKeyPair returned = keyConfig.getKeyData().get(0);
-
-        //passwords are always non-null, set to empty string if not present or not needed
-        assertThat(returned.getPassword()).isNull();
-        assertThat(returned).isSameAs(keypair);
-    }
-
-    @Test
-    public void noPasswordsReturnsSameKeys() {
-
-        //null paths since we won't actually be reading them
-        final ConfigKeyPair keypair = new FilesystemKeyPair(null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(null, null, singletonList(keypair), null, null);
-        final Config config = new Config();
-        config.setKeys(keyConfig);
-
-        this.cliDelegate.updateKeyPasswords(config);
-
-        assertThat(keyConfig.getKeyData()).hasSize(1);
-        final ConfigKeyPair returned = keyConfig.getKeyData().get(0);
-
-        //passwords are always non-null, set to empty string if not present or not needed
-        assertThat(returned.getPassword()).isNull();
-        assertThat(returned).isSameAs(keypair);
-    }
-
-    @Test
-    public void passwordsAssignedToKeys() {
-
-        //null paths since we won't actually be reading them
-        final ConfigKeyPair keypair = new FilesystemKeyPair(null, null);
-        final KeyConfiguration keyConfig
-            = new KeyConfiguration(null, singletonList("passwordsAssignedToKeys"), singletonList(keypair), null, null);
-        final Config config = new Config();
-        config.setKeys(keyConfig);
-
-        this.cliDelegate.updateKeyPasswords(config);
-
-        assertThat(keyConfig.getKeyData()).hasSize(1);
-        final ConfigKeyPair returned = keyConfig.getKeyData().get(0);
-        assertThat(returned.getPassword()).isEqualTo("passwordsAssignedToKeys");
-    }
-
-    @Test
-    public void unreadablePasswordFileGivesNoPasswords() throws IOException {
-
-        final Path passes = Files.createTempDirectory("testdirectory").resolve("nonexistantfile.txt");
-
-        final ConfigKeyPair keypair = new FilesystemKeyPair(null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(passes, null, singletonList(keypair), null, null);
-        final Config config = new Config();
-        config.setKeys(keyConfig);
-
-        this.cliDelegate.updateKeyPasswords(config);
-
-        assertThat(keyConfig.getKeyData()).hasSize(1);
-        final ConfigKeyPair returned = keyConfig.getKeyData().get(0);
-        assertThat(returned.getPassword()).isNull();
-    }
-
-    @Test
-    public void readablePasswordFileAssignsPasswords() throws IOException {
-
-        final Path passes = Files.createTempDirectory("testdirectory").resolve("passwords.txt");
-        Files.write(passes, "q".getBytes());
-
-        final ConfigKeyPair keypair = new FilesystemKeyPair(null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(passes, null, singletonList(keypair), null, null);
-        final Config config = new Config();
-        config.setKeys(keyConfig);
-
-        this.cliDelegate.updateKeyPasswords(config);
-
-        assertThat(keyConfig.getKeyData()).hasSize(1);
-        final ConfigKeyPair returned = keyConfig.getKeyData().get(0);
-        assertThat(returned.getPassword()).isEqualTo("q");
-    }
-
-    @Test
-    public void nullKeyConfigReturns() {
-        final Throwable throwable = catchThrowable(() -> this.cliDelegate.updateKeyPasswords(new Config()));
-
-        assertThat(throwable).isNull();
     }
 
 }
