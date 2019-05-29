@@ -10,6 +10,8 @@ import java.util.ServiceLoader;
  */
 public interface Argon2 {
 
+    int SALT_LENGTH = 16;
+
     /**
      * Hash the password using the provided options
      *

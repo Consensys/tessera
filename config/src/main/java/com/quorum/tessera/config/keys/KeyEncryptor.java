@@ -10,8 +10,6 @@ import com.quorum.tessera.encryption.PrivateKey;
  */
 public interface KeyEncryptor {
 
-    int SALTLENGTH = 16;
-
     /**
      * Encrypts a private key using the given password and returns a JSON object that can
      * be interpreted when decrypting
