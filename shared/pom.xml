@@ -8,4 +8,11 @@
     </parent>
     <artifactId>shared</artifactId>
     <packaging>jar</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>org.eclipse.persistence.moxy</artifactId>
+        </dependency>
+    </dependencies>
+    
 </project>
