@@ -453,7 +453,6 @@
         <module>tessera-partyinfo</module>
         <module>tessera-admin</module>
     </modules>
-  </modules>
 
     <dependencyManagement>
         <dependencies>
