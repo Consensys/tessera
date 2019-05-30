@@ -449,11 +449,11 @@
         <module>key-pair-converter</module>
         <module>ddls</module>
         <module>enclave</module>
-
         <module>tessera-dist</module>
         <module>tessera-partyinfo</module>
         <module>tessera-admin</module>
     </modules>
+  </modules>
 
     <dependencyManagement>
         <dependencies>
