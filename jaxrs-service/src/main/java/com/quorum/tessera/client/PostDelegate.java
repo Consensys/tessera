@@ -1,7 +1,6 @@
 package com.quorum.tessera.client;
 
-import com.quorum.tessera.api.model.ResendRequest;
-
+import com.quorum.tessera.partyinfo.ResendRequest;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;

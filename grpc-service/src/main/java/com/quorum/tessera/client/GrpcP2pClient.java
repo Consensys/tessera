@@ -1,7 +1,7 @@
 package com.quorum.tessera.client;
 
+import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.grpc.p2p.Convertor;
-import com.quorum.tessera.api.model.ResendRequest;
 
 import java.util.Objects;
 
@@ -28,7 +28,7 @@ class GrpcP2pClient implements P2pClient {
     }
 
     @Override
-    public boolean makeResendRequest(String targetUrl, ResendRequest request) {
+    public boolean makeResendRequest(String targetUrl, com.quorum.tessera.partyinfo.ResendRequest request) {
         com.quorum.tessera.grpc.p2p.ResendRequest grpcObj = Convertor.toGrpc(request);
         return grpcClientFactory.getClient(targetUrl).makeResendRequest(grpcObj);
     }

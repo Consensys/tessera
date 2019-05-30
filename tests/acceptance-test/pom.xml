@@ -95,7 +95,13 @@
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
- 
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>tessera-partyinfo</artifactId>
+            <version>0.10-SNAPSHOT</version>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 
     <build>

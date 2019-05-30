@@ -57,7 +57,7 @@ public class P2PTransactionGrpcService extends P2PTransactionGrpc.P2PTransaction
         StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
         template.handle(() -> {
-            com.quorum.tessera.api.model.ResendRequest request = Convertor.toModel(grpcRequest);
+            com.quorum.tessera.partyinfo.ResendRequest request = Convertor.toModel(grpcRequest);
 
             Optional<byte[]> result = transactionManager.resend(request).getPayload();
 

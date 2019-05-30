@@ -1,7 +1,7 @@
 package com.quorum.tessera.api.filter;
 
+import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.core.config.ConfigService;
 import com.quorum.tessera.io.IOCallback;
 
 import javax.servlet.http.HttpServletRequest;

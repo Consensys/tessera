@@ -1,7 +1,7 @@
 package com.quorum.tessera.grpc;
 
-import com.quorum.tessera.node.PartyInfoParser;
-import com.quorum.tessera.node.PartyInfoService;
+import com.quorum.tessera.partyinfo.PartyInfoParser;
+import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.transaction.TransactionManagerImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

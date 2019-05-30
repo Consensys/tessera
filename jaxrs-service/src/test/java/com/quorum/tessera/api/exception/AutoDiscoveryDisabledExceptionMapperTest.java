@@ -1,6 +1,6 @@
 package com.quorum.tessera.api.exception;
 
-import com.quorum.tessera.node.AutoDiscoveryDisabledException;
+import com.quorum.tessera.partyinfo.AutoDiscoveryDisabledException;
 import javax.ws.rs.core.Response;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;

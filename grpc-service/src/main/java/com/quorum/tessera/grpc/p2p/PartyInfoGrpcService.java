@@ -4,10 +4,10 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
 import com.google.protobuf.Timestamp;
 import com.quorum.tessera.grpc.StreamObserverTemplate;
-import com.quorum.tessera.node.PartyInfoParser;
-import com.quorum.tessera.node.PartyInfoService;
-import com.quorum.tessera.node.model.PartyInfo;
-import com.quorum.tessera.node.model.Recipient;
+import com.quorum.tessera.partyinfo.PartyInfoParser;
+import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.Recipient;
 import io.grpc.stub.StreamObserver;
 
 import java.util.Map;

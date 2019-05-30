@@ -1,7 +1,7 @@
 package com.quorum.tessera.api.filter;
 
+import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.core.config.ConfigService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
