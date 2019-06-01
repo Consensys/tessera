@@ -1,10 +1,12 @@
 package com.quorum.tessera.test.cli;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,17 +17,13 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public class KeyGenIT {
 
-    private static final Path buildDir = Paths.get("target/");
+    private static Path buildDir;
 
     private ExecutorService executorService;
 
@@ -33,7 +31,7 @@ public class KeyGenIT {
 
     private final List<String> argList;
 
-    public KeyGenIT(KeyGenTestConfig testConfig) throws IOException {
+    public KeyGenIT(KeyGenTestConfig testConfig) {
         this.testConfig = testConfig;
 
         this.argList = new ArrayList<>();
@@ -45,20 +43,13 @@ public class KeyGenIT {
     }
 
     @Before
-    public void onSetup() throws IOException {
-
+    public void onSetup() {
         executorService = Executors.newFixedThreadPool(2);
-        Files.deleteIfExists(testConfig.getExpectedKeyPath());
-        Files.deleteIfExists(testConfig.getExpectedPubKeyPath());
     }
 
     @After
-    public void onTearDown() throws IOException {
-
+    public void onTearDown() {
         executorService.shutdown();
-
-        Files.deleteIfExists(testConfig.getExpectedKeyPath());
-        Files.deleteIfExists(testConfig.getExpectedPubKeyPath());
     }
 
     @Test
@@ -80,7 +71,9 @@ public class KeyGenIT {
     }
 
     @Parameterized.Parameters(name = "tessera -keygen '{index}'")
-    public static List<KeyGenTestConfig> parameters() {
+    public static List<KeyGenTestConfig> parameters() throws IOException {
+
+        buildDir = Files.createTempDirectory("target");
 
         String appPath = System.getProperty("application.jar");
         if(Objects.equals("", appPath)) {

@@ -73,25 +73,16 @@ public class FileKeyGeneratorTest {
         doReturn(keyPair).when(nacl).generateNewKeys();
 
         String filename = UUID.randomUUID().toString();
+        final Path tmpDir = Files.createTempDirectory("keygen").toAbsolutePath().resolve(filename);
 
-        final FilesystemKeyPair generated = generator.generate(filename, null, null);
+        final FilesystemKeyPair generated = generator.generate(tmpDir.toString(), null, null);
 
         assertThat(generated).isInstanceOf(FilesystemKeyPair.class);
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
         assertThat(generated.getPrivateKey()).isEqualTo("cHJpdmF0ZUtleQ==");
         assertThat(generated.getInlineKeypair().getPrivateKeyConfig().getType()).isEqualTo(UNLOCKED);
 
-
         verify(nacl).generateNewKeys();
-
-        Files.list(Paths.get(""))
-            .filter(f -> f.toString().contains(filename))
-            .forEach(f -> {
-                try {
-                    Files.deleteIfExists(f);
-                } catch (IOException ex) {
-                }
-            });
     }
 
     @Test

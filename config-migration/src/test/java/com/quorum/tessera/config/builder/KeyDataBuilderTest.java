@@ -97,19 +97,6 @@ public class KeyDataBuilderTest {
                 .build().getKeyData();
 
         assertThat(result).hasSize(3);
-
-//        assertThat(result.get(0).getConfig().getPassword()).isEqualTo("SECRET1");
-//        assertThat(result.get(1).getConfig().getPassword()).isEqualTo("SECRET2");
-//        assertThat(result.get(2).getConfig().getPassword()).isEqualTo("SECRET3");
-
-//        assertThat(result.get(0).getPublicKey()).isEqualTo("PUB1");
-//        assertThat(result.get(1).getPublicKey()).isEqualTo("PUB2");
-//        assertThat(result.get(2).getPublicKey()).isEqualTo("PUB3");
-
-        for (Path p : privateKeyPaths) {
-            Files.deleteIfExists(p);
-        }
-
     }
 
     @Test

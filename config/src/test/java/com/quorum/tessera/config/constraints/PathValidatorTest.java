@@ -53,7 +53,6 @@ public class PathValidatorTest {
 
     @Test
     public void validateFileExistsWhenFileDoesExist() throws IOException {
-
         ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
         ValidPath validPath = mock(ValidPath.class);
@@ -62,13 +61,9 @@ public class PathValidatorTest {
         PathValidator pathValidator = new PathValidator();
         pathValidator.initialize(validPath);
 
-        Path tempDir = Paths.get(System.getProperty("java.io.tmpdir"));
-        Path actualFile = Files.createTempFile(tempDir, UUID.randomUUID().toString(), ".txt");
+        Path actualFile = Files.createTempFile(UUID.randomUUID().toString(), ".txt");
 
         assertThat(pathValidator.isValid(actualFile, context)).isTrue();
-
-        Files.deleteIfExists(actualFile);
-
     }
 
     @Test
@@ -90,8 +85,7 @@ public class PathValidatorTest {
 
     @Test
     public void checkCanCreateFile() throws IOException {
-
-        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+        final ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
         ValidPath validPath = mock(ValidPath.class);
         when(validPath.checkCanCreate()).thenReturn(true);
@@ -99,13 +93,12 @@ public class PathValidatorTest {
         PathValidator pathValidator = new PathValidator();
         pathValidator.initialize(validPath);
 
-        Path path = Paths.get(UUID.randomUUID().toString());
+        Path path = Files.createTempFile(UUID.randomUUID().toString(), ".tmp");
+        Files.deleteIfExists(path);
 
         assertThat(pathValidator.isValid(path, context)).isTrue();
 
         verifyZeroInteractions(context);
-        Files.deleteIfExists(path);
-
     }
 
     @Test
