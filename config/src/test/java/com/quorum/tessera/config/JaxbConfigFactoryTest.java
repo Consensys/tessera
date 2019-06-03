@@ -2,13 +2,13 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.InlineKeypair;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -34,12 +34,6 @@ public class JaxbConfigFactoryTest {
         );
 
         this.factory = new JaxbConfigFactory();
-    }
-
-    @After
-    public void after() throws IOException {
-        Files.deleteIfExists(Paths.get("newPasses.txt"));
-        Files.deleteIfExists(Paths.get("passwords.txt"));
     }
 
     @Test
@@ -85,19 +79,22 @@ public class JaxbConfigFactoryTest {
         assertThat(config.getKeys().getPasswordFile()).isNotNull();
         final List<String> passes = Files.readAllLines(config.getKeys().getPasswordFile());
         assertThat(passes).hasSize(1).containsExactly("pass");
+        Files.deleteIfExists(config.getKeys().getPasswordFile());
     }
 
     @Test
     public void cantAppendToPasswordFileThrowsError() throws IOException {
-
-        Files.createFile(Paths.get("newPasses.txt"));
-        Paths.get("newPasses.txt").toFile().setWritable(false);
+        final Path file = Paths.get("newPasses.txt");
+        Files.createFile(file);
+        file.toFile().setWritable(false);
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddToFile.json");
 
         final Throwable throwable = catchThrowable(() -> factory.create(inputStream, singletonList(sampleGeneratedKey)));
 
         assertThat(throwable).hasMessage("Could not store new passwords: newPasses.txt");
+
+        Files.deleteIfExists(file);
     }
 
     @Test

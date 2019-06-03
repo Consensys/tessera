@@ -11,7 +11,9 @@ import com.quorum.tessera.test.util.ElUtil;
 import org.apache.commons.cli.CommandLine;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.SystemErrRule;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -29,6 +31,9 @@ import static org.mockito.Mockito.*;
 
 public class LegacyCliAdapterTest {
 
+    @Rule
+    public SystemErrRule systemErrRule = new SystemErrRule().enableLog();
+
     private final ConfigBuilder builderWithValidValues = FixtureUtil.builderWithValidValues();
 
     private final LegacyCliAdapter instance = new LegacyCliAdapter();
@@ -37,19 +42,16 @@ public class LegacyCliAdapterTest {
 
     @Before
     public void onSetUp() throws IOException {
-        dataDirectory = Paths.get("data");
-        Files.createDirectories(dataDirectory);
+        dataDirectory = Files.createTempDirectory("data");
 
         Files.createFile(dataDirectory.resolve("foo.pub"));
         Files.createFile(dataDirectory.resolve("foo.key"));
         Files.createFile(dataDirectory.resolve("foo2.pub"));
         Files.createFile(dataDirectory.resolve("foo2.key"));
-
     }
 
     @After
     public void onTearDown() throws IOException {
-
         Files.deleteIfExists(Paths.get("tessera-config.json"));
 
         Files.walk(dataDirectory)
@@ -65,26 +67,24 @@ public class LegacyCliAdapterTest {
 
     @Test
     public void help() throws Exception {
-
         CliResult result = instance.execute("help");
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(0);
-
     }
 
     @Test
     public void noArgs() throws Exception {
-
         CliResult result = instance.execute();
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(1);
-
     }
 
     @Test
     public void withoutCliArgsAllConfigIsSetFromTomlFile() throws Exception {
+        dataDirectory = Paths.get("data");
+        Files.createDirectory(dataDirectory);
 
         Path alwaysSendTo1 = Files.createFile(dataDirectory.resolve("alwayssendto1"));
         Files.write(alwaysSendTo1, ("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=\n"
@@ -98,10 +98,7 @@ public class LegacyCliAdapterTest {
         params.put("alwaysSendToPath1", "alwayssendto1");
         params.put("alwaysSendToPath2", "alwayssendto2");
 
-        String data = ElUtil.process(Files.readAllLines(sampleFile)
-                .stream()
-                .collect(Collectors.joining(System.lineSeparator())),
-                params);
+        String data = ElUtil.process(new String(Files.readAllBytes(sampleFile)), params);
 
         Path configFile = Files.createTempFile("noOptions", ".txt");
         Files.write(configFile, data.getBytes());
@@ -146,8 +143,6 @@ public class LegacyCliAdapterTest {
         assertThat(config.getServer().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("data/tls-client-key.pem");
         assertThat(config.getServer().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.CA_OR_TOFU);
         assertThat(config.getServer().getSslConfig().getKnownServersFile().toString()).isEqualTo("data/tls-known-servers");
-
-        Files.deleteIfExists(configFile);
     }
 
     @Test
@@ -238,21 +233,17 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
         assertThat(result.getConfig().get().getServer().getSslConfig().getKnownServersFile().toString()).isEqualTo("override/over-known-servers");
 
-        Files.deleteIfExists(configFile);
-
         Files.walk(workdir)
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
+            .sorted(Comparator.reverseOrder())
+            .map(Path::toFile)
+            .forEach(File::delete);
     }
 
     @Test
     public void ifConfigParameterIsNotSetInTomlOrCliThenDefaultIsUsed() throws Exception {
 
         Path configFile = Files.createTempFile("emptyConfig", ".txt");
-        Path keysFile = Paths.get("abcxyz");
-        Files.deleteIfExists(keysFile);
-        Files.createFile(keysFile);
+        Path keysFile = Files.createTempFile("key", ".tmp").toAbsolutePath();
         Files.write(keysFile, Arrays.asList("SOMEDATA"));
 
         String[] requiredParams = {
@@ -261,8 +252,8 @@ public class LegacyCliAdapterTest {
             "--port=9001",
             "--othernodes=localhost:1111",
             "--socket=myipcfile.ipc",
-            "--publickeys=abcxyz",
-            "--privatekeys=abcxyz"
+            "--publickeys=" + keysFile.toString(),
+            "--privatekeys=" + keysFile.toString()
         };
 
         CliResult result = instance.execute(requiredParams);
@@ -289,9 +280,6 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getServer().getSslConfig().getClientTlsKeyPath()).isNull();
         assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
         assertThat(result.getConfig().get().getServer().getSslConfig().getKnownServersFile()).isNull();
-
-        Files.deleteIfExists(configFile);
-        Files.deleteIfExists(keysFile);
     }
 
     @Test
@@ -317,10 +305,7 @@ public class LegacyCliAdapterTest {
         params.put("alwaysSendToPath1", "alwayssendto");
         params.put("alwaysSendToPath2", "alwayssendto");
 
-        String data = ElUtil.process(
-            Files.readAllLines(sampleFile).stream().collect(Collectors.joining(System.lineSeparator())),
-            params
-        );
+        String data = ElUtil.process(new String(Files.readAllBytes(sampleFile)), params);
 
         Path configFile = Files.createTempFile("workdiroverride", ".txt");
         Files.write(configFile, data.getBytes());
@@ -370,8 +355,6 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig().get().getServer().getSslConfig().getClientTlsKeyPath().toString()).isEqualTo("override/tls-client-key.pem");
         assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustMode()).isEqualByComparingTo(SslTrustMode.CA_OR_TOFU);
         assertThat(result.getConfig().get().getServer().getSslConfig().getKnownServersFile().toString()).isEqualTo("override/tls-known-servers");
-
-        Files.deleteIfExists(configFile);
     }
 
     @Test
@@ -391,8 +374,6 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig()).isPresent();
 
         assertThat(result.getConfig().get().getServer().getHostName()).isNull();
-
-        Files.deleteIfExists(configFile);
     }
 
     @Test
@@ -458,10 +439,6 @@ public class LegacyCliAdapterTest {
         //TODO assert that value of config is as expected from sample config
 
 //        assertThat(result.getStatus()).isEqualTo(0);
-
-        Files.deleteIfExists(configFile);
-        Files.deleteIfExists(passwordFile);
-        Files.deleteIfExists(serverKeyStorePath);
     }
 
     @Test
@@ -476,10 +453,7 @@ public class LegacyCliAdapterTest {
         params.put("passwordFile", passwordFile);
         params.put("serverKeyStorePath", serverKeyStorePath);
 
-        String data = ElUtil.process(Files.readAllLines(sampleFile)
-                .stream()
-                .collect(Collectors.joining(System.lineSeparator())),
-                params);
+        String data = ElUtil.process(new String(Files.readAllBytes(sampleFile)), params);
 
         Path configFile = Files.createTempFile("noOptions", ".txt");
         Files.write(configFile, data.getBytes());
@@ -488,10 +462,6 @@ public class LegacyCliAdapterTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
-
-        Files.deleteIfExists(configFile);
-        Files.deleteIfExists(passwordFile);
-        Files.deleteIfExists(serverKeyStorePath);
     }
 
     @Test
@@ -516,29 +486,17 @@ public class LegacyCliAdapterTest {
 
     @Test
     public void noPasswordOrKeyDataOverrideProvidedThenNoMessagePrintedToConsole() {
-        final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
-        final PrintStream originalErr = System.err;
-
-        System.setErr(new PrintStream(errContent));
-
         CommandLine line = mock(CommandLine.class);
 
         ConfigBuilder configBuilder = ConfigBuilder.create();
 
         LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
 
-        assertThat(errContent.toString()).isEqualTo("");
-
-        System.setErr(originalErr);
+        assertThat(systemErrRule.getLog()).isEmpty();
     }
 
     @Test
     public void keyDataProvidedButNoPasswordProvidedThenNoMessagePrintedToConsole() {
-        final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
-        final PrintStream originalErr = System.err;
-
-        System.setErr(new PrintStream(errContent));
-
         CommandLine line = mock(CommandLine.class);
         when(line.getOptionValue("passwords")).thenReturn("override/path");
 
@@ -549,24 +507,18 @@ public class LegacyCliAdapterTest {
         List<String> privateKeys = new ArrayList<>();
         privateKeys.add("priv");
 
-        KeyDataBuilder keyDataBuilder = KeyDataBuilder.create()
-                                        .withPublicKeys(publicKeys)
-                                        .withPrivateKeys(privateKeys);
+        KeyDataBuilder keyDataBuilder = KeyDataBuilder
+            .create()
+            .withPublicKeys(publicKeys)
+            .withPrivateKeys(privateKeys);
 
         LegacyCliAdapter.applyOverrides(line, configBuilder, keyDataBuilder);
 
-        assertThat(errContent.toString()).isEqualTo("");
-
-        System.setErr(originalErr);
+        assertThat(systemErrRule.getLog()).isEmpty();
     }
 
     @Test
     public void passwordAndKeyDataProvidedAsOverrideThenNoMessagePrintedToConsole() {
-        final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
-        final PrintStream originalErr = System.err;
-
-        System.setErr(new PrintStream(errContent));
-
         CommandLine line = mock(CommandLine.class);
 
         ConfigBuilder configBuilder = ConfigBuilder.create();
@@ -582,9 +534,7 @@ public class LegacyCliAdapterTest {
 
         LegacyCliAdapter.applyOverrides(line, configBuilder, keyDataBuilder);
 
-        assertThat(errContent.toString()).isEqualTo("");
-
-        System.setErr(originalErr);
+        assertThat(systemErrRule.getLog()).isEmpty();
     }
 
     @Test
@@ -632,8 +582,6 @@ public class LegacyCliAdapterTest {
 
         ConfigBuilder configBuilder = ConfigBuilder.create();
 
-        String tomlWorkDir = null;
-
         ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
 
         Path expected = Paths.get(socketFilepath);
@@ -651,8 +599,6 @@ public class LegacyCliAdapterTest {
         when(line.getOptionValue("socket")).thenReturn(socketFilepath);
 
         ConfigBuilder configBuilder = ConfigBuilder.create();
-
-        String tomlWorkDir = null;
 
         ConfigBuilder result = LegacyCliAdapter.applyOverrides(line, configBuilder, KeyDataBuilder.create());
 
@@ -738,8 +684,7 @@ public class LegacyCliAdapterTest {
         final Path privateKeyPasswordFile = Files.createTempFile("applyOverridesPasswords", ".txt");
         Files.write(privateKeyPasswordFile, privateKeyPasswords);
 
-        when(commandLine.getOptionValue("passwords"))
-                .thenReturn(privateKeyPasswordFile.toString());
+        when(commandLine.getOptionValue("passwords")).thenReturn(privateKeyPasswordFile.toString());
 
         Config result = LegacyCliAdapter.applyOverrides(commandLine, builderWithValidValues, KeyDataBuilder.create()).build();
 
@@ -774,12 +719,6 @@ public class LegacyCliAdapterTest {
                 .isEqualTo(Paths.get("workdirOverride/tlsknownservers.file"));
         assertThat(result.getServer().getSslConfig().getKnownClientsFile())
                 .isEqualTo(Paths.get(workdirOverride, "tlsknownclients.file"));
-
-        Files.deleteIfExists(privateKeyPasswordFile);
-        for (Path privateKeyPath : privateKeyPaths) {
-            Files.deleteIfExists(privateKeyPath);
-        }
-
     }
 
     @Test
@@ -815,12 +754,10 @@ public class LegacyCliAdapterTest {
         assertThat(sslConfig.getClientTrustCertificates()).containsExactly(Paths.get("sslClientTrustCertificates"));
         assertThat(sslConfig.getKnownServersFile()).isEqualTo(Paths.get("knownServersFile"));
         assertThat(sslConfig.getKnownClientsFile()).isEqualTo(Paths.get("knownClientsFile"));
-
     }
 
     @Test
     public void writeToOutputFileValidationError() throws Exception {
-
         Config config = mock(Config.class);
 
         Path outputPath = Files.createTempFile("writeToOutputFileValidationError", ".txt");
@@ -828,8 +765,6 @@ public class LegacyCliAdapterTest {
         CliResult result = LegacyCliAdapter.writeToOutputFile(config, outputPath);
 
         assertThat(result.getStatus()).isEqualTo(2);
-
-        Files.deleteIfExists(outputPath);
     }
 
 }

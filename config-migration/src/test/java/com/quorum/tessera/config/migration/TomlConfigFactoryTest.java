@@ -50,8 +50,6 @@ public class TomlConfigFactoryTest {
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
 
         }
-
-        Files.deleteIfExists(passwordFile);
     }
 
     @Test
@@ -125,7 +123,6 @@ public class TomlConfigFactoryTest {
             }
         }
 
-        Files.deleteIfExists(passwordsFile);
     }
 
     @Test(expected = UnsupportedOperationException.class)
