@@ -209,7 +209,7 @@
                         <include>RestSuiteHSQL</include>
                         <include>RestSuiteUnixH2</include>
                         <include>RestSuiteSqlite</include>
-                        <include>ConfigMigrationIT</include>
+<!--                        <include>ConfigMigrationIT</include>-->
                         <include>GrpcSuiteH2</include>
                         <include>GrpcSuiteSqlite</include>
                         <include>GrpcSuiteHSQL</include>
@@ -335,7 +335,7 @@
                                 <include>RestSuiteHSQL</include>
                                 <include>RestSuiteUnixH2</include>
                                 <include>RestSuiteSqlite</include>
-                                <include>ConfigMigrationIT</include>
+<!--                                <include>ConfigMigrationIT</include>-->
                             </includes>
                         </configuration>
                     </plugin>
