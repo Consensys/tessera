@@ -11,7 +11,7 @@
         <!-- GitHub tag/release -->
         <server>
             <id>github</id>
-            <username>${env.GITHUB_USERNAME}}</username>
+            <username>${env.GITHUB_USERNAME}</username>
             <password>${env.GITHUB_TOKEN}</password>
         </server>
 
