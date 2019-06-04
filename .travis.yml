@@ -64,12 +64,13 @@ matrix:
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
     - if: branch = build_logging AND type = push
-      name: "Deploy to central"
+      name: "Build Master"
       jdk:  oraclejdk8
       script:
-        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
-        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-        - mvn deploy -Dmaven.javadoc.skip=true --settings .maven.xml -P release,reduce-logging  || travis_terminate 1
+#        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+#        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
+#        - mvn deploy -Dmaven.javadoc.skip=true --settings .maven.xml -P release,reduce-logging  || travis_terminate 1
+        - mvn install -Dmaven.javadoc.skip=true --settings .maven.xml -P reduce-logging  || travis_terminate 1
     - if: type = api
       name: "Perform release"
       before_script:
