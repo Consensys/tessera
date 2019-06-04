@@ -63,7 +63,7 @@ matrix:
       before_install: *install_hashicorp
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
-    - if: branch = master AND type = push
+    - if: branch = build_logging AND type = push
       name: "Deploy to central"
       jdk:  oraclejdk8
       script:
