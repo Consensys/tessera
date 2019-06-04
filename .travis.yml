@@ -69,7 +69,7 @@ matrix:
       script:
         - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
         - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-        - mvn deploy --settings .maven.xml -P release,reduce-logging  || travis_terminate 1
+        - mvn deploy -Dmaven.javadoc.skip=true --settings .maven.xml -P release,reduce-logging  || travis_terminate 1
     - if: type = api
       name: "Perform release"
       before_script:
