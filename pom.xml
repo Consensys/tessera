@@ -18,8 +18,8 @@
 
     <scm>
         <url>https://github.com/jpmorganchase/tessera</url>
-        <connection>scm:git:git://github.com/jpmorganchase/tessera.git</connection>
-        <developerConnection>scm:git:git@github.com:jpmorganchase/tessera.git</developerConnection>
+        <connection>scm:git:https://github.com/jpmorganchase/tessera.git</connection>
+        <developerConnection>scm:git:https://github.com/jpmorganchase/tessera.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
@@ -54,6 +54,7 @@
         <bouncycastle.version>1.61</bouncycastle.version>
         <logback.version>1.2.3</logback.version>
         <jackson.version>2.9.9</jackson.version>
+        <project.scm.id>github</project.scm.id>
     </properties>
 
     <build>
@@ -530,19 +531,19 @@
                 <artifactId>enclave-api</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-partyinfo</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-admin</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
-        
+
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>enclave-jaxrs</artifactId>
