@@ -1,7 +1,7 @@
 package com.quorum.tessera.argon2;
 
-import org.bouncycastle.crypto.generators.Argon2BytesGenerator;
-import org.bouncycastle.crypto.params.Argon2Parameters;
+import de.mkammerer.argon2.Argon2Advanced;
+import de.mkammerer.argon2.Argon2Factory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,22 +15,11 @@ public class Argon2Impl implements Argon2 {
 
     @Override
     public ArgonResult hash(final ArgonOptions options, final String password, final byte[] salt) {
-        final int algorithm = this.getArgon2Instance(options.getAlgorithm());
-        final char[] sanitisedPassword = (password == null) ? null : password.toCharArray();
+        final Argon2Advanced argon2 = this.getArgon2Instance(options.getAlgorithm());
 
-        final Argon2Parameters parameters = new Argon2Parameters.Builder(algorithm)
-            .withVersion(Argon2Parameters.ARGON2_VERSION_13)
-            .withIterations(options.getIterations())
-            .withMemoryAsKB(options.getMemory())
-            .withParallelism(options.getParallelism())
-            .withSalt(salt)
-            .build();
-
-        final Argon2BytesGenerator gen = new Argon2BytesGenerator();
-        gen.init(parameters);
-
-        final byte[] hash = new byte[32];
-        gen.generateBytes(sanitisedPassword, hash);
+        final byte[] hash = argon2.rawHash(
+            options.getIterations(), options.getMemory(), options.getParallelism(), password, salt
+        );
 
         LOGGER.debug("Argon2 hash produced the array {}", Arrays.toString(hash));
 
@@ -43,21 +32,22 @@ public class Argon2Impl implements Argon2 {
     }
 
     /**
-     * Finds the implementation specific value for a given algorithm type.
+     * The string form of the algorithm to use.
+     * If an invalid algorithm is chosen, a default of Argon2i is chosen.
      *
      * @param algorithm the algorithm to use
-     * @return the implementation specific integer representation
+     * @return an instance of the chosen algorithm
      */
-    private int getArgon2Instance(final String algorithm) {
+    private Argon2Advanced getArgon2Instance(final String algorithm) {
         LOGGER.debug("Searching for the Argon2 algorithm {}", algorithm);
 
         switch (algorithm) {
             case "d":
-                return Argon2Parameters.ARGON2_d;
+                return Argon2Factory.createAdvanced(Argon2Factory.Argon2Types.ARGON2d);
             case "id":
-                return Argon2Parameters.ARGON2_id;
+                return Argon2Factory.createAdvanced(Argon2Factory.Argon2Types.ARGON2id);
             case "i":
-                return Argon2Parameters.ARGON2_i;
+                return Argon2Factory.createAdvanced(Argon2Factory.Argon2Types.ARGON2i);
             default:
                 throw new IllegalArgumentException("Invalid Argon2 algorithm " + algorithm);
         }
