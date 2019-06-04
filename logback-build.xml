@@ -9,6 +9,8 @@
         </encoder>
     </appender>
     <logger name="exec" level="STDOUT" />
+    <logger name="com.quorum.tessera.reflect.ReflectCallback" level="OFF" />
+    <logger name="com.quorum.tessera.config.util.XmlProcessingCallback" level="OFF" />
     <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
