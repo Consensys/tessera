@@ -1,21 +1,24 @@
 <settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/SETTINGS/1.0.0" xsi:schemalocation="http://maven.apache.org/SETTINGS/1.0.0
                       http://maven.apache.org/xsd/settings-1.0.0.xsd">
     <servers>
+        <!-- Maven Central deployment -->
         <server>
-            <!-- Maven Central Deployment -->
             <id>ossrh</id>
             <username>${env.SONATYPE_USERNAME}</username>
             <password>${env.SONATYPE_PASSWORD}</password>
         </server>
-        
+
+        <!-- GitHub tag/release -->
         <server>
             <id>github</id>
-            <password>${env.CI_USER_TOKEN}</password>
+            <username>${env.GITHUB_USERNAME}}</username>
+            <password>${env.GITHUB_TOKEN}</password>
         </server>
-        
+
     </servers>
 
     <profiles>
+        <!-- Signing for Maven Central deployment -->
         <profile>
             <id>ossrh</id>
             <activation>
