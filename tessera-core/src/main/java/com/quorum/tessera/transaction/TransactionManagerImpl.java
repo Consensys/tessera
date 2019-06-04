@@ -50,13 +50,13 @@ public class TransactionManagerImpl implements TransactionManager {
     private final MessageHashFactory messageHashFactory = MessageHashFactory.create();
 
     public TransactionManagerImpl(
-            Base64Decoder base64Decoder,
-            PayloadEncoder payloadEncoder,
-            EncryptedTransactionDAO encryptedTransactionDAO,
-            PayloadPublisher payloadPublisher,
-            Enclave enclave,
-            EncryptedRawTransactionDAO encryptedRawTransactionDAO,
-            ResendManager resendManager) {
+        Base64Decoder base64Decoder,
+        PayloadEncoder payloadEncoder,
+        EncryptedTransactionDAO encryptedTransactionDAO,
+        PayloadPublisher payloadPublisher,
+        Enclave enclave,
+        EncryptedRawTransactionDAO encryptedRawTransactionDAO,
+        ResendManager resendManager) {
 
         this.base64Decoder = Objects.requireNonNull(base64Decoder);
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
@@ -74,20 +74,20 @@ public class TransactionManagerImpl implements TransactionManager {
         final String sender = sendRequest.getFrom();
 
         final PublicKey senderPublicKey = Optional.ofNullable(sender)
-                .map(base64Decoder::decode)
-                .map(PublicKey::from)
-                .orElseGet(enclave::defaultPublicKey);
+            .map(base64Decoder::decode)
+            .map(PublicKey::from)
+            .orElseGet(enclave::defaultPublicKey);
 
         final byte[][] recipients = Stream.of(sendRequest)
-                .filter(sr -> Objects.nonNull(sr.getTo()))
-                .flatMap(s -> Stream.of(s.getTo()))
-                .map(base64Decoder::decode)
-                .toArray(byte[][]::new);
+            .filter(sr -> Objects.nonNull(sr.getTo()))
+            .flatMap(s -> Stream.of(s.getTo()))
+            .map(base64Decoder::decode)
+            .toArray(byte[][]::new);
 
         final List<PublicKey> recipientList = Stream
-                .of(recipients)
-                .map(PublicKey::from)
-                .collect(Collectors.toList());
+            .of(recipients)
+            .map(PublicKey::from)
+            .collect(Collectors.toList());
 
         recipientList.add(senderPublicKey);
 
@@ -98,8 +98,8 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncodedPayload payload = enclave.encryptPayload(raw, senderPublicKey, recipientList);
 
         final MessageHash transactionHash = Optional.of(payload)
-                .map(EncodedPayload::getCipherText)
-                .map(messageHashFactory::createFromCipherText).get();
+            .map(EncodedPayload::getCipherText)
+            .map(messageHashFactory::createFromCipherText).get();
 
         final EncryptedTransaction newTransaction
             = new EncryptedTransaction(transactionHash, this.payloadEncoder.encode(payload));
@@ -169,16 +169,21 @@ public class TransactionManagerImpl implements TransactionManager {
         PublicKey recipientPublicKey = PublicKey.from(publicKeyData);
         if (request.getType() == ResendRequestType.ALL) {
 
-            encryptedTransactionDAO
-                .retrieveAllTransactions()
-                .stream()
-                .map(EncryptedTransaction::getEncodedPayload)
-                .map(payloadEncoder::decode)
-                .filter(payload -> {
-                    final boolean isRecipient = payload.getRecipientKeys().contains(recipientPublicKey);
-                    final boolean isSender = Objects.equals(payload.getSenderKey(), recipientPublicKey);
-                    return isRecipient || isSender;
-                }).forEach(payload -> {
+            int offset = 0;
+            final int maxResult = 10000;
+
+            while (offset < encryptedTransactionDAO.transactionCount()) {
+
+                encryptedTransactionDAO
+                    .retrieveTransactions(offset, maxResult)
+                    .stream()
+                    .map(EncryptedTransaction::getEncodedPayload)
+                    .map(payloadEncoder::decode)
+                    .filter(payload -> {
+                        final boolean isRecipient = payload.getRecipientKeys().contains(recipientPublicKey);
+                        final boolean isSender = Objects.equals(payload.getSenderKey(), recipientPublicKey);
+                        return isRecipient || isSender;
+                    }).forEach(payload -> {
 
                     final EncodedPayload prunedPayload;
 
@@ -205,6 +210,9 @@ public class TransactionManagerImpl implements TransactionManager {
                     }
 
                 });
+
+                offset += maxResult;
+            }
 
             return new ResendResponse();
         } else {
@@ -274,21 +282,21 @@ public class TransactionManagerImpl implements TransactionManager {
         final byte[] key = base64Decoder.decode(request.getKey());
 
         final Optional<byte[]> to = Optional
-                .ofNullable(request.getTo())
-                .filter(str -> !str.isEmpty())
-                .map(base64Decoder::decode);
+            .ofNullable(request.getTo())
+            .filter(str -> !str.isEmpty())
+            .map(base64Decoder::decode);
 
         final MessageHash hash = new MessageHash(key);
         LOGGER.info("Lookup transaction {}",hash);
 
         final EncryptedTransaction encryptedTransaction = encryptedTransactionDAO
-                .retrieveByHash(hash)
-                .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
+            .retrieveByHash(hash)
+            .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
 
         final EncodedPayload payload = Optional.of(encryptedTransaction)
-                .map(EncryptedTransaction::getEncodedPayload)
-                .map(payloadEncoder::decode)
-                .orElseThrow(() -> new IllegalStateException("Unable to decode previously encoded payload"));
+            .map(EncryptedTransaction::getEncodedPayload)
+            .map(payloadEncoder::decode)
+            .orElseThrow(() -> new IllegalStateException("Unable to decode previously encoded payload"));
 
         PublicKey recipientKey = to.map(PublicKey::from)
             .orElse(searchForRecipientKey(payload)
