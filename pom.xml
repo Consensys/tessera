@@ -1226,6 +1226,12 @@
                 <version>5.0.4</version>
             </dependency>
 
+        <dependency>
+            <groupId>de.mkammerer</groupId>
+            <artifactId>argon2-jvm</artifactId>
+            <version>2.5</version>
+        </dependency>
+
         </dependencies>
     </dependencyManagement>
 

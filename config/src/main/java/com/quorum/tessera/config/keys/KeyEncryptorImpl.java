@@ -49,7 +49,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
 
         LOGGER.debug("Encrypting private key {} using password {}", privateKey, password);
 
-        final byte[] salt = new byte[Argon2.SALT_LENGTH];
+        final byte[] salt = new byte[KeyEncryptor.SALTLENGTH];
         this.secureRandom.nextBytes(salt);
 
         LOGGER.debug("Generated the random salt {}", Arrays.toString(salt));

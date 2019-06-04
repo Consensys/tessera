@@ -14,13 +14,15 @@
         <version>0.10-SNAPSHOT</version>
     </parent>
 
+    
     <dependencies>
 
         <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
+            <groupId>de.mkammerer</groupId>
+            <artifactId>argon2-jvm</artifactId>
         </dependency>
 
     </dependencies>
+
 
 </project>
