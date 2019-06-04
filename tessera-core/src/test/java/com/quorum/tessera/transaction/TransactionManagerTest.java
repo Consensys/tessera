@@ -219,7 +219,8 @@ public class TransactionManagerTest {
 
         when(payload.getSenderKey()).thenReturn(senderKey);
         when(payload.getRecipientKeys()).thenReturn(new ArrayList<>());
-        when(encryptedTransactionDAO.retrieveAllTransactions()).thenReturn(singletonList(tx));
+        when(encryptedTransactionDAO.retrieveTransactions(anyInt(), anyInt())).thenReturn(singletonList(tx));
+        when(encryptedTransactionDAO.transactionCount()).thenReturn(1L);
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
         when(enclave.getPublicKeys()).thenReturn(singleton(recipientKey));
         when(enclave.unencryptTransaction(payload, recipientKey)).thenReturn(new byte[0]);
@@ -232,7 +233,8 @@ public class TransactionManagerTest {
 
         assertThat(result).isNotNull();
 
-        verify(encryptedTransactionDAO).retrieveAllTransactions();
+        verify(encryptedTransactionDAO).retrieveTransactions(anyInt(), anyInt());
+        verify(encryptedTransactionDAO, times(2)).transactionCount();
         verify(payloadEncoder).decode(encodedData);
         verify(payloadPublisher).publishPayload(any(EncodedPayload.class), eq(senderKey));
         verify(enclave).getPublicKeys();
@@ -250,7 +252,8 @@ public class TransactionManagerTest {
         final EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getRecipientKeys()).thenReturn(emptyList());
 
-        when(encryptedTransactionDAO.retrieveAllTransactions()).thenReturn(singletonList(tx));
+        when(encryptedTransactionDAO.retrieveTransactions(anyInt(), anyInt())).thenReturn(singletonList(tx));
+        when(encryptedTransactionDAO.transactionCount()).thenReturn(1L);
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
         final ResendRequest resendRequest = new ResendRequest();
@@ -261,7 +264,8 @@ public class TransactionManagerTest {
 
         assertThat(result).isNotNull();
 
-        verify(encryptedTransactionDAO).retrieveAllTransactions();
+        verify(encryptedTransactionDAO).retrieveTransactions(anyInt(), anyInt());
+        verify(encryptedTransactionDAO, times(2)).transactionCount();
         verify(payloadEncoder).decode(encodedData);
     }
 
@@ -274,7 +278,9 @@ public class TransactionManagerTest {
         final EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
 
-        when(encryptedTransactionDAO.retrieveAllTransactions()).thenReturn(singletonList(tx));
+        when(encryptedTransactionDAO.retrieveTransactions(anyInt(), anyInt())).thenReturn(singletonList(tx));
+        when(encryptedTransactionDAO.transactionCount()).thenReturn(1L);
+
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
         when(payloadEncoder.forRecipient(payload, recipientKey)).thenReturn(payload);
 
@@ -286,7 +292,8 @@ public class TransactionManagerTest {
 
         assertThat(result).isNotNull();
 
-        verify(encryptedTransactionDAO).retrieveAllTransactions();
+        verify(encryptedTransactionDAO).retrieveTransactions(anyInt(), anyInt());
+        verify(encryptedTransactionDAO, times(2)).transactionCount();
         verify(payloadEncoder).decode(encodedData);
         verify(payloadEncoder).forRecipient(payload, recipientKey);
         verify(payloadPublisher).publishPayload(any(EncodedPayload.class), eq(recipientKey));
@@ -314,7 +321,9 @@ public class TransactionManagerTest {
         when(payload.getRecipientKeys()).thenReturn(recipients);
         when(payload.getRecipientBoxes()).thenReturn(recipientBoxes);
 
-        when(encryptedTransactionDAO.retrieveAllTransactions()).thenReturn(singletonList(tx));
+        when(encryptedTransactionDAO.retrieveTransactions(anyInt(), anyInt())).thenReturn(singletonList(tx));
+        when(encryptedTransactionDAO.transactionCount()).thenReturn(1L);
+
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
         EncodedPayload prunedPayload = mock(EncodedPayload.class);
@@ -331,7 +340,8 @@ public class TransactionManagerTest {
         assertThat(result).isNotNull();
         verify(payloadPublisher).publishPayload(eq(prunedPayload), eq(recipientKey));
 
-        verify(encryptedTransactionDAO).retrieveAllTransactions();
+        verify(encryptedTransactionDAO).retrieveTransactions(anyInt(), anyInt());
+        verify(encryptedTransactionDAO, times(2)).transactionCount();
         verify(payloadEncoder).forRecipient(payload, recipientKey);
         verify(payloadEncoder).decode(encodedData);
     }
@@ -356,7 +366,8 @@ public class TransactionManagerTest {
         when(payload.getRecipientKeys()).thenReturn(recipients);
         when(payload.getRecipientBoxes()).thenReturn(recipientBoxes);
 
-        when(encryptedTransactionDAO.retrieveAllTransactions()).thenReturn(singletonList(tx));
+        when(encryptedTransactionDAO.retrieveTransactions(anyInt(), anyInt())).thenReturn(singletonList(tx));
+        when(encryptedTransactionDAO.transactionCount()).thenReturn(1L);
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
         when(enclave.getPublicKeys()).thenReturn(singleton(localKey));
 
@@ -370,7 +381,8 @@ public class TransactionManagerTest {
         verify(payloadPublisher).publishPayload(eq(payload), eq(senderKey));
         verify(payloadEncoder, never()).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
 
-        verify(encryptedTransactionDAO).retrieveAllTransactions();
+        verify(encryptedTransactionDAO).retrieveTransactions(anyInt(), anyInt());
+        verify(encryptedTransactionDAO, times(2)).transactionCount();
         verify(payloadEncoder).decode(encodedData);
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(payload, localKey);
@@ -386,7 +398,8 @@ public class TransactionManagerTest {
 
         when(payload.getSenderKey()).thenReturn(senderKey);
         when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
-        when(encryptedTransactionDAO.retrieveAllTransactions()).thenReturn(singletonList(tx));
+        when(encryptedTransactionDAO.retrieveTransactions(anyInt(), anyInt())).thenReturn(singletonList(tx));
+        when(encryptedTransactionDAO.transactionCount()).thenReturn(1L);
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
         when(payload.getRecipientKeys()).thenReturn(new ArrayList<>());
         when(enclave.getPublicKeys()).thenReturn(emptySet());
@@ -401,7 +414,8 @@ public class TransactionManagerTest {
                 .isInstanceOf(KeyNotFoundException.class)
                 .hasMessage("No key found as recipient of message Q0lQSEVSVEVYVA==");
 
-        verify(encryptedTransactionDAO).retrieveAllTransactions();
+        verify(encryptedTransactionDAO).retrieveTransactions(anyInt(), anyInt());
+        verify(encryptedTransactionDAO, times(1)).transactionCount();
         verify(payloadEncoder).decode(encodedData);
         verify(enclave).getPublicKeys();
     }
@@ -412,7 +426,8 @@ public class TransactionManagerTest {
         EncryptedTransaction encryptedTransaction = mock(EncryptedTransaction.class);
         List<EncryptedTransaction> allDbTransactions = Collections.singletonList(encryptedTransaction);
 
-        when(encryptedTransactionDAO.retrieveAllTransactions()).thenReturn(allDbTransactions);
+        when(encryptedTransactionDAO.retrieveTransactions(anyInt(), anyInt())).thenReturn(allDbTransactions);
+        when(encryptedTransactionDAO.transactionCount()).thenReturn((long)allDbTransactions.size());
 
         byte[] transactionBytes = "TRANSACTION".getBytes();
         when(encryptedTransaction.getEncodedPayload()).thenReturn(transactionBytes);
@@ -439,7 +454,8 @@ public class TransactionManagerTest {
         verify(payloadPublisher).publishPayload(encodedPayload, publicKey);
         verify(payloadEncoder).decode(any(byte[].class));
         verify(payloadEncoder).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
-        verify(encryptedTransactionDAO).retrieveAllTransactions();
+        verify(encryptedTransactionDAO).retrieveTransactions(anyInt(), anyInt());
+        verify(encryptedTransactionDAO, times(2)).transactionCount();
 
     }
 
@@ -449,7 +465,8 @@ public class TransactionManagerTest {
         EncryptedTransaction otherEncryptedTransaction = mock(EncryptedTransaction.class);
         List<EncryptedTransaction> allDbTransactions = Arrays.asList(encryptedTransaction, otherEncryptedTransaction);
 
-        when(encryptedTransactionDAO.retrieveAllTransactions()).thenReturn(allDbTransactions);
+        when(encryptedTransactionDAO.retrieveTransactions(anyInt(), anyInt())).thenReturn(allDbTransactions);
+        when(encryptedTransactionDAO.transactionCount()).thenReturn((long)allDbTransactions.size());
 
         byte[] transactionBytes = "TRANSACTION".getBytes();
         byte[] otherTransactionBytes = "OTHER_TRANSACTION".getBytes();
@@ -483,7 +500,8 @@ public class TransactionManagerTest {
         verify(payloadPublisher).publishPayload(otherEncodedPayload, publicKey);
         verify(payloadEncoder, times(2)).decode(any(byte[].class));
         verify(payloadEncoder, times(2)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
-        verify(encryptedTransactionDAO).retrieveAllTransactions();
+        verify(encryptedTransactionDAO).retrieveTransactions(anyInt(), anyInt());
+        verify(encryptedTransactionDAO, times(2)).transactionCount();
     }
 
     @Test
@@ -492,7 +510,8 @@ public class TransactionManagerTest {
         EncryptedTransaction otherEncryptedTransaction = mock(EncryptedTransaction.class);
         List<EncryptedTransaction> allDbTransactions = Arrays.asList(encryptedTransaction, otherEncryptedTransaction);
 
-        when(encryptedTransactionDAO.retrieveAllTransactions()).thenReturn(allDbTransactions);
+        when(encryptedTransactionDAO.retrieveTransactions(anyInt(), anyInt())).thenReturn(allDbTransactions);
+        when(encryptedTransactionDAO.transactionCount()).thenReturn((long)allDbTransactions.size());
 
         byte[] transactionBytes = "TRANSACTION".getBytes();
         byte[] otherTransactionBytes = "OTHER_TRANSACTION".getBytes();
@@ -525,7 +544,8 @@ public class TransactionManagerTest {
 
         transactionManager.resend(resendRequest);
 
-        verify(encryptedTransactionDAO).retrieveAllTransactions();
+        verify(encryptedTransactionDAO).retrieveTransactions(anyInt(), anyInt());
+        verify(encryptedTransactionDAO, times(2)).transactionCount();
         verify(payloadPublisher).publishPayload(encodedPayload, publicKey);
         verify(payloadPublisher).publishPayload(otherEncodedPayload, publicKey);
         verify(payloadEncoder, times(2)).decode(any(byte[].class));
