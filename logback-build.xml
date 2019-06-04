@@ -8,7 +8,7 @@
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %replace(%msg){'[\r\n]', ''}%n</pattern>
         </encoder>
     </appender>
-    <logger name="exec" level="DEBUG" />
+    <logger name="exec" level="STDOUT" />
     <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
