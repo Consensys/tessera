@@ -72,24 +72,25 @@ matrix:
         - mvn deploy --settings .maven.xml -P release -q  || travis_terminate 1
     - if: type = api
       name: "Perform release"
-      before_script:
-        - echo -e "Host github.com\n\tHostName github.com\n\tUser git\n\tIdentityFile ~/.ssh/id_rsa\n" >> ~/.ssh/config
+      jdk:  oraclejdk8
+#      before_script:
+#        - echo -e "Host github.com\n\tHostName github.com\n\tUser git\n\tIdentityFile ~/.ssh/id_rsa\n" >> ~/.ssh/config
       script:
         - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
         - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
         - release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
         - branch_name="release-${release_version}"
         - git checkout -b $branch_name  || travis_terminate 1
+        # make batch/offline i.e. provide version, tag, next dev version as CLI args etc.
         - mvn --settings .maven.xml -B -DpushChanges=true release:prepare || travis_terminate 1
         - mvn --settings .maven.xml -B -DpushChanges=true release:perform || travis_terminate 1
         - echo "TODO: The release branch $branch_name must be manually merged back to master."
-      jdk:  oraclejdk8
 #    - if: branch = travis_changes AND type = push
 #      name: "Deploy site"
 #      jdk:  oraclejdk8
 #      before_install:
 #        - echo -e "machine github.com\n  login $CI_USER_TOKEN" > ~/.netrc
-#      script: 
+#      script:
 #          - mvn site-deploy
 #      install: echo "install"
 
