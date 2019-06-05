@@ -1,9 +1,9 @@
 package com.jpmorgan.quorum.tessera.sync;
 
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.node.model.Party;
-import com.quorum.tessera.node.model.PartyInfo;
-import com.quorum.tessera.node.model.Recipient;
+import com.quorum.tessera.partyinfo.model.Party;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.Recipient;
 import java.net.URI;
 import java.util.Base64;
 import java.util.Collections;

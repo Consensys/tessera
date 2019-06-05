@@ -1,6 +1,6 @@
 package com.jpmorgan.quorum.tessera.sync;
 
-import com.quorum.tessera.node.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
 import java.util.UUID;
 import javax.websocket.RemoteEndpoint.Async;
 import javax.websocket.Session;

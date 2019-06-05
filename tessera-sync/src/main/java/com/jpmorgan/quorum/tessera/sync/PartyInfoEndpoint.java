@@ -1,6 +1,6 @@
 package com.jpmorgan.quorum.tessera.sync;
 
-import com.quorum.tessera.node.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;

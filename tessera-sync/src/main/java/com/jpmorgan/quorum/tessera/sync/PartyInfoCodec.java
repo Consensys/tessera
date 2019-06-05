@@ -1,7 +1,8 @@
 package com.jpmorgan.quorum.tessera.sync;
 
-import com.quorum.tessera.node.PartyInfoParser;
-import com.quorum.tessera.node.model.PartyInfo;
+
+import com.quorum.tessera.partyinfo.PartyInfoParser;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 import javax.websocket.DecodeException;
