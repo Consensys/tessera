@@ -95,7 +95,6 @@ jobs:
         # prepare current branch for release, create release branch, increment development version on current branch
         - mvn --settings .maven.xml -B -DbranchName=${branch_name} release:branch || travis_terminate 1
         - git checkout $branch_name || travis_terminate 1
-
 #        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
 #        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
 #        - release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
@@ -106,10 +105,10 @@ jobs:
 #        - mvn --settings .maven.xml -B -DpushChanges=true release:perform || travis_terminate 1
 #        - echo "TODO: The release branch $branch_name must be manually merged back to master."
 
-      - name: "Create GitHub Release"
-        jdk:  oraclejdk8
-        script:
-          - echo "Job will run..."
+    - name: "Create GitHub Release"
+      jdk:  oraclejdk8
+      script:
+        - echo "Job will run..."
 
 #    - if: branch = travis_changes AND type = push
 #      name: "Deploy site"
