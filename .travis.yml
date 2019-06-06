@@ -13,47 +13,50 @@ install: true
 jobs:
   include:
     - stage: test
-      if: type = pull_request
       name: "Unit Tests Java 8"
+      if: type = pull_request
       jdk:  oraclejdk8
       install: &build_no_checks
         - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
       script: &build_with_unittests
         - mvn install -pl \!tests/acceptance-test -P reduce-logging -o || travis_terminate 1
-    - if: type = pull_request
-      name: "Unit Tests Java 11"
+
+    - name: "Unit Tests Java 11"
+      if: type = pull_request
       jdk:  oraclejdk11
       install: *build_no_checks
       script: *build_with_unittests
-    #Default
-    #    - if: type = pull_request
-    #      name: "Acceptance Tests Java 11"
-    #      jdk:  oraclejdk11
-    #      before_install:
-    #        - rm "${JAVA_HOME}/lib/security/cacerts"
-    #        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
-    #      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
-    #      install: *build_no_checks
-    - if: type = pull_request
-      name: "Acceptance Tests Java 8"
+
+    - name: "Acceptance Tests Java 8"
+      if: type = pull_request
       jdk:  oraclejdk8
+      install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P reduce-logging -o || travis_terminate 1
+
+    #Default
+    - name: "Acceptance Tests Java 11"
+      if: type = pull_request
+      jdk:  oraclejdk11
+#      before_install:
+#        - rm "${JAVA_HOME}/lib/security/cacerts"
+#        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
       install: *build_no_checks
-    #GRPC
-    - if: type = pull_request
-      name: "GRPC Only Acceptance Tests"
+      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+
+    - name: "GRPC Only Acceptance Tests"
+      if: type = pull_request
       jdk:  oraclejdk8
+      install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging -o || travis_terminate 1
-      install: *build_no_checks
-    #Simple
-    - if: type = pull_request
-      name: "Simple Only Acceptance Tests"
+
+    - name: "Simple Only Acceptance Tests"
+      if: type = pull_request
       jdk:  oraclejdk8
-      script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging -o || travis_terminate 1
       install: *build_no_checks
-    #Vault
-    - if: type = pull_request
-      name: "Vault Acceptance Tests Java 8"
+      script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging -o || travis_terminate 1
+
+    - name: "Vault Acceptance Tests Java 8"
+      if: type = pull_request
       jdk:  oraclejdk8
       before_install: &install_hashicorp
         - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
@@ -62,33 +65,31 @@ jobs:
         - export PATH=$PATH:$PWD && popd
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
-    - if: type = pull_request
-      name: "Vault Acceptance Tests Java 11"
+
+    - name: "Vault Acceptance Tests Java 11"
+      if: type = pull_request
       jdk:  oraclejdk11
       before_install: *install_hashicorp
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
 
     - stage: deploy
-#      if: branch = master AND type = push
-      if: type = pull_request
-      name: "Deploy to central"
+      name: "Deploy to OSSRH"
+      if: branch = master AND type = push
       jdk:  oraclejdk8
       script:
+        - echo "Job will run..."
 #        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
 #        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
 #        - mvn deploy --settings .maven.xml -P release,reduce-logging -q || travis_terminate 1
-        - echo "Deploy to central job will run..."
 
     - stage: release
+      name: "Tag on GitHub and deploy to OSSRH"
 #      if: type = api
       if: type = pull_request
-      name: "Perform release"
       jdk:  oraclejdk8
-      #      before_script:
-      #        - echo -e "Host github.com\n\tHostName github.com\n\tUser git\n\tIdentityFile ~/.ssh/id_rsa\n" >> ~/.ssh/config
       script:
-        - echo "Perform release job will run..."
+        - echo "Job will run..."
 #        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
 #        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
 #        - release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
@@ -106,95 +107,6 @@ jobs:
 #      script:
 #          - mvn site-deploy
 #      install: echo "install"
-
-
-#matrix:
-#  include:
-#    - if: type = pull_request
-#      name: "Unit Tests Java 8"
-#      jdk:  oraclejdk8
-#      install: &build_no_checks
-#        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
-#      script: &build_with_unittests
-#        - mvn install -pl \!tests/acceptance-test -P reduce-logging -o || travis_terminate 1
-#    - if: type = pull_request
-#      name: "Unit Tests Java 11"
-#      jdk:  oraclejdk11
-#      install: *build_no_checks
-#      script: *build_with_unittests
-#    #Default
-##    - if: type = pull_request
-##      name: "Acceptance Tests Java 11"
-##      jdk:  oraclejdk11
-##      before_install:
-##        - rm "${JAVA_HOME}/lib/security/cacerts"
-##        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
-##      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
-##      install: *build_no_checks
-#    - if: type = pull_request
-#      name: "Acceptance Tests Java 8"
-#      jdk:  oraclejdk8
-#      script: mvn verify -pl tests/acceptance-test -P reduce-logging -o || travis_terminate 1
-#      install: *build_no_checks
-#    #GRPC
-#    - if: type = pull_request
-#      name: "GRPC Only Acceptance Tests"
-#      jdk:  oraclejdk8
-#      script: mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging -o || travis_terminate 1
-#      install: *build_no_checks
-#    #Simple
-#    - if: type = pull_request
-#      name: "Simple Only Acceptance Tests"
-#      jdk:  oraclejdk8
-#      script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging -o || travis_terminate 1
-#      install: *build_no_checks
-#    #Vault
-#    - if: type = pull_request
-#      name: "Vault Acceptance Tests Java 8"
-#      jdk:  oraclejdk8
-#      before_install: &install_hashicorp
-#        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
-#        - mkdir -p vault/bin && pushd $_
-#        - unzip /tmp/vault_1.0.1_linux_amd64.zip
-#        - export PATH=$PATH:$PWD && popd
-#      install: *build_no_checks
-#      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
-#    - if: type = pull_request
-#      name: "Vault Acceptance Tests Java 11"
-#      jdk:  oraclejdk11
-#      before_install: *install_hashicorp
-#      install: *build_no_checks
-#      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
-#    - if: branch = master AND type = push
-#      name: "Deploy to central"
-#      jdk:  oraclejdk8
-#      script:
-#        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
-#        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-#        - mvn deploy --settings .maven.xml -P release,reduce-logging -q || travis_terminate 1
-#    - if: type = api
-#      name: "Perform release"
-#      jdk:  oraclejdk8
-##      before_script:
-##        - echo -e "Host github.com\n\tHostName github.com\n\tUser git\n\tIdentityFile ~/.ssh/id_rsa\n" >> ~/.ssh/config
-#      script:
-#        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
-#        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-#        - release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
-#        - branch_name="release-${release_version}"
-#        - git checkout -b $branch_name  || travis_terminate 1
-#        # make batch/offline i.e. provide version, tag, next dev version as CLI args etc.
-#        - mvn --settings .maven.xml -B -DpushChanges=true release:prepare || travis_terminate 1
-#        - mvn --settings .maven.xml -B -DpushChanges=true release:perform || travis_terminate 1
-#        - echo "TODO: The release branch $branch_name must be manually merged back to master."
-##    - if: branch = travis_changes AND type = push
-##      name: "Deploy site"
-##      jdk:  oraclejdk8
-##      before_install:
-##        - echo -e "machine github.com\n  login $CI_USER_TOKEN" > ~/.netrc
-##      script:
-##          - mvn site-deploy
-##      install: echo "install"
 
 sudo: enabled
 
