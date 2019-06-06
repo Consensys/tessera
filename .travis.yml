@@ -8,10 +8,13 @@ install: true
 
 stages:
   - name: test
-    if: type = pull_request OR type = api
+#    if: type = pull_request OR type = api
+    if: type = pull_request
   - name: deploy
     if: branch = master AND type = push
-  - name: "Release and Deploy"
+  - name: tag
+    if: type = api
+  - name: release
     if: type = api
 
 jobs:
@@ -78,7 +81,7 @@ jobs:
 #        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
 #        - mvn deploy --settings .maven.xml -P release,reduce-logging -q || travis_terminate 1
 
-    - stage: "Release and Deploy"
+    - stage: tag
       name: "Tag on GitHub and deploy to OSSRH"
       jdk:  oraclejdk8
       script:
@@ -95,20 +98,20 @@ jobs:
         # prepare current branch for release, create release branch, increment development version on current branch
         - mvn --settings .maven.xml -B -DbranchName=${branch_name} release:branch || travis_terminate 1
         - git checkout $branch_name || travis_terminate 1
+        # remove SNAPSHOT version suffix, create a tag in GitHub, increment development version on release branch
+        - mvn --settings .maven.xml -B -DpushChanges=true release:prepare || travis_terminate 1
+
 #        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
 #        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-#        - release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
-#        - branch_name="release-${release_version}"
-#        - git checkout -b $branch_name  || travis_terminate 1
-        # make batch/offline i.e. provide version, tag, next dev version as CLI args etc.
-#        - mvn --settings .maven.xml -B -DpushChanges=true release:prepare || travis_terminate 1
 #        - mvn --settings .maven.xml -B -DpushChanges=true release:perform || travis_terminate 1
 #        - echo "TODO: The release branch $branch_name must be manually merged back to master."
 
-    - name: "Create GitHub Release"
+    - stage: release
+      name: "Create GitHub Release"
       jdk:  oraclejdk8
       script:
         - echo "Job will run..."
+        - echo $TRAVIS_BRANCH
 
 #    - if: branch = travis_changes AND type = push
 #      name: "Deploy site"
