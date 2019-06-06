@@ -14,7 +14,8 @@ jobs:
   include:
     - stage: test
       name: "Unit Tests Java 8"
-      if: type = pull_request OR type = api
+      #if: type = pull_request OR type = api
+      if: type = pull_request
       jdk:  oraclejdk8
       install: &build_no_checks
         - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
@@ -22,20 +23,23 @@ jobs:
         - mvn install -pl \!tests/acceptance-test -P reduce-logging -o || travis_terminate 1
 
     - name: "Unit Tests Java 11"
-      if: type = pull_request OR type = api
+      #if: type = pull_request OR type = api
+      if: type = pull_request
       jdk:  oraclejdk11
       install: *build_no_checks
       script: *build_with_unittests
 
     - name: "Acceptance Tests Java 8"
-      if: type = pull_request OR type = api
+      #if: type = pull_request OR type = api
+      if: type = pull_request
       jdk:  oraclejdk8
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P reduce-logging -o || travis_terminate 1
 
     #Default
     - name: "Acceptance Tests Java 11"
-      if: type = pull_request OR type = api
+      #if: type = pull_request OR type = api
+      if: type = pull_request
       jdk:  oraclejdk11
 #      before_install:
 #        - rm "${JAVA_HOME}/lib/security/cacerts"
@@ -44,19 +48,22 @@ jobs:
       script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
 
     - name: "GRPC Only Acceptance Tests"
-      if: type = pull_request OR type = api
+      #if: type = pull_request OR type = api
+      if: type = pull_request
       jdk:  oraclejdk8
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging -o || travis_terminate 1
 
     - name: "Simple Only Acceptance Tests"
-      if: type = pull_request OR type = api
+      #if: type = pull_request OR type = api
+      if: type = pull_request
       jdk:  oraclejdk8
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging -o || travis_terminate 1
 
     - name: "Vault Acceptance Tests Java 8"
-      if: type = pull_request OR type = api
+      #if: type = pull_request OR type = api
+      if: type = pull_request
       jdk:  oraclejdk8
       before_install: &install_hashicorp
         - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
@@ -67,7 +74,8 @@ jobs:
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
 
     - name: "Vault Acceptance Tests Java 11"
-      if: type = pull_request OR type = api
+      #if: type = pull_request OR type = api
+      if: type = pull_request
       jdk:  oraclejdk11
       before_install: *install_hashicorp
       install: *build_no_checks
@@ -89,6 +97,9 @@ jobs:
       jdk:  oraclejdk8
       script:
         - echo "Job will run..."
+        - echo $TRAVIS_BRANCH
+        - git_status=$(git status)
+        - echo $git_status
 #        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
 #        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
 #        - release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
