@@ -120,6 +120,7 @@ public class ConfigMigrationSteps implements En {
                 .findAny()
                 .get();
 
+            assertThat(migratedConfig.getP2PServerConfig().getSslConfig()).isEqualToComparingFieldByField(sslConfig);
             assertThat(migratedConfig.getP2PServerConfig().getServerAddress()).isEqualTo("http://127.0.0.1:9001");
             assertThat(q2tConfig.getServerAddress()).isEqualTo("unix:" + Paths.get("data", "constellation.ipc"));
             assertThat(migratedConfig.getKeys()).isEqualToComparingFieldByFieldRecursively(keys);

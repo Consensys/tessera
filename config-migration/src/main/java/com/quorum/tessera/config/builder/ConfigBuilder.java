@@ -254,13 +254,12 @@ public class ConfigBuilder {
                 null
         );
 
-        ///
         final ServerConfig q2tConfig = new ServerConfig();
         q2tConfig.setEnabled(true);
         q2tConfig.setApp(AppType.Q2T);
         q2tConfig.setCommunicationType(CommunicationType.REST);
         q2tConfig.setServerAddress("unix:"+ toPath(workDir, unixSocketFile));
-        ///
+
         final ServerConfig p2pConfig = new ServerConfig();
         final String port = (serverPort == null) ? "" : ":"+serverPort;
         final String hostname = (serverHostname == null) ? null : serverHostname + port;
@@ -269,8 +268,7 @@ public class ConfigBuilder {
         p2pConfig.setCommunicationType(CommunicationType.REST);
         p2pConfig.setServerAddress(hostname);
         p2pConfig.setSslConfig(sslConfig);
-        ///
-        
+
         final List<Peer> peerList;
         if(peers != null) {
             peerList = peers.stream().map(Peer::new).collect(Collectors.toList());
