@@ -9,11 +9,9 @@ install: true
 stages:
   - name: test
     if: type = pull_request OR type = api
-  - name: deploy
+  - name: deploy only
     if: branch = master AND type = push
-  - name: tag
-    if: type = api
-  - name: release
+  - name: tag and deploy
     if: type = api
 
 jobs:
@@ -70,7 +68,7 @@ jobs:
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
 
-    - stage: deploy
+    - stage: deploy only
       name: "Deploy to OSSRH"
       jdk:  oraclejdk8
       script:
@@ -78,7 +76,7 @@ jobs:
         - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
         - mvn deploy --settings .maven.xml -P release,reduce-logging -q || travis_terminate 1
 
-    - stage: tag
+    - stage: tag and deploy
       name: "Tag on GitHub and deploy to OSSRH"
       jdk:  oraclejdk8
       script:
@@ -104,13 +102,6 @@ jobs:
         - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
         - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
         - mvn --settings .maven.xml -B release:perform || travis_terminate 1
-
-    - stage: release
-      name: "(ToDo) Create GitHub Release"
-      jdk:  oraclejdk8
-      script:
-        - echo "TODO - Job will run..."
-        - echo $TRAVIS_BRANCH
 
 #    - if: branch = travis_changes AND type = push
 #      name: "Deploy site"
