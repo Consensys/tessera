@@ -1,8 +1,17 @@
 {
     "useWhiteList": false,
-    "server": {
-        "port": 99
-    },
+    "serverConfigs": [
+        {
+            "app": "Q2T",
+            "enabled": true,
+            "serverAddress": "unix:${unixSocketPath}",
+            "communicationType": "REST"
+        },
+        {
+            "app": "P2P",
+            "serverAddress": "http://localhost:8080"
+        }
+    ],
     "peer": [
         {
             "url": "http://bogus1.com"
@@ -30,6 +39,5 @@
             }
         ]
     },
-    "alwaysSendTo": [],
-    "unixSocketFile": "${unixSocketPath}"
+    "alwaysSendTo": []
 }

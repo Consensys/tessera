@@ -15,7 +15,7 @@
         {
             "app": "Q2T",
             "enabled": true,
-            "serverAddress": "unix:/tmp/test.ipc",
+            "serverAddress": "unix:${unixSocketPath}",
             "communicationType": "REST"
         },
         {
@@ -53,6 +53,5 @@
         "passwords": [],
         "keyData": []
     },
-    "alwaysSendTo": [],
-    "unixSocketFile": "${unixSocketPath}"
+    "alwaysSendTo": []
 }

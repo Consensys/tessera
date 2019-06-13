@@ -103,41 +103,30 @@ public class ConfigMigrationSteps implements En {
             sslConfig.setClientTrustMode(SslTrustMode.CA_OR_TOFU);
             sslConfig.setKnownServersFile(Paths.get("data", "tls-known-servers").toAbsolutePath());
 
-            final DeprecatedServerConfig server = new DeprecatedServerConfig();
-            server.setSslConfig(sslConfig);
-            server.setHostName("http://127.0.0.1");
-            server.setPort(9001);
-            server.setCommunicationType(CommunicationType.REST);
-
             final KeyConfiguration keys = new KeyConfiguration();
-            keys.setKeyData(Arrays.asList(
+            keys.setKeyData(Collections.singletonList(
                 new FilesystemKeyPair(
-                    Paths.get("data", "foo.pub").toAbsolutePath(),
-                    Paths.get("data", "foo.key").toAbsolutePath())
+                    Paths.get("data", "foo.pub").toAbsolutePath(), Paths.get("data", "foo.key").toAbsolutePath()
+                )
             ));
             keys.setPasswordFile(Paths.get("data", "passwords").toAbsolutePath());
 
-            final JdbcConfig jdbcConfig = new JdbcConfig();
-            jdbcConfig.setUrl("jdbc:h2:mem:tessera");
+            final JdbcConfig jdbcConfig = new JdbcConfig(null, null, "jdbc:h2:mem:tessera");
 
-            final Config legacyConfig = new Config();
-            legacyConfig.setServer(server);
-            legacyConfig.setPeers(Arrays.asList(new Peer("http://127.0.0.1:9000/")));
-            legacyConfig.setKeys(keys);
-            legacyConfig.setJdbcConfig(jdbcConfig);
-            legacyConfig.setUnixSocketFile(Paths.get("data", "constellation.ipc").toAbsolutePath());
-            legacyConfig.setAlwaysSendTo(Collections.emptyList());
+            final ServerConfig q2tConfig = migratedConfig
+                .getServerConfigs()
+                .stream()
+                .filter(ServerConfig::isUnixSocket)
+                .findAny()
+                .get();
 
-            assertThat(migratedConfig.getServer()).isEqualToComparingFieldByFieldRecursively(legacyConfig.getServer());
-            assertThat(migratedConfig.getKeys()).isEqualToComparingFieldByFieldRecursively(legacyConfig.getKeys());
-            assertThat(migratedConfig.getUnixSocketFile()).isEqualTo(legacyConfig.getUnixSocketFile());
-            assertThat(migratedConfig.getJdbcConfig()).isEqualToComparingFieldByField(legacyConfig.getJdbcConfig());
-            assertThat(migratedConfig.getP2PServerConfig()).isEqualToComparingFieldByFieldRecursively(legacyConfig.getP2PServerConfig());
-            assertThat(migratedConfig.getAlwaysSendTo()).isEqualTo(legacyConfig.getAlwaysSendTo());
-            assertThat(migratedConfig.getServerConfigs().size()).isEqualTo(legacyConfig.getServerConfigs().size());
-            assertThat(migratedConfig.getServerConfigs()).hasSize(2);
-            assertThat(migratedConfig.getServerConfigs()).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(legacyConfig.getServerConfigs().get(0), legacyConfig.getServerConfigs().get(1));
-            assertThat(migratedConfig.getPeers()).isEqualTo(legacyConfig.getPeers());
+            assertThat(migratedConfig.getP2PServerConfig().getSslConfig()).isEqualToComparingFieldByField(sslConfig);
+            assertThat(migratedConfig.getP2PServerConfig().getServerAddress()).isEqualTo("http://127.0.0.1:9001");
+            assertThat(q2tConfig.getServerAddress()).isEqualTo("unix:" + Paths.get("data", "constellation.ipc"));
+            assertThat(migratedConfig.getKeys()).isEqualToComparingFieldByFieldRecursively(keys);
+            assertThat(migratedConfig.getJdbcConfig()).isEqualToComparingFieldByField(jdbcConfig);
+            assertThat(migratedConfig.getAlwaysSendTo()).isEqualTo(Collections.emptyList());
+            assertThat(migratedConfig.getPeers()).containsExactlyInAnyOrder(new Peer("http://127.0.0.1:9000/"));
         });
 
     }
