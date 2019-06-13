@@ -4,7 +4,7 @@ import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.config.util.PasswordReader;
+import com.quorum.tessera.passwords.PasswordReader;
 import org.junit.Before;
 import org.junit.Test;
 

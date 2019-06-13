@@ -14,7 +14,7 @@ import com.quorum.tessera.config.cli.parsers.KeyGenerationParser;
 import com.quorum.tessera.config.cli.parsers.KeyUpdateParser;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
-import com.quorum.tessera.config.util.PasswordReaderFactory;
+import com.quorum.tessera.passwords.PasswordReaderFactory;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

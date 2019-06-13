@@ -3,10 +3,10 @@ package com.quorum.tessera.key.generation;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
-import com.quorum.tessera.config.util.PasswordReaderFactory;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.key.vault.KeyVaultServiceFactory;
 import com.quorum.tessera.nacl.NaclFacadeFactory;
+import com.quorum.tessera.passwords.PasswordReaderFactory;
 
 public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
 

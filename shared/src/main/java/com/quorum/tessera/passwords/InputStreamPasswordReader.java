@@ -1,6 +1,4 @@
-package com.quorum.tessera.config.util;
-
-import org.apache.commons.lang3.StringUtils;
+package com.quorum.tessera.passwords;
 
 import java.io.InputStream;
 import java.util.Scanner;
@@ -20,7 +18,7 @@ public class InputStreamPasswordReader implements PasswordReader {
         if (this.inputStream.hasNextLine()) {
             return this.inputStream.nextLine();
         } else {
-            return StringUtils.EMPTY;
+            return "";
         }
     }
 
