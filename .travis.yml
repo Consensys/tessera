@@ -6,49 +6,53 @@ env:
 
 install: true
 
-matrix:
+stages:
+  - name: test
+    if: type = pull_request OR type = api
+  - name: deploy only
+    if: branch = master AND type = push
+  - name: tag and deploy
+    if: type = api
+
+jobs:
   include:
-    - if: type = pull_request
+    - stage: test
       name: "Unit Tests Java 8"
       jdk:  oraclejdk8
       install: &build_no_checks
         - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
       script: &build_with_unittests
         - mvn install -pl \!tests/acceptance-test -P reduce-logging -o || travis_terminate 1
-    - if: type = pull_request
-      name: "Unit Tests Java 11"
+
+    - name: "Unit Tests Java 11"
       jdk:  oraclejdk11
       install: *build_no_checks
       script: *build_with_unittests
-    #Default
-#    - if: type = pull_request
-#      name: "Acceptance Tests Java 11"
-#      jdk:  oraclejdk11
+
+    - name: "Acceptance Tests Java 8"
+      jdk:  oraclejdk8
+      install: *build_no_checks
+      script: mvn verify -pl tests/acceptance-test -P reduce-logging -o || travis_terminate 1
+
+    - name: "Acceptance Tests Java 11"
+      jdk:  oraclejdk11
 #      before_install:
 #        - rm "${JAVA_HOME}/lib/security/cacerts"
 #        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
-#      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
-#      install: *build_no_checks
-    - if: type = pull_request
-      name: "Acceptance Tests Java 8"
-      jdk:  oraclejdk8
-      script: mvn verify -pl tests/acceptance-test -P reduce-logging -o || travis_terminate 1
       install: *build_no_checks
-    #GRPC
-    - if: type = pull_request
-      name: "GRPC Only Acceptance Tests"
+      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+
+    - name: "GRPC Only Acceptance Tests"
       jdk:  oraclejdk8
+      install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging -o || travis_terminate 1
-      install: *build_no_checks
-    #Simple
-    - if: type = pull_request
-      name: "Simple Only Acceptance Tests"
+
+    - name: "Simple Only Acceptance Tests"
       jdk:  oraclejdk8
-      script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging -o || travis_terminate 1
       install: *build_no_checks
-    #Vault
-    - if: type = pull_request
-      name: "Vault Acceptance Tests Java 8"
+      script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging -o || travis_terminate 1
+
+    - name: "Vault Acceptance Tests Java 8"
       jdk:  oraclejdk8
       before_install: &install_hashicorp
         - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
@@ -57,34 +61,48 @@ matrix:
         - export PATH=$PATH:$PWD && popd
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
-    - if: type = pull_request
-      name: "Vault Acceptance Tests Java 11"
+
+    - name: "Vault Acceptance Tests Java 11"
       jdk:  oraclejdk11
       before_install: *install_hashicorp
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
-    - if: branch = master AND type = push
-      name: "Deploy to central"
+
+    - stage: deploy only
+      name: "Deploy to OSSRH"
       jdk:  oraclejdk8
       script:
         - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
         - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
         - mvn deploy --settings .maven.xml -P release,reduce-logging -q || travis_terminate 1
-    - if: type = api
-      name: "Perform release"
+
+    - stage: tag and deploy
+      name: "Tag on GitHub and deploy to OSSRH"
       jdk:  oraclejdk8
-#      before_script:
-#        - echo -e "Host github.com\n\tHostName github.com\n\tUser git\n\tIdentityFile ~/.ssh/id_rsa\n" >> ~/.ssh/config
       script:
-        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
-        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
+        - head_ref=$(git rev-parse HEAD) || travis_terminate 1
+        - branch_ref=$(git rev-parse "$TRAVIS_BRANCH") || travis_terminate 1
+        - |
+          if [[ $head_ref != $branch_ref ]]; then
+            echo "HEAD ref ($head_ref) does not match $TRAVIS_BRANCH ref ($branch_ref).  New commits may have been pushed before the build cloned the repo"
+          return 0
+          fi
+        - git checkout $TRAVIS_BRANCH || travis_terminate 1
         - release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
         - branch_name="release-${release_version}"
-        - git checkout -b $branch_name  || travis_terminate 1
-        # make batch/offline i.e. provide version, tag, next dev version as CLI args etc.
+
+        # prepare current branch for release, create release branch, increment development version on current branch
+        - mvn --settings .maven.xml -B -DbranchName=${branch_name} release:branch || travis_terminate 1
+        - git checkout $branch_name || travis_terminate 1
+
+        # remove SNAPSHOT version suffix, create a tag in GitHub, increment development version on release branch
         - mvn --settings .maven.xml -B -DpushChanges=true release:prepare || travis_terminate 1
-        - mvn --settings .maven.xml -B -DpushChanges=true release:perform || travis_terminate 1
-        - echo "TODO: The release branch $branch_name must be manually merged back to master."
+
+        # check out tag from GitHub, build then deploy to OSSRH
+        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
+        - mvn --settings .maven.xml -B release:perform || travis_terminate 1
+
 #    - if: branch = travis_changes AND type = push
 #      name: "Deploy site"
 #      jdk:  oraclejdk8
