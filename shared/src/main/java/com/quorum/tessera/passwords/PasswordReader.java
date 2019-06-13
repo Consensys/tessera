@@ -1,6 +1,7 @@
-package com.quorum.tessera.config.util;
+package com.quorum.tessera.passwords;
 
 import com.quorum.tessera.io.SystemAdapter;
+
 import java.util.Objects;
 
 /**
