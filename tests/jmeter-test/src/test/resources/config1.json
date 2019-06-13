@@ -5,10 +5,23 @@
         "password": "",
         "url": "jdbc:h2:./target/h2/tess1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
     },
-    "server": {
-        "port": 8080,
-        "hostName": "http://localhost"
-    },
+    "serverConfigs": [
+        {
+            "app": "Q2T",
+            "enabled": true,
+            "serverAddress": "unix:/tmp/tm1.ipc",
+            "communicationType": "REST"
+        },
+        {
+            "app": "P2P",
+            "enabled": true,
+            "serverAddress": "http://localhost:8080",
+            "communicationType": "REST",
+            "sslConfig": {
+                "tls": "OFF"
+            }
+        }
+    ],
     "peer": [
         {
             "url": "http://localhost:8081"
@@ -23,6 +36,5 @@
             }
         ]
     },
-    "alwaysSendTo": [],
-    "unixSocketFile": "/tmp/tm1.ipc"
+    "alwaysSendTo": []
 }
