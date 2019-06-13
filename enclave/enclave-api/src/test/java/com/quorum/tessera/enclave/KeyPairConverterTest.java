@@ -1,4 +1,4 @@
-package com.quorum.tessera.keypairconverter;
+package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.keypairs.*;
