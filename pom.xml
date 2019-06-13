@@ -312,8 +312,8 @@
                                 <exclude>com/quorum/tessera/Launcher*</exclude>
                                 <exclude>com/quorum/tessera/data/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/config/migration/Main*</exclude>
-                                <exclude>com/quorum/tessera/config/util/ConsolePasswordReader*</exclude>
-                                <exclude>com/quorum/tessera/config/util/PasswordReaderFactory*</exclude>
+                                <exclude>com/quorum/tessera/passwords/ConsolePasswordReader*</exclude>
+                                <exclude>com/quorum/tessera/passwords/PasswordReaderFactory*</exclude>
                                 <exclude>com/quorum/tessera/key/vault/azure/AzureKeyVaultClientDelegate*</exclude>
                                 <exclude>com/quorum/tessera/key/vault/hashicorp/KeyValueOperationsDelegateFactory*
                                 </exclude>

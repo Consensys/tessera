@@ -7,10 +7,10 @@ import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.io.IOCallback;
 import com.quorum.tessera.nacl.NaclFacade;
+import com.quorum.tessera.passwords.PasswordReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
