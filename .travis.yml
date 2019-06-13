@@ -74,7 +74,7 @@ jobs:
       script:
         - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
         - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-        - travis_wait 30 mvn deploy --settings .maven.xml -B -P release,reduce-logging -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn || travis_terminate 1
+        - travis_wait 60 mvn deploy --settings .maven.xml -B -P release,reduce-logging -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Djavadoc.skip=true || travis_terminate 1
 
     - stage: tag and deploy
       name: "Tag on GitHub and deploy to OSSRH"
