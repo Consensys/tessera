@@ -447,6 +447,7 @@
         <module>jaxrs-client</module>
         <module>key-vault</module>
         <module>key-generation</module>
+        <module>key-pair-converter</module>
         <module>ddls</module>
         <module>enclave</module>
         <module>tessera-dist</module>
