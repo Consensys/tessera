@@ -36,7 +36,6 @@ public class KeyReadingTest {
         assertThat(config.getKeys().getKeyData()).isNotNull().hasSize(1);
         assertThat(config.getKeys().getKeyData().get(0).getPublicKey()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
         assertThat(config.getKeys().getKeyData().get(0).getPrivateKey()).isEqualTo("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=");
-
     }
 
     @Test
@@ -49,8 +48,7 @@ public class KeyReadingTest {
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getKeys().getKeyData()).isNotNull().hasSize(1);
         assertThat(config.getKeys().getKeyData().get(0).getPublicKey()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
-        assertThat(config.getKeys().getKeyData().get(0).getPrivateKey()).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
-
+        assertThat(config.getKeys().getKeyData().get(0).getPrivateKey()).isEqualTo("gZ+NvhPTi3MDaGNVvQLtlT83oEtsr2DlXww3zXnJ7mU=");
     }
 
     @Test
@@ -64,8 +62,7 @@ public class KeyReadingTest {
         assertThat(config.getKeys().getKeyData()).isNotNull().hasSize(1);
         ConfigKeyPair keyPair = config.getKeys().getKeyData().get(0);
         assertThat(keyPair.getPublicKey()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
-        assertThat(keyPair.getPrivateKey()).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
-
+        assertThat(keyPair.getPrivateKey()).isEqualTo("gZ+NvhPTi3MDaGNVvQLtlT83oEtsr2DlXww3zXnJ7mU=");
     }
 
     @Test
@@ -79,13 +76,11 @@ public class KeyReadingTest {
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getKeys().getKeyData()).isNotNull().hasSize(1);
         assertThat(config.getKeys().getKeyData().get(0).getPublicKey()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
-        assertThat(config.getKeys().getKeyData().get(0).getPrivateKey()).isEqualTo("6ccai0+GXRRVbNckE+JubN+UQ9+8pMCx86dZI683X7w=");
-
+        assertThat(config.getKeys().getKeyData().get(0).getPrivateKey()).isEqualTo("gZ+NvhPTi3MDaGNVvQLtlT83oEtsr2DlXww3zXnJ7mU=");
     }
 
     @Test
     public void pubPrivUsingPassUnlocked() {
-
         final Config config = JaxbUtil.unmarshal(
             getClass().getResourceAsStream("/keytests/pubPrivUsingPathsUnlocked.json"), Config.class
         );
@@ -96,7 +91,6 @@ public class KeyReadingTest {
         assertThat(config.getKeys().getKeyData()).isNotNull().hasSize(1);
         assertThat(config.getKeys().getKeyData().get(0).getPublicKey()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
         assertThat(config.getKeys().getKeyData().get(0).getPrivateKey()).isEqualTo("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=");
-
     }
 
     @Test
