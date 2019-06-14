@@ -8,7 +8,6 @@ import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.encryption.KeyManagerImpl;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.keypairconverter.KeyPairConverter;
 import com.quorum.tessera.nacl.NaclFacadeFactory;
 
 import java.util.Collection;

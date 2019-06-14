@@ -45,15 +45,8 @@
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>key-pair-converter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>key-vault-api</artifactId>
         </dependency>
-
-
 
         <dependency>
             <groupId>javax.transaction</groupId>
