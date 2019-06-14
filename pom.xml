@@ -447,7 +447,6 @@
         <module>jaxrs-client</module>
         <module>key-vault</module>
         <module>key-generation</module>
-        <module>key-pair-converter</module>
         <module>ddls</module>
         <module>enclave</module>
         <module>tessera-dist</module>
@@ -491,12 +490,6 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>admin-cli</artifactId>
-                <version>0.10-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>key-pair-converter</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
 
