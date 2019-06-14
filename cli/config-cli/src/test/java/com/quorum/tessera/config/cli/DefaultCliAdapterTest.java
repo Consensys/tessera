@@ -363,7 +363,7 @@ public class DefaultCliAdapterTest {
         final CliResult result = cliDelegate.execute(
             "-updatepassword",
             "--keys.keyData.privateKeyPath", key.toString(),
-            "--keys.passwords", "q",
+            "--keys.passwords", "testpassword",
             "-keygen"
         );
 
