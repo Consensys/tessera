@@ -39,13 +39,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>key-pair-converter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-
         <!--        <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
@@ -149,12 +142,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>key-pair-converter</artifactId>
             <scope>runtime</scope>
         </dependency>
 

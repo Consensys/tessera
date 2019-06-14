@@ -1,33 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>enclave-api</artifactId>
+
     <parent>
         <artifactId>enclave</artifactId>
         <groupId>com.jpmorgan.quorum</groupId>
         <version>0.10-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>enclave-api</artifactId>
 
     <dependencies>
 
-        
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>config</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>key-pair-converter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>encryption-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>shared</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>key-vault-api</artifactId>
         </dependency>
 
         <dependency>
@@ -37,6 +42,5 @@
         </dependency>
 
     </dependencies>
-
 
 </project>
