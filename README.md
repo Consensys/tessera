@@ -4,7 +4,7 @@
 
 # <img src="TesseraLogo.png" width="150" height="150"/>
 
-> __Important: Release 0.9 Feature__ <br/>Tessera now supports remote enclaves for increased security. Please refer to the [wiki](https://github.com/jpmorganchase/tessera/wiki/What-is-an-Enclave%3F) for details. 
+> __Important: Release 0.9 Feature__ <br/>Tessera is the transaction manager used by the Ledgerium Blockchain Core to maintain the private transactions. Tessera supports remote enclaves for increased security. Please refer to the [wiki](https://github.com/jpmorganchase/tessera/wiki/What-is-an-Enclave%3F) for details. 
 
 Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/jpmorganchase/quorum/).
 
@@ -33,7 +33,7 @@ Each Tessera node:
 ## Building Tessera
 To build and install Tessera:
 1. Clone this repo
-1. Build using Maven (see below)
+2. Build using Maven (see below)
 
 
 ### Selecting an NaCl Implementation 
