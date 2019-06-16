@@ -1,0 +1,44 @@
+{
+    "useWhiteList": false,
+    "jdbc": {
+        "username": "scott",
+        "password": "tiger",
+        "url": "foo:bar"
+    },
+    "serverConfigs": [
+        {
+            "app": "ThirdParty",
+            "enabled": true,
+            "serverAddress": "http://localhost:8090",
+            "communicationType": "REST"
+        },
+        {
+            "app": "Q2T",
+            "enabled": true,
+            "serverAddress": "unix:${unixSocketPath}",
+            "communicationType": "REST"
+        },
+        {
+            "app": "P2P",
+            "enabled": true,
+            "serverAddress": "http://localhost:8091",
+            "sslConfig": {
+                "tls": "OFF"
+            },
+            "communicationType": "REST"
+        }
+    ],
+    "peer": [
+        {
+            "url": "http://bogus1.com"
+        },
+        {
+            "url": "http://bogus2.com"
+        }
+    ],
+    "keys": {
+        "passwords": [],
+        "keyData": []
+    },
+    "alwaysSendTo": []
+}

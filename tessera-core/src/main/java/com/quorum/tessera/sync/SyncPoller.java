@@ -1,16 +1,19 @@
 package com.quorum.tessera.sync;
 
-import com.quorum.tessera.client.P2pClient;
-import com.quorum.tessera.node.PartyInfoParser;
-import com.quorum.tessera.node.PartyInfoService;
-import com.quorum.tessera.node.model.PartyInfo;
+import com.quorum.tessera.partyinfo.P2pClient;
+import com.quorum.tessera.partyinfo.PartyInfoParser;
+import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.Party;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.sync.model.SyncableParty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 /**
  * A poller that will contact all outstanding parties that need to have
@@ -54,7 +57,14 @@ public class SyncPoller implements Runnable {
     @Override
     public void run() {
 
-        this.resendPartyStore.addUnseenParties(partyInfoService.getPartyInfo().getParties());
+        final PartyInfo partyInfo = partyInfoService.getPartyInfo();
+        final Set<Party> unseenParties = partyInfo
+                .getParties()
+                .stream()
+                .filter(p -> !p.getUrl().equals(partyInfo.getUrl()))
+                .collect(Collectors.toSet());
+        LOGGER.debug("Unseen parties {}", unseenParties);
+        this.resendPartyStore.addUnseenParties(unseenParties);
 
         Optional<SyncableParty> nextPartyToSend = this.resendPartyStore.getNextParty();
 
@@ -65,7 +75,7 @@ public class SyncPoller implements Runnable {
 
             final Runnable action = () -> {
 
-                // perform a getPartyInfo in order to ensure that the target tessera has the current tessera as a recipient
+                // perform a sendPartyInfo in order to ensure that the target tessera has the current tessera as a recipient
                 boolean allSucceeded = updatePartyInfo(url);
 
                 if (allSucceeded) {
@@ -92,7 +102,7 @@ public class SyncPoller implements Runnable {
             final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
             // we deliberately discard the response as we do not want to fully duplicate the PartyInfoPoller
-            return null != p2pClient.getPartyInfo(url, encodedPartyInfo);
+            return p2pClient.sendPartyInfo(url, encodedPartyInfo);
         } catch (final Exception ex) {
             LOGGER.warn("Server error {} when connecting to {}", ex.getMessage(), url);
             LOGGER.debug(null, ex);

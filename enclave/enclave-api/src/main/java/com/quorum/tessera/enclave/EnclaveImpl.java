@@ -60,7 +60,7 @@ public class EnclaveImpl implements Enclave {
 
     @Override
     public EncodedPayload encryptPayload(final RawTransaction rawTransaction,
-                                                       final List<PublicKey> recipientPublicKeys) {
+                                         final List<PublicKey> recipientPublicKeys) {
         final MasterKey masterKey = this.getMasterKey(
             rawTransaction.getFrom(), rawTransaction.getFrom(),
             rawTransaction.getNonce(), rawTransaction.getEncryptedKey()
@@ -112,7 +112,7 @@ public class EnclaveImpl implements Enclave {
 
         final PublicKey recipientPubKey;
 
-        if (!keyManager.getPublicKeys().contains(payload.getSenderKey())) {
+        if (!this.getPublicKeys().contains(payload.getSenderKey())) {
             // This is a payload originally sent to us by another node
             senderPubKey = providedSenderKey;
             recipientPubKey = payload.getSenderKey();
@@ -163,5 +163,10 @@ public class EnclaveImpl implements Enclave {
     @Override
     public Set<PublicKey> getPublicKeys() {
         return keyManager.getPublicKeys();
+    }
+
+    @Override
+    public Status status() {
+        return Status.STARTED;
     }
 }

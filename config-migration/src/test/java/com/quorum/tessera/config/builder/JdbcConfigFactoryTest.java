@@ -12,8 +12,7 @@ public class JdbcConfigFactoryTest {
 
         JdbcConfig jdbcConfig = JdbcConfigFactory.fromLegacyStorageString("sqlite:somepath");
 
-        assertThat(jdbcConfig.getUrl())
-                .isEqualTo("jdbc:sqlite:somepath");
+        assertThat(jdbcConfig.getUrl()).isEqualTo("jdbc:sqlite:somepath");
         assertThat(jdbcConfig.getUsername()).isNull();
         assertThat(jdbcConfig.getPassword()).isNull();
 
@@ -24,8 +23,7 @@ public class JdbcConfigFactoryTest {
 
         JdbcConfig jdbcConfig = JdbcConfigFactory.fromLegacyStorageString("memory");
 
-        assertThat(jdbcConfig.getUrl())
-                .isEqualTo("jdbc:h2:mem:tessera");
+        assertThat(jdbcConfig.getUrl()).isEqualTo("jdbc:h2:mem:tessera");
         assertThat(jdbcConfig.getUsername()).isNull();
         assertThat(jdbcConfig.getPassword()).isNull();
 
@@ -34,7 +32,6 @@ public class JdbcConfigFactoryTest {
     @Test(expected = IllegalArgumentException.class)
     public void nullIsNotAllowed() {
         JdbcConfigFactory.fromLegacyStorageString(null);
-
     }
 
     @Test
@@ -50,6 +47,5 @@ public class JdbcConfigFactoryTest {
     public void unknownIsNotSupported() {
         JdbcConfigFactory.fromLegacyStorageString("unknown");
     }
-
 
 }

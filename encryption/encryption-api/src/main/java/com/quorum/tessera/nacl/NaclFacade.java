@@ -9,7 +9,7 @@ import com.quorum.tessera.encryption.SharedKey;
 /**
  * The API provided to the application that all implementation of this API
  * module should extend
- *
+ * <p>
  * Provides all function relating to encrypting and decrypting messages
  * using public/private and symmetric keys.
  */
@@ -66,7 +66,7 @@ public interface NaclFacade {
         SharedKey sharedKey = SharedKey.from(masterKey.getKeyBytes());
         return sealAfterPrecomputation(message, nonce, sharedKey);
     }
-    
+
     /**
      * Decrypts a payload using the shared key between the sender and recipient
      *
@@ -97,16 +97,29 @@ public interface NaclFacade {
      * @return The randomly generated key
      */
     SharedKey createSingleKey();
-    
+
+    /**
+     * Create a randomly generated {@link MasterKey}
+     *
+     * @return a random {@link MasterKey}
+     */
     default MasterKey createMasterKey() {
         SharedKey sharedKey = createSingleKey();
         return MasterKey.from(sharedKey.getKeyBytes());
     }
 
+    /**
+     * Decrypts a payload using the given {@link MasterKey}
+     *
+     * @param cipherText      the ciphertext to decrypt
+     * @param cipherTextNonce the nonce that was used to encrypt the payload
+     * @param masterKey       the key used to encrypt the payload
+     * @return the decrypted payload
+     * @see NaclFacade#openAfterPrecomputation(byte[], Nonce, SharedKey)
+     */
     default byte[] openAfterPrecomputation(byte[] cipherText, Nonce cipherTextNonce, MasterKey masterKey) {
         SharedKey sharedKey = SharedKey.from(masterKey.getKeyBytes());
         return openAfterPrecomputation(cipherText, cipherTextNonce, sharedKey);
     }
-    
 
 }

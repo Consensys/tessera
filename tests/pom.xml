@@ -4,7 +4,7 @@
     <parent>
         <artifactId>tessera</artifactId>
         <groupId>com.jpmorgan.quorum</groupId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.10-SNAPSHOT</version>
     </parent>
     
     <modelVersion>4.0.0</modelVersion>
@@ -18,12 +18,69 @@
         <module>jmeter-test</module>
     </modules>
 
+
+
+    <properties>
+        <tesssra.app.classifer>app</tesssra.app.classifer>
+        <enclave.server.classifer>server</enclave.server.classifer>
+    </properties>
+
+    <dependencyManagement>
+
+        <dependencies>
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>tessera-app</artifactId>
+                <classifier>${tesssra.app.classifer}</classifier>
+                <version>0.10-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>tessera-simple</artifactId>
+                <classifier>${tesssra.app.classifer}</classifier>
+                <version>0.10-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>tessera-grpc</artifactId>
+                <classifier>${tesssra.app.classifer}</classifier>
+                <version>0.10-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>enclave-jaxrs</artifactId>
+                <classifier>${enclave.server.classifer}</classifier>
+                <version>0.10-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <profiles>
         <profile>
             <id>performance-test</id>
             <modules>
                 <module>jmeter-test</module>
             </modules>
+        </profile>
+
+        <profile>
+            <id>afterjdk9</id>
+            <activation>
+                <jdk>[9,12)</jdk>
+            </activation>
+            <properties>
+                <enclave.server.classifer>jdk${java.vm.specification.version}_server</enclave.server.classifer>
+                <tesssra.app.classifer>jdk${java.vm.specification.version}_app</tesssra.app.classifer>
+            </properties>
+
         </profile>
     </profiles>
 

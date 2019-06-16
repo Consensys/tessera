@@ -4,8 +4,15 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tessera</artifactId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.10-SNAPSHOT</version>
     </parent>
     <artifactId>shared</artifactId>
     <packaging>jar</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>org.eclipse.persistence.moxy</artifactId>
+        </dependency>
+    </dependencies>
+    
 </project>

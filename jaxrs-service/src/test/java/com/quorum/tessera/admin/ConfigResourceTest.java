@@ -1,9 +1,11 @@
 package com.quorum.tessera.admin;
 
+import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.core.config.ConfigService;
-import com.quorum.tessera.node.PartyInfoService;
-import com.quorum.tessera.node.model.PartyInfo;
+
+import com.quorum.tessera.encryption.PublicKey;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,8 +13,7 @@ import org.mockito.Mockito;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -107,7 +108,7 @@ public class ConfigResourceTest {
 
     @Test
     public void getPeerNotFound() {
-        final Peer peer = new Peer("getPeerNoptFound");
+        final Peer peer = new Peer("getPeerNotFound");
         when(configService.getPeers()).thenReturn(singletonList(peer));
 
         final Throwable throwable = catchThrowable(() -> this.configResource.getPeer(2));
@@ -130,6 +131,84 @@ public class ConfigResourceTest {
         assertThat(results).containsExactly(peer);
 
         verify(configService).getPeers();
+    }
+
+    @Test
+    public void getKeyPairResponseEntityIsReturnedIfNodeHasKeyPair() {
+        String base64Pub = "grQjd3dBp4qFs8/5Jdq7xjz++aUx/LXAqISFyPWaCRw=";
+
+        Base64.Decoder base64Decoder = Base64.getDecoder();
+        PublicKey publicKey = PublicKey.from(base64Decoder.decode(base64Pub));
+
+        Set<PublicKey> publicKeys = mock(Set.class);
+        when(publicKeys.contains(publicKey)).thenReturn(true);
+        when(configService.getPublicKeys()).thenReturn(publicKeys);
+
+        PublicKeyResponse expected = new PublicKeyResponse(base64Pub);
+
+        Response response = configResource.getKeyPair(base64Pub);
+
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getEntity()).isEqualToComparingFieldByField(expected);
+
+        verify(configService).getPublicKeys();
+    }
+
+    @Test
+    public void getKeyPairIfNodeDoesNotHaveKeyPairThenExceptionThrown() {
+        String base64Pub = "grQjd3dBp4qFs8/5Jdq7xjz++aUx/LXAqISFyPWaCRw=";
+
+        Base64.Decoder base64Decoder = Base64.getDecoder();
+        PublicKey publicKey = PublicKey.from(base64Decoder.decode(base64Pub));
+
+        Set<PublicKey> publicKeys = mock(Set.class);
+        when(publicKeys.contains(publicKey)).thenReturn(false);
+        when(configService.getPublicKeys()).thenReturn(publicKeys);
+
+        Throwable ex = catchThrowable(() -> configResource.getKeyPair(base64Pub));
+
+        verify(configService).getPublicKeys();
+        assertThat(ex).isNotNull();
+        assertThat(ex).isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    public void getKeyPairsReturnsListInResponseEntity() {
+        Base64.Decoder base64Decoder = Base64.getDecoder();
+
+        String keyA = "keyA";
+        String keyB = "keyB";
+
+        Set<PublicKey> publicKeys = new HashSet<>();
+        publicKeys.add(PublicKey.from(base64Decoder.decode(keyA)));
+        publicKeys.add(PublicKey.from(base64Decoder.decode(keyB)));
+
+        when(configService.getPublicKeys()).thenReturn(publicKeys);
+
+        final List<PublicKeyResponse> expected = new ArrayList<>();
+        PublicKeyResponse pkrA = new PublicKeyResponse(keyA);
+
+        PublicKeyResponse pkrB = new PublicKeyResponse(keyB);
+
+        expected.add(pkrA);
+        expected.add(pkrB);
+
+        Response response = configResource.getKeyPairs();
+
+        verify(configService).getPublicKeys();
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getEntity()).isEqualToComparingFieldByFieldRecursively(expected);
+    }
+
+    @Test
+    public void getKeyPairsReturnsEmptyListIfNoKeyPairs() {
+        when(configService.getPublicKeys()).thenReturn(Collections.emptySet());
+
+        Response response = configResource.getKeyPairs();
+
+        verify(configService).getPublicKeys();
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getEntity()).isEqualToComparingFieldByFieldRecursively(Collections.emptyList());
     }
 
 }

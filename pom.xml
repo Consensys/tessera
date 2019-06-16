@@ -5,11 +5,11 @@
 
     <groupId>com.jpmorgan.quorum</groupId>
     <artifactId>tessera</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.10-SNAPSHOT</version>
 
     <name>tessera</name>
     <packaging>pom</packaging>
-   
+
     <url>https://github.com/jpmorganchase/tessera</url>
     <issueManagement>
         <system>github</system>
@@ -18,12 +18,14 @@
 
     <scm>
         <url>https://github.com/jpmorganchase/tessera</url>
-        <connection>scm:git:git://github.com/jpmorganchase/tessera.git</connection>
-        <developerConnection>scm:git:git@github.com:jpmorganchase/tessera.git</developerConnection>
+        <connection>scm:git:https://github.com/jpmorganchase/tessera.git</connection>
+        <developerConnection>scm:git:https://github.com/jpmorganchase/tessera.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
-    <description>Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for Quorum.</description>
+    <description>Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution
+        of private transactions for Quorum.
+    </description>
 
     <ciManagement>
         <url>https://travis-ci.com/jpmorganchase/tessera</url>
@@ -32,13 +34,14 @@
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+
+            <url>LICENSE</url>
         </license>
     </licenses>
 
     <properties>
         <jersey.version>2.27</jersey.version>
-        <jetty.version>9.4.10.v20180503</jetty.version>
+        <jetty.version>9.4.17.v20190418</jetty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -46,11 +49,16 @@
         <slf4j.version>1.7.5</slf4j.version>
         <eclipselink.version>2.7.3</eclipselink.version>
         <grpc.version>1.14.0</grpc.version>
-        <h2.version>1.4.197</h2.version>
+        <h2.version>1.4.199</h2.version>
+        <owasp.plugin.version>5.0.0-M2</owasp.plugin.version>
+        <bouncycastle.version>1.61</bouncycastle.version>
+        <logback.version>1.2.3</logback.version>
+        <jackson.version>2.9.9</jackson.version>
+        <project.scm.id>github</project.scm.id>
     </properties>
 
     <build>
-        
+
         <extensions>
             <extension>
                 <groupId>ar.com.synergian</groupId>
@@ -58,7 +66,7 @@
                 <version>0.2.5</version>
             </extension>
         </extensions>
-        
+
         <pluginManagement>
 
             <plugins>
@@ -66,7 +74,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.2</version>
+                    <version>0.8.3</version>
                 </plugin>
 
                 <plugin>
@@ -78,12 +86,14 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.0.0-M1</version>
+                    <version>3.0.0-M3</version>
                     <configuration>
                         <failIfNoTests>true</failIfNoTests>
                         <systemPropertyVariables>
-                            <javax.xml.bind.JAXBContextFactory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.JAXBContextFactory>
-                            <javax.xml.bind.context.factory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.context.factory>
+                            <javax.xml.bind.JAXBContextFactory>org.eclipse.persistence.jaxb.JAXBContextFactory
+                            </javax.xml.bind.JAXBContextFactory>
+                            <javax.xml.bind.context.factory>org.eclipse.persistence.jaxb.JAXBContextFactory
+                            </javax.xml.bind.context.factory>
                         </systemPropertyVariables>
                     </configuration>
                     <dependencies>
@@ -95,14 +105,16 @@
                     </dependencies>
                 </plugin>
 
-                <plugin>                
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>3.0.0-M1</version>
+                    <version>3.0.0-M3</version>
                     <configuration>
                         <systemPropertyVariables>
-                            <javax.xml.bind.JAXBContextFactory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.JAXBContextFactory>
-                            <javax.xml.bind.context.factory>org.eclipse.persistence.jaxb.JAXBContextFactory</javax.xml.bind.context.factory>
+                            <javax.xml.bind.JAXBContextFactory>org.eclipse.persistence.jaxb.JAXBContextFactory
+                            </javax.xml.bind.JAXBContextFactory>
+                            <javax.xml.bind.context.factory>org.eclipse.persistence.jaxb.JAXBContextFactory
+                            </javax.xml.bind.context.factory>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
@@ -113,12 +125,70 @@
                     <version>3.7.1</version>
                 </plugin>
 
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>3.1.11</version>
+                    <configuration>
+                        <effort>Max</effort>
+                        <threshold>Low</threshold>
+                        <failOnError>false</failOnError>
+                        <relaxed>false</relaxed>
+                        <includeTests>false</includeTests>
+
+                        <includeFilterFile>${session.executionRootDirectory}/spotbugs-include.xml</includeFilterFile>
+                        <excludeFilterFile>${session.executionRootDirectory}/spotbugs-exclude.xml</excludeFilterFile>
+
+                        <plugins>
+                            <plugin>
+                                <groupId>com.h3xstream.findsecbugs</groupId>
+                                <artifactId>findsecbugs-plugin</artifactId>
+                                <version>1.9.0</version>
+                            </plugin>
+                        </plugins>
+
+
+                    </configuration>
+
+                </plugin>
+
+                <!--                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>${owasp.plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>-->
+
             </plugins>
 
         </pluginManagement>
 
 
         <plugins>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit4</artifactId>
+                        <version>3.0.0-M3</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <!--            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+            </plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -127,11 +197,11 @@
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <useReleaseProfile>false</useReleaseProfile>
-                    <releaseProfiles>release</releaseProfiles>
+                    <releaseProfiles>release,reduce-logging</releaseProfiles>
                     <goals>deploy</goals>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
@@ -139,7 +209,7 @@
                 <configuration>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-maven</artifactId>
@@ -169,20 +239,20 @@
                     <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
                     <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
                 </configuration>
-                
+
                 <dependencies>
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>8.14</version>
+                        <version>8.18</version>
                     </dependency>
-                    
+
                     <dependency>
                         <groupId>com.github.sevntu-checkstyle</groupId>
                         <artifactId>sevntu-checks</artifactId>
                         <version>1.32.0</version>
                     </dependency>
-                    
+
                 </dependencies>
             </plugin>
 
@@ -192,7 +262,7 @@
                 <configuration>
                     <detail>true</detail>
                 </configuration>
-                
+
                 <executions>
                     <execution>
                         <id>pre-integration-test</id>
@@ -242,13 +312,15 @@
                                 <exclude>com/quorum/tessera/Launcher*</exclude>
                                 <exclude>com/quorum/tessera/data/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/config/migration/Main*</exclude>
-                                <exclude>com/quorum/tessera/config/util/ConsolePasswordReader*</exclude>
-                                <exclude>com/quorum/tessera/config/util/PasswordReaderFactory*</exclude>
+                                <exclude>com/quorum/tessera/passwords/ConsolePasswordReader*</exclude>
+                                <exclude>com/quorum/tessera/passwords/PasswordReaderFactory*</exclude>
                                 <exclude>com/quorum/tessera/key/vault/azure/AzureKeyVaultClientDelegate*</exclude>
-                                <exclude>com/quorum/tessera/key/vault/hashicorp/KeyValueOperationsDelegateFactory*</exclude>
+                                <exclude>com/quorum/tessera/key/vault/hashicorp/KeyValueOperationsDelegateFactory*
+                                </exclude>
                                 <exclude>com/quorum/tessera/enclave/rest/Main*</exclude>
+                                <exclude>com/quorum/tessera/enclave/websockets/Main*</exclude>
                             </excludes>
-                            
+
                             <rules>
                                 <rule>
                                     <element>CLASS</element>
@@ -277,6 +349,9 @@
                 <groupId>org.ec4j.maven</groupId>
                 <artifactId>editorconfig-maven-plugin</artifactId>
                 <version>0.0.8</version>
+                <configuration>
+                    <basedir>${session.executionRootDirectory}</basedir>
+                </configuration>
                 <executions>
                     <execution>
                         <id>check</id>
@@ -292,6 +367,19 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>3.0.0-M2</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.sonatype.ossindex.maven</groupId>
+                        <artifactId>ossindex-maven-enforcer-rules</artifactId>
+                        <version>3.0.4</version>
+                    </dependency>
+
+                    <dependency>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>extra-enforcer-rules</artifactId>
+                        <version>1.2</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>enforce-versions</id>
@@ -303,6 +391,30 @@
                                 <requireMavenVersion>
                                     <version>3.5</version>
                                 </requireMavenVersion>
+                                <banDuplicatePomDependencyVersions/>
+                                <!--
+                                    <reactorModuleConvergence/>
+                                -->
+                                <dependencyConvergence/>
+
+                                <banVulnerable implementation="org.sonatype.ossindex.maven.enforcer.BanVulnerableDependencies">
+                                    <excludeVulnerabilityIds>
+                                        33fe5e62-2998-4820-aebc-68e348539b22
+                                    </excludeVulnerabilityIds>
+                                </banVulnerable>
+
+                                <banDuplicateClasses>
+                                    <scopes>
+                                        <scope>compile</scope>
+                                        <scope>runtime</scope>
+                                    </scopes>
+                                    <findAllDuplicates>true</findAllDuplicates>
+                                    <ignoreClasses>
+                                        <ignoreClass>com.google.*</ignoreClass>
+                                    </ignoreClasses>
+                                </banDuplicateClasses>
+
+                                <banCircularDependencies/>
                             </rules>
                         </configuration>
                     </execution>
@@ -316,10 +428,9 @@
     </build>
 
     <modules>
-        <module>tessera-app</module>
         <module>argon2</module>
         <module>config</module>
-        <module>config-cli</module>
+        <module>cli</module>
         <module>tests</module>
         <module>security</module>
         <module>service-locator</module>
@@ -336,172 +447,216 @@
         <module>jaxrs-client</module>
         <module>key-vault</module>
         <module>key-generation</module>
-        <module>key-pair-converter</module>
         <module>ddls</module>
         <module>enclave</module>
-        <module>tessera-sync</module>
+        <module>tessera-dist</module>
+        <module>tessera-partyinfo</module>
+        <module>tessera-admin</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
-            
+
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>encryption-api</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>argon2</artifactId>
-                <version>0.9-SNAPSHOT</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>config</artifactId>
-                <version>0.9-SNAPSHOT</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>config-cli</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>key-pair-converter</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <artifactId>config</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>cli-api</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>config-cli</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>admin-cli</artifactId>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>security</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>encryption-jnacl</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
                 <scope>runtime</scope>
             </dependency>
-                        
+
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>encryption-kalium</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
                 <scope>runtime</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>service-locator-api</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>enclave-api</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>tessera-partyinfo</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>tessera-admin</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>enclave-jaxrs</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>enclave-jaxrs</artifactId>
+                <version>0.10-SNAPSHOT</version>
+                <classifier>server</classifier>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>service-locator-spring</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>server-api</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jersey-server</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc-server</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc-api</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>test-util</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>shared</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-core</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc-service</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jaxrs-service</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>key-vault-api</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>azure-key-vault</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>hashicorp-key-vault</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>key-generation</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jaxrs-client</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>ddls</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>jaxrs-client-unixsocket</artifactId>
+                <version>0.10-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -564,7 +719,7 @@
                 <artifactId>spring-context</artifactId>
                 <version>${spring.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-orm</artifactId>
@@ -574,7 +729,13 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk15on</artifactId>
-                <version>1.59</version>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
             </dependency>
 
             <dependency>
@@ -583,7 +744,7 @@
                 <version>${spring.version}</version>
                 <scope>test</scope>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>
@@ -613,9 +774,9 @@
             </dependency>
 
             <dependency>
-                <groupId>commons-dbcp</groupId>
-                <artifactId>commons-dbcp</artifactId>
-                <version>1.4</version>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>3.2.0</version>
                 <scope>runtime</scope>
             </dependency>
 
@@ -624,8 +785,8 @@
                 <artifactId>org.eclipse.persistence.core</artifactId>
                 <version>${eclipselink.version}</version>
                 <scope>runtime</scope>
-            </dependency>  
- 
+            </dependency>
+
             <dependency>
                 <groupId>org.eclipse.persistence</groupId>
                 <artifactId>org.eclipse.persistence.moxy</artifactId>
@@ -646,9 +807,9 @@
                 <version>${eclipselink.version}</version>
                 <scope>runtime</scope>
             </dependency>
-            
-            <!-- 
-              Logging          
+
+            <!--
+              Logging
             -->
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -656,13 +817,13 @@
                 <version>${slf4j.version}</version>
                 <scope>runtime</scope>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jul-to-slf4j</artifactId>
@@ -673,18 +834,18 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.0.13</version>
+                <version>${logback.version}</version>
                 <scope>runtime</scope>
             </dependency>
-            
+
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>1.0.13</version>
+                <version>${logback.version}</version>
                 <scope>runtime</scope>
             </dependency>
-            
-            <!-- 
+
+            <!--
                 APIs
             -->
             <dependency>
@@ -750,25 +911,19 @@
                 <version>1.2.2</version>
                 <scope>provided</scope>
             </dependency>
-            
+
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-annotations</artifactId>
                 <version>1.5.4</version>
             </dependency>
-            
-            <dependency>
-                <groupId>de.mkammerer</groupId>
-                <artifactId>argon2-jvm</artifactId>
-                <version>2.4</version>
-            </dependency>
-            
+
             <dependency>
                 <groupId>commons-cli</groupId>
                 <artifactId>commons-cli</artifactId>
                 <version>1.4</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
@@ -780,14 +935,12 @@
                 <artifactId>cryptacular</artifactId>
                 <version>1.2.2</version>
             </dependency>
-            
-            
+
+
             <dependency>
                 <groupId>com.github.stefanbirkner</groupId>
                 <artifactId>system-rules</artifactId>
                 <version>1.18.0</version>
-                <scope>test</scope>
-                <type>jar</type>
             </dependency>
 
             <!--  GRPC-->
@@ -811,6 +964,11 @@
                 <artifactId>googleapis-common-protos</artifactId>
                 <version>0.0.3</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>3.5.1</version>
+            </dependency>
 
             <dependency>
                 <groupId>io.grpc</groupId>
@@ -820,12 +978,31 @@
             </dependency>
 
             <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>24.1.1-jre</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>2.1.3</version>
+            </dependency>
+
+
+            <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
                 <version>4.1.27.Final</version>
             </dependency>
-            
-            
+
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.8.5</version>
+            </dependency>
+
+
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
@@ -837,17 +1014,178 @@
                 <artifactId>jaxb-runtime</artifactId>
                 <version>2.3.0</version>
             </dependency>
-        
+
             <dependency>
                 <groupId>javax.activation</groupId>
                 <artifactId>javax.activation-api</artifactId>
                 <version>1.2.0</version>
             </dependency>
-        
+
             <dependency>
                 <groupId>javax.annotation</groupId>
                 <artifactId>javax.annotation-api</artifactId>
                 <version>1.3.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>nl.jqno.equalsverifier</groupId>
+                <artifactId>equalsverifier</artifactId>
+                <version>3.1.5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.glassfish.grizzly</groupId>
+                <artifactId>grizzly-http-servlet</artifactId>
+                <version>2.4.3.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sun.mail</groupId>
+                <artifactId>javax.mail</artifactId>
+                <version>1.6.2</version>
+                <scope>runtime</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.activation</groupId>
+                        <artifactId>activation</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-client</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-unixsocket</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jnr-unixsocket</artifactId>
+                <version>0.22</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>javax-websocket-server-impl</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>javax-websocket-client-impl</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jnr-constants</artifactId>
+                <version>0.9.12</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jnr-posix</artifactId>
+                <version>3.0.49</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jnr-enxio</artifactId>
+                <version>0.20</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jnr-ffi</artifactId>
+                <version>2.1.9</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jffi</artifactId>
+                <version>1.2.17</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jffi</artifactId>
+                <version>1.2.17</version>
+                <classifier>native</classifier>
+            </dependency>
+
+
+            <dependency>
+                <groupId>org.glassfish.grizzly</groupId>
+                <artifactId>grizzly-http-server</artifactId>
+                <version>2.4.3.1</version>
+                <scope>test</scope>
+            </dependency>
+
+
+            <!-- keyvault deps -->
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>2.9.7</version>
+            </dependency>
+
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.7</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.12</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>3.14.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.squareup.okio</groupId>
+                <artifactId>okio</artifactId>
+                <version>1.15.0</version>
             </dependency>
 
             <dependency>
@@ -863,32 +1201,34 @@
             </dependency>
 
             <dependency>
-                <groupId>org.springframework.vault</groupId>
-                <artifactId>spring-vault-core</artifactId>
-                <version>2.1.1.RELEASE</version>
+                <groupId>com.microsoft.rest</groupId>
+                <artifactId>client-runtime</artifactId>
+                <version>1.6.1</version>
             </dependency>
 
             <dependency>
-                <groupId>com.squareup.okhttp3</groupId>
-                <artifactId>okhttp</artifactId>
-                <version>3.12.0</version>
+                <groupId>io.reactivex</groupId>
+                <artifactId>rxjava</artifactId>
+                <version>1.3.8</version>
             </dependency>
+
+
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>5.0.4</version>
+            </dependency>
+
+        <dependency>
+            <groupId>de.mkammerer</groupId>
+            <artifactId>argon2-jvm</artifactId>
+            <version>2.5</version>
+        </dependency>
 
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
-
-        <!-- Needed for JavaDoc plugin -->
-        <!--        <dependency>
-            <groupId>javax.interceptor</groupId>
-            <artifactId>javax.interceptor-api</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-        </dependency>-->
 
         <!-- Testing -->
 
@@ -916,6 +1256,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.stefanbirkner</groupId>
+            <artifactId>system-rules</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Logging -->
 
         <dependency>
@@ -923,7 +1269,7 @@
             <artifactId>logback-classic</artifactId>
             <scope>runtime</scope>
         </dependency>
-            
+
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
@@ -935,14 +1281,20 @@
             <artifactId>slf4j-api</artifactId>
             <scope>compile</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.moxy</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>nl.jqno.equalsverifier</groupId>
+            <artifactId>equalsverifier</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
-    
+
     <reporting>
         <plugins>
             <plugin>
@@ -960,17 +1312,17 @@
                                 <report>modules</report>
                             </reports>
                         </reportSet>
-                    </reportSets>  
+                    </reportSets>
                 </configuration>
 
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-changelog-plugin</artifactId>
                 <version>2.3</version>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
@@ -979,14 +1331,13 @@
                     <aggregate>true</aggregate>
                 </configuration>
             </plugin>
-                        
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.0.1</version>
-               
+                <version>3.1.0</version>
+
                 <configuration>
-                    <aggregate>true</aggregate>
                     <links>
                         <link>https://docs.oracle.com/javase/8/docs/api/</link>
                         <link>https://docs.oracle.com/javaee/7/api/</link>
@@ -994,7 +1345,8 @@
                     <linksource>true</linksource>
                     <show>public</show>
                     <source>1.8</source>
-                    
+                    <failOnError>false</failOnError>
+
                 </configuration>
                 <reportSets>
                     <reportSet>
@@ -1003,7 +1355,7 @@
                         </reports>
                     </reportSet>
                 </reportSets>
-                
+
             </plugin>
 
             <plugin>
@@ -1020,41 +1372,135 @@
                 </reportSets>
             </plugin>
 
+
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.5</version>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>3.1.11</version>
+                <configuration>
+                    <effort>Max</effort>
+                    <threshold>Low</threshold>
+                    <failOnError>false</failOnError>
+                    <relaxed>false</relaxed>
+                    <includeTests>false</includeTests>
+
+                    <includeFilterFile>${session.executionRootDirectory}/spotbugs-include.xml</includeFilterFile>
+                    <excludeFilterFile>${session.executionRootDirectory}/spotbugs-exclude.xml</excludeFilterFile>
+
+                    <plugins>
+                        <plugin>
+                            <groupId>com.h3xstream.findsecbugs</groupId>
+                            <artifactId>findsecbugs-plugin</artifactId>
+                            <version>1.9.0</version>
+                        </plugin>
+                    </plugins>
+
+
+                </configuration>
+
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>3.10.0</version>
+                <configuration>
+                    <linkXRef>true</linkXRef>
+                </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
                 <version>2.5</version>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changes-plugin</artifactId>
+                <version>2.12.1</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>changes-report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>${owasp.plugin.version}</version>
+                <configuration>
+
+                    <name>owasp depencency check</name>
+                    <skipTestScope>true</skipTestScope>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
         </plugins>
     </reporting>
-    
+
     <profiles>
+        <profile>
+            <id>reduce-logging</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <logback.configurationFile>${session.executionRootDirectory}/logback-build.xml
+                                </logback.configurationFile>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <logback.configurationFile>${session.executionRootDirectory}/logback-build.xml
+                                </logback.configurationFile>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+
+        </profile>
+
+
         <profile>
             <id>java11</id>
             <activation>
-                <jdk>11</jdk>
+                <jdk>[9,12)</jdk>
             </activation>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.8.0</version>
+                        <version>3.8.1</version>
                         <configuration>
-                            <release>11</release>
+                            <source>8</source>
+                            <target>${java.vm.specification.version}</target>
                         </configuration>
                         <dependencies>
                             <dependency>
@@ -1063,11 +1509,11 @@
                                 <version>6.2</version>
                             </dependency>
                         </dependencies>
-                    </plugin>  
+                    </plugin>
                 </plugins>
             </build>
             <dependencies>
-                
+
                 <dependency>
                     <groupId>javax.xml.bind</groupId>
                     <artifactId>jaxb-api</artifactId>
@@ -1082,20 +1528,20 @@
                     <groupId>org.glassfish.jaxb</groupId>
                     <artifactId>jaxb-runtime</artifactId>
                 </dependency>
-        
+
                 <dependency>
                     <groupId>javax.activation</groupId>
                     <artifactId>javax.activation-api</artifactId>
                 </dependency>
-        
+
                 <dependency>
                     <groupId>javax.annotation</groupId>
                     <artifactId>javax.annotation-api</artifactId>
                 </dependency>
             </dependencies>
         </profile>
-        
-        
+
+
         <profile>
             <id>release</id>
             <activation>
@@ -1106,14 +1552,16 @@
             </activation>
             <build>
                 <plugins>
-                    
+
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-deploy-plugin</artifactId>
+                        <version>2.8.2</version>
                         <configuration>
                             <skip>true</skip>
                         </configuration>
                     </plugin>
-                    
+
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -1125,7 +1573,7 @@
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
-                    
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -1140,8 +1588,8 @@
                             </execution>
                         </executions>
                     </plugin>
-                    
-                    
+
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
@@ -1156,7 +1604,7 @@
                             <show>protected</show>
                             <source>1.8</source>
                         </configuration>
-                
+
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -1166,7 +1614,7 @@
                             </execution>
                         </executions>
                     </plugin>
-            
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
@@ -1182,22 +1630,20 @@
                     </plugin>
                 </plugins>
             </build>
-            
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                </snapshotRepository>
-                <repository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-            </distributionManagement>
+
         </profile>
+
+        <profile>
+            <id>work-in-progress</id>
+            <modules>
+                <module>tessera-sync</module>
+            </modules>
+        </profile>
+
     </profiles>
-    
+
     <distributionManagement>
-        
+
         <site>
             <id>tessera-github-pages</id>
             <name>Quorum GitHub Pages</name>
@@ -1205,32 +1651,18 @@
         </site>
 
         <snapshotRepository>
-            <id>tessera-snapshot-repo</id>
-            <url>git:snapshots://git@github.com:jpmorganchase/tessera.git</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
 
         <repository>
-            <id>tessera-release-repo</id>
-            <url>git:releases://git@github.com:jpmorganchase/tessera.git</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
 
 
-        
     </distributionManagement>
-    
-    <repositories>
-        <repository>
-            <id>tessera-repo</id>
-            <url>https://raw.github.com/jpmorganchase/tessera/releases</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-    
+
     <pluginRepositories>
         <pluginRepository>
             <id>synergian-repo</id>
@@ -1242,6 +1674,26 @@
         <developer>
             <name>Mark Lowe</name>
             <email>melowe.quorum@gmail.com</email>
+        </developer>
+        <developer>
+            <name>Peter Fox</name>
+            <email>peter.rd.fox@gmail.com</email>
+        </developer>
+        <developer>
+            <name>Nam Truong</name>
+            <email>nam.p.truong@gmail.com</email>
+        </developer>
+        <developer>
+            <name>Satpal Sandhu</name>
+            <email>quorum@satpal.co.uk</email>
+        </developer>
+        <developer>
+            <name>Chris Hounsom</name>
+            <email>chrishounsom@icloud.com</email>
+        </developer>
+        <developer>
+            <name>Nicolae Leonte</name>
+            <email>nicolae.leonte.go@gmail.com</email>
         </developer>
     </developers>
 

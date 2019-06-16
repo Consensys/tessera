@@ -21,7 +21,7 @@ public class APITransactionGrpcServiceTest {
 
     @Mock
     private StreamObserver<ReceiveResponse> receiveResponseObserver;
-
+    
     @Mock
     private TransactionManagerImpl enclaveMediator;
 
@@ -35,9 +35,7 @@ public class APITransactionGrpcServiceTest {
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(
-                sendResponseObserver,
-                receiveResponseObserver);
+        verifyNoMoreInteractions(sendResponseObserver, receiveResponseObserver);
     }
 
     @Test
@@ -84,7 +82,6 @@ public class APITransactionGrpcServiceTest {
 
         com.quorum.tessera.api.model.ReceiveResponse r = new com.quorum.tessera.api.model.ReceiveResponse("SOME DATA".getBytes());
 
-        
         when(enclaveMediator.receive(any())).thenReturn(r);
 
         ReceiveRequest request = ReceiveRequest.newBuilder()
@@ -112,9 +109,7 @@ public class APITransactionGrpcServiceTest {
                 .setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=")
                 .build();
 
-
         service.receive(request, receiveResponseObserver);
-        
 
         verify(receiveResponseObserver).onError(any());
     }
@@ -143,4 +138,5 @@ public class APITransactionGrpcServiceTest {
         verify(receiveResponseObserver).onError(any());
 
     }
+
 }

@@ -20,7 +20,6 @@ final class GrpcClientImpl implements GrpcClient {
 
     private final P2PTransactionGrpc.P2PTransactionBlockingStub transactionBlockingStub;
 
-
     GrpcClientImpl(final ManagedChannel channel) {
         this.channel = channel;
         this.partyInfoBlockingStub = PartyInfoGrpc.newBlockingStub(channel);
@@ -37,7 +36,7 @@ final class GrpcClientImpl implements GrpcClient {
     }
 
     @Override
-    public byte[] getPartyInfo(final byte[] data) {
+    public byte[] sendPartyInfo(final byte[] data) {
         final PartyInfoMessage request = PartyInfoMessage.newBuilder()
             .setPartyInfo(ByteString.copyFrom(data))
             .build();

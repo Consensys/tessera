@@ -64,7 +64,7 @@ public class GrpcClientTest {
         ArgumentCaptor<PartyInfoMessage> requestCaptor = ArgumentCaptor.forClass(PartyInfoMessage.class);
         final byte[] data = "REQUEST".getBytes();
 
-        client.getPartyInfo(data);
+        client.sendPartyInfo(data);
 
         verify(partyInfoService).getPartyInfo(requestCaptor.capture(), any());
 
@@ -76,7 +76,7 @@ public class GrpcClientTest {
     public void testGetPartyInfoFailed() throws InterruptedException {
         client.shutdown();
         final byte[] data = "REQUEST".getBytes();
-        byte[] response = client.getPartyInfo(data);
+        byte[] response = client.sendPartyInfo(data);
         assertThat(response).isNull();
     }
 

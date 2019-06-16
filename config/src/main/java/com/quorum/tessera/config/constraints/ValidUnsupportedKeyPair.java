@@ -20,4 +20,5 @@ public @interface ValidUnsupportedKeyPair {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
 }

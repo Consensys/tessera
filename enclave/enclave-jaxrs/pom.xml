@@ -4,11 +4,15 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>enclave</artifactId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.10-SNAPSHOT</version>
     </parent>
     <artifactId>enclave-jaxrs</artifactId>
     <packaging>jar</packaging>
-    
+
+    <properties>
+        <dist.classfier>server</dist.classfier>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -21,39 +25,27 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>config</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>config-cli</artifactId>
+            <artifactId>enclave-server</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>jaxrs-client</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>key-pair-converter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        
+
         <!--        <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <version>3.2.0</version>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-schema-validator</artifactId>
@@ -67,18 +59,18 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
             <scope>test</scope>
             <type>jar</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
-            <scope>test</scope>
+            <scope>runtime</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.glassfish.hk2.external</groupId>
@@ -94,35 +86,33 @@
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-processing</artifactId>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-moxy</artifactId>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
-            <version>1.6.2</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.59</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
             <type>jar</type>
         </dependency>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>server-api</artifactId>
             <type>jar</type>
         </dependency>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>jersey-server</artifactId>
@@ -142,50 +132,31 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>service-locator-spring</artifactId>
-            <scope>runtime</scope>   
+            <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
-        <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.sun.xml.fastinfoset</groupId>
-                    <artifactId>FastInfoset</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>key-pair-converter</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
-
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>cli-api</artifactId>
+            <type>jar</type>
+        </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -195,7 +166,7 @@
                 <configuration>
                     <minimizeJar>false</minimizeJar>
                     <shadedArtifactAttached>true</shadedArtifactAttached>
-                    <shadedClassifierName>app</shadedClassifierName>
+                    <shadedClassifierName>${dist.classfier}</shadedClassifierName>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
@@ -238,12 +209,12 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -258,6 +229,18 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <name>enclave-jaxrs</name>
+
+    <profiles>
+        <profile>
+            <id>afterjdk9</id>
+            <activation>
+                <jdk>[9,12)</jdk>
+            </activation>
+            <properties>
+                <dist.classfier>jdk${java.vm.specification.version}_server</dist.classfier>
+            </properties>
+        </profile>
+    </profiles>
 </project>

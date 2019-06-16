@@ -1,12 +1,13 @@
 package com.quorum.tessera.data.migration;
 
+import org.bouncycastle.util.encoders.Hex;
+
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-
-import org.bouncycastle.util.encoders.Hex;
+import java.util.Base64;
 
 /**
  * Assumes that user has exported data from bdb using db_dump
@@ -17,33 +18,69 @@ import org.bouncycastle.util.encoders.Hex;
  */
 public class BdbDumpFile implements StoreLoader {
 
+    private BufferedReader reader;
+
+    private DataEntry nextEntry;
+
     @Override
-    public Map<byte[], byte[]> load(Path inputFile) throws IOException {
+    public void load(final Path inputFile) throws IOException {
 
-        Map<byte[], byte[]> results = new HashMap<>();
-
-        try (BufferedReader reader = Files.newBufferedReader(inputFile)) {
-
-            while (true) {
-                String line = reader.readLine();
-                if (Objects.isNull(line)) {
-                    break;
-                }
-
-                if (!line.startsWith(" ")) {
-                    continue;
-                }
-
-                final String key = line.trim();
-
-                final String value = reader.readLine();
-                
-                
-                results.put(Base64.getDecoder().decode(Hex.decode(key)), Hex.decode(value));
-            }
-            return Collections.unmodifiableMap(results);
-
+        //Handles both non-regular files and non-existent files
+        if (!Files.isRegularFile(inputFile)) {
+            throw new IllegalArgumentException(inputFile.toString() + " doesn't exist or is not a file");
         }
+
+        this.reader = Files.newBufferedReader(inputFile);
+
+        final String firstKey;
+        while (true) {
+            final String line = reader.readLine();
+
+            if (line == null) {
+                //apparently there was nothing in this file, close and return
+                this.nextEntry = null;
+                this.reader.close();
+                return;
+            }
+
+            if (line.startsWith(" ")) {
+                //found the first data entry, stop looping over the headers
+                firstKey = line;
+                break;
+            }
+        }
+
+        final String firstValue = reader.readLine();
+
+        this.nextEntry = new DataEntry(
+            Base64.getDecoder().decode(Hex.decode(firstKey.trim())),
+            new ByteArrayInputStream(Hex.decode(firstValue))
+        );
+    }
+
+    @Override
+    public DataEntry nextEntry() throws IOException {
+        if (this.nextEntry == null) {
+            return null;
+        }
+
+        final DataEntry oldEntry = this.nextEntry;
+
+        final String nextKey = reader.readLine();
+
+        if (nextKey == null || !nextKey.startsWith(" ")) {
+            this.nextEntry = null;
+            this.reader.close();
+        } else {
+            final String nextValue = reader.readLine();
+
+            this.nextEntry = new DataEntry(
+                Base64.getDecoder().decode(Hex.decode(nextKey.trim())),
+                new ByteArrayInputStream(Hex.decode(nextValue))
+            );
+        }
+
+        return oldEntry;
     }
 
 }

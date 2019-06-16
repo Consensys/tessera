@@ -21,5 +21,4 @@ public @interface ValidSsl {
 
     Class<? extends Payload>[] payload() default {};
 
-    boolean checkSslValid() default true;
 }

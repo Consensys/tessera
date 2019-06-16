@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns="http://tessera.github.com/config" useWhiteList="false" disablePeerDiscovery="false">
+   <serverConfigs>
+      <app>ENCLAVE</app>
+      <enabled>true</enabled>
+      <serverSocket xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="INET">
+         <hostName>http://localhost</hostName>
+         <port>8080</port>
+      </serverSocket>
+      <communicationType>REST</communicationType>
+      <bindingAddress>http://0.0.0.0:8080</bindingAddress>
+   </serverConfigs>
+   <keys>
+      <keyData>
+         <privateKey>yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=</privateKey>
+         <publicKey>/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=</publicKey>
+      </keyData>
+   </keys>
+</config>

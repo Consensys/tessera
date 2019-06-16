@@ -1,5 +1,8 @@
 package com.quorum.tessera.config.migration;
 
+import com.quorum.tessera.cli.CliAdapter;
+import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.SslAuthenticationMode;
@@ -7,15 +10,15 @@ import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.JdbcConfigFactory;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
 import com.quorum.tessera.config.builder.SslTrustModeFactory;
-import com.quorum.tessera.config.cli.CliAdapter;
-import com.quorum.tessera.config.cli.CliResult;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.io.FilesDelegate;
+import com.quorum.tessera.io.SystemAdapter;
 import org.apache.commons.cli.*;
 
 import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -36,6 +39,11 @@ public class LegacyCliAdapter implements CliAdapter {
     }
 
     @Override
+    public CliType getType() {
+        return CliType.CONFIG_MIGRATION;
+    }
+
+    @Override
     public CliResult execute(String... args) throws Exception {
 
         Options options = buildOptions();
@@ -43,7 +51,14 @@ public class LegacyCliAdapter implements CliAdapter {
         if (argsList.isEmpty() || argsList.contains("help")) {
             String header = "Generate Tessera JSON config file from a Constellation TOML config file";
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("tessera-config-migration", header, options, null);
+
+            PrintWriter pw = new PrintWriter(sys().out());
+            formatter.printHelp(pw,
+                    200, "tessera-config-migration",
+                    header, options, formatter.getLeftPadding(),
+                    formatter.getDescPadding(), null, false);
+            pw.flush();
+
             final int exitCode = argsList.isEmpty() ? 1 : 0;
             return new CliResult(exitCode, true, null);
         }
@@ -53,16 +68,16 @@ public class LegacyCliAdapter implements CliAdapter {
         CommandLine line = parser.parse(options, args);
 
         final ConfigBuilder configBuilder = Optional.ofNullable(line.getOptionValue("tomlfile"))
-                                                .map(Paths::get)
-                                                .map(fileDelegate::newInputStream)
-                                                .map(stream -> this.configFactory.create(stream, null))
-                                                .orElse(ConfigBuilder.create());
+                .map(Paths::get)
+                .map(fileDelegate::newInputStream)
+                .map(stream -> this.configFactory.create(stream, null))
+                .orElse(ConfigBuilder.create());
 
         final KeyDataBuilder keyDataBuilder = Optional.ofNullable(line.getOptionValue("tomlfile"))
-                                                    .map(Paths::get)
-                                                    .map(fileDelegate::newInputStream)
-                                                    .map(configFactory::createKeyDataBuilder)
-                                                    .orElse(KeyDataBuilder.create());
+                .map(Paths::get)
+                .map(fileDelegate::newInputStream)
+                .map(configFactory::createKeyDataBuilder)
+                .orElse(KeyDataBuilder.create());
 
         ConfigBuilder adjustedConfig = applyOverrides(line, configBuilder, keyDataBuilder);
 
@@ -76,26 +91,26 @@ public class LegacyCliAdapter implements CliAdapter {
     }
 
     static CliResult writeToOutputFile(Config config, Path outputPath) throws IOException {
+        SystemAdapter systemAdapter = SystemAdapter.INSTANCE;
+        systemAdapter.out().printf("Saving config to %s", outputPath);
+        systemAdapter.out().println();
+        JaxbUtil.marshalWithNoValidation(config, systemAdapter.out());
+        systemAdapter.out().println();
 
-        System.out.printf("Saving config to %s", outputPath);
-        System.out.println();
-        JaxbUtil.marshalWithNoValidation(config, System.out);
-        System.out.println();
-
-        try (OutputStream outputStream = Files.newOutputStream(outputPath)) {
+        try (OutputStream outputStream = Files.newOutputStream(outputPath)){
             JaxbUtil.marshal(config, outputStream);
-            System.out.printf("Saved config to  %s", outputPath);
-            System.out.println();
+            systemAdapter.out().printf("Saved config to  %s", outputPath);
+            systemAdapter.out().println();
             return new CliResult(0, false, config);
         } catch (ConstraintViolationException validationException) {
             validationException.getConstraintViolations()
-                .stream()
-                .map(cv -> "Warning: " + cv.getMessage() + " on property " + cv.getPropertyPath())
-                .forEach(System.err::println);
+                    .stream()
+                    .map(cv -> "Warning: " + cv.getMessage() + " on property " + cv.getPropertyPath())
+                    .forEach(systemAdapter.err()::println);
 
             Files.write(outputPath, JaxbUtil.marshalToStringNoValidation(config).getBytes());
-            System.out.printf("Saved config to  %s", outputPath);
-            System.out.println();
+            systemAdapter.out().printf("Saved config to  %s", outputPath);
+            systemAdapter.out().println();
             return new CliResult(2, false, config);
         }
     }
@@ -103,14 +118,14 @@ public class LegacyCliAdapter implements CliAdapter {
     static ConfigBuilder applyOverrides(CommandLine line, ConfigBuilder configBuilder, KeyDataBuilder keyDataBuilder) {
 
         Optional.ofNullable(line.getOptionValue("workdir"))
-            .ifPresent(configBuilder::workdir);
+                .ifPresent(configBuilder::workdir);
 
         Optional.ofNullable(line.getOptionValue("workdir"))
-            .ifPresent(keyDataBuilder::withWorkingDirectory);
+                .ifPresent(keyDataBuilder::withWorkingDirectory);
 
         Optional.ofNullable(line.getOptionValue("url"))
                 .map(url -> {
-                    try {
+                    try{
                         return new URL(url);
                     } catch (MalformedURLException e) {
                         throw new RuntimeException("Bad server url given: " + e.getMessage());
@@ -148,7 +163,7 @@ public class LegacyCliAdapter implements CliAdapter {
                 .map(JdbcConfigFactory::fromLegacyStorageString)
                 .ifPresent(configBuilder::jdbcConfig);
 
-        if(line.hasOption("ipwhitelist")) {
+        if (line.hasOption("ipwhitelist")) {
             configBuilder.useWhiteList(true);
         }
 
@@ -180,24 +195,24 @@ public class LegacyCliAdapter implements CliAdapter {
                 .ifPresent(configBuilder::sslClientTrustCertificates);
 
         Optional.ofNullable(line.getOptionValue("tlsserverkey"))
-            .ifPresent(configBuilder::sslServerTlsKeyPath);
+                .ifPresent(configBuilder::sslServerTlsKeyPath);
 
         Optional.ofNullable(line.getOptionValue("tlsclientkey"))
-            .ifPresent(configBuilder::sslClientTlsKeyPath);
+                .ifPresent(configBuilder::sslClientTlsKeyPath);
 
         Optional.ofNullable(line.getOptionValue("tlsknownservers"))
-            .ifPresent(configBuilder::sslKnownServersFile);
+                .ifPresent(configBuilder::sslKnownServersFile);
 
         Optional.ofNullable(line.getOptionValue("tlsknownclients"))
-            .ifPresent(configBuilder::sslKnownClientsFile);
+                .ifPresent(configBuilder::sslKnownClientsFile);
 
         final KeyConfiguration keyConfiguration = keyDataBuilder.build();
 
         if (!keyConfiguration.getKeyData().isEmpty()) {
             configBuilder.keyData(keyConfiguration);
         } else {
-            if(Optional.ofNullable(line.getOptionValue("passwords")).isPresent()) {
-                System.err.println("Info: Public/Private key data not provided in overrides.  Overriden password file has not been added to config.");
+            if (Optional.ofNullable(line.getOptionValue("passwords")).isPresent()) {
+                SystemAdapter.INSTANCE.err().println("Info: Public/Private key data not provided in overrides.  Overriden password file has not been added to config.");
             }
         }
 
@@ -423,29 +438,29 @@ public class LegacyCliAdapter implements CliAdapter {
         );
 
         options.addOption(
-            Option.builder()
-                .longOpt("tomlfile")
-                .desc("TOML configuration input file.")
-                .argName("FILE")
-                .hasArg()
-                .build()
+                Option.builder()
+                        .longOpt("tomlfile")
+                        .desc("TOML configuration input file.")
+                        .argName("FILE")
+                        .hasArg()
+                        .build()
         );
 
         options.addOption(
-            Option.builder()
-                .longOpt("outputfile")
-                .desc("Location to save generated Tessera configuration file.")
-                .argName("FILE")
-                .hasArg()
-                .build()
+                Option.builder()
+                        .longOpt("outputfile")
+                        .desc("Location to save generated Tessera configuration file.")
+                        .argName("FILE")
+                        .hasArg()
+                        .build()
         );
 
         options.addOption(
-            Option.builder()
-                .longOpt("ipwhitelist")
-                .desc("If provided, Tessera will use the othernodes as a whitelist.")
-                .hasArg(false)
-                .build()
+                Option.builder()
+                        .longOpt("ipwhitelist")
+                        .desc("If provided, Tessera will use the othernodes as a whitelist.")
+                        .hasArg(false)
+                        .build()
         );
 
         return options;

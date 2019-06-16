@@ -1,45 +1,38 @@
 package com.quorum.tessera.data.migration;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class H2DataExporter implements DataExporter {
 
-    private static final String INSERT_ROW = "INSERT INTO ENCRYPTED_TRANSACTION (HASH,ENCODED_PAYLOAD) VALUES (?,?)";
+    private static final String INSERT_ROW = "INSERT INTO ENCRYPTED_TRANSACTION (HASH, ENCODED_PAYLOAD) VALUES (?, ?)";
 
-    private static final String CREATE_TABLE = "CREATE TABLE ENCRYPTED_TRANSACTION "
-        + "(ENCODED_PAYLOAD LONGVARBINARY NOT NULL, "
-        + "HASH LONGVARBINARY NOT NULL UNIQUE, PRIMARY KEY (HASH))";
+    private static final String CREATE_TABLE_RESOURCE = "/ddls/h2-ddl.sql";
 
     @Override
-    public void export(final Map<byte[], byte[]> data,
+    public void export(final StoreLoader loader,
                        final Path output,
                        final String username,
-                       final String password) throws SQLException {
+                       final String password) throws SQLException, IOException {
 
         final String connectionString = "jdbc:h2:" + output.toString();
 
-        try (Connection conn = DriverManager.getConnection(connectionString, username, password)) {
+        final List<String> createTableStatements = Stream.of(getClass().getResourceAsStream(CREATE_TABLE_RESOURCE))
+            .map(InputStreamReader::new)
+            .map(BufferedReader::new)
+            .flatMap(BufferedReader::lines)
+            .collect(Collectors.toList());
 
-            try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(CREATE_TABLE);
-            }
+        final JdbcDataExporter jdbcDataExporter
+            = new JdbcDataExporter(connectionString, INSERT_ROW, createTableStatements);
 
-            try (PreparedStatement insertStatement = conn.prepareStatement(INSERT_ROW)) {
-                for (Entry<byte[], byte[]> values : data.entrySet()) {
-                    insertStatement.setBytes(1, values.getKey());
-                    insertStatement.setBytes(2, values.getValue());
-                    insertStatement.execute();
-                }
-            }
-
-        }
+        jdbcDataExporter.export(loader, output, username, password);
     }
 
 }

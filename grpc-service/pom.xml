@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tessera</artifactId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.10-SNAPSHOT</version>
     </parent>
     <artifactId>grpc-service</artifactId>
     <packaging>jar</packaging>
@@ -52,5 +52,11 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>tessera-partyinfo</artifactId>
+            <type>jar</type>
+        </dependency>
+
     </dependencies>
 </project>

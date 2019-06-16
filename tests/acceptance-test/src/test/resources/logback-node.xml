@@ -2,7 +2,7 @@
 <configuration>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>target/node${node.number}.log</file>
+        <file>target/node-${node.number}.log</file>
         <append>false</append>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
@@ -12,12 +12,15 @@
     <logger name="org.eclipse.persistence.level" level="ERROR"/>
     <logger name="org.eclipse.persistence.logging.sql" level="ERROR"/>
     <logger name="org.glassfish.jersey.logging.LoggingFeature" level="ERROR"/>
-    <logger name="com.quorum.tessera.api.exception" level="ALL" />
+    <!--    <logger name="com.quorum.tessera.api.exception" level="ALL" />
     <logger name="com.quorum.tessera.api.filter" level="ALL" />
-    <logger name="com.quorum.tessera.p2p.TransactionResource" level="DEBUG" />
+    <logger name="com.quorum.tessera.p2p.TransactionResource" level="DEBUG" />-->
     <logger name="com.quorum.tessera.q2t.TransactionResource" level="DEBUG" />
     <logger name="com.quorum.tessera.transaction" level="DEBUG" />
-    <root level="ERROR">
+    <logger name="com.quorum.tessera.api.filter" level="DEBUG" />
+    <logger name="com.quorum.tessera.api.exception" level="DEBUG" />
+
+    <root level="INFO">
         <appender-ref ref="FILE"/>
     </root>
 

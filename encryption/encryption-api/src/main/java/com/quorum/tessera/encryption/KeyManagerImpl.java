@@ -1,10 +1,12 @@
 package com.quorum.tessera.encryption;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class KeyManagerImpl implements KeyManager {
@@ -76,7 +78,7 @@ public class KeyManagerImpl implements KeyManager {
 
     @Override
     public PublicKey defaultPublicKey() {
-        return PublicKey.from(defaultKeys.getPublicKey().getKeyBytes());
+        return defaultKeys.getPublicKey();
     }
 
     @Override

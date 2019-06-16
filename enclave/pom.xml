@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>tessera</artifactId>
         <groupId>com.jpmorgan.quorum</groupId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.10-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,8 +12,14 @@
     <modules>
         <module>enclave-api</module>
         <module>enclave-jaxrs</module>
-        <module>enclave-websockets</module>
+        <module>enclave-server</module>
     </modules>
-
-
+    <profiles>
+        <profile>
+            <id>work-in-progress</id>
+            <modules>
+                <module>enclave-websockets</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

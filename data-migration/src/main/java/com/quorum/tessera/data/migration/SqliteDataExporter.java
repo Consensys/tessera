@@ -1,38 +1,58 @@
 package com.quorum.tessera.data.migration;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.sql.*;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-//FIXME: Need to address sequence generation config for sql bfeore going live with this
 public class SqliteDataExporter implements DataExporter {
 
-    private static final String INSERT_ROW = "INSERT INTO ENCRYPTED_TRANSACTION (HASH,ENCODED_PAYLOAD) VALUES (?,?)";
+    private static final String INSERT_ROW = "INSERT INTO ENCRYPTED_TRANSACTION (HASH, ENCODED_PAYLOAD) VALUES (?, ?)";
 
-    private static final String CREATE_TABLE = "CREATE TABLE ENCRYPTED_TRANSACTION "
-        + "(ENCODED_PAYLOAD LONGVARBINARY NOT NULL, "
-        + "HASH LONGVARBINARY NOT NULL UNIQUE, PRIMARY KEY (HASH))";
+    private static final String CREATE_TABLE_RESOURCE = "/ddls/sqlite-ddl.sql";
 
     @Override
-    public void export(Map<byte[], byte[]> data, Path output, final String username, final String password) throws SQLException {
+    public void export(final StoreLoader loader,
+                       final Path output,
+                       final String username,
+                       final String password) throws SQLException, IOException {
 
         final String connectionString = "jdbc:sqlite:" + output.toString();
+
+        final List<String> createTableStatements = Stream.of(getClass().getResourceAsStream(CREATE_TABLE_RESOURCE))
+            .map(InputStreamReader::new)
+            .map(BufferedReader::new)
+            .flatMap(BufferedReader::lines)
+            .collect(Collectors.toList());
 
         try (Connection conn = DriverManager.getConnection(connectionString, username, password)) {
 
             try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(CREATE_TABLE);
+                for (final String createTable : createTableStatements) {
+                    stmt.executeUpdate(createTable);
+                }
             }
 
             try (PreparedStatement insertStatement = conn.prepareStatement(INSERT_ROW)) {
-                for (Map.Entry<byte[], byte[]> values : data.entrySet()) {
-                    insertStatement.setBytes(1, values.getKey());
-                    insertStatement.setBytes(2, values.getValue());
-                    insertStatement.execute();
+                DataEntry next;
+                while ((next = loader.nextEntry()) != null) {
+                    try (InputStream data = next.getValue()) {
+                        insertStatement.setBytes(1, next.getKey());
+                        insertStatement.setBytes(2, IOUtils.toByteArray(data));
+                        insertStatement.execute();
+                    }
                 }
             }
 
         }
+
     }
 
 }

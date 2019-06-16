@@ -11,6 +11,7 @@ import org.springframework.vault.client.VaultEndpoint;
 import org.springframework.vault.support.ClientOptions;
 import org.springframework.vault.support.SslConfiguration;
 
+import static com.quorum.tessera.config.util.EnvironmentVariables.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,9 +27,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     private HashicorpKeyVaultServiceFactoryUtil keyVaultServiceFactoryUtil;
 
-    private String noCredentialsExceptionMsg = "Environment variables must be set to authenticate with Hashicorp Vault.  Set the HASHICORP_ROLE_ID and HASHICORP_SECRET_ID environment variables if using the AppRole authentication method.  Set the HASHICORP_TOKEN environment variable if using another authentication method.";
+    private String noCredentialsExceptionMsg = "Environment variables must be set to authenticate with Hashicorp Vault.  Set the " + HASHICORP_ROLE_ID + " and " + HASHICORP_SECRET_ID + " environment variables if using the AppRole authentication method.  Set the " + HASHICORP_TOKEN + " environment variable if using another authentication method.";
 
-    private String approleCredentialsExceptionMsg = "Only one of the HASHICORP_ROLE_ID and HASHICORP_SECRET_ID environment variables to authenticate with Hashicorp Vault using the AppRole method has been set";
+    private String approleCredentialsExceptionMsg = "Only one of the " + HASHICORP_ROLE_ID + " and " + HASHICORP_SECRET_ID + " environment variables to authenticate with Hashicorp Vault using the AppRole method has been set";
 
     @Before
     public void setUp() {
@@ -55,9 +56,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     @Test
     public void exceptionThrownIfNoAuthEnvVarsSet() {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn(null);
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn(null);
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn(null);
+        when(envProvider.getEnv(HASHICORP_ROLE_ID)).thenReturn(null);
+        when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn(null);
+        when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn(null);
 
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
@@ -67,9 +68,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     @Test
     public void exceptionThrownIfOnlyRoleIdAuthEnvVarSet() {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn(null);
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn(null);
+        when(envProvider.getEnv(HASHICORP_ROLE_ID)).thenReturn("role-id");
+        when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn(null);
+        when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn(null);
 
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
@@ -79,9 +80,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     @Test
     public void exceptionThrownIfOnlySecretIdAuthEnvVarSet() {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn(null);
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn(null);
+        when(envProvider.getEnv(HASHICORP_ROLE_ID)).thenReturn(null);
+        when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn("secret-id");
+        when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn(null);
 
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
@@ -91,9 +92,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     @Test
     public void exceptionThrownIfOnlyRoleIdAndTokenAuthEnvVarsSet() {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn(null);
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
+        when(envProvider.getEnv(HASHICORP_ROLE_ID)).thenReturn("role-id");
+        when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn(null);
+        when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn("token");
 
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
@@ -103,9 +104,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     @Test
     public void exceptionThrownIfOnlySecretIdAndTokenAuthEnvVarsSet() {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn(null);
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
+        when(envProvider.getEnv(HASHICORP_ROLE_ID)).thenReturn(null);
+        when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn("secret-id");
+        when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn("token");
 
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
@@ -115,9 +116,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     @Test
     public void roleIdAndSecretIdAuthEnvVarsAreSetIsAllowed() {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn(null);
+        when(envProvider.getEnv(HASHICORP_ROLE_ID)).thenReturn("role-id");
+        when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn("secret-id");
+        when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn(null);
 
         //Exception unrelated to env vars will be thrown
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
@@ -127,9 +128,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     @Test
     public void onlyTokenAuthEnvVarIsSetIsAllowed() {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn(null);
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn(null);
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
+        when(envProvider.getEnv(HASHICORP_ROLE_ID)).thenReturn(null);
+        when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn(null);
+        when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn("token");
 
         //Exception unrelated to env vars will be thrown
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
@@ -139,9 +140,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     @Test
     public void allAuthEnvVarsSetIsAllowed() {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
+        when(envProvider.getEnv(HASHICORP_ROLE_ID)).thenReturn("role-id");
+        when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn("secret-id");
+        when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn("token");
 
         //Exception unrelated to env vars will be thrown
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
@@ -151,9 +152,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     @Test
     public void exceptionThrownIfProvidedConfigHasNoKeyConfiguration() {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn(null);
+        when(envProvider.getEnv(HASHICORP_ROLE_ID)).thenReturn("role-id");
+        when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn("secret-id");
+        when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn(null);
 
         when(config.getKeys()).thenReturn(null);
 
@@ -165,9 +166,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     @Test
     public void exceptionThrownIfProvidedConfigHasNoHashicorpKeyVaultConfig() {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn(null);
+        when(envProvider.getEnv(HASHICORP_ROLE_ID)).thenReturn("role-id");
+        when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn("secret-id");
+        when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn(null);
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);
@@ -182,9 +183,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     @Test
     public void exceptionThrownIfKeyVaultConfigUrlSyntaxIncorrect() {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
+        when(envProvider.getEnv(HASHICORP_ROLE_ID)).thenReturn("role-id");
+        when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn("secret-id");
+        when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn("token");
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);
@@ -205,9 +206,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     @Test
     public void exceptionThrownIfKeyVaultConfigUrlIsMalformed() {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
+        when(envProvider.getEnv(HASHICORP_ROLE_ID)).thenReturn("role-id");
+        when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn("secret-id");
+        when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn("token");
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);
@@ -247,9 +248,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     @Test
     public void returnedValueIsCorrectType() {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
+        when(envProvider.getEnv(HASHICORP_ROLE_ID)).thenReturn("role-id");
+        when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn("secret-id");
+        when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn("token");
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);
@@ -269,9 +270,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     @Test
     public void returnedValueIsCorrectTypeUsing2ArgConstructor() {
-        when(envProvider.getEnv("HASHICORP_ROLE_ID")).thenReturn("role-id");
-        when(envProvider.getEnv("HASHICORP_SECRET_ID")).thenReturn("secret-id");
-        when(envProvider.getEnv("HASHICORP_TOKEN")).thenReturn("token");
+        when(envProvider.getEnv(HASHICORP_ROLE_ID)).thenReturn("role-id");
+        when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn("secret-id");
+        when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn("token");
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);

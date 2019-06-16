@@ -1,8 +1,9 @@
-
 package com.quorum.tessera.data.migration;
 
-import java.sql.SQLException;
 import org.junit.Test;
+
+import java.sql.SQLException;
+
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
@@ -16,7 +17,6 @@ public class JdbcCallbackTest {
         doThrow(SQLException.class).when(callback).doExecute();
         
         JdbcCallback.execute(callback);
-
     }
     
 }

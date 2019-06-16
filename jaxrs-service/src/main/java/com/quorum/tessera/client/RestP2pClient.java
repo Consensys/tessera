@@ -1,8 +1,9 @@
 
 package com.quorum.tessera.client;
 
+import com.quorum.tessera.partyinfo.P2pClient;
+import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.api.model.ApiPath;
-import com.quorum.tessera.api.model.ResendRequest;
 import java.util.Objects;
 
 public class RestP2pClient implements P2pClient {
@@ -19,8 +20,8 @@ public class RestP2pClient implements P2pClient {
     }
 
     @Override
-    public byte[] getPartyInfo(String targetUrl, byte[] data) {
-       return postDelegate.doPost(targetUrl, ApiPath.PARTYINFO, data);
+    public boolean sendPartyInfo(String targetUrl, byte[] data) {
+       return Objects.nonNull(postDelegate.doPost(targetUrl, ApiPath.PARTYINFO, data));
     }
 
     @Override

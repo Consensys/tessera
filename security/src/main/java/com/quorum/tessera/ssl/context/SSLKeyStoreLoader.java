@@ -31,6 +31,7 @@ final class SSLKeyStoreLoader {
             "([a-z0-9+/=\\r\\n]+)" +
             "-+END\\s+.*PRIVATE\\s+KEY[^-]*-+",
         2);
+
     private static final Pattern CERTIFICATE_PATTERN = Pattern.compile(
         "-+BEGIN\\s+.*CERTIFICATE[^-]*-+(?:\\s|\\r|\\n)+" +
             "([a-z0-9+/=\\r\\n]+)" +
@@ -38,7 +39,9 @@ final class SSLKeyStoreLoader {
         2);
 
     private static final String KEYSTORE_TYPE="JKS";
+
     private static final String ALIAS = "tessera-node";
+
     private static final char[] EMPTY_PASSWORD = "".toCharArray();
 
     private static final Base64.Decoder decoder = Base64.getMimeDecoder();
@@ -46,7 +49,6 @@ final class SSLKeyStoreLoader {
     private SSLKeyStoreLoader(){
 
     }
-
 
     static KeyManager[] fromJksKeyStore(Path keyStoreFile, String keyStorePassword) throws NoSuchAlgorithmException, IOException, KeyStoreException, CertificateException, UnrecoverableKeyException {
 

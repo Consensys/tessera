@@ -1,9 +1,8 @@
 package com.quorum.tessera.thridparty;
 
-import com.quorum.tessera.api.filter.Logged;
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.config.apps.ThirdPartyApp;
-import com.quorum.tessera.transaction.RawTransactionManager;
+import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -23,15 +22,14 @@ import static javax.ws.rs.core.MediaType.*;
 /**
  * Provides endpoints for dealing with raw transactions
  */
-@Logged
 @Path("/")
 public class RawTransactionResource implements ThirdPartyApp {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RawTransactionResource.class);
 
-    private final RawTransactionManager delegate;
+    private final TransactionManager delegate;
 
-    public RawTransactionResource(RawTransactionManager delegate) {
+    public RawTransactionResource(TransactionManager delegate) {
         this.delegate = Objects.requireNonNull(delegate);
     }
 

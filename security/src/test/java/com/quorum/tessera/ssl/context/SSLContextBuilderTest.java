@@ -39,15 +39,11 @@ public class SSLContextBuilderTest {
 
     private List<Path> trustedCertificates;
 
-
     private static final String PASSWORD = "quorum";
 
     private static final String LOCALHOST = "localhost";
 
     private SSLContextBuilder sslContextBuilder;
-
-    public SSLContextBuilderTest() {
-    }
 
     @Before
     public void setUp() throws NoSuchAlgorithmException, OperatorCreationException, InvalidKeyException, IOException, KeyStoreException, SignatureException, NoSuchProviderException, CertificateException, URISyntaxException {
@@ -89,7 +85,6 @@ public class SSLContextBuilderTest {
             .extracting("trustManager").isNotNull()
             .extracting("tm").isNotNull()
             .hasAtLeastOneElementOfType(WhiteListTrustManager.class);
-
 
     }
 
@@ -149,9 +144,6 @@ public class SSLContextBuilderTest {
         assertThat(otherContextBuilder.forCASignedCertificates().build()).isNotNull();
 
         assertThat(Files.exists(nonExistedFile)).isTrue();
-
-        Files.deleteIfExists(nonExistedFile);
-
     }
 
     @Test

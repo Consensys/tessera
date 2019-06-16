@@ -1,9 +1,10 @@
 package com.quorum.tessera.config;
 
-import java.util.Arrays;
-import java.util.Collections;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
+
+import java.util.Arrays;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigTest {
 
@@ -15,7 +16,7 @@ public class ConfigTest {
 
     @Test
     public void createWithNullArgs() {
-        Config config = new Config(null, null, null, null, null, null, false, false);
+        Config config = new Config(null, null, null, null, null, false, false);
         assertThat(config).isNotNull();
     }
 
@@ -40,7 +41,6 @@ public class ConfigTest {
         Config config = new Config();
 
         assertThat(config.getP2PServerConfig()).isNull();
-
     }
 
     @Test
@@ -64,31 +64,7 @@ public class ConfigTest {
         serverConfig.setEnabled(true);
         config.setServerConfigs(Arrays.asList(serverConfig));
 
-        assertThat(config.getP2PServerConfig())
-            .isNull();
-
-    }
-
-    @Test
-    public void setNullServerDoesNothing() {
-        Config config = new Config();
-        config.setServer(null);
-
-        assertThat(config.getServerConfigs()).isEmpty();
-        assertThat(config.getServer()).isNull();
-
-    }
-
-    @Test
-    public void areServerConfigsNull() {
-        Config config = new Config();
-
-        assertThat(config.getServerConfigs()).isEmpty();
-        assertThat(config.isServerConfigsNull()).isTrue();
-
-        config.setServerConfigs(Collections.EMPTY_LIST);
-        assertThat(config.isServerConfigsNull()).isFalse();
-
+        assertThat(config.getP2PServerConfig()).isNull();
     }
 
 }

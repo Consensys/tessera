@@ -1,6 +1,6 @@
 package com.quorum.tessera.grpc;
 
-import com.quorum.tessera.node.AutoDiscoveryDisabledException;
+import com.quorum.tessera.partyinfo.AutoDiscoveryDisabledException;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -40,9 +40,7 @@ public class StreamObserverTemplateTest {
 
         Object outcome = "HAPPY";
 
-        template.handle(() -> {
-            return outcome;
-        });
+        template.handle(() -> outcome);
 
         verify(observer).onNext(outcome);
         verify(observer).onCompleted();
@@ -84,11 +82,9 @@ public class StreamObserverTemplateTest {
             throw exception;
         });
 
-
         verify(observer).onError(exception);
 
     }
-
 
     @Test
     public void executeAutoDiscoveryDisabled() {
@@ -105,7 +101,6 @@ public class StreamObserverTemplateTest {
         AutoDiscoveryDisabledException exception = mock(AutoDiscoveryDisabledException.class);
         when(exception.getMessage()).thenReturn(exceptionMessage);
 
-
         template.handle(() -> {
             throw exception;
         });
@@ -118,4 +113,5 @@ public class StreamObserverTemplateTest {
 
         verify(observer).onError(result);
     }
+
 }

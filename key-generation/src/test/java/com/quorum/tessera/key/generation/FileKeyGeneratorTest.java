@@ -6,11 +6,11 @@ import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
-import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.NaclFacade;
+import com.quorum.tessera.passwords.PasswordReader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,25 +73,16 @@ public class FileKeyGeneratorTest {
         doReturn(keyPair).when(nacl).generateNewKeys();
 
         String filename = UUID.randomUUID().toString();
+        final Path tmpDir = Files.createTempDirectory("keygen").toAbsolutePath().resolve(filename);
 
-        final FilesystemKeyPair generated = generator.generate(filename, null, null);
+        final FilesystemKeyPair generated = generator.generate(tmpDir.toString(), null, null);
 
         assertThat(generated).isInstanceOf(FilesystemKeyPair.class);
         assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
         assertThat(generated.getPrivateKey()).isEqualTo("cHJpdmF0ZUtleQ==");
         assertThat(generated.getInlineKeypair().getPrivateKeyConfig().getType()).isEqualTo(UNLOCKED);
 
-
         verify(nacl).generateNewKeys();
-
-        Files.list(Paths.get(""))
-            .filter(f -> f.toString().contains(filename))
-            .forEach(f -> {
-                try {
-                    Files.deleteIfExists(f);
-                } catch (IOException ex) {
-                }
-            });
     }
 
     @Test

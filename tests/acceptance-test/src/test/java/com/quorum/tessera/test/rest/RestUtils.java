@@ -13,22 +13,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import transaction.utils.Utils;
 
 public class RestUtils {
 
-    private Client client = buildClient();
-
-    public static Client buildClient() {
-        return ClientBuilder.newClient();
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestUtils.class);
 
     public Response sendRaw(Party sender, byte[] transactionData, Set<Party> recipients) {
         return sendRaw(sender, transactionData, recipients.toArray(new Party[0]));
@@ -43,10 +39,16 @@ public class RestUtils {
             .map(Party::getPublicKey)
             .collect(Collectors.joining(","));
 
-        Invocation.Builder invocationBuilder = client.target(sender.getQ2TUri())
+
+        LOGGER.debug("Sending txn  to {}",recipientString);
+        
+        Invocation.Builder invocationBuilder = sender.getRestClientWebTarget()
             .path("sendraw")
             .request()
             .header(SENDER, sender.getPublicKey());
+
+
+
 
         Optional.of(recipientString)
             .filter(s -> !Objects.equals("", s))
@@ -61,7 +63,7 @@ public class RestUtils {
         String encodedId = urlEncode(transactionId);
 
         return Stream.of(party)
-            .map(p -> client.target(p.getQ2TUri()))
+            .map(Party::getRestClientWebTarget)
             .map(target -> target.path("transaction"))
             .map(target -> target.path(encodedId))
             .map(target -> target.request().get());
@@ -96,7 +98,7 @@ public class RestUtils {
         sendRequest.setTo(recipientArray);
         sendRequest.setPayload(transactionData);
 
-        final Response response = this.client.target(sender.getQ2TUri())
+        final Response response = sender.getRestClientWebTarget()
             .path("send")
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -112,8 +114,7 @@ public class RestUtils {
     }
 
     public Response send(Party sender, byte[] transactionData, Set<Party> recipients) {
-        return send(sender, transactionData,
-            recipients.toArray(new Party[recipients.size()]));
+        return send(sender, transactionData, recipients.toArray(new Party[0]));
     }
 
     public Response send(Party sender, byte[] transactionData, Party... recipients) {
@@ -128,7 +129,7 @@ public class RestUtils {
         sendRequest.setTo(recipientArray);
         sendRequest.setPayload(transactionData);
 
-        return this.client.target(sender.getQ2TUri())
+        return sender.getRestClientWebTarget()
             .path("send")
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -140,8 +141,7 @@ public class RestUtils {
     private static final String C11N_KEY = "c11n-key";
 
     public Response receiveRaw(String transactionKey, Party party, Party... recipients) {
-
-        return client.target(party.getQ2TUri())
+        return party.getRestClientWebTarget()
             .path("receiveraw")
             .request()
             .header(C11N_KEY, transactionKey)

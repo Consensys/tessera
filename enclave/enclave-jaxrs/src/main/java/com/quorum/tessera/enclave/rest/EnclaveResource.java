@@ -6,16 +6,18 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.service.Service;
 
-import javax.json.Json;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.json.Json;
+import javax.ws.rs.core.Response.Status;
 
 @Path("/")
 public class EnclaveResource {
@@ -30,8 +32,15 @@ public class EnclaveResource {
 
     @GET
     @Path("ping")
-    public String ping() {
-        return LocalDateTime.now().toString();
+    public Response ping() {
+        Service.Status status = enclave.status();
+        Status httpStatus;
+        if (status == Service.Status.STARTED) {
+            httpStatus = Status.OK;
+        } else {
+            httpStatus = Status.SERVICE_UNAVAILABLE;
+        }
+        return Response.status(httpStatus).entity(status.name()).build();
     }
 
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -142,7 +151,9 @@ public class EnclaveResource {
     public Response unencryptTransaction(EnclaveUnencryptPayload enclaveUnencryptPayload) {
 
         EncodedPayload payload = payloadEncoder.decode(enclaveUnencryptPayload.getData());
-        PublicKey providedKey = PublicKey.from(enclaveUnencryptPayload.getProvidedKey());
+        PublicKey providedKey = Optional.ofNullable(enclaveUnencryptPayload.getProvidedKey())
+            .map(PublicKey::from)
+            .orElse(null);
 
         byte[] response = enclave.unencryptTransaction(payload, providedKey);
 

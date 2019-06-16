@@ -1,6 +1,6 @@
 package com.quorum.tessera.grpc;
 
-import com.quorum.tessera.node.AutoDiscoveryDisabledException;
+import com.quorum.tessera.partyinfo.AutoDiscoveryDisabledException;
 import io.grpc.stub.StreamObserver;
 import java.util.Objects;
 import javax.validation.ConstraintViolationException;

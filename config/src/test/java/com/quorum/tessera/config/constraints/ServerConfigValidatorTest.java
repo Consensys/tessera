@@ -26,7 +26,7 @@ public class ServerConfigValidatorTest {
         serverConfig = new ServerConfig();
         serverConfig.setApp(AppType.P2P);
         serverConfig.setEnabled(true);
-        serverConfig.setServerSocket(new InetServerSocket("localhost", 123));
+        serverConfig.setServerAddress("localhost:123");
         serverConfig.setCommunicationType(CommunicationType.REST);
         serverConfig.setSslConfig(null);
         serverConfig.setInfluxConfig(null);
@@ -53,7 +53,7 @@ public class ServerConfigValidatorTest {
         assertThat(serverConfig.getApp()).isSameAs(AppType.P2P);
         assertThat(serverConfig.getApp().getIntf()).isSameAs(P2PApp.class);
         assertThat(serverConfig.isEnabled()).isTrue();
-        assertThat(serverConfig.getServerSocket()).isNotNull();
+        assertThat(serverConfig.getServerUri()).isNotNull();
         assertThat(serverConfig.getCommunicationType()).isSameAs(CommunicationType.REST);
         assertThat(serverConfig.getSslConfig()).isNull();
         assertThat(serverConfig.getInfluxConfig()).isNull();
@@ -65,14 +65,6 @@ public class ServerConfigValidatorTest {
     public void testInvalidCommTypeForApp() {
         serverConfig.setApp(AppType.THIRD_PARTY);
         serverConfig.setCommunicationType(CommunicationType.GRPC);
-        assertThat(validator.isValid(serverConfig, cvc)).isFalse();
-        verify(cvc).disableDefaultConstraintViolation();
-        verify(cvc).buildConstraintViolationWithTemplate(anyString());
-    }
-
-    @Test
-    public void testInvalidServerSoketTypeForApp() {
-        serverConfig.setServerSocket(new UnixServerSocket("somePath.ipc"));
         assertThat(validator.isValid(serverConfig, cvc)).isFalse();
         verify(cvc).disableDefaultConstraintViolation();
         verify(cvc).buildConstraintViolationWithTemplate(anyString());

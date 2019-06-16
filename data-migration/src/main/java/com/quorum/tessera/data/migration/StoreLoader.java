@@ -2,25 +2,12 @@ package com.quorum.tessera.data.migration;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.sql.SQLException;
 
 public interface StoreLoader {
 
-    Map<byte[], byte[]> load(Path input) throws IOException;
+    void load(Path input) throws IOException, SQLException;
 
-    Map<StoreType, StoreLoader> LOOKUP = Collections.unmodifiableMap(
-        new HashMap<StoreType, StoreLoader>() {{
-            put(StoreType.BDB, new BdbDumpFile());
-            put(StoreType.DIR, new DirectoryStoreFile());
-            put(StoreType.SQLITE, new SqliteLoader());
-        }}
-    );
-
-    static StoreLoader create(StoreType storeType) {
-        return Optional.ofNullable(LOOKUP.get(storeType)).get();
-    }
+    DataEntry nextEntry() throws IOException, SQLException;
 
 }

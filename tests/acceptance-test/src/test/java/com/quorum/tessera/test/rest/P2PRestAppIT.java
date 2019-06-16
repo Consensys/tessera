@@ -1,5 +1,7 @@
 package com.quorum.tessera.test.rest;
 
+import com.quorum.tessera.test.Party;
+import com.quorum.tessera.test.PartyHelper;
 import org.junit.*;
 import org.junit.rules.TestName;
 import org.slf4j.Logger;
@@ -11,31 +13,34 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriBuilder;
 import java.io.*;
-import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class P2PRestAppIT {
 
-    public static final URI SERVER_URI = UriBuilder.fromUri("http://127.0.0.1").port(8080).build();
-
     private final Client client = ClientBuilder.newClient();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(P2PRestAppIT.class);
 
+    private Party actor;
+    
     @Rule
     public TestName testName = new TestName();
 
     @Before
     public void beforeTest() {
-        LOGGER.info("Begin test: {}", testName.getMethodName());
+        this.actor = PartyHelper.create()
+                .getParties()
+                .findFirst()
+                .get();
+        
+        LOGGER.debug("Begin test: {}", testName.getMethodName());
     }
 
     @After
     public void afterTest() {
-        LOGGER.info("After test: {}", testName.getMethodName());
+        LOGGER.debug("After test: {}", testName.getMethodName());
     }
 
     @Ignore
@@ -44,7 +49,7 @@ public class P2PRestAppIT {
 
         InputStream data = new ByteArrayInputStream("SOMEDATA".getBytes());
 
-        javax.ws.rs.core.Response response = client.target(SERVER_URI)
+        javax.ws.rs.core.Response response = client.target(actor.getP2PUri())
                 .path("/partyinfo")
                 .request()
                 .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
@@ -55,7 +60,7 @@ public class P2PRestAppIT {
 
     @Test
     public void upcheck() {
-        javax.ws.rs.core.Response response = client.target(SERVER_URI)
+        javax.ws.rs.core.Response response = client.target(actor.getP2PUri())
                 .path("/upcheck")
                 .request()
                 .get();
@@ -69,7 +74,7 @@ public class P2PRestAppIT {
     @Test
     public void requestVersion() {
 
-        javax.ws.rs.core.Response response = client.target(SERVER_URI)
+        javax.ws.rs.core.Response response = client.target(actor.getP2PUri())
                 .path("/version")
                 .request()
                 .get();
@@ -85,7 +90,7 @@ public class P2PRestAppIT {
     public void requestOpenApiSchema() throws IOException {
 
         javax.ws.rs.core.Response response = client
-                .target(SERVER_URI)
+                .target(actor.getP2PUri())
                 .path("/api")
                 .request(MediaType.APPLICATION_JSON)
                 .get();
@@ -112,7 +117,7 @@ public class P2PRestAppIT {
     public void requestOpenApiSchemaDocument() {
 
         javax.ws.rs.core.Response response = client
-                .target(SERVER_URI)
+                .target(actor.getP2PUri())
                 .path("/api")
                 .request(MediaType.TEXT_HTML)
                 .get();
@@ -121,9 +126,10 @@ public class P2PRestAppIT {
         String body = response.readEntity(String.class);
         LOGGER.debug("Doc {}", body);
         assertThat(body).isNotEmpty();
+         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getMediaType())
                 .isEqualTo(MediaType.TEXT_HTML_TYPE);
-        assertThat(response.getStatus()).isEqualTo(200);
+       
 
     }
 

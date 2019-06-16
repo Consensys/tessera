@@ -24,12 +24,19 @@ public class SSLContextBuilder {
     private static final String PROTOCOL = "TLS";
 
     private String address;
+
     private Path keyStore;
+
     private String keyStorePassword;
+
     private Path key;
+
     private Path certificate;
+
     private Path trustStore;
+
     private String trustStorePassword;
+
     private List<Path> trustedCertificates;
 
     private SSLContext sslContext;
@@ -47,7 +54,6 @@ public class SSLContextBuilder {
 
         this.sslContext = SSLContext.getInstance(PROTOCOL);
     }
-
 
     public static SSLContextBuilder createBuilder(String address, Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword) throws NoSuchAlgorithmException {
         return new SSLContextBuilder(
@@ -70,14 +76,12 @@ public class SSLContextBuilder {
         return sslContext;
     }
 
-
     public SSLContextBuilder forWhiteList(Path knownHosts) throws GeneralSecurityException, IOException, OperatorCreationException {
 
         sslContext.init(buildKeyManagers(), new TrustManager[]{new WhiteListTrustManager(knownHosts)}, null);
 
         return this;
     }
-
 
     public SSLContextBuilder forCASignedCertificates() throws GeneralSecurityException, IOException, OperatorCreationException {
 
@@ -90,14 +94,12 @@ public class SSLContextBuilder {
         return this;
     }
 
-
     public SSLContextBuilder forAllCertificates() throws GeneralSecurityException, IOException, OperatorCreationException {
 
         sslContext.init(buildKeyManagers(), new TrustManager[]{new TrustAllManager()}, null);
 
         return this;
     }
-
 
     public SSLContextBuilder forTrustOnFirstUse(Path knownHostsFile) throws GeneralSecurityException, IOException, OperatorCreationException {
 
@@ -127,7 +129,6 @@ public class SSLContextBuilder {
 
     }
 
-
     private KeyManager[] buildKeyManagers() throws GeneralSecurityException, IOException, OperatorCreationException {
 
         if (Objects.nonNull(this.keyStore)) {
@@ -139,7 +140,6 @@ public class SSLContextBuilder {
             return SSLKeyStoreLoader.fromPemKeyFile(this.key, this.certificate);
         }
     }
-
 
     private TrustManager[] buildTrustManagers() throws GeneralSecurityException, IOException {
 

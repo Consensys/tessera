@@ -1,10 +1,8 @@
-
 package com.quorum.tessera.ssl.exception;
-
 
 public class TesseraSecurityException extends RuntimeException {
 
-    public TesseraSecurityException(Throwable cause) {
+    public TesseraSecurityException(final Throwable cause) {
         super(cause);
     }
     

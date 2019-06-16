@@ -14,7 +14,6 @@ public class DirectKeyPair implements ConfigKeyPair {
     @XmlElement
     private final String publicKey;
 
-    
     @Size(min = 1)
     @NotNull
     @ValidBase64(message = "Invalid Base64 key provided")

@@ -6,18 +6,41 @@
     <artifactId>server</artifactId>
     <packaging>pom</packaging>
 
+
     <parent>
         <artifactId>tessera</artifactId>
         <groupId>com.jpmorgan.quorum</groupId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.10-SNAPSHOT</version>
     </parent>
 
     <modules>
         <module>jersey-server</module>
         <module>grpc-server</module>
         <module>server-api</module>
-        <module>unix-socket-server</module>
+        <module>jaxrs-client-unixsocket</module>
+        <module>server-utils</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>work-in-progress</id>
+            <modules>
+                <module>websockets-server</module>
+            </modules>
+        </profile>
+    </profiles>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>server-utils</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+ 
+        </dependencies>
+    </dependencyManagement>
+    
     <build>
         <plugins>
             <plugin>

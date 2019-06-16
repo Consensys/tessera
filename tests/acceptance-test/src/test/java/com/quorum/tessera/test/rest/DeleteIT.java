@@ -3,7 +3,6 @@ package com.quorum.tessera.test.rest;
 import com.quorum.tessera.api.model.SendResponse;
 import org.junit.Test;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 import java.net.URLEncoder;
 import java.util.Base64;
@@ -18,7 +17,7 @@ public class DeleteIT {
 
     private static final String COUNT_ALL = "select count(*) from ENCRYPTED_TRANSACTION where hash = ?";
 
-    private final PartyHelper partyHelper = new RestPartyHelper();
+    private final PartyHelper partyHelper = PartyHelper.create();
 
     @Test
     public void deleteTransactionThatExists() throws Exception {
@@ -27,7 +26,8 @@ public class DeleteIT {
         Party sender = partyHelper.getParties().findAny().get();
 
         Party recipient = partyHelper.getParties()
-                .filter(p -> !p.getPublicKey().equals(sender.getPublicKey())).findAny().get();
+                .filter(p -> !p.getPublicKey().equals(sender.getPublicKey()))
+                .findAny().get();
 
         RestUtils utils = new RestUtils();
         byte[] txnData = utils.createTransactionData();
@@ -47,9 +47,8 @@ public class DeleteIT {
             }
         }
 
-        Client client = RestUtils.buildClient();
         //delete it
-        final Response resp = client.target(sender.getQ2TUri())
+        final Response resp = sender.getRestClientWebTarget()
                 .path("transaction")
                 .path(encodedHash)
                 .request()
@@ -66,11 +65,10 @@ public class DeleteIT {
 
         final String madeupHash = Base64.getUrlEncoder().encodeToString("madeup".getBytes());
 
-        Client client = RestUtils.buildClient();
 
         Party party = partyHelper.getParties().findAny().get();
 
-        final Response response = client.target(party.getQ2TUri())
+        final Response response = party.getRestClientWebTarget()
                 .path("transaction")
                 .path(madeupHash)
                 .request()

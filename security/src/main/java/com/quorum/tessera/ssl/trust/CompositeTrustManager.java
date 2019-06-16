@@ -52,5 +52,4 @@ public class CompositeTrustManager extends AbstractTrustManager {
         return new X509Certificate[0];
     }
 
-
 }

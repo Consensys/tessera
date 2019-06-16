@@ -1,7 +1,7 @@
 package com.quorum.tessera.client;
 
-import com.quorum.tessera.api.model.ResendRequest;
-import com.quorum.tessera.api.model.ResendRequestType;
+import com.quorum.tessera.partyinfo.ResendRequest;
+import com.quorum.tessera.partyinfo.ResendRequestType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
@@ -43,9 +43,9 @@ public class GrpcP2pClientTest {
     @Test
     public void getPartyInfo() {
         byte[] data = "DATA".getBytes();
-        p2pClient.getPartyInfo(targetUrl, data);
+        p2pClient.sendPartyInfo(targetUrl, data);
         verify(grpcClientFactory).getClient(targetUrl);
-        verify(grpcClient).getPartyInfo(data);
+        verify(grpcClient).sendPartyInfo(data);
 
     }
 

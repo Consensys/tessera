@@ -5,34 +5,23 @@
         "password": "tiger",
         "url": "foo:bar"
     },
-    "serverConfigs":[
+    "serverConfigs": [
         {
-            "app":"ThirdParty",
+            "app": "ThirdParty",
             "enabled": true,
-            "serverSocket":{
-                "type":"INET",
-                "port": 8090,
-                "hostName": "http://localhost"
-            },
-            "communicationType" : "REST"
+            "serverAddress": "http://localhost:8090",
+            "communicationType": "REST"
         },
         {
-            "app":"Q2T",
+            "app": "Q2T",
             "enabled": true,
-            "serverSocket":{
-                "type":"UNIX",
-                "path":"/tmp/test.ipc"
-            },
-            "communicationType" : "REST"
+            "serverAddress": "unix:${unixSocketPath}",
+            "communicationType": "REST"
         },
         {
-            "app":"P2P",
+            "app": "P2P",
             "enabled": true,
-            "serverSocket":{
-                "type":"INET",
-                "port": 8091,
-                "hostName": "http://localhost"
-            },
+            "serverAddress": "http://localhost:8091",
             "sslConfig": {
                 "tls": "OFF",
                 "generateKeyStoreIfNotExisted": "false",
@@ -49,7 +38,7 @@
                 "knownClientsFile": "./ssl/knownClients1",
                 "knownServersFile": "./ssl/knownServers1"
             },
-            "communicationType" : "REST"
+            "communicationType": "REST"
         }
     ],
     "peer": [
@@ -70,14 +59,13 @@
                     "data": {
                         "aopts": {
                             "variant": "id",
-                            "memory": 1048576,
-                            "iterations": 10,
-                            "parallelism": 4,
-                            "version": "1.3"
+                            "memory": 1024,
+                            "iterations": 1,
+                            "parallelism": 1
                         },
-                        "snonce": "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-                        "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-                        "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
+                        "snonce": "dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe",
+                        "asalt": "JoPVq9G6NdOb+Ugv+HnUeA==",
+                        "sbox": "6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw"
                     },
                     "type": "argon2sbox"
                 },
@@ -85,6 +73,5 @@
             }
         ]
     },
-    "alwaysSendTo": [],
-    "unixSocketFile": "${unixSocketPath}"
+    "alwaysSendTo": []
 }

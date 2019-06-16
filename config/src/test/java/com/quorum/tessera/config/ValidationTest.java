@@ -2,7 +2,6 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.keypairs.*;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -13,7 +12,8 @@ import java.util.*;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ValidationTest {
 
@@ -48,26 +48,6 @@ public class ValidationTest {
         assertThat(violations).hasSize(3);
         assertThat(options.getAlgorithm()).isEqualTo("id");
 
-    }
-
-    @Test
-    public void inlineKeyPairNoPasswordProvided() {
-        KeyDataConfig keyConfig = mock(KeyDataConfig.class);
-        when(keyConfig.getType()).thenReturn(PrivateKeyType.LOCKED);
-        when(keyConfig.getValue()).thenReturn(null);
-
-        InlineKeypair spy = Mockito.spy(new InlineKeypair("validkey", keyConfig));
-        doReturn("MISSING_PASSWORD").when(spy).getPrivateKey();
-
-        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(spy), null, null);
-
-        Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
-
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<KeyConfiguration> violation = violations.iterator().next();
-
-        assertThat(violation.getMessage()).isEqualTo("A locked key was provided without a password.\n Please ensure the same number of passwords are provided as there are keys and remember to include empty passwords for unlocked keys");
     }
 
     @Test
@@ -127,7 +107,7 @@ public class ValidationTest {
 
         List<String> alwaysSendTo = singletonList("BOGUS");
 
-        Config config = new Config(null, null, null, null, alwaysSendTo, null, false,false);
+        Config config = new Config(null, null, null, null, alwaysSendTo, false, false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "alwaysSendTo");
 
@@ -145,7 +125,7 @@ public class ValidationTest {
 
         List<String> alwaysSendTo = singletonList(value);
 
-        Config config = new Config(null, null, null, null, alwaysSendTo, null, false,false);
+        Config config = new Config(null, null, null, null, alwaysSendTo, false, false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "alwaysSendTo");
 
@@ -174,7 +154,7 @@ public class ValidationTest {
         assertThat(violation2.getMessageTemplate()).isEqualTo("File does not exist");
 
         final List<String> paths = Arrays.asList(
-            violation1.getPropertyPath().toString(), violation2.getPropertyPath().toString()
+                violation1.getPropertyPath().toString(), violation2.getPropertyPath().toString()
         );
         assertThat(paths).containsExactlyInAnyOrder("keyData[0].publicKeyPath", "keyData[0].privateKeyPath");
     }
@@ -213,8 +193,8 @@ public class ValidationTest {
         assertThat(violations).hasSize(2);
 
         assertThat(violations).extracting("messageTemplate")
-                                .containsExactly("Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)",
-                                    "Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)");
+                .containsExactly("Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)",
+                        "Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)");
     }
 
     @Test
@@ -235,7 +215,7 @@ public class ValidationTest {
         assertThat(violations).hasSize(2);
 
         assertThat(violations).extracting("messageTemplate")
-            .containsExactly("length must be 32 characters", "length must be 32 characters");
+                .containsExactly("length must be 32 characters", "length must be 32 characters");
     }
 
     @Test
@@ -247,7 +227,7 @@ public class ValidationTest {
         assertThat(violations).hasSize(2);
 
         assertThat(violations).extracting("messageTemplate")
-            .containsExactly("length must be 32 characters", "length must be 32 characters");
+                .containsExactly("length must be 32 characters", "length must be 32 characters");
     }
 
     @Test
@@ -278,7 +258,7 @@ public class ValidationTest {
     public void azureKeyPairProvidedWithoutKeyVaultConfigCreatesViolation() {
         AzureVaultKeyPair keyPair = new AzureVaultKeyPair("publicVauldId", "privateVaultId", null, null);
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null, null);
-        Config config = new Config(null, null, null, keyConfiguration, null, null, false, false);
+        Config config = new Config(null, null, null, keyConfiguration, null, false, false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
         assertThat(violations).hasSize(1);
@@ -351,22 +331,10 @@ public class ValidationTest {
         DirectKeyPair keyPair = new DirectKeyPair("pub", "priv");
 
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null, null);
-        Config config = new Config(null, null, null, keyConfiguration, null, null, false, false);
+        Config config = new Config(null, null, null, keyConfiguration, null, false, false);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
         assertThat(violations).hasSize(0);
-    }
-
-    @Test
-    public void keyConfigurationIsNullCreatesNotNullViolation() {
-        Config config = new Config(null, null, null, null, null, null, false, false);
-
-        Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
-
-        assertThat(violations).hasSize(1);
-
-        ConstraintViolation<Config> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
     }
 
     @Test
@@ -418,4 +386,26 @@ public class ValidationTest {
         assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
         assertThat(violation.getPropertyPath().toString()).isEqualTo("hashicorpKeyVaultConfig.url");
     }
+
+    @Test
+    public void serverAddressValidations() {
+
+        String[] invalidAddresses = {"/foo/bar","foo@bar.com,:/fff.ll","file:/tmp/valid.somename"};
+
+        ServerConfig config = new ServerConfig();
+        for (String sample : invalidAddresses) {
+            config.setServerAddress(sample);
+            Set<ConstraintViolation<ServerConfig>> validresult = validator.validateProperty(config, "serverAddress");
+            assertThat(validresult).hasSize(1);
+        }
+
+        String[] validSamples = {"unix:/foo/bar.ipc","http://localhost:8080","https://somestrangedomain.com:8080"};
+        for (String sample : validSamples) {
+            config.setServerAddress(sample);
+            Set<ConstraintViolation<ServerConfig>> validresult = validator.validateProperty(config, "serverAddress");
+            assertThat(validresult).isEmpty();
+        }
+
+    }
+
 }

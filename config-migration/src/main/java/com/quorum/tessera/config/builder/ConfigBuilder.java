@@ -224,7 +224,7 @@ public class ConfigBuilder {
 
         boolean generateKeyStoreIfNotExisted = false;
 
-        SslConfig sslConfig = new SslConfig(
+        final SslConfig sslConfig = new SslConfig(
                 sslAuthenticationMode,
                 generateKeyStoreIfNotExisted,
                 toPath(workDir, sslServerKeyStorePath),
@@ -250,54 +250,50 @@ public class ConfigBuilder {
                 toPath(workDir, sslServerTlsKeyPath),
                 toPath(workDir, sslServerTlsCertificatePath),
                 toPath(workDir, sslClientTlsKeyPath),
-                toPath(workDir, sslClientTlsCertificatePath)
+                toPath(workDir, sslClientTlsCertificatePath),
+                null
         );
 
+        final ServerConfig q2tConfig = new ServerConfig();
+        q2tConfig.setEnabled(true);
+        q2tConfig.setApp(AppType.Q2T);
+        q2tConfig.setCommunicationType(CommunicationType.REST);
+        q2tConfig.setServerAddress("unix:"+ toPath(workDir, unixSocketFile));
 
+        final ServerConfig p2pConfig = new ServerConfig();
+        final String port = (serverPort == null) ? "" : ":"+serverPort;
+        final String hostname = (serverHostname == null) ? null : serverHostname + port;
+        p2pConfig.setEnabled(true);
+        p2pConfig.setApp(AppType.P2P);
+        p2pConfig.setCommunicationType(CommunicationType.REST);
+        p2pConfig.setServerAddress(hostname);
+        p2pConfig.setSslConfig(sslConfig);
 
-        //TODO must add P2P and Q2T server configs. Maybe ThirdParty too - in disabled state.
-        //serverHostname, serverPort, 50521, CommunicationType.REST, sslConfig, null, null, null
-        final DeprecatedServerConfig serverConfig = new DeprecatedServerConfig();
-        serverConfig.setPort(serverPort);
-        serverConfig.setHostName(serverHostname);
-        serverConfig.setCommunicationType(CommunicationType.REST);
-        serverConfig.setSslConfig(sslConfig);
-        
         final List<Peer> peerList;
         if(peers != null) {
-            peerList = peers.stream()
-                            .map(Peer::new)
-                            .collect(Collectors.toList());
+            peerList = peers.stream().map(Peer::new).collect(Collectors.toList());
         } else {
             peerList = null;
         }
 
-
-        final List<String> forwardingKeys;
+        final List<String> forwardingKeys = new ArrayList<>();
         if(alwaysSendTo != null) {
-            List<String> keyList = new ArrayList<>();
 
             for(String keyPath : alwaysSendTo) {
                 try {
                     List<String> keysFromFile = Files.readAllLines(toPath(workDir, keyPath));
-                    keyList.addAll(keysFromFile);
+                    forwardingKeys.addAll(keysFromFile);
                 } catch (IOException e) {
                     System.err.println("Error reading alwayssendto file: " + e.getMessage());
                 }
             }
-
-            forwardingKeys = keyList.stream()
-                .collect(Collectors.toList());
-        } else {
-            forwardingKeys = Collections.emptyList();
         }
 
-        Config config = new Config();
-        config.setServer(serverConfig);
+        final Config config = new Config();
+        config.setServerConfigs(Arrays.asList(q2tConfig, p2pConfig));
         config.setJdbcConfig(jdbcConfig);
         config.setPeers(peerList);
         config.setAlwaysSendTo(forwardingKeys);
-        config.setUnixSocketFile(toPath(workDir, unixSocketFile));
         config.setUseWhiteList(useWhiteList);
         config.setKeys(keyData);
         config.setDisablePeerDiscovery(false);

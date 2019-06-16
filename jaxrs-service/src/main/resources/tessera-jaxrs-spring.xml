@@ -6,9 +6,9 @@
 
     <bean id="p2pJaxrsApplication" class="com.quorum.tessera.p2p.P2PRestApp">
         <constructor-arg>
-             <bean class="com.quorum.tessera.service.locator.ServiceLocator" factory-method="create" />
+            <bean class="com.quorum.tessera.service.locator.ServiceLocator" factory-method="create" />
         </constructor-arg>
-         <constructor-arg value="tessera-core-spring.xml" />
+        <constructor-arg value="tessera-core-spring.xml" />
     </bean>
 
     <bean id="q2tJaxrsApplication" class="com.quorum.tessera.q2t.Q2TRestApp">
@@ -46,12 +46,21 @@
     </bean>
 
     <bean class="com.quorum.tessera.thridparty.RawTransactionResource">
-        <constructor-arg ref="rawTransactionManager"/>
+        <constructor-arg ref="transactionManager"/>
     </bean>
     
     <bean class="com.quorum.tessera.p2p.PartyInfoResource">
         <constructor-arg ref="partyInfoService"/>
         <constructor-arg ref="partyInfoParser" />
+        <constructor-arg>
+            <bean factory-bean="clientFactory" factory-method="buildFrom">
+                <constructor-arg>
+                    <bean factory-bean="config" factory-method="getP2PServerConfig"/>
+                </constructor-arg>
+            </bean>
+        </constructor-arg>
+        <constructor-arg ref="enclave" />
+        
     </bean>
     
     <bean class="com.quorum.tessera.admin.ConfigResource">
@@ -77,7 +86,6 @@
         </constructor-arg>
     </bean>
 
-    <bean class="com.quorum.tessera.api.filter.LoggingFilter"/>
 
     <bean class="com.quorum.tessera.api.filter.IPWhitelistFilter">
         <constructor-arg ref="configService"/>
@@ -90,7 +98,8 @@
     <bean class="com.quorum.tessera.api.exception.TransactionNotFoundExceptionMapper"/>
     <bean class="com.quorum.tessera.api.exception.WebApplicationExceptionMapper"/>
     <bean class="com.quorum.tessera.api.exception.EntityNotFoundExceptionMapper"/>
-
+    <bean class="com.quorum.tessera.api.exception.EnclaveNotAvailableExceptionMapper"/>
+    <bean class="com.quorum.tessera.api.exception.SecurityExceptionMapper"/>
     <bean class="com.quorum.tessera.p2p.ApiResource"/>
 
 

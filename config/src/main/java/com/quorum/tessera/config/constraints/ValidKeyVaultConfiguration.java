@@ -21,5 +21,4 @@ public @interface ValidKeyVaultConfiguration {
 
     Class<? extends Payload>[] payload() default {};
 
-    boolean checkKeyConfigurationValid() default true;
 }

@@ -2,39 +2,129 @@ language: java
 
 env:
   global:
-   - CODECOV_TOKEN="b5659ea0-f191-4e1d-9139-a8a31971c386"
+    - CODECOV_TOKEN="b5659ea0-f191-4e1d-9139-a8a31971c386"
 
-jdk:
-  - oraclejdk8
-  - oraclejdk11
+install: true
+
+stages:
+  - name: test
+    if: type = pull_request OR type = api
+  - name: deploy only
+    if: branch = master AND type = push
+  - name: tag and deploy
+    if: type = api
+
+jobs:
+  include:
+    - stage: test
+      name: "Unit Tests Java 8"
+      jdk:  oraclejdk8
+      install: &build_no_checks
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
+      script: &build_with_unittests
+        - mvn install -pl \!tests/acceptance-test -P reduce-logging -o || travis_terminate 1
+
+    - name: "Unit Tests Java 11"
+      jdk:  oraclejdk11
+      install: *build_no_checks
+      script: *build_with_unittests
+
+    - name: "Acceptance Tests Java 8"
+      jdk:  oraclejdk8
+      install: *build_no_checks
+      script: mvn verify -pl tests/acceptance-test -P reduce-logging -o || travis_terminate 1
+
+    - name: "Acceptance Tests Java 11"
+      jdk:  oraclejdk11
+#      before_install:
+#        - rm "${JAVA_HOME}/lib/security/cacerts"
+#        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
+      install: *build_no_checks
+      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+
+    - name: "GRPC Only Acceptance Tests"
+      jdk:  oraclejdk8
+      install: *build_no_checks
+      script: mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging -o || travis_terminate 1
+
+    - name: "Simple Only Acceptance Tests"
+      jdk:  oraclejdk8
+      install: *build_no_checks
+      script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging -o || travis_terminate 1
+
+    - name: "Vault Acceptance Tests Java 8"
+      jdk:  oraclejdk8
+      before_install: &install_hashicorp
+        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
+        - mkdir -p vault/bin && pushd $_
+        - unzip /tmp/vault_1.0.1_linux_amd64.zip
+        - export PATH=$PATH:$PWD && popd
+      install: *build_no_checks
+      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
+
+    - name: "Vault Acceptance Tests Java 11"
+      jdk:  oraclejdk11
+      before_install: *install_hashicorp
+      install: *build_no_checks
+      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
+
+    - stage: deploy only
+      name: "Deploy to OSSRH"
+      jdk:  oraclejdk8
+      script:
+        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
+        - travis_wait 60 mvn deploy --settings .maven.xml -B -P release,reduce-logging -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Djavadoc.skip=true || travis_terminate 1
+
+    - stage: tag and deploy
+      name: "Tag on GitHub and deploy to OSSRH"
+      jdk:  oraclejdk8
+      script:
+        - head_ref=$(git rev-parse HEAD) || travis_terminate 1
+        - branch_ref=$(git rev-parse "$TRAVIS_BRANCH") || travis_terminate 1
+        - |
+          if [[ $head_ref != $branch_ref ]]; then
+            echo "HEAD ref ($head_ref) does not match $TRAVIS_BRANCH ref ($branch_ref).  New commits may have been pushed before the build cloned the repo"
+          return 0
+          fi
+        - git checkout $TRAVIS_BRANCH || travis_terminate 1
+        - release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
+        - branch_name="release-${release_version}"
+
+        # prepare current branch for release, create release branch, increment development version on current branch
+        - mvn --settings .maven.xml -B -DbranchName=${branch_name} release:branch || travis_terminate 1
+        - git checkout $branch_name || travis_terminate 1
+
+        # remove SNAPSHOT version suffix, create a tag in GitHub, increment development version on release branch
+        - mvn --settings .maven.xml -B -DpushChanges=true release:prepare || travis_terminate 1
+
+        # check out tag from GitHub, build then deploy to OSSRH
+        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
+        - mvn --settings .maven.xml -B release:perform || travis_terminate 1
+
+#    - if: branch = travis_changes AND type = push
+#      name: "Deploy site"
+#      jdk:  oraclejdk8
+#      before_install:
+#        - echo -e "machine github.com\n  login $CI_USER_TOKEN" > ~/.netrc
+#      script:
+#          - mvn site-deploy
+#      install: echo "install"
 
 sudo: enabled
 
 notifications:
- slack:
-   secure: TeWK06kSrpdvMY/TNocbNYy0gJ9+jP9ygjzBtgsMRmm0kbBpzg34eZJyWMU/sf5x6taWAVOGW1jfG4+kfLUqG7CrqcRUihqK3x1DOJQS/BlT2IhJkED4dtwEw7xTkRTxPkghwMAXjJZImnh7ORS1HCJByEs5kedThh/Vr1HDaWJ+KctGLhE3LudyYikxZEWYVbexHZ5o8QbFGwmTYNHLaKAIGZbvt8wDoE+yJOftCqmCh2aJ4YBzYSW9wmxxf3tu75Azni9Am1wiCu+Q5NhljtZwbx6QopkHxbM0DdohOwQQ1g2lPni8dZYdw/obvVQOKLNjkTWU3LvtiWrwiAKp/w5czeL5nkQiFxcAcyTqCRXNh3J1RD1k9H4OBLo2N+5o6dhnNUZt24PZFsNMzR+ygmNq7WvAqQpC5ixppND//8tg25234dXafdL8KmWMFuTepQem2H9Yo8zr16v+VC7MEUyh5ta67xqhFGluIDEySgxMX389r0bU1dXsqhc/K131ty6AcV8FWEGToguvxL+Sj8RhBk5F2B+QOtUzl/5iqlGhqpWcVkoQjiCPJbcLHlHbt6fiUNEpVVjxa2kNrTNZ/5GS6eZoVr5OT1tc3lY5ZUA40yk0Pk63mYB30yMl/wtbbQl/g/0OpcJW20+ZT3971dIt6PMFg3b+n1xSZgTNvIY=
-
-cache:
- directories:
- - "$HOME/.m2"
-
-install:
-- wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
-- mkdir -p vault/bin && pushd $_
-- unzip /tmp/vault_1.0.1_linux_amd64.zip
-- export PATH=$PATH:$PWD && popd
-
-script: mvn install -P acceptance-test,vault-acceptance-tests,jnacl
-
-after_success:
-- bash <(curl -s https://codecov.io/bash)
+  slack:
+    secure: TeWK06kSrpdvMY/TNocbNYy0gJ9+jP9ygjzBtgsMRmm0kbBpzg34eZJyWMU/sf5x6taWAVOGW1jfG4+kfLUqG7CrqcRUihqK3x1DOJQS/BlT2IhJkED4dtwEw7xTkRTxPkghwMAXjJZImnh7ORS1HCJByEs5kedThh/Vr1HDaWJ+KctGLhE3LudyYikxZEWYVbexHZ5o8QbFGwmTYNHLaKAIGZbvt8wDoE+yJOftCqmCh2aJ4YBzYSW9wmxxf3tu75Azni9Am1wiCu+Q5NhljtZwbx6QopkHxbM0DdohOwQQ1g2lPni8dZYdw/obvVQOKLNjkTWU3LvtiWrwiAKp/w5czeL5nkQiFxcAcyTqCRXNh3J1RD1k9H4OBLo2N+5o6dhnNUZt24PZFsNMzR+ygmNq7WvAqQpC5ixppND//8tg25234dXafdL8KmWMFuTepQem2H9Yo8zr16v+VC7MEUyh5ta67xqhFGluIDEySgxMX389r0bU1dXsqhc/K131ty6AcV8FWEGToguvxL+Sj8RhBk5F2B+QOtUzl/5iqlGhqpWcVkoQjiCPJbcLHlHbt6fiUNEpVVjxa2kNrTNZ/5GS6eZoVr5OT1tc3lY5ZUA40yk0Pk63mYB30yMl/wtbbQl/g/0OpcJW20+ZT3971dIt6PMFg3b+n1xSZgTNvIY=
 
 before_cache:
 - mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
 
-deploy:
-    provider: script
-    script: bash deploy.sh
-    skip_cleanup: true
-    on:
-        all_branches: true
+cache:
+  directories:
+    - "$HOME/.m2"
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+

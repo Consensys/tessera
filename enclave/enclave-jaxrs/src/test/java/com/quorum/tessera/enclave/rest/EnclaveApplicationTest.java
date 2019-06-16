@@ -2,26 +2,25 @@ package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import javax.json.JsonArray;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.quorum.tessera.enclave.rest.Fixtures.createSample;
+import com.quorum.tessera.service.Service;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import org.mockito.Mockito;
 import static org.mockito.Mockito.*;
 
 public class EnclaveApplicationTest {
@@ -30,14 +29,18 @@ public class EnclaveApplicationTest {
 
     private JerseyTest jersey;
 
+    private RestfulEnclaveClient restfulEnclaveClient;
+
     @Before
     public void setUp() throws Exception {
 
         enclave = mock(Enclave.class);
-
+        when(enclave.status()).thenReturn(Service.Status.STARTED);
         jersey = Util.create(enclave);
 
         jersey.setUp();
+
+        restfulEnclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri());
 
     }
 
@@ -54,67 +57,97 @@ public class EnclaveApplicationTest {
         Response response = jersey.target("ping").request().get();
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.readEntity(String.class)).isNotEmpty();
-
+        verify(enclave).status();
     }
 
     @Test
-    public void defaultKey() throws Exception {
+    public void pingServerDown() throws Exception {
 
-        PublicKey publicKey = PublicKey.from("defaultKey".getBytes());
+        when(enclave.status()).thenReturn(Service.Status.STOPPED);
 
-        when(enclave.defaultPublicKey()).thenReturn(publicKey);
-
-        Response response = jersey.target("default").request().get();
-        assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.readEntity(String.class)).isEqualTo("defaultKey");
-        verify(enclave).defaultPublicKey();
-
-    }
-
-    @Test
-    public void publicKeys() throws Exception {
-
-        Set<PublicKey> keys = Stream.of("publicKey", "publicKey2")
-                .map(String::getBytes)
-                .map(PublicKey::from)
-                .collect(Collectors.toSet());
-
-        when(enclave.getPublicKeys())
-                .thenReturn(keys);
-
-        Response response = jersey.target("public").request().get();
-        assertThat(response.getStatus()).isEqualTo(200);
-
-        JsonArray result = response.readEntity(JsonArray.class);
-
-        assertThat(result).hasSize(2);
-
-        verify(enclave).getPublicKeys();
+        Response response = jersey.target("ping").request().get();
+        assertThat(response.getStatus()).isEqualTo(503);
+        assertThat(response.readEntity(String.class)).isEqualTo(Service.Status.STOPPED.name());
+        verify(enclave).status();
     }
 
     @Test
     public void encryptPayload() {
-
+        byte[] message = "SOMEDATA".getBytes();
         EncodedPayload pay = createSample();
 
-        when(enclave.encryptPayload(any(byte[].class), any(PublicKey.class), anyList()
-        )).thenReturn(pay);
+        List<byte[]> results = new ArrayList<>();
+        doAnswer((invocation) -> {
+            results.add(invocation.getArgument(0));
+            return pay;
+        })
+                .when(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList()
+        );
 
-        EnclavePayload enclavePayload = new EnclavePayload();
-        enclavePayload.setData("SOMEDATA".getBytes());
-        enclavePayload.setSenderKey("SENDER_KEY".getBytes());
-        enclavePayload.setRecipientPublicKeys(Arrays.asList("RecipientPublicKey".getBytes()));
-        Response response = jersey.target("encrypt")
-                .request(MediaType.APPLICATION_OCTET_STREAM_TYPE)
-                .post(Entity.entity(enclavePayload, MediaType.APPLICATION_JSON));
+        PublicKey senderPublicKey = pay.getSenderKey();
+        List<PublicKey> recipientPublicKeys = pay.getRecipientKeys();
 
-        assertThat(response.getStatus()).isEqualTo(200);
+        EncodedPayload result = restfulEnclaveClient.encryptPayload(message, senderPublicKey, recipientPublicKeys);
 
-        byte[] result = response.readEntity(byte[].class);
-        assertThat(result).isNotNull().isNotEmpty();
+        assertThat(result.getSenderKey()).isNotNull()
+                .isEqualTo(pay.getSenderKey());
+
+        assertThat(result.getCipherTextNonce().getNonceBytes()).isNotNull()
+                .isEqualTo(pay.getCipherTextNonce().getNonceBytes());
+
+        assertThat(result.getCipherText()).isNotNull()
+                .isEqualTo(pay.getCipherText());
+
+        assertThat(result.getRecipientKeys()).isNotNull()
+                .isEqualTo(pay.getRecipientKeys());
+
+        byte[] resultBytes = PayloadEncoder.create().encode(result);
+
+        assertThat(resultBytes).isEqualTo(PayloadEncoder.create().encode(pay));
+
+        assertThat(results.get(0)).isEqualTo(message);
 
         verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
 
     }
 
+    @Test
+    public void unencryptPayload() {
+
+        Map<PublicKey,EncodedPayload> payloads = new HashMap<>();
+        
+        doAnswer((invocation) -> {
+            payloads.put(invocation.getArgument(1),invocation.getArgument(0));
+            return "SOMERESULT".getBytes();
+        }).when(enclave).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
+        
+        EncodedPayload payload = createSample();
+        
+        PublicKey providedKey = payload.getSenderKey();
+
+        byte[] results = restfulEnclaveClient.unencryptTransaction(payload, providedKey);
+
+        assertThat(results).isNotNull().isEqualTo("SOMERESULT".getBytes());
+        
+        assertThat(payloads).hasSize(1);
+        
+         assertThat(payloads.keySet().iterator().next()).isEqualTo(providedKey);
+        
+        EncodedPayload resultPayload = payloads.values().iterator().next();
+     
+        assertThat(resultPayload.getSenderKey()).isNotNull()
+                .isEqualTo(payload.getSenderKey());
+
+        assertThat(resultPayload.getCipherTextNonce().getNonceBytes()).isNotNull()
+                .isEqualTo(payload.getCipherTextNonce().getNonceBytes());
+
+        assertThat(resultPayload.getCipherText()).isNotNull()
+                .isEqualTo(payload.getCipherText());
+
+        assertThat(resultPayload.getRecipientKeys()).isNotNull()
+                .isEqualTo(payload.getRecipientKeys());
+        
+        verify(enclave).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
+
+    }
 }

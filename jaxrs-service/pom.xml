@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tessera</artifactId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.10-SNAPSHOT</version>
     </parent>
     <artifactId>jaxrs-service</artifactId>
     <packaging>jar</packaging>
@@ -13,7 +13,11 @@
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-processing</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>

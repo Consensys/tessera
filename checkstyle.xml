@@ -11,7 +11,10 @@
     <module name="SuppressionFilter">
         <property name="file" value="${checkstyle.suppressions.file}" />
     </module>
-    
+
+    <!-- Miscellaneous -->
+    <module name="NewlineAtEndOfFile"/> <!-- Hinted to by the .editorconfig file-->
+    <module name="UniqueProperties"/>
 
     <module name="TreeWalker">
         <module name="InterfaceTypeParameterName"/>
@@ -47,8 +50,10 @@
         </module>
         <module name="EnumValueName"/>
 
-        <!-- Start: Whitespace -->
+    </module>
 
+    <!-- Whitespace -->
+    <module name="TreeWalker" >
         <module name="ParenPad"/>
         <module name="GenericWhitespace"/>
         <module name="TypecastParenPad"/>
@@ -124,7 +129,11 @@
             <property name="tokens" value="EQUAL, NOT_EQUAL"/>
         </module>
 
-        <!-- End: Whitespace -->
+<!--        <module name="EmptyLineSeparator">-->
+<!--            <property name="allowNoEmptyLineBetweenFields" value="false"/>-->
+<!--            <property name="allowMultipleEmptyLines" value="false" />-->
+<!--            <property name="allowMultipleEmptyLinesInsideClassMembers" value="false"/>-->
+<!--        </module>-->
 
     </module>
 

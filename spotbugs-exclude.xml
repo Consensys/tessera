@@ -1,0 +1,7 @@
+<FindBugsFilter>
+    <Match>
+        <Or>
+            <Bug category="CRLF_INJECTION_LOGS" />
+        </Or>
+    </Match>
+</FindBugsFilter>

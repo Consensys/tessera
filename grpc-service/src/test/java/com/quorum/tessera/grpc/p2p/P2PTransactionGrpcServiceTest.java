@@ -40,10 +40,7 @@ public class P2PTransactionGrpcServiceTest {
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(
-                deleteResponseObserver,
-                pushResponseObserver,
-                resendResponseObserver);
+        verifyNoMoreInteractions(deleteResponseObserver, pushResponseObserver, resendResponseObserver);
     }
 
     @Test
@@ -94,7 +91,7 @@ public class P2PTransactionGrpcServiceTest {
                 .setKey("mykey")
                 .build();
 
-        com.quorum.tessera.api.model.ResendResponse resendResponse = mock(com.quorum.tessera.api.model.ResendResponse.class);
+        com.quorum.tessera.partyinfo.ResendResponse resendResponse = mock(com.quorum.tessera.partyinfo.ResendResponse.class);
         when(resendResponse.getPayload()).thenReturn(Optional.empty());
         when(enclaveMediator.resend(any())).thenReturn(resendResponse);
 
@@ -117,7 +114,5 @@ public class P2PTransactionGrpcServiceTest {
         verify(deleteResponseObserver).onError(any());
 
     }
-
-
 
 }

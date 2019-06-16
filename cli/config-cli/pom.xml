@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>cli</artifactId>
+        <groupId>com.jpmorgan.quorum</groupId>
+        <version>0.10-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>config-cli</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>cli-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>key-generation</artifactId>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>jnacl</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.jpmorgan.quorum</groupId>
+                    <artifactId>encryption-jnacl</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>kalium</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.jpmorgan.quorum</groupId>
+                    <artifactId>encryption-kalium</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
+</project>

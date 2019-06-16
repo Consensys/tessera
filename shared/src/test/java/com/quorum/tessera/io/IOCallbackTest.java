@@ -1,19 +1,21 @@
 package com.quorum.tessera.io;
 
+import org.junit.Test;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import static org.assertj.core.api.Assertions.*;
-import org.junit.Test;
-import static org.mockito.Mockito.*;
-import org.mockito.stubbing.Answer;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.Mockito.mock;
 
 public class IOCallbackTest {
 
     @Test
     public void doSomeIoStuff() {
-        Path path = IOCallback.execute(() -> Files.createTempFile("HELLOW", ".txt"));
+        final Path path = IOCallback.execute(() -> Files.createTempFile("HELLOW", ".txt"));
 
         assertThat(path).isNotNull();
         assertThat(path).exists();
@@ -26,19 +28,15 @@ public class IOCallbackTest {
 
     @Test
     public void doSomeIoStuffThatThrowsAnIoException() {
-
         final IOException ioException = new IOException("OUCH");
 
-        final Path path = mock(Path.class, (Answer<Object>) (iom) -> {
+        final Path path = mock(Path.class, iom -> {
             throw ioException;
         });
 
-        try {
-            IOCallback.execute(() -> path.isAbsolute());
-            failBecauseExceptionWasNotThrown(UncheckedIOException.class);
-        } catch (UncheckedIOException ex) {
-            assertThat(ex).hasCause(ioException);
-        }
+        final Throwable throwable = catchThrowable(() -> IOCallback.execute(path::isAbsolute));
+
+        assertThat(throwable).isNotNull().isInstanceOf(UncheckedIOException.class).hasCause(ioException);
     }
 
 }

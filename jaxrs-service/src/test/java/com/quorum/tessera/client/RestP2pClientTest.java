@@ -1,7 +1,7 @@
 package com.quorum.tessera.client;
 
+import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.api.model.ApiPath;
-import com.quorum.tessera.api.model.ResendRequest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class RestP2pClientTest {
         String url = "someurl";
         byte[] someData = "somedata".getBytes();
 
-        p2pClient.getPartyInfo(url, someData);
+        p2pClient.sendPartyInfo(url, someData);
 
         verify(postDelegate).doPost(url, ApiPath.PARTYINFO, someData);
     }

@@ -2,24 +2,19 @@ package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.api.model.SendResponse;
-import static com.quorum.tessera.test.Fixtures.*;
 import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.RestPartyHelper;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URI;
 import static org.assertj.core.api.Assertions.assertThat;
 import com.quorum.tessera.test.PartyHelper;
+import javax.ws.rs.client.ClientBuilder;
 
 public class ReceiveRawIT {
-
-    private static final URI SERVER_URI = NODE1_Q2T_URI;
 
     private static final String RECEIVE_PATH = "/receiveraw";
 
@@ -27,24 +22,31 @@ public class ReceiveRawIT {
 
     private static final String C11N_KEY = "c11n-key";
 
-    private static final byte[] PAYLOAD = TXN_DATA;
+    private static final byte[] PAYLOAD = "TXN_DATA".getBytes();
     
-    private PartyHelper partyHelper = new RestPartyHelper();
+    private PartyHelper partyHelper = PartyHelper.create();
 
     private Client client = ClientBuilder.newClient();
 
     private String hash;
 
+    private Party partyOne;
+    
+    private Party partyTwo;
+    
     //Persist a single transaction that can be used later
     @Before
     public void init() {
         
+        this.partyOne = partyHelper.findByAlias("A");
+        this.partyTwo = partyHelper.findByAlias("B");
+        
         SendRequest sendRequest = new SendRequest();
         sendRequest.setPayload(PAYLOAD);
-        sendRequest.setTo(PTY2_KEY);
-        sendRequest.setFrom(PTY1_KEY);
+        sendRequest.setTo(partyTwo.getPublicKey());
+        sendRequest.setFrom(partyOne.getPublicKey());
 
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(partyOne.getQ2TUri())
             .path("/send")
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -58,11 +60,11 @@ public class ReceiveRawIT {
     @Test
     public void fetchExistingTransactionUsingOwnKey() {
 
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(partyOne.getQ2TUri())
             .path(RECEIVE_PATH)
             .request()
             .header(C11N_KEY, this.hash)
-            .header(C11N_TO, PTY1_KEY)
+            .header(C11N_TO, partyOne.getPublicKey())
             .buildGet()
             .invoke();
 
@@ -80,7 +82,7 @@ public class ReceiveRawIT {
     @Test
     public void fetchExistingTransactionNotUsingKeyOnSender() {
 
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(partyOne.getQ2TUri())
             .path(RECEIVE_PATH)
             .request()
             .header(C11N_KEY, this.hash)
@@ -139,11 +141,11 @@ public class ReceiveRawIT {
     @Test
     public void fetchExistingTransactionUsingRecipientKey() {
 
-        final Response response = client.target(NODE2_Q2T_URI)
+        final Response response = client.target(partyTwo.getQ2TUri())
             .path(RECEIVE_PATH)
             .request()
             .header(C11N_KEY, this.hash)
-            .header(C11N_TO, PTY2_KEY)
+            .header(C11N_TO, partyTwo.getPublicKey())
             .buildGet()
             .invoke();
 
@@ -161,7 +163,7 @@ public class ReceiveRawIT {
     @Test
     public void fetchNonexistentTransactionFails() {
 
-        final Response response = client.target(SERVER_URI)
+        final Response response = client.target(partyOne.getQ2TUri())
             .path(RECEIVE_PATH)
             .request()
             .header(C11N_KEY, "invalidhashvalue")

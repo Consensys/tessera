@@ -1,5 +1,7 @@
 package com.quorum.tessera.transaction;
 
+import com.quorum.tessera.partyinfo.ResendResponse;
+import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.enclave.model.MessageHash;
 
@@ -17,6 +19,8 @@ public interface TransactionManager {
     MessageHash storePayload(byte[] toByteArray);
 
     ReceiveResponse receive(ReceiveRequest request);
+    
+    StoreRawResponse store(StoreRawRequest storeRequest);
 
     
 }

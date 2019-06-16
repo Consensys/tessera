@@ -4,7 +4,7 @@
 
 # <img src="TesseraLogo.png" width="150" height="150"/>
 
-> __Important: Release 0.8 Feature__ <br/>Tessera now supports pre-signed 'raw' transactions. Please refer to the API section of the [Tessera wiki](https://github.com/jpmorganchase/tessera/wiki/Interface-&-API/) for details of the updated API, and the [quorum.js](https://github.com/jpmorganchase/quorum.js/) repo for usage info. 
+> __Important: Release 0.9 Feature__ <br/>Tessera now supports remote enclaves for increased security. Please refer to the [wiki](https://github.com/jpmorganchase/tessera/wiki/What-is-an-Enclave%3F) for details. 
 
 Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/jpmorganchase/quorum/).
 
@@ -51,11 +51,13 @@ Install libsodium as detailed on the [kalium project page](https://github.com/ab
 
 
 ## Running Tessera
-`java -jar tessera-app/target/tessera-app-${version}-app.jar -configfile config.json`
+`java -jar tessera-dist/tessera-app/target/tessera-app-${version}-app.jar -configfile /path/to/config.json`
+
+> See the [`tessera-dist` README](tessera-dist) for info on the different distributions available.
 
 Once Tessera has been configured and built, you may want to copy the .jar to another location, create an alias and add it to your PATH:
 
-`alias tessera="java -jar /path/to/application-${version}-app.jar"`
+`alias tessera="java -jar /path/to/tessera-app-${version}-app.jar"`
 
 You will then be able to more concisely use the Tessera CLI commands, such as:
 

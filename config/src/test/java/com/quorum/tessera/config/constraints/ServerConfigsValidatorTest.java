@@ -2,7 +2,6 @@ package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.InetServerSocket;
 import com.quorum.tessera.config.ServerConfig;
 import org.junit.After;
 import org.junit.Before;
@@ -22,7 +21,9 @@ public class ServerConfigsValidatorTest {
     private List<ServerConfig> serverConfigs;
 
     private ServerConfig p2pServerConfig;
+
     private ServerConfig q2tServerConfig;
+
     private ServerConfig thirdPartyServerConfig;
 
     private ConstraintValidatorContext cvc;
@@ -35,17 +36,17 @@ public class ServerConfigsValidatorTest {
         p2pServerConfig = new ServerConfig();
         p2pServerConfig.setApp(AppType.P2P);
         p2pServerConfig.setEnabled(true);
-        p2pServerConfig.setServerSocket(new InetServerSocket("localhost", 123));
+        p2pServerConfig.setServerAddress("localhost:123");
         p2pServerConfig.setCommunicationType(CommunicationType.REST);
         p2pServerConfig.setSslConfig(null);
         p2pServerConfig.setInfluxConfig(null);
         p2pServerConfig.setBindingAddress(null);
 
         q2tServerConfig = new ServerConfig(AppType.Q2T, true,
-            new InetServerSocket("localhost", 1234), CommunicationType.REST,
+            "localhost:1234", CommunicationType.REST,
             null, null, null);
         thirdPartyServerConfig = new ServerConfig(AppType.THIRD_PARTY, true,
-            new InetServerSocket("localhost", 12345), CommunicationType.REST,
+            "localhost:12345", CommunicationType.REST,
             null, null, null);
 
         serverConfigs = new ArrayList<>(Arrays.asList(p2pServerConfig, q2tServerConfig, thirdPartyServerConfig));

@@ -9,13 +9,6 @@ import java.util.stream.Stream;
 
 public class UnsupportedKeyPairValidator implements ConstraintValidator<ValidUnsupportedKeyPair, UnsupportedKeyPair> {
 
-    private ValidUnsupportedKeyPair annotation;
-
-    @Override
-    public void initialize(ValidUnsupportedKeyPair annotation) {
-        this.annotation = annotation;
-    }
-
     @Override
     public boolean isValid(UnsupportedKeyPair keyPair, ConstraintValidatorContext context) {
         if(isIncompleteDirectKeyPair(keyPair)) {

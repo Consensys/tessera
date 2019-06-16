@@ -1,8 +1,8 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.api.filter.Logged;
-import com.quorum.tessera.api.model.ResendRequest;
-import com.quorum.tessera.api.model.ResendResponse;
+
+import com.quorum.tessera.partyinfo.ResendRequest;
+import com.quorum.tessera.partyinfo.ResendResponse;
 import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.ApiOperation;
@@ -30,7 +30,6 @@ import static javax.ws.rs.core.MediaType.*;
  * - creating new transactions and distributing them - deleting transactions -
  * fetching transactions - resending old transactions
  */
-@Logged
 @Path("/")
 public class TransactionResource {
 

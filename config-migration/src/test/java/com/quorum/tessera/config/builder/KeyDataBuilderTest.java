@@ -30,7 +30,6 @@ public class KeyDataBuilderTest {
             Files.createTempFile("buildThreeLocked3", ".txt")
         );
 
-
         final byte[] privateKeyData = FixtureUtil.createLockedPrivateKey().toString().getBytes();
         for (Path p : privateKeyPaths) {
             Files.write(p, privateKeyData);
@@ -78,7 +77,6 @@ public class KeyDataBuilderTest {
                 Files.createTempFile("buildThreeLocked2", ".txt"),
                 Files.createTempFile("buildThreeLocked3", ".txt")
         );
-
         
         final byte[] privateKeyData = FixtureUtil.createLockedPrivateKey().toString().getBytes();
         for (Path p : privateKeyPaths) {
@@ -92,7 +90,6 @@ public class KeyDataBuilderTest {
         Path passwordsFile = Files.createTempFile("buildThreeLockedPasswordsFile", ".txt");
         Files.write(passwordsFile, privateKeyPasswords);
         
-        
         List<ConfigKeyPair> result = KeyDataBuilder.create()
                 .withPrivateKeys(privateKeys)
                 .withPublicKeys(publicKeys)
@@ -100,19 +97,6 @@ public class KeyDataBuilderTest {
                 .build().getKeyData();
 
         assertThat(result).hasSize(3);
-
-//        assertThat(result.get(0).getConfig().getPassword()).isEqualTo("SECRET1");
-//        assertThat(result.get(1).getConfig().getPassword()).isEqualTo("SECRET2");
-//        assertThat(result.get(2).getConfig().getPassword()).isEqualTo("SECRET3");
-
-//        assertThat(result.get(0).getPublicKey()).isEqualTo("PUB1");
-//        assertThat(result.get(1).getPublicKey()).isEqualTo("PUB2");
-//        assertThat(result.get(2).getPublicKey()).isEqualTo("PUB3");
-
-        for (Path p : privateKeyPaths) {
-            Files.deleteIfExists(p);
-        }
-
     }
 
     @Test

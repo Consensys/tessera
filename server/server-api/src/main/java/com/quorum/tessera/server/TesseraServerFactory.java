@@ -7,17 +7,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public interface TesseraServerFactory {
+public interface TesseraServerFactory<T> {
 
-    TesseraServer createServer(ServerConfig config, Set<Object> services);
+    TesseraServer createServer(ServerConfig config, Set<T> services);
 
+    Logger LOGGER = LoggerFactory.getLogger(TesseraServerFactory.class);
+    
     static TesseraServerFactory create(CommunicationType communicationType) {
+
+        if(communicationType == CommunicationType.WEB_SOCKET) {
+            throw new UnsupportedOperationException("Websockets are not supported yet");
+        }
+
         List<TesseraServerFactory> all = new ArrayList<>();
         ServiceLoader.load(TesseraServerFactory.class).forEach(all::add);
+
         return all.stream()
                 .filter(f -> f.communicationType() == communicationType)
-                .findFirst().get();
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No server factory found for "+ communicationType));
     }
 
     CommunicationType communicationType();

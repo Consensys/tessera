@@ -2,6 +2,8 @@ package com.quorum.tessera.test.grpc;
 
 import com.google.protobuf.ByteString;
 import com.quorum.tessera.grpc.api.*;
+import com.quorum.tessera.test.Party;
+import com.quorum.tessera.test.PartyHelper;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
@@ -19,13 +21,19 @@ public class SendGrpcIT {
 
     private APITransactionGrpc.APITransactionBlockingStub blockingStub1;
     private APITransactionGrpc.APITransactionBlockingStub blockingStub2;
-
+    
+    private final PartyHelper partyHelper = PartyHelper.create();
+    
+    private final Party partyOne = partyHelper.findByAlias("A");
+    
+    private final Party partyTWo = partyHelper.findByAlias("B");
+    
     @Before
     public void onSetUp() {
-        channel1 = ManagedChannelBuilder.forAddress("127.0.0.1", 51520)
+        channel1 = ManagedChannelBuilder.forAddress(partyOne.getQ2TUri().getHost(), partyOne.getQ2TUri().getPort())
                 .usePlaintext()
                 .build();
-        channel2 = ManagedChannelBuilder.forAddress("127.0.0.1", 51521)
+        channel2 = ManagedChannelBuilder.forAddress(partyTWo.getQ2TUri().getHost(), partyOne.getQ2TUri().getPort())
                 .usePlaintext()
                 .build();
 
@@ -46,15 +54,14 @@ public class SendGrpcIT {
         ByteString payload = ByteString.copyFromUtf8("Zm9v");
 
         SendRequest request = SendRequest.newBuilder()
-                .setFrom("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-                .addTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
+                .setFrom(partyOne.getPublicKey())
+                .addTo(partyTWo.getPublicKey())
                 .setPayload(payload)
                 .build();
 
         SendResponse result = blockingStub1.send(request);
 
         assertThat(result).isNotNull();
-        result.getAllFields().forEach((k, v) -> System.out.println(k + " " + v));
         assertThat(result.getKey()).isNotNull().isNotBlank();
 
         // confirm that the message has been propagated to the target tessera (config2.json)
@@ -62,29 +69,27 @@ public class SendGrpcIT {
 
         ReceiveRequest receiveRequest = ReceiveRequest.newBuilder()
             .setKey(hash)
-            .setTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
+            .setTo(partyTWo.getPublicKey())
             .build();
 
         ReceiveResponse receiveResponse = blockingStub2.receive(receiveRequest);
 
         assertThat(receiveResponse).isNotNull();
-        receiveResponse.getAllFields().forEach((k, v) -> System.out.println(k + " " + v));
         assertThat(receiveResponse.getPayload()).isNotNull().isEqualTo(payload);
     }
 
     @Test
     public void sendSingleTransactionToMultipleParties() {
         SendRequest request = SendRequest.newBuilder()
-                .setFrom("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-                .addTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
-                .addTo("giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=")
+                .setFrom(partyOne.getPublicKey())
+                .addTo(partyTWo.getPublicKey())
+                .addTo(partyHelper.findByAlias("C").getPublicKey())
                 .setPayload(ByteString.copyFromUtf8("Zm9v"))
                 .build();
 
         SendResponse result = blockingStub1.send(request);
 
         assertThat(result).isNotNull();
-        result.getAllFields().forEach((k, v) -> System.out.println(k + " " + v));
         assertThat(result.getKey()).isNotNull().isNotBlank();
 
     }
@@ -92,14 +97,13 @@ public class SendGrpcIT {
     @Test
     public void sendTransactionWithNoSender() {
         SendRequest request = SendRequest.newBuilder()
-            .addTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
+            .addTo(partyTWo.getPublicKey())
             .setPayload(ByteString.copyFromUtf8("Zm9v"))
             .build();
 
         SendResponse result = blockingStub1.send(request);
 
         assertThat(result).isNotNull();
-        result.getAllFields().forEach((k, v) -> System.out.println(k + " " + v));
         assertThat(result.getKey()).isNotNull().isNotBlank();
 
     }
@@ -108,8 +112,8 @@ public class SendGrpcIT {
     public void missingPayloadFails() {
 
         SendRequest request = SendRequest.newBuilder()
-                .setFrom("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-                .addTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
+                .setFrom(partyOne.getPublicKey())
+                .addTo(partyTWo.getPublicKey())
                 .build();
         try {
             SendResponse result = blockingStub1.send(request);

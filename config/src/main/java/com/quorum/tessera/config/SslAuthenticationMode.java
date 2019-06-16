@@ -1,7 +1,5 @@
-
 package com.quorum.tessera.config;
 
-
-public enum SslAuthenticationMode { 
-    OFF,STRICT
+public enum SslAuthenticationMode {
+    OFF, STRICT
 }

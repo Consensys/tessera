@@ -1,8 +1,11 @@
 package com.quorum.tessera.server.monitoring;
 
 public class MBeanResourceMetric implements MBeanMetric {
+
     private String resourceMethod;
+
     private String name;
+
     private String value;
 
     public MBeanResourceMetric(String resourceMethod, String name, String value) {

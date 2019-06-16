@@ -96,5 +96,4 @@ public class CompositeTrustManagerTest {
         assertThat(trustManager.getAcceptedIssuers()).isEmpty();
     }
 
-
 }

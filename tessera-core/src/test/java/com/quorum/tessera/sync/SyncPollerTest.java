@@ -1,17 +1,20 @@
 package com.quorum.tessera.sync;
 
-import com.quorum.tessera.client.P2pClient;
-import com.quorum.tessera.node.PartyInfoParser;
-import com.quorum.tessera.node.PartyInfoService;
-import com.quorum.tessera.node.model.Party;
-import com.quorum.tessera.node.model.PartyInfo;
+import com.quorum.tessera.partyinfo.P2pClient;
+import com.quorum.tessera.partyinfo.PartyInfoParser;
+import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.Party;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.sync.model.SyncableParty;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import static java.util.Collections.emptySet;
@@ -41,7 +44,7 @@ public class SyncPollerTest {
         this.partyInfoService = mock(PartyInfoService.class);
         this.partyInfoParser = mock(PartyInfoParser.class);
         this.p2pClient = mock(P2pClient.class);
-        doReturn(new byte[]{}).when(p2pClient).getPartyInfo(anyString(), any());
+        doReturn(true).when(p2pClient).sendPartyInfo(anyString(), any());
         when(partyInfoService.getPartyInfo()).thenReturn(new PartyInfo("myurl", emptySet(), emptySet()));
 
         this.syncPoller = new SyncPoller(executorService, resendPartyStore, transactionRequester, partyInfoService, partyInfoParser, p2pClient);
@@ -87,10 +90,29 @@ public class SyncPollerTest {
         verify(transactionRequester).requestAllTransactionsFromNode(targetUrl);
         verify(partyInfoService, times(2)).getPartyInfo();
         verify(partyInfoParser).to(any());
-        verify(p2pClient).getPartyInfo(eq(targetUrl), any());
+        verify(p2pClient).sendPartyInfo(eq(targetUrl), any());
         verify(partyInfoService, times(2)).getPartyInfo();
     }
 
+    @Test
+    public void localUrlIsExcludedFromPoll() {
+
+        final String targetUrl = "localurl.com";
+        final String syncableUrl = "syncable.com";
+        final Party localParty = new Party(targetUrl);
+        final Party syncableParty = new Party(syncableUrl);
+        final Set<Party> parties = new HashSet<>(Arrays.asList(localParty, syncableParty));
+        when(partyInfoService.getPartyInfo())
+            .thenReturn(new PartyInfo("localurl.com", emptySet(), parties));
+        
+        doReturn(Optional.empty()).when(resendPartyStore).getNextParty();
+
+        syncPoller.run();
+        
+        verify(resendPartyStore, times(1)).addUnseenParties(new HashSet<>(Arrays.asList(syncableParty)));
+        verify(resendPartyStore, times(1)).getNextParty();
+    }
+    
     @Test
     public void singlePartyTaskFailsAndNotifiesStore() {
 
@@ -122,7 +144,7 @@ public class SyncPollerTest {
         final String targetUrl = "fakeurl.com";
         final SyncableParty syncableParty = new SyncableParty(new Party(targetUrl), 0);
 
-        doThrow(new RuntimeException("Unable to connect")).when(p2pClient).getPartyInfo(anyString(), any());
+        doThrow(new RuntimeException("Unable to connect")).when(p2pClient).sendPartyInfo(anyString(), any());
 
         doReturn(Optional.of(syncableParty), Optional.empty()).when(resendPartyStore).getNextParty();
 
@@ -147,7 +169,7 @@ public class SyncPollerTest {
         final String targetUrl = "fakeurl.com";
         final SyncableParty syncableParty = new SyncableParty(new Party(targetUrl), 0);
 
-        doReturn(null).when(p2pClient).getPartyInfo(anyString(), any());
+        doReturn(false).when(p2pClient).sendPartyInfo(anyString(), any());
 
         doReturn(Optional.of(syncableParty), Optional.empty()).when(resendPartyStore).getNextParty();
 

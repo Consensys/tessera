@@ -6,8 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class GrpcClientFactoryTest {
 
-
-    
     @Test
     public void testCreateNewClient() {
         GrpcClientFactory grpcClientFactory = new GrpcClientFactory();
@@ -20,4 +18,5 @@ public class GrpcClientFactoryTest {
         assertThat(grpcClientFactory.getClient("bogus.com")).isEqualTo(client1);
         assertThat(grpcClientFactory.getClient("morebogus.com")).isEqualTo(client2);
     }
+
 }

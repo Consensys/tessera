@@ -3,9 +3,13 @@ package com.quorum.tessera.config.vault.data;
 import com.quorum.tessera.config.KeyVaultType;
 
 public class HashicorpGetSecretData implements GetSecretData {
+
     private final String secretEngineName;
+
     private final String secretName;
+
     private final String valueId;
+
     private final int secretVersion;
 
     public HashicorpGetSecretData(String secretEngineName, String secretName, String valueId, int secretVersion) {
@@ -35,4 +39,5 @@ public class HashicorpGetSecretData implements GetSecretData {
     public KeyVaultType getType() {
         return KeyVaultType.HASHICORP;
     }
+
 }

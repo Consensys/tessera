@@ -1,0 +1,18 @@
+{
+    "useWhiteList": false,
+    "disablePeerDiscovery": false,
+    "serverConfigs": [{
+            "app": "ENCLAVE",
+            "enabled": true,
+            "serverAddress": "ws://localhost:8080",
+            "communicationType": "WEB_SOCKET",
+            "bindingAddress": "ws://0.0.0.0:8080"
+        }],
+    "keys": {
+        "keyData": [{
+                "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
+                "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+            }]
+    },
+    "alwaysSendTo": []
+}

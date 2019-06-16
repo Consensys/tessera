@@ -1,0 +1,6 @@
+VERSION=3
+format=bytevalue
+type=hash
+db_pagesize=65536
+HEADER=END
+DATA=END
