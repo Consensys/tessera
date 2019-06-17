@@ -56,4 +56,9 @@ public class ConfigServiceImpl implements ConfigService {
         return this.enclave.getPublicKeys();
     }
 
+    @Override
+    public String getLedgerId() {
+        return config.getP2PServerConfig().getLedgerId();
+    }
+
 }

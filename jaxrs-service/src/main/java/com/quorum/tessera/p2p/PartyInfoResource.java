@@ -1,14 +1,13 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.partyinfo.PartyInfoParser;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
-
+import com.quorum.tessera.partyinfo.PartyInfoParser;
+import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.Recipient;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -90,6 +89,12 @@ public class PartyInfoResource {
     public Response partyInfo(@ApiParam(required = true) final byte[] payload) {
 
         final PartyInfo partyInfo = partyInfoParser.from(payload);
+
+        //check if the node doesn't have the same ledger Id
+        boolean isValidPeer = Objects.equals(partyInfo.getLedgerId(), partyInfoService.getPartyInfo().getLedgerId());
+        if(!isValidPeer){
+            return Response.status(Response.Status.OK).build();
+        }
 
         //Start validation stuff
         final PublicKey sender = enclave.defaultPublicKey();

@@ -98,4 +98,18 @@ public class ConfigServiceTest {
         configService.getPublicKeys();
         verify(enclave).getPublicKeys();
     }
+
+    @Test
+    public void getLedgerId() {
+
+        ServerConfig serverConfig = mock(ServerConfig.class);
+        String ledgerId = "ledger";
+        when(serverConfig.getLedgerId()).thenReturn(ledgerId);
+        when(config.getP2PServerConfig()).thenReturn(serverConfig);
+        String result = configService.getLedgerId();
+        assertThat(result).isEqualTo(ledgerId);
+
+        verify(config).getP2PServerConfig();
+        verify(serverConfig).getLedgerId();
+    }
 }

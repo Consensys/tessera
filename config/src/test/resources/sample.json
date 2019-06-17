@@ -38,7 +38,8 @@
                 "knownClientsFile": "./ssl/knownClients1",
                 "knownServersFile": "./ssl/knownServers1"
             },
-            "communicationType": "REST"
+            "communicationType": "REST",
+            "ledgerId": "1234567890"
         }
     ],
     "peer": [

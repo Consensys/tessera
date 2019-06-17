@@ -129,6 +129,7 @@ public class ConfigBuilder {
         p2pServerConfig.setCommunicationType(executionContext.getCommunicationType());
         p2pServerConfig.setServerAddress("http://localhost:" + p2pPort);
         p2pServerConfig.setBindingAddress("http://0.0.0.0:" + p2pPort);
+        p2pServerConfig.setLedgerId("1234567890");
         servers.add(p2pServerConfig);
 
         if (executionContext.getCommunicationType() == CommunicationType.REST && Objects.nonNull(adminPort)) {

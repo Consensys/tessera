@@ -20,4 +20,6 @@ public interface ConfigService {
     URI getServerUri();
 
     Set<PublicKey> getPublicKeys();
+
+    String getLedgerId();
 }

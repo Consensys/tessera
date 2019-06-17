@@ -76,6 +76,19 @@ public interface PartyInfoParser extends BinaryEncoder {
             parties.add(new Party(new String(ptyData, UTF_8)));
         }
 
+        //check end of the byte buffer
+        if(byteBuffer.hasRemaining()){
+            final int ledgerIdLength = toIntExact(byteBuffer.getLong());
+
+            if(ledgerIdLength > 0){
+                checkLength(ledgerIdLength);
+                final byte[] ledgerIdBytes = new byte[ledgerIdLength];
+                byteBuffer.get(ledgerIdBytes);
+                final String ledgerId = new String(ledgerIdBytes);
+                return new PartyInfo(url, recipients, parties, ledgerId);
+            }
+        }
+
         return new PartyInfo(url, recipients, parties);
     }
 
@@ -111,12 +124,16 @@ public interface PartyInfoParser extends BinaryEncoder {
 
         final byte[] partiesBytes = encodeArray(parties);
 
+        //prefix and ledger bytes
+        final byte[] ledgerId = encodeField(partyInfo.getLedgerId().getBytes());
+
         return ByteBuffer
-            .allocate(url.length + Long.BYTES + recipients.length + partiesBytes.length)
+            .allocate(url.length + Long.BYTES + recipients.length + partiesBytes.length + ledgerId.length)
             .put(url)
             .putLong(partyInfo.getRecipients().size())
             .put(recipients)
             .put(partiesBytes)
+            .put(ledgerId)
             .array();
 
     }

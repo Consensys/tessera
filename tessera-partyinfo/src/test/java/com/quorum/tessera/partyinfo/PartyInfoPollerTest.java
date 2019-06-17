@@ -22,6 +22,8 @@ public class PartyInfoPollerTest {
 
     private static final String OWN_URL = "http://own.com:8080/";
 
+    private static final String LEDGER_ID = "1234567890";
+
     private static final String TARGET_URL = "http://bogus.com:9878/";
 
     private static final byte[] DATA = "BOGUS".getBytes();
@@ -52,12 +54,12 @@ public class PartyInfoPollerTest {
 
         doReturn(true).when(p2pClient).sendPartyInfo(TARGET_URL, DATA);
 
-        final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
+        final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)), LEDGER_ID);
         doReturn(partyInfo).when(partyInfoService).getPartyInfo();
 
         doReturn(DATA).when(partyInfoParser).to(partyInfo);
 
-        final PartyInfo updatedPartyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
+        final PartyInfo updatedPartyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)), LEDGER_ID);
         doReturn(updatedPartyInfo).when(partyInfoParser).from(DATA);
 
         partyInfoPoller.run();

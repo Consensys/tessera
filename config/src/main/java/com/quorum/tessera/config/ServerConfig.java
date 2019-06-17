@@ -43,6 +43,9 @@ public class ServerConfig extends ConfigItem {
     @XmlElement
     private String bindingAddress;
 
+    @XmlElement
+    private String ledgerId;
+
     @ValidServerAddress(message = "Server Address is invalid")
     @NotNull
     @XmlElement
@@ -57,7 +60,8 @@ public class ServerConfig extends ConfigItem {
                         final CommunicationType communicationType,
                         final SslConfig sslConfig,
                         final InfluxConfig influxConfig,
-                        final String bindingAddress) {
+                        final String bindingAddress,
+                        final String ledgerId) {
         this.app = app;
         this.enabled = enabled;
         this.serverAddress = serverAddress;
@@ -65,6 +69,7 @@ public class ServerConfig extends ConfigItem {
         this.sslConfig = sslConfig;
         this.influxConfig = influxConfig;
         this.bindingAddress = bindingAddress;
+        this.ledgerId = ledgerId;
     }
 
     public ServerConfig() {
@@ -157,6 +162,14 @@ public class ServerConfig extends ConfigItem {
 
     public void setCrossDomainConfig(CrossDomainConfig crossDomainConfig) {
         this.crossDomainConfig = crossDomainConfig;
+    }
+
+    public String getLedgerId() {
+        return ledgerId;
+    }
+
+    public void setLedgerId(String ledgerId) {
+        this.ledgerId = ledgerId;
     }
 
 }

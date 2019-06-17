@@ -107,7 +107,8 @@ public class OverrideUtilTest {
             "serverConfigs.sslConfig.tls",
             "serverConfigs.sslConfig.knownServersFile",
             "serverConfigs.sslConfig.environmentVariablePrefix",
-            "serverConfigs.sslConfig.sslConfigType"
+            "serverConfigs.sslConfig.sslConfigType",
+            "serverConfigs.ledgerId"
         );
 
         final Map<String, Class> results = OverrideUtil.buildConfigOptions();

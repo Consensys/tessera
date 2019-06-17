@@ -65,10 +65,11 @@ public class PeerToPeerIT {
             .get();
 
         String partyBServerAddress = partyB.getConfig().getP2PServerConfig().getServerAddress();
+        String partyBledgerId = partyB.getConfig().getP2PServerConfig().getLedgerId();
 
         Recipient recipient = new Recipient(partyBKey,partyBServerAddress);
 
-        PartyInfo partyInfo = new PartyInfo(partyBServerAddress,Collections.singleton(recipient),Collections.emptySet());
+        PartyInfo partyInfo = new PartyInfo(partyBServerAddress,Collections.singleton(recipient),Collections.emptySet(),partyBledgerId);
 
         PartyInfoParser partyInfoParser = PartyInfoParser.create();
 
@@ -104,7 +105,7 @@ public class PeerToPeerIT {
 
         Recipient recipient = new Recipient(bogusKey,serverConfig.getServerAddress());
 
-        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),Collections.singleton(recipient),Collections.emptySet());
+        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),Collections.singleton(recipient),Collections.emptySet(), serverConfig.getLedgerId());
 
         Client client = new ClientFactory().buildFrom(serverConfig);
 
@@ -149,9 +150,9 @@ public class PeerToPeerIT {
 
         Set<Recipient> recipients = Stream.of(itself,badRecipient).collect(Collectors.toSet());
 
-        assertThat(recipients).containsExactly(itself,badRecipient);
+        assertThat(recipients).contains(badRecipient,itself);
 
-        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),recipients,Collections.emptySet());
+        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),recipients,Collections.emptySet(),serverConfig.getLedgerId());
 
         Client client = new ClientFactory().buildFrom(serverConfig);
 
@@ -203,7 +204,7 @@ public class PeerToPeerIT {
 
         assertThat(recipients).containsExactly(itself,badRecipient);
 
-        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),recipients,Collections.emptySet());
+        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),recipients,Collections.emptySet(),serverConfig.getLedgerId());
 
         Client client = new ClientFactory().buildFrom(serverConfig);
 
@@ -226,7 +227,7 @@ public class PeerToPeerIT {
 
 
     @Test
-    public void benevolentNodeBecomesPosessedAndTriesToSendInavludUrlAndKeyCombo() throws Exception {
+    public void benevolentNodeBecomesPosessedAndTriesToSendInvalidUrlAndKeyCombo() throws Exception {
 
 
         Party partyB = partyHelper.findByAlias(NodeAlias.B);
@@ -254,9 +255,9 @@ public class PeerToPeerIT {
 
         Set<Recipient> recipients = Stream.of(itself,badRecipient).collect(Collectors.toSet());
 
-        assertThat(recipients).containsExactly(itself,badRecipient);
+        assertThat(recipients).contains(badRecipient, itself);
 
-        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),recipients,Collections.emptySet());
+        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),recipients,Collections.emptySet(), serverConfig.getLedgerId());
 
         Client client = new ClientFactory().buildFrom(serverConfig);
 

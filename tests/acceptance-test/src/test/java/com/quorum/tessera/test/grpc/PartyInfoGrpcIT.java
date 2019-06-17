@@ -83,7 +83,7 @@ public class PartyInfoGrpcIT {
             .usePlaintext()
             .build();
 
-        partyInfo = new PartyInfo(partyOne.getP2PUri().toString(), Collections.emptySet(), Collections.emptySet());
+        partyInfo = new PartyInfo(partyOne.getP2PUri().toString(), Collections.emptySet(), Collections.emptySet(), "1234567890");
         
         
         request = PartyInfoMessage.newBuilder()

@@ -25,6 +25,7 @@ import static org.mockito.Mockito.*;
 public class PartyInfoStoreTest {
 
     private String uri = "http://localhost:8080";
+    private String ledgerId = "1234567890";
 
     private ConfigService configService;
 
@@ -34,6 +35,7 @@ public class PartyInfoStoreTest {
     public void onSetUp() throws URISyntaxException {
         this.configService = mock(ConfigService.class);
         when(configService.getServerUri()).thenReturn(new URI(uri));
+        when(configService.getLedgerId()).thenReturn(ledgerId);
 
         this.partyInfoStore = new PartyInfoStore(configService);
 
@@ -160,6 +162,12 @@ public class PartyInfoStoreTest {
 
         assertThat(retrievedRecipients).hasSize(1)
             .containsExactly(new Recipient(testKey, "http://other.com"));
+    }
+
+    @Test
+    public void verifyLedgerId() {
+        final PartyInfo stored = this.partyInfoStore.getPartyInfo();
+        assertThat(stored.getLedgerId()).isEqualTo(ledgerId);
     }
 
 }

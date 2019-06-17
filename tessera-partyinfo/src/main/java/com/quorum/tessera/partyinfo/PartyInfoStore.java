@@ -31,6 +31,8 @@ public class PartyInfoStore {
 
     private final Set<Party> parties;
 
+    private final String ledgerId;
+
     public PartyInfoStore(final ConfigService configService) {
 
         //TODO: remove the extra "/" when we deprecate backwards compatibility
@@ -39,6 +41,7 @@ public class PartyInfoStore {
         this.recipients = new HashMap<>();
         this.parties = new HashSet<>();
         this.parties.add(new Party(this.advertisedUrl));
+        this.ledgerId = configService.getLedgerId();
     }
 
     /**
@@ -71,7 +74,8 @@ public class PartyInfoStore {
         return new PartyInfo(
             advertisedUrl,
             unmodifiableSet(new HashSet<>(recipients.values())),
-            unmodifiableSet(new HashSet<>(parties))
+            unmodifiableSet(new HashSet<>(parties)),
+            ledgerId
         );
     }
 
