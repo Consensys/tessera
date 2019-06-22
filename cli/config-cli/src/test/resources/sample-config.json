@@ -32,7 +32,8 @@
             "sslConfig": {
                 "tls": "OFF"
             },
-            "communicationType": "REST"
+            "communicationType": "REST",
+            "ledgerId": "123"
         }
     ],
     "peer": [

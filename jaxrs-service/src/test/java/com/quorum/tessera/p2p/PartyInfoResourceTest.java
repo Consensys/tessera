@@ -1,33 +1,39 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.encryption.PublicKey;
+
+import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.json.Json;
 import javax.json.JsonReader;
+import javax.ws.rs.core.Response;
+import java.io.StringReader;
+import java.io.UncheckedIOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.UncheckedIOException;
-import java.time.Instant;
-import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class PartyInfoResourceTest {
@@ -44,8 +50,6 @@ public class PartyInfoResourceTest {
 
     private PayloadEncoder payloadEncoder;
 
-    private PartyInfo currentPartyInfo;
-
     @Before
     public void onSetup() {
         this.partyInfoService = mock(PartyInfoService.class);
@@ -54,7 +58,6 @@ public class PartyInfoResourceTest {
         this.restClient = mock(Client.class);
         this.payloadEncoder = mock(PayloadEncoder.class);
         this.partyInfoResource = new PartyInfoResource(partyInfoService, partyInfoParser, restClient, enclave, payloadEncoder);
-        this.currentPartyInfo = mock(PartyInfo.class);
 
     }
 
@@ -108,15 +111,13 @@ public class PartyInfoResourceTest {
 
         String message = "I love sparrows";
 
-        String ledgerId = "12345";
-
         byte[] payload = message.getBytes();
 
         Recipient recipient = new Recipient(recipientKey, url);
 
         Set<Recipient> recipientList = Collections.singleton(recipient);
 
-        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET, ledgerId);
+        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET);
 
         when(partyInfoParser.from(payload)).thenReturn(partyInfo);
 
@@ -149,8 +150,10 @@ public class PartyInfoResourceTest {
         when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
 
         when(partyInfoService.updatePartyInfo(any(PartyInfo.class))).thenReturn(partyInfo);
+
+        PartyInfo currentPartyInfo = mock(PartyInfo.class);
+        when(currentPartyInfo.getLedgerId()).thenReturn("");
         when(partyInfoService.getPartyInfo()).thenReturn(currentPartyInfo);
-        when(currentPartyInfo.getLedgerId()).thenReturn(ledgerId);
 
         Response result = partyInfoResource.partyInfo(payload);
 
@@ -175,10 +178,10 @@ public class PartyInfoResourceTest {
         byte[] payload = message.getBytes();
 
         PublicKey myKey = PublicKey.from("myKey".getBytes());
-        
+
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
         when(encodedPayload.getRecipientKeys()).thenReturn(Collections.singletonList(myKey));
-        
+
         when(payloadEncoder.decode(payload)).thenReturn(encodedPayload);
 
         when(enclave.unencryptTransaction(encodedPayload, myKey)).thenReturn(message.getBytes());
@@ -212,23 +215,19 @@ public class PartyInfoResourceTest {
 
         String message = "I love sparrows";
 
-        String ledgerId = "123";
-
         byte[] payload = message.getBytes();
 
         Recipient recipient = new Recipient(recipientKey, url);
 
         Set<Recipient> recipientList = Collections.singleton(recipient);
 
-        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET, ledgerId);
+        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET);
 
         when(partyInfoParser.from(payload)).thenReturn(partyInfo);
 
         when(enclave.defaultPublicKey()).thenReturn(myKey);
 
         when(partyInfoParser.to(partyInfo)).thenReturn(payload);
-        when(partyInfoService.getPartyInfo()).thenReturn(currentPartyInfo);
-        when(currentPartyInfo.getLedgerId()).thenReturn(ledgerId);
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
@@ -249,6 +248,10 @@ public class PartyInfoResourceTest {
 
         when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
 
+        PartyInfo currentPartyInfo = mock(PartyInfo.class);
+        when(currentPartyInfo.getLedgerId()).thenReturn("");
+        when(partyInfoService.getPartyInfo()).thenReturn(currentPartyInfo);
+
         try {
             partyInfoResource.partyInfo(payload);
             failBecauseExceptionWasNotThrown(SecurityException.class);
@@ -264,6 +267,7 @@ public class PartyInfoResourceTest {
     }
 
 
+
     @Test
     public void partyInfoValidateThrowsException() throws Exception {
 
@@ -273,8 +277,6 @@ public class PartyInfoResourceTest {
 
         PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
 
-        String ledgerId = "12345";
-
         String message = "I love sparrows";
 
         byte[] payload = message.getBytes();
@@ -283,11 +285,9 @@ public class PartyInfoResourceTest {
 
         Set<Recipient> recipientList = Collections.singleton(recipient);
 
-        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET, ledgerId);
+        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET);
 
         when(partyInfoParser.from(payload)).thenReturn(partyInfo);
-        when(partyInfoService.getPartyInfo()).thenReturn(currentPartyInfo);
-        when(currentPartyInfo.getLedgerId()).thenReturn(ledgerId);
 
         when(enclave.defaultPublicKey()).thenReturn(myKey);
 
@@ -308,6 +308,10 @@ public class PartyInfoResourceTest {
         when(invocationBuilder.post(any(Entity.class)))
             .thenThrow(new UncheckedIOException(new IOException("GURU meditation")));
 
+        PartyInfo currentPartyInfo = mock(PartyInfo.class);
+        when(currentPartyInfo.getLedgerId()).thenReturn("");
+        when(partyInfoService.getPartyInfo()).thenReturn(currentPartyInfo);
+
 
         try {
             partyInfoResource.partyInfo(payload);
@@ -324,52 +328,36 @@ public class PartyInfoResourceTest {
     }
 
     @Test
-    public void partyInfoPostwithDifferentLedgerId() throws IOException {
+    public void partyInfoWithDifferentLedgerId() throws Exception {
 
-        byte[] data = "{}".getBytes();
-        String ledgerId = "11111";
+        String url = "http://www.bogus.com";
 
-        PartyInfo partyInfo = mock(PartyInfo.class);
+        PublicKey myKey = PublicKey.from("myKey".getBytes());
+
+        PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+
+        String message = "I love sparrows";
+
+        byte[] payload = message.getBytes();
+
+        Recipient recipient = new Recipient(recipientKey, url);
+
+        Set<Recipient> recipientList = Collections.singleton(recipient);
+
+        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET, "differentLedger");
+
+        when(partyInfoParser.from(payload)).thenReturn(partyInfo);
+        when(partyInfoParser.to(partyInfo)).thenReturn(payload);
+
         PartyInfo currentPartyInfo = mock(PartyInfo.class);
-        when(partyInfoParser.from(data)).thenReturn(partyInfo);
-        when(partyInfo.getLedgerId()).thenReturn(ledgerId);
-        when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(partyInfo);
+        when(currentPartyInfo.getLedgerId()).thenReturn("ledger");
         when(partyInfoService.getPartyInfo()).thenReturn(currentPartyInfo);
-        when(currentPartyInfo.getLedgerId()).thenReturn("0000");
 
-        byte[] resultData = "Returned Party Info Data".getBytes();
+        partyInfoResource.partyInfo(payload);
 
-        when(partyInfoParser.to(currentPartyInfo)).thenReturn(resultData);
-
-        Response response = partyInfoResource.partyInfo(data);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(200);
-
-        verify(partyInfoParser).from(data);
+        verify(partyInfoParser).from(payload);
         verify(partyInfoService).getPartyInfo();
-    }
 
-    @Test
-    public void partyInfoPostwithoutLedgerId() throws IOException {
 
-        byte[] data = "{}".getBytes();
-
-        PartyInfo partyInfo = mock(PartyInfo.class);
-        when(partyInfoParser.from(data)).thenReturn(partyInfo);
-        when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(partyInfo);
-        when(partyInfoService.getPartyInfo()).thenReturn(currentPartyInfo);
-        when(currentPartyInfo.getLedgerId()).thenReturn("0000");
-
-        byte[] resultData = "Returned Party Info Data".getBytes();
-
-        Response response = partyInfoResource.partyInfo(data);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(200);
-
-        verify(partyInfoParser).from(data);
-        verify(partyInfoService).getPartyInfo();
-        verify(currentPartyInfo).getLedgerId();
     }
 }

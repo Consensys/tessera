@@ -112,7 +112,7 @@ public class ConfigBuilder {
         q2tServerConfig.setCommunicationType(executionContext.getCommunicationType());
 
         if (executionContext.getCommunicationType() == CommunicationType.REST
-                && (q2tSocketType != null || executionContext.getSocketType() == SocketType.UNIX)) {
+            && (q2tSocketType != null || executionContext.getSocketType() == SocketType.UNIX)) {
             q2tServerConfig.setServerAddress(String.format("unix:/tmp/q2t-rest-unix-%d.ipc", nodeNumber));
         } else {
             q2tServerConfig.setServerAddress("http://localhost:" + q2tPort);
@@ -129,7 +129,6 @@ public class ConfigBuilder {
         p2pServerConfig.setCommunicationType(executionContext.getCommunicationType());
         p2pServerConfig.setServerAddress("http://localhost:" + p2pPort);
         p2pServerConfig.setBindingAddress("http://0.0.0.0:" + p2pPort);
-        p2pServerConfig.setLedgerId("1234567890");
         servers.add(p2pServerConfig);
 
         if (executionContext.getCommunicationType() == CommunicationType.REST && Objects.nonNull(adminPort)) {
@@ -172,7 +171,7 @@ public class ConfigBuilder {
             );
             enclaveServerConfig.setBindingAddress("http://0.0.0.0:" + enclavePort);
             enclaveServerConfig.setServerAddress("http://localhost:" + enclavePort);
-           // enclaveServerConfig.setSslConfig(sslConfig);
+            // enclaveServerConfig.setSslConfig(sslConfig);
             enclaveServerConfig.setCommunicationType(CommunicationType.REST);
 
             servers.add(enclaveServerConfig);
@@ -182,16 +181,16 @@ public class ConfigBuilder {
         config.setServerConfigs(servers);
 
         peerUrls.stream()
-                .map(Peer::new).forEach(config::addPeer);
+            .map(Peer::new).forEach(config::addPeer);
 
         config.setKeys(new KeyConfiguration());
 
         final List<ConfigKeyPair> pairs = keys.entrySet().stream()
-                    .map(e -> new DirectKeyPair(e.getKey(), e.getValue()))
-                    .collect(Collectors.toList());
-        
+            .map(e -> new DirectKeyPair(e.getKey(), e.getValue()))
+            .collect(Collectors.toList());
+
         config.getKeys().setKeyData(pairs);
-        
+
         config.setAlwaysSendTo(alwaysSendTo);
 
         return config;
@@ -203,21 +202,21 @@ public class ConfigBuilder {
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
         ExecutionContext executionContext = ExecutionContext.Builder.create()
-                .with(CommunicationType.REST)
-                .with(DBType.H2)
-                .with(SocketType.UNIX).with(EnclaveType.REMOTE)
-                .build();
+            .with(CommunicationType.REST)
+            .with(DBType.H2)
+            .with(SocketType.UNIX).with(EnclaveType.REMOTE)
+            .build();
 
         Config config = new ConfigBuilder()
-                .withExecutionContext(executionContext)
-                .withNodeId("mynode")
-                .withNodeNumbber(1)
-                .withPeer("http://localhost:999")
-                .withKeys("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=")
-                .withQt2Port(999)
-                .withP2pPort(888)
-                .withEnclavePort(989)
-                .build();
+            .withExecutionContext(executionContext)
+            .withNodeId("mynode")
+            .withNodeNumbber(1)
+            .withPeer("http://localhost:999")
+            .withKeys("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=")
+            .withQt2Port(999)
+            .withP2pPort(888)
+            .withEnclavePort(989)
+            .build();
 
         JaxbUtil.marshalWithNoValidation(config, System.out);
     }

@@ -31,7 +31,6 @@ public class ServerConfigValidatorTest {
         serverConfig.setSslConfig(null);
         serverConfig.setInfluxConfig(null);
         serverConfig.setBindingAddress("http://localhost:1111");
-        serverConfig.setLedgerId("123");
 
         validator = new ServerConfigValidator();
 
@@ -60,7 +59,6 @@ public class ServerConfigValidatorTest {
         assertThat(serverConfig.getInfluxConfig()).isNull();
         assertThat(serverConfig.getBindingAddress()).isEqualTo("http://localhost:1111");
         assertThat(validator.isValid(serverConfig, cvc)).isTrue();
-        assertThat(serverConfig.getLedgerId()).isEqualTo("123");
     }
 
     @Test

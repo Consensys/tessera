@@ -20,7 +20,7 @@ public class PartyInfo {
 
     private Set<Party> parties;
 
-    private String ledgerId = null;
+    private String ledgerId = "";
 
     public PartyInfo(final String url, final Set<Recipient> recipients, final Set<Party> parties) {
         this.url = Objects.requireNonNull(url);

@@ -76,7 +76,7 @@ public class ConfigServiceTest {
 
         verify(config, times(2)).isDisablePeerDiscovery();
     }
-    
+
     @Test
     public void getServerUri() throws URISyntaxException {
         ServerConfig serverConfig = mock(ServerConfig.class);
@@ -101,15 +101,14 @@ public class ConfigServiceTest {
 
     @Test
     public void getLedgerId() {
-
         ServerConfig serverConfig = mock(ServerConfig.class);
-        String ledgerId = "ledger";
+        String ledgerId = "sample";
         when(serverConfig.getLedgerId()).thenReturn(ledgerId);
         when(config.getP2PServerConfig()).thenReturn(serverConfig);
-        String result = configService.getLedgerId();
-        assertThat(result).isEqualTo(ledgerId);
 
+        assertThat(configService.getLedgerId()).isEqualTo(ledgerId);
         verify(config).getP2PServerConfig();
         verify(serverConfig).getLedgerId();
+
     }
 }

@@ -25,7 +25,6 @@ import static org.mockito.Mockito.*;
 public class PartyInfoStoreTest {
 
     private String uri = "http://localhost:8080";
-    private String ledgerId = "1234567890";
 
     private ConfigService configService;
 
@@ -35,7 +34,7 @@ public class PartyInfoStoreTest {
     public void onSetUp() throws URISyntaxException {
         this.configService = mock(ConfigService.class);
         when(configService.getServerUri()).thenReturn(new URI(uri));
-        when(configService.getLedgerId()).thenReturn(ledgerId);
+        when(configService.getLedgerId()).thenReturn("sampleLedger");
 
         this.partyInfoStore = new PartyInfoStore(configService);
 
@@ -140,10 +139,10 @@ public class PartyInfoStoreTest {
         assertThat(firstContact).isBeforeOrEqualTo(secondContact);
 
     }
-    
+
     @Test
     public void attemptToUpdateReciepentWithExistingKeyWithNewUrlIsUpdated() {
-        
+
         final PublicKey testKey = PublicKey.from("some-key".getBytes());
 
         final Set<Recipient> ourKeys = singleton(new Recipient(testKey, uri));
@@ -151,23 +150,17 @@ public class PartyInfoStoreTest {
         final PartyInfo initial = new PartyInfo(uri, ourKeys, emptySet());
 
         partyInfoStore.store(initial);
-        
-        
+
+
         final Set<Recipient> newRecipients = singleton(new Recipient(testKey, "http://other.com"));
         final PartyInfo updated = new PartyInfo(uri, newRecipients, emptySet());
-        
+
         partyInfoStore.store(updated);
 
         final Set<Recipient> retrievedRecipients = partyInfoStore.getPartyInfo().getRecipients();
 
         assertThat(retrievedRecipients).hasSize(1)
             .containsExactly(new Recipient(testKey, "http://other.com"));
-    }
-
-    @Test
-    public void verifyLedgerId() {
-        final PartyInfo stored = this.partyInfoStore.getPartyInfo();
-        assertThat(stored.getLedgerId()).isEqualTo(ledgerId);
     }
 
 }

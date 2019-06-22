@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlElement;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
+import java.util.Optional;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ServerConfig extends ConfigItem {
@@ -53,15 +54,14 @@ public class ServerConfig extends ConfigItem {
 
     @XmlElement(name = "cors")
     private CrossDomainConfig crossDomainConfig;
-    
+
     public ServerConfig(final AppType app,
                         final boolean enabled,
                         final String serverAddress,
                         final CommunicationType communicationType,
                         final SslConfig sslConfig,
                         final InfluxConfig influxConfig,
-                        final String bindingAddress,
-                        final String ledgerId) {
+                        final String bindingAddress) {
         this.app = app;
         this.enabled = enabled;
         this.serverAddress = serverAddress;
@@ -69,7 +69,6 @@ public class ServerConfig extends ConfigItem {
         this.sslConfig = sslConfig;
         this.influxConfig = influxConfig;
         this.bindingAddress = bindingAddress;
-        this.ledgerId = ledgerId;
     }
 
     public ServerConfig() {
@@ -165,7 +164,7 @@ public class ServerConfig extends ConfigItem {
     }
 
     public String getLedgerId() {
-        return ledgerId;
+        return Optional.ofNullable(this.ledgerId).orElse("");
     }
 
     public void setLedgerId(String ledgerId) {

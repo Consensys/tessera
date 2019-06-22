@@ -50,8 +50,8 @@ public class PeerToPeerIT {
     }
 
     /*
-    * Send a valid party info from B to A
-    */
+     * Send a valid party info from B to A
+     */
     @Test
     public void happyCase() {
 
@@ -65,11 +65,10 @@ public class PeerToPeerIT {
             .get();
 
         String partyBServerAddress = partyB.getConfig().getP2PServerConfig().getServerAddress();
-        String partyBledgerId = partyB.getConfig().getP2PServerConfig().getLedgerId();
 
         Recipient recipient = new Recipient(partyBKey,partyBServerAddress);
 
-        PartyInfo partyInfo = new PartyInfo(partyBServerAddress,Collections.singleton(recipient),Collections.emptySet(),partyBledgerId);
+        PartyInfo partyInfo = new PartyInfo(partyBServerAddress,Collections.singleton(recipient),Collections.emptySet());
 
         PartyInfoParser partyInfoParser = PartyInfoParser.create();
 
@@ -83,7 +82,6 @@ public class PeerToPeerIT {
             .post(Entity.entity(output, MediaType.APPLICATION_OCTET_STREAM));
 
         assertThat(response.getStatus()).isEqualTo(200);
-
     }
 
 
@@ -105,7 +103,7 @@ public class PeerToPeerIT {
 
         Recipient recipient = new Recipient(bogusKey,serverConfig.getServerAddress());
 
-        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),Collections.singleton(recipient),Collections.emptySet(), serverConfig.getLedgerId());
+        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),Collections.singleton(recipient),Collections.emptySet());
 
         Client client = new ClientFactory().buildFrom(serverConfig);
 
@@ -137,10 +135,10 @@ public class PeerToPeerIT {
         ServerConfig serverConfig = partyB.getConfig().getP2PServerConfig();
 
         PublicKey publicKey = Optional.of(partyB)
-        .map(Party::getPublicKey)
-        .map(Base64.getDecoder()::decode)
-        .map(PublicKey::from)
-        .get();
+            .map(Party::getPublicKey)
+            .map(Base64.getDecoder()::decode)
+            .map(PublicKey::from)
+            .get();
 
         Recipient itself = new Recipient(publicKey,serverConfig.getServerAddress());
 
@@ -150,9 +148,9 @@ public class PeerToPeerIT {
 
         Set<Recipient> recipients = Stream.of(itself,badRecipient).collect(Collectors.toSet());
 
-        assertThat(recipients).contains(badRecipient,itself);
+        assertThat(recipients).containsExactlyInAnyOrder(itself,badRecipient);
 
-        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),recipients,Collections.emptySet(),serverConfig.getLedgerId());
+        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),recipients,Collections.emptySet());
 
         Client client = new ClientFactory().buildFrom(serverConfig);
 
@@ -202,9 +200,9 @@ public class PeerToPeerIT {
 
         Set<Recipient> recipients = Stream.of(itself,badRecipient).collect(Collectors.toSet());
 
-        assertThat(recipients).containsExactly(itself,badRecipient);
+        assertThat(recipients).containsExactlyInAnyOrder(itself,badRecipient);
 
-        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),recipients,Collections.emptySet(),serverConfig.getLedgerId());
+        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),recipients,Collections.emptySet());
 
         Client client = new ClientFactory().buildFrom(serverConfig);
 
@@ -220,14 +218,11 @@ public class PeerToPeerIT {
             .post(Entity.entity(output, MediaType.APPLICATION_OCTET_STREAM));
 
         assertThat(response.getStatus()).isEqualTo(200);
-
-
-
     }
 
 
     @Test
-    public void benevolentNodeBecomesPosessedAndTriesToSendInvalidUrlAndKeyCombo() throws Exception {
+    public void benevolentNodeBecomesPosessedAndTriesToSendInavludUrlAndKeyCombo() throws Exception {
 
 
         Party partyB = partyHelper.findByAlias(NodeAlias.B);
@@ -255,9 +250,9 @@ public class PeerToPeerIT {
 
         Set<Recipient> recipients = Stream.of(itself,badRecipient).collect(Collectors.toSet());
 
-        assertThat(recipients).contains(badRecipient, itself);
+        assertThat(recipients).containsExactlyInAnyOrder(itself,badRecipient);
 
-        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),recipients,Collections.emptySet(), serverConfig.getLedgerId());
+        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(),recipients,Collections.emptySet());
 
         Client client = new ClientFactory().buildFrom(serverConfig);
 

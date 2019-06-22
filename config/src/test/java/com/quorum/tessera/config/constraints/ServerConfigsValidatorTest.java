@@ -41,14 +41,13 @@ public class ServerConfigsValidatorTest {
         p2pServerConfig.setSslConfig(null);
         p2pServerConfig.setInfluxConfig(null);
         p2pServerConfig.setBindingAddress(null);
-        p2pServerConfig.setLedgerId(null);
 
         q2tServerConfig = new ServerConfig(AppType.Q2T, true,
             "localhost:1234", CommunicationType.REST,
-            null, null, null, null);
+            null, null, null);
         thirdPartyServerConfig = new ServerConfig(AppType.THIRD_PARTY, true,
             "localhost:12345", CommunicationType.REST,
-            null, null, null, null);
+            null, null, null);
 
         serverConfigs = new ArrayList<>(Arrays.asList(p2pServerConfig, q2tServerConfig, thirdPartyServerConfig));
 
