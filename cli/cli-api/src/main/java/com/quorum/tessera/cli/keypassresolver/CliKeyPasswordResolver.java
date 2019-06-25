@@ -6,9 +6,9 @@ import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keypairs.InlineKeypair;
-import com.quorum.tessera.config.util.PasswordReader;
-import com.quorum.tessera.config.util.PasswordReaderFactory;
 import com.quorum.tessera.io.SystemAdapter;
+import com.quorum.tessera.passwords.PasswordReader;
+import com.quorum.tessera.passwords.PasswordReaderFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;

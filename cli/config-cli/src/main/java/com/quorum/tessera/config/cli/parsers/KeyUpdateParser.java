@@ -7,9 +7,9 @@ import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.config.util.PasswordReader;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.io.SystemAdapter;
+import com.quorum.tessera.passwords.PasswordReader;
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,29 +42,27 @@ public class KeyUpdateParser implements Parser<Optional> {
 
     @Override
     public Optional parse(final CommandLine commandLine) throws IOException {
-        if (commandLine.hasOption("updatepassword")) {
-            final ArgonOptions argonOptions = argonOptions(commandLine);
-            final List<String> passwords = passwords(commandLine);
-            final Path keypath = privateKeyPath(commandLine);
+        final ArgonOptions argonOptions = argonOptions(commandLine);
+        final List<String> passwords = passwords(commandLine);
+        final Path keypath = privateKeyPath(commandLine);
 
-            final KeyDataConfig keyDataConfig = JaxbUtil.unmarshal(Files.newInputStream(keypath), KeyDataConfig.class);
-            final PrivateKey privateKey = this.getExistingKey(keyDataConfig, passwords);
+        final KeyDataConfig keyDataConfig = JaxbUtil.unmarshal(Files.newInputStream(keypath), KeyDataConfig.class);
+        final PrivateKey privateKey = this.getExistingKey(keyDataConfig, passwords);
 
-            final String newPassword = passwordReader.requestUserPassword();
+        final String newPassword = passwordReader.requestUserPassword();
 
-            final KeyDataConfig updatedKey;
-            if(newPassword.isEmpty()) {
-                final PrivateKeyData privateKeyData = new PrivateKeyData(privateKey.encodeToBase64(), null, null, null, null);
-                updatedKey = new KeyDataConfig(privateKeyData, PrivateKeyType.UNLOCKED);
-            } else {
-                final PrivateKeyData privateKeyData = keyEncryptor.encryptPrivateKey(privateKey, newPassword, argonOptions);
-                updatedKey = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
-            }
-
-            //write the key to file
-            Files.write(keypath, JaxbUtil.marshalToString(updatedKey).getBytes(UTF_8));
-            SystemAdapter.INSTANCE.out().println("Private key at " + keypath.toString() + " updated.");
+        final KeyDataConfig updatedKey;
+        if(newPassword.isEmpty()) {
+            final PrivateKeyData privateKeyData = new PrivateKeyData(privateKey.encodeToBase64(), null, null, null, null);
+            updatedKey = new KeyDataConfig(privateKeyData, PrivateKeyType.UNLOCKED);
+        } else {
+            final PrivateKeyData privateKeyData = keyEncryptor.encryptPrivateKey(privateKey, newPassword, argonOptions);
+            updatedKey = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
         }
+
+        //write the key to file
+        Files.write(keypath, JaxbUtil.marshalToString(updatedKey).getBytes(UTF_8));
+        SystemAdapter.INSTANCE.out().println("Private key at " + keypath.toString() + " updated.");
 
         return Optional.empty();
     }

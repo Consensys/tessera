@@ -80,7 +80,7 @@
                     <properties>
                         <eclipselink.ddlgen-terminate-statements>true</eclipselink.ddlgen-terminate-statements>
                         <eclipselink.weaving>false</eclipselink.weaving>
-                        <eclipselink.logging.level>FINEST</eclipselink.logging.level>
+                        <eclipselink.logging.level>INFO</eclipselink.logging.level>
                         <javax.persistence.schema-generation.scripts.action>create</javax.persistence.schema-generation.scripts.action>   
                     </properties>
                     <source>

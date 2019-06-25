@@ -1,4 +1,4 @@
-package com.quorum.tessera.config.util;
+package com.quorum.tessera.passwords;
 
 import org.junit.Test;
 

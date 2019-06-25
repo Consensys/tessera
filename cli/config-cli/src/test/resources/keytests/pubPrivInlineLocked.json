@@ -5,13 +5,23 @@
         "password": "",
         "url": "jdbc:h2:./qdata/c1/db1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
     },
-    "server": {
-        "port": 9001,
-        "hostName": "http://localhost",
-        "sslConfig": {
-            "tls": "OFF"
+    "serverConfigs": [
+        {
+            "app": "Q2T",
+            "enabled": true,
+            "serverAddress": "unix:/tmp/bogus.socket",
+            "communicationType": "REST"
+        },
+        {
+            "app": "P2P",
+            "enabled": true,
+            "serverAddress": "http://localhost:9001",
+            "communicationType": "REST",
+            "sslConfig": {
+                "tls": "OFF"
+            }
         }
-    },
+    ],
     "peer": [
         {
             "url": "http://localhost:9001/"
@@ -19,7 +29,7 @@
     ],
     "keys": {
         "passwords": [
-            "q"
+            "testpassword"
         ],
         "keyData": [
             {
@@ -27,13 +37,13 @@
                     "data": {
                         "aopts": {
                             "variant": "id",
-                            "memory": 1048576,
-                            "iterations": 10,
-                            "parallelism": 4
+                            "memory": 1024,
+                            "iterations": 1,
+                            "parallelism": 1
                         },
-                        "snonce": "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
-                        "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
-                        "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
+                        "snonce": "dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe",
+                        "asalt": "JoPVq9G6NdOb+Ugv+HnUeA==",
+                        "sbox": "6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw"
                     },
                     "type": "argon2sbox"
                 },
@@ -41,6 +51,5 @@
             }
         ]
     },
-    "alwaysSendTo": [],
-    "unixSocketFile": "/Users/peter/IdeaProjects/quorum-ex/examples/7nodes/qdata/c1/tm.ipc"
+    "alwaysSendTo": []
 }

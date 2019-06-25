@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
@@ -51,15 +52,15 @@ public class ConfigFactoryTest {
         assertThat(keyDataConfig.getType()).isEqualTo(PrivateKeyType.LOCKED);
         assertThat(privateKeyData).isNotNull();
 
-        assertThat(privateKeyData.getSnonce()).isEqualTo("x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC");
-        assertThat(privateKeyData.getAsalt()).isEqualTo("7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=");
-        assertThat(privateKeyData.getSbox()).isEqualTo("d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc");
+        assertThat(privateKeyData.getSnonce()).isEqualTo("dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe");
+        assertThat(privateKeyData.getAsalt()).isEqualTo("JoPVq9G6NdOb+Ugv+HnUeA==");
+        assertThat(privateKeyData.getSbox()).isEqualTo("6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw");
 
         assertThat(privateKeyData.getArgonOptions()).isNotNull();
         assertThat(privateKeyData.getArgonOptions().getAlgorithm()).isEqualTo("id");
-        assertThat(privateKeyData.getArgonOptions().getIterations()).isEqualTo(10);
-        assertThat(privateKeyData.getArgonOptions().getParallelism()).isEqualTo(4);
-        assertThat(privateKeyData.getArgonOptions().getMemory()).isEqualTo(1048576);
+        assertThat(privateKeyData.getArgonOptions().getIterations()).isEqualTo(1);
+        assertThat(privateKeyData.getArgonOptions().getParallelism()).isEqualTo(1);
+        assertThat(privateKeyData.getArgonOptions().getMemory()).isEqualTo(1024);
     }
 
     @Test
@@ -82,7 +83,7 @@ public class ConfigFactoryTest {
         final InlineKeypair keypair = new InlineKeypair(
             "publickey",
             new KeyDataConfig(
-                new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 10, 1048576, 4)),
+                new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 1, 1024, 1)),
                 PrivateKeyType.LOCKED
             )
         );
@@ -92,11 +93,11 @@ public class ConfigFactoryTest {
 
         Path unixSocketPath = Files.createTempFile(tempFolder, UUID.randomUUID().toString(), ".ipc");
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("unixSocketPath", unixSocketPath.toString());
+        Map<String, Object> params = singletonMap("unixSocketPath", unixSocketPath.toString());
 
-        InputStream configInputStream = ElUtil.process(getClass()
-                .getResourceAsStream("/sample-private-keygen.json"), params);
+        InputStream configInputStream = ElUtil.process(
+            getClass().getResourceAsStream("/sample-private-keygen.json"), params
+        );
 
         Config config = configFactory.create(configInputStream, singletonList(keypair));
 
@@ -115,8 +116,8 @@ public class ConfigFactoryTest {
 
         assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions()).isNotNull();
         assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getAlgorithm()).isEqualTo("i");
-        assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getIterations()).isEqualTo(10);
-        assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getParallelism()).isEqualTo(4);
-        assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getMemory()).isEqualTo(1048576);
+        assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getIterations()).isEqualTo(1);
+        assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getParallelism()).isEqualTo(1);
+        assertThat(keyDataConfig.getPrivateKeyData().getArgonOptions().getMemory()).isEqualTo(1024);
     }
 }

@@ -313,8 +313,8 @@
                                 <exclude>com/quorum/tessera/Launcher*</exclude>
                                 <exclude>com/quorum/tessera/data/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/config/migration/Main*</exclude>
-                                <exclude>com/quorum/tessera/config/util/ConsolePasswordReader*</exclude>
-                                <exclude>com/quorum/tessera/config/util/PasswordReaderFactory*</exclude>
+                                <exclude>com/quorum/tessera/passwords/ConsolePasswordReader*</exclude>
+                                <exclude>com/quorum/tessera/passwords/PasswordReaderFactory*</exclude>
                                 <exclude>com/quorum/tessera/key/vault/azure/AzureKeyVaultClientDelegate*</exclude>
                                 <exclude>com/quorum/tessera/key/vault/hashicorp/KeyValueOperationsDelegateFactory*
                                 </exclude>
@@ -448,7 +448,6 @@
         <module>jaxrs-client</module>
         <module>key-vault</module>
         <module>key-generation</module>
-        <module>key-pair-converter</module>
         <module>ddls</module>
         <module>enclave</module>
         <module>tessera-dist</module>
@@ -493,12 +492,6 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>admin-cli</artifactId>
-                <version>0.10-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>key-pair-converter</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
 
@@ -1588,7 +1581,9 @@
                 <plugins>
 
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-deploy-plugin</artifactId>
+                        <version>2.8.2</version>
                         <configuration>
                             <skip>true</skip>
                         </configuration>
