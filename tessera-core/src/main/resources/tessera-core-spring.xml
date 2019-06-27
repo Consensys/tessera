@@ -57,14 +57,12 @@
 
 
     <!-- Party Info management -->
-    <bean id="partyInfoStore" class="com.quorum.tessera.partyinfo.PartyInfoStore">
-        <constructor-arg ref="configService"/>
-    </bean>
-
-    <bean name="partyInfoService" class="com.quorum.tessera.partyinfo.PartyInfoServiceImpl">
-        <constructor-arg ref="partyInfoStore"/>
-        <constructor-arg ref="configService"/>
+    
+    <bean id="partyInfoServiceFactory" class="com.quorum.tessera.partyinfo.PartyInfoServiceFactory" factory-method="newFactory" />
+    
+    <bean name="partyInfoService" factory-bean="partyInfoServiceFactory" factory-method="create">
         <constructor-arg ref="enclave"/>
+        <constructor-arg ref="configService"/>
     </bean>
 
     <bean name="partyInfoPoller" class="com.quorum.tessera.partyinfo.PartyInfoPoller">

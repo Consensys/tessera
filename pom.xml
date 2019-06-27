@@ -349,9 +349,10 @@
             <plugin>
                 <groupId>org.ec4j.maven</groupId>
                 <artifactId>editorconfig-maven-plugin</artifactId>
-                <version>0.0.8</version>
+                <version>0.0.10</version>
                 <configuration>
                     <basedir>${session.executionRootDirectory}</basedir>
+                    
                 </configuration>
                 <executions>
                     <execution>
@@ -423,6 +424,32 @@
 
             </plugin>
 
+            <plugin>
+                <groupId>com.theoryinpractise</groupId>
+                <artifactId>googleformatter-maven-plugin</artifactId>
+                <version>1.7.3</version>
+                <executions>
+                    <execution>
+                        <id>reformat-sources</id>
+                        <configuration>
+                            <includeStale>false</includeStale>
+                            <style>GOOGLE</style>
+                            <formatMain>true</formatMain>
+                            <formatTest>true</formatTest>
+                            <filterModified>true</filterModified>
+                            <skip>false</skip>
+                            <fixImports>false</fixImports>
+                            <maxLineLength>120</maxLineLength>
+                            <indentSize>4</indentSize>
+                        </configuration>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                        <phase>process-sources</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
 
 
@@ -454,6 +481,7 @@
         <module>tessera-partyinfo</module>
         <module>tessera-admin</module>
         <module>tessera-sync</module>
+        <module>test-utils</module>
     </modules>
 
     <dependencyManagement>
