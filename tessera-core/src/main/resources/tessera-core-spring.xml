@@ -47,43 +47,7 @@
         <constructor-arg ref="resendManager" />
     </bean>
 
-    <bean id="p2pClientFactory" class="com.quorum.tessera.partyinfo.P2pClientFactory" factory-method="newFactory">
-        <constructor-arg ref="config" />
-    </bean>
-
-    <bean id="p2pClient" factory-bean="p2pClientFactory" factory-method="create">
-        <constructor-arg ref="config"/>
-    </bean>
-
-
-    <!-- Party Info management -->
-    
-    <bean id="partyInfoServiceFactory" class="com.quorum.tessera.partyinfo.PartyInfoServiceFactory" factory-method="newFactory" />
-    
-    <bean name="partyInfoService" factory-bean="partyInfoServiceFactory" factory-method="create">
-        <constructor-arg ref="enclave"/>
-        <constructor-arg ref="configService"/>
-    </bean>
-
-    <bean name="partyInfoPoller" class="com.quorum.tessera.partyinfo.PartyInfoPoller">
-        <constructor-arg ref="partyInfoService"/>
-        <constructor-arg ref="partyInfoParser" />
-        <constructor-arg ref="p2pClient"/>
-    </bean>
-
-    <bean name="partyInfoPollExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">
-        <constructor-arg>
-            <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
-        </constructor-arg>
-        <constructor-arg ref="partyInfoPoller"/>
-        <constructor-arg value="2000"/>
-        <constructor-arg value="5000"/>
-    </bean>
-
     <bean name="payloadEncoder" class="com.quorum.tessera.enclave.PayloadEncoderImpl"/>
-
-    <bean id="partyInfoParser" class="com.quorum.tessera.partyinfo.PartyInfoParser" factory-method="create"/>
-
 
     <bean id="cliDelegate" class="com.quorum.tessera.cli.CliDelegate" factory-method="instance"/>
 
