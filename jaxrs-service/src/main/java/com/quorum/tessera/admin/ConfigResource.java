@@ -4,7 +4,6 @@ import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.apps.AdminApp;
 import com.quorum.tessera.encryption.PublicKey;
 
 import javax.validation.Valid;
@@ -26,98 +25,89 @@ import static java.util.Collections.singleton;
 @Path("/config")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class ConfigResource implements AdminApp {
+public class ConfigResource {
 
-    private final ConfigService configService;
+  private final ConfigService configService;
 
-    private final PartyInfoService partyInfoService;
+  private final PartyInfoService partyInfoService;
 
-    public ConfigResource(final ConfigService configService, final PartyInfoService partyInfoService) {
-        this.configService = Objects.requireNonNull(configService);
-        this.partyInfoService = Objects.requireNonNull(partyInfoService);
+  public ConfigResource(final ConfigService configService, final PartyInfoService partyInfoService) {
+    this.configService = Objects.requireNonNull(configService);
+    this.partyInfoService = Objects.requireNonNull(partyInfoService);
+  }
+
+  @PUT
+  @Path("/peers")
+  public Response addPeer(@Valid final Peer peer) {
+
+    final boolean existing = configService.getPeers().contains(peer);
+
+    if (!existing) {
+      this.configService.addPeer(peer.getUrl());
+
+      this.partyInfoService.updatePartyInfo(
+          new PartyInfo(peer.getUrl(), emptySet(), singleton(new Party(peer.getUrl()))));
     }
 
-    @PUT
-    @Path("/peers")
-    public Response addPeer(@Valid final Peer peer) {
+    final int index = this.configService.getPeers().indexOf(peer);
 
-        final boolean existing = configService.getPeers().contains(peer);
+    final URI uri = UriBuilder.fromPath("config").path("peers").path(String.valueOf(index)).build();
 
-        if (!existing) {
-            this.configService.addPeer(peer.getUrl());
+    if (!existing) {
+      return Response.created(uri).build();
+    } else {
+      return Response.ok().location(uri).build();
+    }
+  }
 
-            this.partyInfoService.updatePartyInfo(
-                new PartyInfo(peer.getUrl(), emptySet(), singleton(new Party(peer.getUrl())))
-            );
-        }
+  @GET
+  @Path("/peers/{index}")
+  public Response getPeer(@PathParam("index") final Integer index) {
 
-        final int index = this.configService.getPeers().indexOf(peer);
+    final List<Peer> peers = this.configService.getPeers();
 
-        final URI uri = UriBuilder.fromPath("config")
-            .path("peers")
-            .path(String.valueOf(index))
-            .build();
-
-        if (!existing) {
-            return Response.created(uri).build();
-        } else {
-            return Response.ok().location(uri).build();
-        }
-
+    if (peers.size() <= index) {
+      throw new NotFoundException("No peer found at index " + index);
     }
 
-    @GET
-    @Path("/peers/{index}")
-    public Response getPeer(@PathParam("index") final Integer index) {
+    return Response.ok(peers.get(index)).build();
+  }
 
-        final List<Peer> peers = this.configService.getPeers();
+  @GET
+  @Path("/peers")
+  public Response getPeers() {
+    final List<Peer> peers = this.configService.getPeers();
 
-        if (peers.size() <= index) {
-            throw new NotFoundException("No peer found at index " + index);
-        }
+    return Response.ok(new GenericEntity<List<Peer>>(peers) {}).build();
+  }
 
-        return Response.ok(peers.get(index)).build();
+  @GET
+  @Path("/keypairs/{publicKey}")
+  public Response getKeyPair(@PathParam("publicKey") String base64PublicKey) {
+
+    Base64.Decoder base64Decoder = Base64.getDecoder();
+
+    PublicKey publicKey = PublicKey.from(base64Decoder.decode(base64PublicKey));
+
+    Set<PublicKey> publicKeys = configService.getPublicKeys();
+
+    if (!publicKeys.contains(publicKey)) {
+      throw new NotFoundException("No key pair found with public key " + base64PublicKey);
     }
 
-    @GET
-    @Path("/peers")
-    public Response getPeers() {
-        final List<Peer> peers = this.configService.getPeers();
+    PublicKeyResponse responseData = new PublicKeyResponse(base64PublicKey);
 
-        return Response.ok(new GenericEntity<List<Peer>>(peers) {
-        }).build();
-    }
+    return Response.ok(responseData).build();
+  }
 
-    @GET
-    @Path("/keypairs/{publicKey}")
-    public Response getKeyPair(@PathParam("publicKey") String base64PublicKey) {
+  @GET
+  @Path("/keypairs")
+  public Response getKeyPairs() {
+    Set<PublicKey> publicKeys = configService.getPublicKeys();
 
-        Base64.Decoder base64Decoder = Base64.getDecoder();
+    List<PublicKeyResponse> responseData =
+        publicKeys.stream().map(PublicKey::encodeToBase64).map(PublicKeyResponse::new).collect(Collectors.toList());
 
-        PublicKey publicKey = PublicKey.from(base64Decoder.decode(base64PublicKey));
-
-        Set<PublicKey> publicKeys = configService.getPublicKeys();
-
-        if(!publicKeys.contains(publicKey)) {
-            throw new NotFoundException("No key pair found with public key " + base64PublicKey);
-        }
-
-        PublicKeyResponse responseData = new PublicKeyResponse(base64PublicKey);
-
-        return Response.ok(responseData).build();
-    }
-
-    @GET
-    @Path("/keypairs")
-    public Response getKeyPairs() {
-        Set<PublicKey> publicKeys = configService.getPublicKeys();
-
-        List<PublicKeyResponse> responseData = publicKeys.stream()
-            .map(PublicKey::encodeToBase64)
-            .map(PublicKeyResponse::new)
-            .collect(Collectors.toList());
-
-        return Response.ok(new GenericEntity<List<PublicKeyResponse>>(responseData){}).build();
-    }
-
+    return Response.ok(new GenericEntity<List<PublicKeyResponse>>(responseData) {}).build();
+  }
 }

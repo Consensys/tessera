@@ -1,7 +1,6 @@
 package com.quorum.tessera.thridparty;
 
 import com.quorum.tessera.api.model.*;
-import com.quorum.tessera.config.apps.ThirdPartyApp;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -19,39 +18,32 @@ import java.util.Objects;
 
 import static javax.ws.rs.core.MediaType.*;
 
-/**
- * Provides endpoints for dealing with raw transactions
- */
+/** Provides endpoints for dealing with raw transactions */
 @Path("/")
-public class RawTransactionResource implements ThirdPartyApp {
+public class RawTransactionResource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RawTransactionResource.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RawTransactionResource.class);
 
-    private final TransactionManager delegate;
+  private final TransactionManager delegate;
 
-    public RawTransactionResource(TransactionManager delegate) {
-        this.delegate = Objects.requireNonNull(delegate);
-    }
+  public RawTransactionResource(TransactionManager delegate) {
+    this.delegate = Objects.requireNonNull(delegate);
+  }
 
-    @ApiOperation(value = "Store raw private transaction payload", produces = "Encrypted payload")
-    @ApiResponses({
-        @ApiResponse(code = 200, response = StoreRawResponse.class, message = "Store response"),
-        @ApiResponse(code = 400, message = "For unknown sender")
-    })
-    @POST
-    @Path("storeraw")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    public Response store(
-            @ApiParam(name = "storeRawRequest", required = true)
-            @NotNull @Valid final StoreRawRequest storeRawRequest) {
+  @ApiOperation(value = "Store raw private transaction payload", produces = "Encrypted payload")
+  @ApiResponses({
+    @ApiResponse(code = 200, response = StoreRawResponse.class, message = "Store response"),
+    @ApiResponse(code = 400, message = "For unknown sender")
+  })
+  @POST
+  @Path("storeraw")
+  @Consumes(APPLICATION_JSON)
+  @Produces(APPLICATION_JSON)
+  public Response store(
+      @ApiParam(name = "storeRawRequest", required = true) @NotNull @Valid final StoreRawRequest storeRawRequest) {
 
-        final StoreRawResponse response = delegate.store(storeRawRequest);
+    final StoreRawResponse response = delegate.store(storeRawRequest);
 
-        return Response.status(Status.OK)
-                .type(APPLICATION_JSON)
-                .entity(response)
-                .build();
-
-    }
+    return Response.status(Status.OK).type(APPLICATION_JSON).entity(response).build();
+  }
 }
