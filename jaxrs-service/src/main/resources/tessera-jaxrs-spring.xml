@@ -34,8 +34,7 @@
     </bean>
     
     <!-- Resources -->
-    <bean class="com.quorum.tessera.api.common.VersionResource"/>
-    <bean class="com.quorum.tessera.api.common.UpCheckResource"/>
+
     
     <bean class="com.quorum.tessera.p2p.TransactionResource">
         <constructor-arg ref="transactionManager"/>
@@ -90,17 +89,5 @@
     <bean class="com.quorum.tessera.api.filter.IPWhitelistFilter">
         <constructor-arg ref="configService"/>
     </bean>
-
-    <bean class="com.quorum.tessera.api.exception.DefaultExceptionMapper"/>
-    <bean class="com.quorum.tessera.api.exception.DecodingExceptionMapper"/>
-    <bean class="com.quorum.tessera.api.exception.KeyNotFoundExceptionMapper"/>
-    <bean class="com.quorum.tessera.api.exception.NotFoundExceptionMapper"/>
-    <bean class="com.quorum.tessera.api.exception.TransactionNotFoundExceptionMapper"/>
-    <bean class="com.quorum.tessera.api.exception.WebApplicationExceptionMapper"/>
-    <bean class="com.quorum.tessera.api.exception.EntityNotFoundExceptionMapper"/>
-    <bean class="com.quorum.tessera.api.exception.EnclaveNotAvailableExceptionMapper"/>
-    <bean class="com.quorum.tessera.api.exception.SecurityExceptionMapper"/>
-    <bean class="com.quorum.tessera.p2p.ApiResource"/>
-
 
 </beans>
