@@ -15,11 +15,12 @@ public class DecodingExceptionMapper implements ExceptionMapper<DecodingExceptio
     private static final Logger LOGGER = LoggerFactory.getLogger(DecodingExceptionMapper.class);
 
     @Override
-    public Response toResponse(final DecodingException e) {
-        LOGGER.error("", e);
+    public Response toResponse(final DecodingException exception) {
+        LOGGER.error("Error decoding message: {}", exception.getMessage());
+        LOGGER.debug(null, exception);
 
         return Response.status(Response.Status.BAD_REQUEST)
-            .entity(e.getMessage())
+            .entity(exception.getMessage())
             .type(MediaType.TEXT_PLAIN)
             .build();
     }

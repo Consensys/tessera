@@ -12,25 +12,23 @@ public class DefaultExceptionMapperTest {
 
     @Test
     public void toResponse() {
-        Throwable exception = new Exception("Ouch");
+        final Throwable exception = new Exception("Ouch");
 
-        Response result = exceptionMapper.toResponse(exception);
+        final Response result = exceptionMapper.toResponse(exception);
 
         assertThat(result.getStatus()).isEqualTo(500);
-        assertThat(result.getStatusInfo().getReasonPhrase()).isEqualTo("Ouch");
-
+        assertThat(result.getEntity()).isEqualTo("Ouch");
     }
 
     @Test
     public void toResponseNestedCause() {
-        Throwable nested = new Exception("Ouch");
-        Throwable exception = new Exception(nested);
+        final Throwable nested = new Exception("Ouch");
+        final Throwable exception = new Exception(nested);
 
-        Response result = exceptionMapper.toResponse(exception);
+        final Response result = exceptionMapper.toResponse(exception);
 
         assertThat(result.getStatus()).isEqualTo(500);
-        assertThat(result.getStatusInfo().getReasonPhrase()).isEqualTo("Ouch");
-
+        assertThat(result.getEntity()).isEqualTo("Ouch");
     }
 
 }

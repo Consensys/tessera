@@ -15,30 +15,25 @@ public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplica
 
     @Override
     public Response toResponse(final WebApplicationException exception) {
-
         LOGGER.debug("{}", exception.getClass());
         LOGGER.debug("{}", exception.getCause() == null ? "No cause" : exception.getCause().getClass());
 
         LOGGER.error("{}", exception.getMessage());
 
+        final Response.Status returnStatus;
         try {
             throw exception.getCause();
-
         } catch (final UnmarshalException ex) {
             LOGGER.warn("Unable to unmarshal payload");
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(exception.getMessage())
-                    .type(MediaType.TEXT_PLAIN)
-                    .build();
-
+            returnStatus = Response.Status.BAD_REQUEST;
         } catch (final Throwable ex) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(exception.getMessage())
-                    .type(MediaType.TEXT_PLAIN)
-                    .build();
-
+            returnStatus = Response.Status.INTERNAL_SERVER_ERROR;
         }
 
+        return Response.status(returnStatus)
+            .entity(exception.getMessage())
+            .type(MediaType.TEXT_PLAIN)
+            .build();
     }
 
 }

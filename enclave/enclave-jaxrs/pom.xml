@@ -153,12 +153,22 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>cli-api</artifactId>
-            <type>jar</type>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>logback-enclave.xml</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -174,6 +184,11 @@
                             <manifestEntries>
                                 <Tessera-Version>${project.version}</Tessera-Version>
                             </manifestEntries>
+                        </transformer>
+
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                            <resource>logback.xml</resource>
+                            <file>src/main/resources/logback-enclave.xml</file>
                         </transformer>
 
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
@@ -196,9 +211,9 @@
                                 <exclude>META-INF/*.RSA</exclude>
                                 <exclude>META-INF/maven/**</exclude>
                             </excludes>
-
                         </filter>
                     </filters>
+
                 </configuration>
                 <executions>
                     <execution>
@@ -227,6 +242,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 
@@ -243,4 +259,5 @@
             </properties>
         </profile>
     </profiles>
+
 </project>

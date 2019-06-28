@@ -16,8 +16,8 @@ public class KeyNotFoundExceptionMapper implements ExceptionMapper<KeyNotFoundEx
 
     @Override
     public Response toResponse(final KeyNotFoundException e) {
-        LOGGER.debug("", e);
         LOGGER.warn(e.getMessage());
+        LOGGER.debug(null, e);
 
         //TODO: change to 404
         return Response.status(Response.Status.BAD_REQUEST)
