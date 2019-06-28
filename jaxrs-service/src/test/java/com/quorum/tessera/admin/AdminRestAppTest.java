@@ -1,6 +1,10 @@
 package com.quorum.tessera.admin;
 
+import com.quorum.tessera.api.filter.IPWhitelistFilter;
+import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
+import java.util.HashSet;
+import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
@@ -30,7 +34,16 @@ public class AdminRestAppTest {
 
   @Test
   public void getSingletons() {
-    this.adminRestApp.getSingletons();
+
+    Set services = new HashSet<>();
+    services.add(new ConfigResource(mock(ConfigService.class), mock(PartyInfoService.class)));
+    services.add(new IPWhitelistFilter(mock(ConfigService.class)));
+
+    when(serviceLocator.getServices(CONTEXT_NAME)).thenReturn(services);
+
+    Set<Object> results = this.adminRestApp.getSingletons();
+
+    assertThat(results).containsExactlyInAnyOrderElementsOf(services);
 
     verify(serviceLocator).getServices(CONTEXT_NAME);
   }
