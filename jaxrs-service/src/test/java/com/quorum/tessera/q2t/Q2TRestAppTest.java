@@ -1,6 +1,7 @@
 package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
+import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,5 +45,10 @@ public class Q2TRestAppTest {
     assertThat(results).containsExactlyElementsOf(services);
 
     verify(serviceLocator).getServices(CONTEXT_NAME);
+  }
+
+  @Test
+  public void appType() {
+    assertThat(q2TRestApp.getAppType()).isEqualTo(AppType.Q2T);
   }
 }

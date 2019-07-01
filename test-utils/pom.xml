@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>mock-websocket-container</module>
+        <module>mock-service-locator</module>
     </modules>
     <build>
         <plugins>

@@ -4,34 +4,13 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 
-    <bean id="p2pJaxrsApplication" class="com.quorum.tessera.p2p.P2PRestApp">
-        <constructor-arg>
-            <bean class="com.quorum.tessera.service.locator.ServiceLocator" factory-method="create" />
-        </constructor-arg>
-        <constructor-arg value="tessera-core-spring.xml" />
-    </bean>
+    <bean id="p2pJaxrsApplication" class="com.quorum.tessera.p2p.P2PRestApp" />
 
-    <bean id="q2tJaxrsApplication" class="com.quorum.tessera.q2t.Q2TRestApp">
-        <constructor-arg>
-            <bean class="com.quorum.tessera.service.locator.ServiceLocator" factory-method="create" />
-        </constructor-arg>
-        <constructor-arg value="tessera-core-spring.xml" />
-    </bean>
+    <bean id="q2tJaxrsApplication" class="com.quorum.tessera.q2t.Q2TRestApp" />
 
+    <bean id="thirdPartyJaxrsApplication" class="com.quorum.tessera.thridparty.ThirdPartyRestApp" />
 
-    <bean id="thirdPartyJaxrsApplication" class="com.quorum.tessera.thridparty.ThirdPartyRestApp">
-        <constructor-arg>
-            <bean class="com.quorum.tessera.service.locator.ServiceLocator" factory-method="create" />
-        </constructor-arg>
-        <constructor-arg value="tessera-core-spring.xml" />
-    </bean>
-
-    <bean id="adminJaxrsApplication" class="com.quorum.tessera.admin.AdminRestApp">
-        <constructor-arg>
-            <bean class="com.quorum.tessera.service.locator.ServiceLocator" factory-method="create" />
-        </constructor-arg>
-        <constructor-arg value="tessera-core-spring.xml" />
-    </bean>
+    <bean id="adminJaxrsApplication" class="com.quorum.tessera.admin.AdminRestApp" />
     
     <!-- Resources -->
 

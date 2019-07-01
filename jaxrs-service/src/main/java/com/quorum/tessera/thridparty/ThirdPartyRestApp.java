@@ -2,7 +2,7 @@ package com.quorum.tessera.thridparty;
 
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.app.TesseraRestApplication;
-import com.quorum.tessera.config.apps.ThirdPartyApp;
+import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import java.util.Objects;
 import java.util.Set;
@@ -13,15 +13,19 @@ import javax.ws.rs.ApplicationPath;
 
 /** The third party API */
 @ApplicationPath("/")
-public class ThirdPartyRestApp extends TesseraRestApplication implements ThirdPartyApp {
+public class ThirdPartyRestApp extends TesseraRestApplication {
 
   private final ServiceLocator serviceLocator;
 
   private final String contextName;
 
-  public ThirdPartyRestApp(final ServiceLocator serviceLocator, final String contextName) {
-    this.serviceLocator = Objects.requireNonNull(serviceLocator);
-    this.contextName = Objects.requireNonNull(contextName);
+  public ThirdPartyRestApp() {
+    this(ServiceLocator.create(), "tessera-core-spring.xml");
+  }
+
+  public ThirdPartyRestApp(ServiceLocator serviceLocator, String contextName) {
+    this.serviceLocator = serviceLocator;
+    this.contextName = contextName;
   }
 
   @Override
@@ -36,5 +40,10 @@ public class ThirdPartyRestApp extends TesseraRestApplication implements ThirdPa
         .filter(o -> Objects.nonNull(o.getClass().getPackage()))
         .filter(isTransactionResource.or(isIPWhitelistFilter))
         .collect(Collectors.toSet());
+  }
+
+  @Override
+  public AppType getAppType() {
+    return AppType.THIRD_PARTY;
   }
 }

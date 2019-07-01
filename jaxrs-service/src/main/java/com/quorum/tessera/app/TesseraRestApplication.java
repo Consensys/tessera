@@ -12,12 +12,13 @@ import com.quorum.tessera.api.exception.NotFoundExceptionMapper;
 import com.quorum.tessera.api.exception.SecurityExceptionMapper;
 import com.quorum.tessera.api.exception.TransactionNotFoundExceptionMapper;
 import com.quorum.tessera.api.exception.WebApplicationExceptionMapper;
+import com.quorum.tessera.config.apps.TesseraApp;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ws.rs.core.Application;
 
-public abstract class TesseraRestApplication extends Application {
+public abstract class TesseraRestApplication extends Application implements TesseraApp {
 
   @Override
   public Set<Class<?>> getClasses() {

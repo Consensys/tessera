@@ -19,19 +19,9 @@
         <constructor-arg ref="partyInfoParser" />
     </bean>
 
-    <bean id="p2pGrpcApplication" class="com.quorum.tessera.grpc.p2p.P2PGrpcApp">
-        <constructor-arg>
-            <bean class="com.quorum.tessera.service.locator.ServiceLocator" factory-method="create" />
-        </constructor-arg>
-        <constructor-arg value="tessera-core-spring.xml" />
-    </bean>
+    <bean id="p2pGrpcApplication" class="com.quorum.tessera.grpc.p2p.P2PGrpcApp" />
 
-    <bean id="q2tGrpcApplication" class="com.quorum.tessera.grpc.api.Q2TGrpcApp">
-        <constructor-arg>
-            <bean class="com.quorum.tessera.service.locator.ServiceLocator" factory-method="create" />
-        </constructor-arg>
-        <constructor-arg value="tessera-core-spring.xml" />
-    </bean>
+    <bean id="q2tGrpcApplication" class="com.quorum.tessera.grpc.api.Q2TGrpcApp" />
 
 
 

@@ -1,6 +1,7 @@
 package com.quorum.tessera.admin;
 
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
+import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import java.util.HashSet;
@@ -23,7 +24,6 @@ public class AdminRestAppTest {
   @Before
   public void setUp() {
     this.serviceLocator = mock(ServiceLocator.class);
-
     this.adminRestApp = new AdminRestApp(serviceLocator, CONTEXT_NAME);
   }
 
@@ -52,5 +52,10 @@ public class AdminRestAppTest {
   public void getClasses() {
 
     assertThat(adminRestApp.getClasses()).isNotEmpty();
+  }
+
+  @Test
+  public void appType() {
+    assertThat(adminRestApp.getAppType()).isEqualTo(AppType.ADMIN);
   }
 }

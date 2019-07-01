@@ -1,42 +1,28 @@
 package com.quorum.tessera.config;
 
-import com.quorum.tessera.config.apps.*;
-
 import javax.xml.bind.annotation.XmlEnumValue;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
-
-import static java.util.Collections.singleton;
+import java.util.stream.Collectors;
 
 public enum AppType {
-
-    P2P(P2PApp.class, new HashSet<>(Arrays.asList(CommunicationType.GRPC, CommunicationType.REST))),
-
-    Q2T(Q2TApp.class, new HashSet<>(Arrays.asList(CommunicationType.GRPC, CommunicationType.REST))),
-
+    
+    P2P(CommunicationType.GRPC, CommunicationType.REST),
+    Q2T(CommunicationType.GRPC, CommunicationType.REST),
     @XmlEnumValue("ThirdParty")
-    THIRD_PARTY(ThirdPartyApp.class, singleton(CommunicationType.REST)),
-
-    ENCLAVE(EnclaveApp.class, singleton(CommunicationType.REST)),
-
-    ADMIN(AdminApp.class, singleton(CommunicationType.REST));
-
-    private final Class<? extends TesseraApp> intf;
+    THIRD_PARTY(CommunicationType.REST),
+    ENCLAVE(CommunicationType.REST),
+    ADMIN(CommunicationType.REST);
 
     private final Set<CommunicationType> allowedCommunicationTypes;
 
-    AppType(final Class<? extends TesseraApp> intf, final Set<CommunicationType> allowedCommunicationTypes) {
-        this.intf = intf;
-        this.allowedCommunicationTypes = allowedCommunicationTypes;
-    }
-
-    public Class<? extends TesseraApp> getIntf() {
-        return intf;
+    AppType(CommunicationType... allowedCommunicationTypes) {
+        this.allowedCommunicationTypes = Collections.unmodifiableSet(Arrays.stream(allowedCommunicationTypes)
+                .collect(Collectors.toSet()));
     }
 
     public Set<CommunicationType> getAllowedCommunicationTypes() {
         return allowedCommunicationTypes;
     }
-
 }

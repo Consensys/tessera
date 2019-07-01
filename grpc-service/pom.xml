@@ -9,6 +9,18 @@
     <artifactId>grpc-service</artifactId>
     <packaging>jar</packaging>
     
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>mock-service-locator</artifactId>
+                <scope>test</scope>
+                <version>0.10-SNAPSHOT</version>
+                <type>jar</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
     <dependencies>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
@@ -33,6 +45,12 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>service-locator-api</artifactId>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>mock-service-locator</artifactId>
+            <scope>test</scope>
             <type>jar</type>
         </dependency>
         <dependency>

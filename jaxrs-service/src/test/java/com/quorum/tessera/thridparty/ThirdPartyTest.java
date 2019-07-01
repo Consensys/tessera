@@ -1,6 +1,7 @@
 package com.quorum.tessera.thridparty;
 
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
+import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import java.util.HashSet;
 import java.util.Set;
@@ -43,5 +44,10 @@ public class ThirdPartyTest {
     assertThat(results).containsExactlyElementsOf(services);
 
     verify(serviceLocator).getServices(CONTEXT_NAME);
+  }
+
+  @Test
+  public void appType() {
+    assertThat(thirdParty.getAppType()).isEqualTo(AppType.THIRD_PARTY);
   }
 }

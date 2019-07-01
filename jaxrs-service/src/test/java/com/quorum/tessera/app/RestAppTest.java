@@ -1,7 +1,10 @@
 package com.quorum.tessera.app;
 
+import com.quorum.tessera.admin.AdminRestApp;
 import com.quorum.tessera.p2p.P2PRestApp;
+import com.quorum.tessera.q2t.Q2TRestApp;
 import com.quorum.tessera.service.locator.ServiceLocator;
+import com.quorum.tessera.thridparty.ThirdPartyRestApp;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,5 +47,15 @@ public class RestAppTest {
 
     final Throwable throwableName = catchThrowable(() -> new P2PRestApp(serviceLocator, null));
     assertThat(throwableName).isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
+  public void constructWithEmptyConstructor() throws Exception {
+
+    Class[] clazzes = new Class[] {P2PRestApp.class, Q2TRestApp.class, ThirdPartyRestApp.class, AdminRestApp.class};
+
+    for (Class c : clazzes) {
+      assertThat(c.getDeclaredConstructor().newInstance()).describedAs(c.toString()).isNotNull();
+    }
   }
 }

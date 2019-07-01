@@ -1,6 +1,7 @@
 package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
+import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import java.util.HashSet;
 import java.util.Set;
@@ -47,5 +48,10 @@ public class P2PRestAppTest {
     assertThat(results).filteredOn(o -> ApiResource.class.isInstance(o)).hasSize(1);
 
     verify(serviceLocator).getServices(CONTEXT_NAME);
+  }
+
+  @Test
+  public void appType() {
+    assertThat(p2PRestApp.getAppType()).isEqualTo(AppType.P2P);
   }
 }
