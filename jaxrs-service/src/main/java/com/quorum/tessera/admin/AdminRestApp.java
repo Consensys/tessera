@@ -19,15 +19,12 @@ public class AdminRestApp extends TesseraRestApplication {
 
   private final ServiceLocator serviceLocator;
 
-  private final String contextName;
-
   public AdminRestApp() {
-    this(ServiceLocator.create(), "tessera-core-spring.xml");
+    this(ServiceLocator.create());
   }
 
-  public AdminRestApp(ServiceLocator serviceLocator, String contextName) {
+  public AdminRestApp(ServiceLocator serviceLocator) {
     this.serviceLocator = serviceLocator;
-    this.contextName = contextName;
   }
 
   @Override
@@ -36,7 +33,7 @@ public class AdminRestApp extends TesseraRestApplication {
     Predicate<Object> isConfigResource = o -> ConfigResource.class.isInstance(o);
     Predicate<Object> isIPWhitelistFilter = o -> IPWhitelistFilter.class.isInstance(o);
 
-    return serviceLocator.getServices(contextName).stream()
+    return serviceLocator.getServices().stream()
         .filter(Objects::nonNull)
         .filter(o -> Objects.nonNull(o.getClass()))
         .filter(o -> Objects.nonNull(o.getClass().getPackage()))

@@ -16,8 +16,6 @@ import static org.mockito.Mockito.*;
 
 public class RestAppTest {
 
-  private static final String CONTEXT_NAME = "context";
-
   private ServiceLocator serviceLocator;
 
   private P2PRestApp p2PRestApp;
@@ -25,7 +23,7 @@ public class RestAppTest {
   @Before
   public void setUp() {
     serviceLocator = mock(ServiceLocator.class);
-    p2PRestApp = new P2PRestApp(serviceLocator, CONTEXT_NAME);
+    p2PRestApp = new P2PRestApp(serviceLocator);
   }
 
   @After
@@ -36,17 +34,14 @@ public class RestAppTest {
   @Test
   public void getSingletons() {
     p2PRestApp.getSingletons();
-    verify(serviceLocator).getServices(CONTEXT_NAME);
+    verify(serviceLocator).getServices();
   }
 
   @Test
   public void createWithNoServiceLocator() {
 
-    final Throwable throwable = catchThrowable(() -> new P2PRestApp(null, CONTEXT_NAME));
+    final Throwable throwable = catchThrowable(() -> new P2PRestApp(null));
     assertThat(throwable).isInstanceOf(NullPointerException.class);
-
-    final Throwable throwableName = catchThrowable(() -> new P2PRestApp(serviceLocator, null));
-    assertThat(throwableName).isInstanceOf(NullPointerException.class);
   }
 
   @Test

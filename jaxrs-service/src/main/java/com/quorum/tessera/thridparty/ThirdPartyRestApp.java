@@ -17,15 +17,12 @@ public class ThirdPartyRestApp extends TesseraRestApplication {
 
   private final ServiceLocator serviceLocator;
 
-  private final String contextName;
-
   public ThirdPartyRestApp() {
-    this(ServiceLocator.create(), "tessera-core-spring.xml");
+    this(ServiceLocator.create());
   }
 
-  public ThirdPartyRestApp(ServiceLocator serviceLocator, String contextName) {
+  public ThirdPartyRestApp(ServiceLocator serviceLocator) {
     this.serviceLocator = serviceLocator;
-    this.contextName = contextName;
   }
 
   @Override
@@ -34,7 +31,7 @@ public class ThirdPartyRestApp extends TesseraRestApplication {
     Predicate<Object> isIPWhitelistFilter = o -> IPWhitelistFilter.class.isInstance(o);
     Predicate<Object> isTransactionResource = o -> RawTransactionResource.class.isInstance(o);
 
-    return serviceLocator.getServices(contextName).stream()
+    return serviceLocator.getServices().stream()
         .filter(Objects::nonNull)
         .filter(o -> Objects.nonNull(o.getClass()))
         .filter(o -> Objects.nonNull(o.getClass().getPackage()))

@@ -14,8 +14,6 @@ import static org.mockito.Mockito.*;
 
 public class ThirdPartyTest {
 
-  private static final String CONTEXT_NAME = "context";
-
   private ServiceLocator serviceLocator;
 
   private ThirdPartyRestApp thirdParty;
@@ -23,7 +21,7 @@ public class ThirdPartyTest {
   @Before
   public void setUp() {
     serviceLocator = mock(ServiceLocator.class);
-    thirdParty = new ThirdPartyRestApp(serviceLocator, CONTEXT_NAME);
+    thirdParty = new ThirdPartyRestApp(serviceLocator);
   }
 
   @After
@@ -37,13 +35,13 @@ public class ThirdPartyTest {
     services.add(mock(IPWhitelistFilter.class));
     services.add(mock(RawTransactionResource.class));
 
-    when(serviceLocator.getServices(CONTEXT_NAME)).thenReturn(services);
+    when(serviceLocator.getServices()).thenReturn(services);
 
     Set<Object> results = thirdParty.getSingletons();
 
     assertThat(results).containsExactlyElementsOf(services);
 
-    verify(serviceLocator).getServices(CONTEXT_NAME);
+    verify(serviceLocator).getServices();
   }
 
   @Test

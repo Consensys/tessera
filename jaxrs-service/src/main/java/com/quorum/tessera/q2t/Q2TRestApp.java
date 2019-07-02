@@ -22,15 +22,12 @@ public class Q2TRestApp extends TesseraRestApplication {
 
   private final ServiceLocator serviceLocator;
 
-  private final String contextName;
-
   public Q2TRestApp() {
-    this(ServiceLocator.create(), "tessera-core-spring.xml");
+    this(ServiceLocator.create());
   }
 
-  public Q2TRestApp(ServiceLocator serviceLocator, String contextName) {
+  public Q2TRestApp(ServiceLocator serviceLocator) {
     this.serviceLocator = serviceLocator;
-    this.contextName = contextName;
   }
 
   @Override
@@ -39,7 +36,7 @@ public class Q2TRestApp extends TesseraRestApplication {
     Predicate<Object> isIPWhitelistFilter = o -> IPWhitelistFilter.class.isInstance(o);
     Predicate<Object> isTransactionResource = o -> TransactionResource.class.isInstance(o);
 
-    return serviceLocator.getServices(contextName).stream()
+    return serviceLocator.getServices().stream()
         .filter(Objects::nonNull)
         .filter(o -> Objects.nonNull(o.getClass()))
         .filter(o -> Objects.nonNull(o.getClass().getPackage()))

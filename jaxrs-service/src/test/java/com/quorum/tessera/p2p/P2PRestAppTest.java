@@ -23,7 +23,7 @@ public class P2PRestAppTest {
   @Before
   public void setUp() {
     serviceLocator = mock(ServiceLocator.class);
-    p2PRestApp = new P2PRestApp(serviceLocator, CONTEXT_NAME);
+    p2PRestApp = new P2PRestApp(serviceLocator);
   }
 
   @After
@@ -39,7 +39,7 @@ public class P2PRestAppTest {
     services.add(mock(IPWhitelistFilter.class));
     services.add(mock(TransactionResource.class));
 
-    when(serviceLocator.getServices(CONTEXT_NAME)).thenReturn(services);
+    when(serviceLocator.getServices()).thenReturn(services);
 
     Set<Object> results = p2PRestApp.getSingletons();
 
@@ -47,7 +47,7 @@ public class P2PRestAppTest {
 
     assertThat(results).filteredOn(o -> ApiResource.class.isInstance(o)).hasSize(1);
 
-    verify(serviceLocator).getServices(CONTEXT_NAME);
+    verify(serviceLocator).getServices();
   }
 
   @Test

@@ -23,15 +23,12 @@ public class P2PRestApp extends TesseraRestApplication {
 
   private final ServiceLocator serviceLocator;
 
-  private final String contextName;
-
   public P2PRestApp() {
-    this(ServiceLocator.create(), "tessera-core-spring.xml");
+    this(ServiceLocator.create());
   }
 
-  public P2PRestApp(ServiceLocator serviceLocator, String contextName) {
+  public P2PRestApp(ServiceLocator serviceLocator) {
     this.serviceLocator = Objects.requireNonNull(serviceLocator);
-    this.contextName = Objects.requireNonNull(contextName);
   }
 
   @Override
@@ -43,7 +40,7 @@ public class P2PRestApp extends TesseraRestApplication {
 
     return Stream.concat(
             Stream.of(new ApiResource()),
-            serviceLocator.getServices(contextName).stream()
+            serviceLocator.getServices().stream()
                 .filter(Objects::nonNull)
                 .filter(o -> Objects.nonNull(o.getClass()))
                 .filter(o -> Objects.nonNull(o.getClass().getPackage()))

@@ -199,9 +199,9 @@
                         <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
-                        <include>AdminRestSuite</include>
+<!--                        <include>AdminRestSuite</include>-->
                         <include>RestSuiteRemoteEnclaveH2</include>
-                        <include>RestSuiteH2</include>
+<!--                        <include>RestSuiteH2</include>
                         <include>RestSuiteUnixH2</include>
                         <include>CucumberWhitelistIT</include>
                         <include>RestSuiteH2</include>
@@ -213,7 +213,7 @@
                         <include>GrpcSuiteH2</include>
                         <include>GrpcSuiteSqlite</include>
                         <include>GrpcSuiteHSQL</include>
-                        <include>P2pTestSuite</include>
+                        <include>P2pTestSuite</include>-->
                     </includes>
                 </configuration>
                 <executions>

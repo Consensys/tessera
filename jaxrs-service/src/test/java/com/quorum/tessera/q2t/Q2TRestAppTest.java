@@ -14,8 +14,6 @@ import static org.mockito.Mockito.*;
 
 public class Q2TRestAppTest {
 
-  private static final String CONTEXT_NAME = "context";
-
   private ServiceLocator serviceLocator;
 
   private Q2TRestApp q2TRestApp;
@@ -23,7 +21,7 @@ public class Q2TRestAppTest {
   @Before
   public void setUp() {
     serviceLocator = mock(ServiceLocator.class);
-    q2TRestApp = new Q2TRestApp(serviceLocator, CONTEXT_NAME);
+    q2TRestApp = new Q2TRestApp(serviceLocator);
   }
 
   @After
@@ -38,13 +36,13 @@ public class Q2TRestAppTest {
     services.add(mock(IPWhitelistFilter.class));
     services.add(mock(TransactionResource.class));
 
-    when(serviceLocator.getServices(CONTEXT_NAME)).thenReturn(services);
+    when(serviceLocator.getServices()).thenReturn(services);
 
     Set<Object> results = q2TRestApp.getSingletons();
 
     assertThat(results).containsExactlyElementsOf(services);
 
-    verify(serviceLocator).getServices(CONTEXT_NAME);
+    verify(serviceLocator).getServices();
   }
 
   @Test

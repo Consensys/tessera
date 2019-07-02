@@ -15,8 +15,6 @@ import static org.mockito.Mockito.*;
 
 public class AdminRestAppTest {
 
-  private static final String CONTEXT_NAME = "context";
-
   private ServiceLocator serviceLocator;
 
   private AdminRestApp adminRestApp;
@@ -24,7 +22,7 @@ public class AdminRestAppTest {
   @Before
   public void setUp() {
     this.serviceLocator = mock(ServiceLocator.class);
-    this.adminRestApp = new AdminRestApp(serviceLocator, CONTEXT_NAME);
+    this.adminRestApp = new AdminRestApp(serviceLocator);
   }
 
   @After
@@ -39,13 +37,13 @@ public class AdminRestAppTest {
     services.add(new ConfigResource(mock(ConfigService.class), mock(PartyInfoService.class)));
     services.add(new IPWhitelistFilter(mock(ConfigService.class)));
 
-    when(serviceLocator.getServices(CONTEXT_NAME)).thenReturn(services);
+    when(serviceLocator.getServices()).thenReturn(services);
 
     Set<Object> results = this.adminRestApp.getSingletons();
 
     assertThat(results).containsExactlyInAnyOrderElementsOf(services);
 
-    verify(serviceLocator).getServices(CONTEXT_NAME);
+    verify(serviceLocator).getServices();
   }
 
   @Test

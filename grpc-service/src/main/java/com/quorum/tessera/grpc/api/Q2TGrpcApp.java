@@ -8,11 +8,11 @@ import com.quorum.tessera.service.locator.ServiceLocator;
 public class Q2TGrpcApp extends GrpcApp implements TesseraApp {
 
   public Q2TGrpcApp() {
-    this(ServiceLocator.create(), "tessera-core-spring.xml");
+    this(ServiceLocator.create());
   }
 
-  public Q2TGrpcApp(ServiceLocator serviceLocator, String contextName) {
-    super(serviceLocator, contextName);
+  public Q2TGrpcApp(ServiceLocator serviceLocator) {
+    super(serviceLocator);
   }
 
   @Override
