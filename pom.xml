@@ -433,7 +433,7 @@
                         <id>reformat-sources</id>
                         <configuration>
                             <includeStale>false</includeStale>
-                            <style>GOOGLE</style>
+                            <style>AOSP</style>
                             <formatMain>true</formatMain>
                             <formatTest>true</formatTest>
                             <filterModified>true</filterModified>
@@ -441,6 +441,7 @@
                             <fixImports>false</fixImports>
                             <maxLineLength>120</maxLineLength>
                             <indentSize>4</indentSize>
+                            
                         </configuration>
                         <goals>
                             <goal>format</goal>
