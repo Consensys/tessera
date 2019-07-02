@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.api.exception;
 
 import com.quorum.tessera.util.exception.DecodingException;
@@ -14,7 +13,6 @@ public class DecodingExceptionMapperTest {
 
     @Test
     public void toResponse() {
-
         final Throwable cause = new Exception("OUCH");
         final DecodingException decodingException = new DecodingException(cause);
 
@@ -26,7 +24,6 @@ public class DecodingExceptionMapperTest {
 
         assertThat(message).isEqualTo("java.lang.Exception: OUCH");
         assertThat(result.getStatus()).isEqualTo(400);
-
     }
 
 }
