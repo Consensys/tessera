@@ -23,7 +23,6 @@ public class WebApplicationExceptionMapperTest {
 
     @Test
     public void otherCauseGets500() {
-
         final RuntimeException cause = new RuntimeException("OtherMessage message");
         final WebApplicationException exception = new WebApplicationException(cause);
 
@@ -34,7 +33,6 @@ public class WebApplicationExceptionMapperTest {
 
     @Test
     public void unmarshalExceptionCauseGets400() {
-
         final UnmarshalException cause = new UnmarshalException("Unmarshal message");
         final WebApplicationException exception = new WebApplicationException(cause);
 
@@ -42,6 +40,5 @@ public class WebApplicationExceptionMapperTest {
 
         assertThat(response.getStatus()).isEqualTo(400);
     }
-
 
 }

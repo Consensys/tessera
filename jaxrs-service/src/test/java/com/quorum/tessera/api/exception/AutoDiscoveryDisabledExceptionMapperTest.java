@@ -1,27 +1,23 @@
 package com.quorum.tessera.api.exception;
 
 import com.quorum.tessera.partyinfo.AutoDiscoveryDisabledException;
-import javax.ws.rs.core.Response;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Before;
 import org.junit.Test;
+
+import javax.ws.rs.core.Response;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AutoDiscoveryDisabledExceptionMapperTest {
 
-    private AutoDiscoveryDisabledExceptionMapper mapper;
-
-    @Before
-    public void onSetUp() {
-        mapper = new AutoDiscoveryDisabledExceptionMapper();
-    }
+    private AutoDiscoveryDisabledExceptionMapper mapper = new AutoDiscoveryDisabledExceptionMapper();
 
     @Test
     public void handleAutoDiscoveryDisabledException() {
-        String message = ".. all outta gum";
-        AutoDiscoveryDisabledException exception = 
-                new AutoDiscoveryDisabledException(message);
+        final String message = ".. all outta gum";
+        final AutoDiscoveryDisabledException exception
+            = new AutoDiscoveryDisabledException(message);
 
-        Response result = mapper.toResponse(exception);
+        final Response result = mapper.toResponse(exception);
         
         assertThat(result.getStatus()).isEqualTo(403);
         assertThat(result.getEntity()).isEqualTo(message);

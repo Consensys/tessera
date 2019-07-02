@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.api.exception;
 
 import org.junit.Test;
@@ -9,20 +8,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultExceptionMapperTest {
 
-    private DefaultExceptionMapper instance = new DefaultExceptionMapper();
+    private DefaultExceptionMapper exceptionMapper = new DefaultExceptionMapper();
 
     @Test
     public void toResponse() {
+        final Throwable exception = new Exception("Ouch");
 
-        final String message = "OUCH That's gotta smart!!";
+        final Response result = exceptionMapper.toResponse(exception);
 
-        Exception exception = new Exception(message);
-
-        Response result = instance.toResponse(exception);
-
-        assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(500);
-        assertThat(result.getEntity()).isEqualTo(message);
-
+        assertThat(result.getEntity()).isEqualTo("Ouch");
     }
+
+    @Test
+    public void toResponseNestedCause() {
+        final Throwable nested = new Exception("Ouch");
+        final Throwable exception = new Exception(nested);
+
+        final Response result = exceptionMapper.toResponse(exception);
+
+        assertThat(result.getStatus()).isEqualTo(500);
+        assertThat(result.getEntity()).isEqualTo("Ouch");
+    }
+
 }

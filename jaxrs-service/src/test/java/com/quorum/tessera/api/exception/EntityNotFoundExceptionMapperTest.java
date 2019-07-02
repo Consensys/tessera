@@ -13,17 +13,15 @@ public class EntityNotFoundExceptionMapperTest {
 
     @Test
     public void toResponse() {
-
         final String message = "OUCH That's gotta smart!!";
 
-        EntityNotFoundException exception = new EntityNotFoundException(message);
+        final EntityNotFoundException exception = new EntityNotFoundException(message);
 
-        Response result = instance.toResponse(exception);
+        final Response result = instance.toResponse(exception);
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(404);
         assertThat(result.getEntity()).isEqualTo(message);
-
     }
 
 }

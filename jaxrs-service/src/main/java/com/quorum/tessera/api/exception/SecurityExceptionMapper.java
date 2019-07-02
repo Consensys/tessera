@@ -11,9 +11,10 @@ public class SecurityExceptionMapper implements ExceptionMapper<SecurityExceptio
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityExceptionMapper.class);
 
     @Override
-    public Response toResponse(SecurityException exception) {
-        LOGGER.error("Security exception",exception);
-        //Return 500 assume access attempt is malicous
+    public Response toResponse(final SecurityException exception) {
+        LOGGER.error("Security exception", exception);
+
+        //Return 500 assume access attempt is malicious
         return Response.serverError().build();
     }
 }
