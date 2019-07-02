@@ -18,6 +18,12 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>encryption-api</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.jpmorgan.quorum</groupId>
+                    <artifactId>service-locator-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -133,11 +139,7 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>service-locator-spring</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+
 
         <dependency>
             <groupId>org.slf4j</groupId>
