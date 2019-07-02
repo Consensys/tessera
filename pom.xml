@@ -436,7 +436,7 @@
                             <style>AOSP</style>
                             <formatMain>true</formatMain>
                             <formatTest>true</formatTest>
-                            <filterModified>false</filterModified>
+                            <filterModified>true</filterModified>
                             <skip>false</skip>
                             <fixImports>false</fixImports>
                             <maxLineLength>120</maxLineLength>
