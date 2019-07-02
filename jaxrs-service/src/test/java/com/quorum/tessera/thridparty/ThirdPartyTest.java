@@ -14,38 +14,38 @@ import static org.mockito.Mockito.*;
 
 public class ThirdPartyTest {
 
-  private ServiceLocator serviceLocator;
+    private ServiceLocator serviceLocator;
 
-  private ThirdPartyRestApp thirdParty;
+    private ThirdPartyRestApp thirdParty;
 
-  @Before
-  public void setUp() {
-    serviceLocator = mock(ServiceLocator.class);
-    thirdParty = new ThirdPartyRestApp(serviceLocator);
-  }
+    @Before
+    public void setUp() {
+        serviceLocator = mock(ServiceLocator.class);
+        thirdParty = new ThirdPartyRestApp(serviceLocator);
+    }
 
-  @After
-  public void tearDown() {
-    verifyNoMoreInteractions(serviceLocator);
-  }
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(serviceLocator);
+    }
 
-  @Test
-  public void getSingletons() {
-    Set services = new HashSet();
-    services.add(mock(IPWhitelistFilter.class));
-    services.add(mock(RawTransactionResource.class));
+    @Test
+    public void getSingletons() {
+        Set services = new HashSet();
+        services.add(mock(IPWhitelistFilter.class));
+        services.add(mock(RawTransactionResource.class));
 
-    when(serviceLocator.getServices()).thenReturn(services);
+        when(serviceLocator.getServices()).thenReturn(services);
 
-    Set<Object> results = thirdParty.getSingletons();
+        Set<Object> results = thirdParty.getSingletons();
 
-    assertThat(results).containsExactlyElementsOf(services);
+        assertThat(results).containsExactlyElementsOf(services);
 
-    verify(serviceLocator).getServices();
-  }
+        verify(serviceLocator).getServices();
+    }
 
-  @Test
-  public void appType() {
-    assertThat(thirdParty.getAppType()).isEqualTo(AppType.THIRD_PARTY);
-  }
+    @Test
+    public void appType() {
+        assertThat(thirdParty.getAppType()).isEqualTo(AppType.THIRD_PARTY);
+    }
 }

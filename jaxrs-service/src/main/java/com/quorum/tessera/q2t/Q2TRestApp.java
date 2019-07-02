@@ -20,32 +20,32 @@ import javax.ws.rs.ApplicationPath;
 @ApplicationPath("/")
 public class Q2TRestApp extends TesseraRestApplication {
 
-  private final ServiceLocator serviceLocator;
+    private final ServiceLocator serviceLocator;
 
-  public Q2TRestApp() {
-    this(ServiceLocator.create());
-  }
+    public Q2TRestApp() {
+        this(ServiceLocator.create());
+    }
 
-  public Q2TRestApp(ServiceLocator serviceLocator) {
-    this.serviceLocator = serviceLocator;
-  }
+    public Q2TRestApp(ServiceLocator serviceLocator) {
+        this.serviceLocator = serviceLocator;
+    }
 
-  @Override
-  public Set<Object> getSingletons() {
+    @Override
+    public Set<Object> getSingletons() {
 
-    Predicate<Object> isIPWhitelistFilter = o -> IPWhitelistFilter.class.isInstance(o);
-    Predicate<Object> isTransactionResource = o -> TransactionResource.class.isInstance(o);
+        Predicate<Object> isIPWhitelistFilter = o -> IPWhitelistFilter.class.isInstance(o);
+        Predicate<Object> isTransactionResource = o -> TransactionResource.class.isInstance(o);
 
-    return serviceLocator.getServices().stream()
-        .filter(Objects::nonNull)
-        .filter(o -> Objects.nonNull(o.getClass()))
-        .filter(o -> Objects.nonNull(o.getClass().getPackage()))
-        .filter(isTransactionResource.or(isIPWhitelistFilter))
-        .collect(Collectors.toSet());
-  }
+        return serviceLocator.getServices().stream()
+                .filter(Objects::nonNull)
+                .filter(o -> Objects.nonNull(o.getClass()))
+                .filter(o -> Objects.nonNull(o.getClass().getPackage()))
+                .filter(isTransactionResource.or(isIPWhitelistFilter))
+                .collect(Collectors.toSet());
+    }
 
-  @Override
-  public AppType getAppType() {
-    return AppType.Q2T;
-  }
+    @Override
+    public AppType getAppType() {
+        return AppType.Q2T;
+    }
 }

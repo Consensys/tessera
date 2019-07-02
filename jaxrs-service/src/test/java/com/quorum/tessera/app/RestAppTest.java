@@ -16,41 +16,41 @@ import static org.mockito.Mockito.*;
 
 public class RestAppTest {
 
-  private ServiceLocator serviceLocator;
+    private ServiceLocator serviceLocator;
 
-  private P2PRestApp p2PRestApp;
+    private P2PRestApp p2PRestApp;
 
-  @Before
-  public void setUp() {
-    serviceLocator = mock(ServiceLocator.class);
-    p2PRestApp = new P2PRestApp(serviceLocator);
-  }
-
-  @After
-  public void tearDown() {
-    verifyNoMoreInteractions(serviceLocator);
-  }
-
-  @Test
-  public void getSingletons() {
-    p2PRestApp.getSingletons();
-    verify(serviceLocator).getServices();
-  }
-
-  @Test
-  public void createWithNoServiceLocator() {
-
-    final Throwable throwable = catchThrowable(() -> new P2PRestApp(null));
-    assertThat(throwable).isInstanceOf(NullPointerException.class);
-  }
-
-  @Test
-  public void constructWithEmptyConstructor() throws Exception {
-
-    Class[] clazzes = new Class[] {P2PRestApp.class, Q2TRestApp.class, ThirdPartyRestApp.class, AdminRestApp.class};
-
-    for (Class c : clazzes) {
-      assertThat(c.getDeclaredConstructor().newInstance()).describedAs(c.toString()).isNotNull();
+    @Before
+    public void setUp() {
+        serviceLocator = mock(ServiceLocator.class);
+        p2PRestApp = new P2PRestApp(serviceLocator);
     }
-  }
+
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(serviceLocator);
+    }
+
+    @Test
+    public void getSingletons() {
+        p2PRestApp.getSingletons();
+        verify(serviceLocator).getServices();
+    }
+
+    @Test
+    public void createWithNoServiceLocator() {
+
+        final Throwable throwable = catchThrowable(() -> new P2PRestApp(null));
+        assertThat(throwable).isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    public void constructWithEmptyConstructor() throws Exception {
+
+        Class[] clazzes = new Class[] {P2PRestApp.class, Q2TRestApp.class, ThirdPartyRestApp.class, AdminRestApp.class};
+
+        for (Class c : clazzes) {
+            assertThat(c.getDeclaredConstructor().newInstance()).describedAs(c.toString()).isNotNull();
+        }
+    }
 }

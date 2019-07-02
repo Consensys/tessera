@@ -8,10 +8,9 @@ import javax.websocket.EncodeException;
 
 @FunctionalInterface
 public interface WebSocketSessionCallback<T> {
-    
-    T doExecute() throws EncodeException,DeploymentException,IOException,DecodeException;
-    
-    
+
+    T doExecute() throws EncodeException, DeploymentException, IOException, DecodeException;
+
     static <T> T execute(WebSocketSessionCallback<T> callback) {
         try {
             return callback.doExecute();

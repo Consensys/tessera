@@ -4,5 +4,5 @@ import com.quorum.tessera.config.AppType;
 
 public interface TesseraApp {
 
-  AppType getAppType();
+    AppType getAppType();
 }

@@ -23,47 +23,48 @@ import org.slf4j.LoggerFactory;
 
 public class PartyInfoSyncIT {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoSyncIT.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoSyncIT.class);
 
-  private PartyInfoService partyInfoService;
+    private PartyInfoService partyInfoService;
 
-  private Server server;
+    private Server server;
 
-  @Before
-  public void onSetUp() throws Exception {
+    @Before
+    public void onSetUp() throws Exception {
 
-    partyInfoService = mock(PartyInfoService.class);
+        partyInfoService = mock(PartyInfoService.class);
 
-    Optional.of(partyInfoService).map(PartyInfoServiceHolder::new).get();
+        Optional.of(partyInfoService).map(PartyInfoServiceHolder::new).get();
 
-    server = new Server("localhost", 8025, "/", null, PartyInfoEndpoint.class);
-    server.start();
-  }
+        server = new Server("localhost", 8025, "/", null, PartyInfoEndpoint.class);
+        server.start();
+    }
 
-  @After
-  public void onTearDown() {
-    server.stop();
-  }
+    @After
+    public void onTearDown() {
+        server.stop();
+    }
 
-  @Test
-  public void doStuff() throws Exception {
+    @Test
+    public void doStuff() throws Exception {
 
-    WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
 
-    PartyInfoClientEndpoint client = new PartyInfoClientEndpoint(partyInfoService);
+        PartyInfoClientEndpoint client = new PartyInfoClientEndpoint(partyInfoService);
 
-    Session clientSession = container.connectToServer(client, URI.create("ws://localhost:8025/sync"));
-    LOGGER.info("Client sesssion : {}", clientSession.getId());
-    PublicKey publicKey = PublicKey.from(Base64.getDecoder().decode("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc="));
+        Session clientSession = container.connectToServer(client, URI.create("ws://localhost:8025/sync"));
+        LOGGER.info("Client sesssion : {}", clientSession.getId());
+        PublicKey publicKey =
+                PublicKey.from(Base64.getDecoder().decode("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc="));
 
-    PartyInfo partyInfo =
-        new PartyInfo(
-            "http://bogus.com:9999",
-            Collections.singleton(new Recipient(publicKey, "http://bogus.com:9998")),
-            Collections.singleton(new Party("http://bogus.com:9997")));
+        PartyInfo partyInfo =
+                new PartyInfo(
+                        "http://bogus.com:9999",
+                        Collections.singleton(new Recipient(publicKey, "http://bogus.com:9998")),
+                        Collections.singleton(new Party("http://bogus.com:9997")));
 
-    clientSession.getBasicRemote().sendObject(partyInfo);
+        clientSession.getBasicRemote().sendObject(partyInfo);
 
-    assertThat(server).isNotNull();
-  }
+        assertThat(server).isNotNull();
+    }
 }

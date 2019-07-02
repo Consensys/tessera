@@ -17,32 +17,32 @@ import javax.ws.rs.ApplicationPath;
 @ApplicationPath("/")
 public class AdminRestApp extends TesseraRestApplication {
 
-  private final ServiceLocator serviceLocator;
+    private final ServiceLocator serviceLocator;
 
-  public AdminRestApp() {
-    this(ServiceLocator.create());
-  }
+    public AdminRestApp() {
+        this(ServiceLocator.create());
+    }
 
-  public AdminRestApp(ServiceLocator serviceLocator) {
-    this.serviceLocator = serviceLocator;
-  }
+    public AdminRestApp(ServiceLocator serviceLocator) {
+        this.serviceLocator = serviceLocator;
+    }
 
-  @Override
-  public Set<Object> getSingletons() {
+    @Override
+    public Set<Object> getSingletons() {
 
-    Predicate<Object> isConfigResource = o -> ConfigResource.class.isInstance(o);
-    Predicate<Object> isIPWhitelistFilter = o -> IPWhitelistFilter.class.isInstance(o);
+        Predicate<Object> isConfigResource = o -> ConfigResource.class.isInstance(o);
+        Predicate<Object> isIPWhitelistFilter = o -> IPWhitelistFilter.class.isInstance(o);
 
-    return serviceLocator.getServices().stream()
-        .filter(Objects::nonNull)
-        .filter(o -> Objects.nonNull(o.getClass()))
-        .filter(o -> Objects.nonNull(o.getClass().getPackage()))
-        .filter(isConfigResource.or(isIPWhitelistFilter))
-        .collect(Collectors.toSet());
-  }
+        return serviceLocator.getServices().stream()
+                .filter(Objects::nonNull)
+                .filter(o -> Objects.nonNull(o.getClass()))
+                .filter(o -> Objects.nonNull(o.getClass().getPackage()))
+                .filter(isConfigResource.or(isIPWhitelistFilter))
+                .collect(Collectors.toSet());
+    }
 
-  @Override
-  public AppType getAppType() {
-    return AppType.ADMIN;
-  }
+    @Override
+    public AppType getAppType() {
+        return AppType.ADMIN;
+    }
 }

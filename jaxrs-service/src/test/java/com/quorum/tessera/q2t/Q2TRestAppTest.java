@@ -14,39 +14,39 @@ import static org.mockito.Mockito.*;
 
 public class Q2TRestAppTest {
 
-  private ServiceLocator serviceLocator;
+    private ServiceLocator serviceLocator;
 
-  private Q2TRestApp q2TRestApp;
+    private Q2TRestApp q2TRestApp;
 
-  @Before
-  public void setUp() {
-    serviceLocator = mock(ServiceLocator.class);
-    q2TRestApp = new Q2TRestApp(serviceLocator);
-  }
+    @Before
+    public void setUp() {
+        serviceLocator = mock(ServiceLocator.class);
+        q2TRestApp = new Q2TRestApp(serviceLocator);
+    }
 
-  @After
-  public void tearDown() {
-    verifyNoMoreInteractions(serviceLocator);
-  }
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(serviceLocator);
+    }
 
-  @Test
-  public void getSingletons() {
+    @Test
+    public void getSingletons() {
 
-    Set services = new HashSet();
-    services.add(mock(IPWhitelistFilter.class));
-    services.add(mock(TransactionResource.class));
+        Set services = new HashSet();
+        services.add(mock(IPWhitelistFilter.class));
+        services.add(mock(TransactionResource.class));
 
-    when(serviceLocator.getServices()).thenReturn(services);
+        when(serviceLocator.getServices()).thenReturn(services);
 
-    Set<Object> results = q2TRestApp.getSingletons();
+        Set<Object> results = q2TRestApp.getSingletons();
 
-    assertThat(results).containsExactlyElementsOf(services);
+        assertThat(results).containsExactlyElementsOf(services);
 
-    verify(serviceLocator).getServices();
-  }
+        verify(serviceLocator).getServices();
+    }
 
-  @Test
-  public void appType() {
-    assertThat(q2TRestApp.getAppType()).isEqualTo(AppType.Q2T);
-  }
+    @Test
+    public void appType() {
+        assertThat(q2TRestApp.getAppType()).isEqualTo(AppType.Q2T);
+    }
 }

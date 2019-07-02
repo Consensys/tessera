@@ -14,57 +14,57 @@ import static org.mockito.Mockito.*;
 
 public class PartyInfoEndpointTest {
 
-  private PartyInfoEndpoint partyInfoEndpoint;
+    private PartyInfoEndpoint partyInfoEndpoint;
 
-  private Session session;
+    private Session session;
 
-  private PartyInfoService partyInfoService;
+    private PartyInfoService partyInfoService;
 
-  @Before
-  public void onSetUp() {
+    @Before
+    public void onSetUp() {
 
-    partyInfoService = mock(PartyInfoService.class);
+        partyInfoService = mock(PartyInfoService.class);
 
-    partyInfoEndpoint = new PartyInfoEndpoint(partyInfoService);
-    session = mock(Session.class);
-    when(session.getId()).thenReturn(UUID.randomUUID().toString());
-  }
+        partyInfoEndpoint = new PartyInfoEndpoint(partyInfoService);
+        session = mock(Session.class);
+        when(session.getId()).thenReturn(UUID.randomUUID().toString());
+    }
 
-  @After
-  public void onTearDown() {
-    verifyNoMoreInteractions(partyInfoService);
-  }
+    @After
+    public void onTearDown() {
+        verifyNoMoreInteractions(partyInfoService);
+    }
 
-  @Test
-  public void onOpenAndThenClose() throws URISyntaxException {
+    @Test
+    public void onOpenAndThenClose() throws URISyntaxException {
 
-    String uri = "http://somedomain.com";
+        String uri = "http://somedomain.com";
 
-    when(session.getRequestURI()).thenReturn(new URI(uri));
+        when(session.getRequestURI()).thenReturn(new URI(uri));
 
-    partyInfoEndpoint.onOpen(session);
+        partyInfoEndpoint.onOpen(session);
 
-    assertThat(partyInfoEndpoint.getSessions()).containsOnly(session);
+        assertThat(partyInfoEndpoint.getSessions()).containsOnly(session);
 
-    partyInfoEndpoint.onClose(session);
-    assertThat(partyInfoEndpoint.getSessions()).isEmpty();
+        partyInfoEndpoint.onClose(session);
+        assertThat(partyInfoEndpoint.getSessions()).isEmpty();
 
-    verify(partyInfoService).removeRecipient(uri);
-  }
+        verify(partyInfoService).removeRecipient(uri);
+    }
 
-  @Test
-  public void onSync() throws Exception {
+    @Test
+    public void onSync() throws Exception {
 
-    PartyInfo partyInfo = mock(PartyInfo.class);
+        PartyInfo partyInfo = mock(PartyInfo.class);
 
-    PartyInfo updatedPartyInfo = mock(PartyInfo.class);
+        PartyInfo updatedPartyInfo = mock(PartyInfo.class);
 
-    when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(updatedPartyInfo);
+        when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(updatedPartyInfo);
 
-    PartyInfo result = partyInfoEndpoint.onSync(session, partyInfo);
+        PartyInfo result = partyInfoEndpoint.onSync(session, partyInfo);
 
-    assertThat(result).isNotNull().isSameAs(updatedPartyInfo);
+        assertThat(result).isNotNull().isSameAs(updatedPartyInfo);
 
-    verify(partyInfoService).updatePartyInfo(partyInfo);
-  }
+        verify(partyInfoService).updatePartyInfo(partyInfo);
+    }
 }

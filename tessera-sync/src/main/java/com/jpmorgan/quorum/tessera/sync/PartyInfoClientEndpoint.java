@@ -19,45 +19,45 @@ import org.slf4j.LoggerFactory;
 @ClientEndpoint(decoders = PartyInfoCodec.class, encoders = PartyInfoCodec.class)
 public class PartyInfoClientEndpoint extends ClientEndpointConfig.Configurator {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoClientEndpoint.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoClientEndpoint.class);
 
-  private final PartyInfoService partyInfoService;
+    private final PartyInfoService partyInfoService;
 
-  public PartyInfoClientEndpoint(PartyInfoService partyInfoService) {
-    this.partyInfoService = Objects.requireNonNull(partyInfoService);
-  }
+    public PartyInfoClientEndpoint(PartyInfoService partyInfoService) {
+        this.partyInfoService = Objects.requireNonNull(partyInfoService);
+    }
 
-  @OnOpen
-  public void onOpen(Session session) {
-    LOGGER.info("Session id : {}", session.getId());
-  }
+    @OnOpen
+    public void onOpen(Session session) {
+        LOGGER.info("Session id : {}", session.getId());
+    }
 
-  @OnMessage
-  public void onMessage(Session session, PartyInfo partyInfo) {
+    @OnMessage
+    public void onMessage(Session session, PartyInfo partyInfo) {
 
-    LOGGER.info("Client received message: {} {}", session.getId(), partyInfo);
+        LOGGER.info("Client received message: {} {}", session.getId(), partyInfo);
 
-    PartyInfo existingPartyInfo = partyInfoService.getPartyInfo();
+        PartyInfo existingPartyInfo = partyInfoService.getPartyInfo();
 
-    WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
 
-    partyInfo.getRecipients().stream()
-        .filter(r -> !existingPartyInfo.getRecipients().contains(r))
-        .map(r -> r.getUrl())
-        .map(URI::create)
-        .forEach(
-            u -> {
-              WebSocketSessionCallback.execute(
-                  () -> {
-                    Session s = container.connectToServer(this, u);
-                    s.getBasicRemote().sendObject(partyInfo);
-                    return null;
-                  });
-            });
-  }
+        partyInfo.getRecipients().stream()
+                .filter(r -> !existingPartyInfo.getRecipients().contains(r))
+                .map(r -> r.getUrl())
+                .map(URI::create)
+                .forEach(
+                        u -> {
+                            WebSocketSessionCallback.execute(
+                                    () -> {
+                                        Session s = container.connectToServer(this, u);
+                                        s.getBasicRemote().sendObject(partyInfo);
+                                        return null;
+                                    });
+                        });
+    }
 
-  @OnClose
-  public void onClose(Session session, CloseReason reason) {
-    LOGGER.info("Closing session : {} because {}", session.getId(), reason);
-  }
+    @OnClose
+    public void onClose(Session session, CloseReason reason) {
+        LOGGER.info("Closing session : {} because {}", session.getId(), reason);
+    }
 }

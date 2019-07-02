@@ -10,19 +10,19 @@ import java.util.stream.Stream;
 /** A Spring implementation of the Service Locator that accepts xml bean definition files */
 public class SpringServiceLocator implements ServiceLocator {
 
-  private static ApplicationContext context;
+    private static ApplicationContext context;
 
-  /**
-   * If the Spring context is already established, then returns the previously generated set of beans
-   *
-   * <p>{@inheritDoc}
-   */
-  @Override
-  public Set<Object> getServices() {
-    if (context == null) {
-      context = new ClassPathXmlApplicationContext("tessera-spring.xml");
+    /**
+     * If the Spring context is already established, then returns the previously generated set of beans
+     *
+     * <p>{@inheritDoc}
+     */
+    @Override
+    public Set<Object> getServices() {
+        if (context == null) {
+            context = new ClassPathXmlApplicationContext("tessera-spring.xml");
+        }
+
+        return Stream.of(context.getBeanDefinitionNames()).map(context::getBean).collect(Collectors.toSet());
     }
-
-    return Stream.of(context.getBeanDefinitionNames()).map(context::getBean).collect(Collectors.toSet());
-  }
 }

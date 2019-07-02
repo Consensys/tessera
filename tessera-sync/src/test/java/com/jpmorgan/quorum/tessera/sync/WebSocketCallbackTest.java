@@ -12,27 +12,30 @@ public class WebSocketCallbackTest {
     public void execute() {
 
         String expectedOutput = "Expected Output";
-        String result = WebSocketSessionCallback.execute(() -> {
-            return expectedOutput;
-        });
+        String result =
+                WebSocketSessionCallback.execute(
+                        () -> {
+                            return expectedOutput;
+                        });
 
         assertThat(result).isEqualTo(expectedOutput);
     }
 
     @Test(expected = UncheckedWebSocketException.class)
     public void exeuteThrowsEncodeException() {
-        
-        WebSocketSessionCallback.execute(() -> {
-            throw new EncodeException(this, "Ouch that's gotta smart!!");
-        });
 
+        WebSocketSessionCallback.execute(
+                () -> {
+                    throw new EncodeException(this, "Ouch that's gotta smart!!");
+                });
     }
+
     @Test(expected = UncheckedIOException.class)
     public void exeuteThrowsIOException() {
-        
-        WebSocketSessionCallback.execute(() -> {
-            throw new IOException("Ouch that's gotta smart!!");
-        });
 
+        WebSocketSessionCallback.execute(
+                () -> {
+                    throw new IOException("Ouch that's gotta smart!!");
+                });
     }
 }

@@ -26,130 +26,130 @@ import static org.mockito.Mockito.*;
 
 public class EnclaveApplicationTest {
 
-  private Enclave enclave;
+    private Enclave enclave;
 
-  private JerseyTest jersey;
+    private JerseyTest jersey;
 
-  private RestfulEnclaveClient restfulEnclaveClient;
+    private RestfulEnclaveClient restfulEnclaveClient;
 
-  @Before
-  public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 
-    enclave = mock(Enclave.class);
-    when(enclave.status()).thenReturn(Service.Status.STARTED);
-    jersey = Util.create(enclave);
+        enclave = mock(Enclave.class);
+        when(enclave.status()).thenReturn(Service.Status.STARTED);
+        jersey = Util.create(enclave);
 
-    jersey.setUp();
+        jersey.setUp();
 
-    restfulEnclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri());
-  }
+        restfulEnclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri());
+    }
 
-  @After
-  public void tearDown() throws Exception {
-    Mockito.verifyNoMoreInteractions(enclave);
-    jersey.tearDown();
-  }
+    @After
+    public void tearDown() throws Exception {
+        Mockito.verifyNoMoreInteractions(enclave);
+        jersey.tearDown();
+    }
 
-  @Test
-  public void ping() throws Exception {
+    @Test
+    public void ping() throws Exception {
 
-    Response response = jersey.target("ping").request().get();
-    assertThat(response.getStatus()).isEqualTo(200);
-    assertThat(response.readEntity(String.class)).isNotEmpty();
-    verify(enclave).status();
-  }
+        Response response = jersey.target("ping").request().get();
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.readEntity(String.class)).isNotEmpty();
+        verify(enclave).status();
+    }
 
-  @Test
-  public void pingServerDown() throws Exception {
+    @Test
+    public void pingServerDown() throws Exception {
 
-    when(enclave.status()).thenReturn(Service.Status.STOPPED);
+        when(enclave.status()).thenReturn(Service.Status.STOPPED);
 
-    Response response = jersey.target("ping").request().get();
-    assertThat(response.getStatus()).isEqualTo(503);
-    assertThat(response.readEntity(String.class)).isEqualTo(Service.Status.STOPPED.name());
-    verify(enclave).status();
-  }
+        Response response = jersey.target("ping").request().get();
+        assertThat(response.getStatus()).isEqualTo(503);
+        assertThat(response.readEntity(String.class)).isEqualTo(Service.Status.STOPPED.name());
+        verify(enclave).status();
+    }
 
-  @Test
-  public void encryptPayload() {
-    byte[] message = "SOMEDATA".getBytes();
-    EncodedPayload pay = createSample();
+    @Test
+    public void encryptPayload() {
+        byte[] message = "SOMEDATA".getBytes();
+        EncodedPayload pay = createSample();
 
-    List<byte[]> results = new ArrayList<>();
-    doAnswer(
-            (invocation) -> {
-              results.add(invocation.getArgument(0));
-              return pay;
-            })
-        .when(enclave)
-        .encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+        List<byte[]> results = new ArrayList<>();
+        doAnswer(
+                        (invocation) -> {
+                            results.add(invocation.getArgument(0));
+                            return pay;
+                        })
+                .when(enclave)
+                .encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
 
-    PublicKey senderPublicKey = pay.getSenderKey();
-    List<PublicKey> recipientPublicKeys = pay.getRecipientKeys();
+        PublicKey senderPublicKey = pay.getSenderKey();
+        List<PublicKey> recipientPublicKeys = pay.getRecipientKeys();
 
-    EncodedPayload result = restfulEnclaveClient.encryptPayload(message, senderPublicKey, recipientPublicKeys);
+        EncodedPayload result = restfulEnclaveClient.encryptPayload(message, senderPublicKey, recipientPublicKeys);
 
-    assertThat(result.getSenderKey()).isNotNull().isEqualTo(pay.getSenderKey());
+        assertThat(result.getSenderKey()).isNotNull().isEqualTo(pay.getSenderKey());
 
-    assertThat(result.getCipherTextNonce().getNonceBytes())
-        .isNotNull()
-        .isEqualTo(pay.getCipherTextNonce().getNonceBytes());
+        assertThat(result.getCipherTextNonce().getNonceBytes())
+                .isNotNull()
+                .isEqualTo(pay.getCipherTextNonce().getNonceBytes());
 
-    assertThat(result.getCipherText()).isNotNull().isEqualTo(pay.getCipherText());
+        assertThat(result.getCipherText()).isNotNull().isEqualTo(pay.getCipherText());
 
-    assertThat(result.getRecipientKeys()).isNotNull().isEqualTo(pay.getRecipientKeys());
+        assertThat(result.getRecipientKeys()).isNotNull().isEqualTo(pay.getRecipientKeys());
 
-    byte[] resultBytes = PayloadEncoder.create().encode(result);
+        byte[] resultBytes = PayloadEncoder.create().encode(result);
 
-    assertThat(resultBytes).isEqualTo(PayloadEncoder.create().encode(pay));
+        assertThat(resultBytes).isEqualTo(PayloadEncoder.create().encode(pay));
 
-    assertThat(results.get(0)).isEqualTo(message);
+        assertThat(results.get(0)).isEqualTo(message);
 
-    verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
-  }
+        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+    }
 
-  @Test
-  public void unencryptPayload() {
+    @Test
+    public void unencryptPayload() {
 
-    Map<PublicKey, EncodedPayload> payloads = new HashMap<>();
+        Map<PublicKey, EncodedPayload> payloads = new HashMap<>();
 
-    doAnswer(
-            (invocation) -> {
-              payloads.put(invocation.getArgument(1), invocation.getArgument(0));
-              return "SOMERESULT".getBytes();
-            })
-        .when(enclave)
-        .unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
+        doAnswer(
+                        (invocation) -> {
+                            payloads.put(invocation.getArgument(1), invocation.getArgument(0));
+                            return "SOMERESULT".getBytes();
+                        })
+                .when(enclave)
+                .unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
 
-    EncodedPayload payload = createSample();
+        EncodedPayload payload = createSample();
 
-    PublicKey providedKey = payload.getSenderKey();
+        PublicKey providedKey = payload.getSenderKey();
 
-    byte[] results = restfulEnclaveClient.unencryptTransaction(payload, providedKey);
+        byte[] results = restfulEnclaveClient.unencryptTransaction(payload, providedKey);
 
-    assertThat(results).isNotNull().isEqualTo("SOMERESULT".getBytes());
+        assertThat(results).isNotNull().isEqualTo("SOMERESULT".getBytes());
 
-    assertThat(payloads).hasSize(1);
+        assertThat(payloads).hasSize(1);
 
-    assertThat(payloads.keySet().iterator().next()).isEqualTo(providedKey);
+        assertThat(payloads.keySet().iterator().next()).isEqualTo(providedKey);
 
-    EncodedPayload resultPayload = payloads.values().iterator().next();
+        EncodedPayload resultPayload = payloads.values().iterator().next();
 
-    assertThat(resultPayload.getSenderKey()).isNotNull().isEqualTo(payload.getSenderKey());
+        assertThat(resultPayload.getSenderKey()).isNotNull().isEqualTo(payload.getSenderKey());
 
-    assertThat(resultPayload.getCipherTextNonce().getNonceBytes())
-        .isNotNull()
-        .isEqualTo(payload.getCipherTextNonce().getNonceBytes());
+        assertThat(resultPayload.getCipherTextNonce().getNonceBytes())
+                .isNotNull()
+                .isEqualTo(payload.getCipherTextNonce().getNonceBytes());
 
-    assertThat(resultPayload.getCipherText()).isNotNull().isEqualTo(payload.getCipherText());
+        assertThat(resultPayload.getCipherText()).isNotNull().isEqualTo(payload.getCipherText());
 
-    assertThat(resultPayload.getRecipientKeys()).isNotNull().isEqualTo(payload.getRecipientKeys());
+        assertThat(resultPayload.getRecipientKeys()).isNotNull().isEqualTo(payload.getRecipientKeys());
 
-    verify(enclave).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
-  }
+        verify(enclave).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
+    }
 
-  @Test
-  public void appType() {
-    assertThat(new EnclaveApplication(mock(EnclaveResource.class)).getAppType()).isEqualTo(AppType.ENCLAVE);
-  }
+    @Test
+    public void appType() {
+        assertThat(new EnclaveApplication(mock(EnclaveResource.class)).getAppType()).isEqualTo(AppType.ENCLAVE);
+    }
 }
