@@ -4,13 +4,9 @@
     "serverConfigs": [{
             "app": "ENCLAVE",
             "enabled": true,
-            "serverSocket": {
-                "type": "INET",
-                "hostName": "http://localhost",
-                "port": 8080
-            },
             "communicationType": "REST",
-            "bindingAddress": "http://0.0.0.0:8080"
+            "bindingAddress": "http://0.0.0.0:8080",
+            "serverAddress": "http://localhost:8080"
         }],
     "keys": {
         "keyData": [{
