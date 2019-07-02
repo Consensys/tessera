@@ -11,17 +11,17 @@ public class TrustAllManagerTest {
     @Test
     public void testCheckServerTrusted() {
         trustAllManager.checkServerTrusted(null, null);
-        //Nothing to check here - allow all servers to connect
+        // Nothing to check here - allow all servers to connect
     }
 
     @Test
     public void testCheckClientTrusted() {
         trustAllManager.checkClientTrusted(null, null);
-        //Nothing to check here - allow all clients to connect
+        // Nothing to check here - allow all clients to connect
     }
 
     @Test
-    public void testGetAcceptedIssuers(){
+    public void testGetAcceptedIssuers() {
         assertThat(trustAllManager.getAcceptedIssuers()).isEmpty();
     }
 }

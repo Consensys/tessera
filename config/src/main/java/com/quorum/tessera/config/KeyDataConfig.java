@@ -27,9 +27,7 @@ public class KeyDataConfig {
         this.type = type;
     }
 
-    public KeyDataConfig() {
-
-    }
+    public KeyDataConfig() {}
 
     public PrivateKeyType getType() {
         return type;
@@ -40,33 +38,22 @@ public class KeyDataConfig {
     }
 
     public String getValue() {
-        return Optional.ofNullable(privateKeyData)
-                .map(PrivateKeyData::getValue)
-                .orElse(null);  
+        return Optional.ofNullable(privateKeyData).map(PrivateKeyData::getValue).orElse(null);
     }
 
     public String getSnonce() {
-        return Optional.ofNullable(privateKeyData)
-                .map(PrivateKeyData::getSnonce)
-                .orElse(null);   
+        return Optional.ofNullable(privateKeyData).map(PrivateKeyData::getSnonce).orElse(null);
     }
 
     public String getAsalt() {
-        return Optional.ofNullable(privateKeyData)
-                .map(PrivateKeyData::getAsalt)
-                .orElse(null);   
+        return Optional.ofNullable(privateKeyData).map(PrivateKeyData::getAsalt).orElse(null);
     }
 
     public String getSbox() {
-        return Optional.ofNullable(privateKeyData)
-                .map(PrivateKeyData::getSbox)
-                .orElse(null);   
+        return Optional.ofNullable(privateKeyData).map(PrivateKeyData::getSbox).orElse(null);
     }
 
     public ArgonOptions getArgonOptions() {
-        return Optional.ofNullable(privateKeyData)
-                .map(PrivateKeyData::getArgonOptions)
-                .orElse(null);   
+        return Optional.ofNullable(privateKeyData).map(PrivateKeyData::getArgonOptions).orElse(null);
     }
-
 }

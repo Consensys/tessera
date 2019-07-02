@@ -49,7 +49,7 @@ public class FilesystemKeyPair implements ConfigKeyPair {
         try {
             loadKeys();
         } catch (final Exception ex) {
-            //silently discard errors as these get picked up by the validator
+            // silently discard errors as these get picked up by the validator
             LOGGER.debug("Unable to read key files", ex);
         }
     }
@@ -67,7 +67,10 @@ public class FilesystemKeyPair implements ConfigKeyPair {
     @Override
     @Size(min = 1)
     @ValidBase64(message = "Invalid Base64 key provided")
-    @Pattern(regexp = "^((?!NACL_FAILURE).)*$", message = "Could not decrypt the private key with the provided password, please double check the passwords provided")
+    @Pattern(
+            regexp = "^((?!NACL_FAILURE).)*$",
+            message =
+                    "Could not decrypt the private key with the provided password, please double check the passwords provided")
     public String getPrivateKey() {
         if (this.inlineKeypair == null) {
             return null;
@@ -101,13 +104,10 @@ public class FilesystemKeyPair implements ConfigKeyPair {
     }
 
     private void loadKeys() {
-        this.inlineKeypair = new InlineKeypair(
-            IOCallback.execute(() -> new String(Files.readAllBytes(this.publicKeyPath), UTF_8)),
-            JaxbUtil.unmarshal(
-                IOCallback.execute(() -> Files.newInputStream(privateKeyPath)),
-                KeyDataConfig.class
-            )
-        );
+        this.inlineKeypair =
+                new InlineKeypair(
+                        IOCallback.execute(() -> new String(Files.readAllBytes(this.publicKeyPath), UTF_8)),
+                        JaxbUtil.unmarshal(
+                                IOCallback.execute(() -> Files.newInputStream(privateKeyPath)), KeyDataConfig.class));
     }
-
 }

@@ -30,10 +30,6 @@ public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplica
             returnStatus = Response.Status.INTERNAL_SERVER_ERROR;
         }
 
-        return Response.status(returnStatus)
-            .entity(exception.getMessage())
-            .type(MediaType.TEXT_PLAIN)
-            .build();
+        return Response.status(returnStatus).entity(exception.getMessage()).type(MediaType.TEXT_PLAIN).build();
     }
-
 }

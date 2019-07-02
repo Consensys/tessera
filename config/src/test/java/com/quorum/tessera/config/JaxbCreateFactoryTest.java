@@ -20,8 +20,7 @@ public class JaxbCreateFactoryTest {
 
     private final OtherType otherType = new OtherType();
 
-    static class OtherType {
-    }
+    static class OtherType {}
 
     @Parameterized.Parameters
     public static List<Class> params() {
@@ -34,9 +33,7 @@ public class JaxbCreateFactoryTest {
                 JdbcConfig.class,
                 KeyDataConfig.class,
                 PrivateKeyData.class,
-                AzureKeyVaultConfig.class
-        );
-
+                AzureKeyVaultConfig.class);
     }
 
     @Test
@@ -50,7 +47,5 @@ public class JaxbCreateFactoryTest {
         assertThat(instance.hashCode()).isEqualTo(instance.hashCode());
         assertThat(instance).isNotEqualTo(otherType);
         assertThat(instance).isNotEqualTo(null);
-
     }
-
 }

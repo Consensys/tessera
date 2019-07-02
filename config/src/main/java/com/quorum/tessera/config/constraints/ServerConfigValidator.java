@@ -14,17 +14,24 @@ public class ServerConfigValidator implements ConstraintValidator<ValidServerCon
     @Override
     public boolean isValid(ServerConfig serverConfig, ConstraintValidatorContext constraintContext) {
 
-        if(serverConfig == null) {
+        if (serverConfig == null) {
             return true;
         }
-        
+
         if (!serverConfig.getApp().getAllowedCommunicationTypes().contains(serverConfig.getCommunicationType())) {
-            LOGGER.debug("Invalid communicationType '" + serverConfig.getCommunicationType() +
-                "' specified for serverConfig with app " + serverConfig.getApp());
+            LOGGER.debug(
+                    "Invalid communicationType '"
+                            + serverConfig.getCommunicationType()
+                            + "' specified for serverConfig with app "
+                            + serverConfig.getApp());
             constraintContext.disableDefaultConstraintViolation();
-            constraintContext.buildConstraintViolationWithTemplate("Invalid communicationType '" +
-                serverConfig.getCommunicationType() + "' specified for serverConfig with app " + serverConfig.getApp())
-                .addConstraintViolation();
+            constraintContext
+                    .buildConstraintViolationWithTemplate(
+                            "Invalid communicationType '"
+                                    + serverConfig.getCommunicationType()
+                                    + "' specified for serverConfig with app "
+                                    + serverConfig.getApp())
+                    .addConstraintViolation();
             return false;
         }
 

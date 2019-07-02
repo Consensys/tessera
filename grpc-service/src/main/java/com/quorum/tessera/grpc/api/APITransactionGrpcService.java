@@ -14,12 +14,12 @@ import javax.validation.Validator;
 import java.util.Objects;
 import java.util.Set;
 
-public class APITransactionGrpcService extends APITransactionGrpc.APITransactionImplBase{
+public class APITransactionGrpcService extends APITransactionGrpc.APITransactionImplBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(APITransactionGrpcService.class);
 
-    private final Validator validator = Validation.byDefaultProvider()
-            .configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
+    private final Validator validator =
+            Validation.byDefaultProvider().configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
 
     private final TransactionManager transactionManager;
 
@@ -32,19 +32,19 @@ public class APITransactionGrpcService extends APITransactionGrpc.APITransaction
 
         StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
-        template.handle(() -> {
+        template.handle(
+                () -> {
+                    com.quorum.tessera.api.model.SendRequest sendRequest = Convertor.toModel(grpcSendRequest);
 
-            com.quorum.tessera.api.model.SendRequest sendRequest = Convertor.toModel(grpcSendRequest);
+                    Set<ConstraintViolation<com.quorum.tessera.api.model.SendRequest>> violations =
+                            validator.validate(sendRequest);
+                    if (!violations.isEmpty()) {
+                        throw new ConstraintViolationException(violations);
+                    }
+                    com.quorum.tessera.api.model.SendResponse response = transactionManager.send(sendRequest);
 
-            Set<ConstraintViolation<com.quorum.tessera.api.model.SendRequest>> violations = validator.validate(sendRequest);
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException(violations);
-            }
-            com.quorum.tessera.api.model.SendResponse response = transactionManager.send(sendRequest);
-
-            return Convertor.toGrpc(response);
-        });
-
+                    return Convertor.toGrpc(response);
+                });
     }
 
     @Override
@@ -52,25 +52,22 @@ public class APITransactionGrpcService extends APITransactionGrpc.APITransaction
 
         StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
-        template.handle(() -> {
+        template.handle(
+                () -> {
+                    com.quorum.tessera.api.model.ReceiveRequest request = Convertor.toModel(grpcRequest);
+                    Set<ConstraintViolation<com.quorum.tessera.api.model.ReceiveRequest>> violations =
+                            validator.validate(request);
+                    if (!violations.isEmpty()) {
+                        throw new ConstraintViolationException(violations);
+                    }
 
-            com.quorum.tessera.api.model.ReceiveRequest request = Convertor.toModel(grpcRequest);
-            Set<ConstraintViolation<com.quorum.tessera.api.model.ReceiveRequest>> violations = validator.validate(request);
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException(violations);
-            }
+                    com.quorum.tessera.api.model.ReceiveRequest receiveRequest = Convertor.toModel(grpcRequest);
 
-            com.quorum.tessera.api.model.ReceiveRequest receiveRequest = Convertor.toModel(grpcRequest);
+                    com.quorum.tessera.api.model.ReceiveResponse receiveResponse =
+                            transactionManager.receive(receiveRequest);
 
-            com.quorum.tessera.api.model.ReceiveResponse receiveResponse = transactionManager.receive(receiveRequest);
-
-            ByteString payload = ByteString.copyFrom(receiveResponse.getPayload());
-            return ReceiveResponse
-                    .newBuilder()
-                    .setPayload(payload)
-                    .build();
-        });
-
+                    ByteString payload = ByteString.copyFrom(receiveResponse.getPayload());
+                    return ReceiveResponse.newBuilder().setPayload(payload).build();
+                });
     }
-
 }

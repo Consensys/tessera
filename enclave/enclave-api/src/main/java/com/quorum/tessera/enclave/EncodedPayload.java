@@ -5,9 +5,7 @@ import com.quorum.tessera.nacl.Nonce;
 
 import java.util.List;
 
-/**
- * This class contains the data that is sent to other nodes
- */
+/** This class contains the data that is sent to other nodes */
 public class EncodedPayload {
 
     private final PublicKey senderKey;
@@ -22,12 +20,13 @@ public class EncodedPayload {
 
     private final List<PublicKey> recipientKeys;
 
-    public EncodedPayload(final PublicKey senderKey,
-                          final byte[] cipherText,
-                          final Nonce cipherTextNonce,
-                          final List<byte[]> recipientBoxes,
-                          final Nonce recipientNonce,
-                          final List<PublicKey> recipientKeys) {
+    public EncodedPayload(
+            final PublicKey senderKey,
+            final byte[] cipherText,
+            final Nonce cipherTextNonce,
+            final List<byte[]> recipientBoxes,
+            final Nonce recipientNonce,
+            final List<PublicKey> recipientKeys) {
         this.senderKey = senderKey;
         this.cipherText = cipherText;
         this.cipherTextNonce = cipherTextNonce;
@@ -59,5 +58,4 @@ public class EncodedPayload {
     public List<PublicKey> getRecipientKeys() {
         return recipientKeys;
     }
-
 }

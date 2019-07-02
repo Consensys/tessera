@@ -22,14 +22,15 @@ public class EncodedPayloadBuilderTest {
         final byte[] recipientNonce = "recipientNonce".getBytes();
         final byte[] recipientBox = "recipientBox".getBytes();
 
-        final EncodedPayload sample = EncodedPayloadBuilder.create()
-            .withSenderKey(senderKey)
-            .withCipherText(cipherText)
-            .withCipherTextNonce(cipherTextNonce)
-            .withRecipientBoxes(Arrays.asList(recipientBox))
-            .withRecipientNonce(recipientNonce)
-            .withRecipientKeys(recipientKey)
-            .build();
+        final EncodedPayload sample =
+                EncodedPayloadBuilder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(cipherTextNonce)
+                        .withRecipientBoxes(Arrays.asList(recipientBox))
+                        .withRecipientNonce(recipientNonce)
+                        .withRecipientKeys(recipientKey)
+                        .build();
 
         assertThat(sample.getSenderKey()).isEqualTo(senderKey);
         assertThat(sample.getCipherText()).isEqualTo("cipherText".getBytes());
@@ -38,5 +39,4 @@ public class EncodedPayloadBuilderTest {
         assertThat(sample.getRecipientBoxes()).hasSize(1).containsExactlyInAnyOrder(recipientBox);
         assertThat(sample.getRecipientKeys()).hasSize(1).containsExactlyInAnyOrder(recipientKey);
     }
-
 }

@@ -6,8 +6,7 @@ import org.junit.contrib.java.lang.system.ExpectedSystemExit;
 
 public class MainTest {
 
-    @Rule
-    public final ExpectedSystemExit expectedSystemExit = ExpectedSystemExit.none();
+    @Rule public final ExpectedSystemExit expectedSystemExit = ExpectedSystemExit.none();
 
     @Test
     public void doStuff() {
@@ -26,5 +25,4 @@ public class MainTest {
         expectedSystemExit.expectSystemExitWithStatus(1);
         Main.main("debug");
     }
-
 }

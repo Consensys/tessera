@@ -23,20 +23,19 @@ public class EnclaveImpl implements Enclave {
     }
 
     @Override
-    public EncodedPayload encryptPayload(final byte[] message,
-                                         final PublicKey senderPublicKey,
-                                         final List<PublicKey> recipientPublicKeys) {
+    public EncodedPayload encryptPayload(
+            final byte[] message, final PublicKey senderPublicKey, final List<PublicKey> recipientPublicKeys) {
         final MasterKey masterKey = nacl.createMasterKey();
         final Nonce nonce = nacl.randomNonce();
         final Nonce recipientNonce = nacl.randomNonce();
 
         final byte[] cipherText = nacl.sealAfterPrecomputation(message, nonce, masterKey);
 
-        final List<byte[]> encryptedMasterKeys = buildRecipientMasterKeys(senderPublicKey, recipientPublicKeys, recipientNonce, masterKey);
+        final List<byte[]> encryptedMasterKeys =
+                buildRecipientMasterKeys(senderPublicKey, recipientPublicKeys, recipientNonce, masterKey);
 
         return new EncodedPayload(
-            senderPublicKey, cipherText, nonce, encryptedMasterKeys, recipientNonce, recipientPublicKeys
-        );
+                senderPublicKey, cipherText, nonce, encryptedMasterKeys, recipientNonce, recipientPublicKeys);
     }
 
     @Override
@@ -46,47 +45,50 @@ public class EnclaveImpl implements Enclave {
             throw new RuntimeException("No key or recipient-box to use");
         }
 
-        final MasterKey master = this.getMasterKey(
-            payload.getRecipientKeys().get(0), payload.getSenderKey(),
-            payload.getRecipientNonce(), payload.getRecipientBoxes().get(0)
-        );
+        final MasterKey master =
+                this.getMasterKey(
+                        payload.getRecipientKeys().get(0), payload.getSenderKey(),
+                        payload.getRecipientNonce(), payload.getRecipientBoxes().get(0));
 
-        final List<byte[]> sealedMasterKeyList = this.buildRecipientMasterKeys(
-            payload.getSenderKey(), singletonList(publicKey), payload.getRecipientNonce(), master
-        );
+        final List<byte[]> sealedMasterKeyList =
+                this.buildRecipientMasterKeys(
+                        payload.getSenderKey(), singletonList(publicKey), payload.getRecipientNonce(), master);
 
         return sealedMasterKeyList.get(0);
     }
 
     @Override
-    public EncodedPayload encryptPayload(final RawTransaction rawTransaction,
-                                         final List<PublicKey> recipientPublicKeys) {
-        final MasterKey masterKey = this.getMasterKey(
-            rawTransaction.getFrom(), rawTransaction.getFrom(),
-            rawTransaction.getNonce(), rawTransaction.getEncryptedKey()
-        );
+    public EncodedPayload encryptPayload(
+            final RawTransaction rawTransaction, final List<PublicKey> recipientPublicKeys) {
+        final MasterKey masterKey =
+                this.getMasterKey(
+                        rawTransaction.getFrom(), rawTransaction.getFrom(),
+                        rawTransaction.getNonce(), rawTransaction.getEncryptedKey());
 
         final Nonce recipientNonce = nacl.randomNonce();
-        final List<byte[]> encryptedMasterKeys
-            = buildRecipientMasterKeys(rawTransaction.getFrom(), recipientPublicKeys, recipientNonce, masterKey);
+        final List<byte[]> encryptedMasterKeys =
+                buildRecipientMasterKeys(rawTransaction.getFrom(), recipientPublicKeys, recipientNonce, masterKey);
 
         return new EncodedPayload(
-            rawTransaction.getFrom(), rawTransaction.getEncryptedPayload(),
-            rawTransaction.getNonce(), encryptedMasterKeys, recipientNonce, recipientPublicKeys
-        );
+                rawTransaction.getFrom(),
+                rawTransaction.getEncryptedPayload(),
+                rawTransaction.getNonce(),
+                encryptedMasterKeys,
+                recipientNonce,
+                recipientPublicKeys);
     }
 
-    private List<byte[]> buildRecipientMasterKeys(final PublicKey senderPublicKey,
-                                                  final List<PublicKey> recipientPublicKeys,
-                                                  final Nonce recipientNonce,
-                                                  final MasterKey masterKey){
+    private List<byte[]> buildRecipientMasterKeys(
+            final PublicKey senderPublicKey,
+            final List<PublicKey> recipientPublicKeys,
+            final Nonce recipientNonce,
+            final MasterKey masterKey) {
         final PrivateKey privateKey = keyManager.getPrivateKeyForPublicKey(senderPublicKey);
 
-        return recipientPublicKeys
-            .stream()
-            .map(publicKey -> nacl.computeSharedKey(publicKey, privateKey))
-            .map(sharedKey -> nacl.sealAfterPrecomputation(masterKey.getKeyBytes(), recipientNonce, sharedKey))
-            .collect(Collectors.toList());
+        return recipientPublicKeys.stream()
+                .map(publicKey -> nacl.computeSharedKey(publicKey, privateKey))
+                .map(sharedKey -> nacl.sealAfterPrecomputation(masterKey.getKeyBytes(), recipientNonce, sharedKey))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -138,7 +140,6 @@ public class EnclaveImpl implements Enclave {
         final Nonce cipherTextNonce = payload.getCipherTextNonce();
 
         return nacl.openAfterPrecomputation(cipherText, cipherTextNonce, masterKey);
-
     }
 
     private MasterKey getMasterKey(PublicKey recipient, PublicKey sender, Nonce nonce, byte[] encryptedKey) {

@@ -12,7 +12,6 @@ public class MockKeyGeneratorFactory implements KeyGeneratorFactory {
         INSTANCE;
 
         KeyGenerator keyGenerator = mock(KeyGenerator.class);
-
     }
 
     @Override
@@ -27,5 +26,4 @@ public class MockKeyGeneratorFactory implements KeyGeneratorFactory {
     public static void reset() {
         KeyGeneratorHolder.INSTANCE.keyGenerator = mock(KeyGenerator.class);
     }
-
 }

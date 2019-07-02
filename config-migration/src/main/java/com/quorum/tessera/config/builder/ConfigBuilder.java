@@ -13,8 +13,7 @@ import static java.util.Collections.emptyList;
 
 public class ConfigBuilder {
 
-    private ConfigBuilder() {
-    }
+    private ConfigBuilder() {}
 
     public static ConfigBuilder create() {
         return new ConfigBuilder();
@@ -209,9 +208,9 @@ public class ConfigBuilder {
     static Path toPath(String workDir, String value) {
         final Path path;
 
-        if(Optional.ofNullable(workDir).isPresent() && Optional.ofNullable(value).isPresent()) {
+        if (Optional.ofNullable(workDir).isPresent() && Optional.ofNullable(value).isPresent()) {
             path = Paths.get(workDir, value);
-        } else if(Optional.ofNullable(value).isPresent()) {
+        } else if (Optional.ofNullable(value).isPresent()) {
             path = Paths.get(value);
         } else {
             path = null;
@@ -224,44 +223,44 @@ public class ConfigBuilder {
 
         boolean generateKeyStoreIfNotExisted = false;
 
-        final SslConfig sslConfig = new SslConfig(
-                sslAuthenticationMode,
-                generateKeyStoreIfNotExisted,
-                toPath(workDir, sslServerKeyStorePath),
-                sslServerKeyStorePassword,
-                toPath(workDir, sslServerTrustStorePath),
-                sslServerTrustStorePassword,
-                sslServerTrustMode,
-                toPath(workDir, sslClientKeyStorePath),
-                sslClientKeyStorePassword,
-                toPath(workDir, sslClientTrustStorePath),
-                sslClientTrustStorePassword,
-                sslClientTrustMode,
-                toPath(workDir, sslKnownClientsFile),
-                toPath(workDir, sslKnownServersFile),
-                sslServerTrustCertificates.stream()
-                        .filter(Objects::nonNull)
-                        .map(v -> toPath(workDir, v))
-                        .collect(Collectors.toList()),
-                sslClientTrustCertificates.stream()
-                        .filter(Objects::nonNull)
-                        .map(v -> toPath(workDir, v))
-                        .collect(Collectors.toList()),
-                toPath(workDir, sslServerTlsKeyPath),
-                toPath(workDir, sslServerTlsCertificatePath),
-                toPath(workDir, sslClientTlsKeyPath),
-                toPath(workDir, sslClientTlsCertificatePath),
-                null
-        );
+        final SslConfig sslConfig =
+                new SslConfig(
+                        sslAuthenticationMode,
+                        generateKeyStoreIfNotExisted,
+                        toPath(workDir, sslServerKeyStorePath),
+                        sslServerKeyStorePassword,
+                        toPath(workDir, sslServerTrustStorePath),
+                        sslServerTrustStorePassword,
+                        sslServerTrustMode,
+                        toPath(workDir, sslClientKeyStorePath),
+                        sslClientKeyStorePassword,
+                        toPath(workDir, sslClientTrustStorePath),
+                        sslClientTrustStorePassword,
+                        sslClientTrustMode,
+                        toPath(workDir, sslKnownClientsFile),
+                        toPath(workDir, sslKnownServersFile),
+                        sslServerTrustCertificates.stream()
+                                .filter(Objects::nonNull)
+                                .map(v -> toPath(workDir, v))
+                                .collect(Collectors.toList()),
+                        sslClientTrustCertificates.stream()
+                                .filter(Objects::nonNull)
+                                .map(v -> toPath(workDir, v))
+                                .collect(Collectors.toList()),
+                        toPath(workDir, sslServerTlsKeyPath),
+                        toPath(workDir, sslServerTlsCertificatePath),
+                        toPath(workDir, sslClientTlsKeyPath),
+                        toPath(workDir, sslClientTlsCertificatePath),
+                        null);
 
         final ServerConfig q2tConfig = new ServerConfig();
         q2tConfig.setEnabled(true);
         q2tConfig.setApp(AppType.Q2T);
         q2tConfig.setCommunicationType(CommunicationType.REST);
-        q2tConfig.setServerAddress("unix:"+ toPath(workDir, unixSocketFile));
+        q2tConfig.setServerAddress("unix:" + toPath(workDir, unixSocketFile));
 
         final ServerConfig p2pConfig = new ServerConfig();
-        final String port = (serverPort == null) ? "" : ":"+serverPort;
+        final String port = (serverPort == null) ? "" : ":" + serverPort;
         final String hostname = (serverHostname == null) ? null : serverHostname + port;
         p2pConfig.setEnabled(true);
         p2pConfig.setApp(AppType.P2P);
@@ -270,16 +269,16 @@ public class ConfigBuilder {
         p2pConfig.setSslConfig(sslConfig);
 
         final List<Peer> peerList;
-        if(peers != null) {
+        if (peers != null) {
             peerList = peers.stream().map(Peer::new).collect(Collectors.toList());
         } else {
             peerList = null;
         }
 
         final List<String> forwardingKeys = new ArrayList<>();
-        if(alwaysSendTo != null) {
+        if (alwaysSendTo != null) {
 
-            for(String keyPath : alwaysSendTo) {
+            for (String keyPath : alwaysSendTo) {
                 try {
                     List<String> keysFromFile = Files.readAllLines(toPath(workDir, keyPath));
                     forwardingKeys.addAll(keysFromFile);
@@ -299,5 +298,4 @@ public class ConfigBuilder {
         config.setDisablePeerDiscovery(false);
         return config;
     }
-
 }

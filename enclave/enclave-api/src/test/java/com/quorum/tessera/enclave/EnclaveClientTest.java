@@ -14,7 +14,7 @@ public class EnclaveClientTest {
 
     @Before
     public void onSetUp() {
-        this.enclaveClient = mock(EnclaveClient.class); //TODO: not have this as a mock
+        this.enclaveClient = mock(EnclaveClient.class); // TODO: not have this as a mock
 
         doCallRealMethod().when(enclaveClient).validateEnclaveStatus();
     }
@@ -44,5 +44,4 @@ public class EnclaveClientTest {
 
         verify(enclaveClient).status();
     }
-
 }

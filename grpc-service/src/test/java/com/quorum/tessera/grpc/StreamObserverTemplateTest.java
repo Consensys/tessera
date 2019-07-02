@@ -44,24 +44,26 @@ public class StreamObserverTemplateTest {
 
         verify(observer).onNext(outcome);
         verify(observer).onCompleted();
-
     }
 
     @Test
     public void executeValidationError() {
 
         List<StatusRuntimeException> results = new ArrayList<>();
-        doAnswer((iom) -> {
-            results.add(iom.getArgument(0));
-            return null;
-        }).when(observer)
+        doAnswer(
+                        (iom) -> {
+                            results.add(iom.getArgument(0));
+                            return null;
+                        })
+                .when(observer)
                 .onError(any(StatusRuntimeException.class));
 
         ConstraintViolationException exception = mock(ConstraintViolationException.class);
 
-        template.handle(() -> {
-            throw exception;
-        });
+        template.handle(
+                () -> {
+                    throw exception;
+                });
 
         StatusRuntimeException result = results.stream().findAny().get();
 
@@ -70,7 +72,6 @@ public class StreamObserverTemplateTest {
         assertThat(result.getStatus().getCause()).isSameAs(exception);
 
         verify(observer).onError(result);
-
     }
 
     @Test
@@ -78,22 +79,24 @@ public class StreamObserverTemplateTest {
 
         Throwable exception = new Throwable("OUCH");
 
-        template.handle(() -> {
-            throw exception;
-        });
+        template.handle(
+                () -> {
+                    throw exception;
+                });
 
         verify(observer).onError(exception);
-
     }
 
     @Test
     public void executeAutoDiscoveryDisabled() {
 
         List<StatusRuntimeException> results = new ArrayList<>();
-        doAnswer((iom) -> {
-            results.add(iom.getArgument(0));
-            return null;
-        }).when(observer)
+        doAnswer(
+                        (iom) -> {
+                            results.add(iom.getArgument(0));
+                            return null;
+                        })
+                .when(observer)
                 .onError(any(StatusRuntimeException.class));
 
         final String exceptionMessage = "Sorry Dave I cant let you do that";
@@ -101,9 +104,10 @@ public class StreamObserverTemplateTest {
         AutoDiscoveryDisabledException exception = mock(AutoDiscoveryDisabledException.class);
         when(exception.getMessage()).thenReturn(exceptionMessage);
 
-        template.handle(() -> {
-            throw exception;
-        });
+        template.handle(
+                () -> {
+                    throw exception;
+                });
 
         StatusRuntimeException result = results.stream().findAny().get();
 
@@ -113,5 +117,4 @@ public class StreamObserverTemplateTest {
 
         verify(observer).onError(result);
     }
-
 }

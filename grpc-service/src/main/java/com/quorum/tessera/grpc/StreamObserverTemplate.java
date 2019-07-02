@@ -24,17 +24,13 @@ public class StreamObserverTemplate {
             observer.onNext(r);
             observer.onCompleted();
 
-        } catch(AutoDiscoveryDisabledException ex) {
-            observer.onError(io.grpc.Status.PERMISSION_DENIED
-                    .withDescription(ex.getMessage()).asRuntimeException());
+        } catch (AutoDiscoveryDisabledException ex) {
+            observer.onError(io.grpc.Status.PERMISSION_DENIED.withDescription(ex.getMessage()).asRuntimeException());
         } catch (ConstraintViolationException validationError) {
-            observer.onError(io.grpc.Status.INVALID_ARGUMENT
-                    .withCause(validationError)
-                    .asRuntimeException());
+            observer.onError(io.grpc.Status.INVALID_ARGUMENT.withCause(validationError).asRuntimeException());
         } catch (Throwable ex) {
             LOGGER.error(null, ex);
             observer.onError(ex);
         }
     }
-
 }

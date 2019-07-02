@@ -5,14 +5,11 @@ import com.quorum.tessera.transaction.model.EncryptedRawTransaction;
 
 import java.util.Optional;
 
-/**
- * A data store for transactions that need to be retrieved later
- */
+/** A data store for transactions that need to be retrieved later */
 public interface EncryptedRawTransactionDAO {
 
     /**
-     * Save a new Encrypted Transaction
-     * All fields are required to be non-null on the entity
+     * Save a new Encrypted Transaction All fields are required to be non-null on the entity
      *
      * @param entity The entity to be persisted
      * @return The entity that was persisted
@@ -31,8 +28,7 @@ public interface EncryptedRawTransactionDAO {
      * Deletes a transaction that has the given hash as its digest
      *
      * @param hash The hash of the message to be deleted
-     * @throws javax.persistence.EntityNotFoundException 
+     * @throws javax.persistence.EntityNotFoundException
      */
     void delete(MessageHash hash);
-
 }

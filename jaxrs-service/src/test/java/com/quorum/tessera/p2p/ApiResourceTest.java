@@ -31,7 +31,6 @@ public class ApiResourceTest {
         assertThat(result.getEntity()).isNotNull();
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.getMediaType()).isEqualTo(MediaType.APPLICATION_JSON_TYPE);
-
     }
 
     @Test
@@ -48,7 +47,6 @@ public class ApiResourceTest {
         assertThat(result.getEntity()).isNotNull();
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.getMediaType()).isEqualTo(MediaType.TEXT_HTML_TYPE);
-
     }
 
     @Test
@@ -63,6 +61,5 @@ public class ApiResourceTest {
         Response result = apiResource.api(request);
 
         assertThat(result.getStatus()).isEqualTo(400);
-
     }
 }

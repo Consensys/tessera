@@ -6,5 +6,4 @@ public class EnvironmentVariableProviderFactoryImpl implements EnvironmentVariab
     public EnvironmentVariableProvider create() {
         return new EnvironmentVariableProvider();
     }
-
 }

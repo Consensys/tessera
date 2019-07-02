@@ -47,7 +47,8 @@ public class AzureKeyVaultServiceFactoryTest {
         when(envProvider.getEnv(AZURE_CLIENT_SECRET)).thenReturn("secret");
 
         assertThat(ex).isInstanceOf(AzureCredentialNotSetException.class);
-        assertThat(ex.getMessage()).isEqualTo(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
+        assertThat(ex.getMessage())
+                .isEqualTo(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
     }
 
     @Test
@@ -58,7 +59,8 @@ public class AzureKeyVaultServiceFactoryTest {
         when(envProvider.getEnv(AZURE_CLIENT_SECRET)).thenReturn(null);
 
         assertThat(ex).isInstanceOf(AzureCredentialNotSetException.class);
-        assertThat(ex.getMessage()).isEqualTo(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
+        assertThat(ex.getMessage())
+                .isEqualTo(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
     }
 
     @Test
@@ -69,7 +71,8 @@ public class AzureKeyVaultServiceFactoryTest {
         when(envProvider.getEnv(AZURE_CLIENT_SECRET)).thenReturn(null);
 
         assertThat(ex).isInstanceOf(AzureCredentialNotSetException.class);
-        assertThat(ex.getMessage()).isEqualTo(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
+        assertThat(ex.getMessage())
+                .isEqualTo(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
     }
 
     @Test
@@ -80,7 +83,8 @@ public class AzureKeyVaultServiceFactoryTest {
         Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isExactlyInstanceOf(ConfigException.class);
-        assertThat(ex.getMessage()).contains("Trying to create Azure key vault connection but no Azure configuration provided");
+        assertThat(ex.getMessage())
+                .contains("Trying to create Azure key vault connection but no Azure configuration provided");
     }
 
     @Test
@@ -93,7 +97,8 @@ public class AzureKeyVaultServiceFactoryTest {
         Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isExactlyInstanceOf(ConfigException.class);
-        assertThat(ex.getMessage()).contains("Trying to create Azure key vault connection but no Azure configuration provided");
+        assertThat(ex.getMessage())
+                .contains("Trying to create Azure key vault connection but no Azure configuration provided");
     }
 
     @Test
@@ -113,5 +118,4 @@ public class AzureKeyVaultServiceFactoryTest {
     public void getType() {
         assertThat(azureKeyVaultServiceFactory.getType()).isEqualTo(KeyVaultType.AZURE);
     }
-
 }

@@ -7,5 +7,4 @@ public interface ClientSSLContextFactory extends SSLContextFactory {
     static SSLContextFactory create() {
         return ServiceLoader.load(ClientSSLContextFactory.class).iterator().next();
     }
-
 }

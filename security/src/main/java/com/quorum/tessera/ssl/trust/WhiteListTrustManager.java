@@ -29,7 +29,7 @@ public class WhiteListTrustManager extends AbstractTrustManager {
         return new X509Certificate[0];
     }
 
-    private void checkTrusted(X509Certificate[] x509Certificates) throws CertificateException{
+    private void checkTrusted(X509Certificate[] x509Certificates) throws CertificateException {
         final X509Certificate certificate = x509Certificates[0];
         final String thumbPrint = CertificateUtil.create().thumbPrint(certificate);
         final String address = CertUtil.subjectCN(certificate);
@@ -38,5 +38,4 @@ public class WhiteListTrustManager extends AbstractTrustManager {
             throw new CertificateException("Connections not allowed");
         }
     }
-
 }

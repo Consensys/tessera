@@ -15,12 +15,12 @@ public class MockDataLoader implements StoreLoader {
 
     @Override
     public void load(final Path input) {
-        //no-op
+        // no-op
     }
 
     @Override
     public DataEntry nextEntry() {
-        if(!iterator.hasNext()) {
+        if (!iterator.hasNext()) {
             return null;
         }
 
@@ -28,5 +28,4 @@ public class MockDataLoader implements StoreLoader {
 
         return new DataEntry(next.getKey().getBytes(), new ByteArrayInputStream(next.getValue().getBytes()));
     }
-
 }

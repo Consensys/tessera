@@ -10,5 +10,4 @@ public class SampleApplication extends Application {
     public Set<Object> getSingletons() {
         return Collections.singleton(new SampleResource());
     }
-
 }

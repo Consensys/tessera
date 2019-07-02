@@ -10,8 +10,6 @@ public class JpaHsqlConfig extends JpaConfig {
 
     @Bean
     public DataSource dataSource() {
-        return new EmbeddedDatabaseBuilder()
-            .setType(EmbeddedDatabaseType.HSQL)
-            .build();
+        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.HSQL).build();
     }
 }

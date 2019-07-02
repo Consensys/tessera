@@ -15,7 +15,7 @@ public class RestP2pClientFactory implements P2pClientFactory {
     public P2pClient create(Config config) {
 
         SSLContextFactory clientSSLContextFactory = ClientSSLContextFactory.create();
-        
+
         ClientFactory clientFactory = new ClientFactory(clientSSLContextFactory);
 
         Client client = clientFactory.buildFrom(config.getP2PServerConfig());
@@ -23,12 +23,10 @@ public class RestP2pClientFactory implements P2pClientFactory {
         PostDelegate postDelegate = new PostDelegate(client);
 
         return new RestP2pClient(postDelegate);
-        
     }
 
     @Override
     public CommunicationType communicationType() {
         return CommunicationType.REST;
     }
-
 }

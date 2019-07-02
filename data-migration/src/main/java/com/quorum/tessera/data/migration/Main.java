@@ -3,11 +3,11 @@ package com.quorum.tessera.data.migration;
 import java.util.Arrays;
 
 public class Main {
-    
+
     private Main() {
         throw new UnsupportedOperationException("");
     }
-    
+
     public static void main(final String... args) {
 
         try {
@@ -24,7 +24,5 @@ public class Main {
 
             System.exit(1);
         }
-
     }
-    
 }

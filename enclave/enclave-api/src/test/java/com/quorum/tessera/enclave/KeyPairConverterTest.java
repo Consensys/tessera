@@ -39,7 +39,8 @@ public class KeyPairConverterTest {
 
         assertThat(result).hasSize(1);
 
-        KeyPair expected = new KeyPair(PublicKey.from(decodeBase64("public")), PrivateKey.from(decodeBase64("private")));
+        KeyPair expected =
+                new KeyPair(PublicKey.from(decodeBase64("public")), PrivateKey.from(decodeBase64("private")));
         KeyPair resultKeyPair = result.iterator().next();
 
         assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
@@ -55,7 +56,8 @@ public class KeyPairConverterTest {
 
         assertThat(result).hasSize(1);
 
-        KeyPair expected = new KeyPair(PublicKey.from(decodeBase64("public")), PrivateKey.from(decodeBase64("private")));
+        KeyPair expected =
+                new KeyPair(PublicKey.from(decodeBase64("public")), PrivateKey.from(decodeBase64("private")));
         KeyPair resultKeyPair = result.iterator().next();
 
         assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
@@ -71,14 +73,15 @@ public class KeyPairConverterTest {
 
         assertThat(result).hasSize(1);
 
-        KeyPair expected = new KeyPair(PublicKey.from(decodeBase64("public")), PrivateKey.from(decodeBase64("private")));
+        KeyPair expected =
+                new KeyPair(PublicKey.from(decodeBase64("public")), PrivateKey.from(decodeBase64("private")));
         KeyPair resultKeyPair = result.iterator().next();
 
         assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
     }
 
     @Test
-    //Uses com.quorum.tessera.keypairconverter.MockAzureKeyVaultServiceFactory
+    // Uses com.quorum.tessera.keypairconverter.MockAzureKeyVaultServiceFactory
     public void convertSingleAzureVaultKeyPair() {
         final AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pub", "priv", null, null);
 
@@ -87,7 +90,8 @@ public class KeyPairConverterTest {
         assertThat(result).hasSize(1);
 
         KeyPair resultKeyPair = result.iterator().next();
-        KeyPair expected = new KeyPair(PublicKey.from(decodeBase64("publicSecret")), PrivateKey.from(decodeBase64("privSecret")));
+        KeyPair expected =
+                new KeyPair(PublicKey.from(decodeBase64("publicSecret")), PrivateKey.from(decodeBase64("privSecret")));
 
         assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
     }
@@ -101,7 +105,8 @@ public class KeyPairConverterTest {
         assertThat(result).hasSize(1);
 
         KeyPair resultKeyPair = result.iterator().next();
-        KeyPair expected = new KeyPair(PublicKey.from(decodeBase64("publicSecret")), PrivateKey.from(decodeBase64("privSecret")));
+        KeyPair expected =
+                new KeyPair(PublicKey.from(decodeBase64("publicSecret")), PrivateKey.from(decodeBase64("privSecret")));
 
         assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
     }
@@ -135,14 +140,16 @@ public class KeyPairConverterTest {
     @Test
     public void convertKeyPairWithNewlineOrSpace() {
         final DirectKeyPair keyPair =
-            new DirectKeyPair("gybY1t9GOYiuN6QgwcrvM2+pQzIu4UrHwiMG7yKQnTg=\n",
-            "   yTjqANGAvPCy8AfhcIZ+e4O8CHZPbHkIeOmae5W3srY=\n\n\n");
+                new DirectKeyPair(
+                        "gybY1t9GOYiuN6QgwcrvM2+pQzIu4UrHwiMG7yKQnTg=\n",
+                        "   yTjqANGAvPCy8AfhcIZ+e4O8CHZPbHkIeOmae5W3srY=\n\n\n");
 
         Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
 
-        KeyPair expected = new KeyPair(
-            PublicKey.from(decodeBase64("gybY1t9GOYiuN6QgwcrvM2+pQzIu4UrHwiMG7yKQnTg=")),
-            PrivateKey.from(decodeBase64("yTjqANGAvPCy8AfhcIZ+e4O8CHZPbHkIeOmae5W3srY=")));
+        KeyPair expected =
+                new KeyPair(
+                        PublicKey.from(decodeBase64("gybY1t9GOYiuN6QgwcrvM2+pQzIu4UrHwiMG7yKQnTg=")),
+                        PrivateKey.from(decodeBase64("yTjqANGAvPCy8AfhcIZ+e4O8CHZPbHkIeOmae5W3srY=")));
 
         KeyPair resultKeyPair = result.iterator().next();
         assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
@@ -152,13 +159,13 @@ public class KeyPairConverterTest {
     public void createFromStrings() {
         final List<String> inputs = Arrays.asList("KEYONE", "KEYTWO");
 
-        final PublicKey[] expectedOutputs = new PublicKey[]{
-            PublicKey.from(new byte[]{40, 70, 14, 52}), PublicKey.from(new byte[]{40, 70, 19, 88})
-        };
+        final PublicKey[] expectedOutputs =
+                new PublicKey[] {
+                    PublicKey.from(new byte[] {40, 70, 14, 52}), PublicKey.from(new byte[] {40, 70, 19, 88})
+                };
 
         final List<PublicKey> keys = this.converter.convert(inputs);
 
         assertThat(keys).hasSize(2).containsExactlyInAnyOrder(expectedOutputs);
     }
-
 }

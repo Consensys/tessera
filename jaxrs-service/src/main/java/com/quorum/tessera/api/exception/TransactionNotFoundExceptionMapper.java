@@ -18,10 +18,6 @@ public class TransactionNotFoundExceptionMapper implements ExceptionMapper<Trans
     public Response toResponse(final TransactionNotFoundException e) {
         LOGGER.info(e.getMessage());
 
-        return Response.status(Response.Status.NOT_FOUND)
-            .entity(e.getMessage())
-            .type(MediaType.TEXT_PLAIN)
-            .build();
+        return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
     }
-
 }

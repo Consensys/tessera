@@ -11,5 +11,4 @@ public interface KeyEncryptorFactory {
 
         return new KeyEncryptorImpl(argon2, naclFactory.create());
     }
-
 }

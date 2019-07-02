@@ -20,7 +20,6 @@ public class InputStreamPasswordReaderTest {
         final String password = passwordReader.readPasswordFromConsole();
 
         assertThat(password).isEqualTo("TRY1");
-
     }
 
     @Test
@@ -32,5 +31,4 @@ public class InputStreamPasswordReaderTest {
         final String password = passwordReader.readPasswordFromConsole();
         assertThat(password).isEmpty();
     }
-
 }

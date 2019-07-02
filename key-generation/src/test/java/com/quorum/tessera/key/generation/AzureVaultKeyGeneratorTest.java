@@ -60,7 +60,9 @@ public class AzureVaultKeyGeneratorTest {
         AzureSetSecretData expectedDataPub = new AzureSetSecretData(pubVaultId, pub.encodeToBase64());
         AzureSetSecretData expectedDataPriv = new AzureSetSecretData(privVaultId, priv.encodeToBase64());
 
-        assertThat(capturedArgs).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
+        assertThat(capturedArgs)
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
 
         verifyNoMoreInteractions(keyVaultService);
 
@@ -88,7 +90,9 @@ public class AzureVaultKeyGeneratorTest {
         AzureSetSecretData expectedDataPub = new AzureSetSecretData(pubVaultId, pub.encodeToBase64());
         AzureSetSecretData expectedDataPriv = new AzureSetSecretData(privVaultId, priv.encodeToBase64());
 
-        assertThat(capturedArgs).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
+        assertThat(capturedArgs)
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
 
         verifyNoMoreInteractions(keyVaultService);
     }
@@ -107,7 +111,9 @@ public class AzureVaultKeyGeneratorTest {
         AzureSetSecretData expectedDataPub = new AzureSetSecretData("Pub", pub.encodeToBase64());
         AzureSetSecretData expectedDataPriv = new AzureSetSecretData("Key", priv.encodeToBase64());
 
-        assertThat(capturedArgs).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
+        assertThat(capturedArgs)
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
 
         verifyNoMoreInteractions(keyVaultService);
     }
@@ -125,14 +131,12 @@ public class AzureVaultKeyGeneratorTest {
     public void exceptionThrownIfDisallowedCharactersUsedInVaultId() {
         final String invalidId = "/tmp/abc@+";
 
-        final Throwable throwable = catchThrowable(
-            () -> azureVaultKeyGenerator.generate(invalidId, null, null)
-        );
+        final Throwable throwable = catchThrowable(() -> azureVaultKeyGenerator.generate(invalidId, null, null));
 
         assertThat(throwable).isInstanceOf(UnsupportedCharsetException.class);
-        assertThat(throwable).hasMessageContaining(
-            "Generated key ID for Azure Key Vault can contain only 0-9, a-z, A-Z and - characters"
-        );
+        assertThat(throwable)
+                .hasMessageContaining(
+                        "Generated key ID for Azure Key Vault can contain only 0-9, a-z, A-Z and - characters");
     }
 
     @Test

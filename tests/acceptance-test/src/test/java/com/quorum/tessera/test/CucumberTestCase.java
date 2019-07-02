@@ -6,10 +6,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-    features = "classpath:features/transaction.feature",
-    monochrome = true,
-    plugin = {"progress"}
-)
-public abstract class CucumberTestCase {
-    
-}
+        features = "classpath:features/transaction.feature",
+        monochrome = true,
+        plugin = {"progress"})
+public abstract class CucumberTestCase {}

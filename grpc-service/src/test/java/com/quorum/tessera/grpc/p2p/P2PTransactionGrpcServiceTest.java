@@ -18,17 +18,13 @@ import static org.mockito.Mockito.*;
 
 public class P2PTransactionGrpcServiceTest {
 
-    @Mock
-    private StreamObserver<DeleteRequest> deleteResponseObserver;
+    @Mock private StreamObserver<DeleteRequest> deleteResponseObserver;
 
-    @Mock
-    private StreamObserver<PushRequest> pushResponseObserver;
+    @Mock private StreamObserver<PushRequest> pushResponseObserver;
 
-    @Mock
-    private StreamObserver<ResendResponse> resendResponseObserver;
+    @Mock private StreamObserver<ResendResponse> resendResponseObserver;
 
-    @Mock
-    private TransactionManagerImpl enclaveMediator;
+    @Mock private TransactionManagerImpl enclaveMediator;
 
     private P2PTransactionGrpcService service;
 
@@ -46,9 +42,8 @@ public class P2PTransactionGrpcServiceTest {
     @Test
     public void testDelete() {
 
-        DeleteRequest request = DeleteRequest.newBuilder()
-                .setKey(Base64.getEncoder().encodeToString("HELLOW".getBytes()))
-                .build();
+        DeleteRequest request =
+                DeleteRequest.newBuilder().setKey(Base64.getEncoder().encodeToString("HELLOW".getBytes())).build();
 
         service.delete(request, deleteResponseObserver);
 
@@ -85,13 +80,15 @@ public class P2PTransactionGrpcServiceTest {
     @Test
     public void testResendAll() {
 
-        ResendRequest request = ResendRequest.newBuilder()
-                .setType(ResendRequestType.ALL)
-                .setPublicKey("mypublickey")
-                .setKey("mykey")
-                .build();
+        ResendRequest request =
+                ResendRequest.newBuilder()
+                        .setType(ResendRequestType.ALL)
+                        .setPublicKey("mypublickey")
+                        .setKey("mykey")
+                        .build();
 
-        com.quorum.tessera.partyinfo.ResendResponse resendResponse = mock(com.quorum.tessera.partyinfo.ResendResponse.class);
+        com.quorum.tessera.partyinfo.ResendResponse resendResponse =
+                mock(com.quorum.tessera.partyinfo.ResendResponse.class);
         when(resendResponse.getPayload()).thenReturn(Optional.empty());
         when(enclaveMediator.resend(any())).thenReturn(resendResponse);
 
@@ -106,13 +103,10 @@ public class P2PTransactionGrpcServiceTest {
     @Test
     public void invalidDelete() {
 
-        DeleteRequest request = DeleteRequest.newBuilder()
-                .build();
+        DeleteRequest request = DeleteRequest.newBuilder().build();
 
         service.delete(request, deleteResponseObserver);
 
         verify(deleteResponseObserver).onError(any());
-
     }
-
 }

@@ -56,7 +56,6 @@ public class ConfigServiceTest {
         configService.addPeer("JUNIT");
         verify(config).addPeer(new Peer("JUNIT"));
         verify(configFileStore).save(config);
-
     }
 
     @Test
@@ -76,7 +75,7 @@ public class ConfigServiceTest {
 
         verify(config, times(2)).isDisablePeerDiscovery();
     }
-    
+
     @Test
     public void getServerUri() throws URISyntaxException {
         ServerConfig serverConfig = mock(ServerConfig.class);
@@ -87,7 +86,6 @@ public class ConfigServiceTest {
         when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
         URI result = configService.getServerUri();
         assertThat(result).isSameAs(serverUri);
-
 
         verify(config).getP2PServerConfig();
         verify(serverConfig).getServerUri();

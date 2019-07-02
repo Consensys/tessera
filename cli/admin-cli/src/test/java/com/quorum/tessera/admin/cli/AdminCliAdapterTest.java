@@ -43,7 +43,7 @@ public class AdminCliAdapterTest {
         WebTarget webTarget = mock(WebTarget.class);
 
         when(client.target(any(URI.class))).thenReturn(webTarget);
-        when(webTarget.path(anyString())).thenReturn(webTarget,webTarget);
+        when(webTarget.path(anyString())).thenReturn(webTarget, webTarget);
 
         when(webTarget.request(MediaType.APPLICATION_JSON)).thenReturn(invocationBuilder);
 
@@ -69,7 +69,7 @@ public class AdminCliAdapterTest {
 
     @Test
     public void help() throws Exception {
-        //new CliResult(0, true, false, null);
+        // new CliResult(0, true, false, null);
         CliResult result = adminCliAdapter.execute("help");
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
@@ -95,7 +95,7 @@ public class AdminCliAdapterTest {
 
         Path configFile = ElUtil.createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
-        CliResult result = adminCliAdapter.execute("-addpeer",peer.getUrl(),"-configfile",configFile.toString());
+        CliResult result = adminCliAdapter.execute("-addpeer", peer.getUrl(), "-configfile", configFile.toString());
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.isSuppressStartup()).isTrue();
@@ -116,7 +116,7 @@ public class AdminCliAdapterTest {
 
         Path configFile = ElUtil.createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
-        CliResult result = adminCliAdapter.execute("-addpeer",peer.getUrl(),"-configfile",configFile.toString());
+        CliResult result = adminCliAdapter.execute("-addpeer", peer.getUrl(), "-configfile", configFile.toString());
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.isSuppressStartup()).isTrue();

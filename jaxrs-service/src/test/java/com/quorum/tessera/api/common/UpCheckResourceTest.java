@@ -12,5 +12,4 @@ public class UpCheckResourceTest {
     public void upcheck() {
         assertThat(resource.upCheck()).isEqualTo("I'm up!");
     }
-
 }

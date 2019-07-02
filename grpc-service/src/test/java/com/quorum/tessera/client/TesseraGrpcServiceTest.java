@@ -20,11 +20,9 @@ public class TesseraGrpcServiceTest {
 
     private TesseraGrpcService service = new TesseraGrpcService();
 
-    @Mock
-    private StreamObserver<VersionMessage> versionResponseObserver;
+    @Mock private StreamObserver<VersionMessage> versionResponseObserver;
 
-    @Mock
-    private StreamObserver<UpCheckMessage> upCheckMessageStreamObserver;
+    @Mock private StreamObserver<UpCheckMessage> upCheckMessageStreamObserver;
 
     @Before
     public void setUp() {
@@ -56,7 +54,5 @@ public class TesseraGrpcServiceTest {
         assertThat(message).isNotNull();
         assertThat(message.getUpCheck()).isEqualTo("I'm up!");
         verify(upCheckMessageStreamObserver).onCompleted();
-
     }
-
 }

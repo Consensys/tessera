@@ -5,5 +5,4 @@ class AzureCredentialNotSetException extends IllegalStateException {
     AzureCredentialNotSetException(String message) {
         super(message);
     }
-
 }

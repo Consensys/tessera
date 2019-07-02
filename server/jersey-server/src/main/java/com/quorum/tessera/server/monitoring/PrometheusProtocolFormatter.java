@@ -12,24 +12,22 @@ public class PrometheusProtocolFormatter {
         for (final MBeanMetric metric : metrics) {
             final MBeanResourceMetric resourceMetric = (MBeanResourceMetric) metric;
 
-            formattedMetrics.append("tessera_")
-                .append(appType)
-                .append("_")
-                .append(sanitize(resourceMetric.getResourceMethod()))
-                .append("_")
-                .append(sanitize(resourceMetric.getName()))
-                .append(" ")
-                .append(resourceMetric.getValue())
-                .append("\n");
+            formattedMetrics
+                    .append("tessera_")
+                    .append(appType)
+                    .append("_")
+                    .append(sanitize(resourceMetric.getResourceMethod()))
+                    .append("_")
+                    .append(sanitize(resourceMetric.getName()))
+                    .append(" ")
+                    .append(resourceMetric.getValue())
+                    .append("\n");
         }
 
         return formattedMetrics.toString().trim();
     }
 
     private String sanitize(final String input) {
-        return input
-            .replaceAll("(#.*)|(_total)|\\(\\)|\\)|\\[\\]|\\]|;", "")
-            .replaceAll("->|\\(|\\[", "_");
+        return input.replaceAll("(#.*)|(_total)|\\(\\)|\\)|\\[\\]|\\]|;", "").replaceAll("->|\\(|\\[", "_");
     }
-
 }

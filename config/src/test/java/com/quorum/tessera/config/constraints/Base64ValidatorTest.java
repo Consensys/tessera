@@ -52,5 +52,4 @@ public class Base64ValidatorTest {
         assertThat(validator.isValid("NACL_FAILURE: It's broken son!!", constraintValidatorContext)).isTrue();
         assertThat(validator.isValid("NACL_FAILURE", constraintValidatorContext)).isTrue();
     }
-
 }

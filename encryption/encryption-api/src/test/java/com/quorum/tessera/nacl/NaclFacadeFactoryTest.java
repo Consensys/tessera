@@ -22,5 +22,4 @@ public class NaclFacadeFactoryTest {
 
         assertThat(result).isNotNull().isSameAs(MockNaclFacade.INSTANCE);
     }
-
 }

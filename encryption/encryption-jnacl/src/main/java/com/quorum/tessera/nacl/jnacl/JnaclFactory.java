@@ -7,9 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
 
-/**
- * Provides the JNaCL implementation of the {@link NaclFacade}
- */
+/** Provides the JNaCL implementation of the {@link NaclFacade} */
 public class JnaclFactory implements NaclFacadeFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JnaclFactory.class);
@@ -23,5 +21,4 @@ public class JnaclFactory implements NaclFacadeFactory {
 
         return new Jnacl(secureRandom, secretBox);
     }
-
 }

@@ -42,7 +42,9 @@ public class EnclaveExecManager implements ExecManager {
 
     public EnclaveExecManager(ConfigDescriptor configDescriptor) {
         this.configDescriptor = configDescriptor;
-        this.pid = Paths.get(System.getProperty("java.io.tmpdir"), "enclave" + configDescriptor.getAlias().name() + ".pid");
+        this.pid =
+                Paths.get(
+                        System.getProperty("java.io.tmpdir"), "enclave" + configDescriptor.getAlias().name() + ".pid");
         this.nodeId = suite.NodeId.generate(ExecutionContext.currentContext(), configDescriptor.getAlias());
     }
 
@@ -51,23 +53,29 @@ public class EnclaveExecManager implements ExecManager {
     @Override
     public Process doStart() throws Exception {
 
-        Path enclaveServerJar = Paths.get(System.getProperty("enclave.jaxrs.server.jar", "../../enclave/enclave-jaxrs/target/enclave-jaxrs-0.9-SNAPSHOT-server.jar"));
+        Path enclaveServerJar =
+                Paths.get(
+                        System.getProperty(
+                                "enclave.jaxrs.server.jar",
+                                "../../enclave/enclave-jaxrs/target/enclave-jaxrs-0.9-SNAPSHOT-server.jar"));
 
         ServerConfig serverConfig = configDescriptor.getEnclaveConfig().get().getServerConfigs().get(0);
 
-        List<String> cmd = new ExecArgsBuilder()
-                .withPidFile(pid)
-                .withJvmArg("-Dnode.number=" + nodeId)
-                .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
-                .withExecutableJarFile(enclaveServerJar)
-                .withConfigFile(configDescriptor.getEnclavePath())
-                .build();
+        List<String> cmd =
+                new ExecArgsBuilder()
+                        .withPidFile(pid)
+                        .withJvmArg("-Dnode.number=" + nodeId)
+                        .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
+                        .withExecutableJarFile(enclaveServerJar)
+                        .withConfigFile(configDescriptor.getEnclavePath())
+                        .build();
 
         LOGGER.info("Starting enclave {}", configDescriptor.getAlias());
 
-        Process process = ExecUtils.start(cmd,executorService);
+        Process process = ExecUtils.start(cmd, executorService);
 
-        ServerStatusCheckExecutor serverStatusCheckExecutor = new ServerStatusCheckExecutor(ServerStatusCheck.create(serverConfig));
+        ServerStatusCheckExecutor serverStatusCheckExecutor =
+                new ServerStatusCheckExecutor(ServerStatusCheck.create(serverConfig));
 
         Future<Boolean> future = executorService.submit(serverStatusCheckExecutor);
 
@@ -95,7 +103,6 @@ public class EnclaveExecManager implements ExecManager {
         } finally {
             executorService.shutdown();
         }
-
     }
 
     public static void main(String[] args) throws Exception {
@@ -114,16 +121,21 @@ public class EnclaveExecManager implements ExecManager {
         enclaveConfig.setServerConfigs(Arrays.asList(serverConfig));
 
         enclaveConfig.setKeys(new KeyConfiguration());
-        enclaveConfig.getKeys().setKeyData(Arrays.asList(new DirectKeyPair("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=")));
+        enclaveConfig
+                .getKeys()
+                .setKeyData(
+                        Arrays.asList(
+                                new DirectKeyPair(
+                                        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
+                                        "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=")));
 
         Path configFile = Paths.get("target", UUID.randomUUID().toString() + ".json");
 
-        try (OutputStream out = Files.newOutputStream(configFile)){
+        try (OutputStream out = Files.newOutputStream(configFile)) {
             JaxbUtil.marshalWithNoValidation(enclaveConfig, out);
         }
 
-        //EnclaveExecManager enclaveExecManager = new EnclaveExecManager(configFile);
+        // EnclaveExecManager enclaveExecManager = new EnclaveExecManager(configFile);
         // enclaveExecManager.start(serverConfig);
     }
-
 }

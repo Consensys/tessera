@@ -86,7 +86,8 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
         ClientOptions clientOptions = mock(ClientOptions.class);
         SslConfiguration sslConfiguration = mock(SslConfiguration.class);
 
-        SslConfiguration.KeyStoreConfiguration keyStoreConfiguration = mock(SslConfiguration.KeyStoreConfiguration.class);
+        SslConfiguration.KeyStoreConfiguration keyStoreConfiguration =
+                mock(SslConfiguration.KeyStoreConfiguration.class);
         when(sslConfiguration.getKeyStoreConfiguration()).thenReturn(keyStoreConfiguration);
         when(sslConfiguration.getTrustStoreConfiguration()).thenReturn(keyStoreConfiguration);
 
@@ -111,7 +112,9 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
 
         when(keyVaultConfig.getApprolePath()).thenReturn("approle");
 
-        ClientAuthentication result = util.configureClientAuthentication(keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint);
+        ClientAuthentication result =
+                util.configureClientAuthentication(
+                        keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint);
 
         assertThat(result).isInstanceOf(AppRoleAuthentication.class);
     }
@@ -129,11 +132,12 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
 
         when(keyVaultConfig.getApprolePath()).thenReturn("somepath");
 
-        ClientAuthentication result = util.configureClientAuthentication(keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint);
+        ClientAuthentication result =
+                util.configureClientAuthentication(
+                        keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint);
 
         assertThat(result).isInstanceOf(AppRoleAuthentication.class);
     }
-
 
     @Test
     public void configureClientAuthenticationIfOnlyRoleIdSetThenException() {
@@ -146,10 +150,20 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
         when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn(null);
         when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn(null);
 
-        Throwable ex = catchThrowable(() -> util.configureClientAuthentication(keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint));
+        Throwable ex =
+                catchThrowable(
+                        () ->
+                                util.configureClientAuthentication(
+                                        keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint));
 
         assertThat(ex).isExactlyInstanceOf(HashicorpCredentialNotSetException.class);
-        assertThat(ex.getMessage()).isEqualTo("Both " + HASHICORP_ROLE_ID + " and " + HASHICORP_SECRET_ID + " environment variables must be set to use the AppRole authentication method");
+        assertThat(ex.getMessage())
+                .isEqualTo(
+                        "Both "
+                                + HASHICORP_ROLE_ID
+                                + " and "
+                                + HASHICORP_SECRET_ID
+                                + " environment variables must be set to use the AppRole authentication method");
     }
 
     @Test
@@ -163,10 +177,20 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
         when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn("secret-id");
         when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn(null);
 
-        Throwable ex = catchThrowable(() -> util.configureClientAuthentication(keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint));
+        Throwable ex =
+                catchThrowable(
+                        () ->
+                                util.configureClientAuthentication(
+                                        keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint));
 
         assertThat(ex).isExactlyInstanceOf(HashicorpCredentialNotSetException.class);
-        assertThat(ex.getMessage()).isEqualTo("Both " + HASHICORP_ROLE_ID + " and " + HASHICORP_SECRET_ID + " environment variables must be set to use the AppRole authentication method");
+        assertThat(ex.getMessage())
+                .isEqualTo(
+                        "Both "
+                                + HASHICORP_ROLE_ID
+                                + " and "
+                                + HASHICORP_SECRET_ID
+                                + " environment variables must be set to use the AppRole authentication method");
     }
 
     @Test
@@ -180,7 +204,9 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
         when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn(null);
         when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn("token");
 
-        ClientAuthentication result = util.configureClientAuthentication(keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint);
+        ClientAuthentication result =
+                util.configureClientAuthentication(
+                        keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint);
 
         assertThat(result).isInstanceOf(TokenAuthentication.class);
     }
@@ -196,10 +222,21 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
         when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn(null);
         when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn(null);
 
-        Throwable ex = catchThrowable(() -> util.configureClientAuthentication(keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint));
+        Throwable ex =
+                catchThrowable(
+                        () ->
+                                util.configureClientAuthentication(
+                                        keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint));
 
         assertThat(ex).isExactlyInstanceOf(HashicorpCredentialNotSetException.class);
-        assertThat(ex.getMessage()).isEqualTo("Both " + HASHICORP_ROLE_ID + " and " + HASHICORP_SECRET_ID + " environment variables must be set to use the AppRole authentication method.  Alternatively set " + HASHICORP_TOKEN + " to authenticate using the Token method");
+        assertThat(ex.getMessage())
+                .isEqualTo(
+                        "Both "
+                                + HASHICORP_ROLE_ID
+                                + " and "
+                                + HASHICORP_SECRET_ID
+                                + " environment variables must be set to use the AppRole authentication method.  Alternatively set "
+                                + HASHICORP_TOKEN
+                                + " to authenticate using the Token method");
     }
-
 }

@@ -10,36 +10,33 @@ import org.slf4j.LoggerFactory;
 import suite.ExecutionContext;
 import suite.Utils;
 
-
 public class DefaultPartyHelper implements PartyHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPartyHelper.class);
-    
+
     private final List<Party> parties = new ArrayList<>();
 
     public DefaultPartyHelper() {
-        
+
         ExecutionContext executionContext = ExecutionContext.currentContext();
-        
-        if(executionContext.getConfigs().isEmpty()) {
+
+        if (executionContext.getConfigs().isEmpty()) {
             LOGGER.error("No parties found");
             throw new IllegalStateException("No parties found");
         }
-        
-        for(ConfigDescriptor c : executionContext.getConfigs()) {
+
+        for (ConfigDescriptor c : executionContext.getConfigs()) {
             String key = c.getKey().getPublicKey();
             URL file = Utils.toUrl(c.getPath());
             String alias = c.getAlias().name();
-            
-            parties.add(new Party(key, file, alias));
-            LOGGER.trace("Key: {}, File: {}, Alias: {}",key,file,alias);
-        }
 
+            parties.add(new Party(key, file, alias));
+            LOGGER.trace("Key: {}, File: {}, Alias: {}", key, file, alias);
+        }
     }
-    
+
     @Override
     public Stream<Party> getParties() {
         return parties.stream();
     }
-    
 }

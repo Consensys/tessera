@@ -1,6 +1,5 @@
 package com.quorum.tessera.test.rest;
 
-
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.test.*;
 import org.junit.runner.RunWith;
@@ -14,8 +13,4 @@ import suite.TestSuite;
         dbType = DBType.H2,
         socketType = SocketType.HTTP,
         enclaveType = EnclaveType.REMOTE)
-
-
-public class RestSuiteRemoteEnclaveH2 extends RestSuite {
-
-}
+public class RestSuiteRemoteEnclaveH2 extends RestSuite {}

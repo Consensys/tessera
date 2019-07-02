@@ -21,5 +21,4 @@ public class KeyVaultExceptionTest {
 
         assertThat(exception).hasCause(cause);
     }
-
 }

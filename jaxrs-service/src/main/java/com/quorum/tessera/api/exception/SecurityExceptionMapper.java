@@ -14,7 +14,7 @@ public class SecurityExceptionMapper implements ExceptionMapper<SecurityExceptio
     public Response toResponse(final SecurityException exception) {
         LOGGER.error("Security exception", exception);
 
-        //Return 500 assume access attempt is malicious
+        // Return 500 assume access attempt is malicious
         return Response.serverError().build();
     }
 }

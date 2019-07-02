@@ -23,23 +23,17 @@ import static org.mockito.Mockito.*;
 @ContextConfiguration(classes = JaxrsITConfig.class)
 public class JaxrsIT {
 
-    @Inject
-    private VersionResource versionResource;
+    @Inject private VersionResource versionResource;
 
-    @Inject
-    private PartyInfoResource partyInfoResource;
+    @Inject private PartyInfoResource partyInfoResource;
 
-    @Inject
-    private PartyInfoParser partyInfoParser;
+    @Inject private PartyInfoParser partyInfoParser;
 
-    @Inject
-    private PartyInfoService partyInfoService;
+    @Inject private PartyInfoService partyInfoService;
 
-    @Inject
-    private TransactionResource transactionResource;
+    @Inject private TransactionResource transactionResource;
 
-    @Inject
-    private TransactionManagerImpl transactionManager;
+    @Inject private TransactionManagerImpl transactionManager;
 
     @After
     public void afterTest() {
@@ -71,7 +65,5 @@ public class JaxrsIT {
         verify(partyInfoParser).from(payload);
         verify(partyInfoService).updatePartyInfo(partyInfo);
         verify(partyInfoParser).to(partyInfo);
-
     }
-
 }

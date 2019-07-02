@@ -34,22 +34,19 @@ public class RestPartyInfoChecker implements PartyInfoChecker {
             Client client = new ClientFactory().buildFrom(p2pConfig);
 
             LOGGER.debug("Request party info for {}. On {}", p.getAlias(), p2pConfig.getServerUri());
-            Response response = client.target(p2pConfig.getServerUri())
-                    .path("partyinfo")
-                    .request()
-                    .get();
+            Response response = client.target(p2pConfig.getServerUri()).path("partyinfo").request().get();
 
             LOGGER.debug("Requested party info for {} . {}", p.getAlias(), response.getStatus());
             if (response.getStatus() == 200) {
                 final JsonObject result = response.readEntity(JsonObject.class);
-                final int peerCount = (int)
-                    result.getJsonArray("peers")
-                        .stream()
-                        .map(val -> (JsonObject) val)
-                        .filter(peer -> !peer.isNull("lastContact"))
-                        .count();
+                final int peerCount =
+                        (int)
+                                result.getJsonArray("peers").stream()
+                                        .map(val -> (JsonObject) val)
+                                        .filter(peer -> !peer.isNull("lastContact"))
+                                        .count();
 
-                LOGGER.debug("Found {} peers of {} on {}", peerCount,parties.size(), p.getAlias());
+                LOGGER.debug("Found {} peers of {} on {}", peerCount, parties.size(), p.getAlias());
                 results[i] = peerCount == parties.size();
             } else {
                 results[i] = false;
@@ -58,5 +55,4 @@ public class RestPartyInfoChecker implements PartyInfoChecker {
 
         return Arrays.stream(results).allMatch(p -> p);
     }
-
 }

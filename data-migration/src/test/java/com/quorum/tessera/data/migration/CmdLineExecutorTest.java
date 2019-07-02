@@ -23,8 +23,7 @@ public class CmdLineExecutorTest {
 
     private CmdLineExecutor executor;
 
-    @Rule
-    public TestName testName = new TestName();
+    @Rule public TestName testName = new TestName();
 
     private Path outputPath;
 
@@ -36,7 +35,7 @@ public class CmdLineExecutorTest {
 
     @Test
     public void help() throws Exception {
-        final String[] args = new String[]{"help"};
+        final String[] args = new String[] {"help"};
 
         assertThat(executor.execute(args)).isEqualTo(0);
     }
@@ -44,25 +43,25 @@ public class CmdLineExecutorTest {
     @Test
     public void noOptions() {
 
-        final String[] args = new String[]{};
+        final String[] args = new String[] {};
 
         final Throwable throwable = catchThrowable(() -> executor.execute(args));
 
         assertThat(throwable).isInstanceOf(MissingOptionException.class);
         assertThat(((MissingOptionException) throwable).getMissingOptions())
-            .containsExactlyInAnyOrder("storetype", "inputpath", "exporttype", "outputfile", "dbpass", "dbuser");
-
+                .containsExactlyInAnyOrder("storetype", "inputpath", "exporttype", "outputfile", "dbpass", "dbuser");
     }
 
     @Test
     public void missingStoreTypeOption() {
 
-        final String[] args = new String[]{
-            "-inputpath", "somefile.txt",
-            "-exporttype", "h2",
-            "-outputfile", outputPath.toString(),
-            "-dbpass", "-dbuser"
-        };
+        final String[] args =
+                new String[] {
+                    "-inputpath", "somefile.txt",
+                    "-exporttype", "h2",
+                    "-outputfile", outputPath.toString(),
+                    "-dbpass", "-dbuser"
+                };
 
         final Throwable throwable = catchThrowable(() -> executor.execute(args));
         assertThat(throwable).isInstanceOf(MissingOptionException.class);
@@ -71,12 +70,13 @@ public class CmdLineExecutorTest {
 
     @Test
     public void missingInputFileOption() {
-        final String[] args = new String[]{
-            "-storetype", "bdb",
-            "-exporttype", "h2",
-            "-outputfile", outputPath.toString(),
-            "-dbpass", "-dbuser"
-        };
+        final String[] args =
+                new String[] {
+                    "-storetype", "bdb",
+                    "-exporttype", "h2",
+                    "-outputfile", outputPath.toString(),
+                    "-dbpass", "-dbuser"
+                };
 
         final Throwable throwable = catchThrowable(() -> executor.execute(args));
         assertThat(throwable).isInstanceOf(MissingOptionException.class);
@@ -87,13 +87,14 @@ public class CmdLineExecutorTest {
     public void bdbStoreType() throws Exception {
         final Path inputFile = Paths.get(getClass().getResource("/bdb/single-entry.txt").toURI());
 
-        final String[] args = new String[]{
-            "-storetype", "bdb",
-            "-inputpath", inputFile.toString(),
-            "-exporttype", "h2",
-            "-outputfile", outputPath.toString(),
-            "-dbpass", "-dbuser"
-        };
+        final String[] args =
+                new String[] {
+                    "-storetype", "bdb",
+                    "-inputpath", inputFile.toString(),
+                    "-exporttype", "h2",
+                    "-outputfile", outputPath.toString(),
+                    "-dbpass", "-dbuser"
+                };
 
         executor.execute(args);
     }
@@ -102,13 +103,14 @@ public class CmdLineExecutorTest {
     public void dirStoreType() throws Exception {
         final Path inputFile = Paths.get(getClass().getResource("/dir/").toURI());
 
-        final String[] args = new String[]{
-            "-storetype", "dir",
-            "-inputpath", inputFile.toString(),
-            "-outputfile", outputPath.toString(),
-            "-exporttype", "sqlite",
-            "-dbpass", "-dbuser"
-        };
+        final String[] args =
+                new String[] {
+                    "-storetype", "dir",
+                    "-inputpath", inputFile.toString(),
+                    "-outputfile", outputPath.toString(),
+                    "-exporttype", "sqlite",
+                    "-dbpass", "-dbuser"
+                };
 
         executor.execute(args);
     }
@@ -117,13 +119,14 @@ public class CmdLineExecutorTest {
     public void exportTypeJdbcNoDbConfigProvided() throws Exception {
         final Path inputFile = Paths.get(getClass().getResource("/dir/").toURI());
 
-        final String[] args = new String[]{
-            "-storetype", "dir",
-            "-inputpath", inputFile.toString(),
-            "-outputfile", outputPath.toString(),
-            "-exporttype", "jdbc",
-            "-dbpass", "-dbuser"
-        };
+        final String[] args =
+                new String[] {
+                    "-storetype", "dir",
+                    "-inputpath", inputFile.toString(),
+                    "-outputfile", outputPath.toString(),
+                    "-exporttype", "jdbc",
+                    "-dbpass", "-dbuser"
+                };
 
         executor.execute(args);
     }
@@ -140,57 +143,66 @@ public class CmdLineExecutorTest {
 
             final Path inputFile = Paths.get(getClass().getResource("/dir/").toURI());
 
-            final String[] args = new String[]{
-                "-storetype", "dir",
-                "-inputpath", inputFile.toString(),
-                "-outputfile", outputPath.toString(),
-                "-exporttype", "jdbc",
-                "-dbconfig", dbConfigPath,
-                "-dbpass", "-dbuser"
-            };
+            final String[] args =
+                    new String[] {
+                        "-storetype",
+                        "dir",
+                        "-inputpath",
+                        inputFile.toString(),
+                        "-outputfile",
+                        outputPath.toString(),
+                        "-exporttype",
+                        "jdbc",
+                        "-dbconfig",
+                        dbConfigPath,
+                        "-dbpass",
+                        "-dbuser"
+                    };
 
             executor.execute(args);
         } finally {
             mockObjectFactory.restoreDrivers();
         }
-
     }
 
-    //This tests that even with a lot of files, the file descriptor limit isn't hit
+    // This tests that even with a lot of files, the file descriptor limit isn't hit
     @Test
     public void directoryStoreAndSqliteWithLotsOfFilesWorks() throws Exception {
         final Path descriptorTestFolder = Files.createTempDirectory("descriptorTest");
-        final InputStream dataStream = getClass().getResourceAsStream("/dir/2JRLWGXFSDJUYUKADO7VFO3INL27WUXB2YDR5FCI3REQDTJGX6FULIDCIMYDV4H23PFUECWFYBMTIUTNY2ESAFMQADFCFUYBHBBJT4I=");
+        final InputStream dataStream =
+                getClass()
+                        .getResourceAsStream(
+                                "/dir/2JRLWGXFSDJUYUKADO7VFO3INL27WUXB2YDR5FCI3REQDTJGX6FULIDCIMYDV4H23PFUECWFYBMTIUTNY2ESAFMQADFCFUYBHBBJT4I=");
         final byte[] data = IOUtils.toByteArray(dataStream);
 
-        //this code snippet fetches the number of file descriptors we can use
-        //some will already be used, but opening more doesn't hurt since that is what we are testing
+        // this code snippet fetches the number of file descriptors we can use
+        // some will already be used, but opening more doesn't hurt since that is what we are testing
         if (!(ManagementFactory.getOperatingSystemMXBean() instanceof UnixOperatingSystemMXBean)) {
-            //we skip this test on Windows and other unsupported OS's
-            //the point of the test is to show we don't keep file descriptors open when not needed
-            //which is independent of the OS we are running on
+            // we skip this test on Windows and other unsupported OS's
+            // the point of the test is to show we don't keep file descriptors open when not needed
+            // which is independent of the OS we are running on
             return;
         }
 
-        final UnixOperatingSystemMXBean osMxBean
-            = (UnixOperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
+        final UnixOperatingSystemMXBean osMxBean =
+                (UnixOperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         final long descriptorCount = osMxBean.getMaxFileDescriptorCount();
 
-        for(int i = 0; i < descriptorCount; i++) {
+        for (int i = 0; i < descriptorCount; i++) {
             final String filename = new Base32().encodeToString(String.valueOf(i).getBytes());
             final Path newFile = descriptorTestFolder.resolve(filename);
             Files.write(newFile, data);
         }
 
-        final String[] args = new String[]{
-            "-storetype", "dir",
-            "-inputpath", descriptorTestFolder.toString(),
-            "-outputfile", outputPath.toString(),
-            "-exporttype", "sqlite",
-            "-dbpass", "-dbuser"
-        };
+        final String[] args =
+                new String[] {
+                    "-storetype", "dir",
+                    "-inputpath", descriptorTestFolder.toString(),
+                    "-outputfile", outputPath.toString(),
+                    "-exporttype", "sqlite",
+                    "-dbpass", "-dbuser"
+                };
 
         executor.execute(args);
     }
-
 }

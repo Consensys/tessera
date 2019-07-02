@@ -54,5 +54,4 @@ public class PositiveIntegerValidatorTest {
     public void negativeIsInvalid() {
         assertThat(validator.isValid("-10", context)).isFalse();
     }
-
 }

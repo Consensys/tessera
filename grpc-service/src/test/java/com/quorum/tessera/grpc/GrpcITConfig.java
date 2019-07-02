@@ -10,22 +10,21 @@ import org.springframework.context.annotation.ImportResource;
 import static org.mockito.Mockito.mock;
 
 @Configuration
-@ImportResource(locations="classpath:tessera-grpc-spring.xml")
+@ImportResource(locations = "classpath:tessera-grpc-spring.xml")
 public class GrpcITConfig {
-    
+
     @Bean(name = "transactionManager")
     public TransactionManagerImpl enclaveMediator() {
         return mock(TransactionManagerImpl.class);
     }
-    
+
     @Bean
     public PartyInfoService partyInfoService() {
         return mock(PartyInfoService.class);
     }
-    
+
     @Bean
     public PartyInfoParser partyInfoParser() {
         return mock(PartyInfoParser.class);
     }
-    
 }

@@ -6,5 +6,4 @@ public class MockNaclFacadeFactory implements NaclFacadeFactory {
     public NaclFacade create() {
         return MockNaclFacade.INSTANCE;
     }
-    
 }

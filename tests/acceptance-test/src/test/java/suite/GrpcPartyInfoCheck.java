@@ -15,48 +15,53 @@ import org.slf4j.LoggerFactory;
 public class GrpcPartyInfoCheck implements PartyInfoChecker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GrpcPartyInfoCheck.class);
-    
+
     private PartyHelper partyHelper = new DefaultPartyHelper();
 
     @Override
     public boolean hasSynced() {
-        return partyHelper.getParties().allMatch(p -> {
+        return partyHelper
+                .getParties()
+                .allMatch(
+                        p -> {
+                            ServerConfig p2pConfig = p.getConfig().getP2PServerConfig();
+                            URI uri = p2pConfig.getBindingUri();
 
-            ServerConfig p2pConfig = p.getConfig().getP2PServerConfig();
-            URI uri = p2pConfig.getBindingUri();
+                            ManagedChannel channel =
+                                    ManagedChannelBuilder.forAddress(uri.getHost(), uri.getPort())
+                                            .usePlaintext()
+                                            .build();
 
-            ManagedChannel channel = ManagedChannelBuilder
-                    .forAddress(uri.getHost(), uri.getPort())
-                    .usePlaintext()
-                    .build();
+                            try {
+                                PartyInfoJson partyInfo =
+                                        PartyInfoGrpc.newBlockingStub(channel)
+                                                .getPartyInfoMessage(Empty.getDefaultInstance());
 
-            try {
-                PartyInfoJson partyInfo = PartyInfoGrpc.newBlockingStub(channel)
-                        .getPartyInfoMessage(Empty.getDefaultInstance());
-                        
-                int peerCount = (int) partyInfo.getPeersList()
-                    .stream()
-                    .filter(peer -> peer.hasUtcTimestamp())
-                    .count();
-                
-                long expectedCount = partyHelper.getParties().count();
-                
-                LOGGER.debug("Peer count found on {} : {} , expected party count : {}",p.getP2PUri(),peerCount,expectedCount);
-                
-                if(uri.getPort() == 7000) {
-                    return true;
-                }
-                    
+                                int peerCount =
+                                        (int)
+                                                partyInfo.getPeersList().stream()
+                                                        .filter(peer -> peer.hasUtcTimestamp())
+                                                        .count();
 
-                
-                return peerCount == expectedCount;
-            } catch (Exception ex) {
-                LOGGER.debug(null,ex);
-                return false;
-            } finally {
-                channel.shutdown();
-            }
-        });
+                                long expectedCount = partyHelper.getParties().count();
+
+                                LOGGER.debug(
+                                        "Peer count found on {} : {} , expected party count : {}",
+                                        p.getP2PUri(),
+                                        peerCount,
+                                        expectedCount);
+
+                                if (uri.getPort() == 7000) {
+                                    return true;
+                                }
+
+                                return peerCount == expectedCount;
+                            } catch (Exception ex) {
+                                LOGGER.debug(null, ex);
+                                return false;
+                            } finally {
+                                channel.shutdown();
+                            }
+                        });
     }
-
 }

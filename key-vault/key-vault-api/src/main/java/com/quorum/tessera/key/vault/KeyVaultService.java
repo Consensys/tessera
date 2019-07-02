@@ -7,5 +7,4 @@ public interface KeyVaultService {
     String getSecret(GetSecretData getSecretData);
 
     Object setSecret(SetSecretData setSecretData);
-
 }

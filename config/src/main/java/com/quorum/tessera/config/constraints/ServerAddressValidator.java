@@ -14,9 +14,9 @@ import java.util.Objects;
 public class ServerAddressValidator implements ConstraintValidator<ValidServerAddress, String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerAddressValidator.class);
-    
+
     private boolean bindingAddress;
-    
+
     private List<String> supportedSchemes;
 
     @Override
@@ -28,40 +28,38 @@ public class ServerAddressValidator implements ConstraintValidator<ValidServerAd
     @Override
     public boolean isValid(String v, ConstraintValidatorContext cvc) {
 
-        if(Objects.isNull(v)) {
+        if (Objects.isNull(v)) {
             return true;
         }
-        
+
         final URI uri;
-        try{
+        try {
             uri = new URI(v);
         } catch (URISyntaxException ex) {
-            LOGGER.debug(v,ex);
+            LOGGER.debug(v, ex);
             return false;
         }
-        
+
         String scheme = uri.getScheme();
-        
-        if(!supportedSchemes.contains(scheme)) {
+
+        if (!supportedSchemes.contains(scheme)) {
             return false;
         }
-        
-        if(scheme.startsWith("http")) {
-            if(uri.getPort() == -1) {
+
+        if (scheme.startsWith("http")) {
+            if (uri.getPort() == -1) {
                 return false;
             }
         }
 
-        if(bindingAddress) {
+        if (bindingAddress) {
             return true;
         }
-        
-        if(Objects.equals("unix",scheme)) {
-            return true;
-        }
-        
-        return !Objects.equals("0.0.0.0", uri.getHost());
 
+        if (Objects.equals("unix", scheme)) {
+            return true;
+        }
+
+        return !Objects.equals("0.0.0.0", uri.getHost());
     }
-    
 }

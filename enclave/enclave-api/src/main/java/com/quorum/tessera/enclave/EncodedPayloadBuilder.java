@@ -25,8 +25,7 @@ public class EncodedPayloadBuilder {
         return new EncodedPayloadBuilder();
     }
 
-    private EncodedPayloadBuilder() {
-    }
+    private EncodedPayloadBuilder() {}
 
     public EncodedPayloadBuilder withSenderKey(final PublicKey senderKey) {
         this.senderKey = senderKey;
@@ -60,9 +59,11 @@ public class EncodedPayloadBuilder {
 
     public EncodedPayload build() {
         return new EncodedPayload(
-            senderKey, cipherText, new Nonce(cipherTextNonce),
-            recipientBoxes, new Nonce(recipientNonce), recipientKeys
-        );
+                senderKey,
+                cipherText,
+                new Nonce(cipherTextNonce),
+                recipientBoxes,
+                new Nonce(recipientNonce),
+                recipientKeys);
     }
-
 }

@@ -15,5 +15,4 @@ public class KaliumFactoryTest {
 
         assertThat(result).isNotNull().isExactlyInstanceOf(Kalium.class);
     }
-
 }

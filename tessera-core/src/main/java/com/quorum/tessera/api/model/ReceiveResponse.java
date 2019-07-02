@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlMimeType;
 /**
  * Model representation of a JSON body on outgoing HTTP requests
  *
- * Contains a Base64 encoded string that is the decrypting payload of a transaction
+ * <p>Contains a Base64 encoded string that is the decrypting payload of a transaction
  */
 @ApiModel
 public class ReceiveResponse {
@@ -19,8 +19,7 @@ public class ReceiveResponse {
         this.payload = payload;
     }
 
-    public ReceiveResponse() {
-    }
+    public ReceiveResponse() {}
 
     public byte[] getPayload() {
         return payload;

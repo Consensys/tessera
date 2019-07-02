@@ -9,5 +9,4 @@ public class KeyVaultException extends RuntimeException {
     public KeyVaultException(String message) {
         super(message);
     }
-
 }

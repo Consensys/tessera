@@ -8,11 +8,11 @@ import java.io.PrintStream;
 public class MockSystemAdapter implements SystemAdapter {
 
     private PrintStream outPrintStream;
-    
+
     private PrintStream errPrintStream;
 
     public MockSystemAdapter(NoopSystemAdapter defualtInstance) {
-        this(defualtInstance.out(),defualtInstance.err());
+        this(defualtInstance.out(), defualtInstance.err());
     }
 
     public MockSystemAdapter() {
@@ -31,7 +31,7 @@ public class MockSystemAdapter implements SystemAdapter {
     public void setErrPrintStream(PrintStream errPrintStream) {
         this.errPrintStream = errPrintStream;
     }
-    
+
     @Override
     public PrintStream out() {
         return outPrintStream;
@@ -41,5 +41,4 @@ public class MockSystemAdapter implements SystemAdapter {
     public PrintStream err() {
         return errPrintStream;
     }
-
 }

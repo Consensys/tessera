@@ -5,5 +5,4 @@ class HashicorpCredentialNotSetException extends IllegalStateException {
     HashicorpCredentialNotSetException(String message) {
         super(message);
     }
-
 }

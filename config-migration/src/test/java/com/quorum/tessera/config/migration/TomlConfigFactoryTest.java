@@ -26,18 +26,20 @@ public class TomlConfigFactoryTest {
         Path passwordFile = Files.createTempFile("password", ".txt");
         InputStream template = getClass().getResourceAsStream("/sample-all-values.conf");
 
-        Map<String, Object> params = new HashMap<String, Object>() {
-            {
-                put("passwordFile", passwordFile);
-                put("serverKeyStorePath", "serverKeyStorePath");
-            }
-        };
+        Map<String, Object> params =
+                new HashMap<String, Object>() {
+                    {
+                        put("passwordFile", passwordFile);
+                        put("serverKeyStorePath", "serverKeyStorePath");
+                    }
+                };
 
         try (InputStream configData = ElUtil.process(template, params)) {
             Config result = tomlConfigFactory.create(configData, null).build();
             assertThat(result).isNotNull();
 
-            final ServerConfig q2tConfig = result.getServerConfigs().stream().filter(ServerConfig::isUnixSocket).findAny().get();
+            final ServerConfig q2tConfig =
+                    result.getServerConfigs().stream().filter(ServerConfig::isUnixSocket).findAny().get();
             assertThat(q2tConfig.getServerAddress()).isEqualTo("unix:data/myipcfile.ipc");
 
             assertThat(result.getP2PServerConfig()).isNotNull();
@@ -68,7 +70,6 @@ public class TomlConfigFactoryTest {
         } catch (RuntimeException ex) {
             assertThat(ex).hasMessage("Bad server url given: unknown protocol: ht");
         }
-
     }
 
     @Test
@@ -78,7 +79,8 @@ public class TomlConfigFactoryTest {
             final Config result = tomlConfigFactory.create(configData, null).build();
             assertThat(result).isNotNull();
 
-            final ServerConfig q2tConfig = result.getServerConfigs().stream().filter(ServerConfig::isUnixSocket).findAny().get();
+            final ServerConfig q2tConfig =
+                    result.getServerConfigs().stream().filter(ServerConfig::isUnixSocket).findAny().get();
             assertThat(q2tConfig.getServerAddress()).isEqualTo("unix:data/constellation.ipc");
 
             assertThat(result.getP2PServerConfig()).isNotNull();
@@ -102,11 +104,12 @@ public class TomlConfigFactoryTest {
 
         try (InputStream configData = getClass().getResourceAsStream("/sample.conf")) {
 
-            List<String> lines = Stream.of(configData)
-                .map(InputStreamReader::new)
-                .map(BufferedReader::new)
-                .flatMap(BufferedReader::lines)
-                .collect(Collectors.toList());
+            List<String> lines =
+                    Stream.of(configData)
+                            .map(InputStreamReader::new)
+                            .map(BufferedReader::new)
+                            .flatMap(BufferedReader::lines)
+                            .collect(Collectors.toList());
 
             lines.add(String.format("passwords = \"%s\"", passwordsFile.toString()));
 
@@ -114,7 +117,6 @@ public class TomlConfigFactoryTest {
             try (InputStream ammendedInput = new ByteArrayInputStream(data)) {
                 Config result = tomlConfigFactory.create(ammendedInput, null).build();
                 assertThat(result).isNotNull();
-
             }
         }
     }
@@ -133,9 +135,7 @@ public class TomlConfigFactoryTest {
 
             Config result = tomlConfigFactory.create(configData, null).build();
             assertThat(result).isNotNull();
-
         }
-
     }
 
     @Test
@@ -147,7 +147,6 @@ public class TomlConfigFactoryTest {
 
             KeyConfiguration expected = new KeyConfiguration(null, null, Collections.emptyList(), null, null);
             assertThat(result).isEqualTo(expected);
-
         }
     }
 
@@ -155,14 +154,12 @@ public class TomlConfigFactoryTest {
     public void ifPublicKeyListIsEmptyThenKeyConfigurationIsAllNulls() throws IOException {
         try (InputStream configData = getClass().getResourceAsStream("/sample-with-only-private-keys.conf")) {
 
-            final Throwable throwable = catchThrowable(() -> tomlConfigFactory.createKeyDataBuilder(configData).build());
+            final Throwable throwable =
+                    catchThrowable(() -> tomlConfigFactory.createKeyDataBuilder(configData).build());
 
-            assertThat(throwable)
-                .isInstanceOf(ConfigException.class)
-                .hasCauseExactlyInstanceOf(RuntimeException.class);
+            assertThat(throwable).isInstanceOf(ConfigException.class).hasCauseExactlyInstanceOf(RuntimeException.class);
 
             assertThat(throwable.getCause()).hasMessage("Different amount of public and private keys supplied");
-
         }
     }
 
@@ -170,14 +167,12 @@ public class TomlConfigFactoryTest {
     public void ifPrivateKeyListIsEmptyThenKeyConfigurationIsAllNulls() throws IOException {
         try (InputStream configData = getClass().getResourceAsStream("/sample-with-only-public-keys.conf")) {
 
-            final Throwable throwable = catchThrowable(() -> tomlConfigFactory.createKeyDataBuilder(configData).build());
+            final Throwable throwable =
+                    catchThrowable(() -> tomlConfigFactory.createKeyDataBuilder(configData).build());
 
-            assertThat(throwable)
-                .isInstanceOf(ConfigException.class)
-                .hasCauseExactlyInstanceOf(RuntimeException.class);
+            assertThat(throwable).isInstanceOf(ConfigException.class).hasCauseExactlyInstanceOf(RuntimeException.class);
 
             assertThat(throwable.getCause()).hasMessage("Different amount of public and private keys supplied");
-
         }
     }
 }

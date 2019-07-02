@@ -20,12 +20,11 @@ public abstract class ConfigItem {
 
     @Override
     public String toString() {
-        return new ReflectionToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE) {
+        return new ReflectionToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE) {
             @Override
             protected boolean accept(Field f) {
                 return super.accept(f) && !f.getName().toLowerCase().contains("password");
             }
         }.toString();
     }
-
 }

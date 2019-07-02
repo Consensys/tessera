@@ -16,7 +16,8 @@ public class RawTransaction {
 
     private final PublicKey from;
 
-    public RawTransaction(final byte[] encryptedPayload, final byte[] encryptedKey, final Nonce nonce, final PublicKey from) {
+    public RawTransaction(
+            final byte[] encryptedPayload, final byte[] encryptedKey, final Nonce nonce, final PublicKey from) {
         this.encryptedPayload = Objects.requireNonNull(encryptedPayload);
         this.encryptedKey = Objects.requireNonNull(encryptedKey);
         this.nonce = Objects.requireNonNull(nonce);
@@ -57,10 +58,9 @@ public class RawTransaction {
 
         final RawTransaction other = (RawTransaction) obj;
 
-        return Objects.equals(this.nonce, other.nonce) &&
-            Objects.equals(this.from, other.from) &&
-            Arrays.equals(this.encryptedKey, other.encryptedKey) &&
-            Arrays.equals(this.encryptedPayload, other.encryptedPayload);
+        return Objects.equals(this.nonce, other.nonce)
+                && Objects.equals(this.from, other.from)
+                && Arrays.equals(this.encryptedKey, other.encryptedKey)
+                && Arrays.equals(this.encryptedPayload, other.encryptedPayload);
     }
-
 }

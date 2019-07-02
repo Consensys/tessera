@@ -11,10 +11,10 @@ import java.util.Base64;
 
 /**
  * Assumes that user has exported data from bdb using db_dump
+ *
  * <pre>
  *  db_dump -f exported.txt c1/cn§.db/payload.db
  * </pre>
- *
  */
 public class BdbDumpFile implements StoreLoader {
 
@@ -25,7 +25,7 @@ public class BdbDumpFile implements StoreLoader {
     @Override
     public void load(final Path inputFile) throws IOException {
 
-        //Handles both non-regular files and non-existent files
+        // Handles both non-regular files and non-existent files
         if (!Files.isRegularFile(inputFile)) {
             throw new IllegalArgumentException(inputFile.toString() + " doesn't exist or is not a file");
         }
@@ -37,14 +37,14 @@ public class BdbDumpFile implements StoreLoader {
             final String line = reader.readLine();
 
             if (line == null) {
-                //apparently there was nothing in this file, close and return
+                // apparently there was nothing in this file, close and return
                 this.nextEntry = null;
                 this.reader.close();
                 return;
             }
 
             if (line.startsWith(" ")) {
-                //found the first data entry, stop looping over the headers
+                // found the first data entry, stop looping over the headers
                 firstKey = line;
                 break;
             }
@@ -52,10 +52,10 @@ public class BdbDumpFile implements StoreLoader {
 
         final String firstValue = reader.readLine();
 
-        this.nextEntry = new DataEntry(
-            Base64.getDecoder().decode(Hex.decode(firstKey.trim())),
-            new ByteArrayInputStream(Hex.decode(firstValue))
-        );
+        this.nextEntry =
+                new DataEntry(
+                        Base64.getDecoder().decode(Hex.decode(firstKey.trim())),
+                        new ByteArrayInputStream(Hex.decode(firstValue)));
     }
 
     @Override
@@ -74,13 +74,12 @@ public class BdbDumpFile implements StoreLoader {
         } else {
             final String nextValue = reader.readLine();
 
-            this.nextEntry = new DataEntry(
-                Base64.getDecoder().decode(Hex.decode(nextKey.trim())),
-                new ByteArrayInputStream(Hex.decode(nextValue))
-            );
+            this.nextEntry =
+                    new DataEntry(
+                            Base64.getDecoder().decode(Hex.decode(nextKey.trim())),
+                            new ByteArrayInputStream(Hex.decode(nextValue)));
         }
 
         return oldEntry;
     }
-
 }

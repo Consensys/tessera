@@ -34,11 +34,11 @@ public class CmdLineExecutor {
         final String username = line.getOptionValue("dbuser");
         final String password = line.getOptionValue("dbpass");
 
-        final ExportType exportType = Optional
-            .ofNullable(line.getOptionValue("exporttype"))
-            .map(String::toUpperCase)
-            .map(ExportType::valueOf)
-            .get();
+        final ExportType exportType =
+                Optional.ofNullable(line.getOptionValue("exporttype"))
+                        .map(String::toUpperCase)
+                        .map(ExportType::valueOf)
+                        .get();
 
         final Path outputFile = Paths.get(line.getOptionValue("outputfile")).toAbsolutePath();
 
@@ -55,9 +55,15 @@ public class CmdLineExecutor {
                 properties.load(inStream);
             }
 
-            final String insertRow = Objects.requireNonNull(properties.getProperty("insertRow"), "No insertRow value defined in config file. ");
-            final String createTable = Objects.requireNonNull(properties.getProperty("createTable"), "No createTable value defined in config file. ");
-            final String jdbcUrl = Objects.requireNonNull(properties.getProperty("jdbcUrl"), "No jdbcUrl value defined in config file. ");
+            final String insertRow =
+                    Objects.requireNonNull(
+                            properties.getProperty("insertRow"), "No insertRow value defined in config file. ");
+            final String createTable =
+                    Objects.requireNonNull(
+                            properties.getProperty("createTable"), "No createTable value defined in config file. ");
+            final String jdbcUrl =
+                    Objects.requireNonNull(
+                            properties.getProperty("jdbcUrl"), "No jdbcUrl value defined in config file. ");
 
             dataExporter = new JdbcDataExporter(jdbcUrl, insertRow, singletonList(createTable));
 
@@ -77,83 +83,82 @@ public class CmdLineExecutor {
         final Options options = new Options();
 
         options.addOption(
-            Option.builder()
-                .longOpt("storetype")
-                .desc("Store type i.e. bdb, dir, sqlite")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("TYPE")
-                .valueSeparator('=')
-                .required()
-                .build());
+                Option.builder()
+                        .longOpt("storetype")
+                        .desc("Store type i.e. bdb, dir, sqlite")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("TYPE")
+                        .valueSeparator('=')
+                        .required()
+                        .build());
 
         options.addOption(
-            Option.builder()
-                .longOpt("inputpath")
-                .desc("Path to input file or directory")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("PATH")
-                .required()
-                .build());
+                Option.builder()
+                        .longOpt("inputpath")
+                        .desc("Path to input file or directory")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("PATH")
+                        .required()
+                        .build());
 
         options.addOption(
-            Option.builder()
-                .longOpt("exporttype")
-                .desc("Export DB type i.e. h2, sqlite")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("TYPE")
-                .required()
-                .build());
+                Option.builder()
+                        .longOpt("exporttype")
+                        .desc("Export DB type i.e. h2, sqlite")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("TYPE")
+                        .required()
+                        .build());
 
         options.addOption(
-            Option.builder()
-                .longOpt("dbconfig")
-                .desc("Properties file with create table, insert row and jdbc url")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("PATH")
-                .build());
+                Option.builder()
+                        .longOpt("dbconfig")
+                        .desc("Properties file with create table, insert row and jdbc url")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("PATH")
+                        .build());
 
         options.addOption(
-            Option.builder()
-                .longOpt("outputfile")
-                .desc("Path to output file")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("PATH")
-                .required()
-                .build());
+                Option.builder()
+                        .longOpt("outputfile")
+                        .desc("Path to output file")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("PATH")
+                        .required()
+                        .build());
 
         options.addOption(
-            Option.builder()
-                .longOpt("dbuser")
-                .desc("Database username to use")
-                .hasArg(true)
-                .optionalArg(true)
-                .numberOfArgs(1)
-                .argName("USER")
-                .required()
-                .build());
+                Option.builder()
+                        .longOpt("dbuser")
+                        .desc("Database username to use")
+                        .hasArg(true)
+                        .optionalArg(true)
+                        .numberOfArgs(1)
+                        .argName("USER")
+                        .required()
+                        .build());
 
         options.addOption(
-            Option.builder()
-                .longOpt("dbpass")
-                .desc("Database password to use")
-                .hasArg(true)
-                .optionalArg(true)
-                .numberOfArgs(1)
-                .argName("PASS")
-                .required()
-                .build());
+                Option.builder()
+                        .longOpt("dbpass")
+                        .desc("Database password to use")
+                        .hasArg(true)
+                        .optionalArg(true)
+                        .numberOfArgs(1)
+                        .argName("PASS")
+                        .required()
+                        .build());
 
         return options;
     }
-
 }

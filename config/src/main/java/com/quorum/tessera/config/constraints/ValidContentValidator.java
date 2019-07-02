@@ -29,12 +29,12 @@ public class ValidContentValidator implements ConstraintValidator<ValidContent, 
             return true;
         }
 
-        List<String> lines = FilesDelegate.create().lines(path)
-                .filter(line -> !Objects.equals("", line))
-                .collect(Collectors.toList());
-        
+        List<String> lines =
+                FilesDelegate.create()
+                        .lines(path)
+                        .filter(line -> !Objects.equals("", line))
+                        .collect(Collectors.toList());
+
         return lines.size() >= config.minLines() && lines.size() <= config.maxLines();
-
     }
-
 }

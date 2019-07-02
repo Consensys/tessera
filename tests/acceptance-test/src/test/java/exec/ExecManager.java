@@ -11,7 +11,6 @@ public interface ExecManager {
 
     void doStop() throws Exception;
 
-    
     default Process start() {
         try {
             return doStart();
@@ -26,8 +25,6 @@ public interface ExecManager {
             this.doStop();
         } catch (Exception ex) {
             LOG.warn("{}", ex.getMessage());
-        } 
-
+        }
     }
-
 }

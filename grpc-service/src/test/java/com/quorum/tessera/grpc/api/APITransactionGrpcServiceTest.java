@@ -16,14 +16,11 @@ import static org.mockito.Mockito.*;
 
 public class APITransactionGrpcServiceTest {
 
-    @Mock
-    private StreamObserver<SendResponse> sendResponseObserver;
+    @Mock private StreamObserver<SendResponse> sendResponseObserver;
 
-    @Mock
-    private StreamObserver<ReceiveResponse> receiveResponseObserver;
-    
-    @Mock
-    private TransactionManagerImpl enclaveMediator;
+    @Mock private StreamObserver<ReceiveResponse> receiveResponseObserver;
+
+    @Mock private TransactionManagerImpl enclaveMediator;
 
     private APITransactionGrpcService service;
 
@@ -41,10 +38,12 @@ public class APITransactionGrpcServiceTest {
     @Test
     public void testSend() {
 
-        SendRequest sendRequest = SendRequest.newBuilder()
-                .setFrom("bXlwdWJsaWNrZXk=")
-                .addTo("cmVjaXBpZW50MQ==")
-                .setPayload(ByteString.copyFromUtf8("Zm9v")).build();
+        SendRequest sendRequest =
+                SendRequest.newBuilder()
+                        .setFrom("bXlwdWJsaWNrZXk=")
+                        .addTo("cmVjaXBpZW50MQ==")
+                        .setPayload(ByteString.copyFromUtf8("Zm9v"))
+                        .build();
 
         com.quorum.tessera.api.model.SendResponse r = new com.quorum.tessera.api.model.SendResponse("KEY");
         when(enclaveMediator.send(any())).thenReturn(r);
@@ -60,10 +59,8 @@ public class APITransactionGrpcServiceTest {
 
     @Test
     public void testSendWithEmptySender() {
-        SendRequest sendRequest = SendRequest.newBuilder()
-                .addTo("cmVjaXBpZW50MQ==")
-                .setPayload(ByteString.copyFromUtf8("Zm9v"))
-                .build();
+        SendRequest sendRequest =
+                SendRequest.newBuilder().addTo("cmVjaXBpZW50MQ==").setPayload(ByteString.copyFromUtf8("Zm9v")).build();
 
         com.quorum.tessera.api.model.SendResponse r = new com.quorum.tessera.api.model.SendResponse("KEY");
         when(enclaveMediator.send(any())).thenReturn(r);
@@ -80,14 +77,16 @@ public class APITransactionGrpcServiceTest {
     @Test
     public void testReceive() {
 
-        com.quorum.tessera.api.model.ReceiveResponse r = new com.quorum.tessera.api.model.ReceiveResponse("SOME DATA".getBytes());
+        com.quorum.tessera.api.model.ReceiveResponse r =
+                new com.quorum.tessera.api.model.ReceiveResponse("SOME DATA".getBytes());
 
         when(enclaveMediator.receive(any())).thenReturn(r);
 
-        ReceiveRequest request = ReceiveRequest.newBuilder()
-                .setTo("cmVjaXBpZW50MQ==")
-                .setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=")
-                .build();
+        ReceiveRequest request =
+                ReceiveRequest.newBuilder()
+                        .setTo("cmVjaXBpZW50MQ==")
+                        .setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=")
+                        .build();
 
         service.receive(request, receiveResponseObserver);
 
@@ -105,9 +104,8 @@ public class APITransactionGrpcServiceTest {
     @Test
     public void testReceiveWithNoToField() {
 
-        ReceiveRequest request = ReceiveRequest.newBuilder()
-                .setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=")
-                .build();
+        ReceiveRequest request =
+                ReceiveRequest.newBuilder().setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=").build();
 
         service.receive(request, receiveResponseObserver);
 
@@ -117,26 +115,21 @@ public class APITransactionGrpcServiceTest {
     @Test
     public void invalidSendRequest() {
 
-        SendRequest sendRequest = SendRequest.newBuilder()
-                .setFrom("bXlwdWJsaWNrZXk=")
-                .addTo("cmVjaXBpZW50MQ==").build();
+        SendRequest sendRequest =
+                SendRequest.newBuilder().setFrom("bXlwdWJsaWNrZXk=").addTo("cmVjaXBpZW50MQ==").build();
 
         service.send(sendRequest, sendResponseObserver);
 
         verify(sendResponseObserver).onError(any());
-
     }
 
     @Test
     public void invalidReceiveRequest() {
 
-        ReceiveRequest request = ReceiveRequest.newBuilder()
-                .build();
+        ReceiveRequest request = ReceiveRequest.newBuilder().build();
 
         service.receive(request, receiveResponseObserver);
 
         verify(receiveResponseObserver).onError(any());
-
     }
-
 }

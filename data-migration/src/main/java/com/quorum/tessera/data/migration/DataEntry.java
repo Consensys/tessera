@@ -20,5 +20,4 @@ public class DataEntry {
     public InputStream getValue() {
         return this.value;
     }
-
 }

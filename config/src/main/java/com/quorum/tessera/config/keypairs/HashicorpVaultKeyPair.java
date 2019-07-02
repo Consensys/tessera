@@ -7,27 +7,18 @@ import javax.xml.bind.annotation.XmlElement;
 
 public class HashicorpVaultKeyPair implements ConfigKeyPair {
 
-    @NotNull
-    @XmlElement
-    private String publicKeyId;
+    @NotNull @XmlElement private String publicKeyId;
 
-    @NotNull
-    @XmlElement
-    private String privateKeyId;
+    @NotNull @XmlElement private String privateKeyId;
 
-    @NotNull
-    @XmlElement
-    private String secretEngineName;
+    @NotNull @XmlElement private String secretEngineName;
 
-    @NotNull
-    @XmlElement
-    private String secretName;
+    @NotNull @XmlElement private String secretName;
 
-    @ValidPositiveInteger
-    @XmlElement
-    private String secretVersion;
+    @ValidPositiveInteger @XmlElement private String secretVersion;
 
-    public HashicorpVaultKeyPair(String publicKeyId, String privateKeyId, String secretEngineName, String secretName, String secretVersion) {
+    public HashicorpVaultKeyPair(
+            String publicKeyId, String privateKeyId, String secretEngineName, String secretName, String secretVersion) {
         this.publicKeyId = publicKeyId;
         this.privateKeyId = privateKeyId;
         this.secretEngineName = secretEngineName;
@@ -56,7 +47,7 @@ public class HashicorpVaultKeyPair implements ConfigKeyPair {
     }
 
     public Integer getSecretVersionAsInt() {
-        if(secretVersion == null) {
+        if (secretVersion == null) {
             return 0;
         } else {
             return Integer.parseInt(secretVersion);
@@ -65,24 +56,24 @@ public class HashicorpVaultKeyPair implements ConfigKeyPair {
 
     @Override
     public String getPublicKey() {
-        //keys are not fetched from vault yet so return null
+        // keys are not fetched from vault yet so return null
         return null;
     }
 
     @Override
     public String getPrivateKey() {
-        //keys are not fetched from vault yet so return null
+        // keys are not fetched from vault yet so return null
         return null;
     }
 
     @Override
     public void withPassword(String password) {
-        //password not used with vault stored keys
+        // password not used with vault stored keys
     }
 
     @Override
     public String getPassword() {
-        //no password to return
+        // no password to return
         return "";
     }
 }

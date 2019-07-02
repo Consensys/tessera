@@ -13,5 +13,4 @@ public class HashicorpCredentialNotSetExceptionTest {
 
         assertThat(exception).hasMessage(msg);
     }
-
 }

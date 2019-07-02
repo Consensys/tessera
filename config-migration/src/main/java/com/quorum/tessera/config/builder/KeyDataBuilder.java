@@ -16,8 +16,7 @@ import static java.util.stream.Collectors.toList;
 
 public class KeyDataBuilder {
 
-    private KeyDataBuilder() {
-    }
+    private KeyDataBuilder() {}
 
     public static KeyDataBuilder create() {
         return new KeyDataBuilder();
@@ -52,19 +51,23 @@ public class KeyDataBuilder {
     }
 
     public KeyConfiguration build() {
-        if(publicKeys.size() != privateKeys.size()) {
+        if (publicKeys.size() != privateKeys.size()) {
             throw new ConfigException(new RuntimeException("Different amount of public and private keys supplied"));
         }
 
-        final List<ConfigKeyPair> keyData = IntStream
-            .range(0, publicKeys.size())
-            .mapToObj(i -> new FilesystemKeyPair(ConfigBuilder.toPath(workdir, publicKeys.get(i)), ConfigBuilder.toPath(workdir, privateKeys.get(i))))
-            .collect(toList());
+        final List<ConfigKeyPair> keyData =
+                IntStream.range(0, publicKeys.size())
+                        .mapToObj(
+                                i ->
+                                        new FilesystemKeyPair(
+                                                ConfigBuilder.toPath(workdir, publicKeys.get(i)),
+                                                ConfigBuilder.toPath(workdir, privateKeys.get(i))))
+                        .collect(toList());
 
         final Path privateKeyPasswordFilePath;
-        if(!Objects.isNull(workdir) && !Objects.isNull(privateKeyPasswordFile)) {
+        if (!Objects.isNull(workdir) && !Objects.isNull(privateKeyPasswordFile)) {
             privateKeyPasswordFilePath = Paths.get(workdir, privateKeyPasswordFile);
-        } else if(!Objects.isNull(privateKeyPasswordFile)) {
+        } else if (!Objects.isNull(privateKeyPasswordFile)) {
             privateKeyPasswordFilePath = Paths.get(privateKeyPasswordFile);
         } else {
             privateKeyPasswordFilePath = null;
@@ -72,5 +75,4 @@ public class KeyDataBuilder {
 
         return new KeyConfiguration(privateKeyPasswordFilePath, null, keyData, null, null);
     }
-
 }

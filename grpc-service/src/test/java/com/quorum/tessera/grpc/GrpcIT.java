@@ -15,23 +15,19 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration(classes = GrpcITConfig.class)
 public class GrpcIT {
 
-    @Inject
-    private TesseraGrpcService tesseraGrpcService;
+    @Inject private TesseraGrpcService tesseraGrpcService;
 
-    @Inject
-    private P2PTransactionGrpcService p2pTransactionGrpcService;
+    @Inject private P2PTransactionGrpcService p2pTransactionGrpcService;
 
-    @Inject
-    private APITransactionGrpcService apiTransactionGrpcService;
+    @Inject private APITransactionGrpcService apiTransactionGrpcService;
 
-    @Inject
-    private PartyInfoGrpcService partyInfoGrpcService;
-    
+    @Inject private PartyInfoGrpcService partyInfoGrpcService;
+
     @Test
     public void tesseraGrpcServiceHasBeenCreated() {
         assertThat(tesseraGrpcService).isNotNull();
     }
-    
+
     @Test
     public void p2pTransactionGrpcServiceHasBeenCreated() {
         assertThat(p2pTransactionGrpcService).isNotNull();
@@ -46,5 +42,4 @@ public class GrpcIT {
     public void partyInfoGrpcServiceHasBeenCreated() {
         assertThat(partyInfoGrpcService).isNotNull();
     }
-
 }

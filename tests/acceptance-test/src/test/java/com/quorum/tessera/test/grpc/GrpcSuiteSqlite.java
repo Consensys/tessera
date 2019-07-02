@@ -11,7 +11,4 @@ import suite.TestSuite;
         communicationType = CommunicationType.GRPC,
         dbType = DBType.SQLITE,
         socketType = SocketType.HTTP)
-public class GrpcSuiteSqlite extends GrpcSuite {
-
-
-}
+public class GrpcSuiteSqlite extends GrpcSuite {}

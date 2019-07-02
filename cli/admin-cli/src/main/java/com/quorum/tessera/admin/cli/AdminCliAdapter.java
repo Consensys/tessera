@@ -23,9 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * Cli Adapter to be used for runtime updates
- */
+/** Cli Adapter to be used for runtime updates */
 public class AdminCliAdapter implements CliAdapter {
 
     private final ClientFactory clientFactory;
@@ -45,7 +43,6 @@ public class AdminCliAdapter implements CliAdapter {
     }
 
     /**
-     *
      * @param args
      * @return CliResult with config object always null.
      * @throws Exception
@@ -65,23 +62,30 @@ public class AdminCliAdapter implements CliAdapter {
                         .argName("PATH")
                         .build());
 
-        options.addOption(Option.builder("addpeer")
-                .desc("Add peer to running node")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("URL")
-                .build());
+        options.addOption(
+                Option.builder("addpeer")
+                        .desc("Add peer to running node")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("URL")
+                        .build());
 
         final List<String> argsList = Arrays.asList(args);
 
         if (argsList.contains("help") || argsList.isEmpty()) {
             HelpFormatter formatter = new HelpFormatter();
             PrintWriter pw = new PrintWriter(sys().out());
-            formatter.printHelp(pw,
-                    200, "tessera admin",
-                    null, options, formatter.getLeftPadding(),
-                    formatter.getDescPadding(), null, false);
+            formatter.printHelp(
+                    pw,
+                    200,
+                    "tessera admin",
+                    null,
+                    options,
+                    formatter.getLeftPadding(),
+                    formatter.getDescPadding(),
+                    null,
+                    false);
             pw.flush();
 
             return new CliResult(0, true, null);
@@ -95,10 +99,12 @@ public class AdminCliAdapter implements CliAdapter {
 
         Config config = new ConfigurationParser().parse(line);
 
-        //TODO revisit - maybe the admin stuff should be reached via unix socket - in order to avoid security concerns
-        ServerConfig serverConfig = config.getServerConfigs().stream()
-                .filter(c -> c.getApp() == AppType.ADMIN)
-                .findFirst().orElse(config.getServerConfigs().stream().findAny().get());
+        // TODO revisit - maybe the admin stuff should be reached via unix socket - in order to avoid security concerns
+        ServerConfig serverConfig =
+                config.getServerConfigs().stream()
+                        .filter(c -> c.getApp() == AppType.ADMIN)
+                        .findFirst()
+                        .orElse(config.getServerConfigs().stream().findAny().get());
 
         Client restClient = clientFactory.buildFrom(serverConfig);
 
@@ -106,27 +112,20 @@ public class AdminCliAdapter implements CliAdapter {
 
         final Peer peer = new Peer(peerUrl);
 
-        String scheme = Optional.of(serverConfig)
-                .map(ServerConfig::getBindingUri)
-                .map(URI::getScheme)
-                .orElse("http");
+        String scheme = Optional.of(serverConfig).map(ServerConfig::getBindingUri).map(URI::getScheme).orElse("http");
 
-        Integer port = Optional.of(serverConfig)
-                .map(ServerConfig::getServerUri)
-                .map(URI::getPort)
-                .orElse(80);
+        Integer port = Optional.of(serverConfig).map(ServerConfig::getServerUri).map(URI::getPort).orElse(80);
 
-        URI uri = UriBuilder.fromUri(serverConfig.getBindingUri())
-                .port(port)
-                .scheme(scheme)
-                .build();
+        URI uri = UriBuilder.fromUri(serverConfig.getBindingUri()).port(port).scheme(scheme).build();
 
-        Response response = restClient.target(uri)
-                .path("config")
-                .path("peers")
-                .request(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .put(Entity.entity(peer, MediaType.APPLICATION_JSON));
+        Response response =
+                restClient
+                        .target(uri)
+                        .path("config")
+                        .path("peers")
+                        .request(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .put(Entity.entity(peer, MediaType.APPLICATION_JSON));
 
         if (response.getStatus() == Response.Status.CREATED.getStatusCode()) {
 
@@ -140,5 +139,4 @@ public class AdminCliAdapter implements CliAdapter {
 
         return new CliResult(1, true, null);
     }
-
 }

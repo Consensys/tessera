@@ -13,8 +13,7 @@ public class PathAdapterTest {
 
     private PathAdapter pathAdapter;
 
-    public PathAdapterTest() {
-    }
+    public PathAdapterTest() {}
 
     @Before
     public void setUp() {
@@ -36,14 +35,14 @@ public class PathAdapterTest {
 
         assertThat(result).isEqualTo("/somepath/to/someplace");
     }
-    
+
     @Test
     public void marshalNull() {
 
         String result = pathAdapter.marshal(null);
         assertThat(result).isNull();
     }
-    
+
     @Test
     public void unmarshal() {
 
@@ -53,7 +52,7 @@ public class PathAdapterTest {
 
         assertThat(result).isEqualTo(Paths.get(value));
     }
-    
+
     @Test
     public void unmarshalNull() {
 

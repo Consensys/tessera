@@ -93,7 +93,5 @@ public class NaclFacadeTest {
         public SharedKey createSingleKey() {
             return SharedKey.from("createSingleKey".getBytes());
         }
-
     }
-
 }

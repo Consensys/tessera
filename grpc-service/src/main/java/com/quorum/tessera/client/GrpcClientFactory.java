@@ -21,5 +21,4 @@ class GrpcClientFactory {
         }
         return newClient(targetUrl);
     }
-
 }

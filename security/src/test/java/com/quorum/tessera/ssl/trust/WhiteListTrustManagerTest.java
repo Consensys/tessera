@@ -29,8 +29,7 @@ public class WhiteListTrustManagerTest {
 
     Path knownHosts;
 
-    @Mock
-    X509Certificate certificate;
+    @Mock X509Certificate certificate;
 
     @Before
     public void setUp() throws IOException, CertificateException {
@@ -48,7 +47,6 @@ public class WhiteListTrustManagerTest {
         }
 
         trustManager = new WhiteListTrustManager(knownHosts);
-
     }
 
     @After
@@ -59,25 +57,21 @@ public class WhiteListTrustManagerTest {
     @Test
     public void testLoadCertificatesFromWhiteListFile() throws CertificateException {
 
-        trustManager.checkServerTrusted(new X509Certificate[]{certificate},"str");
-        trustManager.checkClientTrusted(new X509Certificate[]{certificate},"str");
+        trustManager.checkServerTrusted(new X509Certificate[] {certificate}, "str");
+        trustManager.checkClientTrusted(new X509Certificate[] {certificate}, "str");
 
         verify(certificate, times(3)).getEncoded();
         verify(certificate, times(2)).getSubjectX500Principal();
-
     }
 
     @Test
     public void testCertificatesNotInWhiteList() throws CertificateException {
         when(certificate.getEncoded()).thenReturn("some-other-thumbprint".getBytes(UTF_8));
         try {
-            trustManager.checkClientTrusted(new X509Certificate[]{certificate}, "str");
+            trustManager.checkClientTrusted(new X509Certificate[] {certificate}, "str");
             failBecauseExceptionWasNotThrown(Exception.class);
-        }
-        catch (Exception ex){
-            assertThat(ex)
-                .isInstanceOf(CertificateException.class)
-                .hasMessage("Connections not allowed");
+        } catch (Exception ex) {
+            assertThat(ex).isInstanceOf(CertificateException.class).hasMessage("Connections not allowed");
         }
         verify(certificate, times(2)).getEncoded();
         verify(certificate).getSubjectX500Principal();
@@ -88,5 +82,4 @@ public class WhiteListTrustManagerTest {
         assertThat(trustManager.getAcceptedIssuers()).isEmpty();
         verify(certificate).getEncoded();
     }
-
 }

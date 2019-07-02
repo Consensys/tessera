@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.config.CommunicationType;
@@ -12,12 +11,7 @@ import suite.TestSuite;
 @TestSuite.ProcessConfig(
         communicationType = CommunicationType.REST,
         dbType = DBType.H2,
-        socketType = SocketType.HTTP,admin = true)
-
-@TestSuite.SuiteClasses({
-    AdminConfigIT.class,
-    CucumberAdminIT.class
-})
-public class AdminRestSuite {
-    
-}
+        socketType = SocketType.HTTP,
+        admin = true)
+@TestSuite.SuiteClasses({AdminConfigIT.class, CucumberAdminIT.class})
+public class AdminRestSuite {}

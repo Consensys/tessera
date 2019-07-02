@@ -24,5 +24,4 @@ public class ServiceLoaderUtilTest {
         assertThat(result).isPresent();
         assertThat(result).get().isInstanceOf(DefaultTestService.class);
     }
-
 }

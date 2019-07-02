@@ -39,7 +39,6 @@ public class IPWhitelistFilterTest {
         when(configService.isUseWhiteList()).thenReturn(true);
 
         this.filter = new IPWhitelistFilter(configService);
-
     }
 
     @Test
@@ -47,7 +46,6 @@ public class IPWhitelistFilterTest {
         final ConfigService configService = mock(ConfigService.class);
         when(configService.getPeers()).thenReturn(emptyList());
         when(configService.isUseWhiteList()).thenReturn(false);
-
 
         final IPWhitelistFilter filter = new IPWhitelistFilter(configService);
 
@@ -82,7 +80,6 @@ public class IPWhitelistFilterTest {
         verify(ctx).abortWith(captor.capture());
 
         assertThat(captor.getValue()).isEqualToComparingFieldByFieldRecursively(expectedResponse);
-
     }
 
     @Test
@@ -98,13 +95,12 @@ public class IPWhitelistFilterTest {
         verify(request).getRemoteAddr();
         verify(ctx).getUriInfo();
         verifyNoMoreInteractions(ctx);
-
     }
 
     @Test
     public void errorFilteringStopsFutureFilters() {
 
-        //show that one request goes through okay
+        // show that one request goes through okay
         final HttpServletRequest request = mock(HttpServletRequest.class);
         doReturn("whitelistedHost").when(request).getRemoteAddr();
         filter.setHttpServletRequest(request);
@@ -114,7 +110,7 @@ public class IPWhitelistFilterTest {
         verify(ctx).getUriInfo();
         verifyNoMoreInteractions(ctx);
 
-        //show the second one errors
+        // show the second one errors
         final HttpServletRequest requestError = mock(HttpServletRequest.class);
         doThrow(RuntimeException.class).when(requestError).getRemoteHost();
         filter.setHttpServletRequest(requestError);
@@ -123,7 +119,7 @@ public class IPWhitelistFilterTest {
         verifyNoMoreInteractions(ctx);
         verify(request).getRemoteAddr();
 
-        //show the third doesn't get filtered
+        // show the third doesn't get filtered
         final HttpServletRequest requestIgnored = mock(HttpServletRequest.class);
         filter.setHttpServletRequest(requestIgnored);
         filter.filter(ctx);
@@ -147,5 +143,4 @@ public class IPWhitelistFilterTest {
         verifyNoMoreInteractions(ctx);
         verifyZeroInteractions(requestError);
     }
-
 }

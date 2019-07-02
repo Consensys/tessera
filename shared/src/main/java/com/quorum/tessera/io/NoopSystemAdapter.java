@@ -5,9 +5,9 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 public class NoopSystemAdapter implements SystemAdapter {
-    
+
     private static final NoopPrintStream PRINT_STREAM = new NoopPrintStream();
-    
+
     @Override
     public PrintStream out() {
         return PRINT_STREAM;
@@ -20,14 +20,12 @@ public class NoopSystemAdapter implements SystemAdapter {
 
     static class NoopPrintStream extends PrintStream {
 
-       NoopPrintStream() {
-            super(new OutputStream() {
-                @Override
-                public void write(int b) throws IOException {
-                }
-            });
+        NoopPrintStream() {
+            super(
+                    new OutputStream() {
+                        @Override
+                        public void write(int b) throws IOException {}
+                    });
         }
-    
     }
-    
 }

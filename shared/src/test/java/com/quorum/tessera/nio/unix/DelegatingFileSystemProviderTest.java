@@ -27,12 +27,13 @@ public class DelegatingFileSystemProviderTest {
     public void onSetup() {
         this.delegate = mock(FileSystemProvider.class);
 
-        this.provider = new DelegatingFileSystemProvider(delegate) {
-            @Override
-            public String getScheme() {
-                return null;
-            }
-        };
+        this.provider =
+                new DelegatingFileSystemProvider(delegate) {
+                    @Override
+                    public String getScheme() {
+                        return null;
+                    }
+                };
     }
 
     @After
@@ -135,8 +136,7 @@ public class DelegatingFileSystemProviderTest {
     }
 
     @Test
-    public void newFileChannel() throws IOException
-    {
+    public void newFileChannel() throws IOException {
         final Path path = mock(Path.class);
         final Set<OpenOption> options = new HashSet<>();
 
@@ -291,5 +291,4 @@ public class DelegatingFileSystemProviderTest {
 
         verify(delegate).setAttribute(path, attribute, value);
     }
-
 }

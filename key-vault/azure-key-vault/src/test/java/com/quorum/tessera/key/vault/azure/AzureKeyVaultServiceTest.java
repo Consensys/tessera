@@ -75,7 +75,8 @@ public class AzureKeyVaultServiceTest {
     public void getSecretThrowsExceptionIfKeyNotFoundInVault() {
         when(azureKeyVaultClientDelegate.getSecret(anyString(), anyString())).thenReturn(null);
 
-        AzureKeyVaultService azureKeyVaultService = new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
+        AzureKeyVaultService azureKeyVaultService =
+                new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
 
         String secretName = "secret";
 
@@ -85,7 +86,8 @@ public class AzureKeyVaultServiceTest {
         Throwable throwable = catchThrowable(() -> azureKeyVaultService.getSecret(getSecretData));
 
         assertThat(throwable).isInstanceOf(VaultSecretNotFoundException.class);
-        assertThat(throwable).hasMessageContaining("Azure Key Vault secret " + secretName + " was not found in vault " + vaultUrl);
+        assertThat(throwable)
+                .hasMessageContaining("Azure Key Vault secret " + secretName + " was not found in vault " + vaultUrl);
     }
 
     @Test

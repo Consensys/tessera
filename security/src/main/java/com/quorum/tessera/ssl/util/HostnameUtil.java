@@ -13,7 +13,7 @@ public interface HostnameUtil {
         return InetAddress.getLocalHost().getHostAddress();
     }
 
-    static HostnameUtil create(){
+    static HostnameUtil create() {
         return new HostnameUtil() {};
     }
 }

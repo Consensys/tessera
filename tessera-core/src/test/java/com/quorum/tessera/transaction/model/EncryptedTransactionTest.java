@@ -22,7 +22,6 @@ public class EncryptedTransactionTest {
 
         assertThat(encryptedTransaction.getHash()).isSameAs(hash);
         assertThat(encryptedTransaction.getEncodedPayload()).isSameAs(payload);
-
     }
 
     @Test
@@ -34,14 +33,12 @@ public class EncryptedTransactionTest {
 
         assertThat(encryptedTransaction.getHash()).isSameAs(hash);
         assertThat(encryptedTransaction.getEncodedPayload()).isSameAs(payload);
-
     }
 
     @Test
     public void subclassesEqual() {
 
-        class OtherClass extends EncryptedTransaction {
-        }
+        class OtherClass extends EncryptedTransaction {}
 
         final OtherClass other = new OtherClass();
         final EncryptedTransaction et = new EncryptedTransaction();

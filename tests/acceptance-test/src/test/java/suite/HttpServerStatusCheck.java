@@ -15,7 +15,7 @@ public class HttpServerStatusCheck implements ServerStatusCheck {
     @Override
     public boolean checkStatus() {
         HttpURLConnection conn = null;
-        try{
+        try {
 
             conn = (HttpURLConnection) url.openConnection();
             conn.connect();
@@ -28,12 +28,10 @@ public class HttpServerStatusCheck implements ServerStatusCheck {
                 conn.disconnect();
             }
         }
-
     }
 
     @Override
     public String toString() {
         return "HttpServerStatusCheck{" + "url=" + url + '}';
     }
-
 }

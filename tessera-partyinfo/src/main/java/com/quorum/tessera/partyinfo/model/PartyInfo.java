@@ -6,14 +6,11 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Contains all information that is transferred between two nodes on the
- * network, including:
- * - the external URL of this node
- * - all known {@link Recipient} that contains public key to URL mappings
- * - all known URLs on the network
+ * Contains all information that is transferred between two nodes on the network, including: - the external URL of this
+ * node - all known {@link Recipient} that contains public key to URL mappings - all known URLs on the network
  */
 public class PartyInfo {
-    
+
     private final String url;
 
     private Set<Recipient> recipients;
@@ -37,5 +34,4 @@ public class PartyInfo {
     public Set<Party> getParties() {
         return parties;
     }
-
 }

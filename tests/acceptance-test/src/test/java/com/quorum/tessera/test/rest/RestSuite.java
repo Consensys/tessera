@@ -1,10 +1,7 @@
-
 package com.quorum.tessera.test.rest;
-
 
 import com.quorum.tessera.test.CucumberRawIT;
 import com.quorum.tessera.test.CucumberRestIT;
-
 
 @suite.TestSuite.SuiteClasses({
     MultipleKeyNodeIT.class,
@@ -21,6 +18,4 @@ import com.quorum.tessera.test.CucumberRestIT;
     CucumberRestIT.class,
     CucumberRawIT.class
 })
-public abstract class RestSuite {
-    
-}
+public abstract class RestSuite {}

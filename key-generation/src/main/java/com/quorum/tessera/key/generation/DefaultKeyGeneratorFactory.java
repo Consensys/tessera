@@ -13,18 +13,20 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
     @Override
     public KeyGenerator create(KeyVaultConfig keyVaultConfig) {
 
-        if(keyVaultConfig != null) {
-            final KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(keyVaultConfig.getKeyVaultType());
+        if (keyVaultConfig != null) {
+            final KeyVaultServiceFactory keyVaultServiceFactory =
+                    KeyVaultServiceFactory.getInstance(keyVaultConfig.getKeyVaultType());
 
             final Config config = new Config();
             final KeyConfiguration keyConfiguration = new KeyConfiguration();
 
-            if(keyVaultConfig.getKeyVaultType().equals(KeyVaultType.AZURE)) {
+            if (keyVaultConfig.getKeyVaultType().equals(KeyVaultType.AZURE)) {
                 keyConfiguration.setAzureKeyVaultConfig((AzureKeyVaultConfig) keyVaultConfig);
 
                 config.setKeys(keyConfiguration);
 
-                final KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, new EnvironmentVariableProvider());
+                final KeyVaultService keyVaultService =
+                        keyVaultServiceFactory.create(config, new EnvironmentVariableProvider());
 
                 return new AzureVaultKeyGenerator(NaclFacadeFactory.newFactory().create(), keyVaultService);
 
@@ -33,14 +35,14 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
 
                 config.setKeys(keyConfiguration);
 
-                final KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, new EnvironmentVariableProvider());
+                final KeyVaultService keyVaultService =
+                        keyVaultServiceFactory.create(config, new EnvironmentVariableProvider());
 
                 return new HashicorpVaultKeyGenerator(NaclFacadeFactory.newFactory().create(), keyVaultService);
             }
         }
 
         return new FileKeyGenerator(
-            NaclFacadeFactory.newFactory().create(), KeyEncryptorFactory.create(), PasswordReaderFactory.create()
-        );
+                NaclFacadeFactory.newFactory().create(), KeyEncryptorFactory.create(), PasswordReaderFactory.create());
     }
 }

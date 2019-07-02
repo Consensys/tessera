@@ -23,8 +23,7 @@ import static org.mockito.Mockito.*;
 
 public class TrustOnFirstUseManagerTest {
 
-    @Rule
-    public TemporaryFolder tmpDir = new TemporaryFolder();
+    @Rule public TemporaryFolder tmpDir = new TemporaryFolder();
 
     private TrustOnFirstUseManager trustManager;
 
@@ -54,18 +53,18 @@ public class TrustOnFirstUseManagerTest {
 
         assertThat(Files.exists(knownHosts)).isFalse();
 
-        trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "s");
+        trustManager.checkServerTrusted(new X509Certificate[] {certificate}, "s");
 
         assertThat(Files.exists(knownHosts)).isTrue();
 
-        trustManager.checkClientTrusted(new X509Certificate[]{certificate}, "s");
+        trustManager.checkClientTrusted(new X509Certificate[] {certificate}, "s");
         verify(certificate, times(2)).getEncoded();
         verify(certificate, times(2)).getSubjectX500Principal();
     }
 
     @Test
     public void testFailedToGenerateWhiteListFile() throws IOException, CertificateEncodingException {
-        Path anotherFile = Paths.get(tmpDir.getRoot().getPath(),"parent", "anotherFile");
+        Path anotherFile = Paths.get(tmpDir.getRoot().getPath(), "parent", "anotherFile");
         tmpDir.getRoot().setWritable(false);
 
         trustManager = new TrustOnFirstUseManager(anotherFile);
@@ -75,12 +74,12 @@ public class TrustOnFirstUseManagerTest {
         when(certificate.getSubjectX500Principal()).thenReturn(cn);
 
         try {
-            trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "str");
+            trustManager.checkServerTrusted(new X509Certificate[] {certificate}, "str");
             failBecauseExceptionWasNotThrown(IOException.class);
         } catch (Exception ex) {
             assertThat(ex)
-                .isInstanceOf(CertificateException.class)
-                .hasMessageContaining("Failed to save address and certificate fingerprint to whitelist");
+                    .isInstanceOf(CertificateException.class)
+                    .hasMessageContaining("Failed to save address and certificate fingerprint to whitelist");
         }
 
         verify(certificate).getEncoded();
@@ -99,7 +98,7 @@ public class TrustOnFirstUseManagerTest {
 
         assertThat(Files.exists(anotherFile)).isFalse();
 
-        trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "str");
+        trustManager.checkServerTrusted(new X509Certificate[] {certificate}, "str");
 
         assertThat(Files.exists(anotherFile)).isTrue();
 
@@ -109,7 +108,6 @@ public class TrustOnFirstUseManagerTest {
         Files.deleteIfExists(anotherFile);
 
         assertThat(Files.exists(anotherFile)).isFalse();
-
     }
 
     @Test
@@ -128,8 +126,8 @@ public class TrustOnFirstUseManagerTest {
         when(certificate.getSubjectX500Principal()).thenReturn(cn);
 
         try {
-            trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "s");
-            trustManager.checkClientTrusted(new X509Certificate[]{certificate}, "s");
+            trustManager.checkServerTrusted(new X509Certificate[] {certificate}, "s");
+            trustManager.checkClientTrusted(new X509Certificate[] {certificate}, "s");
 
             failBecauseExceptionWasNotThrown(CertificateException.class);
         } catch (Exception ex) {
@@ -146,17 +144,16 @@ public class TrustOnFirstUseManagerTest {
         when(certificate.getSubjectX500Principal()).thenReturn(cn);
 
         try {
-            trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "str");
+            trustManager.checkServerTrusted(new X509Certificate[] {certificate}, "str");
             failBecauseExceptionWasNotThrown(IOException.class);
         } catch (Exception ex) {
             assertThat(ex)
-                .isInstanceOf(CertificateException.class)
-                .hasMessageContaining("This address has been associated with a different certificate");
+                    .isInstanceOf(CertificateException.class)
+                    .hasMessageContaining("This address has been associated with a different certificate");
         }
 
         verify(certificate, times(3)).getEncoded();
         verify(certificate, times(3)).getSubjectX500Principal();
-
     }
 
     @Test
@@ -164,5 +161,4 @@ public class TrustOnFirstUseManagerTest {
         trustManager = new TrustOnFirstUseManager(knownHosts);
         assertThat(trustManager.getAcceptedIssuers()).isEmpty();
     }
-
 }

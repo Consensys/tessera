@@ -29,7 +29,7 @@ public class AzureKeyVaultClientCredentialsTest {
     public void onSetUp() {
         executorService = mock(ExecutorService.class);
         authenticationContext = mock(AuthenticationContext.class);
-        credentials = new AzureKeyVaultClientCredentials("clientId","clientSecret", executorService);
+        credentials = new AzureKeyVaultClientCredentials("clientId", "clientSecret", executorService);
         credentials.setAuthenticationContext(authenticationContext);
     }
 
@@ -37,12 +37,13 @@ public class AzureKeyVaultClientCredentialsTest {
     public void getCredentialsUsingInjectedParameters() throws Exception {
         Future<AuthenticationResult> response = mock(Future.class);
 
-        AuthenticationResult authenticationResult = new AuthenticationResult(null,"accessToken",null,0L,null,null,false);
+        AuthenticationResult authenticationResult =
+                new AuthenticationResult(null, "accessToken", null, 0L, null, null, false);
 
         when(response.get()).thenReturn(authenticationResult);
         when(authenticationContext.acquireToken(anyString(), any(ClientCredential.class), any())).thenReturn(response);
 
-        String result = credentials.doAuthenticate("auth","resource",null);
+        String result = credentials.doAuthenticate("auth", "resource", null);
 
         assertThat(result).isEqualTo("accessToken");
         verify(authenticationContext).acquireToken(anyString(), any(ClientCredential.class), any());
@@ -54,8 +55,7 @@ public class AzureKeyVaultClientCredentialsTest {
         credentials.setAuthenticationContext(null);
         final Throwable ex = catchThrowable(() -> credentials.doAuthenticate("url", null, null));
 
-        assertThat(ex).isInstanceOf(RuntimeException.class)
-        .hasMessageContaining("no protocol");
+        assertThat(ex).isInstanceOf(RuntimeException.class).hasMessageContaining("no protocol");
     }
 
     @Test
@@ -63,8 +63,9 @@ public class AzureKeyVaultClientCredentialsTest {
         credentials.setAuthenticationContext(null);
         final Throwable ex = catchThrowable(() -> credentials.doAuthenticate("https://url", null, null));
 
-        assertThat(ex).isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Uri should have at least one segment in the path");
+        assertThat(ex)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Uri should have at least one segment in the path");
     }
 
     @Test
@@ -72,8 +73,9 @@ public class AzureKeyVaultClientCredentialsTest {
         credentials.setAuthenticationContext(null);
         final Throwable ex = catchThrowable(() -> credentials.doAuthenticate("http://url/path", null, null));
 
-        assertThat(ex).isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("should use the 'https' scheme");
+        assertThat(ex)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("should use the 'https' scheme");
     }
 
     @Test
@@ -82,20 +84,20 @@ public class AzureKeyVaultClientCredentialsTest {
         String goodUrl = "https://url/path";
         final Throwable ex = catchThrowable(() -> credentials.doAuthenticate(goodUrl, null, null));
 
-        assertThat(ex).isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("resource is null or empty");
+        assertThat(ex).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("resource is null or empty");
     }
 
-    //this null pointer exception is thrown when authenticationContext.acquireToken called, not due to null scope
+    // this null pointer exception is thrown when authenticationContext.acquireToken called, not due to null scope
     @Test(expected = NullPointerException.class)
     public void scopeCanBeNull() {
         credentials.setAuthenticationContext(null);
         String goodUrl = "https://host/path";
-        credentials.doAuthenticate(goodUrl,"resource",null);
+        credentials.doAuthenticate(goodUrl, "resource", null);
     }
 
     @Test(expected = RuntimeException.class)
-    public void ifFutureAbortsThenExecutionExceptionThrownAsRuntimeException() throws ExecutionException, InterruptedException {
+    public void ifFutureAbortsThenExecutionExceptionThrownAsRuntimeException()
+            throws ExecutionException, InterruptedException {
         Future<AuthenticationResult> response = mock(Future.class);
         when(response.get()).thenThrow(ExecutionException.class);
         when(authenticationContext.acquireToken(anyString(), any(ClientCredential.class), any())).thenReturn(response);
@@ -119,8 +121,10 @@ public class AzureKeyVaultClientCredentialsTest {
         String goodUrl = "https://url/path";
         final Throwable ex = catchThrowable(() -> credentials.doAuthenticate(goodUrl, null, null));
 
-        assertThat(ex).isInstanceOf(RuntimeException.class)
-            .hasMessageContaining(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
+        assertThat(ex)
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining(
+                        AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
     }
 
     @Test
@@ -130,8 +134,10 @@ public class AzureKeyVaultClientCredentialsTest {
         String goodUrl = "https://url/path";
         final Throwable ex = catchThrowable(() -> credentials.doAuthenticate(goodUrl, null, null));
 
-        assertThat(ex).isInstanceOf(RuntimeException.class)
-            .hasMessageContaining(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
+        assertThat(ex)
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining(
+                        AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
     }
 
     @Test
@@ -141,8 +147,10 @@ public class AzureKeyVaultClientCredentialsTest {
         String goodUrl = "https://url/path";
         final Throwable ex = catchThrowable(() -> credentials.doAuthenticate(goodUrl, null, null));
 
-        assertThat(ex).isInstanceOf(RuntimeException.class)
-            .hasMessageContaining(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
+        assertThat(ex)
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining(
+                        AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
     }
 
     @Test

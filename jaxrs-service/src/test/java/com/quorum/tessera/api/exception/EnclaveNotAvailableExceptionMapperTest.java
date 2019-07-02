@@ -8,7 +8,7 @@ import javax.ws.rs.core.Response;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EnclaveNotAvailableExceptionMapperTest {
-    
+
     private EnclaveNotAvailableExceptionMapper instance = new EnclaveNotAvailableExceptionMapper();
 
     @Test

@@ -28,12 +28,11 @@ abstract class AbstractTrustManager implements X509TrustManager {
         getWhiteListedCertificateForServerAddress();
     }
 
-    AbstractTrustManager(){
-    }
+    AbstractTrustManager() {}
 
     private void getWhiteListedCertificateForServerAddress() throws IOException {
 
-        if (knownHostsFile.toFile().exists()){
+        if (knownHostsFile.toFile().exists()) {
             try (BufferedReader reader = Files.newBufferedReader(knownHostsFile)) {
                 String line;
                 while ((line = reader.readLine()) != null) {
@@ -65,8 +64,7 @@ abstract class AbstractTrustManager implements X509TrustManager {
 
         this.certificates.put(address, thumbPrint);
 
-        try (BufferedWriter writer = Files.newBufferedWriter(knownHostsFile, StandardOpenOption.APPEND))
-        {
+        try (BufferedWriter writer = Files.newBufferedWriter(knownHostsFile, StandardOpenOption.APPEND)) {
             writer.write(address + " " + thumbPrint);
             writer.newLine();
         }
@@ -79,5 +77,4 @@ abstract class AbstractTrustManager implements X509TrustManager {
     boolean certificateValidForKnownHost(String address, String thumbPrint) {
         return this.certificates.get(address).equals(thumbPrint);
     }
-
 }

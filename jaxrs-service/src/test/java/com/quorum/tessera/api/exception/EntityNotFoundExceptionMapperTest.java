@@ -23,5 +23,4 @@ public class EntityNotFoundExceptionMapperTest {
         assertThat(result.getStatus()).isEqualTo(404);
         assertThat(result.getEntity()).isEqualTo(message);
     }
-
 }

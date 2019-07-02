@@ -8,7 +8,6 @@ import java.util.Objects;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-
 public class EncryptedRawTransactionTest {
 
     @Test
@@ -49,14 +48,12 @@ public class EncryptedRawTransactionTest {
         assertThat(encryptedRawTransaction.getEncryptedKey()).isSameAs(key);
         assertThat(encryptedRawTransaction.getNonce()).isSameAs(nonce);
         assertThat(encryptedRawTransaction.getSender()).isSameAs(from);
-
     }
 
     @Test
     public void subclassesEqual() {
 
-        class OtherClass extends EncryptedRawTransaction {
-        }
+        class OtherClass extends EncryptedRawTransaction {}
 
         final OtherClass other = new OtherClass();
         final EncryptedRawTransaction et = new EncryptedRawTransaction();
@@ -84,5 +81,4 @@ public class EncryptedRawTransactionTest {
 
         assertThat(et.hashCode()).isEqualTo(et.hashCode());
     }
-    
 }

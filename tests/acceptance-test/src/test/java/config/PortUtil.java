@@ -12,7 +12,6 @@ public class PortUtil {
         counter = new AtomicInteger(initial);
     }
 
-
     public int nextPort() {
 
         while (true) {

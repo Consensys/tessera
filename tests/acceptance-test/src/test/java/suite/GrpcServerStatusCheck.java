@@ -29,33 +29,25 @@ public class GrpcServerStatusCheck implements ServerStatusCheck {
     @Override
     public boolean checkStatus() {
 
-        ManagedChannel channel = ManagedChannelBuilder
-                .forAddress(url.getHost(), url.getPort())
-                .usePlaintext()
-                .build();
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(url.getHost(), url.getPort()).usePlaintext().build();
 
-        try{
-
+        try {
 
             if (appType == AppType.Q2T) {
 
-                CallOptions callOptions = APITransactionGrpc.newBlockingStub(channel)
-                        .getCallOptions();
-                
-                LOGGER.info("{} callOptions result {} ", appType, callOptions);
-               return true;
-            }
+                CallOptions callOptions = APITransactionGrpc.newBlockingStub(channel).getCallOptions();
 
+                LOGGER.info("{} callOptions result {} ", appType, callOptions);
+                return true;
+            }
 
             if (appType == AppType.P2P) {
 
-                UpCheckMessage result = TesseraGrpc.newBlockingStub(channel)
-                        .getUpCheck(Empty.getDefaultInstance());
+                UpCheckMessage result = TesseraGrpc.newBlockingStub(channel).getUpCheck(Empty.getDefaultInstance());
                 LOGGER.info("{} Upcheck result {} ", appType, result.getUpCheck());
 
-                CallOptions callOptions = P2PTransactionGrpc.newBlockingStub(channel)
-                        .getCallOptions();
-                
+                CallOptions callOptions = P2PTransactionGrpc.newBlockingStub(channel).getCallOptions();
+
                 LOGGER.info("{} callOptions result {} ", appType, callOptions);
 
                 return true;
@@ -68,12 +60,10 @@ public class GrpcServerStatusCheck implements ServerStatusCheck {
         } finally {
             channel.shutdown();
         }
-
     }
 
     @Override
     public String toString() {
         return "GrpcServerStatusCheck{" + "appType=" + appType + ", url=" + url + '}';
     }
-
 }

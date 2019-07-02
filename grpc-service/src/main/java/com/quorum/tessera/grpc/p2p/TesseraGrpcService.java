@@ -22,12 +22,10 @@ public class TesseraGrpcService extends TesseraGrpc.TesseraImplBase {
 
         StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
-        template.handle(() -> {
-            return VersionMessage.newBuilder()
-                    .setVersion(VERSION)
-                    .build();
-        });
-
+        template.handle(
+                () -> {
+                    return VersionMessage.newBuilder().setVersion(VERSION).build();
+                });
     }
 
     @Override
@@ -35,12 +33,9 @@ public class TesseraGrpcService extends TesseraGrpc.TesseraImplBase {
         LOGGER.info("GET upcheck");
         StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
-        template.handle(() -> {
-            return UpCheckMessage.newBuilder()
-                    .setUpCheck(UPCHECK_RESPONSE)
-                    .build();
-        });
-
+        template.handle(
+                () -> {
+                    return UpCheckMessage.newBuilder().setUpCheck(UPCHECK_RESPONSE).build();
+                });
     }
-
 }

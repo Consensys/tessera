@@ -19,9 +19,12 @@ public interface KeyVaultServiceFactory {
         ServiceLoader.load(KeyVaultServiceFactory.class).forEach(providers::add);
 
         return providers.stream()
-            .filter(factory -> factory.getType() == keyVaultType)
-            .findFirst()
-            .orElseThrow(() -> new NoKeyVaultServiceFactoryException(keyVaultType + " implementation of KeyVaultServiceFactory was not found on the classpath"));
+                .filter(factory -> factory.getType() == keyVaultType)
+                .findFirst()
+                .orElseThrow(
+                        () ->
+                                new NoKeyVaultServiceFactoryException(
+                                        keyVaultType
+                                                + " implementation of KeyVaultServiceFactory was not found on the classpath"));
     }
-
 }

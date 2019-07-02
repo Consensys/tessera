@@ -5,5 +5,4 @@ public interface MBeanMetric {
     String getName();
 
     String getValue();
-
 }

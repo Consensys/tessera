@@ -38,10 +38,10 @@ public class FilesystemKeyPairTest {
 
         FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile);
 
-        KeyDataConfig privKeyDataConfig = new KeyDataConfig(
-            new PrivateKeyData("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=", null, null, null, null),
-            PrivateKeyType.UNLOCKED
-        );
+        KeyDataConfig privKeyDataConfig =
+                new KeyDataConfig(
+                        new PrivateKeyData("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=", null, null, null, null),
+                        PrivateKeyType.UNLOCKED);
 
         InlineKeypair expected = new InlineKeypair(pub, privKeyDataConfig);
 
@@ -66,7 +66,8 @@ public class FilesystemKeyPairTest {
 
     @Test
     public void setPasswordIsRetrievableOnNullInlineKey() throws IOException, URISyntaxException {
-        final Path pubFile = Files.createTempFile(UUID.randomUUID().toString(), ".pub").resolveSibling("nonexistantkey");
+        final Path pubFile =
+                Files.createTempFile(UUID.randomUUID().toString(), ".pub").resolveSibling("nonexistantkey");
         final Path privFile = Paths.get(getClass().getResource("/unlockedprivatekey.json").toURI());
 
         final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile);
@@ -74,5 +75,4 @@ public class FilesystemKeyPairTest {
 
         assertThat(filesystemKeyPair.getPassword()).isEqualTo("password");
     }
-
 }

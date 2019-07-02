@@ -14,5 +14,4 @@ public class ObjectFactory {
     public JAXBElement<Config> createConfiguration(Config value) {
         return new JAXBElement<>(QNAME, Config.class, null, value);
     }
-
 }

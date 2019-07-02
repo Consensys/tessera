@@ -87,7 +87,7 @@ public class ConfigurationParserTest {
 
         Throwable throwable = catchThrowable(() -> configParser.parse(commandLine));
 
-        //FileNotFoundException thrown as "some/path" does not exist
+        // FileNotFoundException thrown as "some/path" does not exist
         assertThat(throwable).isInstanceOf(FileNotFoundException.class);
     }
 
@@ -101,7 +101,7 @@ public class ConfigurationParserTest {
 
         Throwable throwable = catchThrowable(() -> configParser.parse(commandLine));
 
-        //FileNotFoundException thrown as "some/path" does not exist
+        // FileNotFoundException thrown as "some/path" does not exist
         assertThat(throwable).isInstanceOf(FileNotFoundException.class);
     }
 
@@ -115,7 +115,7 @@ public class ConfigurationParserTest {
 
         Throwable throwable = catchThrowable(() -> configParser.parse(commandLine));
 
-        //FileNotFoundException thrown as "some/path" does not exist
+        // FileNotFoundException thrown as "some/path" does not exist
         assertThat(throwable).isInstanceOf(FileNotFoundException.class);
     }
 
@@ -163,5 +163,4 @@ public class ConfigurationParserTest {
         assertThat(output).exists();
         output.toFile().deleteOnExit();
     }
-
 }

@@ -21,5 +21,4 @@ public class NaclExceptionTest {
         assertThat(exception).hasNoCause();
         assertThat(exception.getMessage()).isNull();
     }
-
 }

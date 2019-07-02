@@ -99,7 +99,6 @@ public class HashicorpKeyVaultServiceTest {
         assertThat(ex).hasMessage("No data found at engine/secretName");
     }
 
-
     @Test
     public void getSecretThrowsExceptionIfValueNotFoundForGivenId() {
         HashicorpGetSecretData getSecretData = new HashicorpGetSecretData("engine", "secretName", "id", 0);
@@ -119,7 +118,6 @@ public class HashicorpKeyVaultServiceTest {
         assertThat(ex).hasMessage("No value with id id found at engine/secretName");
     }
 
-
     @Test
     public void setSecretThrowsExceptionIfProvidedDataIsNotCorrectType() {
         SetSecretData setSecretData = mock(SetSecretData.class);
@@ -130,7 +128,6 @@ public class HashicorpKeyVaultServiceTest {
         assertThat(ex).isExactlyInstanceOf(KeyVaultException.class);
         assertThat(ex).hasMessage("Incorrect data type passed to HashicorpKeyVaultService.  Type was null");
     }
-
 
     @Test
     public void setSecretReturnsMetadataObject() {
@@ -154,7 +151,8 @@ public class HashicorpKeyVaultServiceTest {
         Throwable ex = catchThrowable(() -> keyVaultService.setSecret(setSecretData));
 
         assertThat(ex).isExactlyInstanceOf(HashicorpVaultException.class);
-        assertThat(ex.getMessage()).isEqualTo("Unable to save generated secret to vault.  Ensure that the secret engine being used is a v2 kv secret engine");
+        assertThat(ex.getMessage())
+                .isEqualTo(
+                        "Unable to save generated secret to vault.  Ensure that the secret engine being used is a v2 kv secret engine");
     }
-
 }

@@ -17,18 +17,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Applies a filter to all endpoints that only allows certain IP address and
- * ghost names to get access to the HTTP endpoints
+ * Applies a filter to all endpoints that only allows certain IP address and ghost names to get access to the HTTP
+ * endpoints
  *
- * If an error occurs whilst checking the whitelist, the filter is disabled.
- * This is done since not all webservers have support for the
- * {@link HttpServletRequest} context class, which is required.
+ * <p>If an error occurs whilst checking the whitelist, the filter is disabled. This is done since not all webservers
+ * have support for the {@link HttpServletRequest} context class, which is required.
  */
 @GlobalFilter
 public class IPWhitelistFilter implements ContainerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IPWhitelistFilter.class);
-    
+
     private final ConfigService configService;
 
     private boolean disabled;
@@ -41,13 +40,12 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
     }
 
     /**
-     * If the filter is disabled, return immediately Otherwise, extract the
-     * callers hostname and address, and check it against the whitelist
+     * If the filter is disabled, return immediately Otherwise, extract the callers hostname and address, and check it
+     * against the whitelist
      *
-     * If a problem occurs, then disable the filter
+     * <p>If a problem occurs, then disable the filter
      *
-     * If the host is not whitelisted, finish the filter chain here and return
-     * an Unauthorized response
+     * <p>If the host is not whitelisted, finish the filter chain here and return an Unauthorized response
      *
      * @param requestContext the context of the current request
      */
@@ -58,18 +56,19 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
             return;
         }
 
-        //this is the unix socket request, so let it through the filter
+        // this is the unix socket request, so let it through the filter
         if ("unixsocket".equals(requestContext.getUriInfo().getBaseUri().toString())) {
             return;
         }
 
         try {
 
-            final Set<String> whitelisted = configService.getPeers().stream()
-                    .map(Peer::getUrl)
-                    .map(s -> IOCallback.execute(() -> new URL(s)))
-                    .map(URL::getHost)
-                    .collect(Collectors.toSet());
+            final Set<String> whitelisted =
+                    configService.getPeers().stream()
+                            .map(Peer::getUrl)
+                            .map(s -> IOCallback.execute(() -> new URL(s)))
+                            .map(URL::getHost)
+                            .collect(Collectors.toSet());
 
             final String remoteAddress = httpServletRequest.getRemoteAddr();
             final String remoteHost = httpServletRequest.getRemoteHost();
@@ -84,7 +83,6 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
             LOGGER.error("Unexpected error while processing request.", ex);
             this.disabled = true;
         }
-
     }
 
     /**
@@ -96,5 +94,4 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
     public void setHttpServletRequest(final HttpServletRequest request) {
         this.httpServletRequest = request;
     }
-
 }

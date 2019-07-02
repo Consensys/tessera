@@ -3,7 +3,8 @@ package com.quorum.tessera.service;
 public interface Service {
 
     enum Status {
-        STARTED, STOPPED
+        STARTED,
+        STOPPED
     }
 
     void start();
@@ -11,5 +12,4 @@ public interface Service {
     void stop();
 
     Status status();
-
 }

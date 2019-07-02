@@ -13,5 +13,4 @@ public class EnclaveExceptionTest {
         assertThat(enclaveException.getCause()).isNull();
         assertThat(enclaveException.getMessage()).isEqualTo("Ouch");
     }
-
 }

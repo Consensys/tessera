@@ -33,11 +33,8 @@ public class DefaultCliAdapter implements CliAdapter {
 
     private final KeyPasswordResolver keyPasswordResolver;
 
-    private final Validator validator = Validation.byDefaultProvider()
-        .configure()
-        .ignoreXmlConfiguration()
-        .buildValidatorFactory()
-        .getValidator();
+    private final Validator validator =
+            Validation.byDefaultProvider().configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
 
     public DefaultCliAdapter() {
         this(ServiceLoaderUtil.load(KeyPasswordResolver.class).orElse(new CliKeyPasswordResolver()));
@@ -59,32 +56,41 @@ public class DefaultCliAdapter implements CliAdapter {
 
         Map<String, Class> overrideOptions = OverrideUtil.buildConfigOptions();
 
-        overrideOptions.forEach((optionName, optionType) -> {
+        overrideOptions.forEach(
+                (optionName, optionType) -> {
+                    final boolean isCollection = optionType.isArray();
 
-            final boolean isCollection = optionType.isArray();
+                    Option.Builder optionBuilder =
+                            Option.builder()
+                                    .longOpt(optionName)
+                                    .desc(
+                                            String.format(
+                                                    "Override option for %s , type: %s",
+                                                    optionName, optionType.getSimpleName()));
 
-            Option.Builder optionBuilder = Option.builder()
-                .longOpt(optionName)
-                .desc(String.format("Override option for %s , type: %s", optionName, optionType.getSimpleName()));
+                    if (isCollection) {
+                        optionBuilder.hasArgs().argName(optionType.getSimpleName().toUpperCase() + "...");
+                    } else {
+                        optionBuilder.hasArg().argName(optionType.getSimpleName().toUpperCase());
+                    }
 
-            if (isCollection) {
-                optionBuilder.hasArgs().argName(optionType.getSimpleName().toUpperCase() + "...");
-            } else {
-                optionBuilder.hasArg().argName(optionType.getSimpleName().toUpperCase());
-            }
-
-            options.addOption(optionBuilder.build());
-
-        });
+                    options.addOption(optionBuilder.build());
+                });
 
         final List<String> argsList = Arrays.asList(args);
         if (argsList.contains("help") || argsList.isEmpty()) {
             HelpFormatter formatter = new HelpFormatter();
             PrintWriter pw = new PrintWriter(sys().out());
-            formatter.printHelp(pw,
-                    200, "tessera -configfile <PATH> [-keygen <PATH>] [-pidfile <PATH>]",
-                    null, options, formatter.getLeftPadding(),
-                    formatter.getDescPadding(), null, false);
+            formatter.printHelp(
+                    pw,
+                    200,
+                    "tessera -configfile <PATH> [-keygen <PATH>] [-pidfile <PATH>]",
+                    null,
+                    options,
+                    formatter.getLeftPadding(),
+                    formatter.getDescPadding(),
+                    null,
+                    false);
             pw.flush();
             return new CliResult(0, true, null);
         }
@@ -97,14 +103,15 @@ public class DefaultCliAdapter implements CliAdapter {
 
             if (Objects.nonNull(config)) {
 
-                overrideOptions.forEach((optionName, value) -> {
-                    if (line.hasOption(optionName)) {
-                        String[] values = line.getOptionValues(optionName);
-                        LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
-                        OverrideUtil.setValue(config, optionName, values);
-                        LOGGER.debug("Set : {} with value(s) {}", optionName, values);
-                    }
-                });
+                overrideOptions.forEach(
+                        (optionName, value) -> {
+                            if (line.hasOption(optionName)) {
+                                String[] values = line.getOptionValues(optionName);
+                                LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
+                                OverrideUtil.setValue(config, optionName, values);
+                                LOGGER.debug("Set : {} with value(s) {}", optionName, values);
+                            }
+                        });
 
                 keyPasswordResolver.resolveKeyPasswords(config);
 
@@ -123,18 +130,14 @@ public class DefaultCliAdapter implements CliAdapter {
         } catch (ParseException exp) {
             throw new CliException(exp.getMessage());
         }
-
     }
 
     private Config parseConfig(CommandLine commandLine) throws IOException {
 
-        if(commandLine.hasOption("updatepassword")) {
-            new KeyUpdateParser(
-                KeyEncryptorFactory.create(),
-                PasswordReaderFactory.create()
-            ).parse(commandLine);
+        if (commandLine.hasOption("updatepassword")) {
+            new KeyUpdateParser(KeyEncryptorFactory.create(), PasswordReaderFactory.create()).parse(commandLine);
 
-            //return early so other options don't get processed
+            // return early so other options don't get processed
             return null;
         }
 
@@ -142,7 +145,9 @@ public class DefaultCliAdapter implements CliAdapter {
 
         final Config config = new ConfigurationParser().withNewKeys(newKeys).parse(commandLine);
 
-        if (!commandLine.hasOption("configfile") && !commandLine.hasOption("keygen") && !commandLine.hasOption("updatepassword")) {
+        if (!commandLine.hasOption("configfile")
+                && !commandLine.hasOption("keygen")
+                && !commandLine.hasOption("updatepassword")) {
             throw new CliException("One or more: -configfile or -keygen or -updatepassword options are required.");
         }
 
@@ -154,114 +159,104 @@ public class DefaultCliAdapter implements CliAdapter {
         final Options options = new Options();
 
         options.addOption(
-            Option.builder("configfile")
-                .desc("Path to node configuration file")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("PATH")
-                .build());
+                Option.builder("configfile")
+                        .desc("Path to node configuration file")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("PATH")
+                        .build());
 
         options.addOption(
-            Option.builder("keygen")
-                .desc("Use this option to generate public/private keypair")
-                .hasArg(false)
-                .build());
+                Option.builder("keygen")
+                        .desc("Use this option to generate public/private keypair")
+                        .hasArg(false)
+                        .build());
 
         options.addOption(
-            Option.builder("filename")
-                .desc("Comma-separated list of paths to save generated key files. Can also be used with keyvault. Number of args equals number of key-pairs generated.")
-                .hasArgs()
-                .optionalArg(false)
-                .argName("PATH")
-                .build());
+                Option.builder("filename")
+                        .desc(
+                                "Comma-separated list of paths to save generated key files. Can also be used with keyvault. Number of args equals number of key-pairs generated.")
+                        .hasArgs()
+                        .optionalArg(false)
+                        .argName("PATH")
+                        .build());
 
         options.addOption(
-            Option.builder("keygenconfig")
-                .desc("Path to private key config for generation of missing key files")
-                .hasArg(true)
-                .optionalArg(false)
-                .argName("PATH")
-                .build());
+                Option.builder("keygenconfig")
+                        .desc("Path to private key config for generation of missing key files")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .argName("PATH")
+                        .build());
 
         options.addOption(
-            Option.builder("output")
-                .desc("Generate updated config file with generated keys")
-                .hasArg(true)
-                .numberOfArgs(1)
-                .build());
+                Option.builder("output")
+                        .desc("Generate updated config file with generated keys")
+                        .hasArg(true)
+                        .numberOfArgs(1)
+                        .build());
 
         options.addOption(
-            Option.builder("keygenvaulttype")
-                .desc("Type of key vault the generated key is to be saved in")
-                .hasArg()
-                .optionalArg(false)
-                .argName("KEYVAULTTYPE")
-                .build()
-        );
+                Option.builder("keygenvaulttype")
+                        .desc("Type of key vault the generated key is to be saved in")
+                        .hasArg()
+                        .optionalArg(false)
+                        .argName("KEYVAULTTYPE")
+                        .build());
 
         options.addOption(
-            Option.builder("keygenvaulturl")
-                .desc("Base url for key vault")
-                .hasArg()
-                .optionalArg(false)
-                .argName("STRING")
-                .build()
-        );
+                Option.builder("keygenvaulturl")
+                        .desc("Base url for key vault")
+                        .hasArg()
+                        .optionalArg(false)
+                        .argName("STRING")
+                        .build());
 
         options.addOption(
-            Option.builder("keygenvaultapprole")
-                  .desc("AppRole path for Hashicorp Vault authentication (defaults to 'approle')")
-                  .hasArg()
-                  .optionalArg(false)
-                  .argName("STRING")
-                  .build()
-        );
+                Option.builder("keygenvaultapprole")
+                        .desc("AppRole path for Hashicorp Vault authentication (defaults to 'approle')")
+                        .hasArg()
+                        .optionalArg(false)
+                        .argName("STRING")
+                        .build());
 
         options.addOption(
-            Option.builder("keygenvaultkeystore")
-                .desc("Path to JKS keystore for TLS Hashicorp Vault communication")
-                .hasArg()
-                .optionalArg(false)
-                .argName("PATH")
-                .build()
-        );
+                Option.builder("keygenvaultkeystore")
+                        .desc("Path to JKS keystore for TLS Hashicorp Vault communication")
+                        .hasArg()
+                        .optionalArg(false)
+                        .argName("PATH")
+                        .build());
 
         options.addOption(
-            Option.builder("keygenvaulttruststore")
-                  .desc("Path to JKS truststore for TLS Hashicorp Vault communication")
-                  .hasArg()
-                  .optionalArg(false)
-                  .argName("PATH")
-                  .build()
-        );
+                Option.builder("keygenvaulttruststore")
+                        .desc("Path to JKS truststore for TLS Hashicorp Vault communication")
+                        .hasArg()
+                        .optionalArg(false)
+                        .argName("PATH")
+                        .build());
 
         options.addOption(
-            Option.builder("keygenvaultsecretengine")
-                  .desc("Name of already enabled Hashicorp v2 kv secret engine")
-                  .hasArg()
-                  .optionalArg(false)
-                  .argName("STRING")
-                  .build()
-        );
+                Option.builder("keygenvaultsecretengine")
+                        .desc("Name of already enabled Hashicorp v2 kv secret engine")
+                        .hasArg()
+                        .optionalArg(false)
+                        .argName("STRING")
+                        .build());
 
         options.addOption(
-            Option.builder("pidfile")
-                .desc("Path to pid file")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("PATH")
-                .build());
+                Option.builder("pidfile")
+                        .desc("Path to pid file")
+                        .hasArg(true)
+                        .optionalArg(false)
+                        .numberOfArgs(1)
+                        .argName("PATH")
+                        .build());
 
         options.addOption(
-            Option.builder("updatepassword")
-                .desc("Update the password for a locked key")
-                .hasArg(false)
-                .build()
-        );
+                Option.builder("updatepassword").desc("Update the password for a locked key").hasArg(false).build());
 
         return options;
     }
-
 }

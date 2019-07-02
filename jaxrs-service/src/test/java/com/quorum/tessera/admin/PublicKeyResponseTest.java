@@ -12,5 +12,4 @@ public class PublicKeyResponseTest {
         PublicKeyResponse pkr = new PublicKeyResponse(key);
         assertThat(pkr.getPublicKey()).isEqualTo(key);
     }
-
 }

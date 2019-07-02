@@ -154,5 +154,4 @@ public class PartyInfoPollerTest {
         verify(partyInfoParser, never()).from(DATA);
         verify(partyInfoParser).to(partyInfo);
     }
-
 }

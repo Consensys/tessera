@@ -25,13 +25,12 @@ public class JaxbConfigFactoryTest {
 
     @Before
     public void init() {
-        this.sampleGeneratedKey = new InlineKeypair(
-            "publickey",
-            new KeyDataConfig(
-                new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 1, 1, 1)),
-                PrivateKeyType.LOCKED
-            )
-        );
+        this.sampleGeneratedKey =
+                new InlineKeypair(
+                        "publickey",
+                        new KeyDataConfig(
+                                new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 1, 1, 1)),
+                                PrivateKeyType.LOCKED));
 
         this.factory = new JaxbConfigFactory();
     }
@@ -53,7 +52,8 @@ public class JaxbConfigFactoryTest {
     @Test
     public void createNewLockedKeyAppendsToList() {
 
-        final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddInlineWithExisting.json");
+        final InputStream inputStream =
+                getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddInlineWithExisting.json");
         this.sampleGeneratedKey.withPassword("pass");
 
         final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
@@ -90,7 +90,8 @@ public class JaxbConfigFactoryTest {
 
         final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddToFile.json");
 
-        final Throwable throwable = catchThrowable(() -> factory.create(inputStream, singletonList(sampleGeneratedKey)));
+        final Throwable throwable =
+                catchThrowable(() -> factory.create(inputStream, singletonList(sampleGeneratedKey)));
 
         assertThat(throwable).hasMessage("Could not store new passwords: newPasses.txt");
 
@@ -100,7 +101,8 @@ public class JaxbConfigFactoryTest {
     @Test
     public void createNewLockedKeyWithNoPasswordsSet() throws IOException {
 
-        final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
+        final InputStream inputStream =
+                getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
         this.sampleGeneratedKey.withPassword("pass");
 
         final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
@@ -118,12 +120,14 @@ public class JaxbConfigFactoryTest {
     @Test
     public void unlockedKeyDoesntTriggerPasswordFile() {
 
-        final ConfigKeyPair unlockedSampleGeneratedKey = new InlineKeypair(
-            "publickey",
-            new KeyDataConfig(new PrivateKeyData("value", null, null, null, null), PrivateKeyType.UNLOCKED)
-        );
+        final ConfigKeyPair unlockedSampleGeneratedKey =
+                new InlineKeypair(
+                        "publickey",
+                        new KeyDataConfig(
+                                new PrivateKeyData("value", null, null, null, null), PrivateKeyType.UNLOCKED));
 
-        final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
+        final InputStream inputStream =
+                getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
 
         final Config config = factory.create(inputStream, singletonList(unlockedSampleGeneratedKey));
 
@@ -136,7 +140,8 @@ public class JaxbConfigFactoryTest {
     @Test
     public void ifExistingKeysWereUnlockedThenAddEmptyPassword() throws IOException {
 
-        final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyWithUnlockedPrevious.json");
+        final InputStream inputStream =
+                getClass().getResourceAsStream("/keypassupdate/newLockedKeyWithUnlockedPrevious.json");
         this.sampleGeneratedKey.withPassword("pass");
 
         final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
@@ -154,7 +159,8 @@ public class JaxbConfigFactoryTest {
     @Test
     public void noNewKeyDoesntTriggerPasswords() {
 
-        final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
+        final InputStream inputStream =
+                getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
 
         final Config config = factory.create(inputStream, emptyList());
 
@@ -173,5 +179,4 @@ public class JaxbConfigFactoryTest {
 
         assertThat(config.getKeys()).isNull();
     }
-
 }

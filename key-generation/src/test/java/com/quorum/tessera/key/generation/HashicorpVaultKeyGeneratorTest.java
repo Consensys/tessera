@@ -37,7 +37,6 @@ public class HashicorpVaultKeyGeneratorTest {
         when(naclFacade.generateNewKeys()).thenReturn(keyPair);
 
         this.hashicorpVaultKeyGenerator = new HashicorpVaultKeyGenerator(naclFacade, keyVaultService);
-
     }
 
     @Test(expected = NullPointerException.class)
@@ -71,7 +70,8 @@ public class HashicorpVaultKeyGeneratorTest {
 
         HashicorpVaultKeyPair result = hashicorpVaultKeyGenerator.generate(filename, null, keyVaultOptions);
 
-        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("publicKey", "privateKey", secretEngine, filename, null);
+        HashicorpVaultKeyPair expected =
+                new HashicorpVaultKeyPair("publicKey", "privateKey", secretEngine, filename, null);
         assertThat(result).isEqualToComparingFieldByField(expected);
 
         final ArgumentCaptor<HashicorpSetSecretData> captor = ArgumentCaptor.forClass(HashicorpSetSecretData.class);
@@ -84,12 +84,11 @@ public class HashicorpVaultKeyGeneratorTest {
         expectedNameValuePairs.put("publicKey", pub.encodeToBase64());
         expectedNameValuePairs.put("privateKey", priv.encodeToBase64());
 
-        HashicorpSetSecretData expectedData = new HashicorpSetSecretData(secretEngine, filename, expectedNameValuePairs);
+        HashicorpSetSecretData expectedData =
+                new HashicorpSetSecretData(secretEngine, filename, expectedNameValuePairs);
 
         assertThat(capturedArg).isEqualToComparingFieldByFieldRecursively(expectedData);
 
         verifyNoMoreInteractions(keyVaultService);
-
     }
-
 }

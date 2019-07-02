@@ -20,10 +20,6 @@ public class EnclaveNotAvailableExceptionMapper implements ExceptionMapper<Encla
         LOGGER.error("Enclave unavailable: {}", ex.getMessage());
         LOGGER.debug(null, ex);
 
-        return Response.status(Status.SERVICE_UNAVAILABLE)
-            .entity(ex.getMessage())
-            .type(MediaType.TEXT_PLAIN)
-            .build();
+        return Response.status(Status.SERVICE_UNAVAILABLE).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
     }
-
 }

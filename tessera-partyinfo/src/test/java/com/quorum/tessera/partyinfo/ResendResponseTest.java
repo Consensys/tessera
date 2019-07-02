@@ -17,13 +17,11 @@ public class ResendResponseTest {
         ResendResponse resendResponse = new ResendResponse();
         resendResponse.setPayload("HELLOW".getBytes());
         assertThat(resendResponse.getPayload()).isPresent();
-
     }
-    
+
     @Test
     public void createWithPayload() {
         ResendResponse resendResponse = new ResendResponse("HELLOW".getBytes());
         assertThat(resendResponse.getPayload()).isPresent();
     }
-
 }

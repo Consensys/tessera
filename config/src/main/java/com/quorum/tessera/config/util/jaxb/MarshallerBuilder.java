@@ -8,8 +8,7 @@ import javax.xml.bind.Marshaller;
 
 public class MarshallerBuilder {
 
-    private MarshallerBuilder() {
-    }
+    private MarshallerBuilder() {}
 
     public static MarshallerBuilder create() {
         return new MarshallerBuilder();
@@ -31,27 +30,27 @@ public class MarshallerBuilder {
 
     public Marshaller build() {
 
-        return JaxbCallback.execute(() -> {
+        return JaxbCallback.execute(
+                () -> {
+                    JAXBContext jAXBContext = JAXBContext.newInstance(JaxbUtil.JAXB_CLASSES);
 
-            JAXBContext jAXBContext = JAXBContext.newInstance(JaxbUtil.JAXB_CLASSES);
+                    Marshaller marshaller = jAXBContext.createMarshaller();
+                    if (!beanvalidation) {
+                        Enum enu =
+                                Enum.valueOf(
+                                        Class.class.cast(
+                                                marshaller.getProperty("eclipselink.beanvalidation.mode").getClass()),
+                                        "NONE");
 
-            Marshaller marshaller = jAXBContext.createMarshaller();
-            if (!beanvalidation) {
-                Enum enu = Enum.valueOf(Class.class.cast(marshaller
-                    .getProperty("eclipselink.beanvalidation.mode")
-                    .getClass()), "NONE");
+                        marshaller.setProperty("eclipselink.beanvalidation.mode", enu);
+                    }
+                    marshaller.setProperty("eclipselink.media-type", mediaType.getValue());
+                    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-                marshaller.setProperty("eclipselink.beanvalidation.mode", enu);
-            }
-            marshaller.setProperty("eclipselink.media-type", mediaType.getValue());
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            if (mediaType == MediaType.JSON) {
-                marshaller.setProperty("eclipselink.json.include-root", false);
-            }
-            return marshaller;
-        });
-
+                    if (mediaType == MediaType.JSON) {
+                        marshaller.setProperty("eclipselink.json.include-root", false);
+                    }
+                    return marshaller;
+                });
     }
-
 }

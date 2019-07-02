@@ -3,10 +3,9 @@ package com.quorum.tessera.argon2;
 import java.util.ServiceLoader;
 
 /**
- * Provides hashing functions using the Argon2 algorithms
- * Validation of various inputs is left to the implementor, although
- * the validation should be consistent amongst implementations.
- * (i.e. the same inputs should work for any implementation)
+ * Provides hashing functions using the Argon2 algorithms Validation of various inputs is left to the implementor,
+ * although the validation should be consistent amongst implementations. (i.e. the same inputs should work for any
+ * implementation)
  */
 public interface Argon2 {
 
@@ -32,5 +31,4 @@ public interface Argon2 {
     static Argon2 create() {
         return ServiceLoader.load(Argon2.class).iterator().next();
     }
-
 }

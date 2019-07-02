@@ -36,7 +36,6 @@ public class FilesDelegateTest {
 
         assertThat(filesDelegate.notExists(existentFile)).isFalse();
         assertThat(filesDelegate.notExists(nonExistentFile)).isTrue();
-
     }
 
     @Test
@@ -56,7 +55,6 @@ public class FilesDelegateTest {
         Path result = filesDelegate.createFile(toBeCreated);
         result.toFile().deleteOnExit();
         assertThat(toBeCreated).exists().isEqualTo(result);
-
     }
 
     @Test
@@ -80,7 +78,6 @@ public class FilesDelegateTest {
         byte[] result = filesDelegate.readAllBytes(file);
 
         assertThat(result).isEqualTo(someBytes);
-
     }
 
     @Test
@@ -91,7 +88,6 @@ public class FilesDelegateTest {
 
         assertThat(filesDelegate.exists(existentFile)).isTrue();
         assertThat(filesDelegate.exists(nonExistentFile)).isFalse();
-
     }
 
     @Test
@@ -119,19 +115,15 @@ public class FilesDelegateTest {
         Path result = filesDelegate.write(somefile, somebytes, StandardOpenOption.CREATE_NEW);
         assertThat(result).exists();
         assertThat(Files.readAllBytes(result)).isEqualTo(somebytes);
-
     }
 
     @Test
     public void setPosixFilePermissions() throws IOException {
         Path somefile = Files.createTempFile("setPosixFilePermissions", ".txt");
         somefile.toFile().deleteOnExit();
-        Set<PosixFilePermission> perms = Stream.of(PosixFilePermission.values())
-                .collect(Collectors.toSet());
+        Set<PosixFilePermission> perms = Stream.of(PosixFilePermission.values()).collect(Collectors.toSet());
 
         Path result = filesDelegate.setPosixFilePermissions(somefile, perms);
         assertThat(Files.getPosixFilePermissions(result)).containsAll(perms);
-
     }
-
 }

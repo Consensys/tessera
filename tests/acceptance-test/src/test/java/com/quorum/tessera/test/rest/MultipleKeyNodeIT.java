@@ -19,11 +19,7 @@ import org.junit.runners.Parameterized;
 import com.quorum.tessera.test.PartyHelper;
 import java.util.Arrays;
 
-
-/**
- * This tests that a node that hosts multiple sets of keys can send/receive
- * transactions for both keys
- */
+/** This tests that a node that hosts multiple sets of keys can send/receive transactions for both keys */
 @RunWith(Parameterized.class)
 public class MultipleKeyNodeIT {
 
@@ -45,7 +41,7 @@ public class MultipleKeyNodeIT {
     public void onSetUp() {
 
         Party sender = partyHelper.findByAlias("A");
-        
+
         Party recipient = partyHelper.findByAlias(recipientAlias);
         byte[] transactionData = restUtils.createTransactionData();
         final SendResponse result = restUtils.sendRequestAssertSuccess(sender, transactionData, recipient);
@@ -55,21 +51,21 @@ public class MultipleKeyNodeIT {
         this.txHash = result.getKey();
     }
 
-
-
     @Test
     public void thenTransactionHasBeenPersistedOnOtherNode() throws UnsupportedEncodingException {
 
         final byte[] transactionData = RestUtils.generateTransactionData();
 
         Party recipient = partyHelper.findByAlias(recipientAlias);
-        //retrieve the transaction
-        final Response retrieveResponse = this.client.target(recipient.getQ2TUri())
-                .path("transaction")
-                .path(URLEncoder.encode(txHash, "UTF-8"))
-                .queryParam("to", recipient.getPublicKey())
-                .request()
-                .get();
+        // retrieve the transaction
+        final Response retrieveResponse =
+                this.client
+                        .target(recipient.getQ2TUri())
+                        .path("transaction")
+                        .path(URLEncoder.encode(txHash, "UTF-8"))
+                        .queryParam("to", recipient.getPublicKey())
+                        .request()
+                        .get();
 
         assertThat(retrieveResponse).isNotNull();
         assertThat(retrieveResponse.getStatus())
@@ -77,16 +73,12 @@ public class MultipleKeyNodeIT {
                 .isEqualTo(200);
 
         final ReceiveResponse result = retrieveResponse.readEntity(ReceiveResponse.class);
-        //TODO: Verify payload
+        // TODO: Verify payload
         assertThat(result).isNotNull();
-        
-
     }
 
     @Parameterized.Parameters
     public static List<String> recipients() {
-        return Arrays.asList("C","D");
-        
+        return Arrays.asList("C", "D");
     }
-
 }

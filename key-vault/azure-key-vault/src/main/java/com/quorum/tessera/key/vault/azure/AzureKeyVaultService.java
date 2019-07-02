@@ -27,23 +27,29 @@ public class AzureKeyVaultService implements KeyVaultService {
 
     @Override
     public String getSecret(GetSecretData getSecretData) {
-        if(!(getSecretData instanceof AzureGetSecretData)) {
-            throw new KeyVaultException("Incorrect data type passed to AzureKeyVaultService.  Type was " + getSecretData.getType());
+        if (!(getSecretData instanceof AzureGetSecretData)) {
+            throw new KeyVaultException(
+                    "Incorrect data type passed to AzureKeyVaultService.  Type was " + getSecretData.getType());
         }
 
         AzureGetSecretData azureGetSecretData = (AzureGetSecretData) getSecretData;
 
         SecretBundle secretBundle;
 
-        if(azureGetSecretData.getSecretVersion() != null) {
-            secretBundle = azureKeyVaultClientDelegate.getSecret(vaultUrl, azureGetSecretData.getSecretName(), azureGetSecretData.getSecretVersion());
-        }
-        else {
+        if (azureGetSecretData.getSecretVersion() != null) {
+            secretBundle =
+                    azureKeyVaultClientDelegate.getSecret(
+                            vaultUrl, azureGetSecretData.getSecretName(), azureGetSecretData.getSecretVersion());
+        } else {
             secretBundle = azureKeyVaultClientDelegate.getSecret(vaultUrl, azureGetSecretData.getSecretName());
         }
 
-        if(secretBundle == null) {
-            throw new VaultSecretNotFoundException("Azure Key Vault secret " + azureGetSecretData.getSecretName() + " was not found in vault " + vaultUrl);
+        if (secretBundle == null) {
+            throw new VaultSecretNotFoundException(
+                    "Azure Key Vault secret "
+                            + azureGetSecretData.getSecretName()
+                            + " was not found in vault "
+                            + vaultUrl);
         }
 
         return secretBundle.value();
@@ -51,13 +57,17 @@ public class AzureKeyVaultService implements KeyVaultService {
 
     @Override
     public Object setSecret(SetSecretData setSecretData) {
-        if(!(setSecretData instanceof AzureSetSecretData)) {
-            throw new KeyVaultException("Incorrect data type passed to AzureKeyVaultService.  Type was " + setSecretData.getType());
+        if (!(setSecretData instanceof AzureSetSecretData)) {
+            throw new KeyVaultException(
+                    "Incorrect data type passed to AzureKeyVaultService.  Type was " + setSecretData.getType());
         }
 
         AzureSetSecretData azureSetSecretData = (AzureSetSecretData) setSecretData;
 
-        SetSecretRequest setSecretRequest = new SetSecretRequest.Builder(vaultUrl, azureSetSecretData.getSecretName(), azureSetSecretData.getSecret()).build();
+        SetSecretRequest setSecretRequest =
+                new SetSecretRequest.Builder(
+                                vaultUrl, azureSetSecretData.getSecretName(), azureSetSecretData.getSecret())
+                        .build();
 
         return this.azureKeyVaultClientDelegate.setSecret(setSecretRequest);
     }

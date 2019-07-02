@@ -23,15 +23,16 @@ public class SSLContextProperties {
 
     private Path knownHosts;
 
-    public SSLContextProperties(String address,
-                                Path keyStore,
-                                String keyStorePassword,
-                                Path key,
-                                Path certificate,
-                                Path trustStore,
-                                String trustStorePassword,
-                                List<Path> trustedCertificates,
-                                Path knownHosts) {
+    public SSLContextProperties(
+            String address,
+            Path keyStore,
+            String keyStorePassword,
+            Path key,
+            Path certificate,
+            Path trustStore,
+            String trustStorePassword,
+            List<Path> trustedCertificates,
+            Path knownHosts) {
         this.address = address;
         this.keyStore = keyStore;
         this.keyStorePassword = keyStorePassword;
@@ -78,5 +79,4 @@ public class SSLContextProperties {
     public Path getKnownHosts() {
         return knownHosts;
     }
-
 }

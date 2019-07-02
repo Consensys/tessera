@@ -23,7 +23,6 @@ public class P2pClientFactoryTest {
         P2pClientFactory factory = P2pClientFactory.newFactory(config);
 
         assertThat(factory).isExactlyInstanceOf(MockP2pClientFactory.class);
-
     }
 
     @Test(expected = NoSuchElementException.class)
@@ -35,7 +34,6 @@ public class P2pClientFactoryTest {
         when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
         P2pClientFactory.newFactory(config);
-
     }
 
     @Test(expected = NoSuchElementException.class)
@@ -46,7 +44,5 @@ public class P2pClientFactoryTest {
         when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
         P2pClientFactory.newFactory(config);
-
     }
-
 }

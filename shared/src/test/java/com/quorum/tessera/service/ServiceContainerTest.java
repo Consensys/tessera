@@ -62,11 +62,12 @@ public class ServiceContainerTest {
     public void runWithServiceWithNOnStoppedStatus() {
 
         Stream.of(Status.values())
-            .filter(s -> s != Status.STOPPED)
-            .forEach(s -> {
-                when(service.status()).thenReturn(s);
-                serviceContainer.run();
-            });
+                .filter(s -> s != Status.STOPPED)
+                .forEach(
+                        s -> {
+                            when(service.status()).thenReturn(s);
+                            serviceContainer.run();
+                        });
 
         verify(service, times(Status.values().length - 1)).status();
     }
@@ -88,5 +89,4 @@ public class ServiceContainerTest {
         verify(service).start();
         verify(service).status();
     }
-
 }

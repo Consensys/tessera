@@ -21,7 +21,8 @@ public class JdbcDataExporterTest extends BasicJDBCTestCaseAdapter {
         final String createStatement = "CREATE TEST TABLE";
         final String insertStatement = "INSERT INTO TABLE(?, ?)";
 
-        final JdbcDataExporter exporter = new JdbcDataExporter("jdbc:bogus", insertStatement, singletonList(createStatement));
+        final JdbcDataExporter exporter =
+                new JdbcDataExporter("jdbc:bogus", insertStatement, singletonList(createStatement));
 
         final StoreLoader mockLoader = new MockDataLoader(singletonMap("HASH", "VALUE"));
 
@@ -36,12 +37,11 @@ public class JdbcDataExporterTest extends BasicJDBCTestCaseAdapter {
         assertThat(preparedStatements).hasSize(1);
         assertThat(preparedStatements.get(0).getSQL()).isEqualTo("INSERT INTO TABLE(?, ?)");
 
-        final byte[] key = (byte[])super.getPreparedStatementParameter(preparedStatements.get(0), 1);
+        final byte[] key = (byte[]) super.getPreparedStatementParameter(preparedStatements.get(0), 1);
         final InputStream value = (InputStream) super.getPreparedStatementParameter(preparedStatements.get(0), 2);
         assertThat(new String(key)).isEqualTo("HASH");
         assertThat(new String(IOUtils.toByteArray(value))).isEqualTo("VALUE");
 
         verifyAllStatementsClosed();
     }
-
 }

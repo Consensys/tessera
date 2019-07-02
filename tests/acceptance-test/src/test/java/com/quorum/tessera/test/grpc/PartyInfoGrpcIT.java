@@ -52,15 +52,14 @@ public class PartyInfoGrpcIT {
     private PartyInfo partyInfo;
     private PartyInfoMessage request;
 
-    
     private com.quorum.tessera.test.Party partyOne;
-    
+
     private com.quorum.tessera.test.Party partyTwo;
-    
+
     private com.quorum.tessera.test.Party partyThree;
-    
+
     private com.quorum.tessera.test.Party partyFour;
-    
+
     @Before
     public void onSetUp() {
         PartyHelper partyHelper = PartyHelper.create();
@@ -68,28 +67,19 @@ public class PartyInfoGrpcIT {
         partyTwo = partyHelper.findByAlias("B");
         partyThree = partyHelper.findByAlias("C");
         partyFour = partyHelper.findByAlias("D");
-        
-        
-        channel1 = ManagedChannelBuilder.forAddress("127.0.0.1", partyOne.getP2PUri().getPort())
-            .usePlaintext()
-            .build();
-        channel2 = ManagedChannelBuilder.forAddress("127.0.0.1", partyTwo.getP2PUri().getPort())
-            .usePlaintext()
-            .build();
-        channel3 = ManagedChannelBuilder.forAddress("127.0.0.1", partyThree.getP2PUri().getPort())
-            .usePlaintext()
-            .build();
-        channel4 = ManagedChannelBuilder.forAddress("127.0.0.1", partyFour.getP2PUri().getPort())
-            .usePlaintext()
-            .build();
+
+        channel1 = ManagedChannelBuilder.forAddress("127.0.0.1", partyOne.getP2PUri().getPort()).usePlaintext().build();
+        channel2 = ManagedChannelBuilder.forAddress("127.0.0.1", partyTwo.getP2PUri().getPort()).usePlaintext().build();
+        channel3 =
+                ManagedChannelBuilder.forAddress("127.0.0.1", partyThree.getP2PUri().getPort()).usePlaintext().build();
+        channel4 =
+                ManagedChannelBuilder.forAddress("127.0.0.1", partyFour.getP2PUri().getPort()).usePlaintext().build();
 
         partyInfo = new PartyInfo(partyOne.getP2PUri().toString(), Collections.emptySet(), Collections.emptySet());
-        
-        
-        request = PartyInfoMessage.newBuilder()
-        .setPartyInfo(ByteString.copyFrom(partyInfoParser.to(partyInfo)))
-        .build();
-        
+
+        request =
+                PartyInfoMessage.newBuilder().setPartyInfo(ByteString.copyFrom(partyInfoParser.to(partyInfo))).build();
+
         blockingStub1 = PartyInfoGrpc.newBlockingStub(channel1);
         blockingStub2 = PartyInfoGrpc.newBlockingStub(channel2);
         blockingStub3 = PartyInfoGrpc.newBlockingStub(channel3);
@@ -141,51 +131,49 @@ public class PartyInfoGrpcIT {
     }
 
     private void checkPartyInfoContents(PartyInfo partyInfo) {
-        
-        String description = partyInfo.getRecipients().stream()
-                .map(PartyInfoGrpcIT::printRecipient)
-                .collect(Collectors.joining(System.lineSeparator()));
-        
-        Set<String> recipientKeys = partyInfo.getRecipients().stream()
-                .map(r -> r.getKey().encodeToBase64()).collect(Collectors.toSet());
-        
-        Set<String> expectedKeys = Stream.of(
-                partyOne,partyTwo,partyThree,partyFour)
-                .map(com.quorum.tessera.test.Party::getConfig)
-                .map(Config::getKeys)
-                .map(KeyConfiguration::getKeyData)
-                .flatMap(List::stream)
-                .map(ConfigKeyPair::getPublicKey)
-                .collect(Collectors.toSet());
-                
-        
+
+        String description =
+                partyInfo.getRecipients().stream()
+                        .map(PartyInfoGrpcIT::printRecipient)
+                        .collect(Collectors.joining(System.lineSeparator()));
+
+        Set<String> recipientKeys =
+                partyInfo.getRecipients().stream().map(r -> r.getKey().encodeToBase64()).collect(Collectors.toSet());
+
+        Set<String> expectedKeys =
+                Stream.of(partyOne, partyTwo, partyThree, partyFour)
+                        .map(com.quorum.tessera.test.Party::getConfig)
+                        .map(Config::getKeys)
+                        .map(KeyConfiguration::getKeyData)
+                        .flatMap(List::stream)
+                        .map(ConfigKeyPair::getPublicKey)
+                        .collect(Collectors.toSet());
+
         assertThat(recipientKeys)
-                .describedAs("Recipients: "+ description)
+                .describedAs("Recipients: " + description)
                 .containsExactlyInAnyOrderElementsOf(expectedKeys);
-        
-        
-        List<URI> uriList = Stream.of(partyOne,partyTwo,partyThree,partyFour)
-                .map(com.quorum.tessera.test.Party::getP2PUri)
-                .map(u -> UriBuilder.fromPath("")
-                        .host(u.getHost())
-                        .scheme(u.getScheme())
-                        .port(u.getPort())
-                        .build())        
-                .collect(Collectors.toList());
-        
-        assertThat(uriList).containsExactly(
-            partyOne.getP2PUri(),
-            partyTwo.getP2PUri(),
-            partyThree.getP2PUri(),
-            partyFour.getP2PUri()
-        );
+
+        List<URI> uriList =
+                Stream.of(partyOne, partyTwo, partyThree, partyFour)
+                        .map(com.quorum.tessera.test.Party::getP2PUri)
+                        .map(
+                                u ->
+                                        UriBuilder.fromPath("")
+                                                .host(u.getHost())
+                                                .scheme(u.getScheme())
+                                                .port(u.getPort())
+                                                .build())
+                        .collect(Collectors.toList());
+
+        assertThat(uriList)
+                .containsExactly(
+                        partyOne.getP2PUri(), partyTwo.getP2PUri(), partyThree.getP2PUri(), partyFour.getP2PUri());
     }
 
-    
     private static String printRecipient(Recipient recipient) {
-        return "Recipient[key: "+ recipient.getKey().encodeToBase64() +",url: "+ recipient.getUrl() +"]";
+        return "Recipient[key: " + recipient.getKey().encodeToBase64() + ",url: " + recipient.getUrl() + "]";
     }
-    
+
     @Test
     public void partyInfoGetNode1() {
 
@@ -193,15 +181,12 @@ public class PartyInfoGrpcIT {
 
         assertThat(response).isNotNull();
 
-        final Set<Party> peers = response.getPeersList()
-            .stream()
-            .map(Peer::getUrl)
-            .map(Party::new)
-            .collect(Collectors.toSet());
-        final Set<Recipient> recipients = response.getKeysMap().entrySet()
-            .stream()
-            .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))
-            .collect(Collectors.toSet());
+        final Set<Party> peers =
+                response.getPeersList().stream().map(Peer::getUrl).map(Party::new).collect(Collectors.toSet());
+        final Set<Recipient> recipients =
+                response.getKeysMap().entrySet().stream()
+                        .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))
+                        .collect(Collectors.toSet());
 
         checkPartyInfoContents(new PartyInfo("", recipients, peers));
     }
@@ -213,15 +198,12 @@ public class PartyInfoGrpcIT {
 
         assertThat(response).isNotNull();
 
-        final Set<Party> peers = response.getPeersList()
-            .stream()
-            .map(Peer::getUrl)
-            .map(Party::new)
-            .collect(Collectors.toSet());
-        final Set<Recipient> recipients = response.getKeysMap().entrySet()
-            .stream()
-            .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))
-            .collect(Collectors.toSet());
+        final Set<Party> peers =
+                response.getPeersList().stream().map(Peer::getUrl).map(Party::new).collect(Collectors.toSet());
+        final Set<Recipient> recipients =
+                response.getKeysMap().entrySet().stream()
+                        .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))
+                        .collect(Collectors.toSet());
 
         checkPartyInfoContents(new PartyInfo("", recipients, peers));
     }
@@ -233,15 +215,12 @@ public class PartyInfoGrpcIT {
 
         assertThat(response).isNotNull();
 
-        final Set<Party> peers = response.getPeersList()
-            .stream()
-            .map(Peer::getUrl)
-            .map(Party::new)
-            .collect(Collectors.toSet());
-        final Set<Recipient> recipients = response.getKeysMap().entrySet()
-            .stream()
-            .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))
-            .collect(Collectors.toSet());
+        final Set<Party> peers =
+                response.getPeersList().stream().map(Peer::getUrl).map(Party::new).collect(Collectors.toSet());
+        final Set<Recipient> recipients =
+                response.getKeysMap().entrySet().stream()
+                        .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))
+                        .collect(Collectors.toSet());
 
         checkPartyInfoContents(new PartyInfo("", recipients, peers));
     }
@@ -253,18 +232,14 @@ public class PartyInfoGrpcIT {
 
         assertThat(response).isNotNull();
 
-        final Set<Party> peers = response.getPeersList()
-            .stream()
-            .map(Peer::getUrl)
-            .map(Party::new)
-            .collect(Collectors.toSet());
-        
-        final Set<Recipient> recipients = response.getKeysMap().entrySet()
-            .stream()
-            .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))
-            .collect(Collectors.toSet());
+        final Set<Party> peers =
+                response.getPeersList().stream().map(Peer::getUrl).map(Party::new).collect(Collectors.toSet());
+
+        final Set<Recipient> recipients =
+                response.getKeysMap().entrySet().stream()
+                        .map(kv -> new Recipient(PublicKey.from(Base64.decode(kv.getKey())), kv.getValue()))
+                        .collect(Collectors.toSet());
 
         checkPartyInfoContents(new PartyInfo("", recipients, peers));
     }
-
 }

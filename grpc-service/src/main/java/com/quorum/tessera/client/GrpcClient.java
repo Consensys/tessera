@@ -9,5 +9,4 @@ interface GrpcClient {
     boolean makeResendRequest(ResendRequest grpcObj);
 
     byte[] push(byte[] data);
-    
 }

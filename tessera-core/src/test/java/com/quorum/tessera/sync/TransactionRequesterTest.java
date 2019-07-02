@@ -20,9 +20,9 @@ import static org.mockito.Mockito.*;
 
 public class TransactionRequesterTest {
 
-    private static final PublicKey KEY_ONE = PublicKey.from(new byte[]{1});
+    private static final PublicKey KEY_ONE = PublicKey.from(new byte[] {1});
 
-    private static final PublicKey KEY_TWO = PublicKey.from(new byte[]{2});
+    private static final PublicKey KEY_TWO = PublicKey.from(new byte[] {2});
 
     private Enclave enclave;
 
@@ -58,11 +58,11 @@ public class TransactionRequesterTest {
 
     @Test
     public void multipleKeysMakesCorrectCalls() {
-        
+
         final Set<PublicKey> allKeys = Stream.of(KEY_ONE, KEY_TWO).collect(Collectors.toSet());
 
         when(enclave.getPublicKeys()).thenReturn(allKeys);
-        
+
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl1.com");
 
         final ArgumentCaptor<ResendRequest> captor = ArgumentCaptor.forClass(ResendRequest.class);
@@ -71,24 +71,23 @@ public class TransactionRequesterTest {
 
         String encodedKeyOne = Base64.getEncoder().encodeToString(KEY_ONE.getKeyBytes());
         String encodedKeyTwo = Base64.getEncoder().encodeToString(KEY_TWO.getKeyBytes());
-        
+
         assertThat(captor.getAllValues())
-            .hasSize(2)
-            .extracting("publicKey")
-            .containsExactlyInAnyOrder(encodedKeyOne, encodedKeyTwo);
+                .hasSize(2)
+                .extracting("publicKey")
+                .containsExactlyInAnyOrder(encodedKeyOne, encodedKeyTwo);
     }
 
     @Test
     public void failedCallRetries() {
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(KEY_ONE));
-        
+
         when(p2pClient.makeResendRequest(anyString(), any(ResendRequest.class))).thenReturn(false);
 
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
         verify(p2pClient, times(5)).makeResendRequest(eq("fakeurl.com"), any(ResendRequest.class));
         verify(enclave).getPublicKeys();
-
     }
 
     @Test
@@ -96,11 +95,10 @@ public class TransactionRequesterTest {
 
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(KEY_ONE));
         when(p2pClient.makeResendRequest(anyString(), any(ResendRequest.class))).thenThrow(RuntimeException.class);
-        
+
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
         verify(p2pClient, times(5)).makeResendRequest(eq("fakeurl.com"), any(ResendRequest.class));
         verify(enclave).getPublicKeys();
-
     }
 }

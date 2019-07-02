@@ -12,30 +12,26 @@ import org.junit.Test;
 
 public class OpenPojoTest {
 
-    public OpenPojoTest() {
-    }
+    public OpenPojoTest() {}
 
     @Test
     public void executeOpenPojoValidations() {
 
-        Validator pojoValidator = ValidatorBuilder.create()
-                .with(new GetterMustExistRule())
-                .with(new SetterMustExistRule())
-                .with(new SetterTester())
-                .with(new GetterTester())
-                .build();
+        Validator pojoValidator =
+                ValidatorBuilder.create()
+                        .with(new GetterMustExistRule())
+                        .with(new SetterMustExistRule())
+                        .with(new SetterTester())
+                        .with(new GetterTester())
+                        .build();
 
-        
         pojoValidator.validate(PojoClassFactory.getPojoClass(ResendRequest.class));
-
     }
 
-    
     @Test
     public void resendRequestType() {
-       for(ResendRequestType r : ResendRequestType.values()) {
-           assertThat(r.name()).isNotNull();
-       }
+        for (ResendRequestType r : ResendRequestType.values()) {
+            assertThat(r.name()).isNotNull();
+        }
     }
-    
 }

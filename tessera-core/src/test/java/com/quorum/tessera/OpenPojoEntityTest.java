@@ -14,18 +14,17 @@ public class OpenPojoEntityTest {
     @Test
     public void executeOpenPojoValidationsWithSetter() {
 
-        final Validator pojoValidator = ValidatorBuilder.create()
-                .with(new GetterMustExistRule())
-                .with(new SetterMustExistRule())
-                .with(new SetterTester())
-                .with(new GetterTester())
-                .with(new EqualsAndHashCodeMatchRule())
-                .with(new NoPrimitivesRule())
-                .with(new NoPublicFieldsExceptStaticFinalRule())
-                .build();
-   
-           pojoValidator.validate(PojoClassFactory.getPojoClass(MessageHash.class));
+        final Validator pojoValidator =
+                ValidatorBuilder.create()
+                        .with(new GetterMustExistRule())
+                        .with(new SetterMustExistRule())
+                        .with(new SetterTester())
+                        .with(new GetterTester())
+                        .with(new EqualsAndHashCodeMatchRule())
+                        .with(new NoPrimitivesRule())
+                        .with(new NoPublicFieldsExceptStaticFinalRule())
+                        .build();
+
+        pojoValidator.validate(PojoClassFactory.getPojoClass(MessageHash.class));
     }
-
-
 }

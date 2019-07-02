@@ -23,5 +23,4 @@ public interface XmlProcessingCallback<T> {
             throw new ConfigException(ex);
         }
     }
-
 }

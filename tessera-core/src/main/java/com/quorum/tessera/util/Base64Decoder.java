@@ -4,9 +4,7 @@ import com.quorum.tessera.util.exception.DecodingException;
 
 import java.util.Base64;
 
-/**
- * An delegate interface for {@link Base64} to allow mocking in tests
- */
+/** An delegate interface for {@link Base64} to allow mocking in tests */
 public interface Base64Decoder {
 
     /**
@@ -25,8 +23,7 @@ public interface Base64Decoder {
     }
 
     /**
-     * Encodes the given input to a Base64 encoded string
-     * Does not trim the end if the input was padded
+     * Encodes the given input to a Base64 encoded string Does not trim the end if the input was padded
      *
      * @param data the input data to encode to Base64
      * @return the encoded form of the input
@@ -36,8 +33,6 @@ public interface Base64Decoder {
     }
 
     static Base64Decoder create() {
-        return new Base64Decoder() {
-        };
+        return new Base64Decoder() {};
     }
-
 }

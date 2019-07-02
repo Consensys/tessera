@@ -22,7 +22,7 @@ public class ExecArgsBuilder {
     private Class mainClass;
 
     private Path executableJarFile;
-    
+
     private final Map<String, String> argList = new HashMap<>();
 
     private final List<String> jvmArgList = new ArrayList<>();
@@ -53,12 +53,11 @@ public class ExecArgsBuilder {
         this.mainClass = mainClass;
         return this;
     }
-    
+
     public ExecArgsBuilder withExecutableJarFile(Path executableJarFile) {
         this.executableJarFile = executableJarFile;
         return this;
     }
-
 
     public ExecArgsBuilder withArg(String name) {
         argList.put(name, null);
@@ -85,14 +84,15 @@ public class ExecArgsBuilder {
         if (!classpathItems.isEmpty()) {
             tokens.add("-cp");
 
-            String classpathStr = classpathItems.stream()
-                    .map(Path::toAbsolutePath)
-                    .map(Path::toString)
-                    .collect(Collectors.joining(File.pathSeparator));
+            String classpathStr =
+                    classpathItems.stream()
+                            .map(Path::toAbsolutePath)
+                            .map(Path::toString)
+                            .collect(Collectors.joining(File.pathSeparator));
             tokens.add(classpathStr);
         }
-        
-        if(executableJarFile != null) {
+
+        if (executableJarFile != null) {
             tokens.add("-jar");
             tokens.add(executableJarFile.toAbsolutePath().toString());
         } else {
@@ -107,28 +107,29 @@ public class ExecArgsBuilder {
             tokens.add(pidFile.toAbsolutePath().toString());
         }
 
-        argList.entrySet().forEach(e -> {
-            tokens.add(e.getKey());
-            if (Objects.nonNull(e.getValue())) {
-                tokens.add(e.getValue());
-            }
-        });
+        argList.entrySet()
+                .forEach(
+                        e -> {
+                            tokens.add(e.getKey());
+                            if (Objects.nonNull(e.getValue())) {
+                                tokens.add(e.getValue());
+                            }
+                        });
 
         return tokens;
     }
 
     public static void main(String[] args) throws Exception {
-        List<String> argz = new ExecArgsBuilder()
-                .withConfigFile(Paths.get("myconfig.json"))
-                .withMainClass(Object.class)
-                .withJvmArg("-Dsomething=something")
-                .withClassPathItem(Paths.get("/some.jar"))
-                .withClassPathItem(Paths.get("/someother.jar"))
-                .withArg("-jdbc.autoCreateTables", "true")
-                .build();
+        List<String> argz =
+                new ExecArgsBuilder()
+                        .withConfigFile(Paths.get("myconfig.json"))
+                        .withMainClass(Object.class)
+                        .withJvmArg("-Dsomething=something")
+                        .withClassPathItem(Paths.get("/some.jar"))
+                        .withClassPathItem(Paths.get("/someother.jar"))
+                        .withArg("-jdbc.autoCreateTables", "true")
+                        .build();
 
         System.out.println(String.join(" ", argz));
-
     }
-
 }

@@ -39,10 +39,8 @@ public class PidFileParser implements Parser<Optional> {
             try (OutputStream stream = Files.newOutputStream(pidFilePath, CREATE, TRUNCATE_EXISTING)) {
                 stream.write(pid.getBytes(UTF_8));
             }
-
         }
 
         return Optional.empty();
     }
-
 }

@@ -12,9 +12,7 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Provides endpoints to determine versioning information
- */
+/** Provides endpoints to determine versioning information */
 @Path("/version")
 public class VersionResource {
 

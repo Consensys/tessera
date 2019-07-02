@@ -31,7 +31,6 @@ public class PathValidatorTest {
         Path path = Paths.get("bogus");
 
         assertThat(pathValidator.isValid(path, context)).isFalse();
-
     }
 
     @Test
@@ -48,7 +47,6 @@ public class PathValidatorTest {
         Path path = Paths.get("bogus");
 
         assertThat(pathValidator.isValid(path, context)).isTrue();
-
     }
 
     @Test
@@ -80,7 +78,6 @@ public class PathValidatorTest {
         assertThat(pathValidator.isValid(null, context)).isTrue();
 
         verifyZeroInteractions(context);
-
     }
 
     @Test
@@ -107,7 +104,7 @@ public class PathValidatorTest {
         ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
         when(context.buildConstraintViolationWithTemplate(anyString()))
-            .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
+                .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
 
         ValidPath validPath = mock(ValidPath.class);
         when(validPath.checkCanCreate()).thenReturn(true);
@@ -121,7 +118,7 @@ public class PathValidatorTest {
 
         when(filesDelegate.notExists(path)).thenReturn(Boolean.TRUE);
         when(filesDelegate.createFile(path)).thenThrow(UncheckedIOException.class);
-        when(filesDelegate.deleteIfExists(path)).thenThrow(UncheckedIOException.class);//final block coverage
+        when(filesDelegate.deleteIfExists(path)).thenThrow(UncheckedIOException.class); // final block coverage
 
         pathValidator.setFilesDelegate(filesDelegate);
 
@@ -139,7 +136,7 @@ public class PathValidatorTest {
         ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
         when(context.buildConstraintViolationWithTemplate(anyString()))
-            .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
+                .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
 
         ValidPath validPath = mock(ValidPath.class);
         when(validPath.checkCanCreate()).thenReturn(true);
@@ -166,7 +163,7 @@ public class PathValidatorTest {
         ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
         when(context.buildConstraintViolationWithTemplate(anyString()))
-            .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
+                .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
 
         ValidPath validPath = mock(ValidPath.class);
         when(validPath.checkCanCreate()).thenReturn(false);

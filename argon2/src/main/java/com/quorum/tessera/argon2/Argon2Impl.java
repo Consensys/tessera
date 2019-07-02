@@ -17,9 +17,8 @@ public class Argon2Impl implements Argon2 {
     public ArgonResult hash(final ArgonOptions options, final String password, final byte[] salt) {
         final Argon2Advanced argon2 = this.getArgon2Instance(options.getAlgorithm());
 
-        final byte[] hash = argon2.rawHash(
-            options.getIterations(), options.getMemory(), options.getParallelism(), password, salt
-        );
+        final byte[] hash =
+                argon2.rawHash(options.getIterations(), options.getMemory(), options.getParallelism(), password, salt);
 
         LOGGER.debug("Argon2 hash produced the array {}", Arrays.toString(hash));
 
@@ -32,8 +31,7 @@ public class Argon2Impl implements Argon2 {
     }
 
     /**
-     * The string form of the algorithm to use.
-     * If an invalid algorithm is chosen, a default of Argon2i is chosen.
+     * The string form of the algorithm to use. If an invalid algorithm is chosen, a default of Argon2i is chosen.
      *
      * @param algorithm the algorithm to use
      * @return an instance of the chosen algorithm
@@ -52,5 +50,4 @@ public class Argon2Impl implements Argon2 {
                 throw new IllegalArgumentException("Invalid Argon2 algorithm " + algorithm);
         }
     }
-
 }

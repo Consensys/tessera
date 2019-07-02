@@ -13,5 +13,4 @@ public class PublishPayloadExceptionTest {
 
         assertThat(exception).hasMessage(msg);
     }
-
 }

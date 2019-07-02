@@ -25,5 +25,4 @@ public class DecodingExceptionMapperTest {
         assertThat(message).isEqualTo("java.lang.Exception: OUCH");
         assertThat(result.getStatus()).isEqualTo(400);
     }
-
 }

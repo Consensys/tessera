@@ -19,9 +19,8 @@ public class AutoDiscoveryDisabledExceptionMapper implements ExceptionMapper<Aut
         LOGGER.debug(null, exception);
 
         return Response.status(Response.Status.FORBIDDEN)
-            .entity(exception.getMessage())
-            .type(MediaType.TEXT_PLAIN)
-            .build();
+                .entity(exception.getMessage())
+                .type(MediaType.TEXT_PLAIN)
+                .build();
     }
-
 }

@@ -12,7 +12,5 @@ public class KeyEncryptorFactoryTest {
         final KeyEncryptor keyEncryptor = KeyEncryptorFactory.create();
 
         assertThat(keyEncryptor).isNotNull();
-
     }
-
 }

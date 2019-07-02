@@ -20,7 +20,6 @@ public class KeyConfigurationValidatorTest {
         final KeyConfiguration configuration = new KeyConfiguration(null, null, null, null, null);
 
         assertThat(validator.isValid(configuration, mock(ConstraintValidatorContext.class))).isTrue();
-
     }
 
     @Test
@@ -29,7 +28,6 @@ public class KeyConfigurationValidatorTest {
         final KeyConfiguration configuration = new KeyConfiguration(Paths.get("anything"), null, null, null, null);
 
         assertThat(validator.isValid(configuration, mock(ConstraintValidatorContext.class))).isTrue();
-
     }
 
     @Test
@@ -38,21 +36,19 @@ public class KeyConfigurationValidatorTest {
         final KeyConfiguration configuration = new KeyConfiguration(null, emptyList(), null, null, null);
 
         assertThat(validator.isValid(configuration, mock(ConstraintValidatorContext.class))).isTrue();
-
     }
 
     @Test
     public void bothSetIsInvalid() {
 
-        final KeyConfiguration configuration = new KeyConfiguration(Paths.get("anything"), emptyList(), null, null, null);
+        final KeyConfiguration configuration =
+                new KeyConfiguration(Paths.get("anything"), emptyList(), null, null, null);
 
         assertThat(validator.isValid(configuration, mock(ConstraintValidatorContext.class))).isFalse();
-
     }
 
     @Test
     public void nullConfigIsValid() {
         assertThat(validator.isValid(null, mock(ConstraintValidatorContext.class))).isTrue();
     }
-
 }

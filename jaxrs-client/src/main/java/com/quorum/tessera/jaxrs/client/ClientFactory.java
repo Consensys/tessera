@@ -15,8 +15,8 @@ import javax.ws.rs.core.Configuration;
 
 /**
  * Creates HTTP clients that can make requests
- * <p>
- * Makes the client SSL enabled if specified
+ *
+ * <p>Makes the client SSL enabled if specified
  */
 public class ClientFactory {
 
@@ -32,47 +32,46 @@ public class ClientFactory {
 
     private static Configuration createUnixServerSocketConfig() {
 
-        return ReflectCallback.execute(() -> {
-            Class configType = Class.forName("org.glassfish.jersey.client.ClientConfig");
-            Class providerClass = Class.forName("com.quorum.tessera.jaxrs.unixsocket.JerseyUnixSocketConnectorProvider");
-            Object config = configType.getDeclaredConstructor().newInstance();
-            Object provider = providerClass.getDeclaredConstructor().newInstance();
-            Method connectorProviderMethod = Arrays.stream(configType.getDeclaredMethods())
-                    .filter(m -> m.getName().equals("connectorProvider")).findFirst().get();
-                    
-            connectorProviderMethod.invoke(config, provider);
-            
-            return Configuration.class.cast(config);
-        });
+        return ReflectCallback.execute(
+                () -> {
+                    Class configType = Class.forName("org.glassfish.jersey.client.ClientConfig");
+                    Class providerClass =
+                            Class.forName("com.quorum.tessera.jaxrs.unixsocket.JerseyUnixSocketConnectorProvider");
+                    Object config = configType.getDeclaredConstructor().newInstance();
+                    Object provider = providerClass.getDeclaredConstructor().newInstance();
+                    Method connectorProviderMethod =
+                            Arrays.stream(configType.getDeclaredMethods())
+                                    .filter(m -> m.getName().equals("connectorProvider"))
+                                    .findFirst()
+                                    .get();
+
+                    connectorProviderMethod.invoke(config, provider);
+
+                    return Configuration.class.cast(config);
+                });
     }
-    
+
     /**
-     * Creates a new client, which may or may not be SSL enabled 
-     * or a unix socket enabled depending on
-     * the configuration.
+     * Creates a new client, which may or may not be SSL enabled or a unix socket enabled depending on the
+     * configuration.
      *
      * @param config
-     * @return 
+     * @return
      * @see Client
      */
     public Client buildFrom(final ServerConfig config) {
-  
+
         if (config.isUnixSocket()) {
             Configuration clientConfig = createUnixServerSocketConfig();
             URI unixfile = config.getServerUri();
-            return ClientBuilder.newClient(clientConfig)
-                    .property("unixfile", unixfile);
+            return ClientBuilder.newClient(clientConfig).property("unixfile", unixfile);
 
         } else if (config.isSsl()) {
-            final SSLContext sslContext = sslContextFactory.from(
-                    config.getServerUri().toString(),
-                    config.getSslConfig());
-            return ClientBuilder.newBuilder()
-                    .sslContext(sslContext)
-                    .build();
+            final SSLContext sslContext =
+                    sslContextFactory.from(config.getServerUri().toString(), config.getSslConfig());
+            return ClientBuilder.newBuilder().sslContext(sslContext).build();
         } else {
             return ClientBuilder.newClient();
         }
     }
-
 }

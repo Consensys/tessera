@@ -39,5 +39,4 @@ public class HashicorpGetSecretData implements GetSecretData {
     public KeyVaultType getType() {
         return KeyVaultType.HASHICORP;
     }
-
 }

@@ -217,7 +217,8 @@ public class KeyGenerationParserTest {
         Throwable ex = catchThrowable(() -> this.parser.parse(commandLine));
 
         assertThat(ex).isInstanceOf(CliException.class);
-        assertThat(ex.getMessage()).isEqualTo("At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
+        assertThat(ex.getMessage())
+                .isEqualTo("At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
     }
 
     @Test
@@ -364,5 +365,4 @@ public class KeyGenerationParserTest {
         verify(commandLine, times(1)).getOptionValue("keygenvaulttruststore");
         verify(commandLine, times(1)).getOptionValue("keygenvaultsecretengine");
     }
-
 }

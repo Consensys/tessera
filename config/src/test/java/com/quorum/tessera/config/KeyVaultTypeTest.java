@@ -8,10 +8,9 @@ public class KeyVaultTypeTest {
 
     @Test
     public void values() {
-        for(KeyVaultType t : KeyVaultType.values()) {
+        for (KeyVaultType t : KeyVaultType.values()) {
             assertThat(t).isNotNull();
             assertThat(KeyVaultType.valueOf(t.name())).isSameAs(t);
         }
     }
-
 }

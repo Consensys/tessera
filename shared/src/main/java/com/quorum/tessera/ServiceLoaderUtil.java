@@ -15,5 +15,4 @@ public interface ServiceLoaderUtil {
 
         return Optional.empty();
     }
-
 }

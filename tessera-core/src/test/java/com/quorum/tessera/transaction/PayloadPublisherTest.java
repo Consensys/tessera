@@ -57,10 +57,14 @@ public class PayloadPublisherTest {
 
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(RECIPIENT_KEY));
 
-        final EncodedPayload payload = new EncodedPayload(
-            PublicKey.from(EMPTY), EMPTY, new Nonce(EMPTY),
-            singletonList(EMPTY), new Nonce(EMPTY), singletonList(RECIPIENT_KEY)
-        );
+        final EncodedPayload payload =
+                new EncodedPayload(
+                        PublicKey.from(EMPTY),
+                        EMPTY,
+                        new Nonce(EMPTY),
+                        singletonList(EMPTY),
+                        new Nonce(EMPTY),
+                        singletonList(RECIPIENT_KEY));
 
         payloadPublisher.publishPayload(payload, RECIPIENT_KEY);
 
@@ -73,10 +77,14 @@ public class PayloadPublisherTest {
         final String url = "SOMEURL";
         when(partyInfoService.getURLFromRecipientKey(RECIPIENT_KEY)).thenReturn(url);
 
-        final EncodedPayload payload = new EncodedPayload(
-            PublicKey.from(EMPTY), EMPTY, new Nonce(EMPTY),
-            singletonList(EMPTY), new Nonce(EMPTY), singletonList(RECIPIENT_KEY)
-        );
+        final EncodedPayload payload =
+                new EncodedPayload(
+                        PublicKey.from(EMPTY),
+                        EMPTY,
+                        new Nonce(EMPTY),
+                        singletonList(EMPTY),
+                        new Nonce(EMPTY),
+                        singletonList(RECIPIENT_KEY));
 
         byte[] encodedBytes = "encodedBytes".getBytes();
         when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn(encodedBytes);
@@ -96,10 +104,14 @@ public class PayloadPublisherTest {
         final String url = "SOMEURL";
         when(partyInfoService.getURLFromRecipientKey(RECIPIENT_KEY)).thenReturn(url);
 
-        final EncodedPayload payload = new EncodedPayload(
-            PublicKey.from(EMPTY), EMPTY, new Nonce(EMPTY),
-            singletonList(EMPTY), new Nonce(EMPTY), singletonList(RECIPIENT_KEY)
-        );
+        final EncodedPayload payload =
+                new EncodedPayload(
+                        PublicKey.from(EMPTY),
+                        EMPTY,
+                        new Nonce(EMPTY),
+                        singletonList(EMPTY),
+                        new Nonce(EMPTY),
+                        singletonList(RECIPIENT_KEY));
 
         byte[] encodedBytes = "encodedBytes".getBytes();
         when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn(encodedBytes);
@@ -117,5 +129,4 @@ public class PayloadPublisherTest {
         verify(p2pClient).push(url, encodedBytes);
         verify(enclave).getPublicKeys();
     }
-
 }

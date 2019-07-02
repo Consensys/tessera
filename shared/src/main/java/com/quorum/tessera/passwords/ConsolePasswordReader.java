@@ -15,5 +15,4 @@ public class ConsolePasswordReader implements PasswordReader {
         final char[] consolePassword = this.console.readPassword();
         return new String(consolePassword);
     }
-
 }

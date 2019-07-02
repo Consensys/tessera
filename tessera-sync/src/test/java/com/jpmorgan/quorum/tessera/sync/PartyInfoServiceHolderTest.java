@@ -11,15 +11,13 @@ public class PartyInfoServiceHolderTest {
     public void createAndGet() {
         PartyInfoService partyInfoService = mock(PartyInfoService.class);
         PartyInfoServiceHolder instance = new PartyInfoServiceHolder(partyInfoService);
-        
+
         assertThat(instance).isNotNull();
         assertThat(PartyInfoServiceHolder.getPartyInfoService()).isSameAs(partyInfoService);
-
     }
-    
+
     @Test(expected = IllegalStateException.class)
     public void getWithoutConstruct() {
         PartyInfoServiceHolder.getPartyInfoService();
     }
-
 }

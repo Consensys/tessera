@@ -30,5 +30,4 @@ public class AzureKeyVaultConfigTest {
     public void getKeyVaultType() {
         assertThat(keyVaultConfig.getKeyVaultType()).isEqualTo(KeyVaultType.AZURE);
     }
-
 }

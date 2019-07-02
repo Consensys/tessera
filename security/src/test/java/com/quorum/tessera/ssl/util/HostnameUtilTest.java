@@ -22,5 +22,4 @@ public class HostnameUtilTest {
         assertThat(ipAddress).isNotEmpty();
         assertThat(ipAddress).isEqualTo(InetAddress.getLocalHost().getHostAddress());
     }
-
 }

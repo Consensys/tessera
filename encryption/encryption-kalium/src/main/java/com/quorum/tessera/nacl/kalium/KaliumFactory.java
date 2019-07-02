@@ -18,5 +18,4 @@ public class KaliumFactory implements NaclFacadeFactory {
 
         return new Kalium(sodium);
     }
-
 }

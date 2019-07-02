@@ -12,8 +12,6 @@ public interface MessageHashFactory {
     }
 
     static MessageHashFactory create() {
-        return ServiceLoaderUtil.load(MessageHashFactory.class).orElse(new MessageHashFactory() {
-        });
+        return ServiceLoaderUtil.load(MessageHashFactory.class).orElse(new MessageHashFactory() {});
     }
-
 }

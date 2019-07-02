@@ -5,5 +5,4 @@ class NoKeyVaultServiceFactoryException extends RuntimeException {
     NoKeyVaultServiceFactoryException(String message) {
         super(message);
     }
-
 }

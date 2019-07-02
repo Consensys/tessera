@@ -14,17 +14,11 @@ public class ArgonOptions extends ConfigItem {
     @XmlAttribute(name = "variant")
     private String algorithm;
 
-    @NotNull
-    @XmlAttribute
-    private Integer iterations;
+    @NotNull @XmlAttribute private Integer iterations;
 
-    @NotNull
-    @XmlAttribute
-    private Integer memory;
+    @NotNull @XmlAttribute private Integer memory;
 
-    @NotNull
-    @XmlAttribute
-    private Integer parallelism;
+    @NotNull @XmlAttribute private Integer parallelism;
 
     public ArgonOptions(String algorithm, Integer iterations, Integer memory, Integer parallelism) {
         this.algorithm = Optional.ofNullable(algorithm).orElse("id");
@@ -33,9 +27,7 @@ public class ArgonOptions extends ConfigItem {
         this.parallelism = parallelism;
     }
 
-    public ArgonOptions() {
-
-    }
+    public ArgonOptions() {}
 
     public String getAlgorithm() {
         return algorithm;
@@ -68,5 +60,4 @@ public class ArgonOptions extends ConfigItem {
     public void setParallelism(Integer parallelism) {
         this.parallelism = parallelism;
     }
-
 }

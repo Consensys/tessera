@@ -32,8 +32,7 @@ public class ConfigFactoryTest {
         Map<String, Object> params = new HashMap<>();
         params.put("unixSocketPath", unixSocketPath.toString());
 
-        InputStream configInputStream = ElUtil.process(getClass()
-                .getResourceAsStream("/sample.json"), params);
+        InputStream configInputStream = ElUtil.process(getClass().getResourceAsStream("/sample.json"), params);
 
         Config config = configFactory.create(configInputStream, Collections.emptyList());
 
@@ -44,7 +43,8 @@ public class ConfigFactoryTest {
         assertThat(config.getKeys().getKeyData()).hasSize(1);
         assertThat(config.getKeys().getKeyData().get(0)).isInstanceOf(InlineKeypair.class);
 
-        final KeyDataConfig keyDataConfig = ((InlineKeypair)config.getKeys().getKeyData().get(0)).getPrivateKeyConfig();
+        final KeyDataConfig keyDataConfig =
+                ((InlineKeypair) config.getKeys().getKeyData().get(0)).getPrivateKeyConfig();
         final PrivateKeyData privateKeyData = keyDataConfig.getPrivateKeyData();
 
         assertThat(keyDataConfig).isNotNull();
@@ -54,7 +54,8 @@ public class ConfigFactoryTest {
 
         assertThat(privateKeyData.getSnonce()).isEqualTo("dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe");
         assertThat(privateKeyData.getAsalt()).isEqualTo("JoPVq9G6NdOb+Ugv+HnUeA==");
-        assertThat(privateKeyData.getSbox()).isEqualTo("6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw");
+        assertThat(privateKeyData.getSbox())
+                .isEqualTo("6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw");
 
         assertThat(privateKeyData.getArgonOptions()).isNotNull();
         assertThat(privateKeyData.getArgonOptions().getAlgorithm()).isEqualTo("id");
@@ -80,13 +81,12 @@ public class ConfigFactoryTest {
 
         final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString()).toAbsolutePath();
 
-        final InlineKeypair keypair = new InlineKeypair(
-            "publickey",
-            new KeyDataConfig(
-                new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 1, 1024, 1)),
-                PrivateKeyType.LOCKED
-            )
-        );
+        final InlineKeypair keypair =
+                new InlineKeypair(
+                        "publickey",
+                        new KeyDataConfig(
+                                new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 1, 1024, 1)),
+                                PrivateKeyType.LOCKED));
 
         final ConfigFactory configFactory = ConfigFactory.create();
         assertThat(configFactory).isExactlyInstanceOf(JaxbConfigFactory.class);
@@ -95,9 +95,8 @@ public class ConfigFactoryTest {
 
         Map<String, Object> params = singletonMap("unixSocketPath", unixSocketPath.toString());
 
-        InputStream configInputStream = ElUtil.process(
-            getClass().getResourceAsStream("/sample-private-keygen.json"), params
-        );
+        InputStream configInputStream =
+                ElUtil.process(getClass().getResourceAsStream("/sample-private-keygen.json"), params);
 
         Config config = configFactory.create(configInputStream, singletonList(keypair));
 
@@ -105,7 +104,7 @@ public class ConfigFactoryTest {
         assertThat(config.getKeys().getKeyData()).hasSize(1);
         assertThat(config.getKeys().getKeyData().get(0)).isInstanceOf(InlineKeypair.class);
 
-        KeyDataConfig keyDataConfig = ((InlineKeypair)config.getKeys().getKeyData().get(0)).getPrivateKeyConfig();
+        KeyDataConfig keyDataConfig = ((InlineKeypair) config.getKeys().getKeyData().get(0)).getPrivateKeyConfig();
 
         assertThat(keyDataConfig.getType()).isEqualTo(PrivateKeyType.LOCKED);
         assertThat(keyDataConfig.getPrivateKeyData()).isNotNull();

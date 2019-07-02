@@ -10,10 +10,9 @@ public class UriCallbackTest {
     @Test(expected = UncheckedIOException.class)
     public void executeThrowsURISyntaxException() {
 
-        UriCallback.execute(() -> {
-            throw new URISyntaxException("", "");
-        });
-
+        UriCallback.execute(
+                () -> {
+                    throw new URISyntaxException("", "");
+                });
     }
-
 }

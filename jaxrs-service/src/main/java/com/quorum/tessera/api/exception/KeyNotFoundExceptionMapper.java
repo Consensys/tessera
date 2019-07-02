@@ -19,10 +19,7 @@ public class KeyNotFoundExceptionMapper implements ExceptionMapper<KeyNotFoundEx
         LOGGER.warn(e.getMessage());
         LOGGER.debug(null, e);
 
-        //TODO: change to 404
-        return Response.status(Response.Status.BAD_REQUEST)
-            .entity(e.getMessage())
-            .type(MediaType.TEXT_PLAIN)
-            .build();
+        // TODO: change to 404
+        return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
     }
 }

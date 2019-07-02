@@ -9,8 +9,7 @@ public class VersionResourceTest {
 
     private VersionResource instance;
 
-    public VersionResourceTest() {
-    }
+    public VersionResourceTest() {}
 
     @Before
     public void onSetUp() {
@@ -20,8 +19,6 @@ public class VersionResourceTest {
     @Test
     public void getVersion() {
 
-        assertThat(instance.getVersion())
-                .isEqualTo("No version defined yet!");
-
+        assertThat(instance.getVersion()).isEqualTo("No version defined yet!");
     }
 }

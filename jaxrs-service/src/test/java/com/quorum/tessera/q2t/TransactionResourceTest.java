@@ -26,13 +26,11 @@ public class TransactionResourceTest {
 
         transactionManager = mock(TransactionManager.class);
         transactionResource = new TransactionResource(transactionManager);
-
     }
 
     @After
     public void onTearDown() {
         verifyNoMoreInteractions(transactionManager);
-
     }
 
     @Test
@@ -78,11 +76,9 @@ public class TransactionResourceTest {
         Response result = transactionResource.send(sendRequest);
         assertThat(result.getStatus()).isEqualTo(201);
 
-        assertThat(result.getLocation().getPath())
-            .isEqualTo("transaction/KEY");
+        assertThat(result.getLocation().getPath()).isEqualTo("transaction/KEY");
 
         verify(transactionManager).send(any(SendRequest.class));
-
     }
 
     @Test
@@ -93,7 +89,6 @@ public class TransactionResourceTest {
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.getEntity()).isEqualTo("KEY");
         verify(transactionManager).sendSignedTransaction(any(SendSignedRequest.class));
-
     }
 
     @Test
@@ -104,7 +99,6 @@ public class TransactionResourceTest {
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.getEntity()).isEqualTo("KEY");
         verify(transactionManager).sendSignedTransaction(any(SendSignedRequest.class));
-
     }
 
     @Test
@@ -117,7 +111,6 @@ public class TransactionResourceTest {
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.getEntity()).isEqualTo("KEY");
         verify(transactionManager).send(any(SendRequest.class));
-
     }
 
     @Test
@@ -130,7 +123,6 @@ public class TransactionResourceTest {
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.getEntity()).isEqualTo("KEY");
         verify(transactionManager).send(any(SendRequest.class));
-
     }
 
     @Test
@@ -143,27 +135,21 @@ public class TransactionResourceTest {
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.getEntity()).isEqualTo("KEY");
         verify(transactionManager).send(any(SendRequest.class));
-
     }
 
     @Test
     public void deleteKey() {
 
         List<DeleteRequest> results = new ArrayList<>();
-        doAnswer((iom) -> results.add(iom.getArgument(0)))
-            .when(transactionManager).delete(any(DeleteRequest.class));
+        doAnswer((iom) -> results.add(iom.getArgument(0))).when(transactionManager).delete(any(DeleteRequest.class));
 
         Response response = transactionResource.deleteKey("KEY");
 
-        assertThat(results)
-            .hasSize(1)
-            .extracting(DeleteRequest::getKey)
-            .containsExactly("KEY");
+        assertThat(results).hasSize(1).extracting(DeleteRequest::getKey).containsExactly("KEY");
 
         assertThat(response.getStatus()).isEqualTo(204);
 
         verify(transactionManager).delete(any(DeleteRequest.class));
-
     }
 
     @Test
@@ -177,6 +163,5 @@ public class TransactionResourceTest {
         assertThat(response.getStatus()).isEqualTo(200);
 
         verify(transactionManager).delete(deleteRequest);
-
     }
 }

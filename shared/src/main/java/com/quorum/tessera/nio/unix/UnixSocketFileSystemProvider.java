@@ -10,9 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.Map;
 
-/**
- * Implementation of FileSystemProvider that handles URIs with unix scheme
- */
+/** Implementation of FileSystemProvider that handles URIs with unix scheme */
 public class UnixSocketFileSystemProvider extends DelegatingFileSystemProvider {
 
     public UnixSocketFileSystemProvider() {
@@ -31,13 +29,15 @@ public class UnixSocketFileSystemProvider extends DelegatingFileSystemProvider {
     private static URI convert(final URI uri) {
 
         return UriCallback.execute(
-            () -> new URI(
-                "file",
-                uri.getUserInfo(), uri.getHost(), uri.getPort(),
-                uri.getPath(), uri.getQuery(), uri.getFragment()
-            )
-        );
-
+                () ->
+                        new URI(
+                                "file",
+                                uri.getUserInfo(),
+                                uri.getHost(),
+                                uri.getPort(),
+                                uri.getPath(),
+                                uri.getQuery(),
+                                uri.getFragment()));
     }
 
     @Override
@@ -54,5 +54,4 @@ public class UnixSocketFileSystemProvider extends DelegatingFileSystemProvider {
     public Path getPath(final URI uri) {
         return super.getPath(convert(uri));
     }
-
 }

@@ -10,13 +10,13 @@ import java.util.Set;
 public interface ConfigService {
 
     void addPeer(String url);
-    
+
     List<Peer> getPeers();
 
     boolean isUseWhiteList();
 
     boolean isDisablePeerDiscovery();
-    
+
     URI getServerUri();
 
     Set<PublicKey> getPublicKeys();

@@ -2,10 +2,7 @@ package com.quorum.tessera.nacl.jnacl;
 
 import com.neilalexander.jnacl.crypto.curve25519xsalsa20poly1305;
 
-/**
- * An interface to make testing of the static methods provided by
- * {@link curve25519xsalsa20poly1305} easier.
- */
+/** An interface to make testing of the static methods provided by {@link curve25519xsalsa20poly1305} easier. */
 public interface SecretBox {
 
     /**
@@ -43,14 +40,12 @@ public interface SecretBox {
     int cryptoBoxOpenAfternm(byte[] output, byte[] message, int messageLength, byte[] nonce, byte[] sharedKey);
 
     /**
-     * Generates a new keypair
-     * The input arrays must be at least 32 bytes long (and only the first 32 bytes are populated
-     * if the array is longer)
+     * Generates a new keypair The input arrays must be at least 32 bytes long (and only the first 32 bytes are
+     * populated if the array is longer)
      *
      * @param publicKey The output array for the public key
      * @param privateKey The output array for the private key
      * @return Whether the operation was successful (0 for success, -1 for failure)
      */
     int cryptoBoxKeypair(byte[] publicKey, byte[] privateKey);
-
 }

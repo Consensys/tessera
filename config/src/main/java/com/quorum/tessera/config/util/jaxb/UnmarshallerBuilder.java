@@ -27,23 +27,26 @@ public class UnmarshallerBuilder {
 
     public Unmarshaller build() {
 
-        return JaxbCallback.execute(() -> {
-            JAXBContext jAXBContext = JAXBContext.newInstance(JaxbUtil.JAXB_CLASSES);
+        return JaxbCallback.execute(
+                () -> {
+                    JAXBContext jAXBContext = JAXBContext.newInstance(JaxbUtil.JAXB_CLASSES);
 
-            Unmarshaller unmarshaller = jAXBContext.createUnmarshaller();
-            if (!beanvalidation) {
-                Enum enu = Enum.valueOf(Class.class.cast(unmarshaller
-                        .getProperty("eclipselink.beanvalidation.mode")
-                        .getClass()), "NONE");
+                    Unmarshaller unmarshaller = jAXBContext.createUnmarshaller();
+                    if (!beanvalidation) {
+                        Enum enu =
+                                Enum.valueOf(
+                                        Class.class.cast(
+                                                unmarshaller.getProperty("eclipselink.beanvalidation.mode").getClass()),
+                                        "NONE");
 
-                unmarshaller.setProperty("eclipselink.beanvalidation.mode", enu);
-            }
-            unmarshaller.setProperty("eclipselink.media-type", mediaType.getValue());
+                        unmarshaller.setProperty("eclipselink.beanvalidation.mode", enu);
+                    }
+                    unmarshaller.setProperty("eclipselink.media-type", mediaType.getValue());
 
-            if (mediaType == MediaType.JSON) {
-                unmarshaller.setProperty("eclipselink.json.include-root", false);
-            }
-            return unmarshaller;
-        });
+                    if (mediaType == MediaType.JSON) {
+                        unmarshaller.setProperty("eclipselink.json.include-root", false);
+                    }
+                    return unmarshaller;
+                });
     }
 }

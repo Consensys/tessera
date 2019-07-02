@@ -40,5 +40,4 @@ public class WebApplicationExceptionMapperTest {
 
         assertThat(response.getStatus()).isEqualTo(400);
     }
-
 }

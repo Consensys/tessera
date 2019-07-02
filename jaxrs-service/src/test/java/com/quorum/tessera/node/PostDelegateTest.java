@@ -113,12 +113,8 @@ public class PostDelegateTest {
 
         doThrow(RuntimeException.class).when(builder).post(any(Entity.class));
 
-        final Throwable throwable = catchThrowable(
-            () ->delegate.makeResendRequest("randomUrl", new ResendRequest())
-        );
+        final Throwable throwable = catchThrowable(() -> delegate.makeResendRequest("randomUrl", new ResendRequest()));
 
         assertThat(throwable).isInstanceOf(RuntimeException.class);
-
     }
-
 }

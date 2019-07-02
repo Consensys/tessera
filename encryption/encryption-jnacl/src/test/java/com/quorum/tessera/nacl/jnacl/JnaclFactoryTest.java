@@ -21,5 +21,4 @@ public class JnaclFactoryTest {
 
         assertThat(result).isNotNull().isExactlyInstanceOf(Jnacl.class);
     }
-
 }

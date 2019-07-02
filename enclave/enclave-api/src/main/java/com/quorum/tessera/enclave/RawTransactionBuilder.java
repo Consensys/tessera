@@ -5,8 +5,7 @@ import com.quorum.tessera.nacl.Nonce;
 
 public class RawTransactionBuilder {
 
-    private RawTransactionBuilder() {
-    }
+    private RawTransactionBuilder() {}
 
     public static RawTransactionBuilder create() {
         return new RawTransactionBuilder();
@@ -43,5 +42,4 @@ public class RawTransactionBuilder {
     public RawTransaction build() {
         return new RawTransaction(encryptedPayload, encryptedKey, new Nonce(nonce), from);
     }
-
 }

@@ -7,10 +7,10 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * The JPA entity that contains the transaction information
- * A simple key/value pair
+ * The JPA entity that contains the transaction information A simple key/value pair
  *
- * The key is the transaction hash, and the value an a fully encoded {@link com.quorum.tessera.enclave.EncodedPayload}
+ * <p>The key is the transaction hash, and the value an a fully encoded {@link
+ * com.quorum.tessera.enclave.EncodedPayload}
  */
 @Entity
 @Table(name = "ENCRYPTED_TRANSACTION")
@@ -19,15 +19,14 @@ public class EncryptedTransaction implements Serializable {
     @EmbeddedId
     @AttributeOverride(
             name = "hashBytes",
-            column = @Column(name = "HASH", nullable = false, unique = true, updatable = false)
-    )
+            column = @Column(name = "HASH", nullable = false, unique = true, updatable = false))
     private MessageHash hash;
 
     @Lob
     @Column(name = "ENCODED_PAYLOAD", nullable = false)
     private byte[] encodedPayload;
 
-    @Column(name="TIMESTAMP", updatable = false)
+    @Column(name = "TIMESTAMP", updatable = false)
     private long timestamp;
 
     public EncryptedTransaction(final MessageHash hash, final byte[] encodedPayload) {
@@ -35,8 +34,7 @@ public class EncryptedTransaction implements Serializable {
         this.encodedPayload = encodedPayload;
     }
 
-    public EncryptedTransaction() {
-    }
+    public EncryptedTransaction() {}
 
     @PrePersist
     public void onPersist() {
@@ -71,9 +69,6 @@ public class EncryptedTransaction implements Serializable {
     @Override
     public boolean equals(final Object obj) {
 
-        return (obj instanceof EncryptedTransaction) &&
-            Objects.equals(this.hash, ((EncryptedTransaction) obj).hash);
+        return (obj instanceof EncryptedTransaction) && Objects.equals(this.hash, ((EncryptedTransaction) obj).hash);
     }
-
-
 }

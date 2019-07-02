@@ -27,7 +27,6 @@ public class ClientFactoryTest {
     public void setUp() {
         sslContextFactory = mock(SSLContextFactory.class);
         factory = new ClientFactory(sslContextFactory);
-
     }
 
     @After
@@ -43,7 +42,6 @@ public class ClientFactoryTest {
 
         Client client = factory.buildFrom(serverConfig);
         assertThat(client).isNotNull();
-
     }
 
     @Test
@@ -54,32 +52,32 @@ public class ClientFactoryTest {
         when(serverConfig.isSsl()).thenReturn(true);
         when(serverConfig.getServerUri()).thenReturn(new URI("https://localhost:8080"));
         when(serverConfig.getSslConfig()).thenReturn(sslConfig);
-        
+
         SSLContext sslContext = mock(SSLContext.class);
-        when(sslContextFactory.from(serverConfig.getServerUri().toString(),sslConfig)).thenReturn(sslContext);
-        
+        when(sslContextFactory.from(serverConfig.getServerUri().toString(), sslConfig)).thenReturn(sslContext);
+
         Client client = factory.buildFrom(serverConfig);
         assertThat(client).isNotNull();
 
-        verify(sslContextFactory).from(serverConfig.getServerUri().toString(),sslConfig);
+        verify(sslContextFactory).from(serverConfig.getServerUri().toString(), sslConfig);
     }
-    
+
     @Test
     public void createUnixSocketClient() {
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setServerAddress("unix:/tmp/bogus.socket");
-        org.glassfish.jersey.client.JerseyClient result = (org.glassfish.jersey.client.JerseyClient) factory.buildFrom(serverConfig);
+        org.glassfish.jersey.client.JerseyClient result =
+                (org.glassfish.jersey.client.JerseyClient) factory.buildFrom(serverConfig);
         assertThat(result.getConfiguration().getProperty("unixfile")).isNotNull().isInstanceOf(URI.class);
-         assertThat(result.getConfiguration().getProperty("unixfile").toString()).isEqualTo("unix:/tmp/bogus.socket");
-        
-        assertThat(result.getConfiguration().getConnectorProvider()).isInstanceOf(JerseyUnixSocketConnectorProvider.class);
-        
+        assertThat(result.getConfiguration().getProperty("unixfile").toString()).isEqualTo("unix:/tmp/bogus.socket");
+
+        assertThat(result.getConfiguration().getConnectorProvider())
+                .isInstanceOf(JerseyUnixSocketConnectorProvider.class);
     }
-    
-     @Test
+
+    @Test
     public void createDefaultInstance() {
         ClientFactory clientFactory = new ClientFactory();
         assertThat(clientFactory).isNotNull();
     }
-
 }

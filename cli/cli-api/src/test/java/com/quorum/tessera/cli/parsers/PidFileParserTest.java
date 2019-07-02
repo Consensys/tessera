@@ -42,7 +42,6 @@ public class PidFileParserTest {
         final byte[] filesBytes = Files.readAllBytes(this.pidFile);
 
         assertThat(filesBytes).isNotEqualTo(message.getBytes());
-
     }
 
     @Test
@@ -59,7 +58,5 @@ public class PidFileParserTest {
         this.pidFileParser.parse(commandLine);
 
         assertThat(this.pidFile).exists();
-
     }
-
 }

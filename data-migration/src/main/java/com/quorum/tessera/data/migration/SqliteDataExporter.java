@@ -19,18 +19,17 @@ public class SqliteDataExporter implements DataExporter {
     private static final String CREATE_TABLE_RESOURCE = "/ddls/sqlite-ddl.sql";
 
     @Override
-    public void export(final StoreLoader loader,
-                       final Path output,
-                       final String username,
-                       final String password) throws SQLException, IOException {
+    public void export(final StoreLoader loader, final Path output, final String username, final String password)
+            throws SQLException, IOException {
 
         final String connectionString = "jdbc:sqlite:" + output.toString();
 
-        final List<String> createTableStatements = Stream.of(getClass().getResourceAsStream(CREATE_TABLE_RESOURCE))
-            .map(InputStreamReader::new)
-            .map(BufferedReader::new)
-            .flatMap(BufferedReader::lines)
-            .collect(Collectors.toList());
+        final List<String> createTableStatements =
+                Stream.of(getClass().getResourceAsStream(CREATE_TABLE_RESOURCE))
+                        .map(InputStreamReader::new)
+                        .map(BufferedReader::new)
+                        .flatMap(BufferedReader::lines)
+                        .collect(Collectors.toList());
 
         try (Connection conn = DriverManager.getConnection(connectionString, username, password)) {
 
@@ -50,9 +49,6 @@ public class SqliteDataExporter implements DataExporter {
                     }
                 }
             }
-
         }
-
     }
-
 }

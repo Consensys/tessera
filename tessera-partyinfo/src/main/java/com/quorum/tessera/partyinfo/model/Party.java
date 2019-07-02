@@ -1,13 +1,10 @@
 package com.quorum.tessera.partyinfo.model;
 
-
 import com.quorum.tessera.partyinfo.URLNormalizer;
 import java.time.Instant;
 import java.util.Objects;
 
-/**
- * Contains a URL of another known node on the network
- */
+/** Contains a URL of another known node on the network */
 public class Party {
 
     private final String url;
@@ -44,5 +41,4 @@ public class Party {
     public String toString() {
         return "Party{" + "url=" + url + '}';
     }
-
 }

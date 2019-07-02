@@ -60,7 +60,6 @@ public class ResendPartyStoreTest {
         this.resendPartyStore.addUnseenParties(peers);
         final Optional<SyncableParty> partyThree = resendPartyStore.getNextParty();
         assertThat(partyThree).isNotPresent();
-
     }
 
     @Test
@@ -76,7 +75,6 @@ public class ResendPartyStoreTest {
         assertThat(partyOne).isPresent();
         assertThat(partyOne.get().getParty()).isEqualTo(party);
         assertThat(partyOne.get().getAttempts()).isEqualTo(presetAttempts + 1);
-
     }
 
     @Test
@@ -104,5 +102,4 @@ public class ResendPartyStoreTest {
         final Optional<SyncableParty> partyOne = resendPartyStore.getNextParty();
         assertThat(partyOne).isNotPresent();
     }
-
 }

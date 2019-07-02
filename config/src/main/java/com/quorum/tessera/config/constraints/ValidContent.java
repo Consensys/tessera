@@ -13,15 +13,14 @@ import javax.validation.Payload;
 @Constraint(validatedBy = ValidContentValidator.class)
 @Documented
 public @interface ValidContent {
-    
+
     String message() default "{ValidContent.message}";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-    
+
     int minLines() default 0;
-    
+
     int maxLines() default Integer.MAX_VALUE;
-    
 }

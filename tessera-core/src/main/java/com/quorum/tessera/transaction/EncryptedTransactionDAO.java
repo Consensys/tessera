@@ -6,14 +6,11 @@ import com.quorum.tessera.transaction.model.EncryptedTransaction;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * A data store for transactions that need to be retrieved later
- */
+/** A data store for transactions that need to be retrieved later */
 public interface EncryptedTransactionDAO {
 
     /**
-     * Save a new Encrypted Transaction
-     * All fields are required to be non-null on the entity
+     * Save a new Encrypted Transaction All fields are required to be non-null on the entity
      *
      * @param entity The entity to be persisted
      * @return The entity that was persisted
@@ -51,5 +48,4 @@ public interface EncryptedTransactionDAO {
      * @throws javax.persistence.EntityNotFoundException
      */
     void delete(MessageHash hash);
-
 }

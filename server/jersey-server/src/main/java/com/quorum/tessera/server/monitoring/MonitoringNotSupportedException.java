@@ -7,5 +7,4 @@ public class MonitoringNotSupportedException extends RuntimeException {
     public MonitoringNotSupportedException(final AppType appType) {
         super(appType + " app does not support monitoring Jersey metrics");
     }
-
 }

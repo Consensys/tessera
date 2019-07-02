@@ -51,9 +51,9 @@ public class ResendManagerTest {
         final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
 
         final byte[] input = "SOMEDATA".getBytes();
-        final EncodedPayload encodedPayload = new EncodedPayload(
-            senderKey, "CIPHERTEXT".getBytes(), null, new ArrayList<>(), null, new ArrayList<>()
-        );
+        final EncodedPayload encodedPayload =
+                new EncodedPayload(
+                        senderKey, "CIPHERTEXT".getBytes(), null, new ArrayList<>(), null, new ArrayList<>());
         final byte[] newEncryptedMasterKey = "newbox".getBytes();
 
         when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
@@ -74,7 +74,6 @@ public class ResendManagerTest {
         verify(enclave).getPublicKeys();
         verify(enclave).createNewRecipientBox(any(), any());
         verify(enclave).unencryptTransaction(encodedPayload, null);
-
     }
 
     @Test
@@ -89,13 +88,18 @@ public class ResendManagerTest {
         final PublicKey recipientKey = PublicKey.from("RECIPIENT-KEY".getBytes());
         final byte[] recipientBox = "BOX".getBytes();
 
-        final EncodedPayload encodedPayload = new EncodedPayload(
-            senderKey, "CIPHERTEXT".getBytes(), null, singletonList(recipientBox), null, singletonList(recipientKey)
-        );
+        final EncodedPayload encodedPayload =
+                new EncodedPayload(
+                        senderKey,
+                        "CIPHERTEXT".getBytes(),
+                        null,
+                        singletonList(recipientBox),
+                        null,
+                        singletonList(recipientKey));
 
-        final EncodedPayload existingEncodedPayload = new EncodedPayload(
-            senderKey, "CIPHERTEXT".getBytes(), null, new ArrayList<>(), null, new ArrayList<>()
-        );
+        final EncodedPayload existingEncodedPayload =
+                new EncodedPayload(
+                        senderKey, "CIPHERTEXT".getBytes(), null, new ArrayList<>(), null, new ArrayList<>());
 
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
@@ -130,9 +134,14 @@ public class ResendManagerTest {
         final PublicKey recipientKey = PublicKey.from("RECIPIENT-KEY".getBytes());
         final byte[] recipientBox = "BOX".getBytes();
 
-        final EncodedPayload encodedPayload = new EncodedPayload(
-            senderKey, "CIPHERTEXT".getBytes(), null, singletonList(recipientBox), null, singletonList(recipientKey)
-        );
+        final EncodedPayload encodedPayload =
+                new EncodedPayload(
+                        senderKey,
+                        "CIPHERTEXT".getBytes(),
+                        null,
+                        singletonList(recipientBox),
+                        null,
+                        singletonList(recipientKey));
 
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
@@ -161,9 +170,14 @@ public class ResendManagerTest {
         final PublicKey recipientKey = PublicKey.from("RECIPIENT-KEY".getBytes());
         final byte[] recipientBox = "BOX".getBytes();
 
-        final EncodedPayload encodedPayload = new EncodedPayload(
-            senderKey, "CIPHERTEXT".getBytes(), null, singletonList(recipientBox), null, singletonList(recipientKey)
-        );
+        final EncodedPayload encodedPayload =
+                new EncodedPayload(
+                        senderKey,
+                        "CIPHERTEXT".getBytes(),
+                        null,
+                        singletonList(recipientBox),
+                        null,
+                        singletonList(recipientKey));
 
         when(enclave.getPublicKeys()).thenReturn(singleton(PublicKey.from("OTHER".getBytes())));
         when(payloadEncoder.decode(incomingData)).thenReturn(encodedPayload);
@@ -171,8 +185,8 @@ public class ResendManagerTest {
         final Throwable throwable = catchThrowable(() -> this.resendManager.acceptOwnMessage(incomingData));
 
         assertThat(throwable)
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Message Q0lQSEVSVEVYVA== does not have one the nodes own keys as a sender");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Message Q0lQSEVSVEVYVA== does not have one the nodes own keys as a sender");
 
         verify(enclave).getPublicKeys();
         verify(payloadEncoder).decode(incomingData);
@@ -190,13 +204,18 @@ public class ResendManagerTest {
         final PublicKey recipientKey = PublicKey.from("RECIPIENT-KEY".getBytes());
         final byte[] recipientBox = "BOX".getBytes();
 
-        final EncodedPayload encodedPayload = new EncodedPayload(
-            senderKey, "CIPHERTEXT".getBytes(), null, singletonList(recipientBox), null, singletonList(recipientKey)
-        );
+        final EncodedPayload encodedPayload =
+                new EncodedPayload(
+                        senderKey,
+                        "CIPHERTEXT".getBytes(),
+                        null,
+                        singletonList(recipientBox),
+                        null,
+                        singletonList(recipientKey));
 
-        final EncodedPayload existingEncodedPayload = new EncodedPayload(
-            senderKey, "CIPHERTEXT".getBytes(), null, new ArrayList<>(), null, new ArrayList<>()
-        );
+        final EncodedPayload existingEncodedPayload =
+                new EncodedPayload(
+                        senderKey, "CIPHERTEXT".getBytes(), null, new ArrayList<>(), null, new ArrayList<>());
 
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
@@ -221,8 +240,9 @@ public class ResendManagerTest {
     public void undecryptablePayloadErrors() {
         final byte[] incomingData = "incomingData".getBytes();
 
-        final EncodedPayload encodedPayload
-            = new EncodedPayload(mock(PublicKey.class), "CIPHERTEXT".getBytes(), null, emptyList(), null, emptyList());
+        final EncodedPayload encodedPayload =
+                new EncodedPayload(
+                        mock(PublicKey.class), "CIPHERTEXT".getBytes(), null, emptyList(), null, emptyList());
 
         when(payloadEncoder.decode(incomingData)).thenReturn(encodedPayload);
         when(enclave.unencryptTransaction(encodedPayload, null)).thenThrow(IllegalArgumentException.class);
@@ -234,5 +254,4 @@ public class ResendManagerTest {
         verify(payloadEncoder).decode(incomingData);
         verify(enclave).unencryptTransaction(encodedPayload, null);
     }
-
 }

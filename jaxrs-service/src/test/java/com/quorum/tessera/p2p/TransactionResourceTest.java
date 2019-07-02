@@ -23,13 +23,11 @@ public class TransactionResourceTest {
 
         transactionManager = mock(TransactionManager.class);
         transactionResource = new TransactionResource(transactionManager);
-
     }
 
     @After
     public void onTearDown() {
         verifyNoMoreInteractions(transactionManager);
-
     }
 
     @Test
@@ -53,6 +51,5 @@ public class TransactionResourceTest {
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.getEntity()).isEqualTo("SUCCESS".getBytes());
         verify(transactionManager).resend(resendRequest);
-
     }
 }

@@ -25,10 +25,13 @@ public class ExecutionContext {
 
     private String prefix;
 
-    private ExecutionContext(DBType dbType,
-        CommunicationType communicationType,
-        SocketType socketType,
-        EnclaveType enclaveType, boolean admin,String prefix) {
+    private ExecutionContext(
+            DBType dbType,
+            CommunicationType communicationType,
+            SocketType socketType,
+            EnclaveType enclaveType,
+            boolean admin,
+            String prefix) {
         this.dbType = dbType;
         this.communicationType = communicationType;
         this.socketType = socketType;
@@ -77,8 +80,7 @@ public class ExecutionContext {
 
         private String prefix;
 
-        private Builder() {
-        }
+        private Builder() {}
 
         public static Builder create() {
             return new Builder();
@@ -105,7 +107,7 @@ public class ExecutionContext {
         }
 
         public Builder prefix(String prefix) {
-            this.prefix = Objects.equals("",prefix) ? null : prefix;
+            this.prefix = Objects.equals("", prefix) ? null : prefix;
             return this;
         }
 
@@ -117,10 +119,10 @@ public class ExecutionContext {
         }
 
         public ExecutionContext build() {
-            Stream.of(dbType, communicationType, socketType, enclaveType)
-                .forEach(Objects::requireNonNull);
+            Stream.of(dbType, communicationType, socketType, enclaveType).forEach(Objects::requireNonNull);
 
-            ExecutionContext executionContext = new ExecutionContext(dbType, communicationType, socketType, enclaveType, admin,prefix);
+            ExecutionContext executionContext =
+                    new ExecutionContext(dbType, communicationType, socketType, enclaveType, admin, prefix);
 
             return executionContext;
         }
@@ -140,14 +142,13 @@ public class ExecutionContext {
 
         public ExecutionContext createAndSetupContext() {
 
-            Stream.of(dbType, communicationType, socketType, enclaveType)
-                .forEach(Objects::requireNonNull);
+            Stream.of(dbType, communicationType, socketType, enclaveType).forEach(Objects::requireNonNull);
 
             ExecutionContext executionContext = build();
 
             List<ConfigDescriptor> configs = new ConfigGenerator().generateConfigs(executionContext);
 
-            //FIXME: YUk
+            // FIXME: YUk
             executionContext.configs = configs;
 
             if (THREAD_SCOPE.get() != null) {
@@ -158,7 +159,6 @@ public class ExecutionContext {
 
             return THREAD_SCOPE.get();
         }
-
     }
 
     private static final ThreadLocal<ExecutionContext> THREAD_SCOPE = new ThreadLocal<ExecutionContext>();
@@ -170,9 +170,7 @@ public class ExecutionContext {
         return THREAD_SCOPE.get();
     }
 
-
     public static void destroyContext() {
         THREAD_SCOPE.remove();
     }
-
 }

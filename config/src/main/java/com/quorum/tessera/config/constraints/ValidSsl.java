@@ -20,5 +20,4 @@ public @interface ValidSsl {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-
 }

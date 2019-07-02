@@ -15,7 +15,8 @@ public class JaxbCallbackTest {
     public void execute() {
         final String sample = "<someObject><someValue>Test Value</someValue></someObject>";
 
-        final SomeObject result = JaxbCallback.execute(() -> JAXB.unmarshal(new StringReader(sample), SomeObject.class));
+        final SomeObject result =
+                JaxbCallback.execute(() -> JAXB.unmarshal(new StringReader(sample), SomeObject.class));
 
         assertThat(result.getSomeValue()).isEqualTo("Test Value");
     }
@@ -25,11 +26,13 @@ public class JaxbCallbackTest {
 
         final JAXBException exception = new JAXBException("GURU Meditation 22");
 
-        final Throwable throwable = catchThrowable(() ->
-            JaxbCallback.execute(() -> {
-                throw exception;
-            })
-        );
+        final Throwable throwable =
+                catchThrowable(
+                        () ->
+                                JaxbCallback.execute(
+                                        () -> {
+                                            throw exception;
+                                        }));
 
         assertThat(throwable).isNotNull().isInstanceOf(DataBindingException.class).hasCause(exception);
     }

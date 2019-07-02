@@ -25,14 +25,16 @@ public class GrpcServer implements TesseraServer {
         try {
             server.start();
             LOGGER.info("gRPC server started, listening on " + uri.getPort());
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    LOGGER.info("*** Shutting down gRPC server");
-                    GrpcServer.this.stop();
-                    LOGGER.info("*** gRPC server shut down");
-                }
-            });
+            Runtime.getRuntime()
+                    .addShutdownHook(
+                            new Thread() {
+                                @Override
+                                public void run() {
+                                    LOGGER.info("*** Shutting down gRPC server");
+                                    GrpcServer.this.stop();
+                                    LOGGER.info("*** gRPC server shut down");
+                                }
+                            });
         } catch (IOException ex) {
             LOGGER.error("Cannot start gRPC server. See cause ", ex);
             throw ex;
@@ -45,5 +47,4 @@ public class GrpcServer implements TesseraServer {
             server.shutdown();
         }
     }
-
 }

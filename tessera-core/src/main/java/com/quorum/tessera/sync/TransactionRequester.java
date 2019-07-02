@@ -2,8 +2,8 @@ package com.quorum.tessera.sync;
 
 /**
  * Makes requests to other nodes to resend their transactions
- * <p>
- * Handles creating the correct entity and retrying on a failed attempt
+ *
+ * <p>Handles creating the correct entity and retrying on a failed attempt
  */
 public interface TransactionRequester {
 
@@ -16,5 +16,4 @@ public interface TransactionRequester {
      * @return whether all the resend requests for all keys was successful or not
      */
     boolean requestAllTransactionsFromNode(String url);
-
 }

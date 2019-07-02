@@ -54,12 +54,10 @@ public class SystemAdapterTest {
 
     @Test
     public void executeDefaultInstance() {
-        SystemAdapter instance = new SystemAdapter() {
-        };
+        SystemAdapter instance = new SystemAdapter() {};
 
         assertThat(instance.err()).isSameAs(System.err);
         assertThat(instance.out()).isSameAs(System.out);
-
     }
 
     @Test
@@ -69,5 +67,4 @@ public class SystemAdapterTest {
         assertThat(instance.err()).isNotSameAs(System.err);
         assertThat(instance.out()).isNotSameAs(System.out);
     }
-
 }

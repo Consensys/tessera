@@ -16,12 +16,12 @@ class KeyValueOperationsDelegate {
     }
 
     Versioned<Map<String, Object>> get(HashicorpGetSecretData getSecretData) {
-        //if version 0 then latest version retrieved
-        return keyValueOperations.get(getSecretData.getSecretName(), Versioned.Version.from(getSecretData.getSecretVersion()));
+        // if version 0 then latest version retrieved
+        return keyValueOperations.get(
+                getSecretData.getSecretName(), Versioned.Version.from(getSecretData.getSecretVersion()));
     }
 
     Versioned.Metadata set(HashicorpSetSecretData setSecretData) {
         return keyValueOperations.put(setSecretData.getSecretName(), setSecretData.getNameValuePairs());
     }
-
 }

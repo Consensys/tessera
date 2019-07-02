@@ -4,9 +4,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class SamplePayload {
-    
+
     private String id;
-    
+
     private String value;
 
     public String getValue() {
@@ -24,5 +24,4 @@ public class SamplePayload {
     public void setId(String id) {
         this.id = id;
     }
-
 }

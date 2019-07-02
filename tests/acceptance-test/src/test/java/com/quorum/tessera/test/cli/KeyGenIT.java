@@ -67,7 +67,6 @@ public class KeyGenIT {
         assertThat(result).isEqualTo(testConfig.getExpectedExitCode());
         assertThat(testConfig.getExpectedKeyPath()).exists();
         assertThat(testConfig.getExpectedPubKeyPath()).exists();
-
     }
 
     @Parameterized.Parameters(name = "tessera -keygen '{index}'")
@@ -76,7 +75,7 @@ public class KeyGenIT {
         buildDir = Files.createTempDirectory("target");
 
         String appPath = System.getProperty("application.jar");
-        if(Objects.equals("", appPath)) {
+        if (Objects.equals("", appPath)) {
             throw new IllegalStateException("No application.jar system property defined. ");
         }
         Path applicationJarPath = Paths.get(appPath);
@@ -86,7 +85,6 @@ public class KeyGenIT {
         minimal.setExpectedPubKeyPath(buildDir.resolve(".pub"));
         minimal.setDescription("Keygen with no args creates default keys");
         minimal.setApplicationJarPath(applicationJarPath);
-
 
         return Arrays.asList(minimal);
     }
@@ -105,9 +103,8 @@ public class KeyGenIT {
         @Override
         public void run() {
 
-            try (BufferedReader reader = Stream.of(inputStream)
-                    .map(InputStreamReader::new)
-                    .map(BufferedReader::new).findAny().get()) {
+            try (BufferedReader reader =
+                    Stream.of(inputStream).map(InputStreamReader::new).map(BufferedReader::new).findAny().get()) {
 
                 String line;
                 while ((line = reader.readLine()) != null) {
@@ -122,9 +119,7 @@ public class KeyGenIT {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-
         }
-
     }
 
     static class KeyGenTestConfig {
@@ -188,9 +183,5 @@ public class KeyGenIT {
         public void setExpectedExitCode(Integer expectedExitCode) {
             this.expectedExitCode = expectedExitCode;
         }
-
-
-
     }
-
 }

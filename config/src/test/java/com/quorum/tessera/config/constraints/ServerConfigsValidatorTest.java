@@ -42,19 +42,18 @@ public class ServerConfigsValidatorTest {
         p2pServerConfig.setInfluxConfig(null);
         p2pServerConfig.setBindingAddress(null);
 
-        q2tServerConfig = new ServerConfig(AppType.Q2T, true,
-            "localhost:1234", CommunicationType.REST,
-            null, null, null);
-        thirdPartyServerConfig = new ServerConfig(AppType.THIRD_PARTY, true,
-            "localhost:12345", CommunicationType.REST,
-            null, null, null);
+        q2tServerConfig =
+                new ServerConfig(AppType.Q2T, true, "localhost:1234", CommunicationType.REST, null, null, null);
+        thirdPartyServerConfig =
+                new ServerConfig(
+                        AppType.THIRD_PARTY, true, "localhost:12345", CommunicationType.REST, null, null, null);
 
         serverConfigs = new ArrayList<>(Arrays.asList(p2pServerConfig, q2tServerConfig, thirdPartyServerConfig));
 
         validator = new ServerConfigsValidator();
 
         when(cvc.buildConstraintViolationWithTemplate(anyString()))
-            .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
+                .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
     }
 
     @After

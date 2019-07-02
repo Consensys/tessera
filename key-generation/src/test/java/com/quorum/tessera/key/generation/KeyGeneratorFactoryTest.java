@@ -41,7 +41,4 @@ public class KeyGeneratorFactoryTest {
         assertThat(keyGenerator).isNotNull();
         assertThat(keyGenerator).isExactlyInstanceOf(HashicorpVaultKeyGenerator.class);
     }
-
-
-
 }

@@ -28,41 +28,42 @@ public class ResendManagerImpl implements ResendManager {
         this.enclave = enclave;
     }
 
-    //TODO: synchronize based on messagehash, so different message don't lock each other
+    // TODO: synchronize based on messagehash, so different message don't lock each other
     @Transactional
     public synchronized void acceptOwnMessage(final byte[] message) {
 
         final EncodedPayload payload = payloadEncoder.decode(message);
 
-        //check the payload can be decrpyted to ensure it isn't rubbish being sent to us
+        // check the payload can be decrpyted to ensure it isn't rubbish being sent to us
         final byte[] newDecrypted = enclave.unencryptTransaction(payload, null);
 
-        final MessageHash transactionHash = Optional.of(payload)
-            .map(EncodedPayload::getCipherText)
-            .map(messageHashFactory::createFromCipherText)
-            .get();
+        final MessageHash transactionHash =
+                Optional.of(payload)
+                        .map(EncodedPayload::getCipherText)
+                        .map(messageHashFactory::createFromCipherText)
+                        .get();
 
         final PublicKey sender = payload.getSenderKey();
         if (!enclave.getPublicKeys().contains(sender)) {
             throw new IllegalArgumentException(
-                "Message " + transactionHash.toString() + " does not have one the nodes own keys as a sender"
-            );
+                    "Message " + transactionHash.toString() + " does not have one the nodes own keys as a sender");
         }
 
-        //this is a tx which we created
+        // this is a tx which we created
         final Optional<EncryptedTransaction> tx = this.encryptedTransactionDAO.retrieveByHash(transactionHash);
 
         if (tx.isPresent()) {
 
-            //we just need to add the recipient
+            // we just need to add the recipient
             final byte[] encodedPayload = tx.get().getEncodedPayload();
             final EncodedPayload existing = payloadEncoder.decode(encodedPayload);
 
             if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
-                //lets compare it against another message received before
+                // lets compare it against another message received before
                 final byte[] oldDecrypted = enclave.unencryptTransaction(existing, null);
-                final boolean same = Arrays.equals(newDecrypted, oldDecrypted)
-                    && Arrays.equals(payload.getCipherText(), existing.getCipherText());
+                final boolean same =
+                        Arrays.equals(newDecrypted, oldDecrypted)
+                                && Arrays.equals(payload.getCipherText(), existing.getCipherText());
 
                 if (!same) {
                     throw new IllegalArgumentException("Invalid payload provided");
@@ -78,7 +79,7 @@ public class ResendManagerImpl implements ResendManager {
 
         } else {
 
-            //we need to recreate this
+            // we need to recreate this
             payload.getRecipientKeys().add(sender);
             byte[] newbox = enclave.createNewRecipientBox(payload, sender);
             payload.getRecipientBoxes().add(newbox);
@@ -86,9 +87,6 @@ public class ResendManagerImpl implements ResendManager {
             final byte[] encoded = payloadEncoder.encode(payload);
 
             this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, encoded));
-
         }
-
     }
-
 }

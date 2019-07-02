@@ -46,30 +46,33 @@ public class EnclaveFactoryTest {
     @Test
     public void dontCreateRemoteWhenNoEnclaveServer() {
 
-        Stream.of(AppType.values()).filter(t -> t != AppType.ENCLAVE).forEach(t -> {
+        Stream.of(AppType.values())
+                .filter(t -> t != AppType.ENCLAVE)
+                .forEach(
+                        t -> {
+                            final Config config = new Config();
 
-            final Config config = new Config();
+                            ServerConfig serverConfig = new ServerConfig();
+                            serverConfig.setApp(t);
+                            serverConfig.setCommunicationType(CommunicationType.REST);
+                            serverConfig.setServerAddress("http://bogus:9898");
 
-            ServerConfig serverConfig = new ServerConfig();
-            serverConfig.setApp(t);
-            serverConfig.setCommunicationType(CommunicationType.REST);
-            serverConfig.setServerAddress("http://bogus:9898");
+                            config.setServerConfigs(singletonList(serverConfig));
 
-            config.setServerConfigs(singletonList(serverConfig));
+                            KeyConfiguration keyConfiguration = new KeyConfiguration();
+                            ConfigKeyPair pair =
+                                    new DirectKeyPair(
+                                            "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
+                                            "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+                            keyConfiguration.setKeyData(singletonList(pair));
+                            config.setKeys(keyConfiguration);
 
-            KeyConfiguration keyConfiguration = new KeyConfiguration();
-            ConfigKeyPair pair = new DirectKeyPair("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
-            keyConfiguration.setKeyData(singletonList(pair));
-            config.setKeys(keyConfiguration);
+                            config.setAlwaysSendTo(new ArrayList<>());
 
-            config.setAlwaysSendTo(new ArrayList<>());
+                            Enclave result = enclaveFactory.create(config);
 
-            Enclave result = enclaveFactory.create(config);
-
-            assertThat(result).isInstanceOf(EnclaveImpl.class);
-
-        });
-
+                            assertThat(result).isInstanceOf(EnclaveImpl.class);
+                        });
     }
 
     @Test
@@ -78,7 +81,9 @@ public class EnclaveFactoryTest {
         Config config = new Config();
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
-        ConfigKeyPair pair = new DirectKeyPair("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+        ConfigKeyPair pair =
+                new DirectKeyPair(
+                        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
         keyConfiguration.setKeyData(singletonList(pair));
         config.setKeys(keyConfiguration);
 
@@ -87,7 +92,6 @@ public class EnclaveFactoryTest {
         Enclave result = enclaveFactory.create(config);
 
         assertThat(result).isInstanceOf(EnclaveImpl.class);
-
     }
 
     @Test
@@ -96,7 +100,9 @@ public class EnclaveFactoryTest {
         Config config = new Config();
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
-        ConfigKeyPair pair = new DirectKeyPair("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+        ConfigKeyPair pair =
+                new DirectKeyPair(
+                        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
         keyConfiguration.setKeyData(singletonList(pair));
         config.setKeys(keyConfiguration);
 
@@ -105,6 +111,5 @@ public class EnclaveFactoryTest {
         Enclave result = enclaveFactory.createLocal(config);
 
         assertThat(result).isInstanceOf(EnclaveImpl.class);
-
     }
 }

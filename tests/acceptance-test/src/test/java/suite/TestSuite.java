@@ -52,29 +52,32 @@ public class TestSuite extends Suite {
     public void run(RunNotifier notifier) {
         final List<ExecManager> executors = new ArrayList<>();
         try {
-            ProcessConfig testConfig = Arrays.stream(getRunnerAnnotations())
-                .filter(ProcessConfig.class::isInstance)
-                .map(ProcessConfig.class::cast)
-                .findAny()
-                .orElseThrow(() -> new AssertionError("No Test config found"));
+            ProcessConfig testConfig =
+                    Arrays.stream(getRunnerAnnotations())
+                            .filter(ProcessConfig.class::isInstance)
+                            .map(ProcessConfig.class::cast)
+                            .findAny()
+                            .orElseThrow(() -> new AssertionError("No Test config found"));
 
-            ExecutionContext executionContext = ExecutionContext.Builder.create()
-                .with(testConfig.communicationType())
-                .with(testConfig.dbType())
-                .with(testConfig.socketType())
-                .with(testConfig.enclaveType())
-                .withAdmin(testConfig.admin())
-                .prefix(testConfig.prefix())
-                .createAndSetupContext();
+            ExecutionContext executionContext =
+                    ExecutionContext.Builder.create()
+                            .with(testConfig.communicationType())
+                            .with(testConfig.dbType())
+                            .with(testConfig.socketType())
+                            .with(testConfig.enclaveType())
+                            .withAdmin(testConfig.admin())
+                            .prefix(testConfig.prefix())
+                            .createAndSetupContext();
 
             if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
 
                 executionContext.getConfigs().stream()
-                    .map(EnclaveExecManager::new)
-                    .forEach(exec -> {
-                        exec.start();
-                        executors.add(exec);
-                    });
+                        .map(EnclaveExecManager::new)
+                        .forEach(
+                                exec -> {
+                                    exec.start();
+                                    executors.add(exec);
+                                });
             }
 
             String nodeId = NodeId.generate(executionContext);
@@ -85,32 +88,34 @@ public class TestSuite extends Suite {
             setupDatabase.setUp();
 
             executionContext.getConfigs().stream()
-                .map(NodeExecManager::new)
-                .forEach(exec -> {
-                    exec.start();
-                    executors.add(exec);
-                });
+                    .map(NodeExecManager::new)
+                    .forEach(
+                            exec -> {
+                                exec.start();
+                                executors.add(exec);
+                            });
 
             PartyInfoChecker partyInfoChecker = PartyInfoChecker.create(executionContext.getCommunicationType());
 
             CountDownLatch partyInfoSyncLatch = new CountDownLatch(1);
             ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(() -> {
-                while (!partyInfoChecker.hasSynced()) {
-                    try {
-                        Thread.sleep(1000L);
-                    } catch (InterruptedException ex) {
-                    }
-                }
-                partyInfoSyncLatch.countDown();
-            });
+            executorService.submit(
+                    () -> {
+                        while (!partyInfoChecker.hasSynced()) {
+                            try {
+                                Thread.sleep(1000L);
+                            } catch (InterruptedException ex) {
+                            }
+                        }
+                        partyInfoSyncLatch.countDown();
+                    });
 
-            if(!partyInfoSyncLatch.await(2, TimeUnit.MINUTES)) {
+            if (!partyInfoSyncLatch.await(2, TimeUnit.MINUTES)) {
                 Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
-                notifier.fireTestFailure(new Failure(de,new IllegalStateException("Unable to sync party info nodes")));
+                notifier.fireTestFailure(new Failure(de, new IllegalStateException("Unable to sync party info nodes")));
             }
             executorService.shutdown();
-            
+
             super.run(notifier);
 
             try {
@@ -118,7 +123,6 @@ public class TestSuite extends Suite {
                 setupDatabase.dropAll();
             } finally {
                 databaseServer.stop();
-
             }
         } catch (Throwable ex) {
             Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
@@ -126,9 +130,6 @@ public class TestSuite extends Suite {
 
         } finally {
             executors.forEach(ExecManager::stop);
-
         }
-
     }
-
 }

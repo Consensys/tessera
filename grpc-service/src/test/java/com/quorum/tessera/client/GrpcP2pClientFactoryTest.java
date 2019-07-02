@@ -12,7 +12,8 @@ public class GrpcP2pClientFactoryTest {
     @Test
     public void create() {
 
-        com.quorum.tessera.client.GrpcP2pClientFactory grpcP2pClientFactory = new com.quorum.tessera.client.GrpcP2pClientFactory();
+        com.quorum.tessera.client.GrpcP2pClientFactory grpcP2pClientFactory =
+                new com.quorum.tessera.client.GrpcP2pClientFactory();
 
         assertThat(grpcP2pClientFactory.communicationType()).isEqualTo(CommunicationType.GRPC);
         Config config = mock(Config.class);
@@ -20,7 +21,6 @@ public class GrpcP2pClientFactoryTest {
         P2pClient result = grpcP2pClientFactory.create(config);
 
         assertThat(result).isExactlyInstanceOf(GrpcP2pClient.class);
-
     }
 
     @Test
@@ -32,7 +32,5 @@ public class GrpcP2pClientFactoryTest {
         P2pClient result = grpcP2pClientFactory.create(null);
 
         assertThat(result).isExactlyInstanceOf(GrpcP2pClient.class);
-
     }
-
 }

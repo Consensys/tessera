@@ -15,7 +15,7 @@ public class CorsDomainResponseFilter implements ContainerResponseFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(CorsDomainResponseFilter.class);
 
     private final OriginMatchUtil originMatchUtil;
-    
+
     private final CrossDomainConfig corsConfig;
 
     public CorsDomainResponseFilter(CrossDomainConfig corsConfig) {
@@ -24,10 +24,11 @@ public class CorsDomainResponseFilter implements ContainerResponseFilter {
     }
 
     @Override
-    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
+    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
+            throws IOException {
 
         final String origin = requestContext.getHeaderString("Origin");
-        
+
         if (originMatchUtil.matches(origin)) {
 
             MultivaluedMap<String, Object> headers = responseContext.getHeaders();
@@ -35,17 +36,15 @@ public class CorsDomainResponseFilter implements ContainerResponseFilter {
             headers.add("Access-Control-Allow-Origin", origin);
             headers.add("Access-Control-Allow-Credentials", corsConfig.getAllowCredentials().toString());
             headers.add("Access-Control-Allow-Methods", String.join(",", corsConfig.getAllowedMethods()));
-            
-            final String allowedHeaders;
-            if(corsConfig.getAllowedHeaders() != null) {
-                allowedHeaders = String.join(",",corsConfig.getAllowedHeaders());
-            } else {
-                allowedHeaders = requestContext.getHeaderString("Access-Control-Request-Headers"); 
-            }
-            
-            headers.add("Access-Control-Allow-Headers", allowedHeaders);
 
+            final String allowedHeaders;
+            if (corsConfig.getAllowedHeaders() != null) {
+                allowedHeaders = String.join(",", corsConfig.getAllowedHeaders());
+            } else {
+                allowedHeaders = requestContext.getHeaderString("Access-Control-Request-Headers");
+            }
+
+            headers.add("Access-Control-Allow-Headers", allowedHeaders);
         }
     }
-
 }

@@ -19,10 +19,6 @@ public class EntityNotFoundExceptionMapper implements ExceptionMapper<EntityNotF
         LOGGER.error("Entity not found: {}", ex.getMessage());
         LOGGER.debug(null, ex);
 
-        return Response.status(Response.Status.NOT_FOUND)
-            .entity(ex.getMessage())
-            .type(MediaType.TEXT_PLAIN)
-            .build();
+        return Response.status(Response.Status.NOT_FOUND).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
     }
-
 }

@@ -17,8 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigBuilderTest {
 
-    @Rule
-    public SystemErrRule systemErrRule = new SystemErrRule().enableLog();
+    @Rule public SystemErrRule systemErrRule = new SystemErrRule().enableLog();
 
     private final ConfigBuilder builderWithValidValues = FixtureUtil.builderWithValidValues();
 
@@ -34,11 +33,8 @@ public class ConfigBuilderTest {
 
         assertThat(result).isNotNull();
 
-        final ServerConfig q2tConfig = result.getServerConfigs()
-            .stream()
-            .filter(ServerConfig::isUnixSocket)
-            .findAny()
-            .get();
+        final ServerConfig q2tConfig =
+                result.getServerConfigs().stream().filter(ServerConfig::isUnixSocket).findAny().get();
         assertThat(q2tConfig.getServerAddress()).isEqualTo("unix:somepath.ipc");
 
         assertThat(result.getKeys().getKeyData()).hasSize(1);
@@ -63,7 +59,6 @@ public class ConfigBuilderTest {
         assertThat(result.getJdbcConfig().getUsername()).isEqualTo("jdbcUsername");
         assertThat(result.getJdbcConfig().getPassword()).isEqualTo("jdbcPassword");
         assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:bogus");
-
     }
 
     @Test
@@ -83,7 +78,8 @@ public class ConfigBuilderTest {
         builder.build();
 
         assertThat(systemErrRule.getLog())
-            .isEqualTo("Error reading alwayssendto file: doesntexist.txt\nError reading alwayssendto file: alsodoesntexist.txt\n");
+                .isEqualTo(
+                        "Error reading alwayssendto file: doesntexist.txt\nError reading alwayssendto file: alsodoesntexist.txt\n");
     }
 
     @Test
@@ -93,5 +89,4 @@ public class ConfigBuilderTest {
 
         assertThat(config).isNotNull();
     }
-
 }

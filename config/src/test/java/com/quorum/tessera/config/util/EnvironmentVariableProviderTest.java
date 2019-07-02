@@ -16,20 +16,19 @@ public class EnvironmentVariableProviderTest {
 
     @Test
     public void getEnv() {
-        //returns null as env variables not set in test environment
+        // returns null as env variables not set in test environment
         assertThat(provider.getEnv("env")).isNull();
     }
 
     @Test
     public void getEnvAsCharArray() {
-        //returns null as env variables not set in test environment
+        // returns null as env variables not set in test environment
         assertThat(provider.getEnvAsCharArray("env")).isNull();
     }
 
     @Test
     public void hasEnv() {
-        //returns false as env variables not set in test environment
+        // returns false as env variables not set in test environment
         assertThat(provider.hasEnv("env")).isFalse();
     }
-
 }

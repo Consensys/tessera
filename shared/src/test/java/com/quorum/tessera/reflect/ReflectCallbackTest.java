@@ -8,9 +8,10 @@ public class ReflectCallbackTest {
 
     @Test(expected = ReflectException.class)
     public void executeThrowsClassNotFoundException() {
-        final ReflectCallback<String> callback = () -> {
-            throw new ClassNotFoundException();
-        };
+        final ReflectCallback<String> callback =
+                () -> {
+                    throw new ClassNotFoundException();
+                };
 
         ReflectCallback.execute(callback);
     }
@@ -23,5 +24,4 @@ public class ReflectCallbackTest {
 
         assertThat(result).isEqualTo("Expected value");
     }
-
 }

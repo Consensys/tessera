@@ -6,8 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Model representation of a JSON body on incoming HTTP requests
  *
- * A response to a {@link SendRequest} after the transaction has been
- * distributed and saved
+ * <p>A response to a {@link SendRequest} after the transaction has been distributed and saved
  */
 @ApiModel
 public class SendResponse {
@@ -19,8 +18,7 @@ public class SendResponse {
         this.key = key;
     }
 
-    public SendResponse() {
-    }
+    public SendResponse() {}
 
     public String getKey() {
         return this.key;
@@ -29,5 +27,4 @@ public class SendResponse {
     public void setKey(final String key) {
         this.key = key;
     }
-
 }

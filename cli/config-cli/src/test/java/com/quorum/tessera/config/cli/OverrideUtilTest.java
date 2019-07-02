@@ -31,94 +31,93 @@ public class OverrideUtilTest {
     @Test
     public void buildOptions() {
 
-        final List<String> expected = Arrays.asList(
-            "jdbc.username",
-            "jdbc.password",
-            "jdbc.url",
-            "jdbc.autoCreateTables",
-            "peer.url",
-            "keys.passwordFile",
-            "keys.passwords",
-            "keys.keyData.config.data.aopts.algorithm",
-            "keys.keyData.config.data.aopts.iterations",
-            "keys.keyData.config.data.aopts.memory",
-            "keys.keyData.config.data.aopts.parallelism",
-            "keys.keyData.privateKeyPath",
-            "keys.azureKeyVaultConfig.url",
-            "keys.hashicorpKeyVaultConfig.approlePath",
-            "keys.hashicorpKeyVaultConfig.tlsKeyStorePath",
-            "keys.hashicorpKeyVaultConfig.tlsTrustStorePath",
-            "keys.hashicorpKeyVaultConfig.url",
-            "alwaysSendTo",
-            "useWhiteList",
-            "disablePeerDiscovery",
-            "serverConfigs.serverAddress",
-            "serverConfigs.cors.allowedOrigins",
-            "serverConfigs.cors.allowCredentials",
-            "serverConfigs.cors.allowedHeaders",
-            "serverConfigs.cors.allowedMethods",
-            "serverConfigs.influxConfig.dbName",
-            "serverConfigs.influxConfig.serverAddress",
-            "serverConfigs.influxConfig.pushIntervalInSecs",
-            "serverConfigs.influxConfig.sslConfig.serverTrustStore",
-            "serverConfigs.influxConfig.sslConfig.clientTrustCertificates",
-            "serverConfigs.influxConfig.sslConfig.serverKeyStorePassword",
-            "serverConfigs.influxConfig.sslConfig.clientKeyStorePassword",
-            "serverConfigs.influxConfig.sslConfig.serverTrustCertificates",
-            "serverConfigs.influxConfig.sslConfig.clientTlsKeyPath",
-            "serverConfigs.influxConfig.sslConfig.clientTrustStorePassword",
-            "serverConfigs.influxConfig.sslConfig.serverKeyStore",
-            "serverConfigs.influxConfig.sslConfig.serverTrustStorePassword",
-            "serverConfigs.influxConfig.sslConfig.clientKeyStore",
-            "serverConfigs.influxConfig.sslConfig.generateKeyStoreIfNotExisted",
-            "serverConfigs.influxConfig.sslConfig.serverTlsKeyPath",
-            "serverConfigs.influxConfig.sslConfig.clientTlsCertificatePath",
-            "serverConfigs.influxConfig.sslConfig.serverTlsCertificatePath",
-            "serverConfigs.influxConfig.sslConfig.clientTrustMode",
-            "serverConfigs.influxConfig.sslConfig.knownClientsFile",
-            "serverConfigs.influxConfig.sslConfig.serverTrustMode",
-            "serverConfigs.influxConfig.sslConfig.tls",
-            "serverConfigs.influxConfig.sslConfig.clientTrustStore",
-            "serverConfigs.influxConfig.sslConfig.environmentVariablePrefix",
-            "serverConfigs.influxConfig.sslConfig.sslConfigType",
-            "serverConfigs.influxConfig.sslConfig.knownServersFile",
-            "serverConfigs.sslConfig.serverTrustStore",
-            "serverConfigs.sslConfig.knownClientsFile",
-            "serverConfigs.sslConfig.serverTrustCertificates",
-            "serverConfigs.sslConfig.clientTrustCertificates",
-            "serverConfigs.sslConfig.clientTrustStorePassword",
-            "serverConfigs.sslConfig.generateKeyStoreIfNotExisted",
-            "serverConfigs.bindingAddress",
-            "serverConfigs.sslConfig.serverKeyStore",
-            "serverConfigs.sslConfig.serverTrustStorePassword",
-            "serverConfigs.sslConfig.serverKeyStorePassword",
-            "serverConfigs.sslConfig.clientTrustMode",
-            "serverConfigs.sslConfig.clientKeyStorePassword",
-            "serverConfigs.communicationType",
-            "serverConfigs.sslConfig.clientTlsCertificatePath",
-            "serverConfigs.sslConfig.serverTlsKeyPath",
-            "serverConfigs.sslConfig.clientKeyStore",
-            "serverConfigs.sslConfig.serverTrustMode",
-            "serverConfigs.sslConfig.clientTlsKeyPath",
-            "serverConfigs.app",
-            "serverConfigs.sslConfig.clientTrustStore",
-            "serverConfigs.enabled",
-            "serverConfigs.sslConfig.serverTlsCertificatePath",
-            "serverConfigs.sslConfig.tls",
-            "serverConfigs.sslConfig.knownServersFile",
-            "serverConfigs.sslConfig.environmentVariablePrefix",
-            "serverConfigs.sslConfig.sslConfigType"
-        );
+        final List<String> expected =
+                Arrays.asList(
+                        "jdbc.username",
+                        "jdbc.password",
+                        "jdbc.url",
+                        "jdbc.autoCreateTables",
+                        "peer.url",
+                        "keys.passwordFile",
+                        "keys.passwords",
+                        "keys.keyData.config.data.aopts.algorithm",
+                        "keys.keyData.config.data.aopts.iterations",
+                        "keys.keyData.config.data.aopts.memory",
+                        "keys.keyData.config.data.aopts.parallelism",
+                        "keys.keyData.privateKeyPath",
+                        "keys.azureKeyVaultConfig.url",
+                        "keys.hashicorpKeyVaultConfig.approlePath",
+                        "keys.hashicorpKeyVaultConfig.tlsKeyStorePath",
+                        "keys.hashicorpKeyVaultConfig.tlsTrustStorePath",
+                        "keys.hashicorpKeyVaultConfig.url",
+                        "alwaysSendTo",
+                        "useWhiteList",
+                        "disablePeerDiscovery",
+                        "serverConfigs.serverAddress",
+                        "serverConfigs.cors.allowedOrigins",
+                        "serverConfigs.cors.allowCredentials",
+                        "serverConfigs.cors.allowedHeaders",
+                        "serverConfigs.cors.allowedMethods",
+                        "serverConfigs.influxConfig.dbName",
+                        "serverConfigs.influxConfig.serverAddress",
+                        "serverConfigs.influxConfig.pushIntervalInSecs",
+                        "serverConfigs.influxConfig.sslConfig.serverTrustStore",
+                        "serverConfigs.influxConfig.sslConfig.clientTrustCertificates",
+                        "serverConfigs.influxConfig.sslConfig.serverKeyStorePassword",
+                        "serverConfigs.influxConfig.sslConfig.clientKeyStorePassword",
+                        "serverConfigs.influxConfig.sslConfig.serverTrustCertificates",
+                        "serverConfigs.influxConfig.sslConfig.clientTlsKeyPath",
+                        "serverConfigs.influxConfig.sslConfig.clientTrustStorePassword",
+                        "serverConfigs.influxConfig.sslConfig.serverKeyStore",
+                        "serverConfigs.influxConfig.sslConfig.serverTrustStorePassword",
+                        "serverConfigs.influxConfig.sslConfig.clientKeyStore",
+                        "serverConfigs.influxConfig.sslConfig.generateKeyStoreIfNotExisted",
+                        "serverConfigs.influxConfig.sslConfig.serverTlsKeyPath",
+                        "serverConfigs.influxConfig.sslConfig.clientTlsCertificatePath",
+                        "serverConfigs.influxConfig.sslConfig.serverTlsCertificatePath",
+                        "serverConfigs.influxConfig.sslConfig.clientTrustMode",
+                        "serverConfigs.influxConfig.sslConfig.knownClientsFile",
+                        "serverConfigs.influxConfig.sslConfig.serverTrustMode",
+                        "serverConfigs.influxConfig.sslConfig.tls",
+                        "serverConfigs.influxConfig.sslConfig.clientTrustStore",
+                        "serverConfigs.influxConfig.sslConfig.environmentVariablePrefix",
+                        "serverConfigs.influxConfig.sslConfig.sslConfigType",
+                        "serverConfigs.influxConfig.sslConfig.knownServersFile",
+                        "serverConfigs.sslConfig.serverTrustStore",
+                        "serverConfigs.sslConfig.knownClientsFile",
+                        "serverConfigs.sslConfig.serverTrustCertificates",
+                        "serverConfigs.sslConfig.clientTrustCertificates",
+                        "serverConfigs.sslConfig.clientTrustStorePassword",
+                        "serverConfigs.sslConfig.generateKeyStoreIfNotExisted",
+                        "serverConfigs.bindingAddress",
+                        "serverConfigs.sslConfig.serverKeyStore",
+                        "serverConfigs.sslConfig.serverTrustStorePassword",
+                        "serverConfigs.sslConfig.serverKeyStorePassword",
+                        "serverConfigs.sslConfig.clientTrustMode",
+                        "serverConfigs.sslConfig.clientKeyStorePassword",
+                        "serverConfigs.communicationType",
+                        "serverConfigs.sslConfig.clientTlsCertificatePath",
+                        "serverConfigs.sslConfig.serverTlsKeyPath",
+                        "serverConfigs.sslConfig.clientKeyStore",
+                        "serverConfigs.sslConfig.serverTrustMode",
+                        "serverConfigs.sslConfig.clientTlsKeyPath",
+                        "serverConfigs.app",
+                        "serverConfigs.sslConfig.clientTrustStore",
+                        "serverConfigs.enabled",
+                        "serverConfigs.sslConfig.serverTlsCertificatePath",
+                        "serverConfigs.sslConfig.tls",
+                        "serverConfigs.sslConfig.knownServersFile",
+                        "serverConfigs.sslConfig.environmentVariablePrefix",
+                        "serverConfigs.sslConfig.sslConfigType");
 
         final Map<String, Class> results = OverrideUtil.buildConfigOptions();
 
         assertThat(results.keySet())
-            .filteredOn(s -> !s.contains("$jacocoData"))
-            .containsExactlyInAnyOrderElementsOf(expected);
+                .filteredOn(s -> !s.contains("$jacocoData"))
+                .containsExactlyInAnyOrderElementsOf(expected);
 
         assertThat(results.get("serverConfigs.sslConfig.knownClientsFile")).isEqualTo(Path.class);
         assertThat(results.get("keys.passwords")).isEqualTo(String[].class);
-
     }
 
     @Test
@@ -147,7 +146,6 @@ public class OverrideUtilTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getName()).isEqualTo("someValue");
-
     }
 
     @Test
@@ -157,7 +155,6 @@ public class OverrideUtilTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getName()).isEqualTo("otherValue");
-
     }
 
     static class SomeClass {
@@ -169,15 +166,12 @@ public class OverrideUtilTest {
         @XmlElement(name = "some_value")
         String someValue;
 
-        @XmlElement
-        String otherValue;
-
+        @XmlElement String otherValue;
     }
 
     static class OtherClass {
 
         List<SomeClass> someList;
-
     }
 
     enum Foo {
@@ -196,22 +190,18 @@ public class OverrideUtilTest {
         assertThat(OverrideUtil.isSimple(Long.class)).isTrue();
         assertThat(OverrideUtil.isSimple(Boolean.class)).isTrue();
         assertThat(OverrideUtil.isSimple(List.class)).isFalse();
-
     }
 
     @Test
     public void toArrayType() {
-        assertThat(OverrideUtil.toArrayType(String.class))
-            .isEqualTo(String[].class);
-        assertThat(OverrideUtil.toArrayType(Path.class))
-            .isEqualTo(Path[].class);
+        assertThat(OverrideUtil.toArrayType(String.class)).isEqualTo(String[].class);
+        assertThat(OverrideUtil.toArrayType(Path.class)).isEqualTo(Path[].class);
     }
 
     @Test
     public void createInstance() {
         Peer result = OverrideUtil.createInstance(Peer.class);
         assertThat(result).isNotNull();
-
     }
 
     @Test
@@ -234,10 +224,9 @@ public class OverrideUtilTest {
         assertThat(OverrideUtil.convertTo(Boolean.class, "true")).isTrue();
 
         assertThat(OverrideUtil.convertTo(SslAuthenticationMode.class, "STRICT"))
-            .isEqualTo(SslAuthenticationMode.STRICT);
+                .isEqualTo(SslAuthenticationMode.STRICT);
 
         assertThat(OverrideUtil.convertTo(String.class, null)).isNull();
-
     }
 
     @Test
@@ -254,7 +243,6 @@ public class OverrideUtilTest {
         assertThat(config.getPeers()).isEmpty();
         assertThat(config.getAlwaysSendTo()).isEmpty();
         assertThat(config.isDisablePeerDiscovery()).isTrue();
-
     }
 
     @Test
@@ -274,7 +262,6 @@ public class OverrideUtilTest {
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getPeers()).isEmpty();
         assertThat(config.getAlwaysSendTo()).isEmpty();
-
     }
 
     @Test
@@ -323,7 +310,7 @@ public class OverrideUtilTest {
         assertThat(config.getJdbcConfig().getPassword()).isEqualTo("tiger");
     }
 
-    //TODO: Need to support oerrides in config module
+    // TODO: Need to support oerrides in config module
     @Ignore
     @Test
     public void definePrivateAndPublicKeyWithOverridesOnly() throws Exception {
@@ -332,7 +319,7 @@ public class OverrideUtilTest {
 
         OverrideUtil.setValue(config, "keys.keyData.publicKey", "PUBLICKEY");
         OverrideUtil.setValue(config, "keys.keyData.privateKey", "PRIVATEKEY");
-        //UNmarshlling to COnfig to
+        // UNmarshlling to COnfig to
         try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
             JaxbUtil.marshalWithNoValidation(config, bout);
             Config result = JaxbUtil.unmarshal(new ByteArrayInputStream(bout.toByteArray()), Config.class);
@@ -371,5 +358,4 @@ public class OverrideUtilTest {
         final byte[] result = OverrideUtil.convertTo(byte[].class, "HELLOW");
         assertThat(result).isEqualTo("HELLOW".getBytes());
     }
-
 }

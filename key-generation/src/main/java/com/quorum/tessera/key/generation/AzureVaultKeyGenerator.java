@@ -28,23 +28,24 @@ public class AzureVaultKeyGenerator implements KeyGenerator {
     }
 
     @Override
-    public AzureVaultKeyPair generate(String filename, ArgonOptions encryptionOptions, KeyVaultOptions keyVaultOptions) {
+    public AzureVaultKeyPair generate(
+            String filename, ArgonOptions encryptionOptions, KeyVaultOptions keyVaultOptions) {
         final KeyPair keys = this.nacl.generateNewKeys();
 
         final StringBuilder publicId = new StringBuilder();
         final StringBuilder privateId = new StringBuilder();
 
-        if(filename != null) {
+        if (filename != null) {
             final Path path = Paths.get(filename);
             final String keyVaultId = path.getFileName().toString();
 
-            if(!keyVaultId.matches("^[0-9a-zA-Z\\-]*$")) {
-                throw new UnsupportedCharsetException("Generated key ID for Azure Key Vault can contain only 0-9, a-z, A-Z and - characters");
+            if (!keyVaultId.matches("^[0-9a-zA-Z\\-]*$")) {
+                throw new UnsupportedCharsetException(
+                        "Generated key ID for Azure Key Vault can contain only 0-9, a-z, A-Z and - characters");
             }
 
             publicId.append(keyVaultId);
             privateId.append(keyVaultId);
-
         }
 
         publicId.append("Pub");

@@ -23,5 +23,4 @@ public class TransactionNotFoundExceptionMapperTest {
         assertThat(message).isEqualTo("OUCH");
         assertThat(result.getStatus()).isEqualTo(404);
     }
-
 }

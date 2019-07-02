@@ -24,11 +24,11 @@ public class KeyDataBuilderTest {
 
         final Path passwordFile = Files.createTempFile("tessera-passwords", ".txt");
 
-        List<Path> privateKeyPaths = Arrays.asList(
-            Files.createTempFile("buildThreeLocked1", ".txt"),
-            Files.createTempFile("buildThreeLocked2", ".txt"),
-            Files.createTempFile("buildThreeLocked3", ".txt")
-        );
+        List<Path> privateKeyPaths =
+                Arrays.asList(
+                        Files.createTempFile("buildThreeLocked1", ".txt"),
+                        Files.createTempFile("buildThreeLocked2", ".txt"),
+                        Files.createTempFile("buildThreeLocked3", ".txt"));
 
         final byte[] privateKeyData = FixtureUtil.createLockedPrivateKey().toString().getBytes();
         for (Path p : privateKeyPaths) {
@@ -40,44 +40,42 @@ public class KeyDataBuilderTest {
 
         Files.write(passwordFile, Arrays.asList("SECRET1", "SECRET2", "SECRET3"));
 
-        List<ConfigKeyPair> result = KeyDataBuilder.create()
-            .withPrivateKeys(privateKeys)
-            .withPublicKeys(publicKeys)
-            .withPrivateKeyPasswordFile(passwordFile.toString())
-            .build()
-            .getKeyData();
+        List<ConfigKeyPair> result =
+                KeyDataBuilder.create()
+                        .withPrivateKeys(privateKeys)
+                        .withPublicKeys(publicKeys)
+                        .withPrivateKeyPasswordFile(passwordFile.toString())
+                        .build()
+                        .getKeyData();
 
         assertThat(result).hasSize(3);
-
     }
 
     @Test
     public void differentAmountOfKeysThrowsError() {
 
-        final KeyDataBuilder keyDataBuilder = KeyDataBuilder.create()
-            .withPrivateKeys(Collections.emptyList())
-            .withPublicKeys(Collections.singletonList("keyfile.txt"))
-            .withPrivateKeyPasswordFile("pwfile.txt");
+        final KeyDataBuilder keyDataBuilder =
+                KeyDataBuilder.create()
+                        .withPrivateKeys(Collections.emptyList())
+                        .withPublicKeys(Collections.singletonList("keyfile.txt"))
+                        .withPrivateKeyPasswordFile("pwfile.txt");
 
         final Throwable throwable = catchThrowable(() -> keyDataBuilder.build());
 
-        assertThat(throwable)
-            .isInstanceOf(ConfigException.class)
-            .hasCauseExactlyInstanceOf(RuntimeException.class);
+        assertThat(throwable).isInstanceOf(ConfigException.class).hasCauseExactlyInstanceOf(RuntimeException.class);
 
         assertThat(throwable.getCause()).hasMessage("Different amount of public and private keys supplied");
-
     }
-    
+
     @Test
     public void buildThreeLockedPasswordsFile() throws IOException {
 
-        List<Path> privateKeyPaths = Arrays.asList(
-                Files.createTempFile("buildThreeLocked1", ".txt"),
-                Files.createTempFile("buildThreeLocked2", ".txt"),
-                Files.createTempFile("buildThreeLocked3", ".txt")
-        );
-        
+        List<Path> privateKeyPaths =
+                Arrays.asList(
+                        Files.createTempFile("buildThreeLocked1", ".txt"),
+                        Files.createTempFile("buildThreeLocked2", ".txt"),
+                        Files.createTempFile("buildThreeLocked3", ".txt"));
+
         final byte[] privateKeyData = FixtureUtil.createLockedPrivateKey().toString().getBytes();
         for (Path p : privateKeyPaths) {
             Files.write(p, privateKeyData);
@@ -86,15 +84,17 @@ public class KeyDataBuilderTest {
         List<String> publicKeys = Arrays.asList("PUB1", "PUB2", "PUB3");
         List<String> privateKeys = privateKeyPaths.stream().map(Path::toString).collect(Collectors.toList());
         List<String> privateKeyPasswords = Arrays.asList("SECRET1", "SECRET2", "SECRET3");
-        
+
         Path passwordsFile = Files.createTempFile("buildThreeLockedPasswordsFile", ".txt");
         Files.write(passwordsFile, privateKeyPasswords);
-        
-        List<ConfigKeyPair> result = KeyDataBuilder.create()
-                .withPrivateKeys(privateKeys)
-                .withPublicKeys(publicKeys)
-                .withPrivateKeyPasswordFile(passwordsFile.toString())
-                .build().getKeyData();
+
+        List<ConfigKeyPair> result =
+                KeyDataBuilder.create()
+                        .withPrivateKeys(privateKeys)
+                        .withPublicKeys(publicKeys)
+                        .withPrivateKeyPasswordFile(passwordsFile.toString())
+                        .build()
+                        .getKeyData();
 
         assertThat(result).hasSize(3);
     }

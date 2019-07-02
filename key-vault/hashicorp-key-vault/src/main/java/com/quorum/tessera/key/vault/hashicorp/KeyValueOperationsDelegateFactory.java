@@ -13,9 +13,9 @@ class KeyValueOperationsDelegateFactory {
     }
 
     KeyValueOperationsDelegate create(String secretEngineName) {
-        VaultVersionedKeyValueOperations keyValueOperations = new VaultVersionedKeyValueTemplate(vaultOperations, secretEngineName);
+        VaultVersionedKeyValueOperations keyValueOperations =
+                new VaultVersionedKeyValueTemplate(vaultOperations, secretEngineName);
 
         return new KeyValueOperationsDelegate(keyValueOperations);
     }
-
 }

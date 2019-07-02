@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.util.exception;
 
 import org.assertj.core.api.Assertions;
@@ -14,7 +13,5 @@ public class DecodingExceptionTest {
 
         Assertions.assertThat(decodingException.getMessage()).isEqualTo("java.lang.Exception: OUCH");
         Assertions.assertThat(decodingException.getCause()).isSameAs(cause);
-
     }
-
 }

@@ -47,10 +47,8 @@ public class FileKeyGeneratorTest {
     @Before
     public void init() {
 
-        this.keyPair = new KeyPair(
-                PublicKey.from(PUBLIC_KEY.getBytes(UTF_8)),
-                PrivateKey.from(PRIVATE_KEY.getBytes(UTF_8))
-        );
+        this.keyPair =
+                new KeyPair(PublicKey.from(PUBLIC_KEY.getBytes(UTF_8)), PrivateKey.from(PRIVATE_KEY.getBytes(UTF_8)));
 
         this.nacl = mock(NaclFacade.class);
         this.keyEncryptor = mock(KeyEncryptor.class);
@@ -59,7 +57,6 @@ public class FileKeyGeneratorTest {
         when(passwordReader.requestUserPassword()).thenReturn("");
 
         this.generator = new FileKeyGenerator(nacl, keyEncryptor, passwordReader);
-
     }
 
     @After
@@ -99,7 +96,9 @@ public class FileKeyGeneratorTest {
 
         final PrivateKeyData encryptedPrivateKey = new PrivateKeyData(null, null, null, null, argonOptions);
 
-        doReturn(encryptedPrivateKey).when(keyEncryptor).encryptPrivateKey(any(PrivateKey.class), anyString(), eq(null));
+        doReturn(encryptedPrivateKey)
+                .when(keyEncryptor)
+                .encryptPrivateKey(any(PrivateKey.class), anyString(), eq(null));
 
         final PrivateKeyData encryptedKey = new PrivateKeyData(null, "snonce", "salt", "sbox", argonOptions);
 

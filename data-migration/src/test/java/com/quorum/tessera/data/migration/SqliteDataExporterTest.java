@@ -37,13 +37,13 @@ public class SqliteDataExporterTest {
         final String connectionString = "jdbc:sqlite:" + outputPath;
 
         try (Connection conn = DriverManager.getConnection(connectionString);
-             ResultSet rs = conn.createStatement().executeQuery(QUERY)) {
+                ResultSet rs = conn.createStatement().executeQuery(QUERY)) {
 
             final ResultSetMetaData metaData = rs.getMetaData();
-            final List<String> columnNames = IntStream
-                .range(1, metaData.getColumnCount() + 1)
-                .mapToObj(i -> JdbcCallback.execute(() -> metaData.getColumnName(i)))
-                .collect(Collectors.toList());
+            final List<String> columnNames =
+                    IntStream.range(1, metaData.getColumnCount() + 1)
+                            .mapToObj(i -> JdbcCallback.execute(() -> metaData.getColumnName(i)))
+                            .collect(Collectors.toList());
 
             assertThat(columnNames).containsExactlyInAnyOrder("HASH", "ENCODED_PAYLOAD", "TIMESTAMP");
 
@@ -52,9 +52,7 @@ public class SqliteDataExporterTest {
                 assertThat(rs.getString("HASH")).isEqualTo("HASH");
                 assertThat(rs.getString("ENCODED_PAYLOAD")).isEqualTo("VALUE");
             }
-
         }
-
     }
 
     @Test
@@ -72,13 +70,13 @@ public class SqliteDataExporterTest {
         final String connectionString = "jdbc:sqlite:" + outputPath;
 
         try (Connection conn = DriverManager.getConnection(connectionString, username, password);
-             ResultSet rs = conn.createStatement().executeQuery(QUERY)) {
+                ResultSet rs = conn.createStatement().executeQuery(QUERY)) {
 
             final ResultSetMetaData metaData = rs.getMetaData();
-            final List<String> columnNames = IntStream
-                .range(1, metaData.getColumnCount() + 1)
-                .mapToObj(i -> JdbcCallback.execute(() -> metaData.getColumnName(i)))
-                .collect(Collectors.toList());
+            final List<String> columnNames =
+                    IntStream.range(1, metaData.getColumnCount() + 1)
+                            .mapToObj(i -> JdbcCallback.execute(() -> metaData.getColumnName(i)))
+                            .collect(Collectors.toList());
 
             assertThat(columnNames).containsExactlyInAnyOrder("HASH", "ENCODED_PAYLOAD", "TIMESTAMP");
 
@@ -87,9 +85,6 @@ public class SqliteDataExporterTest {
                 assertThat(rs.getString("HASH")).isEqualTo("HASH");
                 assertThat(rs.getString("ENCODED_PAYLOAD")).isEqualTo("VALUE");
             }
-
         }
-
     }
-
 }

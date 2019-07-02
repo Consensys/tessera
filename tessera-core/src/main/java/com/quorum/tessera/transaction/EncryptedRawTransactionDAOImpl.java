@@ -11,9 +11,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import java.util.Optional;
 
-/**
- * A JPA implementation of {@link EncryptedTransactionDAO}
- */
+/** A JPA implementation of {@link EncryptedTransactionDAO} */
 public class EncryptedRawTransactionDAOImpl implements EncryptedRawTransactionDAO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EncryptedRawTransactionDAOImpl.class);
@@ -23,9 +21,13 @@ public class EncryptedRawTransactionDAOImpl implements EncryptedRawTransactionDA
 
     @Override
     public EncryptedRawTransaction save(final EncryptedRawTransaction entity) {
-        LOGGER.debug("Persisting EncryptedRawTransaction with hash {}, payload {}, key {}, nonce {} and from {}",
-            entity.getHash(), toHexString(entity.getEncryptedPayload()), toHexString(entity.getEncryptedKey()),
-            toHexString(entity.getNonce()), toHexString(entity.getSender()));
+        LOGGER.debug(
+                "Persisting EncryptedRawTransaction with hash {}, payload {}, key {}, nonce {} and from {}",
+                entity.getHash(),
+                toHexString(entity.getEncryptedPayload()),
+                toHexString(entity.getEncryptedKey()),
+                toHexString(entity.getNonce()),
+                toHexString(entity.getSender()));
 
         entityManager.persist(entity);
 
@@ -38,7 +40,6 @@ public class EncryptedRawTransactionDAOImpl implements EncryptedRawTransactionDA
         return Optional.ofNullable(entityManager.find(EncryptedRawTransaction.class, hash));
     }
 
-
     @Override
     public void delete(final MessageHash hash) {
         LOGGER.info("Deleting transaction with hash {}", hash);
@@ -46,11 +47,10 @@ public class EncryptedRawTransactionDAOImpl implements EncryptedRawTransactionDA
         entityManager.remove(retrieveByHash(hash).orElseThrow(EntityNotFoundException::new));
     }
 
-    private String toHexString(byte[] val){
-        if (null == val){
+    private String toHexString(byte[] val) {
+        if (null == val) {
             return "null";
         }
         return Hex.toHexString(val);
     }
-
 }

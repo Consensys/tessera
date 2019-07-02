@@ -1,6 +1,5 @@
 package com.quorum.tessera.dao;
 
-
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Bean;
 

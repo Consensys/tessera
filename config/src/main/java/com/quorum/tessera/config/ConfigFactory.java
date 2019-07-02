@@ -13,5 +13,4 @@ public interface ConfigFactory {
     static ConfigFactory create() {
         return ServiceLoader.load(ConfigFactory.class).iterator().next();
     }
-
 }

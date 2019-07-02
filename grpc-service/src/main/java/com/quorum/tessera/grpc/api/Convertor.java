@@ -22,10 +22,10 @@ public class Convertor {
 
     public static com.quorum.tessera.grpc.api.SendRequest toGrpc(com.quorum.tessera.api.model.SendRequest modelObject) {
         return com.quorum.tessera.grpc.api.SendRequest.newBuilder()
-            .setFrom(modelObject.getFrom())
-            .setPayload(ByteString.copyFrom(modelObject.getPayload()))
-            .addAllTo(Arrays.asList(modelObject.getTo()))
-            .build();
+                .setFrom(modelObject.getFrom())
+                .setPayload(ByteString.copyFrom(modelObject.getPayload()))
+                .addAllTo(Arrays.asList(modelObject.getTo()))
+                .build();
     }
 
     public static ReceiveRequest toModel(com.quorum.tessera.grpc.api.ReceiveRequest grpcObject) {
@@ -38,15 +38,12 @@ public class Convertor {
 
     public static com.quorum.tessera.grpc.api.ReceiveRequest toGrpc(ReceiveRequest modelObject) {
         return com.quorum.tessera.grpc.api.ReceiveRequest.newBuilder()
-            .setKey(modelObject.getKey())
-            .setTo(modelObject.getTo())
-            .build();
+                .setKey(modelObject.getKey())
+                .setTo(modelObject.getTo())
+                .build();
     }
 
     public static SendResponse toGrpc(com.quorum.tessera.api.model.SendResponse response) {
-        return SendResponse.newBuilder()
-            .setKey(response.getKey())
-            .build();
+        return SendResponse.newBuilder().setKey(response.getKey()).build();
     }
-
 }

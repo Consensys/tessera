@@ -35,5 +35,4 @@ public class SqliteLoader implements StoreLoader {
 
         return new DataEntry(results.getBytes("key"), new ByteArrayInputStream(results.getBytes("bytes")));
     }
-
 }

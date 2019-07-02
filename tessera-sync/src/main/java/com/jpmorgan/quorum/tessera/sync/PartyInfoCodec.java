@@ -1,6 +1,5 @@
 package com.jpmorgan.quorum.tessera.sync;
 
-
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import java.nio.ByteBuffer;
@@ -28,7 +27,7 @@ public class PartyInfoCodec implements Decoder.Binary<PartyInfo>, Encoder.Binary
         byte[] data = partyInfoParser.to(partyInfo);
         return ByteBuffer.wrap(data);
     }
-    
+
     @Override
     public PartyInfo decode(ByteBuffer buffer) throws DecodeException {
         return partyInfoParser.from(buffer.array());
@@ -38,11 +37,10 @@ public class PartyInfoCodec implements Decoder.Binary<PartyInfo>, Encoder.Binary
     public boolean willDecode(ByteBuffer buffer) {
         return true;
     }
-    @Override
-    public void init(EndpointConfig ec) {
-    }
 
     @Override
-    public void destroy() {
-    }
+    public void init(EndpointConfig ec) {}
+
+    @Override
+    public void destroy() {}
 }

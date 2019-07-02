@@ -21,5 +21,4 @@ public class PositiveIntegerValidator implements ConstraintValidator<ValidPositi
 
         return i >= 0;
     }
-
 }

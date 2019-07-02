@@ -1,6 +1,5 @@
 package com.jpmorgan.quorum.tessera.sync;
 
-
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import java.nio.ByteBuffer;
@@ -47,7 +46,6 @@ public class PartyInfoCodecTest {
         assertThat(result).isSameAs(result);
 
         verify(parser).from(data);
-
     }
 
     @Test
@@ -64,7 +62,6 @@ public class PartyInfoCodecTest {
         assertThat(result.array()).isEqualTo(data);
 
         verify(parser).to(partyInfo);
-
     }
 
     @Test
@@ -85,7 +82,7 @@ public class PartyInfoCodecTest {
         verifyZeroInteractions(config);
         verifyZeroInteractions(parser);
     }
-    
+
     @Test
     public void willDecodeAlwaysReturnsTrue() {
         assertThat(codec.willDecode(ByteBuffer.allocate(1))).isTrue();

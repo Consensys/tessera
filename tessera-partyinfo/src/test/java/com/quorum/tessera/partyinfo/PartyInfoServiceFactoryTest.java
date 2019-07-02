@@ -23,8 +23,7 @@ public class PartyInfoServiceFactoryTest {
         when(configService.getServerUri()).thenReturn(new URI("http://bogus.com"));
         Enclave enclave = mock(Enclave.class);
         PartyInfoService service = partyInfoServiceFactory.create(enclave, configService);
-        
-        assertThat(service).isNotNull();
 
+        assertThat(service).isNotNull();
     }
 }

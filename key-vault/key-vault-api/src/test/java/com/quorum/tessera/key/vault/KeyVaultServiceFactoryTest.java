@@ -18,5 +18,4 @@ public class KeyVaultServiceFactoryTest {
     public void instanceNotFound() {
         KeyVaultServiceFactory.getInstance(null);
     }
-
 }

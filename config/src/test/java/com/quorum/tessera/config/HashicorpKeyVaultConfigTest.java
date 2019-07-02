@@ -66,5 +66,4 @@ public class HashicorpKeyVaultConfigTest {
         vaultConfig.setApprolePath("notdefault");
         assertThat(vaultConfig.getApprolePath()).isEqualTo("notdefault");
     }
-
 }

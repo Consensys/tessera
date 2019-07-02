@@ -84,8 +84,8 @@ public class OriginMatchUtilTest {
         OriginMatchUtil matcher = new OriginMatchUtil(tokens);
         assertThat(matcher.matches(origin)).isTrue();
     }
-    
-        @Test
+
+    @Test
     public void withDifferentCases() {
         List<String> tokens = Arrays.asList("HTTP://BOGUS.cOm:989");
         String origin = "http://bogus.com:989";
@@ -93,8 +93,8 @@ public class OriginMatchUtilTest {
         OriginMatchUtil matcher = new OriginMatchUtil(tokens);
         assertThat(matcher.matches(origin)).isTrue();
     }
-    
-            @Test
+
+    @Test
     public void withDifferentCases2() {
         List<String> tokens = Arrays.asList("http://bogus.com:989");
         String origin = "HTTP://BOGUS.cOm:989";

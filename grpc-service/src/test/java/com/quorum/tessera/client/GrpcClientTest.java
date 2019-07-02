@@ -21,22 +21,14 @@ import static org.mockito.Mockito.verify;
 
 public class GrpcClientTest {
 
-    /**
-     * This rule manages automatic graceful shutdown for the registered servers and channels at the
-     * end of test.
-     */
-    @Rule
-    public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
+    /** This rule manages automatic graceful shutdown for the registered servers and channels at the end of test. */
+    @Rule public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
     private final PartyInfoGrpc.PartyInfoImplBase partyInfoService =
-        mock(PartyInfoGrpc.PartyInfoImplBase.class,
-            delegatesTo(new PartyInfoGrpcServiceDelegate() {
-            }));
+            mock(PartyInfoGrpc.PartyInfoImplBase.class, delegatesTo(new PartyInfoGrpcServiceDelegate() {}));
 
     private final P2PTransactionGrpc.P2PTransactionImplBase p2pTransactionService =
-        mock(P2PTransactionGrpc.P2PTransactionImplBase.class,
-            delegatesTo(new TransactionGrpcServiceDelegate() {
-            }));
+            mock(P2PTransactionGrpc.P2PTransactionImplBase.class, delegatesTo(new TransactionGrpcServiceDelegate() {}));
 
     private GrpcClientImpl client;
 
@@ -44,16 +36,17 @@ public class GrpcClientTest {
     public void setUp() throws Exception {
         String serverName = InProcessServerBuilder.generateName();
 
-        grpcCleanup.register(InProcessServerBuilder
-            .forName(serverName)
-            .directExecutor()
-            .addService(partyInfoService)
-            .addService(p2pTransactionService)
-            .build()
-            .start());
+        grpcCleanup.register(
+                InProcessServerBuilder.forName(serverName)
+                        .directExecutor()
+                        .addService(partyInfoService)
+                        .addService(p2pTransactionService)
+                        .build()
+                        .start());
 
-        final ManagedChannel channel = grpcCleanup.register(
-            InProcessChannelBuilder.forName(serverName).directExecutor().usePlaintext().build());
+        final ManagedChannel channel =
+                grpcCleanup.register(
+                        InProcessChannelBuilder.forName(serverName).directExecutor().usePlaintext().build());
 
         client = new GrpcClientImpl(channel);
     }
@@ -69,7 +62,6 @@ public class GrpcClientTest {
         verify(partyInfoService).getPartyInfo(requestCaptor.capture(), any());
 
         assertEquals(ByteString.copyFrom(data), requestCaptor.getValue().getPartyInfo());
-
     }
 
     @Test
@@ -123,34 +115,29 @@ public class GrpcClientTest {
     }
 
     /**
-     * Delegate to mock the PartyInfoGrpcService class
-     * The focus here is to ensure the client fires requests correctly.
+     * Delegate to mock the PartyInfoGrpcService class The focus here is to ensure the client fires requests correctly.
      * The real logic for these services are being tests at service test classes
      */
     private class PartyInfoGrpcServiceDelegate extends PartyInfoGrpc.PartyInfoImplBase {
         @Override
         public void getPartyInfo(PartyInfoMessage request, StreamObserver<PartyInfoMessage> responseObserver) {
             byte[] responseData = "RESPONSE".getBytes();
-            final PartyInfoMessage response = PartyInfoMessage.newBuilder()
-                .setPartyInfo(ByteString.copyFrom(responseData))
-                .build();
+            final PartyInfoMessage response =
+                    PartyInfoMessage.newBuilder().setPartyInfo(ByteString.copyFrom(responseData)).build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         }
     }
 
     /**
-     * Delegate to mock the APITransactionGrpcService class
-     * The focus here is to ensure the client fires requests correctly.
-     * The real logic for these services are being tests at service test classes
+     * Delegate to mock the APITransactionGrpcService class The focus here is to ensure the client fires requests
+     * correctly. The real logic for these services are being tests at service test classes
      */
     private class TransactionGrpcServiceDelegate extends P2PTransactionGrpc.P2PTransactionImplBase {
         @Override
         public void push(PushRequest request, StreamObserver<PushRequest> responseObserver) {
             byte[] responseData = "RESPONSE".getBytes();
-            final PushRequest response = PushRequest.newBuilder()
-                .setData(ByteString.copyFrom(responseData))
-                .build();
+            final PushRequest response = PushRequest.newBuilder().setData(ByteString.copyFrom(responseData)).build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         }
@@ -158,9 +145,7 @@ public class GrpcClientTest {
         @Override
         public void resend(ResendRequest request, StreamObserver<ResendResponse> responseObserver) {
             byte[] responseData = "RESPONSE".getBytes();
-            ResendResponse response = ResendResponse.newBuilder()
-                .setData(ByteString.copyFrom(responseData))
-                .build();
+            ResendResponse response = ResendResponse.newBuilder().setData(ByteString.copyFrom(responseData)).build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         }

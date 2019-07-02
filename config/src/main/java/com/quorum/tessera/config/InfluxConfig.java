@@ -15,9 +15,8 @@ import java.util.Objects;
 public class InfluxConfig extends ConfigItem {
 
     @ValidServerAddress(
-        message = "Server Address is invalid",
-        supportedSchemes = {"http", "https"}
-    )
+            message = "Server Address is invalid",
+            supportedSchemes = {"http", "https"})
     @NotNull
     @XmlElement
     private String serverAddress;
@@ -30,14 +29,9 @@ public class InfluxConfig extends ConfigItem {
     @XmlElement(required = true)
     private String dbName;
 
-    @Valid
-    @XmlElement
-    @ValidSsl
-    private SslConfig sslConfig;
+    @Valid @XmlElement @ValidSsl private SslConfig sslConfig;
 
-    public InfluxConfig() {
-
-    }
+    public InfluxConfig() {}
 
     public boolean isSsl() {
         return Objects.nonNull(sslConfig) && sslConfig.getTls() == SslAuthenticationMode.STRICT;

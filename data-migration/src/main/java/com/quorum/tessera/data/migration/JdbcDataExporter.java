@@ -21,10 +21,8 @@ public class JdbcDataExporter implements DataExporter {
     }
 
     @Override
-    public void export(final StoreLoader loader,
-                       final Path output,
-                       final String username,
-                       final String password) throws SQLException, IOException {
+    public void export(final StoreLoader loader, final Path output, final String username, final String password)
+            throws SQLException, IOException {
 
         try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 
@@ -44,8 +42,6 @@ public class JdbcDataExporter implements DataExporter {
                     }
                 }
             }
-
         }
     }
-
 }

@@ -11,14 +11,11 @@ import java.nio.file.Path;
 @ValidUnsupportedKeyPair
 public class UnsupportedKeyPair implements ConfigKeyPair {
 
-    @XmlElement
-    private KeyDataConfig config;
+    @XmlElement private KeyDataConfig config;
 
-    @XmlElement
-    private String privateKey;
+    @XmlElement private String privateKey;
 
-    @XmlElement
-    private String publicKey;
+    @XmlElement private String publicKey;
 
     @XmlElement
     @XmlJavaTypeAdapter(PathAdapter.class)
@@ -28,34 +25,39 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path publicKeyPath;
 
-    @XmlElement
-    private String azureVaultPublicKeyId;
+    @XmlElement private String azureVaultPublicKeyId;
 
-    @XmlElement
-    private String azureVaultPrivateKeyId;
+    @XmlElement private String azureVaultPrivateKeyId;
 
-    @XmlElement
-    private String azureVaultPublicKeyVersion;
+    @XmlElement private String azureVaultPublicKeyVersion;
 
-    @XmlElement
-    private String azureVaultPrivateKeyVersion;
+    @XmlElement private String azureVaultPrivateKeyVersion;
 
-    @XmlElement
-    private String hashicorpVaultPublicKeyId;
+    @XmlElement private String hashicorpVaultPublicKeyId;
 
-    @XmlElement
-    private String hashicorpVaultPrivateKeyId;
+    @XmlElement private String hashicorpVaultPrivateKeyId;
 
-    @XmlElement
-    private String hashicorpVaultSecretEngineName;
+    @XmlElement private String hashicorpVaultSecretEngineName;
 
-    @XmlElement
-    private String hashicorpVaultSecretName;
+    @XmlElement private String hashicorpVaultSecretName;
 
-    @XmlElement
-    private String hashicorpVaultSecretVersion;
+    @XmlElement private String hashicorpVaultSecretVersion;
 
-    public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String azureVaultPublicKeyVersion, String azureVaultPrivateKeyVersion, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName, String hashicorpVaultSecretVersion) {
+    public UnsupportedKeyPair(
+            KeyDataConfig config,
+            String privateKey,
+            String publicKey,
+            Path privateKeyPath,
+            Path publicKeyPath,
+            String azureVaultPublicKeyId,
+            String azureVaultPrivateKeyId,
+            String azureVaultPublicKeyVersion,
+            String azureVaultPrivateKeyVersion,
+            String hashicorpVaultPublicKeyId,
+            String hashicorpVaultPrivateKeyId,
+            String hashicorpVaultSecretEngineName,
+            String hashicorpVaultSecretName,
+            String hashicorpVaultSecretVersion) {
         this.config = config;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
@@ -72,9 +74,7 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
         this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;
     }
 
-    public UnsupportedKeyPair() {
-
-    }
+    public UnsupportedKeyPair() {}
 
     @Override
     public String getPublicKey() {
@@ -136,7 +136,7 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
 
     @Override
     public void withPassword(String password) {
-        //do nothing as password not used with this keypair type
+        // do nothing as password not used with this keypair type
     }
 
     @Override

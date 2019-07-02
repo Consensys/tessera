@@ -28,8 +28,8 @@ import static javax.ws.rs.core.MediaType.*;
 /**
  * Provides endpoints for dealing with transactions, including:
  *
- * - creating new transactions and distributing them - deleting transactions -
- * fetching transactions - resending old transactions
+ * <p>- creating new transactions and distributing them - deleting transactions - fetching transactions - resending old
+ * transactions
  */
 @Path("/")
 public class TransactionResource {
@@ -51,22 +51,17 @@ public class TransactionResource {
     @Path("send")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public Response send(
-            @ApiParam(name = "sendRequest", required = true)
-            @NotNull @Valid final SendRequest sendRequest) throws UnsupportedEncodingException {
+    public Response send(@ApiParam(name = "sendRequest", required = true) @NotNull @Valid final SendRequest sendRequest)
+            throws UnsupportedEncodingException {
 
         final SendResponse response = delegate.send(sendRequest);
 
-        URI location = UriBuilder.fromPath("transaction")
-                .path(URLEncoder.encode(response.getKey(), StandardCharsets.UTF_8.toString()))
-                .build();
+        URI location =
+                UriBuilder.fromPath("transaction")
+                        .path(URLEncoder.encode(response.getKey(), StandardCharsets.UTF_8.toString()))
+                        .build();
 
-        return Response.status(Status.CREATED)
-                .type(APPLICATION_JSON)
-                .location(location)
-                .entity(response)
-                .build();
-
+        return Response.status(Status.CREATED).type(APPLICATION_JSON).location(location).entity(response).build();
     }
 
     @ApiOperation(value = "Send private raw transaction payload", produces = "Encrypted payload hash")
@@ -79,17 +74,17 @@ public class TransactionResource {
     @Consumes(APPLICATION_OCTET_STREAM)
     @Produces(TEXT_PLAIN)
     public Response sendSignedTransaction(
-        @HeaderParam("c11n-to") final String recipientKeys,
-        @NotNull @Size(min = 1) final byte[] signedTransaction) throws UnsupportedEncodingException {
+            @HeaderParam("c11n-to") final String recipientKeys, @NotNull @Size(min = 1) final byte[] signedTransaction)
+            throws UnsupportedEncodingException {
 
         SendSignedRequest sendSignedRequest = new SendSignedRequest();
 
         sendSignedRequest.setHash(signedTransaction);
 
         Optional.ofNullable(recipientKeys)
-            .filter(s -> !Objects.equals("", s))
-            .map(v -> v.split(","))
-            .ifPresent(sendSignedRequest::setTo);
+                .filter(s -> !Objects.equals("", s))
+                .map(v -> v.split(","))
+                .ifPresent(sendSignedRequest::setTo);
 
         final SendResponse response = delegate.sendSignedTransaction(sendSignedRequest);
 
@@ -97,15 +92,13 @@ public class TransactionResource {
 
         LOGGER.debug("Encoded key: {}", encodedKey);
 
-        URI location = UriBuilder.fromPath("transaction")
-            .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8.toString()))
-            .build();
+        URI location =
+                UriBuilder.fromPath("transaction")
+                        .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8.toString()))
+                        .build();
 
-        //TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
-        return Response.status(Status.OK)
-            .entity(encodedKey)
-            .location(location)
-            .build();
+        // TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
+        return Response.status(Status.OK).entity(encodedKey).location(location).build();
     }
 
     @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
@@ -120,7 +113,8 @@ public class TransactionResource {
     public Response sendRaw(
             @HeaderParam("c11n-from") final String sender,
             @HeaderParam("c11n-to") final String recipientKeys,
-            @NotNull @Size(min = 1) final byte[] payload) throws UnsupportedEncodingException {
+            @NotNull @Size(min = 1) final byte[] payload)
+            throws UnsupportedEncodingException {
 
         SendRequest sendRequest = new SendRequest();
         sendRequest.setFrom(sender);
@@ -137,40 +131,30 @@ public class TransactionResource {
 
         LOGGER.debug("Encoded key: {}", encodedKey);
 
-        URI location = UriBuilder.fromPath("transaction")
-                .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8.toString()))
-                .build();
+        URI location =
+                UriBuilder.fromPath("transaction")
+                        .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8.toString()))
+                        .build();
 
-        //TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
-        return Response.status(Status.OK)
-                .entity(encodedKey)
-                .location(location)
-                .build();
+        // TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
+        return Response.status(Status.OK).entity(encodedKey).location(location).build();
     }
 
     @ApiOperation(value = "Returns decrypted payload back to Quorum")
-    @ApiResponses({
-        @ApiResponse(code = 200, response = ReceiveResponse.class, message = "Receive Response object")
-    })
+    @ApiResponses({@ApiResponse(code = 200, response = ReceiveResponse.class, message = "Receive Response object")})
     @GET
     @Path("/transaction/{hash}")
     @Produces(APPLICATION_JSON)
     public Response receive(
-            @ApiParam("Encoded hash used to decrypt the payload")
-            @NotNull @Valid @PathParam("hash") final String hash,
-            @ApiParam("Encoded recipient key")
-            @Valid @QueryParam("to") final String toStr
-    ) {
+            @ApiParam("Encoded hash used to decrypt the payload") @NotNull @Valid @PathParam("hash") final String hash,
+            @ApiParam("Encoded recipient key") @Valid @QueryParam("to") final String toStr) {
 
         ReceiveRequest receiveRequest = new ReceiveRequest();
         receiveRequest.setKey(hash);
         receiveRequest.setTo(toStr);
         ReceiveResponse response = delegate.receive(receiveRequest);
 
-        return Response.status(Status.OK)
-                .type(APPLICATION_JSON)
-                .entity(response)
-                .build();
+        return Response.status(Status.OK).type(APPLICATION_JSON).entity(response).build();
     }
 
     @GET
@@ -183,26 +167,20 @@ public class TransactionResource {
 
         ReceiveResponse response = delegate.receive(request);
 
-        return Response.status(Status.OK)
-                .type(APPLICATION_JSON)
-                .entity(response)
-                .build();
+        return Response.status(Status.OK).type(APPLICATION_JSON).entity(response).build();
     }
 
     @ApiOperation(value = "Submit keys to retrieve payload and decrypt it", produces = "Unencrypted payload")
-    @ApiResponses({
-        @ApiResponse(code = 200, message = "Raw payload", response = byte[].class)})
+    @ApiResponses({@ApiResponse(code = 200, message = "Raw payload", response = byte[].class)})
     @GET
     @Path("receiveraw")
     @Consumes(APPLICATION_OCTET_STREAM)
     @Produces(APPLICATION_OCTET_STREAM)
     public Response receiveRaw(
-            @ApiParam("Encoded transaction hash")
-            @NotNull @HeaderParam(value = "c11n-key") String hash,
-            @ApiParam("Encoded Recipient Public Key")
-            @HeaderParam(value = "c11n-to") String recipientKey) {
+            @ApiParam("Encoded transaction hash") @NotNull @HeaderParam(value = "c11n-key") String hash,
+            @ApiParam("Encoded Recipient Public Key") @HeaderParam(value = "c11n-to") String recipientKey) {
 
-        LOGGER.debug("Received receiveraw request for hash : {}, recipientKey: {}",hash,recipientKey);
+        LOGGER.debug("Received receiveraw request for hash : {}, recipientKey: {}", hash, recipientKey);
 
         ReceiveRequest receiveRequest = new ReceiveRequest();
         receiveRequest.setKey(hash);
@@ -212,9 +190,7 @@ public class TransactionResource {
 
         byte[] payload = receiveResponse.getPayload();
 
-        return Response.status(Status.OK)
-                .entity(payload)
-                .build();
+        return Response.status(Status.OK).entity(payload).build();
     }
 
     @Deprecated
@@ -228,16 +204,14 @@ public class TransactionResource {
     @Consumes(APPLICATION_JSON)
     @Produces(TEXT_PLAIN)
     public Response delete(
-        @ApiParam(name = "deleteRequest", required = true, value = "Key data to be deleted")
-        @Valid final DeleteRequest deleteRequest) {
+            @ApiParam(name = "deleteRequest", required = true, value = "Key data to be deleted") @Valid
+                    final DeleteRequest deleteRequest) {
 
         LOGGER.debug("Received deprecated delete request");
 
         delegate.delete(deleteRequest);
 
-        return Response.status(Response.Status.OK)
-            .entity("Delete successful")
-            .build();
+        return Response.status(Response.Status.OK).entity("Delete successful").build();
     }
 
     @ApiOperation("Delete single transaction from P2PRestApp node")

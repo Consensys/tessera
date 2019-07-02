@@ -29,18 +29,17 @@ public class ConfigResourceTest {
     private ConfigService configService;
 
     private PartyInfoService partyInfoService;
-    
+
     @Before
     public void onSetUp() {
         configService = mock(ConfigService.class);
         partyInfoService = mock(PartyInfoService.class);
-        configResource = new ConfigResource(configService,partyInfoService);
-        
+        configResource = new ConfigResource(configService, partyInfoService);
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(configService,partyInfoService);
+        verifyNoMoreInteractions(configService, partyInfoService);
     }
 
     @Test
@@ -49,10 +48,13 @@ public class ConfigResourceTest {
         final Peer peer = new Peer("junit");
         final List<Peer> peers = new ArrayList<>();
 
-        Mockito.doAnswer(inv -> {
-            peers.add(new Peer(inv.getArgument(0)));
-            return null;
-        }).when(configService).addPeer(anyString());
+        Mockito.doAnswer(
+                        inv -> {
+                            peers.add(new Peer(inv.getArgument(0)));
+                            return null;
+                        })
+                .when(configService)
+                .addPeer(anyString());
         when(configService.getPeers()).thenReturn(peers);
 
         final Response response = configResource.addPeer(peer);
@@ -72,10 +74,13 @@ public class ConfigResourceTest {
         final Peer peer = new Peer("junit");
         final List<Peer> peers = new ArrayList<>();
 
-        Mockito.doAnswer(inv -> {
-            peers.add(new Peer(inv.getArgument(0)));
-            return null;
-        }).when(configService).addPeer(anyString());
+        Mockito.doAnswer(
+                        inv -> {
+                            peers.add(new Peer(inv.getArgument(0)));
+                            return null;
+                        })
+                .when(configService)
+                .addPeer(anyString());
         when(configService.getPeers()).thenReturn(peers);
 
         final Response responseOne = configResource.addPeer(peer);
@@ -126,7 +131,7 @@ public class ConfigResourceTest {
         final Response response = configResource.getPeers();
 
         assertThat(response.getStatus()).isEqualTo(200);
-        
+
         List<Peer> results = (List<Peer>) response.getEntity();
         assertThat(results).containsExactly(peer);
 
@@ -210,5 +215,4 @@ public class ConfigResourceTest {
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getEntity()).isEqualToComparingFieldByFieldRecursively(Collections.emptyList());
     }
-
 }

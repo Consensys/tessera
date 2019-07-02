@@ -20,8 +20,8 @@ public class DecodingExceptionMapper implements ExceptionMapper<DecodingExceptio
         LOGGER.debug(null, exception);
 
         return Response.status(Response.Status.BAD_REQUEST)
-            .entity(exception.getMessage())
-            .type(MediaType.TEXT_PLAIN)
-            .build();
+                .entity(exception.getMessage())
+                .type(MediaType.TEXT_PLAIN)
+                .build();
     }
 }

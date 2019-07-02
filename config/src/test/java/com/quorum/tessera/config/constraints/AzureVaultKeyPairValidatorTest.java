@@ -61,5 +61,4 @@ public class AzureVaultKeyPairValidatorTest {
 
         assertThat(validator.isValid(keyPair, cvc)).isFalse();
     }
-
 }

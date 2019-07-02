@@ -1,6 +1,5 @@
 package com.quorum.tessera.p2p;
 
-
 import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.partyinfo.ResendResponse;
 import com.quorum.tessera.enclave.model.MessageHash;
@@ -27,8 +26,8 @@ import static javax.ws.rs.core.MediaType.*;
 /**
  * Provides endpoints for dealing with transactions, including:
  *
- * - creating new transactions and distributing them - deleting transactions -
- * fetching transactions - resending old transactions
+ * <p>- creating new transactions and distributing them - deleting transactions - fetching transactions - resending old
+ * transactions
  */
 @Path("/")
 public class TransactionResource {
@@ -51,8 +50,7 @@ public class TransactionResource {
     @Consumes(APPLICATION_JSON)
     @Produces(TEXT_PLAIN)
     public Response resend(
-            @ApiParam(name = "resendRequest", required = true) @Valid @NotNull final ResendRequest resendRequest
-    ) {
+            @ApiParam(name = "resendRequest", required = true) @Valid @NotNull final ResendRequest resendRequest) {
 
         LOGGER.debug("Received resend request");
 
@@ -60,7 +58,6 @@ public class TransactionResource {
         Response.ResponseBuilder builder = Response.status(Status.OK);
         response.getPayload().ifPresent(builder::entity);
         return builder.build();
-
     }
 
     @ApiOperation(value = "Transmit encrypted payload between P2PRestApp Nodes")
@@ -72,17 +69,13 @@ public class TransactionResource {
     @Path("push")
     @Consumes(APPLICATION_OCTET_STREAM)
     public Response push(
-            @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload
-    ) {
+            @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload) {
 
         LOGGER.debug("Received push request");
 
         final MessageHash messageHash = delegate.storePayload(payload);
         LOGGER.debug("Push request generated hash {}", Objects.toString(messageHash));
-        //TODO: Return the query url not the string of the messageHAsh
-        return Response.status(Response.Status.CREATED)
-                .entity(Objects.toString(messageHash))
-                .build();
+        // TODO: Return the query url not the string of the messageHAsh
+        return Response.status(Response.Status.CREATED).entity(Objects.toString(messageHash)).build();
     }
-
 }

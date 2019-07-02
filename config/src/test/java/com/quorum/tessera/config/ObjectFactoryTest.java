@@ -25,5 +25,4 @@ public class ObjectFactoryTest {
         assertThat(element).isNotNull();
         assertThat(element.getValue()).isSameAs(configuration);
     }
-
 }

@@ -24,16 +24,16 @@ public class TesseraGrpcIT {
 
     private TesseraGrpc.TesseraBlockingStub blockingStub;
 
-    @Rule
-    public TestName testName = new TestName();
+    @Rule public TestName testName = new TestName();
 
     @Before
     public void onSetUp() {
         Party anyParty = PartyHelper.create().getParties().findAny().get();
-        
-        channel = ManagedChannelBuilder.forAddress(anyParty.getP2PUri().getHost(), anyParty.getP2PUri().getPort())
-            .usePlaintext()
-            .build();
+
+        channel =
+                ManagedChannelBuilder.forAddress(anyParty.getP2PUri().getHost(), anyParty.getP2PUri().getPort())
+                        .usePlaintext()
+                        .build();
 
         blockingStub = TesseraGrpc.newBlockingStub(channel);
     }
@@ -41,7 +41,6 @@ public class TesseraGrpcIT {
     @After
     public void onTearDown() {
         channel.shutdown();
-
     }
 
     @Test
@@ -49,12 +48,9 @@ public class TesseraGrpcIT {
 
         LOGGER.info("Sending");
 
-
         VersionMessage result = blockingStub.getVersion(Empty.getDefaultInstance());
         LOGGER.info("Sent");
 
         assertThat(result).isNotNull();
-
     }
-
 }

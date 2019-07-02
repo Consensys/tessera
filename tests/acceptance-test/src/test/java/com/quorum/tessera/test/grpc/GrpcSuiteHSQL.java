@@ -7,11 +7,5 @@ import suite.SocketType;
 import suite.TestSuite;
 
 @RunWith(TestSuite.class)
-@TestSuite.ProcessConfig(
-        communicationType = CommunicationType.GRPC,
-        dbType = DBType.HSQL,
-        socketType = SocketType.HTTP)
-public class GrpcSuiteHSQL extends GrpcSuite {
-
-
-}
+@TestSuite.ProcessConfig(communicationType = CommunicationType.GRPC, dbType = DBType.HSQL, socketType = SocketType.HTTP)
+public class GrpcSuiteHSQL extends GrpcSuite {}

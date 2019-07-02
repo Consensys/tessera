@@ -17,7 +17,7 @@ public class DirectoryStoreFile implements StoreLoader {
     @Override
     public void load(final Path directory) throws IOException {
 
-        //this method covers both non-directories and non-existent files
+        // this method covers both non-directories and non-existent files
         if (!Files.isDirectory(directory)) {
             throw new IllegalArgumentException(directory.toString() + " doesn't exist or is not a directory");
         }
@@ -33,10 +33,6 @@ public class DirectoryStoreFile implements StoreLoader {
 
         final Path nextPath = fileListIterator.next();
 
-        return new DataEntry(
-            new Base32().decode(nextPath.toFile().getName()),
-            fileDelegate.newInputStream(nextPath)
-        );
-
+        return new DataEntry(new Base32().decode(nextPath.toFile().getName()), fileDelegate.newInputStream(nextPath));
     }
 }

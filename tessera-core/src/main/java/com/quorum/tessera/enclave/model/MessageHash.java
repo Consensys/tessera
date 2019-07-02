@@ -9,11 +9,9 @@ import java.util.Base64;
 @Embeddable
 public class MessageHash implements Serializable {
 
-    @Lob
-    private byte[] hashBytes;
+    @Lob private byte[] hashBytes;
 
-    public MessageHash() {
-    }
+    public MessageHash() {}
 
     public MessageHash(final byte[] hashBytes) {
         this.hashBytes = Arrays.copyOf(hashBytes, hashBytes.length);
@@ -29,8 +27,7 @@ public class MessageHash implements Serializable {
 
     @Override
     public boolean equals(final Object o) {
-        return (o instanceof MessageHash) &&
-            Arrays.equals(hashBytes, ((MessageHash) o).hashBytes);
+        return (o instanceof MessageHash) && Arrays.equals(hashBytes, ((MessageHash) o).hashBytes);
     }
 
     @Override
@@ -42,7 +39,4 @@ public class MessageHash implements Serializable {
     public String toString() {
         return Base64.getEncoder().encodeToString(hashBytes);
     }
-    
-
-
 }

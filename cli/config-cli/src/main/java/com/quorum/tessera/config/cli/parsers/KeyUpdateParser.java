@@ -52,15 +52,16 @@ public class KeyUpdateParser implements Parser<Optional> {
         final String newPassword = passwordReader.requestUserPassword();
 
         final KeyDataConfig updatedKey;
-        if(newPassword.isEmpty()) {
-            final PrivateKeyData privateKeyData = new PrivateKeyData(privateKey.encodeToBase64(), null, null, null, null);
+        if (newPassword.isEmpty()) {
+            final PrivateKeyData privateKeyData =
+                    new PrivateKeyData(privateKey.encodeToBase64(), null, null, null, null);
             updatedKey = new KeyDataConfig(privateKeyData, PrivateKeyType.UNLOCKED);
         } else {
             final PrivateKeyData privateKeyData = keyEncryptor.encryptPrivateKey(privateKey, newPassword, argonOptions);
             updatedKey = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
         }
 
-        //write the key to file
+        // write the key to file
         Files.write(keypath, JaxbUtil.marshalToString(updatedKey).getBytes(UTF_8));
         SystemAdapter.INSTANCE.out().println("Private key at " + keypath.toString() + " updated.");
 
@@ -112,7 +113,6 @@ public class KeyUpdateParser implements Parser<Optional> {
         } else {
             return emptyList();
         }
-
     }
 
     static ArgonOptions argonOptions(final CommandLine commandLine) {
@@ -122,8 +122,6 @@ public class KeyUpdateParser implements Parser<Optional> {
         final String parallelism = commandLine.getOptionValue("keys.keyData.config.data.aopts.parallelism", "4");
 
         return new ArgonOptions(
-            algorithm, Integer.valueOf(iterations), Integer.valueOf(memory), Integer.valueOf(parallelism)
-        );
+                algorithm, Integer.valueOf(iterations), Integer.valueOf(memory), Integer.valueOf(parallelism));
     }
-
 }

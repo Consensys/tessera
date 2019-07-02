@@ -18,7 +18,6 @@ public class MessageHashTest {
 
         assertThat(hash).isNotEqualTo(testMessage);
         Assertions.assertThat(Arrays.equals(testMessage, hash.getHashBytes())).isTrue();
-
     }
 
     @Test
@@ -30,7 +29,6 @@ public class MessageHashTest {
         final MessageHash hash2 = new MessageHash(testMessage);
 
         assertThat(hash1).isEqualTo(hash2);
-
     }
 
     @Test
@@ -41,7 +39,6 @@ public class MessageHashTest {
         final MessageHash hash1 = new MessageHash(testMessage);
 
         assertThat(hash1).isNotEqualTo("test_message");
-
     }
 
     @Test
@@ -53,14 +50,12 @@ public class MessageHashTest {
     @Test
     public void toStringOutputsCorrectString() {
 
-        //dmFs is "val" encoded as base64 in UTF_8
+        // dmFs is "val" encoded as base64 in UTF_8
 
         final MessageHash hash = new MessageHash("val".getBytes());
 
         final String toString = hash.toString();
 
         assertThat(toString).isEqualTo("dmFs");
-
     }
-
 }

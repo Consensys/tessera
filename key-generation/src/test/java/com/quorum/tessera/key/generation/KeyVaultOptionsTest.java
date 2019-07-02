@@ -14,5 +14,4 @@ public class KeyVaultOptionsTest {
 
         assertThat(keyVaultOptions.getSecretEngineName()).isEqualTo(secretEngineName);
     }
-
 }

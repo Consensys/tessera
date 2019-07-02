@@ -7,7 +7,6 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.SharedKey;
 
 public enum MockNaclFacade implements NaclFacade {
-
     INSTANCE;
 
     @Override
@@ -52,12 +51,11 @@ public enum MockNaclFacade implements NaclFacade {
 
     @Override
     public MasterKey createMasterKey() {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public byte[] sealAfterPrecomputation(byte[] message, Nonce nonce, MasterKey masterKey) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
 }

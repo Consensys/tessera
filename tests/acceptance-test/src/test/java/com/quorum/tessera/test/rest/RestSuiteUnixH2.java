@@ -9,15 +9,6 @@ import suite.SocketType;
 import suite.TestSuite;
 
 @RunWith(TestSuite.class)
-@TestSuite.ProcessConfig(
-        communicationType = CommunicationType.REST,
-        dbType = DBType.H2,
-        socketType = SocketType.UNIX)
-
-@TestSuite.SuiteClasses({
-    CucumberRestIT.class,
-    CucumberRawIT.class
-})
-public class RestSuiteUnixH2 {
-    
-}
+@TestSuite.ProcessConfig(communicationType = CommunicationType.REST, dbType = DBType.H2, socketType = SocketType.UNIX)
+@TestSuite.SuiteClasses({CucumberRestIT.class, CucumberRawIT.class})
+public class RestSuiteUnixH2 {}

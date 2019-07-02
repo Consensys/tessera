@@ -12,7 +12,6 @@ import java.util.UUID;
 public interface ConfigFileStore {
 
     enum Store implements ConfigFileStore {
-
         INSTANCE;
 
         private Path path;
@@ -20,14 +19,15 @@ public interface ConfigFileStore {
         @Override
         public void save(Config config) {
 
-            IOCallback.execute(() -> {
-                Path temp = Files.createTempFile(UUID.randomUUID().toString(), ".tmp");
-                try (OutputStream fout = Files.newOutputStream(temp)) {
-                    JaxbUtil.marshalWithNoValidation(config, fout);
-                }
-                Files.copy(temp, path, StandardCopyOption.REPLACE_EXISTING);
-                return null;
-            });
+            IOCallback.execute(
+                    () -> {
+                        Path temp = Files.createTempFile(UUID.randomUUID().toString(), ".tmp");
+                        try (OutputStream fout = Files.newOutputStream(temp)) {
+                            JaxbUtil.marshalWithNoValidation(config, fout);
+                        }
+                        Files.copy(temp, path, StandardCopyOption.REPLACE_EXISTING);
+                        return null;
+                    });
         }
     }
 
@@ -41,5 +41,4 @@ public interface ConfigFileStore {
     }
 
     void save(Config config);
-
 }

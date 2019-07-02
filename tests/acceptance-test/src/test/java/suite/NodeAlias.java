@@ -1,6 +1,8 @@
 package suite;
 
-
 public enum NodeAlias {
-    A,B,C,D;
+    A,
+    B,
+    C,
+    D;
 }

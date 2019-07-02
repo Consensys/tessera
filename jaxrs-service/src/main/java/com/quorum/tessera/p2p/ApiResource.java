@@ -18,9 +18,7 @@ import java.util.List;
 
 import static javax.ws.rs.core.MediaType.*;
 
-/**
- * Provides HTTP endpoints for accessing the OpenAPI schema
- */
+/** Provides HTTP endpoints for accessing the OpenAPI schema */
 @Path("/api")
 @Api("Provides access to OpenAPI schema documentation.")
 public class ApiResource {
@@ -47,7 +45,5 @@ public class ApiResource {
         }
 
         return Response.ok(url.openStream(), variant.getMediaType()).build();
-
     }
-
 }

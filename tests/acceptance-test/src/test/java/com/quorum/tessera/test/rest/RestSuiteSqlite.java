@@ -11,6 +11,4 @@ import suite.TestSuite;
         communicationType = CommunicationType.REST,
         dbType = DBType.SQLITE,
         socketType = SocketType.HTTP)
-public class RestSuiteSqlite extends RestSuite {
-
-}
+public class RestSuiteSqlite extends RestSuite {}

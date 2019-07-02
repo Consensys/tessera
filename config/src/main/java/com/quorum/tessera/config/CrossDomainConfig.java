@@ -9,18 +9,14 @@ import javax.xml.bind.annotation.XmlElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CrossDomainConfig extends ConfigItem {
 
-    @XmlElement
-    private List<String> allowedMethods = Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD");
+    @XmlElement private List<String> allowedMethods = Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD");
 
-    @XmlElement
-    private List<String> allowedOrigins;
+    @XmlElement private List<String> allowedOrigins;
 
-    @XmlElement
-    private List<String> allowedHeaders;
+    @XmlElement private List<String> allowedHeaders;
 
-    @XmlElement
-    private Boolean allowCredentials = Boolean.TRUE;
-    
+    @XmlElement private Boolean allowCredentials = Boolean.TRUE;
+
     public List<String> getAllowedOrigins() {
         return allowedOrigins;
     }
@@ -52,5 +48,4 @@ public class CrossDomainConfig extends ConfigItem {
     public void setAllowCredentials(Boolean allowCredentials) {
         this.allowCredentials = allowCredentials;
     }
-
 }

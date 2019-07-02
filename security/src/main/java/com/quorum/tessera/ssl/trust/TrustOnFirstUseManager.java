@@ -38,7 +38,8 @@ public class TrustOnFirstUseManager extends AbstractTrustManager {
             try {
                 addServerToKnownHostsList(address, thumbPrint);
             } catch (IOException ex) {
-                throw new CertificateException("Failed to save address and certificate fingerprint to whitelist. Cause by ", ex);
+                throw new CertificateException(
+                        "Failed to save address and certificate fingerprint to whitelist. Cause by ", ex);
             }
         } else {
             if (!certificateValidForKnownHost(address, thumbPrint)) {

@@ -29,19 +29,15 @@ public class TransactionRequesterImpl implements TransactionRequester {
 
         LOGGER.debug("Requesting transactions get resent for {}", uri);
 
-        return this.enclave
-            .getPublicKeys()
-            .stream()
-            .map(this::createRequestAllEntity)
-            .allMatch(req -> this.makeRequest(uri, req));
-
+        return this.enclave.getPublicKeys().stream()
+                .map(this::createRequestAllEntity)
+                .allMatch(req -> this.makeRequest(uri, req));
     }
 
     /**
-     * Will make the desired request until succeeds or max tries has been
-     * reached
+     * Will make the desired request until succeeds or max tries has been reached
      *
-     * @param uri     the URI to call
+     * @param uri the URI to call
      * @param request the request object to send
      */
     private boolean makeRequest(final String uri, final ResendRequest request) {
@@ -64,7 +60,6 @@ public class TransactionRequesterImpl implements TransactionRequester {
         } while (!success && (numberOfTries < MAX_ATTEMPTS));
 
         return success;
-
     }
 
     /**
@@ -82,5 +77,4 @@ public class TransactionRequesterImpl implements TransactionRequester {
 
         return request;
     }
-
 }

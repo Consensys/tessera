@@ -44,17 +44,15 @@ public abstract class DelegatingFileSystemProvider extends FileSystemProvider {
     }
 
     @Override
-    public SeekableByteChannel newByteChannel(final Path path,
-                                              final Set<? extends OpenOption> options,
-                                              final FileAttribute<?>... attrs) throws IOException {
+    public SeekableByteChannel newByteChannel(
+            final Path path, final Set<? extends OpenOption> options, final FileAttribute<?>... attrs)
+            throws IOException {
         return delegate.newByteChannel(path, options, attrs);
     }
 
     @Override
-    public DirectoryStream<Path> newDirectoryStream(
-        final Path dir,
-        final DirectoryStream.Filter<? super Path> filter
-    ) throws IOException {
+    public DirectoryStream<Path> newDirectoryStream(final Path dir, final DirectoryStream.Filter<? super Path> filter)
+            throws IOException {
         return delegate.newDirectoryStream(dir, filter);
     }
 
@@ -89,24 +87,25 @@ public abstract class DelegatingFileSystemProvider extends FileSystemProvider {
     }
 
     @Override
-    public FileChannel newFileChannel(final Path path,
-                                      final Set<? extends OpenOption> options,
-                                      final FileAttribute<?>... attrs) throws IOException {
+    public FileChannel newFileChannel(
+            final Path path, final Set<? extends OpenOption> options, final FileAttribute<?>... attrs)
+            throws IOException {
         return delegate.newFileChannel(path, options, attrs);
     }
 
     @Override
-    public AsynchronousFileChannel newAsynchronousFileChannel(final Path path,
-                                                              final Set<? extends OpenOption> options,
-                                                              final ExecutorService executor,
-                                                              final FileAttribute<?>... attrs) throws IOException {
+    public AsynchronousFileChannel newAsynchronousFileChannel(
+            final Path path,
+            final Set<? extends OpenOption> options,
+            final ExecutorService executor,
+            final FileAttribute<?>... attrs)
+            throws IOException {
         return delegate.newAsynchronousFileChannel(path, options, executor, attrs);
     }
 
     @Override
-    public void createSymbolicLink(final Path link,
-                                   final Path target,
-                                   final FileAttribute<?>... attrs) throws IOException {
+    public void createSymbolicLink(final Path link, final Path target, final FileAttribute<?>... attrs)
+            throws IOException {
         delegate.createSymbolicLink(link, target, attrs);
     }
 
@@ -151,32 +150,26 @@ public abstract class DelegatingFileSystemProvider extends FileSystemProvider {
     }
 
     @Override
-    public <V extends FileAttributeView> V getFileAttributeView(final Path path,
-                                                                final Class<V> type,
-                                                                final LinkOption... options) {
+    public <V extends FileAttributeView> V getFileAttributeView(
+            final Path path, final Class<V> type, final LinkOption... options) {
         return delegate.getFileAttributeView(path, type, options);
     }
 
     @Override
-    public <A extends BasicFileAttributes> A readAttributes(final Path path,
-                                                            final Class<A> type,
-                                                            final LinkOption... options) throws IOException {
+    public <A extends BasicFileAttributes> A readAttributes(
+            final Path path, final Class<A> type, final LinkOption... options) throws IOException {
         return delegate.readAttributes(path, type, options);
     }
 
     @Override
-    public Map<String, Object> readAttributes(final Path path,
-                                              final String attributes,
-                                              final LinkOption... options) throws IOException {
+    public Map<String, Object> readAttributes(final Path path, final String attributes, final LinkOption... options)
+            throws IOException {
         return delegate.readAttributes(path, attributes, options);
     }
 
     @Override
-    public void setAttribute(final Path path,
-                             final String attribute,
-                             final Object value,
-                             final LinkOption... options) throws IOException {
+    public void setAttribute(final Path path, final String attribute, final Object value, final LinkOption... options)
+            throws IOException {
         delegate.setAttribute(path, attribute, value, options);
     }
-
 }

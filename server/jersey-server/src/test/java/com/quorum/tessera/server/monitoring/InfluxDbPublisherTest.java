@@ -24,5 +24,4 @@ public class InfluxDbPublisherTest {
         influxDbPublisher.run();
         verify(influxDbClient).postMetrics();
     }
-
 }

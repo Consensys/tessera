@@ -47,7 +47,14 @@ public class SyncPollerTest {
         doReturn(true).when(p2pClient).sendPartyInfo(anyString(), any());
         when(partyInfoService.getPartyInfo()).thenReturn(new PartyInfo("myurl", emptySet(), emptySet()));
 
-        this.syncPoller = new SyncPoller(executorService, resendPartyStore, transactionRequester, partyInfoService, partyInfoParser, p2pClient);
+        this.syncPoller =
+                new SyncPoller(
+                        executorService,
+                        resendPartyStore,
+                        transactionRequester,
+                        partyInfoService,
+                        partyInfoParser,
+                        p2pClient);
     }
 
     @After
@@ -102,17 +109,16 @@ public class SyncPollerTest {
         final Party localParty = new Party(targetUrl);
         final Party syncableParty = new Party(syncableUrl);
         final Set<Party> parties = new HashSet<>(Arrays.asList(localParty, syncableParty));
-        when(partyInfoService.getPartyInfo())
-            .thenReturn(new PartyInfo("localurl.com", emptySet(), parties));
-        
+        when(partyInfoService.getPartyInfo()).thenReturn(new PartyInfo("localurl.com", emptySet(), parties));
+
         doReturn(Optional.empty()).when(resendPartyStore).getNextParty();
 
         syncPoller.run();
-        
+
         verify(resendPartyStore, times(1)).addUnseenParties(new HashSet<>(Arrays.asList(syncableParty)));
         verify(resendPartyStore, times(1)).getNextParty();
     }
-    
+
     @Test
     public void singlePartyTaskFailsAndNotifiesStore() {
 
@@ -187,5 +193,4 @@ public class SyncPollerTest {
         verify(resendPartyStore).addUnseenParties(emptySet());
         verify(partyInfoService, times(2)).getPartyInfo();
     }
-
 }
