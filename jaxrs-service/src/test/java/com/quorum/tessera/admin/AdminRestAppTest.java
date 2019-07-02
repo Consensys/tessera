@@ -15,45 +15,45 @@ import static org.mockito.Mockito.*;
 
 public class AdminRestAppTest {
 
-  private ServiceLocator serviceLocator;
+    private ServiceLocator serviceLocator;
 
-  private AdminRestApp adminRestApp;
+    private AdminRestApp adminRestApp;
 
-  @Before
-  public void setUp() {
-    this.serviceLocator = mock(ServiceLocator.class);
-    this.adminRestApp = new AdminRestApp(serviceLocator);
-  }
+    @Before
+    public void setUp() {
+        this.serviceLocator = mock(ServiceLocator.class);
+        this.adminRestApp = new AdminRestApp(serviceLocator);
+    }
 
-  @After
-  public void tearDown() {
-    verifyNoMoreInteractions(serviceLocator);
-  }
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(serviceLocator);
+    }
 
-  @Test
-  public void getSingletons() {
+    @Test
+    public void getSingletons() {
 
-    Set services = new HashSet<>();
-    services.add(new ConfigResource(mock(ConfigService.class), mock(PartyInfoService.class)));
-    services.add(new IPWhitelistFilter(mock(ConfigService.class)));
+        Set services = new HashSet<>();
+        services.add(new ConfigResource(mock(ConfigService.class), mock(PartyInfoService.class)));
+        services.add(new IPWhitelistFilter(mock(ConfigService.class)));
 
-    when(serviceLocator.getServices()).thenReturn(services);
+        when(serviceLocator.getServices()).thenReturn(services);
 
-    Set<Object> results = this.adminRestApp.getSingletons();
+        Set<Object> results = this.adminRestApp.getSingletons();
 
-    assertThat(results).containsExactlyInAnyOrderElementsOf(services);
+        assertThat(results).containsExactlyInAnyOrderElementsOf(services);
 
-    verify(serviceLocator).getServices();
-  }
+        verify(serviceLocator).getServices();
+    }
 
-  @Test
-  public void getClasses() {
+    @Test
+    public void getClasses() {
 
-    assertThat(adminRestApp.getClasses()).isNotEmpty();
-  }
+        assertThat(adminRestApp.getClasses()).isNotEmpty();
+    }
 
-  @Test
-  public void appType() {
-    assertThat(adminRestApp.getAppType()).isEqualTo(AppType.ADMIN);
-  }
+    @Test
+    public void appType() {
+        assertThat(adminRestApp.getAppType()).isEqualTo(AppType.ADMIN);
+    }
 }

@@ -18,5 +18,4 @@ public interface ClientCallback<T> {
             throw ex;
         }
     }
-
 }

@@ -61,5 +61,4 @@ public class EnclaveRawPayload {
     public void setRecipientPublicKeys(List<byte[]> recipientPublicKeys) {
         this.recipientPublicKeys = recipientPublicKeys;
     }
-
 }

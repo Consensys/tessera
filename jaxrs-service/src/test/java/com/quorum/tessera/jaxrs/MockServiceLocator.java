@@ -6,8 +6,8 @@ import java.util.Set;
 
 public class MockServiceLocator implements ServiceLocator {
 
-  @Override
-  public Set<Object> getServices() {
-    return Collections.emptySet();
-  }
+    @Override
+    public Set<Object> getServices() {
+        return Collections.emptySet();
+    }
 }

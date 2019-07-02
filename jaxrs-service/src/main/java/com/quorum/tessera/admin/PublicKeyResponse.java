@@ -7,12 +7,10 @@ import javax.xml.bind.annotation.XmlElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 class PublicKeyResponse {
 
-    @XmlElement
-    private String publicKey;
+    @XmlElement private String publicKey;
 
-    //No args constructor required for jaxb marshalling
-    private PublicKeyResponse() {
-    }
+    // No args constructor required for jaxb marshalling
+    private PublicKeyResponse() {}
 
     PublicKeyResponse(String publicKey) {
         this.publicKey = publicKey;

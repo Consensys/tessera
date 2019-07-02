@@ -16,5 +16,4 @@ public interface EnclaveClientFactory<T extends EnclaveClient> {
     static EnclaveClientFactory create() {
         return ServiceLoader.load(EnclaveClientFactory.class).iterator().next();
     }
-
 }

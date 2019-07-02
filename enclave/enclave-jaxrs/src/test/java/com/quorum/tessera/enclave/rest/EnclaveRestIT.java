@@ -18,66 +18,66 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class EnclaveRestIT {
 
-  private Enclave enclave;
+    private Enclave enclave;
 
-  private JerseyTest jersey;
+    private JerseyTest jersey;
 
-  private RestfulEnclaveClient enclaveClient;
+    private RestfulEnclaveClient enclaveClient;
 
-  static {
-    System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
-    System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
-  }
+    static {
+        System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+        System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+    }
 
-  @Before
-  public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 
-    URL url = EnclaveRestIT.class.getResource("/sample-config.json");
+        URL url = EnclaveRestIT.class.getResource("/sample-config.json");
 
-    CliResult cliResult = CliDelegate.INSTANCE.execute("-configfile", url.getFile());
+        CliResult cliResult = CliDelegate.INSTANCE.execute("-configfile", url.getFile());
 
-    EnclaveFactory enclaveFactory = EnclaveFactory.create();
+        EnclaveFactory enclaveFactory = EnclaveFactory.create();
 
-    Config config = cliResult.getConfig().get();
-    this.enclave = enclaveFactory.createLocal(config);
+        Config config = cliResult.getConfig().get();
+        this.enclave = enclaveFactory.createLocal(config);
 
-    jersey = Util.create(enclave);
-    jersey.setUp();
+        jersey = Util.create(enclave);
+        jersey.setUp();
 
-    enclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri());
-  }
+        enclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri());
+    }
 
-  @After
-  public void tearDown() throws Exception {
-    jersey.tearDown();
-  }
+    @After
+    public void tearDown() throws Exception {
+        jersey.tearDown();
+    }
 
-  @Test
-  public void defaultPublicKey() {
-    PublicKey result = enclaveClient.defaultPublicKey();
+    @Test
+    public void defaultPublicKey() {
+        PublicKey result = enclaveClient.defaultPublicKey();
 
-    assertThat(result).isNotNull();
-    assertThat(result.encodeToBase64()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
-  }
+        assertThat(result).isNotNull();
+        assertThat(result.encodeToBase64()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+    }
 
-  @Test
-  public void forwardingKeys() {
-    Set<PublicKey> result = enclaveClient.getForwardingKeys();
+    @Test
+    public void forwardingKeys() {
+        Set<PublicKey> result = enclaveClient.getForwardingKeys();
 
-    assertThat(result).isEmpty();
-  }
+        assertThat(result).isEmpty();
+    }
 
-  @Test
-  public void getPublicKeys() {
-    Set<PublicKey> result = enclaveClient.getPublicKeys();
+    @Test
+    public void getPublicKeys() {
+        Set<PublicKey> result = enclaveClient.getPublicKeys();
 
-    assertThat(result).hasSize(1);
+        assertThat(result).hasSize(1);
 
-    assertThat(result.iterator().next().encodeToBase64()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
-  }
+        assertThat(result.iterator().next().encodeToBase64()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+    }
 
-  @Test
-  public void status() {
-    assertThat(enclaveClient.status()).isEqualTo(Service.Status.STARTED);
-  }
+    @Test
+    public void status() {
+        assertThat(enclaveClient.status()).isEqualTo(Service.Status.STARTED);
+    }
 }

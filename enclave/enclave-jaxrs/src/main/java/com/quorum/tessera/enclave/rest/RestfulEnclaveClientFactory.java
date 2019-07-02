@@ -12,15 +12,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RestfulEnclaveClientFactory implements EnclaveClientFactory<RestfulEnclaveClient> {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RestfulEnclaveClientFactory.class);
-    
+
     @Override
     public RestfulEnclaveClient create(Config config) {
-        Optional<ServerConfig> enclaveServerConfig = config.getServerConfigs().stream()
-                .filter(sc -> sc.getApp() == AppType.ENCLAVE)
-                .filter(sc -> sc.getCommunicationType() == CommunicationType.REST)
-                .findAny();
+        Optional<ServerConfig> enclaveServerConfig =
+                config.getServerConfigs().stream()
+                        .filter(sc -> sc.getApp() == AppType.ENCLAVE)
+                        .filter(sc -> sc.getCommunicationType() == CommunicationType.REST)
+                        .findAny();
 
         final ClientFactory clientFactory = new ClientFactory();
 
@@ -30,7 +31,4 @@ public class RestfulEnclaveClientFactory implements EnclaveClientFactory<Restful
         LOGGER.info("Creating remoted enclave for {}", serverConfig.getServerUri());
         return new RestfulEnclaveClient(client, serverConfig.getServerUri());
     }
-    
-    
-    
 }

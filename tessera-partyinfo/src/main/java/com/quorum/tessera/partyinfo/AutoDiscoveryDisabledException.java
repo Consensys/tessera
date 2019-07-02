@@ -5,5 +5,4 @@ public class AutoDiscoveryDisabledException extends RuntimeException {
     public AutoDiscoveryDisabledException(String message) {
         super(message);
     }
-
 }

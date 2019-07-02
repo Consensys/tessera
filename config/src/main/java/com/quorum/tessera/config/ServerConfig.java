@@ -23,23 +23,16 @@ public class ServerConfig extends ConfigItem {
     @XmlElement(required = true)
     private boolean enabled;
 
-    @XmlElement
-    private CommunicationType communicationType;
+    @XmlElement private CommunicationType communicationType;
 
-    @Valid
-    @XmlElement
-    @ValidSsl
-    private SslConfig sslConfig;
+    @Valid @XmlElement @ValidSsl private SslConfig sslConfig;
 
-    @Valid
-    @XmlElement
-    private InfluxConfig influxConfig;
+    @Valid @XmlElement private InfluxConfig influxConfig;
 
     @ValidServerAddress(
-        message = "Binding Address is invalid",
-        isBindingAddress = true,
-        supportedSchemes = {"http", "https"}
-    )
+            message = "Binding Address is invalid",
+            isBindingAddress = true,
+            supportedSchemes = {"http", "https"})
     @XmlElement
     private String bindingAddress;
 
@@ -50,14 +43,15 @@ public class ServerConfig extends ConfigItem {
 
     @XmlElement(name = "cors")
     private CrossDomainConfig crossDomainConfig;
-    
-    public ServerConfig(final AppType app,
-                        final boolean enabled,
-                        final String serverAddress,
-                        final CommunicationType communicationType,
-                        final SslConfig sslConfig,
-                        final InfluxConfig influxConfig,
-                        final String bindingAddress) {
+
+    public ServerConfig(
+            final AppType app,
+            final boolean enabled,
+            final String serverAddress,
+            final CommunicationType communicationType,
+            final SslConfig sslConfig,
+            final InfluxConfig influxConfig,
+            final String bindingAddress) {
         this.app = app;
         this.enabled = enabled;
         this.serverAddress = serverAddress;
@@ -67,9 +61,7 @@ public class ServerConfig extends ConfigItem {
         this.bindingAddress = bindingAddress;
     }
 
-    public ServerConfig() {
-
-    }
+    public ServerConfig() {}
 
     public String getBindingAddress() {
         return this.bindingAddress == null ? this.serverAddress : this.bindingAddress;
@@ -158,5 +150,4 @@ public class ServerConfig extends ConfigItem {
     public void setCrossDomainConfig(CrossDomainConfig crossDomainConfig) {
         this.crossDomainConfig = crossDomainConfig;
     }
-
 }

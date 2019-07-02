@@ -24,9 +24,8 @@ public class DefaultExceptionMapper implements ExceptionMapper<Throwable> {
         LOGGER.debug(null, cause);
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-            .entity(cause.getMessage())
-            .type(MediaType.TEXT_PLAIN)
-            .build();
+                .entity(cause.getMessage())
+                .type(MediaType.TEXT_PLAIN)
+                .build();
     }
-
 }

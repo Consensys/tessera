@@ -19,8 +19,8 @@ public interface P2pClientFactory {
         ServiceLoader.load(P2pClientFactory.class).forEach(all::add);
 
         return all.stream()
-            .filter(c -> c.communicationType() == config.getP2PServerConfig().getCommunicationType())
-            .findFirst().get();
+                .filter(c -> c.communicationType() == config.getP2PServerConfig().getCommunicationType())
+                .findFirst()
+                .get();
     }
-
 }

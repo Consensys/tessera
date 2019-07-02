@@ -19,7 +19,7 @@ public class Util {
         return new JerseyTest() {
             @Override
             protected Application configure() {
-                
+
                 enable(TestProperties.LOG_TRAFFIC);
                 enable(TestProperties.DUMP_ENTITY);
                 set(TestProperties.CONTAINER_PORT, SocketUtils.findAvailableTcpPort());
@@ -29,7 +29,6 @@ public class Util {
                 config.packages("com.quorum.tessera.enclave.rest");
                 return config;
             }
-
         };
     }
 }

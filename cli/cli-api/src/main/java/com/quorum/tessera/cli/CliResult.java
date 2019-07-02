@@ -13,7 +13,7 @@ public class CliResult {
 
     private final Config config;
 
-    public CliResult(Integer status, boolean suppressStartup,Config config) {
+    public CliResult(Integer status, boolean suppressStartup, Config config) {
         this.status = Objects.requireNonNull(status);
         this.suppressStartup = suppressStartup;
         this.config = config;
@@ -26,7 +26,6 @@ public class CliResult {
     public boolean isSuppressStartup() {
         return suppressStartup;
     }
-
 
     public Optional<Config> getConfig() {
         return Optional.ofNullable(config);

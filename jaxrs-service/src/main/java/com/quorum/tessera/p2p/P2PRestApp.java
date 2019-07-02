@@ -21,35 +21,35 @@ import javax.ws.rs.ApplicationPath;
 @ApplicationPath("/")
 public class P2PRestApp extends TesseraRestApplication {
 
-  private final ServiceLocator serviceLocator;
+    private final ServiceLocator serviceLocator;
 
-  public P2PRestApp() {
-    this(ServiceLocator.create());
-  }
+    public P2PRestApp() {
+        this(ServiceLocator.create());
+    }
 
-  public P2PRestApp(ServiceLocator serviceLocator) {
-    this.serviceLocator = Objects.requireNonNull(serviceLocator);
-  }
+    public P2PRestApp(ServiceLocator serviceLocator) {
+        this.serviceLocator = Objects.requireNonNull(serviceLocator);
+    }
 
-  @Override
-  public Set<Object> getSingletons() {
+    @Override
+    public Set<Object> getSingletons() {
 
-    Predicate<Object> isPartyInfoResource = o -> PartyInfoResource.class.isInstance(o);
-    Predicate<Object> isIPWhitelistFilter = o -> IPWhitelistFilter.class.isInstance(o);
-    Predicate<Object> isTransactionResource = o -> TransactionResource.class.isInstance(o);
+        Predicate<Object> isPartyInfoResource = o -> PartyInfoResource.class.isInstance(o);
+        Predicate<Object> isIPWhitelistFilter = o -> IPWhitelistFilter.class.isInstance(o);
+        Predicate<Object> isTransactionResource = o -> TransactionResource.class.isInstance(o);
 
-    return Stream.concat(
-            Stream.of(new ApiResource()),
-            serviceLocator.getServices().stream()
-                .filter(Objects::nonNull)
-                .filter(o -> Objects.nonNull(o.getClass()))
-                .filter(o -> Objects.nonNull(o.getClass().getPackage()))
-                .filter(isIPWhitelistFilter.or(isPartyInfoResource).or(isTransactionResource)))
-        .collect(Collectors.toSet());
-  }
+        return Stream.concat(
+                        Stream.of(new ApiResource()),
+                        serviceLocator.getServices().stream()
+                                .filter(Objects::nonNull)
+                                .filter(o -> Objects.nonNull(o.getClass()))
+                                .filter(o -> Objects.nonNull(o.getClass().getPackage()))
+                                .filter(isIPWhitelistFilter.or(isPartyInfoResource).or(isTransactionResource)))
+                .collect(Collectors.toSet());
+    }
 
-  @Override
-  public AppType getAppType() {
-    return AppType.P2P;
-  }
+    @Override
+    public AppType getAppType() {
+        return AppType.P2P;
+    }
 }

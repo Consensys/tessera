@@ -21,67 +21,69 @@ import org.slf4j.LoggerFactory;
 /** Stores a list of all discovered nodes and public keys */
 public class PartyInfoStore {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoStore.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoStore.class);
 
-  private final String advertisedUrl;
+    private final String advertisedUrl;
 
-  private final Map<PublicKey, Recipient> recipients;
+    private final Map<PublicKey, Recipient> recipients;
 
-  private final Set<Party> parties;
+    private final Set<Party> parties;
 
-  public PartyInfoStore(URI advertisedUrl) {
-    this.advertisedUrl = URLNormalizer.create().normalize(advertisedUrl.toString());
-    this.recipients = new HashMap<>();
-    this.parties = new HashSet<>();
-    this.parties.add(new Party(this.advertisedUrl));
-  }
-
-  @Deprecated
-  public PartyInfoStore(final ConfigService configService) {
-    // TODO: remove the extra "/" when we deprecate backwards compatibility
-    this(configService.getServerUri());
-  }
-
-  /**
-   * Merge an incoming {@link PartyInfo} into the current one, adding any new keys or parties to the current store
-   *
-   * @param newInfo the incoming information that may contain new nodes/keys
-   */
-  public synchronized void store(final PartyInfo newInfo) {
-
-    for (Recipient recipient : newInfo.getRecipients()) {
-      recipients.put(recipient.getKey(), recipient);
+    public PartyInfoStore(URI advertisedUrl) {
+        this.advertisedUrl = URLNormalizer.create().normalize(advertisedUrl.toString());
+        this.recipients = new HashMap<>();
+        this.parties = new HashSet<>();
+        this.parties.add(new Party(this.advertisedUrl));
     }
 
-    parties.addAll(newInfo.getParties());
+    @Deprecated
+    public PartyInfoStore(final ConfigService configService) {
+        // TODO: remove the extra "/" when we deprecate backwards compatibility
+        this(configService.getServerUri());
+    }
 
-    // update the sender to have been seen recently
-    final Party sender = new Party(newInfo.getUrl());
-    sender.setLastContacted(Instant.now());
-    parties.remove(sender);
-    parties.add(sender);
-  }
+    /**
+     * Merge an incoming {@link PartyInfo} into the current one, adding any new keys or parties to the current store
+     *
+     * @param newInfo the incoming information that may contain new nodes/keys
+     */
+    public synchronized void store(final PartyInfo newInfo) {
 
-  /**
-   * Fetch a copy of all the currently discovered nodes/keys
-   *
-   * @return an immutable copy of the current state of the store
-   */
-  public synchronized PartyInfo getPartyInfo() {
-    return new PartyInfo(
-        advertisedUrl, unmodifiableSet(new HashSet<>(recipients.values())), unmodifiableSet(new HashSet<>(parties)));
-  }
+        for (Recipient recipient : newInfo.getRecipients()) {
+            recipients.put(recipient.getKey(), recipient);
+        }
 
-  public synchronized PartyInfo removeRecipient(String uri) {
-    PublicKey key =
-        recipients.entrySet().stream()
-            .filter(e -> uri.startsWith(e.getValue().getUrl()))
-            .map(e -> e.getKey())
-            .findFirst()
-            .get();
+        parties.addAll(newInfo.getParties());
 
-    recipients.remove(key);
+        // update the sender to have been seen recently
+        final Party sender = new Party(newInfo.getUrl());
+        sender.setLastContacted(Instant.now());
+        parties.remove(sender);
+        parties.add(sender);
+    }
 
-    return getPartyInfo();
-  }
+    /**
+     * Fetch a copy of all the currently discovered nodes/keys
+     *
+     * @return an immutable copy of the current state of the store
+     */
+    public synchronized PartyInfo getPartyInfo() {
+        return new PartyInfo(
+                advertisedUrl,
+                unmodifiableSet(new HashSet<>(recipients.values())),
+                unmodifiableSet(new HashSet<>(parties)));
+    }
+
+    public synchronized PartyInfo removeRecipient(String uri) {
+        PublicKey key =
+                recipients.entrySet().stream()
+                        .filter(e -> uri.startsWith(e.getValue().getUrl()))
+                        .map(e -> e.getKey())
+                        .findFirst()
+                        .get();
+
+        recipients.remove(key);
+
+        return getPartyInfo();
+    }
 }

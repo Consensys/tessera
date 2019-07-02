@@ -14,44 +14,44 @@ import static org.mockito.Mockito.*;
 
 public class P2PRestAppTest {
 
-  private static final String CONTEXT_NAME = "context";
+    private static final String CONTEXT_NAME = "context";
 
-  private ServiceLocator serviceLocator;
+    private ServiceLocator serviceLocator;
 
-  private P2PRestApp p2PRestApp;
+    private P2PRestApp p2PRestApp;
 
-  @Before
-  public void setUp() {
-    serviceLocator = mock(ServiceLocator.class);
-    p2PRestApp = new P2PRestApp(serviceLocator);
-  }
+    @Before
+    public void setUp() {
+        serviceLocator = mock(ServiceLocator.class);
+        p2PRestApp = new P2PRestApp(serviceLocator);
+    }
 
-  @After
-  public void tearDown() {
-    verifyNoMoreInteractions(serviceLocator);
-  }
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(serviceLocator);
+    }
 
-  @Test
-  public void getSingletons() {
+    @Test
+    public void getSingletons() {
 
-    Set services = new HashSet<>();
-    services.add(mock(PartyInfoResource.class));
-    services.add(mock(IPWhitelistFilter.class));
-    services.add(mock(TransactionResource.class));
+        Set services = new HashSet<>();
+        services.add(mock(PartyInfoResource.class));
+        services.add(mock(IPWhitelistFilter.class));
+        services.add(mock(TransactionResource.class));
 
-    when(serviceLocator.getServices()).thenReturn(services);
+        when(serviceLocator.getServices()).thenReturn(services);
 
-    Set<Object> results = p2PRestApp.getSingletons();
+        Set<Object> results = p2PRestApp.getSingletons();
 
-    assertThat(results).containsAll(services).hasSize(services.size() + 1);
+        assertThat(results).containsAll(services).hasSize(services.size() + 1);
 
-    assertThat(results).filteredOn(o -> ApiResource.class.isInstance(o)).hasSize(1);
+        assertThat(results).filteredOn(o -> ApiResource.class.isInstance(o)).hasSize(1);
 
-    verify(serviceLocator).getServices();
-  }
+        verify(serviceLocator).getServices();
+    }
 
-  @Test
-  public void appType() {
-    assertThat(p2PRestApp.getAppType()).isEqualTo(AppType.P2P);
-  }
+    @Test
+    public void appType() {
+        assertThat(p2PRestApp.getAppType()).isEqualTo(AppType.P2P);
+    }
 }

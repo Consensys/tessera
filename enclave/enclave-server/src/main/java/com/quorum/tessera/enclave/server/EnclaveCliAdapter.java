@@ -28,9 +28,8 @@ public class EnclaveCliAdapter implements CliAdapter {
 
     public EnclaveCliAdapter() {
         this(
-            new DefaultParser(),
-            ServiceLoaderUtil.load(KeyPasswordResolver.class).orElse(new CliKeyPasswordResolver())
-        );
+                new DefaultParser(),
+                ServiceLoaderUtil.load(KeyPasswordResolver.class).orElse(new CliKeyPasswordResolver()));
     }
 
     @Override
@@ -84,5 +83,4 @@ public class EnclaveCliAdapter implements CliAdapter {
             throw new CliException(exp.getMessage());
         }
     }
-
 }

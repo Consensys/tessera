@@ -7,16 +7,16 @@ import com.quorum.tessera.service.locator.ServiceLocator;
 
 public class P2PGrpcApp extends GrpcApp implements TesseraApp {
 
-  public P2PGrpcApp() {
-    this(ServiceLocator.create());
-  }
+    public P2PGrpcApp() {
+        this(ServiceLocator.create());
+    }
 
-  public P2PGrpcApp(ServiceLocator serviceLocator) {
-    super(serviceLocator);
-  }
+    public P2PGrpcApp(ServiceLocator serviceLocator) {
+        super(serviceLocator);
+    }
 
-  @Override
-  public AppType getAppType() {
-    return AppType.P2P;
-  }
+    @Override
+    public AppType getAppType() {
+        return AppType.P2P;
+    }
 }
