@@ -35,8 +35,8 @@ public class ClientFactory {
         return ReflectCallback.execute(() -> {
             Class configType = Class.forName("org.glassfish.jersey.client.ClientConfig");
             Class providerClass = Class.forName("com.quorum.tessera.jaxrs.unixsocket.JerseyUnixSocketConnectorProvider");
-            Object config = configType.newInstance();
-            Object provider = providerClass.newInstance();
+            Object config = configType.getDeclaredConstructor().newInstance();
+            Object provider = providerClass.getDeclaredConstructor().newInstance();
             Method connectorProviderMethod = Arrays.stream(configType.getDeclaredMethods())
                     .filter(m -> m.getName().equals("connectorProvider")).findFirst().get();
                     

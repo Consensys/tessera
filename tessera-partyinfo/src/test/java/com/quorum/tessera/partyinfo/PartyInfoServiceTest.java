@@ -1,9 +1,5 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.partyinfo.PartyInfoServiceImpl;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.AutoDiscoveryDisabledException;
-import com.quorum.tessera.partyinfo.PartyInfoStore;
 import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
@@ -55,12 +51,11 @@ public class PartyInfoServiceTest {
         final Peer peer = new Peer("http://other-node.com:8080");
         when(configService.getPeers()).thenReturn(singletonList(peer));
 
-        final Set<PublicKey> ourKeys = new HashSet<>(
-            Arrays.asList(
-                PublicKey.from("some-key".getBytes()),
-                PublicKey.from("another-public-key".getBytes())
-            )
-        );
+        final Set<PublicKey> ourKeys =
+                new HashSet<>(
+                        Arrays.asList(
+                                PublicKey.from("some-key".getBytes()),
+                                PublicKey.from("another-public-key".getBytes())));
         doReturn(ourKeys).when(enclave).getPublicKeys();
 
         this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configService, enclave);
@@ -68,10 +63,10 @@ public class PartyInfoServiceTest {
 
     @After
     public void after() {
-        //Called in constructor
+        // Called in constructor
         verify(enclave).getPublicKeys();
         verify(configService).getServerUri();
-        verify(configService,atLeast(1)).getPeers();
+        verify(configService, atLeast(1)).getPeers();
         verify(partyInfoStore, atLeast(1)).store(any(PartyInfo.class));
 
         verifyNoMoreInteractions(partyInfoStore);
@@ -87,19 +82,14 @@ public class PartyInfoServiceTest {
         verify(partyInfoStore).store(captor.capture());
         verify(enclave).getPublicKeys();
 
-        final List<Recipient> allRegisteredKeys = captor
-            .getAllValues()
-            .stream()
-            .map(PartyInfo::getRecipients)
-            .flatMap(Set::stream)
-            .collect(toList());
+        final List<Recipient> allRegisteredKeys =
+                captor.getAllValues().stream().map(PartyInfo::getRecipients).flatMap(Set::stream).collect(toList());
 
         assertThat(allRegisteredKeys)
-            .hasSize(2)
-            .containsExactlyInAnyOrder(
-                new Recipient(PublicKey.from("some-key".getBytes()), URI + "/"),
-                new Recipient(PublicKey.from("another-public-key".getBytes()), URI + "/")
-            );
+                .hasSize(2)
+                .containsExactlyInAnyOrder(
+                        new Recipient(PublicKey.from("some-key".getBytes()), URI + "/"),
+                        new Recipient(PublicKey.from("another-public-key".getBytes()), URI + "/"));
     }
 
     @Test
@@ -122,7 +112,9 @@ public class PartyInfoServiceTest {
 
         final PublicKey failingKey = PublicKey.from("otherKey".getBytes());
         final Throwable throwable = catchThrowable(() -> partyInfoService.getURLFromRecipientKey(failingKey));
-        assertThat(throwable).isInstanceOf(KeyNotFoundException.class).hasMessage("Recipient not found for key: "+ failingKey.encodeToBase64());
+        assertThat(throwable)
+                .isInstanceOf(KeyNotFoundException.class)
+                .hasMessage("Recipient not found for key: " + failingKey.encodeToBase64());
 
         verify(partyInfoStore).getPartyInfo();
     }
@@ -155,11 +147,10 @@ public class PartyInfoServiceTest {
         final Throwable throwable = catchThrowable(() -> partyInfoService.updatePartyInfo(forUpdate));
 
         assertThat(throwable)
-            .isInstanceOf(AutoDiscoveryDisabledException.class)
-            .hasMessage("Peer SomeUnknownUri not found in known peer list");
+                .isInstanceOf(AutoDiscoveryDisabledException.class)
+                .hasMessage("Peer SomeUnknownUri not found in known peer list");
 
         verify(configService).isDisablePeerDiscovery();
-
     }
 
     @Test
@@ -170,39 +161,29 @@ public class PartyInfoServiceTest {
         Recipient known = new Recipient(PublicKey.from("known".getBytes()), "http://other-node.com:8080");
         Recipient unknown = new Recipient(PublicKey.from("unknown".getBytes()), "http://unknown.com:8080");
 
-        final PartyInfo forUpdate = new PartyInfo(
-            "http://other-node.com:8080",
-            Stream.of(known, unknown).collect(toSet()),
-            emptySet()
-        );
+        final PartyInfo forUpdate =
+                new PartyInfo("http://other-node.com:8080", Stream.of(known, unknown).collect(toSet()), emptySet());
 
         partyInfoService.updatePartyInfo(forUpdate);
 
-
         verify(configService).isDisablePeerDiscovery();
-        verify(configService,times(2)).getPeers();
+        verify(configService, times(2)).getPeers();
 
-        //check that the only added keys were from that node (and our own)
+        // check that the only added keys were from that node (and our own)
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
 
         verify(partyInfoStore).getPartyInfo();
         verify(partyInfoStore, times(2)).store(captor.capture());
 
-        final List<Recipient> allRegisteredKeys = captor
-            .getAllValues()
-            .stream()
-            .map(PartyInfo::getRecipients)
-            .flatMap(Set::stream)
-            .collect(toList());
+        final List<Recipient> allRegisteredKeys =
+                captor.getAllValues().stream().map(PartyInfo::getRecipients).flatMap(Set::stream).collect(toList());
 
         assertThat(allRegisteredKeys)
-            .hasSize(3)
-            .containsExactlyInAnyOrder(
-                new Recipient(PublicKey.from("some-key".getBytes()), URI + "/"),
-                new Recipient(PublicKey.from("another-public-key".getBytes()), URI + "/"),
-                new Recipient(PublicKey.from("known".getBytes()), "http://other-node.com:8080")
-            );
-
+                .hasSize(3)
+                .containsExactlyInAnyOrder(
+                        new Recipient(PublicKey.from("some-key".getBytes()), URI + "/"),
+                        new Recipient(PublicKey.from("another-public-key".getBytes()), URI + "/"),
+                        new Recipient(PublicKey.from("known".getBytes()), "http://other-node.com:8080"));
     }
 
     @Test
@@ -210,25 +191,30 @@ public class PartyInfoServiceTest {
 
         when(configService.isDisablePeerDiscovery()).thenReturn(true);
 
-        final PartyInfo forUpdate = new PartyInfo(
-            "http://other-node.com:8080",
-            emptySet(),
-            Stream.of(new Party("known"), new Party("unknown")).collect(toSet())
-        );
-
+        final PartyInfo forUpdate =
+                new PartyInfo(
+                        "http://other-node.com:8080",
+                        emptySet(),
+                        Stream.of(new Party("known"), new Party("unknown")).collect(toSet()));
 
         partyInfoService.updatePartyInfo(forUpdate);
 
         verify(configService).isDisablePeerDiscovery();
-        verify(configService,times(2)).getPeers();
+        verify(configService, times(2)).getPeers();
 
-        //check that the only added keys were from that node (and our own)
+        // check that the only added keys were from that node (and our own)
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
 
         verify(partyInfoStore).getPartyInfo();
-        verify(partyInfoStore,times(2)).store(captor.capture());
-
-
+        verify(partyInfoStore, times(2)).store(captor.capture());
     }
 
+    @Test
+    public void removeRecipient() {
+
+        String uri = "foo.com";
+        partyInfoService.removeRecipient(uri);
+
+        verify(partyInfoStore).removeRecipient(uri);
+    }
 }

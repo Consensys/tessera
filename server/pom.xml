@@ -19,16 +19,9 @@
         <module>server-api</module>
         <module>jaxrs-client-unixsocket</module>
         <module>server-utils</module>
+        <module>websockets-server</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>work-in-progress</id>
-            <modules>
-                <module>websockets-server</module>
-            </modules>
-        </profile>
-    </profiles>
 
     <dependencyManagement>
         <dependencies>

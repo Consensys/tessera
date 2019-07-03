@@ -1,7 +1,6 @@
 package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.apps.P2PApp;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +34,7 @@ public class ServerConfigValidatorTest {
         validator = new ServerConfigValidator();
 
         when(cvc.buildConstraintViolationWithTemplate(anyString()))
-            .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
+                .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
     }
 
     @After
@@ -51,7 +50,6 @@ public class ServerConfigValidatorTest {
     @Test
     public void isValidWhenValidDataIsSupplied() {
         assertThat(serverConfig.getApp()).isSameAs(AppType.P2P);
-        assertThat(serverConfig.getApp().getIntf()).isSameAs(P2PApp.class);
         assertThat(serverConfig.isEnabled()).isTrue();
         assertThat(serverConfig.getServerUri()).isNotNull();
         assertThat(serverConfig.getCommunicationType()).isSameAs(CommunicationType.REST);
@@ -69,5 +67,4 @@ public class ServerConfigValidatorTest {
         verify(cvc).disableDefaultConstraintViolation();
         verify(cvc).buildConstraintViolationWithTemplate(anyString());
     }
-
 }

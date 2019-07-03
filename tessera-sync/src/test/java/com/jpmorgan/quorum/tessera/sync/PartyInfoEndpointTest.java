@@ -1,15 +1,16 @@
 package com.jpmorgan.quorum.tessera.sync;
 
-import com.quorum.tessera.node.model.PartyInfo;
+import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.UUID;
-import javax.websocket.RemoteEndpoint.Async;
 import javax.websocket.Session;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PartyInfoEndpointTest {
 
@@ -17,15 +18,29 @@ public class PartyInfoEndpointTest {
 
     private Session session;
 
+    private PartyInfoService partyInfoService;
+
     @Before
     public void onSetUp() {
-        partyInfoEndpoint = new PartyInfoEndpoint();
+
+        partyInfoService = mock(PartyInfoService.class);
+
+        partyInfoEndpoint = new PartyInfoEndpoint(partyInfoService);
         session = mock(Session.class);
         when(session.getId()).thenReturn(UUID.randomUUID().toString());
     }
 
+    @After
+    public void onTearDown() {
+        verifyNoMoreInteractions(partyInfoService);
+    }
+
     @Test
-    public void onOpenAndThenClose() {
+    public void onOpenAndThenClose() throws URISyntaxException {
+
+        String uri = "http://somedomain.com";
+
+        when(session.getRequestURI()).thenReturn(new URI(uri));
 
         partyInfoEndpoint.onOpen(session);
 
@@ -34,20 +49,22 @@ public class PartyInfoEndpointTest {
         partyInfoEndpoint.onClose(session);
         assertThat(partyInfoEndpoint.getSessions()).isEmpty();
 
+        verify(partyInfoService).removeRecipient(uri);
     }
 
     @Test
-    public void onSync() {
-
-        Async aync = mock(Async.class);
-        when(session.getAsyncRemote()).thenReturn(aync);
+    public void onSync() throws Exception {
 
         PartyInfo partyInfo = mock(PartyInfo.class);
-        partyInfoEndpoint.onSync(session, partyInfo);
 
-        verify(aync).sendText("ACK");
-        verify(session).getAsyncRemote();
+        PartyInfo updatedPartyInfo = mock(PartyInfo.class);
 
+        when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(updatedPartyInfo);
+
+        PartyInfo result = partyInfoEndpoint.onSync(session, partyInfo);
+
+        assertThat(result).isNotNull().isSameAs(updatedPartyInfo);
+
+        verify(partyInfoService).updatePartyInfo(partyInfo);
     }
-
 }

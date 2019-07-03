@@ -4,7 +4,6 @@ import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.apps.AdminApp;
 import com.quorum.tessera.encryption.PublicKey;
 
 import javax.validation.Valid;
@@ -26,7 +25,7 @@ import static java.util.Collections.singleton;
 @Path("/config")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class ConfigResource implements AdminApp {
+public class ConfigResource {
 
     private final ConfigService configService;
 
@@ -47,23 +46,18 @@ public class ConfigResource implements AdminApp {
             this.configService.addPeer(peer.getUrl());
 
             this.partyInfoService.updatePartyInfo(
-                new PartyInfo(peer.getUrl(), emptySet(), singleton(new Party(peer.getUrl())))
-            );
+                    new PartyInfo(peer.getUrl(), emptySet(), singleton(new Party(peer.getUrl()))));
         }
 
         final int index = this.configService.getPeers().indexOf(peer);
 
-        final URI uri = UriBuilder.fromPath("config")
-            .path("peers")
-            .path(String.valueOf(index))
-            .build();
+        final URI uri = UriBuilder.fromPath("config").path("peers").path(String.valueOf(index)).build();
 
         if (!existing) {
             return Response.created(uri).build();
         } else {
             return Response.ok().location(uri).build();
         }
-
     }
 
     @GET
@@ -84,8 +78,7 @@ public class ConfigResource implements AdminApp {
     public Response getPeers() {
         final List<Peer> peers = this.configService.getPeers();
 
-        return Response.ok(new GenericEntity<List<Peer>>(peers) {
-        }).build();
+        return Response.ok(new GenericEntity<List<Peer>>(peers) {}).build();
     }
 
     @GET
@@ -98,7 +91,7 @@ public class ConfigResource implements AdminApp {
 
         Set<PublicKey> publicKeys = configService.getPublicKeys();
 
-        if(!publicKeys.contains(publicKey)) {
+        if (!publicKeys.contains(publicKey)) {
             throw new NotFoundException("No key pair found with public key " + base64PublicKey);
         }
 
@@ -112,12 +105,12 @@ public class ConfigResource implements AdminApp {
     public Response getKeyPairs() {
         Set<PublicKey> publicKeys = configService.getPublicKeys();
 
-        List<PublicKeyResponse> responseData = publicKeys.stream()
-            .map(PublicKey::encodeToBase64)
-            .map(PublicKeyResponse::new)
-            .collect(Collectors.toList());
+        List<PublicKeyResponse> responseData =
+                publicKeys.stream()
+                        .map(PublicKey::encodeToBase64)
+                        .map(PublicKeyResponse::new)
+                        .collect(Collectors.toList());
 
-        return Response.ok(new GenericEntity<List<PublicKeyResponse>>(responseData){}).build();
+        return Response.ok(new GenericEntity<List<PublicKeyResponse>>(responseData) {}).build();
     }
-
 }

@@ -19,10 +19,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * The main entry point for the application. This just starts up the application
- * in the embedded container.
- */
+/** The main entry point for the application. This just starts up the application in the embedded container. */
 public class Launcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Launcher.class);
@@ -43,14 +40,17 @@ public class Launcher {
                 System.exit(cliResult.getStatus());
             }
 
-            final Config config = cliResult.getConfig()
-                .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
+            final Config config =
+                    cliResult
+                            .getConfig()
+                            .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
 
             runWebServer(config);
 
         } catch (final ConstraintViolationException ex) {
             for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
-                System.out.println("Config validation issue: " + violation.getPropertyPath() + " " + violation.getMessage());
+                System.out.println(
+                        "Config validation issue: " + violation.getPropertyPath() + " " + violation.getMessage());
             }
             System.exit(1);
         } catch (final ConfigException ex) {
@@ -69,36 +69,39 @@ public class Launcher {
             Optional.ofNullable(ex.getMessage()).ifPresent(System.err::println);
             System.exit(2);
         }
-
     }
 
     private static void runWebServer(final Config config) throws Exception {
 
         ServiceLocator serviceLocator = ServiceLocator.create();
 
-        Set<Object> services = serviceLocator.getServices("tessera-spring.xml");
+        Set<Object> services = serviceLocator.getServices();
 
-        final List<TesseraServer> servers = config.getServerConfigs()
-            .stream()
-            .filter(server -> !AppType.ENCLAVE.equals(server.getApp()))
-            .map(conf -> TesseraServerFactory.create(conf.getCommunicationType()).createServer(conf, services))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+        final List<TesseraServer> servers =
+                config.getServerConfigs().stream()
+                        .filter(server -> !AppType.ENCLAVE.equals(server.getApp()))
+                        .map(
+                                conf ->
+                                        TesseraServerFactory.create(conf.getCommunicationType())
+                                                .createServer(conf, services))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                for (TesseraServer ts : servers) {
-                    ts.stop();
-                }
-            } catch (Exception ex) {
-                LOGGER.error(null, ex);
-            }
-        }));
+        Runtime.getRuntime()
+                .addShutdownHook(
+                        new Thread(
+                                () -> {
+                                    try {
+                                        for (TesseraServer ts : servers) {
+                                            ts.stop();
+                                        }
+                                    } catch (Exception ex) {
+                                        LOGGER.error(null, ex);
+                                    }
+                                }));
 
         for (TesseraServer ts : servers) {
             ts.start();
         }
-
     }
-
 }
