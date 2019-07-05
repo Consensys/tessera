@@ -98,7 +98,6 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-partyinfo</artifactId>
-            <version>0.10-SNAPSHOT</version>
             <scope>test</scope>
             <type>jar</type>
         </dependency>
@@ -200,7 +199,7 @@
                     </systemPropertyVariables>
                     <includes>
                         <include>AdminRestSuite</include>
-                        <include>RestSuiteRemoteEnclaveH2</include>
+                       <include>RestSuiteRemoteEnclaveH2</include>
                         <include>RestSuiteH2</include>
                         <include>RestSuiteUnixH2</include>
                         <include>CucumberWhitelistIT</include>

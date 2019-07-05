@@ -471,7 +471,7 @@
         <module>grpc</module>
         <module>grpc-api</module>
         <module>grpc-service</module>
-        <module>jaxrs-service</module>
+        <!--        <module>jaxrs-service</module>-->
         <module>tessera-core</module>
         <module>jaxrs-client</module>
         <module>key-vault</module>
@@ -483,6 +483,7 @@
         <module>tessera-admin</module>
         <module>tessera-sync</module>
         <module>test-utils</module>
+        <module>tessera-jaxrs</module>
     </modules>
 
     <dependencyManagement>
@@ -644,7 +645,25 @@
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>jaxrs-service</artifactId>
+                <artifactId>admin-service</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>sync-service</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>transaction-service</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>thirdparty-service</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
 

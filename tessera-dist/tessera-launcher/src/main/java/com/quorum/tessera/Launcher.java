@@ -1,5 +1,7 @@
 package com.quorum.tessera;
 
+import com.quorum.tessera.app.ApplicationFactory;
+import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.cli.CliDelegate;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
@@ -8,7 +10,6 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
-import com.quorum.tessera.service.locator.ServiceLocator;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,17 +74,21 @@ public class Launcher {
 
     private static void runWebServer(final Config config) throws Exception {
 
-        ServiceLocator serviceLocator = ServiceLocator.create();
-
-        Set<Object> services = serviceLocator.getServices();
-
         final List<TesseraServer> servers =
                 config.getServerConfigs().stream()
                         .filter(server -> !AppType.ENCLAVE.equals(server.getApp()))
                         .map(
-                                conf ->
-                                        TesseraServerFactory.create(conf.getCommunicationType())
-                                                .createServer(conf, services))
+                                conf -> {
+                                    TesseraRestApplication app =
+                                            ApplicationFactory.create(conf.getApp())
+                                                    .orElseThrow(
+                                                            () ->
+                                                                    new IllegalStateException(
+                                                                            "Cant create app for " + conf.getApp()));
+
+                                    return TesseraServerFactory.create(conf.getCommunicationType())
+                                            .createServer(conf, Collections.singleton(app));
+                                })
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
 

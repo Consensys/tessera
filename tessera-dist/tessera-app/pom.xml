@@ -16,7 +16,6 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-launcher</artifactId>
-            <version>0.10-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
 
@@ -49,10 +48,32 @@
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>jaxrs-service</artifactId>
+            <artifactId>admin-service</artifactId>
+            <version>0.10-SNAPSHOT
+            </version>
             <scope>runtime</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>sync-service</artifactId>
+            <version>0.10-SNAPSHOT
+            </version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>transaction-service</artifactId>
+            <version>0.10-SNAPSHOT
+            </version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>thirdparty-service</artifactId>
+            <version>0.10-SNAPSHOT
+            </version>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>enclave-jaxrs</artifactId>
