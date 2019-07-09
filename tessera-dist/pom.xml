@@ -14,7 +14,6 @@
     <modules>
         <module>tessera-launcher</module>
         <module>tessera-app</module>
-        <module>tessera-grpc</module>
         <module>tessera-simple</module>
     </modules>
     <dependencyManagement>

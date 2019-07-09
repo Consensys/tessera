@@ -49,29 +49,21 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>admin-service</artifactId>
-            <version>0.10-SNAPSHOT
-            </version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>sync-service</artifactId>
-            <version>0.10-SNAPSHOT
-            </version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>transaction-service</artifactId>
-            <version>0.10-SNAPSHOT
-            </version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>thirdparty-service</artifactId>
-            <version>0.10-SNAPSHOT
-            </version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -84,18 +76,6 @@
                     <artifactId>enclave-server</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>grpc-service</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>grpc-server</artifactId>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>

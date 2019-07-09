@@ -72,7 +72,26 @@
             <type>jar</type>
         </dependency>
         
-
+        <dependency>
+            <groupId>org.glassfish.jersey.test-framework</groupId>
+            <artifactId>jersey-test-framework-core</artifactId>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>mock-service-locator</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
+        
     </dependencies>
     
     
@@ -112,7 +131,14 @@
                 </executions>
             </plugin>
             
-           
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <classpathDependencyExcludes>com.jpmorgan.quorum:service-locator-spring</classpathDependencyExcludes>
+                </configuration>
+
+            </plugin>
 
             
         </plugins>

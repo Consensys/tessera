@@ -468,10 +468,6 @@
         <module>data-migration</module>
         <module>config-migration</module>
         <module>shared</module>
-        <module>grpc</module>
-        <module>grpc-api</module>
-        <module>grpc-service</module>
-        <!--        <module>jaxrs-service</module>-->
         <module>tessera-core</module>
         <module>jaxrs-client</module>
         <module>key-vault</module>
@@ -590,6 +586,13 @@
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>mock-service-locator</artifactId>
+                <version>0.10-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>server-api</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
@@ -597,24 +600,6 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jersey-server</artifactId>
-                <version>0.10-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>grpc-server</artifactId>
-                <version>0.10-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>grpc</artifactId>
-                <version>0.10-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>grpc-api</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
 
@@ -634,12 +619,6 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-core</artifactId>
-                <version>0.10-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>grpc-service</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
 

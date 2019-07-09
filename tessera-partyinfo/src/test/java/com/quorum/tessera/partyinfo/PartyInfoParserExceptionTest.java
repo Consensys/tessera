@@ -1,7 +1,6 @@
 
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.partyinfo.PartyInfoParserException;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 

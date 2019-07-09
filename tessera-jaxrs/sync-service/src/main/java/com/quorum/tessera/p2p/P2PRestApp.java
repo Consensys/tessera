@@ -33,49 +33,42 @@ public class P2PRestApp extends TesseraRestApplication {
 
     private Enclave enclave;
 
-    private ServiceLocator serviceLocator;
-
     public P2PRestApp() {
         this(ServiceLocator.create());
     }
 
     public P2PRestApp(ServiceLocator serviceLocator) {
-        this.serviceLocator = serviceLocator;
-    }
 
-    @Override
-    public Set<Object> getSingletons() {
+        Set<Object> services = serviceLocator.getServices();
 
-        if (partyInfoService == null) {
-            try {
-                Set<Object> services = serviceLocator.getServices();
-
-                this.partyInfoService = services.stream()
+        this.partyInfoService =
+                services.stream()
                         .filter(PartyInfoService.class::isInstance)
                         .map(PartyInfoService.class::cast)
                         .findAny()
                         .orElseThrow(() -> new IllegalStateException("Cannot find partyInfoService"));
 
-                this.enclave = services.stream()
+        this.enclave =
+                services.stream()
                         .filter(Enclave.class::isInstance)
                         .map(Enclave.class::cast)
                         .findAny()
                         .orElseThrow(() -> new IllegalStateException("Cannot find enclave"));
 
-                Config config = services.stream()
+        Config config =
+                services.stream()
                         .filter(Config.class::isInstance)
                         .map(Config.class::cast)
-                        .findAny().orElseThrow(() -> new IllegalStateException("Cannot find config"));
+                        .findAny()
+                        .orElseThrow(() -> new IllegalStateException("Cannot find config"));
 
-                ServerConfig serverConfig = config.getP2PServerConfig();
+        ServerConfig serverConfig = config.getP2PServerConfig();
 
-                this.client = new com.quorum.tessera.jaxrs.client.ClientFactory().buildFrom(serverConfig);
-            } catch (Throwable ex) {
-                ex.printStackTrace();
-                throw new RuntimeException(ex);
-            }
+        this.client = new com.quorum.tessera.jaxrs.client.ClientFactory().buildFrom(serverConfig);
+    }
 
-        }
+    @Override
+    public Set<Object> getSingletons() {
 
         PartyInfoResource partyInfoResource = new PartyInfoResource(partyInfoService, partyInfoParser, client, enclave);
 

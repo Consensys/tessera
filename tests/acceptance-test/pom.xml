@@ -29,13 +29,7 @@
             <classifier>${tesssra.app.classifer}</classifier>
              <scope>test</scope>
         </dependency>
-   
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>tessera-grpc</artifactId>
-            <classifier>${tesssra.app.classifer}</classifier>
-             <scope>test</scope>
-        </dependency>
+
    
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
@@ -209,9 +203,6 @@
                         <include>RestSuiteUnixH2</include>
                         <include>RestSuiteSqlite</include>
                         <include>ConfigMigrationIT</include>
-<!--                        <include>GrpcSuiteH2</include>
-                        <include>GrpcSuiteSqlite</include>
-                        <include>GrpcSuiteHSQL</include>-->
                         <include>P2pTestSuite</include>
                     </includes>
                 </configuration>
@@ -283,31 +274,6 @@
         </profile>
 
 
-
-        <profile>
-            <id>grpc-acceptance-tests</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <systemPropertyVariables>
-                                <application.jar>${com.jpmorgan.quorum:tessera-grpc:jar:app}</application.jar>
-                                <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
-                                <jdbc.sqlite.jar>${org.xerial:sqlite-jdbc:jar}</jdbc.sqlite.jar>
-                            </systemPropertyVariables>
-                            <rerunFailingTestsCount>0</rerunFailingTestsCount>
-                            <includes>
-                                <include>GrpcSuiteH2</include>
-                                <include>GrpcSuiteSqlite</include>
-                                <include>GrpcSuiteHSQL</include>
-                            </includes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
 
         <profile>
             <id>simple-acceptance-tests</id>

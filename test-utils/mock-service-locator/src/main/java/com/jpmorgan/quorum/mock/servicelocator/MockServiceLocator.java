@@ -5,10 +5,10 @@ import java.util.Set;
 
 public class MockServiceLocator implements com.quorum.tessera.service.locator.ServiceLocator {
 
-    private Set<Object> services = Collections.EMPTY_SET;
+    private static Set<Object> services = Collections.EMPTY_SET;
 
-    public void setServices(Set<Object> services) {
-        this.services = services;
+    public void setServices(Set<Object> s) {
+        services = s;
     }
 
     @Override

@@ -9,12 +9,10 @@ import javax.ws.rs.core.Variant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Ignore;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Ignore
 public class ApiResourceTest {
 
     private ApiResource apiResource = new ApiResource();
