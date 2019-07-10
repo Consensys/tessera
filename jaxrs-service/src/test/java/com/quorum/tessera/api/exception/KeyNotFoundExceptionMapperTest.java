@@ -21,6 +21,6 @@ public class KeyNotFoundExceptionMapperTest {
         final String message = (String) result.getEntity();
 
         assertThat(message).isEqualTo("OUCH");
-        assertThat(result.getStatus()).isEqualTo(400);
+        assertThat(result.getStatus()).isEqualTo(404);
     }
 }
