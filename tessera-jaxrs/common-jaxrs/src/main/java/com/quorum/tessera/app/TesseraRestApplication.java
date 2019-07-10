@@ -1,5 +1,6 @@
 package com.quorum.tessera.app;
 
+import com.quorum.tessera.api.common.ApiResource;
 import com.quorum.tessera.api.common.UpCheckResource;
 import com.quorum.tessera.api.common.VersionResource;
 import com.quorum.tessera.api.exception.AutoDiscoveryDisabledExceptionMapper;
@@ -35,10 +36,8 @@ public abstract class TesseraRestApplication extends Application implements Tess
                         TransactionNotFoundExceptionMapper.class,
                         WebApplicationExceptionMapper.class,
                         UpCheckResource.class,
-                        VersionResource.class)
+                        VersionResource.class,
+                        ApiResource.class)
                 .collect(Collectors.toSet());
     }
-    
-
-    
 }

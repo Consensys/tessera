@@ -76,8 +76,7 @@ public class P2PRestApp extends TesseraRestApplication {
 
         TransactionResource transactionResource = new TransactionResource();
 
-        return Stream.of(new ApiResource(), partyInfoResource, iPWhitelistFilter, transactionResource)
-                .collect(Collectors.toSet());
+        return Stream.of(partyInfoResource, iPWhitelistFilter, transactionResource).collect(Collectors.toSet());
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.quorum.tessera.p2p;
+package com.quorum.tessera.api.common;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiResponse;

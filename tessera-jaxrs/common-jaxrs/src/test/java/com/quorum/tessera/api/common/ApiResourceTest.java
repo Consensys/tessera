@@ -1,5 +1,6 @@
-package com.quorum.tessera.p2p;
+package com.quorum.tessera.api.common;
 
+import com.quorum.tessera.api.common.ApiResource;
 import org.junit.Test;
 
 import javax.ws.rs.core.MediaType;
