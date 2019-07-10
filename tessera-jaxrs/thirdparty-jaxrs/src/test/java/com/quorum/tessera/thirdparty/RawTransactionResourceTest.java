@@ -1,5 +1,6 @@
-package com.quorum.tessera.thridparty;
+package com.quorum.tessera.thirdparty;
 
+import com.quorum.tessera.thirdparty.RawTransactionResource;
 import com.quorum.tessera.api.model.StoreRawRequest;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;

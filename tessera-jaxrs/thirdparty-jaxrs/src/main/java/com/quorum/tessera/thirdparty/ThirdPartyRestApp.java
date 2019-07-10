@@ -1,4 +1,4 @@
-package com.quorum.tessera.thridparty;
+package com.quorum.tessera.thirdparty;
 
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.app.TesseraRestApplication;

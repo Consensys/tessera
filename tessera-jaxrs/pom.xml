@@ -16,6 +16,17 @@
         <module>sync-jaxrs</module>
     </modules>
     
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-util</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
     <dependencies>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -87,9 +98,15 @@
         
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+            <artifactId>jersey-test-framework-provider-jetty</artifactId>
             <scope>test</scope>
             <type>jar</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-util</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         
     </dependencies>

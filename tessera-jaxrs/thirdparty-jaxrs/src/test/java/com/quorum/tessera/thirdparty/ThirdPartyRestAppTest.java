@@ -1,5 +1,6 @@
-package com.quorum.tessera.thridparty;
+package com.quorum.tessera.thirdparty;
 
+import com.quorum.tessera.thirdparty.ThirdPartyRestApp;
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.config.AppType;
