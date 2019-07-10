@@ -1,4 +1,4 @@
-package com.quorum.tessera.q2t;
+package com.quorum.tessera.thridparty;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.admin.ConfigService;
@@ -18,37 +18,35 @@ import org.junit.Test;
 
 import static org.mockito.Mockito.*;
 
-public class Q2TRestAppTest {
+public class ThirdPartyRestAppTest {
 
     private JerseyTest jersey;
 
     private MockServiceLocator serviceLocator;
 
-    private Q2TRestApp q2TRestApp;
+    private ThirdPartyRestApp thirdParty;
 
     @Before
     public void setUp() throws Exception {
-
-        final Set services = new HashSet();
+        serviceLocator = (MockServiceLocator) ServiceLocator.create();
+        
+        Set services = new HashSet();
         services.add(mock(ConfigService.class));
         services.add(mock(TransactionManager.class));
-
-        serviceLocator = (MockServiceLocator) ServiceLocator.create();
+        
         serviceLocator.setServices(services);
+        
+        thirdParty = new ThirdPartyRestApp();
 
-        q2TRestApp = new Q2TRestApp();
-
-        jersey =
-                new JerseyTest() {
-                    @Override
-                    protected Application configure() {
-                        enable(TestProperties.LOG_TRAFFIC);
-                        enable(TestProperties.DUMP_ENTITY);
-                        ResourceConfig jerseyconfig = ResourceConfig.forApplication(q2TRestApp);
-                        return jerseyconfig;
-                    }
-                };
-
+        jersey = new JerseyTest() {
+            @Override
+            protected Application configure() {
+                enable(TestProperties.LOG_TRAFFIC);
+                enable(TestProperties.DUMP_ENTITY);
+                ResourceConfig jerseyconfig = ResourceConfig.forApplication(thirdParty);
+                return jerseyconfig;
+            }
+        };
         jersey.setUp();
     }
 
@@ -60,13 +58,14 @@ public class Q2TRestAppTest {
     @Test
     public void getSingletons() {
 
-        Set<Object> results = q2TRestApp.getSingletons();
+        Set<Object> results = thirdParty.getSingletons();
 
         assertThat(results).hasSize(2);
+
     }
 
     @Test
     public void appType() {
-        assertThat(q2TRestApp.getAppType()).isEqualTo(AppType.Q2T);
+        assertThat(thirdParty.getAppType()).isEqualTo(AppType.THIRD_PARTY);
     }
 }
