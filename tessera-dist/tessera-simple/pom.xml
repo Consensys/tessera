@@ -52,26 +52,22 @@
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>transaction-service</artifactId>
-            <version>0.10-SNAPSHOT</version>
+            <artifactId>transaction-jaxrs</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>sync-service</artifactId>
-            <version>0.10-SNAPSHOT</version>
+            <artifactId>sync-jaxrs</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>thirdparty-service</artifactId>
-            <version>0.10-SNAPSHOT</version>
+            <artifactId>thirdparty-jaxrs</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>admin-service</artifactId>
-            <version>0.10-SNAPSHOT</version>
+            <artifactId>admin-jaxrs</artifactId>
             <scope>runtime</scope>
         </dependency>
 

@@ -48,22 +48,22 @@
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>admin-service</artifactId>
+            <artifactId>admin-jaxrs</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>sync-service</artifactId>
+            <artifactId>sync-jaxrs</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>transaction-service</artifactId>
+            <artifactId>transaction-jaxrs</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>thirdparty-service</artifactId>
+            <artifactId>thirdparty-jaxrs</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>

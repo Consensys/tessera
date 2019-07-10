@@ -9,11 +9,11 @@
     <artifactId>tessera-jaxrs</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>admin-service</module>
-        <module>transaction-service</module>
-        <module>sync-service</module>
+        <module>admin-jaxrs</module>
+        <module>transaction-jaxrs</module>
         <module>common-jaxrs</module>
-        <module>thirdparty-service</module>
+        <module>thirdparty-jaxrs</module>
+        <module>sync-jaxrs</module>
     </modules>
     
     <dependencies>
