@@ -1,5 +1,6 @@
 package com.quorum.tessera.p2p;
 
+import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.api.filter.GlobalFilter;
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.app.TesseraRestApplication;
@@ -9,7 +10,6 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.service.locator.ServiceLocator;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,33 +34,13 @@ public class P2PRestApp extends TesseraRestApplication {
     private Enclave enclave;
 
     public P2PRestApp() {
-        this(ServiceLocator.create());
-    }
+        ServiceFactory serviceFactory = ServiceFactory.create();
 
-    public P2PRestApp(ServiceLocator serviceLocator) {
+        this.partyInfoService = serviceFactory.partyInfoService();
 
-        Set<Object> services = serviceLocator.getServices();
+        this.enclave = serviceFactory.enclave();
 
-        this.partyInfoService =
-                services.stream()
-                        .filter(PartyInfoService.class::isInstance)
-                        .map(PartyInfoService.class::cast)
-                        .findAny()
-                        .orElseThrow(() -> new IllegalStateException("Cannot find partyInfoService"));
-
-        this.enclave =
-                services.stream()
-                        .filter(Enclave.class::isInstance)
-                        .map(Enclave.class::cast)
-                        .findAny()
-                        .orElseThrow(() -> new IllegalStateException("Cannot find enclave"));
-
-        Config config =
-                services.stream()
-                        .filter(Config.class::isInstance)
-                        .map(Config.class::cast)
-                        .findAny()
-                        .orElseThrow(() -> new IllegalStateException("Cannot find config"));
+        Config config = serviceFactory.config();
 
         ServerConfig serverConfig = config.getP2PServerConfig();
 

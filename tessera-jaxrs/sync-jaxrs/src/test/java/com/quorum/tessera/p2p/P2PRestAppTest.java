@@ -12,7 +12,6 @@ import com.quorum.tessera.transaction.TransactionManager;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.ws.rs.core.Application;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -82,45 +81,6 @@ public class P2PRestAppTest {
     @Test
     public void appType() {
         assertThat(p2PRestApp.getAppType()).isEqualTo(AppType.P2P);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void noEnclave() {
-        ServiceLocator serviceLocator = mock(ServiceLocator.class);
-
-        Set services =
-                (Set) createServices().stream().filter(o -> !Enclave.class.isInstance(o)).collect(Collectors.toSet());
-
-        when(serviceLocator.getServices()).thenReturn(services);
-
-        new P2PRestApp(serviceLocator);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void noPartyInfoService() {
-        ServiceLocator serviceLocator = mock(ServiceLocator.class);
-
-        Set services =
-                (Set)
-                        createServices().stream()
-                                .filter(o -> !PartyInfoService.class.isInstance(o))
-                                .collect(Collectors.toSet());
-
-        when(serviceLocator.getServices()).thenReturn(services);
-
-        new P2PRestApp(serviceLocator);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void noConfig() {
-        ServiceLocator serviceLocator = mock(ServiceLocator.class);
-
-        Set services =
-                (Set) createServices().stream().filter(o -> !Config.class.isInstance(o)).collect(Collectors.toSet());
-
-        when(serviceLocator.getServices()).thenReturn(services);
-
-        new P2PRestApp(serviceLocator);
     }
 
     private Set createServices() {

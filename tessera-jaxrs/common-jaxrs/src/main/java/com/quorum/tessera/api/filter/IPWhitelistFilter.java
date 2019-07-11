@@ -1,9 +1,9 @@
 package com.quorum.tessera.api.filter;
 
 import com.quorum.tessera.admin.ConfigService;
+import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.io.IOCallback;
-import com.quorum.tessera.service.locator.ServiceLocator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -11,7 +11,6 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.net.URL;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -36,13 +35,11 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
     private HttpServletRequest httpServletRequest;
 
     public IPWhitelistFilter() {
-        this(ServiceLocator.create().getServices().stream()
-                .filter(ConfigService.class::isInstance)
-                .map(ConfigService.class::cast).findAny().get());
+        this(ServiceFactory.create().configService());
     }
-    
-    public IPWhitelistFilter(ConfigService configService) {
-        this.configService = Objects.requireNonNull(configService);
+
+    protected IPWhitelistFilter(ConfigService configService) {
+        this.configService = configService;
         this.disabled = !configService.isUseWhiteList();
     }
 

@@ -1,7 +1,7 @@
 package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.model.*;
-import com.quorum.tessera.service.locator.ServiceLocator;
+import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -40,12 +40,7 @@ public class TransactionResource {
     private final TransactionManager delegate;
 
     public TransactionResource() {
-        this(
-                ServiceLocator.create().getServices().stream()
-                        .filter(TransactionManager.class::isInstance)
-                        .map(TransactionManager.class::cast)
-                        .findAny()
-                        .get());
+        this(ServiceFactory.create().transactionManager());
     }
 
     public TransactionResource(TransactionManager delegate) {
