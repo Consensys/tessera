@@ -3,9 +3,8 @@ package com.quorum.tessera.sync.model;
 import com.quorum.tessera.partyinfo.model.Party;
 
 /**
- * A SyncableParty is a {@link Party} that is to be contacted for transaction
- * synchronisation. The number of contact attempts is stored alongside the
- * party.
+ * A SyncableParty is a {@link Party} that is to be contacted for transaction synchronisation. The number of contact
+ * attempts is stored alongside the party.
  */
 public class SyncableParty {
 
@@ -25,5 +24,4 @@ public class SyncableParty {
     public int getAttempts() {
         return attempts;
     }
-
 }

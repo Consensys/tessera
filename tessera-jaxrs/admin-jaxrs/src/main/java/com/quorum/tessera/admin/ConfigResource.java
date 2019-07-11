@@ -4,8 +4,8 @@ import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.service.locator.ServiceLocator;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -33,20 +33,12 @@ public class ConfigResource {
     private final PartyInfoService partyInfoService;
 
     public ConfigResource() {
-        Set<Object> services = ServiceLocator.create().getServices();
-        this.configService =
-                services.stream()
-                        .filter(ConfigService.class::isInstance)
-                        .map(ConfigService.class::cast)
-                        .findAny()
-                        .get();
 
-        this.partyInfoService =
-                services.stream()
-                        .filter(PartyInfoService.class::isInstance)
-                        .map(PartyInfoService.class::cast)
-                        .findAny()
-                        .get();
+        ServiceFactory serviceFactory = ServiceFactory.create();
+
+        this.configService = serviceFactory.configService();
+
+        this.partyInfoService = serviceFactory.partyInfoService();
     }
 
     public ConfigResource(final ConfigService configService, final PartyInfoService partyInfoService) {

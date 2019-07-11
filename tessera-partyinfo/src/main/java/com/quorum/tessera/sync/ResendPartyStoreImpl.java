@@ -5,9 +5,7 @@ import com.quorum.tessera.sync.model.SyncableParty;
 
 import java.util.*;
 
-/**
- * An in-memory store of outstanding parties to contact for transaction resending
- */
+/** An in-memory store of outstanding parties to contact for transaction resending */
 public class ResendPartyStoreImpl implements ResendPartyStore {
 
     private Set<Party> allSeenParties;
@@ -25,10 +23,7 @@ public class ResendPartyStoreImpl implements ResendPartyStore {
         knownParties.removeAll(allSeenParties);
         this.allSeenParties.addAll(knownParties);
 
-        knownParties
-            .stream()
-            .map(party -> new SyncableParty(party, 0))
-            .forEach(outstandingParties::add);
+        knownParties.stream().map(party -> new SyncableParty(party, 0)).forEach(outstandingParties::add);
     }
 
     @Override
@@ -40,13 +35,10 @@ public class ResendPartyStoreImpl implements ResendPartyStore {
     public void incrementFailedAttempt(final SyncableParty attemptedParty) {
 
         if (attemptedParty.getAttempts() < MAX_ATTEMPTS) {
-            final SyncableParty updatedParty = new SyncableParty(
-                attemptedParty.getParty(), attemptedParty.getAttempts() + 1
-            );
+            final SyncableParty updatedParty =
+                    new SyncableParty(attemptedParty.getParty(), attemptedParty.getAttempts() + 1);
 
             this.outstandingParties.add(updatedParty);
         }
-
     }
-
 }
