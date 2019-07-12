@@ -1,5 +1,6 @@
 package com.jpmorgan.quorum.tessera.sync;
 
+import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.Party;
@@ -8,7 +9,6 @@ import com.quorum.tessera.partyinfo.model.Recipient;
 import java.net.URI;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.Optional;
 import javax.websocket.ContainerProvider;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
@@ -29,12 +29,16 @@ public class PartyInfoSyncIT {
 
     private Server server;
 
+    private MockServiceLocator mockServiceLocator;
+
     @Before
     public void onSetUp() throws Exception {
 
+        mockServiceLocator = MockServiceLocator.createMockServiceLocator();
+
         partyInfoService = mock(PartyInfoService.class);
 
-        Optional.of(partyInfoService).map(PartyInfoServiceHolder::new).get();
+        mockServiceLocator.setServices(Collections.singleton(partyInfoService));
 
         server = new Server("localhost", 8025, "/", null, PartyInfoEndpoint.class);
         server.start();

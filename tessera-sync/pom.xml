@@ -28,8 +28,13 @@
     </dependencyManagement>
     
     <dependencies>
-
-        
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>mock-service-locator</artifactId>
+            <version>0.10-SNAPSHOT</version>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
@@ -42,6 +47,12 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-partyinfo</artifactId>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>tessera-core</artifactId>
             <type>jar</type>
         </dependency>
 

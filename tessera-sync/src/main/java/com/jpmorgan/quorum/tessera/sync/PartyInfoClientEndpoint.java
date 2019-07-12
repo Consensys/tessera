@@ -1,5 +1,6 @@
 package com.jpmorgan.quorum.tessera.sync;
 
+import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import java.net.URI;
@@ -16,12 +17,18 @@ import javax.websocket.WebSocketContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ClientEndpoint(decoders = PartyInfoCodec.class, encoders = PartyInfoCodec.class)
+@ClientEndpoint(
+        decoders = {SyncRequestMessageCodec.class, SyncResponseMessageCodec.class},
+        encoders = {SyncRequestMessageCodec.class, SyncResponseMessageCodec.class})
 public class PartyInfoClientEndpoint extends ClientEndpointConfig.Configurator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoClientEndpoint.class);
 
     private final PartyInfoService partyInfoService;
+
+    public PartyInfoClientEndpoint() {
+        this(ServiceFactory.create().partyInfoService());
+    }
 
     public PartyInfoClientEndpoint(PartyInfoService partyInfoService) {
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
