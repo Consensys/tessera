@@ -68,6 +68,7 @@ public class ServiceFactoryTest {
         assertThat(partyInfoService).isNotNull();
     }
 
+    @Test
     public void encryptedTransactionDAO() {
         EncryptedTransactionDAO encryptedTransactionDAO = serviceFactory.encryptedTransactionDAO();
         assertThat(encryptedTransactionDAO).isNotNull();
