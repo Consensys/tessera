@@ -1,10 +1,13 @@
 package com.jpmorgan.quorum.tessera.sync;
 
+import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.transaction.EncryptedTransactionDAO;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
+import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.After;
@@ -21,15 +24,19 @@ public class PartyInfoEndpointTest {
     private PartyInfoService partyInfoService;
 
     private EncryptedTransactionDAO encryptedTransactionDAO;
-    
+
+    private Enclave enclave;
+
     @Before
     public void onSetUp() {
 
+        enclave = mock(Enclave.class);
+
         partyInfoService = mock(PartyInfoService.class);
-        
+
         encryptedTransactionDAO = mock(EncryptedTransactionDAO.class);
-        
-        partyInfoEndpoint = new PartyInfoEndpoint(partyInfoService,encryptedTransactionDAO);
+
+        partyInfoEndpoint = new PartyInfoEndpoint(partyInfoService, encryptedTransactionDAO, enclave);
         session = mock(Session.class);
         when(session.getId()).thenReturn(UUID.randomUUID().toString());
     }
@@ -56,19 +63,21 @@ public class PartyInfoEndpointTest {
         verify(partyInfoService).removeRecipient(uri);
     }
 
-    //    @Test
-    //    public void onSync() throws Exception {
-    //
-    //        PartyInfo partyInfo = mock(PartyInfo.class);
-    //
-    //        PartyInfo updatedPartyInfo = mock(PartyInfo.class);
-    //
-    //        when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(updatedPartyInfo);
-    //
-    //        PartyInfo result = partyInfoEndpoint.onSync(session, null);
-    //
-    //        assertThat(result).isNotNull().isSameAs(updatedPartyInfo);
-    //
-    //        verify(partyInfoService).updatePartyInfo(partyInfo);
-    //    }
+    @Test
+    public void onSync() throws Exception {
+
+        PartyInfo partyInfo = Fixtures.samplePartyInfo();
+
+        when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(partyInfo);
+
+        SyncRequestMessage syncRequestMessage = SyncRequestMessage.Builder.create().withPartyInfo(partyInfo).build();
+
+        Basic basic = mock(Basic.class);
+        when(session.getBasicRemote()).thenReturn(basic);
+
+        partyInfoEndpoint.onSync(session, syncRequestMessage);
+
+        verify(basic).sendObject(any(SyncResponseMessage.class));
+        verify(partyInfoService).updatePartyInfo(partyInfo);
+    }
 }

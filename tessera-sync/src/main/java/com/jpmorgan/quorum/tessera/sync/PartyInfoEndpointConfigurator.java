@@ -10,7 +10,11 @@ public class PartyInfoEndpointConfigurator extends ServerEndpointConfig.Configur
     @Override
     public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
         if (PartyInfoEndpoint.class.isAssignableFrom(endpointClass)) {
-            return (T) new PartyInfoEndpoint(serviceFactory.partyInfoService(),serviceFactory.encryptedTransactionDAO());
+            return (T)
+                    new PartyInfoEndpoint(
+                            serviceFactory.partyInfoService(),
+                            serviceFactory.encryptedTransactionDAO(),
+                            serviceFactory.enclave());
         }
         throw new InstantiationException(endpointClass + " is not a supported type. ");
     }

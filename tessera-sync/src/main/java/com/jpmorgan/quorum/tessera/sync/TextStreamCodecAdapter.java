@@ -6,8 +6,7 @@ import javax.websocket.Encoder;
 import javax.websocket.EndpointConfig;
 
 
-public abstract class CodecAdapter<T> implements Decoder.TextStream<T>, Encoder.TextStream<T>  {
-
+public abstract class TextStreamCodecAdapter<T> implements Decoder.TextStream<T>, Encoder.TextStream<T> {
 
     @Override
     public void init(EndpointConfig config) {
@@ -17,6 +16,4 @@ public abstract class CodecAdapter<T> implements Decoder.TextStream<T>, Encoder.
     public void destroy() {
     }
 
-
-    
 }

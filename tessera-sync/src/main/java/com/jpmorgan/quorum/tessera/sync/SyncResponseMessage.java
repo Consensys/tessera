@@ -6,15 +6,28 @@ import java.util.Objects;
 
 public class SyncResponseMessage {
 
+    public enum Type {
+        PARTY_INFO,
+        TRANSACTION_SYNC;
+    }
+
+    private final Type type;
+
     private final PartyInfo partyInfo;
 
-    private final long transactionOffset;
+    private final Long transactionOffset;
 
-    private final long transactionCount;
+    private final Long transactionCount;
 
     private final EncodedPayload transactions;
 
-    public SyncResponseMessage(PartyInfo partyInfo, long transactionOffset, long transactionCount, EncodedPayload transactions) {
+    private SyncResponseMessage(
+            Type type,
+            PartyInfo partyInfo,
+            Long transactionOffset,
+            Long transactionCount,
+            EncodedPayload transactions) {
+        this.type = type;
         this.partyInfo = partyInfo;
         this.transactionOffset = transactionOffset;
         this.transactionCount = transactionCount;
@@ -25,11 +38,11 @@ public class SyncResponseMessage {
         return partyInfo;
     }
 
-    public long getTransactionOffset() {
+    public Long getTransactionOffset() {
         return transactionOffset;
     }
 
-    public long getTransactionCount() {
+    public Long getTransactionCount() {
         return transactionCount;
     }
 
@@ -37,7 +50,13 @@ public class SyncResponseMessage {
         return transactions;
     }
 
+    public Type getType() {
+        return type;
+    }
+
     public static class Builder {
+
+        private Type type;
 
         private PartyInfo partyInfo;
 
@@ -47,20 +66,27 @@ public class SyncResponseMessage {
 
         private EncodedPayload transactions;
 
-        private Builder() {
+        private Builder(Type type) {
+            this.type = type;
         }
 
-        public static Builder create() {
-            return new Builder();
+        public static Builder create(Type type) {
+            return new Builder(type);
         }
 
         public SyncResponseMessage build() {
-            
-            Objects.requireNonNull(partyInfo);
+            Objects.requireNonNull(type);
+
+            if (type == Type.PARTY_INFO) {
+                Objects.requireNonNull(partyInfo);
+                return new SyncResponseMessage(type, partyInfo, null, null, null);
+            }
+
             Objects.requireNonNull(transactionOffset);
             Objects.requireNonNull(transactionCount);
-            //TODO: validate counts/offsets and list size
-            return new SyncResponseMessage(partyInfo, transactionOffset, transactionCount, transactions);
+            Objects.requireNonNull(transactions);
+            // TODO: validate counts/offsets and list size
+            return new SyncResponseMessage(type, null, transactionOffset, transactionCount, transactions);
         }
 
         public Builder withPartyInfo(PartyInfo partyInfo) {
@@ -82,7 +108,5 @@ public class SyncResponseMessage {
             this.transactionOffset = transactionOffset;
             return this;
         }
-
     }
-
 }

@@ -46,11 +46,13 @@ public class PartyInfoEndpoint {
 
     private final EncryptedTransactionDAO encryptedTransactionDAO;
 
-    private Enclave enclave;
+    private final Enclave enclave;
 
-    public PartyInfoEndpoint(PartyInfoService partyInfoService,EncryptedTransactionDAO encryptedTransactionDAO) {
+    public PartyInfoEndpoint(
+            PartyInfoService partyInfoService, EncryptedTransactionDAO encryptedTransactionDAO, Enclave enclave) {
         this.partyInfoService = partyInfoService;
         this.encryptedTransactionDAO = encryptedTransactionDAO;
+        this.enclave = enclave;
     }
 
     @OnOpen
@@ -68,9 +70,16 @@ public class PartyInfoEndpoint {
 
         PartyInfo mergedPartyInfo = partyInfoService.updatePartyInfo(partyInfo);
 
-        PublicKey recipientPublicKey = PublicKey.from("".getBytes());
+        SyncResponseMessage partyInfoResponseMessage =
+                SyncResponseMessage.Builder.create(SyncResponseMessage.Type.PARTY_INFO)
+                        .withPartyInfo(mergedPartyInfo)
+                        .build();
 
-        this.resendTransactions(recipientPublicKey, mergedPartyInfo, session);
+        session.getBasicRemote().sendObject(partyInfoResponseMessage);
+
+        // PublicKey recipientPublicKey = PublicKey.from("".getBytes());
+
+        // this.resendTransactions(recipientPublicKey, mergedPartyInfo, session);
     }
 
     @OnClose
@@ -139,8 +148,7 @@ public class PartyInfoEndpoint {
                                 }
 
                                 final SyncResponseMessage syncResponseMessage =
-                                        SyncResponseMessage.Builder.create()
-                                                .withPartyInfo(mergedPartyInfo)
+                                        SyncResponseMessage.Builder.create(SyncResponseMessage.Type.TRANSACTION_SYNC)
                                                 .withTransactionCount(transactionCount)
                                                 .withTransactionOffset(transactionCount)
                                                 .withTransactions(payload)
