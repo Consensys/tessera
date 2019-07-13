@@ -1,11 +1,13 @@
 package com.jpmorgan.quorum.tessera.sync;
 
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 import javax.json.JsonWriter;
 import javax.websocket.DecodeException;
@@ -18,21 +20,42 @@ public class SyncRequestMessageCodec extends TextStreamCodecAdapter<SyncRequestM
 
         try (JsonReader jsonReader = Json.createReader(reader)) {
             final JsonObject json = jsonReader.readObject();
-            final String partyInfoData = json.getString("partyInfo");
-            final PartyInfo partyInfo = MessageUtil.decodePartyInfoFromBase64(partyInfoData);
 
-            return SyncRequestMessage.Builder.create().withPartyInfo(partyInfo).build();
+            SyncRequestMessage.Type type = SyncRequestMessage.Type.valueOf(json.getString("type"));
+            SyncRequestMessage.Builder messageBuilder = SyncRequestMessage.Builder.create(type);
+
+            if (type == SyncRequestMessage.Type.PARTY_INFO) {
+                final String partyInfoData = json.getString("partyInfo");
+                final PartyInfo partyInfo = MessageUtil.decodePartyInfoFromBase64(partyInfoData);
+
+                messageBuilder.withPartyInfo(partyInfo);
+            }
+
+            if (type == SyncRequestMessage.Type.TRANSACTION_PUSH) {
+                final String transactionData = json.getString("transactions");
+                final EncodedPayload transaction = MessageUtil.decodeTransactionsFromBase64(transactionData);
+                messageBuilder.withTransactions(transaction);
+            }
+
+            return messageBuilder.build();
         }
     }
 
     @Override
-    public void encode(SyncRequestMessage object, Writer writer) throws EncodeException, IOException {
+    public void encode(SyncRequestMessage syncRequestMessage, Writer writer) throws EncodeException, IOException {
 
-        JsonObject json =
-                Json.createObjectBuilder().add("partyInfo", MessageUtil.encodeToBase64(object.getPartyInfo())).build();
+        JsonObjectBuilder jsonObjectBuilder =
+                Json.createObjectBuilder().add("type", syncRequestMessage.getType().name());
+
+        final JsonObject json;
+        if (syncRequestMessage.getType() == SyncRequestMessage.Type.PARTY_INFO) {
+            jsonObjectBuilder.add("partyInfo", MessageUtil.encodeToBase64(syncRequestMessage.getPartyInfo()));
+        } else {
+            jsonObjectBuilder.add("transactions", MessageUtil.encodeToBase64(syncRequestMessage.getTransactions()));
+        }
 
         try (JsonWriter jsonWriter = Json.createWriter(writer)) {
-            jsonWriter.writeObject(json);
+            jsonWriter.writeObject(jsonObjectBuilder.build());
         }
     }
 }

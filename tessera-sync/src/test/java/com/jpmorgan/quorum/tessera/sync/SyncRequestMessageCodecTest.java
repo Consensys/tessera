@@ -3,6 +3,7 @@ package com.jpmorgan.quorum.tessera.sync;
 import org.junit.Before;
 import org.junit.Test;
 import static com.jpmorgan.quorum.tessera.sync.Fixtures.*;
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import java.io.Reader;
 import java.io.StringReader;
@@ -24,13 +25,14 @@ public class SyncRequestMessageCodecTest {
     }
 
     @Test
-    public void encode() throws Exception {
+    public void encodePartyInfo() throws Exception {
 
         PartyInfo samplePartyInfo = samplePartyInfo();
 
-        SyncRequestMessage syncRequestMessage = SyncRequestMessage.Builder.create()
-                .withPartyInfo(samplePartyInfo)
-                .build();
+        SyncRequestMessage syncRequestMessage =
+                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO)
+                        .withPartyInfo(samplePartyInfo)
+                        .build();
 
         try (Writer writer = new StringWriter()) {
 
@@ -45,24 +47,48 @@ public class SyncRequestMessageCodecTest {
                 String expected = MessageUtil.encodeToBase64(samplePartyInfo);
 
                 assertThat(result.getString("partyInfo")).isEqualTo(expected);
+                assertThat(result.getString("type")).isEqualTo(SyncRequestMessage.Type.PARTY_INFO.name());
             }
         }
     }
 
     @Test
-    public void decode() throws Exception {
+    public void decodePartyInfo() throws Exception {
 
         PartyInfo samplePartyInfo = samplePartyInfo();
-        
-        String data = Json.createObjectBuilder().add("partyInfo", MessageUtil.encodeToBase64(samplePartyInfo)).build().toString();
+
+        String data =
+                Json.createObjectBuilder()
+                        .add("type", SyncRequestMessage.Type.PARTY_INFO.name())
+                        .add("partyInfo", MessageUtil.encodeToBase64(samplePartyInfo))
+                        .build()
+                        .toString();
 
         try (Reader reader = new StringReader(data)) {
 
             SyncRequestMessage result = syncRequestMessageCodec.decode(reader);
 
             assertThat(refEq(result)).isEqualTo(refEq(samplePartyInfo));
-            
         }
     }
 
+    @Test
+    public void decodeTransactions() throws Exception {
+
+        EncodedPayload sampleTransactions = samplePayload();
+
+        String data =
+                Json.createObjectBuilder()
+                        .add("type", SyncRequestMessage.Type.TRANSACTION_PUSH.name())
+                        .add("transactions", MessageUtil.encodeToBase64(sampleTransactions))
+                        .build()
+                        .toString();
+
+        try (Reader reader = new StringReader(data)) {
+
+            SyncRequestMessage result = syncRequestMessageCodec.decode(reader);
+
+            assertThat(refEq(result)).isEqualTo(refEq(sampleTransactions));
+        }
+    }
 }

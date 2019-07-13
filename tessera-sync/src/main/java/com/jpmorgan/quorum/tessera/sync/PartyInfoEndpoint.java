@@ -64,6 +64,8 @@ public class PartyInfoEndpoint {
     @OnMessage
     public void onSync(Session session, SyncRequestMessage syncRequestMessage) throws IOException, EncodeException {
 
+        if (syncRequestMessage.getType() == SyncRequestMessage.Type.TRANSACTION_PUSH) {}
+
         PartyInfo partyInfo = syncRequestMessage.getPartyInfo();
 
         LOGGER.info("Message {}", partyInfo.getUrl());

@@ -70,7 +70,8 @@ public class PartyInfoEndpointTest {
 
         when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(partyInfo);
 
-        SyncRequestMessage syncRequestMessage = SyncRequestMessage.Builder.create().withPartyInfo(partyInfo).build();
+        SyncRequestMessage syncRequestMessage =
+                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO).withPartyInfo(partyInfo).build();
 
         Basic basic = mock(Basic.class);
         when(session.getBasicRemote()).thenReturn(basic);
