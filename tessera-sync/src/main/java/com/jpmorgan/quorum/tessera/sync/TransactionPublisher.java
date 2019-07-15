@@ -21,12 +21,15 @@ public class TransactionPublisher implements PayloadPublisher {
 
     private final ConcurrentMap<PublicKey, List<Session>> sessions = new ConcurrentHashMap<>();
 
+    private final PartyInfoClientEndpoint partyInfoClientEndpoint;
+    
     public TransactionPublisher() {
         this(ServiceFactory.create().partyInfoService());
     }
 
     public TransactionPublisher(PartyInfoService partyInfoService) {
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
+        this.partyInfoClientEndpoint = new PartyInfoClientEndpoint(partyInfoService);
     }
 
     @Override
@@ -53,7 +56,7 @@ public class TransactionPublisher implements PayloadPublisher {
                 .map(URI::create)
                 .map(u -> {
                     return WebSocketSessionCallback.execute(() -> {
-                        return container.connectToServer(PartyInfoClientEndpoint.class, u);
+                        return container.connectToServer(partyInfoClientEndpoint, u);
                     });
                 }).collect(Collectors.toList());
 
