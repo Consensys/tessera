@@ -130,8 +130,9 @@ public class EncryptedTransactionDAOTest {
                 ).peek(entityManager::persist)
                 .collect(Collectors.toList());
 
-            final List<EncryptedTransaction> retrievedList = encryptedTransactionDAO.retrieveAllTransactions();
+            final List<EncryptedTransaction> retrievedList = encryptedTransactionDAO.retrieveTransactions(0, Integer.MAX_VALUE);
 
+            assertThat(encryptedTransactionDAO.transactionCount()).isEqualTo(payloads.size());
             assertThat(retrievedList).hasSameSizeAs(payloads);
             assertThat(retrievedList).hasSameElementsAs(payloads);
 
@@ -304,8 +305,9 @@ public class EncryptedTransactionDAOTest {
                 ).peek(entityManager::persist)
                 .collect(Collectors.toList());
 
-            final List<EncryptedTransaction> retrievedList = encryptedTransactionDAO.retrieveAllTransactions();
+            final List<EncryptedTransaction> retrievedList = encryptedTransactionDAO.retrieveTransactions(0, Integer.MAX_VALUE);
 
+            assertThat(encryptedTransactionDAO.transactionCount()).isEqualTo(payloads.size());
             assertThat(retrievedList).hasSameSizeAs(payloads);
             assertThat(retrievedList).hasSameElementsAs(payloads);
 
@@ -479,8 +481,9 @@ public class EncryptedTransactionDAOTest {
                 ).peek(entityManager::persist)
                 .collect(Collectors.toList());
 
-            final List<EncryptedTransaction> retrievedList = encryptedTransactionDAO.retrieveAllTransactions();
+            final List<EncryptedTransaction> retrievedList = encryptedTransactionDAO.retrieveTransactions(0, Integer.MAX_VALUE);
 
+            assertThat(encryptedTransactionDAO.transactionCount()).isEqualTo(payloads.size());
             assertThat(retrievedList).hasSameSizeAs(payloads);
             assertThat(retrievedList).hasSameElementsAs(payloads);
 

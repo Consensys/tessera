@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tests</artifactId>
-        <version>0.10-SNAPSHOT</version>
+        <version>0.9.2</version>
     </parent>
 
     <dependencies>
@@ -18,24 +18,24 @@
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-app</artifactId>
             <classifier>app</classifier>
-            <version>0.10-SNAPSHOT</version>
-             <scope>test</scope>
+            <version>0.9.2</version>
+            <scope>test</scope>
         </dependency>
         
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-simple</artifactId>
             <classifier>app</classifier>
-            <version>0.10-SNAPSHOT</version>
-             <scope>test</scope>
+            <version>0.9.2</version>
+            <scope>test</scope>
         </dependency>
    
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-grpc</artifactId>
             <classifier>app</classifier>
-            <version>0.10-SNAPSHOT</version>
-             <scope>test</scope>
+            <version>0.9.2</version>
+            <scope>test</scope>
         </dependency>
    
         <dependency>
@@ -62,7 +62,7 @@
             <artifactId>config-migration</artifactId>
             <scope>test</scope>
             <classifier>cli</classifier>
-            <version>0.10-SNAPSHOT</version>
+            <version>0.9.2</version>
         </dependency>
 
         <dependency>

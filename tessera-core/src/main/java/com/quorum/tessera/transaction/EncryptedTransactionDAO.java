@@ -29,17 +29,26 @@ public interface EncryptedTransactionDAO {
     Optional<EncryptedTransaction> retrieveByHash(MessageHash hash);
 
     /**
-     * Retrieves a list of all transactions stored in the database
+     * Retrieves a list of transactions stored in the database
      *
-     * @return The list of all rows in the database
+     * @param offset the start offset
+     * @param maxResult the maximum number of records to return
+     * @return The list of requested rows from the database
      */
-    List<EncryptedTransaction> retrieveAllTransactions();
+    List<EncryptedTransaction> retrieveTransactions(int offset, int maxResult);
+
+    /**
+     * Retrieve the total transaction count.
+     *
+     * @return the transaction count
+     */
+    long transactionCount();
 
     /**
      * Deletes a transaction that has the given hash as its digest
      *
      * @param hash The hash of the message to be deleted
-     * @throws javax.persistence.EntityNotFoundException 
+     * @throws javax.persistence.EntityNotFoundException
      */
     void delete(MessageHash hash);
 
