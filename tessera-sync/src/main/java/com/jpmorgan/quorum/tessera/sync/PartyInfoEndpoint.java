@@ -3,7 +3,6 @@ package com.jpmorgan.quorum.tessera.sync;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.ResendRequest;
@@ -61,7 +60,7 @@ public class PartyInfoEndpoint {
 
         if (syncRequestMessage.getType() == SyncRequestMessage.Type.TRANSACTION_PUSH) {
             EncodedPayload payload = syncRequestMessage.getTransactions();
-            MessageHash messageHash = transactionManager.storePayload(PayloadEncoder.create().encode(payload));
+            transactionManager.storePayload(payloadEncoder.encode(payload));
             return;
         }
 

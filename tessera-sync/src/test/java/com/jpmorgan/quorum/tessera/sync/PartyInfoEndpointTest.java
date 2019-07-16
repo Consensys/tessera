@@ -1,6 +1,8 @@
 package com.jpmorgan.quorum.tessera.sync;
 
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.ResendRequest;
@@ -116,5 +118,21 @@ public class PartyInfoEndpointTest {
         assertThat(result.getPublicKey()).isEqualTo(recipientKey.encodeToBase64());
 
         verify(transactionManager).resend(any(ResendRequest.class));
+    }
+
+    @Test
+    public void onSyncTransactionPush() throws Exception {
+
+        EncodedPayload transactions = Fixtures.samplePayload();
+
+        SyncRequestMessage syncRequestMessage =
+                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.TRANSACTION_PUSH)
+                        .withTransactions(transactions)
+                        .build();
+
+        partyInfoEndpoint.onSync(session, syncRequestMessage);
+
+        byte[] expectedData = PayloadEncoder.create().encode(transactions);
+        verify(transactionManager).storePayload(expectedData);
     }
 }
