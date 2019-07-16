@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
+@Deprecated
+//TODO: Remove the p2p clint and related factories. 
 public interface P2pClientFactory {
 
     P2pClient create(Config config);
