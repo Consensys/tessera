@@ -2,6 +2,7 @@ package com.jpmorgan.quorum.tessera.sync;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import java.util.Base64;
@@ -21,6 +22,10 @@ public class MessageUtil {
         throw new UnsupportedOperationException("This class cannot be instantiated");
     }
 
+    public static PublicKey decodePublicKeyFromBase64(String publicKeyData) {
+        return Optional.of(publicKeyData).map(BASE64_DECODER::decode).map(PublicKey::from).get();
+    }
+
     public static EncodedPayload decodeTransactionsFromBase64(String transactionData) {
         return Optional.of(transactionData).map(BASE64_DECODER::decode).map(PAYLOAD_ENCODER::decode).get();
     }
@@ -35,5 +40,9 @@ public class MessageUtil {
 
     public static String encodeToBase64(EncodedPayload transactions) {
         return Optional.of(transactions).map(PAYLOAD_ENCODER::encode).map(BASE64_ENCODER::encodeToString).get();
+    }
+
+    public static String encodeToBase64(PublicKey publicKey) {
+        return publicKey.encodeToBase64();
     }
 }

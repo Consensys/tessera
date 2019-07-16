@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static com.jpmorgan.quorum.tessera.sync.Fixtures.*;
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import java.io.Reader;
 import java.io.StringReader;
@@ -53,6 +54,36 @@ public class SyncRequestMessageCodecTest {
     }
 
     @Test
+    public void encodeTransactions() throws Exception {
+
+        EncodedPayload sampleTransactions = samplePayload();
+
+        SyncRequestMessage syncRequestMessage =
+                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.TRANSACTION_PUSH)
+                        .withTransactions(sampleTransactions)
+                        .withRecipientKey(sampleKey())
+                        .build();
+
+        try (Writer writer = new StringWriter()) {
+
+            syncRequestMessageCodec.encode(syncRequestMessage, writer);
+
+            String resultData = writer.toString();
+
+            try (JsonReader jsonReader = Json.createReader(new StringReader(resultData))) {
+
+                JsonObject result = jsonReader.readObject();
+
+                String expected = MessageUtil.encodeToBase64(sampleTransactions);
+
+                assertThat(result.getString("recipientKey")).isEqualTo(sampleKey().encodeToBase64());
+                assertThat(result.getString("transactions")).isEqualTo(expected);
+                assertThat(result.getString("type")).isEqualTo(SyncRequestMessage.Type.TRANSACTION_PUSH.name());
+            }
+        }
+    }
+
+    @Test
     public void decodePartyInfo() throws Exception {
 
         PartyInfo samplePartyInfo = samplePartyInfo();
@@ -80,6 +111,7 @@ public class SyncRequestMessageCodecTest {
         String data =
                 Json.createObjectBuilder()
                         .add("type", SyncRequestMessage.Type.TRANSACTION_PUSH.name())
+                        .add("recipientKey", PublicKey.from("HELLOW".getBytes()).encodeToBase64())
                         .add("transactions", MessageUtil.encodeToBase64(sampleTransactions))
                         .build()
                         .toString();
@@ -87,7 +119,8 @@ public class SyncRequestMessageCodecTest {
         try (Reader reader = new StringReader(data)) {
 
             SyncRequestMessage result = syncRequestMessageCodec.decode(reader);
-
+            assertThat(result.getType()).isEqualTo(SyncRequestMessage.Type.TRANSACTION_PUSH);
+            assertThat(result.getTransactions()).isNotNull();
             assertThat(refEq(result)).isEqualTo(refEq(sampleTransactions));
         }
     }

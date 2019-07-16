@@ -3,7 +3,7 @@ package com.jpmorgan.quorum.tessera.sync;
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.transaction.EncryptedTransactionDAO;
+import com.quorum.tessera.transaction.TransactionManager;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,8 +18,10 @@ public class PartyInfoEndpointConfiguratorTest {
 
         MockServiceLocator mockServiceLocator = MockServiceLocator.createMockServiceLocator();
 
-        Set services = Stream.of(Enclave.class, EncryptedTransactionDAO.class, PartyInfoService.class)
-                .map(Mockito::mock).collect(Collectors.toSet());
+        Set services =
+                Stream.of(Enclave.class, TransactionManager.class, PartyInfoService.class)
+                        .map(Mockito::mock)
+                        .collect(Collectors.toSet());
 
         mockServiceLocator.setServices(services);
 
@@ -30,7 +32,6 @@ public class PartyInfoEndpointConfiguratorTest {
         assertThat(endpoint).isNotNull();
 
         services.forEach(Mockito::verifyZeroInteractions);
-
     }
 
     @Test(expected = InstantiationException.class)
@@ -40,6 +41,5 @@ public class PartyInfoEndpointConfiguratorTest {
         partyInfoEndpointConfigurator.getEndpointInstance(BogusEndpoint.class);
     }
 
-    static class BogusEndpoint {
-    }
+    static class BogusEndpoint {}
 }

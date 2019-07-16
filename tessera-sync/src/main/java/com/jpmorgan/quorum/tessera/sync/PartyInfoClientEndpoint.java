@@ -1,13 +1,11 @@
 package com.jpmorgan.quorum.tessera.sync;
 
+import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
-import java.util.List;
+import com.quorum.tessera.transaction.TransactionManager;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
 import javax.websocket.OnClose;
@@ -26,10 +24,19 @@ public class PartyInfoClientEndpoint {
 
     private final PartyInfoService partyInfoService;
 
-    private final ConcurrentMap<PublicKey, List<Session>> sessions = new ConcurrentHashMap<>();
+    private final TransactionManager transactionManager;
 
-    public PartyInfoClientEndpoint(PartyInfoService partyInfoService) {
+    public PartyInfoClientEndpoint() {
+        this(ServiceFactory.create());
+    }
+
+    public PartyInfoClientEndpoint(ServiceFactory serviceFactory) {
+        this(serviceFactory.partyInfoService(), serviceFactory.transactionManager());
+    }
+
+    public PartyInfoClientEndpoint(PartyInfoService partyInfoService, TransactionManager transactionManager) {
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
+        this.transactionManager = Objects.requireNonNull(transactionManager);
     }
 
     @OnOpen
@@ -51,9 +58,9 @@ public class PartyInfoClientEndpoint {
 
         if (response.getType() == SyncResponseMessage.Type.TRANSACTION_SYNC) {
 
-            Long transactionCount = response.getTransactionCount();
-            Long transactionOffset = response.getTransactionOffset();
             EncodedPayload encodedPayload = response.getTransactions();
+
+            transactionManager.storePayload(encodedPayload.getCipherText());
         }
     }
 

@@ -33,8 +33,10 @@ public class SyncRequestMessageCodec extends TextStreamCodecAdapter<SyncRequestM
 
             if (type == SyncRequestMessage.Type.TRANSACTION_PUSH) {
                 final String transactionData = json.getString("transactions");
+                final String recipientKey = json.getString("recipientKey");
                 final EncodedPayload transaction = MessageUtil.decodeTransactionsFromBase64(transactionData);
                 messageBuilder.withTransactions(transaction);
+                messageBuilder.withRecipientKey(MessageUtil.decodePublicKeyFromBase64(recipientKey));
             }
 
             return messageBuilder.build();
@@ -47,11 +49,12 @@ public class SyncRequestMessageCodec extends TextStreamCodecAdapter<SyncRequestM
         JsonObjectBuilder jsonObjectBuilder =
                 Json.createObjectBuilder().add("type", syncRequestMessage.getType().name());
 
-        final JsonObject json;
         if (syncRequestMessage.getType() == SyncRequestMessage.Type.PARTY_INFO) {
             jsonObjectBuilder.add("partyInfo", MessageUtil.encodeToBase64(syncRequestMessage.getPartyInfo()));
         } else {
-            jsonObjectBuilder.add("transactions", MessageUtil.encodeToBase64(syncRequestMessage.getTransactions()));
+            jsonObjectBuilder
+                    .add("transactions", MessageUtil.encodeToBase64(syncRequestMessage.getTransactions()))
+                    .add("recipientKey", MessageUtil.encodeToBase64(syncRequestMessage.getRecipientKey()));
         }
 
         try (JsonWriter jsonWriter = Json.createWriter(writer)) {

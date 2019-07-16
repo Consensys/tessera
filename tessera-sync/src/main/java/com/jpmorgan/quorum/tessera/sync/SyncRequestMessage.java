@@ -1,6 +1,7 @@
 package com.jpmorgan.quorum.tessera.sync;
 
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import java.util.Objects;
 
@@ -8,8 +9,11 @@ public class SyncRequestMessage {
 
     public enum Type {
         TRANSACTION_PUSH,
-        PARTY_INFO
+        PARTY_INFO,
+        TRANSACTION_SYNC
     }
+
+    private final PublicKey recipientKey;
 
     private final EncodedPayload transactions;
 
@@ -17,10 +21,11 @@ public class SyncRequestMessage {
 
     private final Type type;
 
-    private SyncRequestMessage(Type type, PartyInfo partyInfo, EncodedPayload transactions) {
+    private SyncRequestMessage(Type type, PartyInfo partyInfo, EncodedPayload transactions, PublicKey recipientKey) {
         this.partyInfo = partyInfo;
         this.type = type;
         this.transactions = transactions;
+        this.recipientKey = recipientKey;
     }
 
     public PartyInfo getPartyInfo() {
@@ -35,6 +40,10 @@ public class SyncRequestMessage {
         return type;
     }
 
+    public PublicKey getRecipientKey() {
+        return recipientKey;
+    }
+
     public static class Builder {
 
         private final Type type;
@@ -43,8 +52,15 @@ public class SyncRequestMessage {
 
         private EncodedPayload transactions;
 
+        private PublicKey recipientKey;
+
         private Builder(Type type) {
             this.type = type;
+        }
+
+        public Builder withRecipientKey(PublicKey recipientKey) {
+            this.recipientKey = recipientKey;
+            return this;
         }
 
         public Builder withPartyInfo(PartyInfo partyInfo) {
@@ -63,14 +79,20 @@ public class SyncRequestMessage {
 
         public SyncRequestMessage build() {
             Objects.requireNonNull(type);
+
             if (type == Type.PARTY_INFO) {
                 Objects.requireNonNull(partyInfo);
             }
 
             if (type == Type.TRANSACTION_PUSH) {
+
                 Objects.requireNonNull(transactions);
             }
-            return new SyncRequestMessage(type, partyInfo, transactions);
+
+            if (type == Type.TRANSACTION_SYNC) {
+                Objects.requireNonNull(recipientKey);
+            }
+            return new SyncRequestMessage(type, partyInfo, transactions, recipientKey);
         }
     }
 }

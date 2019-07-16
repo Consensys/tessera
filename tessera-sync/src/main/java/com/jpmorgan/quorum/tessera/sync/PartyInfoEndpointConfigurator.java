@@ -13,7 +13,7 @@ public class PartyInfoEndpointConfigurator extends ServerEndpointConfig.Configur
             return (T)
                     new PartyInfoEndpoint(
                             serviceFactory.partyInfoService(),
-                            serviceFactory.encryptedTransactionDAO(),
+                            serviceFactory.transactionManager(),
                             serviceFactory.enclave());
         }
         throw new InstantiationException(endpointClass + " is not a supported type. ");
