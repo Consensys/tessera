@@ -1,7 +1,6 @@
 package com.jpmorgan.quorum.tessera.sync;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
-import com.jpmorgan.quorum.mock.websocket.MockContainerProvider;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
@@ -12,7 +11,6 @@ import java.util.stream.Stream;
 import javax.websocket.CloseReason;
 import javax.websocket.CloseReason.CloseCodes;
 import javax.websocket.Session;
-import javax.websocket.WebSocketContainer;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
@@ -23,8 +21,6 @@ public class PartyInfoClientEndpointTest {
 
     private PartyInfoClientEndpoint partyInfoClientEndpoint;
 
-    private WebSocketContainer container;
-
     private PartyInfoService partyInfoService;
 
     private TransactionManager transactionManager;
@@ -34,12 +30,11 @@ public class PartyInfoClientEndpointTest {
         transactionManager = mock(TransactionManager.class);
         partyInfoService = mock(PartyInfoService.class);
         partyInfoClientEndpoint = new PartyInfoClientEndpoint(partyInfoService, transactionManager);
-        container = MockContainerProvider.getInstance();
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(partyInfoService, container, transactionManager);
+        verifyNoMoreInteractions(partyInfoService, transactionManager);
     }
 
     @Test
