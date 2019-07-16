@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 @Deprecated
-//TODO: Remove the p2p clint and related factories. 
+// TODO: Remove the p2p clint and related factories.
 public interface P2pClientFactory {
 
     P2pClient create(Config config);
@@ -21,8 +21,8 @@ public interface P2pClientFactory {
         ServiceLoader.load(P2pClientFactory.class).forEach(all::add);
 
         return all.stream()
-            .filter(c -> c.communicationType() == config.getP2PServerConfig().getCommunicationType())
-            .findFirst().get();
+                .filter(c -> c.communicationType() == config.getP2PServerConfig().getCommunicationType())
+                .findFirst()
+                .get();
     }
-
 }

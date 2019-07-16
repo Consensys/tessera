@@ -6,7 +6,10 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
+import com.quorum.tessera.transaction.EncryptedRawTransactionDAO;
 import com.quorum.tessera.transaction.EncryptedTransactionDAO;
+import com.quorum.tessera.transaction.PayloadPublisher;
+import com.quorum.tessera.transaction.ResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +34,9 @@ public class ServiceFactoryTest {
         services.add(mock(TransactionManager.class));
         services.add(mock(PartyInfoService.class));
         services.add(mock(EncryptedTransactionDAO.class));
+        services.add(mock(EncryptedRawTransactionDAO.class));
+        services.add(mock(ResendManager.class));
+        services.add(mock(PayloadPublisher.class));
 
         mockServiceLocator.setServices(services);
 
@@ -81,4 +87,22 @@ public class ServiceFactoryTest {
     }
 
     static class NonExistentService {}
+
+    @Test
+    public void findEncryptedRawTransactionDAO() {
+        EncryptedRawTransactionDAO encryptedRawTransactionDAO = serviceFactory.encryptedRawTransactionDAO();
+        assertThat(encryptedRawTransactionDAO).isNotNull();
+    }
+
+    @Test
+    public void findResendManager() {
+        ResendManager resendManager = serviceFactory.resendManager();
+        assertThat(resendManager).isNotNull();
+    }
+
+    @Test
+    public void findPayloadPublisher() {
+        PayloadPublisher payloadPublisher = serviceFactory.payloadPublisher();
+        assertThat(payloadPublisher).isNotNull();
+    }
 }

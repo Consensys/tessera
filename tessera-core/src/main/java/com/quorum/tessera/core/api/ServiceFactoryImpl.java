@@ -5,7 +5,10 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
+import com.quorum.tessera.transaction.EncryptedRawTransactionDAO;
 import com.quorum.tessera.transaction.EncryptedTransactionDAO;
+import com.quorum.tessera.transaction.PayloadPublisher;
+import com.quorum.tessera.transaction.ResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 
 public class ServiceFactoryImpl implements ServiceFactory {
@@ -50,5 +53,20 @@ public class ServiceFactoryImpl implements ServiceFactory {
     @Override
     public EncryptedTransactionDAO encryptedTransactionDAO() {
         return find(EncryptedTransactionDAO.class);
+    }
+
+    @Override
+    public EncryptedRawTransactionDAO encryptedRawTransactionDAO() {
+        return find(EncryptedRawTransactionDAO.class);
+    }
+
+    @Override
+    public ResendManager resendManager() {
+        return find(ResendManager.class);
+    }
+
+    @Override
+    public PayloadPublisher payloadPublisher() {
+        return find(PayloadPublisher.class);
     }
 }

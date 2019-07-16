@@ -1,12 +1,10 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.P2pClientFactory;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.transaction.exception.PublishPayloadException;
 import org.slf4j.Logger;
@@ -26,27 +24,15 @@ public class PayloadPublisherImpl implements PayloadPublisher {
 
     private final Enclave enclave;
 
-    public PayloadPublisherImpl() {
-        this(ServiceFactory.create());
-    }
-
-    private PayloadPublisherImpl(ServiceFactory serviceFactory) {
-        this(
-                PayloadEncoder.create(),
-                serviceFactory.partyInfoService(),
-                P2pClientFactory.newFactory(serviceFactory.config()).create(serviceFactory.config()),
-                serviceFactory.enclave());
-    }
-
     public PayloadPublisherImpl(
             final PayloadEncoder payloadEncoder,
             final PartyInfoService partyInfoService,
             final P2pClient p2pClient,
             final Enclave enclave) {
-        this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
-        this.partyInfoService = Objects.requireNonNull(partyInfoService);
-        this.p2pClient = Objects.requireNonNull(p2pClient);
-        this.enclave = Objects.requireNonNull(enclave);
+        this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
+        this.partyInfoService = Objects.requireNonNull(partyInfoService, "partyInfoService is required");
+        this.p2pClient = Objects.requireNonNull(p2pClient, "p2pClient is required");
+        this.enclave = Objects.requireNonNull(enclave, "enclave is required");
     }
 
     @Override

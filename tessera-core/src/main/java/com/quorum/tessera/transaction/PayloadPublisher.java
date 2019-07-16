@@ -1,6 +1,5 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
@@ -17,8 +16,4 @@ public interface PayloadPublisher {
      * @throws KeyNotFoundException if the target public key is not known
      */
     void publishPayload(EncodedPayload payload, PublicKey recipientKey);
-
-    static PayloadPublisher create() {
-        return ServiceLoaderUtil.load(PayloadPublisher.class).orElse(new PayloadPublisherImpl());
-    }
 }
