@@ -42,11 +42,6 @@ jobs:
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
 
-    - name: "GRPC Only Acceptance Tests"
-      jdk:  oraclejdk8
-      install: *build_no_checks
-      script: mvn verify -pl tests/acceptance-test -P grpc-acceptance-tests,reduce-logging -o || travis_terminate 1
-
     - name: "Simple Only Acceptance Tests"
       jdk:  oraclejdk8
       install: *build_no_checks
