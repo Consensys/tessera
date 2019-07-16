@@ -22,13 +22,8 @@
     </bean>
 
 
-    <bean id="payloadPublisher" class="com.quorum.tessera.transaction.PayloadPublisherImpl">
-        <constructor-arg ref="payloadEncoder" />
-        <constructor-arg ref="partyInfoService" />
-        <constructor-arg ref="p2pClient" />
-        <constructor-arg ref="enclave" />
-    </bean>
-
+    <bean id="payloadPublisher" class="com.quorum.tessera.transaction.PayloadPublisher" factory-method="create" />
+    
     <bean id="resendManager" class="com.quorum.tessera.transaction.ResendManagerImpl">
         <constructor-arg ref="encryptedTransactionDAO" />
         <constructor-arg ref="payloadEncoder" />

@@ -1,5 +1,10 @@
 package com.quorum.tessera.transaction;
 
+import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
+import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
@@ -7,7 +12,9 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.exception.PublishPayloadException;
+import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +22,9 @@ import org.junit.Test;
 import java.util.Collections;
 
 import static java.util.Collections.singletonList;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
@@ -57,10 +67,14 @@ public class PayloadPublisherTest {
 
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(RECIPIENT_KEY));
 
-        final EncodedPayload payload = new EncodedPayload(
-            PublicKey.from(EMPTY), EMPTY, new Nonce(EMPTY),
-            singletonList(EMPTY), new Nonce(EMPTY), singletonList(RECIPIENT_KEY)
-        );
+        final EncodedPayload payload =
+                new EncodedPayload(
+                        PublicKey.from(EMPTY),
+                        EMPTY,
+                        new Nonce(EMPTY),
+                        singletonList(EMPTY),
+                        new Nonce(EMPTY),
+                        singletonList(RECIPIENT_KEY));
 
         payloadPublisher.publishPayload(payload, RECIPIENT_KEY);
 
@@ -73,10 +87,14 @@ public class PayloadPublisherTest {
         final String url = "SOMEURL";
         when(partyInfoService.getURLFromRecipientKey(RECIPIENT_KEY)).thenReturn(url);
 
-        final EncodedPayload payload = new EncodedPayload(
-            PublicKey.from(EMPTY), EMPTY, new Nonce(EMPTY),
-            singletonList(EMPTY), new Nonce(EMPTY), singletonList(RECIPIENT_KEY)
-        );
+        final EncodedPayload payload =
+                new EncodedPayload(
+                        PublicKey.from(EMPTY),
+                        EMPTY,
+                        new Nonce(EMPTY),
+                        singletonList(EMPTY),
+                        new Nonce(EMPTY),
+                        singletonList(RECIPIENT_KEY));
 
         byte[] encodedBytes = "encodedBytes".getBytes();
         when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn(encodedBytes);
@@ -96,10 +114,14 @@ public class PayloadPublisherTest {
         final String url = "SOMEURL";
         when(partyInfoService.getURLFromRecipientKey(RECIPIENT_KEY)).thenReturn(url);
 
-        final EncodedPayload payload = new EncodedPayload(
-            PublicKey.from(EMPTY), EMPTY, new Nonce(EMPTY),
-            singletonList(EMPTY), new Nonce(EMPTY), singletonList(RECIPIENT_KEY)
-        );
+        final EncodedPayload payload =
+                new EncodedPayload(
+                        PublicKey.from(EMPTY),
+                        EMPTY,
+                        new Nonce(EMPTY),
+                        singletonList(EMPTY),
+                        new Nonce(EMPTY),
+                        singletonList(RECIPIENT_KEY));
 
         byte[] encodedBytes = "encodedBytes".getBytes();
         when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn(encodedBytes);
@@ -118,4 +140,20 @@ public class PayloadPublisherTest {
         verify(enclave).getPublicKeys();
     }
 
+    @Test
+    public void constructWithDefaultConstructorFromServiceLoader() throws Exception {
+        final MockServiceLocator serviceLocator = (MockServiceLocator) ServiceLocator.create();
+
+        final Config config = new Config();
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setCommunicationType(CommunicationType.REST);
+        serverConfig.setApp(AppType.P2P);
+        serverConfig.setEnabled(true);
+        config.setServerConfigs(Arrays.asList(serverConfig));
+
+        Set services = Stream.of(partyInfoService, enclave, config).collect(Collectors.toSet());
+        serviceLocator.setServices(services);
+
+        assertThat(PayloadPublisher.create()).isNotNull();
+    }
 }
