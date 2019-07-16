@@ -3,9 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
-        <artifactId>tessera</artifactId>
+        <artifactId>tessera-jaxrs</artifactId>
         <version>0.10-SNAPSHOT</version>
     </parent>
+    
     <artifactId>jaxrs-client</artifactId>
     <packaging>jar</packaging>
 

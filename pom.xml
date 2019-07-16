@@ -469,7 +469,6 @@
         <module>config-migration</module>
         <module>shared</module>
         <module>tessera-core</module>
-        <module>jaxrs-client</module>
         <module>key-vault</module>
         <module>key-generation</module>
         <module>ddls</module>
@@ -872,6 +871,14 @@
                 <artifactId>logback-core</artifactId>
                 <version>${logback.version}</version>
                 <scope>runtime</scope>
+            </dependency>
+            
+            <!-- Provided by slf4j --> 
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jcl</artifactId>
+                <version>${spring.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <!--

@@ -39,7 +39,11 @@
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-jetty</artifactId>
         </dependency>
-
+        
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>jaxrs-client</artifactId>
+        </dependency>
     </dependencies>
     
     <build>

@@ -15,10 +15,11 @@
             <artifactId>common-jaxrs</artifactId>
             <version>0.10-SNAPSHOT</version>
         </dependency>
+        
 
     </dependencies>
     
-        <build>
+    <build>
         <plugins>
             <plugin>
                 <groupId>com.github.kongchen</groupId>
