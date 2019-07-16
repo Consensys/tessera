@@ -7,7 +7,7 @@ import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.EncryptedRawTransactionDAO;
 import com.quorum.tessera.transaction.EncryptedTransactionDAO;
-import com.quorum.tessera.transaction.PayloadPublisher;
+import com.quorum.tessera.partyinfo.PayloadPublisher;
 import com.quorum.tessera.transaction.ResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 

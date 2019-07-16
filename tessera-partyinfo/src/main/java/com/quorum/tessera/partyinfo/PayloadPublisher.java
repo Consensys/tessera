@@ -1,4 +1,4 @@
-package com.quorum.tessera.transaction;
+package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.KeyNotFoundException;

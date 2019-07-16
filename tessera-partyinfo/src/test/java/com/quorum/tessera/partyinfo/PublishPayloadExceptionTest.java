@@ -1,5 +1,6 @@
-package com.quorum.tessera.transaction.exception;
+package com.quorum.tessera.partyinfo;
 
+import com.quorum.tessera.partyinfo.PublishPayloadException;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

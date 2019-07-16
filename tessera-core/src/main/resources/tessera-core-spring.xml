@@ -27,12 +27,7 @@
         <constructor-arg ref="enclave" />
     </bean>
     
-    <bean id="payloadPublisher" class="com.quorum.tessera.transaction.PayloadPublisherImpl">
-        <constructor-arg ref="payloadEncoder" />
-        <constructor-arg ref="partyInfoService" />
-        <constructor-arg ref="p2pClient" />
-        <constructor-arg ref="enclave" />
-    </bean>
+
     
     <bean id="transactionManager" class="com.quorum.tessera.transaction.TransactionManagerImpl">
         <constructor-arg ref="encryptedTransactionDAO" />

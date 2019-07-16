@@ -1,4 +1,4 @@
-package com.quorum.tessera.transaction.exception;
+package com.quorum.tessera.partyinfo;
 
 /**
  * An exception thrown when the target of a publish payload operation encounters an error

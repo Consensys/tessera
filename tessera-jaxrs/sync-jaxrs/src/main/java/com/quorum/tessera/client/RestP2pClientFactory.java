@@ -20,9 +20,7 @@ public class RestP2pClientFactory implements P2pClientFactory {
 
         Client client = clientFactory.buildFrom(config.getP2PServerConfig());
 
-        PostDelegate postDelegate = new PostDelegate(client);
-
-        return new RestP2pClient(postDelegate);
+        return new RestP2pClient(client);
     }
 
     @Override

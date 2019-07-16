@@ -4,7 +4,7 @@ import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.transaction.PayloadPublisher;
+import com.quorum.tessera.partyinfo.PayloadPublisher;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.net.URI;
 import java.util.List;

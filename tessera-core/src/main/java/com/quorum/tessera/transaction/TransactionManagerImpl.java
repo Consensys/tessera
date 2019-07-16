@@ -1,5 +1,6 @@
 package com.quorum.tessera.transaction;
 
+import com.quorum.tessera.partyinfo.PayloadPublisher;
 import com.quorum.tessera.partyinfo.ResendResponse;
 import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.partyinfo.ResendRequest;
@@ -10,7 +11,7 @@ import com.quorum.tessera.enclave.model.MessageHashFactory;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
-import com.quorum.tessera.transaction.exception.PublishPayloadException;
+import com.quorum.tessera.partyinfo.PublishPayloadException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.model.EncryptedRawTransaction;
 import com.quorum.tessera.transaction.model.EncryptedTransaction;
