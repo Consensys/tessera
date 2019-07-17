@@ -51,9 +51,9 @@
         </constructor-arg>
     </bean>
 
-    <bean name="encryptedTransactionDAO" class="com.quorum.tessera.transaction.EncryptedTransactionDAOImpl"/>
+    <bean name="encryptedTransactionDAO" class="com.quorum.tessera.data.EncryptedTransactionDAOImpl"/>
 
-    <bean name="encryptedRawTransactionDAO" class="com.quorum.tessera.transaction.EncryptedRawTransactionDAOImpl"/>
+    <bean name="encryptedRawTransactionDAO" class="com.quorum.tessera.data.EncryptedRawTransactionDAOImpl"/>
 
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
         <property name="jdbcUrl" value="#{ config.getJdbcConfig().getUrl() }" />

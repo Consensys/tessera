@@ -1,5 +1,4 @@
-package com.quorum.tessera.dao;
-
+package com.quorum.tessera.data.jpatest;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Bean;

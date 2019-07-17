@@ -1,9 +1,7 @@
-
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.enclave.model.MessageHash;
-import com.quorum.tessera.enclave.model.MessageHashFactory;
-
+import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.data.MessageHashFactory;
 
 public class MockMessageHashFactory implements MessageHashFactory {
 
@@ -11,5 +9,4 @@ public class MockMessageHashFactory implements MessageHashFactory {
     public MessageHash createFromCipherText(byte[] cipherText) {
         return new MessageHash(cipherText);
     }
-    
 }

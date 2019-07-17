@@ -6,7 +6,7 @@ import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.rule.impl.*;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
-import com.quorum.tessera.enclave.model.MessageHash;
+import com.quorum.tessera.data.MessageHash;
 import org.junit.Test;
 
 public class OpenPojoEntityTest {
@@ -14,18 +14,17 @@ public class OpenPojoEntityTest {
     @Test
     public void executeOpenPojoValidationsWithSetter() {
 
-        final Validator pojoValidator = ValidatorBuilder.create()
-                .with(new GetterMustExistRule())
-                .with(new SetterMustExistRule())
-                .with(new SetterTester())
-                .with(new GetterTester())
-                .with(new EqualsAndHashCodeMatchRule())
-                .with(new NoPrimitivesRule())
-                .with(new NoPublicFieldsExceptStaticFinalRule())
-                .build();
-   
-           pojoValidator.validate(PojoClassFactory.getPojoClass(MessageHash.class));
+        final Validator pojoValidator =
+                ValidatorBuilder.create()
+                        .with(new GetterMustExistRule())
+                        .with(new SetterMustExistRule())
+                        .with(new SetterTester())
+                        .with(new GetterTester())
+                        .with(new EqualsAndHashCodeMatchRule())
+                        .with(new NoPrimitivesRule())
+                        .with(new NoPublicFieldsExceptStaticFinalRule())
+                        .build();
+
+        pojoValidator.validate(PojoClassFactory.getPojoClass(MessageHash.class));
     }
-
-
 }

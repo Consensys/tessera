@@ -1,7 +1,6 @@
-package com.quorum.tessera.transaction.model;
+package com.quorum.tessera.data;
 
 import com.quorum.tessera.enclave.RawTransaction;
-import com.quorum.tessera.enclave.model.MessageHash;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
 
@@ -9,9 +8,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
-/**
- * The JPA entity that contains the raw transaction information
- */
+/** The JPA entity that contains the raw transaction information */
 @Entity
 @Table(name = "ENCRYPTED_RAW_TRANSACTION")
 public class EncryptedRawTransaction implements Serializable {
@@ -19,8 +16,7 @@ public class EncryptedRawTransaction implements Serializable {
     @EmbeddedId
     @AttributeOverride(
             name = "hashBytes",
-            column = @Column(name = "HASH", nullable = false, unique = true, updatable = false)
-    )
+            column = @Column(name = "HASH", nullable = false, unique = true, updatable = false))
     private MessageHash hash;
 
     @Lob
@@ -39,11 +35,15 @@ public class EncryptedRawTransaction implements Serializable {
     @Column(name = "SENDER", nullable = false)
     private byte[] sender;
 
-    @Column(name="TIMESTAMP", updatable = false)
+    @Column(name = "TIMESTAMP", updatable = false)
     private long timestamp;
 
-    public EncryptedRawTransaction(final MessageHash hash, final byte[] encryptedPayload, final byte[] encryptedKey,
-                                   final byte[] nonce, final byte[] sender) {
+    public EncryptedRawTransaction(
+            final MessageHash hash,
+            final byte[] encryptedPayload,
+            final byte[] encryptedKey,
+            final byte[] nonce,
+            final byte[] sender) {
         this.hash = hash;
         this.encryptedPayload = encryptedPayload;
         this.encryptedKey = encryptedKey;
@@ -51,8 +51,7 @@ public class EncryptedRawTransaction implements Serializable {
         this.sender = sender;
     }
 
-    public EncryptedRawTransaction() {
-    }
+    public EncryptedRawTransaction() {}
 
     @PrePersist
     public void onPersist() {
@@ -66,7 +65,6 @@ public class EncryptedRawTransaction implements Serializable {
     public void setHash(final MessageHash hash) {
         this.hash = hash;
     }
-
 
     public byte[] getEncryptedPayload() {
         return encryptedPayload;
@@ -112,12 +110,12 @@ public class EncryptedRawTransaction implements Serializable {
     @Override
     public boolean equals(final Object obj) {
 
-        return (obj instanceof EncryptedRawTransaction) &&
-            Objects.equals(this.hash, ((EncryptedRawTransaction) obj).hash);
+        return (obj instanceof EncryptedRawTransaction)
+                && Objects.equals(this.hash, ((EncryptedRawTransaction) obj).hash);
     }
 
-    public RawTransaction toRawTransaction(){
-        return new RawTransaction(this.encryptedPayload, this.encryptedKey, new Nonce(this.nonce), PublicKey.from(this.sender));
+    public RawTransaction toRawTransaction() {
+        return new RawTransaction(
+                this.encryptedPayload, this.encryptedKey, new Nonce(this.nonce), PublicKey.from(this.sender));
     }
-
 }

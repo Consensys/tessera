@@ -1,4 +1,4 @@
-package com.quorum.tessera.dao;
+package com.quorum.tessera.data.jpatest;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
@@ -6,19 +6,10 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import javax.sql.DataSource;
 
-public class JpaH2Config extends JpaConfig {
+public class JpaHsqlConfig extends JpaConfig {
 
     @Bean
-    @Override
     public DataSource dataSource() {
-        return new EmbeddedDatabaseBuilder()
-            .setType(EmbeddedDatabaseType.H2)
-            .build();
+        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.HSQL).build();
     }
-
-
-
-
-    
-
 }

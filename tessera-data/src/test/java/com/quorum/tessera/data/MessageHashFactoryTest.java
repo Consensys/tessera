@@ -1,9 +1,9 @@
+package com.quorum.tessera.data;
 
-package com.quorum.tessera.enclave.model;
-
+import com.quorum.tessera.data.MessageHashFactory;
+import com.quorum.tessera.data.MessageHash;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.Test;
-
 
 public class MessageHashFactoryTest {
 
@@ -12,9 +12,12 @@ public class MessageHashFactoryTest {
         MessageHashFactory messageHashFactory = new MessageHashFactory() {};
         String cipherText = "cipherText";
         MessageHash messageHash = messageHashFactory.createFromCipherText(cipherText.getBytes());
-        
+
         assertThat(messageHash).isNotNull();
-        
     }
-    
+
+    @Test
+    public void create() {
+        assertThat(MessageHashFactory.create()).isNotNull();
+    }
 }

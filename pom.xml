@@ -479,6 +479,7 @@
         <module>tessera-sync</module>
         <module>test-utils</module>
         <module>tessera-jaxrs</module>
+        <module>tessera-data</module>
     </modules>
 
     <dependencyManagement>

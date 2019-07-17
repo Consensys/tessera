@@ -1,4 +1,4 @@
-package com.quorum.tessera.enclave.model;
+package com.quorum.tessera.data;
 
 import com.quorum.tessera.ServiceLoaderUtil;
 import org.bouncycastle.jcajce.provider.digest.SHA3;
@@ -12,8 +12,6 @@ public interface MessageHashFactory {
     }
 
     static MessageHashFactory create() {
-        return ServiceLoaderUtil.load(MessageHashFactory.class).orElse(new MessageHashFactory() {
-        });
+        return ServiceLoaderUtil.load(MessageHashFactory.class).orElse(new MessageHashFactory() {});
     }
-
 }

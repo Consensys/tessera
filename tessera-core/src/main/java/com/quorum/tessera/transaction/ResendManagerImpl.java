@@ -1,12 +1,13 @@
 package com.quorum.tessera.transaction;
 
+import com.quorum.tessera.data.EncryptedTransaction;
+import com.quorum.tessera.data.EncryptedTransactionDAO;
+import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.enclave.model.MessageHash;
-import com.quorum.tessera.enclave.model.MessageHashFactory;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.transaction.model.EncryptedTransaction;
 
 import javax.transaction.Transactional;
 import java.util.Arrays;

@@ -1,6 +1,5 @@
-package com.quorum.tessera.transaction.model;
+package com.quorum.tessera.data;
 
-import com.quorum.tessera.enclave.model.MessageHash;
 import org.junit.Test;
 
 import java.util.Objects;
@@ -22,7 +21,6 @@ public class EncryptedTransactionTest {
 
         assertThat(encryptedTransaction.getHash()).isSameAs(hash);
         assertThat(encryptedTransaction.getEncodedPayload()).isSameAs(payload);
-
     }
 
     @Test
@@ -34,14 +32,12 @@ public class EncryptedTransactionTest {
 
         assertThat(encryptedTransaction.getHash()).isSameAs(hash);
         assertThat(encryptedTransaction.getEncodedPayload()).isSameAs(payload);
-
     }
 
     @Test
     public void subclassesEqual() {
 
-        class OtherClass extends EncryptedTransaction {
-        }
+        class OtherClass extends EncryptedTransaction {}
 
         final OtherClass other = new OtherClass();
         final EncryptedTransaction et = new EncryptedTransaction();
