@@ -21,7 +21,7 @@
         <constructor-arg ref="enclave" />
     </bean>
 
-    <bean id="resendManager" class="com.quorum.tessera.transaction.ResendManagerImpl">
+    <bean id="resendManager" class="com.quorum.tessera.partyinfo.ResendManagerImpl">
         <constructor-arg ref="encryptedTransactionDAO" />
         <constructor-arg ref="payloadEncoder" />
         <constructor-arg ref="enclave" />

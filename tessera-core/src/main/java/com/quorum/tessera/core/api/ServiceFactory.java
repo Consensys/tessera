@@ -7,7 +7,7 @@ import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.partyinfo.PayloadPublisher;
-import com.quorum.tessera.transaction.ResendManager;
+import com.quorum.tessera.partyinfo.ResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 
 public interface ServiceFactory {
