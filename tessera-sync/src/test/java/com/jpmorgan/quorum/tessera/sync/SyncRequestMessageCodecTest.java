@@ -99,7 +99,9 @@ public class SyncRequestMessageCodecTest {
 
             SyncRequestMessage result = syncRequestMessageCodec.decode(reader);
 
-            assertThat(refEq(result)).isEqualTo(refEq(samplePartyInfo));
+            assertThat(result.getType()).isEqualTo(SyncRequestMessage.Type.PARTY_INFO);
+            assertThat(result.getPartyInfo().getUrl()).isEqualTo(samplePartyInfo.getUrl());
+
         }
     }
 
@@ -108,10 +110,12 @@ public class SyncRequestMessageCodecTest {
 
         EncodedPayload sampleTransactions = samplePayload();
 
+        PublicKey recipientKey = PublicKey.from("HELLOW".getBytes());
+        
         String data =
                 Json.createObjectBuilder()
                         .add("type", SyncRequestMessage.Type.TRANSACTION_PUSH.name())
-                        .add("recipientKey", PublicKey.from("HELLOW".getBytes()).encodeToBase64())
+                        .add("recipientKey", recipientKey.encodeToBase64())
                         .add("transactions", MessageUtil.encodeToBase64(sampleTransactions))
                         .build()
                         .toString();
@@ -121,7 +125,7 @@ public class SyncRequestMessageCodecTest {
             SyncRequestMessage result = syncRequestMessageCodec.decode(reader);
             assertThat(result.getType()).isEqualTo(SyncRequestMessage.Type.TRANSACTION_PUSH);
             assertThat(result.getTransactions()).isNotNull();
-            assertThat(refEq(result)).isEqualTo(refEq(sampleTransactions));
+            assertThat(result.getRecipientKey()).isEqualTo(recipientKey);
         }
     }
 }
