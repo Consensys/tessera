@@ -46,15 +46,6 @@
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>tessera-grpc</artifactId>
-                <classifier>${tesssra.app.classifer}</classifier>
-                <version>0.10-SNAPSHOT</version>
-                <scope>test</scope>
-            </dependency>
-
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>enclave-jaxrs</artifactId>
                 <classifier>${enclave.server.classifer}</classifier>
                 <version>0.10-SNAPSHOT</version>
