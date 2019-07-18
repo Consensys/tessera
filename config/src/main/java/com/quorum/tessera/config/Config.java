@@ -13,6 +13,8 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Config extends ConfigItem {
 
+    @XmlAttribute private final String version = Version.getVersion();
+
     @NotNull
     @Valid
     @XmlElement(name = "jdbc", required = true)
@@ -39,20 +41,19 @@ public class Config extends ConfigItem {
     @XmlElement(name = "alwaysSendTo")
     private List<@ValidBase64 String> alwaysSendTo = new ArrayList<>();
 
-    @XmlAttribute
-    private boolean useWhiteList;
+    @XmlAttribute private boolean useWhiteList;
 
-    @XmlAttribute
-    private boolean disablePeerDiscovery;
+    @XmlAttribute private boolean disablePeerDiscovery;
 
     @Deprecated
-    public Config(final JdbcConfig jdbcConfig,
-                  final List<ServerConfig> serverConfigs,
-                  final List<Peer> peers,
-                  final KeyConfiguration keyConfiguration,
-                  final List<String> alwaysSendTo,
-                  final boolean useWhiteList,
-                  final boolean disablePeerDiscovery) {
+    public Config(
+            final JdbcConfig jdbcConfig,
+            final List<ServerConfig> serverConfigs,
+            final List<Peer> peers,
+            final KeyConfiguration keyConfiguration,
+            final List<String> alwaysSendTo,
+            final boolean useWhiteList,
+            final boolean disablePeerDiscovery) {
         this.jdbcConfig = jdbcConfig;
         this.serverConfigs = serverConfigs;
         this.peers = peers;
@@ -62,9 +63,7 @@ public class Config extends ConfigItem {
         this.disablePeerDiscovery = disablePeerDiscovery;
     }
 
-    public Config() {
-
-    }
+    public Config() {}
 
     public JdbcConfig getJdbcConfig() {
         return this.jdbcConfig;
@@ -110,10 +109,10 @@ public class Config extends ConfigItem {
     public ServerConfig getP2PServerConfig() {
         // TODO need to revisit
         return getServerConfigs().stream()
-            .filter(ServerConfig::isEnabled)
-            .filter(sc -> sc.getApp() == AppType.P2P)
-            .findFirst()
-            .orElse(null);
+                .filter(ServerConfig::isEnabled)
+                .filter(sc -> sc.getApp() == AppType.P2P)
+                .findFirst()
+                .orElse(null);
     }
 
     public void setJdbcConfig(JdbcConfig jdbcConfig) {
@@ -144,4 +143,7 @@ public class Config extends ConfigItem {
         this.disablePeerDiscovery = disablePeerDiscovery;
     }
 
+    public String getVersion() {
+        return version;
+    }
 }

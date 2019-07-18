@@ -33,7 +33,6 @@ public class ConfigTest {
         Peer anotherPeer = new Peer("anotherPeer");
         config.addPeer(anotherPeer);
         assertThat(config.getPeers()).containsOnly(peer, anotherPeer);
-
     }
 
     @Test
@@ -51,9 +50,7 @@ public class ConfigTest {
         serverConfig.setEnabled(true);
         config.setServerConfigs(Arrays.asList(serverConfig));
 
-        assertThat(config.getP2PServerConfig())
-            .isSameAs(serverConfig);
-
+        assertThat(config.getP2PServerConfig()).isSameAs(serverConfig);
     }
 
     @Test
@@ -67,4 +64,9 @@ public class ConfigTest {
         assertThat(config.getP2PServerConfig()).isNull();
     }
 
+    @Test
+    public void getVersion() {
+        Config config = new Config();
+        assertThat(config.getVersion()).isNotEmpty();
+    }
 }
