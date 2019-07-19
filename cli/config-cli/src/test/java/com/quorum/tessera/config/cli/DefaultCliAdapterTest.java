@@ -11,7 +11,6 @@ import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.test.util.ElUtil;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -275,8 +274,6 @@ public class DefaultCliAdapterTest {
 
     }
 
-    //TODO: enable when overrides allow a full config to be constructed
-    @Ignore
     @Test
     public void withEmptyConfigOverrideAll() throws Exception {
 
@@ -289,7 +286,9 @@ public class DefaultCliAdapterTest {
         try {
             CliResult result = cliDelegate.execute(
                 "-configfile",
-                configFile.toString()
+                configFile.toString(),
+                "--unixSocketFile",
+                unixSocketFile.toString()
             );
 
             assertThat(result).isNotNull();

@@ -71,6 +71,7 @@ public class JaxbConfigFactory implements ConfigFactory {
                     config.getPeers(),
                     new KeyConfiguration(Paths.get("passwords.txt"), null, config.getKeys().getKeyData(), config.getKeys().getAzureKeyVaultConfig(), config.getKeys().getHashicorpKeyVaultConfig()),
                     config.getAlwaysSendTo(),
+                    config.getUnixSocketFile(),
                     config.isUseWhiteList(),
                     config.isDisablePeerDiscovery()
             );

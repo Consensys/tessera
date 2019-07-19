@@ -50,6 +50,7 @@ public class OverrideUtilTest {
             "keys.hashicorpKeyVaultConfig.tlsTrustStorePath",
             "keys.hashicorpKeyVaultConfig.url",
             "alwaysSendTo",
+            "unixSocketFile",
             "useWhiteList",
             "disablePeerDiscovery",
             "serverConfigs.serverAddress",
@@ -107,7 +108,59 @@ public class OverrideUtilTest {
             "serverConfigs.sslConfig.tls",
             "serverConfigs.sslConfig.knownServersFile",
             "serverConfigs.sslConfig.environmentVariablePrefix",
-            "serverConfigs.sslConfig.sslConfigType"
+            "serverConfigs.sslConfig.sslConfigType",
+            "server.hostName",
+            "server.sslConfig.knownServersFile",
+            "server.sslConfig.clientTrustStorePassword",
+            "server.sslConfig.clientKeyStorePassword",
+            "server.sslConfig.clientTlsKeyPath",
+            "server.sslConfig.clientTrustCertificates",
+            "server.sslConfig.knownClientsFile",
+            "server.communicationType",
+            "server.sslConfig.serverTrustStorePassword",
+            "server.sslConfig.serverTrustCertificates",
+            "server.sslConfig.clientTrustStore",
+            "server.sslConfig.tls",
+            "server.sslConfig.serverTlsCertificatePath",
+            "server.grpcPort",
+            "server.sslConfig.serverKeyStore",
+            "server.port",
+            "server.sslConfig.generateKeyStoreIfNotExisted",
+            "server.sslConfig.clientTlsCertificatePath",
+            "server.sslConfig.serverTlsKeyPath",
+            "server.sslConfig.serverTrustStore",
+            "server.bindingAddress",
+            "server.sslConfig.serverTrustMode",
+            "server.sslConfig.clientKeyStore",
+            "server.sslConfig.clientTrustMode",
+            "server.sslConfig.serverKeyStorePassword",
+            "server.sslConfig.environmentVariablePrefix",
+            "server.sslConfig.sslConfigType",
+            "server.influxConfig.serverAddress",
+            "server.influxConfig.dbName",
+            "server.influxConfig.pushIntervalInSecs",
+            "server.influxConfig.sslConfig.serverTrustMode",
+            "server.influxConfig.sslConfig.clientTrustStore",
+            "server.influxConfig.sslConfig.environmentVariablePrefix",
+            "server.influxConfig.sslConfig.clientTlsKeyPath",
+            "server.influxConfig.sslConfig.clientTrustMode",
+            "server.influxConfig.sslConfig.serverKeyStore",
+            "server.influxConfig.sslConfig.serverTlsKeyPath",
+            "server.influxConfig.sslConfig.serverTrustCertificates",
+            "server.influxConfig.sslConfig.knownClientsFile",
+            "server.influxConfig.sslConfig.serverTrustStorePassword",
+            "server.influxConfig.sslConfig.serverTrustStore",
+            "server.influxConfig.sslConfig.clientTrustStorePassword",
+            "server.influxConfig.sslConfig.clientTlsCertificatePath",
+            "server.influxConfig.sslConfig.serverTlsCertificatePath",
+            "server.influxConfig.sslConfig.clientKeyStorePassword",
+            "server.influxConfig.sslConfig.knownServersFile",
+            "server.influxConfig.sslConfig.tls",
+            "server.influxConfig.sslConfig.clientTrustCertificates",
+            "server.influxConfig.sslConfig.clientKeyStore",
+            "server.influxConfig.sslConfig.generateKeyStoreIfNotExisted",
+            "server.influxConfig.sslConfig.serverKeyStorePassword",
+            "server.influxConfig.sslConfig.sslConfigType"
         );
 
         final Map<String, Class> results = OverrideUtil.buildConfigOptions();
@@ -243,7 +296,7 @@ public class OverrideUtilTest {
     @Test
     public void initialiseNestedObjects() {
 
-        Config config = new Config(null, null, null, null, null, true, true);
+        Config config = new Config(null, null, null, null, null, null, true, true);
 
         OverrideUtil.initialiseNestedObjects(config);
 
@@ -321,6 +374,8 @@ public class OverrideUtilTest {
 
         assertThat(config.getJdbcConfig().getUsername()).isEqualTo("someuser");
         assertThat(config.getJdbcConfig().getPassword()).isEqualTo("tiger");
+
+        assertThat(config.getUnixSocketFile()).isEqualTo(Paths.get("${unixSocketPath}"));
     }
 
     //TODO: Need to support oerrides in config module
