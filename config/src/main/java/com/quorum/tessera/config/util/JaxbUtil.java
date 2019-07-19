@@ -33,6 +33,7 @@ public final class JaxbUtil {
         Peer.class,
         PrivateKeyType.class,
         ServerConfig.class,
+        DeprecatedServerConfig.class,
         SslAuthenticationMode.class,
         SslConfig.class,
         SslTrustMode.class

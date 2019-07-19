@@ -1,0 +1,49 @@
+{
+    "useWhiteList": false,
+
+    "server": {
+        "port": 99,
+        "influxConfig": {
+            "port": 1111,
+            "hostName": "localhost",
+            "dbName": "dummy",
+            "pushIntervalInSecs" : "10"
+        }
+    },
+    "peer": [
+        {
+            "url": "http://bogus1.com"
+        },
+        {
+            "url": "http://bogus2.com"
+        }
+    ],
+    "keys": {
+        "passwords": [
+            "q"
+        ],
+        "keyData": [
+            {
+                "config": {
+                    "data": {
+                        "aopts": {
+                            "variant": "id",
+                            "memory": 1048576,
+                            "iterations": 10,
+                            "parallelism": 4,
+                            "version": "1.3"
+                        },
+                        "snonce": "x3HUNXH6LQldKtEv3q0h0hR4S12Ur9pC",
+                        "asalt": "7Sem2tc6fjEfW3yYUDN/kSslKEW0e1zqKnBCWbZu2Zw=",
+                        "sbox": "d0CmRus0rP0bdc7P7d/wnOyEW14pwFJmcLbdu2W3HmDNRWVJtoNpHrauA/Sr5Vxc"
+                    },
+                    "type": "argon2sbox"
+                },
+                "privateKey": "PRIVATE_KEY",
+                "publicKey": "PUBLIC_KEY"
+            }
+        ]
+    },
+    "alwaysSendTo": [],
+    "unixSocketFile": "/tmp/bogus.socket"
+}
