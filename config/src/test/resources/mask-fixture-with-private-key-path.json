@@ -5,36 +5,26 @@
         "password": "",
         "url": "jdbc:h2:./target/h2/tessera1"
     },
-    "serverConfigs": [
-        {
-            "app": "Q2T",
-            "enabled": true,
-            "serverAddress": "unix:/tmp/tm1.ipc",
-            "communicationType": "REST"
-        },
-        {
-            "app": "P2P",
-            "enabled": true,
-            "serverAddress": "http://localhost:8080",
-            "communicationType": "REST",
-            "sslConfig": {
-                "tls": "STRICT",
-                "generateKeyStoreIfNotExisted": "false",
-                "serverKeyStore": "./ssl/server1-keystore",
-                "serverKeyStorePassword": "quorum",
-                "serverTrustStore": "./ssl/server-truststore",
-                "serverTrustStorePassword": "quorum",
-                "serverTrustMode": "CA",
-                "clientKeyStore": "./ssl/client1-keystore",
-                "clientKeyStorePassword": "quorum",
-                "clientTrustStore": "./ssl/client-truststore",
-                "clientTrustStorePassword": "quorum",
-                "clientTrustMode": "CA",
-                "knownClientsFile": "./ssl/knownClients1",
-                "knownServersFile": "./ssl/knownServers1"
-            }
+    "server": {
+        "port": 8080,
+        "hostName": "http://localhost",
+        "sslConfig": {
+            "tls": "STRICT",
+            "generateKeyStoreIfNotExisted": "false",
+            "serverKeyStore": "./ssl/server1-keystore",
+            "serverKeyStorePassword": "quorum",
+            "serverTrustStore": "./ssl/server-truststore",
+            "serverTrustStorePassword": "quorum",
+            "serverTrustMode": "CA",
+            "clientKeyStore": "./ssl/client1-keystore",
+            "clientKeyStorePassword": "quorum",
+            "clientTrustStore": "./ssl/client-truststore",
+            "clientTrustStorePassword": "quorum",
+            "clientTrustMode": "CA",
+            "knownClientsFile": "./ssl/knownClients1",
+            "knownServersFile": "./ssl/knownServers1"
         }
-    ],
+    },
     "peer": [
         {
             "url": "http://localhost:8081"
@@ -52,5 +42,6 @@
             }
         ]
     },
-    "alwaysSendTo": []
+    "alwaysSendTo": [],
+    "unixSocketFile": "/tmp/tm1.ipc"
 }
