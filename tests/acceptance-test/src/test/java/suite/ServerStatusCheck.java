@@ -33,6 +33,13 @@ public interface ServerStatusCheck {
             }
         }
 
+        if (communicationType == CommunicationType.GRPC) {
+            URL grpcUrl =
+                    IOCallback.execute(
+                            () -> UriBuilder.fromUri(serverConfig.getBindingUri()).path("upcheck").build().toURL());
+            return new GrpcServerStatusCheck(grpcUrl, serverConfig.getApp());
+        }
+
         throw new UnsupportedOperationException("Unable to cerate server check for " + serverConfig);
     }
 }

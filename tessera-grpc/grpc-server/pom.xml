@@ -2,7 +2,7 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>server</artifactId>
+        <artifactId>tessera-grpc</artifactId>
         <groupId>com.jpmorgan.quorum</groupId>
         <version>0.10-SNAPSHOT</version>
     </parent>
@@ -12,18 +12,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-protobuf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-stub</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>server-api</artifactId>
         </dependency>
@@ -32,5 +20,17 @@
             <artifactId>grpc-service</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <failIfNoTests>false</failIfNoTests>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

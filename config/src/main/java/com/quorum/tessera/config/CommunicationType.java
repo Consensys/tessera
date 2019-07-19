@@ -2,5 +2,7 @@ package com.quorum.tessera.config;
 
 public enum CommunicationType {
     REST,
-    WEB_SOCKET;
+    WEB_SOCKET,
+    @Deprecated
+    GRPC;
 }

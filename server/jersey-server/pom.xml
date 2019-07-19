@@ -3,16 +3,17 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jersey-server</artifactId>
-
-    <name>jersey-server</name>
-    <packaging>jar</packaging>
-
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>server</artifactId>
         <version>0.10-SNAPSHOT</version>
     </parent>
+    
+    <artifactId>jersey-server</artifactId>
+
+    <name>jersey-server</name>
+    <packaging>jar</packaging>
+
 
     <dependencyManagement>
         <dependencies>
