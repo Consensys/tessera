@@ -1,0 +1,65 @@
+{
+    "useWhiteList": false,
+    "jdbc": {
+        "username": "sa",
+        "password": "",
+        "url": "jdbc:h2:./target/h2/tessera1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0"
+    },
+    "server": {
+        "port": 8081,
+        "grpcPort": 50501,
+        "communicationType": "REST",
+        "hostName": "http://proxy-address",
+        "bindingAddress": "http://localhost:9001",
+        "sslConfig": {
+            "tls": "OFF",
+            "generateKeyStoreIfNotExisted": "true",
+            "serverKeyStore": "./target/server1-keystore",
+            "serverKeyStorePassword": "quorum",
+            "serverTrustStore": "./target/server-truststore",
+            "serverTrustStorePassword": "quorum",
+            "serverTrustMode": "TOFU",
+            "clientKeyStore": "./target/client1-keystore",
+            "clientKeyStorePassword": "quorum",
+            "clientTrustStore": "./target/client-truststore",
+            "clientTrustStorePassword": "quorum",
+            "clientTrustMode": "TOFU",
+            "knownClientsFile": "./target/knownClients1",
+            "knownServersFile": "./target/knownServers1"
+        }
+    },
+    "peer": [
+        {
+            "url": "http://proxy-address:8081"
+        },
+        {
+            "url": "http://proxy-address:8082"
+        },
+        {
+            "url": "http://proxy-address:8083"
+        },
+        {
+            "url": "http://proxy-address:8084"
+        },
+        {
+            "url": "http://proxy-address:8085"
+        },
+        {
+            "url": "http://proxy-address:8086"
+        },
+        {
+            "url": "http://proxy-address:8087"
+        }
+    ],
+    "keys": {
+        "passwords": [],
+        "keyData": [
+            {
+                "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
+                "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM="
+            }
+        ]
+    },
+    "alwaysSendTo": [],
+    "unixSocketFile": "/tmp/tm1.ipc"
+}

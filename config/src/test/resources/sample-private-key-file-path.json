@@ -5,23 +5,9 @@
         "password": "tiger",
         "url": "foo:bar"
     },
-    "serverConfigs": [
-        {
-            "app": "Q2T",
-            "enabled": true,
-            "serverAddress": "unix:/tmp/bogus.socket",
-            "communicationType": "REST"
-        },
-        {
-            "app": "P2P",
-            "enabled": true,
-            "serverAddress": "http://localhost:99",
-            "communicationType": "REST",
-            "sslConfig": {
-                "tls": "OFF"
-            }
-        }
-    ],
+    "server": {
+        "port": 99
+    },
     "peer": [
         {
             "url": "http://bogus1.com"
@@ -34,5 +20,6 @@
         "passwords": [],
         "keyData": []
     },
-    "alwaysSendTo": []
+    "alwaysSendTo": [],
+    "unixSocketFile": "/tmp/bogus.socket"
 }
