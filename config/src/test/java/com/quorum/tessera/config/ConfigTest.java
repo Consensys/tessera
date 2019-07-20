@@ -34,7 +34,6 @@ public class ConfigTest {
         Peer anotherPeer = new Peer("anotherPeer");
         config.addPeer(anotherPeer);
         assertThat(config.getPeers()).containsOnly(peer, anotherPeer);
-
     }
 
     @Test
@@ -42,7 +41,6 @@ public class ConfigTest {
         Config config = new Config();
 
         assertThat(config.getP2PServerConfig()).isNull();
-
     }
 
     @Test
@@ -53,9 +51,7 @@ public class ConfigTest {
         serverConfig.setEnabled(true);
         config.setServerConfigs(Arrays.asList(serverConfig));
 
-        assertThat(config.getP2PServerConfig())
-            .isSameAs(serverConfig);
-
+        assertThat(config.getP2PServerConfig()).isSameAs(serverConfig);
     }
 
     @Test
@@ -66,9 +62,7 @@ public class ConfigTest {
         serverConfig.setEnabled(true);
         config.setServerConfigs(Arrays.asList(serverConfig));
 
-        assertThat(config.getP2PServerConfig())
-            .isNull();
-
+        assertThat(config.getP2PServerConfig()).isNull();
     }
 
     @Test
@@ -78,7 +72,6 @@ public class ConfigTest {
 
         assertThat(config.getServerConfigs()).isEmpty();
         assertThat(config.getServer()).isNull();
-
     }
 
     @Test
@@ -86,13 +79,17 @@ public class ConfigTest {
         Config config = new Config();
         Path unixServerPath = mock(Path.class);
         config.setUnixSocketFile(unixServerPath);
-        
+
         assertThat(config.getServerConfigs()).isEmpty();
         assertThat(config.isServerConfigsNull()).isTrue();
 
         config.setServerConfigs(Collections.EMPTY_LIST);
         assertThat(config.isServerConfigsNull()).isFalse();
-
     }
 
+    @Test
+    public void version() {
+        Config config = new Config();
+        assertThat(config.getVersion()).isNotEmpty().isNotNull().isEqualTo(Version.getVersion());
+    }
 }
