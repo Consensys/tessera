@@ -17,6 +17,8 @@ import java.util.List;
 @ValidEitherServerConfigsOrServer
 public class Config extends ConfigItem {
 
+    @XmlAttribute private String version = Version.getVersion();
+
     @NotNull
     @Valid
     @XmlElement(name = "jdbc", required = true)
@@ -47,24 +49,22 @@ public class Config extends ConfigItem {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path unixSocketFile;
 
-    @XmlAttribute
-    private boolean useWhiteList;
+    @XmlAttribute private boolean useWhiteList;
 
-    @XmlAttribute
-    private boolean disablePeerDiscovery;
+    @XmlAttribute private boolean disablePeerDiscovery;
 
-    @XmlElement
-    private DeprecatedServerConfig server;
+    @XmlElement private DeprecatedServerConfig server;
 
     @Deprecated
-    public Config(final JdbcConfig jdbcConfig,
-        final List<ServerConfig> serverConfigs,
-        final List<Peer> peers,
-        final KeyConfiguration keyConfiguration,
-        final List<String> alwaysSendTo,
-        final Path unixSocketFile,
-        final boolean useWhiteList,
-        final boolean disablePeerDiscovery) {
+    public Config(
+            final JdbcConfig jdbcConfig,
+            final List<ServerConfig> serverConfigs,
+            final List<Peer> peers,
+            final KeyConfiguration keyConfiguration,
+            final List<String> alwaysSendTo,
+            final Path unixSocketFile,
+            final boolean useWhiteList,
+            final boolean disablePeerDiscovery) {
         this.jdbcConfig = jdbcConfig;
         this.serverConfigs = serverConfigs;
         this.peers = peers;
@@ -75,25 +75,21 @@ public class Config extends ConfigItem {
         this.disablePeerDiscovery = disablePeerDiscovery;
     }
 
-    public Config() {
-
-    }
+    public Config() {}
 
     public JdbcConfig getJdbcConfig() {
         return this.jdbcConfig;
     }
 
-    
-    //TODO: Shouldn't need to laziely recalcuate on a getter
+    // TODO: Shouldn't need to laziely recalcuate on a getter
     public List<ServerConfig> getServerConfigs() {
         if (null != this.serverConfigs) {
             return this.serverConfigs;
         }
         return DeprecatedServerConfig.from(server, unixSocketFile);
-
     }
 
-    public boolean isServerConfigsNull(){
+    public boolean isServerConfigsNull() {
         return null == this.serverConfigs;
     }
 
@@ -103,7 +99,7 @@ public class Config extends ConfigItem {
     }
 
     public List<Peer> getPeers() {
-        if(peers == null) {
+        if (peers == null) {
             return null;
         }
         return Collections.unmodifiableList(peers);
@@ -126,8 +122,8 @@ public class Config extends ConfigItem {
     }
 
     public void addPeer(Peer peer) {
-        if(peers == null) {
-         this.peers = new ArrayList<>();
+        if (peers == null) {
+            this.peers = new ArrayList<>();
         }
         this.peers.add(peer);
     }
@@ -135,17 +131,17 @@ public class Config extends ConfigItem {
     public ServerConfig getP2PServerConfig() {
         // TODO need to revisit
         return getServerConfigs().stream()
-            .filter(ServerConfig::isEnabled)
-            .filter(sc -> sc.getApp() == AppType.P2P)
-            .findFirst()
-            .orElse(null);
+                .filter(ServerConfig::isEnabled)
+                .filter(sc -> sc.getApp() == AppType.P2P)
+                .findFirst()
+                .orElse(null);
     }
-    
+
     @Deprecated
     public DeprecatedServerConfig getServer() {
         return server;
     }
-    
+
     @Deprecated
     public void setServer(DeprecatedServerConfig server) {
         this.server = server;
@@ -184,4 +180,7 @@ public class Config extends ConfigItem {
         this.disablePeerDiscovery = disablePeerDiscovery;
     }
 
+    public String getVersion() {
+        return version;
+    }
 }
