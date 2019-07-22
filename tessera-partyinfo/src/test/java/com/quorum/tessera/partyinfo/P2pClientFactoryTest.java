@@ -1,6 +1,5 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.partyinfo.P2pClientFactory;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
@@ -23,19 +22,6 @@ public class P2pClientFactoryTest {
         P2pClientFactory factory = P2pClientFactory.newFactory(config);
 
         assertThat(factory).isExactlyInstanceOf(MockP2pClientFactory.class);
-
-    }
-
-    @Test(expected = NoSuchElementException.class)
-    public void newFactoryNonAvialable() {
-
-        Config config = mock(Config.class);
-        ServerConfig serverConfig = mock(ServerConfig.class);
-        when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.GRPC);
-        when(config.getP2PServerConfig()).thenReturn(serverConfig);
-
-        P2pClientFactory.newFactory(config);
-
     }
 
     @Test(expected = NoSuchElementException.class)
@@ -46,7 +32,5 @@ public class P2pClientFactoryTest {
         when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
         P2pClientFactory.newFactory(config);
-
     }
-
 }

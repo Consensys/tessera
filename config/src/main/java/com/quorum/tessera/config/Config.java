@@ -1,17 +1,23 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@ValidEitherServerConfigsOrServer
 public class Config extends ConfigItem {
+
+    @XmlAttribute private String version = Version.getVersion();
 
     @NotNull
     @Valid
@@ -19,7 +25,6 @@ public class Config extends ConfigItem {
     private JdbcConfig jdbcConfig;
 
     @Valid
-    @NotNull
     @ValidServerConfigs
     @XmlElement(name = "serverConfigs", required = true)
     private List<@Valid @ValidServerConfig ServerConfig> serverConfigs;
@@ -39,42 +44,58 @@ public class Config extends ConfigItem {
     @XmlElement(name = "alwaysSendTo")
     private List<@ValidBase64 String> alwaysSendTo = new ArrayList<>();
 
-    @XmlAttribute
-    private boolean useWhiteList;
+    @ValidPath(checkCanCreate = true)
+    @XmlElement(required = true, type = String.class)
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private Path unixSocketFile;
 
-    @XmlAttribute
-    private boolean disablePeerDiscovery;
+    @XmlAttribute private boolean useWhiteList;
+
+    @XmlAttribute private boolean disablePeerDiscovery;
+
+    @XmlElement private DeprecatedServerConfig server;
 
     @Deprecated
-    public Config(final JdbcConfig jdbcConfig,
-                  final List<ServerConfig> serverConfigs,
-                  final List<Peer> peers,
-                  final KeyConfiguration keyConfiguration,
-                  final List<String> alwaysSendTo,
-                  final boolean useWhiteList,
-                  final boolean disablePeerDiscovery) {
+    public Config(
+            final JdbcConfig jdbcConfig,
+            final List<ServerConfig> serverConfigs,
+            final List<Peer> peers,
+            final KeyConfiguration keyConfiguration,
+            final List<String> alwaysSendTo,
+            final Path unixSocketFile,
+            final boolean useWhiteList,
+            final boolean disablePeerDiscovery) {
         this.jdbcConfig = jdbcConfig;
         this.serverConfigs = serverConfigs;
         this.peers = peers;
         this.keys = keyConfiguration;
         this.alwaysSendTo = alwaysSendTo;
+        this.unixSocketFile = unixSocketFile;
         this.useWhiteList = useWhiteList;
         this.disablePeerDiscovery = disablePeerDiscovery;
     }
 
-    public Config() {
-
-    }
+    public Config() {}
 
     public JdbcConfig getJdbcConfig() {
         return this.jdbcConfig;
     }
 
+    // TODO: Shouldn't need to laziely recalcuate on a getter
     public List<ServerConfig> getServerConfigs() {
-        if (this.serverConfigs == null) {
-            this.serverConfigs = new ArrayList<>();
+        if (null != this.serverConfigs) {
+            return this.serverConfigs;
         }
-        return this.serverConfigs;
+        return DeprecatedServerConfig.from(server, unixSocketFile);
+    }
+
+    public boolean isServerConfigsNull() {
+        return null == this.serverConfigs;
+    }
+
+    @Deprecated
+    public Path getUnixSocketFile() {
+        return unixSocketFile;
     }
 
     public List<Peer> getPeers() {
@@ -110,10 +131,20 @@ public class Config extends ConfigItem {
     public ServerConfig getP2PServerConfig() {
         // TODO need to revisit
         return getServerConfigs().stream()
-            .filter(ServerConfig::isEnabled)
-            .filter(sc -> sc.getApp() == AppType.P2P)
-            .findFirst()
-            .orElse(null);
+                .filter(ServerConfig::isEnabled)
+                .filter(sc -> sc.getApp() == AppType.P2P)
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Deprecated
+    public DeprecatedServerConfig getServer() {
+        return server;
+    }
+
+    @Deprecated
+    public void setServer(DeprecatedServerConfig server) {
+        this.server = server;
     }
 
     public void setJdbcConfig(JdbcConfig jdbcConfig) {
@@ -136,6 +167,11 @@ public class Config extends ConfigItem {
         this.alwaysSendTo = alwaysSendTo;
     }
 
+    @Deprecated
+    public void setUnixSocketFile(Path unixSocketFile) {
+        this.unixSocketFile = unixSocketFile;
+    }
+
     public void setUseWhiteList(boolean useWhiteList) {
         this.useWhiteList = useWhiteList;
     }
@@ -144,4 +180,7 @@ public class Config extends ConfigItem {
         this.disablePeerDiscovery = disablePeerDiscovery;
     }
 
+    public String getVersion() {
+        return version;
+    }
 }

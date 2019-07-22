@@ -11,6 +11,12 @@
         <constructor-arg ref="config"/>
     </bean>
 
+    <bean id="payloadPublisher" class="com.quorum.tessera.partyinfo.PayloadPublisherImpl">
+        <constructor-arg ref="payloadEncoder" />
+        <constructor-arg ref="partyInfoService" />
+        <constructor-arg ref="p2pClient" />
+        <constructor-arg ref="enclave" />
+    </bean>
 
     <!-- Party Info management -->
     <bean id="partyInfoServiceFactory" class="com.quorum.tessera.partyinfo.PartyInfoServiceFactory" factory-method="newFactory" />

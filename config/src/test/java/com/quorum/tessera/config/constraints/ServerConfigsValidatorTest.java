@@ -9,8 +9,10 @@ import org.junit.Test;
 
 import javax.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -18,13 +20,7 @@ import static org.mockito.Mockito.*;
 
 public class ServerConfigsValidatorTest {
 
-    private List<ServerConfig> serverConfigs;
-
-    private ServerConfig p2pServerConfig;
-
-    private ServerConfig q2tServerConfig;
-
-    private ServerConfig thirdPartyServerConfig;
+    private Map<AppType, ServerConfig> serverConfigs = new HashMap<>();
 
     private ConstraintValidatorContext cvc;
 
@@ -33,28 +29,25 @@ public class ServerConfigsValidatorTest {
     @Before
     public void onSetUp() {
         cvc = mock(ConstraintValidatorContext.class);
-        p2pServerConfig = new ServerConfig();
-        p2pServerConfig.setApp(AppType.P2P);
-        p2pServerConfig.setEnabled(true);
-        p2pServerConfig.setServerAddress("localhost:123");
-        p2pServerConfig.setCommunicationType(CommunicationType.REST);
-        p2pServerConfig.setSslConfig(null);
-        p2pServerConfig.setInfluxConfig(null);
-        p2pServerConfig.setBindingAddress(null);
 
-        q2tServerConfig = new ServerConfig(AppType.Q2T, true,
-            "localhost:1234", CommunicationType.REST,
-            null, null, null);
-        thirdPartyServerConfig = new ServerConfig(AppType.THIRD_PARTY, true,
-            "localhost:12345", CommunicationType.REST,
-            null, null, null);
+        for (AppType appType : AppType.values()) {
 
-        serverConfigs = new ArrayList<>(Arrays.asList(p2pServerConfig, q2tServerConfig, thirdPartyServerConfig));
+            ServerConfig serverConfig = new ServerConfig();
+            serverConfig.setApp(appType);
+            serverConfig.setEnabled(true);
+            serverConfig.setServerAddress("localhost:123");
+            serverConfig.setCommunicationType(CommunicationType.REST);
+            serverConfig.setSslConfig(null);
+            serverConfig.setInfluxConfig(null);
+            serverConfig.setBindingAddress(null);
+
+            serverConfigs.put(appType, serverConfig);
+        }
 
         validator = new ServerConfigsValidator();
 
         when(cvc.buildConstraintViolationWithTemplate(anyString()))
-            .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
+                .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
     }
 
     @After
@@ -69,47 +62,58 @@ public class ServerConfigsValidatorTest {
 
     @Test
     public void isValidWhenValidDataIsSupplied() {
-        thirdPartyServerConfig.setEnabled(false);
-        assertThat(validator.isValid(serverConfigs, cvc)).isTrue();
+        List<ServerConfig> serverConfigList = serverConfigList();
+
+        assertThat(validator.isValid(serverConfigList, cvc)).isTrue();
     }
 
     @Test
     public void isNotValidWhenNoP2PServersAreEnabled() {
-        p2pServerConfig.setEnabled(false);
-        assertThat(validator.isValid(serverConfigs, cvc)).isFalse();
+
+        serverConfigs.get(AppType.P2P).setEnabled(false);
+
+        assertThat(validator.isValid(serverConfigList(), cvc)).isFalse();
         verify(cvc).disableDefaultConstraintViolation();
         verify(cvc).buildConstraintViolationWithTemplate(eq("Only one P2P server must be configured and enabled."));
     }
 
     @Test
     public void isNotValidWhenNoP2PServersAreDefined() {
-        serverConfigs.remove(p2pServerConfig);
-        assertThat(validator.isValid(serverConfigs, cvc)).isFalse();
+        List<ServerConfig> serverConfigList =
+                serverConfigList().stream().filter(s -> s.getApp() != AppType.P2P).collect(Collectors.toList());
+        assertThat(validator.isValid(serverConfigList, cvc)).isFalse();
         verify(cvc).disableDefaultConstraintViolation();
         verify(cvc).buildConstraintViolationWithTemplate(eq("Only one P2P server must be configured and enabled."));
     }
 
     @Test
     public void isNotValidWhenTwoOrMoreP2PServersAreDefinedAndEnabled() {
-        serverConfigs.add(p2pServerConfig);
-        assertThat(validator.isValid(serverConfigs, cvc)).isFalse();
+        List<ServerConfig> serverConfigList = serverConfigList();
+        serverConfigList.add(serverConfigs.get(AppType.P2P));
+        assertThat(validator.isValid(serverConfigList, cvc)).isFalse();
         verify(cvc).disableDefaultConstraintViolation();
         verify(cvc).buildConstraintViolationWithTemplate(eq("Only one P2P server must be configured and enabled."));
     }
 
     @Test
     public void isNotValidWhenNoQ2TServersAreEnabled() {
-        q2tServerConfig.setEnabled(false);
-        assertThat(validator.isValid(serverConfigs, cvc)).isFalse();
+        serverConfigs.get(AppType.Q2T).setEnabled(false);
+        assertThat(validator.isValid(serverConfigList(), cvc)).isFalse();
         verify(cvc).disableDefaultConstraintViolation();
         verify(cvc).buildConstraintViolationWithTemplate(eq("At least one Q2T server must be configured and enabled."));
     }
 
     @Test
     public void isNotValidWhenNoQ2TServersAreDefined() {
-        serverConfigs.remove(q2tServerConfig);
-        assertThat(validator.isValid(serverConfigs, cvc)).isFalse();
+        List<ServerConfig> serverConfigList =
+                serverConfigList().stream().filter(s -> s.getApp() != AppType.Q2T).collect(Collectors.toList());
+
+        assertThat(validator.isValid(serverConfigList, cvc)).isFalse();
         verify(cvc).disableDefaultConstraintViolation();
         verify(cvc).buildConstraintViolationWithTemplate(eq("At least one Q2T server must be configured and enabled."));
+    }
+
+    private List<ServerConfig> serverConfigList() {
+        return new ArrayList<>(serverConfigs.values());
     }
 }

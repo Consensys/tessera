@@ -1,14 +1,17 @@
 package com.quorum.tessera;
 
+import com.quorum.tessera.app.ApplicationFactory;
 import com.quorum.tessera.cli.CliDelegate;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
+import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.reflect.ReflectCallback;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
-import com.quorum.tessera.service.locator.ServiceLocator;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,17 +76,16 @@ public class Launcher {
 
     private static void runWebServer(final Config config) throws Exception {
 
-        ServiceLocator serviceLocator = ServiceLocator.create();
-
-        Set<Object> services = serviceLocator.getServices();
-
         final List<TesseraServer> servers =
                 config.getServerConfigs().stream()
                         .filter(server -> !AppType.ENCLAVE.equals(server.getApp()))
                         .map(
-                                conf ->
-                                        TesseraServerFactory.create(conf.getCommunicationType())
-                                                .createServer(conf, services))
+                                conf -> {
+                                    Object app = resolveAppFromServerConfig(conf);
+
+                                    return TesseraServerFactory.create(conf.getCommunicationType())
+                                            .createServer(conf, Collections.singleton(app));
+                                })
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
 
@@ -103,5 +105,28 @@ public class Launcher {
         for (TesseraServer ts : servers) {
             ts.start();
         }
+    }
+
+    private static final Map<AppType, String> GRPC_CLASS_LOOKUP =
+            new HashMap<AppType, String>() {
+                {
+                    put(AppType.P2P, "com.quorum.tessera.grpc.p2p.P2PGrpcApp");
+                    put(AppType.Q2T, "com.quorum.tessera.grpc.api.Q2TGrpcApp");
+                }
+            };
+
+    private static Object resolveAppFromServerConfig(ServerConfig serverConfig) {
+
+        if (serverConfig.getCommunicationType() == CommunicationType.GRPC) {
+            if (!GRPC_CLASS_LOOKUP.containsKey(serverConfig.getApp())) {
+                throw new IllegalStateException("GRPC is not supported for :" + serverConfig.getApp());
+            }
+            String className = GRPC_CLASS_LOOKUP.get(serverConfig.getApp());
+
+            return ReflectCallback.execute(() -> Class.forName(className).getConstructor().newInstance());
+        }
+
+        return ApplicationFactory.create(serverConfig.getApp())
+                .orElseThrow(() -> new IllegalStateException("Cant create app for " + serverConfig.getApp()));
     }
 }

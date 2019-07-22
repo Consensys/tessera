@@ -1,8 +1,6 @@
 
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.partyinfo.P2pClientFactory;
-import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import static org.mockito.Mockito.mock;

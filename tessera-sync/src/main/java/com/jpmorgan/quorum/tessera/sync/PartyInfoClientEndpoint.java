@@ -1,30 +1,42 @@
 package com.jpmorgan.quorum.tessera.sync;
 
+import com.quorum.tessera.core.api.ServiceFactory;
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
-import java.net.URI;
+import com.quorum.tessera.transaction.TransactionManager;
 import java.util.Objects;
 import javax.websocket.ClientEndpoint;
-import javax.websocket.ClientEndpointConfig;
 import javax.websocket.CloseReason;
-import javax.websocket.ContainerProvider;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
-import javax.websocket.WebSocketContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ClientEndpoint(decoders = PartyInfoCodec.class, encoders = PartyInfoCodec.class)
-public class PartyInfoClientEndpoint extends ClientEndpointConfig.Configurator {
+@ClientEndpoint(
+        decoders = {SyncRequestMessageCodec.class, SyncResponseMessageCodec.class},
+        encoders = {SyncRequestMessageCodec.class, SyncResponseMessageCodec.class})
+public class PartyInfoClientEndpoint {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoClientEndpoint.class);
 
     private final PartyInfoService partyInfoService;
 
-    public PartyInfoClientEndpoint(PartyInfoService partyInfoService) {
+    private final TransactionManager transactionManager;
+
+    public PartyInfoClientEndpoint() {
+        this(ServiceFactory.create());
+    }
+
+    public PartyInfoClientEndpoint(ServiceFactory serviceFactory) {
+        this(serviceFactory.partyInfoService(), serviceFactory.transactionManager());
+    }
+
+    public PartyInfoClientEndpoint(PartyInfoService partyInfoService, TransactionManager transactionManager) {
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
+        this.transactionManager = Objects.requireNonNull(transactionManager);
     }
 
     @OnOpen
@@ -33,31 +45,28 @@ public class PartyInfoClientEndpoint extends ClientEndpointConfig.Configurator {
     }
 
     @OnMessage
-    public void onMessage(Session session, PartyInfo partyInfo) {
+    public void onResponse(Session session, SyncResponseMessage response) {
 
-        LOGGER.info("Client received message: {} {}", session.getId(), partyInfo);
+        if (response.getType() == SyncResponseMessage.Type.PARTY_INFO) {
 
-        PartyInfo existingPartyInfo = partyInfoService.getPartyInfo();
+            final PartyInfo partyInfo = response.getPartyInfo();
 
-        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+            LOGGER.info("Client received message: {} {}", session.getId(), partyInfo);
 
-        partyInfo.getRecipients().stream()
-                .filter(r -> !existingPartyInfo.getRecipients().contains(r))
-                .map(r -> r.getUrl())
-                .map(URI::create)
-                .forEach(
-                        u -> {
-                            WebSocketSessionCallback.execute(
-                                    () -> {
-                                        Session s = container.connectToServer(this, u);
-                                        s.getBasicRemote().sendObject(partyInfo);
-                                        return null;
-                                    });
-                        });
+            partyInfoService.updatePartyInfo(partyInfo);
+        }
+
+        if (response.getType() == SyncResponseMessage.Type.TRANSACTION_SYNC) {
+
+            EncodedPayload encodedPayload = response.getTransactions();
+
+            transactionManager.storePayload(encodedPayload.getCipherText());
+        }
     }
 
     @OnClose
     public void onClose(Session session, CloseReason reason) {
+
         LOGGER.info("Closing session : {} because {}", session.getId(), reason);
     }
 }

@@ -1,7 +1,7 @@
 package com.quorum.tessera.config.builder;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.DeprecatedServerConfig;
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
@@ -34,23 +34,18 @@ public class ConfigBuilderTest {
 
         assertThat(result).isNotNull();
 
-        final ServerConfig q2tConfig = result.getServerConfigs()
-            .stream()
-            .filter(ServerConfig::isUnixSocket)
-            .findAny()
-            .get();
-        assertThat(q2tConfig.getServerAddress()).isEqualTo("unix:somepath.ipc");
+        assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("somepath.ipc"));
 
         assertThat(result.getKeys().getKeyData()).hasSize(1);
         final ConfigKeyPair keyData = result.getKeys().getKeyData().get(0);
         assertThat(keyData).isNotNull().extracting("privateKeyPath").containsExactly(Paths.get("private"));
         assertThat(keyData).isNotNull().extracting("publicKeyPath").containsExactly(Paths.get("public"));
 
-        final ServerConfig serverConfig = result.getP2PServerConfig();
+        final DeprecatedServerConfig serverConfig = result.getServer();
         assertThat(serverConfig).isNotNull();
-
+        assertThat(serverConfig.getPort()).isEqualTo(892);
+        assertThat(serverConfig.getHostName()).isEqualTo("http://bogus.com");
         assertThat(serverConfig.getBindingAddress()).isEqualTo("http://bogus.com:892");
-        assertThat(serverConfig.getServerAddress()).isEqualTo("http://bogus.com:892");
 
         final SslConfig sslConfig = serverConfig.getSslConfig();
         assertThat(sslConfig).isNotNull();
@@ -70,7 +65,7 @@ public class ConfigBuilderTest {
     public void influxHostNameEmptyThenInfluxConfigIsNull() {
         final Config result = builderWithValidValues.build();
 
-        result.getServerConfigs().forEach(config -> assertThat(config.getInfluxConfig()).isNull());
+        assertThat(result.getServer().getInfluxConfig()).isNull();
     }
 
     @Test

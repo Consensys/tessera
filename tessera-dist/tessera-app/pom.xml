@@ -16,8 +16,19 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-launcher</artifactId>
-            <version>0.10-SNAPSHOT</version>
             <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>grpc-service</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>grpc-server</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -49,10 +60,24 @@
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>jaxrs-service</artifactId>
+            <artifactId>admin-jaxrs</artifactId>
             <scope>runtime</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>sync-jaxrs</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>transaction-jaxrs</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>thirdparty-jaxrs</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>enclave-jaxrs</artifactId>
@@ -63,18 +88,6 @@
                     <artifactId>enclave-server</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>grpc-service</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>grpc-server</artifactId>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>

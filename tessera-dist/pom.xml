@@ -14,8 +14,8 @@
     <modules>
         <module>tessera-launcher</module>
         <module>tessera-app</module>
-        <module>tessera-grpc</module>
         <module>tessera-simple</module>
+        <module>tessera-grpc-dist</module>
     </modules>
     <dependencyManagement>
         <dependencies>
@@ -24,6 +24,12 @@
                 <artifactId>tessera-launcher</artifactId>
                 <version>0.10-SNAPSHOT</version>
                 <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>grpc-service</artifactId>
+                <version>0.10-SNAPSHOT</version>
+                <scope>runtime</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

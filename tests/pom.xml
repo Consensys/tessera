@@ -43,16 +43,15 @@
                 <version>0.10-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
-
+            
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>tessera-grpc</artifactId>
+                <artifactId>tessera-grpc-dist</artifactId>
                 <classifier>${tesssra.app.classifer}</classifier>
                 <version>0.10-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
-
-
+            
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>enclave-jaxrs</artifactId>
