@@ -15,7 +15,6 @@
 
     <modules>
         <module>jersey-server</module>
-        <module>grpc-server</module>
         <module>server-api</module>
         <module>jaxrs-client-unixsocket</module>
         <module>server-utils</module>

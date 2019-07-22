@@ -19,5 +19,11 @@
             <artifactId>server-api</artifactId>
             <type>jar</type>
         </dependency>
+        
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>common-jaxrs</artifactId>
+            <version>0.10-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

@@ -107,6 +107,15 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     }
 
     @Override
+    public Set<String> getUrlsForKey(PublicKey key) {
+
+        return partyInfoStore.getPartyInfo().getRecipients().stream()
+                .filter(recipient -> key.equals(recipient.getKey()))
+                .map(Recipient::getUrl)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
     public PartyInfo removeRecipient(String uri) {
         return partyInfoStore.removeRecipient(uri);
     }

@@ -1,14 +1,15 @@
 package com.jpmorgan.quorum.tessera.sync;
 
+import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.transaction.TransactionManager;
 import java.net.URI;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.Optional;
 import javax.websocket.ContainerProvider;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
@@ -27,14 +28,20 @@ public class PartyInfoSyncIT {
 
     private PartyInfoService partyInfoService;
 
+    private TransactionManager transactionManager;
+
     private Server server;
+
+    private MockServiceLocator mockServiceLocator;
 
     @Before
     public void onSetUp() throws Exception {
 
+        mockServiceLocator = MockServiceLocator.createMockServiceLocator();
+        transactionManager = mock(TransactionManager.class);
         partyInfoService = mock(PartyInfoService.class);
 
-        Optional.of(partyInfoService).map(PartyInfoServiceHolder::new).get();
+        mockServiceLocator.setServices(Collections.singleton(partyInfoService));
 
         server = new Server("localhost", 8025, "/", null, PartyInfoEndpoint.class);
         server.start();
@@ -50,7 +57,7 @@ public class PartyInfoSyncIT {
 
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
 
-        PartyInfoClientEndpoint client = new PartyInfoClientEndpoint(partyInfoService);
+        PartyInfoClientEndpoint client = new PartyInfoClientEndpoint(partyInfoService, transactionManager);
 
         Session clientSession = container.connectToServer(client, URI.create("ws://localhost:8025/sync"));
         LOGGER.info("Client sesssion : {}", clientSession.getId());

@@ -1,27 +1,43 @@
 package com.jpmorgan.quorum.tessera.sync;
 
+import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
+import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.PartyInfoService;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.quorum.tessera.transaction.TransactionManager;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import static org.assertj.core.api.Assertions.*;
 import org.junit.Test;
-import static org.mockito.Mockito.mock;
+import org.mockito.Mockito;
 
 public class PartyInfoEndpointConfiguratorTest {
 
     @Test
-    public void getEndpointInstance() throws InstantiationException {
+    public void getEndpointInstance() throws Exception {
+
+        MockServiceLocator mockServiceLocator = MockServiceLocator.createMockServiceLocator();
+
+        Set services =
+                Stream.of(Enclave.class, TransactionManager.class, PartyInfoService.class)
+                        .map(Mockito::mock)
+                        .collect(Collectors.toSet());
+
+        mockServiceLocator.setServices(services);
+
         PartyInfoEndpointConfigurator partyInfoEndpointConfigurator = new PartyInfoEndpointConfigurator();
 
-        PartyInfoService partyInfoService = mock(PartyInfoService.class);
-        new PartyInfoServiceHolder(partyInfoService);
+        PartyInfoEndpoint endpoint = partyInfoEndpointConfigurator.getEndpointInstance(PartyInfoEndpoint.class);
 
-        PartyInfoEndpoint result = partyInfoEndpointConfigurator.getEndpointInstance(PartyInfoEndpoint.class);
+        assertThat(endpoint).isNotNull();
 
-        assertThat(result).isNotNull();
+        services.forEach(Mockito::verifyZeroInteractions);
     }
 
     @Test(expected = InstantiationException.class)
-    public void getEndpointInstanceForUnsupportedType() throws InstantiationException {
+    public void getEndpointInstanceInvalidThrowsInstantiationException() throws Exception {
         PartyInfoEndpointConfigurator partyInfoEndpointConfigurator = new PartyInfoEndpointConfigurator();
+
         partyInfoEndpointConfigurator.getEndpointInstance(BogusEndpoint.class);
     }
 

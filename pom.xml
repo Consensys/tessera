@@ -468,12 +468,7 @@
         <module>data-migration</module>
         <module>config-migration</module>
         <module>shared</module>
-        <module>grpc</module>
-        <module>grpc-api</module>
-        <module>grpc-service</module>
-        <module>jaxrs-service</module>
         <module>tessera-core</module>
-        <module>jaxrs-client</module>
         <module>key-vault</module>
         <module>key-generation</module>
         <module>ddls</module>
@@ -483,6 +478,9 @@
         <module>tessera-admin</module>
         <module>tessera-sync</module>
         <module>test-utils</module>
+        <module>tessera-jaxrs</module>
+        <module>tessera-data</module>
+        <module>tessera-grpc</module>
     </modules>
 
     <dependencyManagement>
@@ -589,6 +587,13 @@
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>mock-service-locator</artifactId>
+                <version>0.10-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>server-api</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
@@ -596,24 +601,6 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jersey-server</artifactId>
-                <version>0.10-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>grpc-server</artifactId>
-                <version>0.10-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>grpc</artifactId>
-                <version>0.10-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>grpc-api</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
 
@@ -638,13 +625,25 @@
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>grpc-service</artifactId>
+                <artifactId>admin-jaxrs</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>jaxrs-service</artifactId>
+                <artifactId>sync-jaxrs</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>transaction-jaxrs</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>thirdparty-jaxrs</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
 
@@ -687,6 +686,31 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jaxrs-client-unixsocket</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>tessera-data</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency> 
+
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>grpc-server</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>grpc</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>grpc-api</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
 
@@ -875,6 +899,14 @@
                 <version>${logback.version}</version>
                 <scope>runtime</scope>
             </dependency>
+            
+            <!-- Provided by slf4j --> 
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jcl</artifactId>
+                <version>${spring.version}</version>
+                <scope>provided</scope>
+            </dependency>
 
             <!--
                 APIs
@@ -1032,8 +1064,7 @@
                 <artifactId>gson</artifactId>
                 <version>2.8.5</version>
             </dependency>
-
-
+            
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
@@ -1107,6 +1138,12 @@
                 <version>${jetty.version}</version>
                 <type>jar</type>
             </dependency>
+            
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-util</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.github.jnr</groupId>
@@ -1175,6 +1212,12 @@
 
 
             <!-- keyvault deps -->
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>24.1.1-jre</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>

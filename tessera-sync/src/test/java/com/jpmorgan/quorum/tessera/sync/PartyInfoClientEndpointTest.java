@@ -1,41 +1,40 @@
 package com.jpmorgan.quorum.tessera.sync;
 
-import com.jpmorgan.quorum.mock.websocket.MockContainerProvider;
-import com.quorum.tessera.encryption.PublicKey;
+import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
-import java.net.URI;
-import java.util.Collections;
+import com.quorum.tessera.transaction.TransactionManager;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.websocket.CloseReason;
 import javax.websocket.CloseReason.CloseCodes;
-import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
-import javax.websocket.WebSocketContainer;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 public class PartyInfoClientEndpointTest {
 
     private PartyInfoClientEndpoint partyInfoClientEndpoint;
 
-    private WebSocketContainer container;
-
     private PartyInfoService partyInfoService;
+
+    private TransactionManager transactionManager;
 
     @Before
     public void onSetUp() {
+        transactionManager = mock(TransactionManager.class);
         partyInfoService = mock(PartyInfoService.class);
-        partyInfoClientEndpoint = new PartyInfoClientEndpoint(partyInfoService);
-        container = MockContainerProvider.getInstance();
+        partyInfoClientEndpoint = new PartyInfoClientEndpoint(partyInfoService, transactionManager);
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(partyInfoService, container);
+        verifyNoMoreInteractions(partyInfoService, transactionManager);
     }
 
     @Test
@@ -45,28 +44,37 @@ public class PartyInfoClientEndpointTest {
     }
 
     @Test
-    public void onMessage() throws Exception {
+    public void onPartyInfoResponse() throws Exception {
 
-        PartyInfo existingPartyInfo = mock(PartyInfo.class);
-        when(partyInfoService.getPartyInfo()).thenReturn(existingPartyInfo);
+        PartyInfo samplePartyInfo = Fixtures.samplePartyInfo();
+
+        SyncResponseMessage syncResponseMessage =
+                SyncResponseMessage.Builder.create(SyncResponseMessage.Type.PARTY_INFO)
+                        .withPartyInfo(samplePartyInfo)
+                        .build();
 
         Session session = mock(Session.class);
-        Basic basic = mock(Basic.class);
-        when(session.getBasicRemote()).thenReturn(basic);
-        when(session.getRequestURI()).thenReturn(URI.create("ws://foo.com"));
-        PartyInfo partyInfo = mock(PartyInfo.class);
+        partyInfoClientEndpoint.onResponse(session, syncResponseMessage);
 
-        PublicKey someKey = PublicKey.from("SOMEDATA".getBytes());
-        String url = "ws://somedomain.com/someaddress";
-        Recipient recipient = new Recipient(someKey, url);
-        when(partyInfo.getRecipients()).thenReturn(Collections.singleton(recipient));
+        verify(partyInfoService).updatePartyInfo(any(PartyInfo.class));
+    }
 
-        when(container.connectToServer(any(PartyInfoClientEndpoint.class), any(URI.class))).thenReturn(session);
+    @Test
+    public void onTransactionsResponse() throws Exception {
 
-        partyInfoClientEndpoint.onMessage(session, partyInfo);
+        EncodedPayload sampleTransactions = Fixtures.samplePayload();
 
-        verify(partyInfoService).getPartyInfo();
-        verify(container).connectToServer(any(PartyInfoClientEndpoint.class), any(URI.class));
+        SyncResponseMessage syncResponseMessage =
+                SyncResponseMessage.Builder.create(SyncResponseMessage.Type.TRANSACTION_SYNC)
+                        .withTransactions(sampleTransactions)
+                        .withTransactionCount(1)
+                        .withTransactionOffset(1)
+                        .build();
+
+        Session session = mock(Session.class);
+        partyInfoClientEndpoint.onResponse(session, syncResponseMessage);
+
+        verify(transactionManager).storePayload(any());
     }
 
     @Test
@@ -77,27 +85,11 @@ public class PartyInfoClientEndpointTest {
     }
 
     @Test
-    public void onMessageNodeAlreadyHasRecipient() throws Exception {
+    public void constructWithDefaultConstructor() {
 
-        PublicKey someKey = PublicKey.from("SOMEDATA".getBytes());
-        String url = "ws://somedomain.com/someaddress";
-        Recipient recipient = new Recipient(someKey, url);
+        Set services = Stream.of(partyInfoService, transactionManager).collect(Collectors.toSet());
+        MockServiceLocator.createMockServiceLocator().setServices(services);
 
-        PartyInfo existingPartyInfo = mock(PartyInfo.class);
-        when(existingPartyInfo.getRecipients()).thenReturn(Collections.singleton(recipient));
-
-        when(partyInfoService.getPartyInfo()).thenReturn(existingPartyInfo);
-
-        Session session = mock(Session.class);
-        Basic basic = mock(Basic.class);
-        when(session.getBasicRemote()).thenReturn(basic);
-        when(session.getRequestURI()).thenReturn(URI.create("ws://foo.com"));
-
-        PartyInfo partyInfo = mock(PartyInfo.class);
-        when(partyInfo.getRecipients()).thenReturn(Collections.singleton(recipient));
-
-        partyInfoClientEndpoint.onMessage(session, partyInfo);
-
-        verify(partyInfoService).getPartyInfo();
+        assertThat(new PartyInfoClientEndpoint()).isNotNull();
     }
 }

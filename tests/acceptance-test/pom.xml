@@ -13,47 +13,46 @@
     </parent>
 
 
-
     <dependencies>
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-app</artifactId>
             <classifier>${tesssra.app.classifer}</classifier>
-             <scope>test</scope>
+            <scope>test</scope>
         </dependency>
         
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-simple</artifactId>
             <classifier>${tesssra.app.classifer}</classifier>
-             <scope>test</scope>
+            <scope>test</scope>
         </dependency>
-   
+        
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>tessera-grpc</artifactId>
+            <artifactId>tessera-grpc-dist</artifactId>
             <classifier>${tesssra.app.classifer}</classifier>
-             <scope>test</scope>
+            <scope>test</scope>
         </dependency>
-   
+        
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>enclave-jaxrs</artifactId>
-             <scope>test</scope>
+            <scope>test</scope>
         </dependency>
    
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>enclave-jaxrs</artifactId>
             <classifier>${enclave.server.classifer}</classifier>
-             <scope>test</scope>
+            <scope>test</scope>
         </dependency>
         
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>test-util</artifactId>
-             <scope>test</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -67,20 +66,20 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>ddls</artifactId>
-             <scope>test</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-junit</artifactId>
             <version>4.0.1</version>
-             <scope>test</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java8</artifactId>
             <version>4.0.1</version>
-             <scope>test</scope>
+            <scope>test</scope>
         </dependency>
 
 
@@ -98,7 +97,6 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-partyinfo</artifactId>
-            <version>0.10-SNAPSHOT</version>
             <scope>test</scope>
             <type>jar</type>
         </dependency>
@@ -141,6 +139,7 @@
             <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>groovy-maven-plugin</artifactId>
+                <version>2.1</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
@@ -154,11 +153,11 @@
                         def classifier = project.properties['tesssra.app.classifer']
 
                         def arts = project.artifacts
-                                .findAll{item -> item.getGroupId().equals('com.jpmorgan.quorum')}
+                        .findAll{item -> item.getGroupId().equals('com.jpmorgan.quorum')}
 
 
                         def dep = arts
-                            .find{item -> item.getArtifactId().equals('tessera-app') and item.getClassifier().equals(classifier)}
+                        .find{item -> item.getArtifactId().equals('tessera-app') and item.getClassifier().equals(classifier)}
 
 
                         project.properties.setProperty('application.jar', dep.getFile().getPath())
@@ -166,7 +165,7 @@
                         def eclassifier = project.properties['enclave.server.classifer']
 
                         def enclaveArt = arts
-                            .find{item -> item.getArtifactId().equals('enclave-jaxrs') and item.getClassifier().equals(eclassifier)}
+                        .find{item -> item.getArtifactId().equals('enclave-jaxrs') and item.getClassifier().equals(eclassifier)}
 
                         project.properties.setProperty('enclave.jaxrs.server.jar',enclaveArt.getFile().getPath())
                     </source>
@@ -209,7 +208,8 @@
                         <include>RestSuiteHSQL</include>
                         <include>RestSuiteUnixH2</include>
                         <include>RestSuiteSqlite</include>
-<!--                        <include>ConfigMigrationIT</include>-->
+                        <include>ConfigMigrationIT</include>
+                        <include>P2pTestSuite</include>
                         <include>GrpcSuiteH2</include>
                         <include>GrpcSuiteSqlite</include>
                         <include>GrpcSuiteHSQL</include>
@@ -283,8 +283,6 @@
             </build>
         </profile>
 
-
-
         <profile>
             <id>grpc-acceptance-tests</id>
             <build>
@@ -294,7 +292,7 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <systemPropertyVariables>
-                                <application.jar>${com.jpmorgan.quorum:tessera-grpc:jar:app}</application.jar>
+                                <application.jar>${com.jpmorgan.quorum:tessera-grpc-dist:jar:app}</application.jar>
                                 <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
                                 <jdbc.sqlite.jar>${org.xerial:sqlite-jdbc:jar}</jdbc.sqlite.jar>
                             </systemPropertyVariables>
@@ -335,7 +333,7 @@
                                 <include>RestSuiteHSQL</include>
                                 <include>RestSuiteUnixH2</include>
                                 <include>RestSuiteSqlite</include>
-<!--                                <include>ConfigMigrationIT</include>-->
+                                <include>ConfigMigrationIT</include>
                             </includes>
                         </configuration>
                     </plugin>

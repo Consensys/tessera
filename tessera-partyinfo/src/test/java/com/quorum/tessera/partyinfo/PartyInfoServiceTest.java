@@ -217,4 +217,17 @@ public class PartyInfoServiceTest {
 
         verify(partyInfoStore).removeRecipient(uri);
     }
+
+    @Test
+    public void getRecipientsURLFromPartyInfoStore() {
+
+        final Recipient recipient = new Recipient(PublicKey.from("key".getBytes()), "someurl");
+        final PartyInfo partyInfo = new PartyInfo(URI, singleton(recipient), emptySet());
+        doReturn(partyInfo).when(partyInfoStore).getPartyInfo();
+
+        final Set<String> result = partyInfoService.getUrlsForKey(PublicKey.from("key".getBytes()));
+        assertThat(result).containsExactly("someurl");
+
+        verify(partyInfoStore).getPartyInfo();
+    }
 }

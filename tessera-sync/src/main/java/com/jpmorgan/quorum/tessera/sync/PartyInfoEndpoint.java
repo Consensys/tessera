@@ -1,7 +1,14 @@
 package com.jpmorgan.quorum.tessera.sync;
 
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.ResendRequest;
+import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.transaction.TransactionManager;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,8 +25,8 @@ import org.slf4j.LoggerFactory;
 
 @ServerEndpoint(
         value = "/sync",
-        decoders = PartyInfoCodec.class,
-        encoders = PartyInfoCodec.class,
+        decoders = {SyncRequestMessageCodec.class, SyncResponseMessageCodec.class},
+        encoders = {SyncRequestMessageCodec.class, SyncResponseMessageCodec.class},
         configurator = PartyInfoEndpointConfigurator.class)
 public class PartyInfoEndpoint {
 
@@ -29,8 +36,17 @@ public class PartyInfoEndpoint {
 
     private final PartyInfoService partyInfoService;
 
-    public PartyInfoEndpoint(PartyInfoService partyInfoService) {
+    private final PayloadEncoder payloadEncoder = PayloadEncoder.create();
+
+    private final TransactionManager transactionManager;
+
+    private final Enclave enclave;
+
+    public PartyInfoEndpoint(
+            PartyInfoService partyInfoService, TransactionManager transactionManager, Enclave enclave) {
         this.partyInfoService = partyInfoService;
+        this.enclave = enclave;
+        this.transactionManager = transactionManager;
     }
 
     @OnOpen
@@ -40,12 +56,38 @@ public class PartyInfoEndpoint {
     }
 
     @OnMessage
-    public PartyInfo onSync(Session session, PartyInfo partyInfo) throws IOException, EncodeException {
+    public void onSync(Session session, SyncRequestMessage syncRequestMessage) throws IOException, EncodeException {
+
+        if (syncRequestMessage.getType() == SyncRequestMessage.Type.TRANSACTION_PUSH) {
+            EncodedPayload payload = syncRequestMessage.getTransactions();
+            transactionManager.storePayload(payloadEncoder.encode(payload));
+            return;
+        }
+
+        if (syncRequestMessage.getType() == SyncRequestMessage.Type.TRANSACTION_SYNC) {
+
+            PublicKey recipientPublicKey = syncRequestMessage.getRecipientKey();
+
+            ResendRequest resendRequest = new ResendRequest();
+            resendRequest.setType(ResendRequestType.ALL);
+            resendRequest.setPublicKey(recipientPublicKey.encodeToBase64());
+
+            transactionManager.resend(resendRequest);
+            return;
+        }
+
+        PartyInfo partyInfo = syncRequestMessage.getPartyInfo();
+
         LOGGER.info("Message {}", partyInfo.getUrl());
 
         PartyInfo mergedPartyInfo = partyInfoService.updatePartyInfo(partyInfo);
 
-        return mergedPartyInfo;
+        SyncResponseMessage partyInfoResponseMessage =
+                SyncResponseMessage.Builder.create(SyncResponseMessage.Type.PARTY_INFO)
+                        .withPartyInfo(mergedPartyInfo)
+                        .build();
+
+        session.getBasicRemote().sendObject(partyInfoResponseMessage);
     }
 
     @OnClose
