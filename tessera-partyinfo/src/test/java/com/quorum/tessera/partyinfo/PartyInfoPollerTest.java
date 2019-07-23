@@ -1,9 +1,5 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.P2pClient;
-import com.quorum.tessera.partyinfo.PartyInfoPoller;
-import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import org.junit.After;
@@ -155,4 +151,8 @@ public class PartyInfoPollerTest {
         verify(partyInfoParser).to(partyInfo);
     }
 
+    @Test
+    public void constructWithMinimalArgs() {
+        assertThat(new PartyInfoPoller(partyInfoService, p2pClient)).isNotNull();
+    }
 }

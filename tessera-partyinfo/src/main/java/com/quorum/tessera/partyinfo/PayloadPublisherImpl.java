@@ -15,6 +15,10 @@ public class PayloadPublisherImpl implements PayloadPublisher {
 
     private final P2pClient p2pClient;
 
+    public PayloadPublisherImpl(final P2pClient p2pClient) {
+        this(PayloadEncoder.create(), p2pClient);
+    }
+
     public PayloadPublisherImpl(final PayloadEncoder payloadEncoder, final P2pClient p2pClient) {
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
         this.p2pClient = Objects.requireNonNull(p2pClient, "p2pClient is required");

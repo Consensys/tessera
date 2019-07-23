@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /** A poller that will contact all outstanding parties that need to have transactions resent for a single round */
@@ -31,6 +32,21 @@ public class SyncPoller implements Runnable {
     private final P2pClient p2pClient;
 
     private final PartyInfoParser partyInfoParser;
+
+    public SyncPoller(
+            ResendPartyStore resendPartyStore,
+            TransactionRequester transactionRequester,
+            PartyInfoService partyInfoService,
+            P2pClient p2pClient) {
+
+        this(
+                Executors.newCachedThreadPool(),
+                resendPartyStore,
+                transactionRequester,
+                partyInfoService,
+                PartyInfoParser.create(),
+                p2pClient);
+    }
 
     public SyncPoller(
             final ExecutorService executorService,

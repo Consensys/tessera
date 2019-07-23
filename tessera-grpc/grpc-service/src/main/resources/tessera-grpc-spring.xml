@@ -16,13 +16,6 @@
     
     <bean name="partyInfoGrpcService" class="com.quorum.tessera.grpc.p2p.PartyInfoGrpcService">
         <constructor-arg ref="partyInfoService"/>
-        <constructor-arg ref="partyInfoParser" />
     </bean>
-
-    <bean id="p2pGrpcApplication" class="com.quorum.tessera.grpc.p2p.P2PGrpcApp" />
-
-    <bean id="q2tGrpcApplication" class="com.quorum.tessera.grpc.api.Q2TGrpcApp" />
-
-
 
 </beans>

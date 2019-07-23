@@ -23,6 +23,10 @@ public class PartyInfoGrpcService extends PartyInfoGrpc.PartyInfoImplBase {
 
     private final PartyInfoService partyInfoService;
 
+    public PartyInfoGrpcService(PartyInfoService partyInfoService) {
+        this(partyInfoService, PartyInfoParser.create());
+    }
+
     public PartyInfoGrpcService(final PartyInfoService partyInfoService, final PartyInfoParser partyInfoParser) {
         this.partyInfoService = requireNonNull(partyInfoService, "partyInfoService must not be null");
         this.partyInfoParser = requireNonNull(partyInfoParser, "partyInfoParser must not be null");
@@ -33,17 +37,16 @@ public class PartyInfoGrpcService extends PartyInfoGrpc.PartyInfoImplBase {
 
         final StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
-        template.handle(() -> {
-            
-            final PartyInfo partyInfo = partyInfoParser.from(request.getPartyInfo().toByteArray());
+        template.handle(
+                () -> {
+                    final PartyInfo partyInfo = partyInfoParser.from(request.getPartyInfo().toByteArray());
 
-            final PartyInfo updatedPartyInfo = partyInfoService.updatePartyInfo(partyInfo);
+                    final PartyInfo updatedPartyInfo = partyInfoService.updatePartyInfo(partyInfo);
 
-            return PartyInfoMessage.newBuilder()
-                    .setPartyInfo(ByteString.copyFrom(partyInfoParser.to(updatedPartyInfo)))
-                    .build();
-
-        });
+                    return PartyInfoMessage.newBuilder()
+                            .setPartyInfo(ByteString.copyFrom(partyInfoParser.to(updatedPartyInfo)))
+                            .build();
+                });
     }
 
     @Override
@@ -51,37 +54,39 @@ public class PartyInfoGrpcService extends PartyInfoGrpc.PartyInfoImplBase {
 
         final StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
-        template.handle(() -> {
+        template.handle(
+                () -> {
+                    final PartyInfo partyInfo = partyInfoService.getPartyInfo();
+                    final Set<Peer> peers =
+                            partyInfo.getParties().stream()
+                                    .filter(p -> p.getUrl().endsWith("/"))
+                                    .map(
+                                            party -> {
+                                                final Peer.Builder builder = Peer.newBuilder().setUrl(party.getUrl());
 
-            final PartyInfo partyInfo = partyInfoService.getPartyInfo();
-            final Set<Peer> peers = partyInfo.getParties()
-                .stream()
-                .filter(p -> p.getUrl().endsWith("/"))
-                .map(party -> {
-                    final Peer.Builder builder = Peer.newBuilder().setUrl(party.getUrl());
+                                                if (party.getLastContacted() != null) {
+                                                    final Timestamp timestamp =
+                                                            Timestamp.newBuilder()
+                                                                    .setSeconds(
+                                                                            party.getLastContacted().getEpochSecond())
+                                                                    .build();
 
-                    if (party.getLastContacted() != null) {
-                        final Timestamp timestamp = Timestamp.newBuilder()
-                            .setSeconds(party.getLastContacted().getEpochSecond())
+                                                    builder.setUtcTimestamp(timestamp);
+                                                }
+
+                                                return builder.build();
+                                            })
+                                    .collect(Collectors.toSet());
+
+                    final Map<String, String> keys =
+                            partyInfo.getRecipients().stream()
+                                    .collect(toMap(r -> r.getKey().encodeToBase64(), Recipient::getUrl));
+
+                    return PartyInfoJson.newBuilder()
+                            .setUrl(partyInfo.getUrl())
+                            .addAllPeers(peers)
+                            .putAllKeys(keys)
                             .build();
-
-                        builder.setUtcTimestamp(timestamp);
-                    }
-
-                    return builder.build();
-                }).collect(Collectors.toSet());
-
-            final Map<String, String> keys = partyInfo.getRecipients()
-                .stream()
-                .collect(toMap(r -> r.getKey().encodeToBase64(), Recipient::getUrl));
-
-            return PartyInfoJson.newBuilder()
-                .setUrl(partyInfo.getUrl())
-                .addAllPeers(peers)
-                .putAllKeys(keys)
-                .build();
-
-        });
+                });
     }
-
 }

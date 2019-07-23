@@ -32,5 +32,13 @@
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-data</artifactId>
         </dependency> 
+        
+        
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>mock-service-locator</artifactId>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 </project>

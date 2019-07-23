@@ -66,4 +66,9 @@ public class PayloadPublisherTest {
             verify(p2pClient).push(targetUrl, payloadData);
         }
     }
+
+    @Test
+    public void consructWithP2pClient() {
+        assertThat(new PayloadPublisherImpl(mock(P2pClient.class))).isNotNull();
+    }
 }

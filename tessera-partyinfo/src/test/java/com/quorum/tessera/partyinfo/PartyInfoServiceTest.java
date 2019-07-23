@@ -1,5 +1,6 @@
 package com.quorum.tessera.partyinfo;
 
+import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
@@ -25,6 +26,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.util.Collections.*;
+import java.util.stream.Collectors;
 import static java.util.stream.Collectors.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -249,5 +251,20 @@ public class PartyInfoServiceTest {
             verifyZeroInteractions(payloadPublisher);
             verify(partyInfoStore).getPartyInfo();
         }
+    }
+
+    @Test
+    public void createWithDefaultConstructor() throws Exception {
+
+        ConfigService configService = mock(ConfigService.class);
+        when(configService.getServerUri()).thenReturn(new URI("bogus.com"));
+
+        Set services =
+                Stream.of(configService, mock(Enclave.class), mock(PayloadPublisher.class)).collect(Collectors.toSet());
+
+        MockServiceLocator mockServiceLocator = MockServiceLocator.createMockServiceLocator();
+        mockServiceLocator.setServices(services);
+
+        assertThat(new PartyInfoServiceImpl()).isNotNull();
     }
 }
