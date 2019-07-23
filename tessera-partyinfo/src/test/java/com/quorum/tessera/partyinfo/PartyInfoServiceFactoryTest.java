@@ -1,6 +1,7 @@
 package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.admin.ConfigService;
+import com.quorum.tessera.config.FeatureToggles;
 import com.quorum.tessera.enclave.Enclave;
 import java.net.URI;
 import static org.assertj.core.api.Assertions.*;
@@ -19,10 +20,12 @@ public class PartyInfoServiceFactoryTest {
 
     @Test
     public void create() throws Exception {
-        ConfigService configService = mock(ConfigService.class);
+        final Enclave enclave = mock(Enclave.class);
+        final ConfigService configService = mock(ConfigService.class);
         when(configService.getServerUri()).thenReturn(new URI("http://bogus.com"));
-        Enclave enclave = mock(Enclave.class);
-        PartyInfoService service = partyInfoServiceFactory.create(enclave, configService);
+        when(configService.featureToggles()).thenReturn(new FeatureToggles());
+
+        final PartyInfoService service = partyInfoServiceFactory.create(enclave, configService);
 
         assertThat(service).isNotNull();
     }

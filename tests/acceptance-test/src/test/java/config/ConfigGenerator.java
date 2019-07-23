@@ -1,10 +1,6 @@
 package config;
 
-import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
 import java.io.IOException;
@@ -28,7 +24,7 @@ public class ConfigGenerator {
     public List<ConfigDescriptor> generateConfigs(ExecutionContext executionContext) {
 
         Path path = calculatePath(executionContext);
-        try{
+        try {
             Files.createDirectories(path);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
@@ -38,13 +34,12 @@ public class ConfigGenerator {
 
         List<Config> enclaveConfigs;
         if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
-            enclaveConfigs = configs.stream().map(this::createEnclaveConfig)
-                    .collect(Collectors.toList());
+            enclaveConfigs = configs.stream().map(this::createEnclaveConfig).collect(Collectors.toList());
             configs.forEach(c -> c.setKeys(null));
         } else {
-            enclaveConfigs = Collections.EMPTY_LIST;
+            enclaveConfigs = Collections.emptyList();
         }
-        //Remove keys
+        // Remove keys
         List<ConfigDescriptor> configList = new ArrayList<>();
 
         for (NodeAlias alias : NodeAlias.values()) {
@@ -54,7 +49,7 @@ public class ConfigGenerator {
             final String filename = String.format("config%d.json", (i + 1));
             final Path ouputFile = path.resolve(filename);
 
-            try (OutputStream out = Files.newOutputStream(ouputFile)){
+            try (OutputStream out = Files.newOutputStream(ouputFile)) {
                 JaxbUtil.marshalWithNoValidation(config, out);
 
             } catch (IOException ex) {
@@ -67,7 +62,7 @@ public class ConfigGenerator {
                 enclaveConfig = enclaveConfigs.get(i);
                 String enclaveFilename = String.format("enclave%d.json", (i + 1));
                 enclaveOuputFile = path.resolve(enclaveFilename);
-                try (OutputStream enclaveout = Files.newOutputStream(enclaveOuputFile)){
+                try (OutputStream enclaveout = Files.newOutputStream(enclaveOuputFile)) {
                     JaxbUtil.marshalWithNoValidation(enclaveConfig, enclaveout);
 
                 } catch (IOException ex) {
@@ -82,17 +77,14 @@ public class ConfigGenerator {
         }
 
         return configList;
-
     }
 
     Config createEnclaveConfig(Config config) {
 
         final Config enclaveConfig = new Config();
 
-        ServerConfig serverConfig = config.getServerConfigs().stream()
-                .filter(s -> s.getApp() == AppType.ENCLAVE)
-                .findAny()
-                .get();
+        ServerConfig serverConfig =
+                config.getServerConfigs().stream().filter(s -> s.getApp() == AppType.ENCLAVE).findAny().get();
 
         enclaveConfig.setServerConfigs(Arrays.asList(serverConfig));
 
@@ -100,16 +92,16 @@ public class ConfigGenerator {
         enclaveConfig.setAlwaysSendTo(config.getAlwaysSendTo());
 
         return enclaveConfig;
-
     }
 
     public static Path calculatePath(ExecutionContext executionContext) {
-        try{
+        try {
             URI baseUri = ConfigGenerator.class.getResource("/").toURI();
 
-            return executionContext.getPrefix()
-                .map(v -> Paths.get(baseUri).resolve(v))
-                .orElse(Paths.get(baseUri))
+            return executionContext
+                    .getPrefix()
+                    .map(v -> Paths.get(baseUri).resolve(v))
+                    .orElse(Paths.get(baseUri))
                     .resolve(executionContext.getCommunicationType().name().toLowerCase())
                     .resolve(executionContext.getSocketType().name().toLowerCase())
                     .resolve(executionContext.getDbType().name().toLowerCase())
@@ -119,86 +111,113 @@ public class ConfigGenerator {
         }
     }
 
-    private Map<Integer, SortedMap<String, String>> keyLookUp = new HashMap<Integer, SortedMap<String, String>>() {
-        {
-            put(1, new TreeMap<String, String>() {
+    private Map<Integer, SortedMap<String, String>> keyLookUp =
+            new HashMap<Integer, SortedMap<String, String>>() {
                 {
-                    put("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+                    put(
+                            1,
+                            new TreeMap<String, String>() {
+                                {
+                                    put(
+                                            "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
+                                            "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+                                }
+                            });
+
+                    put(
+                            2,
+                            new TreeMap<String, String>() {
+                                {
+                                    put(
+                                            "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=",
+                                            "fF5UOlKKIwuaNrZ8+KU4WO+pxOYu8tNMQncyxbsSC6U=");
+                                }
+                            });
+
+                    put(
+                            3,
+                            new TreeMap<String, String>() {
+                                {
+                                    put(
+                                            "giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=",
+                                            "ygQVE998+w/C+rU/4CVgyhSAJf63YLKufbkqihcpjVI=");
+                                    put(
+                                            "jP4f+k/IbJvGyh0LklWoea2jQfmLwV53m9XoHVS4NSU=",
+                                            "rVtozM4nTmiwGAtOfYBNWO+CZgubzhIdPwGLZn3HrMU=");
+                                }
+                            });
+
+                    put(
+                            4,
+                            new TreeMap<String, String>() {
+                                {
+                                    put(
+                                            "Tj8xg/HpsYmh7Te3UerzlLx1HgpWVOGq25ZgbwaPNVM=",
+                                            "q2UeGA4o9g4rpn4+VdCELQVsbqTTBS0HCpcL/dgal24=");
+                                }
+                            });
                 }
-            });
-
-            put(2, new TreeMap<String, String>() {
-                {
-                    put("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=", "fF5UOlKKIwuaNrZ8+KU4WO+pxOYu8tNMQncyxbsSC6U=");
-                }
-            });
-
-            put(3, new TreeMap<String, String>() {
-                {
-                    put("giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=", "ygQVE998+w/C+rU/4CVgyhSAJf63YLKufbkqihcpjVI=");
-                    put("jP4f+k/IbJvGyh0LklWoea2jQfmLwV53m9XoHVS4NSU=", "rVtozM4nTmiwGAtOfYBNWO+CZgubzhIdPwGLZn3HrMU=");
-
-                }
-            });
-
-            put(4, new TreeMap<String, String>() {
-                {
-                    put("Tj8xg/HpsYmh7Te3UerzlLx1HgpWVOGq25ZgbwaPNVM=", "q2UeGA4o9g4rpn4+VdCELQVsbqTTBS0HCpcL/dgal24=");
-                }
-            });
-
-        }
-    };
+            };
 
     public List<Config> createConfigs(ExecutionContext executionContext) {
 
         PortUtil port = new PortUtil(50520);
         String nodeId = NodeId.generate(executionContext);
+        final FeatureToggles toggles = new FeatureToggles();
+        toggles.setEnableRemoteKeyValidation(true);
 
-        Config first = new ConfigBuilder()
-                .withNodeId(nodeId)
-                .withNodeNumbber(1)
-                .withExecutionContext(executionContext)
-                .withQt2Port(port.nextPort())
-                .withP2pPort(port.nextPort())
-                .withAdminPort(port.nextPort())
-                .withEnclavePort(port.nextPort())
-                .withKeys(keyLookUp.get(1))
-                .build();
+        Config first =
+                new ConfigBuilder()
+                        .withNodeId(nodeId)
+                        .withNodeNumbber(1)
+                        .withExecutionContext(executionContext)
+                        .withQt2Port(port.nextPort())
+                        .withP2pPort(port.nextPort())
+                        .withAdminPort(port.nextPort())
+                        .withEnclavePort(port.nextPort())
+                        .withKeys(keyLookUp.get(1))
+                        .withFeatureToggles(toggles)
+                        .build();
 
-        Config second = new ConfigBuilder()
-                .withNodeId(nodeId)
-                .withNodeNumbber(2)
-                .withExecutionContext(executionContext)
-                .withQt2Port(port.nextPort())
-                .withP2pPort(port.nextPort())
-                .withAdminPort(port.nextPort())
-                .withEnclavePort(port.nextPort())
-                .withKeys(keyLookUp.get(2))
-                .build();
+        Config second =
+                new ConfigBuilder()
+                        .withNodeId(nodeId)
+                        .withNodeNumbber(2)
+                        .withExecutionContext(executionContext)
+                        .withQt2Port(port.nextPort())
+                        .withP2pPort(port.nextPort())
+                        .withAdminPort(port.nextPort())
+                        .withEnclavePort(port.nextPort())
+                        .withKeys(keyLookUp.get(2))
+                        .withFeatureToggles(toggles)
+                        .build();
 
-        Config third = new ConfigBuilder()
-                .withNodeId(nodeId)
-                .withNodeNumbber(3)
-                .withExecutionContext(executionContext)
-                .withQt2Port(port.nextPort())
-                .withP2pPort(port.nextPort())
-                .withAdminPort(port.nextPort())
-                .withEnclavePort(port.nextPort())
-                .withAlwaysSendTo(keyLookUp.get(1).keySet().iterator().next())
-                .withKeys(keyLookUp.get(3))
-                .build();
+        Config third =
+                new ConfigBuilder()
+                        .withNodeId(nodeId)
+                        .withNodeNumbber(3)
+                        .withExecutionContext(executionContext)
+                        .withQt2Port(port.nextPort())
+                        .withP2pPort(port.nextPort())
+                        .withAdminPort(port.nextPort())
+                        .withEnclavePort(port.nextPort())
+                        .withAlwaysSendTo(keyLookUp.get(1).keySet().iterator().next())
+                        .withKeys(keyLookUp.get(3))
+                        .withFeatureToggles(toggles)
+                        .build();
 
-        Config fourth = new ConfigBuilder()
-                .withNodeId(nodeId)
-                .withNodeNumbber(4)
-                .withExecutionContext(executionContext)
-                .withQt2Port(port.nextPort())
-                .withP2pPort(port.nextPort())
-                .withAdminPort(port.nextPort())
-                .withEnclavePort(port.nextPort())
-                .withKeys(keyLookUp.get(4))
-                .build();
+        Config fourth =
+                new ConfigBuilder()
+                        .withNodeId(nodeId)
+                        .withNodeNumbber(4)
+                        .withExecutionContext(executionContext)
+                        .withQt2Port(port.nextPort())
+                        .withP2pPort(port.nextPort())
+                        .withAdminPort(port.nextPort())
+                        .withEnclavePort(port.nextPort())
+                        .withKeys(keyLookUp.get(4))
+                        .withFeatureToggles(toggles)
+                        .build();
 
         first.addPeer(new Peer(second.getP2PServerConfig().getServerAddress()));
         second.addPeer(new Peer(third.getP2PServerConfig().getServerAddress()));
@@ -208,20 +227,21 @@ public class ConfigGenerator {
         return Arrays.asList(first, second, third, fourth);
     }
 
-    public static void main(String[] args) throws URISyntaxException {
+    public static void main(String[] args) throws Exception {
 
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
-        ExecutionContext executionContext = ExecutionContext.Builder
-                .create()
-                .with(CommunicationType.REST)
-                .with(DBType.H2)
-                .with(SocketType.UNIX).with(EnclaveType.LOCAL)
-                .prefix("p2p")
-                .build();
+        ExecutionContext executionContext =
+                ExecutionContext.Builder.create()
+                        .with(CommunicationType.REST)
+                        .with(DBType.H2)
+                        .with(SocketType.UNIX)
+                        .with(EnclaveType.LOCAL)
+                        .prefix("p2p")
+                        .build();
 
-        Path path = new ConfigGenerator().calculatePath(executionContext);
+        Path path = ConfigGenerator.calculatePath(executionContext);
 
         List<Config> configs = new ConfigGenerator().createConfigs(executionContext);
 
@@ -230,9 +250,5 @@ public class ConfigGenerator {
             Path ouputFile = path.resolve(filename);
             System.out.println(ouputFile);
         }
-
     }
-
-
-
 }

@@ -37,6 +37,8 @@ public class ConfigBuilder {
 
     private SocketType q2tSocketType;
 
+    private FeatureToggles featureToggles;
+
     public ConfigBuilder withQ2TSocketType(SocketType q2tSocketType) {
         this.q2tSocketType = q2tSocketType;
         return this;
@@ -97,6 +99,11 @@ public class ConfigBuilder {
         return this;
     }
 
+    public ConfigBuilder withFeatureToggles(final FeatureToggles featureToggles) {
+        this.featureToggles = featureToggles;
+        return this;
+    }
+
     public Config build() {
         final Config config = new Config();
 
@@ -146,52 +153,54 @@ public class ConfigBuilder {
             ServerConfig enclaveServerConfig = new ServerConfig();
             enclaveServerConfig.setApp(AppType.ENCLAVE);
             enclaveServerConfig.setEnabled(true);
-            SslConfig sslConfig = new SslConfig(
-                SslAuthenticationMode.STRICT,
-                false,
-                Paths.get(getClass().getResource("/certificates/localhost-with-san-keystore.jks").getFile()),
-                "testtest",
-                Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
-                "testtest",
-                SslTrustMode.CA,
-                Paths.get(getClass().getResource("/certificates/quorum-client-keystore.jks").getFile()),
-                "testtest",
-                Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
-                "testtest",
-                SslTrustMode.CA,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-            );
+            SslConfig sslConfig =
+                    new SslConfig(
+                            SslAuthenticationMode.STRICT,
+                            false,
+                            Paths.get(
+                                    getClass().getResource("/certificates/localhost-with-san-keystore.jks").getFile()),
+                            "testtest",
+                            Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
+                            "testtest",
+                            SslTrustMode.CA,
+                            Paths.get(getClass().getResource("/certificates/quorum-client-keystore.jks").getFile()),
+                            "testtest",
+                            Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
+                            "testtest",
+                            SslTrustMode.CA,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null);
             enclaveServerConfig.setBindingAddress("http://0.0.0.0:" + enclavePort);
             enclaveServerConfig.setServerAddress("http://localhost:" + enclavePort);
-           // enclaveServerConfig.setSslConfig(sslConfig);
+            // enclaveServerConfig.setSslConfig(sslConfig);
             enclaveServerConfig.setCommunicationType(CommunicationType.REST);
 
             servers.add(enclaveServerConfig);
-
         }
 
         config.setServerConfigs(servers);
 
-        peerUrls.stream()
-                .map(Peer::new).forEach(config::addPeer);
+        peerUrls.stream().map(Peer::new).forEach(config::addPeer);
 
         config.setKeys(new KeyConfiguration());
 
-        final List<ConfigKeyPair> pairs = keys.entrySet().stream()
-                    .map(e -> new DirectKeyPair(e.getKey(), e.getValue()))
-                    .collect(Collectors.toList());
-        
+        final List<ConfigKeyPair> pairs =
+                keys.entrySet().stream()
+                        .map(e -> new DirectKeyPair(e.getKey(), e.getValue()))
+                        .collect(Collectors.toList());
+
         config.getKeys().setKeyData(pairs);
-        
+
         config.setAlwaysSendTo(alwaysSendTo);
+
+        config.setFeatureToggles(featureToggles);
 
         return config;
     }
@@ -201,24 +210,28 @@ public class ConfigBuilder {
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
-        ExecutionContext executionContext = ExecutionContext.Builder.create()
-                .with(CommunicationType.REST)
-                .with(DBType.H2)
-                .with(SocketType.UNIX).with(EnclaveType.REMOTE)
-                .build();
+        ExecutionContext executionContext =
+                ExecutionContext.Builder.create()
+                        .with(CommunicationType.REST)
+                        .with(DBType.H2)
+                        .with(SocketType.UNIX)
+                        .with(EnclaveType.REMOTE)
+                        .build();
 
-        Config config = new ConfigBuilder()
-                .withExecutionContext(executionContext)
-                .withNodeId("mynode")
-                .withNodeNumbber(1)
-                .withPeer("http://localhost:999")
-                .withKeys("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=")
-                .withQt2Port(999)
-                .withP2pPort(888)
-                .withEnclavePort(989)
-                .build();
+        Config config =
+                new ConfigBuilder()
+                        .withExecutionContext(executionContext)
+                        .withNodeId("mynode")
+                        .withNodeNumbber(1)
+                        .withPeer("http://localhost:999")
+                        .withKeys(
+                                "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
+                                "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=")
+                        .withQt2Port(999)
+                        .withP2pPort(888)
+                        .withEnclavePort(989)
+                        .build();
 
         JaxbUtil.marshalWithNoValidation(config, System.out);
     }
-
 }

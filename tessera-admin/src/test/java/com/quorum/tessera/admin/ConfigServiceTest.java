@@ -1,9 +1,6 @@
 package com.quorum.tessera.admin;
 
-import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.ConfigFileStore;
 import com.quorum.tessera.enclave.Enclave;
 import org.junit.After;
@@ -26,11 +23,15 @@ public class ConfigServiceTest {
 
     private Enclave enclave;
 
+    private FeatureToggles featureToggles = new FeatureToggles();
+
     @Before
     public void onSetUp() {
         config = mock(Config.class);
         configFileStore = mock(ConfigFileStore.class);
         enclave = mock(Enclave.class);
+        featureToggles = new FeatureToggles();
+
         configService = new ConfigServiceImpl(config, enclave, configFileStore);
     }
 
@@ -56,7 +57,6 @@ public class ConfigServiceTest {
         configService.addPeer("JUNIT");
         verify(config).addPeer(new Peer("JUNIT"));
         verify(configFileStore).save(config);
-
     }
 
     @Test
@@ -76,7 +76,7 @@ public class ConfigServiceTest {
 
         verify(config, times(2)).isDisablePeerDiscovery();
     }
-    
+
     @Test
     public void getServerUri() throws URISyntaxException {
         ServerConfig serverConfig = mock(ServerConfig.class);
@@ -88,7 +88,6 @@ public class ConfigServiceTest {
         URI result = configService.getServerUri();
         assertThat(result).isSameAs(serverUri);
 
-
         verify(config).getP2PServerConfig();
         verify(serverConfig).getServerUri();
     }
@@ -97,5 +96,15 @@ public class ConfigServiceTest {
     public void getPublicKeys() {
         configService.getPublicKeys();
         verify(enclave).getPublicKeys();
+    }
+
+    @Test
+    public void featureTogglesAreFetched() {
+        when(config.getFeatureToggles()).thenReturn(featureToggles);
+
+        final FeatureToggles fetched = this.configService.featureToggles();
+
+        assertThat(fetched).isSameAs(featureToggles);
+        verify(config).getFeatureToggles();
     }
 }

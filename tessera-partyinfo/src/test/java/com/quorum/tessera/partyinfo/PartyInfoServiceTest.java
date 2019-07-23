@@ -16,10 +16,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static java.util.Collections.*;
@@ -37,7 +34,7 @@ public class PartyInfoServiceTest {
 
     private Enclave enclave;
 
-    private PartyInfoService partyInfoService;
+    private PartyInfoServiceImpl partyInfoService;
 
     @Before
     public void onSetUp() throws URISyntaxException {
@@ -58,7 +55,7 @@ public class PartyInfoServiceTest {
                                 PublicKey.from("another-public-key".getBytes())));
         doReturn(ourKeys).when(enclave).getPublicKeys();
 
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configService, enclave);
+        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configService, enclave, true);
     }
 
     @After
@@ -229,5 +226,80 @@ public class PartyInfoServiceTest {
         assertThat(result).containsExactly("someurl");
 
         verify(partyInfoStore).getPartyInfo();
+    }
+
+    @Test
+    public void attemptToUpdateRecipientWithExistingKeyWithNewUrlIsIgnoredIfToggleDisabled() throws URISyntaxException {
+        // setup services
+        this.configService = mock(ConfigService.class);
+        when(configService.getPeers()).thenReturn(emptyList());
+        doReturn(new URI(URI)).when(configService).getServerUri();
+        this.enclave = mock(Enclave.class);
+        doReturn(emptySet()).when(enclave).getPublicKeys();
+
+        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configService, enclave, false);
+
+        // setup data
+        final String uri = "http://localhost:8080";
+
+        final PublicKey testKey = PublicKey.from("some-key".getBytes());
+        final PartyInfo initial = new PartyInfo(uri, singleton(new Recipient(testKey, uri)), emptySet());
+        when(partyInfoStore.getPartyInfo()).thenReturn(initial);
+
+        final PublicKey extraKey = PublicKey.from("some-other-key".getBytes());
+
+        final Set<Recipient> newRecipients =
+                new HashSet<>(
+                        Arrays.asList(
+                                new Recipient(testKey, "http://other.com"),
+                                new Recipient(extraKey, "http://some-other-url.com")));
+        final PartyInfo updated = new PartyInfo(uri, newRecipients, emptySet());
+
+        // call it
+        final PartyInfo updatedInfo = partyInfoService.updatePartyInfo(updated);
+
+        // verify
+        assertThat(updatedInfo.getRecipients()).hasSize(1).containsExactly(new Recipient(testKey, uri));
+        verify(partyInfoStore, times(2)).getPartyInfo();
+    }
+
+    @Test
+    public void validateEmptyRecipientListsAsValid() {
+        final String url = "http://somedomain.com";
+
+        final Set<Recipient> existingRecipients = new HashSet<>();
+        final Set<Recipient> newRecipients = new HashSet<>();
+        final PartyInfo existingPartyInfo = new PartyInfo(url, existingRecipients, Collections.emptySet());
+        final PartyInfo newPartyInfo = new PartyInfo(url, newRecipients, Collections.emptySet());
+
+        assertThat(partyInfoService.validateKeysToUrls(existingPartyInfo, newPartyInfo)).isTrue();
+    }
+
+    @Test
+    public void validateSameRecipientListsAsValid() {
+        final String url = "http://somedomain.com";
+        final PublicKey key = PublicKey.from("ONE".getBytes());
+
+        final Set<Recipient> existingRecipients = Collections.singleton(new Recipient(key, "http://one.com"));
+        final PartyInfo existingPartyInfo = new PartyInfo(url, existingRecipients, Collections.emptySet());
+
+        final Set<Recipient> newRecipients = Collections.singleton(new Recipient(key, "http://one.com"));
+        final PartyInfo newPartyInfo = new PartyInfo(url, newRecipients, Collections.emptySet());
+
+        assertThat(partyInfoService.validateKeysToUrls(existingPartyInfo, newPartyInfo)).isTrue();
+    }
+
+    @Test
+    public void validateAttemptToChangeUrlAsInvalid() {
+        final String url = "http://somedomain.com";
+        final PublicKey key = PublicKey.from("ONE".getBytes());
+
+        final Set<Recipient> existingRecipients = Collections.singleton(new Recipient(key, "http://one.com"));
+        final PartyInfo existingPartyInfo = new PartyInfo(url, existingRecipients, Collections.emptySet());
+
+        final Set<Recipient> newRecipients = Collections.singleton(new Recipient(key, "http://two.com"));
+        final PartyInfo newPartyInfo = new PartyInfo(url, newRecipients, Collections.emptySet());
+
+        assertThat(partyInfoService.validateKeysToUrls(existingPartyInfo, newPartyInfo)).isFalse();
     }
 }

@@ -162,7 +162,8 @@ public class OverrideUtilTest {
                         "server.influxConfig.sslConfig.clientKeyStore",
                         "server.influxConfig.sslConfig.generateKeyStoreIfNotExisted",
                         "server.influxConfig.sslConfig.serverKeyStorePassword",
-                        "server.influxConfig.sslConfig.sslConfigType");
+                        "server.influxConfig.sslConfig.sslConfigType",
+                        "featureToggles.enableRemoteKeyValidation");
 
         final Map<String, Class> results = OverrideUtil.buildConfigOptions();
 

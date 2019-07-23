@@ -10,6 +10,7 @@ public interface PartyInfoServiceFactory {
     }
 
     default PartyInfoService create(Enclave enclave, ConfigService configService) {
-        return new PartyInfoServiceImpl(configService, enclave);
+        return new PartyInfoServiceImpl(
+                configService, enclave, configService.featureToggles().isEnableRemoteKeyValidation());
     }
 }

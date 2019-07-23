@@ -1,6 +1,7 @@
 package com.quorum.tessera.admin;
 
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.FeatureToggles;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.util.ConfigFileStore;
 import com.quorum.tessera.enclave.Enclave;
@@ -18,17 +19,17 @@ public class ConfigServiceImpl implements ConfigService {
     private final Enclave enclave;
 
     private final ConfigFileStore configFileStore;
-    
+
     public ConfigServiceImpl(Config initialConfig, Enclave enclave, ConfigFileStore configFileStore) {
         this.config = Objects.requireNonNull(initialConfig);
         this.enclave = Objects.requireNonNull(enclave);
         this.configFileStore = Objects.requireNonNull(configFileStore);
     }
-    
+
     @Override
     public void addPeer(String url) {
         this.config.addPeer(new Peer(url));
-        configFileStore.save(config);                
+        configFileStore.save(config);
     }
 
     @Override
@@ -56,4 +57,8 @@ public class ConfigServiceImpl implements ConfigService {
         return this.enclave.getPublicKeys();
     }
 
+    @Override
+    public FeatureToggles featureToggles() {
+        return config.getFeatureToggles();
+    }
 }

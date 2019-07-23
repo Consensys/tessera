@@ -49,26 +49,30 @@ public class PartyInfoResource {
 
     private final PayloadEncoder payloadEncoder;
 
+    final boolean enableKeyValidation;
+
     public PartyInfoResource(
             final PartyInfoService partyInfoService,
             final PartyInfoParser partyInfoParser,
-            Client restClient,
-            Enclave enclave,
-            PayloadEncoder payloadEncoder) {
+            final Client restClient,
+            final Enclave enclave,
+            final PayloadEncoder payloadEncoder,
+            final boolean enableKeyValidation) {
         this.partyInfoService = requireNonNull(partyInfoService, "partyInfoService must not be null");
         this.partyInfoParser = requireNonNull(partyInfoParser, "partyInfoParser must not be null");
         this.restClient = requireNonNull(restClient);
         this.enclave = requireNonNull(enclave);
-        this.payloadEncoder = payloadEncoder;
+        this.payloadEncoder = requireNonNull(payloadEncoder);
+        this.enableKeyValidation = enableKeyValidation;
     }
 
     public PartyInfoResource(
             final PartyInfoService partyInfoService,
             final PartyInfoParser partyInfoParser,
-            Client restClient,
-            Enclave enclave) {
-
-        this(partyInfoService, partyInfoParser, restClient, enclave, PayloadEncoder.create());
+            final Client restClient,
+            final Enclave enclave,
+            final boolean enableKeyValidation) {
+        this(partyInfoService, partyInfoParser, restClient, enclave, PayloadEncoder.create(), enableKeyValidation);
     }
 
     /**
@@ -86,6 +90,11 @@ public class PartyInfoResource {
     public Response partyInfo(@ApiParam(required = true) final byte[] payload) {
 
         final PartyInfo partyInfo = partyInfoParser.from(payload);
+
+        if (!enableKeyValidation) {
+            partyInfoService.updatePartyInfo(partyInfo);
+            return Response.ok().build();
+        }
 
         // Start validation stuff
         final PublicKey sender = enclave.defaultPublicKey();
@@ -145,7 +154,7 @@ public class PartyInfoResource {
         // End validation stuff
         partyInfoService.updatePartyInfo(modifiedPartyInfo);
 
-        return Response.status(Response.Status.OK).build();
+        return Response.ok().build();
     }
 
     @GET
@@ -199,12 +208,11 @@ public class PartyInfoResource {
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.TEXT_PLAIN)
     public Response validate(byte[] payloadData) {
+        final EncodedPayload payload = payloadEncoder.decode(payloadData);
 
-        EncodedPayload payload = payloadEncoder.decode(payloadData);
+        final PublicKey mykey = payload.getRecipientKeys().iterator().next();
 
-        PublicKey mykey = payload.getRecipientKeys().iterator().next();
-
-        byte[] result = enclave.unencryptTransaction(payload, mykey);
+        final byte[] result = enclave.unencryptTransaction(payload, mykey);
 
         return Response.ok(new String(result)).build();
     }
