@@ -34,7 +34,7 @@
         <constructor-arg ref="enclave" />
         <constructor-arg ref="encryptedRawTransactionDAO" />
         <constructor-arg ref="resendManager" />
-        <constructor-arg ref="payloadPublisher" />
+        <constructor-arg ref="partyInfoService" />
     </bean>
 
     <bean name="payloadEncoder" class="com.quorum.tessera.enclave.PayloadEncoderImpl"/>

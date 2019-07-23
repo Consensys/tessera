@@ -19,10 +19,11 @@ public class PartyInfoServiceFactoryTest {
 
     @Test
     public void create() throws Exception {
+        PayloadPublisher payloadPublisher = mock(PayloadPublisher.class);
         ConfigService configService = mock(ConfigService.class);
         when(configService.getServerUri()).thenReturn(new URI("http://bogus.com"));
         Enclave enclave = mock(Enclave.class);
-        PartyInfoService service = partyInfoServiceFactory.create(enclave, configService);
+        PartyInfoService service = partyInfoServiceFactory.create(enclave, configService, payloadPublisher);
 
         assertThat(service).isNotNull();
     }
