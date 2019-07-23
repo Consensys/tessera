@@ -6,6 +6,7 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 
@@ -17,6 +18,7 @@ import org.mockito.ArgumentCaptor;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,12 +41,15 @@ public class PartyInfoServiceTest {
 
     private PartyInfoService partyInfoService;
 
+    private PayloadPublisher payloadPublisher;
+
     @Before
     public void onSetUp() throws URISyntaxException {
 
         this.partyInfoStore = mock(PartyInfoStore.class);
         this.enclave = mock(Enclave.class);
         this.configService = mock(ConfigService.class);
+        this.payloadPublisher = mock(PayloadPublisher.class);
 
         doReturn(new URI(URI)).when(configService).getServerUri();
 
@@ -58,13 +63,13 @@ public class PartyInfoServiceTest {
                                 PublicKey.from("another-public-key".getBytes())));
         doReturn(ourKeys).when(enclave).getPublicKeys();
 
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configService, enclave);
+        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configService, enclave, payloadPublisher);
     }
 
     @After
     public void after() {
         // Called in constructor
-        verify(enclave).getPublicKeys();
+        verify(enclave, atLeast(1)).getPublicKeys();
         verify(configService).getServerUri();
         verify(configService, atLeast(1)).getPeers();
         verify(partyInfoStore, atLeast(1)).store(any(PartyInfo.class));
@@ -72,6 +77,7 @@ public class PartyInfoServiceTest {
         verifyNoMoreInteractions(partyInfoStore);
         verifyNoMoreInteractions(enclave);
         verifyNoMoreInteractions(configService);
+        verifyNoMoreInteractions(payloadPublisher);
     }
 
     @Test
@@ -80,7 +86,7 @@ public class PartyInfoServiceTest {
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
 
         verify(partyInfoStore).store(captor.capture());
-        verify(enclave).getPublicKeys();
+        verify(enclave, atLeast(1)).getPublicKeys();
 
         final List<Recipient> allRegisteredKeys =
                 captor.getAllValues().stream().map(PartyInfo::getRecipients).flatMap(Set::stream).collect(toList());
@@ -90,33 +96,6 @@ public class PartyInfoServiceTest {
                 .containsExactlyInAnyOrder(
                         new Recipient(PublicKey.from("some-key".getBytes()), URI + "/"),
                         new Recipient(PublicKey.from("another-public-key".getBytes()), URI + "/"));
-    }
-
-    @Test
-    public void getRecipientURLFromPartyInfoStore() {
-
-        final Recipient recipient = new Recipient(PublicKey.from("key".getBytes()), "someurl");
-        final PartyInfo partyInfo = new PartyInfo(URI, singleton(recipient), emptySet());
-        doReturn(partyInfo).when(partyInfoStore).getPartyInfo();
-
-        final String result = partyInfoService.getURLFromRecipientKey(PublicKey.from("key".getBytes()));
-        assertThat(result).isEqualTo("someurl");
-
-        verify(partyInfoStore).getPartyInfo();
-    }
-
-    @Test
-    public void getRecipientURLFromPartyInfoStoreFailsIfKeyDoesntExist() {
-
-        doReturn(new PartyInfo("", emptySet(), emptySet())).when(partyInfoStore).getPartyInfo();
-
-        final PublicKey failingKey = PublicKey.from("otherKey".getBytes());
-        final Throwable throwable = catchThrowable(() -> partyInfoService.getURLFromRecipientKey(failingKey));
-        assertThat(throwable)
-                .isInstanceOf(KeyNotFoundException.class)
-                .hasMessage("Recipient not found for key: " + failingKey.encodeToBase64());
-
-        verify(partyInfoStore).getPartyInfo();
     }
 
     @Test
@@ -219,15 +198,56 @@ public class PartyInfoServiceTest {
     }
 
     @Test
-    public void getRecipientsURLFromPartyInfoStore() {
+    public void publishPayload() {
 
-        final Recipient recipient = new Recipient(PublicKey.from("key".getBytes()), "someurl");
-        final PartyInfo partyInfo = new PartyInfo(URI, singleton(recipient), emptySet());
-        doReturn(partyInfo).when(partyInfoStore).getPartyInfo();
+        when(enclave.getPublicKeys()).thenReturn(singleton(PublicKey.from("Key Data".getBytes())));
 
-        final Set<String> result = partyInfoService.getUrlsForKey(PublicKey.from("key".getBytes()));
-        assertThat(result).containsExactly("someurl");
+        PublicKey recipientKey = PublicKey.from("Some Key Data".getBytes());
 
+        PartyInfo partyInfo = mock(PartyInfo.class);
+        when(partyInfo.getRecipients()).thenReturn(singleton(new Recipient(recipientKey, "http://somehost.com")));
+        when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
+
+        EncodedPayload payload = mock(EncodedPayload.class);
+
+        partyInfoService.publishPayload(payload, recipientKey);
+
+        verify(payloadPublisher).publishPayload(payload, "http://somehost.com");
         verify(partyInfoStore).getPartyInfo();
+    }
+
+    @Test
+    public void publishPayloadDoesntPublishToSender() {
+
+        PublicKey recipientKey = PublicKey.from("Some Key Data".getBytes());
+
+        when(enclave.getPublicKeys()).thenReturn(singleton(recipientKey));
+
+        EncodedPayload payload = mock(EncodedPayload.class);
+
+        partyInfoService.publishPayload(payload, recipientKey);
+
+        verifyZeroInteractions(payloadPublisher);
+    }
+
+    @Test
+    public void publishPayloadKeyNotFound() {
+        when(enclave.getPublicKeys()).thenReturn(singleton(PublicKey.from("Key Data".getBytes())));
+
+        PublicKey recipientKey = PublicKey.from("Some Key Data".getBytes());
+
+        PartyInfo partyInfo = mock(PartyInfo.class);
+        when(partyInfo.getRecipients()).thenReturn(Collections.EMPTY_SET);
+        when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
+
+        EncodedPayload payload = mock(EncodedPayload.class);
+
+        try {
+            partyInfoService.publishPayload(payload, recipientKey);
+            failBecauseExceptionWasNotThrown(KeyNotFoundException.class);
+        } catch (KeyNotFoundException ex) {
+            verifyZeroInteractions(payloadPublisher);
+            verify(partyInfoStore).getPartyInfo();
+        }
     }
 }

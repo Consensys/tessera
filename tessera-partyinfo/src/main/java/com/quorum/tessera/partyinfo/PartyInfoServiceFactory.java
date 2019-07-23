@@ -9,7 +9,7 @@ public interface PartyInfoServiceFactory {
         return new PartyInfoServiceFactory() {};
     }
 
-    default PartyInfoService create(Enclave enclave, ConfigService configService) {
-        return new PartyInfoServiceImpl(configService, enclave);
+    default PartyInfoService create(Enclave enclave, ConfigService configService, PayloadPublisher payloadPublisher) {
+        return new PartyInfoServiceImpl(configService, enclave, payloadPublisher);
     }
 }

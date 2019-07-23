@@ -1,8 +1,6 @@
 package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.encryption.KeyNotFoundException;
-import com.quorum.tessera.encryption.PublicKey;
 
 /** Publishes messages from one node to another */
 public interface PayloadPublisher {
@@ -12,8 +10,7 @@ public interface PayloadPublisher {
      * URL
      *
      * @param payload the pre-formatted payload object (i.e. with all recipients still present)
-     * @param recipientKey the target public key to publish the payload to
-     * @throws KeyNotFoundException if the target public key is not known
+     * @param targetUrl the target public key to publish the payload to
      */
-    void publishPayload(EncodedPayload payload, PublicKey recipientKey);
+    void publishPayload(EncodedPayload payload, String targetUrl);
 }
