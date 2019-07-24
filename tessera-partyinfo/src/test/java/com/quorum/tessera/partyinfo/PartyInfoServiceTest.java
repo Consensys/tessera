@@ -2,15 +2,15 @@ package com.quorum.tessera.partyinfo;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.admin.ConfigService;
-import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.config.FeatureToggles;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
-
+import com.quorum.tessera.partyinfo.model.Party;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.Recipient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,16 +19,12 @@ import org.mockito.ArgumentCaptor;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Collections.*;
-import java.util.stream.Collectors;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -58,6 +54,10 @@ public class PartyInfoServiceTest {
 
         final Peer peer = new Peer("http://other-node.com:8080");
         when(configService.getPeers()).thenReturn(singletonList(peer));
+
+        final FeatureToggles featureToggles = new FeatureToggles();
+        featureToggles.setEnableRemoteKeyValidation(true);
+        when(configService.featureToggles()).thenReturn(featureToggles);
 
         final Set<PublicKey> ourKeys =
                 new HashSet<>(
@@ -117,6 +117,7 @@ public class PartyInfoServiceTest {
         verify(partyInfoStore, times(2)).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
         verify(configService).isDisablePeerDiscovery();
+        verify(configService).featureToggles();
     }
 
     @Test
@@ -133,6 +134,7 @@ public class PartyInfoServiceTest {
                 .hasMessage("Peer SomeUnknownUri not found in known peer list");
 
         verify(configService).isDisablePeerDiscovery();
+        verify(configService).featureToggles();
     }
 
     @Test
@@ -156,6 +158,7 @@ public class PartyInfoServiceTest {
 
         verify(partyInfoStore).getPartyInfo();
         verify(partyInfoStore, times(2)).store(captor.capture());
+        verify(configService).featureToggles();
 
         final List<Recipient> allRegisteredKeys =
                 captor.getAllValues().stream().map(PartyInfo::getRecipients).flatMap(Set::stream).collect(toList());
@@ -189,6 +192,7 @@ public class PartyInfoServiceTest {
 
         verify(partyInfoStore).getPartyInfo();
         verify(partyInfoStore, times(2)).store(captor.capture());
+        verify(configService).featureToggles();
     }
 
     @Test
@@ -240,7 +244,7 @@ public class PartyInfoServiceTest {
         PublicKey recipientKey = PublicKey.from("Some Key Data".getBytes());
 
         PartyInfo partyInfo = mock(PartyInfo.class);
-        when(partyInfo.getRecipients()).thenReturn(Collections.EMPTY_SET);
+        when(partyInfo.getRecipients()).thenReturn(Collections.emptySet());
         when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
 
         EncodedPayload payload = mock(EncodedPayload.class);
@@ -260,7 +264,7 @@ public class PartyInfoServiceTest {
         ConfigService configService = mock(ConfigService.class);
         when(configService.getServerUri()).thenReturn(new URI("bogus.com"));
 
-        Set services =
+        Set<Object> services =
                 Stream.of(configService, mock(Enclave.class), mock(PayloadPublisher.class)).collect(Collectors.toSet());
 
         MockServiceLocator mockServiceLocator = MockServiceLocator.createMockServiceLocator();
@@ -270,15 +274,11 @@ public class PartyInfoServiceTest {
     }
 
     @Test
-    public void attemptToUpdateRecipientWithExistingKeyWithNewUrlIsIgnoredIfToggleDisabled() throws URISyntaxException {
+    public void attemptToUpdateRecipientWithExistingKeyWithNewUrlIsIgnoredIfToggleDisabled() {
         // setup services
-        this.configService = mock(ConfigService.class);
-        when(configService.getPeers()).thenReturn(emptyList());
-        doReturn(new URI(URI)).when(configService).getServerUri();
-        this.enclave = mock(Enclave.class);
-        doReturn(emptySet()).when(enclave).getPublicKeys();
-
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configService, enclave, false);
+        final FeatureToggles featureToggles = new FeatureToggles();
+        featureToggles.setEnableRemoteKeyValidation(false);
+        when(configService.featureToggles()).thenReturn(featureToggles);
 
         // setup data
         final String uri = "http://localhost:8080";
@@ -302,6 +302,7 @@ public class PartyInfoServiceTest {
         // verify
         assertThat(updatedInfo.getRecipients()).hasSize(1).containsExactly(new Recipient(testKey, uri));
         verify(partyInfoStore, times(2)).getPartyInfo();
+        verify(configService).featureToggles();
     }
 
     @Test
