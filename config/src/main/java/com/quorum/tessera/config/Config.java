@@ -55,7 +55,7 @@ public class Config extends ConfigItem {
 
     @XmlElement private DeprecatedServerConfig server;
 
-    @XmlElement private FeatureToggles featureToggles = new FeatureToggles();
+    @XmlElement private FeatureToggles features = new FeatureToggles();
 
     @Deprecated
     public Config(
@@ -187,10 +187,10 @@ public class Config extends ConfigItem {
     }
 
     public FeatureToggles getFeatureToggles() {
-        return featureToggles;
+        return features;
     }
 
-    public void setFeatureToggles(final FeatureToggles featureToggles) {
-        this.featureToggles = featureToggles;
+    public void setFeatureToggles(final FeatureToggles features) {
+        this.features = features;
     }
 }
