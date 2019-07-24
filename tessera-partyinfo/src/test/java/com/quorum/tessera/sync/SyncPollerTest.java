@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import static java.util.Collections.emptySet;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class SyncPollerTest {
@@ -192,5 +193,10 @@ public class SyncPollerTest {
         verify(resendPartyStore).incrementFailedAttempt(syncableParty);
         verify(resendPartyStore).addUnseenParties(emptySet());
         verify(partyInfoService, times(2)).getPartyInfo();
+    }
+
+    @Test
+    public void constructWithMinimalArgs() {
+        assertThat(new SyncPoller(resendPartyStore, transactionRequester, partyInfoService, p2pClient)).isNotNull();
     }
 }

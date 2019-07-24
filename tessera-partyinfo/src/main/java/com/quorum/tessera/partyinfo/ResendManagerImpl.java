@@ -23,6 +23,10 @@ public class ResendManagerImpl implements ResendManager {
 
     private final MessageHashFactory messageHashFactory = MessageHashFactory.create();
 
+    public ResendManagerImpl(EncryptedTransactionDAO encryptedTransactionDAO, Enclave enclave) {
+        this(encryptedTransactionDAO, PayloadEncoder.create(), enclave);
+    }
+
     public ResendManagerImpl(final EncryptedTransactionDAO dao, final PayloadEncoder encoder, final Enclave enclave) {
         this.encryptedTransactionDAO = dao;
         this.payloadEncoder = encoder;

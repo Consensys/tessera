@@ -26,14 +26,11 @@ import static org.mockito.Mockito.verify;
 
 public class PartyInfoGrpcServiceTest {
 
-    @Mock
-    private PartyInfoService partyInfoService;
+    @Mock private PartyInfoService partyInfoService;
 
-    @Mock
-    private PartyInfoParser partyInfoParser;
+    @Mock private PartyInfoParser partyInfoParser;
 
-    @Mock
-    private StreamObserver<PartyInfoMessage> streamObserver;
+    @Mock private StreamObserver<PartyInfoMessage> streamObserver;
 
     private PartyInfoGrpcService service;
 
@@ -45,7 +42,7 @@ public class PartyInfoGrpcServiceTest {
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(partyInfoService,partyInfoParser, streamObserver);
+        verifyNoMoreInteractions(partyInfoService, partyInfoParser, streamObserver);
     }
 
     @Test
@@ -53,9 +50,8 @@ public class PartyInfoGrpcServiceTest {
 
         byte[] data = "{}".getBytes();
 
-        final PartyInfoMessage partyInfoMessage = PartyInfoMessage.newBuilder()
-            .setPartyInfo(ByteString.copyFrom(data))
-            .build();
+        final PartyInfoMessage partyInfoMessage =
+                PartyInfoMessage.newBuilder().setPartyInfo(ByteString.copyFrom(data)).build();
 
         PartyInfo partyInfo = mock(PartyInfo.class);
         when(partyInfoParser.from(data)).thenReturn(partyInfo);
@@ -79,7 +75,6 @@ public class PartyInfoGrpcServiceTest {
         verify(partyInfoParser).to(partyInfo);
 
         verify(streamObserver).onCompleted();
-
     }
 
     @Test
@@ -95,19 +90,28 @@ public class PartyInfoGrpcServiceTest {
         final Party partyWithTimestamp = new Party("http://localhost:9005/");
         partyWithTimestamp.setLastContacted(Instant.parse("2019-01-02T15:03:22.875Z"));
 
-        final PartyInfo partyInfo = new PartyInfo(
-            "http://localhost:9001/",
-            new HashSet<>(Arrays.asList(
-                new Recipient(PublicKey.from(Base64.getDecoder().decode("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")), "http://localhost:9001/"),
-                new Recipient(PublicKey.from(Base64.getDecoder().decode("QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=")), "http://localhost:9002/"))
-            ),
-            new HashSet<>(Arrays.asList(partyWithTimestamp, partyWithoutTimestamp))
-        );
+        final PartyInfo partyInfo =
+                new PartyInfo(
+                        "http://localhost:9001/",
+                        new HashSet<>(
+                                Arrays.asList(
+                                        new Recipient(
+                                                PublicKey.from(
+                                                        Base64.getDecoder()
+                                                                .decode(
+                                                                        "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")),
+                                                "http://localhost:9001/"),
+                                        new Recipient(
+                                                PublicKey.from(
+                                                        Base64.getDecoder()
+                                                                .decode(
+                                                                        "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=")),
+                                                "http://localhost:9002/"))),
+                        new HashSet<>(Arrays.asList(partyWithTimestamp, partyWithoutTimestamp)));
 
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
 
         ///
-
         service.getPartyInfoMessage(Empty.getDefaultInstance(), streamObserver);
 
         ArgumentCaptor<PartyInfoJson> responseCaptor = ArgumentCaptor.forClass(PartyInfoJson.class);
@@ -116,17 +120,21 @@ public class PartyInfoGrpcServiceTest {
 
         assertThat(response).isNotNull();
         assertThat(response.getUrl()).isEqualTo("http://localhost:9001/");
-        assertThat(response.getPeersList().iterator()).containsExactlyInAnyOrder(
-            Peer.newBuilder().setUrl("http://localhost:9006/")
-                .build(),
-            Peer.newBuilder().setUrl("http://localhost:9005/")
-                .setUtcTimestamp(Timestamp.newBuilder().setSeconds(1546441402).build())
-                .build()
-        );
+        assertThat(response.getPeersList().iterator())
+                .containsExactlyInAnyOrder(
+                        Peer.newBuilder().setUrl("http://localhost:9006/").build(),
+                        Peer.newBuilder()
+                                .setUrl("http://localhost:9005/")
+                                .setUtcTimestamp(Timestamp.newBuilder().setSeconds(1546441402).build())
+                                .build());
         assertThat(response.getKeysMap()).containsAllEntriesOf(expectedKeys);
 
         verify(partyInfoService).getPartyInfo();
         verify(streamObserver).onCompleted();
+    }
 
+    @Test
+    public void constructWithOnlyPartyInfoService() {
+        assertThat(new PartyInfoGrpcService(partyInfoService)).isNotNull();
     }
 }

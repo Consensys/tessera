@@ -31,6 +31,17 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoServiceImpl.class);
 
+    public PartyInfoServiceImpl() {
+        this(PartyInfoServiceFactory.create());
+    }
+
+    public PartyInfoServiceImpl(PartyInfoServiceFactory partyInfoServiceFactory) {
+        this(
+                partyInfoServiceFactory.configService(),
+                partyInfoServiceFactory.enclave(),
+                partyInfoServiceFactory.payloadPublisher());
+    }
+
     public PartyInfoServiceImpl(ConfigService configService, final Enclave enclave, PayloadPublisher payloadPublisher) {
         this(new PartyInfoStore(configService.getServerUri()), configService, enclave, payloadPublisher);
     }
