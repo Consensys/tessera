@@ -186,11 +186,11 @@ public class Config extends ConfigItem {
         return version;
     }
 
-    public FeatureToggles getFeatureToggles() {
+    public FeatureToggles getFeatures() {
         return features;
     }
 
-    public void setFeatureToggles(final FeatureToggles features) {
+    public void setFeatures(final FeatureToggles features) {
         this.features = features;
     }
 }

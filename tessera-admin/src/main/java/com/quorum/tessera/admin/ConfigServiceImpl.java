@@ -59,6 +59,6 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     public FeatureToggles featureToggles() {
-        return config.getFeatureToggles();
+        return config.getFeatures();
     }
 }

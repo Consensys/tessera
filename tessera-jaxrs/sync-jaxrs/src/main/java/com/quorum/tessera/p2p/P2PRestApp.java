@@ -55,7 +55,7 @@ public class P2PRestApp extends TesseraRestApplication {
                         partyInfoParser,
                         client,
                         enclave,
-                        config.getFeatureToggles().isEnableRemoteKeyValidation());
+                        config.getFeatures().isEnableRemoteKeyValidation());
 
         final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
 

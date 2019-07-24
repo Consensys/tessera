@@ -200,7 +200,7 @@ public class ConfigBuilder {
 
         config.setAlwaysSendTo(alwaysSendTo);
 
-        config.setFeatureToggles(featureToggles);
+        config.setFeatures(featureToggles);
 
         return config;
     }

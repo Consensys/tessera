@@ -100,11 +100,11 @@ public class ConfigServiceTest {
 
     @Test
     public void featureTogglesAreFetched() {
-        when(config.getFeatureToggles()).thenReturn(featureToggles);
+        when(config.getFeatures()).thenReturn(featureToggles);
 
         final FeatureToggles fetched = this.configService.featureToggles();
 
         assertThat(fetched).isSameAs(featureToggles);
-        verify(config).getFeatureToggles();
+        verify(config).getFeatures();
     }
 }
