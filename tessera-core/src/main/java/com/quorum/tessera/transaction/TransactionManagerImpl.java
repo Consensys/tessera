@@ -3,7 +3,6 @@ package com.quorum.tessera.transaction;
 import com.quorum.tessera.partyinfo.ResendManager;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
-import com.quorum.tessera.partyinfo.PayloadPublisher;
 import com.quorum.tessera.partyinfo.ResendResponse;
 import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.partyinfo.ResendRequest;
@@ -15,6 +14,7 @@ import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.NaclException;
+import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.partyinfo.PublishPayloadException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
@@ -47,7 +47,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final EncryptedRawTransactionDAO encryptedRawTransactionDAO;
 
-    private final PayloadPublisher payloadPublisher;
+    private final PartyInfoService partyInfoService;
 
     private final Enclave enclave;
 
@@ -60,12 +60,12 @@ public class TransactionManagerImpl implements TransactionManager {
             Enclave enclave,
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
-            PayloadPublisher payloadPublisher) {
+            PartyInfoService partyInfoService) {
         this(
                 Base64Decoder.create(),
                 PayloadEncoder.create(),
                 encryptedTransactionDAO,
-                payloadPublisher,
+                partyInfoService,
                 enclave,
                 encryptedRawTransactionDAO,
                 resendManager);
@@ -78,7 +78,7 @@ public class TransactionManagerImpl implements TransactionManager {
             Base64Decoder base64Decoder,
             PayloadEncoder payloadEncoder,
             EncryptedTransactionDAO encryptedTransactionDAO,
-            PayloadPublisher payloadPublisher,
+            PartyInfoService partyInfoService,
             Enclave enclave,
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager) {
@@ -87,7 +87,7 @@ public class TransactionManagerImpl implements TransactionManager {
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
         this.encryptedTransactionDAO =
                 Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
-        this.payloadPublisher = Objects.requireNonNull(payloadPublisher, "payloadPublisher is required");
+        this.partyInfoService = Objects.requireNonNull(partyInfoService, "partyInfoService is required");
         this.enclave = Objects.requireNonNull(enclave, "enclave is required");
         this.encryptedRawTransactionDAO =
                 Objects.requireNonNull(encryptedRawTransactionDAO, "encryptedRawTransactionDAO is required");
@@ -137,7 +137,7 @@ public class TransactionManagerImpl implements TransactionManager {
         recipientList.forEach(
                 recipient -> {
                     final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
-                    payloadPublisher.publishPayload(outgoing, recipient);
+                    partyInfoService.publishPayload(outgoing, recipient);
                 });
 
         final byte[] key = transactionHash.getHashBytes();
@@ -183,7 +183,7 @@ public class TransactionManagerImpl implements TransactionManager {
         recipientList.forEach(
                 recipient -> {
                     final EncodedPayload toPublish = payloadEncoder.forRecipient(payload, recipient);
-                    payloadPublisher.publishPayload(toPublish, recipient);
+                    partyInfoService.publishPayload(toPublish, recipient);
                 });
 
         final byte[] key = messageHash.getHashBytes();
@@ -242,7 +242,7 @@ public class TransactionManagerImpl implements TransactionManager {
                                     }
 
                                     try {
-                                        payloadPublisher.publishPayload(prunedPayload, recipientPublicKey);
+                                        partyInfoService.publishPayload(prunedPayload, recipientPublicKey);
                                     } catch (PublishPayloadException ex) {
                                         LOGGER.warn(
                                                 "Unable to publish payload to recipient {} during resend",

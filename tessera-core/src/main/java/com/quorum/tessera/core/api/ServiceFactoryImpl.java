@@ -7,6 +7,7 @@ import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
+import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
 import com.quorum.tessera.partyinfo.PayloadPublisher;
 import com.quorum.tessera.partyinfo.ResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -15,11 +16,13 @@ public class ServiceFactoryImpl implements ServiceFactory {
 
     private final ServiceLocator serviceLocator = ServiceLocator.create();
 
+    private final PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
+
     public ServiceFactoryImpl() {}
 
     @Override
     public PartyInfoService partyInfoService() {
-        return find(PartyInfoService.class);
+        return partyInfoServiceFactory.partyInfoService();
     }
 
     @Override
@@ -62,11 +65,11 @@ public class ServiceFactoryImpl implements ServiceFactory {
 
     @Override
     public ResendManager resendManager() {
-        return find(ResendManager.class);
+        return partyInfoServiceFactory.resendManager();
     }
 
     @Override
     public PayloadPublisher payloadPublisher() {
-        return find(PayloadPublisher.class);
+        return partyInfoServiceFactory.payloadPublisher();
     }
 }

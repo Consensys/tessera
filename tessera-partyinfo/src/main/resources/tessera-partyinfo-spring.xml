@@ -12,23 +12,19 @@
     </bean>
 
     <bean id="payloadPublisher" class="com.quorum.tessera.partyinfo.PayloadPublisherImpl">
-        <constructor-arg ref="payloadEncoder" />
-        <constructor-arg ref="partyInfoService" />
         <constructor-arg ref="p2pClient" />
-        <constructor-arg ref="enclave" />
     </bean>
 
     <!-- Party Info management -->
-    <bean id="partyInfoServiceFactory" class="com.quorum.tessera.partyinfo.PartyInfoServiceFactory" factory-method="newFactory" />
-    
-    <bean name="partyInfoService" factory-bean="partyInfoServiceFactory" factory-method="create">
-        <constructor-arg ref="enclave"/>
+
+    <bean name="partyInfoService" class="com.quorum.tessera.partyinfo.PartyInfoServiceImpl">
         <constructor-arg ref="configService"/>
+        <constructor-arg ref="enclave"/>
+        <constructor-arg ref="payloadPublisher"/>
     </bean>
 
     <bean name="partyInfoPoller" class="com.quorum.tessera.partyinfo.PartyInfoPoller">
         <constructor-arg ref="partyInfoService"/>
-        <constructor-arg ref="partyInfoParser" />
         <constructor-arg ref="p2pClient"/>
     </bean>
 
@@ -41,7 +37,36 @@
         <constructor-arg value="5000"/>
     </bean>
 
-    <bean id="partyInfoParser" class="com.quorum.tessera.partyinfo.PartyInfoParser" factory-method="create"/>
+    <bean id="resendManager" class="com.quorum.tessera.partyinfo.ResendManagerImpl">
+        <constructor-arg ref="encryptedTransactionDAO" />
+        <constructor-arg ref="enclave" />
+    </bean>
 
+    <!-- Node synchronization management-->
+    <beans profile="enable-sync-poller">
 
+        <bean name="resendPartyStore" class="com.quorum.tessera.sync.ResendPartyStoreImpl"/>
+
+        <bean name="transactionRequester" class="com.quorum.tessera.sync.TransactionRequesterImpl">
+            <constructor-arg ref="enclave" />
+            <constructor-arg ref="p2pClient" />
+        </bean>
+
+        <bean name="syncPoller" class="com.quorum.tessera.sync.SyncPoller">
+            <constructor-arg ref="resendPartyStore" />
+            <constructor-arg ref="transactionRequester" />
+            <constructor-arg ref="partyInfoService"/>
+            <constructor-arg ref="p2pClient"/>
+        </bean>
+
+        <bean class="com.quorum.tessera.threading.TesseraScheduledExecutor">
+            <constructor-arg>
+                <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
+            </constructor-arg>
+            <constructor-arg ref="syncPoller"/>
+            <constructor-arg value="60000"/>
+            <constructor-arg value="5000"/>
+        </bean>
+    </beans>
+    
 </beans>

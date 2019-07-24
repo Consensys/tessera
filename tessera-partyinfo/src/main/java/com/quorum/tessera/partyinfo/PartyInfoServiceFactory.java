@@ -5,12 +5,17 @@ import com.quorum.tessera.enclave.Enclave;
 
 public interface PartyInfoServiceFactory {
 
-    static PartyInfoServiceFactory newFactory() {
-        return new PartyInfoServiceFactory() {};
-    }
+    ResendManager resendManager();
 
-    default PartyInfoService create(Enclave enclave, ConfigService configService) {
-        return new PartyInfoServiceImpl(
-                configService, enclave, configService.featureToggles().isEnableRemoteKeyValidation());
+    PartyInfoService partyInfoService();
+
+    ConfigService configService();
+
+    Enclave enclave();
+
+    PayloadPublisher payloadPublisher();
+
+    static PartyInfoServiceFactory create() {
+        return new PartyInfoServiceFactoryImpl();
     }
 }

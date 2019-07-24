@@ -255,4 +255,10 @@ public class ResendManagerTest {
         verify(payloadEncoder).decode(incomingData);
         verify(enclave).unencryptTransaction(encodedPayload, null);
     }
+
+    @Test
+    public void constructWithMinimalArgs() {
+
+        assertThat(new ResendManagerImpl(encryptedTransactionDAO, enclave)).isNotNull();
+    }
 }
