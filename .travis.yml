@@ -1,5 +1,7 @@
 language: java
 
+dist: trusty
+
 env:
   global:
     - CODECOV_TOKEN="b5659ea0-f191-4e1d-9139-a8a31971c386"
