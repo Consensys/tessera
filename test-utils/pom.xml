@@ -11,6 +11,7 @@
     <modules>
         <module>mock-websocket-container</module>
         <module>mock-service-locator</module>
+        <module>mock-jaxrs</module>
     </modules>
     <build>
         <plugins>
