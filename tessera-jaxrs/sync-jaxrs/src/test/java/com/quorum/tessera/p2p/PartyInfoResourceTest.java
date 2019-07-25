@@ -58,7 +58,7 @@ public class PartyInfoResourceTest {
         this.restClient = mock(Client.class);
         this.payloadEncoder = mock(PayloadEncoder.class);
         this.partyInfoResource =
-                new PartyInfoResource(partyInfoService, partyInfoParser, restClient, enclave, payloadEncoder);
+                new PartyInfoResource(partyInfoService, partyInfoParser, restClient, enclave, payloadEncoder, true);
     }
 
     @After
@@ -112,7 +112,7 @@ public class PartyInfoResourceTest {
     }
 
     @Test
-    public void partyInfo() throws Exception {
+    public void partyInfo() {
 
         String url = "http://www.bogus.com";
 
@@ -128,7 +128,7 @@ public class PartyInfoResourceTest {
 
         Set<Recipient> recipientList = Collections.singleton(recipient);
 
-        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET);
+        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.emptySet());
 
         when(partyInfoParser.from(payload)).thenReturn(partyInfo);
 
@@ -178,7 +178,7 @@ public class PartyInfoResourceTest {
     }
 
     @Test
-    public void validate() throws Exception {
+    public void validate() {
 
         String message = "I love sparrows";
 
@@ -204,13 +204,13 @@ public class PartyInfoResourceTest {
 
     @Test
     public void constructWithMinimalArgs() {
-        PartyInfoResource instance = new PartyInfoResource(partyInfoService, partyInfoParser, restClient, enclave);
-
+        PartyInfoResource instance =
+                new PartyInfoResource(partyInfoService, partyInfoParser, restClient, enclave, true);
         assertThat(instance).isNotNull();
     }
 
     @Test
-    public void partyInfoValidateNodeFails() throws Exception {
+    public void partyInfoValidateNodeFails() {
 
         String url = "http://www.bogus.com";
 
@@ -226,7 +226,7 @@ public class PartyInfoResourceTest {
 
         Set<Recipient> recipientList = Collections.singleton(recipient);
 
-        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET);
+        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.emptySet());
 
         when(partyInfoParser.from(payload)).thenReturn(partyInfo);
 
@@ -266,7 +266,7 @@ public class PartyInfoResourceTest {
     }
 
     @Test
-    public void partyInfoValidateThrowsException() throws Exception {
+    public void partyInfoValidateThrowsException() {
 
         String url = "http://www.bogus.com";
 
@@ -282,7 +282,7 @@ public class PartyInfoResourceTest {
 
         Set<Recipient> recipientList = Collections.singleton(recipient);
 
-        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.EMPTY_SET);
+        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.emptySet());
 
         when(partyInfoParser.from(payload)).thenReturn(partyInfo);
 
@@ -315,5 +315,27 @@ public class PartyInfoResourceTest {
             verify(payloadEncoder).encode(encodedPayload);
             verify(restClient).target(url);
         }
+    }
+
+    @Test
+    public void validationDisabledPassesAllKeysToStore() {
+        this.partyInfoResource =
+                new PartyInfoResource(partyInfoService, partyInfoParser, restClient, enclave, payloadEncoder, false);
+
+        final byte[] payload = "Test message".getBytes();
+
+        final String url = "http://www.bogus.com";
+        final String otherurl = "http://www.randomaddress.com";
+        final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+        final Set<Recipient> recipientList =
+                new HashSet<>(Arrays.asList(new Recipient(recipientKey, url), new Recipient(recipientKey, otherurl)));
+        final PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.emptySet());
+
+        when(partyInfoParser.from(payload)).thenReturn(partyInfo);
+
+        partyInfoResource.partyInfo(payload);
+
+        verify(partyInfoParser).from(payload);
+        verify(partyInfoService).updatePartyInfo(partyInfo);
     }
 }

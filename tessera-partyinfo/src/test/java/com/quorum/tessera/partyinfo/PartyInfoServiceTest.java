@@ -2,15 +2,15 @@ package com.quorum.tessera.partyinfo;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.admin.ConfigService;
-import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.config.FeatureToggles;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
-
+import com.quorum.tessera.partyinfo.model.Party;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.Recipient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,16 +18,13 @@ import org.mockito.ArgumentCaptor;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Collections.*;
-import java.util.stream.Collectors;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -41,7 +38,7 @@ public class PartyInfoServiceTest {
 
     private Enclave enclave;
 
-    private PartyInfoService partyInfoService;
+    private PartyInfoServiceImpl partyInfoService;
 
     private PayloadPublisher payloadPublisher;
 
@@ -57,6 +54,10 @@ public class PartyInfoServiceTest {
 
         final Peer peer = new Peer("http://other-node.com:8080");
         when(configService.getPeers()).thenReturn(singletonList(peer));
+
+        final FeatureToggles featureToggles = new FeatureToggles();
+        featureToggles.setEnableRemoteKeyValidation(true);
+        when(configService.featureToggles()).thenReturn(featureToggles);
 
         final Set<PublicKey> ourKeys =
                 new HashSet<>(
@@ -116,6 +117,7 @@ public class PartyInfoServiceTest {
         verify(partyInfoStore, times(2)).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
         verify(configService).isDisablePeerDiscovery();
+        verify(configService).featureToggles();
     }
 
     @Test
@@ -132,6 +134,7 @@ public class PartyInfoServiceTest {
                 .hasMessage("Peer SomeUnknownUri not found in known peer list");
 
         verify(configService).isDisablePeerDiscovery();
+        verify(configService).featureToggles();
     }
 
     @Test
@@ -155,6 +158,7 @@ public class PartyInfoServiceTest {
 
         verify(partyInfoStore).getPartyInfo();
         verify(partyInfoStore, times(2)).store(captor.capture());
+        verify(configService).featureToggles();
 
         final List<Recipient> allRegisteredKeys =
                 captor.getAllValues().stream().map(PartyInfo::getRecipients).flatMap(Set::stream).collect(toList());
@@ -188,6 +192,7 @@ public class PartyInfoServiceTest {
 
         verify(partyInfoStore).getPartyInfo();
         verify(partyInfoStore, times(2)).store(captor.capture());
+        verify(configService).featureToggles();
     }
 
     @Test
@@ -239,7 +244,7 @@ public class PartyInfoServiceTest {
         PublicKey recipientKey = PublicKey.from("Some Key Data".getBytes());
 
         PartyInfo partyInfo = mock(PartyInfo.class);
-        when(partyInfo.getRecipients()).thenReturn(Collections.EMPTY_SET);
+        when(partyInfo.getRecipients()).thenReturn(Collections.emptySet());
         when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
 
         EncodedPayload payload = mock(EncodedPayload.class);
@@ -259,12 +264,84 @@ public class PartyInfoServiceTest {
         ConfigService configService = mock(ConfigService.class);
         when(configService.getServerUri()).thenReturn(new URI("bogus.com"));
 
-        Set services =
+        Set<Object> services =
                 Stream.of(configService, mock(Enclave.class), mock(PayloadPublisher.class)).collect(Collectors.toSet());
 
         MockServiceLocator mockServiceLocator = MockServiceLocator.createMockServiceLocator();
         mockServiceLocator.setServices(services);
 
         assertThat(new PartyInfoServiceImpl()).isNotNull();
+    }
+
+    @Test
+    public void attemptToUpdateRecipientWithExistingKeyWithNewUrlIsIgnoredIfToggleDisabled() {
+        // setup services
+        final FeatureToggles featureToggles = new FeatureToggles();
+        featureToggles.setEnableRemoteKeyValidation(false);
+        when(configService.featureToggles()).thenReturn(featureToggles);
+
+        // setup data
+        final String uri = "http://localhost:8080";
+
+        final PublicKey testKey = PublicKey.from("some-key".getBytes());
+        final PartyInfo initial = new PartyInfo(uri, singleton(new Recipient(testKey, uri)), emptySet());
+        when(partyInfoStore.getPartyInfo()).thenReturn(initial);
+
+        final PublicKey extraKey = PublicKey.from("some-other-key".getBytes());
+
+        final Set<Recipient> newRecipients =
+                new HashSet<>(
+                        Arrays.asList(
+                                new Recipient(testKey, "http://other.com"),
+                                new Recipient(extraKey, "http://some-other-url.com")));
+        final PartyInfo updated = new PartyInfo(uri, newRecipients, emptySet());
+
+        // call it
+        final PartyInfo updatedInfo = partyInfoService.updatePartyInfo(updated);
+
+        // verify
+        assertThat(updatedInfo.getRecipients()).hasSize(1).containsExactly(new Recipient(testKey, uri));
+        verify(partyInfoStore, times(2)).getPartyInfo();
+        verify(configService).featureToggles();
+    }
+
+    @Test
+    public void validateEmptyRecipientListsAsValid() {
+        final String url = "http://somedomain.com";
+
+        final Set<Recipient> existingRecipients = new HashSet<>();
+        final Set<Recipient> newRecipients = new HashSet<>();
+        final PartyInfo existingPartyInfo = new PartyInfo(url, existingRecipients, Collections.emptySet());
+        final PartyInfo newPartyInfo = new PartyInfo(url, newRecipients, Collections.emptySet());
+
+        assertThat(partyInfoService.validateKeysToUrls(existingPartyInfo, newPartyInfo)).isTrue();
+    }
+
+    @Test
+    public void validateSameRecipientListsAsValid() {
+        final String url = "http://somedomain.com";
+        final PublicKey key = PublicKey.from("ONE".getBytes());
+
+        final Set<Recipient> existingRecipients = Collections.singleton(new Recipient(key, "http://one.com"));
+        final PartyInfo existingPartyInfo = new PartyInfo(url, existingRecipients, Collections.emptySet());
+
+        final Set<Recipient> newRecipients = Collections.singleton(new Recipient(key, "http://one.com"));
+        final PartyInfo newPartyInfo = new PartyInfo(url, newRecipients, Collections.emptySet());
+
+        assertThat(partyInfoService.validateKeysToUrls(existingPartyInfo, newPartyInfo)).isTrue();
+    }
+
+    @Test
+    public void validateAttemptToChangeUrlAsInvalid() {
+        final String url = "http://somedomain.com";
+        final PublicKey key = PublicKey.from("ONE".getBytes());
+
+        final Set<Recipient> existingRecipients = Collections.singleton(new Recipient(key, "http://one.com"));
+        final PartyInfo existingPartyInfo = new PartyInfo(url, existingRecipients, Collections.emptySet());
+
+        final Set<Recipient> newRecipients = Collections.singleton(new Recipient(key, "http://two.com"));
+        final PartyInfo newPartyInfo = new PartyInfo(url, newRecipients, Collections.emptySet());
+
+        assertThat(partyInfoService.validateKeysToUrls(existingPartyInfo, newPartyInfo)).isFalse();
     }
 }
