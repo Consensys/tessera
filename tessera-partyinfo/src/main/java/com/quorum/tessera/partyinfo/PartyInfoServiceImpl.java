@@ -13,6 +13,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,6 +22,8 @@ import static java.util.stream.Collectors.toSet;
 
 public class PartyInfoServiceImpl implements PartyInfoService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoServiceImpl.class);
+
     private final PartyInfoStore partyInfoStore;
 
     private final ConfigService configService;
@@ -28,8 +31,6 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     private final Enclave enclave;
 
     private final PayloadPublisher payloadPublisher;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoServiceImpl.class);
 
     public PartyInfoServiceImpl() {
         this(PartyInfoServiceFactory.create());
@@ -76,6 +77,16 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     @Override
     public PartyInfo updatePartyInfo(final PartyInfo partyInfo) {
+
+        if (!configService.featureToggles().isEnableRemoteKeyValidation()) {
+            final PartyInfo existingPartyInfo = this.getPartyInfo();
+
+            if (!this.validateKeysToUrls(existingPartyInfo, partyInfo)) {
+                LOGGER.warn(
+                        "Attempt is being made to update existing key with new url. Terminating party info update.");
+                return this.getPartyInfo();
+            }
+        }
 
         if (!configService.isDisablePeerDiscovery()) {
             // auto-discovery is on, we can accept all input to us
@@ -144,5 +155,29 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         payloadPublisher.publishPayload(payload, targetUrl);
 
         LOGGER.info("Published to {}", targetUrl);
+    }
+
+    boolean validateKeysToUrls(final PartyInfo existingPartyInfo, final PartyInfo newPartyInfo) {
+
+        final Map<PublicKey, String> existingRecipientKeyUrlMap =
+                existingPartyInfo.getRecipients().stream()
+                        .collect(Collectors.toMap(Recipient::getKey, Recipient::getUrl));
+
+        final Map<PublicKey, String> newRecipientKeyUrlMap =
+                newPartyInfo.getRecipients().stream().collect(Collectors.toMap(Recipient::getKey, Recipient::getUrl));
+
+        for (final Map.Entry<PublicKey, String> entry : newRecipientKeyUrlMap.entrySet()) {
+            final PublicKey key = entry.getKey();
+
+            if (existingRecipientKeyUrlMap.containsKey(key)) {
+                String existingUrl = existingRecipientKeyUrlMap.get(key);
+                String newUrl = entry.getValue();
+                if (!existingUrl.equalsIgnoreCase(newUrl)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

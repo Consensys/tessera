@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.admin.ConfigService;
@@ -6,10 +5,9 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.service.locator.ServiceLocator;
 
 public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
-    
+
     private final ServiceLocator serviceLocator = ServiceLocator.create();
-    
-    
+
     public <T> T find(Class<T> type) {
         return serviceLocator.getServices().stream()
                 .filter(type::isInstance)
@@ -35,7 +33,7 @@ public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
 
     @Override
     public Enclave enclave() {
-       return find(Enclave.class);
+        return find(Enclave.class);
     }
 
     @Override
