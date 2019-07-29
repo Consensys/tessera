@@ -169,7 +169,7 @@ public class ConfigGenerator {
         Config first =
                 new ConfigBuilder()
                         .withNodeId(nodeId)
-                        .withNodeNumbber(1)
+                        .withNodeNumber(1)
                         .withExecutionContext(executionContext)
                         .withQt2Port(port.nextPort())
                         .withP2pPort(port.nextPort())
@@ -182,7 +182,7 @@ public class ConfigGenerator {
         Config second =
                 new ConfigBuilder()
                         .withNodeId(nodeId)
-                        .withNodeNumbber(2)
+                        .withNodeNumber(2)
                         .withExecutionContext(executionContext)
                         .withQt2Port(port.nextPort())
                         .withP2pPort(port.nextPort())
@@ -195,7 +195,7 @@ public class ConfigGenerator {
         Config third =
                 new ConfigBuilder()
                         .withNodeId(nodeId)
-                        .withNodeNumbber(3)
+                        .withNodeNumber(3)
                         .withExecutionContext(executionContext)
                         .withQt2Port(port.nextPort())
                         .withP2pPort(port.nextPort())
@@ -209,7 +209,7 @@ public class ConfigGenerator {
         Config fourth =
                 new ConfigBuilder()
                         .withNodeId(nodeId)
-                        .withNodeNumbber(4)
+                        .withNodeNumber(4)
                         .withExecutionContext(executionContext)
                         .withQt2Port(port.nextPort())
                         .withP2pPort(port.nextPort())

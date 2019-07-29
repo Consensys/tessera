@@ -2,16 +2,30 @@ package com.quorum.tessera.test;
 
 import com.quorum.tessera.config.CommunicationType;
 import org.junit.runner.RunWith;
-import suite.SocketType;
-import suite.TestSuite;
+import org.junit.runners.Parameterized;
+import suite.*;
 
-@RunWith(TestSuite.class)
-@TestSuite.ProcessConfig(
-    communicationType = CommunicationType.REST,
-    socketType = SocketType.HTTP,
-    dbType = DBType.H2,
-    prefix = "p2p"
-)
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+@RunWith(Parameterized.class)
 @TestSuite.SuiteClasses(PeerToPeerIT.class)
+@Parameterized.UseParametersRunnerFactory(ParameterizedTestSuiteRunnerFactory.class)
 public class P2pTestSuite {
+
+    @Parameterized.Parameters
+    public static List<ProcessConfiguration> configurations() {
+        return Stream.of(DBType.values())
+                .map(
+                        value ->
+                                new ProcessConfiguration(
+                                        value,
+                                        CommunicationType.REST,
+                                        SocketType.HTTP,
+                                        EnclaveType.LOCAL,
+                                        false,
+                                        "p2p"))
+                .collect(Collectors.toList());
+    }
 }
