@@ -1,11 +1,10 @@
-package com.quorum.tessera.test;
+package db;
 
 import java.sql.SQLException;
 
-
 public class UncheckedSQLException extends RuntimeException {
-    
-    public UncheckedSQLException(SQLException cause) {
+
+    public UncheckedSQLException(final SQLException cause) {
         super(cause);
     }
 

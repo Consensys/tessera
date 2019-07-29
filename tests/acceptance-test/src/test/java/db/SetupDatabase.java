@@ -1,7 +1,6 @@
 package db;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.test.UncheckedSQLException;
 import config.ConfigDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,26 +47,23 @@ public class SetupDatabase {
                 connection.close();
             } catch (SQLException ex) {
             }
-
         }
-
     }
 
     private List<Connection> getConnections() {
         return executionContext.getConfigs().stream()
-            .map(ConfigDescriptor::getConfig)
-            .map(Config::getJdbcConfig)
-            .map(j -> {
-                try {
-                    LOGGER.info("{}", j.getUrl());
-                    return DriverManager.getConnection(j.getUrl(), j.getUsername(), j.getPassword());
-                } catch (SQLException ex) {
-                    throw new UncheckedSQLException(ex);
-                }
-
-            })
-            .collect(Collectors.toList());
-
+                .map(ConfigDescriptor::getConfig)
+                .map(Config::getJdbcConfig)
+                .map(
+                        j -> {
+                            try {
+                                LOGGER.info("{}", j.getUrl());
+                                return DriverManager.getConnection(j.getUrl(), j.getUsername(), j.getPassword());
+                            } catch (SQLException ex) {
+                                throw new UncheckedSQLException(ex);
+                            }
+                        })
+                .collect(Collectors.toList());
     }
 
     public void dropAll() throws Exception {
@@ -93,10 +89,7 @@ public class SetupDatabase {
                     } catch (SQLException ex) {
                     }
                 }
-
             }
-
-
         }
 
         for (Connection connection : connections) {
@@ -104,9 +97,6 @@ public class SetupDatabase {
                 connection.close();
             } catch (SQLException ex) {
             }
-
         }
-
     }
-
 }
