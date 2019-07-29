@@ -1,5 +1,7 @@
 package com.quorum.tessera.grpc;
 
+import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.grpc.api.Q2TGrpcApp;
 import com.quorum.tessera.grpc.p2p.P2PGrpcApp;
 import com.quorum.tessera.grpc.p2p.TesseraGrpcService;
@@ -27,7 +29,14 @@ public class GrpcAppTest {
     @Before
     public void setUp() {
         serviceLocator = mock(ServiceLocator.class);
-        grpcApp = new GrpcApp(serviceLocator);
+        grpcApp =
+                new GrpcApp(serviceLocator) {
+                    @Override
+                    public AppType getAppType() {
+                        return AppType.THIRD_PARTY;
+                    }
+                };
+        assertThat(grpcApp.getCommunicationType()).isEqualTo(CommunicationType.GRPC);
     }
 
     @After
@@ -48,7 +57,15 @@ public class GrpcAppTest {
     @Test
     public void createWithNoServiceLocator() {
 
-        final Throwable throwable = catchThrowable(() -> new GrpcApp(null));
+        final Throwable throwable =
+                catchThrowable(
+                        () ->
+                                new GrpcApp(null) {
+                                    @Override
+                                    public AppType getAppType() {
+                                        return AppType.ADMIN;
+                                    }
+                                });
         assertThat(throwable).isInstanceOf(NullPointerException.class);
     }
 
