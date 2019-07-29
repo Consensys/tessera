@@ -13,6 +13,7 @@ import com.quorum.tessera.api.exception.NotFoundExceptionMapper;
 import com.quorum.tessera.api.exception.SecurityExceptionMapper;
 import com.quorum.tessera.api.exception.TransactionNotFoundExceptionMapper;
 import com.quorum.tessera.api.exception.WebApplicationExceptionMapper;
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.apps.TesseraApp;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,5 +40,10 @@ public abstract class TesseraRestApplication extends Application implements Tess
                         VersionResource.class,
                         ApiResource.class)
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public CommunicationType getCommunicationType() {
+        return CommunicationType.REST;
     }
 }

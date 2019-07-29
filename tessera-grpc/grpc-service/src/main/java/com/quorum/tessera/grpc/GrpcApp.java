@@ -1,5 +1,7 @@
 package com.quorum.tessera.grpc;
 
+import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.config.apps.TesseraApp;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import io.grpc.BindableService;
 
@@ -7,7 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class GrpcApp {
+public abstract class GrpcApp implements TesseraApp {
 
     private final ServiceLocator serviceLocator;
 
@@ -25,5 +27,10 @@ public class GrpcApp {
                 .filter(o -> o.getClass().getPackage().getName().startsWith(apiPackageName))
                 .map(o -> (BindableService) o)
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public CommunicationType getCommunicationType() {
+        return CommunicationType.GRPC;
     }
 }

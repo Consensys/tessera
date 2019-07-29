@@ -1,6 +1,6 @@
 package transaction.whitelist;
 
-import com.quorum.tessera.Launcher;
+import com.quorum.tessera.launcher.Main;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
@@ -83,7 +83,7 @@ public class WhitelistSteps implements En {
 
                         List<String> cmd =
                                 new ExecArgsBuilder()
-                                        .withMainClass(Launcher.class)
+                                        .withMainClass(Main.class)
                                         .withClassPathItem(Paths.get(jarPath))
                                         .withConfigFile(configFile)
                                         .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
@@ -148,7 +148,7 @@ public class WhitelistSteps implements En {
 
                         responseHolder.add(response);
                     });
-
+          
             Then(
                     "the response code is UNAUTHORIZED",
                     () -> assertThat(responseHolder.get(0).getStatus()).isEqualTo(401));
