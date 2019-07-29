@@ -1,15 +1,12 @@
-package com.quorum.tessera;
+package com.quorum.tessera.launcher;
 
-import com.quorum.tessera.app.ApplicationFactory;
 import com.quorum.tessera.cli.CliDelegate;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
-import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.reflect.ReflectCallback;
+import com.quorum.tessera.config.apps.TesseraAppFactory;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -22,10 +19,13 @@ import javax.validation.ConstraintViolationException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/** The main entry point for the application. This just starts up the application in the embedded container. */
-public class Launcher {
+/**
+ * The main entry point for the application. This just starts up the application
+ * in the embedded container.
+ */
+public class Main {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Launcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
     public static void main(final String... args) throws Exception {
 
@@ -43,8 +43,8 @@ public class Launcher {
                 System.exit(cliResult.getStatus());
             }
 
-            final Config config =
-                    cliResult
+            final Config config
+                    = cliResult
                             .getConfig()
                             .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
 
@@ -76,12 +76,13 @@ public class Launcher {
 
     private static void runWebServer(final Config config) throws Exception {
 
-        final List<TesseraServer> servers =
-                config.getServerConfigs().stream()
+        final List<TesseraServer> servers
+                = config.getServerConfigs().stream()
                         .filter(server -> !AppType.ENCLAVE.equals(server.getApp()))
                         .map(
                                 conf -> {
-                                    Object app = resolveAppFromServerConfig(conf);
+                                    Object app = TesseraAppFactory.create(conf.getCommunicationType(), conf.getApp())
+                                            .orElseThrow(() -> new IllegalStateException("Cant create app for " + conf.getApp()));
 
                                     return TesseraServerFactory.create(conf.getCommunicationType())
                                             .createServer(conf, Collections.singleton(app));
@@ -107,26 +108,4 @@ public class Launcher {
         }
     }
 
-    private static final Map<AppType, String> GRPC_CLASS_LOOKUP =
-            new HashMap<AppType, String>() {
-                {
-                    put(AppType.P2P, "com.quorum.tessera.grpc.p2p.P2PGrpcApp");
-                    put(AppType.Q2T, "com.quorum.tessera.grpc.api.Q2TGrpcApp");
-                }
-            };
-
-    private static Object resolveAppFromServerConfig(ServerConfig serverConfig) {
-
-        if (serverConfig.getCommunicationType() == CommunicationType.GRPC) {
-            if (!GRPC_CLASS_LOOKUP.containsKey(serverConfig.getApp())) {
-                throw new IllegalStateException("GRPC is not supported for :" + serverConfig.getApp());
-            }
-            String className = GRPC_CLASS_LOOKUP.get(serverConfig.getApp());
-
-            return ReflectCallback.execute(() -> Class.forName(className).getConstructor().newInstance());
-        }
-
-        return ApplicationFactory.create(serverConfig.getApp())
-                .orElseThrow(() -> new IllegalStateException("Cant create app for " + serverConfig.getApp()));
-    }
 }
