@@ -310,7 +310,7 @@
 
                         <configuration>
                             <excludes>
-                                <exclude>com/quorum/tessera/Launcher*</exclude>
+                                <exclude>com/quorum/tessera/launcher/Main*</exclude>
                                 <exclude>com/quorum/tessera/data/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/config/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/passwords/ConsolePasswordReader*</exclude>

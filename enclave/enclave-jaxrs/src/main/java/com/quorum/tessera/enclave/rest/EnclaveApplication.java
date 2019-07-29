@@ -1,6 +1,7 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.CommunicationType;
 import javax.ws.rs.core.Application;
 import java.util.Objects;
 import java.util.Set;
@@ -23,5 +24,10 @@ public class EnclaveApplication extends Application implements com.quorum.tesser
     @Override
     public AppType getAppType() {
         return AppType.ENCLAVE;
+    }
+
+    @Override
+    public CommunicationType getCommunicationType() {
+        return CommunicationType.REST;
     }
 }

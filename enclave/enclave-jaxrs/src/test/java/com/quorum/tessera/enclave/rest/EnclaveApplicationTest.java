@@ -1,6 +1,7 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
@@ -151,5 +152,11 @@ public class EnclaveApplicationTest {
     @Test
     public void appType() {
         assertThat(new EnclaveApplication(mock(EnclaveResource.class)).getAppType()).isEqualTo(AppType.ENCLAVE);
+    }
+
+    @Test
+    public void getCommunicationType() {
+        assertThat(new EnclaveApplication(mock(EnclaveResource.class)).getCommunicationType())
+                .isEqualTo(CommunicationType.REST);
     }
 }

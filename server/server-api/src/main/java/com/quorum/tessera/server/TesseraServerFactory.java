@@ -15,12 +15,8 @@ public interface TesseraServerFactory<T> {
     TesseraServer createServer(ServerConfig config, Set<T> services);
 
     Logger LOGGER = LoggerFactory.getLogger(TesseraServerFactory.class);
-    
-    static TesseraServerFactory create(CommunicationType communicationType) {
 
-        if(communicationType == CommunicationType.WEB_SOCKET) {
-            throw new UnsupportedOperationException("Websockets are not supported yet");
-        }
+    static TesseraServerFactory create(CommunicationType communicationType) {
 
         List<TesseraServerFactory> all = new ArrayList<>();
         ServiceLoader.load(TesseraServerFactory.class).forEach(all::add);
@@ -28,9 +24,8 @@ public interface TesseraServerFactory<T> {
         return all.stream()
                 .filter(f -> f.communicationType() == communicationType)
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No server factory found for "+ communicationType));
+                .orElseThrow(() -> new IllegalStateException("No server factory found for " + communicationType));
     }
 
     CommunicationType communicationType();
-    
 }
