@@ -3,6 +3,10 @@ package suite;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.test.DBType;
 
+/**
+ * Sets the runtime properties of the nodes used during the test. This allows the same tests to run with different node
+ * configurations. Similar to {@link ProcessConfig}, but can be instantiated for use with parameterized tests.
+ */
 public class ProcessConfiguration {
 
     private DBType dbType;
