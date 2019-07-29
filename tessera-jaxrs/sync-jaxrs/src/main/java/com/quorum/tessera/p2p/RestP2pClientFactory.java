@@ -1,4 +1,4 @@
-package com.quorum.tessera.client;
+package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.P2pClientFactory;

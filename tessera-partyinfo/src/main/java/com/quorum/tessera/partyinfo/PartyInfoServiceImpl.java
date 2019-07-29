@@ -6,12 +6,14 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,21 +22,40 @@ import static java.util.stream.Collectors.toSet;
 
 public class PartyInfoServiceImpl implements PartyInfoService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoServiceImpl.class);
+
     private final PartyInfoStore partyInfoStore;
 
     private final ConfigService configService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoServiceImpl.class);
+    private final Enclave enclave;
 
-    public PartyInfoServiceImpl(ConfigService configService, final Enclave enclave) {
-        this(new PartyInfoStore(configService.getServerUri()), configService, enclave);
+    private final PayloadPublisher payloadPublisher;
+
+    public PartyInfoServiceImpl() {
+        this(PartyInfoServiceFactory.create());
+    }
+
+    public PartyInfoServiceImpl(PartyInfoServiceFactory partyInfoServiceFactory) {
+        this(
+                partyInfoServiceFactory.configService(),
+                partyInfoServiceFactory.enclave(),
+                partyInfoServiceFactory.payloadPublisher());
+    }
+
+    public PartyInfoServiceImpl(ConfigService configService, final Enclave enclave, PayloadPublisher payloadPublisher) {
+        this(new PartyInfoStore(configService.getServerUri()), configService, enclave, payloadPublisher);
     }
 
     protected PartyInfoServiceImpl(
-            final PartyInfoStore partyInfoStore, final ConfigService configService, final Enclave enclave) {
+            final PartyInfoStore partyInfoStore,
+            final ConfigService configService,
+            final Enclave enclave,
+            PayloadPublisher payloadPublisher) {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
         this.configService = Objects.requireNonNull(configService);
-
+        this.enclave = Objects.requireNonNull(enclave);
+        this.payloadPublisher = payloadPublisher;
         final String advertisedUrl = URLNormalizer.create().normalize(configService.getServerUri().toString());
 
         final Set<Party> initialParties =
@@ -56,6 +77,16 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     @Override
     public PartyInfo updatePartyInfo(final PartyInfo partyInfo) {
+
+        if (!configService.featureToggles().isEnableRemoteKeyValidation()) {
+            final PartyInfo existingPartyInfo = this.getPartyInfo();
+
+            if (!this.validateKeysToUrls(existingPartyInfo, partyInfo)) {
+                LOGGER.warn(
+                        "Attempt is being made to update existing key with new url. Terminating party info update.");
+                return this.getPartyInfo();
+            }
+        }
 
         if (!configService.isDisablePeerDiscovery()) {
             // auto-discovery is on, we can accept all input to us
@@ -94,29 +125,59 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     }
 
     @Override
-    public String getURLFromRecipientKey(final PublicKey key) {
+    public PartyInfo removeRecipient(String uri) {
+        return partyInfoStore.removeRecipient(uri);
+    }
+
+    @Override
+    public void publishPayload(final EncodedPayload payload, final PublicKey recipientKey) {
+
+        if (enclave.getPublicKeys().contains(recipientKey)) {
+            // we are trying to send something to ourselves - don't do it
+            LOGGER.debug(
+                    "Trying to send message to ourselves with key {}, not publishing", recipientKey.encodeToBase64());
+            return;
+        }
 
         final Recipient retrievedRecipientFromStore =
                 partyInfoStore.getPartyInfo().getRecipients().stream()
-                        .filter(recipient -> key.equals(recipient.getKey()))
+                        .filter(recipient -> recipientKey.equals(recipient.getKey()))
                         .findAny()
                         .orElseThrow(
-                                () -> new KeyNotFoundException("Recipient not found for key: " + key.encodeToBase64()));
+                                () ->
+                                        new KeyNotFoundException(
+                                                "Recipient not found for key: " + recipientKey.encodeToBase64()));
 
-        return retrievedRecipientFromStore.getUrl();
+        final String targetUrl = retrievedRecipientFromStore.getUrl();
+
+        LOGGER.info("Publishing message to {}", targetUrl);
+
+        payloadPublisher.publishPayload(payload, targetUrl);
+
+        LOGGER.info("Published to {}", targetUrl);
     }
 
-    @Override
-    public Set<String> getUrlsForKey(PublicKey key) {
+    boolean validateKeysToUrls(final PartyInfo existingPartyInfo, final PartyInfo newPartyInfo) {
 
-        return partyInfoStore.getPartyInfo().getRecipients().stream()
-                .filter(recipient -> key.equals(recipient.getKey()))
-                .map(Recipient::getUrl)
-                .collect(Collectors.toSet());
-    }
+        final Map<PublicKey, String> existingRecipientKeyUrlMap =
+                existingPartyInfo.getRecipients().stream()
+                        .collect(Collectors.toMap(Recipient::getKey, Recipient::getUrl));
 
-    @Override
-    public PartyInfo removeRecipient(String uri) {
-        return partyInfoStore.removeRecipient(uri);
+        final Map<PublicKey, String> newRecipientKeyUrlMap =
+                newPartyInfo.getRecipients().stream().collect(Collectors.toMap(Recipient::getKey, Recipient::getUrl));
+
+        for (final Map.Entry<PublicKey, String> entry : newRecipientKeyUrlMap.entrySet()) {
+            final PublicKey key = entry.getKey();
+
+            if (existingRecipientKeyUrlMap.containsKey(key)) {
+                String existingUrl = existingRecipientKeyUrlMap.get(key);
+                String newUrl = entry.getValue();
+                if (!existingUrl.equalsIgnoreCase(newUrl)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

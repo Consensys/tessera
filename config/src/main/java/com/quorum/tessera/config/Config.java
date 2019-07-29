@@ -55,6 +55,8 @@ public class Config extends ConfigItem {
 
     @XmlElement private DeprecatedServerConfig server;
 
+    @XmlElement private FeatureToggles features = new FeatureToggles();
+
     @Deprecated
     public Config(
             final JdbcConfig jdbcConfig,
@@ -182,5 +184,13 @@ public class Config extends ConfigItem {
 
     public String getVersion() {
         return version;
+    }
+
+    public FeatureToggles getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(final FeatureToggles features) {
+        this.features = features;
     }
 }
