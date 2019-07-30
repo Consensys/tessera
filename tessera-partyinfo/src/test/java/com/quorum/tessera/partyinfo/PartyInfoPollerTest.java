@@ -155,4 +155,11 @@ public class PartyInfoPollerTest {
     public void constructWithMinimalArgs() {
         assertThat(new PartyInfoPoller(partyInfoService, p2pClient)).isNotNull();
     }
+
+    @Test
+    public void noP2pClient() throws Exception {
+
+        PartyInfoPoller partyInfoPollerWithNullClient = new PartyInfoPoller(partyInfoService, partyInfoParser, null);
+        partyInfoPollerWithNullClient.run();
+    }
 }

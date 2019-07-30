@@ -133,9 +133,15 @@ public class ConfigBuilder {
         ServerConfig p2pServerConfig = new ServerConfig();
         p2pServerConfig.setApp(AppType.P2P);
         p2pServerConfig.setEnabled(true);
-        p2pServerConfig.setCommunicationType(executionContext.getCommunicationType());
-        p2pServerConfig.setServerAddress("http://localhost:" + p2pPort);
-        p2pServerConfig.setBindingAddress("http://0.0.0.0:" + p2pPort);
+        p2pServerConfig.setCommunicationType(executionContext.getP2pCommunicationType());
+        if (executionContext.getP2pCommunicationType() == CommunicationType.WEB_SOCKET) {
+            p2pServerConfig.setServerAddress("ws://localhost:" + p2pPort);
+            p2pServerConfig.setBindingAddress("ws://0.0.0.0:" + p2pPort);
+        } else {
+            p2pServerConfig.setServerAddress("http://localhost:" + p2pPort);
+            p2pServerConfig.setBindingAddress("http://0.0.0.0:" + p2pPort);
+        }
+
         servers.add(p2pServerConfig);
 
         if (executionContext.getCommunicationType() == CommunicationType.REST && Objects.nonNull(adminPort)) {

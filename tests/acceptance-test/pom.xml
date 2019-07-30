@@ -198,6 +198,7 @@
                         <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
+<!--                        <include>RestSuiteP2pWebsocketH2</include>-->
                         <include>AdminRestSuite</include>
                         <include>RestSuiteRemoteEnclaveH2</include>
                         <include>RestSuiteH2</include>

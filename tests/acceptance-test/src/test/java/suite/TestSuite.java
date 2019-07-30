@@ -15,6 +15,8 @@ import org.junit.runners.model.RunnerBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,6 +48,12 @@ public class TestSuite extends Suite {
                                 .findAny()
                                 .orElseThrow(() -> new AssertionError("No Test config found"));
 
+                com.quorum.tessera.config.CommunicationType p2pCommType =
+                        Optional.of(annotatedConfig.p2pCommunicationType())
+                                .filter(v -> !Objects.equals("NONE", v))
+                                .map(com.quorum.tessera.config.CommunicationType::valueOf)
+                                .orElse(annotatedConfig.communicationType());
+
                 this.testConfig =
                         new ProcessConfiguration(
                                 annotatedConfig.dbType(),
@@ -54,6 +62,8 @@ public class TestSuite extends Suite {
                                 annotatedConfig.enclaveType(),
                                 annotatedConfig.admin(),
                                 annotatedConfig.prefix());
+
+                this.testConfig.setP2pCommunicationType(p2pCommType);
             }
 
             ExecutionContext executionContext =
@@ -62,6 +72,7 @@ public class TestSuite extends Suite {
                             .with(testConfig.getDbType())
                             .with(testConfig.getSocketType())
                             .with(testConfig.getEnclaveType())
+                            .withP2pCommunicationType(testConfig.getP2pCommunicationType())
                             .withAdmin(testConfig.isAdmin())
                             .prefix(testConfig.getPrefix())
                             .createAndSetupContext();

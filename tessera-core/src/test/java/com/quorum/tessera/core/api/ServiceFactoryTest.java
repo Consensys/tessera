@@ -99,10 +99,4 @@ public class ServiceFactoryTest {
         ResendManager resendManager = serviceFactory.resendManager();
         assertThat(resendManager).isNotNull();
     }
-
-    @Test
-    public void findPayloadPublisher() {
-        PayloadPublisher payloadPublisher = serviceFactory.payloadPublisher();
-        assertThat(payloadPublisher).isNotNull();
-    }
 }

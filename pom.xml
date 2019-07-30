@@ -603,7 +603,13 @@
                 <artifactId>jersey-server</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
-
+            
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>websockets-server</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+            
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>test-util</artifactId>
@@ -711,6 +717,12 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc-api</artifactId>
+                <version>0.10-SNAPSHOT</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>tessera-sync</artifactId>
                 <version>0.10-SNAPSHOT</version>
             </dependency>
 
@@ -1163,7 +1175,13 @@
                 <artifactId>javax-websocket-client-impl</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
-
+            
+            <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>websocket-client</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
 
             <dependency>
                 <groupId>com.github.jnr</groupId>

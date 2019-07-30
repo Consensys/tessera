@@ -1,7 +1,5 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.admin.ConfigService;
-import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.service.locator.ServiceLocator;
 
 public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
@@ -24,20 +22,5 @@ public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
     @Override
     public PartyInfoService partyInfoService() {
         return find(PartyInfoService.class);
-    }
-
-    @Override
-    public ConfigService configService() {
-        return find(ConfigService.class);
-    }
-
-    @Override
-    public Enclave enclave() {
-        return find(Enclave.class);
-    }
-
-    @Override
-    public PayloadPublisher payloadPublisher() {
-        return find(PayloadPublisher.class);
     }
 }

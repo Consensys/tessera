@@ -30,7 +30,7 @@ public class PartyInfoPoller implements Runnable {
             final PartyInfoService partyInfoService, final PartyInfoParser partyInfoParser, final P2pClient p2pClient) {
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
         this.partyInfoParser = Objects.requireNonNull(partyInfoParser);
-        this.p2pClient = Objects.requireNonNull(p2pClient);
+        this.p2pClient = p2pClient;
     }
 
     /**
@@ -48,6 +48,10 @@ public class PartyInfoPoller implements Runnable {
     @Override
     public void run() {
         LOGGER.debug("Polling {}", getClass().getSimpleName());
+
+        if (Objects.isNull(p2pClient)) {
+            return;
+        }
 
         final PartyInfo partyInfo = partyInfoService.getPartyInfo();
 

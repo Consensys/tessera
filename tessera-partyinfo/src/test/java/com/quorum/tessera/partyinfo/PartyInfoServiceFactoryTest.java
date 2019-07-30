@@ -43,9 +43,6 @@ public class PartyInfoServiceFactoryTest {
         mockServiceLocator.setServices(services);
 
         assertThat(partyInfoServiceFactory.partyInfoService()).isSameAs(partyInfoService);
-        assertThat(partyInfoServiceFactory.enclave()).isSameAs(enclave);
-        assertThat(partyInfoServiceFactory.configService()).isSameAs(configService);
-        assertThat(partyInfoServiceFactory.payloadPublisher()).isSameAs(payloadPublisher);
         assertThat(partyInfoServiceFactory.resendManager()).isSameAs(resendManager);
     }
 

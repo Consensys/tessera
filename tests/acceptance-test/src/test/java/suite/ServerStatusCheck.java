@@ -33,6 +33,19 @@ public interface ServerStatusCheck {
             }
         }
 
+        if (communicationType == CommunicationType.WEB_SOCKET) {
+
+            final URL url =
+                    IOCallback.execute(
+                            () ->
+                                    UriBuilder.fromUri(serverConfig.getServerUri())
+                                            .scheme("http")
+                                            .path("sync")
+                                            .build()
+                                            .toURL());
+            return new WebSocketServerStatusCheck(url);
+        }
+
         if (communicationType == CommunicationType.GRPC) {
             URL grpcUrl =
                     IOCallback.execute(
@@ -40,6 +53,6 @@ public interface ServerStatusCheck {
             return new GrpcServerStatusCheck(grpcUrl, serverConfig.getApp());
         }
 
-        throw new UnsupportedOperationException("Unable to cerate server check for " + serverConfig);
+        throw new UnsupportedOperationException("Unable to create server check for " + serverConfig);
     }
 }
