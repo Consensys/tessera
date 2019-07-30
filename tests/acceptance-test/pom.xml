@@ -312,7 +312,7 @@
                             <rerunFailingTestsCount>0</rerunFailingTestsCount>
                             <includes>
                                 <include>AdminRestSuite</include>
-                                <include>RestSuite</include>
+                                <include>RestSuiteSimple</include>
                                 <include>RestSuiteUnixH2</include>
                                 <include>CucumberWhitelistIT</include>
                                 <include>ConfigMigrationIT</include>
