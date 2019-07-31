@@ -32,6 +32,7 @@ public enum PartyInfoStoreImpl implements PartyInfoStore {
     private final Set<Party> parties = new HashSet<>();
 
     public PartyInfoStore init(URI advertisedUrl) {
+        this.clear();
         this.advertisedUrl = advertisedUrl.toString();
         this.parties.add(new Party(this.advertisedUrl));
         return this;
