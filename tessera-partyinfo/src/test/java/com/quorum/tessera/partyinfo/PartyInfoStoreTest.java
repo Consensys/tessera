@@ -33,7 +33,7 @@ public class PartyInfoStoreTest {
 
     @After
     public void after() {
-        PartyInfoStoreImpl.INSTANCE.clear();
+        partyInfoStore.clear();
     }
 
     @Test

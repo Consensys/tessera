@@ -92,7 +92,7 @@ public enum PartyInfoStoreImpl implements PartyInfoStore {
     }
 
     @Override
-    public void clear() {
+    public synchronized void clear() {
         recipients.clear();
         parties.clear();
     }
