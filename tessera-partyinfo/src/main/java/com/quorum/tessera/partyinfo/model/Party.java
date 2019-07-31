@@ -31,18 +31,31 @@ public class Party {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        return (o instanceof Party) && Objects.equals(url, ((Party) o).url);
-    }
-
-    @Override
     public int hashCode() {
-        return Objects.hash(url);
+        int hash = 3;
+        hash = 23 * hash + Objects.hashCode(this.url);
+        return hash;
     }
 
     @Override
-    public String toString() {
-        return "Party{" + "url=" + url + '}';
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Party other = (Party) obj;
+        if (!Objects.equals(this.url, other.url)) {
+            return false;
+        }
+        return true;
     }
+
+
+
 
 }
