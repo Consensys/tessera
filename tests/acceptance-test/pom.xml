@@ -12,7 +12,6 @@
         <version>0.10-SNAPSHOT</version>
     </parent>
 
-
     <dependencies>
 
         <dependency>
@@ -82,7 +81,6 @@
             <scope>test</scope>
         </dependency>
 
-
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
@@ -94,6 +92,7 @@
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-partyinfo</artifactId>
@@ -199,21 +198,12 @@
                     </systemPropertyVariables>
                     <includes>
                         <include>AdminRestSuite</include>
-                        <include>RestSuiteRemoteEnclaveH2</include>
-                        <include>RestSuiteH2</include>
+                        <include>RestSuite</include>
                         <include>RestSuiteUnixH2</include>
                         <include>CucumberWhitelistIT</include>
-                        <include>RestSuiteH2</include>
-                        <include>RestSuiteUnixH2</include>
-                        <include>RestSuiteHSQL</include>
-                        <include>RestSuiteUnixH2</include>
-                        <include>RestSuiteSqlite</include>
                         <include>ConfigMigrationIT</include>
                         <include>P2pTestSuite</include>
-                        <include>GrpcSuiteH2</include>
-                        <include>GrpcSuiteSqlite</include>
-                        <include>GrpcSuiteHSQL</include>
-                       <include>P2pTestSuite</include>
+                        <include>GrpcSuite</include>
                     </includes>
                 </configuration>
                 <executions>
@@ -247,8 +237,6 @@
 
     <profiles>
 
-
-
         <profile>
             <id>acceptance-test</id>
             <activation>
@@ -256,6 +244,7 @@
             </activation>
 
         </profile>
+
         <profile>
             <id>disable-acceptance-test</id>
             <activation>
@@ -298,9 +287,7 @@
                             </systemPropertyVariables>
                             <rerunFailingTestsCount>0</rerunFailingTestsCount>
                             <includes>
-                                <include>GrpcSuiteH2</include>
-                                <include>GrpcSuiteSqlite</include>
-                                <include>GrpcSuiteHSQL</include>
+                                <include>GrpcSuite</include>
                             </includes>
                         </configuration>
                     </plugin>
@@ -312,7 +299,6 @@
             <id>simple-acceptance-tests</id>
 
             <build>
-               
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -326,13 +312,9 @@
                             <rerunFailingTestsCount>0</rerunFailingTestsCount>
                             <includes>
                                 <include>AdminRestSuite</include>
-                                <include>RestSuiteH2</include>
+                                <include>RestSuiteSimple</include>
+                                <include>RestSuiteUnixH2</include>
                                 <include>CucumberWhitelistIT</include>
-                                <include>RestSuiteH2</include>
-                                <include>RestSuiteUnixH2</include>
-                                <include>RestSuiteHSQL</include>
-                                <include>RestSuiteUnixH2</include>
-                                <include>RestSuiteSqlite</include>
                                 <include>ConfigMigrationIT</include>
                             </includes>
                         </configuration>

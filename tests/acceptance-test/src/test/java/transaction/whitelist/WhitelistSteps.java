@@ -61,7 +61,7 @@ public class WhitelistSteps implements En {
                         ConfigBuilder whiteListConfigBuilder =
                                 new ConfigBuilder()
                                         .withNodeId("whitelist")
-                                        .withNodeNumbber(5)
+                                        .withNodeNumber(5)
                                         .withQ2TSocketType(SocketType.HTTP)
                                         .withExecutionContext(executionContext)
                                         .withP2pPort(port)
@@ -148,12 +148,10 @@ public class WhitelistSteps implements En {
 
                         responseHolder.add(response);
                     });
-
+          
             Then(
                     "the response code is UNAUTHORIZED",
-                    () -> {
-                        assertThat(responseHolder.get(0).getStatus()).isEqualTo(401);
-                    });
+                    () -> assertThat(responseHolder.get(0).getStatus()).isEqualTo(401));
 
             Then(
                     "the node is stopped",

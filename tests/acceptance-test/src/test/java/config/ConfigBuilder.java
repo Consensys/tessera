@@ -79,7 +79,7 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder withNodeNumbber(Integer nodeNumber) {
+    public ConfigBuilder withNodeNumber(Integer nodeNumber) {
         this.nodeNumber = nodeNumber;
         return this;
     }
@@ -222,7 +222,7 @@ public class ConfigBuilder {
                 new ConfigBuilder()
                         .withExecutionContext(executionContext)
                         .withNodeId("mynode")
-                        .withNodeNumbber(1)
+                        .withNodeNumber(1)
                         .withPeer("http://localhost:999")
                         .withKeys(
                                 "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
