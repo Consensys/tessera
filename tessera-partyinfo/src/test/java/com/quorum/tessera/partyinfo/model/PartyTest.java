@@ -1,6 +1,5 @@
 package com.quorum.tessera.partyinfo.model;
 
-import com.quorum.tessera.partyinfo.model.Party;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

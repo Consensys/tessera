@@ -55,6 +55,11 @@ public class Party {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "Party{" + "url=" + url + ", lastContacted=" + lastContacted + '}';
+    }
+
 
 
 
