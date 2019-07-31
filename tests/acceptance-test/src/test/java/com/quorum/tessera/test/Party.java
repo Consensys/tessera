@@ -3,6 +3,7 @@ package com.quorum.tessera.test;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
+import db.UncheckedSQLException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +40,7 @@ public class Party {
     public Party(String publicKey, URL configUrl, String alias) {
         this.publicKey = Objects.requireNonNull(publicKey);
 
-        try (InputStream inputStream = configUrl.openStream()){
+        try (InputStream inputStream = configUrl.openStream()) {
             this.configFilePath = Paths.get(configUrl.toURI());
             this.config = JaxbUtil.unmarshal(inputStream, Config.class);
         } catch (IOException ex) {
@@ -51,22 +52,16 @@ public class Party {
         ServerConfig p2pServerConfig = config.getP2PServerConfig();
         this.p2pUri = p2pServerConfig.getServerUri();
 
-        ServerConfig q2tServerConfig = config.getServerConfigs()
-                .stream()
-                .filter(sc -> sc.getApp() == AppType.Q2T)
-                .findFirst()
-                .get();
+        ServerConfig q2tServerConfig =
+                config.getServerConfigs().stream().filter(sc -> sc.getApp() == AppType.Q2T).findFirst().get();
 
         this.q2tUri = q2tServerConfig.getServerUri();
 
-        Optional<ServerConfig> adminServerConfig = config.getServerConfigs()
-                .stream()
-                .filter(sc -> sc.getApp() == AppType.ADMIN)
-                .findFirst();
+        Optional<ServerConfig> adminServerConfig =
+                config.getServerConfigs().stream().filter(sc -> sc.getApp() == AppType.ADMIN).findFirst();
         this.adminUri = adminServerConfig.map(ServerConfig::getServerUri).orElse(null);
 
         this.alias = Objects.requireNonNull(alias);
-
     }
 
     public String getPublicKey() {
@@ -96,7 +91,7 @@ public class Party {
         String url = jdbcConfig.getUrl();
         String username = jdbcConfig.getUsername();
         String password = jdbcConfig.getPassword();
-        try{
+        try {
             return DriverManager.getConnection(url, username, password);
         } catch (SQLException ex) {
             throw new UncheckedSQLException(ex);
@@ -104,21 +99,19 @@ public class Party {
     }
 
     public Client getRestClient() {
-        ServerConfig serverConfig = config.getServerConfigs().stream()
-                .filter(s -> s.getApp() == AppType.Q2T)
-                .findAny().get();
+        ServerConfig serverConfig =
+                config.getServerConfigs().stream().filter(s -> s.getApp() == AppType.Q2T).findAny().get();
 
         return new ClientFactory().buildFrom(serverConfig);
     }
 
     public WebTarget getRestClientWebTarget() {
-        ServerConfig serverConfig = config.getServerConfigs().stream()
-                .filter(s -> s.getApp() == AppType.Q2T)
-                .findAny().get();
+        ServerConfig serverConfig =
+                config.getServerConfigs().stream().filter(s -> s.getApp() == AppType.Q2T).findAny().get();
         return getRestClient().target(serverConfig.getServerUri());
     }
 
-    //FIXME: 
+    // FIXME:
     public Integer getGrpcPort() {
         return config.getP2PServerConfig().getServerUri().getPort();
     }
@@ -143,5 +136,4 @@ public class Party {
     public List<Peer> getConfiguredPeers() {
         return Collections.unmodifiableList(config.getPeers());
     }
-
 }

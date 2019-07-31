@@ -5,7 +5,6 @@ import com.quorum.tessera.test.CucumberRestIT;
 import com.quorum.tessera.test.DBType;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import suite.EnclaveType;
 import suite.ParameterizedTestSuiteRunnerFactory;
 import suite.ProcessConfiguration;
 import suite.TestSuite;
@@ -14,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.quorum.tessera.config.CommunicationType.REST;
+import static suite.EnclaveType.LOCAL;
 import static suite.SocketType.HTTP;
 
 @TestSuite.SuiteClasses({
@@ -33,16 +33,14 @@ import static suite.SocketType.HTTP;
 })
 @RunWith(Parameterized.class)
 @Parameterized.UseParametersRunnerFactory(ParameterizedTestSuiteRunnerFactory.class)
-public class RestSuite {
+public class RestSuiteSimple {
 
     @Parameterized.Parameters
     public static List<ProcessConfiguration> configurations() {
         final List<ProcessConfiguration> configurations = new ArrayList<>();
 
         for (final DBType database : DBType.values()) {
-            for (final EnclaveType enclaveType : EnclaveType.values()) {
-                configurations.add(new ProcessConfiguration(database, REST, HTTP, enclaveType, false, ""));
-            }
+            configurations.add(new ProcessConfiguration(database, REST, HTTP, LOCAL, false, ""));
         }
 
         return configurations;
