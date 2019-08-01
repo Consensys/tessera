@@ -10,7 +10,7 @@
     <parent>
         <artifactId>tessera</artifactId>
         <groupId>com.jpmorgan.quorum</groupId>
-        <version>0.9.4</version>
+        <version>0.9.5-SNAPSHOT</version>
     </parent>
 
     <modules>
@@ -35,7 +35,7 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>server-utils</artifactId>
-                <version>0.9.4</version>
+                <version>0.9.5-SNAPSHOT</version>
             </dependency>
             
             <dependency>

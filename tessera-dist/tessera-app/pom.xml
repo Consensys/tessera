@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tessera-dist</artifactId>
-        <version>0.9.4</version>
+        <version>0.9.5-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -16,7 +16,7 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-launcher</artifactId>
-            <version>0.9.4</version>
+            <version>0.9.5-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         
