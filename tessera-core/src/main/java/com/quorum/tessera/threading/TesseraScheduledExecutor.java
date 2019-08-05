@@ -10,10 +10,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Schedules a continuous running task as an alternative to
- * a {@link Thread} running a {@code while(true)} loop
+ * Schedules a continuous running task as an alternative to a {@link Thread} running a {@code while(true)} loop
  *
- * Also allows delays if required between each execution of the loop
+ * <p>Also allows delays if required between each execution of the loop
  */
 public class TesseraScheduledExecutor {
 
@@ -24,13 +23,11 @@ public class TesseraScheduledExecutor {
     private final Runnable action;
 
     private final long rate;
-    
+
     private final long initialDelay;
 
-    public TesseraScheduledExecutor(final ScheduledExecutorService executor,
-                                    final Runnable action,
-                                    final long rate,
-                                    final long delay) {
+    public TesseraScheduledExecutor(
+            final ScheduledExecutorService executor, final Runnable action, final long rate, final long delay) {
         this.executor = Objects.requireNonNull(executor);
         this.action = Objects.requireNonNull(action);
         this.rate = rate;
@@ -38,21 +35,26 @@ public class TesseraScheduledExecutor {
     }
 
     /**
-     * Starts the submitted task and schedules it to run every given time frame
-     * Catches any Throwable and logs it so that the scheduling doesn't break
+     * Starts the submitted task and schedules it to run every given time frame. Catches any Throwable and logs it so
+     * that the scheduling doesn't break
      */
     @PostConstruct
     public void start() {
         LOGGER.info("Starting {}", this.action.getClass().getSimpleName());
 
-        final Runnable exceptionSafeRunnable = () -> {
-            try {
-                this.action.run();
-            } catch (final Throwable ex) {
-                LOGGER.error("Error when executing action {}", action.getClass().getSimpleName());
-                LOGGER.error("Error when executing action", ex);
-            }
-        };
+        final Runnable exceptionSafeRunnable =
+                () -> {
+                    try {
+                        LOGGER.debug("{} has started running", getClass().getSimpleName());
+
+                        this.action.run();
+                    } catch (final Throwable ex) {
+                        LOGGER.error("Error when executing action {}", action.getClass().getSimpleName());
+                        LOGGER.error("Error when executing action", ex);
+                    } finally {
+                        LOGGER.debug("{} has finished running", getClass().getSimpleName());
+                    }
+                };
 
         this.executor.scheduleWithFixedDelay(exceptionSafeRunnable, initialDelay, rate, TimeUnit.MILLISECONDS);
 
@@ -60,8 +62,8 @@ public class TesseraScheduledExecutor {
     }
 
     /**
-     * Stops any more executions of the submitted task from running
-     * Does not cancel the currently running task, which may be blocking
+     * Stops any more executions of the submitted task from running. Does not cancel the currently running task, which
+     * may be blocking
      */
     @PreDestroy
     public void stop() {
@@ -71,5 +73,4 @@ public class TesseraScheduledExecutor {
 
         LOGGER.info("Stopped {}", this.action.getClass().getSimpleName());
     }
-
 }
