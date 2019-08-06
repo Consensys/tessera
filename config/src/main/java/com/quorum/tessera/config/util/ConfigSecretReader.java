@@ -1,5 +1,6 @@
 package com.quorum.tessera.config.util;
 
+import com.quorum.tessera.io.SystemAdapter;
 import com.quorum.tessera.passwords.PasswordReaderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,7 @@ public final class ConfigSecretReader {
             final Path secretPath = Paths.get(envProvider.getEnv(EnvironmentVariables.CONFIG_SECRET_PATH));
             if (Files.exists(secretPath)) {
                 try {
-                    return Optional.of(new String(Files.readAllBytes(secretPath)));
+                    return Optional.of(new String(Files.readAllBytes(secretPath)).trim());
                 } catch (IOException ex) {
                     LOGGER.error("Error while reading secret from file");
                 }
@@ -37,7 +38,7 @@ public final class ConfigSecretReader {
     }
 
     public static String readSecretFromConsole() {
-        System.out.println("Please enter the secret/password used to decrypt config value");
+        SystemAdapter.INSTANCE.out().println("Please enter the secret/password used to decrypt config value");
         return PasswordReaderFactory.create().readPasswordFromConsole();
     }
 }
