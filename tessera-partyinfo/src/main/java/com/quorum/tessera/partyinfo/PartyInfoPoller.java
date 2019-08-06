@@ -5,11 +5,10 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.ConnectException;
 import java.util.Objects;
 
 /**
- * Polls every so often to all known nodes for any new discoverable nodes This keeps all nodes up-to date and
+ * Polls every so often to all known nodes for any new discoverable nodes. This keeps all nodes up-to date and
  * discoverable by other nodes
  */
 public class PartyInfoPoller implements Runnable {
@@ -22,7 +21,7 @@ public class PartyInfoPoller implements Runnable {
 
     private final P2pClient p2pClient;
 
-    public PartyInfoPoller(PartyInfoService partyInfoService, P2pClient p2pClient) {
+    public PartyInfoPoller(final PartyInfoService partyInfoService, final P2pClient p2pClient) {
         this(partyInfoService, PartyInfoParser.create(), p2pClient);
     }
 
@@ -47,18 +46,15 @@ public class PartyInfoPoller implements Runnable {
      */
     @Override
     public void run() {
-        LOGGER.debug("Polling {}", getClass().getSimpleName());
-
         final PartyInfo partyInfo = partyInfoService.getPartyInfo();
-
         final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
-        partyInfo.getParties().stream()
-                .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
-                .map(Party::getUrl)
-                .forEach(url -> pollSingleParty(url, encodedPartyInfo));
+        final String ourUrl = partyInfo.getUrl();
 
-        LOGGER.debug("Polled {}. PartyInfo : {}", getClass().getSimpleName(), partyInfo);
+        partyInfo.getParties().stream()
+                .map(Party::getUrl)
+                .filter(url -> !ourUrl.equals(url))
+                .forEach(url -> pollSingleParty(url, encodedPartyInfo));
     }
 
     /**
@@ -68,19 +64,11 @@ public class PartyInfoPoller implements Runnable {
      * @param encodedPartyInfo the encoded current party information
      */
     private void pollSingleParty(final String url, final byte[] encodedPartyInfo) {
-
         try {
             p2pClient.sendPartyInfo(url, encodedPartyInfo);
         } catch (final Exception ex) {
-
-            if (ConnectException.class.isInstance(ex.getCause())) {
-                LOGGER.warn("Server error {} when connecting to {}", ex.getMessage(), url);
-                LOGGER.debug(null, ex);
-            } else {
-                LOGGER.error("Error {} while executing poller for {}. ", ex.getMessage(), url);
-                LOGGER.debug(null, ex);
-                throw ex;
-            }
+            LOGGER.warn("Error {} when connecting to {}", ex.getMessage(), url);
+            LOGGER.debug(null, ex);
         }
     }
 }
