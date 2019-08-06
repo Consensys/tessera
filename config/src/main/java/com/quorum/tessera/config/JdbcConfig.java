@@ -1,26 +1,27 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.adapters.EncryptedStringAdapter;
+
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JdbcConfig extends ConfigItem {
 
-    @XmlElement
-    private String username;
+    @XmlElement private String username;
 
-    @XmlElement
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(value = EncryptedStringAdapter.class)
     private String password;
 
     @NotNull
     @XmlElement(required = true)
     private String url;
 
-    /**
-     * Auto create tables if no exists
-     */
+    /** Auto create tables if no exists */
     @XmlElement(defaultValue = "false")
     private boolean autoCreateTables;
 
@@ -65,5 +66,4 @@ public class JdbcConfig extends ConfigItem {
     public void setAutoCreateTables(boolean autoCreateTables) {
         this.autoCreateTables = autoCreateTables;
     }
-
 }

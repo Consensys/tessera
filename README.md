@@ -99,6 +99,57 @@ An in-depth look at configuring Tessera can be found on the [Tessera Wiki](https
 * TLS config
     * How to enable TLS
     * Choosing a trust mode
+    
+#### Obfuscate database password in config file
+
+Certain entries in Tessera config file must be obfuscated in order to prevent any attempts from attackers to gain access to critical part of the application (i.e. database). For the time being, Tessera users have the ability to enable encryption for database password to avoid it being exposed as plain text in the configuration file.
+
+In Tessera, [jasypt](http://www.jasypt.org) library was used together with its Jaxb integration to encrypt/decrypt config values.
+
+To enable this feature, simply replace your plain-text database password with its encrypted value and wrap it inside an `ENC()` function.
+
+```json
+    "jdbc": {
+        "username": "sa",
+        "password": "ENC(ujMeokIQ9UFHSuBYetfRjQTpZASgaua3)",
+        "url": "jdbc:h2:/qdata/c1/db1",
+        "autoCreateTables": true
+    }
+```
+
+Being a Password-Based Encryptor, Jasypt requires a secret key (password) and a configured algorithm to encrypt/decrypt this config entry. This password can either be loaded into Tessera from file system or user input. For file system input, the location of this secret file needs to be set in Environment Variable `TESSERA_CONFIG_SECRET`
+
+If the database password is not being wrapped inside `ENC()` function, Tessera will simply treat it as a plain-text password however this approach is not recommended for production environment.
+
+* Please note at the moment jasypt encryption is only enabled on `jdbc.password` field.
+
+##### Encrypt database password
+
+Download and unzip the [jasypt](http://www.jasypt.org) package. Redirect to bin directory and the follow commands can be used to encrypt a string
+
+```bash
+bash-3.2$ ./encrypt.sh input=dbpassword password=quorum
+
+----ENVIRONMENT-----------------
+
+Runtime: Oracle Corporation Java HotSpot(TM) 64-Bit Server VM 25.171-b11 
+
+
+
+----ARGUMENTS-------------------
+
+input: dbpassword
+password: quorum
+
+
+
+----OUTPUT----------------------
+
+rJ70hNidkrpkTwHoVn2sGSp3h3uBWxjb
+
+```
+
+Pick up this output and wrap it inside `ENC()` function, we should have the following `ENC(rJ70hNidkrpkTwHoVn2sGSp3h3uBWxjb)` in the config json file.
  
 ### Migrating from Constellation to Tessera
 Tessera is the service used to provide Quorum with the ability to support private transactions, replacing Constellation.  If you have previously been using Constellation, utilities are provided within Tessera to enable the migration of Constellation configuration and datastores to Tessera compatible formats.  Details on how to use these utilities can be found in the [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/Migrating-from-Constellation).

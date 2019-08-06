@@ -24,8 +24,7 @@ public final class EnvironmentVariables {
 
     public static final String HASHICORP_CLIENT_TRUSTSTORE_PWD = "HASHICORP_CLIENT_TRUSTSTORE_PWD";
 
-    private EnvironmentVariables() {
+    public static final String CONFIG_SECRET_PATH = "TESSERA_CONFIG_SECRET";
 
-    }
-
+    private EnvironmentVariables() {}
 }
