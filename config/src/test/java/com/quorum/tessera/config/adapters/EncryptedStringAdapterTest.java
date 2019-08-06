@@ -58,6 +58,8 @@ public class EncryptedStringAdapterTest {
         System.setIn(in);
 
         assertThat(adapter.unmarshal("ENC(KLa6pRQpxI8Ez3Bo6D3cI6y13YYdntu7)")).isEqualTo("password");
+
+        System.setIn(System.in);
     }
 
     @Test
@@ -72,5 +74,7 @@ public class EncryptedStringAdapterTest {
 
         assertThatExceptionOfType(EncryptionOperationNotPossibleException.class)
                 .isThrownBy(() -> adapter.unmarshal("ENC(KLa6pRQpxI8Ez3Bo6D3cI6y13YYdntu7)"));
+
+        System.setIn(System.in);
     }
 }
