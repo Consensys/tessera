@@ -65,10 +65,7 @@ public class StartupSteps implements En {
                     assertThat(results).hasSize(1);
                     ExecutionResult result = results.get(0);
                     assertThat(result.getExitCode()).isNotEqualTo(0);
-                    assertThat(result.getOutput()).hasSize(3);
-
-                    assertThat(result.getOutput())
-                            .anyMatch(m -> m.contains("Some sensitive values are being given as unencrypted plain text in config"));
+                    assertThat(result.getOutput()).hasSize(2);
 
                     assertThat(result.getOutput())
                             .anyMatch(m -> m.startsWith("Config validation issue: keys.keyData[0].privateKey"));

@@ -1,4 +1,4 @@
-package com.quorum.tessera.config.adapters;
+package com.quorum.tessera.config.util;
 
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.junit.Before;
@@ -11,9 +11,9 @@ import java.io.ByteArrayInputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class EncryptedStringAdapterTest {
+public class EncryptedStringResolverTest {
 
-    private EncryptedStringAdapter adapter;
+    private EncryptedStringResolver resolver;
 
     @Rule public final EnvironmentVariables envVariables = new EnvironmentVariables();
 
@@ -22,7 +22,7 @@ public class EncryptedStringAdapterTest {
 
         final String filePath = getClass().getResource("/key.secret").getPath();
         envVariables.set(com.quorum.tessera.config.util.EnvironmentVariables.CONFIG_SECRET_PATH, filePath);
-        adapter = new EncryptedStringAdapter();
+        resolver = new EncryptedStringResolver();
     }
 
     @Test
@@ -30,9 +30,9 @@ public class EncryptedStringAdapterTest {
 
         final String expectedValue = "password";
 
-        assertThat(adapter.marshal("password")).isEqualTo(expectedValue);
+        assertThat(resolver.resolve("password")).isEqualTo(expectedValue);
 
-        assertThat(adapter.marshal(null)).isNull();
+        assertThat(resolver.resolve(null)).isNull();
     }
 
     @Test
@@ -40,11 +40,11 @@ public class EncryptedStringAdapterTest {
 
         String normalPassword = "password";
 
-        assertThat(adapter.unmarshal("password")).isEqualTo(normalPassword);
+        assertThat(resolver.resolve("password")).isEqualTo(normalPassword);
 
-        assertThat(adapter.unmarshal("ENC(KLa6pRQpxI8Ez3Bo6D3cI6y13YYdntu7)")).isEqualTo("password");
+        assertThat(resolver.resolve("ENC(KLa6pRQpxI8Ez3Bo6D3cI6y13YYdntu7)")).isEqualTo("password");
 
-        assertThat(adapter.unmarshal(null)).isNull();
+        assertThat(resolver.resolve(null)).isNull();
     }
 
     @Test
@@ -52,12 +52,12 @@ public class EncryptedStringAdapterTest {
 
         envVariables.clear(com.quorum.tessera.config.util.EnvironmentVariables.CONFIG_SECRET_PATH);
 
-        adapter = new EncryptedStringAdapter();
+        resolver = new EncryptedStringResolver();
 
         ByteArrayInputStream in = new ByteArrayInputStream(("quorum" + System.lineSeparator() + "quorum").getBytes());
         System.setIn(in);
 
-        assertThat(adapter.unmarshal("ENC(KLa6pRQpxI8Ez3Bo6D3cI6y13YYdntu7)")).isEqualTo("password");
+        assertThat(resolver.resolve("ENC(KLa6pRQpxI8Ez3Bo6D3cI6y13YYdntu7)")).isEqualTo("password");
 
         System.setIn(System.in);
     }
@@ -67,13 +67,13 @@ public class EncryptedStringAdapterTest {
 
         envVariables.clear(com.quorum.tessera.config.util.EnvironmentVariables.CONFIG_SECRET_PATH);
 
-        adapter = new EncryptedStringAdapter();
+        resolver = new EncryptedStringResolver();
 
         ByteArrayInputStream in = new ByteArrayInputStream(("bogus" + System.lineSeparator() + "bogus").getBytes());
         System.setIn(in);
 
         assertThatExceptionOfType(EncryptionOperationNotPossibleException.class)
-                .isThrownBy(() -> adapter.unmarshal("ENC(KLa6pRQpxI8Ez3Bo6D3cI6y13YYdntu7)"));
+                .isThrownBy(() -> resolver.resolve("ENC(KLa6pRQpxI8Ez3Bo6D3cI6y13YYdntu7)"));
 
         System.setIn(System.in);
     }
