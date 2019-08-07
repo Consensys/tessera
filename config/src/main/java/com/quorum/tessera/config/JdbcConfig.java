@@ -8,19 +8,15 @@ import javax.xml.bind.annotation.XmlElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JdbcConfig extends ConfigItem {
 
-    @XmlElement
-    private String username;
+    @XmlElement private String username;
 
-    @XmlElement
-    private String password;
+    @XmlElement private String password;
 
     @NotNull
     @XmlElement(required = true)
     private String url;
 
-    /**
-     * Auto create tables if no exists
-     */
+    /** Auto create tables if no exists */
     @XmlElement(defaultValue = "false")
     private boolean autoCreateTables;
 
@@ -65,5 +61,4 @@ public class JdbcConfig extends ConfigItem {
     public void setAutoCreateTables(boolean autoCreateTables) {
         this.autoCreateTables = autoCreateTables;
     }
-
 }
