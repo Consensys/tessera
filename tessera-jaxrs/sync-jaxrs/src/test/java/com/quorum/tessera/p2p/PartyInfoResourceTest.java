@@ -14,6 +14,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.json.Json;
 import javax.json.JsonReader;
@@ -331,11 +332,23 @@ public class PartyInfoResourceTest {
                 new HashSet<>(Arrays.asList(new Recipient(recipientKey, url), new Recipient(recipientKey, otherurl)));
         final PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.emptySet());
 
+        final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
+        final byte[] serialisedData = "SERIALISED".getBytes();
+
         when(partyInfoParser.from(payload)).thenReturn(partyInfo);
+        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        when(partyInfoParser.to(captor.capture())).thenReturn(serialisedData);
 
-        partyInfoResource.partyInfo(payload);
+        final Response callResponse = partyInfoResource.partyInfo(payload);
+        final byte[] data = (byte[]) callResponse.getEntity();
 
+        assertThat(captor.getValue().getUrl()).isEqualTo(url);
+        assertThat(captor.getValue().getRecipients()).isEmpty();
+        assertThat(captor.getValue().getParties()).isEmpty();
+        assertThat(new String(data)).isEqualTo("SERIALISED");
         verify(partyInfoParser).from(payload);
+        verify(partyInfoParser).to(any(PartyInfo.class));
         verify(partyInfoService).updatePartyInfo(partyInfo);
+        verify(partyInfoService).getPartyInfo();
     }
 }
