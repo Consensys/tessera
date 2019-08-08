@@ -22,9 +22,9 @@ jobs:
       name: "Unit Tests Java 8"
       jdk:  oraclejdk8
       install: &build_no_checks
-        - mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
+        - mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -o
       script: &build_with_unittests
-        - mvn install -pl \!tests/acceptance-test -P reduce-logging -o || travis_terminate 1
+        - mvn install -pl \!tests/acceptance-test -o -P reduce-logging -o || travis_terminate 1
 
     - name: "Unit Tests Java 11"
       jdk:  oraclejdk11
@@ -34,7 +34,7 @@ jobs:
     - name: "Acceptance Tests Java 8"
       jdk:  oraclejdk8
       install: *build_no_checks
-      script: mvn verify -pl tests/acceptance-test -P reduce-logging -o || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -o -P reduce-logging -o || travis_terminate 1
 
     - name: "Acceptance Tests Java 11"
       jdk:  oraclejdk11
@@ -42,7 +42,7 @@ jobs:
 #        - rm "${JAVA_HOME}/lib/security/cacerts"
 #        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
       install: *build_no_checks
-      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -o -P reduce-logging || travis_terminate 1
 
     - name: "Simple Only Acceptance Tests"
       jdk:  oraclejdk8
@@ -117,6 +117,7 @@ notifications:
 
 before_cache:
 - mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
+- mvn dependency:go-offline -B
 
 cache:
   directories:
