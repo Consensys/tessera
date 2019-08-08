@@ -120,6 +120,7 @@ before_cache:
 - mvn package dependency:go-offline -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true
 
 cache:
+  timeout: 100000
   directories:
     - $HOME/.m2
 
