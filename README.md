@@ -74,11 +74,11 @@ tessera help
 By default, Tessera uses an H2 database.  To use an alternative database, add the necessary drivers to the classpath:
 
 ```
-java -cp some-jdbc-driver.jar:/path/to/tessera-app.jar:. com.quorum.tessera.Launcher
+java -cp some-jdbc-driver.jar:/path/to/tessera-app.jar:. com.quorum.tessera.launcher.Main
 ```
 For example, to use Oracle database: 
 ```
-java -cp ojdbc7.jar:tessera-app.jar:. com.quorum.tessera.Launcher -configfile config.json
+java -cp ojdbc7.jar:tessera-app.jar:. com.quorum.tessera.launcher.Main -configfile config.json
 ```
 
 [DDLs](ddls/create-table) have been provided to help with defining these databases.
