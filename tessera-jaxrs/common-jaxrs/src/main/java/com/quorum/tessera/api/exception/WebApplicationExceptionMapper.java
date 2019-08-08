@@ -19,8 +19,8 @@ public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplica
 
         Throwable cause = Optional.ofNullable(exception.getCause()).orElse(exception);
 
-        LOGGER.debug("Exception ", exception);
-        LOGGER.debug("Root cause ", cause);
+        LOGGER.debug("WebApplicationException thrown caused by", cause);
+        
         final Response.Status returnStatus =
                 UnmarshalException.class.isInstance(cause)
                         ? Response.Status.BAD_REQUEST
