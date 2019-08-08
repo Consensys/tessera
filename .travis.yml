@@ -117,7 +117,7 @@ notifications:
 
 before_cache:
 - mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
-- mvn dependency:resolve-plugins dependency:resolve
+- mvn package dependency:go-offline -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true
 
 cache:
   directories:
