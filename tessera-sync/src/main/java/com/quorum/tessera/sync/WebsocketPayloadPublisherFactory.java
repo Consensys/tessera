@@ -9,12 +9,11 @@ public class WebsocketPayloadPublisherFactory implements PayloadPublisherFactory
 
     @Override
     public PayloadPublisher create(Config config) {
-        return new WebsocketPayloadPublisher(SessionStore.create());
+        return new WebsocketPayloadPublisher();
     }
 
     @Override
     public CommunicationType communicationType() {
         return CommunicationType.WEB_SOCKET;
     }
-    
 }

@@ -31,7 +31,8 @@ public class MessageUtil {
     }
 
     public static PartyInfo decodePartyInfoFromBase64(String partyInfoData) {
-        return Optional.of(partyInfoData).map(BASE64_DECODER::decode).map(PARTYINFO_PARSER::from).get();
+        PartyInfo partyInfo = Optional.of(partyInfoData).map(BASE64_DECODER::decode).map(PARTYINFO_PARSER::from).get();
+        return partyInfo;
     }
 
     public static String encodeToBase64(PartyInfo partyInfo) {

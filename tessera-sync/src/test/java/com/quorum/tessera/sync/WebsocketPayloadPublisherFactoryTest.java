@@ -17,6 +17,8 @@ public class WebsocketPayloadPublisherFactoryTest {
         PayloadPublisher p = websocketPayloadPublisherFactory.create(config);
         assertThat(p).isNotNull().isExactlyInstanceOf(WebsocketPayloadPublisher.class);
         assertThat(websocketPayloadPublisherFactory.communicationType()).isEqualTo(CommunicationType.WEB_SOCKET);
-    }
+        PayloadPublisher result = websocketPayloadPublisherFactory.create(config);
 
+        assertThat(result).isExactlyInstanceOf(WebsocketPayloadPublisher.class);
+    }
 }

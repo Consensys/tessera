@@ -1,72 +1,71 @@
 package com.quorum.tessera.sync;
 
-import com.quorum.tessera.core.api.ServiceFactory;
-import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.transaction.TransactionManager;
 import java.util.Objects;
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
+import javax.websocket.ContainerProvider;
 import javax.websocket.OnClose;
+import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
+import javax.websocket.WebSocketContainer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ClientEndpoint(
-        decoders = {SyncRequestMessageCodec.class, SyncResponseMessageCodec.class},
-        encoders = {SyncRequestMessageCodec.class, SyncResponseMessageCodec.class})
+        decoders = {SyncResponseMessageCodec.class},
+        encoders = {SyncRequestMessageCodec.class})
 public class PartyInfoClientEndpoint {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoClientEndpoint.class);
 
     private final PartyInfoService partyInfoService;
 
-    private final TransactionManager transactionManager;
+    private WebSocketContainer container = ContainerProvider.getWebSocketContainer();
 
-    public PartyInfoClientEndpoint() {
-        this(ServiceFactory.create());
+    public PartyInfoClientEndpoint(PartyInfoService partyInfoService, Object transactionManager) {
+        this(partyInfoService);
     }
 
-    public PartyInfoClientEndpoint(ServiceFactory serviceFactory) {
-        this(serviceFactory.partyInfoService(), serviceFactory.transactionManager());
-    }
-
-    public PartyInfoClientEndpoint(PartyInfoService partyInfoService, TransactionManager transactionManager) {
+    public PartyInfoClientEndpoint(PartyInfoService partyInfoService) {
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
-        this.transactionManager = Objects.requireNonNull(transactionManager);
     }
 
     @OnOpen
     public void onOpen(Session session) {
-        LOGGER.info("Session id : {}", session.getId());
+
+        LOGGER.info("Open Session  : {}", session);
     }
 
     @OnMessage
     public void onResponse(Session session, SyncResponseMessage response) {
 
+        LOGGER.info("Response.type {}", response.getType());
+
         if (response.getType() == SyncResponseMessage.Type.PARTY_INFO) {
 
             final PartyInfo partyInfo = response.getPartyInfo();
+            if (Objects.nonNull(partyInfo)) {
+                LOGGER.info("Updating party info from {}", partyInfo.getUrl());
 
-            LOGGER.info("Client received message: {} {}", session.getId(), partyInfo);
+                partyInfoService.updatePartyInfo(partyInfo);
 
-            partyInfoService.updatePartyInfo(partyInfo);
-        }
-
-        if (response.getType() == SyncResponseMessage.Type.TRANSACTION_SYNC) {
-
-            EncodedPayload encodedPayload = response.getTransactions();
-
-            transactionManager.storePayload(encodedPayload.getCipherText());
+                LOGGER.info("Updated party info from {}", partyInfo.getUrl());
+            }
         }
     }
 
     @OnClose
     public void onClose(Session session, CloseReason reason) {
-
         LOGGER.info("Closing session : {} because {}", session.getId(), reason);
+    }
+
+    @OnError
+    public void onError(Throwable ex) {
+        LOGGER.error("", ex);
     }
 }

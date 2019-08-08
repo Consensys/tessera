@@ -75,10 +75,10 @@ public class SyncResponseMessage {
         }
 
         public SyncResponseMessage build() {
-            Objects.requireNonNull(type);
+            Objects.requireNonNull(type, "Type is required");
 
             if (type == Type.PARTY_INFO) {
-                Objects.requireNonNull(partyInfo);
+                // Objects.requireNonNull(partyInfo);
                 return new SyncResponseMessage(type, partyInfo, null, null, null);
             }
 
@@ -108,5 +108,21 @@ public class SyncResponseMessage {
             this.transactionOffset = transactionOffset;
             return this;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "SyncResponseMessage{"
+                + "type="
+                + type
+                + ", partyInfo="
+                + partyInfo
+                + ", transactionOffset="
+                + transactionOffset
+                + ", transactionCount="
+                + transactionCount
+                + ", transactions="
+                + transactions
+                + '}';
     }
 }

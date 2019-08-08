@@ -3,6 +3,7 @@ package suite;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.io.IOCallback;
+import java.net.URI;
 import java.net.URL;
 import javax.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
@@ -35,15 +36,9 @@ public interface ServerStatusCheck {
 
         if (communicationType == CommunicationType.WEB_SOCKET) {
 
-            final URL url =
-                    IOCallback.execute(
-                            () ->
-                                    UriBuilder.fromUri(serverConfig.getServerUri())
-                                            .scheme("http")
-                                            .path("sync")
-                                            .build()
-                                            .toURL());
-            return new WebSocketServerStatusCheck(url);
+            final URI uri =
+                    IOCallback.execute(() -> UriBuilder.fromUri(serverConfig.getServerUri()).path("status").build());
+            return new WebSocketServerStatusCheck(uri);
         }
 
         if (communicationType == CommunicationType.GRPC) {

@@ -1,6 +1,6 @@
 package com.quorum.tessera.api.exception;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import com.quorum.tessera.exception.ExceptionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +16,12 @@ public class DefaultExceptionMapper implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(final Throwable ex) {
-        final Throwable rootCause = ExceptionUtils.getRootCause(ex);
-        final Throwable cause = (rootCause == null) ? ex : rootCause;
+
+        final Throwable cause = ExceptionUtil.extractCause(ex);
 
         LOGGER.error("Error occured: {}. Root cause: {}", ex.getMessage(), cause.getMessage());
-        LOGGER.debug(null, ex);
-        LOGGER.debug(null, cause);
+        LOGGER.debug("Exception thrown", ex);
+        LOGGER.debug("Cause of exception", cause);
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(cause.getMessage())

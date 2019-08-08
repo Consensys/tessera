@@ -21,6 +21,17 @@
         <constructor-arg ref="config" />
     </bean>
 
+
+
+    <bean name="partyInfoPollExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">
+        <constructor-arg>
+            <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
+        </constructor-arg>
+        <constructor-arg ref="partyInfoPoller" />
+        <constructor-arg value="2000"/>
+        <constructor-arg value="5000"/>
+    </bean>
+
     <bean class="com.quorum.tessera.service.ServiceContainer">
         <constructor-arg ref="enclave" />
     </bean>

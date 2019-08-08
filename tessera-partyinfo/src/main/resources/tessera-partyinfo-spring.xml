@@ -16,24 +16,19 @@
     </bean>
 
     <!-- Party Info management -->
-
     <bean name="partyInfoService" class="com.quorum.tessera.partyinfo.PartyInfoServiceImpl">
+        <constructor-arg ref="partyInfoStore"/>
         <constructor-arg ref="configService"/>
         <constructor-arg ref="enclave"/>
     </bean>
 
-    <bean name="partyInfoPoller" class="com.quorum.tessera.partyinfo.PartyInfoPoller">
-        <constructor-arg ref="partyInfoService"/>
-        <constructor-arg ref="p2pClient"/>
+    <bean id="partyInfoPollerFactory" class="com.quorum.tessera.partyinfo.PartyInfoPollerFactory" factory-method="newFactory">
+        <constructor-arg ref="config"/>
     </bean>
-
-    <bean name="partyInfoPollExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">
-        <constructor-arg>
-            <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
-        </constructor-arg>
-        <constructor-arg ref="partyInfoPoller"/>
-        <constructor-arg value="2000"/>
-        <constructor-arg value="5000"/>
+    
+    <bean id="partyInfoPoller" factory-bean="partyInfoPollerFactory" factory-method="create">
+        <constructor-arg ref="partyInfoService"/>
+        <constructor-arg ref="config"/>
     </bean>
 
     <bean id="resendManager" class="com.quorum.tessera.partyinfo.ResendManagerImpl">

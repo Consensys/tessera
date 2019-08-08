@@ -5,19 +5,37 @@
         <file>target/node-${node.number}.log</file>
         <append>false</append>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <logger name="org.eclipse.persistence.level" level="ERROR"/>
+    <!--    <logger name="org.eclipse.persistence.level" level="ERROR"/>
     <logger name="org.eclipse.persistence.logging.sql" level="ERROR"/>
     <logger name="org.glassfish.jersey.logging.LoggingFeature" level="ERROR"/>
     <logger name="com.quorum.tessera.q2t.TransactionResource" level="DEBUG"/>
     <logger name="com.quorum.tessera.transaction" level="DEBUG"/>
     <logger name="com.quorum.tessera.api.filter" level="DEBUG"/>
-    <logger name="com.quorum.tessera.api.exception" level="DEBUG"/>
-
-    <root level="DEBUG">
+   
+    <logger name="com.quorum.tessera.server.websockets" level="ALL" />-->
+    <!--    <logger name="org.springframework" level="ERROR" />
+    <logger name="com.quorum.tessera.sync" level="INF0" />
+    <logger name="com.quorum.tessera.api.exception" level="INF0"/>
+    <logger name="com.quorum.tessera.transaction" level="INF0"/>
+    <logger name="org.eclipse.jetty" level="INFO" />
+    <logger name="com.zaxxer.hikari" level="ERROR" />
+    <logger name="com.quorum.tessera.nacl.jnacl" level="INFO" />
+    <logger name="org.hibernate.validator" level="ERROR" />-->
+    
+    <logger name="com.quorum.tessera.sync.PartyInfoEndpoint" level="INFO" />
+    <logger name="com.quorum.tessera.sync.PartyInfoClientEndpoint" level="INFO" />
+    <logger name="com.quorum.tessera.partyinfo.PartyInfoStore" level="INFO" />
+    <logger name="com.quorum.tessera.sync.WebsocketPartyInfoPoller" level="DEBUG" />
+    <logger name="com.quorum.tessera.sync.PartyInfoClientEndpointConfigurator" level="INFO" />
+    <logger name="com.quorum.tessera.api.exception" level="INFO" />
+    <logger name="com.quorum.tessera.sync.WebsocketPayloadPublisher" level="INFO" />
+    <logger name="com.quorum.tessera.server.jaxrs.LoggingFilter" level="INFO" />
+    
+    <root level="INFO">
         <appender-ref ref="FILE"/>
     </root>
 

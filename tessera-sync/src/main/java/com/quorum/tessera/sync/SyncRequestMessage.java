@@ -79,13 +79,7 @@ public class SyncRequestMessage {
 
         public SyncRequestMessage build() {
             Objects.requireNonNull(type);
-
-            if (type == Type.PARTY_INFO) {
-                Objects.requireNonNull(partyInfo);
-            }
-
             if (type == Type.TRANSACTION_PUSH) {
-
                 Objects.requireNonNull(transactions);
             }
 

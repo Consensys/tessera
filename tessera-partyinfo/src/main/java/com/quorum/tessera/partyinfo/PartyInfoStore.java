@@ -4,8 +4,14 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import java.net.URI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public interface PartyInfoStore {
+
+    Logger LOGGER = LoggerFactory.getLogger(PartyInfoStore.class);
+
+    PartyInfoStore init(URI advertisedUri);
 
     void store(PartyInfo newInfo);
 
@@ -18,8 +24,9 @@ public interface PartyInfoStore {
     void clear();
 
     static PartyInfoStore create(URI advertisedUrl) {
-        URI uri = URI.create(URLNormalizer.create().normalize(advertisedUrl.toString()));
-        return PartyInfoStoreImpl.INSTANCE.init(uri);
+        // FIXME: URI normalisation needs to be brough under control
+        String normalisedUri = URLNormalizer.create().normalize(advertisedUrl.toString());
+        return PartyInfoStoreImpl.INSTANCE.init(URI.create(normalisedUri));
     }
 
     static PartyInfoStore get() {

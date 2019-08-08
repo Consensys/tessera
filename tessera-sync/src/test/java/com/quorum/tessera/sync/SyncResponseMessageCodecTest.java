@@ -129,6 +129,7 @@ public class SyncResponseMessageCodecTest {
         SyncResponseMessage result = syncResponseMessageCodec.decode(new StringReader(json.toString()));
 
         assertThat(result).isNotNull();
+        assertThat(result.toString()).isNotNull();
         assertThat(result.getTransactionCount()).isEqualTo(10L);
         assertThat(result.getTransactionOffset()).isEqualTo(9L);
 

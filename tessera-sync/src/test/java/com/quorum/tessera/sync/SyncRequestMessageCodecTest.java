@@ -14,7 +14,6 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 public class SyncRequestMessageCodecTest {
 
@@ -101,7 +100,6 @@ public class SyncRequestMessageCodecTest {
 
             assertThat(result.getType()).isEqualTo(SyncRequestMessage.Type.PARTY_INFO);
             assertThat(result.getPartyInfo().getUrl()).isEqualTo(samplePartyInfo.getUrl());
-
         }
     }
 
@@ -111,7 +109,7 @@ public class SyncRequestMessageCodecTest {
         EncodedPayload sampleTransactions = samplePayload();
 
         PublicKey recipientKey = PublicKey.from("HELLOW".getBytes());
-        
+
         String data =
                 Json.createObjectBuilder()
                         .add("type", SyncRequestMessage.Type.TRANSACTION_PUSH.name())

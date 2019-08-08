@@ -1,6 +1,5 @@
 package com.quorum.tessera.sync;
 
-import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
@@ -9,8 +8,6 @@ import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.transaction.TransactionManager;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -33,43 +30,21 @@ public class PartyInfoEndpointTest {
 
     private TransactionManager transactionManager;
 
-    private Enclave enclave;
-
-    private SessionStore sessionStore;
-
     @Before
     public void onSetUp() {
-
-        enclave = mock(Enclave.class);
 
         partyInfoService = mock(PartyInfoService.class);
 
         transactionManager = mock(TransactionManager.class);
 
-        sessionStore = mock(SessionStore.class);
-
-        partyInfoEndpoint = new PartyInfoEndpoint(partyInfoService, transactionManager, enclave, sessionStore);
+        partyInfoEndpoint = new PartyInfoEndpoint(partyInfoService, transactionManager);
         session = mock(Session.class);
         when(session.getId()).thenReturn(UUID.randomUUID().toString());
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(partyInfoService, enclave, transactionManager);
-    }
-
-    @Test
-    public void onOpenAndThenClose() throws URISyntaxException {
-
-        String uri = "http://somedomain.com";
-
-        when(session.getRequestURI()).thenReturn(new URI(uri));
-
-        partyInfoEndpoint.onOpen(session);
-
-        partyInfoEndpoint.onClose(session);
-
-        verify(partyInfoService).removeRecipient(uri);
+        verifyNoMoreInteractions(partyInfoService, transactionManager);
     }
 
     @Test
@@ -85,10 +60,13 @@ public class PartyInfoEndpointTest {
         Basic basic = mock(Basic.class);
         when(session.getBasicRemote()).thenReturn(basic);
 
+        partyInfoEndpoint.onOpen(session);
         partyInfoEndpoint.onSync(session, syncRequestMessage);
+        partyInfoEndpoint.onClose(session);
 
         verify(basic).sendObject(any(SyncResponseMessage.class));
         verify(partyInfoService).updatePartyInfo(partyInfo);
+        verify(partyInfoService).getPartyInfo();
     }
 
     @Test
@@ -135,5 +113,31 @@ public class PartyInfoEndpointTest {
 
         byte[] expectedData = PayloadEncoder.create().encode(transactions);
         verify(transactionManager).storePayload(expectedData);
+    }
+
+    @Test
+    public void onError() {
+        partyInfoEndpoint.onError(new Exception("Ouch"));
+    }
+
+    @Test
+    public void onSyncPartyInfoNoInfoProvided() throws Exception {
+
+        PartyInfo partyInfo = Fixtures.samplePartyInfo();
+
+        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+
+        SyncRequestMessage syncRequestMessage =
+                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO).build();
+
+        Basic basic = mock(Basic.class);
+        when(session.getBasicRemote()).thenReturn(basic);
+
+        partyInfoEndpoint.onOpen(session);
+        partyInfoEndpoint.onSync(session, syncRequestMessage);
+        partyInfoEndpoint.onClose(session);
+
+        verify(basic).sendObject(any(SyncResponseMessage.class));
+        verify(partyInfoService).getPartyInfo();
     }
 }

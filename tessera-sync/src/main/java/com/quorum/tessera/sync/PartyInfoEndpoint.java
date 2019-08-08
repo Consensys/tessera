@@ -1,6 +1,5 @@
 package com.quorum.tessera.sync;
 
-import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
@@ -10,8 +9,13 @@ import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
+import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -21,8 +25,8 @@ import org.slf4j.LoggerFactory;
 
 @ServerEndpoint(
         value = "/sync",
-        decoders = {SyncRequestMessageCodec.class, SyncResponseMessageCodec.class},
-        encoders = {SyncRequestMessageCodec.class, SyncResponseMessageCodec.class},
+        decoders = {SyncRequestMessageCodec.class},
+        encoders = {SyncResponseMessageCodec.class},
         configurator = PartyInfoEndpointConfigurator.class)
 public class PartyInfoEndpoint {
 
@@ -34,29 +38,22 @@ public class PartyInfoEndpoint {
 
     private final TransactionManager transactionManager;
 
-    private final Enclave enclave;
+    private final Set<Session> sessionStore = Collections.synchronizedSet(new HashSet<>());
 
-    private final SessionStore sessionStore;
-
-    public PartyInfoEndpoint(
-            PartyInfoService partyInfoService,
-            TransactionManager transactionManager,
-            Enclave enclave,
-            SessionStore sessionStore) {
+    public PartyInfoEndpoint(PartyInfoService partyInfoService, TransactionManager transactionManager) {
         this.partyInfoService = partyInfoService;
-        this.enclave = enclave;
         this.transactionManager = transactionManager;
-        this.sessionStore = sessionStore;
     }
 
     @OnOpen
     public void onOpen(Session session) {
-        LOGGER.info("Open session : {}, {}", session.getId());
-        sessionStore.store(session);
+        sessionStore.add(session);
     }
 
     @OnMessage
     public void onSync(Session session, SyncRequestMessage syncRequestMessage) throws IOException, EncodeException {
+
+        LOGGER.info("Session: {}, SyncRequestMessage.type: {}", session.getId(), syncRequestMessage.getType());
 
         if (syncRequestMessage.getType() == SyncRequestMessage.Type.TRANSACTION_PUSH) {
             EncodedPayload payload = syncRequestMessage.getTransactions();
@@ -76,24 +73,44 @@ public class PartyInfoEndpoint {
             return;
         }
 
-        PartyInfo partyInfo = syncRequestMessage.getPartyInfo();
+        PartyInfo existingPartyInfo = partyInfoService.getPartyInfo();
 
-        LOGGER.info("Message {}", partyInfo.getUrl());
+        Optional<PartyInfo> partyInfo = Optional.ofNullable(syncRequestMessage.getPartyInfo());
 
-        PartyInfo mergedPartyInfo = partyInfoService.updatePartyInfo(partyInfo);
+        SyncResponseMessage.Builder responseBuilder =
+                SyncResponseMessage.Builder.create(SyncResponseMessage.Type.PARTY_INFO);
 
-        SyncResponseMessage partyInfoResponseMessage =
-                SyncResponseMessage.Builder.create(SyncResponseMessage.Type.PARTY_INFO)
-                        .withPartyInfo(mergedPartyInfo)
-                        .build();
+        if (partyInfo.isPresent()) {
+            PartyInfo mergedPartyInfo = partyInfoService.updatePartyInfo(partyInfo.get());
+            LOGGER.info(
+                    "Updated party info for {}", partyInfo.map(PartyInfo::getUrl).orElse("No party info url found"));
+            responseBuilder.withPartyInfo(mergedPartyInfo);
+        } else {
+            LOGGER.info("Adding existing party info to response:  {}", existingPartyInfo.getUrl());
+            responseBuilder.withPartyInfo(existingPartyInfo);
+        }
 
-        session.getBasicRemote().sendObject(partyInfoResponseMessage);
+        SyncResponseMessage response = responseBuilder.build();
+
+        sessionStore.forEach(
+                s -> {
+                    WebSocketSessionCallback.execute(
+                            () -> {
+                                LOGGER.info("Forwarding partyinfo response to session : {}", s.getId());
+                                s.getBasicRemote().sendObject(response);
+                                LOGGER.info("Sent partyinfo response to session {}", s.getId());
+                                return null;
+                            });
+                });
     }
 
     @OnClose
     public void onClose(Session session) {
-        partyInfoService.removeRecipient(session.getRequestURI().toString());
-        LOGGER.info("Close session: {}", session.getId());
         sessionStore.remove(session);
+    }
+
+    @OnError
+    public void onError(Throwable ex) {
+        LOGGER.error("", ex);
     }
 }

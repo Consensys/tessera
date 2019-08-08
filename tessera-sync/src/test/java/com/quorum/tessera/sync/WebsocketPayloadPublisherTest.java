@@ -1,56 +1,52 @@
 package com.quorum.tessera.sync;
 
+import com.jpmorgan.quorum.mock.websocket.MockContainerProvider;
 import com.quorum.tessera.enclave.EncodedPayload;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import javax.websocket.CloseReason;
 import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
-import static org.assertj.core.api.Assertions.assertThat;
+import javax.websocket.WebSocketContainer;
+import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class WebsocketPayloadPublisherTest {
+
+    private WebsocketPayloadPublisher websocketPayloadPublisher;
+
+    @Before
+    public void onSetup() {
+        this.websocketPayloadPublisher = new WebsocketPayloadPublisher();
+    }
 
     @Test
     public void publish() throws Exception {
 
-        String targetUrl = "http://target.com";
-
-        SessionStore sessionStore = mock(SessionStore.class);
-        Session session = mock(Session.class);
-        when(session.getRequestURI()).thenReturn(URI.create(targetUrl));
-
-        Basic sessionPublisher = mock(Basic.class);
-        when(session.getBasicRemote()).thenReturn(sessionPublisher);
-
-        when(sessionStore.findByUri(URI.create(targetUrl))).thenReturn(session);
-
-        WebsocketPayloadPublisher payloadPublisher = new WebsocketPayloadPublisher(sessionStore);
+        WebSocketContainer mockWebSocketContainer = MockContainerProvider.getInstance();
 
         EncodedPayload payload = mock(EncodedPayload.class);
+        String targetUrl = "ws://somenode.com";
 
-        List<SyncRequestMessage> sent = new ArrayList<>();
-        doAnswer((iom) -> {
-            sent.add(iom.getArgument(0));
-            return null;
-        }).when(sessionPublisher).sendObject(any(SyncRequestMessage.class));
+        URI expectedUri = URI.create("ws://somenode.com/sync");
 
-        payloadPublisher.publishPayload(payload, targetUrl);
+        Session session = mock(Session.class);
+        Basic basic = mock(Basic.class);
+        when(session.getBasicRemote()).thenReturn(basic);
 
-        verify(sessionPublisher).sendObject(any(SyncRequestMessage.class));
+        when(mockWebSocketContainer.connectToServer(websocketPayloadPublisher, expectedUri)).thenReturn(session);
 
-        assertThat(sent).hasSize(1);
+        websocketPayloadPublisher.publishPayload(payload, targetUrl);
 
-        SyncRequestMessage sentMessage = sent.get(0);
-        assertThat(sentMessage.getType()).isEqualTo(SyncRequestMessage.Type.TRANSACTION_PUSH);
-        assertThat(sentMessage.getTransactions()).isSameAs(payload);
+        verify(mockWebSocketContainer).connectToServer(websocketPayloadPublisher, expectedUri);
+        verify(basic).sendObject(any(SyncRequestMessage.class));
+        verify(session).getBasicRemote();
 
+        websocketPayloadPublisher.clearSessions();
+
+        verify(session).close(any(CloseReason.class));
+
+        verifyNoMoreInteractions(mockWebSocketContainer, basic, session);
     }
-
-
 }

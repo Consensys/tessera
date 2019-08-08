@@ -31,6 +31,7 @@ public enum PartyInfoStoreImpl implements PartyInfoStore {
 
     private final Set<Party> parties = new HashSet<>();
 
+    @Override
     public PartyInfoStore init(URI advertisedUrl) {
         this.clear();
         this.advertisedUrl = advertisedUrl.toString();
@@ -74,14 +75,13 @@ public enum PartyInfoStoreImpl implements PartyInfoStore {
 
     @Override
     public synchronized PartyInfo removeRecipient(String uri) {
-        PublicKey key =
+        Optional<PublicKey> key =
                 recipients.entrySet().stream()
                         .filter(e -> uri.startsWith(e.getValue().getUrl()))
                         .map(e -> e.getKey())
-                        .findFirst()
-                        .get();
+                        .findFirst();
 
-        recipients.remove(key);
+        key.ifPresent(recipients::remove);
 
         return getPartyInfo();
     }
