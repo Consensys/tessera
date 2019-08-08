@@ -22,7 +22,7 @@ jobs:
       name: "Unit Tests Java 8"
       jdk:  oraclejdk8
       install: &build_no_checks
-        - mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -o -Dmaven.repo.local=$HOME/.m2/repository
+        - mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -o
       script: &build_with_unittests
         - mvn install -pl \!tests/acceptance-test -P reduce-logging -o || travis_terminate 1
 
@@ -116,8 +116,8 @@ notifications:
     secure: TeWK06kSrpdvMY/TNocbNYy0gJ9+jP9ygjzBtgsMRmm0kbBpzg34eZJyWMU/sf5x6taWAVOGW1jfG4+kfLUqG7CrqcRUihqK3x1DOJQS/BlT2IhJkED4dtwEw7xTkRTxPkghwMAXjJZImnh7ORS1HCJByEs5kedThh/Vr1HDaWJ+KctGLhE3LudyYikxZEWYVbexHZ5o8QbFGwmTYNHLaKAIGZbvt8wDoE+yJOftCqmCh2aJ4YBzYSW9wmxxf3tu75Azni9Am1wiCu+Q5NhljtZwbx6QopkHxbM0DdohOwQQ1g2lPni8dZYdw/obvVQOKLNjkTWU3LvtiWrwiAKp/w5czeL5nkQiFxcAcyTqCRXNh3J1RD1k9H4OBLo2N+5o6dhnNUZt24PZFsNMzR+ygmNq7WvAqQpC5ixppND//8tg25234dXafdL8KmWMFuTepQem2H9Yo8zr16v+VC7MEUyh5ta67xqhFGluIDEySgxMX389r0bU1dXsqhc/K131ty6AcV8FWEGToguvxL+Sj8RhBk5F2B+QOtUzl/5iqlGhqpWcVkoQjiCPJbcLHlHbt6fiUNEpVVjxa2kNrTNZ/5GS6eZoVr5OT1tc3lY5ZUA40yk0Pk63mYB30yMl/wtbbQl/g/0OpcJW20+ZT3971dIt6PMFg3b+n1xSZgTNvIY=
 
 before_cache:
+- mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true dependency:go-offline
 - mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
-- mvn dependency:go-offline -B -Dmaven.repo.local=$HOME/.m2/repository
 
 cache:
   directories:
