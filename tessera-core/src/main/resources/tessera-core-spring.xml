@@ -67,7 +67,7 @@
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
         <property name="jdbcUrl" value="#{ config.getJdbcConfig().getUrl() }" />
         <property name="username" value="#{ config.getJdbcConfig().getUsername() }" />
-        <property name="password" value="#{ config.getJdbcConfig().getPassword() }" />
+        <property name="password" value="#{ resolver.resolve(config.getJdbcConfig().getPassword()) }" />
     </bean>
 
     <bean id="jpaTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
@@ -98,5 +98,7 @@
         </property>
 
     </bean>
+
+    <bean id="resolver" class="com.quorum.tessera.config.util.EncryptedStringResolver"/>
 
 </beans>

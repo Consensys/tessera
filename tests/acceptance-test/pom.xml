@@ -197,6 +197,7 @@
                         <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
+                        <include>CucumberFileKeyGenerationIT</include>
                         <include>RestSuiteP2pWebsocketH2</include>
                         <include>AdminRestSuite</include>
                         <include>RestSuite</include>
@@ -243,7 +244,6 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-
         </profile>
 
         <profile>
@@ -312,6 +312,7 @@
                             </systemPropertyVariables>
                             <rerunFailingTestsCount>0</rerunFailingTestsCount>
                             <includes>
+                                <include>CucumberFileKeyGenerationIT</include>
                                 <include>AdminRestSuite</include>
                                 <include>RestSuiteSimple</include>
                                 <include>RestSuiteUnixH2</include>

@@ -24,13 +24,11 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
 
 /** Defines endpoints for requesting node discovery (partyinfo) information */
@@ -49,7 +47,7 @@ public class PartyInfoResource {
 
     private final PayloadEncoder payloadEncoder;
 
-    final boolean enableKeyValidation;
+    private final boolean enableKeyValidation;
 
     public PartyInfoResource(
             final PartyInfoService partyInfoService,
@@ -93,7 +91,12 @@ public class PartyInfoResource {
 
         if (!enableKeyValidation) {
             partyInfoService.updatePartyInfo(partyInfo);
-            return Response.ok().build();
+
+            // create an empty party info object with our URL to send back
+            // this is used by older versions (before 0.10.0), but we don't want to give any info back
+            final PartyInfo emptyInfo = new PartyInfo(partyInfoService.getPartyInfo().getUrl(), emptySet(), emptySet());
+            final byte[] returnData = partyInfoParser.to(emptyInfo);
+            return Response.ok(returnData).build();
         }
 
         // Start validation stuff

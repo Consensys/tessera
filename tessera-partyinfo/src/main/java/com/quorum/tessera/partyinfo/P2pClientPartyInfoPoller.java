@@ -5,12 +5,12 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.ConnectException;
+
 import java.util.Objects;
 
 /**
- * Polls every so often to all known nodes for any new discoverable nodes This keeps all nodes up-to date and
- * discoverable by other nodes
+ * Polls every so often to all known nodes for any new discoverable nodes This
+ * keeps all nodes up-to date and discoverable by other nodes
  */
 public class P2pClientPartyInfoPoller implements PartyInfoPoller, Runnable {
 
@@ -34,35 +34,35 @@ public class P2pClientPartyInfoPoller implements PartyInfoPoller, Runnable {
     }
 
     /**
-     * Iterates over all known parties and contacts them for the current state of their known node discovery list
+     * Iterates over all known parties and contacts them for the current state
+     * of their known node discovery list
      *
-     * <p>For Tessera 0.9 backwards, after contacting the known parties, this poller then updates this nodes list of
-     * data with any new information collected.
+     * <p>
+     * For Tessera 0.9 backwards, after contacting the known parties, this
+     * poller then updates this nodes list of data with any new information
+     * collected.
      *
-     * <p>This behaviour is now deprecated since the /partyinfo API call now has been made more strict with node
-     * validation to prevent exploiting the API to attack the Tessera network.
+     * <p>
+     * This behaviour is now deprecated since the /partyinfo API call now has
+     * been made more strict with node validation to prevent exploiting the API
+     * to attack the Tessera network.
      *
-     * <p>This call is merely to let its parties know about this node existence, any recipients that want to be added to
-     * this node's PartyInfo will need to make their own partyinfo call and validation
+     * <p>
+     * This call is merely to let its parties know about this node existence,
+     * any recipients that want to be added to this node's PartyInfo will need
+     * to make their own partyinfo call and validation
      */
     @Override
     public void run() {
-        LOGGER.debug("Polling {}", getClass().getSimpleName());
-
-        if (Objects.isNull(p2pClient)) {
-            return;
-        }
-
         final PartyInfo partyInfo = partyInfoService.getPartyInfo();
-
         final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
-        partyInfo.getParties().stream()
-                .filter(party -> !party.getUrl().equals(partyInfo.getUrl()))
-                .map(Party::getUrl)
-                .forEach(url -> pollSingleParty(url, encodedPartyInfo));
+        final String ourUrl = partyInfo.getUrl();
 
-        LOGGER.debug("Polled {}. PartyInfo : {}", getClass().getSimpleName(), partyInfo);
+        partyInfo.getParties().stream()
+                .map(Party::getUrl)
+                .filter(url -> !ourUrl.equals(url))
+                .forEach(url -> pollSingleParty(url, encodedPartyInfo));
     }
 
     /**
@@ -72,19 +72,11 @@ public class P2pClientPartyInfoPoller implements PartyInfoPoller, Runnable {
      * @param encodedPartyInfo the encoded current party information
      */
     private void pollSingleParty(final String url, final byte[] encodedPartyInfo) {
-
         try {
             p2pClient.sendPartyInfo(url, encodedPartyInfo);
         } catch (final Exception ex) {
-
-            if (ConnectException.class.isInstance(ex.getCause())) {
-                LOGGER.warn("Server error {} when connecting to {}", ex.getMessage(), url);
-                LOGGER.debug(null, ex);
-            } else {
-                LOGGER.error("Error {} while executing poller for {}. ", ex.getMessage(), url);
-                LOGGER.debug(null, ex);
-                throw ex;
-            }
+            LOGGER.warn("Error {} when connecting to {}", ex.getMessage(), url);
+            LOGGER.debug(null, ex);
         }
     }
 }
