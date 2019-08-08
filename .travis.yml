@@ -117,7 +117,7 @@ notifications:
 
 before_cache:
 - mvn dependency:purge-local-repository -Dinclude=com.jpmorgan.quorum -DresolutionFuzziness=groupId -Dverbose=true -DreResolve=false
-- mvn dependency:go-offline -B -DexcludeGroupIds=com.jpmorgan.quorum
+- mvn dependency:resolve-plugins dependency:resolve
 
 cache:
   directories:
