@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tessera</artifactId>
-        <version>0.10.0</version>
+        <version>0.11-SNAPSHOT</version>
     </parent>
     <artifactId>tessera-sync</artifactId>
     <packaging>jar</packaging>
@@ -20,7 +20,7 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>mock-websocket-container</artifactId>
-                <version>0.10.0</version>
+                <version>0.11-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>mock-service-locator</artifactId>
-            <version>0.10.0</version>
+            <version>0.11-SNAPSHOT</version>
             <scope>test</scope>
             <type>jar</type>
         </dependency>
