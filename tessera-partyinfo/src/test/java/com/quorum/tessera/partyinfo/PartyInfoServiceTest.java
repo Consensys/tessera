@@ -72,7 +72,6 @@ public class PartyInfoServiceTest {
     @After
     public void after() {
         // Called in constructor
-        verify(enclave, atLeast(1)).getPublicKeys();
         verify(configService).getServerUri();
         verify(configService, atLeast(1)).getPeers();
         verify(partyInfoStore, atLeast(1)).store(any(PartyInfo.class));
@@ -86,9 +85,13 @@ public class PartyInfoServiceTest {
     @Test
     public void registeringPublicKeysUsesOurUrl() {
 
+        // we add public keys everytime we fetch the partyinfo, so lets do that first
+        this.partyInfoService.getPartyInfo();
+
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
 
-        verify(partyInfoStore).store(captor.capture());
+        verify(partyInfoStore, times(2)).store(captor.capture());
+        verify(partyInfoStore).getPartyInfo();
         verify(enclave, atLeast(1)).getPublicKeys();
 
         final List<Recipient> allRegisteredKeys =
@@ -114,10 +117,11 @@ public class PartyInfoServiceTest {
 
         assertThat(result).isSameAs(outgoingPartyInfo);
 
-        verify(partyInfoStore, times(2)).store(any(PartyInfo.class));
+        verify(partyInfoStore, times(3)).store(any(PartyInfo.class));
         verify(partyInfoStore).getPartyInfo();
         verify(configService).isDisablePeerDiscovery();
         verify(configService).featureToggles();
+        verify(enclave).getPublicKeys();
     }
 
     @Test
@@ -157,8 +161,9 @@ public class PartyInfoServiceTest {
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
 
         verify(partyInfoStore).getPartyInfo();
-        verify(partyInfoStore, times(2)).store(captor.capture());
+        verify(partyInfoStore, times(3)).store(captor.capture());
         verify(configService).featureToggles();
+        verify(enclave).getPublicKeys();
 
         final List<Recipient> allRegisteredKeys =
                 captor.getAllValues().stream().map(PartyInfo::getRecipients).flatMap(Set::stream).collect(toList());
@@ -191,8 +196,9 @@ public class PartyInfoServiceTest {
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
 
         verify(partyInfoStore).getPartyInfo();
-        verify(partyInfoStore, times(2)).store(captor.capture());
+        verify(partyInfoStore, times(3)).store(captor.capture());
         verify(configService).featureToggles();
+        verify(enclave).getPublicKeys();
     }
 
     @Test
@@ -219,6 +225,7 @@ public class PartyInfoServiceTest {
 
         partyInfoService.publishPayload(payload, recipientKey);
 
+        verify(enclave, times(2)).getPublicKeys();
         verify(payloadPublisher).publishPayload(payload, "http://somehost.com");
         verify(partyInfoStore).getPartyInfo();
     }
@@ -234,7 +241,7 @@ public class PartyInfoServiceTest {
 
         partyInfoService.publishPayload(payload, recipientKey);
 
-        verifyZeroInteractions(payloadPublisher);
+        verify(enclave).getPublicKeys();
     }
 
     @Test
@@ -249,13 +256,11 @@ public class PartyInfoServiceTest {
 
         EncodedPayload payload = mock(EncodedPayload.class);
 
-        try {
-            partyInfoService.publishPayload(payload, recipientKey);
-            failBecauseExceptionWasNotThrown(KeyNotFoundException.class);
-        } catch (KeyNotFoundException ex) {
-            verifyZeroInteractions(payloadPublisher);
-            verify(partyInfoStore).getPartyInfo();
-        }
+        final Throwable throwable = catchThrowable(() -> partyInfoService.publishPayload(payload, recipientKey));
+
+        assertThat(throwable).isInstanceOf(KeyNotFoundException.class);
+        verify(partyInfoStore).getPartyInfo();
+        verify(enclave, times(2)).getPublicKeys();
     }
 
     @Test
@@ -301,8 +306,9 @@ public class PartyInfoServiceTest {
 
         // verify
         assertThat(updatedInfo.getRecipients()).hasSize(1).containsExactly(new Recipient(testKey, uri));
-        verify(partyInfoStore, times(2)).getPartyInfo();
+        verify(partyInfoStore).getPartyInfo();
         verify(configService).featureToggles();
+        verify(enclave).getPublicKeys();
     }
 
     @Test

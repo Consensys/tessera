@@ -1,15 +1,14 @@
 package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.admin.ConfigService;
-import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
-
+import com.quorum.tessera.partyinfo.model.Party;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +17,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
 public class PartyInfoServiceImpl implements PartyInfoService {
@@ -31,6 +31,8 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     private final Enclave enclave;
 
     private final PayloadPublisher payloadPublisher;
+
+    private final String ourUrl;
 
     public PartyInfoServiceImpl() {
         this(PartyInfoServiceFactory.create());
@@ -51,28 +53,28 @@ public class PartyInfoServiceImpl implements PartyInfoService {
             final PartyInfoStore partyInfoStore,
             final ConfigService configService,
             final Enclave enclave,
-            PayloadPublisher payloadPublisher) {
+            final PayloadPublisher payloadPublisher) {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
         this.configService = Objects.requireNonNull(configService);
         this.enclave = Objects.requireNonNull(enclave);
-        this.payloadPublisher = payloadPublisher;
-        final String advertisedUrl = URLNormalizer.create().normalize(configService.getServerUri().toString());
+        this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
+        this.ourUrl = URLNormalizer.create().normalize(configService.getServerUri().toString());
 
         final Set<Party> initialParties =
                 configService.getPeers().stream().map(Peer::getUrl).map(Party::new).collect(toSet());
 
-        final Set<Recipient> ourKeys =
-                enclave.getPublicKeys().stream()
-                        .map(key -> PublicKey.from(key.getKeyBytes()))
-                        .map(key -> new Recipient(key, advertisedUrl))
-                        .collect(toSet());
-
-        partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, initialParties));
+        partyInfoStore.store(new PartyInfo(this.ourUrl, emptySet(), initialParties));
     }
 
     @Override
     public PartyInfo getPartyInfo() {
-        return partyInfoStore.getPartyInfo();
+        // The Enclave may have some new keys for us, so let's check. If there are no new keys, this will have no
+        // effect.
+        final Set<Recipient> ourKeys =
+                this.enclave.getPublicKeys().stream().map(key -> new Recipient(key, this.ourUrl)).collect(toSet());
+        this.partyInfoStore.store(new PartyInfo(this.ourUrl, ourKeys, emptySet()));
+
+        return this.partyInfoStore.getPartyInfo();
     }
 
     @Override
@@ -84,14 +86,14 @@ public class PartyInfoServiceImpl implements PartyInfoService {
             if (!this.validateKeysToUrls(existingPartyInfo, partyInfo)) {
                 LOGGER.warn(
                         "Attempt is being made to update existing key with new url. Terminating party info update.");
-                return this.getPartyInfo();
+                return existingPartyInfo;
             }
         }
 
         if (!configService.isDisablePeerDiscovery()) {
             // auto-discovery is on, we can accept all input to us
             this.partyInfoStore.store(partyInfo);
-            return partyInfoStore.getPartyInfo();
+            return this.getPartyInfo();
         }
 
         // auto-discovery is off
@@ -140,7 +142,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         }
 
         final Recipient retrievedRecipientFromStore =
-                partyInfoStore.getPartyInfo().getRecipients().stream()
+                this.getPartyInfo().getRecipients().stream()
                         .filter(recipient -> recipientKey.equals(recipient.getKey()))
                         .findAny()
                         .orElseThrow(

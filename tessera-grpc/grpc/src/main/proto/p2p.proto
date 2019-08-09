@@ -21,8 +21,6 @@ service PartyInfo {
 
     rpc GetPartyInfo (PartyInfoMessage) returns (PartyInfoMessage) { }
 
-    rpc GetPartyInfoStream (stream PartyInfoMessage) returns (stream PartyInfoMessage) { }
-
     rpc GetPartyInfoMessage (google.protobuf.Empty) returns (PartyInfoJson) { }
 
 }
