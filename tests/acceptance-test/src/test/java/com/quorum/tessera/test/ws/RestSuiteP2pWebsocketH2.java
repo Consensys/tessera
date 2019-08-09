@@ -18,6 +18,5 @@ import suite.TestSuite;
         communicationType = CommunicationType.REST,
         p2pCommunicationType = "WEB_SOCKET",
         dbType = DBType.H2,
-        socketType = SocketType.HTTP,
-        prefix = "websocket")
+        socketType = SocketType.HTTP)
 public class RestSuiteP2pWebsocketH2 {}
