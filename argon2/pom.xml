@@ -11,7 +11,7 @@
     <parent>
         <artifactId>tessera</artifactId>
         <groupId>com.jpmorgan.quorum</groupId>
-        <version>0.10-SNAPSHOT</version>
+        <version>0.10.0</version>
     </parent>
 
     
