@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>test-utils</artifactId>
-        <version>0.10-SNAPSHOT</version>
+        <version>0.10.0</version>
     </parent>
     <artifactId>mock-service-locator</artifactId>
     <packaging>jar</packaging>
