@@ -10,9 +10,9 @@ install: true
 
 stages:
   - name: test
-    if: type = pull_request OR type = api
-  - name: deploy only
-    if: branch = master AND type = push
+    if: type = pull_request OR type = api OR (branch = master AND type = push)
+#  - name: deploy only
+#    if: branch = master AND type = push
   - name: tag and deploy
     if: type = api
 
@@ -65,13 +65,13 @@ jobs:
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
 
-    - stage: deploy only
-      name: "Deploy to OSSRH"
-      jdk:  oraclejdk8
-      script:
-        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
-        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-        - travis_wait 60 mvn deploy --settings .maven.xml -B -P release,reduce-logging -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Djavadoc.skip=true || travis_terminate 1
+#    - stage: deploy only
+#      name: "Deploy to OSSRH"
+#      jdk:  oraclejdk8
+#      script:
+#        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+#        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
+#        - travis_wait 60 mvn deploy --settings .maven.xml -B -P release,reduce-logging -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Djavadoc.skip=true || travis_terminate 1
 
     - stage: tag and deploy
       name: "Tag on GitHub and deploy to OSSRH"
@@ -124,4 +124,3 @@ cache:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-
