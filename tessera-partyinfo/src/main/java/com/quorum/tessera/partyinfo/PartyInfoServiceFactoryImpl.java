@@ -15,11 +15,6 @@ public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
     }
 
     @Override
-    public ResendManager resendManager() {
-        return find(ResendManager.class);
-    }
-
-    @Override
     public PartyInfoService partyInfoService() {
         return find(PartyInfoService.class);
     }

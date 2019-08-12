@@ -1,4 +1,4 @@
-package com.quorum.tessera.sync.model;
+package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.partyinfo.model.Party;
 

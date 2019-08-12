@@ -1,6 +1,6 @@
-package com.quorum.tessera.sync;
+package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.partyinfo.ResendRequest;
+import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;

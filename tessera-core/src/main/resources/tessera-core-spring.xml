@@ -101,4 +101,37 @@
 
     <bean id="resolver" class="com.quorum.tessera.config.util.EncryptedStringResolver"/>
 
+    <bean id="resendManager" class="com.quorum.tessera.transaction.ResendManagerImpl">
+        <constructor-arg ref="encryptedTransactionDAO" />
+        <constructor-arg ref="enclave" />
+    </bean>
+
+    <!-- Node synchronization management-->
+    <beans profile="enable-sync-poller">
+
+        <bean name="resendPartyStore" class="com.quorum.tessera.transaction.ResendPartyStoreImpl"/>
+
+        <bean name="transactionRequester" class="com.quorum.tessera.transaction.TransactionRequesterImpl">
+            <constructor-arg ref="enclave" />
+            <constructor-arg ref="p2pClient" />
+        </bean>
+
+        <bean name="syncPoller" class="com.quorum.tessera.transaction.SyncPoller">
+            <constructor-arg ref="resendPartyStore" />
+            <constructor-arg ref="transactionRequester" />
+            <constructor-arg ref="partyInfoService"/>
+            <constructor-arg ref="p2pClient"/>
+        </bean>
+
+        <bean class="com.quorum.tessera.threading.TesseraScheduledExecutor">
+            <constructor-arg>
+                <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
+            </constructor-arg>
+            <constructor-arg ref="syncPoller"/>
+            <constructor-arg value="60000"/>
+            <constructor-arg value="5000"/>
+        </bean>
+    </beans>
+    
+    
 </beans>

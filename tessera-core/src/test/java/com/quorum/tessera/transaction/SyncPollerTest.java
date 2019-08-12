@@ -1,11 +1,10 @@
-package com.quorum.tessera.sync;
+package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.sync.model.SyncableParty;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

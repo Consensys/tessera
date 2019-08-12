@@ -1,11 +1,7 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.partyinfo.ResendManager;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
-import com.quorum.tessera.partyinfo.ResendResponse;
-import com.quorum.tessera.partyinfo.ResendRequestType;
-import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.data.EncryptedRawTransaction;
 import com.quorum.tessera.data.EncryptedTransaction;

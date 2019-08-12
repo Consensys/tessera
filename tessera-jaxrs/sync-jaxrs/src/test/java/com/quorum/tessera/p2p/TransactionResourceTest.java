@@ -1,7 +1,7 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.partyinfo.ResendRequest;
-import com.quorum.tessera.partyinfo.ResendResponse;
+import com.quorum.tessera.api.model.ResendRequest;
+import com.quorum.tessera.api.model.ResendResponse;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
 import org.junit.Before;

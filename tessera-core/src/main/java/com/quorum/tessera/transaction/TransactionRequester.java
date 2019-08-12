@@ -1,4 +1,4 @@
-package com.quorum.tessera.sync;
+package com.quorum.tessera.transaction;
 
 /**
  * Makes requests to other nodes to resend their transactions

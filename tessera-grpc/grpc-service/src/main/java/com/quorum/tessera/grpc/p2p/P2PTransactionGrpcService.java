@@ -16,12 +16,12 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
-public class P2PTransactionGrpcService extends P2PTransactionGrpc.P2PTransactionImplBase{
+public class P2PTransactionGrpcService extends P2PTransactionGrpc.P2PTransactionImplBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(P2PTransactionGrpcService.class);
 
-    private final Validator validator = Validation.byDefaultProvider()
-            .configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
+    private final Validator validator =
+            Validation.byDefaultProvider().configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
 
     private final TransactionManager transactionManager;
 
@@ -35,19 +35,19 @@ public class P2PTransactionGrpcService extends P2PTransactionGrpc.P2PTransaction
 
         StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
-        template.handle(() -> {
+        template.handle(
+                () -> {
+                    com.quorum.tessera.api.model.DeleteRequest request = Convertor.toModel(grpcRequest);
 
-            com.quorum.tessera.api.model.DeleteRequest request = Convertor.toModel(grpcRequest);
+                    Set<ConstraintViolation<com.quorum.tessera.api.model.DeleteRequest>> violations =
+                            validator.validate(request);
+                    if (!violations.isEmpty()) {
+                        throw new ConstraintViolationException(violations);
+                    }
 
-            Set<ConstraintViolation<com.quorum.tessera.api.model.DeleteRequest>> violations = validator.validate(request);
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException(violations);
-            }
-
-            transactionManager.delete(request);
-            return grpcRequest;
-        });
-
+                    transactionManager.delete(request);
+                    return grpcRequest;
+                });
     }
 
     @Override
@@ -56,16 +56,16 @@ public class P2PTransactionGrpcService extends P2PTransactionGrpc.P2PTransaction
 
         StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
-        template.handle(() -> {
-            com.quorum.tessera.partyinfo.ResendRequest request = Convertor.toModel(grpcRequest);
+        template.handle(
+                () -> {
+                    com.quorum.tessera.api.model.ResendRequest request = Convertor.toModel(grpcRequest);
 
-            Optional<byte[]> result = transactionManager.resend(request).getPayload();
+                    Optional<byte[]> result = transactionManager.resend(request).getPayload();
 
-            ResendResponse.Builder builder = ResendResponse.newBuilder();
-            result.map(ByteString::copyFrom).ifPresent(builder::setData);
-            return builder.build();
-        });
-
+                    ResendResponse.Builder builder = ResendResponse.newBuilder();
+                    result.map(ByteString::copyFrom).ifPresent(builder::setData);
+                    return builder.build();
+                });
     }
 
     @Override
@@ -74,11 +74,10 @@ public class P2PTransactionGrpcService extends P2PTransactionGrpc.P2PTransaction
 
         StreamObserverTemplate template = new StreamObserverTemplate(responseObserver);
 
-        template.handle(() -> {
-            transactionManager.storePayload(request.getData().toByteArray());
-            return request;
-        });
-
+        template.handle(
+                () -> {
+                    transactionManager.storePayload(request.getData().toByteArray());
+                    return request;
+                });
     }
-
 }

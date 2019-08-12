@@ -25,8 +25,6 @@ public class PartyInfoServiceFactoryTest {
     @Test
     public void loadServicesFromLocator() throws Exception {
 
-        ResendManager resendManager = mock(ResendManager.class);
-
         PayloadPublisher payloadPublisher = mock(PayloadPublisher.class);
         ConfigService configService = mock(ConfigService.class);
         when(configService.getServerUri()).thenReturn(new URI("http://bogus.com"));
@@ -35,15 +33,13 @@ public class PartyInfoServiceFactoryTest {
         PartyInfoService partyInfoService = mock(PartyInfoService.class);
 
         Set services =
-                Stream.of(payloadPublisher, configService, enclave, partyInfoService, resendManager)
-                        .collect(Collectors.toSet());
+                Stream.of(payloadPublisher, configService, enclave, partyInfoService).collect(Collectors.toSet());
 
         MockServiceLocator mockServiceLocator = MockServiceLocator.createMockServiceLocator();
 
         mockServiceLocator.setServices(services);
 
         assertThat(partyInfoServiceFactory.partyInfoService()).isSameAs(partyInfoService);
-        assertThat(partyInfoServiceFactory.resendManager()).isSameAs(resendManager);
     }
 
     @Test(expected = IllegalStateException.class)

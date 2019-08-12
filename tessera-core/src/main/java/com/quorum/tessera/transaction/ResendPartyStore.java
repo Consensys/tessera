@@ -1,7 +1,6 @@
-package com.quorum.tessera.sync;
+package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.sync.model.SyncableParty;
 
 import java.util.Collection;
 import java.util.Optional;
