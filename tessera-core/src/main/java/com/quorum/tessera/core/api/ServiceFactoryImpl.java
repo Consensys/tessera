@@ -3,7 +3,6 @@ package com.quorum.tessera.core.api;
 import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
@@ -18,11 +17,6 @@ public class ServiceFactoryImpl implements ServiceFactory {
     private final PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
 
     public ServiceFactoryImpl() {}
-
-    @Override
-    public PartyInfoService partyInfoService() {
-        return partyInfoServiceFactory.partyInfoService();
-    }
 
     @Override
     public Enclave enclave() {

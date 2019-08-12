@@ -1,6 +1,7 @@
 package com.quorum.tessera.sync;
 
 import com.quorum.tessera.core.api.ServiceFactory;
+import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
 import javax.websocket.server.ServerEndpointConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,12 +12,15 @@ public class PartyInfoEndpointConfigurator extends ServerEndpointConfig.Configur
 
     private final ServiceFactory serviceFactory = ServiceFactory.create();
 
+    private final PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
+
     @Override
     public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
         if (endpointClass.equals(PartyInfoEndpoint.class)) {
             LOGGER.info("Creating PartyInfoEndpoint {}", endpointClass);
             PartyInfoEndpoint endpoint =
-                    new PartyInfoEndpoint(serviceFactory.partyInfoService(), serviceFactory.transactionManager());
+                    new PartyInfoEndpoint(
+                            partyInfoServiceFactory.partyInfoService(), serviceFactory.transactionManager());
             LOGGER.info("Created PartyInfoEndpoint {}", endpoint);
 
             return (T) endpoint;
