@@ -35,6 +35,7 @@ public class ResendManagerImpl implements ResendManager {
 
     // TODO: synchronize based on messagehash, so different message don't lock each other
     @Transactional
+    @Override
     public synchronized void acceptOwnMessage(final byte[] message) {
 
         final EncodedPayload payload = payloadEncoder.decode(message);
