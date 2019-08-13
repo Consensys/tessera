@@ -8,9 +8,8 @@ import javax.validation.constraints.Size;
 /**
  * Model representation of a JSON body on incoming HTTP requests
  *
- * Contains information for retrieving a decrypting payload such as the message
- * hash and the public key to decrypt with
- *
+ * <p>Contains information for retrieving a decrypting payload such as the message hash and the public key to decrypt
+ * with
  */
 @ApiModel
 public class ReceiveRequest {
@@ -20,10 +19,11 @@ public class ReceiveRequest {
     @ApiModelProperty("Encoded transaction hash")
     private String key;
 
-    @Size(min = 1)
-    @NotNull
     @ApiModelProperty("Encoded recipient public key")
     private String to;
+
+    @ApiModelProperty("Specifies whether the requested transaction is a raw transaction")
+    private boolean isRaw = false;
 
     public String getKey() {
         return key;
@@ -41,4 +41,11 @@ public class ReceiveRequest {
         this.to = to;
     }
 
+    public boolean isRaw() {
+        return isRaw;
+    }
+
+    public void setRaw(boolean raw) {
+        isRaw = raw;
+    }
 }

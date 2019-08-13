@@ -27,19 +27,16 @@ final class GrpcClientImpl implements GrpcClient {
     }
 
     GrpcClientImpl(final String targetUrl) {
-        this(ManagedChannelBuilder
-            .forTarget(targetUrl.replaceFirst("^(http[s]?://www\\.|http[s]?://|www\\.)",""))
-            .usePlaintext()
-            .keepAliveWithoutCalls(true)
-            .build()
-        );
+        this(
+                ManagedChannelBuilder.forTarget(targetUrl.replaceFirst("^(http[s]?://www\\.|http[s]?://|www\\.)", ""))
+                        .usePlaintext()
+                        .keepAliveWithoutCalls(true)
+                        .build());
     }
 
     @Override
     public byte[] sendPartyInfo(final byte[] data) {
-        final PartyInfoMessage request = PartyInfoMessage.newBuilder()
-            .setPartyInfo(ByteString.copyFrom(data))
-            .build();
+        final PartyInfoMessage request = PartyInfoMessage.newBuilder().setPartyInfo(ByteString.copyFrom(data)).build();
         try {
             final PartyInfoMessage response = partyInfoBlockingStub.getPartyInfo(request);
             return response.getPartyInfo().toByteArray();
@@ -52,9 +49,7 @@ final class GrpcClientImpl implements GrpcClient {
 
     @Override
     public byte[] push(final byte[] data) {
-        final PushRequest request = PushRequest.newBuilder()
-            .setData(ByteString.copyFrom(data))
-            .build();
+        final PushRequest request = PushRequest.newBuilder().setData(ByteString.copyFrom(data)).build();
         try {
             final PushRequest response = transactionBlockingStub.push(request);
             return response.getData().toByteArray();
@@ -70,8 +65,30 @@ final class GrpcClientImpl implements GrpcClient {
         try {
             transactionBlockingStub.resend(request);
             return true;
+        } catch (StatusRuntimeException ex) {
+            LOGGER.error("RPC failed: {}", ex.getStatus().getCode());
+            LOGGER.debug("RPC failed: {}", ex.getStatus());
         }
-        catch (StatusRuntimeException ex) {
+        return false;
+    }
+
+    @Override
+    public ResendBatchResponse makeBatchResendRequest(ResendBatchRequest grpcObj) {
+        try {
+            return transactionBlockingStub.batchResend(grpcObj);
+        } catch (StatusRuntimeException ex) {
+            LOGGER.error("RPC failed: {}", ex.getStatus().getCode());
+            LOGGER.debug("RPC failed: {}", ex.getStatus());
+        }
+        return null;
+    }
+
+    @Override
+    public boolean pushBatch(PushBatchRequest pushBatchRequest) {
+        try {
+            transactionBlockingStub.pushBatch(pushBatchRequest);
+            return true;
+        } catch (StatusRuntimeException ex) {
             LOGGER.error("RPC failed: {}", ex.getStatus().getCode());
             LOGGER.debug("RPC failed: {}", ex.getStatus());
         }
@@ -81,5 +98,4 @@ final class GrpcClientImpl implements GrpcClient {
     void shutdown() throws InterruptedException {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
-
 }

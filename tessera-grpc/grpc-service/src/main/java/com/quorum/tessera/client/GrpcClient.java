@@ -1,6 +1,6 @@
 package com.quorum.tessera.client;
 
-import com.quorum.tessera.grpc.p2p.ResendRequest;
+import com.quorum.tessera.grpc.p2p.*;
 
 interface GrpcClient {
 
@@ -9,5 +9,8 @@ interface GrpcClient {
     boolean makeResendRequest(ResendRequest grpcObj);
 
     byte[] push(byte[] data);
-    
+
+    ResendBatchResponse makeBatchResendRequest(ResendBatchRequest grpcObj);
+
+    boolean pushBatch(PushBatchRequest pushBatchRequest);
 }

@@ -7,6 +7,7 @@ import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 
 import io.swagger.annotations.ApiOperation;
@@ -112,7 +113,13 @@ public class PartyInfoResource {
 
                         final PublicKey key = r.getKey();
                         final EncodedPayload encodedPayload =
-                                enclave.encryptPayload(dataToEncrypt.getBytes(), sender, Arrays.asList(key));
+                                enclave.encryptPayload(
+                                        dataToEncrypt.getBytes(),
+                                        sender,
+                                        Arrays.asList(key),
+                                        PrivacyMode.STANDARD_PRIVATE,
+                                        Collections.emptyMap(),
+                                        new byte[0]);
 
                         final byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
 

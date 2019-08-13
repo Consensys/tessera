@@ -1,6 +1,5 @@
 package com.quorum.tessera.client;
 
-
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.partyinfo.P2pClient;
@@ -17,5 +16,4 @@ public class GrpcP2pClientFactory implements P2pClientFactory {
     public CommunicationType communicationType() {
         return CommunicationType.GRPC;
     }
-    
 }

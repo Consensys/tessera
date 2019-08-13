@@ -10,14 +10,33 @@ service APITransaction {
 
     rpc Send (SendRequest) returns (SendResponse) { }
 
+    rpc SendSignedTx (SendSignedRequest) returns (SendResponse) { }
+
     rpc Receive (ReceiveRequest) returns (ReceiveResponse) { }
 
+}
+
+enum PrivacyMode {
+    STANDARD_PRIVATE = 0;
+    PARTY_PROTECTION = 1;
+    PRIVATE_STATE_VALIDATION = 3;
 }
 
 message SendRequest {
     bytes payload = 1;
     string from = 2;
     repeated string to = 3;
+    repeated string affectedContractTransactions = 4;
+    string execHash = 5;
+    PrivacyMode privacyFlag = 6;
+}
+
+message SendSignedRequest {
+    bytes hash = 1;
+    repeated string to = 2;
+    repeated string affectedContractTransactions = 3;
+    string execHash = 4;
+    PrivacyMode privacyFlag = 5;
 }
 
 message SendResponse {
@@ -27,9 +46,13 @@ message SendResponse {
 message ReceiveRequest {
     string key = 1;
     string to = 2;
+    string isRaw = 3;
 }
 
 message ReceiveResponse {
     bytes payload = 1;
+    repeated string affectedContractTransactions = 2;
+    string execHash = 3;
+    PrivacyMode privacyFlag = 4;
 }
 

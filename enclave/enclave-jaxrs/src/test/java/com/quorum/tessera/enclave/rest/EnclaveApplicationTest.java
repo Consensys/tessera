@@ -1,28 +1,23 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.service.Service;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import javax.ws.rs.core.Response;
+import java.util.*;
 
 import static com.quorum.tessera.enclave.rest.Fixtures.createSample;
-import com.quorum.tessera.service.Service;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import org.mockito.Mockito;
 import static org.mockito.Mockito.*;
 
 public class EnclaveApplicationTest {
@@ -83,12 +78,30 @@ public class EnclaveApplicationTest {
                             return pay;
                         })
                 .when(enclave)
-                .encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+                .encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), anyMap(), any());
 
         PublicKey senderPublicKey = pay.getSenderKey();
         List<PublicKey> recipientPublicKeys = pay.getRecipientKeys();
+        EncodedPayload acoth =
+                new EncodedPayload(
+                        senderPublicKey,
+                        "ciphertext".getBytes(),
+                        new Nonce("0".getBytes()),
+                        Collections.emptyList(),
+                        new Nonce("0".getBytes()),
+                        Collections.emptyList(),
+                        PrivacyMode.STANDARD_PRIVATE,
+                        Collections.emptyMap(),
+                        "0".getBytes());
 
-        EncodedPayload result = restfulEnclaveClient.encryptPayload(message, senderPublicKey, recipientPublicKeys);
+        EncodedPayload result =
+                restfulEnclaveClient.encryptPayload(
+                        message,
+                        senderPublicKey,
+                        recipientPublicKeys,
+                        PrivacyMode.STANDARD_PRIVATE,
+                        Collections.singletonMap(new TxHash("key".getBytes()), acoth),
+                        new byte[0]);
 
         assertThat(result.getSenderKey()).isNotNull().isEqualTo(pay.getSenderKey());
 
@@ -106,7 +119,7 @@ public class EnclaveApplicationTest {
 
         assertThat(results.get(0)).isEqualTo(message);
 
-        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), anyMap(), any());
     }
 
     @Test
@@ -121,7 +134,6 @@ public class EnclaveApplicationTest {
                         })
                 .when(enclave)
                 .unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
-
         EncodedPayload payload = createSample();
 
         PublicKey providedKey = payload.getSenderKey();
@@ -133,7 +145,6 @@ public class EnclaveApplicationTest {
         assertThat(payloads).hasSize(1);
 
         assertThat(payloads.keySet().iterator().next()).isEqualTo(providedKey);
-
         EncodedPayload resultPayload = payloads.values().iterator().next();
 
         assertThat(resultPayload.getSenderKey()).isNotNull().isEqualTo(payload.getSenderKey());
@@ -145,18 +156,11 @@ public class EnclaveApplicationTest {
         assertThat(resultPayload.getCipherText()).isNotNull().isEqualTo(payload.getCipherText());
 
         assertThat(resultPayload.getRecipientKeys()).isNotNull().isEqualTo(payload.getRecipientKeys());
-
         verify(enclave).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
     }
 
     @Test
     public void appType() {
         assertThat(new EnclaveApplication(mock(EnclaveResource.class)).getAppType()).isEqualTo(AppType.ENCLAVE);
-    }
-
-    @Test
-    public void getCommunicationType() {
-        assertThat(new EnclaveApplication(mock(EnclaveResource.class)).getCommunicationType())
-                .isEqualTo(CommunicationType.REST);
     }
 }

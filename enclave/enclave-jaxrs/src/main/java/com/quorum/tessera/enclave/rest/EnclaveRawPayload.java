@@ -1,8 +1,10 @@
 package com.quorum.tessera.enclave.rest;
 
-import java.util.List;
+import com.quorum.tessera.enclave.PrivacyMode;
+
 import javax.xml.bind.annotation.XmlMimeType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 @XmlRootElement
 public class EnclaveRawPayload {
@@ -21,6 +23,13 @@ public class EnclaveRawPayload {
 
     @XmlMimeType("base64Binary")
     private List<byte[]> recipientPublicKeys;
+
+    private PrivacyMode privacyMode;
+
+    private List<KeyValuePair> affectedContractTransactions;
+
+    @XmlMimeType("base64Binary")
+    private byte[] execHash;
 
     public byte[] getEncryptedPayload() {
         return encryptedPayload;
@@ -62,4 +71,27 @@ public class EnclaveRawPayload {
         this.recipientPublicKeys = recipientPublicKeys;
     }
 
+    public PrivacyMode getPrivacyMode() {
+        return privacyMode;
+    }
+
+    public void setPrivacyMode(PrivacyMode privacyMode) {
+        this.privacyMode = privacyMode;
+    }
+
+    public List<KeyValuePair> getAffectedContractTransactions() {
+        return affectedContractTransactions;
+    }
+
+    public void setAffectedContractTransactions(List<KeyValuePair> affectedContractTransactions) {
+        this.affectedContractTransactions = affectedContractTransactions;
+    }
+
+    public byte[] getExecHash() {
+        return execHash;
+    }
+
+    public void setExecHash(byte[] execHash) {
+        this.execHash = execHash;
+    }
 }

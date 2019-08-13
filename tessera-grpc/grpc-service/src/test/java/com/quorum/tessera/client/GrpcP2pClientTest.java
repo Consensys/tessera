@@ -2,6 +2,9 @@ package com.quorum.tessera.client;
 
 import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.api.model.ResendRequestType;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
@@ -76,5 +79,20 @@ public class GrpcP2pClientTest {
     public void defaultConstuct() {
         GrpcP2pClient instance = new GrpcP2pClient();
         assertThat(instance).isNotNull();
+    }
+
+    @Test
+    public void pushBatch() {
+        byte[] payload = "HELLOW".getBytes();
+        List<byte[]> encodedPayloads = Arrays.asList(payload);
+
+        com.quorum.tessera.partyinfo.PushBatchRequest pushBatchRequest =
+                new com.quorum.tessera.partyinfo.PushBatchRequest();
+        pushBatchRequest.setEncodedPayloads(encodedPayloads);
+
+        p2pClient.pushBatch(targetUrl, pushBatchRequest);
+
+        verify(grpcClientFactory).getClient(targetUrl);
+        verify(grpcClient).pushBatch(any());
     }
 }

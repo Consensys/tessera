@@ -1,9 +1,12 @@
 package com.quorum.tessera.grpc.p2p;
 
+import com.google.protobuf.ByteString;
 import com.quorum.tessera.api.model.DeleteRequest;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Convertor {
@@ -48,5 +51,49 @@ public class Convertor {
                 .ifPresent(resendRequest::setType);
 
         return resendRequest;
+    }
+
+    public static com.quorum.tessera.partyinfo.ResendBatchRequest toModel(
+            com.quorum.tessera.grpc.p2p.ResendBatchRequest grpcRequest) {
+        com.quorum.tessera.partyinfo.ResendBatchRequest request = new com.quorum.tessera.partyinfo.ResendBatchRequest();
+        request.setBatchSize(grpcRequest.getBatchSize());
+        request.setPublicKey(grpcRequest.getPublicKey());
+        return request;
+    }
+
+    public static com.quorum.tessera.grpc.p2p.ResendBatchRequest toGrpc(
+            com.quorum.tessera.partyinfo.ResendBatchRequest request) {
+        return com.quorum.tessera.grpc.p2p.ResendBatchRequest.newBuilder()
+                .setBatchSize(request.getBatchSize())
+                .setPublicKey(request.getPublicKey())
+                .build();
+    }
+
+    public static com.quorum.tessera.partyinfo.ResendBatchResponse toModel(
+            com.quorum.tessera.grpc.p2p.ResendBatchResponse grpcRequest) {
+        com.quorum.tessera.partyinfo.ResendBatchResponse response =
+                new com.quorum.tessera.partyinfo.ResendBatchResponse();
+        response.setTotal(grpcRequest.getTotal());
+        return response;
+    }
+
+    public static com.quorum.tessera.grpc.p2p.ResendBatchResponse toGrpc(
+            com.quorum.tessera.partyinfo.ResendBatchResponse response) {
+        return com.quorum.tessera.grpc.p2p.ResendBatchResponse.newBuilder().setTotal(response.getTotal()).build();
+    }
+
+    public static com.quorum.tessera.partyinfo.PushBatchRequest toModel(
+            com.quorum.tessera.grpc.p2p.PushBatchRequest grpcRequest) {
+        final List<byte[]> payloads =
+                grpcRequest.getDataList().stream().map(ByteString::toByteArray).collect(Collectors.toList());
+        return new com.quorum.tessera.partyinfo.PushBatchRequest(payloads);
+    }
+
+    public static com.quorum.tessera.grpc.p2p.PushBatchRequest toGrpc(
+            com.quorum.tessera.partyinfo.PushBatchRequest request) {
+        return com.quorum.tessera.grpc.p2p.PushBatchRequest.newBuilder()
+                .addAllData(
+                        request.getEncodedPayloads().stream().map(ByteString::copyFrom).collect(Collectors.toList()))
+                .build();
     }
 }

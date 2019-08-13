@@ -21,7 +21,9 @@
         <constructor-arg ref="config" />
     </bean>
 
-
+    <bean id="resendBatchPublisherFactory" class="com.quorum.tessera.partyinfo.ResendBatchPublisherFactory" factory-method="newFactory">
+        <constructor-arg ref="config" />
+    </bean>
 
     <bean name="partyInfoPollExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">
         <constructor-arg>
@@ -36,17 +38,42 @@
         <constructor-arg ref="enclave" />
     </bean>
     
-    <bean id="transactionManager" class="com.quorum.tessera.transaction.TransactionManagerImpl">
+    <bean id="resendManager" class="com.quorum.tessera.transaction.ResendManagerImpl">
         <constructor-arg ref="encryptedTransactionDAO" />
         <constructor-arg ref="enclave" />
-        <constructor-arg ref="encryptedRawTransactionDAO" />
-        <constructor-arg ref="resendManager" />
+    </bean>
+    
+    <bean id="transactionManager" class="com.quorum.tessera.transaction.TransactionManagerWrapper">
         <constructor-arg>
-            <bean factory-bean="payloadPublisherFactory" factory-method="create">
+            <bean class="com.quorum.tessera.transaction.TransactionManagerImpl">
+                <constructor-arg ref="encryptedTransactionDAO" />
+                <constructor-arg ref="enclave" />
+                <constructor-arg ref="encryptedRawTransactionDAO" />
+                <constructor-arg ref="resendManager" />
+                <constructor-arg>
+                    <bean factory-bean="payloadPublisherFactory" factory-method="create">
+                        <constructor-arg ref="config" />
+                    </bean>  
+                </constructor-arg>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <bean id="batchResendManager" class="com.quorum.tessera.transaction.BatchResendManagerImpl">
+        
+        <constructor-arg ref="enclave" />
+        <constructor-arg ref="transactionManager" />
+        <constructor-arg ref="stagingTransactionDAO" />
+        <constructor-arg ref="encryptedTransactionDAO" />
+     
+        <constructor-arg>
+            <bean factory-bean="resendBatchPublisherFactory" factory-method="create">
                 <constructor-arg ref="config" />
             </bean>  
         </constructor-arg>
+    
     </bean>
+
 
     <bean id="cliDelegate" class="com.quorum.tessera.cli.CliDelegate" factory-method="instance"/>
 
@@ -64,6 +91,12 @@
 
     <bean name="encryptedRawTransactionDAO" class="com.quorum.tessera.data.EncryptedRawTransactionDAOImpl"/>
 
+    <bean name="stagingEntityDAOBatch" class="com.quorum.tessera.data.StagingEntityDAOBatchImpl"/>
+    
+    <bean name="stagingTransactionDAO" class="com.quorum.tessera.data.StagingEntityDAOImpl">
+        <constructor-arg ref="stagingEntityDAOBatch"/>
+    </bean>
+    
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
         <property name="jdbcUrl" value="#{ config.getJdbcConfig().getUrl() }" />
         <property name="username" value="#{ config.getJdbcConfig().getUsername() }" />
@@ -101,10 +134,7 @@
 
     <bean id="resolver" class="com.quorum.tessera.config.util.EncryptedStringResolver"/>
 
-    <bean id="resendManager" class="com.quorum.tessera.transaction.ResendManagerImpl">
-        <constructor-arg ref="encryptedTransactionDAO" />
-        <constructor-arg ref="enclave" />
-    </bean>
+
 
     <!-- Node synchronization management-->
     <beans profile="enable-sync-poller">
@@ -133,5 +163,30 @@
         </bean>
     </beans>
     
+    <beans profile="enable-batch-sync">
+
+        <bean id="processControl" class="com.quorum.tessera.transaction.batch.ProcessControlImpl"/>
+
+        <bean name="batchTransactionRequester" class="com.quorum.tessera.transaction.batch.BatchTransactionRequesterImpl">
+            <constructor-arg ref="enclave" />
+            <constructor-arg ref="p2pClient" />
+            <constructor-arg value="1000" />
+        </bean>
+
+        <bean name="batchResendSync" class="com.quorum.tessera.transaction.batch.BatchResendSync">
+
+            <constructor-arg ref="partyInfoService"/>
+            <constructor-arg ref="p2pClient"/>
+
+            <constructor-arg ref="batchResendManager" />
+            <constructor-arg value="#{ systemProperties['BATCH_RESEND_WAIT_TIME'] ?: 30000}" />
+
+            <constructor-arg ref="processControl" />
+            <constructor-arg ref="batchTransactionRequester" />
+            <constructor-arg ref="transactionManager" />
+
+        </bean>
+
+    </beans>
     
 </beans>

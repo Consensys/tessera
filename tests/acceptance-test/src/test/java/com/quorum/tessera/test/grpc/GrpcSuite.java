@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.quorum.tessera.config.CommunicationType.GRPC;
+import java.util.stream.Stream;
 import static suite.SocketType.HTTP;
 
 @TestSuite.SuiteClasses({SendGrpcIT.class, PartyInfoGrpcIT.class, TesseraGrpcIT.class, CucumberGprcIT.class})
@@ -24,9 +25,13 @@ public class GrpcSuite {
     public static List<ProcessConfiguration> configurations() {
         final List<ProcessConfiguration> configurations = new ArrayList<>();
 
-        for (final DBType database : DBType.values()) {
-            configurations.add(new ProcessConfiguration(database, GRPC, HTTP, EnclaveType.LOCAL, false, ""));
-        }
+        Stream.of(DBType.values())
+                .filter(db -> !db.equals(DBType.SQLITE))
+                .forEach(
+                        database -> {
+                            configurations.add(
+                                    new ProcessConfiguration(database, GRPC, HTTP, EnclaveType.LOCAL, false, ""));
+                        });
 
         return configurations;
     }

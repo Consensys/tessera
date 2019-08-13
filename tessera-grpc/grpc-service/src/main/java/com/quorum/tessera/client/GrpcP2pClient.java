@@ -2,10 +2,12 @@ package com.quorum.tessera.client;
 
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.grpc.p2p.Convertor;
+import com.quorum.tessera.grpc.p2p.ResendBatchRequest;
+import com.quorum.tessera.grpc.p2p.ResendBatchResponse;
 
 import java.util.Objects;
 
-public class GrpcP2pClient implements P2pClient<com.quorum.tessera.api.model.ResendRequest> {
+public class GrpcP2pClient implements P2pClient {
 
     private final GrpcClientFactory grpcClientFactory;
 
@@ -28,8 +30,24 @@ public class GrpcP2pClient implements P2pClient<com.quorum.tessera.api.model.Res
     }
 
     @Override
-    public boolean makeResendRequest(String targetUrl, com.quorum.tessera.api.model.ResendRequest request) {
-        com.quorum.tessera.grpc.p2p.ResendRequest grpcObj = Convertor.toGrpc(request);
+    public boolean makeResendRequest(String targetUrl, Object request) {
+        com.quorum.tessera.api.model.ResendRequest r = com.quorum.tessera.api.model.ResendRequest.class.cast(request);
+        com.quorum.tessera.grpc.p2p.ResendRequest grpcObj = Convertor.toGrpc(r);
         return grpcClientFactory.getClient(targetUrl).makeResendRequest(grpcObj);
+    }
+
+    @Override
+    public boolean pushBatch(String targetUrl, com.quorum.tessera.partyinfo.PushBatchRequest pushBatchRequest) {
+        com.quorum.tessera.grpc.p2p.PushBatchRequest grpcObj = Convertor.toGrpc(pushBatchRequest);
+        return grpcClientFactory.getClient(targetUrl).pushBatch(grpcObj);
+    }
+
+    @Override
+    public com.quorum.tessera.partyinfo.ResendBatchResponse makeBatchResendRequest(
+            String targetUrl, com.quorum.tessera.partyinfo.ResendBatchRequest request) {
+        ResendBatchRequest grpcResendBatchRequest = Convertor.toGrpc(request);
+        ResendBatchResponse grpcResponse =
+                grpcClientFactory.getClient(targetUrl).makeBatchResendRequest(grpcResendBatchRequest);
+        return Convertor.toModel(grpcResponse);
     }
 }

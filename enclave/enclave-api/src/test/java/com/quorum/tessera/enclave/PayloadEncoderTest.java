@@ -5,9 +5,11 @@ import com.quorum.tessera.nacl.Nonce;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.Test;
 
-import java.util.Base64;
+import java.nio.ByteBuffer;
+import java.util.*;
 
-import static java.util.Collections.singletonList;
+import static java.util.Collections.*;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -15,84 +17,354 @@ public class PayloadEncoderTest {
 
     private PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
-    //This tests a payload that has no data for the recipient list
-    //NOT the case where the list is present but empty
+    private LegacyPayloadEncoder legacyPayloadEncoder = new LegacyPayloadEncoder();
+
+    // This tests a payload that has no data for the recipient list
+    // NOT the case where the list is present but empty
     @Test
-    public void payloadWithRecipientMissingDecodes() {
+    public void decodeLegacyPayloadMissingRecipient() {
+        final byte[] input =
+                new byte[] {
+                    0, 0, 0, 0, 0, 0, 0, 32, -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85,
+                    -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8, 0, 0, 0, 0, 0, 0, 0, 28,
+                    120, 111, 63, -100, 97, -12, -103, 20, 2, -48, 37, -86, -115, -112, -75, -27, 55, 12, -1, 120, 13,
+                    0, 86, 92, 52, 77, -4, 45, 0, 0, 0, 0, 0, 0, 0, 24, -115, -84, -58, 14, 82, 118, 4, -118, -53, 86,
+                    3, 14, 112, 70, -4, 81, 121, 84, -24, -3, -73, -17, 6, 124, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+                    0, 0, 48, -87, -102, 0, 95, -13, 48, 76, -115, -115, 62, 54, -55, -78, 125, -54, -34, -71, -11, -95,
+                    -85, 78, -24, -30, 47, 65, 5, 88, 38, -111, -12, -41, -97, 103, -60, -101, 43, -57, -68, 68, -109,
+                    36, 49, -63, -123, 62, 21, 67, -28, 0, 0, 0, 0, 0, 0, 0, 24, -63, 5, 86, 42, -85, -12, -36, 16,
+                    -108, 48, 26, 36, 44, -82, 15, -38, -19, 6, -101, 107, 110, -30, 95, 5
+                };
 
-        final byte[] input = new byte[]{0, 0, 0, 0, 0, 0, 0, 32, -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8, 0, 0, 0, 0, 0, 0, 0, 28, 120, 111, 63, -100, 97, -12, -103, 20, 2, -48, 37, -86, -115, -112, -75, -27, 55, 12, -1, 120, 13, 0, 86, 92, 52, 77, -4, 45, 0, 0, 0, 0, 0, 0, 0, 24, -115, -84, -58, 14, 82, 118, 4, -118, -53, 86, 3, 14, 112, 70, -4, 81, 121, 84, -24, -3, -73, -17, 6, 124, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 48, -87, -102, 0, 95, -13, 48, 76, -115, -115, 62, 54, -55, -78, 125, -54, -34, -71, -11, -95, -85, 78, -24, -30, 47, 65, 5, 88, 38, -111, -12, -41, -97, 103, -60, -101, 43, -57, -68, 68, -109, 36, 49, -63, -123, 62, 21, 67, -28, 0, 0, 0, 0, 0, 0, 0, 24, -63, 5, 86, 42, -85, -12, -36, 16, -108, 48, 26, 36, 44, -82, 15, -38, -19, 6, -101, 107, 110, -30, 95, 5};
-
-        final byte[] senderKey = new byte[]{-51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8};
-        final byte[] ciphertext = new byte[]{120, 111, 63, -100, 97, -12, -103, 20, 2, -48, 37, -86, -115, -112, -75, -27, 55, 12, -1, 120, 13, 0, 86, 92, 52, 77, -4, 45};
-        final byte[] nonce = new byte[]{-115, -84, -58, 14, 82, 118, 4, -118, -53, 86, 3, 14, 112, 70, -4, 81, 121, 84, -24, -3, -73, -17, 6, 124};
-        final byte[] recipientnonce = new byte[]{-63, 5, 86, 42, -85, -12, -36, 16, -108, 48, 26, 36, 44, -82, 15, -38, -19, 6, -101, 107, 110, -30, 95, 5};
-        final byte[] recipient = new byte[]{-87, -102, 0, 95, -13, 48, 76, -115, -115, 62, 54, -55, -78, 125, -54, -34, -71, -11, -95, -85, 78, -24, -30, 47, 65, 5, 88, 38, -111, -12, -41, -97, 103, -60, -101, 43, -57, -68, 68, -109, 36, 49, -63, -123, 62, 21, 67, -28};
+        final byte[] senderKey =
+                new byte[] {
+                    -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124,
+                    114, -34, -41, 36, -62, 6, 109, 63, -17, 8
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    120, 111, 63, -100, 97, -12, -103, 20, 2, -48, 37, -86, -115, -112, -75, -27, 55, 12, -1, 120, 13,
+                    0, 86, 92, 52, 77, -4, 45
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -115, -84, -58, 14, 82, 118, 4, -118, -53, 86, 3, 14, 112, 70, -4, 81, 121, 84, -24, -3, -73, -17,
+                    6, 124
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -63, 5, 86, 42, -85, -12, -36, 16, -108, 48, 26, 36, 44, -82, 15, -38, -19, 6, -101, 107, 110, -30,
+                    95, 5
+                };
+        final byte[] recipient =
+                new byte[] {
+                    -87, -102, 0, 95, -13, 48, 76, -115, -115, 62, 54, -55, -78, 125, -54, -34, -71, -11, -95, -85, 78,
+                    -24, -30, 47, 65, 5, 88, 38, -111, -12, -41, -97, 103, -60, -101, 43, -57, -68, 68, -109, 36, 49,
+                    -63, -123, 62, 21, 67, -28
+                };
 
         final EncodedPayload output = payloadEncoder.decode(input);
 
         assertThat(output.getSenderKey()).isEqualTo(PublicKey.from(senderKey));
-        assertThat(output.getCipherText()).containsExactly(ciphertext);
+        assertThat(output.getCipherText()).containsExactly(cipherText);
         assertThat(output.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
-        assertThat(output.getRecipientNonce()).isEqualTo(new Nonce(recipientnonce));
+        assertThat(output.getRecipientNonce()).isEqualTo(new Nonce(recipientNonce));
         assertThat(output.getRecipientBoxes()).hasSize(1);
         assertThat(output.getRecipientBoxes().get(0)).containsExactly(recipient);
         assertThat(output.getRecipientKeys()).isEmpty();
     }
 
     @Test
-    public void validPayloadWithRecipientsEncodesToBytes() {
+    public void decodeLegacyPayloadEmptyRecipients() {
 
-        final String hexOutput = "00000000000000200542de47c272516862bae08c53f1cb034439a739184fe707208dd92817b2dc1a0000000000000179d2e6ee7f25feacc8b91a0366c326ff2569020a56067545495b51446a174a0c68c13f895ff0aede655926ed0817ba5a05f9f117f8a82f486999de0a6dd07281da290c034871c8a6ba7ce77f3c645f7f1fb89b1af4f76c36027c1637097b36f0331ce79a9ce959f156169cc192fee0ff0c8c66d55c0269b2b76f85c58ae02fc12948b823bc2d4d6ee88f96e1d60d85362d53dac7746bac16e2cf542711ecb586fa49c346cbbfea0d172b9b17101fffedf8a289e4819b2b1fe410b2aa2f2a15737faf2cdff4b6b36f00794643514a5a74f2b5529289e9544a3de1beb9963c7f8fe649ce90d35225bccf28b7cb55b952207519aff3e2d08aae7dc101d28d982002ff84a8ecb36c7b294e6ca8415442d84f8a3f93abcc089fcf57e5c14bd3330774bc1059350e873526f07ad192ed4866af0d0de49927e624f1c3a5c09d76ded38921395c775fef13322e895885cfbc974af1664aed1d4b8edecafa6f7a0237633ae17b32ac80474f13d85c074be18fc4f879695b81456acff3a5de00000000000000188e802f3106b991b49cf07182036b37012bfad5988083db1f0000000000000001000000000000003091d7e03ba7bbcde5404aa7c19f360cf6986f9c9e04224349c7d20f64ebd6f2d5484081d471f65269af7a3dce1c6cc8a40000000000000018922d2cb41117b400b57046616cbab42064d2bd6ba76240ab0000000000000001000000000000002044e019056b5269cc5742b39edc5180a890f226315e3d1e5c7b84d2233989d017";
-        final byte[] encoded = Hex.decode(hexOutput);
+        final byte[] input =
+                new byte[] {
+                    0, 0, 0, 0, 0, 0, 0, 32, -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85,
+                    -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8, 0, 0, 0, 0, 0, 0, 0, 28,
+                    120, 111, 63, -100, 97, -12, -103, 20, 2, -48, 37, -86, -115, -112, -75, -27, 55, 12, -1, 120, 13,
+                    0, 86, 92, 52, 77, -4, 45, 0, 0, 0, 0, 0, 0, 0, 24, -115, -84, -58, 14, 82, 118, 4, -118, -53, 86,
+                    3, 14, 112, 70, -4, 81, 121, 84, -24, -3, -73, -17, 6, 124, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+                    0, 0, 48, -87, -102, 0, 95, -13, 48, 76, -115, -115, 62, 54, -55, -78, 125, -54, -34, -71, -11, -95,
+                    -85, 78, -24, -30, 47, 65, 5, 88, 38, -111, -12, -41, -97, 103, -60, -101, 43, -57, -68, 68, -109,
+                    36, 49, -63, -123, 62, 21, 67, -28, 0, 0, 0, 0, 0, 0, 0, 24, -63, 5, 86, 42, -85, -12, -36, 16,
+                    -108, 48, 26, 36, 44, -82, 15, -38, -19, 6, -101, 107, 110, -30, 95, 5, 0, 0, 0, 0, 0, 0, 0, 0
+                };
 
-        final byte[] sender = new byte[]{5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79, -25, 7, 32, -115, -39, 40, 23, -78, -36, 26};
-        final byte[] cipherText = new byte[]{-46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69, 73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23, -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3, 72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2, 124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2, -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72, 35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22, -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31, -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44, -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61, -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85, -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124, -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97, -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19, 72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57, 92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114, -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31, -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34};
-        final byte[] nonce = new byte[]{-114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128, -125, -37, 31};
-        final byte[] recipientBox = new byte[]{-111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4, 34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122, 61, -50, 28, 108, -56, -92};
-        final byte[] recipientNonce = new byte[]{-110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98, 64, -85};
-        final byte[] recipientKey = new byte[]{68, -32, 25, 5, 107, 82, 105, -52, 87, 66, -77, -98, -36, 81, -128, -88, -112, -14, 38, 49, 94, 61, 30, 92, 123, -124, -46, 35, 57, -119, -48, 23};
+        final byte[] senderKey =
+                new byte[] {
+                    -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124,
+                    114, -34, -41, 36, -62, 6, 109, 63, -17, 8
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    120, 111, 63, -100, 97, -12, -103, 20, 2, -48, 37, -86, -115, -112, -75, -27, 55, 12, -1, 120, 13,
+                    0, 86, 92, 52, 77, -4, 45
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -115, -84, -58, 14, 82, 118, 4, -118, -53, 86, 3, 14, 112, 70, -4, 81, 121, 84, -24, -3, -73, -17,
+                    6, 124
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -63, 5, 86, 42, -85, -12, -36, 16, -108, 48, 26, 36, 44, -82, 15, -38, -19, 6, -101, 107, 110, -30,
+                    95, 5
+                };
+        final byte[] recipient =
+                new byte[] {
+                    -87, -102, 0, 95, -13, 48, 76, -115, -115, 62, 54, -55, -78, 125, -54, -34, -71, -11, -95, -85, 78,
+                    -24, -30, 47, 65, 5, 88, 38, -111, -12, -41, -97, 103, -60, -101, 43, -57, -68, 68, -109, 36, 49,
+                    -63, -123, 62, 21, 67, -28
+                };
 
-        final EncodedPayload payload = new EncodedPayload(
-            PublicKey.from(sender),
-            cipherText,
-            new Nonce(nonce),
-            singletonList(recipientBox),
-            new Nonce(recipientNonce),
-            singletonList(PublicKey.from(recipientKey))
-        );
+        final EncodedPayload output = payloadEncoder.decode(input);
 
-        final byte[] encodedResult = payloadEncoder.encode(payload);
-
-        assertThat(encodedResult).containsExactly(encoded);
+        assertThat(output.getSenderKey()).isEqualTo(PublicKey.from(senderKey));
+        assertThat(output.getCipherText()).containsExactly(cipherText);
+        assertThat(output.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
+        assertThat(output.getRecipientNonce()).isEqualTo(new Nonce(recipientNonce));
+        assertThat(output.getRecipientBoxes()).hasSize(1);
+        assertThat(output.getRecipientBoxes().get(0)).containsExactly(recipient);
+        assertThat(output.getRecipientKeys()).isEmpty();
+        assertThat(output.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
     }
 
     @Test
-    public void validBytesDecodeToEncodedPayloadWithRecipients() {
+    public void decodeLegacyPayloadWithRecipients() {
 
-        final byte[] encoded = new byte[]{
-            0, 0, 0, 0, 0, 0, 0, 32,
-            -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8,
-            0, 0, 0, 0, 0, 0, 0, 28,
-            121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124, -71, 87, -79, 15, -117, -23,
-            0, 0, 0, 0, 0, 0, 0, 24,
-            26, 117, -64, -69, -4, -127, 50, 16, -40, 92, -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77, -82, 104, //cipherText
-            0, 0, 0, 0, 0, 0, 0, 1,
-            0, 0, 0, 0, 0, 0, 0, 48,
-            61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112, 122, -7, -31, -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86, -78, 31, 86, 61, -103, -92, -128, -74, 81,
-            0, 0, 0, 0, 0, 0, 0, 24,
-            -92, 8, 108, -75, -70, 59, 77, 113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25, -30, -88, //recipientNonce
-            //   0, 0, 0, 0, 0, 0, 0, 48,
-            0, 0, 0, 0, 0, 0, 0, 1,
-            0, 0, 0, 0, 0, 0, 0, 32,
-            35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43, 36, 57, 90, 100, 3, 80, 87, -52, 52, 97, 1, -113, 97, 54, -71, 75 //recipientKey
-        };
+        final byte[] encoded =
+                new byte[] {
+                    0, 0, 0, 0, 0, 0, 0, 32, -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85,
+                    -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8, 0, 0, 0, 0, 0, 0, 0, 28,
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23, 0, 0, 0, 0, 0, 0, 0, 24, 26, 117, -64, -69, -4, -127, 50, 16, -40, 92,
+                    -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77, -82, 104, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+                    0, 0, 0, 48, 61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112,
+                    122, -7, -31, -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86,
+                    -78, 31, 86, 61, -103, -92, -128, -74, 81, 0, 0, 0, 0, 0, 0, 0, 24, -92, 8, 108, -75, -70, 59, 77,
+                    113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25, -30, -88, 0, 0, 0, 0, 0, 0, 0,
+                    2, 0, 0, 0, 0, 0, 0, 0, 32, 35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43,
+                    36, 57, 90, 100, 3, 80, 87, -52, 52, 97, 1, -113, 97, 54, -71, 75, 0, 0, 0, 0, 0, 0, 0, 32, 53, -51,
+                    72, -87, 21, -70, -41, 41, 9, -6, -29, -30, -67, 15, -38, 43, 36, 57, 90, 100, 3, 80, 87, -52, 52,
+                    97, 1, -113, 97, 54, -71, 75
+                };
 
-        final byte[] sender = new byte[]{-51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8};
-        final byte[] cipherText = new byte[]{121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124, -71, 87, -79, 15, -117, -23};
-        final byte[] nonce = new byte[]{26, 117, -64, -69, -4, -127, 50, 16, -40, 92, -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77, -82, 104};
-        final byte[] recipientBox = new byte[]{61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112, 122, -7, -31, -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86, -78, 31, 86, 61, -103, -92, -128, -74, 81};
-        final byte[] recipientNonce = new byte[]{-92, 8, 108, -75, -70, 59, 77, 113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25, -30, -88};
-        final byte[] recipientKey = new byte[]{35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43, 36, 57, 90, 100, 3, 80, 87, -52, 52, 97, 1, -113, 97, 54, -71, 75};
+        final byte[] sender =
+                new byte[] {
+                    -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124,
+                    114, -34, -41, 36, -62, 6, 109, 63, -17, 8
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23
+                };
+        final byte[] nonce =
+                new byte[] {
+                    26, 117, -64, -69, -4, -127, 50, 16, -40, 92, -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77,
+                    -82, 104
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112, 122, -7, -31,
+                    -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86, -78, 31, 86,
+                    61, -103, -92, -128, -74, 81
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -92, 8, 108, -75, -70, 59, 77, 113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25,
+                    -30, -88
+                };
+        final byte[] recipientKey1 =
+                new byte[] {
+                    35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+        final byte[] recipientKey2 =
+                new byte[] {
+                    53, -51, 72, -87, 21, -70, -41, 41, 9, -6, -29, -30, -67, 15, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+
+        final EncodedPayload payload = payloadEncoder.decode(encoded);
+
+        assertThat(payload.getSenderKey()).isEqualTo(PublicKey.from(sender));
+        assertThat(payload.getCipherText()).containsExactly(cipherText);
+        assertThat(payload.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
+        assertThat(payload.getRecipientBoxes()).hasSize(1);
+        assertThat(payload.getRecipientBoxes().get(0)).containsExactly(recipientBox);
+        assertThat(payload.getRecipientNonce()).isEqualTo(new Nonce(recipientNonce));
+        assertThat(payload.getRecipientKeys())
+                .hasSize(2)
+                .containsExactly(PublicKey.from(recipientKey1), PublicKey.from(recipientKey2));
+        assertThat(payload.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
+    }
+
+    @Test
+    public void decodePartyProtectionPayloadNoRecipientNoAffectedTx() {
+        final byte[] encoded =
+                new byte[] {
+                    0, 0, 0, 0, 0, 0, 0, 32, -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85,
+                    -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8, 0, 0, 0, 0, 0, 0, 0, 28,
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23, 0, 0, 0, 0, 0, 0, 0, 24, 26, 117, -64, -69, -4, -127, 50, 16, -40, 92,
+                    -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77, -82, 104, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+                    0, 0, 0, 48, 61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112,
+                    122, -7, -31, -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86,
+                    -78, 31, 86, 61, -103, -92, -128, -74, 81, 0, 0, 0, 0, 0, 0, 0, 24, -92, 8, 108, -75, -70, 59, 77,
+                    113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25, -30, -88, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0
+                };
+
+        final byte[] sender =
+                new byte[] {
+                    -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124,
+                    114, -34, -41, 36, -62, 6, 109, 63, -17, 8
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23
+                };
+        final byte[] nonce =
+                new byte[] {
+                    26, 117, -64, -69, -4, -127, 50, 16, -40, 92, -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77,
+                    -82, 104
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112, 122, -7, -31,
+                    -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86, -78, 31, 86,
+                    61, -103, -92, -128, -74, 81
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -92, 8, 108, -75, -70, 59, 77, 113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25,
+                    -30, -88
+                };
+
+        final EncodedPayload payload = payloadEncoder.decode(encoded);
+
+        assertThat(payload.getSenderKey()).isEqualTo(PublicKey.from(sender));
+        assertThat(payload.getCipherText()).containsExactly(cipherText);
+        assertThat(payload.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
+        assertThat(payload.getRecipientBoxes()).hasSize(1);
+        assertThat(payload.getRecipientBoxes().get(0)).containsExactly(recipientBox);
+        assertThat(payload.getRecipientNonce()).isEqualTo(new Nonce(recipientNonce));
+        assertThat(payload.getRecipientKeys()).isEmpty();
+        assertThat(payload.getPrivacyMode()).isEqualTo(PrivacyMode.PARTY_PROTECTION);
+        assertThat(payload.getAffectedContractTransactions()).isEmpty();
+        assertThat(payload.getExecHash()).isNullOrEmpty();
+    }
+
+    @Test
+    public void decodePartyProtectionPayloadNoRecipientWithAffectedTx() {
+        final byte[] encoded =
+                new byte[] {
+                    0, 0, 0, 0, 0, 0, 0, 32, -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85,
+                    -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8, 0, 0, 0, 0, 0, 0, 0, 28,
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23, 0, 0, 0, 0, 0, 0, 0, 24, 26, 117, -64, -69, -4, -127, 50, 16, -40, 92,
+                    -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77, -82, 104, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+                    0, 0, 0, 48, 61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112,
+                    122, -7, -31, -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86,
+                    -78, 31, 86, 61, -103, -92, -128, -74, 81, 0, 0, 0, 0, 0, 0, 0, 24, -92, 8, 108, -75, -70, 59, 77,
+                    113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25, -30, -88, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 4, 116, 101, 115, 116, 0,
+                    0, 0, 0, 0, 0, 0, 4, 116, 101, 115, 116
+                };
+
+        final byte[] sender =
+                new byte[] {
+                    -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124,
+                    114, -34, -41, 36, -62, 6, 109, 63, -17, 8
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23
+                };
+        final byte[] nonce =
+                new byte[] {
+                    26, 117, -64, -69, -4, -127, 50, 16, -40, 92, -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77,
+                    -82, 104
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112, 122, -7, -31,
+                    -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86, -78, 31, 86,
+                    61, -103, -92, -128, -74, 81
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -92, 8, 108, -75, -70, 59, 77, 113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25,
+                    -30, -88
+                };
+
+        final EncodedPayload payload = payloadEncoder.decode(encoded);
+
+        assertThat(payload.getSenderKey()).isEqualTo(PublicKey.from(sender));
+        assertThat(payload.getCipherText()).containsExactly(cipherText);
+        assertThat(payload.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
+        assertThat(payload.getRecipientBoxes()).hasSize(1);
+        assertThat(payload.getRecipientBoxes().get(0)).containsExactly(recipientBox);
+        assertThat(payload.getRecipientNonce()).isEqualTo(new Nonce(recipientNonce));
+        assertThat(payload.getRecipientKeys()).isEmpty();
+        assertThat(payload.getPrivacyMode()).isEqualTo(PrivacyMode.PARTY_PROTECTION);
+        assertThat(payload.getAffectedContractTransactions()).hasSize(1);
+        assertThat(payload.getAffectedContractTransactions().values()).containsExactly("test".getBytes());
+        assertThat(payload.getExecHash()).isNullOrEmpty();
+    }
+
+    @Test
+    public void decodePartyProtectionPayloadWithRecipientsNoAffectedTx() {
+        final byte[] encoded =
+                new byte[] {
+                    0, 0, 0, 0, 0, 0, 0, 32, -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85,
+                    -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8, 0, 0, 0, 0, 0, 0, 0, 28,
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23, 0, 0, 0, 0, 0, 0, 0, 24, 26, 117, -64, -69, -4, -127, 50, 16, -40, 92,
+                    -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77, -82, 104, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+                    0, 0, 0, 48, 61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112,
+                    122, -7, -31, -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86,
+                    -78, 31, 86, 61, -103, -92, -128, -74, 81, 0, 0, 0, 0, 0, 0, 0, 24, -92, 8, 108, -75, -70, 59, 77,
+                    113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25, -30, -88, 0, 0, 0, 0, 0, 0, 0,
+                    1, 0, 0, 0, 0, 0, 0, 0, 32, 35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43,
+                    36, 57, 90, 100, 3, 80, 87, -52, 52, 97, 1, -113, 97, 54, -71, 75, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
+                    0, 0, 0, 0, 0, 0
+                };
+
+        final byte[] sender =
+                new byte[] {
+                    -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124,
+                    114, -34, -41, 36, -62, 6, 109, 63, -17, 8
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23
+                };
+        final byte[] nonce =
+                new byte[] {
+                    26, 117, -64, -69, -4, -127, 50, 16, -40, 92, -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77,
+                    -82, 104
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112, 122, -7, -31,
+                    -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86, -78, 31, 86,
+                    61, -103, -92, -128, -74, 81
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -92, 8, 108, -75, -70, 59, 77, 113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25,
+                    -30, -88
+                };
+        final byte[] recipientKey =
+                new byte[] {
+                    35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
 
         final EncodedPayload payload = payloadEncoder.decode(encoded);
 
@@ -103,32 +375,1136 @@ public class PayloadEncoderTest {
         assertThat(payload.getRecipientBoxes().get(0)).containsExactly(recipientBox);
         assertThat(payload.getRecipientNonce()).isEqualTo(new Nonce(recipientNonce));
         assertThat(payload.getRecipientKeys()).hasSize(1).containsExactly(PublicKey.from(recipientKey));
-
-    }
-
-    @Test(expected = InvalidRecipientException.class)
-    public void createPayloadForSpecificRecipientNotContainedInPayload() {
-
-        final String data = "00000000000000200542de47c272516862bae08c53f1cb034439a739184fe707208dd92817b2dc1a00000000000001796fe5bb76ae4d530a574acbe20cbb5094222eeaba32132fbda79c99e3d3df4e68466fe059f58c32c7ac55a5565e395c9394f608c741715e6bc60ca67d4e9fbcb842fef5e51dba7e537458fb5e201e67716751840662091feb0c029d95562e9929a13fff76f5bd27719a4d832100a04a4486c4f5c00ba9140b36a4900e2f29b1d29c9e8ff7baa9214f4cebc046f0840e1530b9fd774f0bd6da74635687b80251f4a97c4a9af799da572aeedcc2284f89574fa5a081aa328d7a9f33869b89141b2a005c2b4e58a07ecfa61700a08706edc7f30448353cbac7b836455fdf2742fcacf491d57731f938afb2a2de722b8e172a9e65a5979ec23239fc1a5adedfcd3f10d263239ab0fd75785945d798dc2ef8153c4d8dabc9d204fd98919d4e1183cbb0052bca3cd1a68f44d36472191eff7a86b3769f36189ee55a4aa4c212f369b297c82a7961199b00e6fbe7b9cec6ed53384ce025a0626921606bc3e28b7af44ccac85a18c534b56090fb4545693d1824c8929b42200a04a701420000000000000018499a2bedbac3eeaee6f400813382a5b5b7726ff5794974a2000000000000000100000000000000302badf5e765129f28e3d17ee318fba57d952d058cb93c8b407b95cc395bf86ab453c35ea3d8a88e38c459f5f002262795000000000000001887b36b4c47bdd2fddb2d1d8c94adfa7a4797d197cfdfeeac0000000000000001000000000000002044e019056b5269cc5742b39edc5180a890f226315e3d1e5c7b84d2233989d017";
-
-        final byte[] decodedHex = Hex.decode(data);
-        final EncodedPayload originalPayload = payloadEncoder.decode(decodedHex);
-
-        final PublicKey recipientKey = mock(PublicKey.class);
-
-        payloadEncoder.forRecipient(originalPayload, recipientKey);
+        assertThat(payload.getPrivacyMode()).isEqualTo(PrivacyMode.PARTY_PROTECTION);
+        assertThat(payload.getAffectedContractTransactions()).isEmpty();
+        assertThat(payload.getExecHash()).isNullOrEmpty();
     }
 
     @Test
-    public void createPayloadForSpecificExistingRecipient() {
+    public void decodePartyProtectionPayloadWithRecipientsWithAffectedTx() {
+        final byte[] encoded =
+                new byte[] {
+                    0, 0, 0, 0, 0, 0, 0, 32, -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85,
+                    -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8, 0, 0, 0, 0, 0, 0, 0, 28,
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23, 0, 0, 0, 0, 0, 0, 0, 24, 26, 117, -64, -69, -4, -127, 50, 16, -40, 92,
+                    -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77, -82, 104, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+                    0, 0, 0, 48, 61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112,
+                    122, -7, -31, -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86,
+                    -78, 31, 86, 61, -103, -92, -128, -74, 81, 0, 0, 0, 0, 0, 0, 0, 24, -92, 8, 108, -75, -70, 59, 77,
+                    113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25, -30, -88, 0, 0, 0, 0, 0, 0, 0,
+                    2, 0, 0, 0, 0, 0, 0, 0, 32, 35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43,
+                    36, 57, 90, 100, 3, 80, 87, -52, 52, 97, 1, -113, 97, 54, -71, 75, 0, 0, 0, 0, 0, 0, 0, 32, 53, -51,
+                    72, -87, 21, -70, -41, 41, 9, -6, -29, -30, -67, 15, -38, 43, 36, 57, 90, 100, 3, 80, 87, -52, 52,
+                    97, 1, -113, 97, 54, -71, 75, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+                    0, 4, 116, 101, 115, 116, 0, 0, 0, 0, 0, 0, 0, 4, 116, 101, 115, 116
+                };
 
-        final String data = "00000000000000200542de47c272516862bae08c53f1cb034439a739184fe707208dd92817b2dc1a00000000000001796fe5bb76ae4d530a574acbe20cbb5094222eeaba32132fbda79c99e3d3df4e68466fe059f58c32c7ac55a5565e395c9394f608c741715e6bc60ca67d4e9fbcb842fef5e51dba7e537458fb5e201e67716751840662091feb0c029d95562e9929a13fff76f5bd27719a4d832100a04a4486c4f5c00ba9140b36a4900e2f29b1d29c9e8ff7baa9214f4cebc046f0840e1530b9fd774f0bd6da74635687b80251f4a97c4a9af799da572aeedcc2284f89574fa5a081aa328d7a9f33869b89141b2a005c2b4e58a07ecfa61700a08706edc7f30448353cbac7b836455fdf2742fcacf491d57731f938afb2a2de722b8e172a9e65a5979ec23239fc1a5adedfcd3f10d263239ab0fd75785945d798dc2ef8153c4d8dabc9d204fd98919d4e1183cbb0052bca3cd1a68f44d36472191eff7a86b3769f36189ee55a4aa4c212f369b297c82a7961199b00e6fbe7b9cec6ed53384ce025a0626921606bc3e28b7af44ccac85a18c534b56090fb4545693d1824c8929b42200a04a701420000000000000018499a2bedbac3eeaee6f400813382a5b5b7726ff5794974a2000000000000000100000000000000302badf5e765129f28e3d17ee318fba57d952d058cb93c8b407b95cc395bf86ab453c35ea3d8a88e38c459f5f002262795000000000000001887b36b4c47bdd2fddb2d1d8c94adfa7a4797d197cfdfeeac0000000000000001000000000000002044e019056b5269cc5742b39edc5180a890f226315e3d1e5c7b84d2233989d017";
+        final byte[] sender =
+                new byte[] {
+                    -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124,
+                    114, -34, -41, 36, -62, 6, 109, 63, -17, 8
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23
+                };
+        final byte[] nonce =
+                new byte[] {
+                    26, 117, -64, -69, -4, -127, 50, 16, -40, 92, -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77,
+                    -82, 104
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112, 122, -7, -31,
+                    -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86, -78, 31, 86,
+                    61, -103, -92, -128, -74, 81
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -92, 8, 108, -75, -70, 59, 77, 113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25,
+                    -30, -88
+                };
+        final byte[] recipientKey1 =
+                new byte[] {
+                    35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+        final byte[] recipientKey2 =
+                new byte[] {
+                    53, -51, 72, -87, 21, -70, -41, 41, 9, -6, -29, -30, -67, 15, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+
+        final EncodedPayload payload = payloadEncoder.decode(encoded);
+
+        assertThat(payload.getSenderKey()).isEqualTo(PublicKey.from(sender));
+        assertThat(payload.getCipherText()).containsExactly(cipherText);
+        assertThat(payload.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
+        assertThat(payload.getRecipientBoxes()).hasSize(1);
+        assertThat(payload.getRecipientBoxes().get(0)).containsExactly(recipientBox);
+        assertThat(payload.getRecipientNonce()).isEqualTo(new Nonce(recipientNonce));
+        assertThat(payload.getRecipientKeys())
+                .hasSize(2)
+                .containsExactly(PublicKey.from(recipientKey1), PublicKey.from(recipientKey2));
+        assertThat(payload.getPrivacyMode()).isEqualTo(PrivacyMode.PARTY_PROTECTION);
+        assertThat(payload.getAffectedContractTransactions()).hasSize(1);
+        assertThat(payload.getAffectedContractTransactions().keySet()).containsExactly(new TxHash("test".getBytes()));
+        assertThat(payload.getExecHash()).isNullOrEmpty();
+    }
+
+    @Test
+    public void decodePsvPayloadNoRecipientsNoAffectedTx() {
+        final byte[] encoded =
+                new byte[] {
+                    0, 0, 0, 0, 0, 0, 0, 32, -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85,
+                    -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8, 0, 0, 0, 0, 0, 0, 0, 28,
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23, 0, 0, 0, 0, 0, 0, 0, 24, 26, 117, -64, -69, -4, -127, 50, 16, -40, 92,
+                    -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77, -82, 104, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+                    0, 0, 0, 48, 61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112,
+                    122, -7, -31, -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86,
+                    -78, 31, 86, 61, -103, -92, -128, -74, 81, 0, 0, 0, 0, 0, 0, 0, 24, -92, 8, 108, -75, -70, 59, 77,
+                    113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25, -30, -88, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 101, 120, 101, 99,
+                    117, 116, 105, 111, 110, 72, 97, 115, 104
+                };
+
+        final byte[] sender =
+                new byte[] {
+                    -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124,
+                    114, -34, -41, 36, -62, 6, 109, 63, -17, 8
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23
+                };
+        final byte[] nonce =
+                new byte[] {
+                    26, 117, -64, -69, -4, -127, 50, 16, -40, 92, -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77,
+                    -82, 104
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112, 122, -7, -31,
+                    -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86, -78, 31, 86,
+                    61, -103, -92, -128, -74, 81
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -92, 8, 108, -75, -70, 59, 77, 113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25,
+                    -30, -88
+                };
+        final byte[] execHash = "executionHash".getBytes();
+
+        final EncodedPayload payload = payloadEncoder.decode(encoded);
+
+        assertThat(payload.getSenderKey()).isEqualTo(PublicKey.from(sender));
+        assertThat(payload.getCipherText()).containsExactly(cipherText);
+        assertThat(payload.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
+        assertThat(payload.getRecipientBoxes()).hasSize(1);
+        assertThat(payload.getRecipientBoxes().get(0)).containsExactly(recipientBox);
+        assertThat(payload.getRecipientNonce()).isEqualTo(new Nonce(recipientNonce));
+        assertThat(payload.getRecipientKeys()).isEmpty();
+        assertThat(payload.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
+        assertThat(payload.getAffectedContractTransactions()).isEmpty();
+        assertThat(payload.getExecHash()).isEqualTo(execHash);
+    }
+
+    @Test
+    public void decodePsvPayloadNoRecipientsWithAffectedTx() {
+        final byte[] encoded =
+                new byte[] {
+                    0, 0, 0, 0, 0, 0, 0, 32, -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85,
+                    -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8, 0, 0, 0, 0, 0, 0, 0, 28,
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23, 0, 0, 0, 0, 0, 0, 0, 24, 26, 117, -64, -69, -4, -127, 50, 16, -40, 92,
+                    -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77, -82, 104, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+                    0, 0, 0, 48, 61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112,
+                    122, -7, -31, -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86,
+                    -78, 31, 86, 61, -103, -92, -128, -74, 81, 0, 0, 0, 0, 0, 0, 0, 24, -92, 8, 108, -75, -70, 59, 77,
+                    113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25, -30, -88, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 4, 116, 101, 115, 116, 0,
+                    0, 0, 0, 0, 0, 0, 4, 116, 101, 115, 116, 0, 0, 0, 0, 0, 0, 0, 13, 101, 120, 101, 99, 117, 116, 105,
+                    111, 110, 72, 97, 115, 104
+                };
+
+        final byte[] sender =
+                new byte[] {
+                    -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124,
+                    114, -34, -41, 36, -62, 6, 109, 63, -17, 8
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23
+                };
+        final byte[] nonce =
+                new byte[] {
+                    26, 117, -64, -69, -4, -127, 50, 16, -40, 92, -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77,
+                    -82, 104
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112, 122, -7, -31,
+                    -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86, -78, 31, 86,
+                    61, -103, -92, -128, -74, 81
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -92, 8, 108, -75, -70, 59, 77, 113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25,
+                    -30, -88
+                };
+        final byte[] execHash = "executionHash".getBytes();
+
+        final EncodedPayload payload = payloadEncoder.decode(encoded);
+
+        assertThat(payload.getSenderKey()).isEqualTo(PublicKey.from(sender));
+        assertThat(payload.getCipherText()).containsExactly(cipherText);
+        assertThat(payload.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
+        assertThat(payload.getRecipientBoxes()).hasSize(1);
+        assertThat(payload.getRecipientBoxes().get(0)).containsExactly(recipientBox);
+        assertThat(payload.getRecipientNonce()).isEqualTo(new Nonce(recipientNonce));
+        assertThat(payload.getRecipientKeys()).isEmpty();
+        assertThat(payload.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
+        assertThat(payload.getAffectedContractTransactions()).hasSize(1);
+        assertThat(payload.getAffectedContractTransactions().values()).containsExactly("test".getBytes());
+        assertThat(payload.getExecHash()).isEqualTo(execHash);
+    }
+
+    @Test
+    public void decodePsvPayloadWithRecipientsNoAffectedTx() {
+        final byte[] encoded =
+                new byte[] {
+                    0, 0, 0, 0, 0, 0, 0, 32, -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85,
+                    -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8, 0, 0, 0, 0, 0, 0, 0, 28,
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23, 0, 0, 0, 0, 0, 0, 0, 24, 26, 117, -64, -69, -4, -127, 50, 16, -40, 92,
+                    -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77, -82, 104, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+                    0, 0, 0, 48, 61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112,
+                    122, -7, -31, -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86,
+                    -78, 31, 86, 61, -103, -92, -128, -74, 81, 0, 0, 0, 0, 0, 0, 0, 24, -92, 8, 108, -75, -70, 59, 77,
+                    113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25, -30, -88, 0, 0, 0, 0, 0, 0, 0,
+                    1, 0, 0, 0, 0, 0, 0, 0, 32, 35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43,
+                    36, 57, 90, 100, 3, 80, 87, -52, 52, 97, 1, -113, 97, 54, -71, 75, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 101, 120, 101, 99, 117, 116, 105, 111, 110, 72, 97, 115,
+                    104
+                };
+
+        final byte[] sender =
+                new byte[] {
+                    -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124,
+                    114, -34, -41, 36, -62, 6, 109, 63, -17, 8
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23
+                };
+        final byte[] nonce =
+                new byte[] {
+                    26, 117, -64, -69, -4, -127, 50, 16, -40, 92, -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77,
+                    -82, 104
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112, 122, -7, -31,
+                    -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86, -78, 31, 86,
+                    61, -103, -92, -128, -74, 81
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -92, 8, 108, -75, -70, 59, 77, 113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25,
+                    -30, -88
+                };
+        final byte[] recipientKey =
+                new byte[] {
+                    35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+        final byte[] execHash = "executionHash".getBytes();
+
+        final EncodedPayload payload = payloadEncoder.decode(encoded);
+
+        assertThat(payload.getSenderKey()).isEqualTo(PublicKey.from(sender));
+        assertThat(payload.getCipherText()).containsExactly(cipherText);
+        assertThat(payload.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
+        assertThat(payload.getRecipientBoxes()).hasSize(1);
+        assertThat(payload.getRecipientBoxes().get(0)).containsExactly(recipientBox);
+        assertThat(payload.getRecipientNonce()).isEqualTo(new Nonce(recipientNonce));
+        assertThat(payload.getRecipientKeys()).hasSize(1).containsExactly(PublicKey.from(recipientKey));
+        assertThat(payload.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
+        assertThat(payload.getAffectedContractTransactions()).isEmpty();
+        assertThat(payload.getExecHash()).isEqualTo(execHash);
+    }
+
+    @Test
+    public void decodePsvPayloadWithRecipientsWithAffectedTx() {
+        final byte[] encoded =
+                new byte[] {
+                    0, 0, 0, 0, 0, 0, 0, 32, -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85,
+                    -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8, 0, 0, 0, 0, 0, 0, 0, 28,
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23, 0, 0, 0, 0, 0, 0, 0, 24, 26, 117, -64, -69, -4, -127, 50, 16, -40, 92,
+                    -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77, -82, 104, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+                    0, 0, 0, 48, 61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112,
+                    122, -7, -31, -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86,
+                    -78, 31, 86, 61, -103, -92, -128, -74, 81, 0, 0, 0, 0, 0, 0, 0, 24, -92, 8, 108, -75, -70, 59, 77,
+                    113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25, -30, -88, 0, 0, 0, 0, 0, 0, 0,
+                    2, 0, 0, 0, 0, 0, 0, 0, 32, 35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43,
+                    36, 57, 90, 100, 3, 80, 87, -52, 52, 97, 1, -113, 97, 54, -71, 75, 0, 0, 0, 0, 0, 0, 0, 32, 53, -51,
+                    72, -87, 21, -70, -41, 41, 9, -6, -29, -30, -67, 15, -38, 43, 36, 57, 90, 100, 3, 80, 87, -52, 52,
+                    97, 1, -113, 97, 54, -71, 75, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+                    0, 4, 116, 101, 115, 116, 0, 0, 0, 0, 0, 0, 0, 4, 116, 101, 115, 116, 0, 0, 0, 0, 0, 0, 0, 13, 101,
+                    120, 101, 99, 117, 116, 105, 111, 110, 72, 97, 115, 104
+                };
+
+        final byte[] sender =
+                new byte[] {
+                    -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124,
+                    114, -34, -41, 36, -62, 6, 109, 63, -17, 8
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    121, 84, 87, 65, -41, -37, 105, -73, 74, 33, -86, 53, 42, 39, 51, -116, 97, 108, 48, -108, 87, 124,
+                    -71, 87, -79, 15, -117, -23
+                };
+        final byte[] nonce =
+                new byte[] {
+                    26, 117, -64, -69, -4, -127, 50, 16, -40, 92, -15, 52, 60, 119, -5, 117, -22, 121, 65, -83, 53, -77,
+                    -82, 104
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    61, 89, -19, -11, 82, 81, -84, 119, -103, -104, 70, 34, 117, 1, 29, -100, -108, 112, 122, -7, -31,
+                    -36, 51, -12, 14, -120, -86, 49, -29, -41, 99, 106, -56, -35, -1, -117, -89, -45, -86, -78, 31, 86,
+                    61, -103, -92, -128, -74, 81
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -92, 8, 108, -75, -70, 59, 77, 113, 118, 118, 118, -48, 13, -36, -116, 41, 127, 86, 1, -86, 74, -25,
+                    -30, -88
+                };
+        final byte[] recipientKey1 =
+                new byte[] {
+                    35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+        final byte[] recipientKey2 =
+                new byte[] {
+                    53, -51, 72, -87, 21, -70, -41, 41, 9, -6, -29, -30, -67, 15, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+        final byte[] execHash = "executionHash".getBytes();
+
+        final EncodedPayload payload = payloadEncoder.decode(encoded);
+
+        assertThat(payload.getSenderKey()).isEqualTo(PublicKey.from(sender));
+        assertThat(payload.getCipherText()).containsExactly(cipherText);
+        assertThat(payload.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
+        assertThat(payload.getRecipientBoxes()).hasSize(1);
+        assertThat(payload.getRecipientBoxes().get(0)).containsExactly(recipientBox);
+        assertThat(payload.getRecipientNonce()).isEqualTo(new Nonce(recipientNonce));
+        assertThat(payload.getRecipientKeys())
+                .hasSize(2)
+                .containsExactly(PublicKey.from(recipientKey1), PublicKey.from(recipientKey2));
+        assertThat(payload.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
+        assertThat(payload.getAffectedContractTransactions()).hasSize(1);
+        assertThat(payload.getAffectedContractTransactions().keySet()).containsExactly(new TxHash("test".getBytes()));
+        assertThat(payload.getExecHash()).isEqualTo(execHash);
+    }
+
+    @Test
+    public void encodeStandardPrivatePayloadNoRecipient() {
+
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+
+        final EncodedPayload originalPayload =
+                new EncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        emptyList(),
+                        PrivacyMode.STANDARD_PRIVATE,
+                        emptyMap(),
+                        null);
+
+        final byte[] encodedResult = payloadEncoder.encode(originalPayload);
+        final EncodedPayload decodedPayload = payloadEncoder.decode(encodedResult);
+
+        assertThat(decodedPayload.getSenderKey()).isEqualTo(originalPayload.getSenderKey());
+        assertThat(decodedPayload.getCipherText()).isEqualTo(originalPayload.getCipherText());
+        assertThat(decodedPayload.getCipherTextNonce()).isEqualTo(originalPayload.getCipherTextNonce());
+        assertThat(decodedPayload.getRecipientBoxes().size()).isEqualTo(originalPayload.getRecipientBoxes().size());
+        assertThat(decodedPayload.getRecipientBoxes().get(0)).isEqualTo(originalPayload.getRecipientBoxes().get(0));
+        assertThat(decodedPayload.getRecipientKeys()).isEqualTo(originalPayload.getRecipientKeys());
+        assertThat(decodedPayload.getPrivacyMode()).isEqualTo(originalPayload.getPrivacyMode());
+        assertThat(decodedPayload.getAffectedContractTransactions())
+                .isEqualTo(originalPayload.getAffectedContractTransactions());
+        assertThat(decodedPayload.getExecHash()).isNullOrEmpty();
+    }
+
+    @Test
+    public void encodeStandardPrivatePayloadWithRecipients() {
+
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+        final byte[] recipientKey =
+                new byte[] {
+                    68, -32, 25, 5, 107, 82, 105, -52, 87, 66, -77, -98, -36, 81, -128, -88, -112, -14, 38, 49, 94, 61,
+                    30, 92, 123, -124, -46, 35, 57, -119, -48, 23
+                };
+
+        final EncodedPayload originalPayload =
+                new EncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        singletonList(PublicKey.from(recipientKey)),
+                        PrivacyMode.STANDARD_PRIVATE,
+                        emptyMap(),
+                        new byte[0]);
+
+        final byte[] encodedResult = payloadEncoder.encode(originalPayload);
+        final EncodedPayload decodedPayload = payloadEncoder.decode(encodedResult);
+
+        assertThat(decodedPayload.getSenderKey()).isEqualTo(originalPayload.getSenderKey());
+        assertThat(decodedPayload.getCipherText()).isEqualTo(originalPayload.getCipherText());
+        assertThat(decodedPayload.getCipherTextNonce()).isEqualTo(originalPayload.getCipherTextNonce());
+        assertThat(decodedPayload.getRecipientBoxes().size()).isEqualTo(originalPayload.getRecipientBoxes().size());
+        assertThat(decodedPayload.getRecipientBoxes().get(0)).isEqualTo(originalPayload.getRecipientBoxes().get(0));
+        assertThat(decodedPayload.getRecipientKeys()).isEqualTo(originalPayload.getRecipientKeys());
+        assertThat(decodedPayload.getPrivacyMode()).isEqualTo(originalPayload.getPrivacyMode());
+        assertThat(decodedPayload.getAffectedContractTransactions())
+                .isEqualTo(originalPayload.getAffectedContractTransactions());
+        assertThat(decodedPayload.getExecHash()).isNullOrEmpty();
+    }
+
+    @Test
+    public void encodePartyProtectionPayloadNoRecipientsNoAffectedTx() {
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+
+        final EncodedPayload originalPayload =
+                new EncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        emptyList(),
+                        PrivacyMode.PARTY_PROTECTION,
+                        emptyMap(),
+                        new byte[0]);
+
+        final byte[] encodedResult = payloadEncoder.encode(originalPayload);
+        final EncodedPayload decodedPayload = payloadEncoder.decode(encodedResult);
+
+        assertThat(decodedPayload.getSenderKey()).isEqualTo(originalPayload.getSenderKey());
+        assertThat(decodedPayload.getCipherText()).isEqualTo(originalPayload.getCipherText());
+        assertThat(decodedPayload.getCipherTextNonce()).isEqualTo(originalPayload.getCipherTextNonce());
+        assertThat(decodedPayload.getRecipientBoxes().size()).isEqualTo(originalPayload.getRecipientBoxes().size());
+        assertThat(decodedPayload.getRecipientBoxes().get(0)).isEqualTo(originalPayload.getRecipientBoxes().get(0));
+        assertThat(decodedPayload.getRecipientKeys()).isEqualTo(originalPayload.getRecipientKeys());
+        assertThat(decodedPayload.getPrivacyMode()).isEqualTo(originalPayload.getPrivacyMode());
+        assertThat(decodedPayload.getAffectedContractTransactions()).isEmpty();
+        assertThat(decodedPayload.getExecHash()).isNullOrEmpty();
+    }
+
+    @Test
+    public void encodePartyProtectionPayloadNoRecipientsWithAffectedTx() {
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+
+        final EncodedPayload originalPayload =
+                new EncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        emptyList(),
+                        PrivacyMode.PARTY_PROTECTION,
+                        singletonMap(new TxHash("test".getBytes()), "test".getBytes()),
+                        new byte[0]);
+
+        final byte[] encodedResult = payloadEncoder.encode(originalPayload);
+        final EncodedPayload decodedPayload = payloadEncoder.decode(encodedResult);
+
+        assertThat(decodedPayload.getSenderKey()).isEqualTo(originalPayload.getSenderKey());
+        assertThat(decodedPayload.getCipherText()).isEqualTo(originalPayload.getCipherText());
+        assertThat(decodedPayload.getCipherTextNonce()).isEqualTo(originalPayload.getCipherTextNonce());
+        assertThat(decodedPayload.getRecipientBoxes().size()).isEqualTo(originalPayload.getRecipientBoxes().size());
+        assertThat(decodedPayload.getRecipientBoxes().get(0)).isEqualTo(originalPayload.getRecipientBoxes().get(0));
+        assertThat(decodedPayload.getRecipientKeys()).isEqualTo(originalPayload.getRecipientKeys());
+        assertThat(decodedPayload.getPrivacyMode()).isEqualTo(originalPayload.getPrivacyMode());
+        assertThat(decodedPayload.getAffectedContractTransactions().get(new TxHash("test".getBytes())))
+                .isEqualTo("test".getBytes());
+        assertThat(decodedPayload.getExecHash()).isNullOrEmpty();
+    }
+
+    @Test
+    public void encodePartyProtectionPayloadWithRecipientsNoAffectedTx() {
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+        final byte[] recipientKey1 =
+                new byte[] {
+                    35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+        final byte[] recipientKey2 =
+                new byte[] {
+                    53, -51, 72, -87, 21, -70, -41, 41, 9, -6, -29, -30, -67, 15, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+
+        List<PublicKey> recipientList = new ArrayList<>();
+        recipientList.add(PublicKey.from(recipientKey1));
+        recipientList.add(PublicKey.from(recipientKey2));
+
+        final EncodedPayload originalPayload =
+                new EncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        recipientList,
+                        PrivacyMode.PARTY_PROTECTION,
+                        emptyMap(),
+                        new byte[0]);
+
+        final byte[] encodedResult = payloadEncoder.encode(originalPayload);
+        final EncodedPayload decodedPayload = payloadEncoder.decode(encodedResult);
+
+        assertThat(decodedPayload.getSenderKey()).isEqualTo(originalPayload.getSenderKey());
+        assertThat(decodedPayload.getCipherText()).isEqualTo(originalPayload.getCipherText());
+        assertThat(decodedPayload.getCipherTextNonce()).isEqualTo(originalPayload.getCipherTextNonce());
+        assertThat(decodedPayload.getRecipientBoxes().size()).isEqualTo(originalPayload.getRecipientBoxes().size());
+        assertThat(decodedPayload.getRecipientBoxes().get(0)).isEqualTo(originalPayload.getRecipientBoxes().get(0));
+        assertThat(decodedPayload.getRecipientKeys()).isEqualTo(originalPayload.getRecipientKeys());
+        assertThat(decodedPayload.getPrivacyMode()).isEqualTo(originalPayload.getPrivacyMode());
+        assertThat(decodedPayload.getAffectedContractTransactions()).isEmpty();
+        assertThat(decodedPayload.getExecHash()).isNullOrEmpty();
+    }
+
+    @Test
+    public void encodePartyProtectionPayloadWithRecipientsWithAffectedTx() {
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+        final byte[] recipientKey1 =
+                new byte[] {
+                    35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+        final byte[] recipientKey2 =
+                new byte[] {
+                    53, -51, 72, -87, 21, -70, -41, 41, 9, -6, -29, -30, -67, 15, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+
+        List<PublicKey> recipientList = new ArrayList<>();
+        recipientList.add(PublicKey.from(recipientKey1));
+        recipientList.add(PublicKey.from(recipientKey2));
+
+        final EncodedPayload originalPayload =
+                new EncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        recipientList,
+                        PrivacyMode.PARTY_PROTECTION,
+                        singletonMap(new TxHash("test".getBytes()), "test".getBytes()),
+                        null);
+
+        final byte[] encodedResult = payloadEncoder.encode(originalPayload);
+        final EncodedPayload decodedPayload = payloadEncoder.decode(encodedResult);
+
+        assertThat(decodedPayload.getSenderKey()).isEqualTo(originalPayload.getSenderKey());
+        assertThat(decodedPayload.getCipherText()).isEqualTo(originalPayload.getCipherText());
+        assertThat(decodedPayload.getCipherTextNonce()).isEqualTo(originalPayload.getCipherTextNonce());
+        assertThat(decodedPayload.getRecipientBoxes().size()).isEqualTo(originalPayload.getRecipientBoxes().size());
+        assertThat(decodedPayload.getRecipientBoxes().get(0)).isEqualTo(originalPayload.getRecipientBoxes().get(0));
+        assertThat(decodedPayload.getRecipientKeys()).isEqualTo(originalPayload.getRecipientKeys());
+        assertThat(decodedPayload.getPrivacyMode()).isEqualTo(originalPayload.getPrivacyMode());
+        assertThat(decodedPayload.getAffectedContractTransactions().get(new TxHash("test".getBytes())))
+                .isEqualTo("test".getBytes());
+        assertThat(decodedPayload.getExecHash()).isNullOrEmpty();
+    }
+
+    @Test
+    public void encodePsvPayloadNoRecipientsNoAffectedTx() {
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+
+        final EncodedPayload originalPayload =
+                new EncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        emptyList(),
+                        PrivacyMode.PRIVATE_STATE_VALIDATION,
+                        emptyMap(),
+                        "execHash".getBytes());
+
+        final byte[] encodedResult = payloadEncoder.encode(originalPayload);
+        final EncodedPayload decodedPayload = payloadEncoder.decode(encodedResult);
+
+        assertThat(decodedPayload.getSenderKey()).isEqualTo(originalPayload.getSenderKey());
+        assertThat(decodedPayload.getCipherText()).isEqualTo(originalPayload.getCipherText());
+        assertThat(decodedPayload.getCipherTextNonce()).isEqualTo(originalPayload.getCipherTextNonce());
+        assertThat(decodedPayload.getRecipientBoxes().size()).isEqualTo(originalPayload.getRecipientBoxes().size());
+        assertThat(decodedPayload.getRecipientBoxes().get(0)).isEqualTo(originalPayload.getRecipientBoxes().get(0));
+        assertThat(decodedPayload.getRecipientKeys()).isEqualTo(originalPayload.getRecipientKeys());
+        assertThat(decodedPayload.getPrivacyMode()).isEqualTo(originalPayload.getPrivacyMode());
+        assertThat(decodedPayload.getAffectedContractTransactions()).isEmpty();
+        assertThat(decodedPayload.getExecHash()).isEqualTo(originalPayload.getExecHash());
+    }
+
+    @Test
+    public void encodePsvPayloadNoRecipientsWithAffectedTx() {
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+
+        final EncodedPayload originalPayload =
+                new EncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        emptyList(),
+                        PrivacyMode.PRIVATE_STATE_VALIDATION,
+                        singletonMap(new TxHash("test".getBytes()), "test".getBytes()),
+                        "execHash".getBytes());
+
+        final byte[] encodedResult = payloadEncoder.encode(originalPayload);
+        final EncodedPayload decodedPayload = payloadEncoder.decode(encodedResult);
+
+        assertThat(decodedPayload.getSenderKey()).isEqualTo(originalPayload.getSenderKey());
+        assertThat(decodedPayload.getCipherText()).isEqualTo(originalPayload.getCipherText());
+        assertThat(decodedPayload.getCipherTextNonce()).isEqualTo(originalPayload.getCipherTextNonce());
+        assertThat(decodedPayload.getRecipientBoxes().size()).isEqualTo(originalPayload.getRecipientBoxes().size());
+        assertThat(decodedPayload.getRecipientBoxes().get(0)).isEqualTo(originalPayload.getRecipientBoxes().get(0));
+        assertThat(decodedPayload.getRecipientKeys()).isEqualTo(originalPayload.getRecipientKeys());
+        assertThat(decodedPayload.getPrivacyMode()).isEqualTo(originalPayload.getPrivacyMode());
+        assertThat(decodedPayload.getAffectedContractTransactions().get(new TxHash("test".getBytes())))
+                .isEqualTo("test".getBytes());
+        assertThat(decodedPayload.getExecHash()).isEqualTo(originalPayload.getExecHash());
+    }
+
+    @Test
+    public void encodePsvPayloadWithRecipientsNoAffectedTx() {
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+        final byte[] recipientKey1 =
+                new byte[] {
+                    35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+        final byte[] recipientKey2 =
+                new byte[] {
+                    53, -51, 72, -87, 21, -70, -41, 41, 9, -6, -29, -30, -67, 15, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+
+        List<PublicKey> recipientList = new ArrayList<>();
+        recipientList.add(PublicKey.from(recipientKey1));
+        recipientList.add(PublicKey.from(recipientKey2));
+
+        final EncodedPayload originalPayload =
+                new EncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        recipientList,
+                        PrivacyMode.PRIVATE_STATE_VALIDATION,
+                        emptyMap(),
+                        "execHash".getBytes());
+
+        final byte[] encodedResult = payloadEncoder.encode(originalPayload);
+        final EncodedPayload decodedPayload = payloadEncoder.decode(encodedResult);
+
+        assertThat(decodedPayload.getSenderKey()).isEqualTo(originalPayload.getSenderKey());
+        assertThat(decodedPayload.getCipherText()).isEqualTo(originalPayload.getCipherText());
+        assertThat(decodedPayload.getCipherTextNonce()).isEqualTo(originalPayload.getCipherTextNonce());
+        assertThat(decodedPayload.getRecipientBoxes().size()).isEqualTo(originalPayload.getRecipientBoxes().size());
+        assertThat(decodedPayload.getRecipientBoxes().get(0)).isEqualTo(originalPayload.getRecipientBoxes().get(0));
+        assertThat(decodedPayload.getRecipientKeys()).isEqualTo(originalPayload.getRecipientKeys());
+        assertThat(decodedPayload.getPrivacyMode()).isEqualTo(originalPayload.getPrivacyMode());
+        assertThat(decodedPayload.getAffectedContractTransactions()).isEmpty();
+        assertThat(decodedPayload.getExecHash()).isEqualTo(originalPayload.getExecHash());
+    }
+
+    @Test
+    public void encodePsvPayloadWithRecipientsWithAffectedTx() {
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+        final byte[] recipientKey1 =
+                new byte[] {
+                    35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+        final byte[] recipientKey2 =
+                new byte[] {
+                    53, -51, 72, -87, 21, -70, -41, 41, 9, -6, -29, -30, -67, 15, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+
+        List<PublicKey> recipientList = new ArrayList<>();
+        recipientList.add(PublicKey.from(recipientKey1));
+        recipientList.add(PublicKey.from(recipientKey2));
+
+        final EncodedPayload originalPayload =
+                new EncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        recipientList,
+                        PrivacyMode.PRIVATE_STATE_VALIDATION,
+                        singletonMap(new TxHash("test".getBytes()), "test".getBytes()),
+                        "execHash".getBytes());
+
+        final byte[] encodedResult = payloadEncoder.encode(originalPayload);
+        final EncodedPayload decodedPayload = payloadEncoder.decode(encodedResult);
+
+        assertThat(decodedPayload.getSenderKey()).isEqualTo(originalPayload.getSenderKey());
+        assertThat(decodedPayload.getCipherText()).isEqualTo(originalPayload.getCipherText());
+        assertThat(decodedPayload.getCipherTextNonce()).isEqualTo(originalPayload.getCipherTextNonce());
+        assertThat(decodedPayload.getRecipientBoxes().size()).isEqualTo(originalPayload.getRecipientBoxes().size());
+        assertThat(decodedPayload.getRecipientBoxes().get(0)).isEqualTo(originalPayload.getRecipientBoxes().get(0));
+        assertThat(decodedPayload.getRecipientKeys()).isEqualTo(originalPayload.getRecipientKeys());
+        assertThat(decodedPayload.getPrivacyMode()).isEqualTo(originalPayload.getPrivacyMode());
+        assertThat(decodedPayload.getAffectedContractTransactions().get(new TxHash("test".getBytes())))
+                .isEqualTo("test".getBytes());
+        assertThat(decodedPayload.getExecHash()).isEqualTo(originalPayload.getExecHash());
+    }
+
+    @Test
+    public void encodeForSpecificRecipientNoPsv() {
+        final String data =
+                "00000000000000200542de47c272516862bae08c53f1cb034439a739184fe707208dd92817b2dc1a00000000000001796fe5bb76ae4d530a574acbe20cbb5094222eeaba32132fbda79c99e3d3df4e68466fe059f58c32c7ac55a5565e395c9394f608c741715e6bc60ca67d4e9fbcb842fef5e51dba7e537458fb5e201e67716751840662091feb0c029d95562e9929a13fff76f5bd27719a4d832100a04a4486c4f5c00ba9140b36a4900e2f29b1d29c9e8ff7baa9214f4cebc046f0840e1530b9fd774f0bd6da74635687b80251f4a97c4a9af799da572aeedcc2284f89574fa5a081aa328d7a9f33869b89141b2a005c2b4e58a07ecfa61700a08706edc7f30448353cbac7b836455fdf2742fcacf491d57731f938afb2a2de722b8e172a9e65a5979ec23239fc1a5adedfcd3f10d263239ab0fd75785945d798dc2ef8153c4d8dabc9d204fd98919d4e1183cbb0052bca3cd1a68f44d36472191eff7a86b3769f36189ee55a4aa4c212f369b297c82a7961199b00e6fbe7b9cec6ed53384ce025a0626921606bc3e28b7af44ccac85a18c534b56090fb4545693d1824c8929b42200a04a701420000000000000018499a2bedbac3eeaee6f400813382a5b5b7726ff5794974a2000000000000000100000000000000302badf5e765129f28e3d17ee318fba57d952d058cb93c8b407b95cc395bf86ab453c35ea3d8a88e38c459f5f002262795000000000000001887b36b4c47bdd2fddb2d1d8c94adfa7a4797d197cfdfeeac0000000000000001000000000000002044e019056b5269cc5742b39edc5180a890f226315e3d1e5c7b84d2233989d017";
 
         final byte[] decodedHex = Hex.decode(data);
         final EncodedPayload originalPayload = payloadEncoder.decode(decodedHex);
 
-        final PublicKey recipientKey
-            = PublicKey.from(Base64.getDecoder().decode("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc="));
+        final PublicKey recipientKey =
+                PublicKey.from(Base64.getDecoder().decode("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc="));
 
         final EncodedPayload control = payloadEncoder.decode(decodedHex);
 
@@ -139,31 +1515,689 @@ public class PayloadEncoderTest {
         assertThat(result.getSenderKey()).isEqualTo(control.getSenderKey());
         assertThat(result.getRecipientNonce()).isEqualTo(control.getRecipientNonce());
         assertThat(result.getCipherTextNonce()).isEqualTo(control.getCipherTextNonce());
-        assertThat(result.getRecipientKeys()).isEmpty();
+        assertThat(result.getRecipientKeys()).hasSize(1).containsExactly(recipientKey);
         assertThat(result.getRecipientBoxes()).isNotEqualTo(control.getRecipientBoxes());
+        assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
     }
 
     @Test
-    public void decodeWithNoRecipientsGivesEmptyList() {
+    public void encodeForSpecificRecipientWithPsv() {
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
 
-        final byte[] input = new byte[]{0, 0, 0, 0, 0, 0, 0, 32, -51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8, 0, 0, 0, 0, 0, 0, 0, 28, 120, 111, 63, -100, 97, -12, -103, 20, 2, -48, 37, -86, -115, -112, -75, -27, 55, 12, -1, 120, 13, 0, 86, 92, 52, 77, -4, 45, 0, 0, 0, 0, 0, 0, 0, 24, -115, -84, -58, 14, 82, 118, 4, -118, -53, 86, 3, 14, 112, 70, -4, 81, 121, 84, -24, -3, -73, -17, 6, 124, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 48, -87, -102, 0, 95, -13, 48, 76, -115, -115, 62, 54, -55, -78, 125, -54, -34, -71, -11, -95, -85, 78, -24, -30, 47, 65, 5, 88, 38, -111, -12, -41, -97, 103, -60, -101, 43, -57, -68, 68, -109, 36, 49, -63, -123, 62, 21, 67, -28, 0, 0, 0, 0, 0, 0, 0, 24, -63, 5, 86, 42, -85, -12, -36, 16, -108, 48, 26, 36, 44, -82, 15, -38, -19, 6, -101, 107, 110, -30, 95, 5};
+        final PublicKey recipient1 = PublicKey.from("recipient".getBytes());
+        final PublicKey recipient2 = PublicKey.from("anotherRecipient".getBytes());
 
-        final byte[] senderKey = new byte[]{-51, 40, -97, 78, 121, 47, -26, -66, 10, -21, -80, -22, -33, 78, 30, 85, -61, 56, 22, -100, 70, 124, 114, -34, -41, 36, -62, 6, 109, 63, -17, 8};
-        final byte[] ciphertext = new byte[]{120, 111, 63, -100, 97, -12, -103, 20, 2, -48, 37, -86, -115, -112, -75, -27, 55, 12, -1, 120, 13, 0, 86, 92, 52, 77, -4, 45};
-        final byte[] nonce = new byte[]{-115, -84, -58, 14, 82, 118, 4, -118, -53, 86, 3, 14, 112, 70, -4, 81, 121, 84, -24, -3, -73, -17, 6, 124};
-        final byte[] recipientnonce = new byte[]{-63, 5, 86, 42, -85, -12, -36, 16, -108, 48, 26, 36, 44, -82, 15, -38, -19, 6, -101, 107, 110, -30, 95, 5};
-        final byte[] recipient = new byte[]{-87, -102, 0, 95, -13, 48, 76, -115, -115, 62, 54, -55, -78, 125, -54, -34, -71, -11, -95, -85, 78, -24, -30, 47, 65, 5, 88, 38, -111, -12, -41, -97, 103, -60, -101, 43, -57, -68, 68, -109, 36, 49, -63, -123, 62, 21, 67, -28};
+        List<PublicKey> recipientList = new ArrayList<>();
+        recipientList.add(recipient1);
+        recipientList.add(recipient2);
 
-        final EncodedPayload payload = payloadEncoder.decode(input);
+        List<byte[]> recipientBoxes = new ArrayList<>();
+        recipientBoxes.add("box".getBytes());
+        recipientBoxes.add("anotherBox".getBytes());
 
-        assertThat(payload.getRecipientKeys()).isEmpty();
-        assertThat(payload.getSenderKey()).isEqualTo(PublicKey.from(senderKey));
-        assertThat(payload.getCipherText()).containsExactly(ciphertext);
-        assertThat(payload.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
-        assertThat(payload.getRecipientNonce()).isEqualTo(new Nonce(recipientnonce));
-        assertThat(payload.getRecipientBoxes()).hasSize(1);
-        assertThat(payload.getRecipientBoxes().get(0)).containsExactly(recipient);
+        final EncodedPayload originalPayload =
+                new EncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        recipientBoxes,
+                        new Nonce(recipientNonce),
+                        recipientList,
+                        PrivacyMode.PRIVATE_STATE_VALIDATION,
+                        singletonMap(new TxHash("test".getBytes()), "test".getBytes()),
+                        "execHash".getBytes());
 
+        final EncodedPayload payload1 = payloadEncoder.forRecipient(originalPayload, recipient1);
+
+        assertThat(payload1).isNotNull();
+        assertThat(payload1.getCipherText()).isEqualTo(originalPayload.getCipherText());
+        assertThat(payload1.getSenderKey()).isEqualTo(originalPayload.getSenderKey());
+        assertThat(payload1.getRecipientNonce()).isEqualTo(originalPayload.getRecipientNonce());
+        assertThat(payload1.getCipherTextNonce()).isEqualTo(originalPayload.getCipherTextNonce());
+        assertThat(payload1.getRecipientKeys()).hasSize(2).containsExactly(recipient1, recipient2);
+        assertThat(payload1.getRecipientBoxes()).isNotEqualTo(originalPayload.getRecipientBoxes());
+        assertThat(payload1.getRecipientBoxes()).hasSize(1).containsExactly("box".getBytes());
+
+        final EncodedPayload payload2 = payloadEncoder.forRecipient(originalPayload, recipient2);
+
+        assertThat(payload2).isNotNull();
+        assertThat(payload2.getCipherText()).isEqualTo(originalPayload.getCipherText());
+        assertThat(payload2.getSenderKey()).isEqualTo(originalPayload.getSenderKey());
+        assertThat(payload2.getRecipientNonce()).isEqualTo(originalPayload.getRecipientNonce());
+        assertThat(payload2.getCipherTextNonce()).isEqualTo(originalPayload.getCipherTextNonce());
+        assertThat(payload2.getRecipientKeys()).hasSize(2).containsExactly(recipient2, recipient1);
+        assertThat(payload2.getRecipientBoxes()).isNotEqualTo(originalPayload.getRecipientBoxes());
+        assertThat(payload2.getRecipientBoxes()).hasSize(1).containsExactly("anotherBox".getBytes());
     }
 
+    @Test(expected = InvalidRecipientException.class)
+    public void encodeForSpecificRecipientNotContainedInPayload() {
+        final String data =
+                "00000000000000200542de47c272516862bae08c53f1cb034439a739184fe707208dd92817b2dc1a00000000000001796fe5bb76ae4d530a574acbe20cbb5094222eeaba32132fbda79c99e3d3df4e68466fe059f58c32c7ac55a5565e395c9394f608c741715e6bc60ca67d4e9fbcb842fef5e51dba7e537458fb5e201e67716751840662091feb0c029d95562e9929a13fff76f5bd27719a4d832100a04a4486c4f5c00ba9140b36a4900e2f29b1d29c9e8ff7baa9214f4cebc046f0840e1530b9fd774f0bd6da74635687b80251f4a97c4a9af799da572aeedcc2284f89574fa5a081aa328d7a9f33869b89141b2a005c2b4e58a07ecfa61700a08706edc7f30448353cbac7b836455fdf2742fcacf491d57731f938afb2a2de722b8e172a9e65a5979ec23239fc1a5adedfcd3f10d263239ab0fd75785945d798dc2ef8153c4d8dabc9d204fd98919d4e1183cbb0052bca3cd1a68f44d36472191eff7a86b3769f36189ee55a4aa4c212f369b297c82a7961199b00e6fbe7b9cec6ed53384ce025a0626921606bc3e28b7af44ccac85a18c534b56090fb4545693d1824c8929b42200a04a701420000000000000018499a2bedbac3eeaee6f400813382a5b5b7726ff5794974a2000000000000000100000000000000302badf5e765129f28e3d17ee318fba57d952d058cb93c8b407b95cc395bf86ab453c35ea3d8a88e38c459f5f002262795000000000000001887b36b4c47bdd2fddb2d1d8c94adfa7a4797d197cfdfeeac0000000000000001000000000000002044e019056b5269cc5742b39edc5180a890f226315e3d1e5c7b84d2233989d017";
+
+        final byte[] decodedHex = Hex.decode(data);
+        final EncodedPayload originalPayload = payloadEncoder.decode(decodedHex);
+
+        final PublicKey recipientKey = mock(PublicKey.class);
+
+        payloadEncoder.forRecipient(originalPayload, recipientKey);
+    }
+
+    @Test
+    public void decodePayloadFromLegacyEncoderNoRecipient() {
+
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+
+        LegacyEncodedPayload legacyPayload =
+                new LegacyEncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        emptyList());
+
+        final byte[] encoded = legacyPayloadEncoder.encode(legacyPayload);
+
+        EncodedPayload newPayload = payloadEncoder.decode(encoded);
+
+        assertThat(newPayload.getSenderKey()).isEqualTo(legacyPayload.getSenderKey());
+        assertThat(newPayload.getCipherText()).isEqualTo(legacyPayload.getCipherText());
+        assertThat(newPayload.getCipherTextNonce()).isEqualTo(legacyPayload.getCipherTextNonce());
+        assertThat(newPayload.getRecipientBoxes().get(0)).isEqualTo(legacyPayload.getRecipientBoxes().get(0));
+        assertThat(newPayload.getRecipientNonce()).isEqualTo(legacyPayload.getRecipientNonce());
+        assertThat(newPayload.getRecipientKeys()).isEmpty();
+        assertThat(newPayload.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
+        assertThat(newPayload.getAffectedContractTransactions()).isEmpty();
+        assertThat(newPayload.getExecHash()).isNullOrEmpty();
+    }
+
+    @Test
+    public void decodePayloadFromLegacyEncoderWithRecipient() {
+
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+        final byte[] recipientKey =
+                new byte[] {
+                    35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+
+        LegacyEncodedPayload legacyPayload =
+                new LegacyEncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        singletonList(PublicKey.from(recipientKey)));
+
+        final byte[] encoded = legacyPayloadEncoder.encode(legacyPayload);
+
+        final EncodedPayload newPayload = payloadEncoder.decode(encoded);
+
+        assertThat(newPayload.getSenderKey()).isEqualTo(legacyPayload.getSenderKey());
+        assertThat(newPayload.getCipherText()).isEqualTo(legacyPayload.getCipherText());
+        assertThat(newPayload.getCipherTextNonce()).isEqualTo(legacyPayload.getCipherTextNonce());
+        assertThat(newPayload.getRecipientBoxes().get(0)).isEqualTo(legacyPayload.getRecipientBoxes().get(0));
+        assertThat(newPayload.getRecipientNonce()).isEqualTo(legacyPayload.getRecipientNonce());
+        assertThat(newPayload.getRecipientKeys()).containsExactly(PublicKey.from(recipientKey));
+        assertThat(newPayload.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
+        assertThat(newPayload.getAffectedContractTransactions()).isEmpty();
+        assertThat(newPayload.getExecHash()).isNullOrEmpty();
+    }
+
+    @Test
+    public void legacyEncoderShouldBeAbleToDecodeNewEncodedPayload() {
+
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+        final byte[] recipientKey1 =
+                new byte[] {
+                    35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+        final byte[] recipientKey2 =
+                new byte[] {
+                    53, -51, 72, -87, 21, -70, -41, 41, 9, -6, -29, -30, -67, 15, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+
+        List<PublicKey> recipientList = new ArrayList<>();
+        recipientList.add(PublicKey.from(recipientKey1));
+        recipientList.add(PublicKey.from(recipientKey2));
+
+        final EncodedPayload originalPayload =
+                new EncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        recipientList,
+                        PrivacyMode.PRIVATE_STATE_VALIDATION,
+                        singletonMap(new TxHash("test".getBytes()), "test".getBytes()),
+                        "execHash".getBytes());
+
+        final byte[] encoded = payloadEncoder.encode(originalPayload);
+
+        final LegacyEncodedPayload payload = legacyPayloadEncoder.decode(encoded);
+
+        assertThat(payload.getSenderKey()).isEqualTo(originalPayload.getSenderKey());
+        assertThat(payload.getCipherText()).isEqualTo(originalPayload.getCipherText());
+        assertThat(payload.getCipherTextNonce()).isEqualTo(originalPayload.getCipherTextNonce());
+        assertThat(payload.getRecipientBoxes().get(0)).isEqualTo(originalPayload.getRecipientBoxes().get(0));
+        assertThat(payload.getRecipientNonce()).isEqualTo(originalPayload.getRecipientNonce());
+        assertThat(payload.getRecipientKeys()).isEqualTo(originalPayload.getRecipientKeys());
+    }
+
+    @Test
+    public void withRecipientForEncodedPayloadThatAlreadyHasRecipients() {
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+        final byte[] recipientKey1 =
+                new byte[] {
+                    35, -15, 27, -78, 21, -70, -41, 41, 9, -6, -92, -30, -67, 115, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+        final byte[] recipientKey2 =
+                new byte[] {
+                    53, -51, 72, -87, 21, -70, -41, 41, 9, -6, -29, -30, -67, 15, -38, 43, 36, 57, 90, 100, 3, 80, 87,
+                    -52, 52, 97, 1, -113, 97, 54, -71, 75
+                };
+
+        List<PublicKey> recipientList = new ArrayList<>();
+        recipientList.add(PublicKey.from(recipientKey1));
+        recipientList.add(PublicKey.from(recipientKey2));
+
+        final EncodedPayload originalPayload =
+                new EncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        recipientList,
+                        PrivacyMode.PRIVATE_STATE_VALIDATION,
+                        singletonMap(new TxHash("test".getBytes()), "test".getBytes()),
+                        "execHash".getBytes());
+
+        final EncodedPayload payload =
+                payloadEncoder.withRecipient(originalPayload, PublicKey.from("someKey".getBytes()));
+
+        assertThat(payload).isSameAs(originalPayload);
+    }
+
+    @Test
+    public void withRecipientForEncodedPayloadThatHasEmptyListRecipientKeys() {
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+
+        final EncodedPayload originalPayload =
+                new EncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        emptyList(),
+                        PrivacyMode.PRIVATE_STATE_VALIDATION,
+                        singletonMap(new TxHash("test".getBytes()), "test".getBytes()),
+                        "execHash".getBytes());
+
+        final EncodedPayload payload =
+                payloadEncoder.withRecipient(originalPayload, PublicKey.from("someKey".getBytes()));
+
+        assertThat(payload.getSenderKey()).isEqualTo(originalPayload.getSenderKey());
+        assertThat(payload.getCipherText()).isEqualTo(originalPayload.getCipherText());
+        assertThat(payload.getCipherTextNonce()).isEqualTo(originalPayload.getCipherTextNonce());
+        assertThat(payload.getRecipientBoxes().get(0)).isEqualTo(originalPayload.getRecipientBoxes().get(0));
+        assertThat(payload.getRecipientNonce()).isEqualTo(originalPayload.getRecipientNonce());
+        assertThat(payload.getRecipientKeys()).containsExactly(PublicKey.from("someKey".getBytes()));
+    }
+
+    @Test
+    public void withRecipientForEncodedPayloadThatHasEmptyArrayListRecipientKeys() {
+        final byte[] sender =
+                new byte[] {
+                    5, 66, -34, 71, -62, 114, 81, 104, 98, -70, -32, -116, 83, -15, -53, 3, 68, 57, -89, 57, 24, 79,
+                    -25, 7, 32, -115, -39, 40, 23, -78, -36, 26
+                };
+        final byte[] cipherText =
+                new byte[] {
+                    -46, -26, -18, 127, 37, -2, -84, -56, -71, 26, 3, 102, -61, 38, -1, 37, 105, 2, 10, 86, 6, 117, 69,
+                    73, 91, 81, 68, 106, 23, 74, 12, 104, -63, 63, -119, 95, -16, -82, -34, 101, 89, 38, -19, 8, 23,
+                    -70, 90, 5, -7, -15, 23, -8, -88, 47, 72, 105, -103, -34, 10, 109, -48, 114, -127, -38, 41, 12, 3,
+                    72, 113, -56, -90, -70, 124, -25, 127, 60, 100, 95, 127, 31, -72, -101, 26, -12, -9, 108, 54, 2,
+                    124, 22, 55, 9, 123, 54, -16, 51, 28, -25, -102, -100, -23, 89, -15, 86, 22, -100, -63, -110, -2,
+                    -32, -1, 12, -116, 102, -43, 92, 2, 105, -78, -73, 111, -123, -59, -118, -32, 47, -63, 41, 72, -72,
+                    35, -68, 45, 77, 110, -24, -113, -106, -31, -42, 13, -123, 54, 45, 83, -38, -57, 116, 107, -84, 22,
+                    -30, -49, 84, 39, 17, -20, -75, -122, -6, 73, -61, 70, -53, -65, -22, 13, 23, 43, -101, 23, 16, 31,
+                    -1, -19, -8, -94, -119, -28, -127, -101, 43, 31, -28, 16, -78, -86, 47, 42, 21, 115, 127, -81, 44,
+                    -33, -12, -74, -77, 111, 0, 121, 70, 67, 81, 74, 90, 116, -14, -75, 82, -110, -119, -23, 84, 74, 61,
+                    -31, -66, -71, -106, 60, 127, -113, -26, 73, -50, -112, -45, 82, 37, -68, -49, 40, -73, -53, 85,
+                    -71, 82, 32, 117, 25, -81, -13, -30, -48, -118, -82, 125, -63, 1, -46, -115, -104, 32, 2, -1, -124,
+                    -88, -20, -77, 108, 123, 41, 78, 108, -88, 65, 84, 66, -40, 79, -118, 63, -109, -85, -52, 8, -97,
+                    -49, 87, -27, -63, 75, -45, 51, 7, 116, -68, 16, 89, 53, 14, -121, 53, 38, -16, 122, -47, -110, -19,
+                    72, 102, -81, 13, 13, -28, -103, 39, -26, 36, -15, -61, -91, -64, -99, 118, -34, -45, -119, 33, 57,
+                    92, 119, 95, -17, 19, 50, 46, -119, 88, -123, -49, -68, -105, 74, -15, 102, 74, -19, 29, 75, -114,
+                    -34, -54, -6, 111, 122, 2, 55, 99, 58, -31, 123, 50, -84, -128, 71, 79, 19, -40, 92, 7, 75, -31,
+                    -113, -60, -8, 121, 105, 91, -127, 69, 106, -49, -13, -91, -34
+                };
+        final byte[] nonce =
+                new byte[] {
+                    -114, -128, 47, 49, 6, -71, -111, -76, -100, -16, 113, -126, 3, 107, 55, 1, 43, -6, -43, -104, -128,
+                    -125, -37, 31
+                };
+        final byte[] recipientBox =
+                new byte[] {
+                    -111, -41, -32, 59, -89, -69, -51, -27, 64, 74, -89, -63, -97, 54, 12, -10, -104, 111, -100, -98, 4,
+                    34, 67, 73, -57, -46, 15, 100, -21, -42, -14, -43, 72, 64, -127, -44, 113, -10, 82, 105, -81, 122,
+                    61, -50, 28, 108, -56, -92
+                };
+        final byte[] recipientNonce =
+                new byte[] {
+                    -110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98,
+                    64, -85
+                };
+
+        final EncodedPayload originalPayload =
+                new EncodedPayload(
+                        PublicKey.from(sender),
+                        cipherText,
+                        new Nonce(nonce),
+                        singletonList(recipientBox),
+                        new Nonce(recipientNonce),
+                        new ArrayList<>(),
+                        PrivacyMode.PRIVATE_STATE_VALIDATION,
+                        singletonMap(new TxHash("test".getBytes()), "test".getBytes()),
+                        "execHash".getBytes());
+
+        final EncodedPayload payload =
+                payloadEncoder.withRecipient(originalPayload, PublicKey.from("someKey".getBytes()));
+
+        assertThat(payload).isSameAs(originalPayload);
+        assertThat(payload.getRecipientKeys()).containsExactly(PublicKey.from("someKey".getBytes()));
+    }
+
+    /**
+     * Do NOT change as this is a copy of the legacy payload encoder. The tests will use these logic to ensure the
+     * legacy encoder is still able to understand new encoded payload and vice versa
+     */
+    private class LegacyPayloadEncoder implements BinaryEncoder {
+
+        byte[] encode(final LegacyEncodedPayload payload) {
+
+            final byte[] senderKey = encodeField(payload.getSenderKey().getKeyBytes());
+            final byte[] cipherText = encodeField(payload.getCipherText());
+            final byte[] nonce = encodeField(payload.getCipherTextNonce().getNonceBytes());
+            final byte[] recipientNonce = encodeField(payload.getRecipientNonce().getNonceBytes());
+            final byte[] recipients = encodeArray(payload.getRecipientBoxes());
+            final byte[] recipientBytes =
+                    encodeArray(payload.getRecipientKeys().stream().map(PublicKey::getKeyBytes).collect(toList()));
+
+            return ByteBuffer.allocate(
+                            senderKey.length
+                                    + cipherText.length
+                                    + nonce.length
+                                    + recipients.length
+                                    + recipientNonce.length
+                                    + recipientBytes.length)
+                    .put(senderKey)
+                    .put(cipherText)
+                    .put(nonce)
+                    .put(recipients)
+                    .put(recipientNonce)
+                    .put(recipientBytes)
+                    .array();
+        }
+
+        LegacyEncodedPayload decode(final byte[] input) {
+            final ByteBuffer buffer = ByteBuffer.wrap(input);
+
+            final long senderSize = buffer.getLong();
+            final byte[] senderKey = new byte[Math.toIntExact(senderSize)];
+            buffer.get(senderKey);
+
+            final long cipherTextSize = buffer.getLong();
+            final byte[] cipherText = new byte[Math.toIntExact(cipherTextSize)];
+            buffer.get(cipherText);
+
+            final long nonceSize = buffer.getLong();
+            final byte[] nonce = new byte[Math.toIntExact(nonceSize)];
+            buffer.get(nonce);
+
+            final long numberOfRecipients = buffer.getLong();
+            final List<byte[]> recipientBoxes = new ArrayList<>();
+            for (long i = 0; i < numberOfRecipients; i++) {
+                final long boxSize = buffer.getLong();
+                final byte[] box = new byte[Math.toIntExact(boxSize)];
+                buffer.get(box);
+                recipientBoxes.add(box);
+            }
+
+            final long recipientNonceSize = buffer.getLong();
+            final byte[] recipientNonce = new byte[Math.toIntExact(recipientNonceSize)];
+            buffer.get(recipientNonce);
+
+            // this means there are no recipients in the payload (which we receive when we are a participant)
+            if (!buffer.hasRemaining()) {
+                return new LegacyEncodedPayload(
+                        PublicKey.from(senderKey),
+                        cipherText,
+                        new Nonce(nonce),
+                        recipientBoxes,
+                        new Nonce(recipientNonce),
+                        emptyList());
+            }
+
+            final long recipientLength = buffer.getLong();
+
+            final List<byte[]> recipientKeys = new ArrayList<>();
+            for (long i = 0; i < recipientLength; i++) {
+                final long boxSize = buffer.getLong();
+                final byte[] box = new byte[Math.toIntExact(boxSize)];
+                buffer.get(box);
+                recipientKeys.add(box);
+            }
+
+            return new LegacyEncodedPayload(
+                    PublicKey.from(senderKey),
+                    cipherText,
+                    new Nonce(nonce),
+                    recipientBoxes,
+                    new Nonce(recipientNonce),
+                    recipientKeys.stream().map(PublicKey::from).collect(toList()));
+        }
+    }
+
+    private class LegacyEncodedPayload {
+
+        private final PublicKey senderKey;
+
+        private final byte[] cipherText;
+
+        private final Nonce cipherTextNonce;
+
+        private final List<byte[]> recipientBoxes;
+
+        private final Nonce recipientNonce;
+
+        private final List<PublicKey> recipientKeys;
+
+        LegacyEncodedPayload(
+                final PublicKey senderKey,
+                final byte[] cipherText,
+                final Nonce cipherTextNonce,
+                final List<byte[]> recipientBoxes,
+                final Nonce recipientNonce,
+                final List<PublicKey> recipientKeys) {
+            this.senderKey = senderKey;
+            this.cipherText = cipherText;
+            this.cipherTextNonce = cipherTextNonce;
+            this.recipientNonce = recipientNonce;
+            this.recipientBoxes = recipientBoxes;
+            this.recipientKeys = recipientKeys;
+        }
+
+        public PublicKey getSenderKey() {
+            return senderKey;
+        }
+
+        public byte[] getCipherText() {
+            return cipherText;
+        }
+
+        public Nonce getCipherTextNonce() {
+            return cipherTextNonce;
+        }
+
+        public List<byte[]> getRecipientBoxes() {
+            return recipientBoxes;
+        }
+
+        public Nonce getRecipientNonce() {
+            return recipientNonce;
+        }
+
+        public List<PublicKey> getRecipientKeys() {
+            return recipientKeys;
+        }
+    }
 }

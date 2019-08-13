@@ -13,7 +13,11 @@ service P2PTransaction {
 
     rpc Resend(ResendRequest) returns (ResendResponse) { }
 
+    rpc BatchResend(ResendBatchRequest) returns (ResendBatchResponse) { }
+
     rpc Push(PushRequest) returns (PushRequest) { }
+
+    rpc PushBatch(PushBatchRequest) returns (PushBatchResponse) { }
 
 }
 
@@ -60,6 +64,15 @@ message ResendRequest {
     string key = 3;
 }
 
+message ResendBatchRequest {
+    string publicKey = 1;
+    uint32 batchSize = 2;
+}
+
+message ResendBatchResponse {
+    uint64 total = 1;
+}
+
 message ResendResponse {
     bytes data = 1;
 }
@@ -89,5 +102,13 @@ message PartyInfoJson {
 }
 
 message PushRequest {
+    bytes data = 1;
+}
+
+message PushBatchRequest {
+    repeated bytes data = 1;
+}
+
+message PushBatchResponse {
     bytes data = 1;
 }

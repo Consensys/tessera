@@ -1,7 +1,7 @@
 package com.quorum.tessera.grpc.api;
 
 import com.google.protobuf.ByteString;
-import com.quorum.tessera.transaction.TransactionManagerImpl;
+import com.quorum.tessera.transaction.TransactionManager;
 import io.grpc.stub.StreamObserver;
 import org.junit.After;
 import org.junit.Before;
@@ -16,14 +16,11 @@ import static org.mockito.Mockito.*;
 
 public class APITransactionGrpcServiceTest {
 
-    @Mock
-    private StreamObserver<SendResponse> sendResponseObserver;
+    @Mock private StreamObserver<SendResponse> sendResponseObserver;
 
-    @Mock
-    private StreamObserver<ReceiveResponse> receiveResponseObserver;
-    
-    @Mock
-    private TransactionManagerImpl enclaveMediator;
+    @Mock private StreamObserver<ReceiveResponse> receiveResponseObserver;
+
+    @Mock private TransactionManager enclaveMediator;
 
     private APITransactionGrpcService service;
 
@@ -41,10 +38,12 @@ public class APITransactionGrpcServiceTest {
     @Test
     public void testSend() {
 
-        SendRequest sendRequest = SendRequest.newBuilder()
-                .setFrom("bXlwdWJsaWNrZXk=")
-                .addTo("cmVjaXBpZW50MQ==")
-                .setPayload(ByteString.copyFromUtf8("Zm9v")).build();
+        SendRequest sendRequest =
+                SendRequest.newBuilder()
+                        .setFrom("bXlwdWJsaWNrZXk=")
+                        .addTo("cmVjaXBpZW50MQ==")
+                        .setPayload(ByteString.copyFromUtf8("Zm9v"))
+                        .build();
 
         com.quorum.tessera.api.model.SendResponse r = new com.quorum.tessera.api.model.SendResponse("KEY");
         when(enclaveMediator.send(any())).thenReturn(r);
@@ -60,10 +59,8 @@ public class APITransactionGrpcServiceTest {
 
     @Test
     public void testSendWithEmptySender() {
-        SendRequest sendRequest = SendRequest.newBuilder()
-                .addTo("cmVjaXBpZW50MQ==")
-                .setPayload(ByteString.copyFromUtf8("Zm9v"))
-                .build();
+        SendRequest sendRequest =
+                SendRequest.newBuilder().addTo("cmVjaXBpZW50MQ==").setPayload(ByteString.copyFromUtf8("Zm9v")).build();
 
         com.quorum.tessera.api.model.SendResponse r = new com.quorum.tessera.api.model.SendResponse("KEY");
         when(enclaveMediator.send(any())).thenReturn(r);
@@ -78,16 +75,39 @@ public class APITransactionGrpcServiceTest {
     }
 
     @Test
+    public void testSendSignedTx() {
+
+        SendSignedRequest sendSignedRequest =
+                SendSignedRequest.newBuilder()
+                        .addTo("cmVjaXBpZW50MQ==")
+                        .setHash(ByteString.copyFromUtf8("Zm9v"))
+                        .build();
+
+        com.quorum.tessera.api.model.SendResponse r = new com.quorum.tessera.api.model.SendResponse("KEY");
+        when(enclaveMediator.sendSignedTransaction(any())).thenReturn(r);
+
+        service.sendSignedTx(sendSignedRequest, sendResponseObserver);
+
+        verify(enclaveMediator).sendSignedTransaction(any());
+
+        verify(sendResponseObserver).onNext(any());
+
+        verify(sendResponseObserver).onCompleted();
+    }
+
+    @Test
     public void testReceive() {
 
-        com.quorum.tessera.api.model.ReceiveResponse r = new com.quorum.tessera.api.model.ReceiveResponse("SOME DATA".getBytes());
+        com.quorum.tessera.api.model.ReceiveResponse r =
+                new com.quorum.tessera.api.model.ReceiveResponse("SOME DATA".getBytes(), 0, new String[] {}, "");
 
         when(enclaveMediator.receive(any())).thenReturn(r);
 
-        ReceiveRequest request = ReceiveRequest.newBuilder()
-                .setTo("cmVjaXBpZW50MQ==")
-                .setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=")
-                .build();
+        ReceiveRequest request =
+                ReceiveRequest.newBuilder()
+                        .setTo("cmVjaXBpZW50MQ==")
+                        .setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=")
+                        .build();
 
         service.receive(request, receiveResponseObserver);
 
@@ -105,9 +125,8 @@ public class APITransactionGrpcServiceTest {
     @Test
     public void testReceiveWithNoToField() {
 
-        ReceiveRequest request = ReceiveRequest.newBuilder()
-                .setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=")
-                .build();
+        ReceiveRequest request =
+                ReceiveRequest.newBuilder().setKey("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=").build();
 
         service.receive(request, receiveResponseObserver);
 
@@ -117,26 +136,31 @@ public class APITransactionGrpcServiceTest {
     @Test
     public void invalidSendRequest() {
 
-        SendRequest sendRequest = SendRequest.newBuilder()
-                .setFrom("bXlwdWJsaWNrZXk=")
-                .addTo("cmVjaXBpZW50MQ==").build();
+        SendRequest sendRequest =
+                SendRequest.newBuilder().setFrom("bXlwdWJsaWNrZXk=").addTo("cmVjaXBpZW50MQ==").build();
 
         service.send(sendRequest, sendResponseObserver);
 
         verify(sendResponseObserver).onError(any());
+    }
 
+    @Test
+    public void invalidSendSignedRequest() {
+
+        SendSignedRequest sendSignedRequest = SendSignedRequest.newBuilder().addTo("cmVjaXBpZW50MQ==").build();
+
+        service.sendSignedTx(sendSignedRequest, sendResponseObserver);
+
+        verify(sendResponseObserver).onError(any());
     }
 
     @Test
     public void invalidReceiveRequest() {
 
-        ReceiveRequest request = ReceiveRequest.newBuilder()
-                .build();
+        ReceiveRequest request = ReceiveRequest.newBuilder().build();
 
         service.receive(request, receiveResponseObserver);
 
         verify(receiveResponseObserver).onError(any());
-
     }
-
 }

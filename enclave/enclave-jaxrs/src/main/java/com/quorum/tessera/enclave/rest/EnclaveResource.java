@@ -1,23 +1,18 @@
 package com.quorum.tessera.enclave.rest;
 
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.enclave.RawTransaction;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
 import com.quorum.tessera.service.Service;
 
+import javax.json.Json;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import javax.json.Json;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Path("/")
 public class EnclaveResource {
@@ -48,8 +43,7 @@ public class EnclaveResource {
     @Path("default")
     public Response defaultPublicKey() {
         final StreamingOutput streamingOutput = out -> out.write(enclave.defaultPublicKey().getKeyBytes());
-        return Response.ok(streamingOutput)
-                .build();
+        return Response.ok(streamingOutput).build();
     }
 
     @GET
@@ -57,14 +51,10 @@ public class EnclaveResource {
     @Path("forwarding")
     public Response getForwardingKeys() {
 
-        List<String> body = enclave.getForwardingKeys()
-                .stream()
-                .map(PublicKey::encodeToBase64)
-                .collect(Collectors.toList());
+        List<String> body =
+                enclave.getForwardingKeys().stream().map(PublicKey::encodeToBase64).collect(Collectors.toList());
 
-        return Response.ok(Json.createArrayBuilder(body).build().toString(), MediaType.APPLICATION_JSON_TYPE)
-                .build();
-
+        return Response.ok(Json.createArrayBuilder(body).build().toString(), MediaType.APPLICATION_JSON_TYPE).build();
     }
 
     @GET
@@ -72,13 +62,10 @@ public class EnclaveResource {
     @Path("public")
     public Response getPublicKeys() {
 
-        List<String> body = enclave.getPublicKeys()
-                .stream()
-                .map(PublicKey::encodeToBase64)
-                .collect(Collectors.toList());
+        List<String> body =
+                enclave.getPublicKeys().stream().map(PublicKey::encodeToBase64).collect(Collectors.toList());
 
-        return Response.ok(Json.createArrayBuilder(body).build().toString(), MediaType.APPLICATION_JSON_TYPE)
-                .build();
+        return Response.ok(Json.createArrayBuilder(body).build().toString(), MediaType.APPLICATION_JSON_TYPE).build();
     }
 
     @POST
@@ -89,17 +76,25 @@ public class EnclaveResource {
 
         PublicKey senderKey = PublicKey.from(payload.getSenderKey());
 
-        List<PublicKey> recipientPublicKeys = payload.getRecipientPublicKeys()
-                .stream()
-                .map(PublicKey::from)
-                .collect(Collectors.toList());
+        List<PublicKey> recipientPublicKeys =
+                payload.getRecipientPublicKeys().stream().map(PublicKey::from).collect(Collectors.toList());
 
-        EncodedPayload outcome = enclave.encryptPayload(payload.getData(), senderKey, recipientPublicKeys);
+        Map<TxHash, EncodedPayload> affectedContractTransactions =
+                convertAffectedContractTransactions(payload.getAffectedContractTransactions());
+        byte[] execHash = payload.getExecHash();
+
+        EncodedPayload outcome =
+                enclave.encryptPayload(
+                        payload.getData(),
+                        senderKey,
+                        recipientPublicKeys,
+                        payload.getPrivacyMode(),
+                        affectedContractTransactions,
+                        execHash);
 
         byte[] response = payloadEncoder.encode(outcome);
         final StreamingOutput streamingOutput = out -> out.write(response);
-        return Response.ok(streamingOutput)
-                .build();
+        return Response.ok(streamingOutput).build();
     }
 
     @POST
@@ -112,18 +107,34 @@ public class EnclaveResource {
         byte[] encryptedKey = enclaveRawPayload.getEncryptedKey();
         Nonce nonce = new Nonce(enclaveRawPayload.getNonce());
         PublicKey from = PublicKey.from(enclaveRawPayload.getFrom());
+        byte[] execHash = enclaveRawPayload.getExecHash();
 
-        List<PublicKey> recipientPublicKeys = enclaveRawPayload.getRecipientPublicKeys().stream()
-                .map(PublicKey::from).collect(Collectors.toList());
+        List<PublicKey> recipientPublicKeys =
+                enclaveRawPayload.getRecipientPublicKeys().stream().map(PublicKey::from).collect(Collectors.toList());
 
         RawTransaction rawTransaction = new RawTransaction(encryptedPayload, encryptedKey, nonce, from);
 
-        EncodedPayload outcome = enclave.encryptPayload(rawTransaction, recipientPublicKeys);
+        Map<TxHash, EncodedPayload> affectedContractTransactions =
+                convertAffectedContractTransactions(enclaveRawPayload.getAffectedContractTransactions());
+        EncodedPayload outcome =
+                enclave.encryptPayload(
+                        rawTransaction,
+                        recipientPublicKeys,
+                        enclaveRawPayload.getPrivacyMode(),
+                        affectedContractTransactions,
+                        execHash);
 
         byte[] response = payloadEncoder.encode(outcome);
         final StreamingOutput streamingOutput = out -> out.write(response);
-        return Response.ok(streamingOutput)
-                .build();
+        return Response.ok(streamingOutput).build();
+    }
+
+    private Map<TxHash, EncodedPayload> convertAffectedContractTransactions(List<KeyValuePair> act) {
+        Map<TxHash, EncodedPayload> affectedContractTransactions = new HashMap<>();
+        for (KeyValuePair entry : act) {
+            affectedContractTransactions.put(new TxHash(entry.getKey()), payloadEncoder.decode(entry.getValue()));
+        }
+        return affectedContractTransactions;
     }
 
     @POST
@@ -132,7 +143,8 @@ public class EnclaveResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response encryptRawPayload(EnclavePayload payload) {
 
-        RawTransaction rawTransaction = enclave.encryptRawPayload(payload.getData(), PublicKey.from(payload.getSenderKey()));
+        RawTransaction rawTransaction =
+                enclave.encryptRawPayload(payload.getData(), PublicKey.from(payload.getSenderKey()));
 
         EnclaveRawPayload enclaveRawPayload = new EnclaveRawPayload();
         enclaveRawPayload.setFrom(rawTransaction.getFrom().getKeyBytes());
@@ -141,7 +153,49 @@ public class EnclaveResource {
         enclaveRawPayload.setEncryptedKey(rawTransaction.getEncryptedKey());
 
         return Response.ok(enclaveRawPayload).build();
+    }
 
+    @POST
+    @Path("findinvalidsecurityhashes")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findInvalidSecurityHashes(EnclaveFindInvalidSecurityHashesRequestPayload payload) {
+
+        EncodedPayload encodedPayload = payloadEncoder.decode(payload.getEncodedPayload());
+
+        Map<TxHash, EncodedPayload> affectedContractTransactions = new HashMap<>();
+        for (KeyValuePair keyPair : payload.getAffectedContractTransactions()) {
+            affectedContractTransactions.put(new TxHash(keyPair.getKey()), payloadEncoder.decode(keyPair.getValue()));
+        }
+
+        Set<TxHash> invalidSecurityHashes =
+                enclave.findInvalidSecurityHashes(encodedPayload, affectedContractTransactions);
+
+        EnclaveFindInvalidSecurityHashesResponsePayload responsePayload =
+                new EnclaveFindInvalidSecurityHashesResponsePayload();
+        responsePayload.setInvalidSecurityHashes(
+                invalidSecurityHashes.stream().map(TxHash::getBytes).collect(Collectors.toList()));
+
+        return Response.ok(responsePayload).build();
+    }
+
+    @POST
+    @Path("unencrypt/raw")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response unencryptRawPayload(EnclaveRawPayload enclaveRawPayload) {
+
+        RawTransaction rawTransaction =
+                new RawTransaction(
+                        enclaveRawPayload.getEncryptedPayload(),
+                        enclaveRawPayload.getEncryptedKey(),
+                        new Nonce(enclaveRawPayload.getNonce()),
+                        PublicKey.from(enclaveRawPayload.getFrom()));
+
+        byte[] response = enclave.unencryptRawPayload(rawTransaction);
+
+        final StreamingOutput streamingOutput = out -> out.write(response);
+        return Response.ok(streamingOutput).build();
     }
 
     @POST
@@ -151,15 +205,13 @@ public class EnclaveResource {
     public Response unencryptTransaction(EnclaveUnencryptPayload enclaveUnencryptPayload) {
 
         EncodedPayload payload = payloadEncoder.decode(enclaveUnencryptPayload.getData());
-        PublicKey providedKey = Optional.ofNullable(enclaveUnencryptPayload.getProvidedKey())
-            .map(PublicKey::from)
-            .orElse(null);
+        PublicKey providedKey =
+                Optional.ofNullable(enclaveUnencryptPayload.getProvidedKey()).map(PublicKey::from).orElse(null);
 
         byte[] response = enclave.unencryptTransaction(payload, providedKey);
 
         final StreamingOutput streamingOutput = out -> out.write(response);
         return Response.ok(streamingOutput).build();
-
     }
 
     @POST
@@ -175,7 +227,5 @@ public class EnclaveResource {
 
         final StreamingOutput streamingOutput = out -> out.write(response);
         return Response.ok(streamingOutput).build();
-
     }
-
 }

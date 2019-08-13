@@ -39,7 +39,7 @@
         <module name="SimplifyBooleanReturn"/>
         <module name="VariableDeclarationUsageDistance"/>
         <module name="ParameterNumber">
-            <property name="max" value="5"/>
+            <property name="max" value="6"/>
             <property name="tokens" value="METHOD_DEF"/>
         </module>
         <module name="JavadocMethod">

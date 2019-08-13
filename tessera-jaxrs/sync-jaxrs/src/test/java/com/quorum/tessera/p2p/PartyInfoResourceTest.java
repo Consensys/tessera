@@ -8,6 +8,7 @@ import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 
 import java.io.IOException;
@@ -147,7 +148,13 @@ public class PartyInfoResourceTest {
                             return encodedPayload;
                         })
                 .when(enclave)
-                .encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+                .encryptPayload(
+                        any(byte[].class),
+                        any(PublicKey.class),
+                        anyList(),
+                        any(PrivacyMode.class),
+                        anyMap(),
+                        any(byte[].class));
 
         when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
 
@@ -172,7 +179,14 @@ public class PartyInfoResourceTest {
 
         verify(partyInfoParser).from(payload);
         verify(enclave).defaultPublicKey();
-        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+        verify(enclave)
+                .encryptPayload(
+                        any(byte[].class),
+                        any(PublicKey.class),
+                        anyList(),
+                        any(PrivacyMode.class),
+                        anyMap(),
+                        any(byte[].class));
         verify(payloadEncoder).encode(encodedPayload);
         verify(restClient).target(url);
         verify(partyInfoService).updatePartyInfo(any(PartyInfo.class));
@@ -236,8 +250,14 @@ public class PartyInfoResourceTest {
         when(partyInfoParser.to(partyInfo)).thenReturn(payload);
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
-        when(enclave.encryptPayload(any(byte[].class), any(PublicKey.class), anyList())).thenReturn(encodedPayload);
+        when(enclave.encryptPayload(
+                        any(byte[].class),
+                        any(PublicKey.class),
+                        anyList(),
+                        any(PrivacyMode.class),
+                        anyMap(),
+                        any(byte[].class)))
+                .thenReturn(encodedPayload);
 
         when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
 
@@ -260,7 +280,14 @@ public class PartyInfoResourceTest {
         } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);
             verify(enclave).defaultPublicKey();
-            verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+            verify(enclave)
+                    .encryptPayload(
+                            any(byte[].class),
+                            any(PublicKey.class),
+                            anyList(),
+                            any(PrivacyMode.class),
+                            anyMap(),
+                            any(byte[].class));
             verify(payloadEncoder).encode(encodedPayload);
             verify(restClient).target(url);
         }
@@ -293,7 +320,14 @@ public class PartyInfoResourceTest {
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
-        when(enclave.encryptPayload(any(byte[].class), any(PublicKey.class), anyList())).thenReturn(encodedPayload);
+        when(enclave.encryptPayload(
+                        any(byte[].class),
+                        any(PublicKey.class),
+                        anyList(),
+                        any(PrivacyMode.class),
+                        anyMap(),
+                        any(byte[].class)))
+                .thenReturn(encodedPayload);
 
         when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
 
@@ -312,7 +346,14 @@ public class PartyInfoResourceTest {
         } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);
             verify(enclave).defaultPublicKey();
-            verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+            verify(enclave)
+                    .encryptPayload(
+                            any(byte[].class),
+                            any(PublicKey.class),
+                            anyList(),
+                            any(PrivacyMode.class),
+                            anyMap(),
+                            any(byte[].class));
             verify(payloadEncoder).encode(encodedPayload);
             verify(restClient).target(url);
         }

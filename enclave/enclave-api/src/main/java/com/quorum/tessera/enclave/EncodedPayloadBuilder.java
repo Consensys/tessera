@@ -3,9 +3,7 @@ package com.quorum.tessera.enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.nacl.Nonce;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class EncodedPayloadBuilder {
 
@@ -21,12 +19,17 @@ public class EncodedPayloadBuilder {
 
     private final List<PublicKey> recipientKeys = new ArrayList<>();
 
+    private int privacyFlag;
+
+    private final Map<TxHash, byte[]> affectedContractTransactions = new HashMap<>();
+
+    private byte[] execHash;
+
     public static EncodedPayloadBuilder create() {
         return new EncodedPayloadBuilder();
     }
 
-    private EncodedPayloadBuilder() {
-    }
+    private EncodedPayloadBuilder() {}
 
     public EncodedPayloadBuilder withSenderKey(final PublicKey senderKey) {
         this.senderKey = senderKey;
@@ -58,11 +61,32 @@ public class EncodedPayloadBuilder {
         return this;
     }
 
-    public EncodedPayload build() {
-        return new EncodedPayload(
-            senderKey, cipherText, new Nonce(cipherTextNonce),
-            recipientBoxes, new Nonce(recipientNonce), recipientKeys
-        );
+    public EncodedPayloadBuilder withPrivacyFlag(final int privacyFlag) {
+        this.privacyFlag = privacyFlag;
+        return this;
     }
 
+    public EncodedPayloadBuilder withAffectedContractTransactions(
+            final Map<TxHash, byte[]> affectedContractTransactions) {
+        this.affectedContractTransactions.putAll(affectedContractTransactions);
+        return this;
+    }
+
+    public EncodedPayloadBuilder withExecHash(final byte[] execHash) {
+        this.execHash = execHash;
+        return this;
+    }
+
+    public EncodedPayload build() {
+        return new EncodedPayload(
+                senderKey,
+                cipherText,
+                new Nonce(cipherTextNonce),
+                recipientBoxes,
+                new Nonce(recipientNonce),
+                recipientKeys,
+                PrivacyMode.fromFlag(privacyFlag),
+                affectedContractTransactions,
+                execHash);
+    }
 }

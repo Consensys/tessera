@@ -1,4 +1,4 @@
-package com.quorum.tessera;
+package com.quorum.tessera.data;
 
 import com.openpojo.reflection.impl.PojoClassFactory;
 import com.openpojo.validation.Validator;
@@ -6,7 +6,6 @@ import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.rule.impl.*;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
-import com.quorum.tessera.data.MessageHash;
 import org.junit.Test;
 
 public class OpenPojoEntityTest {

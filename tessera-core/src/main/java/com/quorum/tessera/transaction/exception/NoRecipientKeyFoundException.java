@@ -1,5 +1,5 @@
 
-package com.quorum.tessera.transaction;
+package com.quorum.tessera.transaction.exception;
 
 import com.quorum.tessera.exception.TesseraException;
 

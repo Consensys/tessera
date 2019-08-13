@@ -1,17 +1,20 @@
 package com.quorum.tessera.transaction;
 
+import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
+import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.data.EncryptedTransaction;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
@@ -54,7 +57,15 @@ public class ResendManagerTest {
         final byte[] input = "SOMEDATA".getBytes();
         final EncodedPayload encodedPayload =
                 new EncodedPayload(
-                        senderKey, "CIPHERTEXT".getBytes(), null, new ArrayList<>(), null, new ArrayList<>());
+                        senderKey,
+                        "CIPHERTEXT".getBytes(),
+                        null,
+                        new ArrayList<>(),
+                        null,
+                        new ArrayList<>(),
+                        PrivacyMode.STANDARD_PRIVATE,
+                        new HashMap<>(),
+                        new byte[0]);
         final byte[] newEncryptedMasterKey = "newbox".getBytes();
 
         when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
@@ -96,11 +107,22 @@ public class ResendManagerTest {
                         null,
                         singletonList(recipientBox),
                         null,
-                        singletonList(recipientKey));
+                        singletonList(recipientKey),
+                        PrivacyMode.STANDARD_PRIVATE,
+                        new HashMap<>(),
+                        new byte[0]);
 
         final EncodedPayload existingEncodedPayload =
                 new EncodedPayload(
-                        senderKey, "CIPHERTEXT".getBytes(), null, new ArrayList<>(), null, new ArrayList<>());
+                        senderKey,
+                        "CIPHERTEXT".getBytes(),
+                        null,
+                        new ArrayList<>(),
+                        null,
+                        new ArrayList<>(),
+                        PrivacyMode.STANDARD_PRIVATE,
+                        new HashMap<>(),
+                        new byte[0]);
 
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
@@ -142,7 +164,10 @@ public class ResendManagerTest {
                         null,
                         singletonList(recipientBox),
                         null,
-                        singletonList(recipientKey));
+                        singletonList(recipientKey),
+                        PrivacyMode.STANDARD_PRIVATE,
+                        new HashMap<>(),
+                        new byte[0]);
 
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
@@ -158,8 +183,68 @@ public class ResendManagerTest {
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
         verify(payloadEncoder).decode(incomingData);
+        verify(payloadEncoder).encode(any(EncodedPayload.class));
         verify(enclave).getPublicKeys();
-        verify(enclave).unencryptTransaction(encodedPayload, null);
+        verify(enclave, times(2)).unencryptTransaction(encodedPayload, null);
+        verify(encryptedTransactionDAO).save(et);
+    }
+
+    @Test
+    public void storePayloadAsSenderWhenTxIsPresentPrivacyModeIsPSVAndRecipientsDifferThrows() {
+
+        final byte[] incomingData = "incomingData".getBytes();
+
+        final byte[] storedData = "SOMEDATA".getBytes();
+        final EncryptedTransaction et = new EncryptedTransaction(null, storedData);
+        final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
+
+        final PublicKey recipientKey = PublicKey.from("RECIPIENT-KEY".getBytes());
+        final PublicKey anotherRecipientKey = PublicKey.from("ANOTHER-RECIPIENT-KEY".getBytes());
+        final byte[] recipientBox = "BOX".getBytes();
+
+        final EncodedPayload existingEncodedPayload =
+                new EncodedPayload(
+                        senderKey,
+                        "CIPHERTEXT".getBytes(),
+                        null,
+                        singletonList(recipientBox),
+                        null,
+                        Arrays.asList(recipientKey, anotherRecipientKey),
+                        PrivacyMode.PRIVATE_STATE_VALIDATION,
+                        new HashMap<>(),
+                        new byte[0]);
+
+        final EncodedPayload incomingEncodedPayload =
+                new EncodedPayload(
+                        senderKey,
+                        "CIPHERTEXT".getBytes(),
+                        null,
+                        singletonList(recipientBox),
+                        null,
+                        singletonList(anotherRecipientKey),
+                        PrivacyMode.PRIVATE_STATE_VALIDATION,
+                        new HashMap<>(),
+                        new byte[0]);
+
+        when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
+        when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
+                .thenReturn("data".getBytes());
+        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
+        when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
+        when(payloadEncoder.decode(incomingData)).thenReturn(incomingEncodedPayload);
+
+        final Throwable throwable = catchThrowable(() -> this.resendManager.acceptOwnMessage(incomingData));
+
+        assertThat(throwable)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Participants mismatch for two versions of transaction");
+
+        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+        verify(payloadEncoder).decode(storedData);
+        verify(payloadEncoder).decode(incomingData);
+        verify(enclave).getPublicKeys();
+        verify(enclave).unencryptTransaction(existingEncodedPayload, null);
+        verify(enclave).unencryptTransaction(incomingEncodedPayload, null);
     }
 
     @Test
@@ -178,7 +263,10 @@ public class ResendManagerTest {
                         null,
                         singletonList(recipientBox),
                         null,
-                        singletonList(recipientKey));
+                        singletonList(recipientKey),
+                        PrivacyMode.STANDARD_PRIVATE,
+                        new HashMap<>(),
+                        new byte[0]);
 
         when(enclave.getPublicKeys()).thenReturn(singleton(PublicKey.from("OTHER".getBytes())));
         when(payloadEncoder.decode(incomingData)).thenReturn(encodedPayload);
@@ -212,11 +300,22 @@ public class ResendManagerTest {
                         null,
                         singletonList(recipientBox),
                         null,
-                        singletonList(recipientKey));
+                        singletonList(recipientKey),
+                        PrivacyMode.STANDARD_PRIVATE,
+                        new HashMap<>(),
+                        new byte[0]);
 
         final EncodedPayload existingEncodedPayload =
                 new EncodedPayload(
-                        senderKey, "CIPHERTEXT".getBytes(), null, new ArrayList<>(), null, new ArrayList<>());
+                        senderKey,
+                        "CIPHERTEXT".getBytes(),
+                        null,
+                        new ArrayList<>(),
+                        null,
+                        new ArrayList<>(),
+                        PrivacyMode.STANDARD_PRIVATE,
+                        new HashMap<>(),
+                        new byte[0]);
 
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
@@ -243,7 +342,15 @@ public class ResendManagerTest {
 
         final EncodedPayload encodedPayload =
                 new EncodedPayload(
-                        mock(PublicKey.class), "CIPHERTEXT".getBytes(), null, emptyList(), null, emptyList());
+                        mock(PublicKey.class),
+                        "CIPHERTEXT".getBytes(),
+                        null,
+                        emptyList(),
+                        null,
+                        emptyList(),
+                        PrivacyMode.STANDARD_PRIVATE,
+                        new HashMap<>(),
+                        new byte[0]);
 
         when(payloadEncoder.decode(incomingData)).thenReturn(encodedPayload);
         when(enclave.unencryptTransaction(encodedPayload, null)).thenThrow(IllegalArgumentException.class);
@@ -254,11 +361,5 @@ public class ResendManagerTest {
 
         verify(payloadEncoder).decode(incomingData);
         verify(enclave).unencryptTransaction(encodedPayload, null);
-    }
-
-    @Test
-    public void constructWithMinimalArgs() {
-
-        assertThat(new ResendManagerImpl(encryptedTransactionDAO, enclave)).isNotNull();
     }
 }
