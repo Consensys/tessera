@@ -1580,4 +1580,16 @@ public class TransactionManagerTest {
                                     return true;
                                 }));
     }
+
+    @Test
+    public void createWithMinimalConstrcutor() {
+        assertThat(
+                        new TransactionManagerImpl(
+                                encryptedTransactionDAO,
+                                enclave,
+                                encryptedRawTransactionDAO,
+                                resendManager,
+                                payloadPublisher))
+                .isNotNull();
+    }
 }

@@ -608,4 +608,12 @@ public class BatchResendManagerTest {
     public void testIsResendMode() {
         assertThat(manager.isResendMode()).isTrue();
     }
+
+    @Test
+    public void createWithMinimalConstrcutor() {
+        assertThat(
+                        new BatchResendManagerImpl(
+                                enclave, transactionManager, stagingEntityDAO, encryptedTransactionDAO, publisher))
+                .isNotNull();
+    }
 }

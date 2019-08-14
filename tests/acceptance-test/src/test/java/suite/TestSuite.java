@@ -115,7 +115,7 @@ public class TestSuite extends Suite {
                     () -> {
                         while (!partyInfoChecker.hasSynced()) {
                             try {
-                                Thread.sleep(1000L);
+                                 TimeUnit.SECONDS.sleep(1L);
                                 LOGGER.info("Failed to sync retrying");
                             } catch (InterruptedException ex) {
                             }
