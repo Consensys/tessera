@@ -17,7 +17,6 @@ public class P2pTestSuite {
     @Parameterized.Parameters
     public static List<ProcessConfiguration> configurations() {
         return Stream.of(DBType.values())
-                .filter(dt -> !dt.equals(DBType.SQLITE))
                 .map(
                         value ->
                                 new ProcessConfiguration(

@@ -26,7 +26,6 @@ public class GrpcSuite {
         final List<ProcessConfiguration> configurations = new ArrayList<>();
 
         Stream.of(DBType.values())
-                .filter(db -> !db.equals(DBType.SQLITE))
                 .forEach(
                         database -> {
                             configurations.add(

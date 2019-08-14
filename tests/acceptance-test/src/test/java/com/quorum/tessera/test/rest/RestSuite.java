@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.quorum.tessera.config.CommunicationType.REST;
-import java.util.Arrays;
 import static suite.SocketType.HTTP;
 
 @TestSuite.SuiteClasses({
@@ -40,7 +39,7 @@ public class RestSuite {
     public static List<ProcessConfiguration> configurations() {
         final List<ProcessConfiguration> configurations = new ArrayList<>();
 
-        for (final DBType database : Arrays.asList(DBType.H2)) {
+        for (final DBType database : DBType.values()) {
 
             for (final EnclaveType enclaveType : EnclaveType.values()) {
                 configurations.add(new ProcessConfiguration(database, REST, HTTP, enclaveType, false, ""));
