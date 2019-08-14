@@ -601,7 +601,7 @@ public class TransactionManagerImpl implements TransactionManager {
         return Optional.empty();
     }
 
-    private void publish(List<PublicKey> recipientList, EncodedPayload payload) {
+    protected void publish(List<PublicKey> recipientList, EncodedPayload payload) {
         recipientList.stream()
                 .filter(k -> !enclave.getPublicKeys().contains(k))
                 .forEach(

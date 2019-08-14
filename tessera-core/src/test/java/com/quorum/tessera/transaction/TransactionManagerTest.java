@@ -1592,4 +1592,21 @@ public class TransactionManagerTest {
                                 payloadPublisher))
                 .isNotNull();
     }
+
+    @Test
+    public void publishDoesnotPublishToSender() {
+
+        TransactionManagerImpl impl = TransactionManagerImpl.class.cast(transactionManager);
+        EncodedPayload transaction = mock(EncodedPayload.class);
+
+        PublicKey someKey = mock(PublicKey.class);
+
+        List<PublicKey> recipients = Arrays.asList(someKey);
+
+        when(enclave.getPublicKeys()).thenReturn(singleton(someKey));
+
+        impl.publish(recipients, transaction);
+
+        verify(enclave).getPublicKeys();
+    }
 }
