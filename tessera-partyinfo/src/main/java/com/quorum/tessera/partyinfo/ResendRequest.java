@@ -1,4 +1,4 @@
-package com.quorum.tessera.api.model;
+package com.quorum.tessera.partyinfo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

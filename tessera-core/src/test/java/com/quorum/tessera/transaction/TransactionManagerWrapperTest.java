@@ -1,5 +1,6 @@
 package com.quorum.tessera.transaction;
 
+import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.exception.OperationCurrentlySuspended;
 import org.junit.After;

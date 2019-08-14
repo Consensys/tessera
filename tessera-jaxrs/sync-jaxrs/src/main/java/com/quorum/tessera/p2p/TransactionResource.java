@@ -1,9 +1,9 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.api.model.ResendRequest;
-import com.quorum.tessera.api.model.ResendResponse;
 import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.partyinfo.ResendRequest;
+import com.quorum.tessera.partyinfo.ResendResponse;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

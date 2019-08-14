@@ -1,6 +1,7 @@
-package com.quorum.tessera.api.model;
+package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.partyinfo.ResendResponse;
+import com.openpojo.reflection.PojoClass;
+import com.openpojo.reflection.impl.PojoClassFactory;
 import com.openpojo.validation.Validator;
 import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.rule.impl.GetterMustExistRule;
@@ -9,9 +10,9 @@ import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
 import org.junit.Test;
 
-public class OpenPojoTest {
+public class ResendRequestTest {
 
-    public OpenPojoTest() {}
+    public ResendRequestTest() {}
 
     @Test
     public void executeOpenPojoValidations() {
@@ -24,9 +25,7 @@ public class OpenPojoTest {
                         .with(new GetterTester())
                         .build();
 
-        pojoValidator.validate(
-                getClass().getPackage().getName(),
-                (pc) -> !pc.getClazz().isAssignableFrom(StoreRawRequest.class),
-                (pc) -> !pc.getClazz().isAssignableFrom(ResendResponse.class));
+        PojoClass resendRequest = PojoClassFactory.getPojoClass(ResendRequest.class);
+        pojoValidator.validate(resendRequest);
     }
 }

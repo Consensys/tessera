@@ -1,5 +1,7 @@
 package com.quorum.tessera.transaction;
 
+import com.quorum.tessera.partyinfo.ResendResponse;
+import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.api.model.*;
 

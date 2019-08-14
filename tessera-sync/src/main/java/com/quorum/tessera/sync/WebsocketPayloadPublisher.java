@@ -2,7 +2,9 @@ package com.quorum.tessera.sync;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.partyinfo.PayloadPublisher;
+import com.quorum.tessera.partyinfo.ResendBatchPublisher;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PreDestroy;
@@ -19,7 +21,7 @@ import org.slf4j.LoggerFactory;
 @ClientEndpoint(
         decoders = {SyncResponseMessageCodec.class},
         encoders = {SyncRequestMessageCodec.class})
-public class WebsocketPayloadPublisher implements PayloadPublisher {
+public class WebsocketPayloadPublisher implements PayloadPublisher, ResendBatchPublisher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebsocketPayloadPublisher.class);
 
@@ -63,5 +65,10 @@ public class WebsocketPayloadPublisher implements PayloadPublisher {
                                     });
                         });
         cache.clear();
+    }
+
+    @Override
+    public void publishBatch(List<EncodedPayload> payload, String targetUrl) {
+        payload.forEach(p -> publishPayload(p, targetUrl));
     }
 }

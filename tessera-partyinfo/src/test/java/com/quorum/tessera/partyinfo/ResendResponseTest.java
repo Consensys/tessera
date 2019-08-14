@@ -1,5 +1,7 @@
-package com.quorum.tessera.api.model;
+package com.quorum.tessera.partyinfo;
 
+import com.quorum.tessera.partyinfo.ResendResponse;
+import com.quorum.tessera.partyinfo.ResendResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
