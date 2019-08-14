@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.sql.*;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,18 +21,24 @@ public class SqliteDataExporter implements DataExporter {
     private static final String CREATE_TABLE_RESOURCE = "/ddls/sqlite-ddl.sql";
 
     @Override
-    public void export(final StoreLoader loader,
-                       final Path output,
-                       final String username,
-                       final String password) throws SQLException, IOException {
+    public void export(final StoreLoader loader, final Path output, final String username, final String password)
+            throws SQLException, IOException {
 
         final String connectionString = "jdbc:sqlite:" + output.toString();
 
-        final List<String> createTableStatements = Stream.of(getClass().getResourceAsStream(CREATE_TABLE_RESOURCE))
-            .map(InputStreamReader::new)
-            .map(BufferedReader::new)
-            .flatMap(BufferedReader::lines)
-            .collect(Collectors.toList());
+        Predicate<String> containsCreateEncryptedTransactionTable =
+                line -> line.startsWith("CREATE TABLE ENCRYPTED_TRANSACTION");
+        Predicate<String> containsCreateEncryptedRawTransactionTable =
+                line -> line.startsWith("CREATE TABLE ENCRYPTED_RAW_TRANSACTION");
+
+        final List<String> createTableStatements =
+                Stream.of(getClass().getResourceAsStream(CREATE_TABLE_RESOURCE))
+                        .map(InputStreamReader::new)
+                        .map(BufferedReader::new)
+                        .flatMap(BufferedReader::lines)
+                        .filter(Objects::nonNull)
+                        .filter(containsCreateEncryptedTransactionTable.or(containsCreateEncryptedRawTransactionTable))
+                        .collect(Collectors.toList());
 
         try (Connection conn = DriverManager.getConnection(connectionString, username, password)) {
 
@@ -50,9 +58,6 @@ public class SqliteDataExporter implements DataExporter {
                     }
                 }
             }
-
         }
-
     }
-
 }
