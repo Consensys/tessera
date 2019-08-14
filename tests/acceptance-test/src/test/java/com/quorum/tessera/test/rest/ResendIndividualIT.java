@@ -1,10 +1,10 @@
 package com.quorum.tessera.test.rest;
 
-import com.quorum.tessera.api.model.ResendRequest;
-import com.quorum.tessera.api.model.ResendRequestType;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PayloadEncoderImpl;
+import com.quorum.tessera.partyinfo.ResendRequest;
+import com.quorum.tessera.partyinfo.ResendRequestType;
 
 import org.junit.Before;
 import org.junit.Test;
