@@ -99,6 +99,7 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
         verify(payloadPublisher, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
         verify(enclave).getForwardingKeys();
+        verify(enclave, times(2)).getPublicKeys();
     }
 
     @Test
@@ -224,6 +225,7 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
         verify(payloadPublisher, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
         verify(enclave).getForwardingKeys();
+        verify(enclave, times(2)).getPublicKeys();
     }
 
     @Test
@@ -372,6 +374,7 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
         verify(payloadPublisher, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
         verify(enclave).getForwardingKeys();
+        verify(enclave, times(2)).getPublicKeys();
     }
 
     @Test
@@ -406,7 +409,7 @@ public class TransactionManagerTest {
         SendResponse result = transactionManager.sendSignedTransaction(sendSignedRequest);
 
         assertThat(result).isNotNull();
-
+        verify(enclave).getPublicKeys();
         verify(enclave).encryptPayload(any(RawTransaction.class), any(), any(), any(), any());
         verify(payloadEncoder).encode(payload);
         verify(payloadEncoder).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
