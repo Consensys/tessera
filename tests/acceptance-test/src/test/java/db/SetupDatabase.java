@@ -37,7 +37,12 @@ public class SetupDatabase {
             try (Statement statement = connection.createStatement()) {
                 for (String line : lines) {
                     LOGGER.trace("Create table SQL : {}", line);
-                    statement.execute(line);
+                    try {
+                        statement.execute(line);
+                    } catch (Exception e) {
+                        LOGGER.error("Error during DB setup", e);
+                        throw e;
+                    }
                 }
             }
         }

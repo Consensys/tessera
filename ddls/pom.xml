@@ -126,7 +126,9 @@
                             <goal>execute</goal>
                         </goals>
                     </execution>-->
-                    
+
+                    <!-- FIXME: Sqlite does not support the "alter table add constraint" syntax. Using static file in create-table for now.
+
                     <execution>
                         <id>sqlite-generate</id>
                         <phase>process-resources</phase>
@@ -142,7 +144,7 @@
                         <goals>
                             <goal>execute</goal>
                         </goals>
-                    </execution>
+                    </execution-->
                                         
                 </executions>
                 

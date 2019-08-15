@@ -76,7 +76,8 @@ public class ResendIndividualIT {
         final EncodedPayload payload = ENCODER.decode(returnValue);
 
         assertThat(payload).isNotNull();
-        assertThat(payload.getRecipientKeys()).isEmpty();
+        assertThat(payload.getRecipientKeys()).hasSize(1);
+        assertThat(payload.getRecipientKeys().get(0).encodeToBase64()).isEqualTo(recipient.getPublicKey());
         assertThat(payload.getSenderKey().encodeToBase64()).isEqualTo(sender.getPublicKey());
     }
 
