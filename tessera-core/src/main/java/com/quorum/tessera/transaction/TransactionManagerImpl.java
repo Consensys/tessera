@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  * @see {Base64Decoder}
  * @see {Enclave}
  */
-public class TransactionManagerImpl implements TransactionManager {
+public class TransactionManagerImpl implements TransactionManager, ResendStoreDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class);
 
@@ -612,5 +612,10 @@ public class TransactionManagerImpl implements TransactionManager {
                             final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
                             payloadPublisher.publishPayload(outgoing, recipient);
                         });
+    }
+
+    @Override
+    public MessageHash storePayloadBypass(byte[] payload) {
+        return storePayload(payload);
     }
 }

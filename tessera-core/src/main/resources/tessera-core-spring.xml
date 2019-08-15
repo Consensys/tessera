@@ -43,19 +43,17 @@
         <constructor-arg ref="enclave" />
     </bean>
     
-    <bean id="transactionManager" class="com.quorum.tessera.transaction.TransactionManagerWrapper">
+    <bean id="transactionManagerFactory" class="com.quorum.tessera.transaction.TransactionManagerFactory" factory-method="newFactory" />
+    
+    <bean id="transactionManager" factory-bean="transactionManagerFactory" factory-method="create">
+        <constructor-arg ref="encryptedTransactionDAO" />
+        <constructor-arg ref="enclave" />
+        <constructor-arg ref="encryptedRawTransactionDAO" />
+        <constructor-arg ref="resendManager" />
         <constructor-arg>
-            <bean class="com.quorum.tessera.transaction.TransactionManagerImpl">
-                <constructor-arg ref="encryptedTransactionDAO" />
-                <constructor-arg ref="enclave" />
-                <constructor-arg ref="encryptedRawTransactionDAO" />
-                <constructor-arg ref="resendManager" />
-                <constructor-arg>
-                    <bean factory-bean="payloadPublisherFactory" factory-method="create">
-                        <constructor-arg ref="config" />
-                    </bean>  
-                </constructor-arg>
-            </bean>
+            <bean factory-bean="payloadPublisherFactory" factory-method="create">
+                <constructor-arg ref="config" />
+            </bean>  
         </constructor-arg>
     </bean>
 

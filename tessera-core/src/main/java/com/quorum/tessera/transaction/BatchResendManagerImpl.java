@@ -43,7 +43,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     private final Enclave enclave;
 
-    private final TransactionManagerWrapper transactionManager;
+    private final ResendStoreDelegate resendStoreDelegate;
 
     private final StagingEntityDAO stagingEntityDAO;
 
@@ -52,26 +52,33 @@ public class BatchResendManagerImpl implements BatchResendManager {
     private final ResendBatchPublisher publisher;
 
     public BatchResendManagerImpl(
-            Enclave enclave, 
-            TransactionManagerWrapper transactionManager, 
-            StagingEntityDAO stagingEntityDAO, 
-            EncryptedTransactionDAO encryptedTransactionDAO, 
+            Enclave enclave,
+            ResendStoreDelegate transactionManager,
+            StagingEntityDAO stagingEntityDAO,
+            EncryptedTransactionDAO encryptedTransactionDAO,
             ResendBatchPublisher publisher) {
-        this(PayloadEncoder.create(),Base64Decoder.create(),enclave,transactionManager,stagingEntityDAO,encryptedTransactionDAO,publisher);
+        this(
+                PayloadEncoder.create(),
+                Base64Decoder.create(),
+                enclave,
+                transactionManager,
+                stagingEntityDAO,
+                encryptedTransactionDAO,
+                publisher);
     }
 
     public BatchResendManagerImpl(
             PayloadEncoder payloadEncoder,
             Base64Decoder base64Decoder,
             Enclave enclave,
-            TransactionManagerWrapper transactionManager,
+            ResendStoreDelegate transactionManager,
             StagingEntityDAO stagingEntityDAO,
             EncryptedTransactionDAO encryptedTransactionDAO,
             ResendBatchPublisher publisher) {
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
         this.base64Decoder = Objects.requireNonNull(base64Decoder);
         this.enclave = Objects.requireNonNull(enclave);
-        this.transactionManager = Objects.requireNonNull(transactionManager);
+        this.resendStoreDelegate = Objects.requireNonNull(transactionManager);
         this.stagingEntityDAO = Objects.requireNonNull(stagingEntityDAO);
         this.encryptedTransactionDAO = Objects.requireNonNull(encryptedTransactionDAO);
         this.publisher = Objects.requireNonNull(publisher);
@@ -213,7 +220,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
                 for (byte[] payload : payloadsToSend) {
                     try {
-                        transactionManager.storePayloadBypass(payload);
+                        resendStoreDelegate.storePayloadBypass(payload);
                     } catch (PrivacyViolationException | StoreEntityException ex) {
                         LOGGER.error("An error occured during batch resend sync stage.", ex);
                         syncFailureCount++;

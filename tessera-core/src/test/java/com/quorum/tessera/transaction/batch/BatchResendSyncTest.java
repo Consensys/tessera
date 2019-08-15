@@ -5,7 +5,7 @@ import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.transaction.BatchResendManager;
-import com.quorum.tessera.transaction.TransactionManagerWrapper;
+import com.quorum.tessera.transaction.SyncState;
 import com.quorum.tessera.transaction.TransactionRequester;
 import org.junit.After;
 import org.junit.Before;
@@ -15,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.mockito.Mockito.*;
 
@@ -32,7 +33,7 @@ public class BatchResendSyncTest {
 
     private BatchResendSync batchResendSync;
 
-    private TransactionManagerWrapper transactionManagerWrapper;
+    private SyncState syncState;
 
     @Before
     public void init() {
@@ -41,28 +42,18 @@ public class BatchResendSyncTest {
         batchResendManager = mock(BatchResendManager.class);
         processControl = mock(ProcessControl.class);
         transactionRequester = mock(TransactionRequester.class);
-        transactionManagerWrapper = mock(TransactionManagerWrapper.class);
+        syncState = mock(SyncState.class);
         when(transactionRequester.requestAllTransactionsFromNode(any())).thenReturn(true);
 
         batchResendSync =
                 new BatchResendSync(
-                        partyInfoService,
-                        batchResendManager,
-                        1,
-                        processControl,
-                        transactionRequester,
-                        transactionManagerWrapper);
+                        partyInfoService, batchResendManager, 1, processControl, transactionRequester, syncState);
     }
 
     @After
     public void after() {
         verifyNoMoreInteractions(
-                partyInfoService,
-                p2pClient,
-                batchResendManager,
-                processControl,
-                transactionRequester,
-                transactionManagerWrapper);
+                partyInfoService, p2pClient, batchResendManager, processControl, transactionRequester, syncState);
     }
 
     @Test
@@ -70,7 +61,7 @@ public class BatchResendSyncTest {
         batchResendSync.setMustStop(true);
         batchResendSync.run();
         verify(processControl).exit(ProcessControl.STOPPED);
-        verify(transactionManagerWrapper).setResendMode(true);
+        verify(syncState).setResendMode(true);
     }
 
     @Test
@@ -90,7 +81,7 @@ public class BatchResendSyncTest {
         verify(batchResendManager).performStaging();
         verify(batchResendManager).performSync();
         verify(partyInfoService).getPartyInfo();
-        verify(transactionManagerWrapper).setResendMode(true);
+        verify(syncState).setResendMode(true);
 
         verify(processControl).exit(ProcessControl.SUCCESS);
     }
@@ -112,7 +103,7 @@ public class BatchResendSyncTest {
         verify(batchResendManager).performStaging();
         verify(batchResendManager).performSync();
         verify(partyInfoService).getPartyInfo();
-        verify(transactionManagerWrapper).setResendMode(true);
+        verify(syncState).setResendMode(true);
 
         verify(processControl).exit(ProcessControl.SUCCESS);
     }
@@ -134,7 +125,7 @@ public class BatchResendSyncTest {
         verify(batchResendManager).performStaging();
         verify(batchResendManager).performSync();
         verify(partyInfoService).getPartyInfo();
-        verify(transactionManagerWrapper).setResendMode(true);
+        verify(syncState).setResendMode(true);
 
         verify(processControl).exit(ProcessControl.SUCCESS);
     }
@@ -154,7 +145,7 @@ public class BatchResendSyncTest {
         batchResendSync.run();
 
         verify(batchResendManager).cleanupStagingArea();
-        verify(transactionManagerWrapper).setResendMode(true);
+        verify(syncState).setResendMode(true);
 
         verify(processControl).exit(ProcessControl.FAILURE);
     }
@@ -167,8 +158,14 @@ public class BatchResendSyncTest {
         argumentCaptor.getValue().run();
         batchResendSync.run();
 
-        verify(transactionManagerWrapper).setResendMode(true);
+        verify(syncState).setResendMode(true);
 
         verify(processControl).exit(ProcessControl.STOPPED);
+    }
+
+    @Test
+    public void createDefaultInstance() {
+        assertThat(new BatchResendSync(partyInfoService, batchResendManager, 0, processControl, transactionRequester))
+                .isNotNull();
     }
 }

@@ -32,7 +32,7 @@ public class BatchResendManagerTest {
 
     private Enclave enclave;
 
-    private TransactionManagerWrapper transactionManager;
+    private ResendStoreDelegate resendStoreDelegate;
 
     private StagingEntityDAO stagingEntityDAO;
 
@@ -50,7 +50,7 @@ public class BatchResendManagerTest {
     public void init() {
         payloadEncoder = mock(PayloadEncoder.class);
         enclave = mock(Enclave.class);
-        transactionManager = mock(TransactionManagerWrapper.class);
+        resendStoreDelegate = mock(ResendStoreDelegate.class);
         stagingEntityDAO = mock(StagingEntityDAO.class);
         encryptedTransactionDAO = mock(EncryptedTransactionDAO.class);
         publisher = mock(ResendBatchPublisher.class);
@@ -60,7 +60,7 @@ public class BatchResendManagerTest {
                         payloadEncoder,
                         Base64Decoder.create(),
                         enclave,
-                        transactionManager,
+                        resendStoreDelegate,
                         stagingEntityDAO,
                         encryptedTransactionDAO,
                         publisher);
@@ -76,7 +76,7 @@ public class BatchResendManagerTest {
     public void tearDown() {
         verifyNoMoreInteractions(payloadEncoder);
         verifyNoMoreInteractions(enclave);
-        verifyNoMoreInteractions(transactionManager);
+        verifyNoMoreInteractions(resendStoreDelegate);
         verifyNoMoreInteractions(stagingEntityDAO);
         verifyNoMoreInteractions(encryptedTransactionDAO);
         verifyNoMoreInteractions(publisher);
@@ -490,15 +490,15 @@ public class BatchResendManagerTest {
                 .thenReturn(singletonList(stagingTransaction));
         when(stagingEntityDAO.countAll()).thenReturn(1L);
 
-        when(transactionManager.storePayloadBypass(any())).thenReturn(new MessageHash("hash".getBytes()));
+        when(resendStoreDelegate.storePayloadBypass(any())).thenReturn(new MessageHash("hash".getBytes()));
 
         manager.performSync();
 
         verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
         verify(stagingEntityDAO, times(2)).countAll();
 
-        verify(transactionManager).storePayloadBypass("payload1".getBytes());
-        verify(transactionManager).storePayloadBypass("payload2".getBytes());
+        verify(resendStoreDelegate).storePayloadBypass("payload1".getBytes());
+        verify(resendStoreDelegate).storePayloadBypass("payload2".getBytes());
     }
 
     @Test
@@ -520,7 +520,7 @@ public class BatchResendManagerTest {
                 .thenReturn(singletonList(stagingTransaction));
         when(stagingEntityDAO.countAll()).thenReturn(1L);
 
-        when(transactionManager.storePayloadBypass("payload1".getBytes())).thenThrow(PrivacyViolationException.class);
+        when(resendStoreDelegate.storePayloadBypass("payload1".getBytes())).thenThrow(PrivacyViolationException.class);
 
         BatchResendManager.Result result = manager.performSync();
 
@@ -529,8 +529,8 @@ public class BatchResendManagerTest {
         verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
         verify(stagingEntityDAO, times(2)).countAll();
 
-        verify(transactionManager).storePayloadBypass("payload1".getBytes());
-        verify(transactionManager).storePayloadBypass("payload2".getBytes());
+        verify(resendStoreDelegate).storePayloadBypass("payload1".getBytes());
+        verify(resendStoreDelegate).storePayloadBypass("payload2".getBytes());
     }
 
     @Test
@@ -552,7 +552,7 @@ public class BatchResendManagerTest {
                 .thenReturn(singletonList(stagingTransaction));
         when(stagingEntityDAO.countAll()).thenReturn(1L);
 
-        when(transactionManager.storePayloadBypass(any())).thenThrow(PrivacyViolationException.class);
+        when(resendStoreDelegate.storePayloadBypass(any())).thenThrow(PrivacyViolationException.class);
 
         BatchResendManager.Result result = manager.performSync();
 
@@ -561,8 +561,8 @@ public class BatchResendManagerTest {
         verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
         verify(stagingEntityDAO, times(2)).countAll();
 
-        verify(transactionManager).storePayloadBypass("payload1".getBytes());
-        verify(transactionManager).storePayloadBypass("payload2".getBytes());
+        verify(resendStoreDelegate).storePayloadBypass("payload1".getBytes());
+        verify(resendStoreDelegate).storePayloadBypass("payload2".getBytes());
     }
 
     @Test
@@ -586,7 +586,7 @@ public class BatchResendManagerTest {
                 .thenReturn(singletonList(stagingTransaction));
         when(stagingEntityDAO.countAll()).thenReturn(1L);
 
-        when(transactionManager.storePayloadBypass(any())).thenReturn(new MessageHash("hash".getBytes()));
+        when(resendStoreDelegate.storePayloadBypass(any())).thenReturn(new MessageHash("hash".getBytes()));
 
         manager.performSync();
 
@@ -613,7 +613,7 @@ public class BatchResendManagerTest {
     public void createWithMinimalConstrcutor() {
         assertThat(
                         new BatchResendManagerImpl(
-                                enclave, transactionManager, stagingEntityDAO, encryptedTransactionDAO, publisher))
+                                enclave, resendStoreDelegate, stagingEntityDAO, encryptedTransactionDAO, publisher))
                 .isNotNull();
     }
 }

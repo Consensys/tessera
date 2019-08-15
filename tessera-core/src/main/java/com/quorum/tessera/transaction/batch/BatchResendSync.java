@@ -4,7 +4,7 @@ import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.transaction.BatchResendManager;
-import com.quorum.tessera.transaction.TransactionManagerWrapper;
+import com.quorum.tessera.transaction.SyncState;
 import com.quorum.tessera.transaction.TransactionRequester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +28,12 @@ public class BatchResendSync implements Runnable {
     private final ProcessControl processControl;
 
     private final TransactionRequester transactionRequester;
-    
-    private final TransactionManagerWrapper transactionManagerWrapper;
 
     private final Set<String> unsuccessfulResendBatchParties = new HashSet<>();
+
     private final Set<String> resendParties = new HashSet<>();
+
+    private final SyncState applicationState;
 
     private volatile boolean mustStop = false;
 
@@ -41,14 +42,29 @@ public class BatchResendSync implements Runnable {
             BatchResendManager batchResendManager,
             long startupDelay,
             ProcessControl processControl,
+            TransactionRequester transactionRequester) {
+        this(
+                partyInfoService,
+                batchResendManager,
+                startupDelay,
+                processControl,
+                transactionRequester,
+                SyncState.create());
+    }
+
+    public BatchResendSync(
+            PartyInfoService partyInfoService,
+            BatchResendManager batchResendManager,
+            long startupDelay,
+            ProcessControl processControl,
             TransactionRequester transactionRequester,
-            TransactionManagerWrapper transactionManagerWrapper) {
+            SyncState applicationState) {
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
         this.batchResendManager = Objects.requireNonNull(batchResendManager);
         this.startupDelay = startupDelay;
         this.processControl = Objects.requireNonNull(processControl);
         this.transactionRequester = Objects.requireNonNull(transactionRequester);
-        this.transactionManagerWrapper = Objects.requireNonNull(transactionManagerWrapper);
+        this.applicationState = Objects.requireNonNull(applicationState);
     }
 
     @PostConstruct
@@ -61,12 +77,12 @@ public class BatchResendSync implements Runnable {
 
         LOGGER.info("Starting Batch Resend Syncrhonization");
         try {
-            transactionManagerWrapper.setResendMode(true);
+            applicationState.setResendMode(true);
             checkAndStop();
             // clean the staging area
             LOGGER.info("Cleaning up staging area");
             batchResendManager.cleanupStagingArea();
-            LOGGER.info("Sleeping - startupDelay=" + startupDelay);
+            LOGGER.info("Sleeping - startupDelay={}", startupDelay);
             Thread.sleep(startupDelay);
             checkAndStop();
             buildResendParties();
