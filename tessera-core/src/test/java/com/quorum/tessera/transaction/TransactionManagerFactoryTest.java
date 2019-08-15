@@ -34,12 +34,12 @@ public class TransactionManagerFactoryTest {
         encryptedRawTransactionDAO = mock(EncryptedRawTransactionDAO.class);
         resendManager = mock(ResendManager.class);
         payloadPublisher = mock(PayloadPublisher.class);
-
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(encryptedTransactionDAO, enclave, encryptedRawTransactionDAO, resendManager, payloadPublisher);
+        verifyNoMoreInteractions(
+                encryptedTransactionDAO, enclave, encryptedRawTransactionDAO, resendManager, payloadPublisher);
     }
 
     @Test
@@ -50,18 +50,18 @@ public class TransactionManagerFactoryTest {
 
         TransactionManagerFactory factory = new DefaultTransactionManagerFactory(syncState);
 
-        TransactionManager transactionManager = factory.create(encryptedTransactionDAO, enclave, encryptedRawTransactionDAO, resendManager, payloadPublisher);
+        TransactionManager transactionManager =
+                factory.create(
+                        encryptedTransactionDAO, enclave, encryptedRawTransactionDAO, resendManager, payloadPublisher);
 
         assertThat(transactionManager).isNotNull();
 
         DeleteRequest deleteRequest = mock(DeleteRequest.class);
-        when(deleteRequest.getKey())
-                .thenReturn(Base64.getEncoder().encodeToString("FOO".getBytes()));
+        when(deleteRequest.getKey()).thenReturn(Base64.getEncoder().encodeToString("FOO".getBytes()));
 
         transactionManager.delete(deleteRequest);
 
         verify(encryptedTransactionDAO).delete(any(MessageHash.class));
-
     }
 
     @Test
@@ -72,13 +72,14 @@ public class TransactionManagerFactoryTest {
 
         TransactionManagerFactory factory = new DefaultTransactionManagerFactory(syncState);
 
-        TransactionManager transactionManager = factory.create(encryptedTransactionDAO, enclave, encryptedRawTransactionDAO, resendManager, payloadPublisher);
+        TransactionManager transactionManager =
+                factory.create(
+                        encryptedTransactionDAO, enclave, encryptedRawTransactionDAO, resendManager, payloadPublisher);
 
         assertThat(transactionManager).isNotNull();
 
         DeleteRequest deleteRequest = mock(DeleteRequest.class);
-        when(deleteRequest.getKey())
-                .thenReturn(Base64.getEncoder().encodeToString("FOO".getBytes()));
+        when(deleteRequest.getKey()).thenReturn(Base64.getEncoder().encodeToString("FOO".getBytes()));
 
         try {
             transactionManager.delete(deleteRequest);
@@ -88,9 +89,38 @@ public class TransactionManagerFactoryTest {
         }
     }
 
+    // Ensure that InvocationTargetException cause is thrown
+    @Test
+    public void createAndSendDeleteRequestResendAndInvocationTargetExceptionIsThrown() {
+
+        SyncState syncState = mock(SyncState.class);
+        when(syncState.isResendMode()).thenReturn(Boolean.FALSE);
+
+        TransactionManagerFactory factory = new DefaultTransactionManagerFactory(syncState);
+
+        TransactionManager transactionManager =
+                factory.create(
+                        encryptedTransactionDAO, enclave, encryptedRawTransactionDAO, resendManager, payloadPublisher);
+
+        assertThat(transactionManager).isNotNull();
+
+        UnsupportedOperationException cause = new UnsupportedOperationException("Ouch");
+
+        DeleteRequest deleteRequest = mock(DeleteRequest.class);
+        when(deleteRequest.getKey()).thenThrow(cause);
+
+        try {
+            transactionManager.delete(deleteRequest);
+            failBecauseExceptionWasNotThrown(UnsupportedOperationException.class);
+        } catch (UnsupportedOperationException ex) {
+            verifyZeroInteractions(encryptedTransactionDAO);
+        }
+    }
+
     @Test
     public void createDefaultInstance() {
-        assertThat(TransactionManagerFactory.newFactory()).isNotNull().isExactlyInstanceOf(DefaultTransactionManagerFactory.class);
-
+        assertThat(TransactionManagerFactory.newFactory())
+                .isNotNull()
+                .isExactlyInstanceOf(DefaultTransactionManagerFactory.class);
     }
 }
