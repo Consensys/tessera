@@ -13,7 +13,7 @@ import suite.SocketType;
 import suite.TestSuite;
 
 @RunWith(TestSuite.class)
-@TestSuite.SuiteClasses({SendIT.class, SendRawIT.class, DeleteIT.class, ReceiveIT.class, ReceiveRawIT.class})
+@TestSuite.SuiteClasses({SendRawIT.class, SendIT.class, DeleteIT.class, ReceiveIT.class, ReceiveRawIT.class})
 @ProcessConfig(
         communicationType = CommunicationType.REST,
         p2pCommunicationType = "WEB_SOCKET",
