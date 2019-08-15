@@ -490,15 +490,15 @@ public class BatchResendManagerTest {
                 .thenReturn(singletonList(stagingTransaction));
         when(stagingEntityDAO.countAll()).thenReturn(1L);
 
-        when(resendStoreDelegate.storePayloadBypass(any())).thenReturn(new MessageHash("hash".getBytes()));
+        when(resendStoreDelegate.storePayloadBypassResendMode(any())).thenReturn(new MessageHash("hash".getBytes()));
 
         manager.performSync();
 
         verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
         verify(stagingEntityDAO, times(2)).countAll();
 
-        verify(resendStoreDelegate).storePayloadBypass("payload1".getBytes());
-        verify(resendStoreDelegate).storePayloadBypass("payload2".getBytes());
+        verify(resendStoreDelegate).storePayloadBypassResendMode("payload1".getBytes());
+        verify(resendStoreDelegate).storePayloadBypassResendMode("payload2".getBytes());
     }
 
     @Test
@@ -520,7 +520,8 @@ public class BatchResendManagerTest {
                 .thenReturn(singletonList(stagingTransaction));
         when(stagingEntityDAO.countAll()).thenReturn(1L);
 
-        when(resendStoreDelegate.storePayloadBypass("payload1".getBytes())).thenThrow(PrivacyViolationException.class);
+        when(resendStoreDelegate.storePayloadBypassResendMode("payload1".getBytes()))
+                .thenThrow(PrivacyViolationException.class);
 
         BatchResendManager.Result result = manager.performSync();
 
@@ -529,8 +530,8 @@ public class BatchResendManagerTest {
         verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
         verify(stagingEntityDAO, times(2)).countAll();
 
-        verify(resendStoreDelegate).storePayloadBypass("payload1".getBytes());
-        verify(resendStoreDelegate).storePayloadBypass("payload2".getBytes());
+        verify(resendStoreDelegate).storePayloadBypassResendMode("payload1".getBytes());
+        verify(resendStoreDelegate).storePayloadBypassResendMode("payload2".getBytes());
     }
 
     @Test
@@ -552,7 +553,7 @@ public class BatchResendManagerTest {
                 .thenReturn(singletonList(stagingTransaction));
         when(stagingEntityDAO.countAll()).thenReturn(1L);
 
-        when(resendStoreDelegate.storePayloadBypass(any())).thenThrow(PrivacyViolationException.class);
+        when(resendStoreDelegate.storePayloadBypassResendMode(any())).thenThrow(PrivacyViolationException.class);
 
         BatchResendManager.Result result = manager.performSync();
 
@@ -561,8 +562,8 @@ public class BatchResendManagerTest {
         verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
         verify(stagingEntityDAO, times(2)).countAll();
 
-        verify(resendStoreDelegate).storePayloadBypass("payload1".getBytes());
-        verify(resendStoreDelegate).storePayloadBypass("payload2".getBytes());
+        verify(resendStoreDelegate).storePayloadBypassResendMode("payload1".getBytes());
+        verify(resendStoreDelegate).storePayloadBypassResendMode("payload2".getBytes());
     }
 
     @Test
@@ -586,7 +587,7 @@ public class BatchResendManagerTest {
                 .thenReturn(singletonList(stagingTransaction));
         when(stagingEntityDAO.countAll()).thenReturn(1L);
 
-        when(resendStoreDelegate.storePayloadBypass(any())).thenReturn(new MessageHash("hash".getBytes()));
+        when(resendStoreDelegate.storePayloadBypassResendMode(any())).thenReturn(new MessageHash("hash".getBytes()));
 
         manager.performSync();
 

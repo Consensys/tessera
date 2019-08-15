@@ -220,7 +220,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
                 for (byte[] payload : payloadsToSend) {
                     try {
-                        resendStoreDelegate.storePayloadBypass(payload);
+                        resendStoreDelegate.storePayloadBypassResendMode(payload);
                     } catch (PrivacyViolationException | StoreEntityException ex) {
                         LOGGER.error("An error occured during batch resend sync stage.", ex);
                         syncFailureCount++;

@@ -56,11 +56,13 @@
             </bean>  
         </constructor-arg>
     </bean>
-
+    
+    <alias name="transactionManager" alias="resendStoreDelegate" />
+    
     <bean id="batchResendManager" class="com.quorum.tessera.transaction.BatchResendManagerImpl">
         
         <constructor-arg ref="enclave" />
-        <constructor-arg ref="transactionManager" />
+        <constructor-arg ref="resendStoreDelegate" />
         <constructor-arg ref="stagingTransactionDAO" />
         <constructor-arg ref="encryptedTransactionDAO" />
      
@@ -181,7 +183,6 @@
 
             <constructor-arg ref="processControl" />
             <constructor-arg ref="batchTransactionRequester" />
-            <constructor-arg ref="transactionManager" />
 
         </bean>
 

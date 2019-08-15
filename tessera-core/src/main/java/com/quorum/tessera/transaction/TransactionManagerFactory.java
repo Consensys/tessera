@@ -20,8 +20,6 @@ public interface TransactionManagerFactory {
             ResendManager resendManager,
             PayloadPublisher payloadPublisher);
 
-
-
     class DefaultTransactionManagerFactory implements TransactionManagerFactory {
 
         private final SyncState syncState;
@@ -42,18 +40,27 @@ public interface TransactionManagerFactory {
                 ResendManager resendManager,
                 PayloadPublisher payloadPublisher) {
 
-            final TransactionManager transactionManager = new TransactionManagerImpl(encryptedTransactionDAO, enclave, encryptedRawTransactionDAO, resendManager, payloadPublisher);
+            final TransactionManager transactionManager =
+                    new TransactionManagerImpl(
+                            encryptedTransactionDAO,
+                            enclave,
+                            encryptedRawTransactionDAO,
+                            resendManager,
+                            payloadPublisher);
 
-            return (TransactionManager) Proxy.newProxyInstance(TransactionManagerFactory.class.getClassLoader(),
-                    new Class[]{TransactionManager.class},
-                    (proxy, method, args) -> {
-                        if (syncState.isResendMode()) {
-                            throw new OperationCurrentlySuspended("Operation is currently suspended.");
-                        }
+            return (TransactionManager)
+                    Proxy.newProxyInstance(
+                            TransactionManagerFactory.class.getClassLoader(),
+                            new Class[] {TransactionManager.class},
+                            (proxy, method, args) -> {
+                                boolean isByPassFunction = method.getName().equals("storePayloadBypassResendMode");
 
-                        return method.invoke(transactionManager, args);
-                    });
+                                if (!isByPassFunction && syncState.isResendMode()) {
+                                    throw new OperationCurrentlySuspended("Operation is currently suspended.");
+                                }
+
+                                return method.invoke(transactionManager, args);
+                            });
         }
-
     }
 }

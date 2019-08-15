@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  * @see {Base64Decoder}
  * @see {Enclave}
  */
-public class TransactionManagerImpl implements TransactionManager, ResendStoreDelegate {
+public class TransactionManagerImpl implements TransactionManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class);
 
@@ -614,8 +614,9 @@ public class TransactionManagerImpl implements TransactionManager, ResendStoreDe
                         });
     }
 
+    // TODO: Find a better means for filtering resend controls.
     @Override
-    public MessageHash storePayloadBypass(byte[] payload) {
+    public MessageHash storePayloadBypassResendMode(byte[] payload) {
         return storePayload(payload);
     }
 }

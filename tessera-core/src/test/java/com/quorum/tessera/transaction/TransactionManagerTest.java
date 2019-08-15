@@ -1614,9 +1614,7 @@ public class TransactionManagerTest {
     }
 
     @Test
-    public void storePayloadBypass() {
-
-        assertThat(transactionManager).isInstanceOf(ResendStoreDelegate.class);
+    public void storePayloadBypassResendMode() {
 
         byte[] input = "SOMEDATA".getBytes();
 
@@ -1626,7 +1624,7 @@ public class TransactionManagerTest {
 
         when(payloadEncoder.decode(input)).thenReturn(payload);
 
-        ResendStoreDelegate.class.cast(transactionManager).storePayloadBypass(input);
+        transactionManager.storePayloadBypassResendMode(input);
 
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
         verify(payloadEncoder).decode(input);
