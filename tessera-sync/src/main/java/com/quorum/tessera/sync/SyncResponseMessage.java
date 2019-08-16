@@ -8,7 +8,8 @@ public class SyncResponseMessage {
 
     public enum Type {
         PARTY_INFO,
-        TRANSACTION_SYNC;
+        TRANSACTION_SYNC,
+        VALIDATION
     }
 
     private final Type type;

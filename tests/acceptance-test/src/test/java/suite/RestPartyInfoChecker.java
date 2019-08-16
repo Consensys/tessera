@@ -22,7 +22,6 @@ public class RestPartyInfoChecker implements PartyInfoChecker {
 
     @Override
     public boolean hasSynced() {
-        LOGGER.info("hasSynced {}", this);
 
         List<Party> parties = partyHelper.getParties().collect(Collectors.toList());
 
@@ -46,6 +45,7 @@ public class RestPartyInfoChecker implements PartyInfoChecker {
                                 .count();
 
                 LOGGER.debug("Found {} peers of {} on {}", peerCount, parties.size(), p.getAlias());
+                LOGGER.info("Connected to {}.", p2pConfig.getServerUri());
                 results[i] = peerCount == parties.size();
             } else {
                 results[i] = false;

@@ -4,11 +4,13 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.PartyInfoValidatorCallback;
 import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import javax.websocket.RemoteEndpoint.Basic;
@@ -52,7 +54,10 @@ public class PartyInfoEndpointTest {
 
         PartyInfo partyInfo = Fixtures.samplePartyInfo();
 
-        when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(partyInfo);
+        when(partyInfoService.validateAndExtractValidRecipients(
+                        any(PartyInfo.class), any(PartyInfoValidatorCallback.class)))
+                .thenReturn(partyInfo.getRecipients());
+        when(partyInfoService.updatePartyInfo(any(PartyInfo.class))).thenReturn(partyInfo);
 
         SyncRequestMessage syncRequestMessage =
                 SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO).withPartyInfo(partyInfo).build();
@@ -65,8 +70,10 @@ public class PartyInfoEndpointTest {
         partyInfoEndpoint.onClose(session);
 
         verify(basic).sendObject(any(SyncResponseMessage.class));
-        verify(partyInfoService).updatePartyInfo(partyInfo);
+        verify(partyInfoService).updatePartyInfo(any(PartyInfo.class));
         verify(partyInfoService).getPartyInfo();
+        verify(partyInfoService)
+                .validateAndExtractValidRecipients(any(PartyInfo.class), any(PartyInfoValidatorCallback.class));
     }
 
     @Test
@@ -126,6 +133,10 @@ public class PartyInfoEndpointTest {
         PartyInfo partyInfo = Fixtures.samplePartyInfo();
 
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        when(partyInfoService.updatePartyInfo(any(PartyInfo.class))).thenReturn(partyInfo);
+        when(partyInfoService.validateAndExtractValidRecipients(
+                        any(PartyInfo.class), any(PartyInfoValidatorCallback.class)))
+                .thenReturn(partyInfo.getRecipients());
 
         SyncRequestMessage syncRequestMessage =
                 SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO).build();
@@ -139,5 +150,36 @@ public class PartyInfoEndpointTest {
 
         verify(basic).sendObject(any(SyncResponseMessage.class));
         verify(partyInfoService).getPartyInfo();
+        verify(partyInfoService).updatePartyInfo(any(PartyInfo.class));
+        verify(partyInfoService)
+                .validateAndExtractValidRecipients(any(PartyInfo.class), any(PartyInfoValidatorCallback.class));
+    }
+
+    @Test
+    public void onSyncNoValidRecipient() throws Exception {
+
+        PartyInfo partyInfo = Fixtures.samplePartyInfo();
+
+        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+
+        when(partyInfoService.validateAndExtractValidRecipients(
+                        any(PartyInfo.class), any(PartyInfoValidatorCallback.class)))
+                .thenReturn(Collections.EMPTY_SET);
+
+        SyncRequestMessage syncRequestMessage =
+                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO).build();
+
+        try {
+            partyInfoEndpoint.onOpen(session);
+            partyInfoEndpoint.onSync(session, syncRequestMessage);
+            partyInfoEndpoint.onClose(session);
+            failBecauseExceptionWasNotThrown(SecurityException.class);
+        } catch (SecurityException ex) {
+
+            verify(partyInfoService).getPartyInfo();
+
+            verify(partyInfoService)
+                    .validateAndExtractValidRecipients(any(PartyInfo.class), any(PartyInfoValidatorCallback.class));
+        }
     }
 }

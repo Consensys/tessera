@@ -115,8 +115,8 @@ public class TestSuite extends Suite {
                     () -> {
                         while (!partyInfoChecker.hasSynced()) {
                             try {
-                                 TimeUnit.SECONDS.sleep(1L);
-                                LOGGER.info("Failed to sync retrying");
+                                TimeUnit.SECONDS.sleep(1L);
+                                LOGGER.info("Nodes are still syncing partyinfo.");
                             } catch (InterruptedException ex) {
                             }
                         }

@@ -4,6 +4,8 @@ import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.config.FeatureToggles;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
@@ -34,13 +36,18 @@ public class PartyInfoServiceTest {
 
     private PartyInfoStore partyInfoStore;
 
+    private PartyInfoValidator partyInfoValidator;
+
+    private PayloadEncoder payloadEncoder;
+
     @Before
     public void onSetUp() throws URISyntaxException {
         // TODO: Mock the store
         this.partyInfoStore = PartyInfoStore.create(java.net.URI.create(URI));
         this.enclave = mock(Enclave.class);
         this.configService = mock(ConfigService.class);
-
+        this.partyInfoValidator = mock(PartyInfoValidator.class);
+        this.payloadEncoder = mock(PayloadEncoder.class);
         doReturn(new URI(URI)).when(configService).getServerUri();
 
         final Peer peer = new Peer("http://other-node.com:8080");
@@ -57,7 +64,8 @@ public class PartyInfoServiceTest {
                                 PublicKey.from("another-public-key".getBytes())));
         doReturn(ourKeys).when(enclave).getPublicKeys();
 
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, configService, enclave);
+        this.partyInfoService =
+                new PartyInfoServiceImpl(partyInfoStore, configService, enclave, partyInfoValidator, payloadEncoder);
     }
 
     @After
@@ -66,7 +74,8 @@ public class PartyInfoServiceTest {
 
         verifyNoMoreInteractions(enclave);
         verifyNoMoreInteractions(configService);
-
+        verifyNoMoreInteractions(partyInfoValidator);
+        verifyNoMoreInteractions(payloadEncoder);
         partyInfoStore.clear();
     }
 
@@ -244,5 +253,30 @@ public class PartyInfoServiceTest {
         verify(configService).getPeers();
         verify(configService).featureToggles();
         verify(configService).isDisablePeerDiscovery();
+    }
+
+    @Test
+    public void validateAndExtractValidRecipients() {
+        PartyInfo partyInfo = mock(PartyInfo.class);
+        PartyInfoValidatorCallback partyInfoValidatorCallback = mock(PartyInfoValidatorCallback.class);
+        partyInfoService.validateAndExtractValidRecipients(partyInfo, partyInfoValidatorCallback);
+        verify(partyInfoValidator).validateAndFetchValidRecipients(partyInfo, partyInfoValidatorCallback);
+    }
+
+    @Test
+    public void unencryptSampleData() {
+
+        byte[] data = "Hellow".getBytes();
+
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        PublicKey recipientKey = mock(PublicKey.class);
+        when(encodedPayload.getRecipientKeys()).thenReturn(Arrays.asList(recipientKey));
+
+        when(payloadEncoder.decode(data)).thenReturn(encodedPayload);
+
+        partyInfoService.unencryptSampleData(data);
+
+        verify(enclave).unencryptTransaction(encodedPayload, recipientKey);
+        verify(payloadEncoder).decode(data);
     }
 }

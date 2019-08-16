@@ -6,6 +6,7 @@ import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
+import com.quorum.tessera.config.apps.TesseraApp;
 import com.quorum.tessera.config.apps.TesseraAppFactory;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
@@ -19,10 +20,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * The main entry point for the application. This just starts up the application
- * in the embedded container.
- */
+/** The main entry point for the application. This just starts up the application in the embedded container. */
 public class Main {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
@@ -43,8 +41,8 @@ public class Main {
                 System.exit(cliResult.getStatus());
             }
 
-            final Config config
-                    = cliResult
+            final Config config =
+                    cliResult
                             .getConfig()
                             .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
 
@@ -76,16 +74,20 @@ public class Main {
 
     private static void runWebServer(final Config config) throws Exception {
 
-        final List<TesseraServer> servers
-                = config.getServerConfigs().stream()
+        final List<TesseraServer> servers =
+                config.getServerConfigs().stream()
                         .filter(server -> !AppType.ENCLAVE.equals(server.getApp()))
                         .map(
                                 conf -> {
-                                    Object app = TesseraAppFactory.create(conf.getCommunicationType(), conf.getApp())
-                                            .orElseThrow(() -> new IllegalStateException("Cant create app for " + conf.getApp()));
+                                    Set<TesseraApp> apps =
+                                            TesseraAppFactory.create(conf.getCommunicationType(), conf.getApp());
+
+                                    if (apps.isEmpty()) {
+                                        throw new IllegalStateException("Cant create app for " + conf.getApp());
+                                    }
 
                                     return TesseraServerFactory.create(conf.getCommunicationType())
-                                            .createServer(conf, Collections.singleton(app));
+                                            .createServer(conf, apps);
                                 })
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
@@ -107,5 +109,4 @@ public class Main {
             ts.start();
         }
     }
-
 }

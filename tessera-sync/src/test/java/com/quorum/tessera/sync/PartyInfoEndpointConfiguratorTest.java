@@ -31,6 +31,10 @@ public class PartyInfoEndpointConfiguratorTest {
 
         assertThat(endpoint).isNotNull();
 
+        PartyInfoValidationEndpoint partyInfoValidationEndpoint =
+                partyInfoEndpointConfigurator.getEndpointInstance(PartyInfoValidationEndpoint.class);
+        assertThat(partyInfoValidationEndpoint).isNotNull();
+
         services.forEach(Mockito::verifyZeroInteractions);
     }
 

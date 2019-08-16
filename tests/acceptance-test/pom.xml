@@ -197,7 +197,7 @@
                     </systemPropertyVariables>
                     <includes>
                         <include>CucumberFileKeyGenerationIT</include>
-                        <include>RestSuiteP2pWebsocketH2</include>
+                       <include>RestSuiteP2pWebsocketH2</include>
                         <include>AdminRestSuite</include>
                         <include>RestSuite</include>
                         <include>RestSuiteUnixH2</include>

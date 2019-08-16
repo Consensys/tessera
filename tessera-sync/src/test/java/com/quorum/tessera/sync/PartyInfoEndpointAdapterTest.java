@@ -10,9 +10,10 @@ public class PartyInfoEndpointAdapterTest {
     @Test
     public void create() {
         PartyInfoEndpointAdapter partyInfoEndpointAdapter = new PartyInfoEndpointAdapter();
-        assertThat(partyInfoEndpointAdapter.getAppClass()).isEqualTo(PartyInfoEndpoint.class);
+        assertThat(partyInfoEndpointAdapter.getAppClass())
+                .containsExactlyInAnyOrder(PartyInfoValidationEndpoint.class, PartyInfoEndpoint.class);
+
         assertThat(partyInfoEndpointAdapter.getAppType()).isEqualTo(AppType.P2P);
         assertThat(partyInfoEndpointAdapter.getCommunicationType()).isEqualTo(CommunicationType.WEB_SOCKET);
     }
-
 }

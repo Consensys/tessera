@@ -4,9 +4,11 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.PartyInfoValidatorCallback;
 import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.io.IOException;
 import java.util.Collections;
@@ -53,7 +55,7 @@ public class PartyInfoEndpoint {
     @OnMessage
     public void onSync(Session session, SyncRequestMessage syncRequestMessage) throws IOException, EncodeException {
 
-        LOGGER.info("Session: {}, SyncRequestMessage.type: {}", session.getId(), syncRequestMessage.getType());
+        LOGGER.debug("Session: {}, SyncRequestMessage.type: {}", session.getId(), syncRequestMessage.getType());
 
         if (syncRequestMessage.getType() == SyncRequestMessage.Type.TRANSACTION_PUSH) {
             EncodedPayload payload = syncRequestMessage.getTransactions();
@@ -75,20 +77,24 @@ public class PartyInfoEndpoint {
 
         PartyInfo existingPartyInfo = partyInfoService.getPartyInfo();
 
-        Optional<PartyInfo> partyInfo = Optional.ofNullable(syncRequestMessage.getPartyInfo());
+        PartyInfo partyInfo = Optional.ofNullable(syncRequestMessage.getPartyInfo()).orElse(existingPartyInfo);
+
+        PartyInfoValidatorCallback partyInfoValidatorCallback = new WebsocketPartyInfoValidatorCallback();
+        Set<Recipient> recipients =
+                partyInfoService.validateAndExtractValidRecipients(partyInfo, partyInfoValidatorCallback);
+
+        if (recipients.isEmpty()) {
+            LOGGER.error("No Recipients found for url {}", partyInfo.getUrl());
+
+            throw new SecurityException("No Recipients found for url " + partyInfo.getUrl());
+        }
 
         SyncResponseMessage.Builder responseBuilder =
                 SyncResponseMessage.Builder.create(SyncResponseMessage.Type.PARTY_INFO);
 
-        if (partyInfo.isPresent()) {
-            PartyInfo mergedPartyInfo = partyInfoService.updatePartyInfo(partyInfo.get());
-            LOGGER.info(
-                    "Updated party info for {}", partyInfo.map(PartyInfo::getUrl).orElse("No party info url found"));
-            responseBuilder.withPartyInfo(mergedPartyInfo);
-        } else {
-            LOGGER.info("Adding existing party info to response:  {}", existingPartyInfo.getUrl());
-            responseBuilder.withPartyInfo(existingPartyInfo);
-        }
+        PartyInfo modifiedPartyInfo = new PartyInfo(partyInfo.getUrl(), recipients, partyInfo.getParties());
+        PartyInfo updatedPartyInfo = partyInfoService.updatePartyInfo(modifiedPartyInfo);
+        responseBuilder.withPartyInfo(updatedPartyInfo);
 
         SyncResponseMessage response = responseBuilder.build();
 

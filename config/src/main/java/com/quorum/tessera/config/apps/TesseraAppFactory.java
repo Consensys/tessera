@@ -5,8 +5,9 @@ import com.quorum.tessera.config.CommunicationType;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,7 @@ public class TesseraAppFactory {
 
     private static final TesseraAppFactory INSTANCE = new TesseraAppFactory();
 
-    public static Optional<TesseraApp> create(CommunicationType communicationType, AppType appType) {
+    public static Set<TesseraApp> create(CommunicationType communicationType, AppType appType) {
         return INSTANCE.createApp(communicationType, appType);
     }
 
@@ -35,11 +36,11 @@ public class TesseraAppFactory {
         LOGGER.info("Cached {}", cache);
     }
 
-    private Optional<TesseraApp> createApp(CommunicationType communicationType, AppType appType) {
+    private Set<TesseraApp> createApp(CommunicationType communicationType, AppType appType) {
 
         return cache.stream()
                 .filter(a -> a.getAppType() == appType)
                 .filter(a -> a.getCommunicationType() == communicationType)
-                .findAny();
+                .collect(Collectors.toSet());
     }
 }
