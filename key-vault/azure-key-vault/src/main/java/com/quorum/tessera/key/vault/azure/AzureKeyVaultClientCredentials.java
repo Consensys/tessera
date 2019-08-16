@@ -46,7 +46,7 @@ public class AzureKeyVaultClientCredentials extends KeyVaultCredentials {
             if(Objects.isNull(authenticationContext)) {
                 this.authenticationContext = new AuthenticationContext(authorization, false, executorService);
             }
-            ClientCredential credential = new ClientCredential(clientId,clientSecret);
+            ClientCredential credential = new ClientCredential(clientId, clientSecret);
 
             return authenticationContext.acquireToken(resource, credential, null).get().getAccessToken();
 

@@ -1,0 +1,42 @@
+{
+    "useWhiteList": false,
+    "jdbc": {
+        "username": "sa",
+        "password": "",
+        "url": "jdbc:h2:./target/h2/rest1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE;AUTO_SERVER_PORT=9090"
+    },
+    "serverConfigs": [
+        {
+            "app": "Q2T",
+            "enabled": true,
+            "serverAddress": "http://localhost:18080",
+            "communicationType": "REST"
+        },
+        {
+            "app": "P2P",
+            "enabled": true,
+            "serverAddress": "http://localhost:8080",
+            "communicationType": "REST"
+        }
+    ],
+    "peer": [
+        {
+            "url": "http://localhost:8081/"
+        }
+    ],
+    "keys": {
+        "passwords": [],
+        "azureKeyVaultConfig": {
+            "url": "${azureKeyVaultUrl}"
+        },
+        "keyData": [
+            {
+                "azureVaultPrivateKeyId": "Key",
+                "azureVaultPublicKeyId": "Pub",
+                "azureVaultPublicKeyVersion": "bvfw05z4cbu11ra2g94e43v9xxewqdq7",
+                "azureVaultPrivateKeyVersion": "0my1ora2dciijx5jq9gv07sauzs5wjo2"
+            }
+        ]
+    },
+    "alwaysSendTo": []
+}

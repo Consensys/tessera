@@ -20,34 +20,34 @@
             <classifier>${tesssra.app.classifer}</classifier>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-simple</artifactId>
             <classifier>${tesssra.app.classifer}</classifier>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-grpc-dist</artifactId>
             <classifier>${tesssra.app.classifer}</classifier>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>enclave-jaxrs</artifactId>
             <scope>test</scope>
         </dependency>
-   
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>enclave-jaxrs</artifactId>
             <classifier>${enclave.server.classifer}</classifier>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>test-util</artifactId>
@@ -98,6 +98,13 @@
             <artifactId>tessera-partyinfo</artifactId>
             <scope>test</scope>
             <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-jre8</artifactId>
+            <version>2.24.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -187,7 +194,7 @@
                 <configuration>
                     <skip>false</skip>
                     <rerunFailingTestsCount>0</rerunFailingTestsCount>
-                    
+
                     <systemPropertyVariables>
                         <application.jar>${application.jar}</application.jar>
                         <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
@@ -210,7 +217,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>integration-test</id> 
+                        <id>integration-test</id>
                         <phase>integration-test</phase>
                         <goals>
                             <goal>integration-test</goal>
@@ -225,8 +232,8 @@
                     </execution>
                 </executions>
             </plugin>
-            
-            
+
+
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
@@ -266,6 +273,23 @@
                         <configuration>
                             <includes>
                                 <include>RunHashicorpIT</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>akv-acceptance-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>RunAzureIT</include>
                             </includes>
                         </configuration>
                     </plugin>
