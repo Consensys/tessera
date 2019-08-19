@@ -45,6 +45,13 @@ public class WebsocketPartyInfoChecker implements PartyInfoChecker {
 
         WebsocketPartyInfoClientEndpoint endpoint = new WebsocketPartyInfoClientEndpoint(queue);
 
+        long totalKeys =
+                parties.stream()
+                        .map(p -> p.getConfig())
+                        .map(c -> c.getKeys())
+                        .flatMap(k -> k.getKeyData().stream())
+                        .count();
+
         for (Party party : parties) {
 
             ServerConfig p2pConfig = party.getConfig().getP2PServerConfig();
@@ -57,19 +64,13 @@ public class WebsocketPartyInfoChecker implements PartyInfoChecker {
 
                                     SyncResponseMessage response = queue.take();
                                     PartyInfo partyInfo = response.getPartyInfo();
-
-                                    long storedParties =
-                                            partyInfo.getParties().stream()
-                                                    // .filter(p -> Objects.nonNull(p.getLastContacted()))
-                                                    .count();
-
-                                    final boolean hasCompleted = parties.size() == storedParties;
+                                    final boolean hasCompleted = partyInfo.getRecipients().size() == totalKeys;
 
                                     LOGGER.debug(
                                             "Node {}. Party info parties: Wanted: {}, actual: {}",
                                             party.getAlias(),
-                                            parties.size(),
-                                            storedParties);
+                                            totalKeys,
+                                            partyInfo.getRecipients().size());
 
                                     partyInfo.getParties().stream()
                                             .forEach(
