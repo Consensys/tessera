@@ -1612,23 +1612,4 @@ public class TransactionManagerTest {
 
         verify(enclave).getPublicKeys();
     }
-
-    @Test
-    public void storePayloadBypassResendMode() {
-
-        byte[] input = "SOMEDATA".getBytes();
-
-        EncodedPayload payload = mock(EncodedPayload.class);
-
-        when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
-
-        when(payloadEncoder.decode(input)).thenReturn(payload);
-
-        transactionManager.storePayloadBypassResendMode(input);
-
-        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
-        verify(payloadEncoder).decode(input);
-        verify(enclave).getPublicKeys();
-        verify(enclave).findInvalidSecurityHashes(any(), any());
-    }
 }

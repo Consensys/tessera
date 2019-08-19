@@ -613,10 +613,4 @@ public class TransactionManagerImpl implements TransactionManager {
                             payloadPublisher.publishPayload(outgoing, recipient);
                         });
     }
-
-    // TODO: Find a better means for filtering resend controls.
-    @Override
-    public MessageHash storePayloadBypassResendMode(byte[] payload) {
-        return storePayload(payload);
-    }
 }

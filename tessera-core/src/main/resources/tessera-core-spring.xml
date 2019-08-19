@@ -45,7 +45,9 @@
     
     <bean id="transactionManagerFactory" class="com.quorum.tessera.transaction.TransactionManagerFactory" factory-method="newFactory" />
     
-    <bean id="transactionManager" factory-bean="transactionManagerFactory" factory-method="create">
+    <bean id="transactionManager" class="com.quorum.tessera.transaction.TransactionManagerWrapper">
+        <constructor-arg>
+    <bean class="com.quorum.tessera.transaction.TransactionManagerImpl">
         <constructor-arg ref="encryptedTransactionDAO" />
         <constructor-arg ref="enclave" />
         <constructor-arg ref="encryptedRawTransactionDAO" />
@@ -56,7 +58,11 @@
             </bean>  
         </constructor-arg>
     </bean>
-    
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.quorum.tessera.transaction.SyncState" factory-method="create" />
+        </constructor-arg>
+    </bean>
     <alias name="transactionManager" alias="resendStoreDelegate" />
     
     <bean id="batchResendManager" class="com.quorum.tessera.transaction.BatchResendManagerImpl">

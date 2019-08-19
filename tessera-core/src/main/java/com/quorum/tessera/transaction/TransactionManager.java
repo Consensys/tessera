@@ -5,7 +5,7 @@ import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.api.model.*;
 
-public interface TransactionManager extends ResendStoreDelegate {
+public interface TransactionManager {
 
     SendResponse send(SendRequest sendRequest);
 
