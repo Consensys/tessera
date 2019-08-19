@@ -4,7 +4,7 @@
     <parent>
         <artifactId>tessera</artifactId>
         <groupId>com.jpmorgan.quorum</groupId>
-        <version>0.10-SNAPSHOT</version>
+        <version>0.11-SNAPSHOT</version>
     </parent>
     
     <modelVersion>4.0.0</modelVersion>
@@ -32,7 +32,7 @@
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-app</artifactId>
                 <classifier>${tesssra.app.classifer}</classifier>
-                <version>0.10-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
 
@@ -40,7 +40,7 @@
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-simple</artifactId>
                 <classifier>${tesssra.app.classifer}</classifier>
-                <version>0.10-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             
@@ -48,7 +48,7 @@
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-grpc-dist</artifactId>
                 <classifier>${tesssra.app.classifer}</classifier>
-                <version>0.10-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             
@@ -56,7 +56,7 @@
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>enclave-jaxrs</artifactId>
                 <classifier>${enclave.server.classifer}</classifier>
-                <version>0.10-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
