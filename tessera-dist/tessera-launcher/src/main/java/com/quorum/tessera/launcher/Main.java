@@ -71,7 +71,6 @@ public class Main {
         } catch (final ServiceConfigurationError ex) {
             Optional.ofNullable(ex.getMessage()).ifPresent(System.err::println);
             Optional.ofNullable(ex.getCause()).map(Throwable::getMessage).ifPresent(System.err::println);
-            ex.printStackTrace();
             System.exit(5);
         } catch (final Throwable ex) {
             Optional.ofNullable(ex.getMessage()).ifPresent(System.err::println);
