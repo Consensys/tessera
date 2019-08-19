@@ -9,20 +9,15 @@ import com.quorum.tessera.partyinfo.ResendResponse;
 import java.util.Objects;
 
 /** Transaction manager wrapper that allows operations to be blocked/suspended. */
-public class TransactionManagerWrapper implements TransactionManager,ResendStoreDelegate {
+public class TransactionManagerWrapper implements TransactionManager, ResendStoreDelegate {
 
     private final TransactionManager transactionManager;
-    
+
     private final SyncState syncState;
-    
-    
-    public TransactionManagerWrapper(TransactionManager transactionManager,SyncState syncState) {
+
+    public TransactionManagerWrapper(TransactionManager transactionManager, SyncState syncState) {
         this.transactionManager = Objects.requireNonNull(transactionManager);
         this.syncState = Objects.requireNonNull(syncState);
-    }
-
-    public TransactionManager getTransactionManager() {
-        return this.transactionManager;
     }
 
     void checkAndThrow() {
@@ -61,7 +56,6 @@ public class TransactionManagerWrapper implements TransactionManager,ResendStore
         return transactionManager.storePayload(toByteArray);
     }
 
-
     @Override
     public ReceiveResponse receive(ReceiveRequest request) {
         checkAndThrow();
@@ -78,6 +72,4 @@ public class TransactionManagerWrapper implements TransactionManager,ResendStore
     public MessageHash storePayloadBypassResendMode(byte[] payload) {
         return transactionManager.storePayload(payload);
     }
-
-
 }
