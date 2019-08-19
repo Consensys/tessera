@@ -181,11 +181,13 @@ public class TransactionResource {
     @Produces(APPLICATION_JSON)
     public Response receive(
             @ApiParam("Encoded hash used to decrypt the payload") @NotNull @Valid @PathParam("hash") final String hash,
-            @ApiParam("Encoded recipient key") @Valid @QueryParam("to") final String toStr) {
+            @ApiParam("Encoded recipient key") @Valid @QueryParam("to") final String toStr,
+            @ApiParam("isRaw flag") @Valid @QueryParam("isRaw") final String isRaw) {
 
         ReceiveRequest receiveRequest = new ReceiveRequest();
         receiveRequest.setKey(hash);
         receiveRequest.setTo(toStr);
+        receiveRequest.setRaw(Boolean.valueOf(isRaw));
         ReceiveResponse response = delegate.receive(receiveRequest);
 
         return Response.status(Status.OK).type(APPLICATION_JSON).entity(response).build();

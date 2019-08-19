@@ -46,7 +46,7 @@ public class TransactionResourceTest {
     @Test
     public void receiveFromParams() {
 
-        Response result = transactionResource.receive("", "");
+        Response result = transactionResource.receive("", "", "false");
         assertThat(result.getStatus()).isEqualTo(200);
         verify(transactionManager).receive(any(ReceiveRequest.class));
     }
@@ -104,7 +104,7 @@ public class TransactionResourceTest {
 
     @Test
     public void sendSignedTransaction() throws Exception {
-        
+
         SendResponse sendResponse = new SendResponse("Key");
 
         SendSignedRequest sendRequest = mock(SendSignedRequest.class);
@@ -112,7 +112,7 @@ public class TransactionResourceTest {
         when(transactionManager.sendSignedTransaction(sendRequest)).thenReturn(sendResponse);
 
         Response result = transactionResource.sendSignedTransaction(sendRequest);
-        
+
         assertThat(result.getStatus()).isEqualTo(201);
         assertThat(result.getEntity()).isSameAs(sendResponse);
         verify(transactionManager).sendSignedTransaction(any(SendSignedRequest.class));
