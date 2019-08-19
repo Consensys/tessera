@@ -34,6 +34,8 @@
     <logger name="com.quorum.tessera.api.exception" level="INFO" />
     <logger name="com.quorum.tessera.sync.WebsocketPayloadPublisher" level="INFO" />
     <logger name="com.quorum.tessera.server.jaxrs.LoggingFilter" level="INFO" />
+        
+    <logger name="com.quorum.tessera.partyinfo.PartyInfoStoreImpl" level="INFO" />
     
     <root level="INFO">
         <appender-ref ref="FILE"/>

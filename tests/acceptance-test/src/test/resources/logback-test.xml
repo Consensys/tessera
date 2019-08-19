@@ -23,7 +23,7 @@
 
     <logger name="suite.GrpcPartyInfoCheck" level="INFO"/>
     <logger name="suite.RestPartyInfoChecker" level="INFO"/>
-
+    <logger name="suite.WebsocketPartyInfoChecker" level="INFO"/>
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE" />
