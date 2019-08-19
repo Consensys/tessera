@@ -83,7 +83,7 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void sendSignedTransaction() throws UnsupportedEncodingException {
+    public void sendSignedTransactionBytes() throws UnsupportedEncodingException {
         SendResponse sendResponse = new SendResponse("KEY");
         when(transactionManager.sendSignedTransaction(any(SendSignedRequest.class))).thenReturn(sendResponse);
         Response result = transactionResource.sendSignedTransaction("someone", "".getBytes());
@@ -99,6 +99,22 @@ public class TransactionResourceTest {
         Response result = transactionResource.sendSignedTransaction("", "".getBytes());
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.getEntity()).isEqualTo("KEY");
+        verify(transactionManager).sendSignedTransaction(any(SendSignedRequest.class));
+    }
+
+    @Test
+    public void sendSignedTransaction() throws Exception {
+        
+        SendResponse sendResponse = new SendResponse("Key");
+
+        SendSignedRequest sendRequest = mock(SendSignedRequest.class);
+
+        when(transactionManager.sendSignedTransaction(sendRequest)).thenReturn(sendResponse);
+
+        Response result = transactionResource.sendSignedTransaction(sendRequest);
+        
+        assertThat(result.getStatus()).isEqualTo(201);
+        assertThat(result.getEntity()).isSameAs(sendResponse);
         verify(transactionManager).sendSignedTransaction(any(SendSignedRequest.class));
     }
 

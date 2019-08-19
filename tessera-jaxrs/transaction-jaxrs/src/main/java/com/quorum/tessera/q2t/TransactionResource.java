@@ -1,5 +1,6 @@
 package com.quorum.tessera.q2t;
 
+import com.quorum.tessera.api.constraint.PrivacyValid;
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -104,6 +105,34 @@ public class TransactionResource {
 
         // TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
         return Response.status(Status.OK).entity(encodedKey).location(location).build();
+    }
+
+    @ApiOperation(value = "Send private raw transaction payload", produces = "Encrypted payload hash")
+    @ApiResponses({
+        @ApiResponse(code = 201, response = SendResponse.class, message = "Send response"),
+        @ApiResponse(code = 400, message = "For unknown and unknown keys")
+    })
+    @POST
+    @Path("sendsignedtx")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public Response sendSignedTransaction(
+            @ApiParam(name = "sendSignedRequest", required = true) @NotNull @Valid @PrivacyValid
+                    final SendSignedRequest sendSignedRequest)
+            throws UnsupportedEncodingException {
+
+        final SendResponse response = delegate.sendSignedTransaction(sendSignedRequest);
+
+        final String encodedKey = response.getKey();
+
+        LOGGER.debug("Encoded key: {}", encodedKey);
+
+        URI location =
+                UriBuilder.fromPath("transaction")
+                        .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8.toString()))
+                        .build();
+
+        return Response.status(Status.CREATED).type(APPLICATION_JSON).location(location).entity(response).build();
     }
 
     @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
