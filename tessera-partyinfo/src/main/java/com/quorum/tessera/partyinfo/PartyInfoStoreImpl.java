@@ -28,6 +28,7 @@ public enum PartyInfoStoreImpl implements PartyInfoStore {
     private String advertisedUrl;
 
     private final Map<PublicKey, Recipient> recipients = new HashMap<>();
+    // new HashMap<>();
 
     private final Set<Party> parties = new HashSet<>();
 
@@ -48,7 +49,9 @@ public enum PartyInfoStoreImpl implements PartyInfoStore {
     public synchronized void store(final PartyInfo newInfo) {
 
         for (Recipient recipient : newInfo.getRecipients()) {
-            recipients.put(recipient.getKey(), recipient);
+            PublicKey key = recipient.getKey();
+            LOGGER.debug("Storing key {}", key);
+            recipients.put(key, recipient);
         }
 
         parties.addAll(newInfo.getParties());
@@ -88,8 +91,14 @@ public enum PartyInfoStoreImpl implements PartyInfoStore {
 
     @Override
     public Recipient findRecipientByPublicKey(PublicKey key) {
-        return Optional.ofNullable(recipients.get(key))
-                .orElseThrow(() -> new KeyNotFoundException(key.encodeToBase64() + " not found"));
+        LOGGER.debug("Find key {}",key);
+        Optional<Recipient> recipient = Optional.ofNullable(recipients.get(key));
+
+        if (!recipient.isPresent()) {
+            LOGGER.warn("No recipient found for key {}", key);
+        }
+
+        return recipient.orElseThrow(() -> new KeyNotFoundException(key.encodeToBase64() + " not found"));
     }
 
     @Override
