@@ -36,7 +36,6 @@ public class WebsocketPartyInfoChecker implements PartyInfoChecker {
 
     @Override
     public boolean hasSynced() {
-        LOGGER.info("hasSynced {}", this);
 
         List<Party> parties = partyHelper.getParties().collect(Collectors.toList());
 
@@ -46,58 +45,76 @@ public class WebsocketPartyInfoChecker implements PartyInfoChecker {
 
         WebsocketPartyInfoClientEndpoint endpoint = new WebsocketPartyInfoClientEndpoint(queue);
 
+        long totalKeys =
+                parties.stream()
+                        .map(p -> p.getConfig())
+                        .map(c -> c.getKeys())
+                        .flatMap(k -> k.getKeyData().stream())
+                        .count();
+
         for (Party party : parties) {
 
             ServerConfig p2pConfig = party.getConfig().getP2PServerConfig();
             URI uri = UriBuilder.fromUri(p2pConfig.getServerUri()).path("sync").build();
 
-            final CompletableFuture completableFuture = CompletableFuture.runAsync(() -> {
-                try {
+            final CompletableFuture completableFuture =
+                    CompletableFuture.runAsync(
+                            () -> {
+                                try {
 
-                    SyncResponseMessage response = queue.take();
-                    PartyInfo partyInfo = response.getPartyInfo();
+                                    SyncResponseMessage response = queue.take();
+                                    PartyInfo partyInfo = response.getPartyInfo();
+                                    final boolean hasCompleted = partyInfo.getRecipients().size() == totalKeys;
 
-                    long storedParties = partyInfo.getParties()
-                            .stream()
-                            // .filter(p -> Objects.nonNull(p.getLastContacted()))
-                            .count();
+                                    LOGGER.debug(
+                                            "Node {}. Party info parties: Wanted: {}, actual: {}",
+                                            party.getAlias(),
+                                            totalKeys,
+                                            partyInfo.getRecipients().size());
 
-                    final boolean hasCompleted = parties.size() == storedParties;
+                                    partyInfo.getParties().stream()
+                                            .forEach(
+                                                    p -> {
+                                                        LOGGER.debug(
+                                                                "Party.url: {}, Party.lastconnected: {}",
+                                                                p.getUrl(),
+                                                                p.getLastContacted());
+                                                    });
 
-                    LOGGER.info("Node {}. Party info parties: Wanted: {}, actual: {}",
-                            party.getAlias(), parties.size(), storedParties);
+                                    partyInfo.getRecipients().stream()
+                                            .forEach(
+                                                    r -> {
+                                                        LOGGER.debug(
+                                                                "Recipient.url: {}, Recipient.key: {}",
+                                                                r.getUrl(),
+                                                                r.getKey());
+                                                    });
 
-                    partyInfo.getParties().stream().forEach(p -> {
-                        LOGGER.info("Party.url: {}, Party.lastconnected: {}", p.getUrl(), p.getLastContacted());
-                    });
+                                    results.add(hasCompleted);
+                                } catch (InterruptedException ex) {
+                                    LOGGER.warn(ex.getMessage());
+                                }
+                            });
 
-                    partyInfo.getRecipients().stream().forEach(r -> {
-                        LOGGER.info("Recipient.url: {}, Recipient.key: {}", r.getUrl(), r.getKey());
-                    });
-
-                    results.add(hasCompleted);
-                } catch (InterruptedException ex) {
-                    LOGGER.warn(ex.getMessage());
-                }
-            });
-
-            LOGGER.info("Connecting to {}. ", uri);
+            LOGGER.debug("Connecting to {}. ", uri);
             try (Session session = container.connectToServer(endpoint, uri)) {
                 LOGGER.info("Connected to {}", uri);
-                
-                
-                final SyncRequestMessage request = SyncRequestMessage.Builder
-                        .create(SyncRequestMessage.Type.PARTY_INFO)
-                        .build();
 
-                LOGGER.info("Sending {}", request);
+                final SyncRequestMessage request =
+                        SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO).build();
+
+                LOGGER.debug("Sending {}", request);
 
                 session.getBasicRemote().sendObject(request);
-                LOGGER.info("Sent {}", request);
+                LOGGER.debug("Sent {}", request);
 
                 completableFuture.get();
 
-            } catch (InterruptedException | ExecutionException | EncodeException | DeploymentException | IOException ex) {
+            } catch (InterruptedException
+                    | ExecutionException
+                    | EncodeException
+                    | DeploymentException
+                    | IOException ex) {
                 LOGGER.debug("", ex);
                 return false;
             }
@@ -106,7 +123,5 @@ public class WebsocketPartyInfoChecker implements PartyInfoChecker {
         LOGGER.info("Results : {}", results);
 
         return results.stream().allMatch(b -> b);
-
     }
-
 }
