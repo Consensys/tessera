@@ -259,18 +259,20 @@ public class PartyInfoServiceTest {
     }
 
     @Test
-    public void createWithDefaultConstructor() throws Exception {
+    public void createWithFactoryConstructor() throws Exception {
 
-        ConfigService configService = mock(ConfigService.class);
+        final ConfigService configService = mock(ConfigService.class);
         when(configService.getServerUri()).thenReturn(new URI("bogus.com"));
 
         Set<Object> services =
-                Stream.of(configService, mock(Enclave.class), mock(PayloadPublisher.class)).collect(Collectors.toSet());
+                Stream.of(configService, mock(Enclave.class), mock(PayloadPublisher.class), mock(PartyInfoStore.class))
+                        .collect(Collectors.toSet());
 
-        MockServiceLocator mockServiceLocator = MockServiceLocator.createMockServiceLocator();
-        mockServiceLocator.setServices(services);
+        MockServiceLocator.createMockServiceLocator().setServices(services);
 
-        assertThat(new PartyInfoServiceImpl()).isNotNull();
+        final PartyInfoServiceFactory factory = PartyInfoServiceFactory.create();
+
+        assertThat(new PartyInfoServiceImpl(factory)).isNotNull();
     }
 
     @Test

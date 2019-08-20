@@ -22,7 +22,12 @@
 
     <!-- Party Info management -->
 
+    <bean name="partyInfoStore" class="com.quorum.tessera.partyinfo.PartyInfoStore">
+        <constructor-arg ref="configService"/>
+    </bean>
+
     <bean name="partyInfoService" class="com.quorum.tessera.partyinfo.PartyInfoServiceImpl">
+        <constructor-arg ref="partyInfoStore"/>
         <constructor-arg ref="configService"/>
         <constructor-arg ref="enclave"/>
         <constructor-arg ref="payloadPublisher"/>
@@ -45,6 +50,23 @@
     <bean id="resendManager" class="com.quorum.tessera.partyinfo.ResendManagerImpl">
         <constructor-arg ref="encryptedTransactionDAO" />
         <constructor-arg ref="enclave" />
+    </bean>
+
+    <!-- Local key sync -->
+    <bean name="enclaveKeySynchroniser" class="com.quorum.tessera.partyinfo.EnclaveKeySynchroniser">
+        <constructor-arg ref="enclave" />
+        <constructor-arg ref="partyInfoStore" />
+        <constructor-arg ref="configService" />
+
+    </bean>
+
+    <bean name="enclaveKeySynchroniserExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">
+        <constructor-arg>
+            <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
+        </constructor-arg>
+        <constructor-arg ref="enclaveKeySynchroniser"/>
+        <constructor-arg value="2000"/>
+        <constructor-arg value="5000"/>
     </bean>
 
     <!-- Node synchronization management-->

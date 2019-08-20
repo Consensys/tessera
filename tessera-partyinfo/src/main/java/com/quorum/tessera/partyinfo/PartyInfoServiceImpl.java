@@ -1,15 +1,14 @@
 package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.admin.ConfigService;
-import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
-
+import com.quorum.tessera.partyinfo.model.Party;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,40 +31,30 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     private final PayloadPublisher payloadPublisher;
 
-    public PartyInfoServiceImpl() {
-        this(PartyInfoServiceFactory.create());
-    }
-
-    public PartyInfoServiceImpl(PartyInfoServiceFactory partyInfoServiceFactory) {
+    public PartyInfoServiceImpl(final PartyInfoServiceFactory partyInfoServiceFactory) {
         this(
+                partyInfoServiceFactory.partyInfoStore(),
                 partyInfoServiceFactory.configService(),
                 partyInfoServiceFactory.enclave(),
                 partyInfoServiceFactory.payloadPublisher());
-    }
-
-    public PartyInfoServiceImpl(ConfigService configService, final Enclave enclave, PayloadPublisher payloadPublisher) {
-        this(new PartyInfoStore(configService.getServerUri()), configService, enclave, payloadPublisher);
     }
 
     protected PartyInfoServiceImpl(
             final PartyInfoStore partyInfoStore,
             final ConfigService configService,
             final Enclave enclave,
-            PayloadPublisher payloadPublisher) {
+            final PayloadPublisher payloadPublisher) {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
         this.configService = Objects.requireNonNull(configService);
         this.enclave = Objects.requireNonNull(enclave);
-        this.payloadPublisher = payloadPublisher;
+        this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
         final String advertisedUrl = URLNormalizer.create().normalize(configService.getServerUri().toString());
 
         final Set<Party> initialParties =
                 configService.getPeers().stream().map(Peer::getUrl).map(Party::new).collect(toSet());
 
         final Set<Recipient> ourKeys =
-                enclave.getPublicKeys().stream()
-                        .map(key -> PublicKey.from(key.getKeyBytes()))
-                        .map(key -> new Recipient(key, advertisedUrl))
-                        .collect(toSet());
+                enclave.getPublicKeys().stream().map(key -> new Recipient(key, advertisedUrl)).collect(toSet());
 
         partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, initialParties));
     }
@@ -91,7 +80,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         if (!configService.isDisablePeerDiscovery()) {
             // auto-discovery is on, we can accept all input to us
             this.partyInfoStore.store(partyInfo);
-            return partyInfoStore.getPartyInfo();
+            return this.getPartyInfo();
         }
 
         // auto-discovery is off
