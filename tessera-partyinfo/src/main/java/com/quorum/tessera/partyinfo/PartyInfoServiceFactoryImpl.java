@@ -8,12 +8,12 @@ public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
 
     private final ServiceLocator serviceLocator = ServiceLocator.create();
 
-    public <T> T find(Class<T> type) {
+    public <T> T find(final Class<T> type) {
         return serviceLocator.getServices().stream()
                 .filter(type::isInstance)
                 .map(type::cast)
                 .findAny()
-                .orElseThrow(() -> new IllegalStateException("Unable to find service type :" + type));
+                .orElseThrow(() -> new IllegalStateException("Unable to find service type: " + type));
     }
 
     @Override
@@ -39,5 +39,10 @@ public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
     @Override
     public PayloadPublisher payloadPublisher() {
         return find(PayloadPublisher.class);
+    }
+
+    @Override
+    public PartyInfoStore partyInfoStore() {
+        return find(PartyInfoStore.class);
     }
 }

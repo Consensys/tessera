@@ -1,22 +1,21 @@
 package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.admin.ConfigService;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
-import com.quorum.tessera.encryption.PublicKey;
-import java.net.URI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static java.util.Collections.unmodifiableSet;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Stores a list of all discovered nodes and public keys */
 public class PartyInfoStore {
@@ -29,16 +28,17 @@ public class PartyInfoStore {
 
     private final Set<Party> parties;
 
+    // TODO: Should pull the URI from the config service, where it may be updated in real time
+    @Deprecated
     public PartyInfoStore(URI advertisedUrl) {
+        // TODO: remove the extra "/" when we deprecate backwards compatibility
         this.advertisedUrl = URLNormalizer.create().normalize(advertisedUrl.toString());
         this.recipients = new HashMap<>();
         this.parties = new HashSet<>();
         this.parties.add(new Party(this.advertisedUrl));
     }
 
-    @Deprecated
     public PartyInfoStore(final ConfigService configService) {
-        // TODO: remove the extra "/" when we deprecate backwards compatibility
         this(configService.getServerUri());
     }
 
@@ -74,16 +74,15 @@ public class PartyInfoStore {
                 unmodifiableSet(new HashSet<>(parties)));
     }
 
-    public synchronized PartyInfo removeRecipient(String uri) {
-        PublicKey key =
-                recipients.entrySet().stream()
-                        .filter(e -> uri.startsWith(e.getValue().getUrl()))
-                        .map(e -> e.getKey())
-                        .findFirst()
-                        .get();
+    public synchronized PartyInfo removeRecipient(final String uri) {
+        recipients.entrySet().stream()
+                .filter(e -> uri.startsWith(e.getValue().getUrl()))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .ifPresent(recipients::remove);
 
-        recipients.remove(key);
+        LOGGER.info("Removed recipient {} from local PartyInfo store", uri);
 
-        return getPartyInfo();
+        return this.getPartyInfo();
     }
 }

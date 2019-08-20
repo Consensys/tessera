@@ -15,6 +15,8 @@ public interface PartyInfoServiceFactory {
 
     PayloadPublisher payloadPublisher();
 
+    PartyInfoStore partyInfoStore();
+
     static PartyInfoServiceFactory create() {
         return new PartyInfoServiceFactoryImpl();
     }
