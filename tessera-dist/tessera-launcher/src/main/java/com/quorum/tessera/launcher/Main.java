@@ -68,6 +68,19 @@ public class Main {
         } catch (final CliException ex) {
             System.err.println(ex.getMessage());
             System.exit(4);
+        } catch (final ServiceConfigurationError ex) {
+            Optional<Throwable> e = Optional.of(ex);
+
+            e.map(Throwable::getMessage).ifPresent(System.err::println);
+
+            // get root cause
+            while (e.map(Throwable::getCause).isPresent()) {
+                e = e.map(Throwable::getCause);
+            }
+
+            e.map(Throwable::toString).ifPresent(System.err::println);
+
+            System.exit(5);
         } catch (final Throwable ex) {
             Optional.ofNullable(ex.getMessage()).ifPresent(System.err::println);
             System.exit(2);
