@@ -36,6 +36,13 @@
             <type>jar</type>
         </dependency>
         <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>2.27</version>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
+        <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <version>7.0</version>
@@ -73,6 +80,11 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>mock-websocket-container</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-client</artifactId>
         </dependency>
         
     </dependencies>
