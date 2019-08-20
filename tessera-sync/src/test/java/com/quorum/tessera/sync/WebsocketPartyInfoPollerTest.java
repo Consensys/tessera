@@ -18,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.ArgumentMatchers.any;
 import org.mockito.Mockito;
-
 import static org.mockito.Mockito.*;
 
 public class WebsocketPartyInfoPollerTest {
@@ -57,10 +56,13 @@ public class WebsocketPartyInfoPollerTest {
         when(session.getBasicRemote()).thenReturn(basic);
 
         List<SyncRequestMessage> requestMessages = new ArrayList<>();
-        Mockito.doAnswer((iom) -> {
-            requestMessages.add(iom.getArgument(0));
-            return null;
-        }).when(basic).sendObject(any(SyncRequestMessage.class));
+        Mockito.doAnswer(
+                        (iom) -> {
+                            requestMessages.add(iom.getArgument(0));
+                            return null;
+                        })
+                .when(basic)
+                .sendObject(any(SyncRequestMessage.class));
 
         when(container.connectToServer(any(PartyInfoClientEndpoint.class), any(URI.class))).thenReturn(session);
 
@@ -82,7 +84,6 @@ public class WebsocketPartyInfoPollerTest {
         websocketPartyInfoPoller.clearSessions();
 
         verify(session, times(2)).close(any(CloseReason.class));
-
     }
 
     @Test
@@ -91,7 +92,7 @@ public class WebsocketPartyInfoPollerTest {
         Session session = mock(Session.class);
         Basic basic = mock(Basic.class);
         when(session.getBasicRemote()).thenReturn(basic);
-        
+
         doThrow(UncheckedWebSocketException.class).when(basic).sendObject(any());
 
         when(container.connectToServer(any(PartyInfoClientEndpoint.class), any(URI.class))).thenReturn(session);
@@ -109,7 +110,5 @@ public class WebsocketPartyInfoPollerTest {
         websocketPartyInfoPoller.clearSessions();
 
         verify(session, times(2)).close(any(CloseReason.class));
-
     }
-
 }

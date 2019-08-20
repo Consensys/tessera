@@ -1,16 +1,14 @@
-
 package com.quorum.tessera.sync;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.apps.TesseraAppClass;
 
-
 public class PartyInfoEndpointAdapter implements TesseraAppClass {
 
     @Override
-    public Class<?> getAppClass() {
-        return PartyInfoEndpoint.class;
+    public Class<?>[] getAppClass() {
+        return new Class[] {PartyInfoEndpoint.class};
     }
 
     @Override
@@ -22,5 +20,4 @@ public class PartyInfoEndpointAdapter implements TesseraAppClass {
     public AppType getAppType() {
         return AppType.P2P;
     }
-    
 }
