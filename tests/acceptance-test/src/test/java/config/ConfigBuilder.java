@@ -15,6 +15,31 @@ import suite.SocketType;
 
 public class ConfigBuilder {
 
+    private final SslConfig sslConfig =
+            new SslConfig(
+                    SslAuthenticationMode.STRICT,
+                    false,
+                    Paths.get(getClass().getResource("/certificates/localhost-with-san-keystore.jks").getFile()),
+                    "testtest",
+                    Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
+                    "testtest",
+                    SslTrustMode.CA,
+                    Paths.get(getClass().getResource("/certificates/quorum-client-keystore.jks").getFile())
+                            .toAbsolutePath(),
+                    "testtest",
+                    Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
+                    "testtest",
+                    SslTrustMode.CA,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null);
+
     private Integer q2tPort;
 
     private Integer p2pPort;
@@ -133,13 +158,14 @@ public class ConfigBuilder {
         ServerConfig p2pServerConfig = new ServerConfig();
         p2pServerConfig.setApp(AppType.P2P);
         p2pServerConfig.setEnabled(true);
+        p2pServerConfig.setSslConfig(sslConfig);
         p2pServerConfig.setCommunicationType(executionContext.getP2pCommunicationType());
         if (executionContext.getP2pCommunicationType() == CommunicationType.WEB_SOCKET) {
-            p2pServerConfig.setServerAddress("ws://localhost:" + p2pPort);
-            p2pServerConfig.setBindingAddress("ws://0.0.0.0:" + p2pPort);
+            p2pServerConfig.setServerAddress("wss://localhost:" + p2pPort);
+            p2pServerConfig.setBindingAddress("wss://0.0.0.0:" + p2pPort);
         } else {
-            p2pServerConfig.setServerAddress("http://localhost:" + p2pPort);
-            p2pServerConfig.setBindingAddress("http://0.0.0.0:" + p2pPort);
+            p2pServerConfig.setServerAddress("https://localhost:" + p2pPort);
+            p2pServerConfig.setBindingAddress("https://0.0.0.0:" + p2pPort);
         }
 
         servers.add(p2pServerConfig);
