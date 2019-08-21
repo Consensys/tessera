@@ -5,9 +5,6 @@ import com.microsoft.azure.keyvault.requests.SetSecretRequest;
 import com.quorum.tessera.config.AzureKeyVaultConfig;
 import com.quorum.tessera.config.vault.data.AzureGetSecretData;
 import com.quorum.tessera.config.vault.data.AzureSetSecretData;
-import com.quorum.tessera.config.vault.data.GetSecretData;
-import com.quorum.tessera.config.vault.data.SetSecretData;
-import com.quorum.tessera.key.vault.KeyVaultException;
 import com.quorum.tessera.key.vault.VaultSecretNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
@@ -89,16 +86,6 @@ public class AzureKeyVaultServiceTest {
     }
 
     @Test
-    public void getSecretThrowsExceptionIfWrongDataImplProvided() {
-        GetSecretData wrongImpl = mock(GetSecretData.class);
-
-        Throwable ex = catchThrowable(() -> keyVaultService.getSecret(wrongImpl));
-
-        assertThat(ex).isInstanceOf(KeyVaultException.class);
-        assertThat(ex.getMessage()).isEqualTo("Incorrect data type passed to AzureKeyVaultService.  Type was null");
-    }
-
-    @Test
     public void setSecret() {
         AzureSetSecretData setSecretData = mock(AzureSetSecretData.class);
         String secretName = "id";
@@ -114,15 +101,5 @@ public class AzureKeyVaultServiceTest {
         verify(azureKeyVaultClientDelegate).setSecret(argument.capture());
 
         assertThat(argument.getValue()).isEqualToComparingFieldByField(expected);
-    }
-
-    @Test
-    public void setSecretThrowsExceptionIfWrongDataImplProvided() {
-        SetSecretData wrongImpl = mock(SetSecretData.class);
-
-        Throwable ex = catchThrowable(() -> keyVaultService.setSecret(wrongImpl));
-
-        assertThat(ex).isInstanceOf(KeyVaultException.class);
-        assertThat(ex.getMessage()).isEqualTo("Incorrect data type passed to AzureKeyVaultService.  Type was null");
     }
 }
