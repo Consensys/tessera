@@ -1,10 +1,7 @@
 package com.quorum.tessera.key.vault.hashicorp;
 
-import com.quorum.tessera.config.vault.data.GetSecretData;
 import com.quorum.tessera.config.vault.data.HashicorpGetSecretData;
 import com.quorum.tessera.config.vault.data.HashicorpSetSecretData;
-import com.quorum.tessera.config.vault.data.SetSecretData;
-import com.quorum.tessera.key.vault.KeyVaultException;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.vault.support.Versioned;
@@ -62,17 +59,6 @@ public class HashicorpKeyVaultServiceTest {
     }
 
     @Test
-    public void getSecretThrowsExceptionIfProvidedDataIsNotCorrectType() {
-        GetSecretData getSecretData = mock(GetSecretData.class);
-        when(getSecretData.getType()).thenReturn(null);
-
-        Throwable ex = catchThrowable(() -> keyVaultService.getSecret(getSecretData));
-
-        assertThat(ex).isExactlyInstanceOf(KeyVaultException.class);
-        assertThat(ex).hasMessage("Incorrect data type passed to HashicorpKeyVaultService.  Type was null");
-    }
-
-    @Test
     public void getSecretThrowsExceptionIfNullRetrievedFromVault() {
         HashicorpGetSecretData getSecretData = new HashicorpGetSecretData("engine", "secretName", "id", 0);
 
@@ -99,7 +85,6 @@ public class HashicorpKeyVaultServiceTest {
         assertThat(ex).hasMessage("No data found at engine/secretName");
     }
 
-
     @Test
     public void getSecretThrowsExceptionIfValueNotFoundForGivenId() {
         HashicorpGetSecretData getSecretData = new HashicorpGetSecretData("engine", "secretName", "id", 0);
@@ -118,19 +103,6 @@ public class HashicorpKeyVaultServiceTest {
         assertThat(ex).isExactlyInstanceOf(HashicorpVaultException.class);
         assertThat(ex).hasMessage("No value with id id found at engine/secretName");
     }
-
-
-    @Test
-    public void setSecretThrowsExceptionIfProvidedDataIsNotCorrectType() {
-        SetSecretData setSecretData = mock(SetSecretData.class);
-        when(setSecretData.getType()).thenReturn(null);
-
-        Throwable ex = catchThrowable(() -> keyVaultService.setSecret(setSecretData));
-
-        assertThat(ex).isExactlyInstanceOf(KeyVaultException.class);
-        assertThat(ex).hasMessage("Incorrect data type passed to HashicorpKeyVaultService.  Type was null");
-    }
-
 
     @Test
     public void setSecretReturnsMetadataObject() {
@@ -156,5 +128,4 @@ public class HashicorpKeyVaultServiceTest {
         assertThat(ex).isExactlyInstanceOf(HashicorpVaultException.class);
         assertThat(ex.getMessage()).isEqualTo("Unable to save generated secret to vault.  Ensure that the secret engine being used is a v2 kv secret engine");
     }
-
 }
