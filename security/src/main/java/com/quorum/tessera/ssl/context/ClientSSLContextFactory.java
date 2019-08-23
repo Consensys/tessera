@@ -1,11 +1,11 @@
 package com.quorum.tessera.ssl.context;
 
-import java.util.ServiceLoader;
+import com.quorum.tessera.ServiceLoaderUtil;
 
 public interface ClientSSLContextFactory extends SSLContextFactory {
 
     static SSLContextFactory create() {
-        return ServiceLoader.load(ClientSSLContextFactory.class).iterator().next();
+        // TODO: return the stream and let the caller deal with it
+        return ServiceLoaderUtil.loadAll(ClientSSLContextFactory.class).findAny().get();
     }
-
 }
