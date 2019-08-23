@@ -32,11 +32,10 @@ public class WebsocketPartyInfoChecker implements PartyInfoChecker {
 
     private PartyHelper partyHelper = new DefaultPartyHelper();
 
-    private final WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-
     @Override
     public boolean hasSynced() {
 
+        final WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         List<Party> parties = partyHelper.getParties().collect(Collectors.toList());
 
         List<Boolean> results = new ArrayList<>();

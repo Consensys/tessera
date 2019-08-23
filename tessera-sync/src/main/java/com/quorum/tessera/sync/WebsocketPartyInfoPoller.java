@@ -24,8 +24,6 @@ public class WebsocketPartyInfoPoller implements PartyInfoPoller {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebsocketPartyInfoPoller.class);
 
-    private final WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-
     private final PartyInfoService partyInfoService;
 
     private final Config config;
@@ -39,6 +37,8 @@ public class WebsocketPartyInfoPoller implements PartyInfoPoller {
 
     @Override
     public void run() {
+
+        final WebSocketContainer container = ContainerProvider.getWebSocketContainer();
 
         final Queue<Peer> peerQueue = new LinkedList<>(config.getPeers());
 
@@ -54,18 +54,23 @@ public class WebsocketPartyInfoPoller implements PartyInfoPoller {
 
             URI uri = uriBuilder.build();
 
-            SyncRequestMessage syncRequestMessage = SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO)
-                    .withPartyInfo(partyInfo)
-                    .build();
+            SyncRequestMessage syncRequestMessage =
+                    SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO)
+                            .withPartyInfo(partyInfo)
+                            .build();
 
             try {
-                Session session = sessions.computeIfAbsent(peer.getUrl(), k -> WebSocketSessionCallback.execute(() -> container.connectToServer(endpoint, uri)));
+                Session session =
+                        sessions.computeIfAbsent(
+                                peer.getUrl(),
+                                k -> WebSocketSessionCallback.execute(() -> container.connectToServer(endpoint, uri)));
                 LOGGER.info("Connecting to server {}", uri);
 
-                WebSocketSessionCallback.execute(() -> {
-                    session.getBasicRemote().sendObject(syncRequestMessage);
-                    return null;
-                });
+                WebSocketSessionCallback.execute(
+                        () -> {
+                            session.getBasicRemote().sendObject(syncRequestMessage);
+                            return null;
+                        });
 
             } catch (UncheckedWebSocketException ex) {
                 LOGGER.error("Excepting while polling party info from {}. Exception message {}", uri, ex.getMessage());
@@ -88,5 +93,4 @@ public class WebsocketPartyInfoPoller implements PartyInfoPoller {
                         });
         sessions.clear();
     }
-
 }

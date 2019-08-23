@@ -23,13 +23,11 @@ public class WebsocketPayloadPublisher implements PayloadPublisher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebsocketPayloadPublisher.class);
 
-    private final WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-
     private final Map<String, Session> cache = new ConcurrentHashMap<>();
 
     @Override
     public void publishPayload(EncodedPayload payload, String targetUrl) {
-
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         LOGGER.info("Publish payload {} to target url {}", payload, targetUrl);
 
         URI uri = UriBuilder.fromUri(URI.create(targetUrl)).path("sync").build();

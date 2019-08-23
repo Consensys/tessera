@@ -14,8 +14,12 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import static org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer.HTTPCLIENT_ATTRIBUTE;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class WebSocketServer implements TesseraServer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketServer.class);
 
     private final Server server;
 
@@ -35,21 +39,24 @@ public class WebSocketServer implements TesseraServer {
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
         server.setHandler(context);
-        SSLContext sslContext =
-                ClientSSLContextFactory.create()
-                        .from(serverConfig.getServerUri().toString(), serverConfig.getSslConfig());
+        if (serverConfig.isSsl()) {
+            SSLContext sslContext =
+                    ClientSSLContextFactory.create()
+                            .from(serverConfig.getServerUri().toString(), serverConfig.getSslConfig());
 
-        ExtendedJettyClientContainerProvider.setSslContext(sslContext);
+            ExtendedJettyClientContainerProvider.setSslContext(sslContext);
 
-        final SslContextFactory ssl = new SslContextFactory.Client();
-        ssl.setSslContext(sslContext);
+            final SslContextFactory ssl = new SslContextFactory.Client();
+            ssl.setSslContext(sslContext);
 
-        HttpClient httpClient = new HttpClient(ssl);
-        httpClient.start();
+            HttpClient httpClient = new HttpClient(ssl);
+            httpClient.start();
 
-        context.getServer().setAttribute(HTTPCLIENT_ATTRIBUTE, httpClient);
-
+            context.getServer().setAttribute(HTTPCLIENT_ATTRIBUTE, httpClient);
+        }
         ServerContainer websocketsContainer = WebSocketServerContainerInitializer.configureContext(context);
+        LOGGER.info("{}", context.dump());
+
         websocketsContainer.addEndpoint(StatusEndpoint.class);
         for (Class<?> service : services) {
             websocketsContainer.addEndpoint(service);

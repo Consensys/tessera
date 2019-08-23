@@ -4,11 +4,15 @@ import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.ssl.context.ClientSSLContextFactory;
 import com.quorum.tessera.test.DBType;
 
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.net.ssl.SSLContext;
+import javax.ws.rs.core.UriBuilder;
+import com.quorum.tessera.server.websockets.ExtendedJettyClientContainerProvider;
 import suite.EnclaveType;
 import suite.ExecutionContext;
 import suite.SocketType;
@@ -158,6 +162,17 @@ public class ConfigBuilder {
         ServerConfig p2pServerConfig = new ServerConfig();
         p2pServerConfig.setApp(AppType.P2P);
         p2pServerConfig.setEnabled(true);
+
+        if (sslConfig != null) {
+
+            java.net.URI uri =
+                    UriBuilder.fromUri("wss://localhost").scheme("wss").host("localhost").port(p2pPort).build();
+
+            SSLContext sslContext = ClientSSLContextFactory.create().from(uri.toString(), sslConfig);
+
+            ExtendedJettyClientContainerProvider.setSslContext(sslContext);
+        }
+
         p2pServerConfig.setSslConfig(sslConfig);
         p2pServerConfig.setCommunicationType(executionContext.getP2pCommunicationType());
         if (executionContext.getP2pCommunicationType() == CommunicationType.WEB_SOCKET) {

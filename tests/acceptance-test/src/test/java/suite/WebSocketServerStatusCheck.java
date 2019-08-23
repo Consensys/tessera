@@ -1,6 +1,6 @@
 package suite;
 
-import com.quorum.tessera.server.websockets.StatusClientEndpoint;
+import com.quorum.tessera.server.websockets.*;
 import java.io.IOException;
 import java.net.URI;
 
@@ -15,8 +15,6 @@ public class WebSocketServerStatusCheck implements ServerStatusCheck {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketServerStatusCheck.class);
 
-    private final WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-
     private final URI uri;
 
     public WebSocketServerStatusCheck(URI uri) {
@@ -26,6 +24,7 @@ public class WebSocketServerStatusCheck implements ServerStatusCheck {
     @Override
     public boolean checkStatus() {
 
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         StatusClientEndpoint endpoint = new StatusClientEndpoint();
         try (Session session = container.connectToServer(endpoint, uri)) {
             session.getBasicRemote().sendText("Hellow " + uri);
