@@ -199,7 +199,8 @@
                     <includes>
 <!--                        <include>CucumberFileKeyGenerationIT</include>-->
 
-                         <include>RestSuiteUnixH2</include>
+<include>RestSuiteP2pWebsocketH2</include>
+<!--                         <include>RestSuiteUnixH2</include>-->
                         
 <!--                        <include>RestSuiteP2pWebsocketH2</include>-->
 <!--                        <include>AdminRestSuite</include>
