@@ -1,11 +1,8 @@
 package com.quorum.tessera.nacl;
 
-import java.util.ServiceLoader;
+import com.quorum.tessera.ServiceLoaderUtil;
 
-/**
- * A factory for providing the implementation of the {@link NaclFacade}
- * with all its dependencies set up
- */
+/** A factory for providing the implementation of the {@link NaclFacade} with all its dependencies set up */
 public interface NaclFacadeFactory {
 
     /**
@@ -18,11 +15,10 @@ public interface NaclFacadeFactory {
     /**
      * Retrieves the implementation of the factory from the service loader
      *
-     * @return the factory implementation that will provide instances of that
-     * implementations {@link NaclFacade}
+     * @return the factory implementation that will provide instances of that implementations {@link NaclFacade}
      */
     static NaclFacadeFactory newFactory() {
-        return ServiceLoader.load(NaclFacadeFactory.class).iterator().next();
+        // TODO: return the stream and let the caller deal with it
+        return ServiceLoaderUtil.loadAll(NaclFacadeFactory.class).findAny().get();
     }
-
 }
