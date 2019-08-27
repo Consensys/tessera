@@ -45,6 +45,7 @@ public class WebSocketServer implements TesseraServer {
                             .from(serverConfig.getServerUri().toString(), serverConfig.getSslConfig());
 
             ExtendedJettyClientContainerProvider.setSslContext(sslContext);
+            ExtendedJettyClientContainerProvider.useSingleton(true);
 
             final SslContextFactory ssl = new SslContextFactory.Client();
             ssl.setSslContext(sslContext);
@@ -54,8 +55,10 @@ public class WebSocketServer implements TesseraServer {
 
             context.getServer().setAttribute(HTTPCLIENT_ATTRIBUTE, httpClient);
         }
-        ServerContainer websocketsContainer = WebSocketServerContainerInitializer.configureContext(context);
-        LOGGER.info("{}", context.dump());
+
+        ExtendedJettyClientContainerProvider.configured();
+
+        ServerContainer websocketsContainer = WebSocketServerContainerInitializer.initialize(context);
 
         websocketsContainer.addEndpoint(StatusEndpoint.class);
         for (Class<?> service : services) {
