@@ -55,7 +55,7 @@ public class PartyInfoClientEndpoint {
 
             if (Objects.nonNull(partyInfo)) {
 
-                LOGGER.info("Updating party info from {}", partyInfo.getUrl());
+                LOGGER.debug("Updating party info from {}", partyInfo.getUrl());
 
                 PartyInfo updatedPartyInfo = partyInfoService.updatePartyInfo(partyInfo);
 
@@ -68,16 +68,16 @@ public class PartyInfoClientEndpoint {
                         s -> {
                             WebSocketSessionCallback.execute(
                                     () -> {
-                                        LOGGER.info("Forwarding partyinfo response to session : {}", s.getId());
+                                        LOGGER.debug("Forwarding partyinfo response to session : {}", s.getId());
 
                                         s.getBasicRemote().sendObject(syncRequestMessage);
 
-                                        LOGGER.info("Sent partyinfo response to session {}", s.getId());
+                                        LOGGER.debug("Sent partyinfo response to session {}", s.getId());
                                         return null;
                                     });
                         });
 
-                LOGGER.info("Updated party info from {}", partyInfo.getUrl());
+                LOGGER.debug("Updated party info from {}", partyInfo.getUrl());
             }
         }
     }

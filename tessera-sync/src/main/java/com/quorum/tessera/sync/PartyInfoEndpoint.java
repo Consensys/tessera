@@ -63,7 +63,7 @@ public class PartyInfoEndpoint {
     @OnMessage
     public void onSync(Session session, SyncRequestMessage syncRequestMessage) throws IOException, EncodeException {
 
-        LOGGER.info("Session: {}, SyncRequestMessage.type: {}", session.getId(), syncRequestMessage.getType());
+        LOGGER.debug("Session: {}, SyncRequestMessage.type: {}", session.getId(), syncRequestMessage.getType());
 
         if (syncRequestMessage.getType() == SyncRequestMessage.Type.TRANSACTION_PUSH) {
             EncodedPayload payload = syncRequestMessage.getTransactions();
@@ -106,11 +106,11 @@ public class PartyInfoEndpoint {
                 s -> {
                     WebSocketSessionCallback.execute(
                             () -> {
-                                LOGGER.info("Forwarding partyinfo response to session : {}", s.getId());
+                                LOGGER.debug("Forwarding partyinfo response to session : {}", s.getId());
 
                                 s.getBasicRemote().sendObject(response);
 
-                                LOGGER.info("Sent partyinfo response to session {}", s.getId());
+                                LOGGER.debug("Sent partyinfo response to session {}", s.getId());
                                 return null;
                             });
                 });
