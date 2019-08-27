@@ -59,14 +59,13 @@ public class PartyInfoEndpointTest {
 
         Basic basic = mock(Basic.class);
         when(session.getBasicRemote()).thenReturn(basic);
-
         partyInfoEndpoint.onOpen(session);
         partyInfoEndpoint.onSync(session, syncRequestMessage);
         partyInfoEndpoint.onClose(session);
 
-        verify(basic).sendObject(any(SyncResponseMessage.class));
+        verify(basic, times(2)).sendObject(any(SyncResponseMessage.class));
         verify(partyInfoService).updatePartyInfo(partyInfo);
-        verify(partyInfoService).getPartyInfo();
+        verify(partyInfoService, times(2)).getPartyInfo();
     }
 
     @Test
@@ -127,17 +126,18 @@ public class PartyInfoEndpointTest {
 
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
 
-        SyncRequestMessage syncRequestMessage =
+        final SyncRequestMessage syncRequestMessage =
                 SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO).build();
 
         Basic basic = mock(Basic.class);
         when(session.getBasicRemote()).thenReturn(basic);
 
         partyInfoEndpoint.onOpen(session);
+
         partyInfoEndpoint.onSync(session, syncRequestMessage);
         partyInfoEndpoint.onClose(session);
 
-        verify(basic).sendObject(any(SyncResponseMessage.class));
-        verify(partyInfoService).getPartyInfo();
+        verify(basic, times(2)).sendObject(any(SyncResponseMessage.class));
+        verify(partyInfoService, times(2)).getPartyInfo();
     }
 }

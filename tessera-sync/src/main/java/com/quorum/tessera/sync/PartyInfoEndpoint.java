@@ -46,8 +46,18 @@ public class PartyInfoEndpoint {
     }
 
     @OnOpen
-    public void onOpen(Session session) {
+    public void onOpen(Session session) throws IOException, EncodeException {
+
+        PartyInfo partyInfo = partyInfoService.getPartyInfo();
+
+        SyncResponseMessage syncResponseMessage =
+                SyncResponseMessage.Builder.create(SyncResponseMessage.Type.PARTY_INFO)
+                        .withPartyInfo(partyInfo)
+                        .build();
+
         sessionStore.add(session);
+
+        session.getBasicRemote().sendObject(syncResponseMessage);
     }
 
     @OnMessage
@@ -83,7 +93,7 @@ public class PartyInfoEndpoint {
         if (partyInfo.isPresent()) {
             PartyInfo mergedPartyInfo = partyInfoService.updatePartyInfo(partyInfo.get());
             LOGGER.info(
-                    "Updated party info for {}", partyInfo.map(PartyInfo::getUrl).orElse("No party info url found"));
+                    "Updated party info for {}", partyInfo.map(PartyInfo::getUrl).orElse("No party info url found "));
             responseBuilder.withPartyInfo(mergedPartyInfo);
         } else {
             LOGGER.info("Adding existing party info to response:  {}", existingPartyInfo.getUrl());
@@ -97,7 +107,9 @@ public class PartyInfoEndpoint {
                     WebSocketSessionCallback.execute(
                             () -> {
                                 LOGGER.info("Forwarding partyinfo response to session : {}", s.getId());
+
                                 s.getBasicRemote().sendObject(response);
+
                                 LOGGER.info("Sent partyinfo response to session {}", s.getId());
                                 return null;
                             });
@@ -105,8 +117,10 @@ public class PartyInfoEndpoint {
     }
 
     @OnClose
-    public void onClose(Session session) {
+    public void onClose(Session session) throws IOException {
+        LOGGER.info("Closing {}", session);
         sessionStore.remove(session);
+        session.close();
     }
 
     @OnError

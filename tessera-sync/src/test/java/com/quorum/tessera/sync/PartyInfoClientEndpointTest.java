@@ -3,8 +3,10 @@ package com.quorum.tessera.sync;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.transaction.TransactionManager;
+import java.net.URI;
 import javax.websocket.CloseReason;
 import javax.websocket.CloseReason.CloseCodes;
+import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 import org.junit.After;
 import org.junit.Before;
@@ -42,26 +44,57 @@ public class PartyInfoClientEndpointTest {
 
         PartyInfo samplePartyInfo = Fixtures.samplePartyInfo();
 
+        PartyInfo requestedPartyInfo = mock(PartyInfo.class);
+
+        when(partyInfoService.updatePartyInfo(requestedPartyInfo)).thenReturn(samplePartyInfo);
+
         SyncResponseMessage syncResponseMessage =
                 SyncResponseMessage.Builder.create(SyncResponseMessage.Type.PARTY_INFO)
-                        .withPartyInfo(samplePartyInfo)
+                        .withPartyInfo(requestedPartyInfo)
                         .build();
 
         Session session = mock(Session.class);
         partyInfoClientEndpoint.onResponse(session, syncResponseMessage);
 
-        verify(partyInfoService).updatePartyInfo(any(PartyInfo.class));
-    }
+        verify(partyInfoService).updatePartyInfo(requestedPartyInfo);
+    };
 
     @Test
     public void onClose() {
         Session session = mock(Session.class);
+        when(session.getRequestURI()).thenReturn(URI.create("ws://bogus.com:898/sync"));
         CloseReason reason = new CloseReason(CloseCodes.CANNOT_ACCEPT, "WHAT YOU TALKIN' ABOUT WILLIS?");
         partyInfoClientEndpoint.onClose(session, reason);
+        verify(partyInfoService).removeRecipient("ws://bogus.com:898");
     }
 
     @Test
     public void onError() {
         partyInfoClientEndpoint.onError(new Exception("Ouch"));
+    }
+
+    @Test
+    public void opoenAndThenSendPartyInfo() throws Exception {
+
+        final Session session = mock(Session.class);
+        Basic publisher = mock(Basic.class);
+        when(session.getBasicRemote()).thenReturn(publisher);
+
+        partyInfoClientEndpoint.onOpen(session);
+        PartyInfo samplePartyInfo = Fixtures.samplePartyInfo();
+
+        PartyInfo requestedPartyInfo = mock(PartyInfo.class);
+
+        when(partyInfoService.updatePartyInfo(requestedPartyInfo)).thenReturn(samplePartyInfo);
+
+        SyncResponseMessage syncResponseMessage =
+                SyncResponseMessage.Builder.create(SyncResponseMessage.Type.PARTY_INFO)
+                        .withPartyInfo(requestedPartyInfo)
+                        .build();
+
+        partyInfoClientEndpoint.onResponse(session, syncResponseMessage);
+
+        verify(partyInfoService).updatePartyInfo(requestedPartyInfo);
+        verify(publisher).sendObject(any());
     }
 }

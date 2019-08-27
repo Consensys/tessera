@@ -8,6 +8,7 @@ import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.transaction.TransactionManager;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Base64;
 import java.util.Collections;
@@ -65,8 +66,9 @@ public class PartyInfoSyncIT {
     }
 
     @After
-    public void onTearDown() {
+    public void onTearDown() throws IOException {
         // server.stop();
+        clientSession.close();
     }
 
     @Test
