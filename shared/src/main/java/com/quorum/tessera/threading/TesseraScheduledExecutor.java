@@ -3,11 +3,11 @@ package com.quorum.tessera.threading;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
 
 /**
  * Schedules a continuous running task as an alternative to a {@link Thread} running a {@code while(true)} loop

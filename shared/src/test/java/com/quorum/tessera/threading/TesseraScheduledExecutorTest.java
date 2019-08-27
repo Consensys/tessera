@@ -17,7 +17,6 @@ import static org.mockito.Mockito.verify;
 
 public class TesseraScheduledExecutorTest {
 
-
     private static final long RATE = 2000L;
 
     private ScheduledExecutorService executorService;
@@ -31,36 +30,38 @@ public class TesseraScheduledExecutorTest {
         this.executorService = mock(ScheduledExecutorService.class);
         this.action = mock(Runnable.class);
 
-        this.tesseraScheduledExecutor = new TesseraScheduledExecutor(executorService, action, RATE,RATE);
+        this.tesseraScheduledExecutor = new TesseraScheduledExecutor(executorService, action, RATE, RATE);
     }
 
     @Test
     public void start() {
         tesseraScheduledExecutor.start();
 
-        verify(executorService).scheduleWithFixedDelay(any(Runnable.class),anyLong(), anyLong(), eq(TimeUnit.MILLISECONDS));
+        verify(executorService)
+                .scheduleWithFixedDelay(any(Runnable.class), anyLong(), anyLong(), eq(TimeUnit.MILLISECONDS));
     }
 
     @Test
     public void executionThrowsError() throws InterruptedException {
         final CountDownLatch cdl = new CountDownLatch(1);
 
-        final Runnable runnable = new Runnable() {
-            private boolean hasRun = false;
+        final Runnable runnable =
+                new Runnable() {
+                    private boolean hasRun = false;
 
-            @Override
-            public void run() {
-                if (hasRun) {
-                    cdl.countDown();
-                } else {
-                    hasRun = true;
-                    throw new RuntimeException();
-                }
-            }
-        };
+                    @Override
+                    public void run() {
+                        if (hasRun) {
+                            cdl.countDown();
+                        } else {
+                            hasRun = true;
+                            throw new RuntimeException();
+                        }
+                    }
+                };
 
-        final TesseraScheduledExecutor executor
-            = new TesseraScheduledExecutor(Executors.newSingleThreadScheduledExecutor(), runnable, 2,2);
+        final TesseraScheduledExecutor executor =
+                new TesseraScheduledExecutor(Executors.newSingleThreadScheduledExecutor(), runnable, 2, 2);
 
         executor.start();
 
@@ -73,5 +74,4 @@ public class TesseraScheduledExecutorTest {
         tesseraScheduledExecutor.stop();
         verify(executorService).shutdown();
     }
-
 }
