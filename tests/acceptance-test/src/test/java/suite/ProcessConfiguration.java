@@ -23,19 +23,23 @@ public class ProcessConfiguration {
 
     private String prefix = "";
 
+    private boolean p2pSsl = false;
+
     public ProcessConfiguration(
             final DBType dbType,
             final CommunicationType communicationType,
             final SocketType socketType,
             final EnclaveType enclaveType,
             final boolean admin,
-            final String prefix) {
+            final String prefix,
+            boolean p2pSsl) {
         this.dbType = dbType;
         this.communicationType = communicationType;
         this.socketType = socketType;
         this.enclaveType = enclaveType;
         this.admin = admin;
         this.prefix = prefix;
+        this.p2pSsl = p2pSsl;
     }
 
     public ProcessConfiguration() {}
@@ -94,5 +98,9 @@ public class ProcessConfiguration {
 
     public void setP2pCommunicationType(final CommunicationType p2pCommunicationType) {
         this.p2pCommunicationType = p2pCommunicationType;
+    }
+
+    public boolean isP2pSsl() {
+        return p2pSsl;
     }
 }

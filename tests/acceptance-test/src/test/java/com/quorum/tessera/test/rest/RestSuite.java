@@ -41,7 +41,7 @@ public class RestSuite {
 
         for (final DBType database : DBType.values()) {
             for (final EnclaveType enclaveType : EnclaveType.values()) {
-                configurations.add(new ProcessConfiguration(database, REST, HTTP, enclaveType, false, ""));
+                configurations.add(new ProcessConfiguration(database, REST, HTTP, enclaveType, false, "", false));
             }
         }
 

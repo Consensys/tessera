@@ -17,6 +17,8 @@ public class ExecutionContext {
 
     private final CommunicationType p2pCommunicationType;
 
+    private final boolean p2pSsl;
+
     private final SocketType socketType;
 
     private final EnclaveType enclaveType;
@@ -34,7 +36,8 @@ public class ExecutionContext {
             EnclaveType enclaveType,
             boolean admin,
             String prefix,
-            CommunicationType p2pCommunicationType) {
+            CommunicationType p2pCommunicationType,
+            boolean p2pSsl) {
         this.dbType = dbType;
         this.communicationType = communicationType;
         this.socketType = socketType;
@@ -42,6 +45,7 @@ public class ExecutionContext {
         this.admin = admin;
         this.prefix = prefix;
         this.p2pCommunicationType = p2pCommunicationType;
+        this.p2pSsl = p2pSsl;
     }
 
     public DBType getDbType() {
@@ -76,6 +80,10 @@ public class ExecutionContext {
         return p2pCommunicationType;
     }
 
+    public boolean isP2pSsl() {
+        return p2pSsl;
+    }
+
     public static class Builder {
 
         private DBType dbType;
@@ -89,6 +97,8 @@ public class ExecutionContext {
         private String prefix;
 
         private CommunicationType p2pCommunicationType;
+
+        private boolean p2pSsl = false;
 
         private Builder() {}
 
@@ -133,6 +143,11 @@ public class ExecutionContext {
             return this;
         }
 
+        public Builder withP2pSsl(boolean p2pSsl) {
+            this.p2pSsl = p2pSsl;
+            return this;
+        }
+
         public ExecutionContext build() {
             Stream.of(dbType, communicationType, socketType, enclaveType).forEach(Objects::requireNonNull);
 
@@ -140,7 +155,14 @@ public class ExecutionContext {
 
             ExecutionContext executionContext =
                     new ExecutionContext(
-                            dbType, communicationType, socketType, enclaveType, admin, prefix, p2pCommunicationType);
+                            dbType,
+                            communicationType,
+                            socketType,
+                            enclaveType,
+                            admin,
+                            prefix,
+                            p2pCommunicationType,
+                            p2pSsl);
 
             return executionContext;
         }

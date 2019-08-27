@@ -27,4 +27,6 @@ public @interface ProcessConfig {
     boolean admin() default false;
 
     String prefix() default "";
+
+    boolean p2pSsl() default false;
 }

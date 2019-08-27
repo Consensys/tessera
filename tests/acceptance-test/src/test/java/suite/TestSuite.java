@@ -45,6 +45,7 @@ public class TestSuite extends Suite {
         try {
 
             if (testConfig == null) {
+
                 final ProcessConfig annotatedConfig =
                         Arrays.stream(getRunnerAnnotations())
                                 .filter(ProcessConfig.class::isInstance)
@@ -65,7 +66,8 @@ public class TestSuite extends Suite {
                                 annotatedConfig.socketType(),
                                 annotatedConfig.enclaveType(),
                                 annotatedConfig.admin(),
-                                annotatedConfig.prefix());
+                                annotatedConfig.prefix(),
+                                annotatedConfig.p2pSsl());
 
                 this.testConfig.setP2pCommunicationType(p2pCommType);
             }
@@ -79,6 +81,7 @@ public class TestSuite extends Suite {
                             .withP2pCommunicationType(testConfig.getP2pCommunicationType())
                             .withAdmin(testConfig.isAdmin())
                             .prefix(testConfig.getPrefix())
+                            .withP2pSsl(testConfig.isP2pSsl())
                             .createAndSetupContext();
 
             if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
