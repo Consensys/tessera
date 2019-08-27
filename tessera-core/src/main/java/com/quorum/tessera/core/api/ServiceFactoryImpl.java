@@ -6,15 +6,12 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
-import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
 import com.quorum.tessera.transaction.ResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 
 public class ServiceFactoryImpl implements ServiceFactory {
 
     private final ServiceLocator serviceLocator = ServiceLocator.create();
-
-    private final PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
 
     public ServiceFactoryImpl() {}
 
