@@ -35,7 +35,7 @@
     <logger name="com.quorum.tessera.sync.WebsocketPayloadPublisher" level="INFO" />
     <logger name="com.quorum.tessera.server.jaxrs.LoggingFilter" level="INFO" />
     
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="FILE"/>
     </root>
 
