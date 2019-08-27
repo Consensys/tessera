@@ -1,6 +1,8 @@
 package com.quorum.tessera.server.websockets;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javax.websocket.WebSocketContainer;
 import org.eclipse.jetty.util.component.ContainerLifeCycle;
 import org.eclipse.jetty.util.thread.ShutdownThread;
@@ -23,6 +25,8 @@ public class ExtendedJettyClientContainerProvider extends javax.websocket.Contai
 
     private static SSLContext sslContext;
 
+    private static final CountDownLatch CONFIG_LATCH = new CountDownLatch(1);
+
     private static Object lock = new Object();
 
     /**
@@ -41,6 +45,9 @@ public class ExtendedJettyClientContainerProvider extends javax.websocket.Contai
         sslContext = context;
     }
 
+    public static void configured() {
+        CONFIG_LATCH.countDown();
+    }
     /**
      * Test if {@link ContainerProvider#getWebSocketContainer()} will always return a singleton instance of the same
      * {@link WebSocketContainer}
@@ -109,6 +116,13 @@ public class ExtendedJettyClientContainerProvider extends javax.websocket.Contai
      */
     @Override
     protected WebSocketContainer getContainer() {
+
+        try {
+            CONFIG_LATCH.await(2, TimeUnit.MINUTES);
+        } catch (InterruptedException ex) {
+
+        }
+
         synchronized (lock) {
             WebSocketContainer webSocketContainer = null;
             Object contextHandler = getContextHandler();
@@ -142,7 +156,6 @@ public class ExtendedJettyClientContainerProvider extends javax.websocket.Contai
             if (webSocketContainer == null) {
 
                 SimpleContainerScope containerScope = new SimpleContainerScope(WebSocketPolicy.newClientPolicy());
-
                 if (sslContext != null) {
                     final SslContextFactory ssl = new SslContextFactory.Client();
                     ssl.setSslContext(sslContext);
