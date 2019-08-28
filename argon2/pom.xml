@@ -22,6 +22,11 @@
             <artifactId>argon2-jvm</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>shared</artifactId>
+        </dependency>
+
     </dependencies>
 
 

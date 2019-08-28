@@ -9,6 +9,6 @@ An single uber jar including all current features.
 ### tessera-simple
 Has most default features required by most users. 
 
-### tessera-grpc [experimental]
-GRPC only. Developed in response to a quorum user request to support GRPC. 
-Admin featues are not available. 
+### tessera-grpc-dist [experimental]
+GRPC only. Developed in response to a Quorum user request to support GRPC. 
+Admin features are not available. 
