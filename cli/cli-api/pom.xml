@@ -9,5 +9,15 @@
 
     <artifactId>cli-api</artifactId>
 
+    <dependencies>
+
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.0.3</version>
+        </dependency>
+
+    </dependencies>
+
 
 </project>
