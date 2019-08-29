@@ -1,16 +1,14 @@
 package com.quorum.tessera.config.util;
 
-import java.util.ServiceLoader;
+import com.quorum.tessera.ServiceLoaderUtil;
 
-/**
- * Exists to enable the loading of a mocked EnvironmentVariableProvider in tests
- */
+/** Exists to enable the loading of a mocked EnvironmentVariableProvider in tests */
 public interface EnvironmentVariableProviderFactory {
 
     EnvironmentVariableProvider create();
 
     static EnvironmentVariableProviderFactory load() {
-        return ServiceLoader.load(EnvironmentVariableProviderFactory.class).iterator().next();
+        // TODO: return the stream and let the caller deal with it
+        return ServiceLoaderUtil.loadAll(EnvironmentVariableProviderFactory.class).findAny().get();
     }
-
 }

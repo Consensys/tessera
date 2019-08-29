@@ -1,14 +1,14 @@
 package com.quorum.tessera.config.apps;
 
+import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.ServiceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class TesseraAppFactory {
 
@@ -23,19 +23,12 @@ public class TesseraAppFactory {
     }
 
     private TesseraAppFactory() {
-        ServiceLoader<TesseraApp> serviceLoader = ServiceLoader.load(TesseraApp.class);
-        Iterator<TesseraApp> it = serviceLoader.iterator();
 
-        it.forEachRemaining(cache::add);
-        cache.forEach(
-                (app) -> {
-                    LOGGER.info("Loaded app {}", app);
-                });
-
-        LOGGER.info("Cached {}", cache);
+        ServiceLoaderUtil.loadAll(TesseraApp.class).peek(app -> LOGGER.info("Loaded app {}", app)).forEach(cache::add);
     }
 
     private Optional<TesseraApp> createApp(CommunicationType communicationType, AppType appType) {
+        LOGGER.info("Creating application type {} for {}", appType, communicationType);
 
         return cache.stream()
                 .filter(a -> a.getAppType() == appType)

@@ -26,11 +26,12 @@ Each Tessera node:
 * Connects to any SQL DB which supports the JDBC client
 
 ## Prerequisites
-- [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)
-- [Maven](https://maven.apache.org) (if installing from source)
+- [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html) (if using the [pre-built release jars](https://github.com/jpmorganchase/tessera/releases))
+- [Java 8 - 11](https://www.oracle.com/technetwork/java/javase/downloads/index.html) (if building from source)
+- [Maven](https://maven.apache.org) (if building from source)
 - [libsodium](https://download.libsodium.org/doc/installation/) (if using kalium as the NaCl implementation)
 
-## Building Tessera
+## Building Tessera from source
 To build and install Tessera:
 1. Clone this repo
 1. Build using Maven (see below)

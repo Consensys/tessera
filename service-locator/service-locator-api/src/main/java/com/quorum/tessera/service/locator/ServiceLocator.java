@@ -1,6 +1,7 @@
 package com.quorum.tessera.service.locator;
 
-import java.util.ServiceLoader;
+import com.quorum.tessera.ServiceLoaderUtil;
+
 import java.util.Set;
 
 /** Creates a set of services that are configured */
@@ -19,6 +20,7 @@ public interface ServiceLocator {
      * @return the {@link ServiceLocator} instance
      */
     static ServiceLocator create() {
-        return ServiceLoader.load(ServiceLocator.class).iterator().next();
+        // TODO: return the stream and let the caller deal with it
+        return ServiceLoaderUtil.loadAll(ServiceLocator.class).findAny().get();
     }
 }

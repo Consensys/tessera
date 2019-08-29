@@ -1,11 +1,12 @@
 package com.quorum.tessera.cli;
 
+import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.config.Config;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Optional;
 
 public enum CliDelegate {
-
     INSTANCE;
 
     private Config config;
@@ -16,25 +17,24 @@ public enum CliDelegate {
 
     public Config getConfig() {
         return Optional.ofNullable(config)
-                .orElseThrow(() -> new IllegalStateException("Execute must be invoked before attempting to fetch config"));
+                .orElseThrow(
+                        () -> new IllegalStateException("Execute must be invoked before attempting to fetch config"));
     }
 
     public CliResult execute(String... args) throws Exception {
 
-        final List<String> argsList = Arrays.asList(args);
+        final boolean adminArgPresent = Arrays.asList(args).contains("admin");
 
-        List<CliAdapter> providers = new ArrayList<>();
-        ServiceLoader.load(CliAdapter.class).forEach(providers::add);
-
-        final CliAdapter cliAdapter = providers.stream()
-            .filter(p -> (argsList.contains("admin")) == (p.getType() == CliType.ADMIN))
-            .findFirst()
-            .orElseThrow(() -> new CliException("No valid implementation of CliAdapter found on the classpath"));
+        final CliAdapter cliAdapter =
+                ServiceLoaderUtil.loadAll(CliAdapter.class)
+                        .filter(p -> adminArgPresent == (p.getType() == CliType.ADMIN))
+                        .findFirst()
+                        .orElseThrow(
+                                () -> new CliException("No valid implementation of CliAdapter found on the classpath"));
 
         final CliResult result = cliAdapter.execute(args);
 
         this.config = result.getConfig().orElse(null);
         return result;
     }
-
 }
