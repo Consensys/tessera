@@ -17,6 +17,9 @@ public class MockSubcommandCliAdapter implements CliAdapter, Callable<CliResult>
 
     private static Exception exceptionToBeThrown;
 
+    @CommandLine.Option(names = "help", usageHelp = true)
+    private boolean isHelpRequested;
+
     @picocli.CommandLine.Unmatched private String[] allParameters = new String[0];
 
     public static void setType(CliType type) {
