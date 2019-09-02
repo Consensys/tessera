@@ -5,7 +5,7 @@ import picocli.CommandLine;
 
 public class ConfigurationMixin {
 
-    @CommandLine.Option(names = {"-configfile"}, description = "path to configuration file")
+    @CommandLine.Option(names = "-configfile", description = "path to configuration file", required = true)
     private Config config;
 
     public void setConfig(final Config config) {
