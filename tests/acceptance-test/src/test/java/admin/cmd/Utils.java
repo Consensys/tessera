@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 public class Utils {
 
-    private static String jarPath = System.getProperty("application.jar", "../../tessera-app/target/tessera-app-0.8-SNAPSHOT-app.jar");
+    private static String jarPath = System.getProperty("application.jar");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
@@ -86,16 +86,16 @@ public class Utils {
 
     public static int addPeer(Party party, String url) throws IOException, InterruptedException {
 
-        List<String> args = Arrays.asList(
-                "java",
-                "-jar",
-                jarPath,
-                "-configfile",
-                party.getConfigFilePath().toAbsolutePath().toString(),
-                "admin",
-                "-addpeer",
-                url
-        );
+        List<String> args =
+                Arrays.asList(
+                        "java",
+                        "-jar",
+                        jarPath,
+                        "admin",
+                        "-addpeer",
+                        url,
+                        "-configfile",
+                        party.getConfigFilePath().toAbsolutePath().toString());
 
         LOGGER.info("exec : {}", String.join(" ", args));
         ProcessBuilder processBuilder = new ProcessBuilder(args);

@@ -51,6 +51,16 @@ public class EnclaveCliAdapterTest {
     }
 
     @Test
+    public void helpViaCall() throws Exception {
+        enclaveCliAdapter.setAllParameters(new String[] {"help"});
+        CliResult result = enclaveCliAdapter.call();
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isNotPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+    }
+
+    @Test
     public void withFile() throws Exception {
 
         URI uri = getClass().getResource("/sample-config.json").toURI();
