@@ -1,1 +1,2 @@
 com.quorum.tessera.cli.MockCliAdapter
+com.quorum.tessera.cli.MockSubcommandCliAdapter

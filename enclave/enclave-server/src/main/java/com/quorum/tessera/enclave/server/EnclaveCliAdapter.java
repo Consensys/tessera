@@ -14,8 +14,12 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 
-public class EnclaveCliAdapter implements CliAdapter {
+@picocli.CommandLine.Command
+public class EnclaveCliAdapter implements CliAdapter, Callable<CliResult> {
+
+    @picocli.CommandLine.Unmatched private String[] allParameters = new String[0];
 
     private final CommandLineParser parser;
 
@@ -28,14 +32,18 @@ public class EnclaveCliAdapter implements CliAdapter {
 
     public EnclaveCliAdapter() {
         this(
-            new DefaultParser(),
-            ServiceLoaderUtil.load(KeyPasswordResolver.class).orElse(new CliKeyPasswordResolver())
-        );
+                new DefaultParser(),
+                ServiceLoaderUtil.load(KeyPasswordResolver.class).orElse(new CliKeyPasswordResolver()));
     }
 
     @Override
     public CliType getType() {
         return CliType.ENCLAVE;
+    }
+
+    @Override
+    public CliResult call() throws Exception {
+        return this.execute(allParameters);
     }
 
     @Override
@@ -85,4 +93,8 @@ public class EnclaveCliAdapter implements CliAdapter {
         }
     }
 
+    // TODO: for testing, remove if possible
+    public void setAllParameters(final String[] allParameters) {
+        this.allParameters = allParameters;
+    }
 }
