@@ -4,14 +4,18 @@ import picocli.CommandLine;
 
 import java.util.concurrent.Callable;
 
-// Static methods allow the type of the mock and the result of execute() to be set statically in tests.
-// The mock will then be retrieved by the ServiceLoader in CliDelegate.
-@CommandLine.Command
-public class MockCliAdapter implements CliAdapter, Callable<CliResult> {
+/**
+ * This is a command that is intended to not be a <main class> command, and gets attached as a subcommand to other CLI
+ * adapters.
+ */
+@CommandLine.Command(name = "some-subcommand")
+public class MockSubcommandCliAdapter implements CliAdapter, Callable<CliResult> {
 
     private static CliType t;
 
     private static CliResult r;
+
+    private static Exception exceptionToBeThrown;
 
     @picocli.CommandLine.Unmatched private String[] allParameters = new String[0];
 
@@ -21,6 +25,10 @@ public class MockCliAdapter implements CliAdapter, Callable<CliResult> {
 
     public static void setResult(CliResult result) {
         r = result;
+    }
+
+    public static void setExceptionToBeThrown(final Exception exceptionToBeThrown) {
+        MockSubcommandCliAdapter.exceptionToBeThrown = exceptionToBeThrown;
     }
 
     @Override
@@ -35,6 +43,9 @@ public class MockCliAdapter implements CliAdapter, Callable<CliResult> {
 
     @Override
     public CliResult execute(String... args) throws Exception {
+        if (exceptionToBeThrown != null) {
+            throw exceptionToBeThrown;
+        }
         return r;
     }
 }
