@@ -33,7 +33,7 @@
         },
         "keyData": [
             {
-                "hashicorpVaultSecretEngineName": "secret",
+                "hashicorpVaultSecretEngineName": "kv",
                 "hashicorpVaultSecretName": "tessera",
                 "hashicorpVaultPublicKeyId": "publicKey",
                 "hashicorpVaultPrivateKeyId": "privateKey"
