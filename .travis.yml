@@ -52,9 +52,9 @@ jobs:
     - name: "Vault Acceptance Tests Java 8"
       jdk:  oraclejdk8
       before_install: &install_hashicorp
-        - wget https://releases.hashicorp.com/vault/1.0.1/vault_1.0.1_linux_amd64.zip -O /tmp/vault_1.0.1_linux_amd64.zip
+        - wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
         - mkdir -p vault/bin && pushd $_
-        - unzip /tmp/vault_1.0.1_linux_amd64.zip
+        - unzip /tmp/vault_1.2.2_linux_amd64.zip
         - export PATH=$PATH:$PWD && popd
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P akv-acceptance-tests,vault-acceptance-tests,reduce-logging -o || travis_terminate 1
