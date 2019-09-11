@@ -41,7 +41,7 @@ Feature: Hashicorp Vault support
     Scenario: Tessera generates and stores a keypair in the Vault using the Token auth method
         When Tessera keygen is run with the following CLI args and token environment variable
             """
-            -keygen -keygenvaulttype HASHICORP -keygenvaulturl https://localhost:8200 -keygenvaultsecretengine secret -filename tessera/nodeA,tessera/nodeB -keygenvaultkeystore %s -keygenvaulttruststore %s
+            -keygen -keygenvaulttype HASHICORP -keygenvaulturl https://localhost:8200 -keygenvaultsecretengine kv -filename tessera/nodeA,tessera/nodeB -keygenvaultkeystore %s -keygenvaulttruststore %s
             """
         Then a new key pair tessera/nodeA will have been added to the vault
         And a new key pair tessera/nodeB will have been added to the vault
@@ -50,7 +50,7 @@ Feature: Hashicorp Vault support
         Given the AppRole auth method is enabled at the default path
         When Tessera keygen is run with the following CLI args and approle environment variables
             """
-            -keygen -keygenvaulttype HASHICORP -keygenvaulturl https://localhost:8200 -keygenvaultsecretengine secret -filename tessera/nodeA,tessera/nodeB -keygenvaultkeystore %s -keygenvaulttruststore %s
+            -keygen -keygenvaulttype HASHICORP -keygenvaulturl https://localhost:8200 -keygenvaultsecretengine kv -filename tessera/nodeA,tessera/nodeB -keygenvaultkeystore %s -keygenvaulttruststore %s
             """
         Then a new key pair tessera/nodeA will have been added to the vault
         And a new key pair tessera/nodeB will have been added to the vault
@@ -59,7 +59,7 @@ Feature: Hashicorp Vault support
         Given the AppRole auth method is enabled at the custom path
         When Tessera keygen is run with the following CLI args and approle environment variables
             """
-            -keygen -keygenvaulttype HASHICORP -keygenvaulturl https://localhost:8200 -keygenvaultsecretengine secret -filename tessera/nodeA,tessera/nodeB -keygenvaultkeystore %s -keygenvaulttruststore %s -keygenvaultapprole different-approle
+            -keygen -keygenvaulttype HASHICORP -keygenvaulturl https://localhost:8200 -keygenvaultsecretengine kv -filename tessera/nodeA,tessera/nodeB -keygenvaultkeystore %s -keygenvaulttruststore %s -keygenvaultapprole different-approle
             """
         Then a new key pair tessera/nodeA will have been added to the vault
         And a new key pair tessera/nodeB will have been added to the vault
