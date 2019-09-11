@@ -273,6 +273,7 @@
                         <configuration>
                             <includes>
                                 <include>RunHashicorpIT</include>
+                                <include>RunAzureIT</include>
                             </includes>
                         </configuration>
                     </plugin>
@@ -281,7 +282,24 @@
         </profile>
 
         <profile>
-            <id>akv-acceptance-tests</id>
+            <id>hashicorp-vault-acceptance-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>RunHashicorpIT</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>azure-vault-acceptance-tests</id>
             <build>
                 <plugins>
                     <plugin>

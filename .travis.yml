@@ -57,14 +57,14 @@ jobs:
         - unzip /tmp/vault_1.0.1_linux_amd64.zip
         - export PATH=$PATH:$PWD && popd
       install: *build_no_checks
-      script: mvn verify -pl tests/acceptance-test -P akv-acceptance-tests,vault-acceptance-tests,reduce-logging -o || travis_terminate 1
+      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
 
     - name: "Vault Acceptance Tests Java 11"
       jdk:  oraclejdk11
       before_install: *install_hashicorp
       install: *build_no_checks
-      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
-      # TODO add akv-acceptance-tests profile when Travis is updated to use jdk 11.0.3+
+      script: mvn verify -pl tests/acceptance-test -P hashicorp-vault-acceptance-tests,reduce-logging -o || travis_terminate 1
+    # TODO use vault-acceptance-tests profile when Travis is updated to use jdk 11.0.3+
 
 #    - stage: deploy only
 #      name: "Deploy to OSSRH"
