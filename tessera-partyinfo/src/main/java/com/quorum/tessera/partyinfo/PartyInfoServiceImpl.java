@@ -109,6 +109,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     @Override
     public PartyInfo removeRecipient(String uri) {
+        LOGGER.debug("Removing recipient {} from store", uri);
         return partyInfoStore.removeRecipient(uri);
     }
 

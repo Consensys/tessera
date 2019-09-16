@@ -77,6 +77,7 @@ public enum PartyInfoStoreImpl implements PartyInfoStore {
 
     @Override
     public synchronized PartyInfo removeRecipient(String uri) {
+        LOGGER.debug("Removing {}", uri);
         Optional<PublicKey> key =
                 recipients.entrySet().stream()
                         .filter(e -> uri.startsWith(e.getValue().getUrl()))
@@ -85,12 +86,13 @@ public enum PartyInfoStoreImpl implements PartyInfoStore {
 
         key.ifPresent(recipients::remove);
 
+        LOGGER.debug("Removed {}", uri);
         return getPartyInfo();
     }
 
     @Override
     public Recipient findRecipientByPublicKey(PublicKey key) {
-        LOGGER.debug("Find key {}",key);
+        LOGGER.debug("Find key {}", key);
         Optional<Recipient> recipient = Optional.ofNullable(recipients.get(key));
 
         if (!recipient.isPresent()) {
