@@ -13,6 +13,10 @@ import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 import org.eclipse.jetty.websocket.common.scopes.SimpleContainerScope;
 import org.slf4j.*;
 
+/**
+ * Temporary fix for org.eclipse.jetty.websocket.jsr356.JettyClientContainerProvider not allowing the direct
+ * provision/injection of a javax.net.ssl.SSLContext.
+ */
 public class ExtendedJettyClientContainerProvider extends javax.websocket.ContainerProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedJettyClientContainerProvider.class);
