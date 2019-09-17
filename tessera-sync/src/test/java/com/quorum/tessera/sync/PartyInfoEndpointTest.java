@@ -9,6 +9,7 @@ import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import javax.websocket.RemoteEndpoint.Basic;
@@ -48,24 +49,48 @@ public class PartyInfoEndpointTest {
     }
 
     @Test
-    public void onSyncPartyInfo() throws Exception {
+    public void onSyncPartyInfoNoUpdates() throws Exception {
 
         PartyInfo partyInfo = Fixtures.samplePartyInfo();
 
+        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
         when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(partyInfo);
 
         SyncRequestMessage syncRequestMessage =
                 SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO).withPartyInfo(partyInfo).build();
 
-        Basic basic = mock(Basic.class);
-        when(session.getBasicRemote()).thenReturn(basic);
-        partyInfoEndpoint.onOpen(session);
         partyInfoEndpoint.onSync(session, syncRequestMessage);
         partyInfoEndpoint.onClose(session);
 
-        verify(basic, times(2)).sendObject(any(SyncResponseMessage.class));
+        verify(partyInfoService).getPartyInfo();
+    }
+
+    @Test
+    public void onSyncPartyInfoWithUpdatesInMessage() throws Exception {
+
+        PartyInfo partyInfo = Fixtures.samplePartyInfo();
+
+        PartyInfo existingParrtyInfo =
+                new PartyInfo(partyInfo.getUrl(), Collections.emptySet(), Collections.emptySet());
+        when(partyInfoService.getPartyInfo()).thenReturn(existingParrtyInfo);
+        when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(partyInfo);
+
+        Session otherClientSession = mock(Session.class);
+        Basic basic = mock(Basic.class);
+        when(otherClientSession.getBasicRemote()).thenReturn(basic);
+        when(otherClientSession.isOpen()).thenReturn(true);
+
+        partyInfoEndpoint.onOpen(otherClientSession);
+
+        final SyncRequestMessage syncRequestMessage =
+                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO).withPartyInfo(partyInfo).build();
+
+        partyInfoEndpoint.onSync(session, syncRequestMessage);
+        partyInfoEndpoint.onClose(session);
+
+        verify(partyInfoService).getPartyInfo();
         verify(partyInfoService).updatePartyInfo(partyInfo);
-        verify(partyInfoService, times(2)).getPartyInfo();
+        verify(basic).sendObject(any());
     }
 
     @Test
@@ -129,15 +154,9 @@ public class PartyInfoEndpointTest {
         final SyncRequestMessage syncRequestMessage =
                 SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO).build();
 
-        Basic basic = mock(Basic.class);
-        when(session.getBasicRemote()).thenReturn(basic);
-
-        partyInfoEndpoint.onOpen(session);
-
         partyInfoEndpoint.onSync(session, syncRequestMessage);
         partyInfoEndpoint.onClose(session);
 
-        verify(basic, times(2)).sendObject(any(SyncResponseMessage.class));
-        verify(partyInfoService, times(2)).getPartyInfo();
+        verify(partyInfoService).getPartyInfo();
     }
 }

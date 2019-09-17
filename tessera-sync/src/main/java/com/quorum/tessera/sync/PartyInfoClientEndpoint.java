@@ -1,14 +1,14 @@
 package com.quorum.tessera.sync;
 
 import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
+import java.io.IOException;
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
+import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -28,7 +28,7 @@ public class PartyInfoClientEndpoint {
 
     private final PartyInfoService partyInfoService;
 
-    private final Set<Session> sessions = Collections.synchronizedSet(new HashSet<>());
+    private final Set<Session> sessions = ConcurrentHashMap.newKeySet();
 
     public PartyInfoClientEndpoint(PartyInfoService partyInfoService, Object transactionManager) {
         this(partyInfoService);
@@ -45,41 +45,8 @@ public class PartyInfoClientEndpoint {
     }
 
     @OnMessage
-    public void onResponse(Session session, SyncResponseMessage response) {
-
-        LOGGER.info("Response.type {}", response.getType());
-
-        if (response.getType() == SyncResponseMessage.Type.PARTY_INFO) {
-
-            final PartyInfo partyInfo = response.getPartyInfo();
-
-            if (Objects.nonNull(partyInfo)) {
-
-                LOGGER.debug("Updating party info from {}", partyInfo.getUrl());
-
-                PartyInfo updatedPartyInfo = partyInfoService.updatePartyInfo(partyInfo);
-
-                SyncRequestMessage syncRequestMessage =
-                        SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO)
-                                .withPartyInfo(updatedPartyInfo)
-                                .build();
-
-                sessions.forEach(
-                        s -> {
-                            WebSocketSessionCallback.execute(
-                                    () -> {
-                                        LOGGER.debug("Forwarding partyinfo response to session : {}", s.getId());
-
-                                        s.getBasicRemote().sendObject(syncRequestMessage);
-
-                                        LOGGER.debug("Sent partyinfo response to session {}", s.getId());
-                                        return null;
-                                    });
-                        });
-
-                LOGGER.debug("Updated party info from {}", partyInfo.getUrl());
-            }
-        }
+    public void onResponse(Session session, SyncResponseMessage response) throws IOException, EncodeException {
+        LOGGER.info("Process response from {}", session.getRequestURI());
     }
 
     @OnClose
@@ -95,6 +62,6 @@ public class PartyInfoClientEndpoint {
 
     @OnError
     public void onError(Throwable ex) {
-        LOGGER.error("", ex);
+        LOGGER.error("Handle error", ex);
     }
 }
