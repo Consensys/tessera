@@ -17,11 +17,11 @@ public class PartyInfoEndpointConfigurator extends ServerEndpointConfig.Configur
     @Override
     public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
         if (endpointClass.equals(PartyInfoEndpoint.class)) {
-            LOGGER.info("Creating PartyInfoEndpoint {}", endpointClass);
+            LOGGER.debug("Creating PartyInfoEndpoint {}", endpointClass);
             PartyInfoEndpoint endpoint =
                     new PartyInfoEndpoint(
                             partyInfoServiceFactory.partyInfoService(), serviceFactory.transactionManager());
-            LOGGER.info("Created PartyInfoEndpoint {}", endpoint);
+            LOGGER.debug("Created PartyInfoEndpoint {}", endpoint);
 
             return (T) endpoint;
         }

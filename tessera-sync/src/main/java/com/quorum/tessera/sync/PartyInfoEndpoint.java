@@ -9,10 +9,9 @@ import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -38,7 +37,7 @@ public class PartyInfoEndpoint {
 
     private final TransactionManager transactionManager;
 
-    private final Set<Session> sessionStore = Collections.synchronizedSet(new HashSet<>());
+    private final Set<Session> sessionStore = ConcurrentHashMap.newKeySet();
 
     public PartyInfoEndpoint(PartyInfoService partyInfoService, TransactionManager transactionManager) {
         this.partyInfoService = partyInfoService;
@@ -46,24 +45,13 @@ public class PartyInfoEndpoint {
     }
 
     @OnOpen
-    public void onOpen(Session session) throws IOException, EncodeException {
-
-        PartyInfo partyInfo = partyInfoService.getPartyInfo();
-
-        SyncResponseMessage syncResponseMessage =
-                SyncResponseMessage.Builder.create(SyncResponseMessage.Type.PARTY_INFO)
-                        .withPartyInfo(partyInfo)
-                        .build();
-
+    public void onOpen(Session session) {
+        LOGGER.debug("Open session {}", session);
         sessionStore.add(session);
-
-        session.getBasicRemote().sendObject(syncResponseMessage);
     }
 
     @OnMessage
     public void onSync(Session session, SyncRequestMessage syncRequestMessage) throws IOException, EncodeException {
-
-        LOGGER.debug("Session: {}, SyncRequestMessage.type: {}", session.getId(), syncRequestMessage.getType());
 
         if (syncRequestMessage.getType() == SyncRequestMessage.Type.TRANSACTION_PUSH) {
             EncodedPayload payload = syncRequestMessage.getTransactions();
@@ -91,34 +79,52 @@ public class PartyInfoEndpoint {
                 SyncResponseMessage.Builder.create(SyncResponseMessage.Type.PARTY_INFO);
 
         if (partyInfo.isPresent()) {
-            PartyInfo mergedPartyInfo = partyInfoService.updatePartyInfo(partyInfo.get());
-            LOGGER.info(
-                    "Updated party info for {}", partyInfo.map(PartyInfo::getUrl).orElse("No party info url found "));
+
+            final PartyInfo sendPartyInfo = partyInfo.get();
+
+            boolean noChanges =
+                    existingPartyInfo.getRecipients().containsAll(sendPartyInfo.getRecipients())
+                            && sendPartyInfo.getRecipients().containsAll(existingPartyInfo.getRecipients());
+
+            if (noChanges) {
+                LOGGER.debug("No updates found {}", existingPartyInfo.getUrl());
+                return;
+            }
+
+            LOGGER.debug("Updating party info {}", sendPartyInfo.getUrl());
+
+            final PartyInfo mergedPartyInfo = partyInfoService.updatePartyInfo(sendPartyInfo);
+
+            LOGGER.debug(
+                    "Updated party info for {}",
+                    Optional.ofNullable(sendPartyInfo.getUrl()).orElse("No party info url found "));
+
             responseBuilder.withPartyInfo(mergedPartyInfo);
+
         } else {
-            LOGGER.info("Adding existing party info to response:  {}", existingPartyInfo.getUrl());
+            LOGGER.debug("Adding existing party info to response:  {}", existingPartyInfo.getUrl());
             responseBuilder.withPartyInfo(existingPartyInfo);
         }
 
-        SyncResponseMessage response = responseBuilder.build();
+        final SyncResponseMessage response = responseBuilder.build();
 
-        sessionStore.forEach(
-                s -> {
-                    WebSocketSessionCallback.execute(
-                            () -> {
-                                LOGGER.debug("Forwarding partyinfo response to session : {}", s.getId());
-
-                                s.getBasicRemote().sendObject(response);
-
-                                LOGGER.debug("Sent partyinfo response to session {}", s.getId());
-                                return null;
-                            });
-                });
+        sessionStore.stream()
+                .filter(Session::isOpen)
+                .forEach(
+                        s -> {
+                            WebSocketSessionCallback.execute(
+                                    () -> {
+                                        LOGGER.debug("Sending response {}", s);
+                                        s.getBasicRemote().sendObject(response);
+                                        LOGGER.debug("Sent response {}", s);
+                                        return null;
+                                    });
+                        });
     }
 
     @OnClose
     public void onClose(Session session) throws IOException {
-        LOGGER.info("Closing {}", session);
+        LOGGER.trace("Closing {}", session);
         sessionStore.remove(session);
         session.close();
     }
