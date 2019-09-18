@@ -1,7 +1,8 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.api.model.ResendRequest;
+
 import com.quorum.tessera.jaxrs.mock.MockClient;
+import com.quorum.tessera.partyinfo.ResendRequest;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.client.Entity;

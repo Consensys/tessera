@@ -24,8 +24,6 @@ public class OpenPojoTest {
                         .build();
 
         pojoValidator.validate(
-                getClass().getPackage().getName(),
-                (pc) -> !pc.getClazz().isAssignableFrom(StoreRawRequest.class),
-                (pc) -> !pc.getClazz().isAssignableFrom(ResendResponse.class));
+                getClass().getPackage().getName(), (pc) -> !pc.getClazz().isAssignableFrom(StoreRawRequest.class));
     }
 }

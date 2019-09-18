@@ -12,7 +12,7 @@ public class Convertor {
         throw new UnsupportedOperationException("This object should not be constructed.");
     }
 
-    public static com.quorum.tessera.grpc.p2p.ResendRequest toGrpc(com.quorum.tessera.api.model.ResendRequest request) {
+    public static com.quorum.tessera.grpc.p2p.ResendRequest toGrpc(com.quorum.tessera.partyinfo.ResendRequest request) {
         com.quorum.tessera.grpc.p2p.ResendRequestType resendRequestType =
                 Optional.ofNullable(request.getType())
                         .filter(Objects::nonNull)
@@ -34,16 +34,16 @@ public class Convertor {
         return request;
     }
 
-    public static com.quorum.tessera.api.model.ResendRequest toModel(
+    public static com.quorum.tessera.partyinfo.ResendRequest toModel(
             com.quorum.tessera.grpc.p2p.ResendRequest grpcObject) {
-        com.quorum.tessera.api.model.ResendRequest resendRequest = new com.quorum.tessera.api.model.ResendRequest();
+        com.quorum.tessera.partyinfo.ResendRequest resendRequest = new com.quorum.tessera.partyinfo.ResendRequest();
         resendRequest.setKey(grpcObject.getKey());
         resendRequest.setPublicKey(grpcObject.getPublicKey());
 
         Stream.of(com.quorum.tessera.grpc.p2p.ResendRequestType.values())
                 .map(Enum::name)
                 .filter(n -> n.equals(grpcObject.getType().name()))
-                .map(com.quorum.tessera.api.model.ResendRequestType::valueOf)
+                .map(com.quorum.tessera.partyinfo.ResendRequestType::valueOf)
                 .findAny()
                 .ifPresent(resendRequest::setType);
 

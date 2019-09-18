@@ -1,7 +1,7 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.api.model.ResendRequest;
 import com.quorum.tessera.partyinfo.P2pClient;
+import com.quorum.tessera.partyinfo.ResendRequest;
 import java.util.Objects;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
