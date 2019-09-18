@@ -26,6 +26,15 @@ public class PartyInfoEndpointConfigurator extends ServerEndpointConfig.Configur
             return (T) endpoint;
         }
 
+        if (endpointClass.equals(PartyInfoValidationEndpoint.class)) {
+            LOGGER.debug("Creating PartyInfoValidationEndpoint {}", endpointClass);
+            PartyInfoValidationEndpoint endpoint =
+                    new PartyInfoValidationEndpoint(partyInfoServiceFactory.partyInfoService());
+            LOGGER.debug("Created PartyInfoValidationEndpoint {}", endpoint);
+
+            return (T) endpoint;
+        }
+
         LOGGER.error("Cannot create endpoint for {}", endpointClass);
         throw new InstantiationException(endpointClass + " is not a supported type. ");
     }

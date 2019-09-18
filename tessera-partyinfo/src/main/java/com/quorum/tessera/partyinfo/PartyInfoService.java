@@ -1,6 +1,8 @@
 package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.Recipient;
+import java.util.Set;
 
 public interface PartyInfoService {
 
@@ -23,4 +25,9 @@ public interface PartyInfoService {
     // Set<String> getUrlsForKey(PublicKey key);
 
     PartyInfo removeRecipient(String uri);
+
+    Set<Recipient> validateAndExtractValidRecipients(
+            PartyInfo partyInfo, PartyInfoValidatorCallback partyInfoValidatorCallback);
+
+    byte[] unencryptSampleData(byte[] data);
 }

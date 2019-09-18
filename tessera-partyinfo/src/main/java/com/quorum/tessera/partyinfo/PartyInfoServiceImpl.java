@@ -6,6 +6,8 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 
 import org.slf4j.Logger;
@@ -29,12 +31,26 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     private final Enclave enclave;
 
+    private final PartyInfoValidator partyInfoValidator;
+
+    private final PayloadEncoder payloadEncoder;
+
+    public PartyInfoServiceImpl(
+            PartyInfoStore partyInfoStore,
+            ConfigService configService,
+            Enclave enclave,
+            PartyInfoValidator partyInfoValidator,
+            PayloadEncoder payloadEncoder) {
+        this.partyInfoStore = partyInfoStore;
+        this.configService = configService;
+        this.enclave = enclave;
+        this.partyInfoValidator = partyInfoValidator;
+        this.payloadEncoder = payloadEncoder;
+    }
+
     public PartyInfoServiceImpl(
             PartyInfoStore partyInfoStore, final ConfigService configService, final Enclave enclave) {
-
-        this.configService = Objects.requireNonNull(configService);
-        this.partyInfoStore = partyInfoStore;
-        this.enclave = enclave;
+        this(partyInfoStore, configService, enclave, new PartyInfoValidatorImpl(enclave), PayloadEncoder.create());
     }
 
     @PostConstruct
@@ -135,5 +151,21 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         }
 
         return true;
+    }
+
+    @Override
+    public Set<Recipient> validateAndExtractValidRecipients(
+            PartyInfo partyInfo, PartyInfoValidatorCallback partyInfoValidatorCallback) {
+        return partyInfoValidator.validateAndFetchValidRecipients(partyInfo, partyInfoValidatorCallback);
+    }
+
+    @Override
+    public byte[] unencryptSampleData(byte[] payloadData) {
+
+        final EncodedPayload payload = payloadEncoder.decode(payloadData);
+
+        final PublicKey mykey = payload.getRecipientKeys().iterator().next();
+
+        return enclave.unencryptTransaction(payload, mykey);
     }
 }
