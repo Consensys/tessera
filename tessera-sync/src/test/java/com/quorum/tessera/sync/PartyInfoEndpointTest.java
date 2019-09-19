@@ -55,6 +55,7 @@ public class PartyInfoEndpointTest {
 
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
         when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(partyInfo);
+        when(partyInfoService.validateAndExtractValidRecipients(any(), any())).thenReturn(partyInfo.getRecipients());
 
         SyncRequestMessage syncRequestMessage =
                 SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO).withPartyInfo(partyInfo).build();
@@ -63,6 +64,7 @@ public class PartyInfoEndpointTest {
         partyInfoEndpoint.onClose(session);
 
         verify(partyInfoService).getPartyInfo();
+        verify(partyInfoService).validateAndExtractValidRecipients(any(), any());
     }
 
     @Test
@@ -74,6 +76,7 @@ public class PartyInfoEndpointTest {
                 new PartyInfo(partyInfo.getUrl(), Collections.emptySet(), Collections.emptySet());
         when(partyInfoService.getPartyInfo()).thenReturn(existingParrtyInfo);
         when(partyInfoService.updatePartyInfo(partyInfo)).thenReturn(partyInfo);
+        when(partyInfoService.validateAndExtractValidRecipients(any(), any())).thenReturn(partyInfo.getRecipients());
 
         Session otherClientSession = mock(Session.class);
         Basic basic = mock(Basic.class);
@@ -91,6 +94,7 @@ public class PartyInfoEndpointTest {
         verify(partyInfoService).getPartyInfo();
         verify(partyInfoService).updatePartyInfo(partyInfo);
         verify(basic).sendObject(any());
+        verify(partyInfoService).validateAndExtractValidRecipients(any(), any());
     }
 
     @Test
@@ -158,5 +162,24 @@ public class PartyInfoEndpointTest {
         partyInfoEndpoint.onClose(session);
 
         verify(partyInfoService).getPartyInfo();
+    }
+
+    @Test
+    public void onSyncPartyInfoNoUpdatesInvalidPartyInfo() throws Exception {
+
+        PartyInfo partyInfo = Fixtures.samplePartyInfo();
+
+        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        when(partyInfoService.validateAndExtractValidRecipients(any(), any())).thenReturn(Collections.emptySet());
+
+        SyncRequestMessage syncRequestMessage =
+                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO).withPartyInfo(partyInfo).build();
+        try {
+            partyInfoEndpoint.onSync(session, syncRequestMessage);
+            failBecauseExceptionWasNotThrown(SecurityException.class);
+        } catch (SecurityException ex) {
+            verify(partyInfoService).getPartyInfo();
+            verify(partyInfoService).validateAndExtractValidRecipients(any(), any());
+        }
     }
 }

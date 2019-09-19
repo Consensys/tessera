@@ -4,9 +4,11 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.PartyInfoValidatorCallback;
 import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.io.IOException;
 import java.util.Optional;
@@ -38,6 +40,8 @@ public class PartyInfoEndpoint {
     private final TransactionManager transactionManager;
 
     private final Set<Session> sessionStore = ConcurrentHashMap.newKeySet();
+
+    private PartyInfoValidatorCallback partyInfoValidatorCallback = new WebsocketPartyInfoValidatorCallback();
 
     public PartyInfoEndpoint(PartyInfoService partyInfoService, TransactionManager transactionManager) {
         this.partyInfoService = partyInfoService;
@@ -81,6 +85,16 @@ public class PartyInfoEndpoint {
         if (partyInfo.isPresent()) {
 
             final PartyInfo sendPartyInfo = partyInfo.get();
+
+            final String url = sendPartyInfo.getUrl();
+
+            // Validate caller and treat no valid certs as security issue.
+            final Set<Recipient> recipients =
+                    partyInfoService.validateAndExtractValidRecipients(sendPartyInfo, partyInfoValidatorCallback);
+
+            if (recipients.isEmpty()) {
+                throw new SecurityException("No key found for url " + url);
+            }
 
             boolean noChanges =
                     existingPartyInfo.getRecipients().containsAll(sendPartyInfo.getRecipients())

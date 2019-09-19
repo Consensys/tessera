@@ -8,7 +8,7 @@ public class PartyInfoEndpointAdapter implements TesseraAppClass {
 
     @Override
     public Class<?>[] getAppClass() {
-        return new Class[] {PartyInfoEndpoint.class};
+        return new Class[] {PartyInfoEndpoint.class, PartyInfoValidationEndpoint.class};
     }
 
     @Override
