@@ -81,20 +81,21 @@ public class AddPeerCommand implements Callable<CliResult> {
 
         URI uri = UriBuilder.fromUri(serverConfig.getBindingUri()).port(port).scheme(scheme).build();
 
-        Response response =
+        try (Response response =
                 restClient
                         .target(uri)
                         .path("config")
                         .path("peers")
                         .request(APPLICATION_JSON)
                         .accept(APPLICATION_JSON)
-                        .put(Entity.entity(peer, APPLICATION_JSON));
+                        .put(Entity.entity(peer, APPLICATION_JSON))) {
 
-        if (response.getStatus() == Response.Status.CREATED.getStatusCode()) {
-            sys.out().printf("Peer %s added.", response.getLocation());
-            sys.out().println();
+            if (response.getStatus() == Response.Status.CREATED.getStatusCode()) {
+                sys.out().printf("Peer %s added.", response.getLocation());
+                sys.out().println();
 
-            return new CliResult(0, true, null);
+                return new CliResult(0, true, null);
+            }
         }
 
         sys.err().println("Unable to create peer");

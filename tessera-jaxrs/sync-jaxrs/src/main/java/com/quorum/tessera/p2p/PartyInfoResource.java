@@ -116,22 +116,23 @@ public class PartyInfoResource {
 
                         final byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
 
-                        Response response =
+                        try (Response response =
                                 restClient
                                         .target(r.getUrl())
                                         .path("partyinfo")
                                         .path("validate")
                                         .request()
-                                        .post(Entity.entity(encodedPayloadData, MediaType.APPLICATION_OCTET_STREAM));
+                                        .post(Entity.entity(encodedPayloadData, MediaType.APPLICATION_OCTET_STREAM))) {
 
-                        String unencodedValidationData = response.readEntity(String.class);
+                            String unencodedValidationData = response.readEntity(String.class);
 
-                        boolean isValid = Objects.equals(unencodedValidationData, dataToEncrypt);
-                        if (!isValid) {
-                            LOGGER.warn("Invalid key found {} recipient will be ignored.", r.getUrl());
+                            boolean isValid = Objects.equals(unencodedValidationData, dataToEncrypt);
+                            if (!isValid) {
+                                LOGGER.warn("Invalid key found {} recipient will be ignored.", r.getUrl());
+                            }
+
+                            return isValid;
                         }
-
-                        return isValid;
                         // Assume any all exceptions to mean invalid. enclave bubbles up nacl array out of
                         // bounds when calculating shared key from invalid data
                     } catch (Exception ex) {

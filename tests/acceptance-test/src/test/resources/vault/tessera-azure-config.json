@@ -26,18 +26,15 @@
     ],
     "keys": {
         "passwords": [],
-        "hashicorpKeyVaultConfig": {
-            "url": "https://localhost:8200",
-            "tlsKeyStorePath": "${clientKeystore}",
-            "tlsTrustStorePath": "${clientTruststore}",
-            "approlePath": "${approlePath}"
+        "azureKeyVaultConfig": {
+            "url": "${azureKeyVaultUrl}"
         },
         "keyData": [
             {
-                "hashicorpVaultSecretEngineName": "kv",
-                "hashicorpVaultSecretName": "tessera",
-                "hashicorpVaultPublicKeyId": "publicKey",
-                "hashicorpVaultPrivateKeyId": "privateKey"
+                "azureVaultPrivateKeyId": "Key",
+                "azureVaultPublicKeyId": "Pub",
+                "azureVaultPublicKeyVersion": "bvfw05z4cbu11ra2g94e43v9xxewqdq7",
+                "azureVaultPrivateKeyVersion": "0my1ora2dciijx5jq9gv07sauzs5wjo2"
             }
         ]
     },

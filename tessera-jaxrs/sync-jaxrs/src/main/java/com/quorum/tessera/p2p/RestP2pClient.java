@@ -19,44 +19,47 @@ public class RestP2pClient implements P2pClient {
     @Override
     public byte[] push(String targetUrl, byte[] data) {
 
-        final Response response =
+        try (Response response =
                 client.target(targetUrl)
                         .path("/push")
                         .request()
-                        .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM_TYPE));
+                        .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM_TYPE))) {
 
-        if (Response.Status.OK.getStatusCode() != response.getStatus()
-                && Response.Status.CREATED.getStatusCode() != response.getStatus()) {
-            return null;
+            if (Response.Status.OK.getStatusCode() != response.getStatus()
+                    && Response.Status.CREATED.getStatusCode() != response.getStatus()) {
+                return null;
+            }
+
+            return response.readEntity(byte[].class);
         }
-
-        return response.readEntity(byte[].class);
     }
 
     @Override
     public boolean sendPartyInfo(String targetUrl, byte[] data) {
-        final Response response =
+        try (Response response =
                 client.target(targetUrl)
                         .path("/partyinfo")
                         .request()
-                        .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM_TYPE));
+                        .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM_TYPE))) {
 
-        if (Response.Status.OK.getStatusCode() != response.getStatus()
-                && Response.Status.CREATED.getStatusCode() != response.getStatus()) {
-            return false;
+            if (Response.Status.OK.getStatusCode() != response.getStatus()
+                    && Response.Status.CREATED.getStatusCode() != response.getStatus()) {
+                return false;
+            }
+
+            return Objects.nonNull(response.readEntity(byte[].class));
         }
-
-        return Objects.nonNull(response.readEntity(byte[].class));
     }
 
     @Override
     public boolean makeResendRequest(String targetUrl, ResendRequest request) {
-        final Response response =
+        try (Response response =
                 client.target(targetUrl)
                         .path("/resend")
                         .request()
-                        .post(Entity.entity(request, MediaType.APPLICATION_JSON));
+                        .post(Entity.entity(request, MediaType.APPLICATION_JSON))) {
 
-        return Response.Status.OK.getStatusCode() == response.getStatus();
+            return Response.Status.OK.getStatusCode() == response.getStatus();
+        }
     }
 }
