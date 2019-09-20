@@ -26,8 +26,10 @@ import javax.validation.Validator;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+import java.util.concurrent.Callable;
 
-public class DefaultCliAdapter implements CliAdapter {
+@picocli.CommandLine.Command
+public class DefaultCliAdapter implements CliAdapter, Callable<CliResult> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCliAdapter.class);
 
@@ -39,12 +41,19 @@ public class DefaultCliAdapter implements CliAdapter {
         .buildValidatorFactory()
         .getValidator();
 
+    @picocli.CommandLine.Unmatched private String[] allParameters = new String[0];
+
     public DefaultCliAdapter() {
         this(ServiceLoaderUtil.load(KeyPasswordResolver.class).orElse(new CliKeyPasswordResolver()));
     }
 
     public DefaultCliAdapter(final KeyPasswordResolver keyPasswordResolver) {
         this.keyPasswordResolver = Objects.requireNonNull(keyPasswordResolver);
+    }
+
+    @Override
+    public CliResult call() throws Exception {
+        return this.execute(allParameters);
     }
 
     @Override
@@ -82,9 +91,9 @@ public class DefaultCliAdapter implements CliAdapter {
             HelpFormatter formatter = new HelpFormatter();
             PrintWriter pw = new PrintWriter(sys().out());
             formatter.printHelp(pw,
-                    200, "tessera -configfile <PATH> [-keygen <PATH>] [-pidfile <PATH>]",
-                    null, options, formatter.getLeftPadding(),
-                    formatter.getDescPadding(), null, false);
+                200, "tessera -configfile <PATH> [-keygen <PATH>] [-pidfile <PATH>]",
+                null, options, formatter.getLeftPadding(),
+                formatter.getDescPadding(), null, false);
             pw.flush();
             return new CliResult(0, true, null);
         }
@@ -211,11 +220,11 @@ public class DefaultCliAdapter implements CliAdapter {
 
         options.addOption(
             Option.builder("keygenvaultapprole")
-                  .desc("AppRole path for Hashicorp Vault authentication (defaults to 'approle')")
-                  .hasArg()
-                  .optionalArg(false)
-                  .argName("STRING")
-                  .build()
+                .desc("AppRole path for Hashicorp Vault authentication (defaults to 'approle')")
+                .hasArg()
+                .optionalArg(false)
+                .argName("STRING")
+                .build()
         );
 
         options.addOption(
@@ -229,20 +238,20 @@ public class DefaultCliAdapter implements CliAdapter {
 
         options.addOption(
             Option.builder("keygenvaulttruststore")
-                  .desc("Path to JKS truststore for TLS Hashicorp Vault communication")
-                  .hasArg()
-                  .optionalArg(false)
-                  .argName("PATH")
-                  .build()
+                .desc("Path to JKS truststore for TLS Hashicorp Vault communication")
+                .hasArg()
+                .optionalArg(false)
+                .argName("PATH")
+                .build()
         );
 
         options.addOption(
             Option.builder("keygenvaultsecretengine")
-                  .desc("Name of already enabled Hashicorp v2 kv secret engine")
-                  .hasArg()
-                  .optionalArg(false)
-                  .argName("STRING")
-                  .build()
+                .desc("Name of already enabled Hashicorp v2 kv secret engine")
+                .hasArg()
+                .optionalArg(false)
+                .argName("STRING")
+                .build()
         );
 
         options.addOption(
@@ -264,4 +273,8 @@ public class DefaultCliAdapter implements CliAdapter {
         return options;
     }
 
+    // TODO: for testing, remove if possible
+    public void setAllParameters(final String[] allParameters) {
+        this.allParameters = allParameters;
+    }
 }

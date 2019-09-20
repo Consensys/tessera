@@ -63,6 +63,17 @@ public class DefaultCliAdapterTest {
     }
 
     @Test
+    public void helpViaCall() throws Exception {
+        cliDelegate.setAllParameters(new String[] {"help"});
+        final CliResult result = cliDelegate.call();
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isNotPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.isSuppressStartup()).isTrue();
+    }
+
+    @Test
     public void noArgsPrintsHelp() throws Exception {
 
         final CliResult result = cliDelegate.execute();
@@ -119,7 +130,7 @@ public class DefaultCliAdapterTest {
         Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
 
         Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
-         Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+        Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
 
         FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
         when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
@@ -132,11 +143,11 @@ public class DefaultCliAdapterTest {
         Path configFilePath = ElUtil.createTempFileFromTemplate(getClass().getResource("/keygen-sample.json"), params);
 
         CliResult result = cliDelegate.execute(
-                "-keygen",
-                "-filename",
-                UUID.randomUUID().toString(),
-                "-configfile",
-                configFilePath.toString());
+            "-keygen",
+            "-filename",
+            UUID.randomUUID().toString(),
+            "-configfile",
+            configFilePath.toString());
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
@@ -237,10 +248,10 @@ public class DefaultCliAdapterTest {
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
         CliResult result = cliDelegate.execute(
-                "-configfile",
-                configFile.toString(),
-                "-jdbc.username",
-                "somename"
+            "-configfile",
+            configFile.toString(),
+            "-jdbc.username",
+            "somename"
         );
 
         assertThat(result).isNotNull();
@@ -258,12 +269,12 @@ public class DefaultCliAdapterTest {
         params.put("privateKeyPath", "BOGUS.bogus");
 
         Path configFile = ElUtil.createTempFileFromTemplate(
-                getClass().getResource("/sample-config-invalidpath.json"), params);
+            getClass().getResource("/sample-config-invalidpath.json"), params);
 
         try {
             cliDelegate.execute(
-                    "-configfile",
-                    configFile.toString());
+                "-configfile",
+                configFile.toString());
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
             assertThat(ex.getConstraintViolations())
@@ -306,10 +317,10 @@ public class DefaultCliAdapterTest {
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
         CliResult result = cliDelegate.execute(
-                "-configfile",
-                configFile.toString(),
-                "-alwaysSendTo",
-                alwaysSendToKey
+            "-configfile",
+            configFile.toString(),
+            "-alwaysSendTo",
+            alwaysSendToKey
         );
 
         assertThat(result).isNotNull();
@@ -325,20 +336,20 @@ public class DefaultCliAdapterTest {
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
         CliResult result = cliDelegate.execute(
-                "-configfile",
-                configFile.toString(),
-                "-peer.url",
-                "anotherpeer",
-                "-peer.url",
-                "yetanotherpeer"
+            "-configfile",
+            configFile.toString(),
+            "-peer.url",
+            "anotherpeer",
+            "-peer.url",
+            "yetanotherpeer"
         );
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig().get().getPeers()).hasSize(4);
         assertThat(result.getConfig().get().getPeers().stream()
-                .map(Peer::getUrl))
-                .containsExactlyInAnyOrder("anotherpeer","yetanotherpeer","http://bogus1.com","http://bogus2.com");
+            .map(Peer::getUrl))
+            .containsExactlyInAnyOrder("anotherpeer","yetanotherpeer","http://bogus1.com","http://bogus2.com");
 
     }
 
@@ -386,7 +397,7 @@ public class DefaultCliAdapterTest {
         Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
 
         Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
-         Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+        Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
 
         FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
         when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);

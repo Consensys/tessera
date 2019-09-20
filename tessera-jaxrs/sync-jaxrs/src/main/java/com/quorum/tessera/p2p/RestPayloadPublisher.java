@@ -20,12 +20,14 @@ public class RestPayloadPublisher implements PayloadPublisher {
     private final PayloadEncoder payloadEncoder;
 
     public RestPayloadPublisher(Client restclient) {
-        this(restclient,PayloadEncoder.create());
+        this(restclient, PayloadEncoder.create());
     }
-    public RestPayloadPublisher(Client restclient,PayloadEncoder payloadEncoder) {
+
+    public RestPayloadPublisher(Client restclient, PayloadEncoder payloadEncoder) {
         this.restclient = restclient;
         this.payloadEncoder = payloadEncoder;
     }
+
     @Override
     public void publishPayload(EncodedPayload payload, String targetUrl) {
 
@@ -33,21 +35,19 @@ public class RestPayloadPublisher implements PayloadPublisher {
 
         final byte[] encoded = payloadEncoder.encode(payload);
 
-        final Response response
-                = restclient.target(targetUrl)
+        try (Response response =
+                restclient
+                        .target(targetUrl)
                         .path("/push")
                         .request()
-                        .post(Entity.entity(encoded, MediaType.APPLICATION_OCTET_STREAM_TYPE));
+                        .post(Entity.entity(encoded, MediaType.APPLICATION_OCTET_STREAM_TYPE))) {
 
-        if(Response.Status.OK.getStatusCode() != response.getStatus()
-                && Response.Status.CREATED.getStatusCode() != response.getStatus()) {
-            throw new PublishPayloadException("Unable to push payload to recipient url " + targetUrl);
+            if (Response.Status.OK.getStatusCode() != response.getStatus()
+                    && Response.Status.CREATED.getStatusCode() != response.getStatus()) {
+                throw new PublishPayloadException("Unable to push payload to recipient url " + targetUrl);
+            }
+
+            LOGGER.info("Published to {}", targetUrl);
         }
-        
-        LOGGER.info("Published to {}", targetUrl);
-
     }
-
-
-
 }
