@@ -30,6 +30,7 @@ import javax.ws.rs.core.UriBuilder;
 import org.glassfish.tyrus.server.Server;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -37,6 +38,7 @@ import static org.mockito.Mockito.when;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Ignore
 public class PartyInfoSyncIT {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoSyncIT.class);

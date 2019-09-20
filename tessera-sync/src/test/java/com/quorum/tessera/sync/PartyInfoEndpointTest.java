@@ -137,10 +137,15 @@ public class PartyInfoEndpointTest {
                         .withTransactions(transactions)
                         .build();
 
+        Basic basic = mock(Basic.class);
+        when(session.getBasicRemote()).thenReturn(basic);
+
         partyInfoEndpoint.onSync(session, syncRequestMessage);
 
         byte[] expectedData = PayloadEncoder.create().encode(transactions);
         verify(transactionManager).storePayload(expectedData);
+        verify(basic).sendText(syncRequestMessage.getCorrelationId());
+        verify(session).getBasicRemote();
     }
 
     @Test

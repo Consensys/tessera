@@ -56,10 +56,14 @@ public class PartyInfoEndpoint {
 
     @OnMessage
     public void onSync(Session session, SyncRequestMessage syncRequestMessage) throws IOException, EncodeException {
-
+        LOGGER.debug("onSync {}", syncRequestMessage);
         if (syncRequestMessage.getType() == SyncRequestMessage.Type.TRANSACTION_PUSH) {
             EncodedPayload payload = syncRequestMessage.getTransactions();
-            transactionManager.storePayload(payloadEncoder.encode(payload));
+            com.quorum.tessera.data.MessageHash mesageHash =
+                    transactionManager.storePayload(payloadEncoder.encode(payload));
+            LOGGER.debug("Created message hash {}", mesageHash);
+
+            session.getBasicRemote().sendText(syncRequestMessage.getCorrelationId());
             return;
         }
 
