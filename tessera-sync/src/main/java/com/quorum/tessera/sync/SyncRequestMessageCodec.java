@@ -5,6 +5,7 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Objects;
 import java.util.Optional;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -27,6 +28,11 @@ public class SyncRequestMessageCodec extends TextCodecAdapter<SyncRequestMessage
 
             SyncRequestMessage.Type type = SyncRequestMessage.Type.valueOf(json.getString("type"));
             SyncRequestMessage.Builder messageBuilder = SyncRequestMessage.Builder.create(type);
+
+            if (json.containsKey("correlationId")) {
+                String correlationId = json.getString("correlationId");
+                messageBuilder.withCorrelationId(correlationId);
+            }
 
             if (type == SyncRequestMessage.Type.PARTY_INFO) {
 
@@ -58,6 +64,9 @@ public class SyncRequestMessageCodec extends TextCodecAdapter<SyncRequestMessage
         JsonObjectBuilder jsonObjectBuilder =
                 Json.createObjectBuilder().add("type", syncRequestMessage.getType().name());
 
+        if (Objects.nonNull(syncRequestMessage.getCorrelationId())) {
+            jsonObjectBuilder.add("correlationId", syncRequestMessage.getCorrelationId());
+        }
         if (syncRequestMessage.getType() == SyncRequestMessage.Type.PARTY_INFO) {
 
             Optional.ofNullable(syncRequestMessage.getPartyInfo())

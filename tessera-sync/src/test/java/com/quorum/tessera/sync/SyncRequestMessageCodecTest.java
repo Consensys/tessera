@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.UUID;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
@@ -61,6 +62,7 @@ public class SyncRequestMessageCodecTest {
                 SyncRequestMessage.Builder.create(SyncRequestMessage.Type.TRANSACTION_PUSH)
                         .withTransactions(sampleTransactions)
                         .withRecipientKey(sampleKey())
+                        .withCorrelationId(UUID.randomUUID().toString())
                         .build();
 
         try (Writer writer = new StringWriter()) {
@@ -77,6 +79,7 @@ public class SyncRequestMessageCodecTest {
 
                 assertThat(result.getString("recipientKey")).isEqualTo(sampleKey().encodeToBase64());
                 assertThat(result.getString("transactions")).isEqualTo(expected);
+                assertThat(result.getString("correlationId")).isEqualTo(syncRequestMessage.getCorrelationId());
                 assertThat(result.getString("type")).isEqualTo(SyncRequestMessage.Type.TRANSACTION_PUSH.name());
             }
         }
@@ -115,6 +118,7 @@ public class SyncRequestMessageCodecTest {
                         .add("type", SyncRequestMessage.Type.TRANSACTION_PUSH.name())
                         .add("recipientKey", recipientKey.encodeToBase64())
                         .add("transactions", MessageUtil.encodeToBase64(sampleTransactions))
+                        .add("correlationId", UUID.randomUUID().toString())
                         .build()
                         .toString();
 

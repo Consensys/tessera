@@ -4,6 +4,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.partyinfo.PayloadPublisher;
 import java.net.URI;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -13,6 +14,7 @@ import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
 import javax.websocket.CloseReason.CloseCodes;
 import javax.websocket.ContainerProvider;
+import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
@@ -44,6 +46,7 @@ public class WebsocketPayloadPublisher implements PayloadPublisher, ResendBatchP
         final SyncRequestMessage syncRequestMessage =
                 SyncRequestMessage.Builder.create(SyncRequestMessage.Type.TRANSACTION_PUSH)
                         .withTransactions(payload)
+                        .withCorrelationId(UUID.randomUUID().toString())
                         .build();
 
         WebSocketSessionCallback.execute(
@@ -56,6 +59,9 @@ public class WebsocketPayloadPublisher implements PayloadPublisher, ResendBatchP
                                         while (!responseQueue.contains(syncRequestMessage.getCorrelationId())) {
                                             ExecutorCallback.execute(
                                                     () -> {
+                                                        LOGGER.debug(
+                                                                "Response for {} not found yet.",
+                                                                syncRequestMessage.getCorrelationId());
                                                         TimeUnit.MILLISECONDS.sleep(200);
                                                         return null;
                                                     });
@@ -65,6 +71,7 @@ public class WebsocketPayloadPublisher implements PayloadPublisher, ResendBatchP
                     session.getBasicRemote().sendObject(syncRequestMessage);
 
                     try {
+
                         ExecutorCallback.execute(() -> responseHandler.get(30, TimeUnit.SECONDS));
                     } finally {
                         responseQueue.remove(syncRequestMessage.getCorrelationId());
@@ -93,5 +100,10 @@ public class WebsocketPayloadPublisher implements PayloadPublisher, ResendBatchP
                                     });
                         });
         cache.clear();
+    }
+
+    @OnError
+    public void onError(Throwable ex) {
+        LOGGER.error(null, ex);
     }
 }

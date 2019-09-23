@@ -4,7 +4,6 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import java.util.Objects;
-import java.util.UUID;
 
 public class SyncRequestMessage {
 
@@ -24,12 +23,13 @@ public class SyncRequestMessage {
 
     private final Type type;
 
-    private SyncRequestMessage(Type type, PartyInfo partyInfo, EncodedPayload transactions, PublicKey recipientKey) {
+    private SyncRequestMessage(
+            Type type, PartyInfo partyInfo, EncodedPayload transactions, PublicKey recipientKey, String correlationId) {
         this.partyInfo = partyInfo;
         this.type = type;
         this.transactions = transactions;
         this.recipientKey = recipientKey;
-        this.correlationId = UUID.randomUUID().toString();
+        this.correlationId = correlationId;
     }
 
     public PartyInfo getPartyInfo() {
@@ -62,8 +62,15 @@ public class SyncRequestMessage {
 
         private PublicKey recipientKey;
 
+        private String correlationId;
+
         private Builder(Type type) {
             this.type = type;
+        }
+
+        public Builder withCorrelationId(String correlationId) {
+            this.correlationId = correlationId;
+            return this;
         }
 
         public Builder withRecipientKey(PublicKey recipientKey) {
@@ -94,7 +101,7 @@ public class SyncRequestMessage {
             if (type == Type.TRANSACTION_SYNC) {
                 Objects.requireNonNull(recipientKey);
             }
-            return new SyncRequestMessage(type, partyInfo, transactions, recipientKey);
+            return new SyncRequestMessage(type, partyInfo, transactions, recipientKey, correlationId);
         }
     }
 }

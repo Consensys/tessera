@@ -105,4 +105,10 @@ public class WebsocketPayloadPublisherTest {
 
         verifyNoMoreInteractions(mockWebSocketContainer, basic, session);
     }
+
+    @Test
+    public void onError() {
+        Throwable ex = new Exception("Ouch");
+        websocketPayloadPublisher.onError(ex);
+    }
 }
