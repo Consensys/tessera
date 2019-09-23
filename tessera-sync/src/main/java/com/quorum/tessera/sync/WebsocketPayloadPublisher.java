@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 
 @ClientEndpoint(encoders = {SyncRequestMessageCodec.class})
-public class WebsocketPayloadPublisher implements PayloadPublisher, ResendBatchPublisher {
+public class WebsocketPayloadPublisher implements PayloadPublisher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebsocketPayloadPublisher.class);
 
