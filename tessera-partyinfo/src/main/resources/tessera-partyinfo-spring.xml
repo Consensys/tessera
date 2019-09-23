@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
@@ -37,6 +38,23 @@
             <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
         </constructor-arg>
         <constructor-arg ref="partyInfoPoller" />
+        <constructor-arg value="2000"/>
+        <constructor-arg value="5000"/>
+    </bean>
+
+    <!-- Local key sync -->
+    <bean name="enclaveKeySynchroniser" class="com.quorum.tessera.partyinfo.EnclaveKeySynchroniser">
+        <constructor-arg ref="enclave" />
+        <constructor-arg ref="partyInfoStore" />
+        <constructor-arg ref="configService" />
+
+    </bean>
+
+    <bean name="enclaveKeySynchroniserExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">
+        <constructor-arg>
+            <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
+        </constructor-arg>
+        <constructor-arg ref="enclaveKeySynchroniser"/>
         <constructor-arg value="2000"/>
         <constructor-arg value="5000"/>
     </bean>
