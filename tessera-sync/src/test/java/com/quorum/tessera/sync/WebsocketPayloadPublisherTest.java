@@ -11,8 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 public class WebsocketPayloadPublisherTest {
 
@@ -37,15 +35,11 @@ public class WebsocketPayloadPublisherTest {
         Basic basic = mock(Basic.class);
         when(session.getBasicRemote()).thenReturn(basic);
 
-        doAnswer(
-                        new Answer() {
-                            @Override
-                            public Object answer(InvocationOnMock arg0) throws Throwable {
-                                SyncRequestMessage message = arg0.getArgument(0);
-                                websocketPayloadPublisher.onResponse(mock(Session.class), message.getCorrelationId());
-                                return null;
-                            }
-                        })
+        doAnswer((invocation) -> {
+            SyncRequestMessage message = invocation.getArgument(0);
+            websocketPayloadPublisher.onResponse(mock(Session.class), message.getCorrelationId());
+            return null;
+        })
                 .when(basic)
                 .sendObject(any(SyncRequestMessage.class));
 
