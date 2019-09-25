@@ -7,6 +7,7 @@ import javax.websocket.CloseReason;
 import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,18 +36,18 @@ public class WebsocketPayloadPublisherTest {
         Basic basic = mock(Basic.class);
         when(session.getBasicRemote()).thenReturn(basic);
 
-        doAnswer((invocation) -> {
-            SyncRequestMessage message = invocation.getArgument(0);
-            websocketPayloadPublisher.onResponse(mock(Session.class), message.getCorrelationId());
-            return null;
-        })
+        doAnswer(
+                        (invocation) -> {
+                            SyncRequestMessage message = invocation.getArgument(0);
+                            websocketPayloadPublisher.onResponse(mock(Session.class), message.getCorrelationId());
+                            return null;
+                        })
                 .when(basic)
                 .sendObject(any(SyncRequestMessage.class));
 
         when(mockWebSocketContainer.connectToServer(websocketPayloadPublisher, expectedUri)).thenReturn(session);
 
         websocketPayloadPublisher.publishPayload(payload, targetUrl);
-
 
         verify(mockWebSocketContainer).connectToServer(websocketPayloadPublisher, expectedUri);
         verify(basic).sendObject(any(SyncRequestMessage.class));
@@ -61,7 +62,8 @@ public class WebsocketPayloadPublisherTest {
 
     @Test
     public void onError() {
-        Throwable ex = new Exception("Ouch");
+        Throwable ex = mock(Throwable.class);
         websocketPayloadPublisher.onError(ex);
+        assertThat(ex).isNotNull();
     }
 }
