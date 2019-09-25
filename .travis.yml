@@ -24,7 +24,7 @@ jobs:
       install: &build_no_checks
         - mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
       script: &build_with_unittests
-        - mvn install -pl \!tests/acceptance-test -P reduce-logging -Djacoco.skip=true -o || travis_terminate 1
+        - mvn install -pl \!tests/acceptance-test -P reduce-logging -Djacoco.haltOnFailure=false -o || travis_terminate 1
 
     - name: "Unit Tests Java 11"
       jdk:  oraclejdk11
