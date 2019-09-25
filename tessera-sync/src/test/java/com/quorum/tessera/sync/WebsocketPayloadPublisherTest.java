@@ -8,6 +8,7 @@ import javax.websocket.CloseReason;
 import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
+import org.apache.commons.lang3.concurrent.AtomicInitializer;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
