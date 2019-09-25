@@ -22,7 +22,6 @@ import javax.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 @ClientEndpoint(encoders = {SyncRequestMessageCodec.class})
 public class WebsocketPayloadPublisher implements PayloadPublisher {
 
@@ -66,6 +65,7 @@ public class WebsocketPayloadPublisher implements PayloadPublisher {
                                                         return null;
                                                     });
                                         }
+                                        LOGGER.debug("Found response {}", syncRequestMessage.getCorrelationId());
                                     });
 
                     session.getBasicRemote().sendObject(syncRequestMessage);

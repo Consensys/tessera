@@ -3,7 +3,6 @@ package com.quorum.tessera.sync;
 import com.jpmorgan.quorum.mock.websocket.MockContainerProvider;
 import com.quorum.tessera.enclave.EncodedPayload;
 import java.net.URI;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.websocket.CloseReason;
 import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
@@ -37,15 +36,11 @@ public class WebsocketPayloadPublisherTest {
         Basic basic = mock(Basic.class);
         when(session.getBasicRemote()).thenReturn(basic);
 
-        //Allow for one negative test on response queue for coverage
-        final AtomicInteger counter = new AtomicInteger(0);
-        
+
         doAnswer(
                         (invocation) -> {
-                            if(counter.incrementAndGet() >= 1) {
-                                SyncRequestMessage message = invocation.getArgument(0);
-                                websocketPayloadPublisher.onResponse(mock(Session.class), message.getCorrelationId());
-                            }
+                            SyncRequestMessage message = invocation.getArgument(0);
+                            websocketPayloadPublisher.onResponse(mock(Session.class), message.getCorrelationId());
                             return null;
                         })
                 .when(basic)
