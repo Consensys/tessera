@@ -21,11 +21,6 @@ jobs:
     - stage: test
       name: "Unit Tests Java 8"
       jdk:  oraclejdk8
-      before_install: &install_maven
-        - wget http://apache.mirror.gtcomm.net/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz
-        - tar xzvf apache-maven-3.5.3-bin.tar.gz
-        - export PATH=`pwd`/apache-maven-3.5.3/bin:$PATH
-        - mvn -v
       install: &build_no_checks
         - mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
       script: &build_with_unittests
@@ -33,7 +28,6 @@ jobs:
 
     - name: "Unit Tests Java 11"
       jdk:  oraclejdk11
-      before_install: &install_maven
       install: *build_no_checks
       script: *build_with_unittests
 
