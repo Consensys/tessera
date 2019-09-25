@@ -54,19 +54,8 @@ public class WebsocketPayloadPublisher implements PayloadPublisher {
 
                     CompletableFuture<Void> responseHandler =
                             CompletableFuture.runAsync(
-                                    () -> {
-                                        while (!responseQueue.contains(syncRequestMessage.getCorrelationId())) {
-                                            ExecutorCallback.execute(
-                                                    () -> {
-                                                        LOGGER.debug(
-                                                                "Response for {} not found yet.",
-                                                                syncRequestMessage.getCorrelationId());
-                                                        TimeUnit.MILLISECONDS.sleep(200);
-                                                        return null;
-                                                    });
-                                        }
-                                        LOGGER.debug("Found response {}", syncRequestMessage.getCorrelationId());
-                                    });
+                                    new TransactionPushAckListener(
+                                            responseQueue, syncRequestMessage.getCorrelationId()));
 
                     session.getBasicRemote().sendObject(syncRequestMessage);
 
