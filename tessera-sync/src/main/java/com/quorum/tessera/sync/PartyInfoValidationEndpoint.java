@@ -1,5 +1,6 @@
 package com.quorum.tessera.sync;
 
+import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import java.io.IOException;
 import javax.websocket.OnMessage;
@@ -21,11 +22,14 @@ public class PartyInfoValidationEndpoint {
 
     @OnMessage
     public void unencryptSampleData(Session session, byte[] data) throws IOException {
-        LOGGER.info("unencryptSampleData {}", this);
-        byte[] resultsData = partyInfoService.unencryptSampleData(data);
+        LOGGER.debug("unencryptSampleData {}", this);
+        try {
+            byte[] resultsData = partyInfoService.unencryptSampleData(data);
 
-        session.getBasicRemote().sendText(new String(resultsData));
-
+            session.getBasicRemote().sendText(new String(resultsData));
+        } catch (NaclException ex) {
+            LOGGER.debug("", ex);
+            session.getBasicRemote().sendText("NACK");
+        }
     }
-
 }
