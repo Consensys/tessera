@@ -1,22 +1,22 @@
 {
     "useWhiteList": false,
     "disablePeerDiscovery": false,
-    "serverConfigs": [{
-            "app": "ENCLAVE",
+    "serverConfigs": [
+        {
+            "app":"ENCLAVE",
             "enabled": true,
-            "serverSocket": {
-                "type": "INET",
-                "hostName": "http://localhost",
-                "port": 8080
-            },
+            "serverAddress": "http://localhost:8080",
             "communicationType": "REST",
             "bindingAddress": "http://0.0.0.0:8080"
-        }],
+        }
+    ],
     "keys": {
-        "keyData": [{
+        "keyData": [
+            {
                 "privateKey": "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
                 "publicKey": "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
-            }]
+            }
+        ]
     },
     "alwaysSendTo": []
 }

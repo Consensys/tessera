@@ -10,9 +10,17 @@ import java.util.concurrent.Callable;
 
 /** Cli Adapter to be used for runtime updates */
 @CommandLine.Command(
-        exitCodeOnInvalidInput = 1,
         name = "admin",
-        subcommands = {AddPeerCommand.class})
+        subcommands = {AddPeerCommand.class},
+        headerHeading = "Usage:%n%n",
+        synopsisHeading = "%n",
+        descriptionHeading = "%nDescription:%n%n",
+        parameterListHeading = "%nParameters:%n",
+        optionListHeading = "%nOptions:%n",
+        header = "Admin operations for a Tessera node",
+        description =
+                "Perform admin tasks such as maintenance or runtime configuration updates, either connecting to "
+                        + "an already running node or directly accessing resources")
 public class AdminCliAdapter implements CliAdapter, Callable<CliResult> {
 
     @CommandLine.Option(names = "help", usageHelp = true, description = "display this help message")
