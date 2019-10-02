@@ -64,7 +64,7 @@ public class WebsocketPartyInfoPoller implements PartyInfoPoller {
                         sessions.computeIfAbsent(
                                 peer.getUrl(),
                                 k -> WebSocketSessionCallback.execute(() -> container.connectToServer(endpoint, uri)));
-                LOGGER.info("Connecting to server {}", uri);
+                LOGGER.debug("Connecting to server {}", uri);
 
                 WebSocketSessionCallback.execute(
                         () -> {
