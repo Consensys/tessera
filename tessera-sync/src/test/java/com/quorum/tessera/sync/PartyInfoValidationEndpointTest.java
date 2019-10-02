@@ -56,4 +56,10 @@ public class PartyInfoValidationEndpointTest {
         verify(session).getBasicRemote();
         verify(basic).sendText("NACK");
     }
+
+    @Test
+    public void onError() {
+        Throwable ex = new Exception("OUCH");
+        partyInfoValidationEndpoint.onError(ex);
+    }
 }

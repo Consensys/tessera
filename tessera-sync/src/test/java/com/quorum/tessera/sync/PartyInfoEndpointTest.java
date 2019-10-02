@@ -64,7 +64,6 @@ public class PartyInfoEndpointTest {
         partyInfoEndpoint.onClose(session);
 
         verify(partyInfoService).getPartyInfo();
-        verify(partyInfoService).validateAndExtractValidRecipients(any(), any());
     }
 
     @Test
@@ -170,7 +169,7 @@ public class PartyInfoEndpointTest {
     }
 
     @Test
-    public void onSyncPartyInfoNoUpdatesInvalidPartyInfo() throws Exception {
+    public void onSyncPartyInfoNoUpdatesExistingPartyInfo() throws Exception {
 
         PartyInfo partyInfo = Fixtures.samplePartyInfo();
 
@@ -179,6 +178,24 @@ public class PartyInfoEndpointTest {
 
         SyncRequestMessage syncRequestMessage =
                 SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO).withPartyInfo(partyInfo).build();
+        partyInfoEndpoint.onSync(session, syncRequestMessage);
+        verify(partyInfoService).getPartyInfo();
+    }
+
+    @Test
+    public void onSyncPartyInfoInvaldPartyInfo() throws Exception {
+
+        PartyInfo partyInfo = Fixtures.samplePartyInfo();
+
+        PartyInfo invalidPartyInfo = new PartyInfo(partyInfo.getUrl(), Collections.EMPTY_SET, partyInfo.getParties());
+
+        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        when(partyInfoService.validateAndExtractValidRecipients(any(), any())).thenReturn(Collections.emptySet());
+
+        SyncRequestMessage syncRequestMessage =
+                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO)
+                        .withPartyInfo(invalidPartyInfo)
+                        .build();
         try {
             partyInfoEndpoint.onSync(session, syncRequestMessage);
             failBecauseExceptionWasNotThrown(SecurityException.class);
