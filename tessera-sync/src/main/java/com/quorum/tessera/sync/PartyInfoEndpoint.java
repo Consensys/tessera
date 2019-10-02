@@ -90,6 +90,15 @@ public class PartyInfoEndpoint {
 
             final PartyInfo sendPartyInfo = partyInfo.get();
 
+            boolean noChanges =
+                    existingPartyInfo.getRecipients().containsAll(sendPartyInfo.getRecipients())
+                            && sendPartyInfo.getRecipients().containsAll(existingPartyInfo.getRecipients());
+
+            if (noChanges) {
+                LOGGER.debug("No updates found {}", existingPartyInfo.getUrl());
+                return;
+            }
+
             final String url = sendPartyInfo.getUrl();
 
             // Validate caller and treat no valid certs as security issue.
@@ -98,15 +107,6 @@ public class PartyInfoEndpoint {
 
             if (recipients.isEmpty()) {
                 throw new SecurityException("No key found for url " + url);
-            }
-
-            boolean noChanges =
-                    existingPartyInfo.getRecipients().containsAll(sendPartyInfo.getRecipients())
-                            && sendPartyInfo.getRecipients().containsAll(existingPartyInfo.getRecipients());
-
-            if (noChanges) {
-                LOGGER.debug("No updates found {}", existingPartyInfo.getUrl());
-                return;
             }
 
             LOGGER.debug("Updating party info {}", sendPartyInfo.getUrl());
