@@ -3,6 +3,7 @@ package com.quorum.tessera.sync;
 import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import java.io.IOException;
+import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
@@ -31,5 +32,11 @@ public class PartyInfoValidationEndpoint {
             LOGGER.debug("", ex);
             session.getBasicRemote().sendText("NACK");
         }
+    }
+
+    @OnError
+    public void onError(Throwable ex) {
+        LOGGER.warn("{}", ex.getMessage());
+        LOGGER.debug("", ex);
     }
 }
