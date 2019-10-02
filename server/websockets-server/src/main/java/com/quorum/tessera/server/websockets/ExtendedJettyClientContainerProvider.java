@@ -181,7 +181,7 @@ public class ExtendedJettyClientContainerProvider extends javax.websocket.Contai
                 if (!clientContainer.isStarted()) {
                     try {
                         clientContainer.start();
-                        LOGGER.info("clientContainer : {}", clientContainer.dump());
+                        LOGGER.debug("clientContainer : {}", clientContainer.dump());
                     } catch (Exception e) {
                         throw new RuntimeException("Unable to start Client Container", e);
                     }
