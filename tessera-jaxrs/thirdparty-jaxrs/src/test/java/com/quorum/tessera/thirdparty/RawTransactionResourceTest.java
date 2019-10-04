@@ -1,6 +1,5 @@
 package com.quorum.tessera.thirdparty;
 
-import com.quorum.tessera.thirdparty.RawTransactionResource;
 import com.quorum.tessera.api.model.StoreRawRequest;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
@@ -10,7 +9,6 @@ import org.junit.Test;
 import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.*;
 
 public class RawTransactionResourceTest {
@@ -21,8 +19,9 @@ public class RawTransactionResourceTest {
 
     @Before
     public void onSetup() {
-        transactionManager = mock(TransactionManager.class);
-        transactionResource = new RawTransactionResource(transactionManager);
+        this.transactionManager = mock(TransactionManager.class);
+
+        this.transactionResource = new RawTransactionResource(transactionManager);
     }
 
     @After
@@ -32,12 +31,12 @@ public class RawTransactionResourceTest {
 
     @Test
     public void store() {
-        StoreRawRequest storeRawRequest = new StoreRawRequest();
+        final StoreRawRequest storeRawRequest = new StoreRawRequest();
         storeRawRequest.setPayload("PAYLOAD".getBytes());
 
-        Response result = transactionResource.store(storeRawRequest);
-        assertThat(result.getStatus()).isEqualTo(200);
+        final Response result = transactionResource.store(storeRawRequest);
 
-        verify(transactionManager).store(same(storeRawRequest));
+        assertThat(result.getStatus()).isEqualTo(200);
+        verify(transactionManager).store(storeRawRequest);
     }
 }
