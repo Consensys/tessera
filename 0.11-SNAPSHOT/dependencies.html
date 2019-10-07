@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>encryption-api &#x2013; Project Dependencies</title>
+    <title>encryption-jnacl &#x2013; Project Dependencies</title>
     <style type="text/css" media="all">
       @import url("./css/maven-base.css");
       @import url("./css/maven-theme.css");
@@ -16,7 +16,7 @@
   <body class="composite">
     <div id="banner">
 <div id="bannerLeft">
-encryption-api
+encryption-jnacl
 </div>
       <div class="clear">
         <hr/>
@@ -27,7 +27,7 @@ encryption-api
         <span id="publishDate">Last Published: 2019-10-07</span>
           &nbsp;| <span id="projectVersion">Version: 0.11-SNAPSHOT</span>
       </div>
-      <div class="xright"><a href="./" title="encryption-api">encryption-api</a>      </div>
+      <div class="xright"><a href="./" title="encryption-jnacl">encryption-jnacl</a>      </div>
       <div class="clear">
         <hr/>
       </div>
@@ -80,16 +80,16 @@ encryption-api
 <th>Licenses</th></tr>
 <tr class="b">
 <td>com.jpmorgan.quorum</td>
-<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/service-locator/service-locator-api">service-locator-api</a></td>
+<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/encryption/encryption-api">encryption-api</a></td>
 <td>0.11-SNAPSHOT</td>
 <td>jar</td>
 <td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
 <tr class="a">
-<td>com.jpmorgan.quorum</td>
-<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/shared">shared</a></td>
-<td>0.11-SNAPSHOT</td>
+<td>eu.neilalexander</td>
+<td><a class="externalLink" href="https://github.com/neilalexander/jnacl">jnacl</a></td>
+<td>1.0.0</td>
 <td>jar</td>
-<td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
+<td><a class="externalLink" href="http://opensource.org/licenses/bsd-license.php">The BSD 2-Clause License</a></td></tr>
 <tr class="b">
 <td>org.slf4j</td>
 <td><a class="externalLink" href="http://www.slf4j.org">slf4j-api</a></td>
@@ -165,12 +165,6 @@ encryption-api
 <td>jar</td>
 <td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></td></tr>
 <tr class="a">
-<td>org.bouncycastle</td>
-<td><a class="externalLink" href="http://www.bouncycastle.org/java.html">bcpkix-jdk15on</a></td>
-<td>1.61</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.bouncycastle.org/licence.html">Bouncy Castle Licence</a></td></tr>
-<tr class="b">
 <td>org.mockito</td>
 <td><a class="externalLink" href="https://github.com/mockito/mockito">mockito-core</a></td>
 <td>2.23.0</td>
@@ -178,7 +172,29 @@ encryption-api
 <td><a class="externalLink" href="https://github.com/mockito/mockito/blob/master/LICENSE">The MIT License</a></td></tr></table></div></div><a name="Project_Transitive_Dependencies"></a>
 <div class="section">
 <h2><a name="Project_Transitive_Dependencies"></a>Project Transitive Dependencies</h2>
-<p>The following is a list of transitive dependencies for this project. Transitive dependencies are the dependencies of the project dependencies.</p><a name="Project_Transitive_Dependencies_runtime"></a>
+<p>The following is a list of transitive dependencies for this project. Transitive dependencies are the dependencies of the project dependencies.</p><a name="Project_Transitive_Dependencies_compile"></a>
+<div class="section">
+<h3><a name="compile"></a>compile</h3>
+<p>The following is a list of compile dependencies for this project. These dependencies are required to compile and run the application:</p>
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>GroupId</th>
+<th>ArtifactId</th>
+<th>Version</th>
+<th>Type</th>
+<th>Licenses</th></tr>
+<tr class="b">
+<td>com.jpmorgan.quorum</td>
+<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/service-locator/service-locator-api">service-locator-api</a></td>
+<td>0.11-SNAPSHOT</td>
+<td>jar</td>
+<td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
+<tr class="a">
+<td>com.jpmorgan.quorum</td>
+<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/shared">shared</a></td>
+<td>0.11-SNAPSHOT</td>
+<td>jar</td>
+<td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr></table></div><a name="Project_Transitive_Dependencies_runtime"></a>
 <div class="section">
 <h3><a name="runtime"></a>runtime</h3>
 <p>The following is a list of runtime dependencies for this project. These dependencies are required to run the application:</p>
@@ -236,18 +252,12 @@ encryption-api
 <td>jar</td>
 <td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
 <tr class="b">
-<td>org.bouncycastle</td>
-<td><a class="externalLink" href="http://www.bouncycastle.org/java.html">bcprov-jdk15on</a></td>
-<td>1.61</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.bouncycastle.org/licence.html">Bouncy Castle Licence</a></td></tr>
-<tr class="a">
 <td>org.hamcrest</td>
 <td><a class="externalLink" href="https://github.com/hamcrest/JavaHamcrest/hamcrest-core">hamcrest-core</a></td>
 <td>1.3</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.opensource.org/licenses/bsd-license.php">New BSD License</a></td></tr>
-<tr class="b">
+<tr class="a">
 <td>org.objenesis</td>
 <td><a class="externalLink" href="http://objenesis.org">objenesis</a></td>
 <td>2.6</td>
@@ -278,7 +288,18 @@ encryption-api
 <div class="section">
 <h3><a name="Dependency_Tree"></a>Dependency Tree</h3>
 <ul>
-<li>com.jpmorgan.quorum:encryption-api:jar:0.11-SNAPSHOT <img id="_img1" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep0', '_img1' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep0" style="display:none">
+<li>com.jpmorgan.quorum:encryption-jnacl:jar:0.11-SNAPSHOT <img id="_img1" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep0', '_img1' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep0" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>encryption-jnacl</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution
+        of private transactions for Quorum.</p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/jpmorganchase/tessera/encryption/encryption-jnacl">https://github.com/jpmorganchase/tessera/encryption/encryption-jnacl</a></p>
+<p><b>Project Licenses: </b><a href="LICENSE">The Apache License, Version 2.0</a></p></td></tr></table></div>
+<ul>
+<li>com.jpmorgan.quorum:encryption-api:jar:0.11-SNAPSHOT (compile) <img id="_img3" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep2', '_img3' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep2" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>encryption-api</th></tr>
@@ -289,7 +310,7 @@ encryption-api
 <p><b>URL: </b><a class="externalLink" href="https://github.com/jpmorganchase/tessera/encryption/encryption-api">https://github.com/jpmorganchase/tessera/encryption/encryption-api</a></p>
 <p><b>Project Licenses: </b><a href="LICENSE">The Apache License, Version 2.0</a></p></td></tr></table></div>
 <ul>
-<li>com.jpmorgan.quorum:service-locator-api:jar:0.11-SNAPSHOT (compile) <img id="_img3" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep2', '_img3' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep2" style="display:none">
+<li>com.jpmorgan.quorum:service-locator-api:jar:0.11-SNAPSHOT (compile) <img id="_img5" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep4', '_img5' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep4" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>service-locator-api</th></tr>
@@ -299,26 +320,7 @@ encryption-api
         of private transactions for Quorum.</p>
 <p><b>URL: </b><a class="externalLink" href="https://github.com/jpmorganchase/tessera/service-locator/service-locator-api">https://github.com/jpmorganchase/tessera/service-locator/service-locator-api</a></p>
 <p><b>Project Licenses: </b><a href="LICENSE">The Apache License, Version 2.0</a></p></td></tr></table></div></li>
-<li>org.bouncycastle:bcpkix-jdk15on:jar:1.61 (test) <img id="_img5" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep4', '_img5' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep4" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>The Bouncy Castle Java APIs for CMS, PKCS, EAC, TSP, CMP, CRMF, OCSP, and certificate generation. This jar contains APIs for JDK 1.5 to JDK 1.8. The APIs can be used in conjunction with a JCE/JCA provider such as the one provided with the Bouncy Castle Cryptography APIs.</p>
-<p><b>URL: </b><a class="externalLink" href="http://www.bouncycastle.org/java.html">http://www.bouncycastle.org/java.html</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.bouncycastle.org/licence.html">Bouncy Castle Licence</a></p></td></tr></table></div>
-<ul>
-<li>org.bouncycastle:bcprov-jdk15on:jar:1.61 (test) <img id="_img7" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep6', '_img7' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep6" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Bouncy Castle Provider</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>The Bouncy Castle Crypto package is a Java implementation of cryptographic algorithms. This jar contains JCE provider and lightweight API for the Bouncy Castle Cryptography APIs for JDK 1.5 to JDK 1.8.</p>
-<p><b>URL: </b><a class="externalLink" href="http://www.bouncycastle.org/java.html">http://www.bouncycastle.org/java.html</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.bouncycastle.org/licence.html">Bouncy Castle Licence</a></p></td></tr></table></div></li></ul></li>
-<li>com.jpmorgan.quorum:shared:jar:0.11-SNAPSHOT (compile) <img id="_img9" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep8', '_img9' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep8" style="display:none">
+<li>com.jpmorgan.quorum:shared:jar:0.11-SNAPSHOT (compile) <img id="_img7" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep6', '_img7' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep6" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>shared</th></tr>
@@ -327,7 +329,16 @@ encryption-api
 <p><b>Description: </b>Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution
         of private transactions for Quorum.</p>
 <p><b>URL: </b><a class="externalLink" href="https://github.com/jpmorganchase/tessera/shared">https://github.com/jpmorganchase/tessera/shared</a></p>
-<p><b>Project Licenses: </b><a href="LICENSE">The Apache License, Version 2.0</a></p></td></tr></table></div></li>
+<p><b>Project Licenses: </b><a href="LICENSE">The Apache License, Version 2.0</a></p></td></tr></table></div></li></ul></li>
+<li>eu.neilalexander:jnacl:jar:1.0.0 (compile) <img id="_img9" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep8', '_img9' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep8" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>eu.neilalexander:jnacl</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Pure Java implementation of NaCl: Networking and Cryptography library.</p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/neilalexander/jnacl">https://github.com/neilalexander/jnacl</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://opensource.org/licenses/bsd-license.php">The BSD 2-Clause License</a></p></td></tr></table></div></li>
 <li>junit:junit:jar:4.12 (test) <img id="_img11" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep10', '_img11' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep10" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
@@ -500,13 +511,13 @@ encryption-api
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li></ul></li></ul></div></div><a name="Licenses"></a>
 <div class="section">
 <h2><a name="Licenses"></a>Licenses</h2>
-<p><b>The Apache License, Version 2.0: </b>encryption-api, service-locator-api, shared</p>
+<p><b>The Apache License, Version 2.0: </b>encryption-api, encryption-jnacl, service-locator-api, shared</p>
 <p><b>Eclipse Public License 1.0: </b>JUnit</p>
+<p><b>The BSD 2-Clause License: </b>eu.neilalexander:jnacl</p>
 <p><b>MIT License: </b>SLF4J API Module</p>
 <p><b>Eclipse Distribution License v. 1.0: </b>EclipseLink ASM, EclipseLink Core, EclipseLink Moxy</p>
 <p><b>GNU Lesser General Public License: </b>Logback Classic Module, Logback Core Module</p>
 <p><b>New BSD License: </b>Hamcrest Core</p>
-<p><b>Bouncy Castle Licence: </b>Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs, Bouncy Castle Provider</p>
 <p><b>Apache 2: </b>Objenesis</p>
 <p><b>Eclipse Public License v. 2.0: </b>EclipseLink ASM, EclipseLink Core, EclipseLink Moxy</p>
 <p><b>Apache License 2.0: </b>Bean Validation API</p>
@@ -552,7 +563,7 @@ encryption-api
 <td>1.5</td>
 <td>Yes</td></tr>
 <tr class="a">
-<td>service-locator-api/target/classes</td>
+<td>encryption-api/target/classes</td>
 <td>-</td>
 <td>0</td>
 <td>0</td>
@@ -560,6 +571,14 @@ encryption-api
 <td>-</td>
 <td>No</td></tr>
 <tr class="b">
+<td>service-locator-api/target/classes</td>
+<td>-</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>-</td>
+<td>No</td></tr>
+<tr class="a">
 <td>shared-0.11-SNAPSHOT.jar</td>
 <td>21.4 kB</td>
 <td>41</td>
@@ -567,13 +586,21 @@ encryption-api
 <td>7</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="a">
+<tr class="b">
 <td>openpojo-0.8.10.jar</td>
 <td>331.3 kB</td>
 <td>409</td>
 <td>325</td>
 <td>74</td>
 <td>1.5</td>
+<td>Yes</td></tr>
+<tr class="a">
+<td>jnacl-1.0.0.jar</td>
+<td>19.9 kB</td>
+<td>20</td>
+<td>9</td>
+<td>2</td>
+<td>1.8</td>
 <td>Yes</td></tr>
 <tr class="b">
 <td>javax.json-api-1.1.2.jar</td>
@@ -631,22 +658,6 @@ encryption-api
 <td>57</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="a">
-<td>bcpkix-jdk15on-1.61.jar</td>
-<td>866.3 kB</td>
-<td>785</td>
-<td>732</td>
-<td>46</td>
-<td>-</td>
-<td>No</td></tr>
-<tr class="b">
-<td>bcprov-jdk15on-1.61.jar</td>
-<td>4.5 MB</td>
-<td>3724</td>
-<td>3553</td>
-<td>157</td>
-<td>-</td>
-<td>No</td></tr>
 <tr class="a">
 <td>org.eclipse.persistence.asm-2.7.3.jar</td>
 <td>498.2 kB</td>
@@ -713,26 +724,26 @@ encryption-api
 <th>Debug Information</th></tr>
 <tr class="a">
 <td>22</td>
-<td>24.2 MB</td>
-<td>16623</td>
-<td>15556</td>
-<td>820</td>
+<td>18.8 MB</td>
+<td>12134</td>
+<td>11280</td>
+<td>619</td>
 <td>1.8</td>
-<td>19</td></tr>
+<td>20</td></tr>
 <tr class="b">
-<td>compile: 3</td>
-<td>compile: 47.6 kB</td>
-<td>compile: 75</td>
-<td>compile: 45</td>
-<td>compile: 10</td>
+<td>compile: 5</td>
+<td>compile: 67.6 kB</td>
+<td>compile: 95</td>
+<td>compile: 54</td>
+<td>compile: 12</td>
 <td>-</td>
-<td>compile: 2</td></tr>
+<td>compile: 3</td></tr>
 <tr class="a">
-<td>test: 12</td>
-<td>test: 16.7 MB</td>
-<td>test: 12906</td>
-<td>test: 12260</td>
-<td>test: 535</td>
+<td>test: 10</td>
+<td>test: 11.3 MB</td>
+<td>test: 8397</td>
+<td>test: 7975</td>
+<td>test: 332</td>
 <td>-</td>
 <td>test: 10</td></tr>
 <tr class="b">
