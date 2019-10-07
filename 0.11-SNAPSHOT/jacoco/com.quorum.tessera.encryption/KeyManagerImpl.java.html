@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KeyManagerImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">encryption-api</a> &gt; <a href="index.source.html" class="el_package">com.quorum.tessera.encryption</a> &gt; <span class="el_source">KeyManagerImpl.java</span></div><h1>KeyManagerImpl.java</h1><pre class="source lang-java linenums">package com.quorum.tessera.encryption;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+public class KeyManagerImpl implements KeyManager {
+
+<span class="fc" id="L14">    private static final Logger LOGGER = LoggerFactory.getLogger(KeyManagerImpl.class);</span>
+
+    /**
+     * A list of all pub/priv keys that are attached to this node
+     */
+    private final Set&lt;KeyPair&gt; localKeys;
+
+    private final KeyPair defaultKeys;
+
+    private final Set&lt;PublicKey&gt; forwardingPublicKeys;
+
+<span class="fc" id="L25">    public KeyManagerImpl(final Collection&lt;KeyPair&gt; keys, Collection&lt;PublicKey&gt; forwardKeys) {</span>
+
+<span class="fc" id="L27">        this.localKeys = new HashSet&lt;&gt;(keys);</span>
+
+<span class="fc" id="L29">        this.defaultKeys = localKeys.iterator().next();</span>
+
+<span class="fc" id="L31">        this.forwardingPublicKeys = new HashSet&lt;&gt;(forwardKeys);</span>
+<span class="fc" id="L32">    }</span>
+
+    @Override
+    public PublicKey getPublicKeyForPrivateKey(final PrivateKey privateKey) {
+<span class="fc" id="L36">        LOGGER.debug(&quot;Attempting to find public key for the private key {}&quot;, privateKey);</span>
+
+<span class="fc" id="L38">        final PublicKey publicKey = localKeys</span>
+<span class="fc" id="L39">            .stream()</span>
+<span class="fc" id="L40">            .filter(keypair -&gt; Objects.equals(keypair.getPrivateKey(), privateKey))</span>
+<span class="fc" id="L41">            .findFirst()</span>
+<span class="fc" id="L42">            .map(KeyPair::getPublicKey)</span>
+<span class="fc" id="L43">            .orElseThrow(() -&gt; new KeyNotFoundException(</span>
+<span class="fc" id="L44">                &quot;Private key &quot; + privateKey.encodeToBase64() + &quot; not found when searching for public key&quot;</span>
+            ));
+
+<span class="fc" id="L47">        LOGGER.debug(&quot;Found public key {} for private key {}&quot;, publicKey, privateKey);</span>
+
+<span class="fc" id="L49">        return publicKey;</span>
+    }
+
+
+    @Override
+    public PrivateKey getPrivateKeyForPublicKey(final PublicKey publicKey) {
+<span class="fc" id="L55">        LOGGER.debug(&quot;Attempting to find private key for the public key {}&quot;, publicKey);</span>
+
+<span class="fc" id="L57">        final PrivateKey privateKey = localKeys</span>
+<span class="fc" id="L58">            .stream()</span>
+<span class="fc" id="L59">            .filter(keypair -&gt; Objects.equals(keypair.getPublicKey(), publicKey))</span>
+<span class="fc" id="L60">            .findFirst()</span>
+<span class="fc" id="L61">            .map(KeyPair::getPrivateKey)</span>
+<span class="fc" id="L62">            .orElseThrow(() -&gt; new KeyNotFoundException(</span>
+<span class="fc" id="L63">                &quot;Public key &quot; + publicKey.encodeToBase64() + &quot; not found when searching for private key&quot;</span>
+            ));
+
+<span class="fc" id="L66">        LOGGER.debug(&quot;Found private key {} for public key {}&quot;, privateKey, publicKey);</span>
+
+<span class="fc" id="L68">        return privateKey;</span>
+    }
+
+    @Override
+    public Set&lt;PublicKey&gt; getPublicKeys() {
+<span class="fc" id="L73">        return localKeys</span>
+<span class="fc" id="L74">            .stream()</span>
+<span class="fc" id="L75">            .map(KeyPair::getPublicKey)</span>
+<span class="fc" id="L76">            .collect(Collectors.toSet());</span>
+    }
+
+    @Override
+    public PublicKey defaultPublicKey() {
+<span class="fc" id="L81">        return defaultKeys.getPublicKey();</span>
+    }
+
+    @Override
+    public Set&lt;PublicKey&gt; getForwardingKeys() {
+<span class="fc" id="L86">        return this.forwardingPublicKeys;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,1 +1,2 @@
-com.quorum.tessera.service.locator
+com.quorum.tessera.encryption
+com.quorum.tessera.nacl
