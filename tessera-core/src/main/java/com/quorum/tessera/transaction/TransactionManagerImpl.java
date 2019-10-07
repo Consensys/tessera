@@ -72,7 +72,7 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     /*
-    Only sue for tests
+    Only use for tests
     */
     public TransactionManagerImpl(
             Base64Decoder base64Decoder,
@@ -149,7 +149,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     @Override
     @Transactional
-    public SendResponse sendSignedTransaction(SendSignedRequest sendRequest) {
+    public SendResponse sendSignedTransaction(final SendSignedRequest sendRequest) {
 
         final byte[][] recipients =
                 Stream.of(sendRequest)
@@ -162,7 +162,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         recipientList.addAll(enclave.getForwardingKeys());
 
-        MessageHash messageHash = new MessageHash(sendRequest.getHash());
+        final MessageHash messageHash = new MessageHash(sendRequest.getHash());
 
         EncryptedRawTransaction encryptedRawTransaction =
                 encryptedRawTransactionDAO
@@ -171,6 +171,8 @@ public class TransactionManagerImpl implements TransactionManager {
                                 () ->
                                         new TransactionNotFoundException(
                                                 "Raw Transaction with hash " + messageHash + " was not found"));
+
+        recipientList.add(PublicKey.from(encryptedRawTransaction.getSender()));
 
         final EncodedPayload payload =
                 enclave.encryptPayload(encryptedRawTransaction.toRawTransaction(), recipientList);
