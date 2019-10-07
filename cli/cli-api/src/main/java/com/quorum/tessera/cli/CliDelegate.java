@@ -58,6 +58,7 @@ public enum CliDelegate {
         commandLine
                 .registerConverter(Config.class, new ConfigConverter())
                 .setSeparator(" ")
+                .setCaseInsensitiveEnumValuesAllowed(true)
                 .setUnmatchedArgumentsAllowed(true)
                 .setExecutionExceptionHandler(mapper)
                 .setParameterExceptionHandler(mapper);

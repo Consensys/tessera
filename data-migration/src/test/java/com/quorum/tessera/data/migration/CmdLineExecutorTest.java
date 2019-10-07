@@ -1,13 +1,17 @@
 package com.quorum.tessera.data.migration;
 
 import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
+import com.quorum.tessera.cli.CliDelegate;
+import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
 import com.sun.management.UnixOperatingSystemMXBean;
-import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.SystemErrRule;
+import org.junit.contrib.java.lang.system.SystemOutRule;
 import org.junit.rules.TestName;
 
 import java.io.InputStream;
@@ -17,44 +21,58 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class CmdLineExecutorTest {
 
-    private CmdLineExecutor executor;
-
     @Rule public TestName testName = new TestName();
+
+    @Rule public SystemErrRule systemErrRule = new SystemErrRule().enableLog().muteForSuccessfulTests();
+
+    @Rule public SystemOutRule systemOutRule = new SystemOutRule().enableLog().muteForSuccessfulTests();
 
     private Path outputPath;
 
     @Before
     public void onSetup() throws Exception {
+        systemErrRule.clearLog();
+        systemOutRule.clearLog();
         this.outputPath = Files.createTempFile(testName.getMethodName(), ".db");
-        this.executor = new CmdLineExecutor();
+    }
+
+    @Test
+    public void correctCliType() {
+        assertThat(new CmdLineExecutor().getType()).isEqualTo(CliType.DATA_MIGRATION);
     }
 
     @Test
     public void help() throws Exception {
         final String[] args = new String[] {"help"};
 
-        assertThat(executor.execute(args)).isEqualTo(0);
+        final CliResult result = CliDelegate.instance().execute(args);
+
+        assertThat(result).isEqualToComparingFieldByField(new CliResult(0, true, null));
+        assertThat(systemOutRule.getLog())
+                .contains(
+                        "Usage:",
+                        "Database migration tool from older systems to Tessera",
+                        "<main class> [help] [-dbconfig <dbconfig>] [-dbpass <password>] [-dbuser",
+                        "<username>] -exporttype <exportType> -inputpath <inputpath>",
+                        "-outputfile <outputFile> -storetype <storeType>");
     }
 
     @Test
-    public void noOptions() {
+    public void noOptions() throws Exception {
+        final CliResult result = CliDelegate.instance().execute();
 
-        final String[] args = new String[] {};
+        final String expectedLog =
+                "Missing required options [-storetype <storeType>, -inputpath <inputpath>, -exporttype <exportType>, -outputfile <outputFile>]";
 
-        final Throwable throwable = catchThrowable(() -> executor.execute(args));
-
-        assertThat(throwable).isInstanceOf(MissingOptionException.class);
-        assertThat(((MissingOptionException) throwable).getMissingOptions())
-                .containsExactlyInAnyOrder("storetype", "inputpath", "exporttype", "outputfile", "dbpass", "dbuser");
+        assertThat(result).isEqualToComparingFieldByField(new CliResult(1, true, null));
+        assertThat(systemErrRule.getLog()).contains(expectedLog);
     }
 
     @Test
-    public void missingStoreTypeOption() {
-
+    public void missingStoreTypeOption() throws Exception {
         final String[] args =
                 new String[] {
                     "-inputpath", "somefile.txt",
@@ -63,13 +81,14 @@ public class CmdLineExecutorTest {
                     "-dbpass", "-dbuser"
                 };
 
-        final Throwable throwable = catchThrowable(() -> executor.execute(args));
-        assertThat(throwable).isInstanceOf(MissingOptionException.class);
-        assertThat(((MissingOptionException) throwable).getMissingOptions()).containsExactlyInAnyOrder("storetype");
+        final CliResult result = CliDelegate.instance().execute(args);
+
+        assertThat(result).isEqualToComparingFieldByField(new CliResult(1, true, null));
+        assertThat(systemErrRule.getLog()).contains("Missing required option '-storetype <storeType>'");
     }
 
     @Test
-    public void missingInputFileOption() {
+    public void missingInputFileOption() throws Exception {
         final String[] args =
                 new String[] {
                     "-storetype", "bdb",
@@ -78,9 +97,10 @@ public class CmdLineExecutorTest {
                     "-dbpass", "-dbuser"
                 };
 
-        final Throwable throwable = catchThrowable(() -> executor.execute(args));
-        assertThat(throwable).isInstanceOf(MissingOptionException.class);
-        assertThat(((MissingOptionException) throwable).getMissingOptions()).containsExactlyInAnyOrder("inputpath");
+        final CliResult result = CliDelegate.instance().execute(args);
+
+        assertThat(result).isEqualToComparingFieldByField(new CliResult(1, true, null));
+        assertThat(systemErrRule.getLog()).contains("Missing required option '-inputpath <inputpath>'");
     }
 
     @Test
@@ -96,7 +116,7 @@ public class CmdLineExecutorTest {
                     "-dbpass", "-dbuser"
                 };
 
-        executor.execute(args);
+        CliDelegate.instance().execute(args);
     }
 
     @Test
@@ -112,10 +132,10 @@ public class CmdLineExecutorTest {
                     "-dbpass", "-dbuser"
                 };
 
-        executor.execute(args);
+        CliDelegate.instance().execute(args);
     }
 
-    @Test(expected = MissingOptionException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void exportTypeJdbcNoDbConfigProvided() throws Exception {
         final Path inputFile = Paths.get(getClass().getResource("/dir/").toURI());
 
@@ -128,7 +148,7 @@ public class CmdLineExecutorTest {
                     "-dbpass", "-dbuser"
                 };
 
-        executor.execute(args);
+        CliDelegate.instance().execute(args);
     }
 
     @Test
@@ -159,7 +179,7 @@ public class CmdLineExecutorTest {
                         "-dbuser"
                     };
 
-            executor.execute(args);
+            CliDelegate.instance().execute(args);
         } finally {
             mockObjectFactory.restoreDrivers();
         }
@@ -212,6 +232,6 @@ public class CmdLineExecutorTest {
                     "-dbpass", "-dbuser"
                 };
 
-        executor.execute(args);
+        CliDelegate.instance().execute(args);
     }
 }
