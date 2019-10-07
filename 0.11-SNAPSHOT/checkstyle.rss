@@ -19,20 +19,20 @@ under the License.
 -->
 <rss version="0.91">
   <channel>
-    <title>argon2 - Checkstyle report</title>
-    <link>https://github.com/jpmorganchase/tessera/argon2</link>
-    <description>argon2 - Checkstyle report</description>
+    <title>service-locator-api - Checkstyle report</title>
+    <link>https://github.com/jpmorganchase/tessera/service-locator/service-locator-api</link>
+    <description>service-locator-api - Checkstyle report</description>
     <language>en-us</language>
     <copyright>&#169;2019</copyright>
     <item>
-      <title>File: 4,
-             Errors: 56,
+      <title>File: 1,
+             Errors: 6,
              Warnings: 0,
              Infos: 0
       </title>
-            <link>https://github.com/jpmorganchase/tessera/argon2/checkstyle.html</link>
+            <link>https://github.com/jpmorganchase/tessera/service-locator/service-locator-api/checkstyle.html</link>
       <description>
-        <p>Click <a href="https://github.com/jpmorganchase/tessera/argon2/checkstyle.html">here</a> for the full Checkstyle report.</p>
+        <p>Click <a href="https://github.com/jpmorganchase/tessera/service-locator/service-locator-api/checkstyle.html">here</a> for the full Checkstyle report.</p>
 
         <table summary="Files" boder="1">
           <thead>
@@ -46,35 +46,7 @@ under the License.
           <tbody>
                           <tr>
                 <td>
-                  <a href="https://github.com/jpmorganchase/tessera/argon2/checkstyle.html#com.quorum.tessera.argon2.ArgonResult.java">com/quorum/tessera/argon2/ArgonResult.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  16
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/jpmorganchase/tessera/argon2/checkstyle.html#com.quorum.tessera.argon2.ArgonOptions.java">com/quorum/tessera/argon2/ArgonOptions.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  19
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/jpmorganchase/tessera/argon2/checkstyle.html#com.quorum.tessera.argon2.Argon2.java">com/quorum/tessera/argon2/Argon2.java</a>
+                  <a href="https://github.com/jpmorganchase/tessera/service-locator/service-locator-api/checkstyle.html#com.quorum.tessera.service.locator.ServiceLocator.java">com/quorum/tessera/service/locator/ServiceLocator.java</a>
                 </td>
                 <td>
                   0
@@ -84,20 +56,6 @@ under the License.
                 </td>
                 <td>
                   6
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/jpmorganchase/tessera/argon2/checkstyle.html#com.quorum.tessera.argon2.Argon2Impl.java">com/quorum/tessera/argon2/Argon2Impl.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  15
                 </td>
               </tr>
                       </tbody>
