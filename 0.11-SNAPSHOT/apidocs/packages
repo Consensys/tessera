@@ -1,7 +1,1 @@
-com.quorum.tessera.passwords
-com.quorum.tessera.reflect
-com.quorum.tessera.io
-com.quorum.tessera.jaxb
-com.quorum.tessera.nio.unix
-com.quorum.tessera
-com.quorum.tessera.service
+com.quorum.tessera.argon2

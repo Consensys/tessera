@@ -1,22 +1,5 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-shared,com.quorum.tessera.nio.unix,UnixSocketFileSystemProvider,0,49,0,0,0,12,0,8,0,8
-shared,com.quorum.tessera.nio.unix,DelegatingFileSystemProvider,0,169,0,0,0,37,0,27,0,27
-shared,com.quorum.tessera.reflect,ReflectException,0,4,0,0,0,2,0,1,0,1
-shared,com.quorum.tessera.reflect,ReflectCallback,0,17,0,0,0,5,0,2,0,2
-shared,com.quorum.tessera.service,ServiceContainer,0,100,0,2,0,30,0,7,0,6
-shared,com.quorum.tessera.service,Service.Status,0,24,0,0,0,2,0,1,0,1
-shared,com.quorum.tessera.io,IOCallback,0,17,0,0,0,5,0,2,0,2
-shared,com.quorum.tessera.io,FilesDelegate,0,84,0,0,0,10,0,17,0,17
-shared,com.quorum.tessera.io,FilesDelegate.new FilesDelegate() {...},0,3,0,0,0,1,0,1,0,1
-shared,com.quorum.tessera.io,SystemAdapter,0,13,0,0,0,3,0,3,0,3
-shared,com.quorum.tessera.io,NoopSystemAdapter.NoopPrintStream,0,6,0,0,0,2,0,1,0,1
-shared,com.quorum.tessera.io,UriCallback,0,20,0,0,0,5,0,2,0,2
-shared,com.quorum.tessera.io,SystemAdapter.new SystemAdapter() {...},0,3,0,0,0,1,0,1,0,1
-shared,com.quorum.tessera.io,NoopSystemAdapter.NoopPrintStream.new OutputStream() {...},0,4,0,0,0,2,0,2,0,2
-shared,com.quorum.tessera.io,NoopSystemAdapter,0,12,0,0,0,4,0,4,0,4
-shared,com.quorum.tessera,ServiceLoaderUtil,0,10,0,0,0,2,0,2,0,2
-shared,com.quorum.tessera.jaxb,JaxbCallback,0,9,0,0,0,3,0,1,0,1
-shared,com.quorum.tessera.passwords,ConsolePasswordReader,15,0,0,0,5,0,2,0,2,0
-shared,com.quorum.tessera.passwords,InputStreamPasswordReader,0,21,0,2,0,6,0,3,0,2
-shared,com.quorum.tessera.passwords,PasswordReader,0,27,0,2,0,9,0,3,0,2
-shared,com.quorum.tessera.passwords,PasswordReaderFactory,17,0,2,0,5,0,3,0,2,0
+argon2,com.quorum.tessera.argon2,ArgonResult,0,27,0,0,0,8,0,4,0,4
+argon2,com.quorum.tessera.argon2,Argon2Impl,0,82,0,4,0,15,0,8,0,5
+argon2,com.quorum.tessera.argon2,ArgonOptions,0,27,0,0,0,10,0,5,0,5
+argon2,com.quorum.tessera.argon2,Argon2,0,6,0,0,0,1,0,1,0,1
